@@ -1,3 +1,4 @@
+use super::authenticated_delivery_grant_fixture::issuer as durable_issuer;
 use super::TestResult;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::family_identity::{
@@ -268,7 +269,7 @@ fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verif
 
 #[test]
 fn issuer_rejects_signed_step_up_target_that_differs_from_canonical_target() -> TestResult {
-    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
     let fixture = ProvenanceFixture::new();
     let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
     let mut request = fixture.request();
@@ -320,7 +321,7 @@ fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGra
 
 #[test]
 fn issuer_uses_verifier_backed_policy_decision_and_contract_authority() -> TestResult {
-    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
     let fixture = ProvenanceFixture::new();
     let authority_signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
     let blocked_decision = PolicyControlDecision {
@@ -373,7 +374,7 @@ fn issuer_uses_verifier_backed_policy_decision_and_contract_authority() -> TestR
 
 #[test]
 fn issuer_rejects_oversized_signed_authority_binding_before_verification() -> TestResult {
-    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
     let fixture = ProvenanceFixture::new();
     let mut request = fixture.request();
     request.signed_authority_bindings.bindings.target_device_id = "x".repeat(513);
@@ -396,17 +397,17 @@ fn issuer_fails_closed_without_a_durable_milestone_publisher() -> TestResult {
 }
 
 #[test]
-fn issuer_rejects_an_oversized_correlation_before_publication() -> TestResult {
-    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+fn issuer_ignores_an_oversized_untrusted_correlation_before_publication() -> TestResult {
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
     let fixture = ProvenanceFixture::new();
     let mut request = fixture.request();
     request.correlation_id = test_ok!(
         CorrelationId::parse("c".repeat(513)),
         "oversized eventing correlation remains syntactically valid"
     );
-    assert_eq!(
-        issuer.issue(request),
-        Err(AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected)
+    assert!(
+        issuer.issue(request).is_ok(),
+        "verified authority, rather than caller context, owns issuance correlation"
     );
     Ok(())
 }

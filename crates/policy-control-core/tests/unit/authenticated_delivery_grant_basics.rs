@@ -1,6 +1,7 @@
 use super::authenticated_delivery_grant::IssuanceFixture;
 use super::authenticated_delivery_grant_fixture::{
-    issuer, issuer_without_milestone_publisher, subscribe_issuance_milestone_persistence,
+    durable_milestone_bus, issuance_fixture_with_expiry, issuer,
+    issuer_without_milestone_publisher, subscribe_issuance_milestone_persistence,
 };
 use super::TestResult;
 use ocentra_eventing::bus::EventBus;
@@ -9,11 +10,15 @@ use ocentra_eventing::journal::ndjson::{
     JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
 };
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::{
     AuthenticatedDeliveryGrantIssuanceMilestone, AuthenticatedDeliveryGrantIssuanceOutcome,
     AuthenticatedDeliveryGrantIssuanceRejection,
 };
-use ocentra_policy_control_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantIssuanceError;
+use ocentra_policy_control_core::authenticated_delivery_grant::step_up::ParentStepUpProofSigner;
+use ocentra_policy_control_core::authenticated_delivery_grant::{
+    AuthenticatedDeliveryGrantIssuanceError, AuthenticatedDeliveryGrantIssuer,
+};
 use ocentra_schema::authenticated_delivery_grant::authenticated_delivery_grant_audit_fingerprint;
 
 #[test]
@@ -91,8 +96,8 @@ fn issuer_flushes_an_accepted_milestone_to_the_configured_durable_journal() -> T
     let journal = std::fs::read_to_string(&journal_path)?;
     assert_eq!(
         journal.lines().count(),
-        1,
-        "one accepted issuance must durably write exactly one before-dispatch milestone"
+        2,
+        "one accepted issuance must durably write prepare and terminal before-dispatch milestones"
     );
     assert!(
         journal.contains("authenticated-delivery-grant.issuance.milestone"),
@@ -156,16 +161,105 @@ fn issuer_rejects_a_buffered_milestone_receipt_before_returning_a_grant() -> Tes
 }
 
 #[test]
-fn issuer_records_correlation_rejection_as_its_own_durable_milestone_reason() -> TestResult {
+fn issuer_requires_a_durable_publisher_for_rejected_attempts_too() -> TestResult {
+    let issuer = test_ok!(
+        issuer_without_milestone_publisher(),
+        "provenance-configured issuer without publisher"
+    );
+    let fixture = IssuanceFixture::new();
+    let mut request = fixture.request();
+    request.signed_authority_bindings.signature.clear();
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
+        "a rejected attempt without a durable record must fail closed"
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_an_oversized_issuer_key_id_at_construction() -> TestResult {
+    let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    assert!(matches!(
+        AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
+            "k".repeat(513),
+            [3; 32],
+            authority.verifying_key(),
+            step_up.verifying_key(),
+        ),
+        Err(AuthenticatedDeliveryGrantIssuanceError::InvalidIssuerKeyId)
+    ));
+    Ok(())
+}
+
+#[test]
+fn issuer_records_prepare_then_rejection_when_durable_publish_exhausts_lifetime() -> TestResult {
     let journal_path = std::env::temp_dir().join(format!(
-        "ocentra-policy-control-correlation-rejection-{}.ndjson",
+        "ocentra-policy-control-post-publish-lifetime-{}.ndjson",
         EventId::generated().as_str()
     ));
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
             .build(),
-        "correlation rejection journal runtime"
+        "post-publish lifetime runtime"
+    );
+    runtime.block_on(async {
+        let event_bus = test_ok!(
+            durable_milestone_bus(&journal_path),
+            "durable milestone bus"
+        );
+        test_ok!(
+            subscribe_issuance_milestone_persistence(&event_bus).await,
+            "durable issuance subscriber registers"
+        );
+        let issuer = test_ok!(issuer_without_milestone_publisher(), "issuer")
+            .with_event_bus_issuance_publisher(event_bus.clone())
+            .map_err(|error| format!("event publisher: {error:?}"))?;
+        let fixture = issuance_fixture_with_expiry(IssuanceFixture::new(), "2026-07-28T00:01:20Z");
+        assert_eq!(
+            issuer.issue_async(fixture.request()).await,
+            Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp),
+            "a grant with less than the post-publication minimum lifetime must not return"
+        );
+        let journal = event_bus.journal().await;
+        assert_eq!(
+            journal.len(),
+            2,
+            "prepare and rejection must both be durable"
+        );
+        let prepare = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        let terminal = journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        assert_eq!(
+            prepare.payload.outcome,
+            AuthenticatedDeliveryGrantIssuanceOutcome::Prepared
+        );
+        assert_eq!(
+            terminal.payload.outcome,
+            AuthenticatedDeliveryGrantIssuanceOutcome::Rejected
+        );
+        assert_eq!(
+            terminal.payload.rejection,
+            Some(AuthenticatedDeliveryGrantIssuanceRejection::Timestamp)
+        );
+        Ok::<(), Box<dyn std::error::Error>>(())
+    })?;
+    std::fs::remove_file(journal_path)?;
+    Ok(())
+}
+
+#[test]
+fn issuer_derives_durable_correlation_from_verified_authority_not_caller_context() -> TestResult {
+    let journal_path = std::env::temp_dir().join(format!(
+        "ocentra-policy-control-derived-correlation-{}.ndjson",
+        EventId::generated().as_str()
+    ));
+    let runtime = test_ok!(
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build(),
+        "derived correlation journal runtime"
     );
     runtime.block_on(async {
         let event_type = test_ok!(
@@ -189,28 +283,29 @@ fn issuer_records_correlation_rejection_as_its_own_durable_milestone_reason() ->
         .map_err(|error| format!("event publisher: {error:?}"))?;
         let fixture = IssuanceFixture::new();
         let mut request = fixture.request();
-        request.correlation_id = test_ok!(
+        let caller_correlation_id = test_ok!(
             CorrelationId::parse("c".repeat(513)),
             "oversized correlation remains syntactically valid"
         );
-        assert_eq!(
+        request.correlation_id = caller_correlation_id.clone();
+        let _grant = test_ok!(
             issuer.issue_async(request).await,
-            Err(AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected)
+            "verified authority derives a bounded trusted audit correlation"
         );
         let journal = event_bus.journal().await;
         assert_eq!(
             journal.len(),
-            1,
-            "rejection must leave one durable milestone"
+            2,
+            "accepted issuance must leave durable prepare and terminal milestones"
         );
-        let milestone = journal[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        assert_ne!(
+            journal[0].correlation_id, caller_correlation_id,
+            "untrusted caller context must not become the issuance audit chain"
+        );
+        let milestone = journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
         assert_eq!(
             milestone.payload.outcome,
-            AuthenticatedDeliveryGrantIssuanceOutcome::Rejected
-        );
-        assert_eq!(
-            milestone.payload.rejection,
-            Some(AuthenticatedDeliveryGrantIssuanceRejection::CorrelationId)
+            AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
         );
         Ok::<_, Box<dyn std::error::Error>>(())
     })?;

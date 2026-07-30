@@ -1,7 +1,6 @@
 #![forbid(unsafe_code)]
 
-use chrono::{SecondsFormat, Utc};
-use ed25519_dalek::{Signer, SigningKey, VerifyingKey};
+use ed25519_dalek::{SigningKey, VerifyingKey};
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::CorrelationId;
@@ -9,21 +8,19 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityInput, ParentStepUpValidationInput,
 };
 use ocentra_schema::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCapabilityAssertion,
-    AuthenticatedDeliveryGrantEvidenceAssertion, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
 use self::authority::{AuthenticatedDeliveryGrantAuthorityVerifier, SignedAuthorityBindings};
-use self::issuance_milestone::{
-    issuance_milestone_for, EventBusAuthenticatedDeliveryGrantIssuancePublisher,
-};
+use self::issuance_milestone::EventBusAuthenticatedDeliveryGrantIssuancePublisher;
 use self::step_up::{ParentStepUpProofVerifier, VerifiedParentStepUpProof};
 use crate::policy_authority::PolicyControlDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
 pub mod authority;
 pub mod issuance_milestone;
+mod lifecycle;
 pub mod step_up;
 mod validation;
 
@@ -120,7 +117,8 @@ pub enum DeliveryGrantEvidenceState {
 }
 
 pub struct AuthenticatedDeliveryGrantIssuance<'a> {
-    /// Correlates this issuance attempt with its originating command chain.
+    /// Caller context only. Issuance derives its durable audit correlation from
+    /// verified authority material and never trusts this value for that chain.
     pub correlation_id: CorrelationId,
     pub household_authority: HouseholdAuthorityInput,
     pub policy_decision: &'a PolicyControlDecision,
@@ -170,7 +168,9 @@ impl AuthenticatedDeliveryGrantIssuer {
         step_up_key: VerifyingKey,
     ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
         let issuer_key_id = issuer_key_id.into();
-        if issuer_key_id.trim().is_empty() {
+        if issuer_key_id.trim().is_empty()
+            || issuer_key_id.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+        {
             return Err(AuthenticatedDeliveryGrantIssuanceError::InvalidIssuerKeyId);
         }
         let signing_key = SigningKey::from_bytes(&platform_protected_key);
@@ -211,170 +211,23 @@ impl AuthenticatedDeliveryGrantIssuer {
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        let correlation_id = request.correlation_id.clone();
-        let result = validate_issuance_correlation_id(&correlation_id)
-            .and_then(|()| self.issue_inner(request));
-        self.publish_issuance_milestone(&correlation_id, &result)?;
-        result
+        match self.prepare_issuance(request) {
+            Ok((correlation_id, grant)) => self.finalize_accepted(&correlation_id, grant),
+            Err((correlation_id, error)) => self.finalize_rejected(&correlation_id, error),
+        }
     }
 
     pub async fn issue_async(
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        let correlation_id = request.correlation_id.clone();
-        let result = validate_issuance_correlation_id(&correlation_id)
-            .and_then(|()| self.issue_inner(request));
-        self.publish_issuance_milestone_async(&correlation_id, &result)
-            .await?;
-        result
-    }
-
-    fn issue_inner(
-        &self,
-        request: AuthenticatedDeliveryGrantIssuance<'_>,
-    ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-        let (request, policy_decision, policy_authority) = self.verify_and_bind_request(request)?;
-        validation::validate_issuance(
-            &request,
-            &self.issuer_key_id,
-            &policy_decision,
-            &policy_authority,
-        )?;
-        let trusted_now = self
-            .trusted_issuance_now
-            .clone()
-            .unwrap_or_else(|| Utc::now().to_rfc3339_opts(SecondsFormat::Nanos, true));
-        validation::validate_freshness_at(&request.bindings, &trusted_now)?;
-        Ok(self.sign_grant(request.bindings))
-    }
-
-    fn verify_and_bind_request<'a>(
-        &self,
-        mut request: AuthenticatedDeliveryGrantIssuance<'a>,
-    ) -> Result<
-        (
-            AuthenticatedDeliveryGrantIssuance<'a>,
-            PolicyControlDecision,
-            PolicyContractAuthorityDecision,
-        ),
-        AuthenticatedDeliveryGrantIssuanceError,
-    > {
-        let (
-            bindings,
-            authority_assertions,
-            household_authority,
-            policy_decision,
-            policy_authority,
-        ) = self
-            .authority_verifier
-            .verify(&request.signed_authority_bindings)?;
-        let (step_up_validation, step_up_target_device_id, step_up_assertions) = self
-            .step_up_verifier
-            .verify(&request.verified_parent_step_up_proof)?;
-        if authority_assertions != step_up_assertions {
-            return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
+        match self.prepare_issuance(request) {
+            Ok((correlation_id, grant)) => {
+                self.finalize_accepted_async(&correlation_id, grant).await
+            }
+            Err((correlation_id, error)) => {
+                self.finalize_rejected_async(&correlation_id, error).await
+            }
         }
-        request.bindings = bindings;
-        request.household_authority = household_authority;
-        request.parent_step_up.validation = step_up_validation;
-        request.parent_step_up.target_device_id =
-            GrantTargetDeviceId::parse(step_up_target_device_id)
-                .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
-        request.capability_state = match authority_assertions.capability {
-            AuthenticatedDeliveryGrantCapabilityAssertion::Available => {
-                DeliveryGrantCapabilityState::Available
-            }
-            AuthenticatedDeliveryGrantCapabilityAssertion::Unavailable => {
-                DeliveryGrantCapabilityState::Unavailable
-            }
-        };
-        request.evidence_state = match authority_assertions.evidence {
-            AuthenticatedDeliveryGrantEvidenceAssertion::Stable => {
-                DeliveryGrantEvidenceState::Stable
-            }
-            AuthenticatedDeliveryGrantEvidenceAssertion::Unstable => {
-                DeliveryGrantEvidenceState::Unstable
-            }
-        };
-        Ok((request, policy_decision, policy_authority))
     }
-
-    fn sign_grant(&self, bindings: DeliveryGrantBindings) -> AuthenticatedDeliveryGrant {
-        let mut grant = AuthenticatedDeliveryGrant {
-            schema_version: AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
-            issuer_key_id: self.issuer_key_id.clone(),
-            issuer_actor_id: bindings.issuer_actor_id,
-            household_id: bindings.household_id,
-            parent_device_id: bindings.parent_device_id,
-            child_profile_id: bindings.child_profile_id,
-            target_device_id: bindings.target_device_id,
-            policy_decision_id: bindings.policy_decision_id,
-            policy_version: bindings.policy_version,
-            action_id: bindings.action_id,
-            capability_id: bindings.capability_id,
-            evidence_digest: bindings.evidence_digest,
-            payload_digest: bindings.payload_digest,
-            payload_length: bindings.payload_length,
-            dry_run: bindings.dry_run,
-            nonce: bindings.nonce,
-            issued_at: bindings.issued_at,
-            expires_at: bindings.expires_at,
-            revocation_version: bindings.revocation_version,
-            signature: vec![0; 64],
-        };
-        grant.signature = self
-            .signing_key
-            .sign(&grant.signing_bytes())
-            .to_bytes()
-            .to_vec();
-        grant
-    }
-
-    fn publish_issuance_milestone(
-        &self,
-        correlation_id: &CorrelationId,
-        result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
-    ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
-        let Some(publisher) = &self.issuance_publisher else {
-            return require_publisher_for_accepted_result(result);
-        };
-        let milestone = issuance_milestone_for(result);
-        publisher
-            .publish(correlation_id.clone(), milestone)
-            .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
-    }
-
-    async fn publish_issuance_milestone_async(
-        &self,
-        correlation_id: &CorrelationId,
-        result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
-    ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
-        let Some(publisher) = &self.issuance_publisher else {
-            return require_publisher_for_accepted_result(result);
-        };
-        let milestone = issuance_milestone_for(result);
-        publisher
-            .publish_async(correlation_id.clone(), milestone)
-            .await
-            .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
-    }
-}
-
-fn validate_issuance_correlation_id(
-    correlation_id: &CorrelationId,
-) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
-    (!correlation_id.as_str().trim().is_empty()
-        && correlation_id.as_str().len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES)
-        .then_some(())
-        .ok_or(AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected)
-}
-
-fn require_publisher_for_accepted_result(
-    result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
-) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
-    result
-        .is_err()
-        .then_some(())
-        .ok_or(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
 }
