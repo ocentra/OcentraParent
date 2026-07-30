@@ -303,6 +303,40 @@ fn consumer_recovers_from_a_future_clock_jump_without_dropping_replay_tombstones
 }
 
 #[test]
+fn consumer_recovers_when_the_first_startup_clock_is_in_the_future() -> TestResult {
+    let key = SigningKey::from_bytes(&[28; 32]);
+    let path = store_path("future-first-startup-recovery");
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2030-07-28T00:01:00Z",
+        ),
+    )?);
+    let mut recovered = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:02:00Z",
+    ))?;
+    let mut grant = signed_grant(&key);
+    grant.nonce = "future-first-recovered-grant".to_owned();
+    grant.expires_at = "2027-07-28T00:30:00Z".to_owned();
+    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
+    let outcome = recovered.consume_at_for_debug_test(
+        &grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "future-first-recovered",
+        "2026-07-28T00:02:00Z",
+    );
+    assert!(matches!(
+        outcome,
+        Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_))
+    ), "{outcome:?}");
+    Ok(())
+}
+
+#[test]
 fn consumer_bounds_distinct_validation_rejection_audits_across_restart() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("bounded-distinct-validation-rejections");

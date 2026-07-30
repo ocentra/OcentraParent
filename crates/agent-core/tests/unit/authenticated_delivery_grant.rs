@@ -532,7 +532,7 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
         &expected(),
         DELIVERED_PAYLOAD,
         "trigger-indexed-expiry-purge",
-        "2026-07-28T00:01:00Z",
+        "2026-07-28T00:01:00.500Z",
     ))?;
     drop(consumer);
     let connection = Connection::open(path.as_ref())?;
@@ -589,7 +589,7 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
     let mut active = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
-        "2026-07-28T00:01:00Z",
+        "2026-07-28T00:01:00.500Z",
     ))?;
     must(active.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:01:00Z"))?;
     must(active.consume(
@@ -650,7 +650,7 @@ fn consumer_open_drains_all_expired_replay_rows_in_bounded_batches() -> TestResu
     let restarted = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
-        "2026-07-28T00:01:00Z",
+        "2026-07-28T00:01:00.500Z",
     ))?;
     drop(restarted);
     let connection = Connection::open(path.as_ref())?;
@@ -691,7 +691,7 @@ fn consumer_keeps_expired_grant_when_audit_delete_fails_atomically() -> TestResu
     let error = AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
-        "2026-07-28T00:01:00Z",
+        "2026-07-28T00:01:00.500Z",
     );
     let Err(error) = error else {
         return Err(

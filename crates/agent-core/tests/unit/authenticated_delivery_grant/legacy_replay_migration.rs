@@ -133,6 +133,55 @@ fn consumer_preserves_legacy_replay_tombstone_across_trusted_issuer_rotation() -
 }
 
 #[test]
+fn concurrent_open_migrates_the_privacy_marker_once() -> TestResult {
+    let key = SigningKey::from_bytes(&[6; 32]);
+    let path = store_path("concurrent-privacy-marker-migration");
+    let grant = signed_grant(&key);
+    let grant_json = legacy_grant_json(&grant, &key)?;
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "CREATE TABLE authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_json TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_micros INTEGER, PRIMARY KEY (issuer_key_id, nonce))",
+        [],
+    )?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_consumes_v2 (issuer_key_id, nonce, grant_json, audit_json, expires_at_micros) VALUES (?1, ?2, ?3, ?4, ?5)",
+        params![grant.issuer_key_id, grant.nonce, grant_json, "{}", 1_i64],
+    )?;
+    drop(connection);
+    let barrier = std::sync::Arc::new(std::sync::Barrier::new(2));
+    let verifying_key = key.verifying_key();
+    let workers = [(), ()].map(|_| {
+        let path = path.clone();
+        let barrier = std::sync::Arc::clone(&barrier);
+        let issuer = ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantTrustedIssuer {
+            key_id: "parent-key-1".to_owned(),
+            verifying_key,
+        };
+        std::thread::spawn(move || {
+            barrier.wait();
+            AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+                path,
+                issuer,
+                "2026-07-28T00:01:00Z",
+            )
+        })
+    });
+    for worker in workers {
+        drop(must(worker.join().map_err(|_| {
+            std::io::Error::other("concurrent opener panicked")
+        })?)?);
+    }
+    let connection = Connection::open(path.as_ref())?;
+    let marker_count: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_storage_privacy_v1",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(marker_count, 1);
+    Ok(())
+}
+
+#[test]
 fn consumer_rejects_tampered_legacy_replay_rows_during_migration() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("tampered-legacy-replay-row");
