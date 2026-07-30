@@ -73,6 +73,7 @@ impl FailingMilestoneJournal {
             current_hash: None,
             hash_version: JournalHashVersion::V2,
             durability: JournalAppendDurability::Synchronized,
+            requested_durability: JournalAppendDurability::Synchronized,
         })
     }
 }
@@ -92,6 +93,7 @@ impl EventJournal for InMemoryMilestoneJournal {
                 current_hash: None,
                 hash_version: JournalHashVersion::V2,
                 durability: JournalAppendDurability::Synchronized,
+                requested_durability: JournalAppendDurability::Synchronized,
             })
         })
     }
