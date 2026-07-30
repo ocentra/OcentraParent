@@ -7,6 +7,7 @@ use super::{ndjson::NdjsonJournalEntry, JournalAppendDurability, JournalHashVers
 
 const JOURNAL_HASH_PREFIX: &str = "journal-hash:";
 const JOURNAL_HASH_VERSION: u8 = 2;
+const JOURNAL_HASH_VERSION_V3: u8 = 3;
 
 #[derive(Serialize)]
 struct JournalHashInputV2<'a> {
@@ -19,6 +20,17 @@ struct JournalHashInputV2<'a> {
 }
 
 #[derive(Serialize)]
+struct JournalHashInputV3<'a> {
+    version: u8,
+    sequence: u64,
+    previous_hash: Option<&'a JournalHash>,
+    phase: JournalDispatchPhase,
+    requested_durability: JournalAppendDurability,
+    achieved_durability: JournalAppendDurability,
+    envelope: &'a StoredEventEnvelope,
+}
+
+#[derive(Serialize)]
 struct JournalHashInputV1<'a> {
     sequence: u64,
     previous_hash: Option<&'a JournalHash>,
@@ -26,7 +38,30 @@ struct JournalHashInputV1<'a> {
     envelope: &'a StoredEventEnvelope,
 }
 
-pub(super) fn hash_entry(
+pub(super) fn hash_entry_v3(
+    sequence: u64,
+    previous_hash: Option<&JournalHash>,
+    envelope: &StoredEventEnvelope,
+    phase: JournalDispatchPhase,
+    requested_durability: JournalAppendDurability,
+    achieved_durability: JournalAppendDurability,
+) -> Result<JournalHash, EventingError> {
+    let input = JournalHashInputV3 {
+        version: JOURNAL_HASH_VERSION_V3,
+        sequence,
+        previous_hash,
+        phase,
+        requested_durability,
+        achieved_durability,
+        envelope,
+    };
+    let bytes =
+        serde_json::to_vec(&input).map_err(|error| EventingError::journal_encode(&error))?;
+    let digest = Sha256::digest(&bytes);
+    JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:x}", digest))
+}
+
+fn hash_v2_entry(
     sequence: u64,
     previous_hash: Option<&JournalHash>,
     envelope: &StoredEventEnvelope,
@@ -92,11 +127,19 @@ pub(crate) fn verify_hash_chain_entry(
             &entry.envelope,
             entry.phase,
         ),
-        JournalHashVersion::V2 => hash_entry(
+        JournalHashVersion::V2 => hash_v2_entry(
             entry.append.sequence,
             entry.append.previous_hash.as_ref(),
             &entry.envelope,
             entry.phase,
+            entry.append.durability,
+        ),
+        JournalHashVersion::V3 => hash_entry_v3(
+            entry.append.sequence,
+            entry.append.previous_hash.as_ref(),
+            &entry.envelope,
+            entry.phase,
+            entry.append.requested_durability,
             entry.append.durability,
         ),
     }

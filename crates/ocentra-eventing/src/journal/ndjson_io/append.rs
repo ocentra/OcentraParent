@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::journal::{
-    hash_chain::hash_entry, EventJournal, JournalAppendDurability, JournalAppendFuture,
+    hash_chain::hash_entry_v3, EventJournal, JournalAppendDurability, JournalAppendFuture,
     JournalHashVersion,
 };
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
@@ -35,21 +35,28 @@ impl NdjsonEventJournal {
             let state = self.state.lock().expect_value("journal state lock");
             let next_sequence = state.next_sequence.saturating_add(1);
             let previous_hash = previous_hash(&self.options, &state);
-            let durability = append_durability(self.options.flush);
+            let requested_durability = append_durability(self.options.flush);
+            // The line is serialized before any file or directory sync can
+            // succeed. Its persisted result must therefore fail closed. The
+            // returned acknowledgement below may report synchronization only
+            // after write_entry has completed its required syncs.
+            let durability = JournalAppendDurability::Buffered;
             let current_hash = current_hash(
                 &self.options,
                 next_sequence,
                 &previous_hash,
                 envelope,
                 phase,
+                requested_durability,
                 durability,
             )?;
             JournalAppend {
                 sequence: next_sequence,
                 previous_hash,
                 current_hash,
-                hash_version: JournalHashVersion::V2,
+                hash_version: JournalHashVersion::V3,
                 durability,
+                requested_durability,
             }
         };
         self.write_entry(&append, envelope, phase).await?;
@@ -64,7 +71,11 @@ impl NdjsonEventJournal {
             state.recovered = true;
             state.file_len = file_len;
         }
-        Ok(append)
+        let mut acknowledgement = append;
+        if self.options.flush == JournalFlushPolicy::Always {
+            acknowledgement.durability = JournalAppendDurability::Synchronized;
+        }
+        Ok(acknowledgement)
     }
 }
 
@@ -108,15 +119,17 @@ fn current_hash(
     previous_hash: &Option<JournalHash>,
     envelope: &StoredEventEnvelope,
     phase: JournalDispatchPhase,
+    requested_durability: JournalAppendDurability,
     durability: JournalAppendDurability,
 ) -> Result<Option<JournalHash>, EventingError> {
     match options.hash_chain {
         JournalHashChain::Disabled => Ok(None),
-        JournalHashChain::Enabled => hash_entry(
+        JournalHashChain::Enabled => hash_entry_v3(
             sequence,
             previous_hash.as_ref(),
             envelope,
             phase,
+            requested_durability,
             durability,
         )
         .map(Some),

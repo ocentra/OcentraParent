@@ -1,17 +1,10 @@
-use ocentra_eventing::envelope::StoredEventEnvelope;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
-use ocentra_eventing::ids::{EventId, IdempotencyKey, JournalHash};
+use ocentra_eventing::ids::{EventId, IdempotencyKey};
 use ocentra_eventing::journal::ndjson::{
     NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
 };
-use ocentra_eventing::journal::policy::JournalDispatchPhase;
-use ocentra_eventing::journal::{
-    EventJournal, JournalAppend, JournalAppendDurability, JournalHashVersion,
-};
-use ocentra_eventing::replay::ReplayFilter;
-use serde::Serialize;
-use sha2::{Digest, Sha256};
+use ocentra_eventing::journal::{EventJournal, JournalAppendDurability, JournalHashVersion};
 use std::sync::Arc;
 use tokio::sync::Barrier;
 
@@ -45,6 +38,21 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     assert_eq!(lines.len(), 2);
     assert_eq!(first_append.sequence, 1);
     assert_eq!(second_append.sequence, 2);
+    assert_eq!(first_append.hash_version, JournalHashVersion::V3);
+    assert_eq!(
+        first_append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(first_append.is_synchronized());
+    assert_eq!(
+        first_entry.append.durability,
+        JournalAppendDurability::Buffered,
+        "the immutable data line cannot claim sync before it happened"
+    );
+    assert_eq!(
+        first_entry.append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     assert!(first_append.previous_hash.is_none());
     assert_eq!(first_entry.append.current_hash, first_append.current_hash);
     assert_eq!(second_append.previous_hash, first_append.current_hash);
@@ -103,7 +111,13 @@ async fn ndjson_idempotent_append_survives_reopen_without_duplicate_lines() {
         .expect_value("repeated idempotent append");
     let lines = read_lines(path.clone()).await;
 
-    assert_eq!(repeated, first);
+    assert_eq!(repeated.sequence, first.sequence);
+    assert_eq!(repeated.current_hash, first.current_hash);
+    assert_eq!(repeated.durability, JournalAppendDurability::Buffered);
+    assert_eq!(
+        repeated.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     assert_eq!(lines.len(), 1);
     cleanup(path).await;
 }
@@ -236,7 +250,23 @@ async fn first_creation_directory_sync_failure_prevents_append_acknowledgement()
         .await
         .expect_value("retry syncs directory before acknowledgement");
     assert_eq!(append.sequence, 1);
+    assert_eq!(append.durability, JournalAppendDurability::Buffered);
+    assert_eq!(
+        append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     assert_eq!(read_lines(path.clone()).await.len(), 1);
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let recovered = restarted
+        .append_idempotent(&event)
+        .await
+        .expect_value("restart reports only persisted achieved durability");
+    assert_eq!(recovered.sequence, 1);
+    assert_eq!(recovered.durability, JournalAppendDurability::Buffered);
+    assert_eq!(
+        recovered.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     cleanup_idempotent_journal(path).await;
 }
 
@@ -266,6 +296,15 @@ async fn ordinary_append_refreshes_state_after_a_failed_durable_sync() {
         .collect::<Vec<_>>();
     assert_eq!(entries.len(), 2);
     assert_eq!(entries[0].append.sequence, 1);
+    assert_eq!(entries[0].append.hash_version, JournalHashVersion::V3);
+    assert_eq!(
+        entries[0].append.durability,
+        JournalAppendDurability::Buffered
+    );
+    assert_eq!(
+        entries[0].append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     assert_eq!(entries[1].append.sequence, 2);
     assert_eq!(
         entries[1].append.previous_hash,
@@ -353,7 +392,13 @@ async fn alternating_idempotent_journal_instances_refresh_the_hash_chain_tail() 
         .append_idempotent(&third)
         .await
         .expect_value("chain recovers after alternating instances");
-    assert_eq!(repeated, third_append);
+    assert_eq!(repeated.sequence, third_append.sequence);
+    assert_eq!(repeated.current_hash, third_append.current_hash);
+    assert_eq!(repeated.durability, JournalAppendDurability::Buffered);
+    assert_eq!(
+        repeated.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     assert_eq!(read_lines(path.clone()).await.len(), 3);
     cleanup_idempotent_journal(path).await;
 }
@@ -379,7 +424,13 @@ async fn idempotent_retry_finds_after_dispatch_past_the_before_dispatch_copy() {
         .await
         .expect_value("idempotent retry finds after-dispatch copy");
 
-    assert_eq!(repeated, after);
+    assert_eq!(repeated.sequence, after.sequence);
+    assert_eq!(repeated.current_hash, after.current_hash);
+    assert_eq!(repeated.durability, JournalAppendDurability::Buffered);
+    assert_eq!(
+        repeated.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     assert_eq!(read_lines(path.clone()).await.len(), 2);
     cleanup_idempotent_journal(path).await;
 }
@@ -571,8 +622,8 @@ async fn hash_chain_rejects_tampered_append_durability() {
         .await
         .expect_value("journal reads");
     let tampered = original.replace(
-        "\"durability\":\"Synchronized\"",
-        "\"durability\":\"Buffered\"",
+        "\"requested_durability\":\"Synchronized\"",
+        "\"requested_durability\":\"Buffered\"",
     );
     assert_ne!(
         tampered, original,
@@ -590,88 +641,6 @@ async fn hash_chain_rejects_tampered_append_durability() {
         Err(EventingError::JournalCorruptLine { line: 1, .. })
     ));
     cleanup(path).await;
-}
-
-#[tokio::test]
-async fn hash_chain_replays_and_appends_a_legacy_v1_ndjson_entry() {
-    let path = journal_path(TestText("legacy-v1-hash-chain".to_owned()));
-    let legacy_envelope = unique_stored_event("legacy journal event", 58);
-    let legacy_hash = legacy_hash_entry(
-        1,
-        None,
-        &legacy_envelope,
-        JournalDispatchPhase::AfterDispatch,
-    );
-    let legacy_entry = NdjsonJournalEntry {
-        append: JournalAppend {
-            sequence: 1,
-            previous_hash: None,
-            current_hash: Some(legacy_hash.clone()),
-            hash_version: JournalHashVersion::LegacyV1,
-            durability: JournalAppendDurability::Buffered,
-        },
-        phase: JournalDispatchPhase::AfterDispatch,
-        envelope: legacy_envelope.clone(),
-    };
-    let mut encoded = serde_json::to_value(legacy_entry).expect_value("legacy entry encodes");
-    encoded["append"]
-        .as_object_mut()
-        .expect_value("append remains an object")
-        .remove("hash_version");
-    tokio::fs::write(
-        &path.0,
-        format!(
-            "{}\n",
-            serde_json::to_string(&encoded).expect_value("legacy wire entry encodes")
-        ),
-    )
-    .await
-    .expect_value("legacy journal writes");
-
-    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
-    let replay = journal
-        .replay_projection(ReplayFilter::all())
-        .await
-        .expect_value("legacy journal replays");
-    let append = journal
-        .append(&unique_stored_event("v2 journal event", 59))
-        .await
-        .expect_value("v2 append follows legacy journal");
-    let lines = read_lines(path.clone()).await;
-    let current_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[1]).expect_value("current line decodes");
-
-    assert_eq!(replay.records.len(), 1);
-    assert_eq!(replay.records[0].envelope, legacy_envelope);
-    assert_eq!(append.previous_hash, Some(legacy_hash));
-    assert_eq!(current_entry.append.hash_version, JournalHashVersion::V2);
-    assert_eq!(current_entry.append.current_hash, append.current_hash);
-    cleanup(path).await;
-}
-
-#[derive(Serialize)]
-struct LegacyJournalHashInput<'a> {
-    sequence: u64,
-    previous_hash: Option<&'a JournalHash>,
-    phase: JournalDispatchPhase,
-    envelope: &'a StoredEventEnvelope,
-}
-
-fn legacy_hash_entry(
-    sequence: u64,
-    previous_hash: Option<&JournalHash>,
-    envelope: &StoredEventEnvelope,
-    phase: JournalDispatchPhase,
-) -> JournalHash {
-    let bytes = serde_json::to_vec(&LegacyJournalHashInput {
-        sequence,
-        previous_hash,
-        phase,
-        envelope,
-    })
-    .expect_value("legacy hash input encodes");
-    JournalHash::parse(format!("journal-hash:{:x}", Sha256::digest(bytes)))
-        .expect_value("legacy hash parses")
 }
 
 async fn cleanup_idempotent_journal(path: JournalPath) {

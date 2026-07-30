@@ -37,9 +37,14 @@ pub struct JournalAppend {
     #[serde(default)]
     pub hash_version: JournalHashVersion,
     /// Whether the append is known to have been synchronized before it was
-    /// reported. Missing values from older journal entries fail closed.
+    /// persisted. Missing values from older journal entries fail closed.
     #[serde(default)]
     pub durability: JournalAppendDurability,
+    /// Durability the caller requested. V3 authenticates this separately from
+    /// the persisted achieved result so a line written before fsync cannot
+    /// attest a synchronization that later failed.
+    #[serde(default)]
+    pub requested_durability: JournalAppendDurability,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -54,6 +59,7 @@ pub enum JournalHashVersion {
     #[default]
     LegacyV1,
     V2,
+    V3,
 }
 
 impl JournalAppend {

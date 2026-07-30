@@ -38,6 +38,7 @@ fn failing_journal_result(
         ),
         hash_version: JournalHashVersion::V2,
         durability: JournalAppendDurability::Synchronized,
+        requested_durability: JournalAppendDurability::Synchronized,
     })
 }
 
@@ -96,7 +97,7 @@ async fn before_dispatch_journal_is_durable_without_a_subscriber() {
     let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
     let bus = EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::All),
-        journal.clone(),
+        Arc::<FailingJournal>::clone(&journal),
     );
 
     let report = bus
@@ -122,7 +123,7 @@ async fn no_subscriber_after_dispatch_journal_records_the_after_phase() {
     let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
     let bus = EventBus::with_journal(
         JournalPolicy::after_dispatch(JournalSelector::All),
-        journal.clone(),
+        Arc::<FailingJournal>::clone(&journal),
     );
 
     let report = bus
@@ -144,7 +145,7 @@ async fn no_subscriber_before_and_after_journal_completes_idempotency_after_both
     let policy = EventQueuePolicy::default().with_idempotency_registry();
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
-        journal.clone(),
+        Arc::<FailingJournal>::clone(&journal),
         policy,
     );
 
@@ -193,7 +194,7 @@ async fn no_subscriber_after_phase_failure_releases_idempotency_for_full_phase_r
     let policy = EventQueuePolicy::default().with_idempotency_registry();
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
-        journal.clone(),
+        Arc::<FailingJournal>::clone(&journal),
         policy,
     );
 
@@ -241,7 +242,7 @@ async fn no_subscriber_after_phase_failure_releases_idempotency_for_full_phase_r
 async fn no_subscriber_before_dispatch_reserves_idempotency_without_duplicate_journal_records() {
     let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
     let policy = EventQueuePolicy::default().with_idempotency_registry();
-    let event_journal: Arc<dyn EventJournal> = journal.clone();
+    let event_journal: Arc<dyn EventJournal> = Arc::<FailingJournal>::clone(&journal);
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_dispatch(JournalSelector::All),
         event_journal,
