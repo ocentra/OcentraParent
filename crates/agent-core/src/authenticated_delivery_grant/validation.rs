@@ -10,6 +10,7 @@ use super::{
     digest, AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantExpectation,
     AuthenticatedDeliveryGrantTrustedIssuer,
 };
+use sha2::{Digest, Sha256};
 
 pub(super) fn validate_grant(
     grant: &AuthenticatedDeliveryGrant,
@@ -59,6 +60,17 @@ pub(super) fn validate_correlation_id(
         return Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected);
     }
     Ok(())
+}
+
+pub(super) fn bounded_correlation_id(correlation_id: &str) -> String {
+    let bounded_len = correlation_id
+        .len()
+        .min(AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES);
+    let mut hasher = Sha256::new();
+    hasher.update((correlation_id.len() as u64).to_be_bytes());
+    hasher.update((bounded_len as u64).to_be_bytes());
+    hasher.update(&correlation_id.as_bytes()[..bounded_len]);
+    digest(hasher.finalize())
 }
 
 pub(super) fn validate_delivered_payload(

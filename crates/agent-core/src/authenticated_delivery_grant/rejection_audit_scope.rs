@@ -15,6 +15,7 @@ pub(super) fn audit_scope(audit: &AuthenticatedDeliveryGrantAudit) -> &'static s
     match audit.outcome {
         AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(_) => "validation-rejection",
         AuthenticatedDeliveryGrantAuditOutcome::Consumed
-        | AuthenticatedDeliveryGrantAuditOutcome::ReplayRejected => "replay",
+        | AuthenticatedDeliveryGrantAuditOutcome::ReplayRejected
+        | AuthenticatedDeliveryGrantAuditOutcome::IntegrityRejected => "replay",
     }
 }

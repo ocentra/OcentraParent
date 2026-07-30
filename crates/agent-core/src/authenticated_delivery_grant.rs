@@ -65,6 +65,8 @@ pub enum AuthenticatedDeliveryGrantAuditOutcome {
     Consumed,
     #[serde(rename = "replay-rejected")]
     ReplayRejected,
+    #[serde(rename = "integrity-rejected")]
+    IntegrityRejected,
     #[serde(rename = "validation-rejected")]
     ValidationRejected(AuthenticatedDeliveryGrantValidationRejection),
 }
@@ -312,9 +314,23 @@ impl AuthenticatedDeliveryGrantConsumer {
         correlation_id: &str,
         trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
     ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-        validation::validate_correlation_id(correlation_id)?;
+        validation::validate_correlation_id(correlation_id).map_err(|error| {
+            self.persist_bounded_shape_rejection(
+                grant,
+                &validation::bounded_correlation_id(correlation_id),
+                trusted_now.1,
+                error,
+                AuthenticatedDeliveryGrantValidationRejection::BindingRejected,
+            )
+        })?;
         if grant.validate_shape().is_err() {
-            return Err(self.persist_bounded_shape_rejection(grant, correlation_id, trusted_now.1));
+            return Err(self.persist_bounded_shape_rejection(
+                grant,
+                correlation_id,
+                trusted_now.1,
+                AuthenticatedDeliveryGrantConsumeError::InvalidGrant,
+                AuthenticatedDeliveryGrantValidationRejection::InvalidGrant,
+            ));
         }
         validation::validate_grant(grant, expected, &self.trusted_issuer, trusted_now.0).map_err(
             |error| self.persist_validation_rejection(grant, correlation_id, trusted_now.1, error),
@@ -360,8 +376,10 @@ impl AuthenticatedDeliveryGrantConsumer {
         grant: &AuthenticatedDeliveryGrant,
         correlation_id: &str,
         trusted_now_nanos: i64,
+        error: AuthenticatedDeliveryGrantConsumeError,
+        rejection: AuthenticatedDeliveryGrantValidationRejection,
     ) -> AuthenticatedDeliveryGrantConsumeError {
-        let audit = bounded_shape_rejection_audit(grant, correlation_id);
+        let audit = bounded_shape_rejection_audit(grant, correlation_id, rejection);
         let issuer_key_id = audit.issuer_key_id_digest.clone();
         let nonce = audit.nonce_digest.clone();
         let result = self
@@ -401,7 +419,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             });
         result.map_or(
             AuthenticatedDeliveryGrantConsumeError::StorageUnavailable,
-            |_| AuthenticatedDeliveryGrantConsumeError::InvalidGrant,
+            |_| error,
         )
     }
 }
@@ -450,6 +468,15 @@ fn reject_replay(
     let mut signed_grant = grant.signing_bytes();
     signed_grant.extend_from_slice(&grant.signature);
     if stored_fingerprint != digest(signed_grant) {
+        let audit = audit(
+            grant,
+            correlation_id,
+            AuthenticatedDeliveryGrantAuditOutcome::IntegrityRejected,
+        );
+        persist_audit_transaction(&transaction, grant, &audit, Some(recorded_at_nanos))?;
+        transaction
+            .commit()
+            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
     }
     let audit = audit(
@@ -516,6 +543,7 @@ fn audit(
 fn bounded_shape_rejection_audit(
     grant: &AuthenticatedDeliveryGrant,
     correlation_id: &str,
+    rejection: AuthenticatedDeliveryGrantValidationRejection,
 ) -> AuthenticatedDeliveryGrantAudit {
     let update_bounded_digest = |hasher: &mut Sha256, value: &[u8]| {
         let bounded_len = value
@@ -560,9 +588,7 @@ fn bounded_shape_rejection_audit(
         issuer_key_id_digest: bounded_digest(grant.issuer_key_id.as_bytes()),
         nonce_digest: bounded_digest(grant.nonce.as_bytes()),
         grant_digest: digest(grant_hasher.finalize()),
-        outcome: AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
-            AuthenticatedDeliveryGrantValidationRejection::InvalidGrant,
-        ),
+        outcome: AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(rejection),
     }
 }
 

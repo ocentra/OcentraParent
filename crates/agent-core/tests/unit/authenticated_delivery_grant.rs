@@ -9,7 +9,7 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
     AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantConsumeOutcome,
     AuthenticatedDeliveryGrantConsumer, AuthenticatedDeliveryGrantExpectation,
-    AuthenticatedDeliveryGrantTrustedIssuer,
+    AuthenticatedDeliveryGrantTrustedIssuer, AuthenticatedDeliveryGrantValidationRejection,
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
@@ -269,6 +269,61 @@ fn consumer_persists_redacted_bounded_audits_for_validation_rejections() -> Test
         assert_eq!(audit.grant_digest.len(), 64);
         assert_eq!(audit.outcome, expected_audits[index]);
     }
+    Ok(())
+}
+
+#[test]
+fn consumer_persists_a_redacted_integrity_audit_for_signed_issuer_nonce_collision() -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("issuer-nonce-integrity-audit");
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    let grant = signed_grant(&key);
+    must(consumer.consume(&grant, &expected(), DELIVERED_PAYLOAD, "initial-consume"))?;
+    let mut collision = grant.clone();
+    collision.issued_at = "2026-07-28T00:00:01Z".to_owned();
+    collision.signature = key.sign(&collision.signing_bytes()).to_bytes().to_vec();
+
+    assert_eq!(
+        consumer.consume(
+            &collision,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "integrity-collision",
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)
+    );
+    drop(consumer);
+
+    let connection = Connection::open(path.as_ref())?;
+    let audit_json: String = connection.query_row(
+        "SELECT audit_json FROM authenticated_delivery_grant_audits_v2 ORDER BY rowid DESC LIMIT 1",
+        [],
+        |row| row.get(0),
+    )?;
+    let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audit_json)?;
+    assert_eq!(
+        audit.outcome,
+        AuthenticatedDeliveryGrantAuditOutcome::IntegrityRejected
+    );
+    assert_eq!(audit.issuer_key_id_digest.len(), 64);
+    assert_eq!(audit.nonce_digest.len(), 64);
+    assert_eq!(audit.grant_digest.len(), 64);
+    let audit_keys = serde_json::from_str::<serde_json::Value>(&audit_json)?
+        .as_object()
+        .ok_or_else(|| std::io::Error::other("audit must be a JSON object"))?
+        .keys()
+        .cloned()
+        .collect::<Vec<_>>();
+    assert_eq!(
+        audit_keys,
+        vec![
+            "correlation_id".to_owned(),
+            "grant_digest".to_owned(),
+            "issuer_key_id_digest".to_owned(),
+            "nonce_digest".to_owned(),
+            "outcome".to_owned(),
+        ]
+    );
     Ok(())
 }
 
