@@ -45,6 +45,11 @@ pub struct JournalAppend {
     /// attest a synchronization that later failed.
     #[serde(default)]
     pub requested_durability: JournalAppendDurability,
+    /// A V3 acknowledgement may claim synchronization only when this
+    /// completion hash authenticates the achieved durability after the sync.
+    /// It is deliberately absent from the immutable pre-sync journal line.
+    #[serde(default)]
+    pub synchronization_hash: Option<JournalHash>,
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -65,5 +70,10 @@ pub enum JournalHashVersion {
 impl JournalAppend {
     pub fn is_synchronized(&self) -> bool {
         self.durability == JournalAppendDurability::Synchronized
+            && (self.hash_version != JournalHashVersion::V3
+                || self
+                    .synchronization_hash
+                    .as_ref()
+                    .is_some_and(|hash| hash_chain::verify_synchronization_receipt(self, hash)))
     }
 }

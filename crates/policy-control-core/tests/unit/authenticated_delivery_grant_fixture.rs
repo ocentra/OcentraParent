@@ -29,6 +29,14 @@ pub(crate) struct FailingMilestoneJournal {
     persisted: Mutex<Vec<StoredEventEnvelope>>,
 }
 
+/// Models an untrusted V3 receipt whose mutable durability field was changed
+/// after the buffered journal entry was produced. A real V3 synchronization
+/// receipt must carry the authenticated completion marker instead.
+#[derive(Default)]
+pub(crate) struct ForgedV3MilestoneJournal {
+    next_sequence: AtomicU64,
+}
+
 impl FailingMilestoneJournal {
     pub(crate) fn fail_once_on(fail_once_on: u64) -> Self {
         Self {
@@ -74,6 +82,7 @@ impl FailingMilestoneJournal {
             hash_version: JournalHashVersion::V2,
             durability: JournalAppendDurability::Synchronized,
             requested_durability: JournalAppendDurability::Synchronized,
+            synchronization_hash: None,
         })
     }
 }
@@ -94,6 +103,23 @@ impl EventJournal for InMemoryMilestoneJournal {
                 hash_version: JournalHashVersion::V2,
                 durability: JournalAppendDurability::Synchronized,
                 requested_durability: JournalAppendDurability::Synchronized,
+                synchronization_hash: None,
+            })
+        })
+    }
+}
+
+impl EventJournal for ForgedV3MilestoneJournal {
+    fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
+        Box::pin(async move {
+            Ok(JournalAppend {
+                sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
+                previous_hash: None,
+                current_hash: None,
+                hash_version: JournalHashVersion::V3,
+                durability: JournalAppendDurability::Synchronized,
+                requested_durability: JournalAppendDurability::Synchronized,
+                synchronization_hash: None,
             })
         })
     }
