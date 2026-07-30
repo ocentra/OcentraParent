@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use crate::journal::{
-    hash_chain::hash_entry_v3, EventJournal, JournalAppendDurability, JournalAppendFuture,
-    JournalHashVersion,
+    hash_chain::{hash_entry_v3, synchronization_receipt_hash},
+    EventJournal, JournalAppendDurability, JournalAppendFuture, JournalHashVersion,
 };
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
@@ -57,6 +57,7 @@ impl NdjsonEventJournal {
                 hash_version: JournalHashVersion::V3,
                 durability,
                 requested_durability,
+                synchronization_hash: None,
             }
         };
         self.write_entry(&append, envelope, phase).await?;
@@ -74,6 +75,8 @@ impl NdjsonEventJournal {
         let mut acknowledgement = append;
         if self.options.flush == JournalFlushPolicy::Always {
             acknowledgement.durability = JournalAppendDurability::Synchronized;
+            acknowledgement.synchronization_hash =
+                Some(synchronization_receipt_hash(&acknowledgement)?);
         }
         Ok(acknowledgement)
     }

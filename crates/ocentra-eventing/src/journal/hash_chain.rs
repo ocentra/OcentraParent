@@ -3,11 +3,14 @@ use sha2::{Digest, Sha256};
 
 use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
-use super::{ndjson::NdjsonJournalEntry, JournalAppendDurability, JournalHashVersion};
+use super::{
+    ndjson::NdjsonJournalEntry, JournalAppend, JournalAppendDurability, JournalHashVersion,
+};
 
 const JOURNAL_HASH_PREFIX: &str = "journal-hash:";
 const JOURNAL_HASH_VERSION: u8 = 2;
 const JOURNAL_HASH_VERSION_V3: u8 = 3;
+const JOURNAL_SYNCHRONIZATION_RECEIPT_VERSION: u8 = 1;
 
 #[derive(Serialize)]
 struct JournalHashInputV2<'a> {
@@ -36,6 +39,38 @@ struct JournalHashInputV1<'a> {
     previous_hash: Option<&'a JournalHash>,
     phase: JournalDispatchPhase,
     envelope: &'a StoredEventEnvelope,
+}
+
+#[derive(Serialize)]
+struct JournalSynchronizationReceiptInput<'a> {
+    version: u8,
+    sequence: u64,
+    entry_hash: Option<&'a JournalHash>,
+    requested_durability: JournalAppendDurability,
+    achieved_durability: JournalAppendDurability,
+}
+
+pub(super) fn synchronization_receipt_hash(
+    append: &JournalAppend,
+) -> Result<JournalHash, EventingError> {
+    let input = JournalSynchronizationReceiptInput {
+        version: JOURNAL_SYNCHRONIZATION_RECEIPT_VERSION,
+        sequence: append.sequence,
+        entry_hash: append.current_hash.as_ref(),
+        requested_durability: append.requested_durability,
+        achieved_durability: JournalAppendDurability::Synchronized,
+    };
+    let bytes =
+        serde_json::to_vec(&input).map_err(|error| EventingError::journal_encode(&error))?;
+    let digest = Sha256::digest(&bytes);
+    JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:x}", digest))
+}
+
+pub(super) fn verify_synchronization_receipt(
+    append: &JournalAppend,
+    receipt: &JournalHash,
+) -> bool {
+    synchronization_receipt_hash(append).is_ok_and(|expected| expected == *receipt)
 }
 
 pub(super) fn hash_entry_v3(

@@ -44,6 +44,18 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
         JournalAppendDurability::Synchronized
     );
     assert!(first_append.is_synchronized());
+    let mut forged_synchronization = first_append.clone();
+    forged_synchronization.synchronization_hash = None;
+    assert!(
+        !forged_synchronization.is_synchronized(),
+        "a V3 receipt cannot claim synchronized durability without its authenticated completion marker"
+    );
+    let mut mismatched_synchronization = first_append.clone();
+    mismatched_synchronization.synchronization_hash = first_append.current_hash.clone();
+    assert!(
+        !mismatched_synchronization.is_synchronized(),
+        "a V3 receipt cannot substitute its buffered entry hash for the authenticated completion marker"
+    );
     assert_eq!(
         first_entry.append.durability,
         JournalAppendDurability::Buffered,
@@ -52,6 +64,14 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     assert_eq!(
         first_entry.append.requested_durability,
         JournalAppendDurability::Synchronized
+    );
+    assert!(
+        first_entry.append.synchronization_hash.is_none(),
+        "the immutable pre-sync line must not contain a post-sync completion marker"
+    );
+    assert!(
+        !first_entry.append.is_synchronized(),
+        "the persisted buffered line remains ineligible as a durable receipt"
     );
     assert!(first_append.previous_hash.is_none());
     assert_eq!(first_entry.append.current_hash, first_append.current_hash);

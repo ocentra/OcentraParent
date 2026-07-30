@@ -39,6 +39,7 @@ fn failing_journal_result(
         hash_version: JournalHashVersion::V2,
         durability: JournalAppendDurability::Synchronized,
         requested_durability: JournalAppendDurability::Synchronized,
+        synchronization_hash: None,
     })
 }
 

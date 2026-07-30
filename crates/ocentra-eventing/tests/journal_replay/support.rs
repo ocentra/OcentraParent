@@ -144,6 +144,7 @@ impl EventJournal for RecordingJournal {
                 hash_version: JournalHashVersion::V2,
                 durability: JournalAppendDurability::Synchronized,
                 requested_durability: JournalAppendDurability::Synchronized,
+                synchronization_hash: None,
             })
         })
     }
