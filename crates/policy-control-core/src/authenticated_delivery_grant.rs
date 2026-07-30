@@ -18,6 +18,11 @@ use self::step_up::{ParentStepUpProofVerifier, VerifiedParentStepUpProof};
 use crate::policy_authority::PolicyControlDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
+#[cfg(debug_assertions)]
+use std::collections::VecDeque;
+#[cfg(debug_assertions)]
+use std::sync::{Arc, Mutex};
+
 pub mod authority;
 pub mod issuance_milestone;
 mod lifecycle;
@@ -158,6 +163,8 @@ pub struct AuthenticatedDeliveryGrantIssuer {
     step_up_verifier: ParentStepUpProofVerifier,
     issuance_publisher: Option<EventBusAuthenticatedDeliveryGrantIssuancePublisher>,
     trusted_issuance_now: Option<String>,
+    #[cfg(debug_assertions)]
+    trusted_issuance_now_sequence: Option<Arc<Mutex<VecDeque<String>>>>,
 }
 
 impl AuthenticatedDeliveryGrantIssuer {
@@ -181,6 +188,8 @@ impl AuthenticatedDeliveryGrantIssuer {
             step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
             issuance_publisher: None,
             trusted_issuance_now: None,
+            #[cfg(debug_assertions)]
+            trusted_issuance_now_sequence: None,
         })
     }
 
@@ -207,14 +216,44 @@ impl AuthenticatedDeliveryGrantIssuer {
         self
     }
 
+    #[cfg(debug_assertions)]
+    pub fn with_trusted_issuance_now_sequence_for_debug_test<I, T>(mut self, trusted_now: I) -> Self
+    where
+        I: IntoIterator<Item = T>,
+        T: Into<String>,
+    {
+        self.trusted_issuance_now_sequence = Some(Arc::new(Mutex::new(
+            trusted_now.into_iter().map(Into::into).collect(),
+        )));
+        self
+    }
+
+    #[cfg(debug_assertions)]
+    fn next_trusted_issuance_now_for_debug_test(&self) -> Option<String> {
+        self.trusted_issuance_now_sequence
+            .as_ref()
+            .and_then(|sequence| sequence.lock().ok())
+            .and_then(|mut values| values.pop_front())
+    }
+
+    #[cfg(not(debug_assertions))]
+    fn next_trusted_issuance_now_for_debug_test(&self) -> Option<String> {
+        None
+    }
+
     pub fn issue(
         &self,
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
         let fallback_correlation_id = lifecycle::generated_issuance_correlation_id()?;
+        let attempt_id = ocentra_eventing::ids::EventId::generated();
         match self.prepare_issuance(request, fallback_correlation_id) {
-            Ok((correlation_id, grant)) => self.finalize_accepted(&correlation_id, grant),
-            Err((correlation_id, error)) => self.finalize_rejected(&correlation_id, error),
+            Ok((correlation_id, grant)) => {
+                self.finalize_accepted(&correlation_id, &attempt_id, grant)
+            }
+            Err((correlation_id, error)) => {
+                self.finalize_rejected(&correlation_id, &attempt_id, error)
+            }
         }
     }
 
@@ -223,12 +262,15 @@ impl AuthenticatedDeliveryGrantIssuer {
         request: AuthenticatedDeliveryGrantIssuance<'_>,
     ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
         let fallback_correlation_id = lifecycle::generated_issuance_correlation_id()?;
+        let attempt_id = ocentra_eventing::ids::EventId::generated();
         match self.prepare_issuance(request, fallback_correlation_id) {
             Ok((correlation_id, grant)) => {
-                self.finalize_accepted_async(&correlation_id, grant).await
+                self.finalize_accepted_async(&correlation_id, &attempt_id, grant)
+                    .await
             }
             Err((correlation_id, error)) => {
-                self.finalize_rejected_async(&correlation_id, error).await
+                self.finalize_rejected_async(&correlation_id, &attempt_id, error)
+                    .await
             }
         }
     }

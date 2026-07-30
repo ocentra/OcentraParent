@@ -5,6 +5,7 @@ use crate::bus::publisher::EventPublisher;
 use crate::bus::reports::dead_letter::{DeadLetter, DeadLetterReason};
 use crate::bus::reports::empty_publish_report;
 use crate::bus::{DispatchMode, EventBus, SubscriberRecord};
+use crate::journal::policy::JournalDispatchPhase;
 use crate::queue::state::NoSubscriberQueueDecision;
 use crate::{EventingError, ExpectValue, PublishReport, QueueDisposition, StoredEventEnvelope};
 
@@ -17,8 +18,18 @@ pub(super) async fn publish_without_subscribers(
         .queue
         .enqueue_no_subscriber(stored.clone(), bus.clock.now())?
     {
-        NoSubscriberQueueDecision::Dispatch(queue_report)
-        | NoSubscriberQueueDecision::Queued(queue_report) => {
+        NoSubscriberQueueDecision::Dispatch(queue_report) => {
+            bus.record_stored_snapshot(&stored).await;
+            let mut report = empty_publish_report(&stored, dispatch_mode, queue_report, 0);
+            if let Some(append) = bus
+                .append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+                .await?
+            {
+                report.journal_appends.push(append);
+            }
+            Ok(report)
+        }
+        NoSubscriberQueueDecision::Queued(queue_report) => {
             bus.record_stored_snapshot(&stored).await;
             Ok(empty_publish_report(
                 &stored,

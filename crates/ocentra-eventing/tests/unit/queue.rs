@@ -90,6 +90,31 @@ async fn no_subscriber_queue_drains_after_subscriber_registers() {
 }
 
 #[tokio::test]
+async fn before_dispatch_journal_is_durable_without_a_subscriber() {
+    let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
+    let bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::All),
+        journal,
+    );
+
+    let report = bus
+        .publish(
+            test_event(TestText(TEST_LABEL.to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("before-dispatch journal persists without a subscriber");
+
+    assert_eq!(report.subscriber_count, 0);
+    assert_eq!(
+        report.queue_report.disposition,
+        QueueDisposition::Dispatched
+    );
+    assert_eq!(report.journal_appends.len(), 1);
+    assert!(report.journal_appends[0].is_synchronized());
+}
+
+#[tokio::test]
 async fn subscriber_auto_drain_only_drains_matching_event_type() {
     let bus = EventBus::with_queue_policy(
         EventQueuePolicy::no_subscriber_queue(4).expect_value("queue policy is valid"),
