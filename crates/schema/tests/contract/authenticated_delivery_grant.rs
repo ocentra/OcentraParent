@@ -1,6 +1,7 @@
 use ocentra_schema::authenticated_delivery_grant::{
     authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
-    AuthenticatedDeliveryGrantValidationError, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AuthenticatedDeliveryGrantValidationError, AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
@@ -51,7 +52,7 @@ fn authenticated_delivery_grant_audit_fingerprint_is_domain_separated_and_signat
 fn authenticated_delivery_grant_round_trips_and_binds_every_security_field() -> TestResult {
     let original = grant();
     let encoded = serde_json::to_string(&original)?;
-    let decoded: AuthenticatedDeliveryGrant = serde_json::from_str(&encoded)?;
+    let decoded = AuthenticatedDeliveryGrant::decode_json_wire(&encoded)?;
     assert_eq!(decoded, original);
     assert_eq!(decoded.validate_shape(), Ok(()));
     let mut tampered = decoded.clone();
@@ -192,10 +193,40 @@ fn authenticated_delivery_grant_wire_decode_denies_unknown_and_oversized_fields(
 }
 
 #[test]
+fn authenticated_delivery_grant_wire_decode_bounds_unknown_field_names_before_error_formatting(
+) -> TestResult {
+    let mut unknown = serde_json::to_value(grant())?;
+    grant_object(&mut unknown)?.insert("x".repeat(129), serde_json::Value::Bool(true));
+    assert_eq!(
+        decode_failure_reason(unknown)?,
+        "authenticated delivery grant encoded field name exceeds its byte limit"
+    );
+    Ok(())
+}
+
+#[test]
+fn authenticated_delivery_grant_canonical_wire_decode_rejects_oversized_outer_inputs() {
+    for wire in [
+        format!(
+            "{{\"{}\":true}}",
+            "x".repeat(AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES)
+        ),
+        format!(
+            "{{\"issuerKeyId\":\"{}\"}}",
+            "a".repeat(AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES)
+        ),
+    ] {
+        assert_eq!(
+            AuthenticatedDeliveryGrant::decode_json_wire(&wire),
+            Err("authenticated delivery grant encoded wire exceeds its byte limit".to_owned())
+        );
+    }
+}
+
+#[test]
 fn authenticated_delivery_grant_wire_decode_matches_framed_signing_wire_limit() -> TestResult {
     let accepted = grant_with_signing_wire_len(AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES);
-    let decoded: AuthenticatedDeliveryGrant =
-        serde_json::from_str(&serde_json::to_string(&accepted)?)?;
+    let decoded = AuthenticatedDeliveryGrant::decode_json_wire(&serde_json::to_string(&accepted)?)?;
     assert_eq!(decoded, accepted);
     assert_eq!(decoded.validate_shape(), Ok(()));
 
@@ -216,7 +247,7 @@ fn authenticated_delivery_grant_wire_decode_rejects_escaped_oversize_before_unes
         r#"{{"schemaVersion":1,"issuerKeyId":"parent-key-1","issuerActorId":"{encoded_oversize}"}}"#,
     );
 
-    let error = match serde_json::from_str::<AuthenticatedDeliveryGrant>(&wire) {
+    let error = match AuthenticatedDeliveryGrant::decode_json_wire(&wire) {
         Ok(_) => {
             return Err(std::io::Error::other(
                 "escaped field exceeding encoded bound must not deserialize",

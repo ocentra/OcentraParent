@@ -34,18 +34,20 @@ impl NdjsonEventJournal {
             let state = self.state.lock().expect_value("journal state lock");
             let next_sequence = state.next_sequence.saturating_add(1);
             let previous_hash = previous_hash(&self.options, &state);
+            let durability = append_durability(self.options.flush);
             let current_hash = current_hash(
                 &self.options,
                 next_sequence,
                 &previous_hash,
                 envelope,
                 phase,
+                durability,
             )?;
             JournalAppend {
                 sequence: next_sequence,
                 previous_hash,
                 current_hash,
-                durability: append_durability(self.options.flush),
+                durability,
             }
         };
         self.write_entry(&append, envelope, phase).await?;
@@ -104,11 +106,17 @@ fn current_hash(
     previous_hash: &Option<JournalHash>,
     envelope: &StoredEventEnvelope,
     phase: JournalDispatchPhase,
+    durability: JournalAppendDurability,
 ) -> Result<Option<JournalHash>, EventingError> {
     match options.hash_chain {
         JournalHashChain::Disabled => Ok(None),
-        JournalHashChain::Enabled => {
-            hash_entry(sequence, previous_hash.as_ref(), envelope, phase).map(Some)
-        }
+        JournalHashChain::Enabled => hash_entry(
+            sequence,
+            previous_hash.as_ref(),
+            envelope,
+            phase,
+            durability,
+        )
+        .map(Some),
     }
 }
