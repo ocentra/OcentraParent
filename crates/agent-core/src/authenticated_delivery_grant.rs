@@ -153,10 +153,15 @@ impl AuthenticatedDeliveryGrantConsumer {
             &trusted_issuer,
         )?;
         authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
+        let replay_retention_now_nanos =
+            authenticated_delivery_grant_retention::advance_replay_retention_clock(
+                &mut connection,
+                startup_now_nanos,
+            )?;
         rejection_audit::drain_expired_at_startup(&mut connection, startup_now_nanos)?;
         authenticated_delivery_grant_retention::drain_expired_replay_records_at_startup(
             &mut connection,
-            startup_now_nanos,
+            replay_retention_now_nanos,
         )?;
         Ok(Self {
             connection,
@@ -234,21 +239,47 @@ impl AuthenticatedDeliveryGrantConsumer {
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
         let correlation = correlation_id.into();
+        let replay_retention_now_nanos =
+            authenticated_delivery_grant_retention::advance_replay_retention_clock(
+                &mut self.connection,
+                trusted_now.1,
+            )?;
+        let trusted_now =
+            validation::trusted_now_at_least(trusted_now, replay_retention_now_nanos)?;
         self.validate_request(grant, expected, payload, &correlation, trusted_now)?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
             &mut self.connection,
             trusted_now.1,
         )?;
+        self.consume_after_replay_retention_validation(grant, correlation, trusted_now)
+    }
+
+    fn consume_after_replay_retention_validation(
+        &mut self,
+        grant: &AuthenticatedDeliveryGrant,
+        correlation: String,
+        trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
+    ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
+    {
         #[cfg(debug_assertions)]
         let debug_trusted_now_after_transaction = self.debug_trusted_now_after_transaction;
         let transaction = self
             .connection
             .transaction_with_behavior(TransactionBehavior::Immediate)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        let post_begin_now = validation::trusted_now_after_transaction(
+        let post_begin_observed_now = validation::trusted_now_after_transaction(
             #[cfg(debug_assertions)]
             debug_trusted_now_after_transaction,
             trusted_now,
+        )?;
+        let post_begin_retention_now_nanos =
+            authenticated_delivery_grant_retention::advance_replay_retention_clock_transaction(
+                &transaction,
+                post_begin_observed_now.1,
+            )?;
+        let post_begin_now = validation::trusted_now_at_least(
+            post_begin_observed_now,
+            post_begin_retention_now_nanos,
         )?;
         if let Err(error) = validation::validate_temporal_window_at(grant, post_begin_now.0) {
             return reject_post_begin_temporal_window(

@@ -5,7 +5,7 @@ use ocentra_schema::authenticated_delivery_grant::{
     AUTHENTICATED_DELIVERY_GRANT_PAYLOAD_DIGEST_HEX_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
 };
-use rusqlite::{params, Connection, TransactionBehavior};
+use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::Deserialize;
 
 use crate::authenticated_delivery_grant::{
@@ -20,15 +20,15 @@ const DROP_LEGACY_REPLAY_TABLE: &str = "DROP TABLE authenticated_delivery_grant_
 const RENAME_FINGERPRINT_REPLAY_TABLE: &str = "ALTER TABLE authenticated_delivery_grant_consumes_v3 RENAME TO authenticated_delivery_grant_consumes_v2";
 const CREATE_EXPIRY_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_consumes_v2_expiry_idx ON authenticated_delivery_grant_consumes_v2 (expires_at_nanos, issuer_key_id, nonce)";
 const CREATE_AUDIT_GRANT_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_grant_idx ON authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce)";
+const CREATE_REPLAY_RETENTION_CLOCK: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_retention_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL)";
+const UPSERT_REPLAY_RETENTION_CLOCK: &str = "INSERT INTO authenticated_delivery_grant_replay_retention_v1 (singleton, highest_trusted_now_nanos) VALUES (1, ?1) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = MAX(highest_trusted_now_nanos, excluded.highest_trusted_now_nanos)";
+const SELECT_REPLAY_RETENTION_CLOCK: &str = "SELECT highest_trusted_now_nanos FROM authenticated_delivery_grant_replay_retention_v1 WHERE singleton = 1";
 const SELECT_EXPIRED_GRANTS: &str = "SELECT issuer_key_id, nonce FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_nanos <= ?1 ORDER BY expires_at_nanos LIMIT ?2";
 const DELETE_CONSUMED_GRANT: &str =
     "DELETE FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
 const DELETE_REPLAY_AUDITS: &str =
     "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay'";
 const MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE: i64 = 128;
-// Keep a consumed-grant tombstone beyond its grant validity window so a bounded
-// backward wall-clock correction cannot make the same signed grant consumable again.
-const REPLAY_TOMBSTONE_CLOCK_SKEW_RETENTION_NANOS: i64 = 86_400_000_000_000;
 
 pub(super) fn ensure_retention_indexes(
     connection: &Connection,
@@ -46,7 +46,39 @@ pub(super) fn ensure_retention_indexes(
     connection
         .execute(CREATE_AUDIT_GRANT_INDEX, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    connection
+        .execute(CREATE_REPLAY_RETENTION_CLOCK, [])
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     Ok(())
+}
+
+pub(super) fn advance_replay_retention_clock(
+    connection: &mut Connection,
+    observed_now_nanos: i64,
+) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    let effective_now_nanos =
+        advance_replay_retention_clock_transaction(&transaction, observed_now_nanos)?;
+    transaction
+        .commit()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    Ok(effective_now_nanos)
+}
+
+pub(super) fn advance_replay_retention_clock_transaction(
+    transaction: &Transaction<'_>,
+    observed_now_nanos: i64,
+) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
+    transaction
+        .execute(UPSERT_REPLAY_RETENTION_CLOCK, [observed_now_nanos])
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    transaction
+        .query_row(SELECT_REPLAY_RETENTION_CLOCK, [], |row| row.get(0))
+        .optional()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
+        .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)
 }
 
 pub(super) fn migrate_legacy_replay_records(
@@ -237,22 +269,17 @@ pub(super) fn purge_expired_replay_records(
     connection: &mut Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    purge_expired_replay_record_batch(connection, replay_tombstone_cutoff(trusted_now_nanos))
-        .map(|_count| ())
+    purge_expired_replay_record_batch(connection, trusted_now_nanos).map(|_count| ())
 }
 
 pub(super) fn drain_expired_replay_records_at_startup(
     connection: &mut Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    while purge_expired_replay_record_batch(connection, replay_tombstone_cutoff(trusted_now_nanos))?
+    while purge_expired_replay_record_batch(connection, trusted_now_nanos)?
         == MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE as usize
     {}
     Ok(())
-}
-
-fn replay_tombstone_cutoff(trusted_now_nanos: i64) -> i64 {
-    trusted_now_nanos.saturating_sub(REPLAY_TOMBSTONE_CLOCK_SKEW_RETENTION_NANOS)
 }
 
 fn purge_expired_replay_record_batch(
