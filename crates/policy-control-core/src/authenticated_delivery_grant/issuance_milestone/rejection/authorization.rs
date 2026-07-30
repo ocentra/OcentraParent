@@ -8,6 +8,9 @@ pub(super) fn from(
         AuthenticatedDeliveryGrantIssuanceError::InvalidAuthorizationSnapshot => {
             AuthenticatedDeliveryGrantIssuanceRejection::AuthorizationSnapshot
         }
+        AuthenticatedDeliveryGrantIssuanceError::CorrelationIdRejected => {
+            AuthenticatedDeliveryGrantIssuanceRejection::CorrelationId
+        }
         AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp => {
             AuthenticatedDeliveryGrantIssuanceRejection::Timestamp
         }

@@ -32,4 +32,21 @@ pub struct JournalAppend {
     pub sequence: u64,
     pub previous_hash: Option<JournalHash>,
     pub current_hash: Option<JournalHash>,
+    /// Whether the append is known to have been synchronized before it was
+    /// reported. Missing values from older journal entries fail closed.
+    #[serde(default)]
+    pub durability: JournalAppendDurability,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum JournalAppendDurability {
+    #[default]
+    Buffered,
+    Synchronized,
+}
+
+impl JournalAppend {
+    pub fn is_synchronized(&self) -> bool {
+        self.durability == JournalAppendDurability::Synchronized
+    }
 }

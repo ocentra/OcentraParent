@@ -137,7 +137,7 @@ fn parent_step_up() -> ParentStepUpGrantAuthorization {
                 target_child_profile_id: Some("child-1".to_owned()),
                 action: HouseholdAuthorityAction::ChangePolicy,
                 nonce: "nonce-1".to_owned(),
-                expires_at: "2026-07-28T00:10:00Z".to_owned(),
+                expires_at: "2026-07-28T00:05:00Z".to_owned(),
             }),
             family_id: "household-1".to_owned(),
             parent_account_id: "parent-1".to_owned(),
@@ -385,7 +385,7 @@ fn issuer_rejects_step_up_or_canonical_authorization_that_does_not_match_signed_
 }
 
 #[test]
-fn issuer_rejects_manual_review_and_invalid_or_chronologically_expired_timestamps() -> TestResult {
+fn issuer_rejects_manual_review() -> TestResult {
     let issuer = test_ok!(issuer(), "valid test key id");
     let mut manual_review = IssuanceFixture::new();
     manual_review.policy_decision = PolicyControlDecision {
@@ -396,43 +396,60 @@ fn issuer_rejects_manual_review_and_invalid_or_chronologically_expired_timestamp
         issuer.issue(manual_review.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::ManualReviewRequired)
     );
+    Ok(())
+}
 
+#[test]
+fn issuer_rejects_malformed_grant_timestamp() -> TestResult {
+    let issuer = test_ok!(issuer(), "valid test key id");
     let mut malformed_timestamp = IssuanceFixture::new();
     malformed_timestamp.bindings.issued_at = "not-a-timestamp".to_owned();
     assert_eq!(
         issuer.issue(malformed_timestamp.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp)
     );
+    Ok(())
+}
 
-    let mut offset_expired = IssuanceFixture::new();
-    offset_expired.parent_step_up.validation.observed_at = "2026-07-28T03:00:00Z".to_owned();
-    offset_expired.bindings.issued_at = "2026-07-28T03:00:00Z".to_owned();
+#[test]
+fn issuer_rejects_expired_step_up_timestamp_with_offset() -> TestResult {
+    let issuer = test_ok!(issuer(), "valid test key id");
+    let offset_expired = IssuanceFixture::new();
+    let mut request = offset_expired.request();
     test_some!(
-        offset_expired.parent_step_up.validation.assertion.as_mut(),
-        "step-up assertion"
-    )
-    .expires_at = "2026-07-28T04:00:00+05:00".to_owned();
-    assert_eq!(
-        issuer.issue(offset_expired.request()),
-        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
-    );
-
-    let mut storage_unrepresentable_expiry = IssuanceFixture::new();
-    storage_unrepresentable_expiry.bindings.expires_at = "2500-01-01T00:00:00Z".to_owned();
-    test_some!(
-        storage_unrepresentable_expiry
-            .parent_step_up
+        request
+            .verified_parent_step_up_proof
             .validation
             .assertion
             .as_mut(),
         "step-up assertion"
     )
-    .expires_at = "2500-01-01T00:00:01Z".to_owned();
+    .expires_at = "2026-07-28T04:00:00+05:00".to_owned();
+    request.verified_parent_step_up_proof.validation.observed_at =
+        "2026-07-28T03:00:00Z".to_owned();
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_storage_unrepresentable_expiry_that_outlives_bounded_step_up_proof() -> TestResult
+{
+    let issuer = test_ok!(issuer(), "valid test key id");
+    let mut storage_unrepresentable_expiry = IssuanceFixture::new();
+    storage_unrepresentable_expiry.bindings.expires_at = "2500-01-01T00:00:00Z".to_owned();
     assert_eq!(
         issuer.issue(storage_unrepresentable_expiry.request()),
-        Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp)
+        Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
     );
+    Ok(())
+}
 
+#[test]
+fn issuer_rejects_future_grant_issuance_timestamp() -> TestResult {
+    let issuer = test_ok!(issuer(), "valid test key id");
     let mut future_issued_at = IssuanceFixture::new();
     future_issued_at.bindings.issued_at = "2026-07-28T00:01:01Z".to_owned();
     future_issued_at.parent_step_up.validation.observed_at = "2026-07-28T00:01:01Z".to_owned();
@@ -444,7 +461,7 @@ fn issuer_rejects_manual_review_and_invalid_or_chronologically_expired_timestamp
             .as_mut(),
         "step-up assertion"
     )
-    .expires_at = "2026-07-28T00:10:00Z".to_owned();
+    .expires_at = "2026-07-28T00:06:01Z".to_owned();
     assert_eq!(
         issuer.issue(future_issued_at.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp)

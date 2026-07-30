@@ -1,9 +1,13 @@
 use std::sync::Arc;
 
-use crate::journal::{hash_chain::hash_entry, EventJournal, JournalAppendFuture};
+use crate::journal::{
+    hash_chain::hash_entry, EventJournal, JournalAppendDurability, JournalAppendFuture,
+};
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
-use super::{JournalAppend, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions};
+use super::{
+    JournalAppend, JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
+};
 
 impl NdjsonEventJournal {
     async fn append_entry(
@@ -41,6 +45,7 @@ impl NdjsonEventJournal {
                 sequence: next_sequence,
                 previous_hash,
                 current_hash,
+                durability: append_durability(self.options.flush),
             }
         };
         self.write_entry(&append, envelope, phase).await?;
@@ -73,6 +78,13 @@ impl EventJournal for NdjsonEventJournal {
         phase: JournalDispatchPhase,
     ) -> JournalAppendFuture<'a> {
         Box::pin(async move { self.append_entry(envelope, phase).await })
+    }
+}
+
+fn append_durability(flush: JournalFlushPolicy) -> JournalAppendDurability {
+    match flush {
+        JournalFlushPolicy::Always => JournalAppendDurability::Synchronized,
+        JournalFlushPolicy::Buffered => JournalAppendDurability::Buffered,
     }
 }
 
