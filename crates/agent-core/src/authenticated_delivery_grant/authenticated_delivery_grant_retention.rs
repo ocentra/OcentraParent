@@ -8,6 +8,7 @@ use ocentra_schema::authenticated_delivery_grant::{
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::Deserialize;
 
+use crate::authenticated_delivery_grant::storage_keys::storage_key_digest;
 use crate::authenticated_delivery_grant::{
     digest, AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantTrustedIssuer,
 };
@@ -20,6 +21,7 @@ const DROP_LEGACY_REPLAY_TABLE: &str = "DROP TABLE authenticated_delivery_grant_
 const RENAME_FINGERPRINT_REPLAY_TABLE: &str = "ALTER TABLE authenticated_delivery_grant_consumes_v3 RENAME TO authenticated_delivery_grant_consumes_v2";
 const CREATE_EXPIRY_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_consumes_v2_expiry_idx ON authenticated_delivery_grant_consumes_v2 (expires_at_nanos, issuer_key_id, nonce)";
 const CREATE_AUDIT_GRANT_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_grant_idx ON authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce)";
+const CREATE_VALIDATION_REJECTION_RETENTION_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_validation_rejection_retention_idx ON authenticated_delivery_grant_audits_v2 (audit_scope, recorded_at_nanos DESC)";
 const CREATE_REPLAY_RETENTION_CLOCK: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_retention_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL)";
 const UPSERT_REPLAY_RETENTION_CLOCK: &str = "INSERT INTO authenticated_delivery_grant_replay_retention_v1 (singleton, highest_trusted_now_nanos) VALUES (1, ?1) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = MAX(highest_trusted_now_nanos, excluded.highest_trusted_now_nanos)";
 const SELECT_REPLAY_RETENTION_CLOCK: &str = "SELECT highest_trusted_now_nanos FROM authenticated_delivery_grant_replay_retention_v1 WHERE singleton = 1";
@@ -29,17 +31,25 @@ const DELETE_CONSUMED_GRANT: &str =
 const DELETE_REPLAY_AUDITS: &str =
     "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay'";
 const MAX_EXPIRED_REPLAY_RECORDS_PER_PURGE: i64 = 128;
+const CREATE_STORAGE_PRIVACY_MARKER: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_storage_privacy_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1))";
+const STORAGE_PRIVACY_MARKER_EXISTS: &str =
+    "SELECT 1 FROM authenticated_delivery_grant_storage_privacy_v1 WHERE singleton = 1";
+const INSERT_STORAGE_PRIVACY_MARKER: &str =
+    "INSERT INTO authenticated_delivery_grant_storage_privacy_v1 (singleton) VALUES (1)";
+const CREATE_PRIVACY_CONSUMES_TABLE: &str = "CREATE TABLE authenticated_delivery_grant_consumes_privacy_v3 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_fingerprint TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
+const CREATE_PRIVACY_AUDITS_TABLE: &str = "CREATE TABLE authenticated_delivery_grant_audits_privacy_v3 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL, recorded_at_nanos INTEGER, audit_scope TEXT NOT NULL DEFAULT 'replay')";
 
 pub(super) fn ensure_retention_indexes(
-    connection: &Connection,
+    connection: &mut Connection,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let has_fingerprint_column = connection
         .prepare("SELECT 1 FROM pragma_table_info('authenticated_delivery_grant_consumes_v2') WHERE name = ?1")
         .and_then(|mut statement| statement.exists(["grant_fingerprint"]))
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    if !has_fingerprint_column {
-        return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
-    }
+    has_fingerprint_column
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
+    migrate_raw_storage_keys(connection)?;
     connection
         .execute(CREATE_EXPIRY_INDEX, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -47,8 +57,112 @@ pub(super) fn ensure_retention_indexes(
         .execute(CREATE_AUDIT_GRANT_INDEX, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     connection
+        .execute(CREATE_VALIDATION_REJECTION_RETENTION_INDEX, [])
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    connection
         .execute(CREATE_REPLAY_RETENTION_CLOCK, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    Ok(())
+}
+
+fn migrate_raw_storage_keys(
+    connection: &mut Connection,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    connection
+        .execute(CREATE_STORAGE_PRIVACY_MARKER, [])
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    let migrated = connection
+        .query_row(STORAGE_PRIVACY_MARKER_EXISTS, [], |_row| Ok(()))
+        .optional()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
+        .is_some();
+    if migrated {
+        return Ok(());
+    }
+    let transaction = connection
+        .transaction_with_behavior(TransactionBehavior::Immediate)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    transaction
+        .execute(CREATE_PRIVACY_CONSUMES_TABLE, [])
+        .and_then(|_| transaction.execute(CREATE_PRIVACY_AUDITS_TABLE, []))
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    copy_consumes_with_private_keys(&transaction)?;
+    copy_audits_with_private_keys(&transaction)?;
+    transaction
+        .execute("DROP TABLE authenticated_delivery_grant_consumes_v2", [])
+        .and_then(|_| transaction.execute("DROP TABLE authenticated_delivery_grant_audits_v2", []))
+        .and_then(|_| transaction.execute("ALTER TABLE authenticated_delivery_grant_consumes_privacy_v3 RENAME TO authenticated_delivery_grant_consumes_v2", []))
+        .and_then(|_| transaction.execute("ALTER TABLE authenticated_delivery_grant_audits_privacy_v3 RENAME TO authenticated_delivery_grant_audits_v2", []))
+        .and_then(|_| transaction.execute(INSERT_STORAGE_PRIVACY_MARKER, []))
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    transaction
+        .commit()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
+}
+
+fn copy_consumes_with_private_keys(
+    transaction: &Transaction<'_>,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    let mut statement = transaction
+        .prepare("SELECT issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos FROM authenticated_delivery_grant_consumes_v2 ORDER BY rowid")
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    let rows = statement
+        .query_map([], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+                row.get::<_, i64>(4)?,
+            ))
+        })
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    for row in rows {
+        let (issuer_key_id, nonce, fingerprint, audit_json, expires_at_nanos) =
+            row.map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+        if issuer_key_id.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+            || nonce.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+        {
+            return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
+        }
+        transaction.execute(
+            "INSERT INTO authenticated_delivery_grant_consumes_privacy_v3 (issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![storage_key_digest(&issuer_key_id), storage_key_digest(&nonce), fingerprint, audit_json, expires_at_nanos],
+        ).map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    }
+    Ok(())
+}
+
+fn copy_audits_with_private_keys(
+    transaction: &Transaction<'_>,
+) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    let mut statement = transaction
+        .prepare("SELECT issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope FROM authenticated_delivery_grant_audits_v2 ORDER BY rowid")
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    let rows = statement
+        .query_map([], |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, Option<i64>>(3)?,
+                row.get::<_, String>(4)?,
+            ))
+        })
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    for row in rows {
+        let (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) =
+            row.map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+        if issuer_key_id.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+            || nonce.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+        {
+            return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
+        }
+        transaction.execute(
+            "INSERT INTO authenticated_delivery_grant_audits_privacy_v3 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, ?5)",
+            params![storage_key_digest(&issuer_key_id), storage_key_digest(&nonce), audit_json, recorded_at_nanos, audit_scope],
+        ).map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    }
     Ok(())
 }
 
