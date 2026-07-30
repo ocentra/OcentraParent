@@ -25,6 +25,7 @@ const DELIVERED_PAYLOAD_DIGEST: &str =
 
 #[path = "authenticated_delivery_grant/legacy_replay_migration.rs"]
 mod legacy_replay_migration;
+#[path = "authenticated_delivery_grant/ordering.rs"]
 mod ordering;
 #[path = "authenticated_delivery_grant/replay_audit_hardening.rs"]
 mod replay_audit_hardening;
