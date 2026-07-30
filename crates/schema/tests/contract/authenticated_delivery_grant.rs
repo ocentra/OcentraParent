@@ -1,6 +1,7 @@
 use ocentra_schema::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantValidationError,
-    AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
+    authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
+    AuthenticatedDeliveryGrantValidationError, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
 type TestResult<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
@@ -28,6 +29,21 @@ fn grant() -> AuthenticatedDeliveryGrant {
         revocation_version: "revocation-1".to_owned(),
         signature: vec![7; 64],
     }
+}
+
+#[test]
+fn authenticated_delivery_grant_audit_fingerprint_is_domain_separated_and_signature_bound() {
+    let grant = grant();
+    let fingerprint = authenticated_delivery_grant_audit_fingerprint(&grant);
+    assert_eq!(fingerprint.len(), 64);
+    assert_ne!(fingerprint.as_bytes(), grant.signing_bytes().as_slice());
+
+    let mut altered_signature = grant.clone();
+    altered_signature.signature[0] ^= 1;
+    assert_ne!(
+        fingerprint,
+        authenticated_delivery_grant_audit_fingerprint(&altered_signature)
+    );
 }
 
 #[test]

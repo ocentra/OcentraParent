@@ -1,6 +1,7 @@
 #![forbid(unsafe_code)]
 
 use serde::Serialize;
+use sha2::{Digest, Sha256};
 
 pub const AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION: u16 = 2;
 
@@ -188,6 +189,21 @@ impl AuthenticatedDeliveryGrant {
             .map(|length| length + std::mem::size_of::<u64>())
             .sum()
     }
+}
+
+/// Returns the canonical redacted join key for a fully signed delivery grant.
+///
+/// Issuance milestones, consumed-grant replay records, and their audits use
+/// this same domain-separated digest so they can be correlated without
+/// persisting raw grant bindings or signatures.
+pub fn authenticated_delivery_grant_audit_fingerprint(
+    grant: &AuthenticatedDeliveryGrant,
+) -> String {
+    let mut digest = Sha256::new();
+    digest.update(b"ocentra.authenticated-delivery-grant.audit-fingerprint.v1\0");
+    digest.update(grant.signing_bytes());
+    digest.update(&grant.signature);
+    format!("{:x}", digest.finalize())
 }
 
 fn is_canonical_sha256_digest(value: &str) -> bool {

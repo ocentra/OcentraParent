@@ -4,8 +4,8 @@ use std::{path::Path, time::Duration};
 
 use ed25519_dalek::VerifyingKey;
 use ocentra_schema::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantInstant,
-    AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
+    AuthenticatedDeliveryGrantInstant, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
 };
 use rusqlite::{params, Connection, OptionalExtension, Transaction, TransactionBehavior};
 use serde::{Deserialize, Serialize};
@@ -275,9 +275,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             correlation,
             AuthenticatedDeliveryGrantAuditOutcome::Consumed,
         );
-        let mut signed_grant = grant.signing_bytes();
-        signed_grant.extend_from_slice(&grant.signature);
-        let grant_fingerprint = digest(signed_grant);
+        let grant_fingerprint = authenticated_delivery_grant_audit_fingerprint(grant);
         let expires_at_nanos = validation::instant_nanos(&grant.expires_at)?;
         let audit_json = serde_json::to_string(&audit)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
@@ -447,9 +445,7 @@ fn reject_replay(
     stored_fingerprint: &str,
     recorded_at_nanos: i64,
 ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
-    let mut signed_grant = grant.signing_bytes();
-    signed_grant.extend_from_slice(&grant.signature);
-    if stored_fingerprint != digest(signed_grant) {
+    if stored_fingerprint != authenticated_delivery_grant_audit_fingerprint(grant) {
         return Err(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected);
     }
     let audit = audit(
@@ -508,7 +504,7 @@ fn audit(
         correlation_id,
         issuer_key_id_digest: digest(&grant.issuer_key_id),
         nonce_digest: digest(&grant.nonce),
-        grant_digest: digest(grant.signing_bytes()),
+        grant_digest: authenticated_delivery_grant_audit_fingerprint(grant),
         outcome,
     }
 }
