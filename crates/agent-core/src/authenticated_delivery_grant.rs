@@ -354,6 +354,9 @@ impl AuthenticatedDeliveryGrantConsumer {
         validation::validate_grant(grant, expected, &self.trusted_issuer, trusted_now.0).map_err(
             |error| self.persist_validation_rejection(grant, correlation_id, trusted_now.1, error),
         )?;
+        validation::validate_storage_range(grant).map_err(|error| {
+            self.persist_validation_rejection(grant, correlation_id, trusted_now.1, error)
+        })?;
         validation::validate_delivered_payload(grant, delivered_payload).map_err(|error| {
             self.persist_validation_rejection(grant, correlation_id, trusted_now.1, error)
         })
