@@ -461,6 +461,50 @@ fn replay_tombstone_survives_bounded_backward_wall_clock_correction() -> TestRes
 }
 
 #[test]
+fn replay_tombstone_survives_restart_after_bounded_clock_advance_then_rollback() -> TestResult {
+    let key = SigningKey::from_bytes(&[23; 32]);
+    let path = store_path("replay-tombstone-restart-clock-correction");
+    let grant = signed_grant(&key);
+    let mut consumer = open(&path, trusted_issuer(&key))?;
+    must(consumer.consume_at_for_debug_test(
+        &grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "consume-before-expiry",
+        "2026-07-28T00:04:59Z",
+    ))?;
+    drop(consumer);
+
+    drop(must(
+        ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-29T00:04:59Z",
+        ),
+    )?);
+
+    let mut reopened = must(
+        ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:04:59Z",
+        ),
+    )?;
+    must(reopened.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:04:59Z"))?;
+    assert!(matches!(
+        must(reopened.consume_at_for_debug_test(
+            &grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "backward-clock-replay-after-restart",
+            "2026-07-28T00:04:59Z",
+        ))?,
+        AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_)
+    ));
+    Ok(())
+}
+
+#[test]
 fn consume_and_replay_audits_persist_post_lock_occurrence_times() -> TestResult {
     let key = SigningKey::from_bytes(&[22; 32]);
     let path = store_path("audit-occurrence-times");

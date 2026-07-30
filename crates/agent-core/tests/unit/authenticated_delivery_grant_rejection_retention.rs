@@ -104,7 +104,7 @@ fn consumer_backfills_only_legacy_validation_rejections_once() -> TestResult {
         AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
             &path,
             trusted_issuer(&key),
-            "1970-01-01T00:00:00Z",
+            "2026-07-28T00:05:00Z",
         )
         .map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")))?,
     );
@@ -114,13 +114,13 @@ fn consumer_backfills_only_legacy_validation_rejections_once() -> TestResult {
         [],
         |row| row.get(0),
     )?;
-    let replay_recorded_at: Option<i64> = connection.query_row(
-        "SELECT recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = 'legacy-replay-issuer'",
+    let validation_recorded_at: i64 = connection.query_row(
+        "SELECT recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = 'legacy-validation-issuer'",
         [],
         |row| row.get(0),
     )?;
     assert_eq!(validation_scope, "validation-rejection");
-    assert_eq!(replay_recorded_at, None);
+    assert_eq!(validation_recorded_at, 1_785_197_100_000_000_000);
     connection.execute_batch(
         "CREATE TRIGGER reject_repeat_audit_scope_backfill BEFORE UPDATE ON authenticated_delivery_grant_audits_v2 BEGIN SELECT RAISE(ABORT, 'unexpected audit rewrite'); END;",
     )?;
@@ -130,7 +130,7 @@ fn consumer_backfills_only_legacy_validation_rejections_once() -> TestResult {
         AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
             &path,
             trusted_issuer(&key),
-            "1970-01-01T00:00:00Z",
+            "2026-07-28T00:05:00Z",
         )
         .map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")))?,
     );

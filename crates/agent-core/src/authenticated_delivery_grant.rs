@@ -125,13 +125,13 @@ impl AuthenticatedDeliveryGrantConsumer {
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
         let trusted_now = validation::trusted_now()?;
-        Self::open_at(path, trusted_issuer, Some(trusted_now.1))
+        Self::open_at(path, trusted_issuer, trusted_now.1)
     }
 
     fn open_at(
         path: impl AsRef<Path>,
         trusted_issuer: AuthenticatedDeliveryGrantTrustedIssuer,
-        startup_now_nanos: Option<i64>,
+        startup_now_nanos: i64,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
         let mut connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -147,19 +147,17 @@ impl AuthenticatedDeliveryGrantConsumer {
         connection
             .execute(CREATE_GRANT_AUDITS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        rejection_audit::ensure_retention_schema(&mut connection)?;
+        rejection_audit::ensure_retention_schema(&mut connection, startup_now_nanos)?;
         authenticated_delivery_grant_retention::migrate_legacy_replay_records(
             &mut connection,
             &trusted_issuer,
         )?;
         authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
-        if let Some(startup_now_nanos) = startup_now_nanos {
-            rejection_audit::drain_expired_at_startup(&mut connection, startup_now_nanos)?;
-            authenticated_delivery_grant_retention::drain_expired_replay_records_at_startup(
-                &mut connection,
-                startup_now_nanos,
-            )?;
-        }
+        rejection_audit::drain_expired_at_startup(&mut connection, startup_now_nanos)?;
+        authenticated_delivery_grant_retention::drain_expired_replay_records_at_startup(
+            &mut connection,
+            startup_now_nanos,
+        )?;
         Ok(Self {
             connection,
             trusted_issuer,
@@ -179,7 +177,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         trusted_now: impl AsRef<str>,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
         let trusted_now = validation::parse_trusted_now(trusted_now.as_ref())?;
-        let mut consumer = Self::open_at(path, trusted_issuer, Some(trusted_now.1))?;
+        let mut consumer = Self::open_at(path, trusted_issuer, trusted_now.1)?;
         consumer.debug_trusted_now = Some(trusted_now);
         Ok(consumer)
     }
