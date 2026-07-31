@@ -1,3 +1,5 @@
+use std::io::{self, Write};
+
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use ocentra_eventing::ids::CorrelationId;
 use serde::{Deserialize, Serialize};
@@ -10,6 +12,7 @@ use ocentra_family_identity_core::household_authority_proof::{
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
 };
 
 use super::{AuthenticatedDeliveryGrantIssuanceError, DeliveryGrantBindings};
@@ -17,6 +20,33 @@ use crate::policy_authority_resolved_decision::ResolvedPolicyDecision;
 use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
 const AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES: usize = 1_024;
+
+struct BoundedWireLenWriter {
+    remaining: usize,
+}
+
+impl BoundedWireLenWriter {
+    fn new(limit: usize) -> Self {
+        Self { remaining: limit }
+    }
+}
+
+impl Write for BoundedWireLenWriter {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        if bytes.len() > self.remaining {
+            return Err(io::Error::new(
+                io::ErrorKind::WriteZero,
+                "authority envelope exceeds its signed wire limit",
+            ));
+        }
+        self.remaining -= bytes.len();
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct SignedAuthorityBindings {
@@ -233,6 +263,8 @@ fn validate_signed_shape(
         bindings.issued_at.as_str(),
         bindings.expires_at.as_str(),
         bindings.revocation_version.as_str(),
+        signed.resolved_policy_decision.aggregate_id.as_str(),
+        signed.resolved_policy_decision.decision_id.as_str(),
     ];
     let bounded = fields.iter().all(|field| {
         !field.trim().is_empty() && field.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
@@ -241,13 +273,16 @@ fn validate_signed_shape(
         bindings.payload_length <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES;
     let wire_len = fields.iter().map(|field| field.len()).sum::<usize>()
         + AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES;
-    let serialized_wire_len = serde_json::to_vec(signed)
-        .map(|wire| wire.len())
-        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
+    let signature_is_bounded = signed.signature.is_empty()
+        || signed.signature.len() == AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES;
     (bounded
         && payload_length_bounded
         && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES
-        && serialized_wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
+        && signature_is_bounded)
         .then_some(())
-        .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
+    let mut wire_len_writer =
+        BoundedWireLenWriter::new(AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES);
+    serde_json::to_writer(&mut wire_len_writer, signed)
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
 }

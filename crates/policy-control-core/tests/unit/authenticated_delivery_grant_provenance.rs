@@ -45,17 +45,17 @@ use ocentra_schema::authenticated_delivery_grant::{
 };
 use std::sync::{Arc, Mutex};
 
-struct ProvenanceFixture {
-    authority: HouseholdAuthorityInput,
-    decision: PolicyControlDecision,
-    contract_authority: PolicyContractAuthorityDecision,
-    bindings: DeliveryGrantBindings,
+pub(super) struct ProvenanceFixture {
+    pub(super) authority: HouseholdAuthorityInput,
+    pub(super) decision: PolicyControlDecision,
+    pub(super) contract_authority: PolicyContractAuthorityDecision,
+    pub(super) bindings: DeliveryGrantBindings,
     canonical: CanonicalDeliveryGrantAuthorization,
     step_up: ParentStepUpGrantAuthorization,
 }
 
 impl ProvenanceFixture {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         let bindings = DeliveryGrantBindings {
             issuer_actor_id: "parent-1".to_owned(),
             household_id: "household-1".to_owned(),
@@ -457,7 +457,7 @@ fn authorized_contract_authority() -> PolicyContractAuthorityDecision {
     }
 }
 
-fn household_authority_proof(
+pub(super) fn household_authority_proof(
     authority: HouseholdAuthorityInput,
 ) -> ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof {
     test_ok!(
@@ -506,7 +506,7 @@ fn issuer_rejects_household_authority_proof_transplanted_between_grant_identitie
     Ok(())
 }
 
-fn resolved_decision(
+pub(super) fn resolved_decision(
     bindings: &DeliveryGrantBindings,
     decision: PolicyControlDecision,
 ) -> ResolvedPolicyDecision {
