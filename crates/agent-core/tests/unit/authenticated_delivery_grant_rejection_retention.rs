@@ -1,5 +1,9 @@
 use ed25519_dalek::{Signer, SigningKey};
 use rusqlite::{params, Connection};
+use std::{
+    sync::{Arc, Barrier},
+    thread,
+};
 
 use super::authenticated_delivery_grant::{
     expected, must, open, signed_grant, store_path, stored_key, trusted_issuer,
@@ -13,6 +17,76 @@ use ocentra_parent_agent_core::authenticated_delivery_grant::{
 type TestResult<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 
 const DELIVERED_PAYLOAD: &[u8] = b"canonical-delivered-action";
+
+#[test]
+fn concurrent_legacy_audit_startup_serializes_schema_migration() -> TestResult {
+    let key = SigningKey::from_bytes(&[29; 32]);
+    let path = store_path("concurrent-legacy-audit-schema-migration");
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "CREATE TABLE authenticated_delivery_grant_audits_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL)",
+        [],
+    )?;
+    drop(connection);
+
+    let start = Arc::new(Barrier::new(3));
+    let first_path = path.clone();
+    let first_start = Arc::clone(&start);
+    let first_issuer = trusted_issuer(&key);
+    let first = thread::spawn(move || {
+        first_start.wait();
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &first_path,
+            first_issuer,
+            "2026-07-28T00:05:00Z",
+        )
+        .map(drop)
+    });
+    let second_path = path.clone();
+    let second_start = Arc::clone(&start);
+    let second_issuer = trusted_issuer(&key);
+    let second = thread::spawn(move || {
+        second_start.wait();
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &second_path,
+            second_issuer,
+            "2026-07-28T00:05:00Z",
+        )
+        .map(drop)
+    });
+    start.wait();
+    must(first.join().map_err(|_| "first startup thread panicked")?)?;
+    must(
+        second
+            .join()
+            .map_err(|_| "second startup thread panicked")?,
+    )?;
+
+    let connection = Connection::open(path.as_ref())?;
+    let columns = connection
+        .prepare("SELECT name FROM pragma_table_info('authenticated_delivery_grant_audits_v2') ORDER BY name")?
+        .query_map([], |row| row.get::<_, String>(0))?
+        .collect::<Result<Vec<_>, _>>()?;
+    assert_eq!(
+        columns,
+        [
+            "audit_json",
+            "audit_scope",
+            "issuer_key_id",
+            "nonce",
+            "recorded_at_nanos"
+        ]
+    );
+    drop(connection);
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:05:00Z",
+        ),
+    )?);
+    Ok(())
+}
 
 #[test]
 fn consumer_keeps_the_latest_validation_rejection_when_an_older_clock_follows_future_audits(
