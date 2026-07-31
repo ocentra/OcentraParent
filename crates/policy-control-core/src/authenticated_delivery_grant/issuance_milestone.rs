@@ -1,4 +1,3 @@
-use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::bus::{DispatchMode, EventBus};
 use ocentra_eventing::envelope::{DomainEvent, EventContract, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
@@ -163,9 +162,14 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         };
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
         self.event_bus
-            .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
+            .publish_with_mode_and_before_dispatch_receipt_validator(
+                milestone,
+                metadata,
+                DispatchMode::Sequential,
+                require_durable_receipt,
+            )
             .await
-            .and_then(|report| require_durable_milestone(&report))
+            .map(|_report| ())
     }
 }
 
@@ -183,18 +187,21 @@ fn publish_on_current_thread_runtime(
     runtime
         .block_on(async move {
             event_bus
-                .publish_with_mode(milestone, metadata, DispatchMode::Sequential)
+                .publish_with_mode_and_before_dispatch_receipt_validator(
+                    milestone,
+                    metadata,
+                    DispatchMode::Sequential,
+                    require_durable_receipt,
+                )
                 .await
         })
-        .and_then(|report| require_durable_milestone(&report))
+        .map(|_report| ())
 }
 
-fn require_durable_milestone(report: &PublishReport) -> Result<(), EventingError> {
-    if !report
-        .journal_appends
-        .iter()
-        .any(ocentra_eventing::journal::JournalAppend::has_verified_synchronization_proof)
-    {
+fn require_durable_receipt(
+    append: &ocentra_eventing::journal::JournalAppend,
+) -> Result<(), EventingError> {
+    if !append.has_verified_synchronization_proof() {
         return Err(EventingError::InvalidHandlerPolicy {
             reason:
                 "authenticated delivery grant issuance milestone requires a synchronized durable journal append with verifiable completion proof"

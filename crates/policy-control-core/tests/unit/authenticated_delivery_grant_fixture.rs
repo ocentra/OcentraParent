@@ -1,12 +1,8 @@
 use super::authenticated_delivery_grant::IssuanceFixture;
 use ocentra_eventing::bus::EventBus;
-use ocentra_eventing::envelope::StoredEventEnvelope;
-use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::EventType;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
-use ocentra_eventing::journal::{
-    EventJournal, JournalAppend, JournalAppendDurability, JournalAppendFuture, JournalHashVersion,
-};
+use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
 use ocentra_family_identity_core::household_authority_proof::{
     HouseholdAuthorityCurrentState, HouseholdAuthorityProofIdentityBinding,
@@ -24,155 +20,15 @@ use ocentra_policy_control_core::policy_authority::{
 };
 use ocentra_policy_control_core::policy_authority_resolved_decision::ResolvedPolicyDecision;
 use std::sync::atomic::{AtomicU64, Ordering};
-use std::sync::Arc;
-use std::sync::Mutex;
 
-#[derive(Default)]
-pub(crate) struct InMemoryMilestoneJournal {
-    next_sequence: AtomicU64,
-}
+static JOURNAL_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
-pub(crate) struct FailingMilestoneJournal {
-    calls: AtomicU64,
-    fail_once_on: u64,
-    persisted: Mutex<Vec<StoredEventEnvelope>>,
-}
-
-/// Models an untrusted V3 receipt whose mutable durability field was changed
-/// after the buffered journal entry was produced. A real V3 synchronization
-/// receipt must carry the authenticated completion marker instead.
-#[derive(Default)]
-pub(crate) struct ForgedV3MilestoneJournal {
-    next_sequence: AtomicU64,
-}
-
-/// Models a legacy receipt whose mutable synchronized field is not backed by
-/// a V3 completion proof and therefore cannot authorize a grant.
-#[derive(Default)]
-pub(crate) struct LegacyV2MilestoneJournal {
-    next_sequence: AtomicU64,
-}
-
-impl FailingMilestoneJournal {
-    pub(crate) fn fail_once_on(fail_once_on: u64) -> Self {
-        Self {
-            calls: AtomicU64::new(0),
-            fail_once_on,
-            persisted: Mutex::new(Vec::new()),
-        }
-    }
-
-    pub(crate) fn persisted(&self) -> Result<Vec<StoredEventEnvelope>, EventingError> {
-        let persisted = self
-            .persisted
-            .lock()
-            .map_err(|_error| EventingError::JournalIo {
-                path: "policy-control-failing-milestone-journal".to_owned(),
-                reason: "persisted-record lock unavailable".to_owned(),
-            })?;
-        Ok(persisted.clone())
-    }
-
-    fn append_result(
-        &self,
-        envelope: &StoredEventEnvelope,
-    ) -> Result<JournalAppend, EventingError> {
-        let call = self.calls.fetch_add(1, Ordering::Relaxed) + 1;
-        if call == self.fail_once_on {
-            return Err(EventingError::JournalIo {
-                path: "policy-control-failing-milestone-journal".to_owned(),
-                reason: "intentional terminal append failure".to_owned(),
-            });
-        }
-        self.persisted
-            .lock()
-            .map_err(|_error| EventingError::JournalIo {
-                path: "policy-control-failing-milestone-journal".to_owned(),
-                reason: "persisted-record lock unavailable".to_owned(),
-            })?
-            .push(envelope.clone());
-        JournalAppend {
-            sequence: call,
-            previous_hash: None,
-            current_hash: None,
-            hash_version: JournalHashVersion::V3,
-            durability: JournalAppendDurability::Buffered,
-            requested_durability: JournalAppendDurability::Synchronized,
-            synchronization_hash: None,
-        }
-        .with_synchronization_proof()
-    }
-}
-
-impl EventJournal for FailingMilestoneJournal {
-    fn is_production_durable(&self) -> bool {
-        true
-    }
-
-    fn append<'a>(&'a self, envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
-        Box::pin(async move { self.append_result(envelope) })
-    }
-}
-
-impl EventJournal for InMemoryMilestoneJournal {
-    fn is_production_durable(&self) -> bool {
-        true
-    }
-
-    fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
-        Box::pin(async move {
-            JournalAppend {
-                sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
-                previous_hash: None,
-                current_hash: None,
-                hash_version: JournalHashVersion::V3,
-                durability: JournalAppendDurability::Buffered,
-                requested_durability: JournalAppendDurability::Synchronized,
-                synchronization_hash: None,
-            }
-            .with_synchronization_proof()
-        })
-    }
-}
-
-impl EventJournal for ForgedV3MilestoneJournal {
-    fn is_production_durable(&self) -> bool {
-        true
-    }
-
-    fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
-        Box::pin(async move {
-            Ok(JournalAppend {
-                sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
-                previous_hash: None,
-                current_hash: None,
-                hash_version: JournalHashVersion::V3,
-                durability: JournalAppendDurability::Synchronized,
-                requested_durability: JournalAppendDurability::Synchronized,
-                synchronization_hash: None,
-            })
-        })
-    }
-}
-
-impl EventJournal for LegacyV2MilestoneJournal {
-    fn is_production_durable(&self) -> bool {
-        true
-    }
-
-    fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
-        Box::pin(async move {
-            Ok(JournalAppend {
-                sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
-                previous_hash: None,
-                current_hash: None,
-                hash_version: JournalHashVersion::V2,
-                durability: JournalAppendDurability::Synchronized,
-                requested_durability: JournalAppendDurability::Synchronized,
-                synchronization_hash: None,
-            })
-        })
-    }
+fn unique_journal_path(label: &str) -> std::path::PathBuf {
+    let sequence = JOURNAL_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+    std::env::temp_dir().join(format!(
+        "ocentra-policy-issuance-{label}-{}-{sequence}.journal",
+        std::process::id()
+    ))
 }
 
 pub(super) fn issuer_without_milestone_publisher(
@@ -197,7 +53,7 @@ pub(super) fn issuer(
         .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)?;
     let event_bus = EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-        Arc::new(InMemoryMilestoneJournal::default()),
+        ProductionFileEventJournal::new(unique_journal_path("issuer")).shared(),
     );
     issuer_without_milestone_publisher()
         .and_then(|issuer| {
@@ -285,12 +141,12 @@ pub(super) fn executable_conflict_decision() -> PolicyConflictDecision {
 }
 
 pub(super) fn durable_milestone_bus(
-    _journal_path: &std::path::Path,
+    journal_path: &std::path::Path,
 ) -> Result<EventBus, ocentra_eventing::error::EventingError> {
     let event_type = EventType::parse("authenticated-delivery-grant.issuance.milestone")?;
     Ok(EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-        Arc::new(InMemoryMilestoneJournal::default()),
+        ProductionFileEventJournal::new(journal_path).shared(),
     ))
 }
 

@@ -7,6 +7,7 @@ use crate::{EventingError, JournalHash, StoredEventEnvelope};
 pub(crate) mod hash_chain;
 pub mod ndjson;
 pub mod policy;
+pub mod production_file;
 
 use policy::JournalDispatchPhase;
 

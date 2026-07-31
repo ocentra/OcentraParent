@@ -77,6 +77,13 @@ fn publish_accepted_or_reject(
                 )
                 .map(|_grant| ())
         })
+        .and_then(|()| {
+            validate_remaining_lifetime(issuer, grant).or_else(|error| {
+                issuer
+                    .finalize_rejected(correlation_id, attempt_id, error)
+                    .map(|_grant| ())
+            })
+        })
 }
 
 async fn validate_before_accepted_async(
@@ -116,6 +123,12 @@ async fn publish_accepted_or_reject_async(
                 attempt_id,
                 AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed,
             )
+            .await
+            .map(|_grant| ());
+    }
+    if let Err(error) = validate_remaining_lifetime(issuer, grant) {
+        return issuer
+            .finalize_rejected_async(correlation_id, attempt_id, error)
             .await
             .map(|_grant| ());
     }

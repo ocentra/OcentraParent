@@ -9,6 +9,8 @@ use crate::bus::reports::handler::{HandlerOutcome, HandlerReport};
 
 mod dispatching;
 
+type BeforeDispatchReceiptValidator = fn(&crate::JournalAppend) -> Result<(), EventingError>;
+
 pub(super) async fn publish_with_mode<E>(
     bus: &EventBus,
     event: E,
@@ -37,6 +39,36 @@ where
     .await
 }
 
+pub(super) async fn publish_with_mode_and_before_dispatch_receipt_validator<E>(
+    bus: &EventBus,
+    event: E,
+    metadata: EventMetadata,
+    dispatch_mode: DispatchMode,
+    validator: BeforeDispatchReceiptValidator,
+) -> Result<PublishReport, EventingError>
+where
+    E: DomainEvent,
+{
+    bus.ensure_active()?;
+    let stored = EventEnvelope::from_event(event, metadata)?.store()?;
+    if stored.is_deadline_expired(bus.clock.now()) {
+        return dispatching::dead_letter_expired_deadline(bus, stored, dispatch_mode).await;
+    }
+    let subscribers = bus.subscribers_for(&stored);
+    if subscribers.is_empty() {
+        return dispatching::publish_without_subscribers(bus, stored, dispatch_mode).await;
+    }
+    bus.dispatch_stored_with_before_dispatch_receipt_validator(
+        stored,
+        subscribers,
+        dispatch_mode,
+        bus.queue.report(QueueDisposition::Dispatched),
+        true,
+        validator,
+    )
+    .await
+}
+
 impl EventBus {
     pub(crate) async fn dispatch_stored(
         &self,
@@ -57,6 +89,27 @@ impl EventBus {
         .map_err(DispatchStoredError::into_error)
     }
 
+    async fn dispatch_stored_with_before_dispatch_receipt_validator(
+        &self,
+        stored: StoredEventEnvelope,
+        subscribers: Vec<SubscriberRecord>,
+        dispatch_mode: DispatchMode,
+        queue_report: crate::QueueReport,
+        write_journal: bool,
+        validator: BeforeDispatchReceiptValidator,
+    ) -> Result<PublishReport, EventingError> {
+        self.dispatch_stored_checked_with_before_dispatch_receipt_validator(
+            stored,
+            subscribers,
+            dispatch_mode,
+            queue_report,
+            write_journal,
+            Some(validator),
+        )
+        .await
+        .map_err(DispatchStoredError::into_error)
+    }
+
     pub(crate) async fn dispatch_stored_checked(
         &self,
         stored: StoredEventEnvelope,
@@ -64,6 +117,26 @@ impl EventBus {
         dispatch_mode: DispatchMode,
         queue_report: crate::QueueReport,
         write_journal: bool,
+    ) -> Result<PublishReport, DispatchStoredError> {
+        self.dispatch_stored_checked_with_before_dispatch_receipt_validator(
+            stored,
+            subscribers,
+            dispatch_mode,
+            queue_report,
+            write_journal,
+            None,
+        )
+        .await
+    }
+
+    async fn dispatch_stored_checked_with_before_dispatch_receipt_validator(
+        &self,
+        stored: StoredEventEnvelope,
+        subscribers: Vec<SubscriberRecord>,
+        dispatch_mode: DispatchMode,
+        queue_report: crate::QueueReport,
+        write_journal: bool,
+        validator: Option<BeforeDispatchReceiptValidator>,
     ) -> Result<PublishReport, DispatchStoredError> {
         let reservation = self.queue.reserve_dispatch(&stored)?;
         let _active_dispatch = self.active_dispatches.enter();
@@ -76,6 +149,9 @@ impl EventBus {
             .await
             .map_err(DispatchStoredError::BeforeDispatch)?
         {
+            if let Some(validator) = validator {
+                validator(&append).map_err(DispatchStoredError::BeforeDispatch)?;
+            }
             journal_appends.push(append);
         }
         let handler_reports = self
