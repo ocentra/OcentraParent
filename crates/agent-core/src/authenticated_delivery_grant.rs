@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-use std::{path::Path, time::Duration};
+use std::path::Path;
 
 use ed25519_dalek::VerifyingKey;
 use ocentra_schema::authenticated_delivery_grant::{
@@ -17,7 +17,7 @@ mod sqlite_contention;
 mod storage_keys;
 mod validation;
 
-use sqlite_contention::immediate_transaction_with_contention_retry;
+use sqlite_contention::{immediate_transaction_with_contention_retry, CONNECTION_BUSY_TIMEOUT};
 use storage_keys::{audit, storage_key_digest, validate_trusted_issuer};
 
 const CREATE_CONSUMED_GRANTS: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_consumes_v2 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_fingerprint TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
@@ -28,7 +28,6 @@ const CREATE_GRANT_AUDITS: &str = "CREATE TABLE IF NOT EXISTS authenticated_deli
 const INSERT_GRANT_AUDIT: &str = "INSERT INTO authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, ?5)";
 const TRIM_GRANT_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay' AND rowid NOT IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'replay' ORDER BY rowid DESC LIMIT ?3)";
 const TRIM_VALIDATION_REJECTION_AUDITS: &str = "DELETE FROM authenticated_delivery_grant_audits_v2 WHERE rowid IN (SELECT rowid FROM authenticated_delivery_grant_audits_v2 WHERE audit_scope = 'validation-rejection' ORDER BY rowid DESC LIMIT -1 OFFSET ?1)";
-const CONSUME_BUSY_TIMEOUT: Duration = Duration::from_secs(5);
 const MAX_REPLAY_AUDIT_ROWS_PER_GRANT: i64 = 16;
 const MAX_VALIDATION_REJECTION_AUDITS: i64 = 1_024;
 const VALIDATION_REJECTION_AUDIT_SCOPE: &str = "validation-rejection";
@@ -142,7 +141,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         let connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
-            .busy_timeout(CONSUME_BUSY_TIMEOUT)
+            .busy_timeout(CONNECTION_BUSY_TIMEOUT)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
             .execute_batch("PRAGMA foreign_keys = ON;")
