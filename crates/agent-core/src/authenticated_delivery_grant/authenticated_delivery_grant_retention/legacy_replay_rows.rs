@@ -31,15 +31,17 @@ pub(super) fn migrate_legacy_replay_records(
     connection: &mut Connection,
     trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    let has_legacy_json = connection
+    let transaction = immediate_transaction_with_contention_retry(connection)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    let has_legacy_json = transaction
         .prepare("SELECT 1 FROM pragma_table_info('authenticated_delivery_grant_consumes_v2') WHERE name = ?1")
         .and_then(|mut statement| statement.exists(["grant_json"]))
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     if !has_legacy_json {
-        return Ok(());
+        return transaction
+            .commit()
+            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable);
     }
-    let transaction = immediate_transaction_with_contention_retry(connection)
-        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     transaction
         .execute(CREATE_FINGERPRINT_REPLAY_TABLE, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
