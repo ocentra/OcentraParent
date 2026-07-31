@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::journal::JournalAppend;
+use crate::journal::{JournalAppend, JournalHashVersion};
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, StoredEventEnvelope};
 
 use super::idempotent_match::matching_append;
@@ -20,7 +20,7 @@ impl NdjsonEventJournal {
         match self.existing_append(envelope).await? {
             Some(append) => {
                 self.sync_existing_journal().await?;
-                Ok(append)
+                acknowledgement_after_sync(append)
             }
             None => {
                 self.append_entry_with_gate(envelope, JournalDispatchPhase::AfterDispatch)
@@ -52,6 +52,13 @@ impl NdjsonEventJournal {
             return matches.swap_remove(index).map(Some);
         }
         Ok(matches.into_iter().find_map(Result::ok))
+    }
+}
+
+fn acknowledgement_after_sync(append: JournalAppend) -> Result<JournalAppend, EventingError> {
+    match append.hash_version {
+        JournalHashVersion::V3 => append.with_synchronization_proof(),
+        JournalHashVersion::LegacyV1 | JournalHashVersion::V2 => Ok(append),
     }
 }
 
