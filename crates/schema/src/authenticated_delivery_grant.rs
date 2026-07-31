@@ -75,7 +75,7 @@ impl AuthenticatedDeliveryGrant {
                 "authenticated delivery grant encoded wire exceeds its byte limit".to_owned(),
             );
         }
-        serde_json::from_str(input).map_err(|error| error.to_string())
+        wire::decode_bounded_wire(input).map_err(|error| error.to_string())
     }
 
     pub fn validate_shape(&self) -> Result<(), AuthenticatedDeliveryGrantValidationError> {
