@@ -28,12 +28,8 @@ pub(super) async fn publish_without_subscribers(
             {
                 report.journal_appends.push(append);
             }
-            if let Some(append) = bus
-                .append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-                .await?
-            {
-                report.journal_appends.push(append);
-            }
+            // No handler observed this event. An AfterDispatch record authorizes
+            // action replay, so it must only exist after an actual dispatch.
             reservation.complete();
             Ok(report)
         }

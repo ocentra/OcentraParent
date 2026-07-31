@@ -205,6 +205,80 @@ async fn action_replay_skips_two_before_dispatch_records_and_replays_later_actio
 }
 
 #[tokio::test]
+async fn dropped_no_subscriber_event_never_becomes_an_after_dispatch_replay_action() {
+    let path = journal_path(TestText("dropped-no-subscriber-action-replay".to_owned()));
+    let journal = NdjsonEventJournal::new(&path);
+    let dropped_bus = EventBus::with_journal(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+    );
+
+    let dropped = dropped_bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("dropped-no-subscriber".to_owned()),
+                TestText("dropped-no-subscriber-key".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("no-subscriber event completes without action evidence");
+
+    assert_eq!(dropped.subscriber_count, 0);
+    assert_eq!(dropped.journal_appends.len(), 1);
+    let dropped_actions = journal
+        .replay_action_records(ReplayFilter::all())
+        .await
+        .expect_value("dropped event never enters action replay");
+    assert!(dropped_actions.records.is_empty());
+
+    let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
+    let handled_clone = Arc::clone(&handled);
+    let action_bus = EventBus::with_journal(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+    );
+    action_bus
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |_| {
+                let handled = Arc::clone(&handled_clone);
+                async move {
+                    *handled.lock().await += 1;
+                    Ok(())
+                }
+            },
+        )
+        .await
+        .expect_value("subscriber registers for real action");
+    action_bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("handled-after-dispatch".to_owned()),
+                TestText("handled-after-dispatch-key".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("subscriber-backed event creates action replay evidence");
+
+    let actions = journal
+        .replay_action_records(ReplayFilter::all())
+        .await
+        .expect_value("only handled event enters action replay");
+    assert_eq!(actions.records.len(), 1);
+    assert_eq!(
+        actions.records[0].envelope.contract.event_type.as_str(),
+        TEST_EVENT_TYPE
+    );
+    assert_eq!(*handled.lock().await, 1);
+    cleanup(path).await;
+}
+
+#[tokio::test]
 async fn projection_replay_cannot_run_handlers_without_action_mode() {
     let path = journal_path(TestText("projection-gate".to_owned()));
     let journal = NdjsonEventJournal::new(&path);

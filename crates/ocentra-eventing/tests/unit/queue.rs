@@ -120,7 +120,7 @@ async fn before_dispatch_journal_is_durable_without_a_subscriber() {
 }
 
 #[tokio::test]
-async fn no_subscriber_after_dispatch_journal_records_the_after_phase() {
+async fn no_subscriber_after_dispatch_journal_does_not_record_an_action_phase() {
     let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
     let bus = EventBus::with_journal(
         JournalPolicy::after_dispatch(JournalSelector::All),
@@ -133,15 +133,15 @@ async fn no_subscriber_after_dispatch_journal_records_the_after_phase() {
             metadata(TestText(TEST_TARGET.to_owned())),
         )
         .await
-        .expect_value("after-dispatch journal persists without a subscriber");
+        .expect_value("no-subscriber dispatch completes without action-replay evidence");
 
     assert_eq!(report.subscriber_count, 0);
-    assert_eq!(report.journal_appends.len(), 1);
-    assert_eq!(journal.phases(), vec![JournalDispatchPhase::AfterDispatch]);
+    assert!(report.journal_appends.is_empty());
+    assert!(journal.phases().is_empty());
 }
 
 #[tokio::test]
-async fn no_subscriber_before_and_after_journal_completes_idempotency_after_both_phases() {
+async fn no_subscriber_before_and_after_journal_completes_idempotency_without_action_phase() {
     let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
     let policy = EventQueuePolicy::default().with_idempotency_registry();
     let bus = EventBus::with_journal_and_queue_policy(
@@ -161,7 +161,7 @@ async fn no_subscriber_before_and_after_journal_completes_idempotency_after_both
         ),
     )
     .await
-    .expect_value("both phases persist before idempotency completion");
+    .expect_value("before-dispatch evidence persists before idempotency completion");
 
     let duplicate = bus
         .publish(
@@ -180,18 +180,12 @@ async fn no_subscriber_before_and_after_journal_completes_idempotency_after_both
         duplicate,
         Err(EventingError::DuplicateIdempotencyKey { .. })
     ));
-    assert_eq!(
-        journal.phases(),
-        vec![
-            JournalDispatchPhase::BeforeDispatch,
-            JournalDispatchPhase::AfterDispatch,
-        ]
-    );
+    assert_eq!(journal.phases(), vec![JournalDispatchPhase::BeforeDispatch]);
 }
 
 #[tokio::test]
-async fn no_subscriber_after_phase_failure_releases_idempotency_for_full_phase_retry() {
-    let journal = Arc::new(FailingJournal::fail_once_on(2));
+async fn no_subscriber_before_phase_failure_releases_idempotency_for_retry() {
+    let journal = Arc::new(FailingJournal::fail_once_on(1));
     let policy = EventQueuePolicy::default().with_idempotency_registry();
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
@@ -202,12 +196,12 @@ async fn no_subscriber_after_phase_failure_releases_idempotency_for_full_phase_r
     let first = bus
         .publish(
             test_event_with_idempotency(
-                TestText("retry both-phase no-subscriber".to_owned()),
-                TestText("retry-both-phase-no-subscriber-key".to_owned()),
+                TestText("retry before-phase no-subscriber".to_owned()),
+                TestText("retry-before-phase-no-subscriber-key".to_owned()),
             ),
             metadata_with_event_id(
                 TestText(TEST_TARGET.to_owned()),
-                TestText("retry-both-phase-no-subscriber-event-1".to_owned()),
+                TestText("retry-before-phase-no-subscriber-event-1".to_owned()),
             ),
         )
         .await;
@@ -216,25 +210,23 @@ async fn no_subscriber_after_phase_failure_releases_idempotency_for_full_phase_r
     let replay = bus
         .publish(
             test_event_with_idempotency(
-                TestText("retry both-phase no-subscriber".to_owned()),
-                TestText("retry-both-phase-no-subscriber-key".to_owned()),
+                TestText("retry before-phase no-subscriber".to_owned()),
+                TestText("retry-before-phase-no-subscriber-key".to_owned()),
             ),
             metadata_with_event_id(
                 TestText(TEST_TARGET.to_owned()),
-                TestText("retry-both-phase-no-subscriber-event-2".to_owned()),
+                TestText("retry-before-phase-no-subscriber-event-2".to_owned()),
             ),
         )
         .await
-        .expect_value("retry persists the previously missing after phase");
+        .expect_value("retry persists the missing before-dispatch evidence");
 
-    assert_eq!(replay.journal_appends.len(), 2);
+    assert_eq!(replay.journal_appends.len(), 1);
     assert_eq!(
         journal.phases(),
         vec![
             JournalDispatchPhase::BeforeDispatch,
-            JournalDispatchPhase::AfterDispatch,
             JournalDispatchPhase::BeforeDispatch,
-            JournalDispatchPhase::AfterDispatch,
         ]
     );
 }
