@@ -113,9 +113,12 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
                     .to_owned(),
             });
         }
-        if event_bus.no_subscriber_queue_policy() == NoSubscriberQueuePolicy::Queue {
+        if matches!(
+            event_bus.no_subscriber_queue_policy(),
+            NoSubscriberQueuePolicy::Queue | NoSubscriberQueuePolicy::DeadLetter
+        ) {
             return Err(EventingError::InvalidHandlerPolicy {
-                reason: "authenticated delivery grant issuance must reject queued no-subscriber delivery because a failed authorization attempt cannot leave terminal milestones for later dispatch"
+                reason: "authenticated delivery grant issuance requires no-subscriber dispatch because queued or dead-letter terminal milestones cannot provide receipt-validated durable publication"
                     .to_owned(),
             });
         }

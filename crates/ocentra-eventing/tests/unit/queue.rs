@@ -21,6 +21,7 @@ use ocentra_eventing::journal::{JournalAppendDurability, JournalHashVersion};
 fn failing_journal_result(
     call: usize,
     fail_once_on: usize,
+    hash_version: JournalHashVersion,
 ) -> Result<JournalAppend, EventingError> {
     if call == fail_once_on {
         return Err(EventingError::JournalIo {
@@ -36,10 +37,19 @@ fn failing_journal_result(
             crate::JournalHash::parse(format!("journal-hash-{call}"))
                 .expect_value("journal hash parses"),
         ),
-        hash_version: JournalHashVersion::V2,
+        hash_version,
         durability: JournalAppendDurability::Synchronized,
         requested_durability: JournalAppendDurability::Synchronized,
         synchronization_hash: None,
+    })
+}
+
+fn require_verified_v3_receipt(append: &JournalAppend) -> Result<(), EventingError> {
+    if append.has_verified_synchronization_proof() {
+        return Ok(());
+    }
+    Err(EventingError::InvalidHandlerPolicy {
+        reason: "test requires a verified V3 synchronization receipt".to_owned(),
     })
 }
 
@@ -117,6 +127,33 @@ async fn before_dispatch_journal_is_durable_without_a_subscriber() {
     assert_eq!(report.journal_appends.len(), 1);
     assert!(report.journal_appends[0].is_synchronized());
     assert_eq!(journal.phases(), vec![JournalDispatchPhase::BeforeDispatch]);
+}
+
+#[tokio::test]
+async fn no_subscriber_validated_publish_rejects_an_invalid_v3_receipt_before_completion() {
+    let journal = Arc::new(FailingJournal::with_invalid_v3_receipt());
+    let bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::All),
+        Arc::<FailingJournal>::clone(&journal),
+    );
+
+    let result = bus
+        .publish_with_mode_and_before_dispatch_receipt_validator(
+            test_event(TestText("invalid V3 no-subscriber receipt".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+            DispatchMode::Sequential,
+            require_verified_v3_receipt,
+        )
+        .await;
+
+    assert_eq!(
+        result,
+        Err(EventingError::InvalidHandlerPolicy {
+            reason: "test requires a verified V3 synchronization receipt".to_owned(),
+        })
+    );
+    assert_eq!(journal.phases(), vec![JournalDispatchPhase::BeforeDispatch]);
+    assert_eq!(journal.calls(), 1);
 }
 
 #[tokio::test]
@@ -740,6 +777,7 @@ struct FailingJournal {
     calls: StdMutex<usize>,
     phases: StdMutex<Vec<JournalDispatchPhase>>,
     fail_once_on: usize,
+    hash_version: JournalHashVersion,
 }
 
 impl FailingJournal {
@@ -748,6 +786,16 @@ impl FailingJournal {
             calls: StdMutex::new(0),
             phases: StdMutex::new(Vec::new()),
             fail_once_on: call,
+            hash_version: JournalHashVersion::V2,
+        }
+    }
+
+    fn with_invalid_v3_receipt() -> Self {
+        Self {
+            calls: StdMutex::new(0),
+            phases: StdMutex::new(Vec::new()),
+            fail_once_on: usize::MAX,
+            hash_version: JournalHashVersion::V3,
         }
     }
 
@@ -774,7 +822,7 @@ impl EventJournal for FailingJournal {
                 *calls += 1;
                 *calls
             };
-            failing_journal_result(call, self.fail_once_on)
+            failing_journal_result(call, self.fail_once_on, self.hash_version)
         })
     }
 
