@@ -15,7 +15,8 @@ use ocentra_family_identity_core::household_authority_proof::{
     HouseholdAuthorityProofIdentityBinding, HouseholdAuthorityProofSigner,
 };
 use ocentra_family_identity_core::parent_step_up_proof::{
-    ParentStepUpProofError, ParentStepUpProofSigner, ParentStepUpProofVerifier,
+    authorization_digest, ParentStepUpAuthorizationBinding, ParentStepUpProofError,
+    ParentStepUpProofSigner, ParentStepUpProofVerifier,
 };
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::{
     AuthenticatedDeliveryGrantAuthoritySigner, AuthenticatedDeliveryGrantAuthorityVerifier,
@@ -172,10 +173,21 @@ impl ProvenanceFixture {
                 "authority provenance"
             ),
             verified_parent_step_up_proof: test_ok!(
-                step_up_signer.sign(
+                step_up_signer.sign_bound(
                     self.step_up.validation.clone(),
                     self.bindings.target_device_id.clone(),
                     assertions,
+                    authorization_digest(ParentStepUpAuthorizationBinding {
+                        household_id: &self.bindings.household_id,
+                        parent_actor_id: &self.bindings.issuer_actor_id,
+                        parent_device_id: &self.bindings.parent_device_id,
+                        child_profile_id: &self.bindings.child_profile_id,
+                        target_device_id: &self.bindings.target_device_id,
+                        action_id: &self.bindings.action_id,
+                        capability_id: &self.bindings.capability_id,
+                        evidence_digest: &self.bindings.evidence_digest,
+                        payload_digest: &self.bindings.payload_digest,
+                    }),
                 ),
                 "bounded parent step-up proof"
             ),
@@ -375,13 +387,24 @@ fn issuer_rejects_signed_step_up_target_that_differs_from_canonical_target() -> 
     let step_up_signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
     let mut request = fixture.request();
     request.verified_parent_step_up_proof = test_ok!(
-        step_up_signer.sign(
+        step_up_signer.sign_bound(
             fixture.step_up.validation.clone(),
             "other-child-device".to_owned(),
             AuthenticatedDeliveryGrantAssertionSnapshot {
                 capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
                 evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
             },
+            authorization_digest(ParentStepUpAuthorizationBinding {
+                household_id: &fixture.bindings.household_id,
+                parent_actor_id: &fixture.bindings.issuer_actor_id,
+                parent_device_id: &fixture.bindings.parent_device_id,
+                child_profile_id: &fixture.bindings.child_profile_id,
+                target_device_id: &fixture.bindings.target_device_id,
+                action_id: &fixture.bindings.action_id,
+                capability_id: &fixture.bindings.capability_id,
+                evidence_digest: &fixture.bindings.evidence_digest,
+                payload_digest: &fixture.bindings.payload_digest,
+            }),
         ),
         "signed mismatched step-up target"
     );
@@ -389,6 +412,29 @@ fn issuer_rejects_signed_step_up_target_that_differs_from_canonical_target() -> 
     assert_eq!(
         issuer.issue(request),
         Err(AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_step_up_proof_reused_for_a_different_authorization() -> TestResult {
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
+    let authorization_a = ProvenanceFixture::new();
+    let proof_for_a = authorization_a.request().verified_parent_step_up_proof;
+    let mut authorization_b = ProvenanceFixture::new();
+    authorization_b.bindings.action_id = "action-2".to_owned();
+    authorization_b.canonical.action_id = test_ok!(GrantActionId::parse("action-2"), "action B");
+    let mut request_for_b = authorization_b.request();
+    request_for_b.verified_parent_step_up_proof = proof_for_a;
+    assert_eq!(
+        issuer.issue(request_for_b),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch),
+        "a family-signed step-up proof for authorization A cannot authorize B"
+    );
+    let matching = authorization_a.request();
+    let _matching_grant = test_ok!(
+        issuer.issue(matching),
+        "a matching authorization digest remains issuable"
     );
     Ok(())
 }

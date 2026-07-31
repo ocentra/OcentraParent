@@ -6,6 +6,7 @@ use ocentra_schema::authenticated_delivery_grant::{
     AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
 };
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use crate::household_authority::ParentStepUpValidationInput;
 
@@ -29,7 +30,39 @@ pub struct VerifiedParentStepUpProof {
     pub validation: ParentStepUpValidationInput,
     pub target_device_id: String,
     pub assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
+    pub authorization_digest: String,
     pub signature: Vec<u8>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct ParentStepUpAuthorizationBinding<'a> {
+    pub household_id: &'a str,
+    pub parent_actor_id: &'a str,
+    pub parent_device_id: &'a str,
+    pub child_profile_id: &'a str,
+    pub target_device_id: &'a str,
+    pub action_id: &'a str,
+    pub capability_id: &'a str,
+    pub evidence_digest: &'a str,
+    pub payload_digest: &'a str,
+}
+
+pub fn authorization_digest(binding: ParentStepUpAuthorizationBinding<'_>) -> String {
+    let input = [
+        binding.household_id,
+        binding.parent_actor_id,
+        binding.parent_device_id,
+        binding.child_profile_id,
+        binding.target_device_id,
+        binding.action_id,
+        binding.capability_id,
+        binding.evidence_digest,
+        binding.payload_digest,
+    ];
+    format!(
+        "sha256:{:x}",
+        Sha256::digest(input.join("\u{1f}").as_bytes())
+    )
 }
 
 pub struct ParentStepUpProofVerifier {
@@ -59,6 +92,7 @@ impl ParentStepUpProofVerifier {
             &proof.validation,
             &proof.target_device_id,
             &proof.assertions,
+            &proof.authorization_digest,
         )?;
         self.verifying_key
             .verify_strict(&bytes, &signature)
@@ -93,12 +127,29 @@ impl ParentStepUpProofSigner {
         assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
     ) -> Result<VerifiedParentStepUpProof, ParentStepUpProofError> {
         validate_unsigned_shape(&validation, &target_device_id)?;
-        let bytes = signing_bytes(&validation, &target_device_id, &assertions)?;
+        self.sign_bound(validation, target_device_id, assertions, String::new())
+    }
+
+    pub fn sign_bound(
+        &self,
+        validation: ParentStepUpValidationInput,
+        target_device_id: String,
+        assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
+        authorization_digest: String,
+    ) -> Result<VerifiedParentStepUpProof, ParentStepUpProofError> {
+        validate_unsigned_shape(&validation, &target_device_id)?;
+        let bytes = signing_bytes(
+            &validation,
+            &target_device_id,
+            &assertions,
+            &authorization_digest,
+        )?;
         let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
         Ok(VerifiedParentStepUpProof {
             validation,
             target_device_id,
             assertions,
+            authorization_digest,
             signature,
         })
     }
@@ -108,9 +159,15 @@ fn signing_bytes(
     validation: &ParentStepUpValidationInput,
     target_device_id: &str,
     assertions: &AuthenticatedDeliveryGrantAssertionSnapshot,
+    authorization_digest: &str,
 ) -> Result<Vec<u8>, ParentStepUpProofError> {
-    serde_json::to_vec(&(validation, target_device_id, assertions))
-        .map_err(|_error| ParentStepUpProofError::Rejected)
+    serde_json::to_vec(&(
+        validation,
+        target_device_id,
+        assertions,
+        authorization_digest,
+    ))
+    .map_err(|_error| ParentStepUpProofError::Rejected)
 }
 
 fn validate_proof_shape(proof: &VerifiedParentStepUpProof) -> Result<(), ParentStepUpProofError> {
