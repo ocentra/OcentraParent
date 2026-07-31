@@ -74,5 +74,6 @@ pub mod report_query_custody;
 pub mod report_query_custody_ts;
 pub mod retention_delete_tombstone;
 pub mod setup_device_trust_handoff;
+pub mod tracking_event_contracts;
 pub mod typescript_literal;
 pub mod v0_8_notification_provider_status_boundary_ts;

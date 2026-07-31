@@ -157,3 +157,15 @@ proven, and manual-required gaps. It must not be accepted if
 - Parent config flow, detection cascade, notification dispatch, provider
   receipt, child-device runtime, physical-device behavior, authority, and
   production behavior remain unclaimed until later workpacks implement them.
+
+## 2026-07-31 execution evidence
+
+WP34 now has a Rust-owned canonical catalog in
+`crates/schema/src/tracking_event_contracts.rs`. It covers the nineteen named
+event identities and validates cross-boundary correlation, aggregate,
+idempotency, causation, evidence, policy, live-mode TTL/audit, and AI
+uncertainty/authority boundaries. The older agent-protocol tracking constants
+remain transitional consumers; this workpack does not claim their runtime
+migration or dispatch.
+
+Proof: `output/tracking-plan-proof/34-tracking-event-contracts/`.
