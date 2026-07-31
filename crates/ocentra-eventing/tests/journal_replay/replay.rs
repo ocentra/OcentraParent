@@ -109,7 +109,7 @@ async fn action_replay_skips_two_before_dispatch_records_and_replays_later_actio
         JournalPolicy::before_dispatch(JournalSelector::All),
         journal.clone().shared(),
     );
-    before_dispatch_bus
+    let first_publish = before_dispatch_bus
         .publish(
             test_event_with_idempotency(
                 TestText(TEST_LABEL.to_owned()),
@@ -117,8 +117,11 @@ async fn action_replay_skips_two_before_dispatch_records_and_replays_later_actio
             ),
             metadata(TestText(TEST_TARGET.to_owned())),
         )
-        .await
-        .expect_value("first no-subscriber event records only before-dispatch evidence");
+        .await;
+    assert!(
+        first_publish.is_ok(),
+        "first publish failed: {first_publish:?}"
+    );
     before_dispatch_bus
         .publish(
             test_event_with_idempotency(

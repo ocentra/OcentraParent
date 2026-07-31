@@ -1,41 +1,39 @@
-use tokio::{
-    fs::File,
-    io::{AsyncBufReadExt, BufReader},
-};
-
 use crate::{
-    EventingError, JournalHash, NdjsonEventJournal, ReplayCursor, ReplayFilter, ReplayMode,
-    ReplayReadReport,
+    journal::{hash_chain::verify_synchronization_completion, JournalHashVersion},
+    EventingError, NdjsonEventJournal, ReplayCursor, ReplayFilter, ReplayMode, ReplayReadReport,
+    ReplayRecord,
 };
-
-use super::record;
 
 pub(super) async fn read(
     journal: &NdjsonEventJournal,
     filter: ReplayFilter,
     mode: ReplayMode,
 ) -> Result<ReplayReadReport, EventingError> {
-    let file = File::open(journal.path())
-        .await
-        .map_err(|error| EventingError::journal_io(journal.path_string(), &error))?;
-    let mut lines = BufReader::new(file).lines();
-    let mut line_number = 0_usize;
+    let (entries, completions, mut skipped_count) = super::records::collect(journal).await?;
+    let last_sequence = entries
+        .last()
+        .map_or(filter.cursor.next_sequence.saturating_sub(1), |entry| {
+            entry.append.sequence
+        });
     let mut records = Vec::new();
-    let mut skipped_count = 0_usize;
-    let mut last_sequence = filter.cursor.next_sequence.saturating_sub(1);
-    let mut expected_previous_hash: Option<JournalHash> = None;
-
-    while let Some(line) = record::next_line(&mut lines, journal).await? {
-        line_number += 1;
-        skipped_count += usize::from(!record::process_record(
-            mode,
-            &line,
-            line_number,
-            &mut expected_previous_hash,
-            &filter,
-            &mut last_sequence,
-            &mut records,
-        )?);
+    for entry in entries {
+        let completed = entry.append.hash_version != JournalHashVersion::V3
+            || entry.append.current_hash.is_none()
+            || completions
+                .iter()
+                .any(|completion| verify_synchronization_completion(&entry, completion));
+        let skip = !completed
+            || (mode == ReplayMode::ActionHandlersAllowed
+                && entry.phase != crate::JournalDispatchPhase::AfterDispatch)
+            || !filter.matches(&entry);
+        if skip {
+            skipped_count += 1;
+        } else {
+            records.push(ReplayRecord {
+                sequence: entry.append.sequence,
+                envelope: entry.envelope,
+            });
+        }
     }
 
     Ok(ReplayReadReport {

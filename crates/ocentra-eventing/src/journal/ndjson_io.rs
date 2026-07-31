@@ -11,6 +11,8 @@ mod append_lock;
 mod idempotent;
 #[path = "ndjson_io/idempotent_match.rs"]
 mod idempotent_match;
+#[path = "ndjson_io/idempotent_record.rs"]
+mod idempotent_record;
 #[path = "ndjson_io/idempotent_recovery.rs"]
 mod idempotent_recovery;
 #[path = "ndjson_io/recover.rs"]

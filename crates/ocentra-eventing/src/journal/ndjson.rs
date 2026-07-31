@@ -9,7 +9,7 @@ use std::sync::atomic::AtomicU64;
 use serde::{Deserialize, Serialize};
 use tokio::sync::Semaphore;
 
-use crate::{JournalDispatchPhase, StoredEventEnvelope};
+use crate::{JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{JournalAppend, SharedEventJournal};
 
@@ -124,6 +124,40 @@ pub struct NdjsonJournalEntry {
     #[serde(default = "default_journal_phase")]
     pub phase: JournalDispatchPhase,
     pub envelope: StoredEventEnvelope,
+}
+
+/// A post-fsync V3 acknowledgement.  Event lines are deliberately written as
+/// buffered because their own serialization happens before fsync.  This
+/// separate line is emitted only after that fsync succeeds, so recovery can
+/// distinguish a persisted event from a durably completed publication.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NdjsonJournalSynchronizationCompletion {
+    pub sequence: u64,
+    pub entry_hash: JournalHash,
+    pub synchronization_hash: JournalHash,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum NdjsonJournalRecord {
+    Entry(Box<NdjsonJournalEntry>),
+    SynchronizationCompletion(NdjsonJournalSynchronizationCompletion),
+}
+
+impl NdjsonJournalRecord {
+    pub fn parse(line: &str, line_number: usize) -> Result<Self, crate::EventingError> {
+        serde_json::from_str(line).map_err(|error| crate::EventingError::JournalCorruptLine {
+            line: line_number,
+            reason: error.to_string(),
+        })
+    }
+
+    pub fn entry(self) -> Option<NdjsonJournalEntry> {
+        match self {
+            Self::Entry(entry) => Some(*entry),
+            Self::SynchronizationCompletion(_) => None,
+        }
+    }
 }
 
 fn default_journal_phase() -> JournalDispatchPhase {

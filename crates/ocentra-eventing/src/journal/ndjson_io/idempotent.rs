@@ -4,7 +4,8 @@ use crate::journal::{JournalAppend, JournalHashVersion};
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, StoredEventEnvelope};
 
 use super::idempotent_match::matching_append;
-use super::{NdjsonEventJournal, NdjsonJournalEntry};
+use super::idempotent_record::decode_entry;
+use super::NdjsonEventJournal;
 
 impl NdjsonEventJournal {
     pub async fn append_idempotent(
@@ -38,7 +39,7 @@ impl NdjsonEventJournal {
             .lines()
             .enumerate()
             .filter(|(_index, line)| !line.trim().is_empty())
-            .map(|(index, line)| decode_entry(line, index + 1))
+            .filter_map(|(index, line)| decode_entry(line, index + 1).transpose())
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
             .filter(|entry| {
@@ -68,11 +69,4 @@ async fn read_journal(journal: &NdjsonEventJournal) -> Result<String, EventingEr
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
         Err(error) => Err(EventingError::journal_io(journal.path_string(), &error)),
     }
-}
-
-fn decode_entry(line: &str, line_number: usize) -> Result<NdjsonJournalEntry, EventingError> {
-    serde_json::from_str(line).map_err(|error| EventingError::JournalCorruptLine {
-        line: line_number,
-        reason: error.to_string(),
-    })
 }

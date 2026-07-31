@@ -1,6 +1,8 @@
 use tokio::fs::{File, OpenOptions};
 use tokio::io::AsyncWriteExt;
 
+use crate::journal::ndjson::NdjsonJournalRecord;
+use crate::journal::ndjson::NdjsonJournalSynchronizationCompletion;
 use crate::{EventingError, JournalDispatchPhase, StoredEventEnvelope};
 
 use super::{JournalAppend, JournalFlushPolicy, NdjsonEventJournal};
@@ -12,11 +14,11 @@ impl NdjsonEventJournal {
         envelope: &StoredEventEnvelope,
         phase: JournalDispatchPhase,
     ) -> Result<(), EventingError> {
-        let entry = super::NdjsonJournalEntry {
+        let entry = NdjsonJournalRecord::Entry(Box::new(super::NdjsonJournalEntry {
             append: append.clone(),
             phase,
             envelope: envelope.clone(),
-        };
+        }));
         let mut line =
             serde_json::to_vec(&entry).map_err(|error| EventingError::journal_encode(&error))?;
         line.push(b'\n');
@@ -97,6 +99,39 @@ impl NdjsonEventJournal {
         sync_parent_directory(&self.path)
             .await
             .map_err(|error| EventingError::journal_io(self.path_string(), &error))
+    }
+}
+
+impl NdjsonEventJournal {
+    pub(super) async fn write_synchronization_completion(
+        &self,
+        append: &JournalAppend,
+    ) -> Result<(), EventingError> {
+        let (Some(entry_hash), Some(synchronization_hash)) =
+            (&append.current_hash, &append.synchronization_hash)
+        else {
+            return Err(EventingError::InvalidValue {
+                field: "journal_append.synchronization_hash",
+                value: "V3 completion requires authenticated hashes".to_owned(),
+            });
+        };
+        let completion = NdjsonJournalSynchronizationCompletion {
+            sequence: append.sequence,
+            entry_hash: entry_hash.clone(),
+            synchronization_hash: synchronization_hash.clone(),
+        };
+        let mut line = serde_json::to_vec(&completion)
+            .map_err(|error| EventingError::journal_encode(&error))?;
+        line.push(b'\n');
+        let mut file = OpenOptions::new()
+            .append(true)
+            .open(&self.path)
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+        file.write_all(&line)
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+        self.sync_file(&file).await
     }
 }
 

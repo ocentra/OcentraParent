@@ -4,7 +4,8 @@ use sha2::{Digest, Sha256};
 use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{
-    ndjson::NdjsonJournalEntry, JournalAppend, JournalAppendDurability, JournalHashVersion,
+    ndjson::{NdjsonJournalEntry, NdjsonJournalSynchronizationCompletion},
+    JournalAppend, JournalAppendDurability, JournalHashVersion,
 };
 
 const JOURNAL_HASH_PREFIX: &str = "journal-hash:";
@@ -20,6 +21,19 @@ struct JournalHashInputV2<'a> {
     phase: JournalDispatchPhase,
     durability: JournalAppendDurability,
     envelope: &'a StoredEventEnvelope,
+}
+
+pub(crate) fn verify_synchronization_completion(
+    entry: &NdjsonJournalEntry,
+    completion: &NdjsonJournalSynchronizationCompletion,
+) -> bool {
+    let mut acknowledged = entry.append.clone();
+    acknowledged.durability = JournalAppendDurability::Synchronized;
+    acknowledged.synchronization_hash = None;
+    entry.append.hash_version == JournalHashVersion::V3
+        && entry.append.current_hash.as_ref() == Some(&completion.entry_hash)
+        && synchronization_receipt_hash(&acknowledged)
+            .is_ok_and(|expected| expected == completion.synchronization_hash)
 }
 
 #[derive(Serialize)]

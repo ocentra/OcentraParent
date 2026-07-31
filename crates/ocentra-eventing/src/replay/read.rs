@@ -1,10 +1,10 @@
 use crate::{EventingError, NdjsonEventJournal, ReplayFilter, ReplayMode, ReplayReadReport};
 
-#[path = "read/record.rs"]
-mod record;
-
 #[path = "read/runner.rs"]
 mod runner;
+
+#[path = "read/records.rs"]
+mod records;
 
 impl NdjsonEventJournal {
     pub async fn replay_projection(

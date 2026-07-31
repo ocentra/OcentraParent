@@ -1,9 +1,9 @@
 use tokio::fs::OpenOptions;
 use tokio::io::AsyncWriteExt;
 
-use crate::EventingError;
+use crate::{journal::ndjson::NdjsonJournalRecord, EventingError};
 
-use super::{NdjsonEventJournal, NdjsonJournalEntry};
+use super::NdjsonEventJournal;
 
 impl NdjsonEventJournal {
     pub(crate) async fn repair_incomplete_trailing_record(&self) -> Result<(), EventingError> {
@@ -43,7 +43,7 @@ impl NdjsonEventJournal {
 }
 
 fn trailing_record_is_complete(bytes: &[u8], line_number: usize) -> Result<bool, EventingError> {
-    match serde_json::from_slice::<NdjsonJournalEntry>(bytes) {
+    match serde_json::from_slice::<NdjsonJournalRecord>(bytes) {
         Ok(_entry) => Ok(true),
         Err(error) if error.is_eof() => Ok(false),
         Err(error) => Err(EventingError::JournalCorruptLine {
