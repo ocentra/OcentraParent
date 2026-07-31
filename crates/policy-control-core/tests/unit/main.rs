@@ -19,6 +19,8 @@ mod authenticated_delivery_grant_device_trust;
 mod authenticated_delivery_grant_fixture;
 #[path = "authenticated_delivery_grant_milestone_phase.rs"]
 mod authenticated_delivery_grant_milestone_phase;
+#[path = "authenticated_delivery_grant_prepared_closure.rs"]
+mod authenticated_delivery_grant_prepared_closure;
 #[path = "authenticated_delivery_grant_provenance.rs"]
 mod authenticated_delivery_grant_provenance;
 #[path = "policy_authority.rs"]

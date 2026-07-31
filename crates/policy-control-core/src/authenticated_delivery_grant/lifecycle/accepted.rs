@@ -28,13 +28,18 @@ pub(super) async fn finalize_async(
     attempt_id: &EventId,
     grant: AuthenticatedDeliveryGrant,
 ) -> Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError> {
-    issuer
+    if let Err(error) = issuer
         .publish_issuance_milestone_async(
             correlation_id,
             attempt_id,
             prepared_issuance_milestone_for(&grant),
         )
-        .await?;
+        .await
+    {
+        return issuer
+            .finalize_rejected_async(correlation_id, attempt_id, error)
+            .await;
+    }
     publish_accepted_or_reject_async(issuer, correlation_id, attempt_id, &grant).await?;
     Ok(grant)
 }
