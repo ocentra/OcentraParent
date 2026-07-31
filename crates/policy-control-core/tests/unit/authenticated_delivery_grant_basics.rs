@@ -450,8 +450,7 @@ fn issuer_records_prepare_then_rejection_when_durable_publish_exhausts_lifetime(
 }
 
 #[test]
-fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_rejected() -> TestResult
-{
+fn issuer_rejects_expired_lifetime_before_accepted_dispatch() -> TestResult {
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -489,8 +488,6 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
         let issuer = test_ok!(issuer_without_milestone_publisher(), "issuer")
             .with_trusted_issuance_now_sequence_for_debug_test([
                 "2026-07-28T00:01:00Z",
-                "2026-07-28T00:01:00Z",
-                "2026-07-28T00:01:00Z",
                 "2026-07-28T00:01:31Z",
             ])
             .with_event_bus_issuance_publisher(event_bus.clone())
@@ -503,7 +500,7 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
         assert_eq!(
             issuer.issue_async(fixture.request()).await,
             Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp),
-            "an accepted dispatch must not return a grant after its remaining lifetime has elapsed"
+            "an expired attempt must not make accepted issuance observable"
         );
 
         let dispatched = recorder.recorded().await;
@@ -514,13 +511,12 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
                 .collect::<Vec<_>>(),
             vec![
                 AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
-                AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
                 AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
             ],
-            "a terminal publication that exhausts lifetime must be durably closed as rejected and cannot return a grant"
+            "an expired attempt must close as rejected without a contradictory accepted milestone"
         );
         let persisted = event_bus.journal().await;
-        assert_eq!(persisted.len(), 3);
+        assert_eq!(persisted.len(), 2);
         let outcomes = persisted
             .iter()
             .map(|envelope| {
@@ -533,10 +529,9 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
             outcomes,
             vec![
                 AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
-                AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
                 AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
             ],
-            "a publish-boundary expiry must leave an explicit durable rejected closure after its forensic accepted milestone"
+            "a publish-boundary expiry must leave one durable rejected terminal outcome"
         );
         let attempt_id = test_ok!(issuance_attempt_id(&persisted[0]), "prepared attempt id");
         for envelope in persisted.iter().skip(1) {
