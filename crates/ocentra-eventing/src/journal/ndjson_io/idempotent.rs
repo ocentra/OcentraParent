@@ -21,7 +21,7 @@ impl NdjsonEventJournal {
         match self.existing_append(envelope).await? {
             Some(append) => {
                 self.sync_existing_journal().await?;
-                acknowledgement_after_sync(append)
+                self.acknowledgement_after_sync(append).await
             }
             None => {
                 self.append_entry_with_gate(envelope, JournalDispatchPhase::AfterDispatch)
@@ -56,10 +56,20 @@ impl NdjsonEventJournal {
     }
 }
 
-fn acknowledgement_after_sync(append: JournalAppend) -> Result<JournalAppend, EventingError> {
-    match append.hash_version {
-        JournalHashVersion::V3 => append.with_synchronization_proof(),
-        JournalHashVersion::LegacyV1 | JournalHashVersion::V2 => Ok(append),
+impl NdjsonEventJournal {
+    async fn acknowledgement_after_sync(
+        &self,
+        append: JournalAppend,
+    ) -> Result<JournalAppend, EventingError> {
+        match append.hash_version {
+            JournalHashVersion::V3 => {
+                let acknowledgement = append.with_synchronization_proof()?;
+                self.write_synchronization_completion(&acknowledgement)
+                    .await?;
+                Ok(acknowledgement)
+            }
+            JournalHashVersion::LegacyV1 | JournalHashVersion::V2 => Ok(append),
+        }
     }
 }
 
