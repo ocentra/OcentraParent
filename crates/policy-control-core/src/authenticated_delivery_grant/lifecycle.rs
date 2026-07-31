@@ -1,6 +1,9 @@
 use chrono::{DateTime, FixedOffset, SecondsFormat, Utc};
 use ed25519_dalek::Signer;
 use ocentra_eventing::ids::{CorrelationId, EventId};
+use ocentra_family_identity_core::parent_step_up_proof::{
+    authorization_digest, ParentStepUpAuthorizationBinding,
+};
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCapabilityAssertion,
     AuthenticatedDeliveryGrantEvidenceAssertion, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
@@ -68,6 +71,20 @@ impl AuthenticatedDeliveryGrantIssuer {
             .verify(&request.verified_parent_step_up_proof)
             .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::ParentStepUpRejected)?;
         if assertions != step_up_assertions {
+            return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
+        }
+        let expected_step_up_digest = authorization_digest(ParentStepUpAuthorizationBinding {
+            household_id: &bindings.household_id,
+            parent_actor_id: &bindings.issuer_actor_id,
+            parent_device_id: &bindings.parent_device_id,
+            child_profile_id: &bindings.child_profile_id,
+            target_device_id: &bindings.target_device_id,
+            action_id: &bindings.action_id,
+            capability_id: &bindings.capability_id,
+            evidence_digest: &bindings.evidence_digest,
+            payload_digest: &bindings.payload_digest,
+        });
+        if request.verified_parent_step_up_proof.authorization_digest != expected_step_up_digest {
             return Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch);
         }
         if resolved_decision.decision_id.as_str() != bindings.policy_decision_id {

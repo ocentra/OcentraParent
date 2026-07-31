@@ -12,7 +12,9 @@ use ocentra_family_identity_core::household_authority::{
     ParentStepUpValidationInput,
 };
 use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
-use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
+use ocentra_family_identity_core::parent_step_up_proof::{
+    authorization_digest, ParentStepUpAuthorizationBinding, ParentStepUpProofSigner,
+};
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::issuance_milestone::{
     AuthenticatedDeliveryGrantIssuanceMilestone, AuthenticatedDeliveryGrantIssuanceOutcome,
@@ -207,10 +209,21 @@ impl IssuanceFixture {
                 "signed authority provenance"
             ),
             verified_parent_step_up_proof: test_ok!(
-                step_up_signer.sign(
+                step_up_signer.sign_bound(
                     self.parent_step_up.validation.clone(),
                     self.bindings.target_device_id.clone(),
                     assertions(),
+                    authorization_digest(ParentStepUpAuthorizationBinding {
+                        household_id: &self.bindings.household_id,
+                        parent_actor_id: &self.bindings.issuer_actor_id,
+                        parent_device_id: &self.bindings.parent_device_id,
+                        child_profile_id: &self.bindings.child_profile_id,
+                        target_device_id: &self.bindings.target_device_id,
+                        action_id: &self.bindings.action_id,
+                        capability_id: &self.bindings.capability_id,
+                        evidence_digest: &self.bindings.evidence_digest,
+                        payload_digest: &self.bindings.payload_digest,
+                    }),
                 ),
                 "bounded parent step-up proof"
             ),
@@ -259,10 +272,21 @@ fn issuer_rejects_action_device_bound_to_a_different_child() -> TestResult {
     )
     .action_device_child_profile_id = Some("other-child".to_owned());
     request.verified_parent_step_up_proof = test_ok!(
-        step_up_signer.sign(
+        step_up_signer.sign_bound(
             request.parent_step_up.validation.clone(),
             request.bindings.target_device_id.clone(),
             assertions(),
+            authorization_digest(ParentStepUpAuthorizationBinding {
+                household_id: &request.bindings.household_id,
+                parent_actor_id: &request.bindings.issuer_actor_id,
+                parent_device_id: &request.bindings.parent_device_id,
+                child_profile_id: &request.bindings.child_profile_id,
+                target_device_id: &request.bindings.target_device_id,
+                action_id: &request.bindings.action_id,
+                capability_id: &request.bindings.capability_id,
+                evidence_digest: &request.bindings.evidence_digest,
+                payload_digest: &request.bindings.payload_digest,
+            }),
         ),
         "bounded parent step-up proof"
     );
@@ -486,10 +510,21 @@ fn issuer_uses_dually_signed_assertions_instead_of_caller_claims() -> TestResult
         "unavailable capability provenance"
     );
     request.verified_parent_step_up_proof = test_ok!(
-        step_up_signer.sign(
+        step_up_signer.sign_bound(
             fixture.parent_step_up.validation.clone(),
             fixture.bindings.target_device_id.clone(),
             unavailable,
+            authorization_digest(ParentStepUpAuthorizationBinding {
+                household_id: &fixture.bindings.household_id,
+                parent_actor_id: &fixture.bindings.issuer_actor_id,
+                parent_device_id: &fixture.bindings.parent_device_id,
+                child_profile_id: &fixture.bindings.child_profile_id,
+                target_device_id: &fixture.bindings.target_device_id,
+                action_id: &fixture.bindings.action_id,
+                capability_id: &fixture.bindings.capability_id,
+                evidence_digest: &fixture.bindings.evidence_digest,
+                payload_digest: &fixture.bindings.payload_digest,
+            }),
         ),
         "bounded parent step-up proof"
     );
