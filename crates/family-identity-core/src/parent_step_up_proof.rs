@@ -11,6 +11,11 @@ use sha2::{Digest, Sha256};
 use crate::household_authority::ParentStepUpValidationInput;
 
 const MAX_PARENT_STEP_UP_PROOF_LIFETIME_SECONDS: i64 = 5 * 60;
+const AUTHORIZATION_DIGEST_PREFIX: &str = "sha256:";
+const AUTHORIZATION_DIGEST_HEX_BYTES: usize = 64;
+const AUTHORIZATION_DIGEST_BYTES: usize =
+    AUTHORIZATION_DIGEST_PREFIX.len() + AUTHORIZATION_DIGEST_HEX_BYTES;
+const UNBOUND_PARENT_STEP_UP_PROOF_DOMAIN: &[u8] = b"ocentra-parent-step-up-proof:unbound";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParentStepUpProofError {
@@ -59,10 +64,13 @@ pub fn authorization_digest(binding: ParentStepUpAuthorizationBinding<'_>) -> St
         binding.evidence_digest,
         binding.payload_digest,
     ];
-    format!(
-        "sha256:{:x}",
-        Sha256::digest(input.join("\u{1f}").as_bytes())
-    )
+    let mut bytes = Vec::new();
+    for field in input {
+        let field_len = field.len() as u64;
+        bytes.extend_from_slice(&field_len.to_be_bytes());
+        bytes.extend_from_slice(field.as_bytes());
+    }
+    format!("{AUTHORIZATION_DIGEST_PREFIX}{:x}", Sha256::digest(bytes))
 }
 
 pub struct ParentStepUpProofVerifier {
@@ -127,7 +135,15 @@ impl ParentStepUpProofSigner {
         assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
     ) -> Result<VerifiedParentStepUpProof, ParentStepUpProofError> {
         validate_unsigned_shape(&validation, &target_device_id)?;
-        self.sign_bound(validation, target_device_id, assertions, String::new())
+        self.sign_bound(
+            validation,
+            target_device_id,
+            assertions,
+            format!(
+                "{AUTHORIZATION_DIGEST_PREFIX}{:x}",
+                Sha256::digest(UNBOUND_PARENT_STEP_UP_PROOF_DOMAIN)
+            ),
+        )
     }
 
     pub fn sign_bound(
@@ -138,6 +154,7 @@ impl ParentStepUpProofSigner {
         authorization_digest: String,
     ) -> Result<VerifiedParentStepUpProof, ParentStepUpProofError> {
         validate_unsigned_shape(&validation, &target_device_id)?;
+        validate_authorization_digest(&authorization_digest)?;
         let bytes = signing_bytes(
             &validation,
             &target_device_id,
@@ -161,20 +178,37 @@ fn signing_bytes(
     assertions: &AuthenticatedDeliveryGrantAssertionSnapshot,
     authorization_digest: &str,
 ) -> Result<Vec<u8>, ParentStepUpProofError> {
-    serde_json::to_vec(&(
+    let bytes = serde_json::to_vec(&(
         validation,
         target_device_id,
         assertions,
         authorization_digest,
     ))
-    .map_err(|_error| ParentStepUpProofError::Rejected)
+    .map_err(|_error| ParentStepUpProofError::Rejected)?;
+    (bytes.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
+        .then_some(bytes)
+        .ok_or(ParentStepUpProofError::Rejected)
 }
 
 fn validate_proof_shape(proof: &VerifiedParentStepUpProof) -> Result<(), ParentStepUpProofError> {
     (proof.signature.len() == AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES)
         .then_some(())
         .ok_or(ParentStepUpProofError::Rejected)?;
-    validate_unsigned_shape(&proof.validation, &proof.target_device_id)
+    validate_unsigned_shape(&proof.validation, &proof.target_device_id)?;
+    validate_authorization_digest(&proof.authorization_digest)
+}
+
+fn validate_authorization_digest(authorization_digest: &str) -> Result<(), ParentStepUpProofError> {
+    let digest = authorization_digest
+        .strip_prefix(AUTHORIZATION_DIGEST_PREFIX)
+        .ok_or(ParentStepUpProofError::Rejected)?;
+    (authorization_digest.len() == AUTHORIZATION_DIGEST_BYTES
+        && authorization_digest.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+        && digest
+            .bytes()
+            .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte)))
+    .then_some(())
+    .ok_or(ParentStepUpProofError::Rejected)
 }
 
 fn validate_unsigned_shape(
