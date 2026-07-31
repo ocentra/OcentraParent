@@ -6,5 +6,7 @@ mod file;
 mod file_compatibility;
 #[path = "replay.rs"]
 mod replay;
+#[path = "replay_cursor.rs"]
+mod replay_cursor;
 #[path = "support.rs"]
 mod support;
