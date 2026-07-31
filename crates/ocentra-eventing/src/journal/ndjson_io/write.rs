@@ -104,7 +104,8 @@ impl NdjsonEventJournal {
 async fn sync_parent_directory(path: &std::path::Path) -> std::io::Result<()> {
     let parent = path
         .parent()
-        .ok_or_else(|| std::io::Error::other("journal path has no parent directory"))?;
+        .filter(|parent| !parent.as_os_str().is_empty())
+        .unwrap_or_else(|| std::path::Path::new("."));
     File::open(parent).await?.sync_all().await
 }
 

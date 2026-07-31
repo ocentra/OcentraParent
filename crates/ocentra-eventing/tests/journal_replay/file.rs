@@ -4,6 +4,7 @@ use ocentra_eventing::ids::{EventId, IdempotencyKey};
 use ocentra_eventing::journal::ndjson::{
     NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
 };
+use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
 use ocentra_eventing::journal::{EventJournal, JournalAppendDurability, JournalHashVersion};
 use std::sync::Arc;
 use tokio::sync::Barrier;
@@ -83,6 +84,28 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
         first.contract.schema_version
     );
     cleanup(path).await;
+}
+
+#[tokio::test]
+async fn production_file_journal_synchronizes_a_bare_relative_path() {
+    let path = JournalPath(std::path::PathBuf::from(format!(
+        "ocentra-production-bare-relative-{}.journal",
+        EventId::generated().as_str()
+    )));
+    let journal = ProductionFileEventJournal::new(&path.0);
+    let event = stored_event(test_event(TestText("bare relative journal".to_owned())));
+
+    let append = journal
+        .append(&event)
+        .await
+        .expect_value("bare relative production journal append synchronizes");
+
+    assert!(append.is_synchronized());
+    assert_eq!(read_lines(path.clone()).await.len(), 1);
+    let mut lock_path = path.0.as_os_str().to_os_string();
+    lock_path.push(".append.lock");
+    cleanup(path).await;
+    let _cleanup_lock = tokio::fs::remove_file(std::path::PathBuf::from(lock_path)).await;
 }
 
 #[tokio::test]
