@@ -14,11 +14,10 @@ pub(super) async fn read(
 ) -> Result<ReplayReadReport, EventingError> {
     let (entries, completions, activations, mut skipped_count) =
         super::records::collect(journal).await?;
-    let last_sequence = entries
-        .last()
-        .map_or(filter.cursor.next_sequence.saturating_sub(1), |entry| {
-            entry.append.sequence
-        });
+    // A V3 entry can be visible before its separately written activation. Do
+    // not checkpoint past that entry: an incremental caller would otherwise
+    // never see it after the activation reaches the journal.
+    let mut last_sequence = filter.cursor.next_sequence.saturating_sub(1);
     let mut records = Vec::new();
     for entry in entries {
         let completed = entry.append.hash_version != JournalHashVersion::V3
@@ -28,6 +27,10 @@ pub(super) async fn read(
                         .iter()
                         .any(|activation| verify_synchronization_activation(completion, activation))
             });
+        if entry.append.sequence >= filter.cursor.next_sequence && !completed {
+            skipped_count += 1;
+            break;
+        }
         let skip = !completed
             || (mode == ReplayMode::ActionHandlersAllowed
                 && entry.phase != crate::JournalDispatchPhase::AfterDispatch)
@@ -39,6 +42,9 @@ pub(super) async fn read(
                 sequence: entry.append.sequence,
                 envelope: entry.envelope,
             });
+        }
+        if entry.append.sequence >= filter.cursor.next_sequence {
+            last_sequence = entry.append.sequence;
         }
     }
 
