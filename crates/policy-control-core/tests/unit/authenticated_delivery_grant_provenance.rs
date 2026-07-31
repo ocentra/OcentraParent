@@ -12,7 +12,8 @@ use ocentra_family_identity_core::household_authority::{
     ParentStepUpValidationInput,
 };
 use ocentra_family_identity_core::household_authority_proof::{
-    HouseholdAuthorityProofIdentityBinding, HouseholdAuthorityProofSigner,
+    HouseholdAuthorityCurrentState, HouseholdAuthorityProofIdentityBinding,
+    HouseholdAuthorityProofSigner,
 };
 use ocentra_family_identity_core::parent_step_up_proof::{
     authorization_digest, ParentStepUpAuthorizationBinding, ParentStepUpProofError,
@@ -458,8 +459,11 @@ fn household_authority_proof(
     authority: HouseholdAuthorityInput,
 ) -> ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof {
     test_ok!(
-        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound(
-            authority,
+        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound_at(
+            &HouseholdAuthorityCurrentState {
+                authority,
+                family_revocation_epoch: 1,
+            },
             HouseholdAuthorityProofIdentityBinding {
                 household_id: "household-1".to_owned(),
                 parent_actor_id: "parent-1".to_owned(),
@@ -467,6 +471,8 @@ fn household_authority_proof(
                 child_profile_id: "child-1".to_owned(),
                 target_device_id: "child-device-1".to_owned(),
             },
+            "2026-07-28T00:00:00Z",
+            "2026-07-28T00:05:00Z",
         ),
         "family identity authority proof"
     )
@@ -513,14 +519,50 @@ fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGra
     let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
     let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
     let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let fixture = ProvenanceFixture::new();
     AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
         "parent-key-1",
         [3; 32],
         authority.verifying_key(),
         household_authority.verifying_key(),
+        HouseholdAuthorityCurrentState {
+            authority: fixture.authority,
+            family_revocation_epoch: 1,
+        },
         step_up.verifying_key(),
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
+}
+
+#[test]
+fn issuer_rejects_authority_proof_revoked_after_mint() -> TestResult {
+    let fixture = ProvenanceFixture::new();
+    let issuer = test_ok!(durable_issuer(), "durable revoked authority issuer")
+        .with_household_authority_current_state(HouseholdAuthorityCurrentState {
+            authority: fixture.authority,
+            family_revocation_epoch: 2,
+        });
+    assert_eq!(
+        issuer.issue(fixture.request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_expired_current_authority_proof() -> TestResult {
+    let fixture = ProvenanceFixture::new();
+    let issuer = test_ok!(durable_issuer(), "durable expired authority issuer")
+        .with_household_authority_current_state(HouseholdAuthorityCurrentState {
+            authority: fixture.authority,
+            family_revocation_epoch: 1,
+        })
+        .with_trusted_issuance_now_for_debug_test("2026-07-28T00:05:00Z");
+    assert_eq!(
+        issuer.issue(fixture.request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+    );
+    Ok(())
 }
 
 #[test]

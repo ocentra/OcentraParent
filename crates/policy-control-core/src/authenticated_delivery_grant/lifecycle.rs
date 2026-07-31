@@ -33,8 +33,9 @@ impl AuthenticatedDeliveryGrantIssuer {
         (CorrelationId, AuthenticatedDeliveryGrant),
         (CorrelationId, AuthenticatedDeliveryGrantIssuanceError),
     > {
+        let trusted_now = self.trusted_now();
         let (request, resolved_decision, policy_authority, correlation_id) = self
-            .verify_and_bind_request(request)
+            .verify_and_bind_request(request, &trusted_now)
             .map_err(|error| (fallback_correlation_id, error))?;
         validation::validate_issuance(
             &request,
@@ -43,7 +44,7 @@ impl AuthenticatedDeliveryGrantIssuer {
             &policy_authority,
         )
         .map_err(|error| (correlation_id.clone(), error))?;
-        validation::validate_freshness_at(&request.bindings, &self.trusted_now())
+        validation::validate_freshness_at(&request.bindings, &trusted_now)
             .map_err(|error| (correlation_id.clone(), error))?;
         Ok((correlation_id, self.sign_grant(request.bindings)))
     }
@@ -51,6 +52,7 @@ impl AuthenticatedDeliveryGrantIssuer {
     fn verify_and_bind_request<'a>(
         &self,
         mut request: AuthenticatedDeliveryGrantIssuance<'a>,
+        trusted_now: &str,
     ) -> Result<
         (
             AuthenticatedDeliveryGrantIssuance<'a>,
@@ -60,9 +62,12 @@ impl AuthenticatedDeliveryGrantIssuer {
         ),
         AuthenticatedDeliveryGrantIssuanceError,
     > {
-        let (bindings, assertions, household_authority, resolved_decision, policy_authority) = self
-            .authority_verifier
-            .verify(&request.signed_authority_bindings)?;
+        let (bindings, assertions, household_authority, resolved_decision, policy_authority) =
+            self.authority_verifier.verify_against_current_state(
+                &request.signed_authority_bindings,
+                &self.household_authority_current_state,
+                trusted_now,
+            )?;
         let correlation_id = request
             .signed_authority_bindings
             .trusted_issuance_correlation_id()?;

@@ -53,12 +53,12 @@ fn household_authority_proof_requires_fresh_matching_unrevoked_family_state(
     };
     let proof = signer
         .sign_bound_at(
-            current_state.clone(),
+            &current_state,
             authority_binding(),
             "2026-07-28T00:00:00Z",
             "2026-07-28T00:05:00Z",
         )
-        .map_err(|_| std::io::Error::other("fresh proof must sign"))?;
+        .map_err(|_error| std::io::Error::other("fresh proof must sign"))?;
     let verifier = HouseholdAuthorityProofVerifier::new(signer.verifying_key());
     assert!(verifier
         .verify_against_current_state(&proof, &current_state, "2026-07-28T00:01:00Z")

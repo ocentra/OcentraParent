@@ -108,7 +108,7 @@ impl HouseholdAuthorityProofSigner {
 
     pub fn sign_bound_at(
         &self,
-        state: HouseholdAuthorityCurrentState,
+        state: &HouseholdAuthorityCurrentState,
         identity_binding: HouseholdAuthorityProofIdentityBinding,
         issued_at: impl Into<String>,
         expires_at: impl Into<String>,
