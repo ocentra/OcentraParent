@@ -451,6 +451,10 @@ fn resolved_decision(
 ) -> ResolvedPolicyDecision {
     test_ok!(
         ResolvedPolicyDecision::for_delivery_grant(
+            format!(
+                "policy-control-aggregate:{}:{}",
+                bindings.target_device_id, bindings.action_id
+            ),
             bindings.policy_decision_id.clone(),
             decision,
             executable_conflict_decision(),
@@ -542,6 +546,10 @@ fn issuer_rejects_a_validly_signed_decision_for_a_different_policy_id() -> TestR
             household_authority_proof(fixture.authority),
             test_ok!(
                 ResolvedPolicyDecision::for_delivery_grant(
+                    format!(
+                        "policy-control-aggregate:{}:{}",
+                        fixture.bindings.target_device_id, fixture.bindings.action_id
+                    ),
                     "different-decision",
                     fixture.decision,
                     executable_conflict_decision(),
@@ -556,6 +564,52 @@ fn issuer_rejects_a_validly_signed_decision_for_a_different_policy_id() -> TestR
         issuer.issue(request),
         Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch),
         "the signed resolved decision identity must equal the grant binding"
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_a_validly_signed_decision_transplanted_from_another_aggregate() -> TestResult {
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    let signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let mut request = fixture.request();
+    request.signed_authority_bindings = test_ok!(
+        signer.sign(
+            fixture.bindings.clone(),
+            AuthenticatedDeliveryGrantAssertionSnapshot {
+                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+            },
+            household_authority_proof(fixture.authority),
+            test_ok!(
+                ResolvedPolicyDecision::for_delivery_grant(
+                    "policy-control-aggregate:other-device:action-1",
+                    fixture.bindings.policy_decision_id.clone(),
+                    fixture.decision,
+                    executable_conflict_decision(),
+                ),
+                "separate aggregate resolved policy decision"
+            ),
+            fixture.contract_authority.clone(),
+        ),
+        "valid policy signature with transplanted aggregate"
+    );
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch),
+        "a signed decision for another target/action aggregate must not issue this grant"
+    );
+    Ok(())
+}
+
+#[test]
+fn issuer_accepts_a_validly_signed_decision_for_the_matching_aggregate() -> TestResult {
+    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    assert!(
+        issuer.issue(fixture.request()).is_ok(),
+        "the canonical target/action aggregate must remain issuable"
     );
     Ok(())
 }
@@ -576,6 +630,10 @@ fn issuer_rejects_signed_conflict_provenance_that_forbids_execution() -> TestRes
             household_authority_proof(fixture.authority),
             test_ok!(
                 ResolvedPolicyDecision::for_delivery_grant(
+                    format!(
+                        "policy-control-aggregate:{}:{}",
+                        fixture.bindings.target_device_id, fixture.bindings.action_id
+                    ),
                     fixture.bindings.policy_decision_id.clone(),
                     fixture.decision,
                     PolicyConflictDecision {
@@ -612,6 +670,10 @@ fn issuer_rejects_signed_conflict_provenance_requiring_manual_review() -> TestRe
             household_authority_proof(fixture.authority),
             test_ok!(
                 ResolvedPolicyDecision::for_delivery_grant(
+                    format!(
+                        "policy-control-aggregate:{}:{}",
+                        fixture.bindings.target_device_id, fixture.bindings.action_id
+                    ),
                     fixture.bindings.policy_decision_id.clone(),
                     fixture.decision,
                     PolicyConflictDecision {
