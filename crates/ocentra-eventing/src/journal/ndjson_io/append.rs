@@ -76,9 +76,7 @@ impl NdjsonEventJournal {
             acknowledgement.durability = JournalAppendDurability::Synchronized;
             acknowledgement.synchronization_hash =
                 Some(synchronization_receipt_hash(&acknowledgement)?);
-            if acknowledgement.hash_version == JournalHashVersion::V3
-                && acknowledgement.current_hash.is_some()
-            {
+            if acknowledgement.hash_version == JournalHashVersion::V3 {
                 self.write_synchronization_completion(&acknowledgement)
                     .await?;
             }

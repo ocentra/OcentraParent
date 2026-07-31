@@ -4,7 +4,10 @@ use sha2::{Digest, Sha256};
 use crate::{EventingError, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{
-    ndjson::{NdjsonJournalEntry, NdjsonJournalSynchronizationCompletion},
+    ndjson::{
+        NdjsonJournalEntry, NdjsonJournalSynchronizationActivation,
+        NdjsonJournalSynchronizationCompletion,
+    },
     JournalAppend, JournalAppendDurability, JournalHashVersion,
 };
 
@@ -23,6 +26,15 @@ struct JournalHashInputV2<'a> {
     envelope: &'a StoredEventEnvelope,
 }
 
+pub(crate) fn verify_synchronization_activation(
+    completion: &NdjsonJournalSynchronizationCompletion,
+    activation: &NdjsonJournalSynchronizationActivation,
+) -> bool {
+    completion.sequence == activation.sequence
+        && completion.entry_hash == activation.entry_hash
+        && completion.synchronization_hash == activation.synchronization_hash
+}
+
 pub(crate) fn verify_synchronization_completion(
     entry: &NdjsonJournalEntry,
     completion: &NdjsonJournalSynchronizationCompletion,
@@ -31,7 +43,7 @@ pub(crate) fn verify_synchronization_completion(
     acknowledged.durability = JournalAppendDurability::Synchronized;
     acknowledged.synchronization_hash = None;
     entry.append.hash_version == JournalHashVersion::V3
-        && entry.append.current_hash.as_ref() == Some(&completion.entry_hash)
+        && entry.append.current_hash == completion.entry_hash
         && synchronization_receipt_hash(&acknowledged)
             .is_ok_and(|expected| expected == completion.synchronization_hash)
 }

@@ -1,5 +1,8 @@
 use crate::{
-    journal::{hash_chain::verify_synchronization_completion, JournalHashVersion},
+    journal::{
+        hash_chain::{verify_synchronization_activation, verify_synchronization_completion},
+        JournalHashVersion,
+    },
     EventingError, NdjsonEventJournal, ReplayCursor, ReplayFilter, ReplayMode, ReplayReadReport,
     ReplayRecord,
 };
@@ -9,7 +12,8 @@ pub(super) async fn read(
     filter: ReplayFilter,
     mode: ReplayMode,
 ) -> Result<ReplayReadReport, EventingError> {
-    let (entries, completions, mut skipped_count) = super::records::collect(journal).await?;
+    let (entries, completions, activations, mut skipped_count) =
+        super::records::collect(journal).await?;
     let last_sequence = entries
         .last()
         .map_or(filter.cursor.next_sequence.saturating_sub(1), |entry| {
@@ -18,10 +22,12 @@ pub(super) async fn read(
     let mut records = Vec::new();
     for entry in entries {
         let completed = entry.append.hash_version != JournalHashVersion::V3
-            || entry.append.current_hash.is_none()
-            || completions
-                .iter()
-                .any(|completion| verify_synchronization_completion(&entry, completion));
+            || completions.iter().any(|completion| {
+                verify_synchronization_completion(&entry, completion)
+                    && activations
+                        .iter()
+                        .any(|activation| verify_synchronization_activation(completion, activation))
+            });
         let skip = !completed
             || (mode == ReplayMode::ActionHandlersAllowed
                 && entry.phase != crate::JournalDispatchPhase::AfterDispatch)

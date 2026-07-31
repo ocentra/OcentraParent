@@ -4,8 +4,11 @@ use ocentra_eventing::ids::{EventId, IdempotencyKey};
 use ocentra_eventing::journal::ndjson::{
     NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions, NdjsonJournalRecord,
 };
+use ocentra_eventing::journal::policy::JournalDispatchPhase;
 use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
-use ocentra_eventing::journal::{EventJournal, JournalAppendDurability, JournalHashVersion};
+use ocentra_eventing::journal::{
+    EventJournal, JournalAppend, JournalAppendDurability, JournalHashVersion,
+};
 use std::sync::Arc;
 use tokio::sync::Barrier;
 
@@ -422,6 +425,65 @@ async fn replay_excludes_a_v3_entry_when_sync_fails_before_completion_marker() {
         replay.records.is_empty(),
         "a V3 record without a verified completion marker is not replayable"
     );
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
+async fn restart_replay_excludes_a_v3_entry_when_completion_marker_sync_fails() {
+    use ocentra_eventing::replay::ReplayFilter;
+
+    let path = journal_path(TestText("failed-completion-sync-no-replay".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal.inject_next_synchronization_completion_sync_failure_for_debug();
+    let event = unique_stored_event("failed completion sync cannot replay", 59);
+
+    assert!(matches!(
+        journal.append(&event).await,
+        Err(EventingError::JournalIo { .. })
+    ));
+    let raw_records = tokio::fs::read_to_string(&path.0)
+        .await
+        .expect_value("failed completion sync journal reads");
+    assert_eq!(raw_records.lines().count(), 2);
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let replay = restarted
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("restart replay reads rolled-back completion record");
+
+    assert!(replay.records.is_empty());
+    assert_eq!(replay.skipped_count, 1);
+    cleanup_idempotent_journal(path).await;
+
+    let path = journal_path(TestText("hashless-default-v3-no-replay".to_owned()));
+    let event = unique_stored_event("hashless default V3 cannot replay", 60);
+    let entry = NdjsonJournalEntry {
+        append: JournalAppend {
+            sequence: 1,
+            previous_hash: None,
+            current_hash: None,
+            hash_version: JournalHashVersion::V3,
+            durability: JournalAppendDurability::Buffered,
+            requested_durability: JournalAppendDurability::Synchronized,
+            synchronization_hash: None,
+        },
+        phase: JournalDispatchPhase::AfterDispatch,
+        envelope: event,
+    };
+    let line = serde_json::to_string(&NdjsonJournalRecord::Entry(Box::new(entry)))
+        .expect_value("hashless V3 record encodes");
+    tokio::fs::write(&path.0, format!("{line}\n"))
+        .await
+        .expect_value("hashless V3 journal writes");
+
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let replay = restarted
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("restart replay reads hashless V3 record");
+
+    assert!(replay.records.is_empty());
+    assert_eq!(replay.skipped_count, 1);
     cleanup_idempotent_journal(path).await;
 }
 

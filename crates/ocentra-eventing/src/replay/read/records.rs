@@ -10,6 +10,7 @@ pub(super) async fn collect(
     (
         Vec<NdjsonJournalEntry>,
         Vec<crate::journal::ndjson::NdjsonJournalSynchronizationCompletion>,
+        Vec<crate::journal::ndjson::NdjsonJournalSynchronizationActivation>,
         usize,
     ),
     EventingError,
@@ -21,6 +22,7 @@ pub(super) async fn collect(
     let mut number = 0;
     let mut entries = Vec::new();
     let mut completions = Vec::new();
+    let mut activations = Vec::new();
     let mut skipped = 0;
     let mut previous: Option<JournalHash> = None;
     while let Some(line) = lines
@@ -35,10 +37,11 @@ pub(super) async fn collect(
             &mut previous,
             &mut entries,
             &mut completions,
+            &mut activations,
             &mut skipped,
         )?;
     }
-    Ok((entries, completions, skipped))
+    Ok((entries, completions, activations, skipped))
 }
 
 fn collect_line(
@@ -47,6 +50,7 @@ fn collect_line(
     previous: &mut Option<JournalHash>,
     entries: &mut Vec<NdjsonJournalEntry>,
     completions: &mut Vec<crate::journal::ndjson::NdjsonJournalSynchronizationCompletion>,
+    activations: &mut Vec<crate::journal::ndjson::NdjsonJournalSynchronizationActivation>,
     skipped: &mut usize,
 ) -> Result<(), EventingError> {
     let record = parse_record(line, number, skipped)?;
@@ -56,6 +60,7 @@ fn collect_line(
     match record {
         NdjsonJournalRecord::Entry(entry) => collect_entry(*entry, number, previous, entries)?,
         NdjsonJournalRecord::SynchronizationCompletion(value) => completions.push(value),
+        NdjsonJournalRecord::SynchronizationActivation(value) => activations.push(value),
     }
     Ok(())
 }

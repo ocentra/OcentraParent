@@ -2,7 +2,9 @@ use tokio::fs::{File, OpenOptions};
 use tokio::io::AsyncWriteExt;
 
 use crate::journal::ndjson::NdjsonJournalRecord;
-use crate::journal::ndjson::NdjsonJournalSynchronizationCompletion;
+use crate::journal::ndjson::{
+    NdjsonJournalSynchronizationActivation, NdjsonJournalSynchronizationCompletion,
+};
 use crate::{EventingError, JournalDispatchPhase, StoredEventEnvelope};
 
 use super::{JournalAppend, JournalFlushPolicy, NdjsonEventJournal};
@@ -107,9 +109,7 @@ impl NdjsonEventJournal {
         &self,
         append: &JournalAppend,
     ) -> Result<(), EventingError> {
-        let (Some(entry_hash), Some(synchronization_hash)) =
-            (&append.current_hash, &append.synchronization_hash)
-        else {
+        let Some(synchronization_hash) = &append.synchronization_hash else {
             return Err(EventingError::InvalidValue {
                 field: "journal_append.synchronization_hash",
                 value: "V3 completion requires authenticated hashes".to_owned(),
@@ -117,13 +117,14 @@ impl NdjsonEventJournal {
         };
         let completion = NdjsonJournalSynchronizationCompletion {
             sequence: append.sequence,
-            entry_hash: entry_hash.clone(),
+            entry_hash: append.current_hash.clone(),
             synchronization_hash: synchronization_hash.clone(),
         };
         let mut line = serde_json::to_vec(&completion)
             .map_err(|error| EventingError::journal_encode(&error))?;
         line.push(b'\n');
         let mut file = OpenOptions::new()
+            .read(true)
             .append(true)
             .open(&self.path)
             .await
@@ -131,7 +132,38 @@ impl NdjsonEventJournal {
         file.write_all(&line)
             .await
             .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
-        self.sync_file(&file).await
+        file.flush()
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+        let synchronization = if self
+            .synchronization_completion_sync_failure_for_debug
+            .swap(false, std::sync::atomic::Ordering::AcqRel)
+        {
+            Err(EventingError::journal_io(
+                self.path_string(),
+                &std::io::Error::other("injected synchronization completion sync failure"),
+            ))
+        } else {
+            self.sync_file(&file).await
+        };
+        synchronization?;
+        let activation = NdjsonJournalSynchronizationActivation {
+            activation: true,
+            sequence: completion.sequence,
+            entry_hash: completion.entry_hash,
+            synchronization_hash: completion.synchronization_hash,
+        };
+        let mut activation_line = serde_json::to_vec(&activation)
+            .map_err(|error| EventingError::journal_encode(&error))?;
+        activation_line.push(b'\n');
+        file.write_all(&activation_line)
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+        file.flush()
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+        self.sync_file(&file).await?;
+        Ok(())
     }
 }
 
