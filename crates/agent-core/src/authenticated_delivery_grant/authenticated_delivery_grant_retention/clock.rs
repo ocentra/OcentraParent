@@ -4,6 +4,8 @@ use crate::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeError;
 
 use super::confirmation;
 
+mod confirmed_epoch;
+
 const MAX_ADVANCE: i64 = 366 * 24 * 60 * 60 * 1_000_000_000;
 const MAX_BACKWARD_SKEW: i64 = 5 * 60 * 1_000_000_000;
 
@@ -18,11 +20,11 @@ pub(super) fn advance(
         Some((highest, false, provisional_observed_at)) => provisional(
             transaction,
             highest,
-            provisional_observed_at.unwrap_or(highest),
+            provisional_observed_at,
             now,
             authenticated_issued_at_nanos,
         ),
-        Some((highest, true, _)) => confirmed(transaction, highest, now),
+        Some((highest, true, _)) => confirmed_epoch::advance(transaction, highest, now),
     }
 }
 
@@ -45,34 +47,10 @@ pub(super) fn confirmed_purge_cutoff(
         })
 }
 
-fn confirmed(
-    transaction: &Transaction<'_>,
-    highest: i64,
-    now: i64,
-) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
-    if now.saturating_add(MAX_BACKWARD_SKEW) < highest {
-        // An authenticated issuer timestamp confirmed the previous epoch, but
-        // a material backwards correction still means that epoch cannot keep
-        // authorizing destructive purges. Start a new provisional epoch and
-        // wait for a new issuer-authenticated confirmation.
-        return write(transaction, now, false, Some(now));
-    }
-    let plausible = now >= highest && now - highest <= MAX_ADVANCE;
-    let effective = if now > highest && !plausible {
-        now
-    } else {
-        highest.max(now)
-    };
-    if effective == now && plausible {
-        write(transaction, now, true, None)?;
-    }
-    Ok(effective)
-}
-
 fn provisional(
     transaction: &Transaction<'_>,
     highest: i64,
-    provisional_observed_at: i64,
+    provisional_observed_at: Option<i64>,
     now: i64,
     authenticated_issued_at_nanos: Option<i64>,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
@@ -82,14 +60,16 @@ fn provisional(
     // timestamp from a grant whose signature, bindings, and temporal window
     // have already been verified by the caller. That timestamp is authored by
     // the trusted issuer, not this device's clock.
-    let independently_confirmed =
-        plausible && confirmation::is_current(authenticated_issued_at_nanos, now, highest);
-    let observed_at = confirmation::provisional_observed_at(now, highest, provisional_observed_at);
+    let independently_confirmed = provisional_observed_at.is_some()
+        && plausible
+        && confirmation::is_current(authenticated_issued_at_nanos, now, highest);
+    let observed_at = provisional_observed_at
+        .map(|observed_at| confirmation::provisional_observed_at(now, highest, observed_at));
     write(
         transaction,
         now,
         independently_confirmed,
-        (!independently_confirmed).then_some(observed_at),
+        (!independently_confirmed).then_some(observed_at).flatten(),
     )
 }
 
