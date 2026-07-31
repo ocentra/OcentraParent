@@ -261,6 +261,39 @@ fn consumer_backfills_legacy_validation_rejections_in_bounded_batches() -> TestR
 }
 
 #[test]
+fn legacy_retention_clock_migration_stays_provisional_without_signed_proof() -> TestResult {
+    let key = SigningKey::from_bytes(&[31; 32]);
+    let path = store_path("legacy-retention-clock-is-provisional");
+    let connection = Connection::open(path.as_ref())?;
+    connection.execute(
+        "CREATE TABLE authenticated_delivery_grant_replay_retention_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL)",
+        [],
+    )?;
+    connection.execute(
+        "INSERT INTO authenticated_delivery_grant_replay_retention_v1 (singleton, highest_trusted_now_nanos) VALUES (1, ?1)",
+        [1_785_197_100_000_000_000_i64],
+    )?;
+    drop(connection);
+
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:05:00Z",
+        ),
+    )?);
+    let connection = Connection::open(path.as_ref())?;
+    let (confirmed, provisional_observed_at): (bool, Option<i64>) = connection.query_row(
+        "SELECT confirmed, provisional_observed_at_nanos FROM authenticated_delivery_grant_replay_retention_v3 WHERE singleton = 1",
+        [],
+        |row| Ok((row.get(0)?, row.get(1)?)),
+    )?;
+    assert!(!confirmed);
+    assert_eq!(provisional_observed_at, Some(1_785_197_100_000_000_000));
+    Ok(())
+}
+
+#[test]
 fn consumer_keeps_rejection_audits_across_forward_clock_correction() -> TestResult {
     let key = SigningKey::from_bytes(&[26; 32]);
     let path = store_path("validation-rejection-forward-clock-correction");

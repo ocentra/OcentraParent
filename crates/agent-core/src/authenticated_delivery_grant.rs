@@ -627,7 +627,10 @@ fn bounded_shape_rejection_audit(
     }
     update_bounded_digest(&mut grant_hasher, &grant.signature);
     AuthenticatedDeliveryGrantAudit {
-        correlation_id: correlation_id.to_owned(),
+        // This path runs before the normal request validator has established
+        // that caller supplied data is safe to persist.  Keep the audit
+        // correlatable without copying an untrusted caller identifier.
+        correlation_id: bounded_digest(correlation_id.as_bytes()),
         issuer_key_id_digest: bounded_digest(grant.issuer_key_id.as_bytes()),
         nonce_digest: bounded_digest(grant.nonce.as_bytes()),
         grant_digest: digest(grant_hasher.finalize()),

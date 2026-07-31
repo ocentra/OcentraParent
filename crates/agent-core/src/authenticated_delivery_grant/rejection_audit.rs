@@ -1,5 +1,5 @@
 use ocentra_schema::authenticated_delivery_grant::AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES;
-use rusqlite::{params, Connection, Transaction};
+use rusqlite::{params, Connection, OptionalExtension, Transaction};
 
 use super::{
     audit, persist_audit_transaction,
@@ -84,8 +84,10 @@ fn backfill_legacy_validation_rejection_audit_scopes(
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let mut last_row_id = i64::MIN;
     loop {
+        let transaction = immediate_transaction_with_contention_retry(connection)
+            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         let legacy_audits = {
-            let mut statement = connection
+            let mut statement = transaction
                 .prepare(SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_SCOPE_METADATA)
                 .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
             let rows = statement
@@ -101,22 +103,26 @@ fn backfill_legacy_validation_rejection_audit_scopes(
                 .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?
         };
         let Some(batch_last_row_id) = legacy_audits.last().map(|(row_id, _)| *row_id) else {
-            return Ok(());
+            return transaction
+                .commit()
+                .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable);
         };
-        let transaction = immediate_transaction_with_contention_retry(connection)
-            .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         for (row_id, audit_json_bytes) in legacy_audits {
             (0..=MAX_LEGACY_VALIDATION_REJECTION_AUDIT_BYTES)
                 .contains(&audit_json_bytes)
                 .then_some(())
                 .ok_or(AuthenticatedDeliveryGrantConsumeError::IntegrityRejected)?;
-            let audit_json: String = transaction
+            let audit_json: Option<String> = transaction
                 .query_row(
                     SELECT_LEGACY_VALIDATION_REJECTION_AUDIT_JSON,
                     [row_id],
                     |row| row.get(0),
                 )
+                .optional()
                 .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+            let Some(audit_json) = audit_json else {
+                continue;
+            };
             if rejection_audit_scope::is_legacy_validation_rejection_audit(&audit_json) {
                 transaction
                     .execute(
