@@ -185,11 +185,13 @@ async fn ndjson_idempotent_append_survives_reopen_without_duplicate_lines() {
 
     assert_eq!(repeated.sequence, first.sequence);
     assert_eq!(repeated.current_hash, first.current_hash);
-    assert_eq!(repeated.durability, JournalAppendDurability::Buffered);
+    assert_eq!(repeated.durability, JournalAppendDurability::Synchronized);
     assert_eq!(
         repeated.requested_durability,
         JournalAppendDurability::Synchronized
     );
+    assert!(repeated.is_synchronized());
+    assert!(repeated.has_verified_synchronization_proof());
     assert_eq!(lines.len(), 1);
     cleanup(path).await;
 }
@@ -322,11 +324,13 @@ async fn first_creation_directory_sync_failure_prevents_append_acknowledgement()
         .await
         .expect_value("retry syncs directory before acknowledgement");
     assert_eq!(append.sequence, 1);
-    assert_eq!(append.durability, JournalAppendDurability::Buffered);
+    assert_eq!(append.durability, JournalAppendDurability::Synchronized);
     assert_eq!(
         append.requested_durability,
         JournalAppendDurability::Synchronized
     );
+    assert!(append.is_synchronized());
+    assert!(append.has_verified_synchronization_proof());
     assert_eq!(read_lines(path.clone()).await.len(), 1);
     let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
     let recovered = restarted
@@ -334,11 +338,13 @@ async fn first_creation_directory_sync_failure_prevents_append_acknowledgement()
         .await
         .expect_value("restart reports only persisted achieved durability");
     assert_eq!(recovered.sequence, 1);
-    assert_eq!(recovered.durability, JournalAppendDurability::Buffered);
+    assert_eq!(recovered.durability, JournalAppendDurability::Synchronized);
     assert_eq!(
         recovered.requested_durability,
         JournalAppendDurability::Synchronized
     );
+    assert!(recovered.is_synchronized());
+    assert!(recovered.has_verified_synchronization_proof());
     cleanup_idempotent_journal(path).await;
 }
 
@@ -466,11 +472,13 @@ async fn alternating_idempotent_journal_instances_refresh_the_hash_chain_tail() 
         .expect_value("chain recovers after alternating instances");
     assert_eq!(repeated.sequence, third_append.sequence);
     assert_eq!(repeated.current_hash, third_append.current_hash);
-    assert_eq!(repeated.durability, JournalAppendDurability::Buffered);
+    assert_eq!(repeated.durability, JournalAppendDurability::Synchronized);
     assert_eq!(
         repeated.requested_durability,
         JournalAppendDurability::Synchronized
     );
+    assert!(repeated.is_synchronized());
+    assert!(repeated.has_verified_synchronization_proof());
     assert_eq!(read_lines(path.clone()).await.len(), 3);
     cleanup_idempotent_journal(path).await;
 }
@@ -498,11 +506,13 @@ async fn idempotent_retry_finds_after_dispatch_past_the_before_dispatch_copy() {
 
     assert_eq!(repeated.sequence, after.sequence);
     assert_eq!(repeated.current_hash, after.current_hash);
-    assert_eq!(repeated.durability, JournalAppendDurability::Buffered);
+    assert_eq!(repeated.durability, JournalAppendDurability::Synchronized);
     assert_eq!(
         repeated.requested_durability,
         JournalAppendDurability::Synchronized
     );
+    assert!(repeated.is_synchronized());
+    assert!(repeated.has_verified_synchronization_proof());
     assert_eq!(read_lines(path.clone()).await.len(), 2);
     cleanup_idempotent_journal(path).await;
 }

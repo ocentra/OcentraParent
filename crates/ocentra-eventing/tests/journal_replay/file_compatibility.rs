@@ -120,6 +120,10 @@ async fn hash_chain_replays_and_appends_a_legacy_v2_ndjson_entry_into_v3() {
         .replay_projection(ReplayFilter::all())
         .await
         .expect_value("legacy v2 journal replays");
+    let retried = journal
+        .append_idempotent(&legacy_envelope)
+        .await
+        .expect_value("legacy v2 idempotent retry remains compatible");
     let append = journal
         .append(&unique_stored_event("v3 journal event after v2", 61))
         .await
@@ -130,6 +134,8 @@ async fn hash_chain_replays_and_appends_a_legacy_v2_ndjson_entry_into_v3() {
 
     assert_eq!(replay.records.len(), 1);
     assert_eq!(replay.records[0].envelope, legacy_envelope);
+    assert_eq!(retried.hash_version, JournalHashVersion::V2);
+    assert!(retried.is_synchronized());
     assert_eq!(append.previous_hash, Some(legacy_hash));
     assert_eq!(current_entry.append.hash_version, JournalHashVersion::V3);
     assert_eq!(current_entry.append.current_hash, append.current_hash);
