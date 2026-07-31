@@ -186,11 +186,11 @@ fn require_durable_milestone(report: &PublishReport) -> Result<(), EventingError
     if !report
         .journal_appends
         .iter()
-        .any(ocentra_eventing::journal::JournalAppend::is_synchronized)
+        .any(ocentra_eventing::journal::JournalAppend::has_verified_synchronization_proof)
     {
         return Err(EventingError::InvalidHandlerPolicy {
             reason:
-                "authenticated delivery grant issuance milestone requires a synchronized durable journal append"
+                "authenticated delivery grant issuance milestone requires a synchronized durable journal append with verifiable completion proof"
                     .to_owned(),
         });
     }
