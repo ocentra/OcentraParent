@@ -8,7 +8,9 @@ use ocentra_eventing::journal::{
     EventJournal, JournalAppend, JournalAppendDurability, JournalAppendFuture, JournalHashVersion,
 };
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
-use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
+use ocentra_family_identity_core::household_authority_proof::{
+    HouseholdAuthorityProofIdentityBinding, HouseholdAuthorityProofSigner,
+};
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
@@ -181,7 +183,16 @@ pub(super) fn household_authority_proof(
     authority: HouseholdAuthorityInput,
 ) -> ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof {
     test_ok!(
-        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign(authority),
+        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound(
+            authority,
+            HouseholdAuthorityProofIdentityBinding {
+                household_id: "household-1".to_owned(),
+                parent_actor_id: "parent-1".to_owned(),
+                parent_device_id: "parent-device-1".to_owned(),
+                child_profile_id: "child-1".to_owned(),
+                target_device_id: "child-device-1".to_owned(),
+            },
+        ),
         "family identity authority proof"
     )
 }

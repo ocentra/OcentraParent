@@ -11,11 +11,15 @@ use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorityInput, ParentStepUpAssertionSnapshot,
     ParentStepUpValidationInput,
 };
-use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
+use ocentra_family_identity_core::household_authority_proof::{
+    HouseholdAuthorityProofIdentityBinding, HouseholdAuthorityProofSigner,
+};
 use ocentra_family_identity_core::parent_step_up_proof::{
     ParentStepUpProofError, ParentStepUpProofSigner, ParentStepUpProofVerifier,
 };
-use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
+use ocentra_policy_control_core::authenticated_delivery_grant::authority::{
+    AuthenticatedDeliveryGrantAuthoritySigner, AuthenticatedDeliveryGrantAuthorityVerifier,
+};
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuance, AuthenticatedDeliveryGrantIssuanceError,
     AuthenticatedDeliveryGrantIssuer, CanonicalDeliveryGrantAuthorization, DeliveryGrantBindings,
@@ -328,8 +332,8 @@ fn parent_step_up_proof_rejects_fractional_expiry_and_accepts_exact_fractional_b
     let maximum_proof = test_ok!(
         signer.sign(
             maximum_lifetime,
-            fixture.bindings.target_device_id.clone(),
-            assertions.clone(),
+            fixture.bindings.target_device_id,
+            assertions,
         ),
         "exact five-minute fractional lifetime signs"
     );
@@ -338,7 +342,7 @@ fn parent_step_up_proof_rejects_fractional_expiry_and_accepts_exact_fractional_b
         "an exact five-minute fractional lifetime remains valid"
     );
 
-    let mut expired = zero_proof.clone();
+    let mut expired = zero_proof;
     test_some!(
         expired.validation.assertion.as_mut(),
         "signed step-up assertion"
@@ -408,9 +412,37 @@ fn household_authority_proof(
     authority: HouseholdAuthorityInput,
 ) -> ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof {
     test_ok!(
-        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign(authority),
+        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound(
+            authority,
+            HouseholdAuthorityProofIdentityBinding {
+                household_id: "household-1".to_owned(),
+                parent_actor_id: "parent-1".to_owned(),
+                parent_device_id: "parent-device-1".to_owned(),
+                child_profile_id: "child-1".to_owned(),
+                target_device_id: "child-device-1".to_owned(),
+            },
+        ),
         "family identity authority proof"
     )
+}
+
+#[test]
+fn issuer_rejects_household_authority_proof_transplanted_between_grant_identities() -> TestResult {
+    let mut fixture = ProvenanceFixture::new();
+    fixture.bindings.household_id = "household-2".to_owned();
+    let request = fixture.request();
+    let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
+    let verifier = AuthenticatedDeliveryGrantAuthorityVerifier::new(
+        authority.verifying_key(),
+        household_authority.verifying_key(),
+    );
+    assert_eq!(
+        verifier.verify(&request.signed_authority_bindings),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected),
+        "a family-signed household authority proof for identity A must not authorize grant identity B"
+    );
+    Ok(())
 }
 
 fn resolved_decision(

@@ -93,6 +93,17 @@ impl AuthenticatedDeliveryGrantAuthorityVerifier {
             .map_err(|_error| {
                 AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
             })?;
+        let identity_binding = household_authority
+            .identity_binding()
+            .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
+        let bindings = &signed.bindings;
+        (identity_binding.household_id == bindings.household_id
+            && identity_binding.parent_actor_id == bindings.issuer_actor_id
+            && identity_binding.parent_device_id == bindings.parent_device_id
+            && identity_binding.child_profile_id == bindings.child_profile_id
+            && identity_binding.target_device_id == bindings.target_device_id)
+            .then_some(())
+            .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
         Ok((
             signed.bindings.clone(),
             signed.assertions.clone(),

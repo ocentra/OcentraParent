@@ -8,17 +8,32 @@ use crate::household_authority::{
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HouseholdAuthorityProof {
     authority: HouseholdAuthorityInput,
+    identity_binding: Option<HouseholdAuthorityProofIdentityBinding>,
     signature: Vec<u8>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HouseholdAuthorityProofIdentityBinding {
+    pub household_id: String,
+    pub parent_actor_id: String,
+    pub parent_device_id: String,
+    pub child_profile_id: String,
+    pub target_device_id: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VerifiedHouseholdAuthority {
     authority: HouseholdAuthorityInput,
+    identity_binding: Option<HouseholdAuthorityProofIdentityBinding>,
 }
 
 impl VerifiedHouseholdAuthority {
     pub fn input(&self) -> HouseholdAuthorityInput {
         self.authority
+    }
+
+    pub fn identity_binding(&self) -> Option<&HouseholdAuthorityProofIdentityBinding> {
+        self.identity_binding.as_ref()
     }
 }
 
@@ -50,9 +65,27 @@ impl HouseholdAuthorityProofSigner {
             == HouseholdAuthorizationState::Authorized)
             .then_some(())
             .ok_or(HouseholdAuthorityProofError::Rejected)?;
-        let bytes = signing_bytes(authority)?;
+        let bytes = signing_bytes(authority, None)?;
         Ok(HouseholdAuthorityProof {
             authority,
+            identity_binding: None,
+            signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
+        })
+    }
+
+    pub fn sign_bound(
+        &self,
+        authority: HouseholdAuthorityInput,
+        identity_binding: HouseholdAuthorityProofIdentityBinding,
+    ) -> Result<HouseholdAuthorityProof, HouseholdAuthorityProofError> {
+        (authorize_household_action(authority).authorization_state
+            == HouseholdAuthorizationState::Authorized)
+            .then_some(())
+            .ok_or(HouseholdAuthorityProofError::Rejected)?;
+        let bytes = signing_bytes(authority, Some(&identity_binding))?;
+        Ok(HouseholdAuthorityProof {
+            authority,
+            identity_binding: Some(identity_binding),
             signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
         })
     }
@@ -73,7 +106,7 @@ impl HouseholdAuthorityProofVerifier {
     ) -> Result<VerifiedHouseholdAuthority, HouseholdAuthorityProofError> {
         let signature = Signature::from_slice(&proof.signature)
             .map_err(|_error| HouseholdAuthorityProofError::Rejected)?;
-        let bytes = signing_bytes(proof.authority)?;
+        let bytes = signing_bytes(proof.authority, proof.identity_binding.as_ref())?;
         self.verifying_key
             .verify_strict(&bytes, &signature)
             .map_err(|_error| HouseholdAuthorityProofError::Rejected)?;
@@ -81,6 +114,7 @@ impl HouseholdAuthorityProofVerifier {
             == HouseholdAuthorizationState::Authorized)
             .then_some(VerifiedHouseholdAuthority {
                 authority: proof.authority,
+                identity_binding: proof.identity_binding.clone(),
             })
             .ok_or(HouseholdAuthorityProofError::Rejected)
     }
@@ -88,6 +122,8 @@ impl HouseholdAuthorityProofVerifier {
 
 fn signing_bytes(
     authority: HouseholdAuthorityInput,
+    identity_binding: Option<&HouseholdAuthorityProofIdentityBinding>,
 ) -> Result<Vec<u8>, HouseholdAuthorityProofError> {
-    serde_json::to_vec(&authority).map_err(|_error| HouseholdAuthorityProofError::Rejected)
+    serde_json::to_vec(&(authority, identity_binding))
+        .map_err(|_error| HouseholdAuthorityProofError::Rejected)
 }
