@@ -2,11 +2,12 @@ use serde::{
     de::{Error as _, MapAccess, Visitor},
     Deserialize, Deserializer,
 };
+use serde_json::value::RawValue;
 
 use self::wire_decode::wire_bounded::BoundedWireValue;
 use self::wire_decode::wire_fields::GrantWireFields;
 use self::wire_decode::{build_grant, GrantWireFieldKind};
-use super::AuthenticatedDeliveryGrant;
+use super::{AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES};
 
 mod wire_decode;
 
@@ -133,10 +134,24 @@ impl<'de> Deserialize<'de> for AuthenticatedDeliveryGrant {
     where
         D: Deserializer<'de>,
     {
-        deserializer.deserialize_struct(
-            "AuthenticatedDeliveryGrant",
-            GRANT_WIRE_FIELD_NAMES,
-            GrantWireVisitor,
-        )
+        let raw = <&RawValue>::deserialize(deserializer)?;
+        if raw.get().len() > AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES {
+            return Err(D::Error::custom(
+                "authenticated delivery grant encoded wire exceeds its byte limit",
+            ));
+        }
+        decode_bounded_wire(raw.get()).map_err(D::Error::custom)
     }
+}
+
+fn decode_bounded_wire(input: &str) -> Result<AuthenticatedDeliveryGrant, serde_json::Error> {
+    let mut deserializer = serde_json::Deserializer::from_str(input);
+    let grant = serde::de::Deserializer::deserialize_struct(
+        &mut deserializer,
+        "AuthenticatedDeliveryGrant",
+        GRANT_WIRE_FIELD_NAMES,
+        GrantWireVisitor,
+    )?;
+    deserializer.end()?;
+    Ok(grant)
 }

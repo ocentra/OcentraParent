@@ -35,7 +35,10 @@ impl<'de> DeserializeSeed<'de> for BoundedWireValue<'_> {
     where
         D: Deserializer<'de>,
     {
-        let raw = Box::<RawValue>::deserialize(deserializer)?;
+        // Keep the JSON token borrowed from the source input while enforcing the
+        // encoded bound. An owned `Box<RawValue>` would copy an attacker-sized
+        // token before this check could reject it.
+        let raw = <&RawValue>::deserialize(deserializer)?;
         if raw.get().len() > AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_FIELD_BYTES {
             return Err(serde::de::Error::custom(
                 "authenticated delivery grant encoded field exceeds its byte limit",
