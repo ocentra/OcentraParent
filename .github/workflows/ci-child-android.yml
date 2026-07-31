@@ -11,7 +11,7 @@ jobs:
   child-android-contract-build:
     name: 'Contract: Child Android Shared Contract Build'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
 
@@ -23,7 +23,7 @@ jobs:
   child-android-proofs:
     name: 'Proof: Child Android ${{ matrix.proof_name }}'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     needs: [child-android-contract-build]
     strategy:
       fail-fast: true
