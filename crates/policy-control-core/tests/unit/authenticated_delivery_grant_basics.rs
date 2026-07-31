@@ -1,8 +1,7 @@
 use super::authenticated_delivery_grant::IssuanceFixture;
 use super::authenticated_delivery_grant_fixture::{
     current_household_authority_state, durable_milestone_bus, issuance_fixture_with_expiry, issuer,
-    issuer_without_milestone_publisher, FailingMilestoneJournal, ForgedV3MilestoneJournal,
-    InMemoryMilestoneJournal, LegacyV2MilestoneJournal,
+    issuer_without_milestone_publisher,
 };
 use super::TestResult;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
@@ -12,6 +11,7 @@ use ocentra_eventing::journal::ndjson::{
     JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
 };
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
 use ocentra_eventing::queue::policy::EventQueuePolicy;
 use ocentra_eventing::testkit::EventRecorder;
 use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
@@ -24,7 +24,6 @@ use ocentra_policy_control_core::authenticated_delivery_grant::issuance_mileston
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuanceError, AuthenticatedDeliveryGrantIssuer,
 };
-use std::sync::Arc;
 
 #[test]
 fn issuer_requires_current_parent_authority_and_produces_verifiable_grant() -> TestResult {
@@ -89,7 +88,11 @@ fn issuer_rejects_queueing_no_subscriber_policy_before_any_milestone_can_persist
     );
     let event_bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-        Arc::new(InMemoryMilestoneJournal::default()),
+        ProductionFileEventJournal::new(std::env::temp_dir().join(format!(
+            "ocentra-policy-queue-{}.journal",
+            EventId::generated().as_str()
+        )))
+        .shared(),
         queue_policy,
     );
 
@@ -109,7 +112,11 @@ fn issuer_accepts_non_queueing_durable_milestone_publication() -> TestResult {
     );
     let event_bus = EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-        Arc::new(InMemoryMilestoneJournal::default()),
+        ProductionFileEventJournal::new(std::env::temp_dir().join(format!(
+            "ocentra-policy-accepted-{}.journal",
+            EventId::generated().as_str()
+        )))
+        .shared(),
     );
     let issuer = test_ok!(issuer_without_milestone_publisher(), "issuer")
         .with_event_bus_issuance_publisher(event_bus.clone())
@@ -163,7 +170,7 @@ fn issuer_rejects_buffered_ndjson_proof_journal_before_issuance() -> TestResult 
 }
 
 #[test]
-fn issuer_rejects_a_v3_synchronized_receipt_without_authenticated_completion() -> TestResult {
+fn issuer_fails_closed_when_real_filesystem_sync_cannot_prove_prepared_receipt() -> TestResult {
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -175,11 +182,14 @@ fn issuer_rejects_a_v3_synchronized_receipt_without_authenticated_completion() -
             EventType::parse("authenticated-delivery-grant.issuance.milestone"),
             "issuance milestone event type"
         );
-        let journal: Arc<dyn ocentra_eventing::journal::EventJournal> =
-            Arc::new(ForgedV3MilestoneJournal::default());
+        let journal = ProductionFileEventJournal::new(std::env::temp_dir().join(format!(
+            "ocentra-policy-forged-receipt-{}.journal",
+            EventId::generated().as_str()
+        )));
+        journal.inject_next_sync_failure_for_debug();
         let event_bus = EventBus::with_journal(
             JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-            journal,
+            journal.shared(),
         );
         let issuer = test_ok!(
             issuer_without_milestone_publisher(),
@@ -190,14 +200,14 @@ fn issuer_rejects_a_v3_synchronized_receipt_without_authenticated_completion() -
         assert_eq!(
             issuer.issue_async(IssuanceFixture::new().request()).await,
             Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
-            "a V3 receipt without its authenticated completion marker cannot authorize a grant"
+            "a real journal append without a completed filesystem synchronization cannot authorize a grant"
         );
         Ok::<_, Box<dyn std::error::Error>>(())
     })
 }
 
 #[test]
-fn issuer_rejects_a_legacy_v2_synchronized_receipt_without_completion_proof() -> TestResult {
+fn issuer_fails_closed_when_real_filesystem_append_is_torn() -> TestResult {
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -209,11 +219,14 @@ fn issuer_rejects_a_legacy_v2_synchronized_receipt_without_completion_proof() ->
             EventType::parse("authenticated-delivery-grant.issuance.milestone"),
             "issuance milestone event type"
         );
-        let journal: Arc<dyn ocentra_eventing::journal::EventJournal> =
-            Arc::new(LegacyV2MilestoneJournal::default());
+        let journal = ProductionFileEventJournal::new(std::env::temp_dir().join(format!(
+            "ocentra-policy-torn-receipt-{}.journal",
+            EventId::generated().as_str()
+        )));
+        journal.inject_next_partial_write_failure_for_debug();
         let event_bus = EventBus::with_journal(
             JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-            journal,
+            journal.shared(),
         );
         let issuer = test_ok!(
             issuer_without_milestone_publisher(),
@@ -224,7 +237,7 @@ fn issuer_rejects_a_legacy_v2_synchronized_receipt_without_completion_proof() ->
         assert_eq!(
             issuer.issue_async(IssuanceFixture::new().request()).await,
             Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
-            "a legacy V2 synchronized field without a verifiable completion proof cannot authorize a grant"
+            "a torn real journal append cannot authorize a grant"
         );
         Ok::<_, Box<dyn std::error::Error>>(())
     })
@@ -260,15 +273,32 @@ fn issuer_closes_a_prepared_attempt_when_accepted_terminal_append_fails() -> Tes
             EventType::parse("authenticated-delivery-grant.issuance.milestone"),
             "issuance milestone event type"
         );
-        let journal = Arc::new(FailingMilestoneJournal::fail_once_on(2));
-        let cloned_journal: Arc<FailingMilestoneJournal> = Arc::clone(&journal);
-        let event_journal: Arc<dyn ocentra_eventing::journal::EventJournal> = cloned_journal;
+        let journal = ProductionFileEventJournal::new(std::env::temp_dir().join(format!(
+            "ocentra-policy-terminal-failure-{}.journal",
+            EventId::generated().as_str()
+        )));
+        journal.inject_sync_failure_after_successful_appends_for_debug(1);
         let event_bus = EventBus::with_journal(
             JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-            event_journal,
+            journal.clone().shared(),
         );
+        let recorder = EventRecorder::<AuthenticatedDeliveryGrantIssuanceMilestone>::attach(
+            &event_bus,
+            EventSubscriber::new(
+                test_ok!(SubscriberId::parse("policy-terminal-recorder"), "subscriber id"),
+                test_ok!(
+                    EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+                    "subscriber event type"
+                ),
+                test_ok!(
+                    TargetHandler::parse("policy-terminal-recorder"),
+                    "subscriber target"
+                ),
+            ),
+        )
+        .await?;
         let issuer = test_ok!(issuer_without_milestone_publisher(), "issuer")
-            .with_event_bus_issuance_publisher(event_bus)
+            .with_event_bus_issuance_publisher(event_bus.clone())
             .map_err(|error| format!("event publisher: {error:?}"))?;
 
         assert_eq!(
@@ -277,15 +307,17 @@ fn issuer_closes_a_prepared_attempt_when_accepted_terminal_append_fails() -> Tes
             "an accepted terminal append failure must fail closed"
         );
 
-        let persisted = test_ok!(journal.persisted(), "persisted terminal closure");
+        let persisted = event_bus.journal().await;
         assert_eq!(
             persisted.len(),
-            2,
-            "a prepared attempt must receive a durable rejected terminal closure after its accepted append fails"
+            3,
+            "a failed physical accepted append remains forensic evidence, followed by a durable rejected terminal closure"
         );
         let prepared = persisted[0].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
-        let rejected = persisted[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        let accepted = persisted[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+        let rejected = persisted[2].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
         assert_eq!(prepared.payload.outcome, AuthenticatedDeliveryGrantIssuanceOutcome::Prepared);
+        assert_eq!(accepted.payload.outcome, AuthenticatedDeliveryGrantIssuanceOutcome::Accepted);
         assert_eq!(rejected.payload.outcome, AuthenticatedDeliveryGrantIssuanceOutcome::Rejected);
         assert_eq!(
             rejected.payload.rejection,
@@ -294,8 +326,21 @@ fn issuer_closes_a_prepared_attempt_when_accepted_terminal_append_fails() -> Tes
         );
         assert_eq!(
             test_ok!(issuance_attempt_id(&persisted[0]), "prepared attempt id"),
-            test_ok!(issuance_attempt_id(&persisted[1]), "rejected attempt id"),
+            test_ok!(issuance_attempt_id(&persisted[2]), "rejected attempt id"),
             "prepared and rejected terminal milestones must share one lifecycle attempt id"
+        );
+        assert_eq!(
+            recorder
+                .recorded()
+                .await
+                .iter()
+                .map(|envelope| envelope.payload.outcome)
+                .collect::<Vec<_>>(),
+            vec![
+                AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
+                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
+            ],
+            "an unverified accepted append must never reach subscribers"
         );
         Ok::<(), Box<dyn std::error::Error>>(())
     })
@@ -388,12 +433,13 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
             EventType::parse("authenticated-delivery-grant.issuance.milestone"),
             "issuance milestone event type"
         );
-        let journal = Arc::new(FailingMilestoneJournal::fail_once_on(u64::MAX));
-        let cloned_journal: Arc<FailingMilestoneJournal> = Arc::clone(&journal);
-        let event_journal: Arc<dyn ocentra_eventing::journal::EventJournal> = cloned_journal;
+        let journal = ProductionFileEventJournal::new(std::env::temp_dir().join(format!(
+            "ocentra-policy-expiry-race-{}.journal",
+            EventId::generated().as_str()
+        )));
         let event_bus = EventBus::with_journal(
             JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
-            event_journal,
+            journal.shared(),
         );
         let recorder = EventRecorder::<AuthenticatedDeliveryGrantIssuanceMilestone>::attach(
             &event_bus,
@@ -413,9 +459,11 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
         let issuer = test_ok!(issuer_without_milestone_publisher(), "issuer")
             .with_trusted_issuance_now_sequence_for_debug_test([
                 "2026-07-28T00:01:00Z",
+                "2026-07-28T00:01:00Z",
+                "2026-07-28T00:01:00Z",
                 "2026-07-28T00:01:31Z",
             ])
-            .with_event_bus_issuance_publisher(event_bus)
+            .with_event_bus_issuance_publisher(event_bus.clone())
             .map_err(|error| format!("event publisher: {error:?}"))?;
         let fixture = test_ok!(
             issuance_fixture_with_expiry(IssuanceFixture::new(), "2026-07-28T00:01:30Z"),
@@ -436,12 +484,13 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
                 .collect::<Vec<_>>(),
             vec![
                 AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
+                AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
                 AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
             ],
-            "a slow publish boundary must not dispatch Accepted before the lifetime recheck"
+            "a terminal publication that exhausts lifetime must be durably closed as rejected and cannot return a grant"
         );
-        let persisted = test_ok!(journal.persisted(), "persisted post-accepted closure");
-        assert_eq!(persisted.len(), 2);
+        let persisted = event_bus.journal().await;
+        assert_eq!(persisted.len(), 3);
         let outcomes = persisted
             .iter()
             .map(|envelope| {
@@ -454,9 +503,10 @@ fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_reje
             outcomes,
             vec![
                 AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
+                AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
                 AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
             ],
-            "a publish-boundary expiry must leave only an explicit durable rejected closure"
+            "a publish-boundary expiry must leave an explicit durable rejected closure after its forensic accepted milestone"
         );
         let attempt_id = test_ok!(issuance_attempt_id(&persisted[0]), "prepared attempt id");
         for envelope in persisted.iter().skip(1) {

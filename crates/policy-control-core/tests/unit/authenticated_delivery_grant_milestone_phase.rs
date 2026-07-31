@@ -1,11 +1,11 @@
-use super::authenticated_delivery_grant_fixture::{issuer, InMemoryMilestoneJournal};
+use super::authenticated_delivery_grant_fixture::issuer;
 use super::TestResult;
 use ocentra_eventing::bus::EventBus;
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::EventType;
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
-use ocentra_eventing::journal::EventJournal;
+use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
 
 #[test]
 fn issuer_refuses_before_and_after_dispatch_journaling_before_an_accepted_milestone_can_orphan(
@@ -16,8 +16,10 @@ fn issuer_refuses_before_and_after_dispatch_journaling_before_an_accepted_milest
     );
     let event_bus = EventBus::with_journal(
         JournalPolicy::before_and_after_dispatch(JournalSelector::EventTypes(vec![event_type])),
-        std::sync::Arc::new(InMemoryMilestoneJournal::default())
-            as std::sync::Arc<dyn EventJournal>,
+        ProductionFileEventJournal::new(
+            std::env::temp_dir().join("ocentra-before-after-issuance.journal"),
+        )
+        .shared(),
     );
 
     assert_eq!(
@@ -37,8 +39,10 @@ fn issuer_rejects_a_before_dispatch_selector_that_omits_issuance_milestones() ->
     let other_event = test_ok!(EventType::parse("policy.other"), "other event type");
     let event_bus = EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![other_event])),
-        std::sync::Arc::new(InMemoryMilestoneJournal::default())
-            as std::sync::Arc<dyn EventJournal>,
+        ProductionFileEventJournal::new(
+            std::env::temp_dir().join("ocentra-omitted-issuance.journal"),
+        )
+        .shared(),
     );
     assert_eq!(
         test_ok!(issuer(), "issuer").with_event_bus_issuance_publisher(event_bus).err(),
