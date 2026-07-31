@@ -71,6 +71,7 @@ pub mod parent_storage_settings_apply_flow_ts;
 pub mod parent_ui_bridge;
 pub mod parent_ui_bridge_ts;
 pub mod policy_enforcement_ts;
+pub mod remote_capability_fabric;
 pub mod report_query_custody;
 pub mod report_query_custody_ts;
 pub mod retention_delete_tombstone;
