@@ -27,6 +27,8 @@ const CREATE_VALIDATION_REJECTION_RETENTION_INDEX: &str = "CREATE INDEX IF NOT E
 const CREATE_REPLAY_RETENTION_CLOCK: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_retention_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL)";
 const CREATE_CONFIRMED_REPLAY_RETENTION_CLOCK: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_retention_v2 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL, confirmed INTEGER NOT NULL CHECK (confirmed IN (0, 1)))";
 const MIGRATE_REPLAY_RETENTION_CLOCK: &str = "INSERT OR IGNORE INTO authenticated_delivery_grant_replay_retention_v2 (singleton, highest_trusted_now_nanos, confirmed) SELECT singleton, highest_trusted_now_nanos, 1 FROM authenticated_delivery_grant_replay_retention_v1";
+const CREATE_PROVISIONAL_REPLAY_RETENTION_CLOCK: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_retention_v3 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL, confirmed INTEGER NOT NULL CHECK (confirmed IN (0, 1)), provisional_observed_at_nanos INTEGER)";
+const MIGRATE_PROVISIONAL_REPLAY_RETENTION_CLOCK: &str = "INSERT OR IGNORE INTO authenticated_delivery_grant_replay_retention_v3 (singleton, highest_trusted_now_nanos, confirmed, provisional_observed_at_nanos) SELECT singleton, highest_trusted_now_nanos, confirmed, CASE confirmed WHEN 0 THEN highest_trusted_now_nanos ELSE NULL END FROM authenticated_delivery_grant_replay_retention_v2";
 const SELECT_EXPIRED_GRANTS: &str = "SELECT issuer_key_id, nonce FROM authenticated_delivery_grant_consumes_v2 WHERE expires_at_nanos <= ?1 ORDER BY expires_at_nanos LIMIT ?2";
 const DELETE_CONSUMED_GRANT: &str =
     "DELETE FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2";
@@ -67,6 +69,8 @@ pub(super) fn ensure_retention_indexes(
     connection
         .execute(CREATE_CONFIRMED_REPLAY_RETENTION_CLOCK, [])
         .and_then(|_| connection.execute(MIGRATE_REPLAY_RETENTION_CLOCK, []))
+        .and_then(|_| connection.execute(CREATE_PROVISIONAL_REPLAY_RETENTION_CLOCK, []))
+        .and_then(|_| connection.execute(MIGRATE_PROVISIONAL_REPLAY_RETENTION_CLOCK, []))
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     Ok(())
 }
@@ -176,11 +180,15 @@ fn copy_audits_with_private_keys(
 pub(super) fn advance_replay_retention_clock(
     connection: &mut Connection,
     observed_now_nanos: i64,
+    independently_confirmed: bool,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     let transaction = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-    let effective_now_nanos =
-        advance_replay_retention_clock_transaction(&transaction, observed_now_nanos)?;
+    let effective_now_nanos = advance_replay_retention_clock_transaction(
+        &transaction,
+        observed_now_nanos,
+        independently_confirmed,
+    )?;
     transaction
         .commit()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -190,8 +198,9 @@ pub(super) fn advance_replay_retention_clock(
 pub(super) fn advance_replay_retention_clock_transaction(
     transaction: &Transaction<'_>,
     observed_now_nanos: i64,
+    independently_confirmed: bool,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
-    clock::advance(transaction, observed_now_nanos)
+    clock::advance(transaction, observed_now_nanos, independently_confirmed)
 }
 
 pub(super) fn migrate_legacy_replay_records(

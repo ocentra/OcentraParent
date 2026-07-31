@@ -337,6 +337,118 @@ fn consumer_recovers_when_the_first_startup_clock_is_in_the_future() -> TestResu
 }
 
 #[test]
+fn concurrent_future_first_opens_remain_provisional_until_a_corrected_restart() -> TestResult {
+    let key = SigningKey::from_bytes(&[29; 32]);
+    let path = store_path("concurrent-future-first-startup-recovery");
+    let barrier = std::sync::Arc::new(std::sync::Barrier::new(2));
+    let verifying_key = key.verifying_key();
+    let workers = ["2030-07-28T00:01:00Z", "2030-07-28T00:01:00.001Z"].map(|observed_at| {
+        let path = path.clone();
+        let barrier = std::sync::Arc::clone(&barrier);
+        let issuer = ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantTrustedIssuer {
+            key_id: "parent-key-1".to_owned(),
+            verifying_key,
+        };
+        std::thread::spawn(move || {
+            barrier.wait();
+            AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+                path,
+                issuer,
+                observed_at,
+            )
+        })
+    });
+    for worker in workers {
+        drop(must(worker.join().map_err(|_| {
+            std::io::Error::other("concurrent future opener panicked")
+        })?)?);
+    }
+
+    let connection = Connection::open(path.as_ref())?;
+    let confirmed: bool = connection.query_row(
+        "SELECT confirmed FROM authenticated_delivery_grant_replay_retention_v3 WHERE singleton = 1",
+        [],
+        |row| row.get(0),
+    )?;
+    assert!(!confirmed);
+    drop(connection);
+
+    let mut recovered = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:02:00Z",
+    ))?;
+    let mut grant = signed_grant(&key);
+    grant.nonce = "concurrent-future-first-recovered-grant".to_owned();
+    grant.expires_at = "2027-07-28T00:30:00Z".to_owned();
+    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
+    assert!(matches!(
+        recovered.consume_at_for_debug_test(
+            &grant,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "concurrent-future-first-recovered",
+            "2026-07-28T00:02:00Z",
+        ),
+        Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_))
+    ));
+    Ok(())
+}
+
+#[test]
+fn later_independent_clock_observation_confirms_and_purges_expired_replay_records() -> TestResult {
+    let key = SigningKey::from_bytes(&[30; 32]);
+    let path = store_path("later-independent-clock-observation");
+    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    ))?;
+    let mut grant = signed_grant(&key);
+    grant.nonce = "independent-confirmation-expired-grant".to_owned();
+    grant.expires_at = "2026-07-28T00:05:00Z".to_owned();
+    grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
+    assert_eq!(
+        consumer.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:01:00Z"),
+        Ok(())
+    );
+    let outcome = consumer.consume_at_for_debug_test(
+        &grant,
+        &expected(),
+        DELIVERED_PAYLOAD,
+        "independent-confirmation-consume",
+        "2026-07-28T00:01:00Z",
+    );
+    assert!(matches!(
+        outcome,
+        Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_))
+    ), "{outcome:?}");
+    drop(consumer);
+
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:06:00Z",
+        ),
+    )?);
+    let connection = Connection::open(path.as_ref())?;
+    let confirmed: bool = connection.query_row(
+        "SELECT confirmed FROM authenticated_delivery_grant_replay_retention_v3 WHERE singleton = 1",
+        [],
+        |row| row.get(0),
+    )?;
+    let remaining_consumes: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2",
+        [],
+        |row| row.get(0),
+    )?;
+    assert!(confirmed);
+    assert_eq!(remaining_consumes, 0);
+    Ok(())
+}
+
+#[test]
 fn consumer_bounds_distinct_validation_rejection_audits_across_restart() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("bounded-distinct-validation-rejections");

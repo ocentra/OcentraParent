@@ -654,7 +654,7 @@ fn consumer_open_drains_all_expired_replay_rows_in_bounded_batches() -> TestResu
     let restarted = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
-        "2026-07-28T00:01:00.500Z",
+        "2026-07-28T00:03:00.500Z",
     ))?;
     drop(restarted);
     let connection = Connection::open(path.as_ref())?;
@@ -695,7 +695,7 @@ fn consumer_keeps_expired_grant_when_audit_delete_fails_atomically() -> TestResu
     let error = AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
-        "2026-07-28T00:01:00.500Z",
+        "2026-07-28T00:03:00.500Z",
     );
     let Err(error) = error else {
         return Err(
