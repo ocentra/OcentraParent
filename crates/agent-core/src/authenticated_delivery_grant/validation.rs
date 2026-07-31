@@ -82,6 +82,12 @@ pub(super) fn validate_storage_range(
     instant_nanos(&grant.expires_at).map(|_| ())
 }
 
+pub(super) fn authenticated_issued_at_nanos(
+    grant: &AuthenticatedDeliveryGrant,
+) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
+    instant_nanos(&grant.issued_at)
+}
+
 pub(super) fn validate_delivered_payload(
     grant: &AuthenticatedDeliveryGrant,
     delivered_payload: &[u8],

@@ -16,7 +16,7 @@ fn consumer_retries_a_held_sqlite_write_lock_beyond_the_legacy_retry_window() ->
     let expected = expected();
     let mut consumer = open(&path, trusted_issuer(&key))?;
     let (lock_ready, lock_acquired) = std::sync::mpsc::sync_channel(1);
-    let lock_path = path.clone();
+    let lock_path = path;
     let lock_holder = thread::spawn(move || -> TestResult {
         let mut connection = Connection::open(lock_path.as_ref())?;
         let transaction =
@@ -32,10 +32,10 @@ fn consumer_retries_a_held_sqlite_write_lock_beyond_the_legacy_retry_window() ->
         std::io::Error::other("write-lock holder exited before acquiring lock")
     })?;
     let outcome = must(consumer.consume(&grant, &expected, DELIVERED_PAYLOAD, "held-write-lock"))?;
-    let _ = must(
+    must(
         lock_holder
             .join()
-            .map_err(|_| std::io::Error::other("write-lock holder panicked"))?,
+            .map_err(|_error| std::io::Error::other("write-lock holder panicked"))?,
     )?;
     assert!(matches!(
         outcome,

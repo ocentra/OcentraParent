@@ -173,7 +173,7 @@ fn concurrent_open_migrates_the_legacy_schema_once() -> TestResult {
         })
     });
     for worker in workers {
-        drop(must(worker.join().map_err(|_| {
+        drop(must(worker.join().map_err(|_error| {
             std::io::Error::other("concurrent opener panicked")
         })?)?);
     }
@@ -220,10 +220,10 @@ fn consumer_open_retries_a_held_sqlite_write_lock_beyond_the_legacy_retry_window
             "2026-07-28T00:01:00Z",
         ),
     )?);
-    let _ = must(
+    must(
         lock_holder
             .join()
-            .map_err(|_| std::io::Error::other("write-lock holder panicked"))?,
+            .map_err(|_error| std::io::Error::other("write-lock holder panicked"))?,
     )?;
     Ok(())
 }

@@ -427,7 +427,7 @@ fn restart_backfill_parses_audit_outcomes_without_substring_misclassification() 
 }
 
 #[test]
-fn replay_expiry_records_remain_until_independent_confirmation() -> TestResult {
+fn authenticated_issuer_confirmation_allows_expired_replay_records_to_be_purged() -> TestResult {
     let key = SigningKey::from_bytes(&[12; 32]);
     let path = store_path("replay-scope-purge");
     let grant = signed_grant(&key);
@@ -459,7 +459,7 @@ fn replay_expiry_records_remain_until_independent_confirmation() -> TestResult {
         "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'validation-rejection'",
         [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)], |row| row.get(0),
     )?;
-    assert_eq!(replay_rows, 1);
+    assert_eq!(replay_rows, 0);
     assert_eq!(validation_rows, 1);
     Ok(())
 }
