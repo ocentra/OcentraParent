@@ -5,8 +5,9 @@ use std::{
     thread,
 };
 
+use super::authenticated_delivery_grant::storage_keys::stored_key;
 use super::authenticated_delivery_grant::{
-    expected, must, open, signed_grant, store_path, stored_key, trusted_issuer,
+    expected, must, open, signed_grant, store_path, trusted_issuer,
 };
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
@@ -130,8 +131,8 @@ fn consumer_keeps_the_latest_validation_rejection_when_an_older_clock_follows_fu
         |row| row.get(0),
     )?;
     let retained: i64 = connection.query_row(
-        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE audit_json LIKE '%older-clock-insert%'",
-        [],
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE audit_json LIKE '%' || ?1 || '%'",
+        [stored_key("older-clock-insert")],
         |row| row.get(0),
     )?;
     assert_eq!(count, 1_024);

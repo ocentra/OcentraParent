@@ -29,7 +29,7 @@ pub(super) fn audit(
     outcome: AuthenticatedDeliveryGrantAuditOutcome,
 ) -> AuthenticatedDeliveryGrantAudit {
     AuthenticatedDeliveryGrantAudit {
-        correlation_id,
+        correlation_id: storage_key_digest(&correlation_id),
         issuer_key_id_digest: format!("{:x}", Sha256::digest(grant.issuer_key_id.as_bytes())),
         nonce_digest: format!("{:x}", Sha256::digest(grant.nonce.as_bytes())),
         grant_digest: authenticated_delivery_grant_audit_fingerprint(grant),

@@ -150,9 +150,12 @@ fn consumer_audits_sqlite_out_of_range_expiry_before_consumption_and_on_retry() 
     assert_eq!(
         audits
             .iter()
-            .map(|audit| &audit.correlation_id)
+            .map(|audit| audit.correlation_id.clone())
             .collect::<Vec<_>>(),
-        vec!["out-of-range-expiry-first", "out-of-range-expiry-retry"]
+        vec![
+            super::storage_keys::stored_key("out-of-range-expiry-first"),
+            super::storage_keys::stored_key("out-of-range-expiry-retry"),
+        ]
     );
     assert!(audits.iter().all(|audit| {
         audit.outcome

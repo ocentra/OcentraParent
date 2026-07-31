@@ -250,7 +250,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             authenticated_delivery_grant_retention::advance_replay_retention_clock(
                 &mut self.connection,
                 trusted_now.1,
-                true,
+                false,
             )?;
         let trusted_now =
             validation::trusted_now_at_least(trusted_now, replay_retention_now_nanos)?;
@@ -282,7 +282,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             authenticated_delivery_grant_retention::advance_replay_retention_clock_transaction(
                 &transaction,
                 post_begin_observed_now.1,
-                true,
+                false,
             )?;
         let post_begin_now = validation::trusted_now_at_least(
             post_begin_observed_now,

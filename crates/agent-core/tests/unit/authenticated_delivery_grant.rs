@@ -33,11 +33,14 @@ mod legacy_replay_migration;
 mod ordering;
 #[path = "authenticated_delivery_grant/replay_audit_hardening.rs"]
 mod replay_audit_hardening;
+#[path = "authenticated_delivery_grant/review_fixes.rs"]
+mod review_fixes;
 #[path = "authenticated_delivery_grant/sqlite_contention.rs"]
 mod sqlite_contention;
 #[path = "authenticated_delivery_grant/storage_keys.rs"]
-mod storage_keys;
-pub(super) use storage_keys::stored_key;
+pub(super) mod storage_keys;
+
+use storage_keys::stored_key;
 
 pub(super) fn must<T, E: Debug>(result: Result<T, E>) -> TestResult<T> {
     result.map_err(|error| std::io::Error::other(format!("unexpected error: {error:?}")).into())
@@ -270,7 +273,7 @@ fn consumer_persists_redacted_bounded_audits_for_validation_rejections() -> Test
         let audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audit_json)?;
         assert_eq!(
             audit.correlation_id,
-            format!("rejection-correlation-{index}")
+            stored_key(&format!("rejection-correlation-{index}"))
         );
         assert_eq!(audit.issuer_key_id_digest.len(), 64);
         assert_eq!(audit.nonce_digest.len(), 64);

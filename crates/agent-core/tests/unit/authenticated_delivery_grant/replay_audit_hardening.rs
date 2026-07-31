@@ -1,9 +1,9 @@
 use ed25519_dalek::{Signer, SigningKey};
 use rusqlite::{params, Connection};
 
+use super::storage_keys::stored_key;
 use super::{
-    expected, must, open, signed_grant, store_path, stored_key, trusted_issuer, TestResult,
-    DELIVERED_PAYLOAD,
+    expected, must, open, signed_grant, store_path, trusted_issuer, TestResult, DELIVERED_PAYLOAD,
 };
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAudit, AuthenticatedDeliveryGrantAuditOutcome,
