@@ -236,6 +236,8 @@ fn oversized_direct_grant_is_audited_with_bounded_data_without_storing_the_untru
     assert_eq!(audit.issuer_key_id_digest.len(), 64);
     assert_eq!(audit.nonce_digest.len(), 64);
     assert_eq!(audit.grant_digest.len(), 64);
+    assert_eq!(audit.correlation_id.len(), 64);
+    assert_ne!(audit.correlation_id, "bounded-shape-rejection");
     assert_eq!(
         audit.outcome,
         AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
