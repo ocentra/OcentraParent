@@ -4,6 +4,8 @@ mod bus_policy;
 mod file;
 #[path = "file_compatibility.rs"]
 mod file_compatibility;
+#[path = "idempotent_sync_retry.rs"]
+mod idempotent_sync_retry;
 #[path = "replay.rs"]
 mod replay;
 #[path = "support.rs"]
