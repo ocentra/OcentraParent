@@ -24,6 +24,8 @@ const INSERT_FINGERPRINT_REPLAY_ROW: &str = "INSERT INTO authenticated_delivery_
 const DROP_LEGACY_REPLAY_TABLE: &str = "DROP TABLE authenticated_delivery_grant_consumes_v2";
 const RENAME_FINGERPRINT_REPLAY_TABLE: &str = "ALTER TABLE authenticated_delivery_grant_consumes_v3 RENAME TO authenticated_delivery_grant_consumes_v2";
 const CREATE_EXPIRY_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_consumes_v2_expiry_idx ON authenticated_delivery_grant_consumes_v2 (expires_at_nanos, issuer_key_id, nonce)";
+const CREATE_REPLAY_PURGE_FLOOR: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_purge_floor_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), expires_at_nanos INTEGER NOT NULL)";
+const ADVANCE_REPLAY_PURGE_FLOOR: &str = "INSERT INTO authenticated_delivery_grant_replay_purge_floor_v1 (singleton, expires_at_nanos) SELECT 1, ?1 WHERE ?2 > 0 ON CONFLICT(singleton) DO UPDATE SET expires_at_nanos = MAX(authenticated_delivery_grant_replay_purge_floor_v1.expires_at_nanos, excluded.expires_at_nanos)";
 const CREATE_AUDIT_GRANT_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_grant_idx ON authenticated_delivery_grant_audits_v2 (issuer_key_id, nonce)";
 const CREATE_VALIDATION_REJECTION_RETENTION_INDEX: &str = "CREATE INDEX IF NOT EXISTS authenticated_delivery_grant_audits_v2_validation_rejection_retention_idx ON authenticated_delivery_grant_audits_v2 (audit_scope, recorded_at_nanos DESC)";
 const CREATE_REPLAY_RETENTION_CLOCK: &str = "CREATE TABLE IF NOT EXISTS authenticated_delivery_grant_replay_retention_v1 (singleton INTEGER PRIMARY KEY CHECK (singleton = 1), highest_trusted_now_nanos INTEGER NOT NULL)";
@@ -58,6 +60,7 @@ pub(super) fn ensure_retention_indexes(
     migrate_raw_storage_keys(connection)?;
     connection
         .execute(CREATE_EXPIRY_INDEX, [])
+        .and_then(|_| connection.execute(CREATE_REPLAY_PURGE_FLOOR, []))
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     connection
         .execute(CREATE_AUDIT_GRANT_INDEX, [])
@@ -450,6 +453,12 @@ fn purge_expired_replay_record_batch(
             .execute(DELETE_REPLAY_AUDITS, params![issuer_key_id, nonce])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     }
+    transaction
+        .execute(
+            ADVANCE_REPLAY_PURGE_FLOOR,
+            params![purge_cutoff_nanos, count as i64],
+        )
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     transaction
         .commit()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;

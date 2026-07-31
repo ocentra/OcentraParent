@@ -16,7 +16,7 @@ pub(super) fn advance(
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     let stored = transaction.query_row("SELECT highest_trusted_now_nanos, confirmed, provisional_observed_at_nanos FROM authenticated_delivery_grant_replay_retention_v3 WHERE singleton = 1", [], |row| Ok((row.get::<_, i64>(0)?, row.get::<_, bool>(1)?, row.get::<_, Option<i64>>(2)?))).optional().map_err(storage)?;
     match stored {
-        None => write(transaction, now, false, Some(now)),
+        None => write(transaction, now, false, Some(now), now),
         Some((highest, false, provisional_observed_at)) => provisional(
             transaction,
             highest,
@@ -70,16 +70,18 @@ fn provisional(
         now,
         independently_confirmed,
         (!independently_confirmed).then_some(observed_at).flatten(),
+        now,
     )
 }
 
 fn write(
     transaction: &Transaction<'_>,
-    now: i64,
+    highest: i64,
     confirmed: bool,
     provisional_observed_at: Option<i64>,
+    effective_now: i64,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
-    transaction.execute("INSERT INTO authenticated_delivery_grant_replay_retention_v3 (singleton, highest_trusted_now_nanos, confirmed, provisional_observed_at_nanos) VALUES (1, ?1, ?2, ?3) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = excluded.highest_trusted_now_nanos, confirmed = excluded.confirmed, provisional_observed_at_nanos = excluded.provisional_observed_at_nanos", params![now, confirmed, provisional_observed_at]).and_then(|_| transaction.execute("INSERT INTO authenticated_delivery_grant_replay_retention_v1 (singleton, highest_trusted_now_nanos) VALUES (1, ?1) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = excluded.highest_trusted_now_nanos", [now])).map(|_| now).map_err(storage)
+    transaction.execute("INSERT INTO authenticated_delivery_grant_replay_retention_v3 (singleton, highest_trusted_now_nanos, confirmed, provisional_observed_at_nanos) VALUES (1, ?1, ?2, ?3) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = excluded.highest_trusted_now_nanos, confirmed = excluded.confirmed, provisional_observed_at_nanos = excluded.provisional_observed_at_nanos", params![highest, confirmed, provisional_observed_at]).and_then(|_| transaction.execute("INSERT INTO authenticated_delivery_grant_replay_retention_v1 (singleton, highest_trusted_now_nanos) VALUES (1, ?1) ON CONFLICT(singleton) DO UPDATE SET highest_trusted_now_nanos = excluded.highest_trusted_now_nanos", [highest])).map(|_| effective_now).map_err(storage)
 }
 
 fn storage(_: rusqlite::Error) -> AuthenticatedDeliveryGrantConsumeError {
