@@ -4,12 +4,14 @@ use super::authenticated_delivery_grant_fixture::{
     issuer_without_milestone_publisher, FailingMilestoneJournal, ForgedV3MilestoneJournal,
 };
 use super::TestResult;
+use ocentra_eventing::bus::subscriber::EventSubscriber;
 use ocentra_eventing::bus::EventBus;
-use ocentra_eventing::ids::{CorrelationId, EventId, EventType};
+use ocentra_eventing::ids::{CorrelationId, EventId, EventType, SubscriberId, TargetHandler};
 use ocentra_eventing::journal::ndjson::{
     JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
 };
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_eventing::testkit::EventRecorder;
 use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
@@ -278,7 +280,8 @@ fn issuer_records_prepare_then_rejection_when_durable_publish_exhausts_lifetime(
 }
 
 #[test]
-fn issuer_rechecks_lifetime_after_accepted_terminal_append_before_returning_grant() -> TestResult {
+fn issuer_rechecks_lifetime_immediately_before_accepted_dispatch_and_closes_rejected() -> TestResult
+{
     let runtime = test_ok!(
         tokio::runtime::Builder::new_current_thread()
             .enable_all()
@@ -297,9 +300,23 @@ fn issuer_rechecks_lifetime_after_accepted_terminal_append_before_returning_gran
             JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
             event_journal,
         );
+        let recorder = EventRecorder::<AuthenticatedDeliveryGrantIssuanceMilestone>::attach(
+            &event_bus,
+            EventSubscriber::new(
+                test_ok!(SubscriberId::parse("policy-test-recorder"), "subscriber id"),
+                test_ok!(
+                    EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+                    "subscriber event type"
+                ),
+                test_ok!(
+                    TargetHandler::parse("policy-test-recorder"),
+                    "subscriber target"
+                ),
+            ),
+        )
+        .await?;
         let issuer = test_ok!(issuer_without_milestone_publisher(), "issuer")
             .with_trusted_issuance_now_sequence_for_debug_test([
-                "2026-07-28T00:01:00Z",
                 "2026-07-28T00:01:00Z",
                 "2026-07-28T00:01:31Z",
             ])
@@ -313,11 +330,23 @@ fn issuer_rechecks_lifetime_after_accepted_terminal_append_before_returning_gran
         assert_eq!(
             issuer.issue_async(fixture.request()).await,
             Err(AuthenticatedDeliveryGrantIssuanceError::InvalidTimestamp),
-            "an accepted append must not return a grant after its remaining lifetime has elapsed"
+            "an accepted dispatch must not return a grant after its remaining lifetime has elapsed"
         );
 
+        let dispatched = recorder.recorded().await;
+        assert_eq!(
+            dispatched
+                .iter()
+                .map(|envelope| envelope.payload.outcome)
+                .collect::<Vec<_>>(),
+            vec![
+                AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
+                AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
+            ],
+            "a slow publish boundary must not dispatch Accepted before the lifetime recheck"
+        );
         let persisted = test_ok!(journal.persisted(), "persisted post-accepted closure");
-        assert_eq!(persisted.len(), 3);
+        assert_eq!(persisted.len(), 2);
         let outcomes = persisted
             .iter()
             .map(|envelope| {
@@ -330,10 +359,9 @@ fn issuer_rechecks_lifetime_after_accepted_terminal_append_before_returning_gran
             outcomes,
             vec![
                 AuthenticatedDeliveryGrantIssuanceOutcome::Prepared,
-                AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
                 AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
             ],
-            "a post-accepted expiry must leave an explicit durable rejected closure"
+            "a publish-boundary expiry must leave only an explicit durable rejected closure"
         );
         let attempt_id = test_ok!(issuance_attempt_id(&persisted[0]), "prepared attempt id");
         for envelope in persisted.iter().skip(1) {

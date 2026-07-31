@@ -20,7 +20,6 @@ pub(super) fn finalize(
     )?;
     validate_before_accepted(issuer, correlation_id, attempt_id, &grant)?;
     publish_accepted_or_reject(issuer, correlation_id, attempt_id, &grant)?;
-    validate_after_accepted(issuer, correlation_id, attempt_id, &grant)?;
     Ok(grant)
 }
 
@@ -39,7 +38,6 @@ pub(super) async fn finalize_async(
         .await?;
     validate_before_accepted_async(issuer, correlation_id, attempt_id, &grant).await?;
     publish_accepted_or_reject_async(issuer, correlation_id, attempt_id, &grant).await?;
-    validate_after_accepted_async(issuer, correlation_id, attempt_id, &grant).await?;
     Ok(grant)
 }
 
@@ -63,6 +61,7 @@ fn publish_accepted_or_reject(
     attempt_id: &EventId,
     grant: &AuthenticatedDeliveryGrant,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    validate_before_accepted(issuer, correlation_id, attempt_id, grant)?;
     issuer
         .publish_issuance_milestone(
             correlation_id,
@@ -78,20 +77,6 @@ fn publish_accepted_or_reject(
                 )
                 .map(|_grant| ())
         })
-}
-
-fn validate_after_accepted(
-    issuer: &AuthenticatedDeliveryGrantIssuer,
-    correlation_id: &CorrelationId,
-    attempt_id: &EventId,
-    grant: &AuthenticatedDeliveryGrant,
-) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
-    match validate_remaining_lifetime(issuer, grant) {
-        Ok(()) => Ok(()),
-        Err(error) => issuer
-            .finalize_rejected(correlation_id, attempt_id, error)
-            .map(|_grant| ()),
-    }
 }
 
 async fn validate_before_accepted_async(
@@ -115,6 +100,7 @@ async fn publish_accepted_or_reject_async(
     attempt_id: &EventId,
     grant: &AuthenticatedDeliveryGrant,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    validate_before_accepted_async(issuer, correlation_id, attempt_id, grant).await?;
     if issuer
         .publish_issuance_milestone_async(
             correlation_id,
@@ -130,21 +116,6 @@ async fn publish_accepted_or_reject_async(
                 attempt_id,
                 AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed,
             )
-            .await
-            .map(|_grant| ());
-    }
-    Ok(())
-}
-
-async fn validate_after_accepted_async(
-    issuer: &AuthenticatedDeliveryGrantIssuer,
-    correlation_id: &CorrelationId,
-    attempt_id: &EventId,
-    grant: &AuthenticatedDeliveryGrant,
-) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
-    if let Err(error) = validate_remaining_lifetime(issuer, grant) {
-        return issuer
-            .finalize_rejected_async(correlation_id, attempt_id, error)
             .await
             .map(|_grant| ());
     }
