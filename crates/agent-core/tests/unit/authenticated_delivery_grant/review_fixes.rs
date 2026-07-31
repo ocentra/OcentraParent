@@ -169,3 +169,81 @@ fn confirmed_clock_large_forward_jump_starts_a_persisted_provisional_epoch() -> 
     assert_eq!(observed_at, None);
     Ok(())
 }
+
+#[test]
+fn confirmed_clock_rollback_preserves_purged_replay_tombstones_without_blocking_new_recovery_grants(
+) -> TestResult {
+    let key = SigningKey::from_bytes(&[4; 32]);
+    let path = store_path("confirmed-clock-rollback-replay-floor");
+    let mut consumed = signed_grant(&key);
+    consumed.nonce = "rollback-purged-nonce".to_owned();
+    consumed.expires_at = "2026-07-28T00:02:00Z".to_owned();
+    consumed.signature = key.sign(&consumed.signing_bytes()).to_bytes().to_vec();
+
+    let mut initial = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    ))?;
+    must(initial.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:01:00Z"))?;
+    let initial_outcome = initial
+        .consume(&consumed, &expected(), DELIVERED_PAYLOAD, "initial-consume")
+        .map_err(|error| std::io::Error::other(format!("initial consume: {error:?}")))?;
+    assert!(matches!(
+        initial_outcome,
+        AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
+    ));
+    drop(initial);
+
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:10:00Z",
+        ),
+    )?);
+    let connection = Connection::open(path.as_ref())?;
+    let purged: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE nonce = ?1",
+        [stored_key(&consumed.nonce)],
+        |row| row.get(0),
+    )?;
+    assert_eq!(purged, 0);
+    drop(connection);
+
+    let mut corrected = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+        &path,
+        trusted_issuer(&key),
+        "2026-07-28T00:01:00Z",
+    ))?;
+    must(corrected.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:01:00Z"))?;
+    let replay_outcome = corrected
+        .consume(
+            &consumed,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "replay-after-rollback",
+        )
+        .map_err(|error| std::io::Error::other(format!("rollback replay: {error:?}")))?;
+    assert!(matches!(
+        replay_outcome,
+        AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_)
+    ));
+    let mut recovery = signed_grant(&key);
+    recovery.nonce = "rollback-recovery-nonce".to_owned();
+    recovery.expires_at = "2026-07-28T00:11:00Z".to_owned();
+    recovery.signature = key.sign(&recovery.signing_bytes()).to_bytes().to_vec();
+    let recovery_outcome = corrected
+        .consume(
+            &recovery,
+            &expected(),
+            DELIVERED_PAYLOAD,
+            "new-after-rollback",
+        )
+        .map_err(|error| std::io::Error::other(format!("rollback recovery: {error:?}")))?;
+    assert!(matches!(
+        recovery_outcome,
+        AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
+    ));
+    Ok(())
+}
