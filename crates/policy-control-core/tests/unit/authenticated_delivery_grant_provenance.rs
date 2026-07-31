@@ -225,7 +225,7 @@ fn parent_step_up_proof_rejects_oversized_fields_before_signing_or_verification(
 }
 
 #[test]
-fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verification(
+fn parent_step_up_proof_rejects_fractional_lifetimes_over_five_minutes_at_signing_and_verification(
 ) -> TestResult {
     let signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
     let fixture = ProvenanceFixture::new();
@@ -238,7 +238,7 @@ fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verif
         overlong_validation.assertion.as_mut(),
         "step-up assertion must exist"
     )
-    .expires_at = "2026-07-28T00:05:01Z".to_owned();
+    .expires_at = "2026-07-28T00:05:00.001Z".to_owned();
     assert_eq!(
         signer.sign(
             overlong_validation,
@@ -246,7 +246,7 @@ fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verif
             assertions.clone(),
         ),
         Err(ParentStepUpProofError::Rejected),
-        "signing must reject a parent-presence proof longer than five minutes"
+        "signing must reject a parent-presence proof longer than five minutes, including a fractional overage"
     );
 
     let mut proof = test_ok!(
@@ -261,12 +261,105 @@ fn parent_step_up_proof_rejects_lifetimes_over_five_minutes_at_signing_and_verif
         proof.validation.assertion.as_mut(),
         "signed step-up assertion"
     )
-    .expires_at = "2026-07-28T00:05:01Z".to_owned();
+    .expires_at = "2026-07-28T00:05:00.001Z".to_owned();
     let verifier = ParentStepUpProofVerifier::new(signer.verifying_key());
     assert_eq!(
         verifier.verify(&proof),
         Err(ParentStepUpProofError::Rejected),
-        "verification must reject an overlong signed step-up proof before signature acceptance"
+        "verification must reject an overlong signed step-up proof before signature acceptance, including a fractional overage"
+    );
+    Ok(())
+}
+
+#[test]
+fn parent_step_up_proof_rejects_fractional_expiry_and_accepts_exact_fractional_boundaries(
+) -> TestResult {
+    let signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let fixture = ProvenanceFixture::new();
+    let assertions = AuthenticatedDeliveryGrantAssertionSnapshot {
+        capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+        evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+    };
+    let mut zero_lifetime = fixture.step_up.validation.clone();
+    zero_lifetime.observed_at = "2026-07-28T00:00:00.500Z".to_owned();
+    test_some!(
+        zero_lifetime.assertion.as_mut(),
+        "step-up assertion must exist"
+    )
+    .expires_at = "2026-07-28T00:00:00.500Z".to_owned();
+    let verifier = ParentStepUpProofVerifier::new(signer.verifying_key());
+    let zero_proof = test_ok!(
+        signer.sign(
+            zero_lifetime,
+            fixture.bindings.target_device_id.clone(),
+            assertions.clone(),
+        ),
+        "zero fractional lifetime signs"
+    );
+    let _zero_verified = test_ok!(
+        verifier.verify(&zero_proof),
+        "an exact zero fractional lifetime remains valid"
+    );
+
+    let mut expired_validation = fixture.step_up.validation.clone();
+    expired_validation.observed_at = "2026-07-28T00:00:00.500Z".to_owned();
+    test_some!(
+        expired_validation.assertion.as_mut(),
+        "step-up assertion must exist"
+    )
+    .expires_at = "2026-07-28T00:00:00.499Z".to_owned();
+    assert_eq!(
+        signer.sign(
+            expired_validation,
+            fixture.bindings.target_device_id.clone(),
+            assertions.clone(),
+        ),
+        Err(ParentStepUpProofError::Rejected),
+        "signing must reject a proof that expired one millisecond before observation"
+    );
+
+    let mut maximum_lifetime = fixture.step_up.validation.clone();
+    maximum_lifetime.observed_at = "2026-07-28T00:00:00.500Z".to_owned();
+    test_some!(
+        maximum_lifetime.assertion.as_mut(),
+        "step-up assertion must exist"
+    )
+    .expires_at = "2026-07-28T00:05:00.500Z".to_owned();
+    let maximum_proof = test_ok!(
+        signer.sign(
+            maximum_lifetime,
+            fixture.bindings.target_device_id.clone(),
+            assertions.clone(),
+        ),
+        "exact five-minute fractional lifetime signs"
+    );
+    let _maximum_verified = test_ok!(
+        verifier.verify(&maximum_proof),
+        "an exact five-minute fractional lifetime remains valid"
+    );
+
+    let mut expired = zero_proof.clone();
+    test_some!(
+        expired.validation.assertion.as_mut(),
+        "signed step-up assertion"
+    )
+    .expires_at = "2026-07-28T00:00:00.499Z".to_owned();
+    assert_eq!(
+        verifier.verify(&expired),
+        Err(ParentStepUpProofError::Rejected),
+        "verification must reject a proof that expired one millisecond before observation"
+    );
+
+    let mut overlong = maximum_proof;
+    test_some!(
+        overlong.validation.assertion.as_mut(),
+        "signed step-up assertion"
+    )
+    .expires_at = "2026-07-28T00:05:00.501Z".to_owned();
+    assert_eq!(
+        verifier.verify(&overlong),
+        Err(ParentStepUpProofError::Rejected),
+        "verification must reject a proof one millisecond over the five-minute boundary"
     );
     Ok(())
 }
