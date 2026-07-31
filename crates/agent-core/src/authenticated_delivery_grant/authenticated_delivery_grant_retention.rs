@@ -44,7 +44,7 @@ const CREATE_PRIVACY_CONSUMES_TABLE: &str = "CREATE TABLE authenticated_delivery
 const CREATE_PRIVACY_AUDITS_TABLE: &str = "CREATE TABLE authenticated_delivery_grant_audits_privacy_v3 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, audit_json TEXT NOT NULL, recorded_at_nanos INTEGER, audit_scope TEXT NOT NULL DEFAULT 'replay')";
 
 pub(super) fn ensure_retention_indexes(
-    connection: &mut Connection,
+    connection: &Connection,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let has_fingerprint_column = connection
         .prepare("SELECT 1 FROM pragma_table_info('authenticated_delivery_grant_consumes_v2') WHERE name = ?1")
@@ -76,7 +76,7 @@ pub(super) fn ensure_retention_indexes(
 }
 
 fn migrate_raw_storage_keys(
-    connection: &mut Connection,
+    connection: &Connection,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     connection
         .execute(CREATE_STORAGE_PRIVACY_MARKER, [])
@@ -178,7 +178,7 @@ fn copy_audits_with_private_keys(
 }
 
 pub(super) fn advance_replay_retention_clock(
-    connection: &mut Connection,
+    connection: &Connection,
     observed_now_nanos: i64,
     independently_confirmed: bool,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
@@ -204,7 +204,7 @@ pub(super) fn advance_replay_retention_clock_transaction(
 }
 
 pub(super) fn migrate_legacy_replay_records(
-    connection: &mut Connection,
+    connection: &Connection,
     trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     legacy_replay_rows::migrate_legacy_replay_records(connection, trusted_issuer)
@@ -388,14 +388,14 @@ impl LegacyAuthenticatedDeliveryGrant {
 }
 
 pub(super) fn purge_expired_replay_records(
-    connection: &mut Connection,
+    connection: &Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     purge_expired_replay_record_batch(connection, trusted_now_nanos).map(|_count| ())
 }
 
 pub(super) fn drain_expired_replay_records_at_startup(
-    connection: &mut Connection,
+    connection: &Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     while purge_expired_replay_record_batch(connection, trusted_now_nanos)?
@@ -405,7 +405,7 @@ pub(super) fn drain_expired_replay_records_at_startup(
 }
 
 fn purge_expired_replay_record_batch(
-    connection: &mut Connection,
+    connection: &Connection,
     trusted_now_nanos: i64,
 ) -> Result<usize, AuthenticatedDeliveryGrantConsumeError> {
     let transaction = immediate_transaction_with_contention_retry(connection)

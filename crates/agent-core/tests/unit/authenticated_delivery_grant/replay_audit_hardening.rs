@@ -95,7 +95,7 @@ fn replay_and_audit_storage_never_persist_raw_issuer_or_nonce_keys() -> TestResu
 }
 
 #[test]
-fn post_lock_temporal_revalidation_rejects_expiry_and_clamps_backward_correction() -> TestResult {
+fn post_lock_temporal_revalidation_uses_the_current_unconfirmed_observation() -> TestResult {
     let key = SigningKey::from_bytes(&[10; 32]);
     let path = store_path("post-lock-temporal-window");
     let mut consumer = open(&path, trusted_issuer(&key))?;
@@ -118,14 +118,14 @@ fn post_lock_temporal_revalidation_rejects_expiry_and_clamps_backward_correction
     future_grant.signature = key.sign(&future_grant.signing_bytes()).to_bytes().to_vec();
     must(consumer.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:04:59Z"))?;
     assert!(matches!(
-        must(consumer.consume_at_for_debug_test(
+        consumer.consume_at_for_debug_test(
             &future_grant,
             &expected(),
             DELIVERED_PAYLOAD,
             "post-lock-future",
             "2026-07-28T00:05:00Z",
-        ))?,
-        AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
+        ),
+        Err(AuthenticatedDeliveryGrantConsumeError::NotYetValid)
     ));
     drop(consumer);
     let connection = Connection::open(path.as_ref())?;
@@ -134,7 +134,7 @@ fn post_lock_temporal_revalidation_rejects_expiry_and_clamps_backward_correction
         [],
         |row| row.get(0),
     )?;
-    assert_eq!(rows, 1);
+    assert_eq!(rows, 0);
     let audits: Vec<(String, String, i64)> = {
         let mut statement = connection.prepare(
             "SELECT audit_scope, audit_json, recorded_at_nanos FROM authenticated_delivery_grant_audits_v2 ORDER BY rowid",
@@ -151,7 +151,7 @@ fn post_lock_temporal_revalidation_rejects_expiry_and_clamps_backward_correction
         .collect();
     assert_eq!(
         recorded_at_nanos,
-        vec![1_785_197_100_000_000_000, 1_785_197_100_000_000_000]
+        vec![1_785_197_100_000_000_000, 1_785_197_099_000_000_000]
     );
     let first_audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audits[0].1)?;
     let second_audit: AuthenticatedDeliveryGrantAudit = serde_json::from_str(&audits[1].1)?;
@@ -162,11 +162,13 @@ fn post_lock_temporal_revalidation_rejects_expiry_and_clamps_backward_correction
             ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::Expired
         )
     ));
-    assert_eq!(audits[1].0, "replay");
-    assert_eq!(
+    assert_eq!(audits[1].0, "validation-rejection");
+    assert!(matches!(
         second_audit.outcome,
-        AuthenticatedDeliveryGrantAuditOutcome::Consumed
-    );
+        AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(
+            ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantValidationRejection::NotYetValid
+        )
+    ));
     Ok(())
 }
 
@@ -425,7 +427,7 @@ fn restart_backfill_parses_audit_outcomes_without_substring_misclassification() 
 }
 
 #[test]
-fn replay_expiry_purge_preserves_validation_audits_for_the_same_grant_identity() -> TestResult {
+fn replay_expiry_records_remain_until_independent_confirmation() -> TestResult {
     let key = SigningKey::from_bytes(&[12; 32]);
     let path = store_path("replay-scope-purge");
     let grant = signed_grant(&key);
@@ -457,7 +459,7 @@ fn replay_expiry_purge_preserves_validation_audits_for_the_same_grant_identity()
         "SELECT COUNT(*) FROM authenticated_delivery_grant_audits_v2 WHERE issuer_key_id = ?1 AND nonce = ?2 AND audit_scope = 'validation-rejection'",
         [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)], |row| row.get(0),
     )?;
-    assert_eq!(replay_rows, 0);
+    assert_eq!(replay_rows, 1);
     assert_eq!(validation_rows, 1);
     Ok(())
 }
@@ -509,7 +511,7 @@ fn replay_audit_trim_never_evicts_validation_evidence_for_the_same_grant() -> Te
 }
 
 #[test]
-fn replay_tombstone_purge_clamps_backward_wall_clock_correction_to_expiry() -> TestResult {
+fn replay_tombstone_remains_replay_rejected_without_independent_confirmation() -> TestResult {
     let key = SigningKey::from_bytes(&[14; 32]);
     let path = store_path("replay-tombstone-clock-correction");
     let grant = signed_grant(&key);
@@ -532,7 +534,7 @@ fn replay_tombstone_purge_clamps_backward_wall_clock_correction_to_expiry() -> T
         "advance-wall-clock",
         "2026-07-28T00:05:01Z",
     ))?;
-    assert_eq!(
+    assert!(matches!(
         consumer.consume_at_for_debug_test(
             &grant,
             &expected(),
@@ -540,14 +542,13 @@ fn replay_tombstone_purge_clamps_backward_wall_clock_correction_to_expiry() -> T
             "backward-clock-replay",
             "2026-07-28T00:04:59Z",
         ),
-        Err(AuthenticatedDeliveryGrantConsumeError::Expired)
-    );
+        Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_))
+    ));
     Ok(())
 }
 
 #[test]
-fn replay_tombstone_purges_only_after_persisted_trusted_time_makes_rollback_replay_expired(
-) -> TestResult {
+fn replay_tombstone_remains_replay_rejected_after_unconfirmed_restart() -> TestResult {
     let key = SigningKey::from_bytes(&[23; 32]);
     let path = store_path("replay-tombstone-restart-clock-correction");
     let grant = signed_grant(&key);
@@ -577,7 +578,7 @@ fn replay_tombstone_purges_only_after_persisted_trusted_time_makes_rollback_repl
         ),
     )?;
     must(reopened.inject_trusted_now_after_transaction_for_debug("2026-07-28T00:04:59Z"))?;
-    assert_eq!(
+    assert!(matches!(
         reopened.consume_at_for_debug_test(
             &grant,
             &expected(),
@@ -585,8 +586,8 @@ fn replay_tombstone_purges_only_after_persisted_trusted_time_makes_rollback_repl
             "backward-clock-replay-after-restart",
             "2026-07-28T00:04:59Z",
         ),
-        Err(AuthenticatedDeliveryGrantConsumeError::Expired)
-    );
+        Ok(AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_))
+    ));
     drop(reopened);
     let connection = Connection::open(path.as_ref())?;
     let retained_replays: i64 = connection.query_row(
@@ -599,8 +600,8 @@ fn replay_tombstone_purges_only_after_persisted_trusted_time_makes_rollback_repl
         [],
         |row| row.get(0),
     )?;
-    assert_eq!(retained_replays, 0);
-    assert_eq!(persisted_trusted_now_nanos, 1_787_875_499_000_000_000);
+    assert_eq!(retained_replays, 1);
+    assert_eq!(persisted_trusted_now_nanos, 1_785_197_099_000_000_000);
     Ok(())
 }
 

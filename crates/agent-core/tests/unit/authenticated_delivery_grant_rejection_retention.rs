@@ -342,6 +342,22 @@ fn consumer_recovers_from_a_future_clock_jump_without_dropping_replay_tombstones
     ), "{future_outcome:?}");
     drop(consumer);
 
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2026-07-28T00:02:00Z",
+        ),
+    )?);
+    let connection = Connection::open(path.as_ref())?;
+    let persisted_trusted_now_nanos: i64 = connection.query_row(
+        "SELECT highest_trusted_now_nanos FROM authenticated_delivery_grant_replay_retention_v1 WHERE singleton = 1",
+        [],
+        |row| row.get(0),
+    )?;
+    assert_eq!(persisted_trusted_now_nanos, 1_785_196_920_000_000_000);
+    drop(connection);
+
     let mut recovered = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
@@ -412,32 +428,23 @@ fn consumer_recovers_when_the_first_startup_clock_is_in_the_future() -> TestResu
 }
 
 #[test]
-fn concurrent_future_first_opens_remain_provisional_until_a_corrected_restart() -> TestResult {
+fn delayed_same_bad_startup_clock_remains_provisional_until_a_corrected_restart() -> TestResult {
     let key = SigningKey::from_bytes(&[29; 32]);
     let path = store_path("concurrent-future-first-startup-recovery");
-    let barrier = std::sync::Arc::new(std::sync::Barrier::new(2));
-    let verifying_key = key.verifying_key();
-    let workers = ["2030-07-28T00:01:00Z", "2030-07-28T00:01:00.001Z"].map(|observed_at| {
-        let path = path.clone();
-        let barrier = std::sync::Arc::clone(&barrier);
-        let issuer = ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantTrustedIssuer {
-            key_id: "parent-key-1".to_owned(),
-            verifying_key,
-        };
-        std::thread::spawn(move || {
-            barrier.wait();
-            AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
-                path,
-                issuer,
-                observed_at,
-            )
-        })
-    });
-    for worker in workers {
-        drop(must(worker.join().map_err(|_| {
-            std::io::Error::other("concurrent future opener panicked")
-        })?)?);
-    }
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2030-07-28T00:01:00Z",
+        ),
+    )?);
+    drop(must(
+        AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+            &path,
+            trusted_issuer(&key),
+            "2030-07-28T00:02:01Z",
+        ),
+    )?);
 
     let connection = Connection::open(path.as_ref())?;
     let confirmed: bool = connection.query_row(
@@ -454,7 +461,7 @@ fn concurrent_future_first_opens_remain_provisional_until_a_corrected_restart() 
         "2026-07-28T00:02:00Z",
     ))?;
     let mut grant = signed_grant(&key);
-    grant.nonce = "concurrent-future-first-recovered-grant".to_owned();
+    grant.nonce = "delayed-future-first-recovered-grant".to_owned();
     grant.expires_at = "2027-07-28T00:30:00Z".to_owned();
     grant.signature = key.sign(&grant.signing_bytes()).to_bytes().to_vec();
     assert!(matches!(
@@ -462,7 +469,7 @@ fn concurrent_future_first_opens_remain_provisional_until_a_corrected_restart() 
             &grant,
             &expected(),
             DELIVERED_PAYLOAD,
-            "concurrent-future-first-recovered",
+            "delayed-future-first-recovered",
             "2026-07-28T00:02:00Z",
         ),
         Ok(ocentra_parent_agent_core::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_))
@@ -471,7 +478,7 @@ fn concurrent_future_first_opens_remain_provisional_until_a_corrected_restart() 
 }
 
 #[test]
-fn later_independent_clock_observation_confirms_and_purges_expired_replay_records() -> TestResult {
+fn later_wall_clock_observation_does_not_confirm_or_purge_expired_replay_records() -> TestResult {
     let key = SigningKey::from_bytes(&[30; 32]);
     let path = store_path("later-independent-clock-observation");
     let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
@@ -518,8 +525,8 @@ fn later_independent_clock_observation_confirms_and_purges_expired_replay_record
         [],
         |row| row.get(0),
     )?;
-    assert!(confirmed);
-    assert_eq!(remaining_consumes, 0);
+    assert!(!confirmed);
+    assert_eq!(remaining_consumes, 1);
     Ok(())
 }
 
@@ -658,6 +665,6 @@ fn consumer_bounds_temporal_rejection_audits_without_allowing_clock_rollback() -
         [],
         |row| row.get(0),
     )?;
-    assert_eq!(persisted_trusted_now_nanos, 1_785_197_100_000_000_000);
+    assert_eq!(persisted_trusted_now_nanos, 1_785_197_099_000_000_000);
     Ok(())
 }

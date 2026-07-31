@@ -139,7 +139,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         startup_now_nanos: i64,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
         validate_trusted_issuer(&trusted_issuer)?;
-        let mut connection = Connection::open(path)
+        let connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         connection
             .busy_timeout(CONSUME_BUSY_TIMEOUT)
@@ -153,21 +153,21 @@ impl AuthenticatedDeliveryGrantConsumer {
         connection
             .execute(CREATE_GRANT_AUDITS, [])
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
-        rejection_audit::ensure_retention_schema(&mut connection, startup_now_nanos)?;
+        rejection_audit::ensure_retention_schema(&connection, startup_now_nanos)?;
         authenticated_delivery_grant_retention::migrate_legacy_replay_records(
-            &mut connection,
+            &connection,
             &trusted_issuer,
         )?;
-        authenticated_delivery_grant_retention::ensure_retention_indexes(&mut connection)?;
+        authenticated_delivery_grant_retention::ensure_retention_indexes(&connection)?;
         let replay_retention_now_nanos =
             authenticated_delivery_grant_retention::advance_replay_retention_clock(
-                &mut connection,
+                &connection,
                 startup_now_nanos,
                 false,
             )?;
-        rejection_audit::drain_expired_at_startup(&mut connection, startup_now_nanos)?;
+        rejection_audit::drain_expired_at_startup(&connection, startup_now_nanos)?;
         authenticated_delivery_grant_retention::drain_expired_replay_records_at_startup(
-            &mut connection,
+            &connection,
             replay_retention_now_nanos,
         )?;
         Ok(Self {
@@ -248,7 +248,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         let correlation = correlation_id.into();
         let replay_retention_now_nanos =
             authenticated_delivery_grant_retention::advance_replay_retention_clock(
-                &mut self.connection,
+                &self.connection,
                 trusted_now.1,
                 false,
             )?;
@@ -256,16 +256,16 @@ impl AuthenticatedDeliveryGrantConsumer {
             validation::trusted_now_at_least(trusted_now, replay_retention_now_nanos)?;
         self.validate_request(grant, expected, payload, &correlation, trusted_now)?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
-            &mut self.connection,
+            &self.connection,
             trusted_now.1,
         )?;
-        self.consume_after_replay_retention_validation(grant, correlation, trusted_now)
+        self.consume_after_replay_retention_validation(grant, &correlation, trusted_now)
     }
 
     fn consume_after_replay_retention_validation(
         &mut self,
         grant: &AuthenticatedDeliveryGrant,
-        correlation: String,
+        correlation: &str,
         trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
@@ -388,7 +388,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         error: AuthenticatedDeliveryGrantConsumeError,
     ) -> AuthenticatedDeliveryGrantConsumeError {
         rejection_audit::persist(
-            &mut self.connection,
+            &self.connection,
             grant,
             correlation_id,
             trusted_now_nanos,
@@ -397,7 +397,7 @@ impl AuthenticatedDeliveryGrantConsumer {
     }
 
     fn persist_bounded_shape_rejection(
-        &mut self,
+        &self,
         grant: &AuthenticatedDeliveryGrant,
         correlation_id: &str,
         trusted_now_nanos: i64,
@@ -450,7 +450,7 @@ impl AuthenticatedDeliveryGrantConsumer {
 fn reject_post_begin_temporal_window(
     transaction: Transaction<'_>,
     grant: &AuthenticatedDeliveryGrant,
-    correlation_id: String,
+    correlation_id: &str,
     trusted_now_nanos: i64,
     error: AuthenticatedDeliveryGrantConsumeError,
 ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
@@ -484,7 +484,7 @@ fn reject_post_begin_temporal_window(
 fn reject_replay(
     transaction: Transaction<'_>,
     grant: &AuthenticatedDeliveryGrant,
-    correlation_id: String,
+    correlation_id: &str,
     stored_fingerprint: &str,
     recorded_at_nanos: i64,
 ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError> {
