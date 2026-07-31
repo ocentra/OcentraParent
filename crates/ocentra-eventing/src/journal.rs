@@ -82,4 +82,25 @@ impl JournalAppend {
                     .as_ref()
                     .is_some_and(|hash| hash_chain::verify_synchronization_receipt(self, hash)))
     }
+
+    /// Returns whether this append carries the V3 completion proof required
+    /// before an authorization boundary can rely on its synchronization claim.
+    pub fn has_verified_synchronization_proof(&self) -> bool {
+        self.hash_version == JournalHashVersion::V3 && self.is_synchronized()
+    }
+
+    /// Attests a V3 append after its journal implementation has completed its
+    /// required synchronization work. Implementations retain responsibility
+    /// for performing that work before issuing this acknowledgement.
+    pub fn with_synchronization_proof(mut self) -> Result<Self, EventingError> {
+        if self.hash_version != JournalHashVersion::V3 {
+            return Err(EventingError::InvalidValue {
+                field: "journal_append.hash_version",
+                value: "synchronization proof requires V3".to_owned(),
+            });
+        }
+        self.durability = JournalAppendDurability::Synchronized;
+        self.synchronization_hash = Some(hash_chain::synchronization_receipt_hash(&self)?);
+        Ok(self)
+    }
 }

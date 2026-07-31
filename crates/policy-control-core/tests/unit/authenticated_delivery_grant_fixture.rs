@@ -45,6 +45,13 @@ pub(crate) struct ForgedV3MilestoneJournal {
     next_sequence: AtomicU64,
 }
 
+/// Models a legacy receipt whose mutable synchronized field is not backed by
+/// a V3 completion proof and therefore cannot authorize a grant.
+#[derive(Default)]
+pub(crate) struct LegacyV2MilestoneJournal {
+    next_sequence: AtomicU64,
+}
+
 impl FailingMilestoneJournal {
     pub(crate) fn fail_once_on(fail_once_on: u64) -> Self {
         Self {
@@ -83,15 +90,16 @@ impl FailingMilestoneJournal {
                 reason: "persisted-record lock unavailable".to_owned(),
             })?
             .push(envelope.clone());
-        Ok(JournalAppend {
+        JournalAppend {
             sequence: call,
             previous_hash: None,
             current_hash: None,
-            hash_version: JournalHashVersion::V2,
-            durability: JournalAppendDurability::Synchronized,
+            hash_version: JournalHashVersion::V3,
+            durability: JournalAppendDurability::Buffered,
             requested_durability: JournalAppendDurability::Synchronized,
             synchronization_hash: None,
-        })
+        }
+        .with_synchronization_proof()
     }
 }
 
@@ -112,15 +120,16 @@ impl EventJournal for InMemoryMilestoneJournal {
 
     fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
         Box::pin(async move {
-            Ok(JournalAppend {
+            JournalAppend {
                 sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
                 previous_hash: None,
                 current_hash: None,
-                hash_version: JournalHashVersion::V2,
-                durability: JournalAppendDurability::Synchronized,
+                hash_version: JournalHashVersion::V3,
+                durability: JournalAppendDurability::Buffered,
                 requested_durability: JournalAppendDurability::Synchronized,
                 synchronization_hash: None,
-            })
+            }
+            .with_synchronization_proof()
         })
     }
 }
@@ -137,6 +146,26 @@ impl EventJournal for ForgedV3MilestoneJournal {
                 previous_hash: None,
                 current_hash: None,
                 hash_version: JournalHashVersion::V3,
+                durability: JournalAppendDurability::Synchronized,
+                requested_durability: JournalAppendDurability::Synchronized,
+                synchronization_hash: None,
+            })
+        })
+    }
+}
+
+impl EventJournal for LegacyV2MilestoneJournal {
+    fn is_production_durable(&self) -> bool {
+        true
+    }
+
+    fn append<'a>(&'a self, _envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
+        Box::pin(async move {
+            Ok(JournalAppend {
+                sequence: self.next_sequence.fetch_add(1, Ordering::Relaxed) + 1,
+                previous_hash: None,
+                current_hash: None,
+                hash_version: JournalHashVersion::V2,
                 durability: JournalAppendDurability::Synchronized,
                 requested_durability: JournalAppendDurability::Synchronized,
                 synchronization_hash: None,

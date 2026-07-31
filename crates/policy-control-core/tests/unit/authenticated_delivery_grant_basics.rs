@@ -2,6 +2,7 @@ use super::authenticated_delivery_grant::IssuanceFixture;
 use super::authenticated_delivery_grant_fixture::{
     durable_milestone_bus, issuance_fixture_with_expiry, issuer,
     issuer_without_milestone_publisher, FailingMilestoneJournal, ForgedV3MilestoneJournal,
+    LegacyV2MilestoneJournal,
 };
 use super::TestResult;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
@@ -131,6 +132,40 @@ fn issuer_rejects_a_v3_synchronized_receipt_without_authenticated_completion() -
             issuer.issue_async(IssuanceFixture::new().request()).await,
             Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
             "a V3 receipt without its authenticated completion marker cannot authorize a grant"
+        );
+        Ok::<_, Box<dyn std::error::Error>>(())
+    })
+}
+
+#[test]
+fn issuer_rejects_a_legacy_v2_synchronized_receipt_without_completion_proof() -> TestResult {
+    let runtime = test_ok!(
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build(),
+        "legacy V2 receipt runtime"
+    );
+    runtime.block_on(async {
+        let event_type = test_ok!(
+            EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+            "issuance milestone event type"
+        );
+        let journal: Arc<dyn ocentra_eventing::journal::EventJournal> =
+            Arc::new(LegacyV2MilestoneJournal::default());
+        let event_bus = EventBus::with_journal(
+            JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+            journal,
+        );
+        let issuer = test_ok!(
+            issuer_without_milestone_publisher(),
+            "provenance-configured issuer"
+        )
+        .with_event_bus_issuance_publisher(event_bus)
+        .map_err(|error| format!("event publisher: {error:?}"))?;
+        assert_eq!(
+            issuer.issue_async(IssuanceFixture::new().request()).await,
+            Err(AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed),
+            "a legacy V2 synchronized field without a verifiable completion proof cannot authorize a grant"
         );
         Ok::<_, Box<dyn std::error::Error>>(())
     })
