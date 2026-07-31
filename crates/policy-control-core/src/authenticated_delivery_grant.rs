@@ -7,6 +7,7 @@ use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityInput, ParentStepUpValidationInput,
 };
+use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityCurrentState;
 use ocentra_family_identity_core::parent_step_up_proof::{
     ParentStepUpProofVerifier, VerifiedParentStepUpProof,
 };
@@ -163,6 +164,7 @@ pub struct AuthenticatedDeliveryGrantIssuer {
     issuer_key_id: String,
     signing_key: SigningKey,
     authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier,
+    household_authority_current_state: HouseholdAuthorityCurrentState,
     step_up_verifier: ParentStepUpProofVerifier,
     issuance_publisher: Option<EventBusAuthenticatedDeliveryGrantIssuancePublisher>,
     trusted_issuance_now: Option<String>,
@@ -176,6 +178,7 @@ impl AuthenticatedDeliveryGrantIssuer {
         platform_protected_key: [u8; 32],
         authority_key: VerifyingKey,
         household_authority_key: VerifyingKey,
+        household_authority_current_state: HouseholdAuthorityCurrentState,
         step_up_key: VerifyingKey,
     ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
         let issuer_key_id = issuer_key_id.into();
@@ -192,6 +195,7 @@ impl AuthenticatedDeliveryGrantIssuer {
                 authority_key,
                 household_authority_key,
             ),
+            household_authority_current_state,
             step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
             issuance_publisher: None,
             trusted_issuance_now: None,
@@ -208,6 +212,14 @@ impl AuthenticatedDeliveryGrantIssuer {
             event_bus,
         )?);
         Ok(self)
+    }
+
+    pub fn with_household_authority_current_state(
+        mut self,
+        current_state: HouseholdAuthorityCurrentState,
+    ) -> Self {
+        self.household_authority_current_state = current_state;
+        self
     }
 
     pub fn verifying_key(&self) -> VerifyingKey {

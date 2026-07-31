@@ -4,7 +4,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 use ocentra_family_identity_core::household_authority_proof::{
-    HouseholdAuthorityProof, HouseholdAuthorityProofVerifier, VerifiedHouseholdAuthority,
+    HouseholdAuthorityCurrentState, HouseholdAuthorityProof, HouseholdAuthorityProofVerifier,
+    VerifiedHouseholdAuthority,
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
@@ -112,6 +113,41 @@ impl AuthenticatedDeliveryGrantAuthorityVerifier {
             signed.policy_authority.clone(),
         ))
     }
+
+    pub fn verify_against_current_state(
+        &self,
+        signed: &SignedAuthorityBindings,
+        current_state: &HouseholdAuthorityCurrentState,
+        trusted_now: &str,
+    ) -> Result<
+        (
+            DeliveryGrantBindings,
+            AuthenticatedDeliveryGrantAssertionSnapshot,
+            VerifiedHouseholdAuthority,
+            ResolvedPolicyDecision,
+            PolicyContractAuthorityDecision,
+        ),
+        AuthenticatedDeliveryGrantIssuanceError,
+    > {
+        let (bindings, assertions, _, resolved_decision, policy_authority) = self.verify(signed)?;
+        let household_authority = self
+            .household_authority_verifier
+            .verify_against_current_state(
+                &signed.household_authority_proof,
+                current_state,
+                trusted_now,
+            )
+            .map_err(|_error| {
+                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
+            })?;
+        Ok((
+            bindings,
+            assertions,
+            household_authority,
+            resolved_decision,
+            policy_authority,
+        ))
+    }
 }
 
 pub struct AuthenticatedDeliveryGrantAuthoritySigner {
@@ -200,9 +236,13 @@ fn validate_signed_shape(
         bindings.payload_length <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES;
     let wire_len = fields.iter().map(|field| field.len()).sum::<usize>()
         + AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES;
+    let serialized_wire_len = serde_json::to_vec(signed)
+        .map(|wire| wire.len())
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
     (bounded
         && payload_length_bounded
-        && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
+        && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES
+        && serialized_wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
         .then_some(())
         .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
 }

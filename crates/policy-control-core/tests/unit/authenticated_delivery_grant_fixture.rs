@@ -9,7 +9,8 @@ use ocentra_eventing::journal::{
 };
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityInput;
 use ocentra_family_identity_core::household_authority_proof::{
-    HouseholdAuthorityProofIdentityBinding, HouseholdAuthorityProofSigner,
+    HouseholdAuthorityCurrentState, HouseholdAuthorityProofIdentityBinding,
+    HouseholdAuthorityProofSigner,
 };
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
@@ -184,6 +185,7 @@ pub(super) fn issuer_without_milestone_publisher(
         [3; 32],
         authority.verifying_key(),
         household_authority.verifying_key(),
+        current_household_authority_state(),
         step_up.verifying_key(),
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
@@ -212,8 +214,11 @@ pub(super) fn household_authority_proof(
     authority: HouseholdAuthorityInput,
 ) -> ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProof {
     test_ok!(
-        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound(
-            authority,
+        HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound_at(
+            &HouseholdAuthorityCurrentState {
+                authority,
+                family_revocation_epoch: 1,
+            },
             HouseholdAuthorityProofIdentityBinding {
                 household_id: "household-1".to_owned(),
                 parent_actor_id: "parent-1".to_owned(),
@@ -221,9 +226,30 @@ pub(super) fn household_authority_proof(
                 child_profile_id: "child-1".to_owned(),
                 target_device_id: "child-device-1".to_owned(),
             },
+            "2026-07-28T00:00:00Z",
+            "2026-07-28T00:05:00Z",
         ),
         "family identity authority proof"
     )
+}
+
+pub(super) fn current_household_authority_state() -> HouseholdAuthorityCurrentState {
+    HouseholdAuthorityCurrentState {
+        authority: HouseholdAuthorityInput {
+            actor_role: ocentra_family_identity_core::family_identity::HouseholdRole::ParentOwner,
+            same_family: true,
+            actor_account_state: ocentra_family_identity_core::family_identity::ActorAccountState::Active,
+            membership_state: ocentra_family_identity_core::family_identity::HouseholdMembershipState::Active,
+            child_profile_binding_state: ocentra_family_identity_core::family_identity::ChildProfileBindingState::Bound,
+            device_ownership_scope: ocentra_family_identity_core::family_identity::DeviceOwnershipScope::ChildProfileDevice,
+            device_trust_state: ocentra_family_identity_core::family_identity::DeviceTrustState::Trusted,
+            session_freshness_state: ocentra_family_identity_core::family_identity::SessionFreshnessState::Fresh,
+            capability_granted: true,
+            controller_lease_state: None,
+            action: ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ChangePolicy,
+        },
+        family_revocation_epoch: 1,
+    }
 }
 
 pub(super) fn resolved_decision(
