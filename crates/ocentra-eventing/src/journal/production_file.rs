@@ -56,6 +56,11 @@ impl ProductionFileEventJournal {
         self.inner.inject_next_partial_write_failure_for_debug();
     }
 
+    #[cfg(debug_assertions)]
+    pub fn recovery_count_for_debug(&self) -> u64 {
+        self.inner.recovery_count_for_debug()
+    }
+
     /// Causes a real filesystem synchronization fault after exactly `count`
     /// successful appends. Test-only callers use this to exercise a terminal
     /// append failure without substituting a synthetic journal implementation.

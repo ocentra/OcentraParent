@@ -6,8 +6,10 @@ use crate::{
 use super::{DispatchMode, DispatchStoredError, EventBus, SubscriberRecord};
 use crate::bus::reports::dead_letters_for;
 use crate::bus::reports::handler::{HandlerOutcome, HandlerReport};
+use receipt::validate_before_dispatch_receipt;
 
 mod dispatching;
+mod receipt;
 
 type BeforeDispatchReceiptValidator = fn(&crate::JournalAppend) -> Result<(), EventingError>;
 
@@ -150,14 +152,13 @@ impl EventBus {
             self.record_stored_snapshot(&stored).await;
         }
         let mut journal_appends = Vec::new();
-        if let Some(append) = self
+        let append = self
             .append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
             .await
-            .map_err(DispatchStoredError::BeforeDispatch)?
-        {
-            if let Some(validator) = validator {
-                validator(&append).map_err(DispatchStoredError::BeforeDispatch)?;
-            }
+            .map_err(DispatchStoredError::BeforeDispatch)?;
+        validate_before_dispatch_receipt(validator, append.as_ref())
+            .map_err(DispatchStoredError::BeforeDispatch)?;
+        if let Some(append) = append {
             journal_appends.push(append);
         }
         let handler_reports = self

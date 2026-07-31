@@ -109,6 +109,35 @@ async fn production_file_journal_synchronizes_a_bare_relative_path() {
 }
 
 #[tokio::test]
+async fn production_file_journal_retains_authenticated_tail_between_appends() {
+    let path = journal_path(TestText("production-retained-tail".to_owned()));
+    let journal = ProductionFileEventJournal::new(&path.0);
+    let first = stored_event(test_event(TestText("production first".to_owned())));
+    let second = stored_event(test_event(TestText("production second".to_owned())));
+    let third = stored_event(test_event(TestText("production third".to_owned())));
+
+    let first_append = journal
+        .append(&first)
+        .await
+        .expect_value("first production append");
+    let second_append = journal
+        .append(&second)
+        .await
+        .expect_value("second production append");
+    let third_append = journal
+        .append(&third)
+        .await
+        .expect_value("third production append");
+
+    assert_eq!(first_append.sequence, 1);
+    assert_eq!(second_append.sequence, 2);
+    assert_eq!(third_append.sequence, 3);
+    assert_eq!(journal.recovery_count_for_debug(), 1);
+    assert_eq!(read_lines(path.clone()).await.len(), 3);
+    cleanup(path).await;
+}
+
+#[tokio::test]
 async fn ndjson_journal_reopen_continues_sequence_and_hash_chain() {
     let path = journal_path(TestText("reopen-hash-chain".to_owned()));
     let first_journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());

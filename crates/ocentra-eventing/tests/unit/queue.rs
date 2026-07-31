@@ -157,6 +157,55 @@ async fn no_subscriber_validated_publish_rejects_an_invalid_v3_receipt_before_co
 }
 
 #[tokio::test]
+async fn validated_publish_rejects_when_selector_omits_the_before_dispatch_receipt() {
+    let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
+    let bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![crate::EventType::parse(
+            OTHER_EVENT_TYPE,
+        )
+        .expect_value("other event type parses")])),
+        Arc::<FailingJournal>::clone(&journal),
+    );
+    let handled = Arc::new(Mutex::new(Vec::new()));
+    let handled_by_subscription = Arc::clone(&handled);
+    let _subscription = bus
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |context| {
+                let handled = Arc::clone(&handled_by_subscription);
+                async move {
+                    handled.lock().await.push(context.payload().label.clone());
+                    Ok(())
+                }
+            },
+        )
+        .await
+        .expect_value("subscriber registers");
+
+    let result = bus
+        .publish_with_mode_and_before_dispatch_receipt_validator(
+            test_event(TestText("missing selected receipt".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+            DispatchMode::Sequential,
+            require_verified_v3_receipt,
+        )
+        .await;
+
+    assert_eq!(
+        result,
+        Err(EventingError::InvalidHandlerPolicy {
+            reason: "before-dispatch receipt validation requires a before-dispatch journal append"
+                .to_owned(),
+        })
+    );
+    assert!(handled.lock().await.is_empty());
+    assert_eq!(journal.calls(), 0);
+}
+
+#[tokio::test]
 async fn no_subscriber_after_dispatch_journal_does_not_record_an_action_phase() {
     let journal = Arc::new(FailingJournal::fail_once_on(usize::MAX));
     let bus = EventBus::with_journal(
