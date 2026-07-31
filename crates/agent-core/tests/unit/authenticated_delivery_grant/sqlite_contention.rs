@@ -16,6 +16,12 @@ fn consumer_retries_a_held_sqlite_write_lock_beyond_the_legacy_retry_window() ->
     let expected = expected();
     let mut consumer = open(&path, trusted_issuer(&key))?;
     let (lock_ready, lock_acquired) = std::sync::mpsc::sync_channel(1);
+    // Keep a test database owner in this thread until the consumer has
+    // completed. The lock holder must receive only another Arc handle: moving
+    // the sole owner there can delete the SQLite/WAL files immediately after
+    // it releases the write lock, turning lock contention into a file-lifetime
+    // race.
+    let database_lifetime = path.clone();
     let lock_path = path;
     let lock_holder = thread::spawn(move || -> TestResult {
         let mut connection = Connection::open(lock_path.as_ref())?;
@@ -37,6 +43,7 @@ fn consumer_retries_a_held_sqlite_write_lock_beyond_the_legacy_retry_window() ->
             .join()
             .map_err(|_error| std::io::Error::other("write-lock holder panicked"))?,
     )?;
+    assert!(database_lifetime.as_ref().exists());
     assert!(matches!(
         outcome,
         AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_)
