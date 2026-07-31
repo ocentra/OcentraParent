@@ -2,7 +2,7 @@ use super::authenticated_delivery_grant::IssuanceFixture;
 use super::authenticated_delivery_grant_fixture::{
     current_household_authority_state, durable_milestone_bus, issuance_fixture_with_expiry, issuer,
     issuer_without_milestone_publisher, FailingMilestoneJournal, ForgedV3MilestoneJournal,
-    LegacyV2MilestoneJournal,
+    InMemoryMilestoneJournal, LegacyV2MilestoneJournal,
 };
 use super::TestResult;
 use ocentra_eventing::bus::subscriber::EventSubscriber;
@@ -12,6 +12,7 @@ use ocentra_eventing::journal::ndjson::{
     JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
 };
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_eventing::queue::policy::EventQueuePolicy;
 use ocentra_eventing::testkit::EventRecorder;
 use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
@@ -73,6 +74,64 @@ fn issuer_rejects_ndjson_proof_journal_before_issuance() -> TestResult {
     assert!(test_ok!(issuer_without_milestone_publisher(), "issuer")
         .with_event_bus_issuance_publisher(event_bus)
         .is_err());
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_queueing_no_subscriber_policy_before_any_milestone_can_persist() -> TestResult {
+    let event_type = test_ok!(
+        EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+        "issuance milestone event type"
+    );
+    let queue_policy = test_ok!(
+        EventQueuePolicy::no_subscriber_queue(2),
+        "bounded no-subscriber queue policy"
+    );
+    let event_bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+        Arc::new(InMemoryMilestoneJournal::default()),
+        queue_policy,
+    );
+
+    assert!(matches!(
+        test_ok!(issuer_without_milestone_publisher(), "issuer")
+            .with_event_bus_issuance_publisher(event_bus),
+        Err(ocentra_eventing::error::EventingError::InvalidHandlerPolicy { .. })
+    ));
+    Ok(())
+}
+
+#[test]
+fn issuer_accepts_non_queueing_durable_milestone_publication() -> TestResult {
+    let event_type = test_ok!(
+        EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+        "issuance milestone event type"
+    );
+    let event_bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+        Arc::new(InMemoryMilestoneJournal::default()),
+    );
+    let issuer = test_ok!(issuer_without_milestone_publisher(), "issuer")
+        .with_event_bus_issuance_publisher(event_bus.clone())
+        .map_err(|error| format!("event publisher: {error:?}"))?;
+    let _grant = test_ok!(
+        issuer.issue(IssuanceFixture::new().request()),
+        "accepted issuance"
+    );
+    let runtime = test_ok!(
+        tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build(),
+        "milestone journal inspection runtime"
+    );
+    let journal = runtime.block_on(event_bus.journal());
+    assert_eq!(journal.len(), 2);
+    let terminal = journal[1].decode::<AuthenticatedDeliveryGrantIssuanceMilestone>()?;
+    assert_eq!(
+        terminal.payload.outcome,
+        AuthenticatedDeliveryGrantIssuanceOutcome::Accepted
+    );
+    assert_eq!(terminal.payload.rejection, None);
     Ok(())
 }
 

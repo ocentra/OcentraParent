@@ -7,6 +7,7 @@ use ocentra_eventing::ids::{
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
 };
 use ocentra_eventing::journal::policy::JournalMode;
+use ocentra_eventing::queue::policy::NoSubscriberQueuePolicy;
 use ocentra_schema::authenticated_delivery_grant::{
     authenticated_delivery_grant_audit_fingerprint, AuthenticatedDeliveryGrant,
 };
@@ -110,6 +111,12 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         if !event_bus.has_production_durable_journal() {
             return Err(EventingError::InvalidHandlerPolicy {
                 reason: "authenticated delivery grant issuance requires a production-durable journal capability"
+                    .to_owned(),
+            });
+        }
+        if event_bus.no_subscriber_queue_policy() == NoSubscriberQueuePolicy::Queue {
+            return Err(EventingError::InvalidHandlerPolicy {
+                reason: "authenticated delivery grant issuance must reject queued no-subscriber delivery because a failed authorization attempt cannot leave terminal milestones for later dispatch"
                     .to_owned(),
             });
         }

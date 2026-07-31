@@ -6,6 +6,7 @@ use std::{
 
 use tokio::sync::{RwLock, Semaphore};
 
+use crate::queue::policy::NoSubscriberQueuePolicy;
 use crate::{
     AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
     HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestRegistry, SharedEventClock,
@@ -111,6 +112,14 @@ impl EventBus {
         self.event_journal
             .as_ref()
             .is_some_and(|journal| journal.is_production_durable())
+    }
+
+    /// Returns the configured behavior when no subscriber is present. Callers
+    /// that make publication an authorization boundary can reject queueing,
+    /// because a later subscriber would otherwise observe an event after the
+    /// authorization attempt has already failed.
+    pub fn no_subscriber_queue_policy(&self) -> NoSubscriberQueuePolicy {
+        self.queue.policy().no_subscriber()
     }
 
     pub async fn subscribe<E, F, Fut>(
