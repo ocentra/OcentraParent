@@ -32,6 +32,7 @@ pub(super) fn validate_issuance(
         policy_authority,
         resolved_decision,
     )?;
+    validate_resolved_aggregate_scope(request, resolved_decision)?;
     validate_execution_constraints(request, &resolved_decision.decision)?;
     validate_canonical_authorization(request)?;
     validate_parent_step_up(request)?;
@@ -39,6 +40,19 @@ pub(super) fn validate_issuance(
     unsigned_grant(request, issuer_key_id)
         .validate_shape()
         .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::InvalidBindings)
+}
+
+fn validate_resolved_aggregate_scope(
+    request: &AuthenticatedDeliveryGrantIssuance<'_>,
+    resolved_decision: &ResolvedPolicyDecision,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    let expected_aggregate_id = format!(
+        "policy-control-aggregate:{}:{}",
+        request.bindings.target_device_id, request.bindings.action_id
+    );
+    (resolved_decision.aggregate_id.as_str() == expected_aggregate_id)
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch)
 }
 
 fn validate_household_authority(

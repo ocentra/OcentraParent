@@ -232,6 +232,10 @@ pub(super) fn resolved_decision(
 ) -> ResolvedPolicyDecision {
     test_ok!(
         ResolvedPolicyDecision::for_delivery_grant(
+            format!(
+                "policy-control-aggregate:{}:{}",
+                bindings.target_device_id, bindings.action_id
+            ),
             bindings.policy_decision_id.clone(),
             decision,
             executable_conflict_decision(),
