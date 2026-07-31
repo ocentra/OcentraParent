@@ -184,14 +184,19 @@ impl AuthenticatedDeliveryGrantAuthoritySigner {
         validate_signed_shape(&unsigned)?;
         let bytes = signing_bytes(&unsigned)?;
         let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
-        Ok(SignedAuthorityBindings {
+        let signed = SignedAuthorityBindings {
             bindings: unsigned.bindings,
             assertions: unsigned.assertions,
             household_authority_proof: unsigned.household_authority_proof,
             resolved_policy_decision: unsigned.resolved_policy_decision,
             policy_authority: unsigned.policy_authority,
             signature,
-        })
+        };
+        // The signature is JSON encoded as part of the signed envelope.  Check
+        // the completed value, rather than only its unsigned precursor, so a
+        // producer cannot mint an envelope a verifier must reject as oversized.
+        validate_signed_shape(&signed)?;
+        Ok(signed)
     }
 }
 

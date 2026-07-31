@@ -8,6 +8,7 @@ use ocentra_schema::authenticated_delivery_grant::{
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+use crate::family_identity::DeviceTrustState;
 use crate::household_authority::ParentStepUpValidationInput;
 
 const MAX_PARENT_STEP_UP_PROOF_LIFETIME_SECONDS: i64 = 5 * 60;
@@ -36,7 +37,18 @@ pub struct VerifiedParentStepUpProof {
     pub target_device_id: String,
     pub assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
     pub authorization_digest: String,
+    pub parent_device_trust_revocation_epoch: u64,
     pub signature: Vec<u8>,
+}
+
+/// Family-identity-owned current trust snapshot for the parent device that
+/// performed a high-risk step-up.  The policy consumer compares this at issue
+/// time so a proof cannot outlive a device revocation.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParentDeviceTrustCurrentState {
+    pub parent_device_id: String,
+    pub trust_state: DeviceTrustState,
+    pub revocation_epoch: u64,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -111,6 +123,26 @@ impl ParentStepUpProofVerifier {
             proof.assertions.clone(),
         ))
     }
+
+    pub fn verify_against_current_device_trust_state(
+        &self,
+        proof: &VerifiedParentStepUpProof,
+        current_state: &ParentDeviceTrustCurrentState,
+    ) -> Result<
+        (
+            ParentStepUpValidationInput,
+            String,
+            AuthenticatedDeliveryGrantAssertionSnapshot,
+        ),
+        ParentStepUpProofError,
+    > {
+        let verified = self.verify(proof)?;
+        (current_state.trust_state == DeviceTrustState::Trusted
+            && current_state.parent_device_id == verified.0.action_device_id
+            && current_state.revocation_epoch == proof.parent_device_trust_revocation_epoch)
+            .then_some(verified)
+            .ok_or(ParentStepUpProofError::Rejected)
+    }
 }
 
 pub struct ParentStepUpProofSigner {
@@ -167,6 +199,7 @@ impl ParentStepUpProofSigner {
             target_device_id,
             assertions,
             authorization_digest,
+            parent_device_trust_revocation_epoch: 0,
             signature,
         })
     }

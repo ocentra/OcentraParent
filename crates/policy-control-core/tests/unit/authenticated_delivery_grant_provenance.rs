@@ -537,6 +537,7 @@ where
         household_authority.verifying_key(),
         current_state,
         step_up.verifying_key(),
+        super::authenticated_delivery_grant_fixture::current_parent_device_trust_state,
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
 }

@@ -11,6 +11,8 @@ mod policy_control;
 mod authenticated_delivery_grant;
 #[path = "authenticated_delivery_grant_basics.rs"]
 mod authenticated_delivery_grant_basics;
+#[path = "authenticated_delivery_grant_device_trust.rs"]
+mod authenticated_delivery_grant_device_trust;
 #[path = "authenticated_delivery_grant_fixture.rs"]
 mod authenticated_delivery_grant_fixture;
 #[path = "authenticated_delivery_grant_milestone_phase.rs"]

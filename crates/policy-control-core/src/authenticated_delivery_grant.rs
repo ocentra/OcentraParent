@@ -9,7 +9,7 @@ use ocentra_family_identity_core::household_authority::{
 };
 use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityCurrentState;
 use ocentra_family_identity_core::parent_step_up_proof::{
-    ParentStepUpProofVerifier, VerifiedParentStepUpProof,
+    ParentDeviceTrustCurrentState, ParentStepUpProofVerifier, VerifiedParentStepUpProof,
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
@@ -167,6 +167,8 @@ pub struct AuthenticatedDeliveryGrantIssuer {
     authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier,
     household_authority_current_state_resolver:
         Arc<dyn Fn() -> HouseholdAuthorityCurrentState + Send + Sync>,
+    parent_device_trust_current_state_resolver:
+        Arc<dyn Fn() -> ParentDeviceTrustCurrentState + Send + Sync>,
     step_up_verifier: ParentStepUpProofVerifier,
     issuance_publisher: Option<EventBusAuthenticatedDeliveryGrantIssuancePublisher>,
     trusted_issuance_now: Option<String>,
@@ -175,16 +177,18 @@ pub struct AuthenticatedDeliveryGrantIssuer {
 }
 
 impl AuthenticatedDeliveryGrantIssuer {
-    pub fn from_platform_key_with_provenance_verifiers<F>(
+    pub fn from_platform_key_with_provenance_verifiers<F, G>(
         issuer_key_id: impl Into<String>,
         platform_protected_key: [u8; 32],
         authority_key: VerifyingKey,
         household_authority_key: VerifyingKey,
         household_authority_current_state_resolver: F,
         step_up_key: VerifyingKey,
+        parent_device_trust_current_state_resolver: G,
     ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError>
     where
         F: Fn() -> HouseholdAuthorityCurrentState + Send + Sync + 'static,
+        G: Fn() -> ParentDeviceTrustCurrentState + Send + Sync + 'static,
     {
         let issuer_key_id = issuer_key_id.into();
         if issuer_key_id.trim().is_empty()
@@ -202,6 +206,9 @@ impl AuthenticatedDeliveryGrantIssuer {
             ),
             household_authority_current_state_resolver: Arc::new(
                 household_authority_current_state_resolver,
+            ),
+            parent_device_trust_current_state_resolver: Arc::new(
+                parent_device_trust_current_state_resolver,
             ),
             step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
             issuance_publisher: None,

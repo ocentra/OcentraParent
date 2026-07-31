@@ -8,7 +8,9 @@ use ocentra_family_identity_core::household_authority_proof::{
     HouseholdAuthorityCurrentState, HouseholdAuthorityProofIdentityBinding,
     HouseholdAuthorityProofSigner,
 };
-use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
+use ocentra_family_identity_core::parent_step_up_proof::{
+    ParentDeviceTrustCurrentState, ParentStepUpProofSigner,
+};
 use ocentra_policy_control_core::authenticated_delivery_grant::authority::AuthenticatedDeliveryGrantAuthoritySigner;
 use ocentra_policy_control_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantIssuanceError, AuthenticatedDeliveryGrantIssuer,
@@ -52,6 +54,7 @@ where
         household_authority.verifying_key(),
         current_state,
         step_up.verifying_key(),
+        current_parent_device_trust_state,
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
 }
@@ -81,6 +84,37 @@ where
                     AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed
                 })
         })
+        .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
+}
+
+pub(super) fn issuer_with_current_state_and_device_trust<F, G>(
+    current_state: F,
+    current_device_trust_state: G,
+) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError>
+where
+    F: Fn() -> HouseholdAuthorityCurrentState + Send + Sync + 'static,
+    G: Fn() -> ParentDeviceTrustCurrentState + Send + Sync + 'static,
+{
+    let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
+    let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let issuer = AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
+        "parent-key-1",
+        [3; 32],
+        authority.verifying_key(),
+        household_authority.verifying_key(),
+        current_state,
+        step_up.verifying_key(),
+        current_device_trust_state,
+    )?;
+    let event_type = EventType::parse("authenticated-delivery-grant.issuance.milestone")
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)?;
+    issuer
+        .with_event_bus_issuance_publisher(EventBus::with_journal(
+            JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+            ProductionFileEventJournal::new(unique_journal_path("device-trust")).shared(),
+        ))
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)
         .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
 }
 
@@ -137,6 +171,14 @@ pub(super) fn current_household_authority_state() -> HouseholdAuthorityCurrentSt
             target_device_id: "child-device-1".to_owned(),
         },
         family_revocation_epoch: 1,
+    }
+}
+
+pub(super) fn current_parent_device_trust_state() -> ParentDeviceTrustCurrentState {
+    ParentDeviceTrustCurrentState {
+        parent_device_id: "parent-device-1".to_owned(),
+        trust_state: ocentra_family_identity_core::family_identity::DeviceTrustState::Trusted,
+        revocation_epoch: 0,
     }
 }
 
