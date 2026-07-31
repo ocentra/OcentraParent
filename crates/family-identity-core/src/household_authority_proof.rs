@@ -1,5 +1,10 @@
 use chrono::{DateTime, FixedOffset, Utc};
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
+use ocentra_schema::authenticated_delivery_grant::{
+    AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
+};
 use serde::{Deserialize, Serialize};
 
 use crate::household_authority::{
@@ -79,15 +84,18 @@ impl HouseholdAuthorityProofSigner {
             == HouseholdAuthorizationState::Authorized)
             .then_some(())
             .ok_or(HouseholdAuthorityProofError::Rejected)?;
+        validate_unsigned_shape(None, None, None)?;
         let bytes = signing_bytes(authority, None, None, None, None)?;
-        Ok(HouseholdAuthorityProof {
+        let proof = HouseholdAuthorityProof {
             authority,
             identity_binding: None,
             issued_at: None,
             expires_at: None,
             family_revocation_epoch: None,
             signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
-        })
+        };
+        validate_proof_shape(&proof)?;
+        Ok(proof)
     }
 
     pub fn sign_bound(
@@ -99,15 +107,18 @@ impl HouseholdAuthorityProofSigner {
             == HouseholdAuthorizationState::Authorized)
             .then_some(())
             .ok_or(HouseholdAuthorityProofError::Rejected)?;
+        validate_unsigned_shape(Some(&identity_binding), None, None)?;
         let bytes = signing_bytes(authority, Some(&identity_binding), None, None, None)?;
-        Ok(HouseholdAuthorityProof {
+        let proof = HouseholdAuthorityProof {
             authority,
             identity_binding: Some(identity_binding),
             issued_at: None,
             expires_at: None,
             family_revocation_epoch: None,
             signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
-        })
+        };
+        validate_proof_shape(&proof)?;
+        Ok(proof)
     }
 
     pub fn sign_bound_at(
@@ -126,6 +137,7 @@ impl HouseholdAuthorityProofSigner {
             .ok_or(HouseholdAuthorityProofError::Rejected)?;
         let issued_at = issued_at.into();
         let expires_at = expires_at.into();
+        validate_unsigned_shape(Some(&identity_binding), Some(&issued_at), Some(&expires_at))?;
         validate_freshness(&issued_at, &expires_at, &issued_at)?;
         let bytes = signing_bytes(
             state.authority,
@@ -134,14 +146,16 @@ impl HouseholdAuthorityProofSigner {
             Some(&expires_at),
             Some(state.family_revocation_epoch),
         )?;
-        Ok(HouseholdAuthorityProof {
+        let proof = HouseholdAuthorityProof {
             authority: state.authority,
             identity_binding: Some(identity_binding),
             issued_at: Some(issued_at),
             expires_at: Some(expires_at),
             family_revocation_epoch: Some(state.family_revocation_epoch),
             signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
-        })
+        };
+        validate_proof_shape(&proof)?;
+        Ok(proof)
     }
 }
 
@@ -158,6 +172,7 @@ impl HouseholdAuthorityProofVerifier {
         &self,
         proof: &HouseholdAuthorityProof,
     ) -> Result<VerifiedHouseholdAuthority, HouseholdAuthorityProofError> {
+        validate_proof_shape(proof)?;
         let signature = Signature::from_slice(&proof.signature)
             .map_err(|_error| HouseholdAuthorityProofError::Rejected)?;
         let bytes = signing_bytes(
@@ -217,6 +232,48 @@ fn signing_bytes(
         family_revocation_epoch,
     ))
     .map_err(|_error| HouseholdAuthorityProofError::Rejected)
+}
+
+fn validate_proof_shape(
+    proof: &HouseholdAuthorityProof,
+) -> Result<(), HouseholdAuthorityProofError> {
+    (proof.signature.len() == AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES)
+        .then_some(())
+        .ok_or(HouseholdAuthorityProofError::Rejected)?;
+    validate_unsigned_shape(
+        proof.identity_binding.as_ref(),
+        proof.issued_at.as_deref(),
+        proof.expires_at.as_deref(),
+    )
+}
+
+fn validate_unsigned_shape(
+    identity_binding: Option<&HouseholdAuthorityProofIdentityBinding>,
+    issued_at: Option<&str>,
+    expires_at: Option<&str>,
+) -> Result<(), HouseholdAuthorityProofError> {
+    let mut fields = Vec::with_capacity(7);
+    if let Some(identity) = identity_binding {
+        fields.extend([
+            identity.household_id.as_str(),
+            identity.parent_actor_id.as_str(),
+            identity.parent_device_id.as_str(),
+            identity.child_profile_id.as_str(),
+            identity.target_device_id.as_str(),
+        ]);
+    }
+    if let Some(issued_at) = issued_at {
+        fields.push(issued_at);
+    }
+    if let Some(expires_at) = expires_at {
+        fields.push(expires_at);
+    }
+    (fields.iter().all(|field| {
+        !field.trim().is_empty() && field.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+    }) && fields.iter().map(|field| field.len()).sum::<usize>() + 512
+        <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
+        .then_some(())
+        .ok_or(HouseholdAuthorityProofError::Rejected)
 }
 
 fn validate_freshness(

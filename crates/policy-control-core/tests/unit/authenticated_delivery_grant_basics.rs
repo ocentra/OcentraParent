@@ -388,6 +388,7 @@ fn issuer_rejects_an_oversized_issuer_key_id_at_construction() -> TestResult {
             household_authority.verifying_key(),
             current_household_authority_state,
             step_up.verifying_key(),
+            super::authenticated_delivery_grant_fixture::current_parent_device_trust_state,
         ),
         Err(AuthenticatedDeliveryGrantIssuanceError::InvalidIssuerKeyId)
     ));
