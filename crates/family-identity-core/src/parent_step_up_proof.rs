@@ -1,4 +1,4 @@
-use chrono::DateTime;
+use chrono::{DateTime, TimeDelta};
 use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
@@ -180,6 +180,7 @@ fn parent_step_up_lifetime_is_bounded(validation: &ParentStepUpValidationInput) 
     let Ok(expires_at) = DateTime::parse_from_rfc3339(&assertion.expires_at) else {
         return false;
     };
-    let lifetime_seconds = (expires_at - observed_at).num_seconds();
-    (0..=MAX_PARENT_STEP_UP_PROOF_LIFETIME_SECONDS).contains(&lifetime_seconds)
+    let lifetime = expires_at - observed_at;
+    lifetime >= TimeDelta::zero()
+        && lifetime <= TimeDelta::seconds(MAX_PARENT_STEP_UP_PROOF_LIFETIME_SECONDS)
 }
