@@ -100,10 +100,14 @@ proofs into physical LAN product execution.
 
 ## Prerequisite Gates
 
-- [ ] Screen capture proof PR merged or explicitly stacked.
-- [ ] AI analysis proof PR merged or explicitly stacked.
-- [ ] Pipeline branch contains both prerequisite implementations.
-- [ ] Prerequisite commits recorded in proof artifacts.
+- [x] Screen capture proof PR merged or explicitly stacked: PR #574,
+      `47151efa7ad617c1b0e8bd58ad499731fe9921ff`.
+- [x] AI analysis proof PR merged or explicitly stacked: PR #455,
+      `d85ab7c8ff90bce792b96150e6b7a0b7ade5fa00`.
+- [x] Pipeline branch contains both prerequisite implementations, proven by
+      `node scripts/test/screen-ai-prerequisite-merge-proof.mjs`.
+- [x] Prerequisite commits recorded in
+      `output/screen-ai-pipeline-proof/prerequisite-merge/01-prerequisite-commits.json`.
 - [ ] Pipeline branch proves the screen -> AI -> policy -> action/read-model/
       deletion handoff through `crates/ocentra-eventing`, not direct module
       calls, for the in-process successful runtime chain, and the final gate

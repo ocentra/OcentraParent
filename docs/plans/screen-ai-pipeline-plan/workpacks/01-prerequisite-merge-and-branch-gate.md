@@ -21,11 +21,17 @@ merged to `main` or explicitly approved as stacked heads.
 
 ## Checklist
 
-- [ ] Record screen prerequisite branch/commit/PR.
-- [ ] Record AI prerequisite branch/commit/PR.
-- [ ] Confirm pipeline branch contains both implementations.
-- [ ] Confirm no stale capture or AI proof assumptions.
-- [ ] Run lane/hub guards before edits.
+- [x] Record screen prerequisite branch/commit/PR: PR #574,
+  `47151efa7ad617c1b0e8bd58ad499731fe9921ff`.
+- [x] Record AI prerequisite branch/commit/PR: PR #455,
+  `d85ab7c8ff90bce792b96150e6b7a0b7ade5fa00`.
+- [x] Confirm pipeline branch contains both implementations through the
+  executable ancestry check in `screen-ai-prerequisite-merge-proof.mjs`.
+- [x] Confirm no stale capture or AI proof assumptions: the retained summary
+  explicitly carries only prerequisite provenance and the no-claim boundary.
+- [x] Run lane/hub guards before edits: direct Enforcer exact-file claim
+  `evt_a1dd7b8159aa49f49363a6c68cb9f9c8` succeeded; the npm wrapper timed out
+  without changing the claim result.
 
 ## Proof
 
@@ -33,3 +39,4 @@ merged to `main` or explicitly approved as stacked heads.
 - Git status and branch base recorded in the prerequisite merge proof.
 - The implementation checklist and PR-ready hub reports name the stacked proof
   commits and non-claims.
+- Durable manifest: `docs/proof/screen-ai-pipeline-plan/PLAN_PROOF_MANIFEST.md`.
