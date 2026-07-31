@@ -11,7 +11,8 @@ use ocentra_schema::authenticated_delivery_grant::{
 };
 use rusqlite::{params, Connection};
 
-use super::{must, signed_grant, store_path, stored_key, trusted_issuer, TestResult};
+use super::storage_keys::stored_key;
+use super::{must, signed_grant, store_path, trusted_issuer, TestResult};
 
 fn legacy_grant_json(grant: &AuthenticatedDeliveryGrant, key: &SigningKey) -> TestResult<String> {
     let mut legacy = serde_json::to_value(grant)?;
