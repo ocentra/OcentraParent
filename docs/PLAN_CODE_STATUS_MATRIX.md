@@ -6,6 +6,58 @@ checklists.
 
 Last live-code audit: 2026-07-17, on `main` at `37146806c`.
 
+## Code-backed refresh — 2026-07-31
+
+This refresh is a scheduling override for the older rows below. It was produced
+from plan state/workpack indexes plus current source and test surfaces. A
+checked plan row is **not** reproducible closure when its named `output/*proof*`
+root is absent from the checkout. Use the four states below when assigning work:
+
+- **Source + focused tests**: implementation and relevant test source exist;
+  the test was not re-run by this refresh.
+- **Locally proven**: a current focused validation/proof artifact was observed.
+- **Proof absent**: implementation may exist, but the plan's required proof
+  output is unavailable here and must be recreated before closure.
+- **Blocked**: one exact missing runtime contract, provider, platform, or
+  external prerequisite prevents the next validation.
+
+| Plan | 2026-07-31 code-backed state | Next owning workpack / dependency |
+| --- | --- | --- |
+| account identity/family | Source + focused tests; named proof roots absent. | WP01 provider/session consumer, then WP03/06 request-safety proof. |
+| AI | Precursor source only; 47 of 48 workpacks remain open. | WP03 Rust contract, then WP07 queue and WP08 routing. |
+| app | Source + focused tests; all app workpacks remain open/unknown. | WP06–09 Windows capture/foreground path, then WP12–15 service/journal. |
+| app/game | Source + focused tests; customer control path unproven. | WP19 policy compiler, then WP20 budget evaluator. |
+| browser | Source + focused tests; plan still has all primary workpacks open. | WP01 Rust-owner contract reconciliation before launcher/custody work. |
+| child runtime distribution | Source present; package/service proof roots absent. | WP02 Windows service lifecycle, then recreate package/install proof. |
+| Cloudflare control plane | **Blocked**: worker imports missing billing runtime boundary. | Restore billing boundary, then boot/unit/contract worker gate; unblocks payment. |
+| data custody/storage | Source + focused tests; rollout proof absent. | WP07 regenerate current proof manifest and verify runtime gaps. |
+| device trust bootstrap | Source + focused tests; platform sealing/product chain absent. | WP02 local key sealing, then step-up/recovery/tamper workpacks. |
+| eventing | Strong source/test foundation; historical proof roots absent. | WP10 LAN household mesh consumer and route proof. |
+| LAN | Strong source/test foundation; physical product proof absent. | WP23 two-device proof, then WP25 backend-to-Tauri-to-portal chain. |
+| logging parity | Source + focused tests; proof restoration and routing lint remain. | WP03 Rust service-to-logging mapping, then routing-lint repair. |
+| network | Source + focused tests; all workpacks open. | WP01 foundation contracts/eventing. |
+| parent runtime distribution | Source present; signing/install proof absent. | WP10 setup handoff contracts, then signing/store gates. |
+| payment/subscription | Source + focused tests; Cloudflare dependency blocks runtime. | Cloudflare billing boundary, then WP05 tax/refund/dispute policy. |
+| policy control plane | Strong focused contracts; adapter execution not product-proven. | WP02 authoring/preview and WP04 trusted-adapter execution receipt. |
+| portal UX | Real shell/UI; most product flows open. | WP05 policy authoring after owning policy read model is ready. |
+| remote access | Scaffold/adjacent route only. | WP01 capability fabric, then WP04 pairing/revocation. |
+| screen AI pipeline | Source pieces only; no pipeline proof root. | WP01 prerequisite gate then WP02 trigger-to-capture proof. |
+| screen | Capture/AI/live-view source exists; custody/platform closure open. | WP03 contract, then WP06–08 capture model/adapter. |
+| setup/install/provisioning | Source + focused tests; depends on identity/device/install truth. | Parent setup-to-child trust/install handoff. |
+| tracking | Strong source/test foundation; event spine and provider proof open. | WP34 tracking event contracts, then WP35–39 chains. |
+| v0.8 enforcement | Source + focused tests; adapters and parent-visible receipts open. | WP05 app/game session handoff after policy/runtime dependencies. |
+
+### Priority order
+
+1. Cloudflare billing-boundary boot repair (unblocks Cloudflare and payment).
+2. Network WP01 eventing foundation.
+3. Tracking WP34 event contracts.
+4. Screen-AI WP01 → WP02 trigger/capture chain.
+5. AI WP03 → WP07 → WP08; Remote WP01 → WP04.
+
+Proof-root restoration is a verification/reproducibility packet. It must not be
+used to claim a product path complete without the selected runtime proof.
+
 ## Live integration refresh — 2026-07-28
 
 This is a merge-queue snapshot, separate from the 2026-07-17 whole-plan code
