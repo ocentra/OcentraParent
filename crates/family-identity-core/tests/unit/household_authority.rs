@@ -49,6 +49,7 @@ fn household_authority_proof_requires_fresh_matching_unrevoked_family_state(
     let signer = HouseholdAuthorityProofSigner::from_platform_key([31; 32]);
     let current_state = HouseholdAuthorityCurrentState {
         authority: trusted_parent_input(HouseholdAuthorityAction::ChangePolicy),
+        identity_binding: authority_binding(),
         family_revocation_epoch: 4,
     };
     let proof = signer
@@ -71,9 +72,30 @@ fn household_authority_proof_requires_fresh_matching_unrevoked_family_state(
             &proof,
             &HouseholdAuthorityCurrentState {
                 family_revocation_epoch: 5,
-                ..current_state
+                ..current_state.clone()
             },
             "2026-07-28T00:01:00Z",
+        )
+        .is_err());
+    let foreign_household_state = HouseholdAuthorityCurrentState {
+        identity_binding: HouseholdAuthorityProofIdentityBinding {
+            household_id: "family-other".to_owned(),
+            ..authority_binding()
+        },
+        ..current_state
+    };
+    assert!(verifier
+        .verify_against_current_state(&proof, &foreign_household_state, "2026-07-28T00:01:00Z")
+        .is_err());
+    assert!(signer
+        .sign_bound_at(
+            &current_state,
+            HouseholdAuthorityProofIdentityBinding {
+                household_id: "family-other".to_owned(),
+                ..authority_binding()
+            },
+            "2026-07-28T00:00:00Z",
+            "2026-07-28T00:05:00Z",
         )
         .is_err());
     Ok(())

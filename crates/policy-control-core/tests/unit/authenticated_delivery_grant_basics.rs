@@ -357,7 +357,7 @@ fn issuer_rejects_an_oversized_issuer_key_id_at_construction() -> TestResult {
             [3; 32],
             authority.verifying_key(),
             household_authority.verifying_key(),
-            current_household_authority_state(),
+            current_household_authority_state,
             step_up.verifying_key(),
         ),
         Err(AuthenticatedDeliveryGrantIssuanceError::InvalidIssuerKeyId)

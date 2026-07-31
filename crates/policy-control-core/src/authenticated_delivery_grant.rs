@@ -23,8 +23,9 @@ use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
 
 #[cfg(debug_assertions)]
 use std::collections::VecDeque;
+use std::sync::Arc;
 #[cfg(debug_assertions)]
-use std::sync::{Arc, Mutex};
+use std::sync::Mutex;
 
 pub mod authority;
 pub mod issuance_milestone;
@@ -164,7 +165,8 @@ pub struct AuthenticatedDeliveryGrantIssuer {
     issuer_key_id: String,
     signing_key: SigningKey,
     authority_verifier: AuthenticatedDeliveryGrantAuthorityVerifier,
-    household_authority_current_state: HouseholdAuthorityCurrentState,
+    household_authority_current_state_resolver:
+        Arc<dyn Fn() -> HouseholdAuthorityCurrentState + Send + Sync>,
     step_up_verifier: ParentStepUpProofVerifier,
     issuance_publisher: Option<EventBusAuthenticatedDeliveryGrantIssuancePublisher>,
     trusted_issuance_now: Option<String>,
@@ -173,14 +175,17 @@ pub struct AuthenticatedDeliveryGrantIssuer {
 }
 
 impl AuthenticatedDeliveryGrantIssuer {
-    pub fn from_platform_key_with_provenance_verifiers(
+    pub fn from_platform_key_with_provenance_verifiers<F>(
         issuer_key_id: impl Into<String>,
         platform_protected_key: [u8; 32],
         authority_key: VerifyingKey,
         household_authority_key: VerifyingKey,
-        household_authority_current_state: HouseholdAuthorityCurrentState,
+        household_authority_current_state_resolver: F,
         step_up_key: VerifyingKey,
-    ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError> {
+    ) -> Result<Self, AuthenticatedDeliveryGrantIssuanceError>
+    where
+        F: Fn() -> HouseholdAuthorityCurrentState + Send + Sync + 'static,
+    {
         let issuer_key_id = issuer_key_id.into();
         if issuer_key_id.trim().is_empty()
             || issuer_key_id.len() > AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
@@ -195,7 +200,9 @@ impl AuthenticatedDeliveryGrantIssuer {
                 authority_key,
                 household_authority_key,
             ),
-            household_authority_current_state,
+            household_authority_current_state_resolver: Arc::new(
+                household_authority_current_state_resolver,
+            ),
             step_up_verifier: ParentStepUpProofVerifier::new(step_up_key),
             issuance_publisher: None,
             trusted_issuance_now: None,
@@ -212,14 +219,6 @@ impl AuthenticatedDeliveryGrantIssuer {
             event_bus,
         )?);
         Ok(self)
-    }
-
-    pub fn with_household_authority_current_state(
-        mut self,
-        current_state: HouseholdAuthorityCurrentState,
-    ) -> Self {
-        self.household_authority_current_state = current_state;
-        self
     }
 
     pub fn verifying_key(&self) -> VerifyingKey {

@@ -19,6 +19,10 @@ pub struct HouseholdAuthorityProof {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HouseholdAuthorityCurrentState {
     pub authority: HouseholdAuthorityInput,
+    /// The household and actor/device/child identity that owns this authority
+    /// state.  Authority flags alone are not sufficient to authorize a
+    /// different household with identical values.
+    pub identity_binding: HouseholdAuthorityProofIdentityBinding,
     pub family_revocation_epoch: u64,
 }
 
@@ -117,6 +121,9 @@ impl HouseholdAuthorityProofSigner {
             == HouseholdAuthorizationState::Authorized)
             .then_some(())
             .ok_or(HouseholdAuthorityProofError::Rejected)?;
+        (state.identity_binding == identity_binding)
+            .then_some(())
+            .ok_or(HouseholdAuthorityProofError::Rejected)?;
         let issued_at = issued_at.into();
         let expires_at = expires_at.into();
         validate_freshness(&issued_at, &expires_at, &issued_at)?;
@@ -188,6 +195,7 @@ impl HouseholdAuthorityProofVerifier {
         };
         validate_freshness(issued_at, expires_at, trusted_now)?;
         (verified.authority == current_state.authority
+            && verified.identity_binding.as_ref() == Some(&current_state.identity_binding)
             && revocation_epoch == current_state.family_revocation_epoch)
             .then_some(verified)
             .ok_or(HouseholdAuthorityProofError::Rejected)

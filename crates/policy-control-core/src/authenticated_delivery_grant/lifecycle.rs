@@ -62,10 +62,11 @@ impl AuthenticatedDeliveryGrantIssuer {
         ),
         AuthenticatedDeliveryGrantIssuanceError,
     > {
+        let household_authority_current_state = (self.household_authority_current_state_resolver)();
         let (bindings, assertions, household_authority, resolved_decision, policy_authority) =
             self.authority_verifier.verify_against_current_state(
                 &request.signed_authority_bindings,
-                &self.household_authority_current_state,
+                &household_authority_current_state,
                 trusted_now,
             )?;
         let correlation_id = request

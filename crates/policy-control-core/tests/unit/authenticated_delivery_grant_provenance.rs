@@ -1,5 +1,6 @@
 use super::authenticated_delivery_grant_fixture::{
     aggregate_id, executable_conflict_decision, issuer as durable_issuer,
+    issuer_with_current_state as durable_issuer_with_current_state,
 };
 use super::TestResult;
 use ocentra_eventing::ids::CorrelationId;
@@ -42,6 +43,7 @@ use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AuthenticatedDeliveryGrantCapabilityAssertion,
     AuthenticatedDeliveryGrantEvidenceAssertion,
 };
+use std::sync::{Arc, Mutex};
 
 struct ProvenanceFixture {
     authority: HouseholdAuthorityInput,
@@ -462,6 +464,13 @@ fn household_authority_proof(
         HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound_at(
             &HouseholdAuthorityCurrentState {
                 authority,
+                identity_binding: HouseholdAuthorityProofIdentityBinding {
+                    household_id: "household-1".to_owned(),
+                    parent_actor_id: "parent-1".to_owned(),
+                    parent_device_id: "parent-device-1".to_owned(),
+                    child_profile_id: "child-1".to_owned(),
+                    target_device_id: "child-device-1".to_owned(),
+                },
                 family_revocation_epoch: 1,
             },
             HouseholdAuthorityProofIdentityBinding {
@@ -512,33 +521,84 @@ fn resolved_decision(
     )
 }
 
-fn issuer() -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
+fn issuer_with_current_state<F>(
+    current_state: F,
+) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError>
+where
+    F: Fn() -> HouseholdAuthorityCurrentState + Send + Sync + 'static,
+{
     let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
     let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
     let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
-    let fixture = ProvenanceFixture::new();
     AuthenticatedDeliveryGrantIssuer::from_platform_key_with_provenance_verifiers(
         "parent-key-1",
         [3; 32],
         authority.verifying_key(),
         household_authority.verifying_key(),
-        HouseholdAuthorityCurrentState {
-            authority: fixture.authority,
-            family_revocation_epoch: 1,
-        },
+        current_state,
         step_up.verifying_key(),
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
 }
 
 #[test]
+fn issuer_reloads_changed_household_state_after_construction() -> TestResult {
+    let fixture = ProvenanceFixture::new();
+    let current_state = Arc::new(Mutex::new(HouseholdAuthorityCurrentState {
+        authority: fixture.authority,
+        identity_binding: HouseholdAuthorityProofIdentityBinding {
+            household_id: "household-1".to_owned(),
+            parent_actor_id: "parent-1".to_owned(),
+            parent_device_id: "parent-device-1".to_owned(),
+            child_profile_id: "child-1".to_owned(),
+            target_device_id: "child-device-1".to_owned(),
+        },
+        family_revocation_epoch: 1,
+    }));
+    let resolver_state = Arc::clone(&current_state);
+    let issuer = test_ok!(
+        durable_issuer_with_current_state(move || {
+            resolver_state
+                .lock()
+                .unwrap_or_else(|poisoned| poisoned.into_inner())
+                .clone()
+        }),
+        "live household state issuer"
+    )
+    .with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z");
+    test_ok!(
+        issuer.issue(fixture.request()),
+        "issuer accepts a proof matching current state before revocation"
+    );
+    current_state
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .family_revocation_epoch = 2;
+    assert_eq!(
+        issuer.issue(fixture.request()),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected),
+        "issuer must obtain current household state for every issuance rather than retain a constructor snapshot"
+    );
+    Ok(())
+}
+
+#[test]
 fn issuer_rejects_authority_proof_revoked_after_mint() -> TestResult {
     let fixture = ProvenanceFixture::new();
-    let issuer = test_ok!(durable_issuer(), "durable revoked authority issuer")
-        .with_household_authority_current_state(HouseholdAuthorityCurrentState {
+    let issuer = test_ok!(
+        durable_issuer_with_current_state(move || HouseholdAuthorityCurrentState {
             authority: fixture.authority,
+            identity_binding: HouseholdAuthorityProofIdentityBinding {
+                household_id: "household-1".to_owned(),
+                parent_actor_id: "parent-1".to_owned(),
+                parent_device_id: "parent-device-1".to_owned(),
+                child_profile_id: "child-1".to_owned(),
+                target_device_id: "child-device-1".to_owned(),
+            },
             family_revocation_epoch: 2,
-        });
+        }),
+        "durable revoked authority issuer"
+    );
     assert_eq!(
         issuer.issue(fixture.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
@@ -549,12 +609,21 @@ fn issuer_rejects_authority_proof_revoked_after_mint() -> TestResult {
 #[test]
 fn issuer_rejects_expired_current_authority_proof() -> TestResult {
     let fixture = ProvenanceFixture::new();
-    let issuer = test_ok!(durable_issuer(), "durable expired authority issuer")
-        .with_household_authority_current_state(HouseholdAuthorityCurrentState {
+    let issuer = test_ok!(
+        durable_issuer_with_current_state(move || HouseholdAuthorityCurrentState {
             authority: fixture.authority,
+            identity_binding: HouseholdAuthorityProofIdentityBinding {
+                household_id: "household-1".to_owned(),
+                parent_actor_id: "parent-1".to_owned(),
+                parent_device_id: "parent-device-1".to_owned(),
+                child_profile_id: "child-1".to_owned(),
+                target_device_id: "child-device-1".to_owned(),
+            },
             family_revocation_epoch: 1,
-        })
-        .with_trusted_issuance_now_for_debug_test("2026-07-28T00:05:00Z");
+        }),
+        "durable expired authority issuer"
+    )
+    .with_trusted_issuance_now_for_debug_test("2026-07-28T00:05:00Z");
     assert_eq!(
         issuer.issue(fixture.request()),
         Err(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
@@ -692,6 +761,13 @@ fn issuer_rejects_a_validly_signed_decision_transplanted_from_another_aggregate(
     fixture.canonical.target_device_id = test_ok!(GrantTargetDeviceId::parse("device"), "target");
     fixture.canonical.action_id = test_ok!(GrantActionId::parse("a:b"), "action");
     fixture.step_up.target_device_id = test_ok!(GrantTargetDeviceId::parse("device"), "target");
+    let alternate_identity = HouseholdAuthorityProofIdentityBinding {
+        household_id: "household-1".to_owned(),
+        parent_actor_id: "parent-1".to_owned(),
+        parent_device_id: "parent-device-1".to_owned(),
+        child_profile_id: "child-1".to_owned(),
+        target_device_id: "device".to_owned(),
+    };
 
     let signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
     let mut request = fixture.request();
@@ -706,15 +782,10 @@ fn issuer_rejects_a_validly_signed_decision_transplanted_from_another_aggregate(
                 HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound_at(
                     &HouseholdAuthorityCurrentState {
                         authority: fixture.authority,
+                        identity_binding: alternate_identity.clone(),
                         family_revocation_epoch: 1,
                     },
-                    HouseholdAuthorityProofIdentityBinding {
-                        household_id: "household-1".to_owned(),
-                        parent_actor_id: "parent-1".to_owned(),
-                        parent_device_id: "parent-device-1".to_owned(),
-                        child_profile_id: "child-1".to_owned(),
-                        target_device_id: "device".to_owned(),
-                    },
+                    alternate_identity.clone(),
                     "2026-07-28T00:00:00Z",
                     "2026-07-28T00:05:00Z",
                 ),
@@ -734,8 +805,16 @@ fn issuer_rejects_a_validly_signed_decision_transplanted_from_another_aggregate(
         "signed colon-colliding authority provenance"
     );
 
+    let alternate_issuer = test_ok!(
+        durable_issuer_with_current_state(move || HouseholdAuthorityCurrentState {
+            authority: ProvenanceFixture::new().authority,
+            identity_binding: alternate_identity.clone(),
+            family_revocation_epoch: 1,
+        }),
+        "alternate current household state issuer"
+    );
     assert_eq!(
-        issuer.issue(request),
+        alternate_issuer.issue(request),
         Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch),
         "a decision for device:a plus b must not authorize device plus a:b"
     );
@@ -842,7 +921,21 @@ fn issuer_rejects_oversized_signed_authority_binding_before_verification() -> Te
 
 #[test]
 fn issuer_fails_closed_without_a_durable_milestone_publisher() -> TestResult {
-    let issuer = test_ok!(issuer(), "provenance-configured issuer");
+    let fixture = ProvenanceFixture::new();
+    let issuer = test_ok!(
+        issuer_with_current_state(move || HouseholdAuthorityCurrentState {
+            authority: fixture.authority,
+            identity_binding: HouseholdAuthorityProofIdentityBinding {
+                household_id: "household-1".to_owned(),
+                parent_actor_id: "parent-1".to_owned(),
+                parent_device_id: "parent-device-1".to_owned(),
+                child_profile_id: "child-1".to_owned(),
+                target_device_id: "child-device-1".to_owned(),
+            },
+            family_revocation_epoch: 1,
+        }),
+        "provenance-configured issuer"
+    );
     let fixture = ProvenanceFixture::new();
     assert_eq!(
         issuer.issue(fixture.request()),

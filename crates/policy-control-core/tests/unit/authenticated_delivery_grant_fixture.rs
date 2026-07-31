@@ -33,6 +33,15 @@ fn unique_journal_path(label: &str) -> std::path::PathBuf {
 
 pub(super) fn issuer_without_milestone_publisher(
 ) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
+    issuer_without_milestone_publisher_with_current_state(current_household_authority_state)
+}
+
+pub(super) fn issuer_without_milestone_publisher_with_current_state<F>(
+    current_state: F,
+) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError>
+where
+    F: Fn() -> HouseholdAuthorityCurrentState + Send + Sync + 'static,
+{
     let authority = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
     let household_authority = HouseholdAuthorityProofSigner::from_platform_key([6; 32]);
     let step_up = ParentStepUpProofSigner::from_platform_key([8; 32]);
@@ -41,7 +50,7 @@ pub(super) fn issuer_without_milestone_publisher(
         [3; 32],
         authority.verifying_key(),
         household_authority.verifying_key(),
-        current_household_authority_state(),
+        current_state,
         step_up.verifying_key(),
     )
     .map(|issuer| issuer.with_trusted_issuance_now_for_debug_test("2026-07-28T00:01:00Z"))
@@ -49,13 +58,22 @@ pub(super) fn issuer_without_milestone_publisher(
 
 pub(super) fn issuer(
 ) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError> {
+    issuer_with_current_state(current_household_authority_state)
+}
+
+pub(super) fn issuer_with_current_state<F>(
+    current_state: F,
+) -> Result<AuthenticatedDeliveryGrantIssuer, AuthenticatedDeliveryGrantIssuanceError>
+where
+    F: Fn() -> HouseholdAuthorityCurrentState + Send + Sync + 'static,
+{
     let event_type = EventType::parse("authenticated-delivery-grant.issuance.milestone")
         .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::MilestonePublicationFailed)?;
     let event_bus = EventBus::with_journal(
         JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
         ProductionFileEventJournal::new(unique_journal_path("issuer")).shared(),
     );
-    issuer_without_milestone_publisher()
+    issuer_without_milestone_publisher_with_current_state(current_state)
         .and_then(|issuer| {
             issuer
                 .with_event_bus_issuance_publisher(event_bus)
@@ -73,6 +91,13 @@ pub(super) fn household_authority_proof(
         HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound_at(
             &HouseholdAuthorityCurrentState {
                 authority,
+                identity_binding: HouseholdAuthorityProofIdentityBinding {
+                    household_id: "household-1".to_owned(),
+                    parent_actor_id: "parent-1".to_owned(),
+                    parent_device_id: "parent-device-1".to_owned(),
+                    child_profile_id: "child-1".to_owned(),
+                    target_device_id: "child-device-1".to_owned(),
+                },
                 family_revocation_epoch: 1,
             },
             HouseholdAuthorityProofIdentityBinding {
@@ -103,6 +128,13 @@ pub(super) fn current_household_authority_state() -> HouseholdAuthorityCurrentSt
             capability_granted: true,
             controller_lease_state: None,
             action: ocentra_family_identity_core::household_authority::HouseholdAuthorityAction::ChangePolicy,
+        },
+        identity_binding: HouseholdAuthorityProofIdentityBinding {
+            household_id: "household-1".to_owned(),
+            parent_actor_id: "parent-1".to_owned(),
+            parent_device_id: "parent-device-1".to_owned(),
+            child_profile_id: "child-1".to_owned(),
+            target_device_id: "child-device-1".to_owned(),
         },
         family_revocation_epoch: 1,
     }
