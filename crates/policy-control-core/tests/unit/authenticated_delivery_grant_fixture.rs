@@ -258,15 +258,22 @@ pub(super) fn resolved_decision(
 ) -> ResolvedPolicyDecision {
     test_ok!(
         ResolvedPolicyDecision::for_delivery_grant(
-            format!(
-                "policy-control-aggregate:{}:{}",
-                bindings.target_device_id, bindings.action_id
-            ),
+            aggregate_id(&bindings.target_device_id, &bindings.action_id),
             bindings.policy_decision_id.clone(),
             decision,
             executable_conflict_decision(),
         ),
         "resolved policy decision identity"
+    )
+}
+
+pub(super) fn aggregate_id(target_device_id: &str, action_id: &str) -> String {
+    format!(
+        "policy-control-aggregate:target:{}:{}:action:{}:{}",
+        target_device_id.len(),
+        target_device_id,
+        action_id.len(),
+        action_id
     )
 }
 

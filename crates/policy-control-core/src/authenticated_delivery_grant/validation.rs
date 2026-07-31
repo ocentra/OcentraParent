@@ -46,13 +46,23 @@ fn validate_resolved_aggregate_scope(
     request: &AuthenticatedDeliveryGrantIssuance<'_>,
     resolved_decision: &ResolvedPolicyDecision,
 ) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
-    let expected_aggregate_id = format!(
-        "policy-control-aggregate:{}:{}",
-        request.bindings.target_device_id, request.bindings.action_id
+    let expected_aggregate_id = authenticated_delivery_aggregate_id(
+        &request.bindings.target_device_id,
+        &request.bindings.action_id,
     );
     (resolved_decision.aggregate_id.as_str() == expected_aggregate_id)
         .then_some(())
         .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch)
+}
+
+fn authenticated_delivery_aggregate_id(target_device_id: &str, action_id: &str) -> String {
+    format!(
+        "policy-control-aggregate:target:{}:{}:action:{}:{}",
+        target_device_id.len(),
+        target_device_id,
+        action_id.len(),
+        action_id
+    )
 }
 
 fn validate_household_authority(

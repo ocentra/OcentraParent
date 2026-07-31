@@ -1,5 +1,5 @@
 use super::authenticated_delivery_grant_fixture::{
-    executable_conflict_decision, issuer as durable_issuer,
+    aggregate_id, executable_conflict_decision, issuer as durable_issuer,
 };
 use super::TestResult;
 use ocentra_eventing::ids::CorrelationId;
@@ -503,10 +503,7 @@ fn resolved_decision(
 ) -> ResolvedPolicyDecision {
     test_ok!(
         ResolvedPolicyDecision::for_delivery_grant(
-            format!(
-                "policy-control-aggregate:{}:{}",
-                bindings.target_device_id, bindings.action_id
-            ),
+            aggregate_id(&bindings.target_device_id, &bindings.action_id),
             bindings.policy_decision_id.clone(),
             decision,
             executable_conflict_decision(),
@@ -634,9 +631,9 @@ fn issuer_rejects_a_validly_signed_decision_for_a_different_policy_id() -> TestR
             household_authority_proof(fixture.authority),
             test_ok!(
                 ResolvedPolicyDecision::for_delivery_grant(
-                    format!(
-                        "policy-control-aggregate:{}:{}",
-                        fixture.bindings.target_device_id, fixture.bindings.action_id
+                    aggregate_id(
+                        &fixture.bindings.target_device_id,
+                        &fixture.bindings.action_id
                     ),
                     "different-decision",
                     fixture.decision,
@@ -688,16 +685,64 @@ fn issuer_rejects_a_validly_signed_decision_transplanted_from_another_aggregate(
         Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch),
         "a signed decision for another target/action aggregate must not issue this grant"
     );
-    Ok(())
-}
 
-#[test]
-fn issuer_accepts_a_validly_signed_decision_for_the_matching_aggregate() -> TestResult {
-    let issuer = test_ok!(durable_issuer(), "provenance-configured issuer");
-    let fixture = ProvenanceFixture::new();
+    let mut fixture = ProvenanceFixture::new();
+    fixture.bindings.target_device_id = "device".to_owned();
+    fixture.bindings.action_id = "a:b".to_owned();
+    fixture.canonical.target_device_id = test_ok!(GrantTargetDeviceId::parse("device"), "target");
+    fixture.canonical.action_id = test_ok!(GrantActionId::parse("a:b"), "action");
+    fixture.step_up.target_device_id = test_ok!(GrantTargetDeviceId::parse("device"), "target");
+
+    let signer = AuthenticatedDeliveryGrantAuthoritySigner::from_platform_key([7; 32]);
+    let mut request = fixture.request();
+    request.signed_authority_bindings = test_ok!(
+        signer.sign(
+            fixture.bindings.clone(),
+            AuthenticatedDeliveryGrantAssertionSnapshot {
+                capability: AuthenticatedDeliveryGrantCapabilityAssertion::Available,
+                evidence: AuthenticatedDeliveryGrantEvidenceAssertion::Stable,
+            },
+            test_ok!(
+                HouseholdAuthorityProofSigner::from_platform_key([6; 32]).sign_bound_at(
+                    &HouseholdAuthorityCurrentState {
+                        authority: fixture.authority,
+                        family_revocation_epoch: 1,
+                    },
+                    HouseholdAuthorityProofIdentityBinding {
+                        household_id: "household-1".to_owned(),
+                        parent_actor_id: "parent-1".to_owned(),
+                        parent_device_id: "parent-device-1".to_owned(),
+                        child_profile_id: "child-1".to_owned(),
+                        target_device_id: "device".to_owned(),
+                    },
+                    "2026-07-28T00:00:00Z",
+                    "2026-07-28T00:05:00Z",
+                ),
+                "family identity authority proof for colon-collision target"
+            ),
+            test_ok!(
+                ResolvedPolicyDecision::for_delivery_grant(
+                    aggregate_id("device:a", "b"),
+                    fixture.bindings.policy_decision_id.clone(),
+                    fixture.decision,
+                    executable_conflict_decision(),
+                ),
+                "colon-colliding resolved policy decision"
+            ),
+            fixture.contract_authority.clone(),
+        ),
+        "signed colon-colliding authority provenance"
+    );
+
+    assert_eq!(
+        issuer.issue(request),
+        Err(AuthenticatedDeliveryGrantIssuanceError::AuthorizationBindingMismatch),
+        "a decision for device:a plus b must not authorize device plus a:b"
+    );
+    let matching = ProvenanceFixture::new();
     assert!(
-        issuer.issue(fixture.request()).is_ok(),
-        "the canonical target/action aggregate must remain issuable"
+        issuer.issue(matching.request()).is_ok(),
+        "the typed aggregate encoding remains compatible with a matching authorization"
     );
     Ok(())
 }
@@ -718,9 +763,9 @@ fn issuer_rejects_signed_conflict_provenance_that_forbids_execution() -> TestRes
             household_authority_proof(fixture.authority),
             test_ok!(
                 ResolvedPolicyDecision::for_delivery_grant(
-                    format!(
-                        "policy-control-aggregate:{}:{}",
-                        fixture.bindings.target_device_id, fixture.bindings.action_id
+                    aggregate_id(
+                        &fixture.bindings.target_device_id,
+                        &fixture.bindings.action_id
                     ),
                     fixture.bindings.policy_decision_id.clone(),
                     fixture.decision,
@@ -758,9 +803,9 @@ fn issuer_rejects_signed_conflict_provenance_requiring_manual_review() -> TestRe
             household_authority_proof(fixture.authority),
             test_ok!(
                 ResolvedPolicyDecision::for_delivery_grant(
-                    format!(
-                        "policy-control-aggregate:{}:{}",
-                        fixture.bindings.target_device_id, fixture.bindings.action_id
+                    aggregate_id(
+                        &fixture.bindings.target_device_id,
+                        &fixture.bindings.action_id
                     ),
                     fixture.bindings.policy_decision_id.clone(),
                     fixture.decision,
