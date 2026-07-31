@@ -60,16 +60,21 @@ pub(super) fn ensure_retention_schema(
     connection: &mut Connection,
     startup_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
+    let transaction = immediate_transaction_with_contention_retry(connection)
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     ensure_column(
-        connection,
+        &transaction,
         "recorded_at_nanos",
         ADD_AUDIT_RECORDED_AT_NANOS_COLUMN,
     )?;
-    ensure_column(connection, "audit_scope", ADD_AUDIT_SCOPE_COLUMN)?;
-    backfill_legacy_validation_rejection_audit_scopes(connection, startup_now_nanos)?;
-    connection
+    ensure_column(&transaction, "audit_scope", ADD_AUDIT_SCOPE_COLUMN)?;
+    transaction
         .execute(CREATE_VALIDATION_REJECTION_RETENTION_INDEX, [])
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    transaction
+        .commit()
+        .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
+    backfill_legacy_validation_rejection_audit_scopes(connection, startup_now_nanos)?;
     Ok(())
 }
 
@@ -146,16 +151,16 @@ pub(super) fn audit_scope(audit: &AuthenticatedDeliveryGrantAudit) -> &'static s
 }
 
 fn ensure_column(
-    connection: &Connection,
+    transaction: &Transaction<'_>,
     column: &str,
     add_column: &str,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
-    let exists = connection
+    let exists = transaction
         .prepare("SELECT 1 FROM pragma_table_info('authenticated_delivery_grant_audits_v2') WHERE name = ?1")
         .and_then(|mut statement| statement.exists([column]))
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     (!exists)
-        .then(|| connection.execute(add_column, []))
+        .then(|| transaction.execute(add_column, []))
         .transpose()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     Ok(())
