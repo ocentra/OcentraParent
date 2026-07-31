@@ -138,7 +138,7 @@ fn consumer_preserves_legacy_replay_tombstone_across_trusted_issuer_rotation() -
 }
 
 #[test]
-fn concurrent_open_migrates_the_privacy_marker_once() -> TestResult {
+fn concurrent_open_migrates_the_legacy_schema_once() -> TestResult {
     let key = SigningKey::from_bytes(&[6; 32]);
     let path = store_path("concurrent-privacy-marker-migration");
     let grant = signed_grant(&key);
@@ -183,6 +183,12 @@ fn concurrent_open_migrates_the_privacy_marker_once() -> TestResult {
         |row| row.get(0),
     )?;
     assert_eq!(marker_count, 1);
+    let migrated_rows: i64 = connection.query_row(
+        "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",
+        [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
+        |row| row.get(0),
+    )?;
+    assert_eq!(migrated_rows, 1);
     Ok(())
 }
 
