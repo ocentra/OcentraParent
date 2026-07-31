@@ -1,7 +1,10 @@
 use std::{
     fmt::Debug,
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{
+        atomic::{AtomicU64, Ordering},
+        Arc,
+    },
 };
 
 use ed25519_dalek::{Signer, SigningKey};
@@ -22,6 +25,7 @@ type TestResult<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
 const DELIVERED_PAYLOAD: &[u8] = b"canonical-delivered-action";
 const DELIVERED_PAYLOAD_DIGEST: &str =
     "6406b5682ab324971384904f5d776f211b8133cc7bb42910d55a3deff7a13303";
+static NEXT_TEST_DATABASE_ID: AtomicU64 = AtomicU64::new(0);
 
 #[path = "authenticated_delivery_grant/legacy_replay_migration.rs"]
 mod legacy_replay_migration;
@@ -68,9 +72,7 @@ pub(super) fn store_path(name: &str) -> TestDatabase {
     path.push(format!(
         "ocentra-authenticated-delivery-{name}-{}-{}.sqlite",
         std::process::id(),
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map_or(0, |duration| duration.as_nanos())
+        NEXT_TEST_DATABASE_ID.fetch_add(1, Ordering::Relaxed)
     ));
     TestDatabase(Arc::new(TestDatabasePath(path)))
 }
