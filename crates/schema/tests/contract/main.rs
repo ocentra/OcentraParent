@@ -91,6 +91,8 @@ mod report_query_custody;
 mod retention_delete_tombstone;
 #[path = "setup_device_trust_handoff.rs"]
 mod setup_device_trust_handoff;
+#[path = "tracking_event_contracts.rs"]
+mod tracking_event_contracts;
 #[path = "typescript_literal.rs"]
 mod typescript_literal;
 #[path = "v0_8_notification_provider_status_boundary.rs"]
