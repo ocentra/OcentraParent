@@ -506,7 +506,7 @@ fn consumer_bounds_persisted_replay_audits_per_unexpired_grant() -> TestResult {
 }
 
 #[test]
-fn consumer_does_not_purge_expired_replay_rows_without_independent_confirmation() -> TestResult {
+fn authenticated_issuer_confirmation_purges_expired_replay_rows_in_bounded_batches() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("indexed-expiry-purge");
     let mut consumer = open(&path, trusted_issuer(&key))?;
@@ -552,8 +552,8 @@ fn consumer_does_not_purge_expired_replay_rows_without_independent_confirmation(
         [],
         |row| row.get(0),
     )?;
-    assert_eq!(remaining_expired, 129);
-    assert_eq!(remaining_expired_audits, 129);
+    assert_eq!(remaining_expired, 1);
+    assert_eq!(remaining_expired_audits, 1);
     Ok(())
 }
 
@@ -588,7 +588,7 @@ fn consumer_preserves_nanosecond_expiry_precision_for_replay_retention() -> Test
 }
 
 #[test]
-fn consumer_open_preserves_expired_replay_records_without_independent_confirmation() -> TestResult {
+fn startup_preserves_replay_record_when_its_expiry_audit_is_retained() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("startup-expiry-purge");
     let grant = signed_grant(&key);

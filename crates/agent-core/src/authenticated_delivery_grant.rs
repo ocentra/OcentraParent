@@ -163,7 +163,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             authenticated_delivery_grant_retention::advance_replay_retention_clock(
                 &connection,
                 startup_now_nanos,
-                false,
+                None,
             )?;
         rejection_audit::drain_expired_at_startup(&connection, startup_now_nanos)?;
         authenticated_delivery_grant_retention::drain_expired_replay_records_at_startup(
@@ -250,16 +250,23 @@ impl AuthenticatedDeliveryGrantConsumer {
             authenticated_delivery_grant_retention::advance_replay_retention_clock(
                 &self.connection,
                 trusted_now.1,
-                false,
+                None,
             )?;
         let trusted_now =
             validation::trusted_now_at_least(trusted_now, replay_retention_now_nanos)?;
         self.validate_request(grant, expected, payload, &correlation, trusted_now)?;
+        let authenticated_issued_at_nanos = validation::authenticated_issued_at_nanos(grant)?;
+        let outcome = self.consume_after_replay_retention_validation(
+            grant,
+            &correlation,
+            trusted_now,
+            authenticated_issued_at_nanos,
+        )?;
         authenticated_delivery_grant_retention::purge_expired_replay_records(
             &self.connection,
             trusted_now.1,
         )?;
-        self.consume_after_replay_retention_validation(grant, &correlation, trusted_now)
+        Ok(outcome)
     }
 
     fn consume_after_replay_retention_validation(
@@ -267,6 +274,7 @@ impl AuthenticatedDeliveryGrantConsumer {
         grant: &AuthenticatedDeliveryGrant,
         correlation: &str,
         trusted_now: (AuthenticatedDeliveryGrantInstant, i64),
+        authenticated_issued_at_nanos: i64,
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
         #[cfg(debug_assertions)]
@@ -278,25 +286,27 @@ impl AuthenticatedDeliveryGrantConsumer {
             debug_trusted_now_after_transaction,
             trusted_now,
         )?;
+        if let Err(error) =
+            validation::validate_temporal_window_at(grant, post_begin_observed_now.0)
+        {
+            return reject_post_begin_temporal_window(
+                transaction,
+                grant,
+                correlation,
+                post_begin_observed_now.1,
+                error,
+            );
+        }
         let post_begin_retention_now_nanos =
             authenticated_delivery_grant_retention::advance_replay_retention_clock_transaction(
                 &transaction,
                 post_begin_observed_now.1,
-                false,
+                Some(authenticated_issued_at_nanos),
             )?;
         let post_begin_now = validation::trusted_now_at_least(
             post_begin_observed_now,
             post_begin_retention_now_nanos,
         )?;
-        if let Err(error) = validation::validate_temporal_window_at(grant, post_begin_now.0) {
-            return reject_post_begin_temporal_window(
-                transaction,
-                grant,
-                correlation,
-                post_begin_now.1,
-                error,
-            );
-        }
         let stored: Option<String> = transaction
             .query_row(
                 SELECT_CONSUMED_GRANT,
@@ -329,7 +339,7 @@ impl AuthenticatedDeliveryGrantConsumer {
     }
 
     fn validate_request(
-        &mut self,
+        &self,
         grant: &AuthenticatedDeliveryGrant,
         expected: &AuthenticatedDeliveryGrantExpectation,
         delivered_payload: &[u8],
@@ -381,7 +391,7 @@ impl AuthenticatedDeliveryGrantConsumer {
     }
 
     fn persist_validation_rejection(
-        &mut self,
+        &self,
         grant: &AuthenticatedDeliveryGrant,
         correlation_id: &str,
         trusted_now_nanos: i64,

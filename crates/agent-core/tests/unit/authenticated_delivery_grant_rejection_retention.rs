@@ -56,11 +56,15 @@ fn concurrent_legacy_audit_startup_serializes_schema_migration() -> TestResult {
         .map(drop)
     });
     start.wait();
-    must(first.join().map_err(|_| "first startup thread panicked")?)?;
+    must(
+        first
+            .join()
+            .map_err(|_error| "first startup thread panicked")?,
+    )?;
     must(
         second
             .join()
-            .map_err(|_| "second startup thread panicked")?,
+            .map_err(|_error| "second startup thread panicked")?,
     )?;
 
     let connection = Connection::open(path.as_ref())?;
@@ -478,7 +482,8 @@ fn delayed_same_bad_startup_clock_remains_provisional_until_a_corrected_restart(
 }
 
 #[test]
-fn later_wall_clock_observation_does_not_confirm_or_purge_expired_replay_records() -> TestResult {
+fn authenticated_issuer_timestamp_confirms_and_bounded_purge_removes_expired_replay_records(
+) -> TestResult {
     let key = SigningKey::from_bytes(&[30; 32]);
     let path = store_path("later-independent-clock-observation");
     let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
@@ -525,8 +530,8 @@ fn later_wall_clock_observation_does_not_confirm_or_purge_expired_replay_records
         [],
         |row| row.get(0),
     )?;
-    assert!(!confirmed);
-    assert_eq!(remaining_consumes, 1);
+    assert!(confirmed);
+    assert_eq!(remaining_consumes, 0);
     Ok(())
 }
 

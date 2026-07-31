@@ -15,6 +15,7 @@ use crate::authenticated_delivery_grant::{
 };
 
 mod clock;
+mod confirmation;
 mod legacy_replay_rows;
 
 const CREATE_FINGERPRINT_REPLAY_TABLE: &str = "CREATE TABLE authenticated_delivery_grant_consumes_v3 (issuer_key_id TEXT NOT NULL, nonce TEXT NOT NULL, grant_fingerprint TEXT NOT NULL, audit_json TEXT NOT NULL, expires_at_nanos INTEGER NOT NULL, PRIMARY KEY (issuer_key_id, nonce))";
@@ -180,14 +181,14 @@ fn copy_audits_with_private_keys(
 pub(super) fn advance_replay_retention_clock(
     connection: &Connection,
     observed_now_nanos: i64,
-    independently_confirmed: bool,
+    authenticated_issued_at_nanos: Option<i64>,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     let transaction = immediate_transaction_with_contention_retry(connection)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     let effective_now_nanos = advance_replay_retention_clock_transaction(
         &transaction,
         observed_now_nanos,
-        independently_confirmed,
+        authenticated_issued_at_nanos,
     )?;
     transaction
         .commit()
@@ -198,9 +199,13 @@ pub(super) fn advance_replay_retention_clock(
 pub(super) fn advance_replay_retention_clock_transaction(
     transaction: &Transaction<'_>,
     observed_now_nanos: i64,
-    independently_confirmed: bool,
+    authenticated_issued_at_nanos: Option<i64>,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
-    clock::advance(transaction, observed_now_nanos, independently_confirmed)
+    clock::advance(
+        transaction,
+        observed_now_nanos,
+        authenticated_issued_at_nanos,
+    )
 }
 
 pub(super) fn migrate_legacy_replay_records(

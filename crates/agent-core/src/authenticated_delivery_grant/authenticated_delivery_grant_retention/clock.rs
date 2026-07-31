@@ -2,12 +2,15 @@ use rusqlite::{params, OptionalExtension, Transaction};
 
 use crate::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeError;
 
+use super::confirmation;
+
 const MAX_ADVANCE: i64 = 366 * 24 * 60 * 60 * 1_000_000_000;
+const MAX_BACKWARD_SKEW: i64 = 5 * 60 * 1_000_000_000;
 
 pub(super) fn advance(
     transaction: &Transaction<'_>,
     now: i64,
-    independently_confirmed: bool,
+    authenticated_issued_at_nanos: Option<i64>,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     let stored = transaction.query_row("SELECT highest_trusted_now_nanos, confirmed, provisional_observed_at_nanos FROM authenticated_delivery_grant_replay_retention_v3 WHERE singleton = 1", [], |row| Ok((row.get::<_, i64>(0)?, row.get::<_, bool>(1)?, row.get::<_, Option<i64>>(2)?))).optional().map_err(storage)?;
     match stored {
@@ -17,7 +20,7 @@ pub(super) fn advance(
             highest,
             provisional_observed_at.unwrap_or(highest),
             now,
-            independently_confirmed,
+            authenticated_issued_at_nanos,
         ),
         Some((highest, true, _)) => confirmed(transaction, highest, now),
     }
@@ -47,6 +50,13 @@ fn confirmed(
     highest: i64,
     now: i64,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
+    if now.saturating_add(MAX_BACKWARD_SKEW) < highest {
+        // An authenticated issuer timestamp confirmed the previous epoch, but
+        // a material backwards correction still means that epoch cannot keep
+        // authorizing destructive purges. Start a new provisional epoch and
+        // wait for a new issuer-authenticated confirmation.
+        return write(transaction, now, false, Some(now));
+    }
     let plausible = now >= highest && now - highest <= MAX_ADVANCE;
     let effective = if now > highest && !plausible {
         now
@@ -64,15 +74,17 @@ fn provisional(
     highest: i64,
     provisional_observed_at: i64,
     now: i64,
-    independently_confirmed: bool,
+    authenticated_issued_at_nanos: Option<i64>,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     let plausible = now >= highest && now - highest <= MAX_ADVANCE;
-    let independently_confirmed = plausible && independently_confirmed;
-    let observed_at = if now < highest {
-        now
-    } else {
-        provisional_observed_at
-    };
+    // A second read of the local wall clock cannot establish that the first
+    // read was trustworthy. Confirmation instead requires the `issued_at`
+    // timestamp from a grant whose signature, bindings, and temporal window
+    // have already been verified by the caller. That timestamp is authored by
+    // the trusted issuer, not this device's clock.
+    let independently_confirmed =
+        plausible && confirmation::is_current(authenticated_issued_at_nanos, now, highest);
+    let observed_at = confirmation::provisional_observed_at(now, highest, provisional_observed_at);
     write(
         transaction,
         now,
