@@ -27,7 +27,7 @@ where
     }
     let subscribers = bus.subscribers_for(&stored);
     if subscribers.is_empty() {
-        return dispatching::publish_without_subscribers(bus, stored, dispatch_mode).await;
+        return dispatching::publish_without_subscribers(bus, stored, dispatch_mode, None).await;
     }
     bus.dispatch_stored(
         stored,
@@ -56,7 +56,13 @@ where
     }
     let subscribers = bus.subscribers_for(&stored);
     if subscribers.is_empty() {
-        return dispatching::publish_without_subscribers(bus, stored, dispatch_mode).await;
+        return dispatching::publish_without_subscribers(
+            bus,
+            stored,
+            dispatch_mode,
+            Some(validator),
+        )
+        .await;
     }
     bus.dispatch_stored_with_before_dispatch_receipt_validator(
         stored,

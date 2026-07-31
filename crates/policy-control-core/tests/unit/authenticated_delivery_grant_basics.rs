@@ -12,7 +12,7 @@ use ocentra_eventing::journal::ndjson::{
 };
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
-use ocentra_eventing::queue::policy::EventQueuePolicy;
+use ocentra_eventing::queue::policy::{EventQueuePolicy, NoSubscriberQueuePolicy};
 use ocentra_eventing::testkit::EventRecorder;
 use ocentra_family_identity_core::household_authority_proof::HouseholdAuthorityProofSigner;
 use ocentra_family_identity_core::parent_step_up_proof::ParentStepUpProofSigner;
@@ -94,6 +94,35 @@ fn issuer_rejects_queueing_no_subscriber_policy_before_any_milestone_can_persist
         )))
         .shared(),
         queue_policy,
+    );
+
+    assert!(matches!(
+        test_ok!(issuer_without_milestone_publisher(), "issuer")
+            .with_event_bus_issuance_publisher(event_bus),
+        Err(ocentra_eventing::error::EventingError::InvalidHandlerPolicy { .. })
+    ));
+    Ok(())
+}
+
+#[test]
+fn issuer_rejects_dead_letter_no_subscriber_policy_before_any_milestone_can_persist() -> TestResult
+{
+    let event_type = test_ok!(
+        EventType::parse("authenticated-delivery-grant.issuance.milestone"),
+        "issuance milestone event type"
+    );
+    let dead_letter_policy = test_ok!(
+        EventQueuePolicy::default().with_no_subscriber_policy(NoSubscriberQueuePolicy::DeadLetter),
+        "dead-letter no-subscriber policy"
+    );
+    let event_bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_dispatch(JournalSelector::EventTypes(vec![event_type])),
+        ProductionFileEventJournal::new(std::env::temp_dir().join(format!(
+            "ocentra-policy-dead-letter-{}.journal",
+            EventId::generated().as_str()
+        )))
+        .shared(),
+        dead_letter_policy,
     );
 
     assert!(matches!(
