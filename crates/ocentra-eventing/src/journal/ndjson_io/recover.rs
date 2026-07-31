@@ -2,6 +2,7 @@ use tokio::fs::File;
 use tokio::io::{AsyncBufReadExt, BufReader};
 
 use crate::journal::hash_chain::verify_hash_chain_entry;
+use crate::journal::ndjson::NdjsonJournalRecord;
 use crate::{EventingError, ExpectValue};
 
 use super::{NdjsonEventJournal, NdjsonJournalEntry};
@@ -73,16 +74,19 @@ fn read_recovered_entry(
     if line.trim().is_empty() {
         return Ok(None);
     }
-    let entry: NdjsonJournalEntry =
+    let record: NdjsonJournalRecord =
         serde_json::from_str(line).map_err(|error| EventingError::JournalCorruptLine {
             line: line_number,
             reason: error.to_string(),
         })?;
+    let NdjsonJournalRecord::Entry(entry) = record else {
+        return Ok(None);
+    };
     verify_hash_chain_entry(&entry, expected_previous_hash).map_err(|reason| {
         EventingError::JournalCorruptLine {
             line: line_number,
             reason,
         }
     })?;
-    Ok(Some(entry))
+    Ok(Some(*entry))
 }

@@ -3,6 +3,7 @@ use ocentra_eventing::envelope::{EventEnvelope, StoredEventEnvelope};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{EventId, EventType};
+use ocentra_eventing::journal::ndjson::NdjsonJournalRecord;
 use ocentra_eventing::journal::policy::JournalPolicy;
 use ocentra_eventing::journal::{
     EventJournal, JournalAppend, JournalAppendDurability, JournalHashVersion,
@@ -95,7 +96,13 @@ pub(super) async fn read_lines(path: JournalPath) -> Vec<String> {
         .await
         .expect_value("journal file reads")
         .lines()
-        .map(String::from)
+        .enumerate()
+        .filter_map(|(index, line)| {
+            NdjsonJournalRecord::parse(line, index + 1)
+                .expect_value("journal record decodes")
+                .entry()
+                .map(|_| String::from(line))
+        })
         .collect()
 }
 
@@ -123,6 +130,18 @@ pub(super) async fn tamper_first_journal_payload_label(path: JournalPath, label:
 
 pub(super) async fn cleanup(path: JournalPath) {
     let _ = tokio::fs::remove_file(path).await;
+}
+
+pub(super) async fn cleanup_idempotent_journal(path: JournalPath) {
+    let lock_path = append_lock_path(&path);
+    cleanup(path).await;
+    let _cleanup_lock = tokio::fs::remove_file(lock_path).await;
+}
+
+pub(super) fn append_lock_path(path: &JournalPath) -> PathBuf {
+    let mut lock_path = path.0.as_os_str().to_os_string();
+    lock_path.push(".append.lock");
+    PathBuf::from(lock_path)
 }
 
 struct RecordingJournal {

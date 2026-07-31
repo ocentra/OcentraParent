@@ -76,6 +76,18 @@ impl NdjsonEventJournal {
             acknowledgement.durability = JournalAppendDurability::Synchronized;
             acknowledgement.synchronization_hash =
                 Some(synchronization_receipt_hash(&acknowledgement)?);
+            if acknowledgement.hash_version == JournalHashVersion::V3
+                && acknowledgement.current_hash.is_some()
+            {
+                self.write_synchronization_completion(&acknowledgement)
+                    .await?;
+            }
+            let metadata = tokio::fs::metadata(&self.path)
+                .await
+                .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+            let mut state = self.state.lock().expect_value("journal state lock");
+            state.file_len = metadata.len();
+            state.file_modified = metadata.modified().ok();
         }
         Ok(acknowledgement)
     }

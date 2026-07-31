@@ -2,7 +2,7 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{EventId, IdempotencyKey};
 use ocentra_eventing::journal::ndjson::{
-    NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
+    NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions, NdjsonJournalRecord,
 };
 use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
 use ocentra_eventing::journal::{EventJournal, JournalAppendDurability, JournalHashVersion};
@@ -12,10 +12,13 @@ use tokio::sync::Barrier;
 use super::{
     super::fixtures::{test_event, test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_LABEL},
     support::{
-        cleanup, journal_path, read_lines, stored_event, tamper_first_journal_payload_label,
-        JournalPath,
+        cleanup, cleanup_idempotent_journal, journal_path, read_lines, stored_event,
+        tamper_first_journal_payload_label, JournalPath,
     },
 };
+
+#[cfg(not(target_os = "windows"))]
+use super::support::append_lock_path;
 
 #[tokio::test]
 async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
@@ -31,12 +34,19 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     let second_append = journal.append(&second).await.expect_value("second append");
 
     let lines = read_lines(path.clone()).await;
-    let first_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[0]).expect_value("first line decodes");
-    let second_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[1]).expect_value("second line decodes");
+    let entries = lines
+        .iter()
+        .enumerate()
+        .filter_map(|(index, line)| {
+            NdjsonJournalRecord::parse(line, index + 1)
+                .expect_value("journal record decodes")
+                .entry()
+        })
+        .collect::<Vec<_>>();
+    let first_entry = &entries[0];
+    let second_entry = &entries[1];
 
-    assert_eq!(lines.len(), 2);
+    assert_eq!(entries.len(), 2);
     assert_eq!(first_append.sequence, 1);
     assert_eq!(second_append.sequence, 2);
     assert_eq!(first_append.hash_version, JournalHashVersion::V3);
@@ -392,6 +402,30 @@ async fn ordinary_append_refreshes_state_after_a_failed_durable_sync() {
 }
 
 #[tokio::test]
+async fn replay_excludes_a_v3_entry_when_sync_fails_before_completion_marker() {
+    use ocentra_eventing::replay::ReplayFilter;
+
+    let path = journal_path(TestText("failed-sync-no-replay".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal.inject_next_sync_failure_for_debug();
+    let event = unique_stored_event("failed sync cannot replay", 58);
+    assert!(matches!(
+        journal.append(&event).await,
+        Err(EventingError::JournalIo { .. })
+    ));
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let replay = restarted
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("replay reads incomplete durable record");
+    assert!(
+        replay.records.is_empty(),
+        "a V3 record without a verified completion marker is not replayable"
+    );
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
 async fn ordinary_and_idempotent_journal_instances_share_the_append_file_lock() {
     let path = journal_path(TestText("mixed-append-file-lock".to_owned()));
     let barrier = Arc::new(Barrier::new(2));
@@ -723,18 +757,6 @@ async fn hash_chain_rejects_tampered_append_durability() {
         Err(EventingError::JournalCorruptLine { line: 1, .. })
     ));
     cleanup(path).await;
-}
-
-async fn cleanup_idempotent_journal(path: JournalPath) {
-    let lock_path = append_lock_path(&path);
-    cleanup(path).await;
-    let _cleanup_lock = tokio::fs::remove_file(lock_path).await;
-}
-
-fn append_lock_path(path: &JournalPath) -> std::path::PathBuf {
-    let mut lock_path = path.0.as_os_str().to_os_string();
-    lock_path.push(".append.lock");
-    std::path::PathBuf::from(lock_path)
 }
 
 fn unique_stored_event(
