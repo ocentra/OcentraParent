@@ -12,7 +12,7 @@ use super::{
 mod rejection_audit_scope;
 
 pub(super) fn persist(
-    connection: &mut Connection,
+    connection: &Connection,
     grant: &AuthenticatedDeliveryGrant,
     correlation_id: &str,
     trusted_now_nanos: i64,
@@ -23,7 +23,7 @@ pub(super) fn persist(
     };
     let audit = audit(
         grant,
-        correlation_id.to_owned(),
+        correlation_id,
         AuthenticatedDeliveryGrantAuditOutcome::ValidationRejected(rejection),
     );
     let result = immediate_transaction_with_contention_retry(connection)
@@ -57,7 +57,7 @@ const MAX_LEGACY_VALIDATION_REJECTION_AUDIT_BYTES: i64 =
     (AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES * 8) as i64;
 
 pub(super) fn ensure_retention_schema(
-    connection: &mut Connection,
+    connection: &Connection,
     startup_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let transaction = immediate_transaction_with_contention_retry(connection)
@@ -79,7 +79,7 @@ pub(super) fn ensure_retention_schema(
 }
 
 fn backfill_legacy_validation_rejection_audit_scopes(
-    connection: &mut Connection,
+    connection: &Connection,
     startup_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let mut last_row_id = i64::MIN;
@@ -134,7 +134,7 @@ fn backfill_legacy_validation_rejection_audit_scopes(
 }
 
 pub(super) fn drain_expired_at_startup(
-    connection: &mut Connection,
+    connection: &Connection,
     trusted_now_nanos: i64,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let _ = trusted_now_nanos;

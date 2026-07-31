@@ -506,8 +506,7 @@ fn consumer_bounds_persisted_replay_audits_per_unexpired_grant() -> TestResult {
 }
 
 #[test]
-fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_audits(
-) -> TestResult {
+fn consumer_does_not_purge_expired_replay_rows_without_independent_confirmation() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("indexed-expiry-purge");
     let mut consumer = open(&path, trusted_issuer(&key))?;
@@ -553,8 +552,8 @@ fn consumer_purges_expired_replay_rows_in_indexed_bounded_batches_with_matching_
         [],
         |row| row.get(0),
     )?;
-    assert_eq!(remaining_expired, 1);
-    assert_eq!(remaining_expired_audits, 1);
+    assert_eq!(remaining_expired, 129);
+    assert_eq!(remaining_expired_audits, 129);
     Ok(())
 }
 
@@ -589,7 +588,7 @@ fn consumer_preserves_nanosecond_expiry_precision_for_replay_retention() -> Test
 }
 
 #[test]
-fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> TestResult {
+fn consumer_open_preserves_expired_replay_records_without_independent_confirmation() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("startup-expiry-purge");
     let grant = signed_grant(&key);
@@ -629,13 +628,13 @@ fn consumer_open_purges_expired_replay_records_while_device_was_inactive() -> Te
         [stored_key(&grant.issuer_key_id), stored_key(&grant.nonce)],
         |row| row.get(0),
     )?;
-    assert_eq!(retained_grants, 0);
-    assert_eq!(retained_audits, 0);
+    assert_eq!(retained_grants, 1);
+    assert_eq!(retained_audits, 2);
     Ok(())
 }
 
 #[test]
-fn consumer_open_drains_all_expired_replay_rows_in_bounded_batches() -> TestResult {
+fn consumer_open_preserves_expired_replay_rows_without_independent_confirmation() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("startup-expiry-drain");
     let initial = open(&path, trusted_issuer(&key))?;
@@ -671,13 +670,13 @@ fn consumer_open_drains_all_expired_replay_rows_in_bounded_batches() -> TestResu
         [],
         |row| row.get(0),
     )?;
-    assert_eq!(expired_grants, 0);
-    assert_eq!(expired_audits, 0);
+    assert_eq!(expired_grants, 257);
+    assert_eq!(expired_audits, 257);
     Ok(())
 }
 
 #[test]
-fn consumer_keeps_expired_grant_when_audit_delete_fails_atomically() -> TestResult {
+fn consumer_does_not_attempt_audit_delete_without_independent_confirmation() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("atomic-expiry-delete");
     let initial = open(&path, trusted_issuer(&key))?;
@@ -695,20 +694,12 @@ fn consumer_keeps_expired_grant_when_audit_delete_fails_atomically() -> TestResu
         "CREATE TRIGGER reject_atomic_audit_delete BEFORE DELETE ON authenticated_delivery_grant_audits_v2 WHEN OLD.issuer_key_id = 'atomic-issuer' BEGIN SELECT RAISE(ABORT, 'audit-delete-blocked'); END;",
     )?;
     drop(connection);
-    let error = AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
+    let reopened = must(AuthenticatedDeliveryGrantConsumer::open_at_for_debug_test(
         &path,
         trusted_issuer(&key),
         "2026-07-28T00:03:00.500Z",
-    );
-    let Err(error) = error else {
-        return Err(
-            std::io::Error::other("audit deletion trigger must reject startup purge").into(),
-        );
-    };
-    assert_eq!(
-        error,
-        AuthenticatedDeliveryGrantConsumeError::StorageUnavailable
-    );
+    ))?;
+    drop(reopened);
     let connection = Connection::open(path.as_ref())?;
     let retained_grants: i64 = connection.query_row(
         "SELECT COUNT(*) FROM authenticated_delivery_grant_consumes_v2 WHERE issuer_key_id = ?1 AND nonce = ?2",

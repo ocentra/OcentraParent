@@ -3,7 +3,6 @@ use rusqlite::{params, OptionalExtension, Transaction};
 use crate::authenticated_delivery_grant::AuthenticatedDeliveryGrantConsumeError;
 
 const MAX_ADVANCE: i64 = 366 * 24 * 60 * 60 * 1_000_000_000;
-const MIN_CONFIRMATION_INTERVAL: i64 = 60 * 1_000_000_000;
 
 pub(super) fn advance(
     transaction: &Transaction<'_>,
@@ -68,9 +67,7 @@ fn provisional(
     independently_confirmed: bool,
 ) -> Result<i64, AuthenticatedDeliveryGrantConsumeError> {
     let plausible = now >= highest && now - highest <= MAX_ADVANCE;
-    let independently_confirmed = plausible
-        && (independently_confirmed
-            || now.saturating_sub(provisional_observed_at) >= MIN_CONFIRMATION_INTERVAL);
+    let independently_confirmed = plausible && independently_confirmed;
     let observed_at = if now < highest {
         now
     } else {

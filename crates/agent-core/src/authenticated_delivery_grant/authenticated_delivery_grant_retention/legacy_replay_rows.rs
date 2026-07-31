@@ -28,7 +28,7 @@ const MAX_LEGACY_REPLAY_GRANT_JSON_BYTES: usize = AUTHENTICATED_DELIVERY_GRANT_M
 const MAX_LEGACY_REPLAY_AUDIT_JSON_BYTES: usize = AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES * 8;
 
 pub(super) fn migrate_legacy_replay_records(
-    connection: &mut Connection,
+    connection: &Connection,
     trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     let transaction = immediate_transaction_with_contention_retry(connection)
