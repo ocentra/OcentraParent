@@ -224,30 +224,32 @@ fn authenticated_delivery_grant_canonical_wire_decode_rejects_oversized_outer_in
 }
 
 #[test]
-fn authenticated_delivery_grant_ordinary_serde_decode_rejects_oversized_wire_before_acceptance(
-) -> TestResult {
+fn authenticated_delivery_grant_wire_decode_counts_outer_whitespace_against_its_limit() -> TestResult
+{
+    let encoded = serde_json::to_string(&grant())?;
+    let padding = AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES + 1 - encoded.len();
     let wire = format!(
-        "{{\"issuerKeyId\":\"{}\"}}",
-        "a".repeat(AUTHENTICATED_DELIVERY_GRANT_MAX_ENCODED_WIRE_BYTES)
+        "{}{}{}",
+        " ".repeat(padding / 2),
+        encoded,
+        "\n".repeat(padding - (padding / 2)),
     );
 
-    let error = serde_json::from_str::<AuthenticatedDeliveryGrant>(&wire)
-        .err()
-        .ok_or_else(|| {
-            std::io::Error::other("ordinary serde decoding accepted an oversized encoded field")
-        })?;
     assert_eq!(
-        error.to_string(),
-        "authenticated delivery grant encoded wire exceeds its byte limit"
+        AuthenticatedDeliveryGrant::decode_json_wire(&wire),
+        Err("authenticated delivery grant encoded wire exceeds its byte limit".to_owned())
     );
     Ok(())
 }
 
 #[test]
-fn authenticated_delivery_grant_ordinary_serde_decode_accepts_valid_fixture() -> TestResult {
+fn authenticated_delivery_grant_wire_decode_accepts_valid_fixture_with_outer_whitespace(
+) -> TestResult {
     let expected = grant();
-    let actual =
-        serde_json::from_str::<AuthenticatedDeliveryGrant>(&serde_json::to_string(&expected)?)?;
+    let actual = AuthenticatedDeliveryGrant::decode_json_wire(&format!(
+        " \n{}\t ",
+        serde_json::to_string(&expected)?
+    ))?;
     assert_eq!(actual, expected);
     Ok(())
 }
@@ -334,10 +336,9 @@ fn grant_with_signing_wire_len(target: usize) -> AuthenticatedDeliveryGrant {
 }
 
 fn decode_failure_reason(value: &serde_json::Value) -> TestResult<String> {
-    match serde_json::from_str::<AuthenticatedDeliveryGrant>(&serde_json::to_string(value)?) {
+    match AuthenticatedDeliveryGrant::decode_json_wire(&serde_json::to_string(value)?) {
         Ok(_) => Err(std::io::Error::other("malformed grant unexpectedly decoded").into()),
         Err(error) => Ok(error
-            .to_string()
             .split(" at line ")
             .next()
             .unwrap_or_default()
