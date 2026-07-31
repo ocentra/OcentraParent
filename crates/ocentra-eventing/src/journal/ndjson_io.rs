@@ -15,5 +15,7 @@ mod idempotent_match;
 mod idempotent_recovery;
 #[path = "ndjson_io/recover.rs"]
 mod recover;
+#[path = "ndjson_io/state_match.rs"]
+mod state_match;
 #[path = "ndjson_io/write.rs"]
 mod write;

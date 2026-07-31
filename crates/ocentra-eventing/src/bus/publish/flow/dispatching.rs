@@ -1,7 +1,9 @@
 use std::sync::Arc;
 
 use crate::bus::dispatch::{dispatch_concurrent, dispatch_sequential};
-use crate::bus::publish::flow::BeforeDispatchReceiptValidator;
+use crate::bus::publish::flow::{
+    receipt::validate_before_dispatch_receipt, BeforeDispatchReceiptValidator,
+};
 use crate::bus::publisher::EventPublisher;
 use crate::bus::reports::dead_letter::{DeadLetter, DeadLetterReason};
 use crate::bus::reports::empty_publish_report;
@@ -24,11 +26,11 @@ pub(super) async fn publish_without_subscribers(
             let reservation = bus.queue.reserve_dispatch(&stored)?;
             bus.record_stored_snapshot(&stored).await;
             let mut report = empty_publish_report(&stored, dispatch_mode, queue_report, 0);
-            if let Some(append) = bus
+            let append = bus
                 .append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-                .await?
-            {
-                validate_before_dispatch_receipt(validator, &append)?;
+                .await?;
+            validate_before_dispatch_receipt(validator, append.as_ref())?;
+            if let Some(append) = append {
                 report.journal_appends.push(append);
             }
             // No handler observed this event. An AfterDispatch record authorizes
@@ -73,13 +75,6 @@ pub(super) async fn publish_without_subscribers(
             ))
         }
     }
-}
-
-fn validate_before_dispatch_receipt(
-    validator: Option<BeforeDispatchReceiptValidator>,
-    append: &crate::JournalAppend,
-) -> Result<(), EventingError> {
-    validator.map_or(Ok(()), |validator| validator(append))
 }
 
 pub(super) async fn dead_letter_expired_deadline(

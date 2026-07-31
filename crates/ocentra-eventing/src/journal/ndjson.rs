@@ -3,6 +3,9 @@ use std::{
     sync::{atomic::AtomicBool, Arc, Mutex},
 };
 
+#[cfg(debug_assertions)]
+use std::sync::atomic::AtomicU64;
+
 use serde::{Deserialize, Serialize};
 use tokio::sync::Semaphore;
 
@@ -61,6 +64,8 @@ pub struct NdjsonEventJournal {
     sync_failure_for_debug: Arc<AtomicBool>,
     partial_write_failure_for_debug: Arc<AtomicBool>,
     directory_sync_failure_for_debug: Arc<AtomicBool>,
+    #[cfg(debug_assertions)]
+    recovery_count_for_debug: Arc<AtomicU64>,
 }
 
 impl NdjsonEventJournal {
@@ -77,6 +82,8 @@ impl NdjsonEventJournal {
             sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
             partial_write_failure_for_debug: Arc::new(AtomicBool::new(false)),
             directory_sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            #[cfg(debug_assertions)]
+            recovery_count_for_debug: Arc::new(AtomicU64::new(0)),
         }
     }
 
