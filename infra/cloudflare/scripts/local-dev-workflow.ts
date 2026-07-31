@@ -108,7 +108,11 @@ function inspectLocalStartPath(): LocalStartPath {
   }
 
   for (const relativePath of knownRuntimeDependencyPaths) {
-    if (!existsSync(path.join(repoRoot, relativePath))) {
+    // Generated billing contracts are a Rust-schema output owned by this
+    // Worker module. `repoRoot` is only for workspace-script discovery; using
+    // it here probes a non-existent top-level `src/` directory and turns a
+    // valid generated edge artifact into a false boot blocker.
+    if (!existsSync(path.join(cloudflareDir, relativePath))) {
       blockers.push({
         kind: 'missing-runtime-dependency',
         path: relativePath,
