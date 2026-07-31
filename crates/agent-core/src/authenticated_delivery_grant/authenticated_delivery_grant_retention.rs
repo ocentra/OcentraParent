@@ -14,6 +14,7 @@ use crate::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantConsumeError, AuthenticatedDeliveryGrantTrustedIssuer,
 };
 
+mod audit_redaction;
 mod clock;
 mod confirmation;
 mod legacy_replay_rows;
@@ -139,7 +140,7 @@ fn copy_consumes_with_private_keys(
         }
         transaction.execute(
             "INSERT INTO authenticated_delivery_grant_consumes_privacy_v3 (issuer_key_id, nonce, grant_fingerprint, audit_json, expires_at_nanos) VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![storage_key_digest(&issuer_key_id), storage_key_digest(&nonce), fingerprint, audit_json, expires_at_nanos],
+            params![storage_key_digest(&issuer_key_id), storage_key_digest(&nonce), fingerprint, audit_redaction::redact(&audit_json)?, expires_at_nanos],
         ).map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     }
     Ok(())
@@ -172,7 +173,7 @@ fn copy_audits_with_private_keys(
         }
         transaction.execute(
             "INSERT INTO authenticated_delivery_grant_audits_privacy_v3 (issuer_key_id, nonce, audit_json, recorded_at_nanos, audit_scope) VALUES (?1, ?2, ?3, ?4, ?5)",
-            params![storage_key_digest(&issuer_key_id), storage_key_digest(&nonce), audit_json, recorded_at_nanos, audit_scope],
+            params![storage_key_digest(&issuer_key_id), storage_key_digest(&nonce), audit_redaction::redact(&audit_json)?, recorded_at_nanos, audit_scope],
         ).map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
     }
     Ok(())
