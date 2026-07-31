@@ -1,9 +1,10 @@
+use ocentra_family_identity_core::family_identity::DeviceTrustState;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot, ParentStepUpValidationInput,
 };
 use ocentra_family_identity_core::parent_step_up_proof::{
-    authorization_digest, ParentStepUpAuthorizationBinding, ParentStepUpProofError,
-    ParentStepUpProofSigner, ParentStepUpProofVerifier,
+    authorization_digest, ParentDeviceTrustCurrentState, ParentStepUpAuthorizationBinding,
+    ParentStepUpProofError, ParentStepUpProofSigner, ParentStepUpProofVerifier,
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AuthenticatedDeliveryGrantCapabilityAssertion,
@@ -109,6 +110,56 @@ fn bound_step_up_proof_requires_canonical_bounded_sha256_digest_before_signing_a
     malformed_proof.authorization_digest = format!("sha256:{}", "A".repeat(64));
     assert_eq!(
         verifier.verify(&malformed_proof),
+        Err(ParentStepUpProofError::Rejected)
+    );
+    Ok(())
+}
+
+#[test]
+fn current_device_trust_epoch_is_signed_and_revocation_or_epoch_tampering_is_rejected(
+) -> Result<(), ParentStepUpProofError> {
+    let signer = ParentStepUpProofSigner::from_platform_key([8; 32]);
+    let verifier = ParentStepUpProofVerifier::new(signer.verifying_key());
+    let current_state = ParentDeviceTrustCurrentState {
+        parent_device_id: "parent-device-1".to_owned(),
+        trust_state: DeviceTrustState::Trusted,
+        revocation_epoch: 7,
+    };
+    let proof = signer.sign_bound_for_current_device_trust_state(
+        validation(),
+        "child-device-1".to_owned(),
+        assertions(),
+        authorization_digest(authorization_binding("household-1", "parent-1")),
+        &current_state,
+    )?;
+
+    assert_eq!(proof.parent_device_trust_revocation_epoch, 7);
+    assert_eq!(
+        verifier.verify_against_current_device_trust_state(&proof, &current_state)?,
+        (validation(), "child-device-1".to_owned(), assertions())
+    );
+
+    let mut epoch_tampered = proof.clone();
+    epoch_tampered.parent_device_trust_revocation_epoch = 8;
+    let advanced_trusted_state = ParentDeviceTrustCurrentState {
+        revocation_epoch: 8,
+        ..current_state.clone()
+    };
+    assert_eq!(
+        verifier
+            .verify_against_current_device_trust_state(&epoch_tampered, &advanced_trusted_state),
+        Err(ParentStepUpProofError::Rejected)
+    );
+    assert_eq!(
+        verifier.verify_against_current_device_trust_state(&proof, &advanced_trusted_state),
+        Err(ParentStepUpProofError::Rejected)
+    );
+    let revoked_state = ParentDeviceTrustCurrentState {
+        trust_state: DeviceTrustState::Revoked,
+        ..current_state
+    };
+    assert_eq!(
+        verifier.verify_against_current_device_trust_state(&proof, &revoked_state),
         Err(ParentStepUpProofError::Rejected)
     );
     Ok(())

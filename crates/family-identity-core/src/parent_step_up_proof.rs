@@ -113,6 +113,7 @@ impl ParentStepUpProofVerifier {
             &proof.target_device_id,
             &proof.assertions,
             &proof.authorization_digest,
+            proof.parent_device_trust_revocation_epoch,
         )?;
         self.verifying_key
             .verify_strict(&bytes, &signature)
@@ -185,6 +186,44 @@ impl ParentStepUpProofSigner {
         assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
         authorization_digest: String,
     ) -> Result<VerifiedParentStepUpProof, ParentStepUpProofError> {
+        self.sign_bound_at_device_trust_revocation_epoch(
+            validation,
+            target_device_id,
+            assertions,
+            authorization_digest,
+            0,
+        )
+    }
+
+    pub fn sign_bound_for_current_device_trust_state(
+        &self,
+        validation: ParentStepUpValidationInput,
+        target_device_id: String,
+        assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
+        authorization_digest: String,
+        current_state: &ParentDeviceTrustCurrentState,
+    ) -> Result<VerifiedParentStepUpProof, ParentStepUpProofError> {
+        (current_state.trust_state == DeviceTrustState::Trusted
+            && current_state.parent_device_id == validation.action_device_id)
+            .then_some(())
+            .ok_or(ParentStepUpProofError::Rejected)?;
+        self.sign_bound_at_device_trust_revocation_epoch(
+            validation,
+            target_device_id,
+            assertions,
+            authorization_digest,
+            current_state.revocation_epoch,
+        )
+    }
+
+    fn sign_bound_at_device_trust_revocation_epoch(
+        &self,
+        validation: ParentStepUpValidationInput,
+        target_device_id: String,
+        assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
+        authorization_digest: String,
+        parent_device_trust_revocation_epoch: u64,
+    ) -> Result<VerifiedParentStepUpProof, ParentStepUpProofError> {
         validate_unsigned_shape(&validation, &target_device_id)?;
         validate_authorization_digest(&authorization_digest)?;
         let bytes = signing_bytes(
@@ -192,6 +231,7 @@ impl ParentStepUpProofSigner {
             &target_device_id,
             &assertions,
             &authorization_digest,
+            parent_device_trust_revocation_epoch,
         )?;
         let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
         Ok(VerifiedParentStepUpProof {
@@ -199,7 +239,7 @@ impl ParentStepUpProofSigner {
             target_device_id,
             assertions,
             authorization_digest,
-            parent_device_trust_revocation_epoch: 0,
+            parent_device_trust_revocation_epoch,
             signature,
         })
     }
@@ -210,12 +250,14 @@ fn signing_bytes(
     target_device_id: &str,
     assertions: &AuthenticatedDeliveryGrantAssertionSnapshot,
     authorization_digest: &str,
+    parent_device_trust_revocation_epoch: u64,
 ) -> Result<Vec<u8>, ParentStepUpProofError> {
     let bytes = serde_json::to_vec(&(
         validation,
         target_device_id,
         assertions,
         authorization_digest,
+        parent_device_trust_revocation_epoch,
     ))
     .map_err(|_error| ParentStepUpProofError::Rejected)?;
     (bytes.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES)
