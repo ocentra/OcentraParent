@@ -8,6 +8,7 @@ use crate::household_authority::{
     ParentStepUpAssertionSnapshot, ParentStepUpValidationFailureReason,
     ParentStepUpValidationInput,
 };
+use crate::parent_presence::ParentPresenceObservedAt;
 
 pub(crate) fn household_authority_failure_reason(
     input: &HouseholdAuthorityInput,
@@ -62,9 +63,20 @@ pub(crate) fn parent_step_up_validation_failure_reason(
     input: &ParentStepUpValidationInput,
     assertion: &ParentStepUpAssertionSnapshot,
 ) -> Option<ParentStepUpValidationFailureReason> {
+    let Some(assertion_expires_at) =
+        ParentPresenceObservedAt::from_canonical_utc(&assertion.expires_at).ok()
+    else {
+        return Some(ParentStepUpValidationFailureReason::Expired);
+    };
+
+    let Some(observed_at) = ParentPresenceObservedAt::from_canonical_utc(&input.observed_at).ok()
+    else {
+        return Some(ParentStepUpValidationFailureReason::Expired);
+    };
+
     [
         (
-            assertion.expires_at < input.observed_at,
+            assertion_expires_at.is_before(&observed_at),
             ParentStepUpValidationFailureReason::Expired,
         ),
         (
@@ -210,13 +222,25 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
     )
 }
 
+fn matches_target_child_profile(
+    assertion_target_child_profile_id: Option<&str>,
+    input_target_child_profile_id: Option<&str>,
+) -> bool {
+    match input_target_child_profile_id {
+        Some(input_target_child_profile_id) => {
+            matches!(
+                assertion_target_child_profile_id,
+                Some(assertion_target_child_profile_id)
+                    if assertion_target_child_profile_id == input_target_child_profile_id
+            )
+        }
+        None => assertion_target_child_profile_id.is_none(),
+    }
+}
+
 fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
         HouseholdAuthorityAction::StartRemoteView | HouseholdAuthorityAction::StartRemoteControl
     )
-}
-
-fn matches_target_child_profile(asserted: Option<&str>, expected: Option<&str>) -> bool {
-    asserted == expected
 }
