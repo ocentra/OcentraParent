@@ -29,7 +29,7 @@ root is absent from the checkout. Use the four states below when assigning work:
 | app/game | Source + focused tests; customer control path unproven. | WP19 policy compiler, then WP20 budget evaluator. |
 | browser | Source + focused tests; plan still has all primary workpacks open. | WP01 Rust-owner contract reconciliation before launcher/custody work. |
 | child runtime distribution | Source present; package/service proof roots absent. | WP02 Windows service lifecycle, then recreate package/install proof. |
-| Cloudflare control plane | **Blocked**: worker imports missing billing runtime boundary. | Restore billing boundary, then boot/unit/contract worker gate; unblocks payment. |
+| Cloudflare control plane | Validation-open: the worker and generated billing contracts are present; the old missing-boundary claim is stale. | Run the current worker lint/unit/contract/boot gates, then reconcile the proof text and payment dependency from those results. |
 | data custody/storage | Source + focused tests; rollout proof absent. | WP07 regenerate current proof manifest and verify runtime gaps. |
 | device trust bootstrap | Source + focused tests; platform sealing/product chain absent. | WP02 local key sealing, then step-up/recovery/tamper workpacks. |
 | eventing | Strong source/test foundation; historical proof roots absent. | WP10 LAN household mesh consumer and route proof. |
@@ -38,7 +38,7 @@ root is absent from the checkout. Use the four states below when assigning work:
 | network | Source + focused tests; all workpacks open. | WP01 foundation contracts/eventing. |
 | parent runtime distribution | Source present; signing/install proof absent. | WP10 setup handoff contracts, then signing/store gates. |
 | payment/subscription | Source + focused tests; Cloudflare dependency blocks runtime. | Cloudflare billing boundary, then WP05 tax/refund/dispute policy. |
-| policy control plane | Strong focused contracts; adapter execution not product-proven. | WP02 authoring/preview and WP04 trusted-adapter execution receipt. |
+| policy control plane | Strong focused contracts; adapter execution remains an external enforcement dependency, not a WP04 contract task. | WP02 authoring/preview and WP05 ask-parent/override work; track trusted-adapter execution with the enforcement owner. |
 | portal UX | Real shell/UI; most product flows open. | WP05 policy authoring after owning policy read model is ready. |
 | remote access | Scaffold/adjacent route only. | WP01 capability fabric, then WP04 pairing/revocation. |
 | screen AI pipeline | Source pieces only; no pipeline proof root. | WP01 prerequisite gate then WP02 trigger-to-capture proof. |
