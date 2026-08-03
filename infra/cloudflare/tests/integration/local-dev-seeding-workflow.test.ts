@@ -44,7 +44,8 @@ describe('local dev seeding workflow', () => {
 
     assert.equal(
       workflow.start.blockers.some(
-        (blocker) => blocker.kind === 'missing-runtime-dependency' && blocker.path === 'src/generated/billing-contracts.ts'
+        (blocker) =>
+          blocker.kind === 'missing-runtime-dependency' && blocker.path === 'src/generated/billing-contracts.ts'
       ),
       false,
       'the Rust-generated billing contract sidecar is inside infra/cloudflare and must not be probed from the repo root'
