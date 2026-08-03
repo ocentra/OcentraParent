@@ -79,7 +79,8 @@ fn port(
     prefix: &str,
 ) -> Result<(PathBuf, ParentPresenceVerificationPort), ParentPresenceStorageFailureReason> {
     let root = std::env::temp_dir().join(format!(
-        "ocentra-parent-presence-expiry-{prefix}-{}",
+        "ocentra-parent-presence-expiry-{prefix}-{}-{}",
+        std::process::id(),
         NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
     ));
     fs::create_dir_all(&root)
@@ -93,7 +94,8 @@ fn port_at(
     observed_at: &str,
 ) -> Result<(PathBuf, ParentPresenceVerificationPort), ParentPresenceStorageFailureReason> {
     let root = std::env::temp_dir().join(format!(
-        "ocentra-parent-presence-expiry-at-{prefix}-{}",
+        "ocentra-parent-presence-expiry-at-{prefix}-{}-{}",
+        std::process::id(),
         NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
     ));
     fs::create_dir_all(&root)
