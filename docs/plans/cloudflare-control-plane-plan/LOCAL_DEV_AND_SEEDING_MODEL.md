@@ -13,14 +13,12 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current local start truth
 
-- Interactive local start is explicit but currently blocked.
-- Blocked runtime dependencies:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - `packages/billing-domain/src/billing-referral-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-  - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
-- Do not claim local-start success until those runtime imports resolve or a narrower accepted blocker replaces them.
+- Interactive local start is reported runnable only after both the worker import
+  probe and the module-local Wrangler executable probe pass.
+- If the generated billing contract is absent, the blocker path is reported as
+  `infra/cloudflare/src/generated/billing-contracts.ts`.
+- A successful import probe alone is not local-start proof; missing Wrangler
+  remains an explicit runtime blocker.
 
 ## Seed commands
 

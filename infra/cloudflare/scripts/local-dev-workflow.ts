@@ -115,7 +115,7 @@ function inspectLocalStartPath(): LocalStartPath {
     if (!existsSync(path.join(cloudflareDir, relativePath))) {
       blockers.push({
         kind: 'missing-runtime-dependency',
-        path: relativePath,
+        path: path.relative(repoRoot, path.join(cloudflareDir, relativePath)).replaceAll('\\', '/'),
         details: 'required by the Cloudflare worker runtime before wrangler local start can import src/index.ts',
       });
     }
@@ -143,6 +143,27 @@ function inspectLocalStartPath(): LocalStartPath {
           result.stderr ||
           result.stdout ||
           'Cloudflare worker runtime import failed without diagnostics'
+        ).trim(),
+      });
+    }
+  }
+
+  if (blockers.length === 0) {
+    const wranglerEntry = [
+      path.join(cloudflareDir, 'node_modules', 'wrangler', 'bin', 'wrangler.js'),
+      path.join(repoRoot, 'node_modules', 'wrangler', 'bin', 'wrangler.js'),
+    ].find((candidate) => existsSync(candidate));
+    const wranglerProbe = wranglerEntry
+      ? spawnSync(process.execPath, [wranglerEntry, '--version'], { cwd: cloudflareDir, encoding: 'utf8' })
+      : null;
+    if (!wranglerProbe || wranglerProbe.status !== 0) {
+      blockers.push({
+        kind: 'missing-runtime-dependency',
+        path: wranglerEntry ? path.relative(repoRoot, wranglerEntry).replaceAll('\\', '/') : 'infra/cloudflare/node_modules/wrangler',
+        details: (
+          wranglerProbe?.stderr ||
+          wranglerProbe?.stdout ||
+          'Wrangler is not available for the Cloudflare module'
         ).trim(),
       });
     }

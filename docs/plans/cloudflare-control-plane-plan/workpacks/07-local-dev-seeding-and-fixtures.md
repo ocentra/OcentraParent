@@ -30,8 +30,10 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 - `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` exited `0` and emitted an explicit blocked local-start state plus an explicit blocked seed state.
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` exited `0` and proved that start, seed, teardown, fixture families, and blocker reporting stay explicit.
-- Local start remains command-backed but blocked before runtime boot by missing billing-domain boundary imports.
-- Local seed remains command-backed but blocked because `infra/cloudflare/src/fixtures.ts` cannot import `packages/billing-domain/src/billing-account-runtime-boundary.js`.
+- Local start remains command-backed and reports either runnable or a precise
+  generated-contract/Wrangler/import blocker from the current module layout.
+- Local seed remains command-backed and reports its actual command failure;
+  source-presence alone does not upgrade the workpack to complete.
 - Teardown remains explicit: stop `wrangler dev --local`, remove harness-created `--persist-to` temp state, and remove `infra/cloudflare/.dev.vars` only when the harness created it.
 
 ## Fixture families proved
@@ -45,11 +47,8 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Exact blockers
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- `packages/billing-domain/src/billing-referral-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-- `packages/billing-domain/src/billing-account-runtime-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+- Current generated-contract, Wrangler, or fixture-command failures emitted by
+  the workflow report (paths are repository-relative).
 
 ## Validations run
 
