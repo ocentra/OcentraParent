@@ -159,7 +159,9 @@ function inspectLocalStartPath(): LocalStartPath {
     if (!wranglerProbe || wranglerProbe.status !== 0) {
       blockers.push({
         kind: 'missing-runtime-dependency',
-        path: wranglerEntry ? path.relative(repoRoot, wranglerEntry).replaceAll('\\', '/') : 'infra/cloudflare/node_modules/wrangler',
+        path: wranglerEntry
+          ? path.relative(repoRoot, wranglerEntry).replaceAll('\\', '/')
+          : 'infra/cloudflare/node_modules/wrangler',
         details: (
           wranglerProbe?.stderr ||
           wranglerProbe?.stdout ||
