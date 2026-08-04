@@ -130,6 +130,88 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
 }
 
 #[tokio::test]
+async fn app_game_adapter_dispatch_readback_excludes_rejected_enforcement_audits() {
+    let paths = temp_paths("rejected-enforcement-audit");
+    cleanup_paths(&paths);
+    let mut command = enforcement_execute_command();
+    command.payload.insert(
+        constants::field::POLICY_TARGET_TYPE.to_string(),
+        LogFieldValue::String(policy_constants::TARGET_TYPE_DEVICE.to_string()),
+    );
+    command.payload.insert(
+        constants::field::TARGET_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    command.payload.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    let rejection = build_enforcement_audit_report_with_paths(command, paths.clone()).await;
+    let event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
+        dispatch_result_command(),
+        ActivityStorePath(paths.store_path.clone()),
+    )
+    .await;
+    cleanup_paths(&paths);
+
+    assert_eq!(rejection.event, AgentEventName::AgentCommandRejected);
+    let read_model = dispatch_result_read_model(&event);
+    assert_eq!(read_model.adapter_execution_reported_count, 0);
+    assert_eq!(read_model.adapter_execution_evidence_missing_count, 1);
+    assert!(read_model.rows.iter().all(|row| {
+        row.dispatch_adapter_execution_status.is_none()
+            && row.dispatch_adapter_execution_audit_event_id.is_none()
+            && !row.adapter_dispatch_executed_claimed
+    }));
+}
+
+#[tokio::test]
+async fn app_game_adapter_dispatch_readback_skips_newer_rejected_audit_for_typed_execution() {
+    let paths = temp_paths("rejected-audit-after-execution");
+    cleanup_paths(&paths);
+    let accepted =
+        build_enforcement_audit_report_with_paths(enforcement_execute_command(), paths.clone())
+            .await;
+    let mut rejected_command = enforcement_execute_command();
+    rejected_command.payload.insert(
+        constants::field::POLICY_TARGET_TYPE.to_string(),
+        LogFieldValue::String(policy_constants::TARGET_TYPE_DEVICE.to_string()),
+    );
+    rejected_command.payload.insert(
+        constants::field::TARGET_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    rejected_command.payload.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    rejected_command.payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(format!("z{}", constants::enforcement::TEST_AUDIT_EVENT_ID)),
+    );
+    let rejected = build_enforcement_audit_report_with_paths(rejected_command, paths.clone()).await;
+    let event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
+        dispatch_result_command(),
+        ActivityStorePath(paths.store_path.clone()),
+    )
+    .await;
+    cleanup_paths(&paths);
+
+    assert_eq!(
+        accepted.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+    assert_eq!(rejected.event, AgentEventName::AgentCommandRejected);
+    let read_model = dispatch_result_read_model(&event);
+    assert_eq!(read_model.adapter_execution_reported_count, 1);
+    assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
+    assert!(read_model.rows.iter().any(|row| {
+        row.dispatch_adapter_execution_audit_event_id.as_deref()
+            == Some(constants::enforcement::TEST_AUDIT_EVENT_ID)
+    }));
+}
+
+#[tokio::test]
 async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_readback() {
     let paths = temp_paths(APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID);
     cleanup_paths(&paths);

@@ -104,10 +104,24 @@ Focused validation should record:
 - [ ] Include evidence, policy, actor, route, and target references.
 - [ ] Add read-model/query coverage for recent action history.
 
+Current evidence mapping:
+
+- The typed-request authorization-rejection subcase is durable and queryable;
+  see `docs/proof/v0-8-enforcement-control-plan/wp11-audit-journal-events.md`.
+- The unchecked rows deliberately remain the completion authority for the
+  remaining transition families; this proof does not convert them to done.
+
 ## Where We Are
 
 Enforcement action states exist, but product trust requires durable audit for
 actions, failures, previews, timer transitions, and approvals.
+
+The fail-safe authorization-rejection boundary is now durable and queryable:
+the service records a typed `EnforcementAuditRecorded` activity event before it
+returns `AgentCommandRejected`. See
+`docs/proof/v0-8-enforcement-control-plan/wp11-audit-journal-events.md`.
+The checklist remains open until each required transition family has its own
+selected validation and durable query proof.
 
 ## Negative Cases
 

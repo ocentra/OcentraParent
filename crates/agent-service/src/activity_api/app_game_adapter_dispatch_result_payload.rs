@@ -80,29 +80,12 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
     let generated_at: String = timestamp_now();
     let execution_evidence = tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(store_path.0).ok()?;
-        let fields = store.latest_enforcement_audit_fields().ok()??;
-        Some(AppGameAdapterDispatchExecutionEvidence {
-            result_id: required_string(
-                &fields,
-                StaticText(constants::field::ENFORCEMENT_RESULT_ID),
-            )
-            .ok()?
-            .0,
-            status_text: required_string(&fields, StaticText(constants::field::ENFORCEMENT_STATUS))
-                .ok()?,
-            adapter_result_code: required_string(
-                &fields,
-                StaticText(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-            )
-            .ok()?
-            .0,
-            audit_event_id: required_string(
-                &fields,
-                StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
-            )
-            .ok()?
-            .0,
-        })
+        let fields = store
+            .latest_matching_enforcement_audit_fields(|fields| {
+                app_game_adapter_dispatch_execution_evidence(fields).is_some()
+            })
+            .ok()??;
+        app_game_adapter_dispatch_execution_evidence(&fields)
     })
     .await
     .ok()
@@ -120,6 +103,37 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
         app_game_adapter_dispatch_result_payload(&read_model),
         None,
     )
+}
+
+pub(crate) fn app_game_adapter_dispatch_execution_evidence(
+    fields: &LogFields,
+) -> Option<AppGameAdapterDispatchExecutionEvidence> {
+    required_string(
+        fields,
+        StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT),
+    )
+    .ok()?;
+    let status_text =
+        required_string(fields, StaticText(constants::field::ENFORCEMENT_STATUS)).ok()?;
+
+    Some(AppGameAdapterDispatchExecutionEvidence {
+        result_id: required_string(fields, StaticText(constants::field::ENFORCEMENT_RESULT_ID))
+            .ok()?
+            .0,
+        status_text,
+        adapter_result_code: required_string(
+            fields,
+            StaticText(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        )
+        .ok()?
+        .0,
+        audit_event_id: required_string(
+            fields,
+            StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        )
+        .ok()?
+        .0,
+    })
 }
 
 pub(crate) struct DispatchResultCounts {

@@ -21,27 +21,27 @@ use crate::{
 #[path = "enforcement_api/enforcement_broad_adapter_proof_payload.rs"]
 mod enforcement_broad_adapter_proof_payload;
 #[path = "enforcement_api/enforcement_broad_adapter_proof_read_model.rs"]
-mod enforcement_broad_adapter_proof_read_model;
+pub(crate) mod enforcement_broad_adapter_proof_read_model;
 #[path = "enforcement_api/enforcement_broad_adapter_proof_report.rs"]
 pub(crate) mod enforcement_broad_adapter_proof_report;
 #[path = "enforcement_api/enforcement_command_execution.rs"]
 mod enforcement_command_execution;
 #[path = "enforcement_api/enforcement_integrity_runtime_audit_read_model.rs"]
-mod enforcement_integrity_runtime_audit_read_model;
+pub(crate) mod enforcement_integrity_runtime_audit_read_model;
 #[path = "enforcement_api/enforcement_pre_action_journal.rs"]
-mod enforcement_pre_action_journal;
+pub(crate) mod enforcement_pre_action_journal;
 #[path = "enforcement_api/enforcement_product_control_payload.rs"]
 mod enforcement_product_control_payload;
 #[path = "enforcement_api/enforcement_report_payload.rs"]
 mod enforcement_report_payload;
 #[path = "enforcement_api/enforcement_supported_adapter_runtime_proof_read_model.rs"]
-mod enforcement_supported_adapter_runtime_proof_read_model;
+pub(crate) mod enforcement_supported_adapter_runtime_proof_read_model;
 #[path = "enforcement_api/enforcement_supported_adapter_runtime_proof_report.rs"]
 pub(crate) mod enforcement_supported_adapter_runtime_proof_report;
 #[path = "enforcement_api/integrity_alert_status_bridge_read_model.rs"]
-mod integrity_alert_status_bridge_read_model;
+pub(crate) mod integrity_alert_status_bridge_read_model;
 #[path = "enforcement_api/notification_provider_status_boundary_read_model.rs"]
-mod notification_provider_status_boundary_read_model;
+pub(crate) mod notification_provider_status_boundary_read_model;
 
 use self::enforcement_product_control_payload::{
     enforcement_policy_dispatch_payload, enforcement_product_control_spine_payload,
