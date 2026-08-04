@@ -23,32 +23,40 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 ## Status
 
-- `blocked / proof-present`
-- Proof root: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
+- `blocked / proof-absent`
+- Expected proof root: `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
 
 ## Execution truth
 
-- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` exited `0` and emitted an explicit blocked local-start state plus an explicit blocked seed state.
+- `node --import tsx infra/cloudflare/scripts/local-dev-workflow.ts` exited `0` and emitted an explicit blocked local-start state plus an explicit runnable seed state.
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` exited `0` and proved that start, seed, teardown, fixture families, and blocker reporting stay explicit.
-- Local start remains command-backed and reports either runnable or a precise
-  generated-contract/Wrangler/import blocker from the current module layout.
-- Local seed remains command-backed and reports its actual command failure;
-  source-presence alone does not upgrade the workpack to complete.
+- Local start is command-backed and reports the precise module-local Wrangler
+  blocker from the current module layout.
+- Local seed is command-backed and currently reports populated pricing, parent
+  account, support/admin account, and referral fixture families.
 - Teardown remains explicit: stop `wrangler dev --local`, remove harness-created `--persist-to` temp state, and remove `infra/cloudflare/.dev.vars` only when the harness created it.
 
 ## Fixture families proved
 
-- `pricing-catalog`: explicit and currently `blocked`
-- `parent-test-accounts`: explicit and currently `blocked`
-- `support-admin-test-accounts`: explicit and currently `blocked`
-- `referral-test-graph`: explicit and currently `blocked`
+- `pricing-catalog`: explicit and currently `populated` with `3` items
+- `parent-test-accounts`: explicit and currently `populated` with `4` items
+- `support-admin-test-accounts`: explicit and currently `populated` with `4` items
+- `referral-test-graph`: explicit and currently `populated` with `2` items
 - `webhook-payload-fixtures`: explicit and `test-fixture-backed`
 - `queue-replay-fixtures`: explicit and `test-fixture-backed`
 
 ## Exact blockers
 
-- Current generated-contract, Wrangler, or fixture-command failures emitted by
-  the workflow report (paths are repository-relative).
+- The expected proof root is absent, so the prior workflow stdout/stderr is not
+  recoverable from tracked artifacts.
+- In the current checkout the generated billing contract exists at
+  `infra/cloudflare/src/generated/billing-contracts.ts`, but module-local
+  Wrangler is not installed at `infra/cloudflare/node_modules/wrangler`.
+- `npm --prefix infra/cloudflare install --ignore-scripts --no-audit
+  --no-fund --no-package-lock` cannot resolve `wrangler@4.118.0` because its
+  optional peer requires `@cloudflare/workers-types ^5.20260730.1` while this
+  module declares `^4.20260601.0`; rerun local-start proof after that dependency
+  boundary is reconciled.
 
 ## Validations run
 
