@@ -1,6 +1,6 @@
 # Cloudflare Control Plane Plan State
 
-Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold has current source-and-validation evidence (module lint, 49-test unit family, and architecture gate) and is complete for its narrow scaffold acceptance; the repo-local module is largely implemented. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01 does not imply runtime, deployment, authority, or payment closure.
+Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold has current source-and-validation evidence (module lint, 49-test unit family, and architecture gate) and is complete for its narrow scaffold acceptance; the repo-local module is largely implemented. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 
@@ -64,6 +64,7 @@ WP12 can aggregate only accepted proof roots plus exact carried blockers.
 Current Parent direction:
 
 - `git ls-tree -r HEAD -- output/cloudflare-control-plane-plan-proof` is empty. Earlier workpack proof-root and command-result narratives are not retained evidence in this checkout; every checklist row remains unchecked until its selected workpack reruns and retains its own bundle.
+- PR #608 is merged to `main` as `5af4a1a92` with fresh full CI passed across product, security, and platform jobs. Its local-dev seed/proof hardening is integrated, but WP07 remains local-only because no tracked workpack proof bundle exists; inherited PR #604 validation remains unverified by this closeout.
 - A current source audit confirms `infra/cloudflare` imports module-local generated billing contracts, not the formerly cited private `packages/billing-domain/src/*` modules. That former import blocker must not be carried into WP02-WP12 routing.
 - The WP01 source tree and package scripts exist, but its local lint/unit rerun is presently unreproducible because this worktree lacks `infra/cloudflare/node_modules` (`tsc` and `tsx` are unavailable). This is an environment prerequisite, not proof of a product/runtime failure.
 - `infra/cloudflare/` is now a separate repo-local module, not a payment-owned subfolder.
