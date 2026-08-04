@@ -32,12 +32,14 @@ workpack/checklist status and does not replace the assigned workpack.
 - Ownership doctrine, workpack-family routing, structured proof expectations,
   and proof-index cleanup are now in place.
 - Product/runtime closure is still blocked by the open workpacks below.
+- PR #606 is closed without merge as an unsafe/no-op policy slice. It is not a
+  shortcut around WP04's trusted-dispatch/journal authority gap.
 
 ## Highest-open workpacks by dependency
 
 ### Close execution authority first
 
-- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes.
+- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; first establish trusted dispatch and a durable journal before advancing execution state.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md): 5 open of 5 boxes.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md): 5 open of 5 boxes.
 - [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md): 5 open of 5 boxes.

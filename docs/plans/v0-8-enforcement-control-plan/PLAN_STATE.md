@@ -87,6 +87,14 @@ policy decision refs
   folder as current truth and treat preserved READMEs as historical context
   only.
 
+## Closed PR disposition
+
+PR #606 is closed without merge. Its policy receipt slice was unsafe/no-op and
+is not runtime or proof evidence for this plan. Do not revive it as an
+implementation shortcut: WP04 still needs the trusted-dispatch/journal boundary
+that can establish authority before execution state, replay/rollback, and
+parent-visible receipt claims are considered.
+
 ## What is already present / proved
 
 - WP01 contract boundary and Effect Schema ownership is now backed by
@@ -140,7 +148,8 @@ policy decision refs
   Rust-service, and proof-harness validation path rather than the broken
   `parent-domain` indirection.
 - Action-authority and adapter-execution gaps remain open in WP04, WP05, WP06,
-  and WP08.
+  and WP08. WP04's first gap is trusted dispatch plus a durable journal; the
+  closed #606 unsafe/no-op slice does not reduce it.
 - Approval/audit/read-model visibility gaps remain open in WP10, WP11, WP12,
   WP13, and WP14.
 - Integrity and anti-claim boundaries remain open in WP15, WP16, and WP17.

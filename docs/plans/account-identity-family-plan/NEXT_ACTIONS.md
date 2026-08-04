@@ -31,6 +31,11 @@ Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack o
 
 Current routing note: no proof-only workpack remains open inside this plan. Do not reopen WP02-WP07 unless a proof root drifts or a prior blocker becomes locally owned. The next coordinator assignment should be one of the remaining runtime/schema gaps or a sibling-plan consumption slice.
 
+PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
+adapter/D1-test-double slice into this plan. Start with Rust-owned account
+schema authority, then establish real Workers-D1 account-identity persistence,
+migration, and integration proof.
+
 ### 1. WP01 Auth Provider Decision
 
 Expected result:

@@ -24,6 +24,13 @@ Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-dec
 PR-ready: false
 ```
 
+## Closed PR disposition
+
+PR #607 is closed without merge. Its TypeScript Cloudflare account-identity
+persistence/D1-test-double slice is preserved as branch evidence only; it does
+not establish Rust schema authority, a real Workers-D1 runtime, or account
+identity migration proof for this plan.
+
 ## Current product direction
 
 ```text
@@ -103,8 +110,8 @@ WP07 proves the local setup route/projection slice; it does not prove physical d
 - WP05 root now contains `00-device-authority-matrix.md`, `01-revoked-device-negative-proof.md`, `02-wrong-household-negative-proof.md`, `03-controller-lease-proof.md`, `04-remote-capability-proof.md`, `05-export-delete-owner-proof.md`, `06-billing-owner-proof.md`, and `16-validation-commands.log`.
 - WP07 root now contains `00-first-run-ui-state-machine.md`, `01-household-setup-ui-proof.md`, `02-device-role-ui-proof.md`, `03-observer-read-only-ui-proof.md`, `04-recovery-ui-proof.md`, `05-mobile-parent-child-claim-split-proof.md`, `06-source-custody-label-proof.md`, and `16-validation-commands.log`; the portal route/test/e2e surface is now real and keeps sibling runtime ownership explicit instead of pretending setup owns Cloudflare, trust, custody, or transport execution.
 - `packages/family-domain/tests/unit/setup-lifecycle.test.ts` was repaired so the direct invite/recovery suite now matches the live schema, and `packages/family-domain/src/setup-lifecycle.ts` received a local exhaustiveness repair so the WP04 build gate is green again; no further production TS/Rust changes were required for WP02-WP03 closure, and WP05 only needed owner-only test additions in shared TypeScript/Rust authority suites.
-- No runtime implementation for account identity adapter boundary.
-- No D1/DO/KV account-family schema or migration proof exists.
+- No Rust-owned schema plus real runtime implementation for the account identity adapter boundary exists.
+- No real Workers-D1 account-family schema or migration proof exists; D1/DO/KV test-double coverage is not runtime authority.
 - WP06 root now contains `00-security-proof-pack.md`, `01-authn-negative-proof.md`, `02-authz-matrix-proof.md`, `03-token-replay-proof.md`, `04-recovery-abuse-proof.md`, `05-origin-csrf-open-redirect-proof.md`, `06-route-sync-proof.md`, `07-logging-redaction-proof.md`, `08-manual-required-gap-register.md`, and `16-validation-commands.log`; it consumes WP01-WP05 and WP07 without absorbing sibling runtime ownership, and it carries forward the explicit request-safety blocker from WP03 instead of hiding it.
 - Browser request-safety proof remains blocked at `output/account-identity-family-plan-proof/03-session-token-lifecycle/05-csrf-origin-proof.md` and `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md` because this plan slice still does not own a real browser request consumer.
 - Adjacent runtime and schema work remain manual-required: account identity adapter/runtime implementation, D1/DO/KV account-family schema and migration proof, Cloudflare worker/runtime proof, payment execution, policy execution, data-custody execution, device-trust bootstrap, LAN transport, and remote transport.
