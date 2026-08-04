@@ -10,8 +10,11 @@ import { getRunNdjsonFilePath } from '@ocentra-parent/logging-domain/test-log/nd
 import { RunType, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
 import { redactPayload } from '../../src/security/redaction.js';
 import {
+  buildStartProofMilestoneDetails,
   buildSeedProofMilestoneDetails,
+  failClosedRequiredFixtureFamilies,
   inspectLocalDevWorkflow,
+  seedStatusFromFixtureFamilies,
   writeLocalDevProofSummary,
 } from '../../scripts/local-dev-workflow.js';
 import { summarizeProofLogLocation } from '../../scripts/local-dev-proof.js';
@@ -226,6 +229,49 @@ describe('local dev seeding workflow', () => {
     assert.ok(redacted.includes('"source":"seed-products-local"'));
     assert.doesNotMatch(redacted, /sk_test_/);
     assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
+  });
+
+  it('fails closed when a required seed command returns an empty fixture collection', () => {
+    const fixtureFamilies = failClosedRequiredFixtureFamilies([
+      {
+        family: 'pricing-catalog',
+        source: 'npm --prefix infra/cloudflare run seed:products:local',
+        populationState: 'placeholder',
+        itemCount: 0,
+        notes: 'empty required seed output',
+      },
+    ]);
+
+    assert.equal(fixtureFamilies[0]?.populationState, 'blocked');
+    assert.equal(fixtureFamilies[0]?.blocker?.kind, 'population-failure');
+    assert.equal(
+      fixtureFamilies[0]?.blocker?.details,
+      'Required fixture family pricing-catalog returned no populated items from npm --prefix infra/cloudflare run seed:products:local.'
+    );
+    assert.equal(seedStatusFromFixtureFamilies(fixtureFamilies), 'blocked');
+  });
+
+  it('redacts only absolute start blocker path segments while retaining safe diagnostics', () => {
+    const details = buildStartProofMilestoneDetails({
+      rootCommand: 'npm run dev:cloudflare',
+      moduleCommand: 'npm --prefix infra/cloudflare run dev',
+      wranglerCommand: 'wrangler dev --local',
+      origin: 'http://localhost:3000',
+      authAdapterMode: 'account-auth-adapter-manual-required',
+      status: 'blocked',
+      noClaimReason: 'start-probe-blocked-before-local-worker-launch',
+      blockers: [
+        {
+          kind: 'runtime-import-check',
+          details: 'Error: failed to import C:\\private\\worker\\entry.ts: billing module was unavailable',
+        },
+      ],
+    });
+    const redacted = JSON.stringify(redactPayload(details));
+
+    assert.ok(redacted.includes('Error: failed to import [redacted-path]: billing module was unavailable'));
+    assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
+    assert.doesNotMatch(redacted, /private\\\\worker/);
   });
 
   it('writes proof summaries through the canonical redacted logger without exposing an absolute root', () => {

@@ -13,7 +13,7 @@ import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-do
 import { redactPayload } from '../src/security/redaction.js';
 
 export interface RuntimeDependencyBlocker {
-  kind: 'missing-runtime-dependency' | 'runtime-import-check';
+  kind: 'missing-runtime-dependency' | 'runtime-import-check' | 'population-failure';
   path?: string;
   details: string;
 }
@@ -203,6 +203,27 @@ function runCloudflareScript(command: string): CommandProbeResult {
       kind: 'missing-runtime-dependency',
       details: (result.stderr || result.stdout || `${command} failed without diagnostics`).trim(),
     },
+  };
+}
+
+export function redactRuntimeBlockerDetails(details: string): string {
+  return details.replace(
+    /(?:file:\/\/\/)?[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|\/(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+/gu,
+    '[redacted-path]'
+  );
+}
+
+export function buildStartProofMilestoneDetails(start: LocalStartPath): object {
+  return {
+    status: start.status,
+    noClaimReason: start.noClaimReason,
+    blockerCount: start.blockers.length,
+    blockerKinds: start.blockers.map((blocker) => blocker.kind),
+    blockers: start.blockers.map(({ kind, path: blockerPath, details }) => ({
+      kind,
+      path: blockerPath ?? null,
+      details: redactRuntimeBlockerDetails(details),
+    })),
   };
 }
 
@@ -404,8 +425,33 @@ function buildFixtureFamilies(): ReadonlyArray<FixtureFamilyReport> {
   ];
 }
 
+export function failClosedRequiredFixtureFamilies(
+  fixtureFamilies: ReadonlyArray<FixtureFamilyReport>
+): ReadonlyArray<FixtureFamilyReport> {
+  return fixtureFamilies.map((fixtureFamily) => {
+    if (fixtureFamily.populationState !== 'placeholder') {
+      return fixtureFamily;
+    }
+
+    return {
+      ...fixtureFamily,
+      populationState: 'blocked',
+      blocker: {
+        kind: 'population-failure',
+        details: `Required fixture family ${fixtureFamily.family} returned no populated items from ${fixtureFamily.source}.`,
+      },
+    };
+  });
+}
+
+export function seedStatusFromFixtureFamilies(
+  fixtureFamilies: ReadonlyArray<FixtureFamilyReport>
+): LocalSeedPath['status'] {
+  return fixtureFamilies.some((fixtureFamily) => fixtureFamily.populationState === 'blocked') ? 'blocked' : 'runnable';
+}
+
 function inspectLocalSeedPath(): LocalSeedPath {
-  const fixtureFamilies = buildFixtureFamilies();
+  const fixtureFamilies = failClosedRequiredFixtureFamilies(buildFixtureFamilies());
   return {
     aggregateCommand: 'npm --prefix infra/cloudflare run seed:local',
     commands: [
@@ -414,7 +460,7 @@ function inspectLocalSeedPath(): LocalSeedPath {
       'npm --prefix infra/cloudflare run seed:referrals:local',
       'npm --prefix infra/cloudflare run seed:test-accounts:local',
     ],
-    status: fixtureFamilies.some((family) => family.populationState === 'blocked') ? 'blocked' : 'runnable',
+    status: seedStatusFromFixtureFamilies(fixtureFamilies),
     fixtureFamilies,
   };
 }
@@ -477,32 +523,14 @@ export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
   writeProofLog({
     event: 'start_path_observed',
     status: start.status === 'blocked' ? 'blocked' : 'observed',
-    details: {
-      status: start.status,
-      noClaimReason: start.noClaimReason,
-      blockerCount: start.blockers.length,
-      blockerKinds: start.blockers.map((blocker) => blocker.kind),
-      blockers: start.blockers.map(({ kind, path: blockerPath, details }) => ({
-        kind,
-        path: blockerPath ?? null,
-        details,
-      })),
-    },
+    details: buildStartProofMilestoneDetails(start),
   });
 
   if (start.blockers.length > 0) {
     writeProofLog({
       event: 'start_blocker_observed',
       status: 'blocked',
-      details: {
-        blockerCount: start.blockers.length,
-        blockerKinds: start.blockers.map((blocker) => blocker.kind),
-        blockers: start.blockers.map(({ kind, path: blockerPath, details }) => ({
-          kind,
-          path: blockerPath ?? null,
-          details,
-        })),
-      },
+      details: buildStartProofMilestoneDetails(start),
     });
   }
 
