@@ -357,6 +357,12 @@ describe('local dev seeding workflow', () => {
       redactRuntimeBlockerDetails('Import failed at C:\\Users\\Jane Doe\\work\\file.ts: billing module unavailable'),
       'Import failed at [redacted-path]: billing module unavailable'
     );
+    assert.equal(
+      redactRuntimeBlockerDetails(
+        'Cannot find module /workspace/OcentraParent/pkg.js because billing contracts are missing'
+      ),
+      'Cannot find module [redacted-path] because billing contracts are missing'
+    );
   });
 
   it('emits a redacted correlated blocked milestone when local inspection fails', () => {

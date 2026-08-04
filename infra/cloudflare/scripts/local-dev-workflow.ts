@@ -234,7 +234,7 @@ export function redactRuntimeBlockerDetails(details: string): string {
     '[redacted-path]'
   );
   return windowsAndFileUriRedacted.replace(
-    /(^|\b(?:at|from|in|path|file|module)\s+['"]?)(\/(?!\/)(?:(?!\s+(?:at|from|in|path|file|module)\s)(?:\/|[^/\r\n\t:"'`]))+)/gu,
+    /(^|\b(?:at|from|in|path|file|module)\s+['"]?)(\/(?!\/)(?:(?!\s+(?:at|from|in|path|file|module|because)\s)(?:\/|[^/\r\n\t:"'`]))+)/gu,
     '$1[redacted-path]'
   );
 }
