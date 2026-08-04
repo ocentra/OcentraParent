@@ -14,13 +14,16 @@ import {
   buildSeedProofMilestoneDetails,
   failClosedRequiredFixtureFamilies,
   inspectLocalDevWorkflow,
+  redactRuntimeBlockerDetails,
   resolveWorkflowProofRunId,
   sanitizeProofRunIdSegment,
   seedStatusFromFixtureFamilies,
+  writeLocalDevInspectionFailure,
   writeLocalDevProofSummary,
 } from '../../scripts/local-dev-workflow.js';
 import {
   buildDefaultProofLogRoot,
+  prepareLocalDevProofRun,
   resolveCloudflareProofRunId,
   summarizeProofLogLocation,
 } from '../../scripts/local-dev-proof.js';
@@ -329,6 +332,56 @@ describe('local dev seeding workflow', () => {
     assert.doesNotMatch(redacted, /private\\\\worker/);
   });
 
+  it('does not redact URL or route diagnostics as filesystem paths', () => {
+    const details = 'HTTP 503 from https://billing.example.test/api/v1/parents; retry /api/v1/parents later';
+    assert.equal(redactRuntimeBlockerDetails(details), details);
+    assert.equal(
+      redactRuntimeBlockerDetails('Import failed from file:///C:/private/worker/entry.ts: billing module unavailable'),
+      'Import failed from [redacted-path]: billing module unavailable'
+    );
+  });
+
+  it('emits a redacted correlated blocked milestone when local inspection fails', () => {
+    const logRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cloudflare-inspection-failure-'));
+    const previousLogRoot = env.OCENTRA_PARENT_LOG_ROOT;
+    const previousRunId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID;
+    const runId = 'cloudflare-inspection-failure';
+    try {
+      env.OCENTRA_PARENT_LOG_ROOT = logRoot;
+      env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = runId;
+      writeLocalDevInspectionFailure(
+        new Error('Import failed at C:\\private\\worker\\entry.ts: billing module unavailable')
+      );
+
+      const logFile = getRunNdjsonFilePath(
+        TestLogScope.ParentCloudflare,
+        RunType.Single,
+        runId,
+        'integration',
+        logRoot
+      );
+      const [entry] = readTestLogEntriesFromFile(logFile);
+      assert.equal(entry?.context, 'cloudflare.local-dev.inspection_failed');
+      assert.equal(entry?.runId, runId);
+      assert.equal(entry?.correlationId, runId);
+      assert.match(entry?.data ?? '', /"boundaryResult":"blocked"/);
+      assert.match(entry?.data ?? '', /Import failed at \[redacted-path\]: billing module unavailable/);
+      assert.doesNotMatch(entry?.data ?? '', /[A-Z]:\\\\/);
+    } finally {
+      if (previousLogRoot === undefined) {
+        delete env.OCENTRA_PARENT_LOG_ROOT;
+      } else {
+        env.OCENTRA_PARENT_LOG_ROOT = previousLogRoot;
+      }
+      if (previousRunId === undefined) {
+        delete env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID;
+      } else {
+        env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = previousRunId;
+      }
+      fs.rmSync(logRoot, { recursive: true, force: true });
+    }
+  });
+
   it('writes proof summaries through the canonical redacted logger without exposing an absolute root', () => {
     const logRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cloudflare-proof-summary-'));
     const previousLogRoot = env.OCENTRA_PARENT_LOG_ROOT;
@@ -406,6 +459,42 @@ describe('local dev seeding workflow', () => {
       'output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/runs/release-candidate'
     );
     assert.doesNotMatch(proofRoot, /(?:^|[\\/])\.\.(?:[\\/]|$)/);
+  });
+
+  it('falls back from blank log roots and retries reused or sensitive proof run IDs', () => {
+    const logRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cloudflare-proof-run-'));
+    try {
+      const blankRootRun = prepareLocalDevProofRun('   ', '   ');
+      assert.match(blankRootRun.runId, /^cloudflare-wp07-[A-Za-z0-9-]+$/);
+      assert.match(
+        summarizeProofLogLocation(blankRootRun.proofLogRoot),
+        /^output\/cloudflare-control-plane-plan-proof\/07-local-dev-seeding-and-fixtures\/runs\/cloudflare-wp07-/
+      );
+
+      const usedRunId = 'cloudflare-proof-run-reused';
+      const existingLog = getRunNdjsonFilePath(
+        TestLogScope.ParentCloudflare,
+        RunType.Single,
+        usedRunId,
+        'integration',
+        logRoot
+      );
+      fs.mkdirSync(path.dirname(existingLog), { recursive: true });
+      fs.writeFileSync(existingLog, '{"existing":true}\n', 'utf8');
+      const retriedRun = prepareLocalDevProofRun(usedRunId, logRoot);
+      assert.notEqual(retriedRun.runId, usedRunId);
+      assert.match(retriedRun.runId, /^cloudflare-wp07-[A-Za-z0-9-]+$/);
+      assert.equal(retriedRun.proofLogRoot, logRoot);
+
+      const sensitiveRunId = 'sk_test_privateproofrun';
+      const sensitiveRun = prepareLocalDevProofRun(sensitiveRunId, logRoot);
+      assert.match(sensitiveRun.runId, /^cloudflare-wp07-[A-Za-z0-9-]+$/);
+      assert.doesNotMatch(sensitiveRun.runId, /sk_test_/);
+      assert.doesNotMatch(sensitiveRun.proofLogRoot, /sk_test_/);
+      assert.doesNotMatch(JSON.stringify(sensitiveRun), /sk_test_/);
+    } finally {
+      fs.rmSync(logRoot, { recursive: true, force: true });
+    }
   });
 
   it('prepares the canonical logger before default, focused, and integration test paths', () => {

@@ -1,11 +1,19 @@
 #!/usr/bin/env node
 
 import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { env } from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { inspectLocalDevWorkflow, sanitizeProofRunIdSegment, writeLocalDevProofSummary } from './local-dev-workflow.js';
+import { getRunNdjsonFilePath } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
+import { RunType, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
+import {
+  inspectLocalDevWorkflow,
+  sanitizeProofRunIdSegment,
+  writeLocalDevInspectionFailure,
+  writeLocalDevProofSummary,
+} from './local-dev-workflow.js';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const cloudflareDir = path.resolve(scriptDir, '..');
@@ -34,8 +42,41 @@ export function buildDefaultProofLogRoot(runId: string): string {
   );
 }
 
-const runId = resolveCloudflareProofRunId();
-const proofLogRoot = env.OCENTRA_PARENT_LOG_ROOT ?? buildDefaultProofLogRoot(runId);
+export interface LocalDevProofRun {
+  readonly runId: string;
+  readonly proofLogRoot: string;
+}
+
+function configuredProofLogRoot(value = env.OCENTRA_PARENT_LOG_ROOT): string | null {
+  const trimmed = (value ?? '').trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+function hasExistingProofLog(runId: string, proofLogRoot: string): boolean {
+  return existsSync(
+    getRunNdjsonFilePath(TestLogScope.ParentCloudflare, RunType.Single, runId, 'integration', proofLogRoot)
+  );
+}
+
+export function prepareLocalDevProofRun(
+  providedRunId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID,
+  providedLogRoot = env.OCENTRA_PARENT_LOG_ROOT
+): LocalDevProofRun {
+  const explicitLogRoot = configuredProofLogRoot(providedLogRoot);
+  let runId = resolveCloudflareProofRunId(providedRunId);
+
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const proofLogRoot = explicitLogRoot ?? buildDefaultProofLogRoot(runId);
+    if (!hasExistingProofLog(runId, proofLogRoot)) {
+      return { runId, proofLogRoot };
+    }
+    runId = generatedProofRunId();
+  }
+
+  throw new Error('Cloudflare local-dev proof could not allocate a fresh run ID');
+}
+
+const proofRun = prepareLocalDevProofRun();
 
 export function summarizeProofLogLocation(location: string): string {
   const relativeLocation = path.relative(repoRoot, location).replaceAll('\\', '/');
@@ -44,14 +85,21 @@ export function summarizeProofLogLocation(location: string): string {
     : 'external-proof-root-redacted';
 }
 
-function main(): void {
-  env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = runId;
-  env.OCENTRA_PARENT_LOG_ROOT = proofLogRoot;
+export function runLocalDevProof(): void {
+  env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = proofRun.runId;
+  env.OCENTRA_PARENT_LOG_ROOT = proofRun.proofLogRoot;
 
-  const workflow = inspectLocalDevWorkflow();
+  let workflow: ReturnType<typeof inspectLocalDevWorkflow>;
+  try {
+    workflow = inspectLocalDevWorkflow();
+  } catch (error) {
+    writeLocalDevInspectionFailure(error);
+    process.exitCode = 1;
+    return;
+  }
   const summary = {
-    runId,
-    proofLogLocation: summarizeProofLogLocation(proofLogRoot),
+    runId: proofRun.runId,
+    proofLogLocation: summarizeProofLogLocation(proofRun.proofLogRoot),
     startStatus: workflow.start.status,
     seedStatus: workflow.seed.status,
     teardownStatus: workflow.teardown.status,
@@ -62,5 +110,5 @@ function main(): void {
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {
-  main();
+  runLocalDevProof();
 }

@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 
 import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
 import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
-import { redactPayload } from '../src/security/redaction.js';
+import { redactPayload, redactStringValue } from '../src/security/redaction.js';
 
 export interface RuntimeDependencyBlocker {
   kind: 'missing-runtime-dependency' | 'runtime-import-check' | 'population-failure';
@@ -115,10 +115,12 @@ export interface LocalDevProofSummary {
 const fallbackProofRunId = `cloudflare-local-${randomUUID()}`;
 
 export function sanitizeProofRunIdSegment(value: string): string | null {
-  const sanitized = value
-    .trim()
-    .replaceAll(/[^A-Za-z0-9_-]+/gu, '-')
-    .replaceAll(/^-+|-+$/gu, '');
+  const trimmed = value.trim();
+  if (trimmed.length === 0 || redactStringValue(trimmed) !== trimmed) {
+    return null;
+  }
+
+  const sanitized = trimmed.replaceAll(/[^A-Za-z0-9_-]+/gu, '-').replaceAll(/^-+|-+$/gu, '');
   return sanitized.length > 0 ? sanitized : null;
 }
 
@@ -219,9 +221,21 @@ function runCloudflareScript(command: string): CommandProbeResult {
 
 export function redactRuntimeBlockerDetails(details: string): string {
   return details.replace(
-    /(?:file:\/\/\/)?[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|\/(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+/gu,
+    /(?:[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|file:\/\/\/[A-Za-z]:\/(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+|file:\/\/\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes)(?:\/[^/\r\n\t :"'`]*)*|(?<![:/A-Za-z0-9])\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes)(?:\/[^/\r\n\t :"'`]*)*)/gu,
     '[redacted-path]'
   );
+}
+
+export function writeLocalDevInspectionFailure(error: unknown): void {
+  const details = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+  writeProofLog({
+    event: 'inspection_failed',
+    status: 'blocked',
+    details: {
+      noClaimReason: 'local-workflow-inspection-failed',
+      details: redactRuntimeBlockerDetails(details),
+    },
+  });
 }
 
 export function buildStartProofMilestoneDetails(start: LocalStartPath): object {
