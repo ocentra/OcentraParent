@@ -132,6 +132,11 @@ assertion and its module-runner result to the Cloudflare proof root and the
 Account WP06 aggregation handoff. Missing source, command output, or proof is
 recorded as an exact blocker and keeps Cloudflare WP06/WP08 and Account WP06
 blocked; neither packet may substitute a test double or claim account authority.
+The runner consumes the module-local generated billing-contract route, not
+`packages/billing-domain/src/*`. Its current preflight
+`npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` is empty,
+so WP01's dependency-resolution result and WP06's retained proof must exist
+before WP08 runs or reports the selected integration family.
 
 ## Required negative states
 

@@ -73,15 +73,9 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Exact blockers
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- `packages/billing-domain/src/billing-referral-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-- `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
-- `packages/billing-domain/src/billing-account-runtime-boundary.js`
-- `npm --prefix infra/cloudflare run lint` also remains blocked by module-wide debt outside the narrowed WP08 inventory:
-  - `infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts`
-  - `infra/cloudflare/tests/integration/payment-routes-real.test.ts`
-  - `infra/cloudflare/tests/integration/provider-webhooks.test.ts`
+- The module dependency preflight `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty tree, so the module-local runner dependencies are unavailable. WP01 owns restoring a clean resolver graph before WP08 reruns the module scripts.
+- Account WP08's Rust contract and Cloudflare WP06's account-D1 binding, adapter, migration, and integration proof are not yet retained. WP08 therefore cannot produce its account-storage runner handoff to Account WP06.
+- `infra/cloudflare/src/index.ts` imports the current module-local generated route `./generated/billing-contracts.js`; the old `packages/billing-domain/src/*` import paths are not WP08 blockers and must not be revived.
 
 ## Validation
 
@@ -99,18 +93,18 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 For the account-identity storage handoff, WP06 records the migration command
 `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`; WP08 runs the integration family through the module script `npm --prefix infra/cloudflare run test:integration`, not a raw unprefixed Node invocation. Retain either the mapped result or its exact blocker for Account WP06.
 
-Validation truth from the current proof root:
+Validation truth from the current checkout:
 
-- `--list` passed.
-- `test:unit`, `test:integration`, `test:e2e`, `test:contract`, `test:security`, `test:property`, `test:fuzz`, and `lint` each blocked honestly on the exact blocker set above.
-- focused architecture lint passed with a zero-match focused scope under the current gate surface.
+- Historical `--list` and family results are runner-inventory evidence only, not a current Account-storage handoff.
+- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently exits nonzero with an empty module tree; do not run or report family results until WP01 restores that dependency environment and WP06 supplies its required proof.
+- After both current prerequisites exist, rerun the selected module script and retain its mapped result or a new exact blocker for Account WP06.
 
 ## Negative cases
 
 - Reject pretending coverage or mutation exists from docs alone.
 - Reject collapsing several required files into one broad umbrella suite without
   updating the matrix first.
-- Reject treating the narrowed runner inventory as runtime-green while the blocked billing-domain boundaries still stop the runtime-facing families.
+- Reject treating the narrowed runner inventory as runtime-green while the current module dependency environment or the required WP06 storage handoff is absent.
 
 ## Failure conditions
 
@@ -123,4 +117,4 @@ Validation truth from the current proof root:
 - This workpack does not prove billing readiness, payment handoff readiness, or portal completion.
 - This workpack does not prove the excluded same-directory tests belong to the WP08 contract.
 - This workpack consumes but does not redefine the Account WP08 Rust authority contract; its account-identity result is not a whole-account or runtime-ready claim.
-- WP08 stays open/blocked until the missing billing-domain boundaries and the recorded module-lint debt are actually resolved and rerun green.
+- WP08 stays open/blocked until WP01 restores the module dependency environment and WP06 retains the account-storage proof required for the WP08 runner handoff.

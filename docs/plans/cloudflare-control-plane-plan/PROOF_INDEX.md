@@ -54,6 +54,18 @@ versions, resolver/install result, resolved graph command result, and whether
 their peer requirements are compatible. A missing or blocked graph keeps WP07
 blocked; it is not a substitute for the graph proof.
 
+## WP08 account-storage runner proof
+
+After Cloudflare WP06 retains its account-D1 binding, adapter, migration, and
+integration proof, WP08 retains the selected module-runner result under
+`output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
+and maps it to the Account WP06 aggregation handoff. The current module route
+uses `infra/cloudflare/src/generated/billing-contracts.ts`; an empty
+`npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` result is
+a WP01 dependency blocker, not a legacy `packages/billing-domain/src/*` import
+blocker. Until WP01 and WP06 are satisfied, record the exact blocker and keep
+WP08/Account WP06 open.
+
 ## Command log format
 
 ```text
