@@ -119,7 +119,6 @@ export function runLocalDevProof(): void {
     noClaim: 'local validation logs are not a tracked WP07 proof bundle or local Worker response proof',
   };
   writeLocalDevProofSummary(summary);
-  console.log(JSON.stringify(summary));
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href) {

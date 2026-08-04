@@ -449,6 +449,9 @@ describe('local dev seeding workflow', () => {
         /"proofLogLocation":"output\/cloudflare-control-plane-plan-proof\/summary-test"/
       );
       assert.doesNotMatch(summaryEntry.data ?? '', /[A-Z]:\\\\/);
+      const proofRunnerSource = fs.readFileSync(path.join(cloudflareRoot, 'scripts', 'local-dev-proof.ts'), 'utf8');
+      assert.match(proofRunnerSource, /writeLocalDevProofSummary\(summary\)/);
+      assert.doesNotMatch(proofRunnerSource, /console\.log/);
     } finally {
       if (previousLogRoot === undefined) {
         delete env.OCENTRA_PARENT_LOG_ROOT;
