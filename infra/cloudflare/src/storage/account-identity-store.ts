@@ -167,7 +167,10 @@ export function createAccountIdentityStore(database: D1Database | undefined): Ac
     provider: AccountIdentityProvider,
     providerSubject: string
   ): Promise<AccountIdentityRecord | null> {
-    const row = await database.prepare(ACCOUNT_IDENTITY_SELECT_SQL).bind(provider, providerSubject).first<AccountIdentityRow>();
+    const row = await database
+      .prepare(ACCOUNT_IDENTITY_SELECT_SQL)
+      .bind(provider, providerSubject)
+      .first<AccountIdentityRow>();
     return row === null ? null : toRecord(row);
   }
 
