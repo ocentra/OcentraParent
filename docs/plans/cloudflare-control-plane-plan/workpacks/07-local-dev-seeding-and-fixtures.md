@@ -36,14 +36,14 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
   account, support/admin account, and referral fixture families.
 - Teardown remains explicit: stop `wrangler dev --local`, remove harness-created `--persist-to` temp state, and remove `infra/cloudflare/.dev.vars` only when the harness created it.
 
-## Fixture families proved
+## Fixture families observed
 
-- `pricing-catalog`: explicit and currently `populated` with `3` items
-- `parent-test-accounts`: explicit and currently `populated` with `4` items
-- `support-admin-test-accounts`: explicit and currently `populated` with `4` items
-- `referral-test-graph`: explicit and currently `populated` with `2` items
-- `webhook-payload-fixtures`: explicit and `test-fixture-backed`
-- `queue-replay-fixtures`: explicit and `test-fixture-backed`
+- `pricing-catalog`: explicit, observed `populated` with `3` items; not retained proof
+- `parent-test-accounts`: explicit, observed `populated` with `4` items; not retained proof
+- `support-admin-test-accounts`: explicit, observed `populated` with `4` items; not retained proof
+- `referral-test-graph`: explicit, observed `populated` with `2` items; not retained proof
+- `webhook-payload-fixtures`: explicit and `test-fixture-backed`; not retained proof
+- `queue-replay-fixtures`: explicit and `test-fixture-backed`; not retained proof
 
 ## Exact blockers
 

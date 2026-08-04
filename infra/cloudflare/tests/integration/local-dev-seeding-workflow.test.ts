@@ -1,4 +1,8 @@
+import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import os from 'node:os';
+import path from 'node:path';
+import { env } from 'node:process';
 import { describe, it } from 'node:test';
 import { inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
 
@@ -58,6 +62,49 @@ describe('local dev seeding workflow', () => {
             family.populationState === 'blocked' && family.blocker?.details.includes('billing-account-runtime-boundary')
         )
       );
+    }
+  });
+
+  it('emits gated, correlated, redacted proof milestones when logging is enabled', () => {
+    const logRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cloudflare-local-proof-'));
+    const previousLogRoot = env.OCENTRA_PARENT_LOG_ROOT;
+    const previousRunId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID;
+
+    env.OCENTRA_PARENT_LOG_ROOT = logRoot;
+    env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = 'cloudflare-local-test-run';
+
+    try {
+      const workflow = inspectLocalDevWorkflow();
+      const streamRoot = path.join(logRoot, 'parent-codex', 'ndjson', 'cloudflare-local-dev-workflow');
+      const logFiles = fs.readdirSync(streamRoot).filter((fileName) => fileName.endsWith('.ndjson'));
+      assert.equal(logFiles.length, 1);
+
+      const logFile = logFiles[0];
+      assert.ok(logFile);
+      const logText = fs.readFileSync(path.join(streamRoot, logFile), 'utf8');
+
+      assert.match(logText, /"event":"workflow_started"/);
+      assert.match(logText, /"event":"start_path_observed"/);
+      if (workflow.start.blockers.length > 0) {
+        assert.match(logText, /"event":"start_blocker_observed"/);
+      }
+      assert.match(logText, /"event":"seed_path_observed"/);
+      assert.match(logText, /"event":"workflow_completed"/);
+      assert.ok(logText.includes('"runId":"cloudflare-local-test-run"'));
+      assert.doesNotMatch(logText, /sk_test_/);
+      assert.doesNotMatch(logText, /[A-Z]:\\\\/);
+    } finally {
+      if (previousLogRoot === undefined) {
+        delete env.OCENTRA_PARENT_LOG_ROOT;
+      } else {
+        env.OCENTRA_PARENT_LOG_ROOT = previousLogRoot;
+      }
+      if (previousRunId === undefined) {
+        delete env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID;
+      } else {
+        env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = previousRunId;
+      }
+      fs.rmSync(logRoot, { recursive: true, force: true });
     }
   });
 });

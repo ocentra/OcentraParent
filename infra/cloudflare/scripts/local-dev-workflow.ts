@@ -2,9 +2,21 @@
 
 import { readFileSync } from 'node:fs';
 import { existsSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
+import { createRequire } from 'node:module';
 import path from 'node:path';
+import { env } from 'node:process';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+
+import { redactPayload } from '../src/security/redaction.js';
+
+type AppendNdjson = (stream: string, event: object, scope?: string) => string;
+
+const require = createRequire(import.meta.url);
+const { appendNdjson } = require('../../../scripts/dev/lib/agent-log-paths.mjs') as {
+  appendNdjson: AppendNdjson;
+};
 
 export interface RuntimeDependencyBlocker {
   kind: 'missing-runtime-dependency' | 'runtime-import-check';
@@ -51,6 +63,14 @@ export interface LocalDevWorkflowReport {
   teardown: LocalTeardownPath;
 }
 
+type ProofLogStatus = 'started' | 'observed' | 'blocked' | 'completed';
+
+interface ProofLogEvent {
+  event: string;
+  status: ProofLogStatus;
+  details: Record<string, unknown>;
+}
+
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const cloudflareDir = path.resolve(scriptDir, '..');
 const repoRoot = path.resolve(cloudflareDir, '..', '..');
@@ -63,6 +83,30 @@ interface CommandProbeResult {
   stdout: string;
   stderr: string;
   blocker?: RuntimeDependencyBlocker;
+}
+
+const fallbackProofRunId = `cloudflare-local-${randomUUID()}`;
+
+function resolveProofRunId(): string {
+  return env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID ?? fallbackProofRunId;
+}
+
+function writeProofLog(event: ProofLogEvent): void {
+  if ((env.OCENTRA_PARENT_LOG_ROOT ?? '').trim().length === 0) {
+    return;
+  }
+
+  const redactedEvent = redactPayload({
+    schemaVersion: 1,
+    eventType: 'cloudflare-local-dev-workflow',
+    runId: resolveProofRunId(),
+    generatedAt: new Date().toISOString(),
+    ...event,
+  });
+  if (redactedEvent === null || typeof redactedEvent !== 'object' || Array.isArray(redactedEvent)) {
+    throw new Error('Cloudflare proof log redaction returned a non-record payload');
+  }
+  appendNdjson('cloudflare-local-dev-workflow', redactedEvent, 'parent-codex');
 }
 
 function readWorkspaceScripts(): Record<string, string> {
@@ -321,12 +365,71 @@ function inspectLocalTeardownPath(): LocalTeardownPath {
 }
 
 export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
-  return {
+  writeProofLog({
+    event: 'workflow_started',
+    status: 'started',
+    details: {
+      rootCommand: 'npm run dev:cloudflare',
+      moduleCommand: 'npm --prefix infra/cloudflare run dev',
+      proofLogging: 'enabled',
+    },
+  });
+
+  const start = inspectLocalStartPath();
+  writeProofLog({
+    event: 'start_path_observed',
+    status: start.status === 'blocked' ? 'blocked' : 'observed',
+    details: {
+      status: start.status,
+      blockerCount: start.blockers.length,
+      blockerKinds: start.blockers.map((blocker) => blocker.kind),
+    },
+  });
+
+  if (start.blockers.length > 0) {
+    writeProofLog({
+      event: 'start_blocker_observed',
+      status: 'blocked',
+      details: {
+        blockerCount: start.blockers.length,
+        blockerKinds: start.blockers.map((blocker) => blocker.kind),
+      },
+    });
+  }
+
+  const seed = inspectLocalSeedPath();
+  writeProofLog({
+    event: 'seed_path_observed',
+    status: seed.status === 'blocked' ? 'blocked' : 'observed',
+    details: {
+      status: seed.status,
+      fixtureFamilies: seed.fixtureFamilies.map(({ family, populationState, itemCount }) => ({
+        family,
+        populationState,
+        itemCount,
+      })),
+    },
+  });
+
+  const teardown = inspectLocalTeardownPath();
+  const report = {
     generatedAt: new Date().toISOString(),
-    start: inspectLocalStartPath(),
-    seed: inspectLocalSeedPath(),
-    teardown: inspectLocalTeardownPath(),
+    start,
+    seed,
+    teardown,
   };
+
+  writeProofLog({
+    event: 'workflow_completed',
+    status: 'completed',
+    details: {
+      startStatus: report.start.status,
+      seedStatus: report.seed.status,
+      teardownStatus: report.teardown.status,
+    },
+  });
+
+  return report;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
