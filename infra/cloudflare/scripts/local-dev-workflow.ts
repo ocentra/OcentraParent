@@ -77,6 +77,7 @@ type ProofLogStatus = 'started' | 'observed' | 'blocked' | 'completed';
 
 interface SeedProofFixtureFamily {
   readonly family: string;
+  readonly source: string;
   readonly populationState: FixtureFamilyReport['populationState'];
   readonly itemCount: number | null;
   readonly blocker?: {
@@ -405,8 +406,9 @@ export function buildSeedProofMilestoneDetails(seed: LocalSeedPath): SeedProofMi
   return {
     status: seed.status,
     noClaimReason: seed.status === 'blocked' ? 'seed-fixture-population-not-proven' : 'retained-workpack-proof-absent',
-    fixtureFamilies: seed.fixtureFamilies.map(({ family, populationState, itemCount, blocker }) => ({
+    fixtureFamilies: seed.fixtureFamilies.map(({ family, source, populationState, itemCount, blocker }) => ({
       family,
+      source,
       populationState,
       itemCount,
       ...(blocker === undefined

@@ -11,7 +11,7 @@
     "seed:products:local": "tsx scripts/seed-products-local.ts",
     "seed:referrals:local": "tsx scripts/seed-referrals-local.ts",
     "seed:test-accounts:local": "tsx scripts/seed-test-accounts-local.ts",
-    "proof:logger-ready": "npm --prefix ../../packages/logging-domain run build",
+    "proof:logger-ready": "npm --prefix ../.. --workspace @ocentra-parent/logging-domain run build",
     "proof:local-dev": "npm run proof:logger-ready && tsx scripts/local-dev-proof.ts",
     "test": "npm run test:logger-ready && tsx scripts/test-runner.ts",
     "test:unit": "tsx scripts/test-runner.ts --type=unit",

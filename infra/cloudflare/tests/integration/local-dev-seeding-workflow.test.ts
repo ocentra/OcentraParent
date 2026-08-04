@@ -161,6 +161,9 @@ describe('local dev seeding workflow', () => {
       } else {
         assert.match(seedData, /"noClaimReason":"retained-workpack-proof-absent"/);
       }
+      for (const fixtureFamily of workflow.seed.fixtureFamilies) {
+        assert.ok(seedData.includes(`"source":"${fixtureFamily.source}"`));
+      }
 
       const startEntry = logEntries.find((entry) => entry.context === 'cloudflare.local-dev.start_path_observed');
       assert.ok(startEntry);
@@ -215,12 +218,17 @@ describe('local dev seeding workflow', () => {
     assert.ok(redacted.includes('"noClaimReason":"seed-fixture-population-not-proven"'));
     assert.ok(redacted.includes('"noClaimReason":"seed-command-blocked"'));
     assert.ok(redacted.includes('"kind":"missing-runtime-dependency"'));
+    assert.ok(redacted.includes('"source":"seed-products-local"'));
     assert.doesNotMatch(redacted, /sk_test_/);
     assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
   });
 
   it('prepares the canonical logger before default, focused, and integration test paths', () => {
     const packageJson = fs.readFileSync(path.join(cloudflareRoot, 'package.json'), 'utf8');
+    assert.match(
+      packageJson,
+      /"proof:logger-ready": "npm --prefix \.\.\/\.\. --workspace @ocentra-parent\/logging-domain run build"/
+    );
     assert.match(packageJson, /"test": "npm run test:logger-ready && tsx scripts\/test-runner\.ts"/);
     assert.match(
       packageJson,
