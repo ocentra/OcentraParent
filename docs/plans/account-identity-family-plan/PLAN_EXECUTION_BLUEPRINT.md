@@ -17,12 +17,13 @@
 
 ```text
 1. WP01 Auth Provider Decision
-2. WP02 Identity Household Role Model
-3. WP03 Session Token Lifecycle
-4. WP04 Invites Recovery Lifecycle
-5. WP05 Device Ownership AuthZ
-6. WP07 Parent Account Family Setup UI
-7. WP06 Security Proof And Route Gate
+2. WP08 Rust Schema And Workers-D1 Runtime Migration
+3. WP02 Identity Household Role Model
+4. WP03 Session Token Lifecycle
+5. WP04 Invites Recovery Lifecycle
+6. WP05 Device Ownership AuthZ
+7. WP07 Parent Account Family Setup UI
+8. WP06 Security Proof And Route Gate
 ```
 
 ## Codex startup prompt
@@ -157,7 +158,9 @@ selected workpack Fill-before-DONE section updated
 PLAN_STATE.md open gaps updated if state changed
 ```
 
-PR_READY for the whole plan requires WP06 route gate proof and all prior workpack proof roots.
+PR_READY for the whole plan requires WP06 route-gate rerun proof and all prior
+workpack proof roots, including WP08's real Workers-D1 migration, redacted
+correlated runtime logging, and authority-operation negative proof.
 
 ## Global no-touch rule
 

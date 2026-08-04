@@ -49,6 +49,8 @@ production-runtime completion.
 - [ ] Account, household, membership, role, device, invite/recovery, and session authority paths preserve canonical schema ownership. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/03-account-persistence-integration-proof.md`.
 - [ ] Cross-household, revoked, stale, and unavailable-storage negatives reject or degrade safely. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/04-runtime-negative-proof.md`.
 - [ ] Durable Objects and KV remain limited to their approved coordination/cache roles; neither becomes account-family authority. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/05-custody-role-proof.md`.
+- [ ] Focused local Workers-D1 migration apply and compatibility proof runs against the selected account-identity D1 binding. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/01-migration-safety-proof.md`.
+- [ ] Redacted correlated runtime logging and focused negatives cover account, household, device, invite, recovery, and session operations. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/07-redacted-correlated-runtime-logging-proof.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/08-authority-operation-negative-proof.md`.
 - [ ] Focused Rust and Workers-D1 validation commands pass or precise blockers are recorded. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.log`.
 - [ ] Required proof artifacts, no-claim boundary, and cross-plan handoff record exist. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/06-handoff-and-no-claim-boundary.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.log`.
 - [ ] Workpack completion section is filled only after all prior WP08 rows are proven. Proof: `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md`.
@@ -137,6 +139,8 @@ production-runtime completion.
 ## WP06 Security Proof And Route Gate
 
 - [x] WP01 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
+- [ ] WP08 real Workers-D1 migration, redacted correlated logging, and authority-operation negative proof root consumed or precisely blocked. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/09-wp08-runtime-schema-gate.md`.
+- [ ] WP08 redacted correlated logging and account/household/device/invite/recovery/session negative evidence are re-aggregated; prior WP06 completion evidence is not reused. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/09-wp08-runtime-schema-gate.md`.
 - [x] WP02 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
 - [x] WP03 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`; `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md`.
 - [x] WP04 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
@@ -150,5 +154,5 @@ production-runtime completion.
 - [x] Logging redaction proof exists. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/07-logging-redaction-proof.md`.
 - [x] Route sync proof names setup, Cloudflare, payment, policy, data custody, device trust, LAN, and remote boundaries. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/06-route-sync-proof.md`.
 - [x] Manual-required gap register written. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md`.
-- [x] Focused validation commands pass or blockers recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`.
-- [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md`.
+- [ ] Focused validation commands are rerun after WP08 input and pass or blockers recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`.
+- [ ] Workpack completion section is re-filled only after the WP08 final-gate input is aggregated. Proof: `docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md`.

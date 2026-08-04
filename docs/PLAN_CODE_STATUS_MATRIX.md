@@ -99,7 +99,7 @@ proof artifact, checklist row, and merge state agree.
 
 | Plan | Code state | Main runtime owners | Evidence observed | Current blocker / dependency | Next unblocker |
 | --- | --- | --- | --- | --- | --- |
-| `account-identity-family-plan` | Foundation | `family-identity-core`, `provisioning-core`, `entitlement-core`, `schema` | Family identity has 13 source / 7 test files; setup and signed-entitlement paths exist. PR #607 is closed without merge; its TypeScript Cloudflare adapter/D1-test-double slice is not account-family authority evidence. | Rust-owned account schema plus real Workers-D1 account-identity runtime/migration proof remain absent. | Establish the Rust-owned account schema, then the real Workers-D1 account-identity persistence boundary. |
+| `account-identity-family-plan` | Foundation | `family-identity-core`, `provisioning-core`, `entitlement-core`, `schema` | Family identity has 13 source / 7 test files; setup and signed-entitlement paths exist. PR #607 is closed without merge; its TypeScript Cloudflare adapter/D1-test-double slice is not account-family authority evidence. | Rust-owned account schema plus real Workers-D1 account-identity runtime/migration proof remain absent; WP06 is reopened to aggregate WP08's D1 migration, redacted correlated logging, and authority-operation negative proof. | Establish the Rust-owned account schema, then the real Workers-D1 account-identity persistence boundary; rerun WP06 only after its WP08 input exists. |
 | `ai-plan` | Foundation | `child-ai-core`, `screen-ai-core`, `agent-service`, `schema` | AI runtime and service seams exist. | Safety/output invariants and consumer proof remain fragmented. | Close one typed AI-result-to-policy handoff with safety and negative-path proof. |
 | `app-plan` | Foundation | `app-core`, `agent-service`, `schema` | `app-core` has 3 source / 5 test files; service owns wider integration. | App-only authority and runtime evidence are incomplete. | Make app identity/evidence flow a single Rust-owned service path. |
 | `app-game-plan` | Integration | `app-game-core`, `agent-service`, `schema` | 25 source / 20 test files; inventory, runtime, journal, and policy code exist. | Live platform metadata/crawling and portal product rows are incomplete. | Finish one live Windows app/game capture-to-read-model path. |
@@ -121,7 +121,7 @@ proof artifact, checklist row, and merge state agree.
 | `screen-plan` | Foundation | `screen-core`, `screen-capture-adapter`, `screen-live-view-core` | Capture adapters and platform paths exist; screen core has 3 source / 3 test files. | Cross-platform custody and live-view closure are incomplete. | Prove custody/delete behavior for one supported OS capture path. |
 | `setup-install-provisioning-plan` | Integration | `provisioning-core`, setup/identity schemas, platform installers | Provisioning and setup readiness code exists. | Depends on identity, device trust, and child/parent installation truth. | Close a parent setup-to-child trust/install handoff after device trust exists. |
 | `tracking-plan` | Integration | `tracking-core`, `agent-service`, `schema` | 70 source / 41 test files; location/geofence/device-status runtime exists. | Real device/provider/retention product proof remains incomplete. | Run a provider-to-read-model-to-portal tracking path with retention proof. |
-| `v0-8-enforcement-control-plan` | Foundation | `child-enforcement-core`, `policy-control-core`, `agent-service`, schema | Contract and action-state surfaces exist. PR #606 is closed without merge because its policy slice was unsafe/no-op and is not implementation evidence. | Trusted dispatch/journal authority is still open in WP04, along with platform adapters, rollback, integrity, and parent-visible receipt proof. | Establish the WP04 trusted-dispatch/journal boundary before an adapter-backed execution/rollback slice. |
+| `v0-8-enforcement-control-plan` | Foundation | `child-enforcement-core`, `policy-control-core`, `agent-service`, schema | Contract and action-state surfaces exist. PR #606 is closed without merge because its policy slice was unsafe/no-op and is not implementation evidence. | Eventing's generic replay/idempotency mechanics and WP11's durable enforcement-journal handoff remain open before WP04 trusted dispatch; platform adapters, rollback, integrity, and parent-visible receipt proof also remain open. | Establish eventing-plan mechanics, then WP11's durable journal handoff, then WP04 trusted dispatch before an adapter-backed execution/rollback slice. |
 
 ## Workpack execution audit
 
@@ -134,7 +134,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 
 | Plan | Execution rows | Doc-claimed closed | Open / partial / blocked / unknown | Freshly reverified | Scheduling note |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `account-identity-family-plan` | 8 | 6 | 2 | 0 | Checklist now has 92/101 checked: WP01 is partial, and new WP08 is 0/9 open for Rust-schema plus real Workers-D1 runtime/migration. PR #607's TS adapter/D1-test-double is not a workpack closure. |
+| `account-identity-family-plan` | 8 | 5 | 3 | 0 | Checklist now has 90/105 checked: WP01 is partial, WP08 is 0/11 open for Rust-schema plus real Workers-D1 runtime/migration, and WP06 is reopened at 14/18 to aggregate WP08 evidence. PR #607's TS adapter/D1-test-double is not a workpack closure. |
 | `ai-plan` | 48 | 1 | 47 | 0 | Generic reset checklist does not reflect workpack state. |
 | `app-game-plan` | 88 | 54 | 34 | 0 | The remaining 34 are only `possibly done`; audit before implementation. |
 | `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
@@ -157,7 +157,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | WP06 is done as a blocker/aggregation packet but remains open for whole-plan scheduling; 93/93 checklist is not product completion. |
 | `tracking-plan` | 39 | 0 | 39 | 0 | Internally checked rows were intentionally reopened for audit/proof reruns. |
 | `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | #606 closed unmerged as unsafe/no-op. Schedule eventing-plan mechanics and WP11 durable journal handoff before WP04 trusted dispatch; six checked workpacks are not reflected by the generic checklist. |
-| **Total** | **525** | **144** | **381** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
+| **Total** | **525** | **143** | **382** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
 
 ### Acceptance state for each workpack
 

@@ -77,6 +77,8 @@ test-results/account-identity-family-plan-security-route-gate/
 04-runtime-negative-proof.md
 05-custody-role-proof.md
 06-handoff-and-no-claim-boundary.md
+07-redacted-correlated-runtime-logging-proof.md
+08-authority-operation-negative-proof.md
 16-validation-commands.log
 ```
 
@@ -143,6 +145,7 @@ test-results/account-identity-family-plan-security-route-gate/
 06-route-sync-proof.md
 07-logging-redaction-proof.md
 08-manual-required-gap-register.md
+09-wp08-runtime-schema-gate.md
 16-validation-commands.log
 ```
 

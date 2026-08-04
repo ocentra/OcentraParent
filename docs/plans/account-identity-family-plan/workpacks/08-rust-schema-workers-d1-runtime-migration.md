@@ -79,6 +79,8 @@ Required artifacts:
 04-runtime-negative-proof.md
 05-custody-role-proof.md
 06-handoff-and-no-claim-boundary.md
+07-redacted-correlated-runtime-logging-proof.md
+08-authority-operation-negative-proof.md
 16-validation-commands.log
 ```
 
@@ -90,6 +92,8 @@ Required artifacts:
 - [ ] Account, household, membership, role, device, invite/recovery, and session authority preserve typed scope and ownership.
 - [ ] Wrong-household, revoked, stale, malformed, duplicate, and unavailable-storage cases reject or degrade safely.
 - [ ] Durable Objects and KV remain non-authoritative for account/family relational truth.
+- [ ] A focused local Workers-D1 migration apply plus compatibility proof runs against the selected account-identity D1 binding; unit/test-double coverage is insufficient.
+- [ ] Redacted correlated runtime logging and focused negative proof cover account, household, device, invite, recovery, and session operations.
 - [ ] Rust and focused worker validation are retained with compact command logs.
 - [ ] The cross-plan Cloudflare handoff and no-claim boundary are retained.
 - [ ] Checklist rows are reconciled only after all prior obligations have evidence.
@@ -107,6 +111,8 @@ cargo test -p ocentra-family-identity-core household_authority
 npm run lint:architecture -- --files crates/schema crates/family-identity-core
 
 # Real Workers-D1 persistence/migration scope.
+npm --prefix infra/cloudflare exec wrangler d1 migrations apply <account-identity-d1-database> --local
+node --import tsx --test infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
 npm --prefix infra/cloudflare run test:unit
 npm --prefix infra/cloudflare run test:integration
 npm --prefix infra/cloudflare run test:contract
@@ -114,17 +120,23 @@ npm --prefix infra/cloudflare run lint
 npm run lint:architecture -- --files infra/cloudflare
 ```
 
+The migration command and focused test path become runnable only when this
+workpack creates the selected account-identity D1 binding, migrations, and
+test. Record a missing binding, migration environment, or test path as a
+blocker in `16-validation-commands.log`; do not substitute a test double.
 Run a protocol/service consumer only if this workpack changes its typed
-handoff. Record a missing runtime, migration environment, or real D1 binding
-as a blocker in `16-validation-commands.log`; do not substitute a test double.
+handoff.
 
 ## Negative and no-claim boundary
 
 This workpack must distinguish a real D1 runtime from mocks/test doubles and
 must reject cross-household, stale/revoked, schema-incompatible, and
-unavailable-storage paths. It does not prove provider login, trusted-device
-bootstrap, policy/payment authorization, rollout/deployment, or whole-plan
-readiness.
+unavailable-storage paths. Its retained runtime logs must use correlation IDs
+and redact session credentials, provider claims, invite/recovery secrets, and
+child activity data. Focused negatives must cover account, household, device,
+invite, recovery, and session operations. It does not prove provider login,
+trusted-device bootstrap, policy/payment authorization, rollout/deployment, or
+whole-plan readiness.
 
 ## Fill before DONE or PR_READY
 

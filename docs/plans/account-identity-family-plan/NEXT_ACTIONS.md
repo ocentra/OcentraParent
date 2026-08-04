@@ -27,9 +27,9 @@
 
 ## Highest-priority queue
 
-Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk. PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
+Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk. WP06 is reopened for a final aggregation rerun after WP08; PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: WP08 is the selectable owning packet for the remaining Rust-schema plus real Workers-D1 account-identity runtime/migration gap. Do not reopen WP02-WP07 unless a proof root drifts or a prior blocker becomes locally owned. Do not route WP08 into the provider-decision-only WP01.
+Current routing note: WP08 is the selectable owning packet for the remaining Rust-schema plus real Workers-D1 account-identity runtime/migration gap. WP06 is reopened only to aggregate that new input; do not reopen WP02-WP05/WP07 unless a proof root drifts or a prior blocker becomes locally owned. Do not route WP08 into the provider-decision-only WP01.
 
 PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
 adapter/D1-test-double slice into this plan. Start with Rust-owned account
@@ -47,6 +47,7 @@ migration apply/compatibility/rollback-or-forward-only proof
 cross-household, stale/revoked, malformed, duplicate, and unavailable-storage negatives
 explicit Durable Object/KV non-authority boundary
 retained focused Rust/worker proof and no-claim handoff record
+redacted correlated runtime logging plus account/household/device/invite/recovery/session negative proof
 ```
 
 ### 1. WP01 Auth Provider Decision
@@ -123,6 +124,7 @@ Expected result:
 
 ```text
 rollout proof pack consumes WP01-WP05/WP07 proof
+reopened final gate consumes WP08 real Workers-D1 migration, redacted correlated runtime logging, and authority-operation negatives
 route sync confirms adjacent plans consume account identity without owning it
 remaining manual-required gaps listed
 explicit request-safety blocker carried forward without fake-green closure
@@ -132,7 +134,7 @@ explicit request-safety blocker carried forward without fake-green closure
 
 - Runtime implementation is blocked until WP01 provider/custody decision is complete or the selected workpack explicitly implements that decision.
 - UI implementation is blocked until the required contract shape exists or a stub/blocker proof is written.
-- Payment/policy/remote/device-trust integration is blocked until WP06 route gate proof exists.
+- Payment/policy/remote/device-trust integration is blocked until the reopened WP06 route gate consumes WP08 or records its precise blocker.
 - Any claim involving secure auth/session requires WP03 and WP06 proof.
 - Any selected workpack that conflicts with `workpacks/00-owner-boundary-proof-gate.md` must be updated or blocked before source changes.
 
