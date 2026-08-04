@@ -35,6 +35,25 @@ app-game-plan owns app/game process identity and stored session evidence.
 enforcement-domain and agent-protocol may expose helper/proof/adapter parity surfaces only.
 ```
 
+## Required durable-journal handoff before scheduling
+
+WP04 may describe process identity and preflight constraints, but it must not
+be scheduled for dispatch-ready or action-state proof until its audit/journal
+prerequisite is available. The required order is:
+
+```text
+eventing-plan WP06 Journal Replay And Lineage generic replay/idempotency/journal mechanics
+-> WP11 enforcement-specific durable journal contract and proof route
+-> WP04 trusted dispatch, adapter result/no-op/mismatch/unavailable, and rollback state
+```
+
+WP11 owns enforcement-specific journal meaning; Eventing WP06 owns generic
+mechanics. WP04 consumes their explicit handoff. Eventing WP06 is reopened with
+its cited proof absent in this checkout, so it must produce its actual handoff
+before WP11 proceeds. If either is absent, stale, or only a test double, record
+`manual_required_state`/a precise blocker and keep
+dispatch-ready, receipt, and parent-visible action claims unavailable.
+
 ## Source Inputs
 
 - `../v0-8-enforcement-control-20-step-plan.md`
@@ -60,6 +79,7 @@ already_exited_state
 unavailable_state
 rollback_state
 audit_state
+wp11_journal_handoff_state
 manual_required_state
 no_broad_app_block_claim
 no_claim
@@ -75,6 +95,7 @@ Focused validation should record:
 - `cargo test -p ocentra-parent-agent-core enforcement`
 - `cargo test -p ocentra-parent-agent-service enforcement`
 - selected app/game proof only when this slice consumes app/game handoff state
+- the selected WP11 durable-journal proof and its Eventing WP06 Journal Replay And Lineage handoff
 
 ## AI Worker Checklist
 
@@ -101,6 +122,9 @@ clearly separate from broad app blocking.
 
 - Broad installed-app blocking remains manual-required until a separate adapter
   and proof path exists.
+- Trusted dispatch remains unscheduled/manual-required until Eventing WP06
+  supplies its actual handoff and WP11 then supplies the durable-journal proof.
+  A precise blocker records the gap but does not satisfy either prerequisite.
 - Platform-specific restart/rollback behavior remains manual-required where the
   adapter cannot prove it.
 - Mobile and non-Windows parity remain unclaimed.

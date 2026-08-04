@@ -104,7 +104,7 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 | Workpack | Expected proof focus |
 | --- | --- |
 | WP00 | games keep/adapt/strip map, game-only concern rejection, parent-safe module boundary |
-| WP01 | module tree, package scripts, scaffold-only/no-claim labels, no consumer semantics |
+| WP01 | module tree, package scripts, scaffold-only/no-claim labels, no consumer semantics, and retained clean `wrangler`/`@cloudflare/workers-types` resolver graph before WP07 can run |
 | WP02 | wrangler envs, D1/DO/KV/R2/Queue binding names, environment custody, dev/prod separation |
 | WP03 | worker entrypoint, env validation, request-size guard, origin/CORS behavior, kill-switch, scheduled hook shape |
 | WP04 | route manifest, route groups, domain contract ownership, no ad hoc route strings |
@@ -116,6 +116,35 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 | WP10 | security/property/fuzz/observability baseline with parent-only scope |
 | WP11 | deploy/promotion/rollback/env separation proof |
 | WP12 | payment handoff assumptions, blockers, no-claim boundaries, downstream acknowledgment |
+
+## Account authority storage handoff
+
+WP06 consumes, but does not define, Account WP08's Rust-owned contract. Its
+proof must name `infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected
+account-identity D1/DO/KV declarations, binding-specific account migration
+directory (or equivalent mapping), adapter, migration, and
+`tests/integration/account-identity-d1-migration.test.ts`; retain the migration
+result from `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`, the module integration result from
+`npm --prefix infra/cloudflare run test:integration`, and the focused
+architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
+Current source declares only billing storage bindings and no binding-specific
+account migration mapping, so this migration command is blocked and must never
+be run against `BILLING_D1` as a substitute.
+WP06 also retains the direct focused command
+`cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`
+in `03-account-identity-d1-migration-test.md`; the aggregate integration script
+cannot substitute for or silently omit that required migration/adapter result.
+
+Cloudflare WP08 follows WP06. It maps the selected account-identity integration
+assertion and its module-runner result to the Cloudflare proof root and the
+Account WP06 aggregation handoff. Missing source, command output, or proof is
+recorded as an exact blocker and keeps Cloudflare WP06/WP08 and Account WP06
+blocked; neither packet may substitute a test double or claim account authority.
+The runner consumes the module-local generated billing-contract route, not
+`packages/billing-domain/src/*`. Its current preflight
+`npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` is empty,
+so WP01's dependency-resolution result and WP06's retained proof must exist
+before WP08 runs or reports the selected integration family.
 
 ## Required negative states
 

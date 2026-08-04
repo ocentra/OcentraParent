@@ -38,7 +38,7 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 - `infra/cloudflare/tests/unit/route-manifest.test.ts` now proves the manifest route-key list is exact, not merely pattern-valid.
 - `infra/cloudflare/tests/property/route-auth-state.property.test.ts` now proves `/auth/billing/manual-invoice` is the only elevated support-owned exception inside `/auth/billing/*`.
 - `ROUTE_MANIFEST_MODEL.md` and `AUTH_BOUNDARY_MODEL.md` now make that support exception explicit so consumer plans do not infer a second support-only API surface.
-- Contract and integration proof remain blocked by the missing `packages/billing-domain/src/billing-checkout-portal-boundary.js` import, so WP04 cannot claim request/response contract readiness or live worker dispatch readiness.
+- Contract and integration proof remain deferred while WP01's module dependency graph is empty, so WP04 cannot claim request/response contract readiness or live worker dispatch readiness.
 
 ## Proof IDs
 
@@ -57,9 +57,8 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 
 ## Exact blocker set
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js` is missing from this worktree.
-- `infra/cloudflare/src/index.ts` imports that module, so boot-dependent unit and integration suites fail before route dispatch.
-- `infra/cloudflare/tests/contract/billing-api-contract.test.ts` imports that same module directly, so contract validation never reaches contract assertions.
+- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty module dependency tree.
+- `infra/cloudflare/src/index.ts` consumes `./generated/billing-contracts.js`; after WP01 restores dependencies, rerun boot-dependent and contract suites and record any then-current route/contract failure.
 
 ## Validation
 
@@ -67,7 +66,7 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 - Scoped validation: `npm --prefix infra/cloudflare run test:property`
 - Scoped validation: `npm --prefix infra/cloudflare run test:contract`
 - Scoped validation: `npm --prefix infra/cloudflare run test:integration`
-- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/routes.ts packages/billing-domain/src`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/routes.ts infra/cloudflare/src/generated/billing-contracts.ts`
 
 ## Negative cases
 

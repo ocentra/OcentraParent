@@ -15,6 +15,13 @@
 
 Status: blocked / audit-truth-synced / not complete.
 
+## PR disposition
+
+PR #605 merged to `main` as `43a473f17` after fresh 60-job CI. It is narrow
+unissued-parent-challenge test evidence only: it does not close a device-trust
+workpack or change this plan's partial/open state. Platform key sealing,
+step-up, recovery, tamper, and trusted-device product-chain work remain open.
+
 ## Current Truth
 
 This plan owns the one-time trust bootstrap layer for parent and child devices. The product model is still: pair once, trust once, seal locally, and keep that trust until a parent revokes, removes, or resets the device.

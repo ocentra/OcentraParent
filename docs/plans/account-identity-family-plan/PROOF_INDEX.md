@@ -18,6 +18,7 @@
 
 ```text
 output/account-identity-family-plan-proof/01-auth-provider-decision/
+output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/
 output/account-identity-family-plan-proof/02-identity-household-role-model/
 output/account-identity-family-plan-proof/03-session-token-lifecycle/
 output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/
@@ -30,6 +31,7 @@ output/account-identity-family-plan-proof/06-security-proof-and-route-gate/
 
 ```text
 test-results/account-identity-family-plan-provider-decision/
+test-results/account-identity-family-plan-rust-schema-workers-d1-runtime-migration/
 test-results/account-identity-family-plan-household-role-model/
 test-results/account-identity-family-plan-session-token-lifecycle/
 test-results/account-identity-family-plan-invites-recovery/
@@ -62,6 +64,18 @@ test-results/account-identity-family-plan-security-route-gate/
 04-observer-read-only-proof.md
 05-support-admin-boundary-proof.md
 06-audit-event-proof.md
+16-validation-commands.log
+```
+
+### WP08 Rust Schema And Account Authority
+
+```text
+00-rust-schema-authority-proof.md (owner: crates/schema; Rust parity owner: crates/family-identity-core; records crates/schema/src/family_references_ts.rs -> packages/schema-domain/src/generated-family-references.ts plus the checked-in drift assertion)
+01-account-authority-parity-proof.md
+02-account-authority-negative-proof.md
+03-redacted-authority-proof.md
+04-cloudflare-wp06-wp08-handoff.md
+05-no-claim-boundary.md
 16-validation-commands.log
 ```
 
@@ -128,6 +142,7 @@ test-results/account-identity-family-plan-security-route-gate/
 06-route-sync-proof.md
 07-logging-redaction-proof.md
 08-manual-required-gap-register.md
+09-account-authority-cloudflare-storage-gate.md
 16-validation-commands.log
 ```
 
@@ -159,7 +174,7 @@ For new proof artifacts and new command-log entries, include structured metadata
 ```text
 plan: account-identity-family-plan
 workpack: <WP id and name>
-owner: schema-domain | family-domain | family-identity-core | setup-domain | provisioning-core | portal-domain | apps/portal | protocol/service | docs-only
+owner: crates/schema | crates/family-identity-core | schema-domain-edge-consumer | family-domain | setup-domain | provisioning-core | portal-domain | apps/portal | protocol/service | docs-only
 run_id: <wrapper run id or n/a>
 command_id: <wrapper command id or n/a>
 correlation_id: <runtime/proof correlation id or n/a>

@@ -29,10 +29,10 @@ This file records documentation health and consistency checks for the plan. It i
 
 - Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
-- Historical proof and rollout rows currently overclaim checkout state; cited `output/eventing-plan-proof/*` roots outside WP11/WP12/WP13 are still incomplete for open workpacks.
+- Historical proof and rollout rows currently overclaim checkout state; cited `output/eventing-plan-proof/*` roots outside WP11/WP12/WP13 are still incomplete for open workpacks. WP06 is reopened for the enforcement prerequisite, not accepted as historical completion.
 - WP11 now has focused local proof roots plus passing package-wide `@ocentra-parent/agent-protocol-domain` type-check, focused policy-control/contract tests, and a passing touched-file architecture gate.
 - WP12 now has a focused local route-proof bundle and WP13 has a focused local regression proof root.
-- Do not treat focused `cargo test` passes or stale checked rows as plan closure; WP11/WP12/WP13 are locally proved, but the full plan still remains open because WP10 lacks current local proof.
+- Do not treat focused `cargo test` passes or stale checked rows as plan closure; WP11/WP12/WP13 are locally proved, but the full plan remains open because reopened WP06 and WP10 lack current local proof.
 - The route/proof split must stay explicit: `output/eventing-plan-proof/<workpack>/` for implementation proof; `docs/proof/eventing-plan/` only for the current WP12 route-proof manifest bundle.
 
 ## Required hygiene before PR_READY
@@ -54,7 +54,7 @@ This file records documentation health and consistency checks for the plan. It i
 ## Current rollout note
 
 - WP11 source-boundary hardening is locally proved. WP12 route-proof reconciliation is locally restored, and WP13 also has a local proof root and focused revalidation.
-- WP10 remains open until household mesh import/export proof and owning LAN/remote-access handoff verification exist.
+- WP06 remains open until journal/topology proof and the typed enforcement WP11 handoff exist; WP10 remains open until household mesh import/export proof and owning LAN/remote-access handoff verification exist.
 
 ## Agent Route Walkthrough
 
@@ -73,8 +73,8 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### State
 
-- Current state: route and schema hygiene are improved, WP13 local proof is present, WP12 local route proof is restored, and WP11 is locally proved through its proof roots plus focused package validation.
-- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while the remaining WP10 gap is handled.
+- Current state: route and schema hygiene are improved, WP13 local proof is present, WP12 local route proof is restored, and WP11 is locally proved through its proof roots plus focused package validation; WP06 is reopened as a proof-absent enforcement prerequisite.
+- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while reopened WP06 and WP10 are handled.
 
 ### Decision routes and failure controls
 

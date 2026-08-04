@@ -22,6 +22,21 @@ output/eventing-plan-proof/<workpack-file-stem>/
 
 `docs/proof/eventing-plan/` is accepted only for the current WP12 route-proof manifest bundle. Historical `docs/proof` references do not close runtime work by themselves.
 
+## Reopened WP06 prerequisite proof root
+
+```text
+output/eventing-plan-proof/06-journal-replay-and-lineage/00-enforcement-wp11-handoff.md
+output/eventing-plan-proof/06-journal-replay-and-lineage/01-journal-replay-proof.md
+output/eventing-plan-proof/06-journal-replay-and-lineage/02-topology-lineage-proof.md
+output/eventing-plan-proof/06-journal-replay-and-lineage/16-validation-commands.log
+```
+
+These artifacts are currently absent. Until the first artifact records the typed
+generic mechanics handoff and the remaining journal/topology proof is present,
+WP11 and WP04 stay blocked/manual-required. An exact blocker keeps WP06 and
+WP10 open; it does not satisfy, release, or replace the required handoff. Prior
+crate tests are not a handoff.
+
 ## Expected route-closure proof bundle
 
 ```text

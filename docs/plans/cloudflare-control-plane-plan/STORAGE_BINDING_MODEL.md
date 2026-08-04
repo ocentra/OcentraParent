@@ -17,6 +17,31 @@ Purpose: define the Parent Cloudflare bindings stripped down from the games modu
 | `BILLING_AUDIT_R2` | Optional R2 | `support-audit-export` | Support-safe audit and export bundles only | Support-safe audit/export artifacts only; no child telemetry or raw child data | manual-required; not runtime-ready by default |
 | `ANALYTICS` | Optional analytics dataset | `redacted-ops-analytics` | Redacted operational metrics and audit event counters | Redacted operational metrics only; no child telemetry, raw child data, or provider secrets | optional |
 
+## Account-identity binding prerequisite
+
+WP06 has no configured account-identity D1, Durable Object, or KV binding in
+the current `infra/cloudflare/wrangler.toml` or `src/env.ts`; the bindings above
+are billing-owned and cannot be repurposed for account authority. WP06 remains
+blocked until the Account WP08 contract names the selected authority boundary
+and Cloudflare declares all three bindings with the following ownership model:
+
+| Required binding role | Type | Owner | Purpose | Privacy boundary | Current state |
+| --- | --- | --- | --- | --- | --- |
+| Account-identity authority store | D1 | Account WP08 canonical Rust authority; Cloudflare WP06 adapter is consumer only | Persist the selected account/family authority projection and migration-compatible read/write state | Account/family authority records only; no child telemetry, raw child data, billing ledger, or provider secrets | blocked; no binding/config declaration |
+| Account-identity coordination | Durable Object | Account WP08 authority boundary; Cloudflare WP06 adapter is consumer only | Serialize the selected account/session authority coordination and idempotency path | Account/session coordination only; no child telemetry, raw child data, billing state, or provider secrets | blocked; no binding/config declaration |
+| Account-identity low-risk operational state | KV | Account WP08 authority boundary; Cloudflare WP06 adapter is consumer only | Store only selected low-risk, non-authoritative rollout or freshness state | Non-secret low-risk operational state only; no child telemetry, raw child data, authority ledger, or provider secrets | blocked; no binding/config declaration |
+
+### Account D1 migration isolation
+
+`BILLING_D1` remains billing/support/reconciliation storage and its migrations
+must never be applied to the account database. Before WP06 may run the account
+migration command, the selected account D1 entry in `wrangler.toml` must name a
+binding-specific `migrations_dir`, or an equivalent configuration-backed mapping
+that proves the account migration directory is selected for that database only.
+The retained proof must name the account database, selected binding, and
+migration directory/mapping; a generic `wrangler d1 migrations apply` result or
+a `BILLING_D1` result cannot satisfy this gate.
+
 ## Secret names
 
 - `STRIPE_SECRET_KEY`
@@ -38,3 +63,4 @@ Every secret is server-only; never browser, portal bundle, desktop, or mobile.
 - Do not let provider payloads become product authority without ledger or DO mediation.
 - Do not treat placeholder Wrangler IDs, binding names, or local example refs as runtime success.
 - Queue and dead-letter ownership must stay paired and explicit; green enqueue paths must not hide dead-letter responsibility.
+- Do not borrow `BILLING_D1`, billing Durable Objects, or billing KV for account authority, and do not apply account migrations through a billing migration directory.

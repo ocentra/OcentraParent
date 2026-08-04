@@ -25,6 +25,10 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
+- [06 Journal Replay And Lineage](workpacks/06-journal-replay-and-lineage.md)
+  is reopened first for the enforcement prerequisite. Retain the P3 journal
+  proof and `00-enforcement-wp11-handoff.md` under its own proof root; until
+  both exist, enforcement WP11 and WP04 remain blocked/manual-required.
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
   is open because the expected local proof roots remain absent and the
   LAN/remote-access consumer handoff still needs exact verification.
@@ -40,8 +44,9 @@ This file is the short resume list for the next worker. It is derived from open 
 - WP13 is now locally proved at
   `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`
   and `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
-- Next slice: verify the owning LAN/remote-access proof handoff for WP10 before
-  changing its local status.
+- Next slice: complete reopened WP06 journal/replay/topology proof and retain
+  `00-enforcement-wp11-handoff.md`; only then verify the owning
+  LAN/remote-access proof handoff for WP10 before changing its local status.
 
 ## PR readiness guard
 

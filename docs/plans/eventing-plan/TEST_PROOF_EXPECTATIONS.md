@@ -113,6 +113,17 @@ output/eventing-plan-proof/67-lock-await/
 output/eventing-plan-proof/68-fixture-parity/
 ```
 
+## Reopened WP06 journal and enforcement handoff
+
+Before WP06 can release WP10 or enforcement scheduling, retain
+`output/eventing-plan-proof/06-journal-replay-and-lineage/00-enforcement-wp11-handoff.md`,
+`01-journal-replay-proof.md`, `02-topology-lineage-proof.md`, and
+`16-validation-commands.log`. The first artifact records the typed generic
+journal/replay/idempotency handoff consumed by enforcement WP11; the next two
+prove the journal and topology/lineage slice. If an artifact or focused command
+is unavailable, record its exact blocker and keep WP06 and WP10 open; existing
+crate tests alone do not release the handoff.
+
 ## Required states
 
 ```text
@@ -130,6 +141,7 @@ proof-root presence
 WP12 rollout-proof route restored without PR_READY claims
 WP13 source-side test scaffold cleanup locally proved
 WP11 scoped proof roots restored locally, package-wide agent-protocol-domain type-check passes again, and focused policy-control plus contracts validation is green
+WP06 remains reopened until journal/topology proof and `00-enforcement-wp11-handoff.md` are retained or an exact blocker is recorded
 WP10 remains open until its proof roots and blocking validation exist
 ```
 

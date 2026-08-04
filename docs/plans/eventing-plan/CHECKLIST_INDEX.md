@@ -3,7 +3,8 @@
 > **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
 
 Status: WP11 type-safety hardening locally proved; WP12 rollout-proof route
-complete; WP13 regression audit complete; plan remains open on WP10.
+complete; WP13 regression audit complete; WP06 is reopened for the exact
+enforcement handoff and the plan also remains open on WP10.
 
 This checklist tracks the current execution slice only. Historical closure notes
 remain in the plan docs, but the list below is the live tracker for the recent
@@ -18,6 +19,13 @@ local proof closures and the remaining open workpacks.
 - [x] Collect proof artifacts in the designated local artifact path.
 - [x] Record the proof location outside the plan folder.
 - [ ] Prepare handoff notes.
+
+## Reopened WP06 Journal Replay And Lineage
+
+- [ ] Retain the journal/replay, topology, corruption, and lineage proof bundle
+      under `output/eventing-plan-proof/06-journal-replay-and-lineage/`.
+- [ ] Retain `00-enforcement-wp11-handoff.md` with the typed generic-mechanics
+      handoff consumed by enforcement WP11; crate tests alone do not unblock it.
 
 ## Route-proof reconciliation
 
