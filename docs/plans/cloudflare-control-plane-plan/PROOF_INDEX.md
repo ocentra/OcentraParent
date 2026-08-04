@@ -71,7 +71,7 @@ WP08/Account WP06 open.
 WP06 retains
 `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/03-account-identity-d1-migration-test.md`
 with the direct focused result from
-`node --import tsx --test infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
+`npm --prefix infra/cloudflare exec -- node --import tsx --test tests/integration/account-identity-d1-migration.test.ts`.
 The module `test:integration` output is supplementary; it cannot replace or
 omit this migration/adapter result. Until WP01 restores the dependency tree and
 the selected Account/WP06 surfaces exist, retain the exact blocker instead.
