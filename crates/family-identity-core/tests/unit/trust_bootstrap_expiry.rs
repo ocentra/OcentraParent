@@ -8,6 +8,8 @@ use ocentra_family_identity_core::household_authority::{
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
+    ParentPresenceCustodyDecisionBoundary, ParentPresenceCustodyDecisionOwner,
+    ParentPresenceCustodyDecisionRedaction, ParentPresenceCustodyDecisionResult,
     ParentPresenceStorageFailureReason, ParentPresenceVerificationFailureReason,
     ParentPresenceVerificationInput, ParentPresenceVerificationPort,
 };
@@ -79,7 +81,8 @@ fn port(
     prefix: &str,
 ) -> Result<(PathBuf, ParentPresenceVerificationPort), ParentPresenceStorageFailureReason> {
     let root = std::env::temp_dir().join(format!(
-        "ocentra-parent-presence-expiry-{prefix}-{}",
+        "ocentra-parent-presence-expiry-{prefix}-{}-{}",
+        std::process::id(),
         NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
     ));
     fs::create_dir_all(&root)
@@ -93,7 +96,8 @@ fn port_at(
     observed_at: &str,
 ) -> Result<(PathBuf, ParentPresenceVerificationPort), ParentPresenceStorageFailureReason> {
     let root = std::env::temp_dir().join(format!(
-        "ocentra-parent-presence-expiry-at-{prefix}-{}",
+        "ocentra-parent-presence-expiry-at-{prefix}-{}-{}",
+        std::process::id(),
         NEXT_CASE_ID.fetch_add(1, Ordering::Relaxed)
     ));
     fs::create_dir_all(&root)
@@ -132,6 +136,49 @@ fn parent_presence_issuance_rejects_invalid_expiry_without_reserving_identities(
             .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
         "\"timestamp-invalid\""
     );
+    Ok(())
+}
+
+#[test]
+fn parent_presence_verification_rejects_unissued_challenges_without_consuming(
+) -> Result<(), ParentPresenceStorageFailureReason> {
+    let case = case("unissued-challenge");
+    let (root, mut port) = port("unissued-challenge")?;
+
+    assert_eq!(
+        port.verify_and_consume(input(&case, ACCEPTED_EXPIRY)?),
+        Err(ParentPresenceVerificationFailureReason::ChallengeNotIssued)
+    );
+    let Some(artifact) = port.take_custody_artifact() else {
+        return Err(ParentPresenceStorageFailureReason::CustodyUnavailable);
+    };
+    assert_eq!(
+        artifact.result,
+        ParentPresenceCustodyDecisionResult::Rejected
+    );
+    assert_eq!(
+        artifact.owner,
+        ParentPresenceCustodyDecisionOwner::FamilyIdentityCore
+    );
+    assert_eq!(
+        artifact.boundary,
+        ParentPresenceCustodyDecisionBoundary::VerifyAndConsume
+    );
+    assert_eq!(
+        artifact.redaction,
+        ParentPresenceCustodyDecisionRedaction::SensitiveInputsOmitted
+    );
+
+    assert_eq!(
+        port.issue_challenge(challenge(&case, ACCEPTED_EXPIRY)),
+        Ok(())
+    );
+    assert!(port
+        .verify_and_consume(input(&case, ACCEPTED_EXPIRY)?)
+        .is_ok());
+
+    drop(port);
+    let _cleanup = fs::remove_dir_all(root);
     Ok(())
 }
 
