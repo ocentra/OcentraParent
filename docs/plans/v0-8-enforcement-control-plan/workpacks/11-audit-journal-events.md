@@ -46,12 +46,14 @@ and route to that actual prerequisite.
 The handoff must make these states queryable and durable enough for WP04 to
 consume: accepted/rejected dispatch intent, adapter result/no-op/mismatch/
 unavailable, rollback/recovery, actor/target/policy/evidence references, and
-redacted parent-visible receipt/read-model references. If the selected
-Eventing WP06 is reopened with cited proof absent in this checkout. Until its
-actual handoff is retained, WP11 is blocked and WP04 remains
-unscheduled/manual-required; an exact blocker records the gap but does not
-satisfy it. Neither may manufacture a local journal or advance action state
-from a no-op.
+redacted parent-visible receipt/read-model references. Eventing WP06 now retains
+a hand-authored durable manifest for its generic replay/idempotency/journal
+handoff under `docs/proof/eventing-plan/`; raw/generated output remains ignored.
+That is a prerequisite, not the enforcement
+durable-journal contract: WP11 remains open until it retains the listed
+enforcement-specific audit/query proof, and WP04 remains
+unscheduled/manual-required. Neither may manufacture a local journal or
+advance action state from a no-op.
 
 ## Source Inputs
 

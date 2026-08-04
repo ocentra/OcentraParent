@@ -2,9 +2,10 @@
 
 Scope: prove append/replay behavior, lineage compatibility, event topology, journal modes, and replay safety.
 
-Current state: reopened / proof-absent. This packet is the selectable generic
-journal prerequisite for enforcement WP11. Existing focused crate tests do not
-constitute the missing topology/journal proof or the typed enforcement handoff.
+Current state: locally proved. This packet is the selectable generic journal
+prerequisite for enforcement WP11. The retained WP06 durable manifest now ties the
+focused crate evidence to the topology/journal proof and typed enforcement
+handoff; it does not implement or prove enforcement dispatch.
 
 Source rows: `05-implementation-workpacks.md` rows 36-41 and 69-78.
 
@@ -33,7 +34,7 @@ Expected tests/proof:
 - `eventing.topology.manifest`
 - `eventing.runtime.no-global-singleton`
 - Proof includes fixture path, replay transcript, corruption case, migration/rollback note, and topology artifact.
-- Retain `output/eventing-plan-proof/06-journal-replay-and-lineage/00-enforcement-wp11-handoff.md` with the typed generic journal/replay/idempotency handoff. It is an Eventing-owned handoff record, not an enforcement implementation or proof of dispatch.
+- Retain `docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md` with the typed generic journal/replay/idempotency handoff. It is an Eventing-owned handoff record, not an enforcement implementation or proof of dispatch.
 
 Failure conditions:
 
@@ -41,3 +42,14 @@ Failure conditions:
 - Do not claim remote replication; relay/cloud work owns that.
 - Do not replay side effects unless replay safety gate proves projection-only behavior.
 - Do not describe a blocker or existing crate test as an enforcement scheduling satisfaction; without the required handoff artifact, WP11 and WP04 remain blocked/manual-required.
+
+Proof retained:
+
+- `docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md`
+- `docs/proof/eventing-plan/wp06-01-journal-replay-proof.md`
+- `docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md`
+- `docs/proof/eventing-plan/wp06-16-validation-commands.md`
+
+The generic prerequisite is locally evidenced. Enforcement WP11/WP04 still
+own adapter authority, action execution, authorization, audit, rollback, and
+platform-side-effect proof.
