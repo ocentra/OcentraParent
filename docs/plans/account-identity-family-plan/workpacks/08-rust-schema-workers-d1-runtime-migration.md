@@ -68,7 +68,7 @@ this workpack.
 ## Required proof root
 
 ```text
-output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/
+docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/
 ```
 
 Required artifacts:
@@ -80,7 +80,7 @@ Required artifacts:
 03-redacted-authority-proof.md
 04-cloudflare-wp06-wp08-handoff.md
 05-no-claim-boundary.md
-16-validation-commands.log
+16-validation-commands.md
 ```
 
 ## Acceptance obligations
@@ -141,8 +141,18 @@ deployment, or whole-plan readiness.
 
 ## Fill before DONE or PR_READY
 
-- [ ] Workpack id, branch, and exact source owners recorded.
-- [ ] Required proof artifacts and `16-validation-commands.log` retained.
-- [ ] Focused command results or precise blockers recorded.
-- [ ] Cross-plan Cloudflare WP06/WP08 handoffs and no-claim boundary recorded.
-- [ ] Checklist/PLAN_STATE changes made only for proven rows.
+- [x] Workpack id, branch, and exact source owners recorded.
+- [x] Required proof artifacts and `16-validation-commands.md` retained.
+- [x] Focused command results or precise blockers recorded.
+- [x] Cross-plan Cloudflare WP06/WP08 handoffs and no-claim boundary recorded.
+- [x] Checklist/PLAN_STATE changes made only for proven rows.
+
+## Completion record
+
+The tracked durable manifest in `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`
+records the Rust source/test surface: `crates/schema` owns the generated edge
+contract and `crates/family-identity-core` owns account/family authority.
+
+This local completion is intentionally narrow. Cloudflare WP06 still owns
+D1/DO/KV binding and migration/storage proof; Cloudflare WP08 then owns
+runner/integration proof; Account WP06 remains open for final aggregation.

@@ -18,7 +18,7 @@
 
 ```text
 output/account-identity-family-plan-proof/01-auth-provider-decision/
-output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/
+docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/
 output/account-identity-family-plan-proof/02-identity-household-role-model/
 output/account-identity-family-plan-proof/03-session-token-lifecycle/
 output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/
@@ -51,7 +51,7 @@ test-results/account-identity-family-plan-security-route-gate/
 03-custom-claims-data-minimization-proof.md
 04-provider-outage-degraded-proof.md
 05-migration-path-proof.md
-16-validation-commands.log
+16-validation-commands.md
 ```
 
 ### WP02 Identity Household Role Model
@@ -69,6 +69,10 @@ test-results/account-identity-family-plan-security-route-gate/
 
 ### WP08 Rust Schema And Account Authority
 
+Durable manifest root:
+`docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`.
+Raw/generated output remains ignored.
+
 ```text
 00-rust-schema-authority-proof.md (owner: crates/schema; Rust parity owner: crates/family-identity-core; records crates/schema/src/family_references_ts.rs -> packages/schema-domain/src/generated-family-references.ts plus the checked-in drift assertion)
 01-account-authority-parity-proof.md
@@ -76,7 +80,7 @@ test-results/account-identity-family-plan-security-route-gate/
 03-redacted-authority-proof.md
 04-cloudflare-wp06-wp08-handoff.md
 05-no-claim-boundary.md
-16-validation-commands.log
+16-validation-commands.md
 ```
 
 ### WP03 Session Token Lifecycle
