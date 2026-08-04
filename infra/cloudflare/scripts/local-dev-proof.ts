@@ -5,22 +5,37 @@ import path from 'node:path';
 import { env } from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-import { inspectLocalDevWorkflow, writeLocalDevProofSummary } from './local-dev-workflow.js';
+import { inspectLocalDevWorkflow, sanitizeProofRunIdSegment, writeLocalDevProofSummary } from './local-dev-workflow.js';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const cloudflareDir = path.resolve(scriptDir, '..');
 const repoRoot = path.resolve(cloudflareDir, '..', '..');
-const runId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID ?? `cloudflare-wp07-${randomUUID()}`;
-const proofLogRoot =
-  env.OCENTRA_PARENT_LOG_ROOT ??
-  path.join(
+function generatedProofRunId(): string {
+  return `cloudflare-wp07-${randomUUID()}`;
+}
+
+export function resolveCloudflareProofRunId(providedRunId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID): string {
+  return sanitizeProofRunIdSegment(providedRunId ?? '') ?? generatedProofRunId();
+}
+
+export function buildDefaultProofLogRoot(runId: string): string {
+  const safeRunId = sanitizeProofRunIdSegment(runId);
+  if (safeRunId === null) {
+    throw new Error('Cloudflare proof run ID must contain a safe path segment');
+  }
+
+  return path.join(
     repoRoot,
     'output',
     'cloudflare-control-plane-plan-proof',
     '07-local-dev-seeding-and-fixtures',
     'runs',
-    runId
+    safeRunId
   );
+}
+
+const runId = resolveCloudflareProofRunId();
+const proofLogRoot = env.OCENTRA_PARENT_LOG_ROOT ?? buildDefaultProofLogRoot(runId);
 
 export function summarizeProofLogLocation(location: string): string {
   const relativeLocation = path.relative(repoRoot, location).replaceAll('\\', '/');

@@ -14,10 +14,16 @@ import {
   buildSeedProofMilestoneDetails,
   failClosedRequiredFixtureFamilies,
   inspectLocalDevWorkflow,
+  resolveWorkflowProofRunId,
+  sanitizeProofRunIdSegment,
   seedStatusFromFixtureFamilies,
   writeLocalDevProofSummary,
 } from '../../scripts/local-dev-workflow.js';
-import { summarizeProofLogLocation } from '../../scripts/local-dev-proof.js';
+import {
+  buildDefaultProofLogRoot,
+  resolveCloudflareProofRunId,
+  summarizeProofLogLocation,
+} from '../../scripts/local-dev-proof.js';
 
 const cloudflareRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -85,11 +91,20 @@ describe('local dev seeding workflow', () => {
       }
 
       const seedProof = buildSeedProofMilestoneDetails(workflow.seed);
-      assert.equal(seedProof.noClaimReason, 'seed-fixture-population-not-proven');
+      const expectedSeedNoClaimReason = blockedFamilies.some((family) => family.blocker?.kind === 'population-failure')
+        ? 'seed-fixture-population-not-proven'
+        : 'seed-command-blocked';
+      assert.equal(seedProof.noClaimReason, expectedSeedNoClaimReason);
       assert.ok(
         seedProof.fixtureFamilies
           .filter((family) => family.populationState === 'blocked')
-          .every((family) => family.noClaimReason === 'seed-command-blocked')
+          .every(
+            (family) =>
+              family.noClaimReason ===
+              (family.blocker?.kind === 'population-failure'
+                ? 'seed-fixture-population-not-proven'
+                : 'seed-command-blocked')
+          )
       );
 
       if (process.platform === 'win32') {
@@ -163,9 +178,16 @@ describe('local dev seeding workflow', () => {
       const seedData = seedEntry.data ?? '';
       const blockedFixture = workflow.seed.fixtureFamilies.find((family) => family.populationState === 'blocked');
       if (blockedFixture !== undefined) {
-        assert.match(seedData, /"noClaimReason":"seed-fixture-population-not-proven"/);
-        assert.match(seedData, /"blocker":\{"kind":"(?:missing-runtime-dependency|runtime-import-check)"/);
-        assert.match(seedData, /"noClaimReason":"seed-command-blocked"/);
+        const expectedSeedNoClaimReason = workflow.seed.fixtureFamilies.some(
+          (family) => family.blocker?.kind === 'population-failure'
+        )
+          ? 'seed-fixture-population-not-proven'
+          : 'seed-command-blocked';
+        assert.match(seedData, new RegExp(`"noClaimReason":"${expectedSeedNoClaimReason}"`));
+        assert.match(
+          seedData,
+          /"blocker":\{"kind":"(?:missing-runtime-dependency|runtime-import-check|population-failure)"/
+        );
       } else {
         assert.match(seedData, /"noClaimReason":"retained-workpack-proof-absent"/);
       }
@@ -223,12 +245,37 @@ describe('local dev seeding workflow', () => {
       ],
     });
     const redacted = JSON.stringify(redactPayload(details));
-    assert.ok(redacted.includes('"noClaimReason":"seed-fixture-population-not-proven"'));
     assert.ok(redacted.includes('"noClaimReason":"seed-command-blocked"'));
     assert.ok(redacted.includes('"kind":"missing-runtime-dependency"'));
     assert.ok(redacted.includes('"source":"seed-products-local"'));
     assert.doesNotMatch(redacted, /sk_test_/);
     assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
+  });
+
+  it('retains safe seed blocker context while redacting absolute path segments', () => {
+    const details = buildSeedProofMilestoneDetails({
+      aggregateCommand: 'npm --prefix infra/cloudflare run seed:local',
+      commands: [],
+      status: 'blocked',
+      fixtureFamilies: [
+        {
+          family: 'pricing-catalog',
+          source: 'seed-products-local',
+          populationState: 'blocked',
+          itemCount: null,
+          notes: 'blocked fixture',
+          blocker: {
+            kind: 'missing-runtime-dependency',
+            details: 'Error: failed to load C:\\private\\seed-state\\products.ts: billing module was unavailable',
+          },
+        },
+      ],
+    });
+    const redacted = JSON.stringify(redactPayload(details));
+
+    assert.ok(redacted.includes('Error: failed to load [redacted-path]: billing module was unavailable'));
+    assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
+    assert.doesNotMatch(redacted, /private\\\\seed-state/);
   });
 
   it('fails closed when a required seed command returns an empty fixture collection', () => {
@@ -249,6 +296,14 @@ describe('local dev seeding workflow', () => {
       'Required fixture family pricing-catalog returned no populated items from npm --prefix infra/cloudflare run seed:products:local.'
     );
     assert.equal(seedStatusFromFixtureFamilies(fixtureFamilies), 'blocked');
+    const proofDetails = buildSeedProofMilestoneDetails({
+      aggregateCommand: 'npm --prefix infra/cloudflare run seed:local',
+      commands: [],
+      status: 'blocked',
+      fixtureFamilies,
+    });
+    assert.equal(proofDetails.noClaimReason, 'seed-fixture-population-not-proven');
+    assert.equal(proofDetails.fixtureFamilies[0]?.noClaimReason, 'seed-fixture-population-not-proven');
   });
 
   it('redacts only absolute start blocker path segments while retaining safe diagnostics', () => {
@@ -336,6 +391,21 @@ describe('local dev seeding workflow', () => {
       }
       fs.rmSync(logRoot, { recursive: true, force: true });
     }
+  });
+
+  it('falls back from blank proof run IDs and sanitizes proof roots to one safe segment', () => {
+    const fallbackRunId = resolveCloudflareProofRunId('   ');
+    assert.match(fallbackRunId, /^cloudflare-wp07-[A-Za-z0-9-]+$/);
+    assert.match(resolveWorkflowProofRunId('   '), /^cloudflare-local-[A-Za-z0-9-]+$/);
+    assert.equal(sanitizeProofRunIdSegment(' release/../candidate '), 'release-candidate');
+    assert.equal(resolveCloudflareProofRunId(' release/../candidate '), 'release-candidate');
+
+    const proofRoot = buildDefaultProofLogRoot(' release/../candidate ');
+    assert.equal(
+      summarizeProofLogLocation(proofRoot),
+      'output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/runs/release-candidate'
+    );
+    assert.doesNotMatch(proofRoot, /(?:^|[\\/])\.\.(?:[\\/]|$)/);
   });
 
   it('prepares the canonical logger before default, focused, and integration test paths', () => {

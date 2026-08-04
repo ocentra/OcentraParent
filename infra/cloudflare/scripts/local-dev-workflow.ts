@@ -85,12 +85,15 @@ interface SeedProofFixtureFamily {
     readonly path: string | null;
     readonly details: string;
   };
-  readonly noClaimReason?: 'seed-command-blocked';
+  readonly noClaimReason?: 'seed-command-blocked' | 'seed-fixture-population-not-proven';
 }
 
 interface SeedProofMilestoneDetails {
   readonly status: LocalSeedPath['status'];
-  readonly noClaimReason: 'seed-fixture-population-not-proven' | 'retained-workpack-proof-absent';
+  readonly noClaimReason:
+    | 'seed-command-blocked'
+    | 'seed-fixture-population-not-proven'
+    | 'retained-workpack-proof-absent';
   readonly fixtureFamilies: ReadonlyArray<SeedProofFixtureFamily>;
 }
 
@@ -111,8 +114,16 @@ export interface LocalDevProofSummary {
 
 const fallbackProofRunId = `cloudflare-local-${randomUUID()}`;
 
-function resolveProofRunId(): string {
-  return env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID ?? fallbackProofRunId;
+export function sanitizeProofRunIdSegment(value: string): string | null {
+  const sanitized = value
+    .trim()
+    .replaceAll(/[^A-Za-z0-9_-]+/gu, '-')
+    .replaceAll(/^-+|-+$/gu, '');
+  return sanitized.length > 0 ? sanitized : null;
+}
+
+export function resolveWorkflowProofRunId(providedRunId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID): string {
+  return sanitizeProofRunIdSegment(providedRunId ?? '') ?? fallbackProofRunId;
 }
 
 function writeProofLog(event: ProofLogEvent): void {
@@ -127,7 +138,7 @@ function writeProofLog(event: ProofLogEvent): void {
     owner: 'cloudflare-control-plane',
     boundaryResult: event.status,
     redactionState: 'applied',
-    runId: resolveProofRunId(),
+    runId: resolveWorkflowProofRunId(),
     generatedAt: new Date().toISOString(),
     ...event,
   });
@@ -135,7 +146,7 @@ function writeProofLog(event: ProofLogEvent): void {
     throw new Error('Cloudflare proof log redaction returned a non-record payload');
   }
 
-  const runId = resolveProofRunId();
+  const runId = resolveWorkflowProofRunId();
   appendTestLogEntries(
     [
       {
@@ -225,6 +236,18 @@ export function buildStartProofMilestoneDetails(start: LocalStartPath): object {
       details: redactRuntimeBlockerDetails(details),
     })),
   };
+}
+
+function seedNoClaimReason(
+  seed: LocalSeedPath
+): 'seed-command-blocked' | 'seed-fixture-population-not-proven' | 'retained-workpack-proof-absent' {
+  if (seed.status !== 'blocked') {
+    return 'retained-workpack-proof-absent';
+  }
+
+  return seed.fixtureFamilies.some((fixtureFamily) => fixtureFamily.blocker?.kind === 'population-failure')
+    ? 'seed-fixture-population-not-proven'
+    : 'seed-command-blocked';
 }
 
 function inspectLocalStartPath(): LocalStartPath {
@@ -468,7 +491,7 @@ function inspectLocalSeedPath(): LocalSeedPath {
 export function buildSeedProofMilestoneDetails(seed: LocalSeedPath): SeedProofMilestoneDetails {
   return {
     status: seed.status,
-    noClaimReason: seed.status === 'blocked' ? 'seed-fixture-population-not-proven' : 'retained-workpack-proof-absent',
+    noClaimReason: seedNoClaimReason(seed),
     fixtureFamilies: seed.fixtureFamilies.map(({ family, source, populationState, itemCount, blocker }) => ({
       family,
       source,
@@ -480,9 +503,10 @@ export function buildSeedProofMilestoneDetails(seed: LocalSeedPath): SeedProofMi
             blocker: {
               kind: blocker.kind,
               path: blocker.path ?? null,
-              details: blocker.details,
+              details: redactRuntimeBlockerDetails(blocker.details),
             },
-            noClaimReason: 'seed-command-blocked',
+            noClaimReason:
+              blocker.kind === 'population-failure' ? 'seed-fixture-population-not-proven' : 'seed-command-blocked',
           }),
     })),
   };
