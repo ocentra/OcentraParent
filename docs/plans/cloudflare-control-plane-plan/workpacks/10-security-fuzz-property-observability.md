@@ -65,10 +65,8 @@ Reduce the games security and external-tool surface to the Parent-required basel
 
 ## Exact blocker
 
-- Direct blocker surfaced by every current WP10 command:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- The failure path is the same across the current reruns:
-  - imported through `infra/cloudflare/src/index.ts`
+- Current prerequisite for every WP10 module command: WP01 must restore the empty dependency tree shown by `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types`.
+- `infra/cloudflare/src/index.ts` imports module-local generated billing contracts; after the resolver graph is clean, record the exact security/property/fuzz failure if one remains.
 
 ## Validation truth
 

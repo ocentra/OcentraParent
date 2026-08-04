@@ -107,7 +107,7 @@ cargo test -p ocentra-schema --test contract family_references_generated_typescr
 cargo test -p ocentra-family-identity-core household_authority
 cargo test -p ocentra-family-identity-core --test unit setup_lifecycle
 cargo test -p ocentra-family-identity-core --test unit session_lifecycle
-npm run lint:architecture -- --files crates/schema crates/family-identity-core
+npm run lint:architecture -- --files crates/schema crates/family-identity-core packages/schema-domain/src/generated-family-references.ts
 
 ```
 

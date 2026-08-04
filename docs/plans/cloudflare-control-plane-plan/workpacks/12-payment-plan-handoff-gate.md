@@ -89,13 +89,8 @@ These are field requirements for proof routing, not implementation code prescrip
 - Missing proof roots:
   - none under the current Cloudflare proof inventory
 - Accepted-root carried blockers:
-  - broader Cloudflare runtime and validation reruns remain blocked on:
-    - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - broader Cloudflare module, local-dev, and deploy dry-run surfaces also remain blocked on:
-    - `packages/billing-domain/src/billing-referral-boundary.js`
-    - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-    - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-    - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+  - broader Cloudflare runtime, local-dev, validation, and deploy reruns wait on WP01's clean Wrangler/Workers-types resolver graph; the current module dependency tree is empty.
+  - the worker's generated billing-contract route is module-local, so no private `packages/billing-domain/src/*` import is a carried payment blocker.
   - WP02 also carries module-lint debt from:
     - `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
 - Dependency and readiness states:

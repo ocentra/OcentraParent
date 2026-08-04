@@ -33,7 +33,9 @@ output/eventing-plan-proof/06-journal-replay-and-lineage/16-validation-commands.
 
 These artifacts are currently absent. Until the first artifact records the typed
 generic mechanics handoff and the remaining journal/topology proof is present,
-WP11 and WP04 stay blocked/manual-required; prior crate tests are not a handoff.
+WP11 and WP04 stay blocked/manual-required. An exact blocker keeps WP06 and
+WP10 open; it does not satisfy, release, or replace the required handoff. Prior
+crate tests are not a handoff.
 
 ## Expected route-closure proof bundle
 

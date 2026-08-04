@@ -127,7 +127,7 @@ result from `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply 
 `npm --prefix infra/cloudflare run test:integration`, and the focused
 architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
 WP06 also retains the direct focused command
-`npm --prefix infra/cloudflare exec -- node --import tsx --test tests/integration/account-identity-d1-migration.test.ts`
+`npm --prefix infra/cloudflare exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`
 in `03-account-identity-d1-migration-test.md`; the aggregate integration script
 cannot substitute for or silently omit that required migration/adapter result.
 
