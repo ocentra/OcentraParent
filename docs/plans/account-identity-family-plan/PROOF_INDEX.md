@@ -18,6 +18,7 @@
 
 ```text
 output/account-identity-family-plan-proof/01-auth-provider-decision/
+output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/
 output/account-identity-family-plan-proof/02-identity-household-role-model/
 output/account-identity-family-plan-proof/03-session-token-lifecycle/
 output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/
@@ -30,6 +31,7 @@ output/account-identity-family-plan-proof/06-security-proof-and-route-gate/
 
 ```text
 test-results/account-identity-family-plan-provider-decision/
+test-results/account-identity-family-plan-rust-schema-workers-d1-runtime-migration/
 test-results/account-identity-family-plan-household-role-model/
 test-results/account-identity-family-plan-session-token-lifecycle/
 test-results/account-identity-family-plan-invites-recovery/
@@ -62,6 +64,19 @@ test-results/account-identity-family-plan-security-route-gate/
 04-observer-read-only-proof.md
 05-support-admin-boundary-proof.md
 06-audit-event-proof.md
+16-validation-commands.log
+```
+
+### WP08 Rust Schema And Workers-D1 Runtime Migration
+
+```text
+00-rust-schema-authority-proof.md
+01-migration-safety-proof.md
+02-workers-d1-binding-proof.md
+03-account-persistence-integration-proof.md
+04-runtime-negative-proof.md
+05-custody-role-proof.md
+06-handoff-and-no-claim-boundary.md
 16-validation-commands.log
 ```
 

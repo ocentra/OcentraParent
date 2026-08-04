@@ -123,6 +123,45 @@ provider outage cannot unlock privileged flows
 production cannot run in dev-mode auth bypass
 ```
 
+## WP08 Rust Schema And Workers-D1 Runtime Migration
+
+Expected focused commands:
+
+```bash
+cargo test -p ocentra-family-identity-core account
+npm --prefix infra/cloudflare run test:unit
+npm --prefix infra/cloudflare run test:integration
+npm --prefix infra/cloudflare run test:contract
+npm --prefix infra/cloudflare run lint
+npm run lint:architecture -- --files crates/schema crates/family-identity-core infra/cloudflare
+```
+
+Run protocol/service commands only when a typed account-family handoff changes.
+Record missing real D1 bindings, migration environment, or focused test paths
+as blockers; a TypeScript D1 test double cannot replace any of them.
+
+Expected proof:
+
+```text
+Rust canonical schema authority and compatibility boundary
+real Workers-D1 binding and persistence adapter proof
+migration apply/compatibility/rollback-or-forward-only proof
+account-family integration and negative-path proof
+Durable Object/KV non-authority proof
+Cloudflare handoff and no-claim boundary
+compact focused command log
+```
+
+Required negative cases:
+
+```text
+wrong household or revoked/stale actor cannot read or mutate authority state
+malformed/duplicate/schema-incompatible records reject or degrade safely
+unavailable storage does not invent a successful authority result
+D1 test double cannot be reported as production Workers-D1 proof
+Durable Objects or KV cannot become relational account-family authority
+```
+
 ## WP02 Identity Household Role Model
 
 Expected focused commands:

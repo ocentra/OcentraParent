@@ -19,6 +19,7 @@ Use this index to select exactly one workpack.
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | partial | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 10/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
+| open | [WP08 Rust Schema And Workers-D1 Runtime Migration](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 0/9 | `PLAN_STATE.md`, `docs/expectations/cloud.md`, accepted WP01 custody decision | `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/` |
 | complete | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
 | complete | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 | `RESEARCH_AND_DECISIONS.md`, `packages/family-domain/src/session-lifecycle.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
 | complete | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
@@ -29,13 +30,14 @@ Use this index to select exactly one workpack.
 ## Default execution order
 
 ```text
-WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP07 -> WP06
+WP01 -> WP08 -> WP02 -> WP03 -> WP04 -> WP05 -> WP07 -> WP06
 ```
 
 ## Dependency rules
 
 ```text
 WP01 blocks runtime provider/session implementation.
+WP08 owns the next runtime/schema slice: Rust-owned account/family contract authority, a real Workers-D1 persistence adapter, and migration proof. It is not WP01 provider-decision work and it must not use a TypeScript D1 test double as runtime proof.
 WP02 blocks most authorization, UI, policy, payment, and remote-access handoffs.
 WP03 blocks secure-login/session claims and must be read with workpacks/03-current-boundary-addendum.md.
 WP04 may run after WP02 but must not implement data-custody side effects itself.

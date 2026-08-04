@@ -35,6 +35,20 @@ policy-control-plane-plan owns upstream policy authority and approval semantics.
 v0-8-enforcement-control-plan owns enforcement-specific action, rollback, approval, and visibility event meaning.
 ```
 
+## Required handoff to WP04 trusted dispatch
+
+WP11 is not a downstream reporting embellishment. Before WP04 is scheduled for
+dispatch-ready proof, WP11 must provide the enforcement-specific durable
+journal contract and route to the generic replay/idempotency mechanics owned by
+`eventing-plan`.
+
+The handoff must make these states queryable and durable enough for WP04 to
+consume: accepted/rejected dispatch intent, adapter result/no-op/mismatch/
+unavailable, rollback/recovery, actor/target/policy/evidence references, and
+redacted parent-visible receipt/read-model references. If the selected
+eventing-plan mechanism or WP11 proof is absent, WP04 remains manual-required;
+it must not manufacture a local journal or advance action state from a no-op.
+
 ## Source Inputs
 
 - `../v0-8-enforcement-control-20-step-plan.md`

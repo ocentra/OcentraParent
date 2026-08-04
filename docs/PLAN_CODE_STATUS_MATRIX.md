@@ -23,7 +23,7 @@ root is absent from the checkout. Use the four states below when assigning work:
 
 | Plan | 2026-07-31 code-backed state | Next owning workpack / dependency |
 | --- | --- | --- |
-| account identity/family | Source + focused tests; named proof roots absent. | WP01 provider/session consumer, then WP03/06 request-safety proof. |
+| account identity/family | Source + focused tests; named proof roots absent. | WP08 Rust-owned account schema plus real Workers-D1 runtime/migration, after the provider/custody decision. |
 | AI | Precursor source only; 47 of 48 workpacks remain open. | WP03 Rust contract, then WP07 queue and WP08 routing. |
 | app | Source + focused tests; all app workpacks remain open/unknown. | WP06–09 Windows capture/foreground path, then WP12–15 service/journal. |
 | app/game | Source + focused tests; customer control path unproven. | WP19 policy compiler, then WP20 budget evaluator. |
@@ -45,11 +45,11 @@ root is absent from the checkout. Use the four states below when assigning work:
 | screen | Capture/AI/live-view source exists; custody/platform closure open. | WP03 contract, then WP06–08 capture model/adapter. |
 | setup/install/provisioning | Source + focused tests; depends on identity/device/install truth. | Parent setup-to-child trust/install handoff. |
 | tracking | Strong source/test foundation; event spine and provider proof open. | WP34 tracking event contracts, then WP35–39 chains. |
-| v0.8 enforcement | Source + focused tests; adapters and parent-visible receipts open. | WP05 app/game session handoff after policy/runtime dependencies. |
+| v0.8 enforcement | Source + focused tests; adapters and parent-visible receipts open. | eventing-plan generic journal mechanics -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch. |
 
 ### Priority order
 
-1. Cloudflare billing-boundary boot repair (unblocks Cloudflare and payment).
+1. Cloudflare module dependency reconciliation, then the proof-only WP07 successor (unblocks current Cloudflare verification and payment routing).
 2. Network WP01 eventing foundation.
 3. Tracking WP34 event contracts.
 4. Screen-AI WP01 → WP02 trigger/capture chain.
@@ -134,7 +134,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 
 | Plan | Execution rows | Doc-claimed closed | Open / partial / blocked / unknown | Freshly reverified | Scheduling note |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `account-identity-family-plan` | 7 | 6 | 1 | 0 | Checklist says 92/92, but WP01 is partial and cited output proof is absent locally. PR #607 closed without merge; its TS adapter/D1-test-double is not a workpack closure. |
+| `account-identity-family-plan` | 8 | 6 | 2 | 0 | Checklist now has 92/101 checked: WP01 is partial, and new WP08 is 0/9 open for Rust-schema plus real Workers-D1 runtime/migration. PR #607's TS adapter/D1-test-double is not a workpack closure. |
 | `ai-plan` | 48 | 1 | 47 | 0 | Generic reset checklist does not reflect workpack state. |
 | `app-game-plan` | 88 | 54 | 34 | 0 | The remaining 34 are only `possibly done`; audit before implementation. |
 | `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
@@ -156,8 +156,8 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `screen-plan` | 40 | 18 | 22 | 0 | Eighteen checked workpacks are not reflected by the generic checklist. |
 | `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | WP06 is done as a blocker/aggregation packet but remains open for whole-plan scheduling; 93/93 checklist is not product completion. |
 | `tracking-plan` | 39 | 0 | 39 | 0 | Internally checked rows were intentionally reopened for audit/proof reruns. |
-| `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | #606 closed unmerged as unsafe/no-op; WP04 trusted-dispatch/journal remains the first execution-authority gap. Six checked workpacks are not reflected by the generic checklist. |
-| **Total** | **524** | **144** | **380** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
+| `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | #606 closed unmerged as unsafe/no-op. Schedule eventing-plan mechanics and WP11 durable journal handoff before WP04 trusted dispatch; six checked workpacks are not reflected by the generic checklist. |
+| **Total** | **525** | **144** | **381** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
 
 ### Acceptance state for each workpack
 
@@ -182,9 +182,9 @@ post-merge reverified`. Only the final state counts toward `Freshly reverified`.
 
 ## Dependency and unblock order
 
-1. **Refresh Cloudflare and billing proof**: run the current generated-contract lint, unit, contract, worker-boot, and billing-core gates; then replace stale missing-`billing-domain` blocker text with the observed result. Do not restore removed TypeScript contract ownership.
+1. **Reconcile Cloudflare module dependencies, then run the proof-only WP07 successor**: resolve the current Wrangler/Workers-types module prerequisite first; from current source, rerun WP07's focused lint, unit, contract, and worker-boot gates and retain its bundle. Only then schedule payment/billing gates. Do not restore removed TypeScript contract ownership or revive #604.
 2. **Build device trust runtime**: parent presence and sealed device trust unblock safe account, setup, payment, remote, and enforcement decisions.
-3. **Close policy to enforcement vertical slice**: compiler -> service -> adapter -> receipt -> rollback. This becomes the reusable control path for browser, app/game, network, and screen.
+3. **Close policy to enforcement in dependency order**: eventing-plan generic replay/idempotency mechanics -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch -> adapter -> receipt -> rollback. This becomes the reusable control path for browser, app/game, network, and screen.
 4. **Use LAN/service as the first physical household proof**: pairing -> device state -> portal read model establishes the multi-device integration baseline.
 5. **Close custody and observability on that vertical slice**: correlated logs, retention/delete, and replay make later feature work trustworthy.
 6. **Scale feature producers**: browser, app/game, network, screen, tracking, and AI can then feed the same decision and evidence spine.

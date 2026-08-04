@@ -37,6 +37,22 @@
 - [x] Required proof artifacts written. Proof: `output/account-identity-family-plan-proof/01-auth-provider-decision/00-provider-decision-record.md`; `output/account-identity-family-plan-proof/01-auth-provider-decision/01-provider-rejected-options.md`; `output/account-identity-family-plan-proof/01-auth-provider-decision/02-provider-custody-boundary-proof.md`; `output/account-identity-family-plan-proof/01-auth-provider-decision/03-custom-claims-data-minimization-proof.md`; `output/account-identity-family-plan-proof/01-auth-provider-decision/04-provider-outage-degraded-proof.md`; `output/account-identity-family-plan-proof/01-auth-provider-decision/05-migration-path-proof.md`; `output/account-identity-family-plan-proof/01-auth-provider-decision/16-validation-commands.log`.
 - [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md`.
 
+## WP08 Rust Schema And Workers-D1 Runtime Migration
+
+All WP08 rows are intentionally open. This docs-only routing change records
+obligations; it does not assert source, test, migration, deployment, or
+production-runtime completion.
+
+- [ ] Rust-owned canonical account/family schema and migration boundary exists. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`.
+- [ ] Real Workers-D1 binding and production adapter boundary exists; a TypeScript D1 test double is not accepted as proof. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/02-workers-d1-binding-proof.md`.
+- [ ] D1 migration apply, compatibility, and rollback/forward-only policy are tested or explicitly blocked. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/01-migration-safety-proof.md`.
+- [ ] Account, household, membership, role, device, invite/recovery, and session authority paths preserve canonical schema ownership. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/03-account-persistence-integration-proof.md`.
+- [ ] Cross-household, revoked, stale, and unavailable-storage negatives reject or degrade safely. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/04-runtime-negative-proof.md`.
+- [ ] Durable Objects and KV remain limited to their approved coordination/cache roles; neither becomes account-family authority. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/05-custody-role-proof.md`.
+- [ ] Focused Rust and Workers-D1 validation commands pass or precise blockers are recorded. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.log`.
+- [ ] Required proof artifacts, no-claim boundary, and cross-plan handoff record exist. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/06-handoff-and-no-claim-boundary.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.log`.
+- [ ] Workpack completion section is filled only after all prior WP08 rows are proven. Proof: `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md`.
+
 ## WP02 Identity Household Role Model
 
 - [x] Account user model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.

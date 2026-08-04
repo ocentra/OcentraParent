@@ -29,12 +29,25 @@
 
 Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk. PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: no proof-only workpack remains open inside this plan. Do not reopen WP02-WP07 unless a proof root drifts or a prior blocker becomes locally owned. The next coordinator assignment should be one of the remaining runtime/schema gaps or a sibling-plan consumption slice.
+Current routing note: WP08 is the selectable owning packet for the remaining Rust-schema plus real Workers-D1 account-identity runtime/migration gap. Do not reopen WP02-WP07 unless a proof root drifts or a prior blocker becomes locally owned. Do not route WP08 into the provider-decision-only WP01.
 
 PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
 adapter/D1-test-double slice into this plan. Start with Rust-owned account
 schema authority, then establish real Workers-D1 account-identity persistence,
 migration, and integration proof.
+
+### 0. WP08 Rust Schema And Workers-D1 Runtime Migration
+
+Expected result:
+
+```text
+Rust-owned canonical account/family authority schema
+real Workers-D1 binding and persistence adapter
+migration apply/compatibility/rollback-or-forward-only proof
+cross-household, stale/revoked, malformed, duplicate, and unavailable-storage negatives
+explicit Durable Object/KV non-authority boundary
+retained focused Rust/worker proof and no-claim handoff record
+```
 
 ### 1. WP01 Auth Provider Decision
 
