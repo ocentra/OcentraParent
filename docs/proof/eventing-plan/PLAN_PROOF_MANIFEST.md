@@ -20,6 +20,10 @@ completion, `PR_READY`, or closure of consumer-owned workpacks.
 - [slice-01-envelope-version.md](slice-01-envelope-version.md)
 - [slice-02-ordering-replay.md](slice-02-ordering-replay.md)
 - [slice-03-consumer-boundary.md](slice-03-consumer-boundary.md)
+- [wp06-00-enforcement-wp11-handoff.md](wp06-00-enforcement-wp11-handoff.md)
+- [wp06-01-journal-replay-proof.md](wp06-01-journal-replay-proof.md)
+- [wp06-02-topology-lineage-proof.md](wp06-02-topology-lineage-proof.md)
+- [wp06-16-validation-commands.md](wp06-16-validation-commands.md)
 
 ## Validation used for this bundle
 
