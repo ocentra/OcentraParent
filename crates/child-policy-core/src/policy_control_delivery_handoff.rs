@@ -1,10 +1,8 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition_with_execution_receipt,
     apply_policy_delivery_transition_without_execution_receipt, queue_policy_delivery,
-    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
-    PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliveryState, PolicyDeliveryTarget,
-    PolicyDeliveryTransition,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord,
+    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     CompiledDomainPolicyArtifact, PolicyAuditReferenceId, PolicyReasonCode,
@@ -40,21 +38,6 @@ pub fn apply_policy_control_delivery_handoff(
 ) -> Result<PolicyControlDeliveryApplyReport, EventingError> {
     let transition = fail_closed_receipt_required_transition(transition)?;
     let outcome = apply_policy_delivery_transition_without_execution_receipt(current, transition)?;
-    Ok(PolicyControlDeliveryApplyReport {
-        delivery: outcome.clone().into_record(),
-        outcome,
-    })
-}
-
-/// Applies adapter-owned execution evidence to a receipt-required delivery
-/// state. The ordinary child handoff cannot manufacture this evidence.
-pub fn apply_trusted_adapter_delivery_handoff(
-    current: &PolicyDeliveryRecord,
-    transition: PolicyDeliveryTransition,
-    receipt: PolicyDeliveryExecutionReceipt,
-) -> Result<PolicyControlDeliveryApplyReport, EventingError> {
-    let outcome =
-        apply_policy_delivery_transition_with_execution_receipt(current, transition, receipt)?;
     Ok(PolicyControlDeliveryApplyReport {
         delivery: outcome.clone().into_record(),
         outcome,

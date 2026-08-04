@@ -325,23 +325,27 @@ pub fn validate_policy_delivery_execution_receipt(
     state_context::assert_execution_receipt(current, transition, receipt)
 }
 
+/// Compares replay evidence structurally without authorizing an adapter or
+/// advancing a policy-delivery record.
+pub fn policy_delivery_execution_receipt_replay_matches(
+    stored_receipt: &PolicyDeliveryExecutionReceipt,
+    transition: &PolicyDeliveryTransition,
+    candidate_receipt: &PolicyDeliveryExecutionReceipt,
+) -> bool {
+    stored_receipt == candidate_receipt
+        && stored_receipt.attempt_id == transition.attempt_id
+        && stored_receipt.sequence == transition.sequence
+        && stored_receipt.state == transition.state
+        && stored_receipt.audit_reference_ids == transition.audit_reference_ids
+        && stored_receipt.reason_code == transition.reason_code
+        && stored_receipt.rollback_reference_state == transition.rollback_reference_state
+}
+
 pub fn apply_policy_delivery_transition(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
     apply_policy_delivery_transition_without_execution_receipt(current, transition)
-}
-
-/// Applies a receipt-required transition only after the adapter supplied its
-/// complete execution evidence. The receiptless path remains fail-closed.
-pub fn apply_policy_delivery_transition_with_execution_receipt(
-    current: &PolicyDeliveryRecord,
-    transition: PolicyDeliveryTransition,
-    receipt: PolicyDeliveryExecutionReceipt,
-) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    transitions::apply_policy_delivery_transition_with_execution_receipt(
-        current, transition, receipt,
-    )
 }
 
 pub fn apply_policy_delivery_transition_without_execution_receipt(
