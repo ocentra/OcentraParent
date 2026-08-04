@@ -101,12 +101,17 @@ packet must cover the changed canonical Rust owner, family-identity runtime,
 and actual Cloudflare worker scope:
 
 ```bash
-cargo test -p ocentra-family-identity-core account
+# Canonical schema crate plus focused account/family authority coverage.
+cargo test -p ocentra-schema --test contract
+cargo test -p ocentra-family-identity-core household_authority
+npm run lint:architecture -- --files crates/schema crates/family-identity-core
+
+# Real Workers-D1 persistence/migration scope.
 npm --prefix infra/cloudflare run test:unit
 npm --prefix infra/cloudflare run test:integration
 npm --prefix infra/cloudflare run test:contract
 npm --prefix infra/cloudflare run lint
-npm run lint:architecture -- --files crates/schema crates/family-identity-core infra/cloudflare
+npm run lint:architecture -- --files infra/cloudflare
 ```
 
 Run a protocol/service consumer only if this workpack changes its typed

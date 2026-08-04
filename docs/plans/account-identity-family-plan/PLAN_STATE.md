@@ -18,7 +18,7 @@
 
 ```text
 Plan route: upgraded
-Execution-grade workpacks: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk
+Execution-grade workpacks: WP01 has a docs-only provider/custody proof pack on disk; WP08 is the open Rust-schema plus real Workers-D1 runtime/migration packet; WP02, WP03, WP04, WP05, WP06, and WP07 now have complete proof roots on disk
 Implementation: central-schema migration is in progress/current for shared account/family shapes; helper/projection implementation exists in family-domain, setup-domain, family-identity-core, and provisioning-core; account-identity adapter/runtime and D1/DO/KV schema/migration proof remain open
 Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
@@ -142,6 +142,7 @@ until the relevant workpack proof root and checklist rows prove the claim.
 
 ```text
 WP01 provider decision and custody boundary
+WP08 Rust-owned schema and real Workers-D1 runtime/migration
 WP02 account/household/role/device model
 WP03 session/token lifecycle
 WP04 invite/recovery lifecycle

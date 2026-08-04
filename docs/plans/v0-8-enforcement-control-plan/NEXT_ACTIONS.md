@@ -37,9 +37,13 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ## Highest-open workpacks by dependency
 
+### Establish the durable-journal handoff before execution authority
+
+- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes; establish the enforcement-specific durable journal and its `eventing-plan` replay/idempotency handoff before scheduling WP04 dispatch-ready work.
+
 ### Close execution authority first
 
-- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; first establish trusted dispatch and a durable journal before advancing execution state.
+- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; schedule only after WP11's durable-journal/eventing handoff is present or precisely blocked, then establish trusted dispatch before advancing execution state.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md): 5 open of 5 boxes.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md): 5 open of 5 boxes.
 - [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md): 5 open of 5 boxes.
@@ -47,7 +51,6 @@ workpack/checklist status and does not replace the assigned workpack.
 ### Then close approval, audit, and read-model truth
 
 - [10 Parent Approval And Override](workpacks/10-parent-approval-override.md): 5 open of 5 boxes.
-- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes.
 - [13 Service Read Models And API](workpacks/13-service-read-models-and-api.md): 5 open of 5 boxes.
 
 ### Keep integrity and non-claim state explicit
