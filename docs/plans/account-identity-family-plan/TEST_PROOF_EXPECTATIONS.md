@@ -132,6 +132,8 @@ Expected focused commands:
 cargo test -p ocentra-schema --test contract
 cargo test -p ocentra-schema --test contract family_references_generated_typescript_matches_checked_in_file
 cargo test -p ocentra-family-identity-core household_authority
+cargo test -p ocentra-family-identity-core --test unit setup_lifecycle
+cargo test -p ocentra-family-identity-core --test unit session_lifecycle
 npm run lint:architecture -- --files crates/schema crates/family-identity-core
 
 ```

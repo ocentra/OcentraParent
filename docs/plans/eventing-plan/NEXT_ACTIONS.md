@@ -44,8 +44,9 @@ This file is the short resume list for the next worker. It is derived from open 
 - WP13 is now locally proved at
   `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`
   and `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
-- Next slice: verify the owning LAN/remote-access proof handoff for WP10 before
-  changing its local status.
+- Next slice: complete reopened WP06 journal/replay/topology proof and retain
+  `00-enforcement-wp11-handoff.md`; only then verify the owning
+  LAN/remote-access proof handoff for WP10 before changing its local status.
 
 ## PR readiness guard
 

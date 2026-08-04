@@ -70,6 +70,8 @@ packages/agent-protocol-domain/src/** only for typed service/portal protocol cro
 apps/portal/src/** only for WP07 selected UI surfaces
 apps/portal/tests/** only for WP07 selected UI tests
 apps/portal/e2e/** only for WP07 selected Playwright proof
+crates/schema/** only for WP08 canonical Rust account/family/session/device-authority contracts and generated edge projection drift proof
+crates/family-identity-core/** only for WP08 Rust parity and account-authority lifecycle negative-path proof
 crates/agent-protocol/** only for cross-language contract parity
 crates/agent-service/** only for selected service-backed setup/session/device boundary proof
 infra/cloudflare/** is Cloudflare-plan-owned; Account WP08 records only its typed handoff to Cloudflare WP06 and Cloudflare WP08

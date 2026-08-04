@@ -57,7 +57,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 - Scoped validation: `npm --prefix infra/cloudflare run lint`
 - Dependency reconciliation: `npm --prefix infra/cloudflare install --ignore-scripts --no-audit --no-fund --no-package-lock`
-- Resolved graph: `npm --prefix infra/cloudflare exec -- npm ls wrangler @cloudflare/workers-types`
+- Resolved graph: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types`
 - Architecture validation: `npm run lint:architecture -- --files infra/cloudflare`
 
 ## Negative cases
