@@ -6,7 +6,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 ## Current status
 
-`source-present / dependency-reconciliation-proof-absent`
+`proved / scoped-package-graph`
 
 ## First-touch surface
 
@@ -23,7 +23,9 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 - `infra/cloudflare/`
 - `infra/cloudflare/package.json`
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
-- `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/03-package-dependency-graph.md`
+- `docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/03-package-dependency-graph.md`
+- `docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/04-module-scaffold-and-scripts.md`
+- `docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/16-validation-commands.log`
 
 ## Execution truth
 
@@ -38,13 +40,14 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
   - real runtime files include `src/index.ts`, `src/env.ts`, `src/routes.ts`, `src/billing-binding-read-model.ts`, `src/fixtures.ts`, `src/testing.ts`, `src/auth/model.ts`, `src/auth/verifier.ts`, and `src/security/redaction.ts`
   - scaffold-only directories still carry `README.md` placeholders under `src/durable-objects/`, `src/flows/`, `src/handlers/`, `src/observability/`, `src/providers/`, `src/queues/`, and `src/storage/`
 - The former missing `billing-domain` import blocker is stale: `infra/cloudflare` now consumes module-local generated billing contracts.
-- This worktree cannot reproduce the earlier lint/unit command claims because `infra/cloudflare/node_modules` is absent (`tsc` and `tsx` are unavailable). The WP01 prerequisite is the clean reconciliation of the selected `wrangler` and `@cloudflare/workers-types` peer relationship: the current `wrangler@4.118.0` optional peer requires `@cloudflare/workers-types ^5.20260730.1`, while this module declares `^4.20260601.0`. Retain the selected resolver graph and command result before checking CF-01 or selecting WP07.
+- WP01 reconciles the declared peer relationship with `@cloudflare/workers-types ^5.20260730.1`. A clean module install resolves `wrangler@4.118.0` with deduped `@cloudflare/workers-types@5.20260804.1`; the durable `docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/03-package-dependency-graph.md` retains the command result. The local file dependency on `@ocentra-parent/logging-domain` must be built before the module lint resolves its exported test-log declarations; that preparation is a local validation prerequisite, not a Cloudflare product change.
 
 ## Acceptance
 
 - The module tree exists.
 - Package scripts are explicit.
 - The concentrated runtime surface versus placeholder subdirectories is explicit.
+- Static module-tree and package-script evidence is retained in `04-module-scaffold-and-scripts.md` for `cloudflare-control.module-exists` and `cloudflare-control.package-scripts`.
 - The selected `wrangler` and `@cloudflare/workers-types` declarations resolve without a peer mismatch, with the exact resolver output retained in `03-package-dependency-graph.md`.
 - WP07 remains blocked until WP01 retains that clean graph plus the focused command results; a recorded resolver blocker is not permission to run or close WP07.
 
@@ -68,14 +71,16 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 - Do not claim module completion from directory existence alone.
 
-## Historical validations, not current graph proof
+## Current scoped validation
 
-- `npm --prefix infra/cloudflare run lint` -> passed
+- `npm --prefix infra/cloudflare install --ignore-scripts --no-audit --no-fund --no-package-lock` -> passed
+- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` -> passed with `wrangler@4.118.0` and deduped `@cloudflare/workers-types@5.20260804.1`
+- `npm --prefix infra/cloudflare run lint` -> passed after building the declared local logging-domain dependency
 - `npm --prefix infra/cloudflare run test:unit` -> passed (49 tests across 7 suites)
 - `npm run lint:architecture -- --files infra/cloudflare` -> passed (architecture-policy and generated-artifacts)
 
-These historical command observations do not replace the retained clean package
-graph required for WP01 or release WP07.
+The retained WP01 files record this package-scope result. They make WP07's
+separate proof-only work selectable, but do not run or close WP07.
 
 ## No-claim boundary
 

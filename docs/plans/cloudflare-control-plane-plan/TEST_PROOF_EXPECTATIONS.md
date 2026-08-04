@@ -94,7 +94,7 @@ Local Codex/MCP/debug harness logging:
 ```text
 prefer npm run agent:run -- <command> when available
 store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
-write compact command summaries into 16-validation-commands.log
+write compact command summaries into `16-validation-commands.log`
 include run id, command id, workpack id, owner module, environment, route/auth state when relevant, exit code, result, artifact pointer, diagnostics summary, rollback/teardown note, dependency blocker note, and no-claim note when available
 if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
 ```
@@ -141,10 +141,10 @@ Account WP06 aggregation handoff. Missing source, command output, or proof is
 recorded as an exact blocker and keeps Cloudflare WP06/WP08 and Account WP06
 blocked; neither packet may substitute a test double or claim account authority.
 The runner consumes the module-local generated billing-contract route, not
-`packages/billing-domain/src/*`. Its current preflight
-`npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` is empty,
-so WP01's dependency-resolution result and WP06's retained proof must exist
-before WP08 runs or reports the selected integration family.
+`packages/billing-domain/src/*`. WP01's retained pinned preflight
+`npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` is
+non-empty; WP06's retained storage proof must still exist before WP08 runs or
+reports the selected integration family.
 
 ## Required negative states
 
@@ -164,10 +164,13 @@ production deployment claim requires WP11 proof
 
 ## Proof storage
 
-Proof artifacts live under:
+Raw or generated proof artifacts live under:
 
 ```text
 output/cloudflare-control-plane-plan-proof/<workpack-id>/
 ```
 
-Do not write new proof artifacts under `docs/proof/cloudflare-control-plane-plan/` unless preserving old references; new work should use `output/` proof roots.
+When a selected `PROOF_INDEX.md` route calls for compact, durable human proof,
+track it under `docs/proof/cloudflare-control-plane-plan/<workpack-id>/` and
+keep the raw/generated local output in the ignored `output/` root. WP01 uses
+that durable route; other workpacks remain governed by their selected proof route.

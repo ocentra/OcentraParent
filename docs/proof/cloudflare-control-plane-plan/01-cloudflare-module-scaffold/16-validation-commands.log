@@ -1,0 +1,88 @@
+# WP01 validation commands
+
+plan: cloudflare-control-plane-plan
+workpack: 01-cloudflare-module-scaffold
+owner: infra-cloudflare
+environment: local
+deployment_state: not-tested
+consumer_handoff_state: not-tested
+payment_handoff_state: blocked
+
+```text
+command: npm install --ignore-scripts --no-audit --no-fund
+exit: 0
+result: pass
+artifact: n/a
+diagnostics_summary: root workspace dependencies installed before the logging-domain workspace build
+rollback_or_teardown_note: root node_modules is ignored local validation state; do not remove shared workspace dependencies without the owning workspace cleanup decision
+dependency_blocker_note: required clean-checkout prerequisite for proof:logger-ready because logging-domain TypeScript build needs root workspace dependencies
+no_claim: workspace dependency preparation does not prove Cloudflare runtime or consumer behavior
+
+command: npm --prefix infra/cloudflare run proof:logger-ready
+exit: 0
+result: pass
+artifact: n/a
+diagnostics_summary: runs npm --prefix ../.. --workspace @ocentra-parent/logging-domain run build before Cloudflare lint
+rollback_or_teardown_note: after validation, verify packages/logging-domain/dist is an ignored non-reparse-point build directory, then run Remove-Item -LiteralPath packages/logging-domain/dist -Recurse -Force if this pass created it
+dependency_blocker_note: local logging-domain build is validation preparation only, not a Cloudflare product change
+no_claim: local dependency preparation does not prove runtime or consumer behavior
+
+command: npm --prefix infra/cloudflare install --ignore-scripts --no-audit --no-fund --no-package-lock
+exit: 0
+result: pass
+artifact: 03-package-dependency-graph.md
+diagnostics_summary: clean module resolver install after pinned Wrangler and Workers-types declarations
+rollback_or_teardown_note: 02-rollback-or-teardown-proof.md
+dependency_blocker_note: none for WP01 graph
+no_claim: no runtime, deployment, authority, payment, or WP07 proof claim
+
+command: npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types
+exit: 0
+result: pass
+artifact: 03-package-dependency-graph.md
+diagnostics_summary: wrangler@4.118.0 and @cloudflare/workers-types@5.20260804.1 deduped
+rollback_or_teardown_note: 02-rollback-or-teardown-proof.md
+dependency_blocker_note: none for WP01 graph
+no_claim: no runtime, deployment, authority, payment, or WP07 proof claim
+
+command: npm --prefix infra/cloudflare run lint
+exit: 0
+result: pass
+artifact: n/a
+diagnostics_summary: TypeScript no-emit passed after proof:logger-ready
+rollback_or_teardown_note: 02-rollback-or-teardown-proof.md
+dependency_blocker_note: none
+no_claim: lint does not prove runtime or consumer behavior
+
+command: npm --prefix infra/cloudflare run test:unit
+exit: 0
+result: pass
+artifact: 04-module-scaffold-and-scripts.md
+diagnostics_summary: 49 tests across 7 suites passed
+rollback_or_teardown_note: 02-rollback-or-teardown-proof.md
+dependency_blocker_note: none
+no_claim: unit tests do not prove WP07, deployment, account authority, or payment readiness
+
+command: npm run lint:architecture -- --files infra/cloudflare
+exit: 0
+result: pass
+artifact: n/a
+diagnostics_summary: architecture-policy and generated-artifacts passed
+rollback_or_teardown_note: n/a
+dependency_blocker_note: none
+no_claim: source-policy validation does not prove runtime readiness
+
+command: node -e "const fs=require('fs'); const p=require('./infra/cloudflare/package.json'); const files=['infra/cloudflare/package.json','infra/cloudflare/wrangler.toml','infra/cloudflare/wrangler.production.toml','infra/cloudflare/.dev.vars.example','infra/cloudflare/src/index.ts','infra/cloudflare/src/env.ts','infra/cloudflare/src/routes.ts','infra/cloudflare/scripts/test-runner.ts','infra/cloudflare/tests/unit/route-manifest.test.ts']; const scripts=['dev','dev:remote','seed:local','test:unit','test:integration','test:e2e','test:contract','test:security','test:property','test:fuzz','deploy:dev','deploy','lint']; const missing=files.filter((f)=>!fs.existsSync(f)); const missingScripts=scripts.filter((s)=>typeof p.scripts[s]!=='string'); if(missing.length||missingScripts.length){console.error(JSON.stringify({missing,missingScripts}));process.exit(1)} console.log(JSON.stringify({files:files.length,scripts:scripts.length,result:'pass'}));"
+exit: 0
+result: pass
+artifact: 04-module-scaffold-and-scripts.md
+diagnostics_summary: 9 paths and 13 explicit scripts verified
+rollback_or_teardown_note: n/a
+dependency_blocker_note: none
+no_claim: static scaffold evidence does not prove runtime readiness
+
+teardown_command: Remove-Item -LiteralPath packages/logging-domain/dist -Recurse -Force
+teardown_precondition: verify the exact ignored build directory is not a reparse point and was created only for this validation pass
+teardown_result: not run; the build directory pre-existed this pass and remains disposable ignored local validation state
+teardown_no_claim: retaining or removing ignored local build output does not change committed source or proof
+```

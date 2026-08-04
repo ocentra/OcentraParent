@@ -10,6 +10,7 @@ coverage/
 .eslintcache
 *.tsbuildinfo
 *.log
+!docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/16-validation-commands.log
 .env
 .env.*
 !.env.example

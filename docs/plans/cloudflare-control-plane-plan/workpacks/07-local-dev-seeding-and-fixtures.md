@@ -50,14 +50,13 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 
 - The expected proof root is absent, so the prior workflow stdout/stderr is not
   recoverable from tracked artifacts.
-- In the current checkout the generated billing contract exists at
-  `infra/cloudflare/src/generated/billing-contracts.ts`, but module-local
-  Wrangler is not installed at `infra/cloudflare/node_modules/wrangler`.
-- `npm --prefix infra/cloudflare install --ignore-scripts --no-audit
-  --no-fund --no-package-lock` cannot resolve `wrangler@4.118.0` because its
-  optional peer requires `@cloudflare/workers-types ^5.20260730.1` while this
-  module declares `^4.20260601.0`; rerun local-start proof after that dependency
-  boundary is reconciled.
+- WP01 retains a clean pinned graph: `npm --prefix infra/cloudflare ls wrangler
+  @cloudflare/workers-types` reports `wrangler@4.118.0` with deduped
+  `@cloudflare/workers-types@5.20260804.1`. The former Workers-types peer
+  mismatch is resolved and is not a WP07 blocker.
+- WP07 still has no retained WP07 proof bundle. Rerun its own local-start, seed,
+  fixture, and teardown commands from the resolved graph, then retain their
+  exact result or remaining blocker; WP01 validation is not WP07 closure.
 
 ## Validations run
 
