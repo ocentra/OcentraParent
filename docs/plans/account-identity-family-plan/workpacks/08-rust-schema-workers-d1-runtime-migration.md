@@ -112,7 +112,7 @@ npm run lint:architecture -- --files crates/schema crates/family-identity-core p
 ```
 
 Cloudflare WP06, not this packet, records its exact migration command as
-`npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local` after it defines the binding and migration.
+`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"` after it defines the binding and migration.
 Cloudflare WP08, not this packet, runs Cloudflare module test scripts including
 `npm --prefix infra/cloudflare run test:integration`. Record unavailable
 Cloudflare handoff proof as a downstream blocker; do not substitute a test
