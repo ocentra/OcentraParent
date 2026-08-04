@@ -126,6 +126,10 @@ account-identity D1 adapter, migration, and
 result from `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`, the module integration result from
 `npm --prefix infra/cloudflare run test:integration`, and the focused
 architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
+WP06 also retains the direct focused command
+`node --import tsx --test infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
+in `03-account-identity-d1-migration-test.md`; the aggregate integration script
+cannot substitute for or silently omit that required migration/adapter result.
 
 Cloudflare WP08 follows WP06. It maps the selected account-identity integration
 assertion and its module-runner result to the Cloudflare proof root and the

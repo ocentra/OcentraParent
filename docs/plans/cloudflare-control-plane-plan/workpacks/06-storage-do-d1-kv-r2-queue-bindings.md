@@ -1,6 +1,6 @@
 # Workpack 06: Storage DO D1 KV R2 Queue Bindings
 
-> **2026-07-28 correction:** The later missing-private-billing-import blocker text is historical. `infra/cloudflare` now imports module-local generated billing contracts. This workpack remains open because it has no tracked proof bundle; rerun after installing dependencies and record the actual result.
+> **2026-07-28 correction:** `infra/cloudflare` imports module-local generated billing contracts. This workpack remains open because it has no tracked account-storage proof bundle; restore the module dependency environment, then record the actual result.
 
 ## Goal
 
@@ -53,6 +53,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Scoped validation: `npm --prefix infra/cloudflare run test:property`
 - Migration validation after the selected binding and migration exist: `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`
 - Account-identity migration/adapter validation after the selected test is registered in the module runner: `npm --prefix infra/cloudflare run test:integration`
+- Required direct migration-test validation: `node --import tsx --test infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`; retain its result separately so the aggregate integration script cannot omit it.
 - Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## Negative cases
@@ -67,7 +68,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Completion
 
-- Status: blocked / proof-present for WP06 only; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
+- Status: blocked / no current account-storage proof; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
 - Account-D1 binding configuration: `infra/cloudflare/wrangler.toml`
@@ -85,22 +86,23 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` all remain blocked before worker boot because `infra/cloudflare/src/index.ts` cannot import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
-- That billing-domain boundary import is outside the WP06 storage-binding slice, so the blocker is carried rather than fixed here.
+- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently exits nonzero with an empty module dependency tree. WP01 owns restoring that dependency environment before WP06 invokes module test scripts.
+- Account WP08's Rust contract and the selected WP06 D1 binding, adapter, migration, and direct integration-test artifacts are not yet retained. Until they exist, this packet cannot produce a storage handoff for Cloudflare WP08 or Account WP06.
+- `infra/cloudflare/src/index.ts` imports `./generated/billing-contracts.js`, backed by the checked-in module-local generated artifact. Obsolete `packages/billing-domain/src/*` imports are not WP06 blockers and must not be revived.
 
 ## Proof artifacts
 
 - `00-scope-summary.md`
 - `01-negative-case-proof.md`
 - `02-rollback-or-teardown-proof.md`
+- `03-account-identity-d1-migration-test.md`
 - `16-validation-commands.log`
 
 ## Focused validations
 
 - `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `npm --prefix infra/cloudflare run test:unit` blocked on `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-- `npm --prefix infra/cloudflare run test:integration` blocked on the same import
-- `npm --prefix infra/cloudflare run test:property` blocked on the same import
+- `node --import tsx --test infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` required direct test; retain its result in `03-account-identity-d1-migration-test.md` and do not let `test:integration` substitute for it
+- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` are deferred until WP01 restores the module dependency tree; any later failure records its then-current exact blocker
 - `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## No-claim boundary

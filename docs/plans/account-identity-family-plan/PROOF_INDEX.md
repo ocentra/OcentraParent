@@ -70,7 +70,7 @@ test-results/account-identity-family-plan-security-route-gate/
 ### WP08 Rust Schema And Account Authority
 
 ```text
-00-rust-schema-authority-proof.md (records crates/schema/src/family_references_ts.rs -> packages/schema-domain/src/generated-family-references.ts plus the checked-in drift assertion)
+00-rust-schema-authority-proof.md (owner: crates/schema; Rust parity owner: crates/family-identity-core; records crates/schema/src/family_references_ts.rs -> packages/schema-domain/src/generated-family-references.ts plus the checked-in drift assertion)
 01-account-authority-parity-proof.md
 02-account-authority-negative-proof.md
 03-redacted-authority-proof.md
@@ -174,7 +174,7 @@ For new proof artifacts and new command-log entries, include structured metadata
 ```text
 plan: account-identity-family-plan
 workpack: <WP id and name>
-owner: schema-domain | family-domain | family-identity-core | setup-domain | provisioning-core | portal-domain | apps/portal | protocol/service | docs-only
+owner: crates/schema | crates/family-identity-core | schema-domain-edge-consumer | family-domain | setup-domain | provisioning-core | portal-domain | apps/portal | protocol/service | docs-only
 run_id: <wrapper run id or n/a>
 command_id: <wrapper command id or n/a>
 correlation_id: <runtime/proof correlation id or n/a>
