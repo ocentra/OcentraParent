@@ -18,7 +18,7 @@
 
 ```text
 output/cloudflare-control-plane-plan-proof/00-games-infra-parity-extraction/
-output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/
+docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/
 output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/
 output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/
 output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/
@@ -34,25 +34,30 @@ output/cloudflare-control-plane-plan-proof/12-payment-plan-handoff-gate/
 
 ## Required universal proof files
 
-Every proof root needs:
+Every selected proof route needs:
 
 ```text
 00-scope-summary.md
 01-negative-case-proof.md
 02-rollback-or-teardown-proof.md
-16-validation-commands.log
+16-validation-commands.log (or WP01's tracked `16-validation-commands.md`)
 ```
 
 Additional workpack-specific files are named inside the selected workpack and `REQUIRED_TEST_ASSERTION_MATRIX.md` for WP08/WP10.
 
 ## WP01 module dependency proof
 
-Before WP01 can release the WP07 proof-only successor, retain
-`output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/03-package-dependency-graph.md`.
+Before WP01 can release the WP07 proof-only successor, retain the compact,
+human-reviewable proof at
+`docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/03-package-dependency-graph.md`.
 It records the selected `wrangler` and `@cloudflare/workers-types` manifest
 versions, resolver/install result, resolved graph command result, and whether
 their peer requirements are compatible. A missing or blocked graph keeps WP07
-blocked; it is not a substitute for the graph proof.
+blocked; it is not a substitute for the graph proof. Raw or generated local
+output remains under the ignored
+`output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` root.
+The same durable packet includes
+`docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/16-validation-commands.md`.
 
 ## WP08 account-storage runner proof
 
@@ -60,11 +65,11 @@ After Cloudflare WP06 retains its account-D1 binding, adapter, migration, and
 integration proof, WP08 retains the selected module-runner result under
 `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
 and maps it to the Account WP06 aggregation handoff. The current module route
-uses `infra/cloudflare/src/generated/billing-contracts.ts`; an empty
-`npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` result is
-a WP01 dependency blocker, not a legacy `packages/billing-domain/src/*` import
-blocker. Until WP01 and WP06 are satisfied, record the exact blocker and keep
-WP08/Account WP06 open.
+uses `infra/cloudflare/src/generated/billing-contracts.ts`; WP01 retains a
+non-empty pinned `npm --prefix infra/cloudflare ls wrangler
+@cloudflare/workers-types` result. WP06 remains the storage-proof blocker; it
+is not a legacy `packages/billing-domain/src/*` import blocker. Until WP06 is
+satisfied, record the exact blocker and keep WP08/Account WP06 open.
 
 ## WP06 account-D1 migration proof
 
@@ -73,9 +78,9 @@ WP06 retains
 with the direct focused result from
 `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`.
 The module `test:integration` output is supplementary; it cannot replace or
-omit this migration/adapter result. Until WP01 restores the dependency tree and
-the selected Account/WP06 surfaces exist, retain the exact blocker instead. The
-account D1 proof must also identify its dedicated binding and migration
+omit this migration/adapter result. The WP01 dependency tree is resolved, but
+until the selected Account/WP06 surfaces exist, retain the exact blocker
+instead. The account D1 proof must also identify its dedicated binding and migration
 directory/equivalent mapping; no `BILLING_D1` migration result may stand in.
 
 ## Command log format

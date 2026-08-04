@@ -65,8 +65,8 @@ Reduce the games security and external-tool surface to the Parent-required basel
 
 ## Exact blocker
 
-- Current prerequisite for every WP10 module command: WP01 must restore the empty dependency tree shown by `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types`.
-- `infra/cloudflare/src/index.ts` imports module-local generated billing contracts; after the resolver graph is clean, record the exact security/property/fuzz failure if one remains.
+- WP01's pinned `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` graph is resolved. WP10 still needs its selected module commands and retained proof.
+- `infra/cloudflare/src/index.ts` imports module-local generated billing contracts; record the exact security/property/fuzz failure if one remains.
 
 ## Validation truth
 

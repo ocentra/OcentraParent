@@ -88,7 +88,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently exits nonzero with an empty module dependency tree. WP01 owns restoring that dependency environment before WP06 invokes module test scripts.
+- WP01's pinned `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` graph now passes. WP06 remains blocked on the Account WP08 contract and its own account binding, adapter, migration, and direct integration proof.
 - Account WP08's Rust contract and the selected WP06 D1 binding, adapter, migration, and direct integration-test artifacts are not yet retained. Until they exist, this packet cannot produce a storage handoff for Cloudflare WP08 or Account WP06.
 - `infra/cloudflare/wrangler.toml` and `src/env.ts` currently declare only billing storage bindings: no account D1/DO/KV declaration or binding-specific account `migrations_dir`/equivalent mapping exists. WP06 must not run the account migration command against `BILLING_D1`.
 - `infra/cloudflare/src/index.ts` imports `./generated/billing-contracts.js`, backed by the checked-in module-local generated artifact. Obsolete `packages/billing-domain/src/*` imports are not WP06 blockers and must not be revived.
@@ -105,7 +105,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 - `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
 - `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"` required direct test; retain its result in `03-account-identity-d1-migration-test.md` and do not let `test:integration` substitute for it
-- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` are deferred until WP01 restores the module dependency tree; any later failure records its then-current exact blocker
+- `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` remain deferred until the selected WP06 account surfaces exist; any later failure records its then-current exact blocker
 - `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## No-claim boundary

@@ -26,8 +26,8 @@ Current scoped proof rerun uses `--dry-run` against both commands because no rea
 
 ## Current blocked state
 
-- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` is currently blocked before publish because WP01's `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` preflight reports an empty dependency tree. `src/index.ts` consumes the checked-in module-local generated billing-contract artifact; it has no private billing-domain import gate.
-- `npm --prefix infra/cloudflare run deploy -- --dry-run` is currently blocked by that same unresolved WP01 dependency graph. After it is restored, retain the actual current deploy diagnostics rather than carrying forward a removed billing-domain import failure.
+- `npm --prefix infra/cloudflare run deploy:dev -- --dry-run` has not been rerun; WP01's pinned `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` preflight is now resolved. `src/index.ts` consumes the checked-in module-local generated billing-contract artifact; it has no private billing-domain import gate.
+- `npm --prefix infra/cloudflare run deploy -- --dry-run` likewise has not been rerun. Retain its actual current diagnostics rather than carrying forward a removed dependency or billing-domain import failure.
 - Both commands also emit a Wrangler warning because the scripts pass `--env development` or `--env production` without matching `[env.*]` sections in the chosen config file.
 - Both configs still expose placeholder-backed D1 and KV identifiers and manual-required auth/key references, so no promotion or rollback readiness may be inferred.
 

@@ -36,12 +36,12 @@ Define the first consumer-side smoke that proves a parent portal route can talk 
 
 - The owned e2e family stays explicitly scoped to `tests/e2e/portal-to-worker-billing-status.test.ts`.
 - The test contract stays explicitly scoped to `/auth/billing/status`.
-- The owned command is deferred before route execution because WP01's module dependency tree is currently empty; the worker imports module-local generated billing contracts rather than private billing-domain source.
+- The owned command has not been rerun for WP09; WP01's pinned module dependency tree is resolved, and the worker imports module-local generated billing contracts rather than private billing-domain source.
 - Secret/private leakage assumptions remain denied by the owned test contract, but runtime success is not proven because the worker never booted.
 
 ## Exact blocker set
 
-- Restore the WP01 resolver graph, then retain the actual portal-to-worker boot or route blocker if one remains.
+- Retain the actual portal-to-worker boot or route blocker if one remains.
 
 ## Validations run
 

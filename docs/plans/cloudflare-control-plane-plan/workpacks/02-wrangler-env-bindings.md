@@ -67,8 +67,8 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Blocked truth
 
-- Module test and lint reruns wait on WP01: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty dependency tree.
-- `infra/cloudflare/src/index.ts` uses the module-local generated billing-contract route; after WP01 restores dependencies, record any then-current module lint or fixture error without reviving private billing-domain imports.
+- WP01's pinned `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` graph is now resolved. WP02's selected module test and lint proof still need their own rerun and retained artifacts.
+- `infra/cloudflare/src/index.ts` uses the module-local generated billing-contract route; record any then-current WP02 module lint or fixture error without reviving private billing-domain imports.
 - Those failures are outside the owned WP02 wrangler/dev-vars surface, so they are carried as blockers rather than fixed here.
 
 ## Proof artifacts

@@ -73,7 +73,7 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Exact blockers
 
-- The module dependency preflight `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty tree, so the module-local runner dependencies are unavailable. WP01 owns restoring a clean resolver graph before WP08 reruns the module scripts.
+- WP01's pinned module dependency preflight `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` now passes. WP08 remains blocked on Account WP08 and Cloudflare WP06 proof before it reruns the selected module scripts.
 - Account WP08's Rust contract and Cloudflare WP06's account-D1 binding, adapter, migration, and integration proof are not yet retained. WP08 therefore cannot produce its account-storage runner handoff to Account WP06.
 - `infra/cloudflare/src/index.ts` imports the current module-local generated route `./generated/billing-contracts.js`; the old `packages/billing-domain/src/*` import paths are not WP08 blockers and must not be revived.
 
@@ -96,8 +96,8 @@ For the account-identity storage handoff, WP06 records the migration command
 Validation truth from the current checkout:
 
 - Historical `--list` and family results are runner-inventory evidence only, not a current Account-storage handoff.
-- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently exits nonzero with an empty module tree; do not run or report family results until WP01 restores that dependency environment and WP06 supplies its required proof.
-- After both current prerequisites exist, rerun the selected module script and retain its mapped result or a new exact blocker for Account WP06.
+- WP01's pinned graph is resolved; do not run or report the Account-storage family result until WP06 supplies its required proof.
+- After the remaining WP06 prerequisite exists, rerun the selected module script and retain its mapped result or a new exact blocker for Account WP06.
 
 ## Negative cases
 
@@ -117,4 +117,4 @@ Validation truth from the current checkout:
 - This workpack does not prove billing readiness, payment handoff readiness, or portal completion.
 - This workpack does not prove the excluded same-directory tests belong to the WP08 contract.
 - This workpack consumes but does not redefine the Account WP08 Rust authority contract; its account-identity result is not a whole-account or runtime-ready claim.
-- WP08 stays open/blocked until WP01 restores the module dependency environment and WP06 retains the account-storage proof required for the WP08 runner handoff.
+- WP08 stays open/blocked until WP06 retains the account-storage proof required for the WP08 runner handoff.

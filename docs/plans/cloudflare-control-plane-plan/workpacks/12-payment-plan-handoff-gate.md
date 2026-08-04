@@ -72,7 +72,7 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Accepted proof roots
 
-- `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`
+- `docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/`
 - `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
 - `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
 - `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/`
@@ -89,7 +89,7 @@ These are field requirements for proof routing, not implementation code prescrip
 - Missing proof roots:
   - none under the current Cloudflare proof inventory
 - Accepted-root carried blockers:
-  - broader Cloudflare runtime, local-dev, validation, and deploy reruns wait on WP01's clean Wrangler/Workers-types resolver graph; the current module dependency tree is empty.
+  - broader Cloudflare runtime, local-dev, validation, and deploy reruns require their own focused proof; WP01's pinned Wrangler/Workers-types resolver graph is already retained.
   - the worker's generated billing-contract route is module-local, so no private `packages/billing-domain/src/*` import is a carried payment blocker.
   - WP02 also carries module-lint debt from:
     - `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
