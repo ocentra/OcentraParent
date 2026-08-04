@@ -32,18 +32,19 @@ Define the local Wrangler workflow, seed scripts, and required fixture families.
 - `node --import tsx --test infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` exited `0` and proved that start, seed, teardown, fixture families, and blocker reporting stay explicit.
 - Local start is command-backed and reports the precise module-local Wrangler
   blocker from the current module layout.
-- Local seed is command-backed and currently reports populated pricing, parent
-  account, support/admin account, and referral fixture families.
+- Local seed is command-backed on the Windows host used for the current probe
+  and reports populated pricing, parent account, support/admin account, and
+  referral fixture families; non-Windows probes remain blocked.
 - Teardown remains explicit: stop `wrangler dev --local`, remove harness-created `--persist-to` temp state, and remove `infra/cloudflare/.dev.vars` only when the harness created it.
 
-## Fixture families proved
+## Fixture families observed
 
-- `pricing-catalog`: explicit and currently `populated` with `3` items
-- `parent-test-accounts`: explicit and currently `populated` with `4` items
-- `support-admin-test-accounts`: explicit and currently `populated` with `4` items
-- `referral-test-graph`: explicit and currently `populated` with `2` items
-- `webhook-payload-fixtures`: explicit and `test-fixture-backed`
-- `queue-replay-fixtures`: explicit and `test-fixture-backed`
+- `pricing-catalog`: explicit, observed `populated` with `3` items; not retained proof
+- `parent-test-accounts`: explicit, observed `populated` with `4` items; not retained proof
+- `support-admin-test-accounts`: explicit, observed `populated` with `4` items; not retained proof
+- `referral-test-graph`: explicit, observed `populated` with `2` items; not retained proof
+- `webhook-payload-fixtures`: explicit and `test-fixture-backed`; not retained proof
+- `queue-replay-fixtures`: explicit and `test-fixture-backed`; not retained proof
 
 ## Exact blockers
 

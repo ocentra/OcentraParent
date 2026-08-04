@@ -2,9 +2,15 @@
 
 import { readFileSync } from 'node:fs';
 import { existsSync } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import path from 'node:path';
+import { env } from 'node:process';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+
+import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
+import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
+import { redactPayload } from '../src/security/redaction.js';
 
 export interface RuntimeDependencyBlocker {
   kind: 'missing-runtime-dependency' | 'runtime-import-check';
@@ -63,6 +69,72 @@ interface CommandProbeResult {
   stdout: string;
   stderr: string;
   blocker?: RuntimeDependencyBlocker;
+}
+
+type ProofLogStatus = 'started' | 'observed' | 'blocked' | 'completed';
+
+interface ProofLogEvent {
+  event: string;
+  status: ProofLogStatus;
+  details: Record<string, unknown>;
+}
+
+const fallbackProofRunId = `cloudflare-local-${randomUUID()}`;
+
+function resolveProofRunId(): string {
+  return env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID ?? fallbackProofRunId;
+}
+
+function writeProofLog(event: ProofLogEvent): void {
+  const logRoot = (env.OCENTRA_PARENT_LOG_ROOT ?? '').trim();
+  if (logRoot.length === 0) {
+    return;
+  }
+
+  const redactedEvent = redactPayload({
+    schemaVersion: 1,
+    eventType: 'cloudflare-local-dev-workflow',
+    owner: 'cloudflare-control-plane',
+    boundaryResult: event.status,
+    redactionState: 'applied',
+    runId: resolveProofRunId(),
+    generatedAt: new Date().toISOString(),
+    ...event,
+  });
+  if (redactedEvent === null || typeof redactedEvent !== 'object' || Array.isArray(redactedEvent)) {
+    throw new Error('Cloudflare proof log redaction returned a non-record payload');
+  }
+
+  const runId = resolveProofRunId();
+  appendTestLogEntries(
+    [
+      {
+        schemaVersion: 1,
+        type: 'log',
+        scope: TestLogScope.ParentCloudflare,
+        runId,
+        runType: RunType.Single,
+        suiteType: 'integration',
+        testName: 'cloudflare-local-dev-workflow',
+        timestamp: Date.now(),
+        level: event.status === 'blocked' ? 'warn' : 'info',
+        source: 'infra/cloudflare/scripts/local-dev-workflow.ts',
+        context: `cloudflare.local-dev.${event.event}`,
+        message: `Cloudflare local-dev workflow ${event.event}`,
+        data: JSON.stringify(redactedEvent),
+        file: 'local-dev-workflow.ts',
+        filePath: 'infra/cloudflare/scripts/local-dev-workflow.ts',
+        line: null,
+        column: null,
+        correlationId: runId,
+        tags: ['cloudflare', 'local-dev', 'proof-milestone'],
+        stack: null,
+        origin: TestLogOrigin.Test,
+        environment: 'local',
+      },
+    ],
+    logRoot
+  );
 }
 
 function readWorkspaceScripts(): Record<string, string> {
@@ -321,12 +393,81 @@ function inspectLocalTeardownPath(): LocalTeardownPath {
 }
 
 export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
-  return {
+  writeProofLog({
+    event: 'workflow_started',
+    status: 'started',
+    details: {
+      rootCommand: 'npm run dev:cloudflare',
+      moduleCommand: 'npm --prefix infra/cloudflare run dev',
+      proofLogging: 'enabled',
+    },
+  });
+
+  const start = inspectLocalStartPath();
+  writeProofLog({
+    event: 'start_path_observed',
+    status: start.status === 'blocked' ? 'blocked' : 'observed',
+    details: {
+      status: start.status,
+      blockerCount: start.blockers.length,
+      blockerKinds: start.blockers.map((blocker) => blocker.kind),
+      blockers: start.blockers.map(({ kind, path: blockerPath, details }) => ({
+        kind,
+        path: blockerPath ?? null,
+        details,
+      })),
+    },
+  });
+
+  if (start.blockers.length > 0) {
+    writeProofLog({
+      event: 'start_blocker_observed',
+      status: 'blocked',
+      details: {
+        blockerCount: start.blockers.length,
+        blockerKinds: start.blockers.map((blocker) => blocker.kind),
+        blockers: start.blockers.map(({ kind, path: blockerPath, details }) => ({
+          kind,
+          path: blockerPath ?? null,
+          details,
+        })),
+      },
+    });
+  }
+
+  const seed = inspectLocalSeedPath();
+  writeProofLog({
+    event: 'seed_path_observed',
+    status: seed.status === 'blocked' ? 'blocked' : 'observed',
+    details: {
+      status: seed.status,
+      fixtureFamilies: seed.fixtureFamilies.map(({ family, populationState, itemCount }) => ({
+        family,
+        populationState,
+        itemCount,
+      })),
+    },
+  });
+
+  const teardown = inspectLocalTeardownPath();
+  const report = {
     generatedAt: new Date().toISOString(),
-    start: inspectLocalStartPath(),
-    seed: inspectLocalSeedPath(),
-    teardown: inspectLocalTeardownPath(),
+    start,
+    seed,
+    teardown,
   };
+
+  writeProofLog({
+    event: 'workflow_completed',
+    status: 'completed',
+    details: {
+      startStatus: report.start.status,
+      seedStatus: report.seed.status,
+      teardownStatus: report.teardown.status,
+    },
+  });
+
+  return report;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
