@@ -45,6 +45,15 @@ Every proof root needs:
 
 Additional workpack-specific files are named inside the selected workpack and `REQUIRED_TEST_ASSERTION_MATRIX.md` for WP08/WP10.
 
+## WP01 module dependency proof
+
+Before WP01 can release the WP07 proof-only successor, retain
+`output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/03-package-dependency-graph.md`.
+It records the selected `wrangler` and `@cloudflare/workers-types` manifest
+versions, resolver/install result, resolved graph command result, and whether
+their peer requirements are compatible. A missing or blocked graph keeps WP07
+blocked; it is not a substitute for the graph proof.
+
 ## Command log format
 
 ```text

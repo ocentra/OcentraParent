@@ -104,7 +104,7 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 | Workpack | Expected proof focus |
 | --- | --- |
 | WP00 | games keep/adapt/strip map, game-only concern rejection, parent-safe module boundary |
-| WP01 | module tree, package scripts, scaffold-only/no-claim labels, no consumer semantics |
+| WP01 | module tree, package scripts, scaffold-only/no-claim labels, no consumer semantics, and retained clean `wrangler`/`@cloudflare/workers-types` resolver graph before WP07 can run |
 | WP02 | wrangler envs, D1/DO/KV/R2/Queue binding names, environment custody, dev/prod separation |
 | WP03 | worker entrypoint, env validation, request-size guard, origin/CORS behavior, kill-switch, scheduled hook shape |
 | WP04 | route manifest, route groups, domain contract ownership, no ad hoc route strings |

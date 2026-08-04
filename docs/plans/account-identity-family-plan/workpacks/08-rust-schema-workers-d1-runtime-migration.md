@@ -105,6 +105,8 @@ packet must cover the changed canonical Rust owner and family-identity runtime:
 cargo test -p ocentra-schema --test contract
 cargo test -p ocentra-schema --test contract family_references_generated_typescript_matches_checked_in_file
 cargo test -p ocentra-family-identity-core household_authority
+cargo test -p ocentra-family-identity-core --test unit setup_lifecycle
+cargo test -p ocentra-family-identity-core --test unit session_lifecycle
 npm run lint:architecture -- --files crates/schema crates/family-identity-core
 
 ```
@@ -121,6 +123,12 @@ The targeted `family_references_generated_typescript_matches_checked_in_file`
 contract test is the required Rust-to-TS-edge drift check. A schema-domain build
 or edge decode may be added only as a consumer check; neither may define account
 authority.
+
+The `setup_lifecycle` and `session_lifecycle` unit targets are minimum WP08
+negative-path coverage: invite replay/revocation/wrong-household and recovery
+rejection, plus stale/revoked/replayed/wrong-kind session rejection. Do not
+substitute the broad household-authority filter for those focused lifecycle
+paths.
 
 ## Negative and no-claim boundary
 

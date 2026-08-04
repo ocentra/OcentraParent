@@ -9,6 +9,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 ## First-touch surfaces
 
 - `infra/cloudflare/src/env.ts` for the declared `Env` binding and ownership boundary
+- `infra/cloudflare/wrangler.toml` for the selected account-identity D1 binding configuration
 - `infra/cloudflare/src/account-identity-d1-adapter.ts` for the Cloudflare-owned adapter that consumes, but does not define, the Account WP08 contract
 - `infra/cloudflare/migrations/0001_account_identity_authority.sql` for the selected account-identity D1 schema/migration
 - `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` for the migration/adapter integration surface
@@ -22,6 +23,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 ## Output files
 
 - `infra/cloudflare/src/env.ts`
+- `infra/cloudflare/wrangler.toml`
 - `infra/cloudflare/src/account-identity-d1-adapter.ts`
 - `infra/cloudflare/migrations/0001_account_identity_authority.sql`
 - `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
@@ -51,7 +53,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Scoped validation: `npm --prefix infra/cloudflare run test:property`
 - Migration validation after the selected binding and migration exist: `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`
 - Account-identity migration/adapter validation after the selected test is registered in the module runner: `npm --prefix infra/cloudflare run test:integration`
-- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/env.ts`
+- Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## Negative cases
 
@@ -68,6 +70,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Status: blocked / proof-present for WP06 only; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
+- Account-D1 binding configuration: `infra/cloudflare/wrangler.toml`
 - Owned adapter/migration surfaces: `infra/cloudflare/src/account-identity-d1-adapter.ts`; `infra/cloudflare/migrations/0001_account_identity_authority.sql`
 - Owned test surfaces: `infra/cloudflare/tests/unit/env-bindings.test.ts`; `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
@@ -98,7 +101,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - `npm --prefix infra/cloudflare run test:unit` blocked on `packages/billing-domain/src/billing-checkout-portal-boundary.js`
 - `npm --prefix infra/cloudflare run test:integration` blocked on the same import
 - `npm --prefix infra/cloudflare run test:property` blocked on the same import
-- `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/tests/unit/env-bindings.test.ts`
+- `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## No-claim boundary
 
@@ -106,4 +109,4 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - No claim is made that the Cloudflare worker boots successfully in this worktree.
 - No claim is made that queue retries, dead-letter replay, D1 writes, KV writes, or R2 writes executed live.
 - No claim is made that Account WP08 or this packet alone completes account authority; Cloudflare WP08 runner proof and Account WP06 aggregation remain separate required handoffs.
-- The account-identity adapter, migration, and focused integration test are required first-touch/output surfaces for this WP06 packet; listing them does not claim they exist or have run in this checkout.
+- The account-identity adapter, migration, focused integration test, and Wrangler D1 binding configuration are required first-touch/output surfaces for this WP06 packet; listing them does not claim they exist or have run in this checkout.

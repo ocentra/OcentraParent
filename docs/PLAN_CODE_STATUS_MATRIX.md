@@ -32,7 +32,7 @@ root is absent from the checkout. Use the four states below when assigning work:
 | Cloudflare control plane | #608 merged to `main` as `5af4a1a92` after fresh full CI; the worker and generated billing contracts are present, and the local WP07 dev/seed/proof boundary is validated. PR #604 is closed without merge: its branch/evidence are preserved, but its overlapping implementation is superseded/conflicting. | Keep WP07 local-only/open. Its successor is proof-only and must start from current source after the real Cloudflare dependency-resolution gap is fixed; then rerun selected gates and retain a tracked bundle. |
 | data custody/storage | Source + focused tests; rollout proof absent. | WP07 regenerate current proof manifest and verify runtime gaps. |
 | device trust bootstrap | Source + focused tests; platform sealing/product chain absent. | WP02 local key sealing, then step-up/recovery/tamper workpacks. |
-| eventing | Strong source/test foundation; historical proof roots absent. | WP10 LAN household mesh consumer and route proof. |
+| eventing | Strong source/test foundation; WP06 is reopened because its journal/replay proof and enforcement handoff are absent. | Eventing WP06 Journal Replay And Lineage, then WP10 LAN household mesh consumer and route proof. |
 | LAN | Strong source/test foundation; physical product proof absent. | WP23 two-device proof, then WP25 backend-to-Tauri-to-portal chain. |
 | logging parity | Source + focused tests; proof restoration and routing lint remain. | WP03 Rust service-to-logging mapping, then routing-lint repair. |
 | network | Source + focused tests; all workpacks open. | WP01 foundation contracts/eventing. |
@@ -50,10 +50,11 @@ root is absent from the checkout. Use the four states below when assigning work:
 ### Priority order
 
 1. Cloudflare module dependency reconciliation; separately, Account WP08 Rust contract -> Cloudflare WP06 D1/DO/KV binding/migration -> Cloudflare WP08 runner/proof -> Account WP06 aggregation (unblocks accountable Cloudflare verification and payment routing).
-2. Network WP01 eventing foundation.
-3. Tracking WP34 event contracts.
-4. Screen-AI WP01 → WP02 trigger/capture chain.
-5. AI WP03 → WP07 → WP08; Remote WP01 → WP04.
+2. Eventing WP06 Journal Replay And Lineage: retain the actual journal/replay proof and typed enforcement handoff before WP10 or enforcement WP11/WP04 scheduling.
+3. Network WP01 eventing foundation.
+4. Tracking WP34 event contracts.
+5. Screen-AI WP01 → WP02 trigger/capture chain.
+6. AI WP03 → WP07 → WP08; Remote WP01 → WP04.
 
 Proof-root restoration is a verification/reproducibility packet. It must not be
 used to claim a product path complete without the selected runtime proof.
@@ -108,7 +109,7 @@ proof artifact, checklist row, and merge state agree.
 | `cloudflare-control-plane-plan` | Integration / validation-open | `infra/cloudflare`, `billing-core`, account/billing contracts | Worker has 19 source / 28 test files, real route handlers, generated billing contracts, and the merged #608 local dev/seed/proof hardening. Fresh #608 full CI passed product, security, and platform jobs. PR #604 is closed without merge; its overlapping branch/evidence are preserved but superseded/conflicting. | #608 validates only a local WP07 boundary; no tracked workpack proof bundle exists, payment/runtime/deployment authority remains open, and WP01 dependency resolution still gates WP07. Account storage additionally needs Account WP08 contract -> Cloudflare WP06 binding/migration -> Cloudflare WP08 runner proof. | Retain the local-only no-claim boundary. After dependency resolution, run the proof-only WP07 successor from current source; separately execute Cloudflare WP06 then WP08 from the Account WP08 handoff and retain their exact proof or blockers before Account WP06 aggregation. |
 | `data-custody-storage-plan` | Integration | `storage-custody-core`, `ocentra-evidence`, `ocentra-eventing` | Storage core has 63 source / 12 test files; custody/delete/export shapes exist. | Rollout/route-gate aggregation and cross-runtime custody proof remain open. | Prove one retention/delete/export flow through storage, eventing, and service. |
 | `device-trust-bootstrap-plan` | Foundation / blocked | `schema`, `family-identity-core`, platform secure stores | Parent step-up validation, handoff schemas, trust helpers, and focused tests exist. PR #605 merged with fresh 60-job CI, but it is narrow unissued-parent-challenge test evidence only. | Concrete platform key-sealing adapters and the complete trusted-device product chain remain open; the plan stays partial/open. | Freeze the minimal parent-presence plus platform-sealed trust interface inside the owning core before shared-service integration. |
-| `eventing-plan` | Integration | `ocentra-eventing`, `agent-protocol`, `agent-service` | 76 source / 34 test files; journal/replay and version-skew test surfaces exist. | Consumer product-path adoption and rollout proof remain. | Select one consumer path and prove replay/idempotency end to end. |
+| `eventing-plan` | Integration | `ocentra-eventing`, `agent-protocol`, `agent-service` | 76 source / 34 test files; journal/replay and version-skew test surfaces exist. | Reopened WP06 lacks its retained journal/replay/topology proof and typed enforcement handoff; WP10 remains open after it. | Complete Eventing WP06's proof and handoff first, then select the WP10 consumer path and prove replay/idempotency end to end. |
 | `lan-plan` | Integration | `lan-core`, `agent-service`, `agent-core`, `schema` | 241 source / 91 test files; pairing, discovery, heartbeat, revocation, inventory, and read models exist. | Physical/consumer product proof and open follow-on workpacks remain. | Close a paired-device lifecycle through service and portal on a real platform. |
 | `logging-domain-parity` | Foundation | `logging-core`, `logging-domain`, `agent-service`, portal | Logger, local evidence, MCP/query, and portal paths exist. | Broad adoption and several proof-root closeouts remain. | Make logging/proof correlation mandatory for one high-value product chain. |
 | `network-plan` | Foundation | `network-core`, `ocentra-network-evidence`, `agent-service` | Network core has 49 source / 6 test files; service and evidence seams exist. | Broader parser, policy, and proof bundles are incomplete. | Close parser-to-policy evidence flow with malformed-input coverage. |
@@ -143,7 +144,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `cloudflare-control-plane-plan` | 13 | 0 | 13 | 0 | #608 is merged with fresh full CI and local WP07 evidence, but no workpack is closed. #604 closed unmerged as superseded/conflicting; retain its branch/evidence and schedule a proof-only WP07 successor only after dependency resolution. |
 | `data-custody-storage-plan` | 8 | 7 | 1 | 0 | Workpack index and checklist disagree in both directions on several rows. |
 | `device-trust-bootstrap-plan` | 9 | 0 | 9 | 0 | #605 merged with fresh 60-job CI, but it is narrow test evidence only. Five partial, three blocked, one docs-only; adapter-backed runtime closure is missing. |
-| `eventing-plan` | 4 | 3 | 1 | 0 | Nine historical rows are excluded and must not be rescheduled. |
+| `eventing-plan` | 5 | 3 | 2 | 0 | Five selectable workpacks: WP06 and WP10 are open; eight historical rows are excluded and must not be rescheduled. |
 | `lan-plan` | 25 | 13 | 12 | 0 | Remaining rows are mainly partial/manual physical proof, not twelve ordinary code packets. |
 | `logging-domain-parity` | 10 | 0 | 10 | 0 | Five partial-proof, four source-present, one audit-open. |
 | `network-plan` | 8 | 0 | 8 | 0 | Index correctly keeps the execution set open. |
@@ -157,7 +158,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | WP06 is done as a blocker/aggregation packet but remains open for whole-plan scheduling; 93/93 checklist is not product completion. |
 | `tracking-plan` | 39 | 0 | 39 | 0 | Internally checked rows were intentionally reopened for audit/proof reruns. |
 | `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | #606 closed unmerged as unsafe/no-op. Eventing WP06 Journal Replay And Lineage is reopened; until its actual handoff and WP11 proof are present, WP04 remains unscheduled/manual-required. Six checked workpacks are not reflected by the generic checklist. |
-| **Total** | **525** | **143** | **382** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
+| **Total** | **526** | **143** | **383** | **0** | Plus 145 reference/source-only rows and 8 historical rows excluded from execution scheduling. |
 
 ### Acceptance state for each workpack
 
@@ -184,7 +185,7 @@ post-merge reverified`. Only the final state counts toward `Freshly reverified`.
 
 1. **Reconcile Cloudflare module dependencies, then run the proof-only WP07 successor**: resolve the current Wrangler/Workers-types module prerequisite first; from current source, rerun WP07's focused lint, unit, contract, and worker-boot gates and retain its bundle. Separately route Account WP08 Rust contract -> Cloudflare WP06 binding/migration -> Cloudflare WP08 module-runner proof -> Account WP06 aggregation. Only then schedule dependent payment/billing gates. Do not restore removed TypeScript contract ownership or revive #604.
 2. **Build device trust runtime**: parent presence and sealed device trust unblock safe account, setup, payment, remote, and enforcement decisions.
-3. **Close policy to enforcement in dependency order**: Eventing WP06 Journal Replay And Lineage green handoff -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch -> adapter -> receipt -> rollback. Until the actual Eventing-to-WP11 handoff exists, WP11 and WP04 remain unscheduled/manual-required. This becomes the reusable control path for browser, app/game, network, and screen.
+3. **Close policy to enforcement in dependency order**: complete reopened Eventing WP06 Journal Replay And Lineage before WP10 and before the enforcement chain: WP06 green handoff -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch -> adapter -> receipt -> rollback. Until the actual Eventing-to-WP11 handoff exists, WP11 and WP04 remain unscheduled/manual-required. This becomes the reusable control path for browser, app/game, network, and screen.
 4. **Use LAN/service as the first physical household proof**: pairing -> device state -> portal read model establishes the multi-device integration baseline.
 5. **Close custody and observability on that vertical slice**: correlated logs, retention/delete, and replay make later feature work trustworthy.
 6. **Scale feature producers**: browser, app/game, network, screen, tracking, and AI can then feed the same decision and evidence spine.

@@ -21,7 +21,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | source-present / retained-proof-absent | [WP00 Games Infra Parity Extraction](workpacks/00-games-infra-parity-extraction.md) | 0/8 | `GAMES_INFRA_PARITY_MAP.md` | no tracked root |
-| source-present / retained-proof-absent | [WP01 Cloudflare Module Scaffold](workpacks/01-cloudflare-module-scaffold.md) | 0/10 | `PARENT_CLOUDFLARE_MODULE_SPEC.md`; `SOURCE_SURFACE_STATUS_MATRIX.md` | no tracked root |
+| source-present / dependency-reconciliation-proof-absent | [WP01 Cloudflare Module Scaffold](workpacks/01-cloudflare-module-scaffold.md) | 0/10 | `PARENT_CLOUDFLARE_MODULE_SPEC.md`; `SOURCE_SURFACE_STATUS_MATRIX.md` | `03-package-dependency-graph.md` required |
 | source-present / retained-proof-absent | [WP02 Wrangler Env Bindings](workpacks/02-wrangler-env-bindings.md) | 0/10 | `STORAGE_BINDING_MODEL.md`; `DEPLOYMENT_MODEL.md` | no tracked root |
 | source-present / retained-proof-absent | [WP03 Worker Entrypoint Runtime Guards](workpacks/03-worker-entrypoint-runtime-guards.md) | 0/11 | `SECURITY_PRIVACY_OBSERVABILITY.md`; `DEPLOYMENT_MODEL.md` | no tracked root |
 | source-present / retained-proof-absent | [WP04 Route Manifest And Domain Contracts](workpacks/04-route-manifest-and-domain-contracts.md) | 0/11 | `ROUTE_MANIFEST_MODEL.md`; `AUTH_BOUNDARY_MODEL.md` | no tracked root |
@@ -47,7 +47,7 @@ WP00 -> WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09 -> 
 
 ```text
 WP00 prevents copying game-only concerns into Parent.
-WP01/WP02 establish module and binding scaffold.
+WP01 establishes the module scaffold and must retain a clean Wrangler/Workers-types dependency graph before WP07 can be selected; WP02 establishes environment/binding scaffold.
 WP03/WP04 establish entrypoint and routes.
 WP05 blocks private/admin/support/webhook readiness claims.
 WP06 blocks storage/coordination/queue claims and owns the account-identity D1/DO/KV binding, adapter, and migration packet after Account WP08 supplies the Rust contract handoff.
