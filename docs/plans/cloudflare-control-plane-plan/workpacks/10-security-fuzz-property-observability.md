@@ -93,7 +93,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - Reject security claims without explicit test family ownership.
 - Reject observability claims that are not tied to a concrete redaction,
   auth-rejection, billing-status, or portal-smoke case.
-- Reject treating the older `cfcp-c1-proof.md` green slice as current family readiness after the billing-domain boundary drift.
+- Reject treating the older `cfcp-c1-proof.md` green slice as current family readiness while the WP01 resolver graph remains unresolved.
 
 ## Failure conditions
 
@@ -105,4 +105,4 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - This workpack does not prove current Cloudflare runtime readiness.
 - This workpack does not prove payment handoff readiness, account authority, trusted-device authority, or portal completion.
 - `OBS-03` stays blocked under current reruns because the required integration family does not boot.
-- WP10 stays open/blocked until the missing billing-domain boundary import is restored and the required family commands rerun green.
+- WP10 stays open/blocked until WP01 retains a clean Wrangler/workers-types resolver graph and the required family commands rerun green.

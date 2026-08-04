@@ -123,11 +123,11 @@ WP06 consumes, but does not define, Account WP08's Rust-owned contract. Its
 proof must name `infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected
 account-identity D1 adapter, migration, and
 `tests/integration/account-identity-d1-migration.test.ts`; retain the migration
-result from `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`, the module integration result from
+result from `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`, the module integration result from
 `npm --prefix infra/cloudflare run test:integration`, and the focused
 architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
 WP06 also retains the direct focused command
-`npm --prefix infra/cloudflare exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`
+`cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`
 in `03-account-identity-d1-migration-test.md`; the aggregate integration script
 cannot substitute for or silently omit that required migration/adapter result.
 

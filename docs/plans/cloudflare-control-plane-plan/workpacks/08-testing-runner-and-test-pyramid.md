@@ -91,7 +91,7 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - `npm run lint:architecture -- --files infra/cloudflare/scripts/test-runner.ts`
 
 For the account-identity storage handoff, WP06 records the migration command
-`npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`; WP08 runs the integration family through the module script `npm --prefix infra/cloudflare run test:integration`, not a raw unprefixed Node invocation. Retain either the mapped result or its exact blocker for Account WP06.
+`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`; WP08 runs the integration family through the module script `npm --prefix infra/cloudflare run test:integration`, not a raw unprefixed Node invocation. Retain either the mapped result or its exact blocker for Account WP06.
 
 Validation truth from the current checkout:
 

@@ -51,9 +51,9 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Scoped validation: `npm --prefix infra/cloudflare run test:unit`
 - Scoped validation: `npm --prefix infra/cloudflare run test:integration`
 - Scoped validation: `npm --prefix infra/cloudflare run test:property`
-- Migration validation after the selected binding and migration exist: `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`
+- Migration validation after the selected binding and migration exist: `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`
 - Account-identity migration/adapter validation after the selected test is registered in the module runner: `npm --prefix infra/cloudflare run test:integration`
-- Required direct migration-test validation: `npm --prefix infra/cloudflare exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`; retain its result separately so the aggregate integration script cannot omit it.
+- Required direct migration-test validation: `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`; retain its result separately so the aggregate integration script cannot omit it.
 - Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## Negative cases
@@ -101,7 +101,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 ## Focused validations
 
 - `node --import tsx --test infra/cloudflare/tests/unit/env-bindings.test.ts`
-- `npm --prefix infra/cloudflare exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"` required direct test; retain its result in `03-account-identity-d1-migration-test.md` and do not let `test:integration` substitute for it
+- `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"` required direct test; retain its result in `03-account-identity-d1-migration-test.md` and do not let `test:integration` substitute for it
 - `npm --prefix infra/cloudflare run test:unit`, `test:integration`, and `test:property` are deferred until WP01 restores the module dependency tree; any later failure records its then-current exact blocker
 - `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
