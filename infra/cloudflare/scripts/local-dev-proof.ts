@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { closeSync, mkdirSync, openSync } from 'node:fs';
 import path from 'node:path';
 import { env } from 'node:process';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -52,10 +52,24 @@ function configuredProofLogRoot(value = env.OCENTRA_PARENT_LOG_ROOT): string | n
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function hasExistingProofLog(runId: string, proofLogRoot: string): boolean {
-  return existsSync(
-    getRunNdjsonFilePath(TestLogScope.ParentCloudflare, RunType.Single, runId, 'integration', proofLogRoot)
+function reserveProofLog(runId: string, proofLogRoot: string): boolean {
+  const logFile = getRunNdjsonFilePath(
+    TestLogScope.ParentCloudflare,
+    RunType.Single,
+    runId,
+    'integration',
+    proofLogRoot
   );
+  mkdirSync(path.dirname(logFile), { recursive: true });
+  try {
+    closeSync(openSync(logFile, 'wx'));
+    return true;
+  } catch (error) {
+    if (error instanceof Error && 'code' in error && error.code === 'EEXIST') {
+      return false;
+    }
+    throw error;
+  }
 }
 
 export function prepareLocalDevProofRun(
@@ -67,7 +81,7 @@ export function prepareLocalDevProofRun(
 
   for (let attempt = 0; attempt < 8; attempt += 1) {
     const proofLogRoot = explicitLogRoot ?? buildDefaultProofLogRoot(runId);
-    if (!hasExistingProofLog(runId, proofLogRoot)) {
+    if (reserveProofLog(runId, proofLogRoot)) {
       return { runId, proofLogRoot };
     }
     runId = generatedProofRunId();
@@ -75,8 +89,6 @@ export function prepareLocalDevProofRun(
 
   throw new Error('Cloudflare local-dev proof could not allocate a fresh run ID');
 }
-
-const proofRun = prepareLocalDevProofRun();
 
 export function summarizeProofLogLocation(location: string): string {
   const relativeLocation = path.relative(repoRoot, location).replaceAll('\\', '/');
@@ -86,6 +98,7 @@ export function summarizeProofLogLocation(location: string): string {
 }
 
 export function runLocalDevProof(): void {
+  const proofRun = prepareLocalDevProofRun();
   env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = proofRun.runId;
   env.OCENTRA_PARENT_LOG_ROOT = proofRun.proofLogRoot;
 

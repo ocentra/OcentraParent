@@ -2,7 +2,7 @@
 
 import { readFileSync } from 'node:fs';
 import { existsSync } from 'node:fs';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { env } from 'node:process';
 import { spawnSync } from 'node:child_process';
@@ -113,6 +113,7 @@ export interface LocalDevProofSummary {
 }
 
 const fallbackProofRunId = `cloudflare-local-${randomUUID()}`;
+const maxProofRunIdLength = 96;
 
 export function sanitizeProofRunIdSegment(value: string): string | null {
   const trimmed = value.trim();
@@ -121,7 +122,15 @@ export function sanitizeProofRunIdSegment(value: string): string | null {
   }
 
   const sanitized = trimmed.replaceAll(/[^A-Za-z0-9_-]+/gu, '-').replaceAll(/^-+|-+$/gu, '');
-  return sanitized.length > 0 ? sanitized : null;
+  if (sanitized.length === 0) {
+    return null;
+  }
+  if (sanitized.length <= maxProofRunIdLength) {
+    return sanitized;
+  }
+
+  const suffix = createHash('sha256').update(trimmed).digest('hex').slice(0, 16);
+  return `${sanitized.slice(0, maxProofRunIdLength - suffix.length - 1)}-${suffix}`;
 }
 
 export function resolveWorkflowProofRunId(providedRunId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID): string {
@@ -221,7 +230,7 @@ function runCloudflareScript(command: string): CommandProbeResult {
 
 export function redactRuntimeBlockerDetails(details: string): string {
   return details.replace(
-    /(?:[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|file:\/\/\/[A-Za-z]:\/(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+|file:\/\/\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes)(?:\/[^/\r\n\t :"'`]*)*|(?<![:/A-Za-z0-9])\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes)(?:\/[^/\r\n\t :"'`]*)*)/gu,
+    /(?:[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|file:\/\/\/[A-Za-z]:\/(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+|file:\/\/\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes|root|workspace)(?:\/[^/\r\n\t :"'`]*)*|(?<![:/A-Za-z0-9])\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes|root|workspace)(?:\/[^/\r\n\t :"'`]*)*)/gu,
     '[redacted-path]'
   );
 }

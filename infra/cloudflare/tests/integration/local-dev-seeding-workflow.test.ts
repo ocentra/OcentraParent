@@ -339,6 +339,10 @@ describe('local dev seeding workflow', () => {
       redactRuntimeBlockerDetails('Import failed from file:///C:/private/worker/entry.ts: billing module unavailable'),
       'Import failed from [redacted-path]: billing module unavailable'
     );
+    assert.equal(
+      redactRuntimeBlockerDetails('Failed in /workspace/OcentraParent/infra/cloudflare at /root/.cache/worker.ts'),
+      'Failed in [redacted-path] at [redacted-path]'
+    );
   });
 
   it('emits a redacted correlated blocked milestone when local inspection fails', () => {
@@ -459,6 +463,13 @@ describe('local dev seeding workflow', () => {
       'output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/runs/release-candidate'
     );
     assert.doesNotMatch(proofRoot, /(?:^|[\\/])\.\.(?:[\\/]|$)/);
+    const oversizedRunId = `proof-${'x'.repeat(256)}`;
+    const cappedRunId = sanitizeProofRunIdSegment(oversizedRunId);
+    assert.ok(cappedRunId);
+    assert.ok((cappedRunId?.length ?? 0) <= 96);
+    assert.match(cappedRunId ?? '', /-[a-f0-9]{16}$/);
+    assert.equal(sanitizeProofRunIdSegment(oversizedRunId), cappedRunId);
+    assert.notEqual(sanitizeProofRunIdSegment(`${oversizedRunId}-different`), cappedRunId);
   });
 
   it('falls back from blank log roots and retries reused or sensitive proof run IDs', () => {
@@ -470,17 +481,18 @@ describe('local dev seeding workflow', () => {
         summarizeProofLogLocation(blankRootRun.proofLogRoot),
         /^output\/cloudflare-control-plane-plan-proof\/07-local-dev-seeding-and-fixtures\/runs\/cloudflare-wp07-/
       );
+      fs.rmSync(blankRootRun.proofLogRoot, { recursive: true, force: true });
 
       const usedRunId = 'cloudflare-proof-run-reused';
+      const reservedRun = prepareLocalDevProofRun(usedRunId, logRoot);
       const existingLog = getRunNdjsonFilePath(
         TestLogScope.ParentCloudflare,
         RunType.Single,
-        usedRunId,
+        reservedRun.runId,
         'integration',
         logRoot
       );
-      fs.mkdirSync(path.dirname(existingLog), { recursive: true });
-      fs.writeFileSync(existingLog, '{"existing":true}\n', 'utf8');
+      assert.ok(fs.existsSync(existingLog));
       const retriedRun = prepareLocalDevProofRun(usedRunId, logRoot);
       assert.notEqual(retriedRun.runId, usedRunId);
       assert.match(retriedRun.runId, /^cloudflare-wp07-[A-Za-z0-9-]+$/);
