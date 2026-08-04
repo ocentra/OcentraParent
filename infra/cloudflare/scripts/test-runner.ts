@@ -29,6 +29,7 @@ const FAMILY_CONFIG: Record<TestFamily, FamilyConfig> = {
     directory: 'tests/unit',
     files: [
       'tests/unit/auth-boundary.test.ts',
+      'tests/unit/account-identity-store.test.ts',
       'tests/unit/billing-binding-read-model.test.ts',
       'tests/unit/route-manifest.test.ts',
       'tests/unit/env-bindings.test.ts',
@@ -46,6 +47,10 @@ const FAMILY_CONFIG: Record<TestFamily, FamilyConfig> = {
       'UT-AUTH-07',
       'UT-AUTH-08',
       'UT-AUTH-09',
+      'UT-ACCOUNT-IDENTITY-01',
+      'UT-ACCOUNT-IDENTITY-02',
+      'UT-ACCOUNT-IDENTITY-03',
+      'UT-ACCOUNT-IDENTITY-04',
       'UT-ROUTE-01',
       'UT-ROUTE-02',
       'UT-ROUTE-03',
