@@ -29,23 +29,24 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current seed truth
 
-- The seed command family is runnable in the current local workflow probe and reports populated billing fixtures: pricing 3, parent accounts 4, support/admin accounts 4, and referrals 2.
-- These counts are current execution evidence only. The tracked WP07 proof root is absent, so this status does not claim retained proof or workpack closure.
+- On the Windows host used for the current local workflow probe, the seed command family is runnable and reports populated billing fixtures: pricing 3, parent accounts 4, support/admin accounts 4, and referrals 2.
+- The workflow still invokes `cmd.exe`; on Linux or macOS it reports the seed probes as blocked and does not establish these counts. These counts are therefore Windows-host execution observations only.
+- These observations are not retained proof. The tracked WP07 proof root is absent, so this status does not claim retained proof or workpack closure.
 
 ## Required fixture families
 
 - `pricing-catalog`
   - source: `seed:products:local`
-  - current state: runnable and populated in the current workflow report (3 records); retained proof absent
+  - current state: runnable and populated in the Windows-host workflow report (3 records); non-Windows probes remain blocked; retained proof absent
 - `parent-test-accounts`
   - source: `seed:local`
-  - current state: runnable and populated in the current workflow report (4 records); retained proof absent
+  - current state: runnable and populated in the Windows-host workflow report (4 records); non-Windows probes remain blocked; retained proof absent
 - `support-admin-test-accounts`
   - source: `seed:test-accounts:local`
-  - current state: runnable and populated in the current workflow report (4 records); retained proof absent
+  - current state: runnable and populated in the Windows-host workflow report (4 records); non-Windows probes remain blocked; retained proof absent
 - `referral-test-graph`
   - source: `seed:referrals:local`
-  - current state: runnable and populated in the current workflow report (2 records); retained proof absent
+  - current state: runnable and populated in the Windows-host workflow report (2 records); non-Windows probes remain blocked; retained proof absent
 - `webhook-payload-fixtures`
   - source: `infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts`, `infra/cloudflare/tests/integration/worker-runtime-real.test.ts`
   - current state: explicit test-fixture-backed family, not a seed placeholder

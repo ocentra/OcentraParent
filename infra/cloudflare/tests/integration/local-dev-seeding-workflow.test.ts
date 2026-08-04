@@ -4,6 +4,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { env } from 'node:process';
 import { describe, it } from 'node:test';
+import { readTestLogEntriesFromFile } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
+import { getRunNdjsonFilePath } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
+import { RunType, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
 import { inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
 
 describe('local dev seeding workflow', () => {
@@ -75,21 +78,40 @@ describe('local dev seeding workflow', () => {
 
     try {
       const workflow = inspectLocalDevWorkflow();
-      const streamRoot = path.join(logRoot, 'parent-codex', 'ndjson', 'cloudflare-local-dev-workflow');
-      const logFiles = fs.readdirSync(streamRoot).filter((fileName) => fileName.endsWith('.ndjson'));
-      assert.equal(logFiles.length, 1);
+      const logFile = getRunNdjsonFilePath(
+        TestLogScope.ParentCloudflare,
+        RunType.Single,
+        'cloudflare-local-test-run',
+        'integration',
+        logRoot
+      );
+      const logEntries = readTestLogEntriesFromFile(logFile);
+      assert.equal(logEntries.length, workflow.start.blockers.length > 0 ? 5 : 4);
 
-      const logFile = logFiles[0];
-      assert.ok(logFile);
-      const logText = fs.readFileSync(path.join(streamRoot, logFile), 'utf8');
-
-      assert.match(logText, /"event":"workflow_started"/);
-      assert.match(logText, /"event":"start_path_observed"/);
-      if (workflow.start.blockers.length > 0) {
-        assert.match(logText, /"event":"start_blocker_observed"/);
+      const logText = fs.readFileSync(logFile, 'utf8');
+      const events = logEntries.map((entry) => entry.context.replace('cloudflare.local-dev.', ''));
+      assert.deepEqual(
+        events,
+        workflow.start.blockers.length > 0
+          ? [
+              'workflow_started',
+              'start_path_observed',
+              'start_blocker_observed',
+              'seed_path_observed',
+              'workflow_completed',
+            ]
+          : ['workflow_started', 'start_path_observed', 'seed_path_observed', 'workflow_completed']
+      );
+      for (const entry of logEntries) {
+        assert.equal(entry.type, 'log');
+        assert.equal(entry.scope, TestLogScope.ParentCloudflare);
+        assert.equal(entry.runId, 'cloudflare-local-test-run');
+        assert.equal(entry.correlationId, 'cloudflare-local-test-run');
+        assert.equal(entry.testName, 'cloudflare-local-dev-workflow');
+        assert.ok(entry.timestamp > 0);
+        assert.match(entry.message, /^Cloudflare local-dev workflow /);
       }
-      assert.match(logText, /"event":"seed_path_observed"/);
-      assert.match(logText, /"event":"workflow_completed"/);
+
       assert.ok(logText.includes('"runId":"cloudflare-local-test-run"'));
       assert.doesNotMatch(logText, /sk_test_/);
       assert.doesNotMatch(logText, /[A-Z]:\\\\/);

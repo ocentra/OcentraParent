@@ -3,20 +3,14 @@
 import { readFileSync } from 'node:fs';
 import { existsSync } from 'node:fs';
 import { randomUUID } from 'node:crypto';
-import { createRequire } from 'node:module';
 import path from 'node:path';
 import { env } from 'node:process';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
+import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
+import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
 import { redactPayload } from '../src/security/redaction.js';
-
-type AppendNdjson = (stream: string, event: object, scope?: string) => string;
-
-const require = createRequire(import.meta.url);
-const { appendNdjson } = require('../../../scripts/dev/lib/agent-log-paths.mjs') as {
-  appendNdjson: AppendNdjson;
-};
 
 export interface RuntimeDependencyBlocker {
   kind: 'missing-runtime-dependency' | 'runtime-import-check';
@@ -92,7 +86,8 @@ function resolveProofRunId(): string {
 }
 
 function writeProofLog(event: ProofLogEvent): void {
-  if ((env.OCENTRA_PARENT_LOG_ROOT ?? '').trim().length === 0) {
+  const logRoot = (env.OCENTRA_PARENT_LOG_ROOT ?? '').trim();
+  if (logRoot.length === 0) {
     return;
   }
 
@@ -106,7 +101,37 @@ function writeProofLog(event: ProofLogEvent): void {
   if (redactedEvent === null || typeof redactedEvent !== 'object' || Array.isArray(redactedEvent)) {
     throw new Error('Cloudflare proof log redaction returned a non-record payload');
   }
-  appendNdjson('cloudflare-local-dev-workflow', redactedEvent, 'parent-codex');
+
+  const runId = resolveProofRunId();
+  appendTestLogEntries(
+    [
+      {
+        schemaVersion: 1,
+        type: 'log',
+        scope: TestLogScope.ParentCloudflare,
+        runId,
+        runType: RunType.Single,
+        suiteType: 'integration',
+        testName: 'cloudflare-local-dev-workflow',
+        timestamp: Date.now(),
+        level: event.status === 'blocked' ? 'warn' : 'info',
+        source: 'infra/cloudflare/scripts/local-dev-workflow.ts',
+        context: `cloudflare.local-dev.${event.event}`,
+        message: `Cloudflare local-dev workflow ${event.event}`,
+        data: JSON.stringify(redactedEvent),
+        file: 'local-dev-workflow.ts',
+        filePath: 'infra/cloudflare/scripts/local-dev-workflow.ts',
+        line: null,
+        column: null,
+        correlationId: runId,
+        tags: ['cloudflare', 'local-dev', 'proof-milestone'],
+        stack: null,
+        origin: TestLogOrigin.Test,
+        environment: 'local',
+      },
+    ],
+    logRoot
+  );
 }
 
 function readWorkspaceScripts(): Record<string, string> {
