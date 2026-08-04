@@ -134,12 +134,12 @@ cargo test -p ocentra-schema --test contract family_references_generated_typescr
 cargo test -p ocentra-family-identity-core household_authority
 cargo test -p ocentra-family-identity-core --test unit setup_lifecycle
 cargo test -p ocentra-family-identity-core --test unit session_lifecycle
-npm run lint:architecture -- --files crates/schema crates/family-identity-core
+npm run lint:architecture -- --files crates/schema crates/family-identity-core packages/schema-domain/src/generated-family-references.ts
 
 ```
 
 Cloudflare WP06 owns the real persistence/migration command and must use
-`npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local` after its binding exists. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
+`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"` only after its dedicated account D1 binding and binding-specific migration directory (or equivalent isolated mapping) exist. Current Cloudflare source declares neither that account D1/DO/KV set nor the isolated migration mapping, so `BILLING_D1` cannot be used as a substitute. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
 
 Expected proof:
 

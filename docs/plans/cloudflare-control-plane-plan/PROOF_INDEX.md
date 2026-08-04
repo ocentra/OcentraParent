@@ -74,7 +74,9 @@ with the direct focused result from
 `cd infra/cloudflare && npm exec -c "node --import tsx --test tests/integration/account-identity-d1-migration.test.ts"`.
 The module `test:integration` output is supplementary; it cannot replace or
 omit this migration/adapter result. Until WP01 restores the dependency tree and
-the selected Account/WP06 surfaces exist, retain the exact blocker instead.
+the selected Account/WP06 surfaces exist, retain the exact blocker instead. The
+account D1 proof must also identify its dedicated binding and migration
+directory/equivalent mapping; no `BILLING_D1` migration result may stand in.
 
 ## Command log format
 
