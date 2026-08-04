@@ -5,6 +5,7 @@
 - Current slice: `CFCP-A truth-sync and proof-root canonicalization`; WP01 evidence refresh complete
 - Current owner: `cloudflare-control-plane-plan`
 - Current status: `in_progress`
+- Final-tree scoped validation (2026-08-04, PR #608 review repair): `npm --prefix infra/cloudflare run test:local-dev-workflow` (12 focused tests), `npm --prefix infra/cloudflare run lint`, `npm --prefix infra/cloudflare run proof:local-dev`, and `npm run lint:architecture -- --files infra/cloudflare/scripts/local-dev-proof.ts infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts` pass. The proof command retains its result only through the canonical redacted NDJSON artifact under `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/runs/<generated-run-id>`; it does not retain a raw stdout summary. Generated proof output remains local validation evidence only, not workpack closure. Inherited PR #604 validation remains unverified by this slice.
 
 ## Ordered queue
 

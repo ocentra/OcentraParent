@@ -11,9 +11,13 @@
     "seed:products:local": "tsx scripts/seed-products-local.ts",
     "seed:referrals:local": "tsx scripts/seed-referrals-local.ts",
     "seed:test-accounts:local": "tsx scripts/seed-test-accounts-local.ts",
-    "test": "tsx scripts/test-runner.ts",
+    "proof:logger-ready": "npm --prefix ../.. --workspace @ocentra-parent/logging-domain run build",
+    "proof:local-dev": "npm run proof:logger-ready && tsx scripts/local-dev-proof.ts",
+    "test": "npm run test:logger-ready && tsx scripts/test-runner.ts",
     "test:unit": "tsx scripts/test-runner.ts --type=unit",
-    "test:integration": "tsx scripts/test-runner.ts --type=integration",
+    "test:integration": "npm run test:logger-ready && tsx scripts/test-runner.ts --type=integration",
+    "test:local-dev-workflow": "npm run test:logger-ready && node --import tsx --test tests/integration/local-dev-seeding-workflow.test.ts",
+    "test:logger-ready": "npm run proof:logger-ready",
     "test:e2e": "tsx scripts/test-runner.ts --type=e2e",
     "test:contract": "tsx scripts/test-runner.ts --type=contract",
     "test:security": "tsx scripts/test-runner.ts --type=security",
@@ -25,6 +29,7 @@
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
+    "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
     "@cloudflare/workers-types": "^4.20260601.0",
     "@types/node": "^24.6.0",
     "tsx": "^4.20.6",

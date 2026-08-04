@@ -95,7 +95,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "build": "tsc --build tsconfig.json --force && node ../../scripts/fix-esm-imports.mjs dist",
     "bridge": "tsx scripts/log-bridge.ts",
     "db:ensure": "tsx scripts/ensure-db.ts",
     "db:rebuild": "tsx scripts/rebuild-db-from-ndjson.ts",
@@ -111,6 +111,11 @@
     "test": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
-    "@duckdb/node-api": "^1.5.4-r.1"
+    "@duckdb/node-api": "^1.5.4-r.1",
+    "effect": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "typescript": "^6.0.2"
   }
 }

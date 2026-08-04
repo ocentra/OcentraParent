@@ -13,14 +13,25 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current local start truth
 
-- Interactive local start is explicit but currently blocked.
-- Blocked runtime dependencies:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - `packages/billing-domain/src/billing-referral-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-  - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
-- Do not claim local-start success until those runtime imports resolve or a narrower accepted blocker replaces them.
+- Interactive local start is reported runnable only after both the worker import
+  probe and the module-local Wrangler executable probe pass.
+- If the generated billing contract is absent, the blocker path is reported as
+  `infra/cloudflare/src/generated/billing-contracts.ts`.
+- A successful import probe alone is not local-start proof; missing Wrangler
+  remains an explicit runtime blocker.
+- Run `npm --prefix infra/cloudflare run proof:local-dev` for this workflow.
+  It first runs `proof:logger-ready` to build the canonical
+  `@ocentra-parent/logging-domain` ESM entry points, then creates a correlated
+  run id and writes redacted NDJSON milestones under
+  `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/runs/<run-id>/`.
+  A clean checkout therefore does not depend on ignored prebuilt `dist/` output.
+- Run `npm --prefix infra/cloudflare run test:local-dev-workflow` for the
+  focused validation, or `npm --prefix infra/cloudflare run test:integration`
+  for the integration family. Both build the canonical logger before loading
+  its compiled test-log exports.
+- The generated run directory is local validation evidence, not a tracked WP07
+  proof bundle. Its presence does not close WP07, prove a launched/responding
+  Worker, or establish payment/deploy/runtime authority.
 
 ## Seed commands
 
@@ -31,23 +42,24 @@ Purpose: define the first local worker workflow before payment runtime work star
 
 ### Current seed truth
 
-- The seed command family is explicit but currently blocked by the same missing runtime-boundary imports that prevent `infra/cloudflare/src/fixtures.ts` from loading.
-- Do not describe the billing fixtures as populated while those seed commands are blocked.
+- On the Windows host used for the current local workflow probe, the seed command family is runnable and reports populated billing fixtures: pricing 3, parent accounts 4, support/admin accounts 4, and referrals 2.
+- The workflow still invokes `cmd.exe`; on Linux or macOS it reports the seed probes as blocked and does not establish these counts. These counts are therefore Windows-host execution observations only.
+- These observations are not retained proof. The tracked WP07 proof root is absent, so this status does not claim retained proof or workpack closure.
 
 ## Required fixture families
 
 - `pricing-catalog`
   - source: `seed:products:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: runnable and populated in the Windows-host workflow report (3 records); non-Windows probes remain blocked; retained proof absent
 - `parent-test-accounts`
   - source: `seed:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: runnable and populated in the Windows-host workflow report (4 records); non-Windows probes remain blocked; retained proof absent
 - `support-admin-test-accounts`
   - source: `seed:test-accounts:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: runnable and populated in the Windows-host workflow report (4 records); non-Windows probes remain blocked; retained proof absent
 - `referral-test-graph`
   - source: `seed:referrals:local`
-  - current state: blocked until `billing-account-runtime-boundary.js` resolves
+  - current state: runnable and populated in the Windows-host workflow report (2 records); non-Windows probes remain blocked; retained proof absent
 - `webhook-payload-fixtures`
   - source: `infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts`, `infra/cloudflare/tests/integration/worker-runtime-real.test.ts`
   - current state: explicit test-fixture-backed family, not a seed placeholder
