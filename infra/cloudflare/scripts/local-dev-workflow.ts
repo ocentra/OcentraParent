@@ -230,11 +230,11 @@ function runCloudflareScript(command: string): CommandProbeResult {
 
 export function redactRuntimeBlockerDetails(details: string): string {
   const windowsAndFileUriRedacted = details.replace(
-    /(?:[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|file:\/\/\/(?:[A-Za-z]:\/)?(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+)/gu,
+    /(?:[A-Za-z]:[\\/](?:[^\\/\r\n\t:"'`]+[\\/])*[^\\/\r\n\t:"'`]+|file:\/\/\/(?:[A-Za-z]:\/)?(?:[^/\r\n\t:"'`]+\/)*[^/\r\n\t:"'`]+)/gu,
     '[redacted-path]'
   );
   return windowsAndFileUriRedacted.replace(
-    /(^|\b(?:at|from|in|path|file|module)\s+['"]?)(\/(?!\/)(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+)/gu,
+    /(^|\b(?:at|from|in|path|file|module)\s+['"]?)(\/(?!\/)(?:(?!\s+(?:at|from|in|path|file|module)\s)(?:\/|[^/\r\n\t:"'`]))+)/gu,
     '$1[redacted-path]'
   );
 }

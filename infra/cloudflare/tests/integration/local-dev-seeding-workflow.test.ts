@@ -347,6 +347,16 @@ describe('local dev seeding workflow', () => {
       redactRuntimeBlockerDetails('Failed from /build/agent/OcentraParent/infra/cloudflare at /root/.cache/worker.ts'),
       'Failed from [redacted-path] at [redacted-path]'
     );
+    assert.equal(
+      redactRuntimeBlockerDetails(
+        'Failed from /build/agent workspace/Ocentra Parent/infra/cloudflare at /root/cache dir/worker.ts'
+      ),
+      'Failed from [redacted-path] at [redacted-path]'
+    );
+    assert.equal(
+      redactRuntimeBlockerDetails('Import failed at C:\\Users\\Jane Doe\\work\\file.ts: billing module unavailable'),
+      'Import failed at [redacted-path]: billing module unavailable'
+    );
   });
 
   it('emits a redacted correlated blocked milestone when local inspection fails', () => {
