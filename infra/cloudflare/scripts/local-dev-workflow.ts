@@ -100,6 +100,15 @@ interface ProofLogEvent {
   details: object;
 }
 
+export interface LocalDevProofSummary {
+  readonly runId: string;
+  readonly proofLogLocation: string;
+  readonly startStatus: LocalStartPath['status'];
+  readonly seedStatus: LocalSeedPath['status'];
+  readonly teardownStatus: LocalTeardownPath['status'];
+  readonly noClaim: string;
+}
+
 const fallbackProofRunId = `cloudflare-local-${randomUUID()}`;
 
 function resolveProofRunId(): string {
@@ -156,6 +165,14 @@ function writeProofLog(event: ProofLogEvent): void {
     ],
     logRoot
   );
+}
+
+export function writeLocalDevProofSummary(summary: LocalDevProofSummary): void {
+  writeProofLog({
+    event: 'proof_summary_observed',
+    status: 'observed',
+    details: summary,
+  });
 }
 
 function readWorkspaceScripts(): Record<string, string> {

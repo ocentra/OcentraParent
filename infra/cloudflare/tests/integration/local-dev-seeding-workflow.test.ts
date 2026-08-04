@@ -9,7 +9,12 @@ import { readTestLogEntriesFromFile } from '@ocentra-parent/logging-domain/test-
 import { getRunNdjsonFilePath } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
 import { RunType, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
 import { redactPayload } from '../../src/security/redaction.js';
-import { buildSeedProofMilestoneDetails, inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
+import {
+  buildSeedProofMilestoneDetails,
+  inspectLocalDevWorkflow,
+  writeLocalDevProofSummary,
+} from '../../scripts/local-dev-workflow.js';
+import { summarizeProofLogLocation } from '../../scripts/local-dev-proof.js';
 
 const cloudflareRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -221,6 +226,70 @@ describe('local dev seeding workflow', () => {
     assert.ok(redacted.includes('"source":"seed-products-local"'));
     assert.doesNotMatch(redacted, /sk_test_/);
     assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
+  });
+
+  it('writes proof summaries through the canonical redacted logger without exposing an absolute root', () => {
+    const logRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cloudflare-proof-summary-'));
+    const previousLogRoot = env.OCENTRA_PARENT_LOG_ROOT;
+    const previousRunId = env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID;
+    const runId = 'cloudflare-proof-summary-test';
+    try {
+      env.OCENTRA_PARENT_LOG_ROOT = logRoot;
+      env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = runId;
+      const repoRelativeRoot = path.join(
+        cloudflareRoot,
+        '..',
+        '..',
+        'output',
+        'cloudflare-control-plane-plan-proof',
+        'summary-test'
+      );
+      assert.equal(
+        summarizeProofLogLocation(repoRelativeRoot),
+        'output/cloudflare-control-plane-plan-proof/summary-test'
+      );
+      assert.equal(
+        summarizeProofLogLocation(path.resolve(cloudflareRoot, '..', '..', '..', 'external-proof-root')),
+        'external-proof-root-redacted'
+      );
+
+      writeLocalDevProofSummary({
+        runId,
+        proofLogLocation: summarizeProofLogLocation(repoRelativeRoot),
+        startStatus: 'runnable',
+        seedStatus: 'runnable',
+        teardownStatus: 'explicit',
+        noClaim: 'local validation logs are not a tracked WP07 proof bundle or local Worker response proof',
+      });
+      const logFile = getRunNdjsonFilePath(
+        TestLogScope.ParentCloudflare,
+        RunType.Single,
+        runId,
+        'integration',
+        logRoot
+      );
+      const summaryEntry = readTestLogEntriesFromFile(logFile).find(
+        (entry) => entry.context === 'cloudflare.local-dev.proof_summary_observed'
+      );
+      assert.ok(summaryEntry);
+      assert.match(
+        summaryEntry.data ?? '',
+        /"proofLogLocation":"output\/cloudflare-control-plane-plan-proof\/summary-test"/
+      );
+      assert.doesNotMatch(summaryEntry.data ?? '', /[A-Z]:\\\\/);
+    } finally {
+      if (previousLogRoot === undefined) {
+        delete env.OCENTRA_PARENT_LOG_ROOT;
+      } else {
+        env.OCENTRA_PARENT_LOG_ROOT = previousLogRoot;
+      }
+      if (previousRunId === undefined) {
+        delete env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID;
+      } else {
+        env.OCENTRA_CLOUDFLARE_PROOF_RUN_ID = previousRunId;
+      }
+      fs.rmSync(logRoot, { recursive: true, force: true });
+    }
   });
 
   it('prepares the canonical logger before default, focused, and integration test paths', () => {

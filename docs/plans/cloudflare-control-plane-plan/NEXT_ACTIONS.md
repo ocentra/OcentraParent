@@ -5,7 +5,7 @@
 - Current slice: `CFCP-A truth-sync and proof-root canonicalization`; WP01 evidence refresh complete
 - Current owner: `cloudflare-control-plane-plan`
 - Current status: `in_progress`
-- Live refresh (2026-08-04, PR #604 head `160831a55`): module lint, integration, contract, and architecture checks pass; retained proof-root output is still absent, so this is validation evidence only and not workpack closure.
+- Live refresh (2026-08-04, PR #608 head `683404d57`): Cloudflare-local logger preparation, focused local-dev workflow (4/4), local proof wrapper, module lint, and architecture checks pass; generated proof output remains local validation evidence only, not workpack closure. Inherited PR #604 validation has not been reverified by this slice.
 
 ## Ordered queue
 
