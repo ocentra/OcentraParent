@@ -152,6 +152,12 @@ Cloudflare WP06 then WP08 handoff and no-claim boundary
 compact focused command log
 ```
 
+The durable WP08 manifest root is
+`docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`.
+It must contain the named hand-authored proof records and
+`16-validation-commands.md` compact command record.
+Raw/generated output remains ignored and is not completion evidence by itself.
+
 Required negative cases:
 
 ```text

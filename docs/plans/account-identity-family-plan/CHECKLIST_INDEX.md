@@ -39,19 +39,21 @@
 
 ## WP08 Rust Schema And Account Authority
 
-All WP08 rows are intentionally open. This docs-only routing change records
-obligations; it does not assert source, test, migration, deployment, or
-production-runtime completion.
+WP08 is complete only for its Rust-owned authority and generated-edge slice,
+with a tracked hand-authored durable manifest under
+`docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`.
+This does not assert a Cloudflare runtime, migration, deployment, account final
+gate, or whole-plan completion.
 
-- [ ] Rust-owned canonical account/family schema and compatibility boundary exists, including the encoded TS-edge artifact `packages/schema-domain/src/generated-family-references.ts` generated from `crates/schema/src/family_references_ts.rs` and the matching contract drift test. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`.
-- [ ] Account, household, membership, role, device, invite/recovery, and session authority paths preserve canonical schema ownership. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/01-account-authority-parity-proof.md`.
-- [ ] Cross-household, revoked, stale, malformed, duplicate, and schema-incompatible authority cases reject or degrade safely. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/02-account-authority-negative-proof.md`.
-- [ ] Redacted correlated authority proof covers account, household, device, invite, recovery, and session decisions without a worker-runtime claim. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/03-redacted-authority-proof.md`.
-- [ ] Cloudflare WP06 storage handoff is recorded as a consumer of the canonical contract, not an Account WP08 implementation duty. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/04-cloudflare-wp06-wp08-handoff.md`.
-- [ ] Cloudflare WP08 runner/proof follows Cloudflare WP06 and is not claimed as Account WP08 validation. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/04-cloudflare-wp06-wp08-handoff.md`.
-- [ ] Focused Rust validation commands pass or precise blockers are recorded. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.log`.
-- [ ] Required proof artifacts, no-claim boundary, and cross-plan handoff record exist. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/04-cloudflare-wp06-wp08-handoff.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/05-no-claim-boundary.md`; `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.log`.
-- [ ] Workpack completion section is filled only after all prior WP08 rows are proven. Proof: `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md`.
+- [x] Rust-owned canonical account/family schema and compatibility boundary exists, including the encoded TS-edge artifact `packages/schema-domain/src/generated-family-references.ts` generated from `crates/schema/src/family_references_ts.rs` and the matching contract drift test. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`.
+- [x] Account, household, membership, role, device, invite/recovery, and session authority paths preserve canonical schema ownership. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/01-account-authority-parity-proof.md`.
+- [x] Cross-household, revoked, stale, malformed, duplicate, and schema-incompatible authority cases reject or degrade safely. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/02-account-authority-negative-proof.md`.
+- [x] Redacted correlated authority proof covers account, household, device, invite, recovery, and session decisions without a worker-runtime claim. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/03-redacted-authority-proof.md`.
+- [x] Cloudflare WP06 storage handoff is recorded as a consumer of the canonical contract, not an Account WP08 implementation duty. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/04-cloudflare-wp06-wp08-handoff.md`.
+- [x] Cloudflare WP08 runner/proof follows Cloudflare WP06 and is not claimed as Account WP08 validation. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/04-cloudflare-wp06-wp08-handoff.md`.
+- [x] Focused Rust validation commands pass or precise blockers are recorded. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.md`.
+- [x] Required proof artifacts, no-claim boundary, and cross-plan handoff record exist. Proof: `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`; `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/04-cloudflare-wp06-wp08-handoff.md`; `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/05-no-claim-boundary.md`; `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/16-validation-commands.md`.
+- [x] Workpack completion section is filled only after all prior WP08 rows are proven. Proof: `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md`.
 
 ## WP02 Identity Household Role Model
 
