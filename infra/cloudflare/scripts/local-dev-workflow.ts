@@ -73,10 +73,28 @@ interface CommandProbeResult {
 
 type ProofLogStatus = 'started' | 'observed' | 'blocked' | 'completed';
 
+interface SeedProofFixtureFamily {
+  readonly family: string;
+  readonly populationState: FixtureFamilyReport['populationState'];
+  readonly itemCount: number | null;
+  readonly blocker?: {
+    readonly kind: RuntimeDependencyBlocker['kind'];
+    readonly path: string | null;
+    readonly details: string;
+  };
+  readonly noClaimReason?: 'seed-command-blocked';
+}
+
+interface SeedProofMilestoneDetails {
+  readonly status: LocalSeedPath['status'];
+  readonly noClaimReason: 'seed-fixture-population-not-proven' | 'retained-workpack-proof-absent';
+  readonly fixtureFamilies: ReadonlyArray<SeedProofFixtureFamily>;
+}
+
 interface ProofLogEvent {
   event: string;
   status: ProofLogStatus;
-  details: Record<string, unknown>;
+  details: object;
 }
 
 const fallbackProofRunId = `cloudflare-local-${randomUUID()}`;
@@ -377,6 +395,28 @@ function inspectLocalSeedPath(): LocalSeedPath {
   };
 }
 
+export function buildSeedProofMilestoneDetails(seed: LocalSeedPath): SeedProofMilestoneDetails {
+  return {
+    status: seed.status,
+    noClaimReason: seed.status === 'blocked' ? 'seed-fixture-population-not-proven' : 'retained-workpack-proof-absent',
+    fixtureFamilies: seed.fixtureFamilies.map(({ family, populationState, itemCount, blocker }) => ({
+      family,
+      populationState,
+      itemCount,
+      ...(blocker === undefined
+        ? {}
+        : {
+            blocker: {
+              kind: blocker.kind,
+              path: blocker.path ?? null,
+              details: blocker.details,
+            },
+            noClaimReason: 'seed-command-blocked',
+          }),
+    })),
+  };
+}
+
 function inspectLocalTeardownPath(): LocalTeardownPath {
   return {
     status: 'explicit',
@@ -439,14 +479,7 @@ export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
   writeProofLog({
     event: 'seed_path_observed',
     status: seed.status === 'blocked' ? 'blocked' : 'observed',
-    details: {
-      status: seed.status,
-      fixtureFamilies: seed.fixtureFamilies.map(({ family, populationState, itemCount }) => ({
-        family,
-        populationState,
-        itemCount,
-      })),
-    },
+    details: buildSeedProofMilestoneDetails(seed),
   });
 
   const teardown = inspectLocalTeardownPath();

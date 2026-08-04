@@ -11,6 +11,8 @@
     "seed:products:local": "tsx scripts/seed-products-local.ts",
     "seed:referrals:local": "tsx scripts/seed-referrals-local.ts",
     "seed:test-accounts:local": "tsx scripts/seed-test-accounts-local.ts",
+    "proof:logger-ready": "npm --prefix ../../packages/logging-domain run build",
+    "proof:local-dev": "npm run proof:logger-ready && node --import tsx scripts/local-dev-workflow.ts",
     "test": "tsx scripts/test-runner.ts",
     "test:unit": "tsx scripts/test-runner.ts --type=unit",
     "test:integration": "tsx scripts/test-runner.ts --type=integration",

@@ -7,7 +7,8 @@ import { describe, it } from 'node:test';
 import { readTestLogEntriesFromFile } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
 import { getRunNdjsonFilePath } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
 import { RunType, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
-import { inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
+import { redactPayload } from '../../src/security/redaction.js';
+import { buildSeedProofMilestoneDetails, inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
 
 describe('local dev seeding workflow', () => {
   it('keeps start, seed, teardown, and blocker truth explicit', () => {
@@ -118,6 +119,18 @@ describe('local dev seeding workflow', () => {
       assert.ok(logText.includes('"runId":"cloudflare-local-test-run"'));
       assert.doesNotMatch(logText, /sk_test_/);
       assert.doesNotMatch(logText, /[A-Z]:\\\\/);
+
+      const seedEntry = logEntries.find((entry) => entry.context === 'cloudflare.local-dev.seed_path_observed');
+      assert.ok(seedEntry);
+      const seedData = seedEntry.data ?? '';
+      const blockedFixture = workflow.seed.fixtureFamilies.find((family) => family.populationState === 'blocked');
+      if (blockedFixture !== undefined) {
+        assert.match(seedData, /"noClaimReason":"seed-fixture-population-not-proven"/);
+        assert.match(seedData, /"blocker":\{"kind":"(?:missing-runtime-dependency|runtime-import-check)"/);
+        assert.match(seedData, /"noClaimReason":"seed-command-blocked"/);
+      } else {
+        assert.match(seedData, /"noClaimReason":"retained-workpack-proof-absent"/);
+      }
     } finally {
       if (previousLogRoot === undefined) {
         delete env.OCENTRA_PARENT_LOG_ROOT;
@@ -131,5 +144,33 @@ describe('local dev seeding workflow', () => {
       }
       fs.rmSync(logRoot, { recursive: true, force: true });
     }
+  });
+
+  it('keeps fabricated seed blocker diagnostics structured and redacted', () => {
+    const details = buildSeedProofMilestoneDetails({
+      aggregateCommand: 'npm --prefix infra/cloudflare run seed:local',
+      commands: [],
+      status: 'blocked',
+      fixtureFamilies: [
+        {
+          family: 'pricing-catalog',
+          source: 'seed-products-local',
+          populationState: 'blocked',
+          itemCount: null,
+          notes: 'blocked fixture',
+          blocker: {
+            kind: 'missing-runtime-dependency',
+            path: 'C:\\private\\seed-state',
+            details: 'sk_test_12345 C:\\private\\seed-state',
+          },
+        },
+      ],
+    });
+    const redacted = JSON.stringify(redactPayload(details));
+    assert.ok(redacted.includes('"noClaimReason":"seed-fixture-population-not-proven"'));
+    assert.ok(redacted.includes('"noClaimReason":"seed-command-blocked"'));
+    assert.ok(redacted.includes('"kind":"missing-runtime-dependency"'));
+    assert.doesNotMatch(redacted, /sk_test_/);
+    assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
   });
 });

@@ -19,6 +19,10 @@ Purpose: define the first local worker workflow before payment runtime work star
   `infra/cloudflare/src/generated/billing-contracts.ts`.
 - A successful import probe alone is not local-start proof; missing Wrangler
   remains an explicit runtime blocker.
+- Run `npm --prefix infra/cloudflare run proof:local-dev` for this workflow.
+  It first runs `proof:logger-ready` to build the canonical
+  `@ocentra-parent/logging-domain` ESM entry points, then invokes the workflow;
+  a clean checkout therefore does not depend on ignored prebuilt `dist/` output.
 
 ## Seed commands
 
