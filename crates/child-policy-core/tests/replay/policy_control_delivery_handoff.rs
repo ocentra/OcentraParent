@@ -1,5 +1,6 @@
 use ocentra_child_policy_core::policy_control_delivery_handoff::{
-    apply_policy_control_delivery_handoff, queue_policy_control_delivery_handoff,
+    apply_policy_control_delivery_handoff, apply_trusted_adapter_delivery_handoff,
+    queue_policy_control_delivery_handoff,
 };
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
@@ -7,8 +8,9 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
+    PolicyDeliveryId, PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget,
+    PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version,
@@ -309,6 +311,88 @@ fn delivery_handoff_surfaces_receipt_required_states_as_manual_required() {
 }
 
 #[test]
+fn trusted_adapter_handoff_persists_applied_and_rolled_back_receipts() {
+    let queued = queued_delivery();
+    let delivered = apply_policy_control_delivery_handoff(
+        &queued,
+        transition(
+            2,
+            PolicyDeliveryAttemptId::parse("attempt-delivered").expect_value("policy attempt id"),
+            PolicyDeliveryState::Delivered,
+        ),
+    )
+    .expect_value("delivered transition");
+    let applied_transition = transition(
+        3,
+        PolicyDeliveryAttemptId::parse("attempt-applied").expect_value("policy attempt id"),
+        PolicyDeliveryState::Applied,
+    );
+    let applied_receipt = PolicyDeliveryExecutionReceipt {
+        delivery_id: delivered.delivery.delivery_id.clone(),
+        household_id: delivered.delivery.household_id.clone(),
+        policy_version: delivered.delivery.policy_version,
+        source_document_id: delivered.delivery.source_document_id.clone(),
+        target: delivered.delivery.target.clone(),
+        attempt_id: applied_transition.attempt_id.clone(),
+        sequence: applied_transition.sequence,
+        state: applied_transition.state,
+        audit_reference_ids: applied_transition.audit_reference_ids.clone(),
+        reason_code: None,
+        rollback_reference_state: None,
+    };
+
+    let applied = apply_trusted_adapter_delivery_handoff(
+        &delivered.delivery,
+        applied_transition,
+        applied_receipt.clone(),
+    )
+    .expect_value("trusted adapter receipt applies delivery");
+    assert_eq!(applied.delivery.state, PolicyDeliveryState::Applied);
+    assert_eq!(applied.delivery.execution_receipt(), Some(&applied_receipt));
+    assert!(applied.delivery.is_active());
+
+    let mut rollback_transition = transition(
+        4,
+        PolicyDeliveryAttemptId::parse("attempt-rollback").expect_value("policy attempt id"),
+        PolicyDeliveryState::RolledBack,
+    );
+    rollback_transition.reason_code = Some(reason(
+        PolicyReasonCode::parse("adapter-failed").expect_value("policy reason code"),
+    ));
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+    let rollback_receipt = PolicyDeliveryExecutionReceipt {
+        delivery_id: applied.delivery.delivery_id.clone(),
+        household_id: applied.delivery.household_id.clone(),
+        policy_version: applied.delivery.policy_version,
+        source_document_id: applied.delivery.source_document_id.clone(),
+        target: applied.delivery.target.clone(),
+        attempt_id: rollback_transition.attempt_id.clone(),
+        sequence: rollback_transition.sequence,
+        state: rollback_transition.state,
+        audit_reference_ids: rollback_transition.audit_reference_ids.clone(),
+        reason_code: rollback_transition.reason_code.clone(),
+        rollback_reference_state: rollback_transition.rollback_reference_state,
+    };
+    let rolled_back = apply_trusted_adapter_delivery_handoff(
+        &applied.delivery,
+        rollback_transition,
+        rollback_receipt.clone(),
+    )
+    .expect_value("trusted adapter rollback receipt applies delivery");
+
+    assert_eq!(rolled_back.delivery.state, PolicyDeliveryState::RolledBack);
+    assert_eq!(
+        rolled_back.delivery.rollback_reference_state,
+        Some(PolicyDeliveryState::Applied)
+    );
+    assert_eq!(
+        rolled_back.delivery.execution_receipt(),
+        Some(&rollback_receipt)
+    );
+    assert!(!rolled_back.delivery.is_active());
+}
+
+#[test]
 fn delivery_offline_and_expired_before_delivery_stay_degraded_or_fail_closed() {
     let queued = queued_delivery();
     let mut offline_transition = transition(
@@ -365,6 +449,41 @@ fn delivery_rollback_requires_reason_and_reference_state() {
         EventingError::InvalidValue {
             field: "policy_delivery.reason_code",
             value: "missing reason code for rolled-back".to_string(),
+        }
+    );
+}
+
+#[test]
+fn delivery_rollback_with_valid_context_still_requires_execution_receipt() {
+    let queued = queued_delivery();
+    let delivered = apply_policy_control_delivery_handoff(
+        &queued,
+        transition(
+            2,
+            PolicyDeliveryAttemptId::parse("attempt-delivered-before-rollback-receipt")
+                .expect_value("policy attempt id"),
+            PolicyDeliveryState::Delivered,
+        ),
+    )
+    .expect_value("delivery must reach rollback source state");
+    let mut rollback = transition(
+        3,
+        PolicyDeliveryAttemptId::parse("attempt-rollback-without-receipt")
+            .expect_value("policy attempt id"),
+        PolicyDeliveryState::RolledBack,
+    );
+    rollback.reason_code = Some(reason(
+        PolicyReasonCode::parse("adapter-failed").expect_value("policy reason code"),
+    ));
+    rollback.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+
+    let error = apply_policy_control_delivery_handoff(&delivered.delivery, rollback)
+        .expect_err_value("rollback without execution receipt must fail closed");
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for rolled-back".to_string(),
         }
     );
 }

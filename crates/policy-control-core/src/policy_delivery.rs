@@ -332,6 +332,18 @@ pub fn apply_policy_delivery_transition(
     apply_policy_delivery_transition_without_execution_receipt(current, transition)
 }
 
+/// Applies a receipt-required transition only after the adapter supplied its
+/// complete execution evidence. The receiptless path remains fail-closed.
+pub fn apply_policy_delivery_transition_with_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+    receipt: PolicyDeliveryExecutionReceipt,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    transitions::apply_policy_delivery_transition_with_execution_receipt(
+        current, transition, receipt,
+    )
+}
+
 pub fn apply_policy_delivery_transition_without_execution_receipt(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
