@@ -25,6 +25,17 @@ Narrative proof notes remain under:
 docs/proof/v0-8-enforcement-control-plan/
 ```
 
+## WP11 durable-journal prerequisite for WP04
+
+Before WP11 can claim durable-journal proof or WP04 can be scheduled, retain
+Eventing WP06's
+`output/eventing-plan-proof/06-journal-replay-and-lineage/00-enforcement-wp11-handoff.md`
+with its journal/topology proof, then retain WP11's enforcement-specific proof
+under `output/v0-8-enforcement-control-plan-proof/11-audit-journal-events/`.
+If either side lacks required proof, record the exact blocker in its command
+log: WP11 remains blocked and WP04 remains unscheduled/manual-required. A
+precise blocker records the gap; it does not satisfy either prerequisite.
+
 ## Common commands
 
 Use the subset relevant to the selected workpack:

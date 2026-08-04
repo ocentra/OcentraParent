@@ -117,6 +117,22 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 | WP11 | deploy/promotion/rollback/env separation proof |
 | WP12 | payment handoff assumptions, blockers, no-claim boundaries, downstream acknowledgment |
 
+## Account authority storage handoff
+
+WP06 consumes, but does not define, Account WP08's Rust-owned contract. Its
+proof must name `infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected
+account-identity D1 adapter, migration, and
+`tests/integration/account-identity-d1-migration.test.ts`; retain the migration
+result from `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`, the module integration result from
+`npm --prefix infra/cloudflare run test:integration`, and the focused
+architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
+
+Cloudflare WP08 follows WP06. It maps the selected account-identity integration
+assertion and its module-runner result to the Cloudflare proof root and the
+Account WP06 aggregation handoff. Missing source, command output, or proof is
+recorded as an exact blocker and keeps Cloudflare WP06/WP08 and Account WP06
+blocked; neither packet may substitute a test double or claim account authority.
+
 ## Required negative states
 
 ```text

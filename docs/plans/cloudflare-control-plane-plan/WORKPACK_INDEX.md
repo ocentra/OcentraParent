@@ -40,7 +40,7 @@ until matching output proof artifacts exist.
 ## Default execution order
 
 ```text
-WP00 -> WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09 -> WP10 -> WP11 -> WP12
+WP00 -> WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> Account WP08 Rust-contract handoff -> Cloudflare WP06 storage binding/migration -> Cloudflare WP08 account-storage runner/proof -> WP07 -> WP09 -> WP10 -> WP11 -> WP12
 ```
 
 ## Dependency rules
