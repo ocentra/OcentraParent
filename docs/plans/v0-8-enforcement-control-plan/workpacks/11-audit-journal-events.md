@@ -30,7 +30,7 @@ happened and why.
 
 ```text
 schema-domain owns public audit event, action result, reason, and reference schemas when they cross package/crate/protocol boundaries.
-eventing-plan owns generic replay, idempotency, and journal mechanics.
+eventing-plan WP06 Journal Replay And Lineage owns generic replay, idempotency, and journal mechanics.
 policy-control-plane-plan owns upstream policy authority and approval semantics.
 v0-8-enforcement-control-plan owns enforcement-specific action, rollback, approval, and visibility event meaning.
 ```
@@ -38,16 +38,19 @@ v0-8-enforcement-control-plan owns enforcement-specific action, rollback, approv
 ## Required handoff to WP04 trusted dispatch
 
 WP11 is not a downstream reporting embellishment. Before WP04 is scheduled for
-dispatch-ready proof, WP11 must provide the enforcement-specific durable
-journal contract and route to the generic replay/idempotency mechanics owned by
-`eventing-plan`.
+dispatch-ready proof, Eventing WP06 Journal Replay And Lineage must be selected
+or reopened by its Eventing owner and provide its generic replay/idempotency
+mechanics handoff. WP11 then provides the enforcement-specific durable journal
+contract and route to that exact prerequisite.
 
 The handoff must make these states queryable and durable enough for WP04 to
 consume: accepted/rejected dispatch intent, adapter result/no-op/mismatch/
 unavailable, rollback/recovery, actor/target/policy/evidence references, and
 redacted parent-visible receipt/read-model references. If the selected
-eventing-plan mechanism or WP11 proof is absent, WP04 remains manual-required;
-it must not manufacture a local journal or advance action state from a no-op.
+Eventing WP06 is currently historical with cited proof absent in this checkout.
+Until it is reopened/handed off or its exact blocker is retained, WP11 is
+blocked and WP04 remains manual-required; neither may manufacture a local
+journal or advance action state from a no-op.
 
 ## Source Inputs
 

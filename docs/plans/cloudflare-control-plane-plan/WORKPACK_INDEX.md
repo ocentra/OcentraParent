@@ -50,8 +50,8 @@ WP00 prevents copying game-only concerns into Parent.
 WP01/WP02 establish module and binding scaffold.
 WP03/WP04 establish entrypoint and routes.
 WP05 blocks private/admin/support/webhook readiness claims.
-WP06 blocks storage/coordination/queue claims.
-WP07/WP08 establish local dev and test proof.
+WP06 blocks storage/coordination/queue claims and owns the account-identity D1/DO/KV binding, adapter, and migration packet after Account WP08 supplies the Rust contract handoff.
+WP08 establishes the Cloudflare test-runner/pyramid proof after WP06; it uses module-scoped scripts and does not redefine the account/family contract.
 WP09 is the first consumer smoke.
 WP10 hardens negative/security/observability coverage.
 WP11 establishes deployment promotion.

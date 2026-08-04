@@ -15,6 +15,8 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - [TESTING_STRATEGY.md](../TESTING_STRATEGY.md)
 - [REQUIRED_TEST_ASSERTION_MATRIX.md](../REQUIRED_TEST_ASSERTION_MATRIX.md)
 - [PROOF_AND_TEST_INVENTORY.md](../PROOF_AND_TEST_INVENTORY.md)
+- `workpacks/06-storage-do-d1-kv-r2-queue-bindings.md` for the selected storage binding/migration proof route
+- `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md` for the consumed Rust account/family contract handoff only
 
 ## Output files
 
@@ -31,6 +33,7 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - Real test families, any remaining blockers, and no-claim boundaries are explicit.
 - The runner contract is explicit.
 - Proof output can map executed or blocked assertion IDs back to the matrix.
+- Account-identity storage-facing runner proof is sequenced after Cloudflare WP06 and is handed to Account WP06 without taking ownership of account/family authority.
 
 ## Proof IDs
 
@@ -93,6 +96,9 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 - `npm --prefix infra/cloudflare run lint`
 - `npm run lint:architecture -- --files infra/cloudflare/scripts/test-runner.ts`
 
+For the account-identity storage handoff, WP06 records the migration command
+`npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`; WP08 runs the integration family through the module script `npm --prefix infra/cloudflare run test:integration`, not a raw unprefixed Node invocation. Retain either the mapped result or its exact blocker for Account WP06.
+
 Validation truth from the current proof root:
 
 - `--list` passed.
@@ -116,4 +122,5 @@ Validation truth from the current proof root:
 - This workpack does not prove Cloudflare runtime readiness.
 - This workpack does not prove billing readiness, payment handoff readiness, or portal completion.
 - This workpack does not prove the excluded same-directory tests belong to the WP08 contract.
+- This workpack consumes but does not redefine the Account WP08 Rust authority contract; its account-identity result is not a whole-account or runtime-ready claim.
 - WP08 stays open/blocked until the missing billing-domain boundaries and the recorded module-lint debt are actually resolved and rerun green.

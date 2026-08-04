@@ -2,25 +2,24 @@
 
 > Agent Capsule
 > Plan: `account-identity-family-plan`
-> Doc: `WP08 Rust Schema And Workers-D1 Runtime Migration`
+> Doc: `WP08 Rust Schema And Account Authority`
 > Kind: assigned implementation and proof workpack.
 > Read when: selected from WORKPACK_INDEX.md after the provider/custody decision.
-> Stop rule: do not treat a TypeScript D1 test double as real runtime proof or move account authority into Cloudflare scaffolding.
-> Proves: only the Rust-owned schema plus real Workers-D1 persistence/migration slice after focused validation and retained proof.
+> Stop rule: do not implement Cloudflare binding, adapter, migration, or test-runner work in this account-owned packet.
+> Proves: only the Rust-owned schema and account-authority parity slice after focused validation and retained proof.
 > Does not prove: production authentication, device trust, payment, policy, LAN/remote transport, deployment readiness, or whole-plan completion.
 > Proof rule: all WP08 checklist rows remain open until the named proof artifacts and focused commands exist.
 
 <!-- /agent-capsule -->
 
-# WP08 Rust Schema And Workers-D1 Runtime Migration
+# WP08 Rust Schema And Account Authority
 
 ## Goal
 
 Establish the next executable account-identity slice after the accepted provider
-and custody decision: Rust-owned canonical account/family authority schemas,
-then a real Cloudflare Workers-D1 persistence/migration implementation that
-consumes those schemas without making a TypeScript adapter or D1 test double
-the authority.
+and custody decision: Rust-owned canonical account/family authority schemas and
+account-authority parity. Cloudflare persistence consumes this contract in its
+own plan; this packet neither implements nor validates the worker runtime.
 
 ## Required inputs
 
@@ -36,8 +35,8 @@ PROOF_INDEX.md (WP08 only)
 docs/expectations/cloud.md
 ```
 
-Read the Cloudflare plan only for the explicit worker/runtime handoff. Do not
-move account/family ownership into that plan's shared worker scaffold.
+Read the Cloudflare plan only to record the explicit handoff. Do not move
+account/family ownership into that plan's shared worker scaffold.
 
 ## Ownership and handoff
 
@@ -49,14 +48,12 @@ crates/schema or the owning Rust crate:
 crates/family-identity-core:
   Rust account/family runtime semantics and parity against the canonical schema.
 
-infra/cloudflare:
-  real Workers-D1 binding, persistence adapter, migration execution surface,
-  and focused worker integration proof; it consumes canonical Rust-owned
-  contracts and does not redefine family authority.
+cloudflare-control-plane-plan WP06:
+  real Workers-D1/DO/KV binding, persistence adapter, migration execution
+  surface, and storage proof; it consumes this packet's canonical contract.
 
-Durable Objects / KV:
-  approved short-lived coordination and cache/rate-limit roles only; neither is
-  the relational account-family authority.
+cloudflare-control-plane-plan WP08:
+  Cloudflare test-runner and test-pyramid proof after the WP06 storage packet.
 ```
 
 PR #607's TypeScript Cloudflare adapter/D1-test-double work is historical
@@ -73,36 +70,30 @@ Required artifacts:
 
 ```text
 00-rust-schema-authority-proof.md
-01-migration-safety-proof.md
-02-workers-d1-binding-proof.md
-03-account-persistence-integration-proof.md
-04-runtime-negative-proof.md
-05-custody-role-proof.md
-06-handoff-and-no-claim-boundary.md
-07-redacted-correlated-runtime-logging-proof.md
-08-authority-operation-negative-proof.md
+01-account-authority-parity-proof.md
+02-account-authority-negative-proof.md
+03-redacted-authority-proof.md
+04-cloudflare-wp06-wp08-handoff.md
+05-no-claim-boundary.md
 16-validation-commands.log
 ```
 
 ## Acceptance obligations
 
 - [ ] Canonical account/family authority schemas are Rust-owned and consumed without TypeScript ownership drift.
-- [ ] A real Workers-D1 binding and persistence adapter exists; local test doubles are insufficient.
-- [ ] Migrations cover apply, compatibility, and rollback or an explicit forward-only/custody constraint.
-- [ ] Account, household, membership, role, device, invite/recovery, and session authority preserve typed scope and ownership.
-- [ ] Wrong-household, revoked, stale, malformed, duplicate, and unavailable-storage cases reject or degrade safely.
-- [ ] Durable Objects and KV remain non-authoritative for account/family relational truth.
-- [ ] A focused local Workers-D1 migration apply plus compatibility proof runs against the selected account-identity D1 binding; unit/test-double coverage is insufficient.
-- [ ] Redacted correlated runtime logging and focused negative proof cover account, household, device, invite, recovery, and session operations.
-- [ ] Rust and focused worker validation are retained with compact command logs.
-- [ ] The cross-plan Cloudflare handoff and no-claim boundary are retained.
+- [ ] Account, household, membership, role, device, invite/recovery, and session authority preserve typed canonical scope and ownership.
+- [ ] Wrong-household, revoked, stale, malformed, duplicate, and schema-incompatible authority cases reject or degrade safely.
+- [ ] Redacted correlated account-authority proof covers account, household, device, invite, recovery, and session decisions without carrying a worker-runtime claim.
+- [ ] The Cloudflare WP06 storage handoff is recorded as a consumer of this contract, not as an Account WP08 implementation duty.
+- [ ] The Cloudflare WP08 runner/proof handoff is recorded after Cloudflare WP06, not claimed as Account WP08 validation.
+- [ ] Focused Rust validation is retained with compact command logs.
+- [ ] The cross-plan no-claim boundary is retained.
 - [ ] Checklist rows are reconciled only after all prior obligations have evidence.
 
 ## Focused validation
 
 Use the selected subset from `TEST_PROOF_EXPECTATIONS.md`; at minimum, the
-packet must cover the changed canonical Rust owner, family-identity runtime,
-and actual Cloudflare worker scope:
+packet must cover the changed canonical Rust owner and family-identity runtime:
 
 ```bash
 # Canonical schema crate plus focused account/family authority coverage.
@@ -110,38 +101,29 @@ cargo test -p ocentra-schema --test contract
 cargo test -p ocentra-family-identity-core household_authority
 npm run lint:architecture -- --files crates/schema crates/family-identity-core
 
-# Real Workers-D1 persistence/migration scope.
-npm --prefix infra/cloudflare exec wrangler d1 migrations apply <account-identity-d1-database> --local
-node --import tsx --test infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
-npm --prefix infra/cloudflare run test:unit
-npm --prefix infra/cloudflare run test:integration
-npm --prefix infra/cloudflare run test:contract
-npm --prefix infra/cloudflare run lint
-npm run lint:architecture -- --files infra/cloudflare
 ```
 
-The migration command and focused test path become runnable only when this
-workpack creates the selected account-identity D1 binding, migrations, and
-test. Record a missing binding, migration environment, or test path as a
-blocker in `16-validation-commands.log`; do not substitute a test double.
-Run a protocol/service consumer only if this workpack changes its typed
+Cloudflare WP06, not this packet, records its exact migration command as
+`npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local` after it defines the binding and migration.
+Cloudflare WP08, not this packet, runs Cloudflare module test scripts including
+`npm --prefix infra/cloudflare run test:integration`. Record unavailable
+Cloudflare handoff proof as a downstream blocker; do not substitute a test
+double. Run a protocol/service consumer only if this packet changes its typed
 handoff.
 
 ## Negative and no-claim boundary
 
-This workpack must distinguish a real D1 runtime from mocks/test doubles and
-must reject cross-household, stale/revoked, schema-incompatible, and
-unavailable-storage paths. Its retained runtime logs must use correlation IDs
-and redact session credentials, provider claims, invite/recovery secrets, and
-child activity data. Focused negatives must cover account, household, device,
-invite, recovery, and session operations. It does not prove provider login,
-trusted-device bootstrap, policy/payment authorization, rollout/deployment, or
-whole-plan readiness.
+This workpack must reject cross-household, stale/revoked, malformed, duplicate,
+and schema-incompatible authority paths. Its retained authority proof must use
+correlation IDs and redact session credentials, provider claims, invite/recovery
+secrets, and child activity data. It does not prove a D1 runtime, provider
+login, trusted-device bootstrap, policy/payment authorization, rollout,
+deployment, or whole-plan readiness.
 
 ## Fill before DONE or PR_READY
 
 - [ ] Workpack id, branch, and exact source owners recorded.
 - [ ] Required proof artifacts and `16-validation-commands.log` retained.
 - [ ] Focused command results or precise blockers recorded.
-- [ ] Cross-plan Cloudflare handoff, custody limits, and no-claim boundary recorded.
+- [ ] Cross-plan Cloudflare WP06/WP08 handoffs and no-claim boundary recorded.
 - [ ] Checklist/PLAN_STATE changes made only for proven rows.

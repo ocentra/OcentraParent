@@ -17,13 +17,15 @@
 
 ```text
 1. WP01 Auth Provider Decision
-2. WP08 Rust Schema And Workers-D1 Runtime Migration
-3. WP02 Identity Household Role Model
-4. WP03 Session Token Lifecycle
-5. WP04 Invites Recovery Lifecycle
-6. WP05 Device Ownership AuthZ
-7. WP07 Parent Account Family Setup UI
-8. WP06 Security Proof And Route Gate
+2. WP08 Rust Schema And Account Authority
+3. Cloudflare WP06 D1/DO/KV binding and migration packet
+4. Cloudflare WP08 runner and integration-proof packet
+5. WP02 Identity Household Role Model
+6. WP03 Session Token Lifecycle
+7. WP04 Invites Recovery Lifecycle
+8. WP05 Device Ownership AuthZ
+9. WP07 Parent Account Family Setup UI
+10. WP06 Security Proof And Route Gate
 ```
 
 ## Codex startup prompt
@@ -70,7 +72,7 @@ apps/portal/tests/** only for WP07 selected UI tests
 apps/portal/e2e/** only for WP07 selected Playwright proof
 crates/agent-protocol/** only for cross-language contract parity
 crates/agent-service/** only for selected service-backed setup/session/device boundary proof
-infra/cloudflare/** only after cloudflare-control-plane-plan exposes the required worker scaffold/handoff
+infra/cloudflare/** is Cloudflare-plan-owned; Account WP08 records only its typed handoff to Cloudflare WP06 and Cloudflare WP08
 ```
 
 Read-only or handoff-only paths:
@@ -159,8 +161,8 @@ PLAN_STATE.md open gaps updated if state changed
 ```
 
 PR_READY for the whole plan requires WP06 route-gate rerun proof and all prior
-workpack proof roots, including WP08's real Workers-D1 migration, redacted
-correlated runtime logging, and authority-operation negative proof.
+workpack proof roots, including Account WP08's Rust authority proof and the
+exact Cloudflare WP06 storage plus Cloudflare WP08 runner/proof handoffs.
 
 ## Global no-touch rule
 

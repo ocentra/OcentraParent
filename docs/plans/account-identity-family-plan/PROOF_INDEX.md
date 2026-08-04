@@ -67,18 +67,15 @@ test-results/account-identity-family-plan-security-route-gate/
 16-validation-commands.log
 ```
 
-### WP08 Rust Schema And Workers-D1 Runtime Migration
+### WP08 Rust Schema And Account Authority
 
 ```text
 00-rust-schema-authority-proof.md
-01-migration-safety-proof.md
-02-workers-d1-binding-proof.md
-03-account-persistence-integration-proof.md
-04-runtime-negative-proof.md
-05-custody-role-proof.md
-06-handoff-and-no-claim-boundary.md
-07-redacted-correlated-runtime-logging-proof.md
-08-authority-operation-negative-proof.md
+01-account-authority-parity-proof.md
+02-account-authority-negative-proof.md
+03-redacted-authority-proof.md
+04-cloudflare-wp06-wp08-handoff.md
+05-no-claim-boundary.md
 16-validation-commands.log
 ```
 
@@ -145,7 +142,7 @@ test-results/account-identity-family-plan-security-route-gate/
 06-route-sync-proof.md
 07-logging-redaction-proof.md
 08-manual-required-gap-register.md
-09-wp08-runtime-schema-gate.md
+09-account-authority-cloudflare-storage-gate.md
 16-validation-commands.log
 ```
 

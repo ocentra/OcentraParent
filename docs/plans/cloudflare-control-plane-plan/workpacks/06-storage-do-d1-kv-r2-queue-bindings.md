@@ -14,6 +14,7 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 - [STORAGE_BINDING_MODEL.md](../STORAGE_BINDING_MODEL.md)
 - [SECURITY_PRIVACY_OBSERVABILITY.md](../SECURITY_PRIVACY_OBSERVABILITY.md)
+- `docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md` for the Rust-owned account/family contract handoff only
 
 ## Output files
 
@@ -26,6 +27,8 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Each binding has one owner and one purpose.
 - No child-data storage drift is allowed.
 - Queue and dead-letter ownership is explicit.
+- Account-identity D1/DO/KV bindings, adapter, and migration consume Account WP08's canonical Rust contract without redefining family authority.
+- The retained storage result or exact blocker is linked for Cloudflare WP08 runner proof and Account WP06 aggregation.
 
 ## Proof IDs
 
@@ -40,12 +43,14 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Scoped validation: `npm --prefix infra/cloudflare run test:unit`
 - Scoped validation: `npm --prefix infra/cloudflare run test:integration`
 - Scoped validation: `npm --prefix infra/cloudflare run test:property`
+- Migration validation after the selected binding and migration exist: `npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local`
 - Architecture validation: `npm run lint:architecture -- --files infra/cloudflare/src/env.ts`
 
 ## Negative cases
 
 - Reject optional R2 as a telemetry dump.
 - Reject D1/KV claims without privacy boundaries.
+- Reject a Cloudflare adapter, migration, or test double as a redefinition of the Account WP08 Rust authority contract.
 
 ## Failure conditions
 
@@ -92,3 +97,4 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - No claim is made that real binding IDs are configured.
 - No claim is made that the Cloudflare worker boots successfully in this worktree.
 - No claim is made that queue retries, dead-letter replay, D1 writes, KV writes, or R2 writes executed live.
+- No claim is made that Account WP08 or this packet alone completes account authority; Cloudflare WP08 runner proof and Account WP06 aggregation remain separate required handoffs.

@@ -123,7 +123,7 @@ provider outage cannot unlock privileged flows
 production cannot run in dev-mode auth bypass
 ```
 
-## WP08 Rust Schema And Workers-D1 Runtime Migration
+## WP08 Rust Schema And Account Authority
 
 Expected focused commands:
 
@@ -133,32 +133,18 @@ cargo test -p ocentra-schema --test contract
 cargo test -p ocentra-family-identity-core household_authority
 npm run lint:architecture -- --files crates/schema crates/family-identity-core
 
-# Real Workers-D1 persistence/migration scope.
-npm --prefix infra/cloudflare exec wrangler d1 migrations apply <account-identity-d1-database> --local
-node --import tsx --test infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts
-npm --prefix infra/cloudflare run test:unit
-npm --prefix infra/cloudflare run test:integration
-npm --prefix infra/cloudflare run test:contract
-npm --prefix infra/cloudflare run lint
-npm run lint:architecture -- --files infra/cloudflare
 ```
 
-The migration command and focused test path become runnable only after the
-selected account-identity D1 binding, migrations, and test are added. Record a
-missing binding, migration environment, or focused test path as a blocker; a
-TypeScript D1 test double cannot replace any of them. Run protocol/service
-commands only when a typed account-family handoff changes.
+Cloudflare WP06 owns the real persistence/migration command and must use
+`npm --prefix infra/cloudflare exec -- wrangler d1 migrations apply <account-identity-d1-database> --local` after its binding exists. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
 
 Expected proof:
 
 ```text
 Rust canonical schema authority and compatibility boundary
-real Workers-D1 binding and persistence adapter proof
-migration apply/compatibility/rollback-or-forward-only proof
-account-family integration and negative-path proof
-Durable Object/KV non-authority proof
-Cloudflare handoff and no-claim boundary
-redacted correlated runtime logging and operation-specific negative proof
+account-family authority parity and negative-path proof
+redacted correlated authority proof
+Cloudflare WP06 then WP08 handoff and no-claim boundary
 compact focused command log
 ```
 
@@ -167,11 +153,10 @@ Required negative cases:
 ```text
 wrong household or revoked/stale actor cannot read or mutate authority state
 malformed/duplicate/schema-incompatible records reject or degrade safely
-unavailable storage does not invent a successful authority result
-D1 test double cannot be reported as production Workers-D1 proof
-Durable Objects or KV cannot become relational account-family authority
+schema-incompatible authority input cannot invent a successful decision
+Account WP08 cannot report a D1 test double or Cloudflare runner as its own proof
 account, household, device, invite, recovery, and session operations have focused negative coverage
-runtime logs redact sensitive values and preserve a safe correlation ID
+authority proof redacts sensitive values and preserves a safe correlation ID
 ```
 
 ## WP02 Identity Household Role Model
@@ -337,7 +322,8 @@ WP03 proof root exists
 WP04 proof root exists
 WP05 proof root exists
 WP07 proof root exists or UI blocker recorded
-WP08 real Workers-D1 migration, redacted correlated logging, and authority-operation negative proof root exists or precise blocker recorded
+WP08 Rust schema/account-authority proof root exists or precise blocker recorded
+Cloudflare WP06 storage proof and Cloudflare WP08 runner/proof exist or exact blockers are recorded
 route sync proof names consumers and handoffs
 manual-required gap register exists
 ```
@@ -355,5 +341,5 @@ provider outage degrades safely
 support/admin cannot act as owner
 child profile cannot authorize child device
 login cannot authorize policy/payment/remote/export without role/device/freshness gates
-WP08 D1 test-double or unredacted/correlation-free logs cannot satisfy the WP06 final gate
+Account WP08 cannot replace Cloudflare WP06/WP08 storage/runner proof, and Cloudflare cannot replace the Account WP08 Rust authority proof, at the WP06 final gate
 ```

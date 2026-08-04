@@ -42,14 +42,16 @@ be scheduled for dispatch-ready or action-state proof until its audit/journal
 prerequisite is available. The required order is:
 
 ```text
-eventing-plan generic replay/idempotency/journal mechanics
+eventing-plan WP06 Journal Replay And Lineage generic replay/idempotency/journal mechanics
 -> WP11 enforcement-specific durable journal contract and proof route
 -> WP04 trusted dispatch, adapter result/no-op/mismatch/unavailable, and rollback state
 ```
 
-WP11 owns enforcement-specific journal meaning; `eventing-plan` owns generic
-mechanics. WP04 consumes their explicit handoff. If either is absent, stale, or
-only a test double, record `manual_required_state`/a precise blocker and keep
+WP11 owns enforcement-specific journal meaning; Eventing WP06 owns generic
+mechanics. WP04 consumes their explicit handoff. Eventing WP06 is historical
+with its cited proof absent in this checkout, so it must be explicitly selected
+or reopened by the Eventing plan before WP11 proceeds. If either is absent,
+stale, or only a test double, record `manual_required_state`/a precise blocker and keep
 dispatch-ready, receipt, and parent-visible action claims unavailable.
 
 ## Source Inputs
@@ -93,7 +95,7 @@ Focused validation should record:
 - `cargo test -p ocentra-parent-agent-core enforcement`
 - `cargo test -p ocentra-parent-agent-service enforcement`
 - selected app/game proof only when this slice consumes app/game handoff state
-- the selected WP11 durable-journal proof and its eventing-plan mechanics handoff
+- the selected WP11 durable-journal proof and its Eventing WP06 Journal Replay And Lineage handoff
 
 ## AI Worker Checklist
 
@@ -120,8 +122,8 @@ clearly separate from broad app blocking.
 
 - Broad installed-app blocking remains manual-required until a separate adapter
   and proof path exists.
-- Trusted dispatch remains unscheduled until WP11 supplies the durable-journal
-  handoff and records the generic eventing-plan mechanics it consumes.
+- Trusted dispatch remains unscheduled until Eventing WP06 supplies or precisely
+  blocks its handoff and WP11 then supplies the durable-journal handoff.
 - Platform-specific restart/rollback behavior remains manual-required where the
   adapter cannot prove it.
 - Mobile and non-Windows parity remain unclaimed.
