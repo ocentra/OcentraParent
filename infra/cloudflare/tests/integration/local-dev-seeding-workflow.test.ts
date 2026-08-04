@@ -4,11 +4,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { env } from 'node:process';
 import { describe, it } from 'node:test';
+import { fileURLToPath } from 'node:url';
 import { readTestLogEntriesFromFile } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
 import { getRunNdjsonFilePath } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
 import { RunType, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
 import { redactPayload } from '../../src/security/redaction.js';
 import { buildSeedProofMilestoneDetails, inspectLocalDevWorkflow } from '../../scripts/local-dev-workflow.js';
+
+const cloudflareRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 
 describe('local dev seeding workflow', () => {
   it('keeps start, seed, teardown, and blocker truth explicit', () => {
@@ -19,6 +22,12 @@ describe('local dev seeding workflow', () => {
     assert.equal(workflow.start.wranglerCommand, 'wrangler dev --local');
     assert.equal(workflow.seed.aggregateCommand, 'npm --prefix infra/cloudflare run seed:local');
     assert.equal(workflow.teardown.status, 'explicit');
+    assert.ok(workflow.start.noClaimReason.length > 0);
+    assert.deepEqual(workflow.teardown.ownershipConditions, [
+      'Stop only the wrangler dev --local process started by this workflow or its harness.',
+      'Remove a --persist-to directory only when this workflow or its harness created it.',
+      'Remove infra/cloudflare/.dev.vars only when this workflow or its harness created it.',
+    ]);
 
     const fixtureFamilies = workflow.seed.fixtureFamilies.map((family) => family.family);
     assert.deepEqual(fixtureFamilies, [
@@ -87,7 +96,7 @@ describe('local dev seeding workflow', () => {
         logRoot
       );
       const logEntries = readTestLogEntriesFromFile(logFile);
-      assert.equal(logEntries.length, workflow.start.blockers.length > 0 ? 5 : 4);
+      assert.equal(logEntries.length, workflow.start.blockers.length > 0 ? 6 : 5);
 
       const logText = fs.readFileSync(logFile, 'utf8');
       const events = logEntries.map((entry) => entry.context?.replace('cloudflare.local-dev.', ''));
@@ -99,9 +108,16 @@ describe('local dev seeding workflow', () => {
               'start_path_observed',
               'start_blocker_observed',
               'seed_path_observed',
+              'teardown_path_observed',
               'workflow_completed',
             ]
-          : ['workflow_started', 'start_path_observed', 'seed_path_observed', 'workflow_completed']
+          : [
+              'workflow_started',
+              'start_path_observed',
+              'seed_path_observed',
+              'teardown_path_observed',
+              'workflow_completed',
+            ]
       );
       for (const entry of logEntries) {
         assert.equal(entry.type, 'log');
@@ -131,6 +147,21 @@ describe('local dev seeding workflow', () => {
       } else {
         assert.match(seedData, /"noClaimReason":"retained-workpack-proof-absent"/);
       }
+
+      const startEntry = logEntries.find((entry) => entry.context === 'cloudflare.local-dev.start_path_observed');
+      assert.ok(startEntry);
+      assert.match(
+        startEntry.data ?? '',
+        /"noClaimReason":"(?:local-worker-not-launched-or-response-verified|start-probe-blocked-before-local-worker-launch)"/
+      );
+
+      const teardownEntry = logEntries.find((entry) => entry.context === 'cloudflare.local-dev.teardown_path_observed');
+      assert.ok(teardownEntry);
+      assert.match(teardownEntry.data ?? '', /"ownershipConditions":\[/);
+      assert.match(
+        teardownEntry.data ?? '',
+        /Remove a --persist-to directory only when this workflow or its harness created it\./
+      );
     } finally {
       if (previousLogRoot === undefined) {
         delete env.OCENTRA_PARENT_LOG_ROOT;
@@ -172,5 +203,17 @@ describe('local dev seeding workflow', () => {
     assert.ok(redacted.includes('"kind":"missing-runtime-dependency"'));
     assert.doesNotMatch(redacted, /sk_test_/);
     assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
+  });
+
+  it('prepares the canonical logger before focused and integration test paths', () => {
+    const packageJson = fs.readFileSync(path.join(cloudflareRoot, 'package.json'), 'utf8');
+    assert.match(
+      packageJson,
+      /"test:local-dev-workflow": "npm run test:logger-ready && node --import tsx --test tests\/integration\/local-dev-seeding-workflow\.test\.ts"/
+    );
+    assert.match(
+      packageJson,
+      /"test:integration": "npm run test:logger-ready && tsx scripts\/test-runner\.ts --type=integration"/
+    );
   });
 });

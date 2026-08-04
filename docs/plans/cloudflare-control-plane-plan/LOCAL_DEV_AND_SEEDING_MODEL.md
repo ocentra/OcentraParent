@@ -21,8 +21,17 @@ Purpose: define the first local worker workflow before payment runtime work star
   remains an explicit runtime blocker.
 - Run `npm --prefix infra/cloudflare run proof:local-dev` for this workflow.
   It first runs `proof:logger-ready` to build the canonical
-  `@ocentra-parent/logging-domain` ESM entry points, then invokes the workflow;
-  a clean checkout therefore does not depend on ignored prebuilt `dist/` output.
+  `@ocentra-parent/logging-domain` ESM entry points, then creates a correlated
+  run id and writes redacted NDJSON milestones under
+  `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/runs/<run-id>/`.
+  A clean checkout therefore does not depend on ignored prebuilt `dist/` output.
+- Run `npm --prefix infra/cloudflare run test:local-dev-workflow` for the
+  focused validation, or `npm --prefix infra/cloudflare run test:integration`
+  for the integration family. Both build the canonical logger before loading
+  its compiled test-log exports.
+- The generated run directory is local validation evidence, not a tracked WP07
+  proof bundle. Its presence does not close WP07, prove a launched/responding
+  Worker, or establish payment/deploy/runtime authority.
 
 ## Seed commands
 

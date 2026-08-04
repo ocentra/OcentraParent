@@ -26,6 +26,7 @@ export interface LocalStartPath {
   authAdapterMode: string;
   status: 'blocked' | 'runnable';
   blockers: ReadonlyArray<RuntimeDependencyBlocker>;
+  noClaimReason: 'local-worker-not-launched-or-response-verified' | 'start-probe-blocked-before-local-worker-launch';
 }
 
 export interface FixtureFamilyReport {
@@ -48,6 +49,7 @@ export interface LocalTeardownPath {
   status: 'explicit';
   steps: ReadonlyArray<string>;
   notes: ReadonlyArray<string>;
+  ownershipConditions: ReadonlyArray<string>;
 }
 
 export interface LocalDevWorkflowReport {
@@ -269,6 +271,10 @@ function inspectLocalStartPath(): LocalStartPath {
     authAdapterMode: 'account-auth-adapter-manual-required',
     status: blockers.length === 0 ? 'runnable' : 'blocked',
     blockers,
+    noClaimReason:
+      blockers.length === 0
+        ? 'local-worker-not-launched-or-response-verified'
+        : 'start-probe-blocked-before-local-worker-launch',
   };
 }
 
@@ -429,6 +435,11 @@ function inspectLocalTeardownPath(): LocalTeardownPath {
       'The harness-backed teardown path is exercised in infra/cloudflare/tests/integration/worker-runtime-real.test.ts.',
       'The default npm --prefix infra/cloudflare run dev command does not currently declare --persist-to, so teardown proof stays scoped to the explicit harness path rather than inventing extra cleanup guarantees.',
     ],
+    ownershipConditions: [
+      'Stop only the wrangler dev --local process started by this workflow or its harness.',
+      'Remove a --persist-to directory only when this workflow or its harness created it.',
+      'Remove infra/cloudflare/.dev.vars only when this workflow or its harness created it.',
+    ],
   };
 }
 
@@ -449,6 +460,7 @@ export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
     status: start.status === 'blocked' ? 'blocked' : 'observed',
     details: {
       status: start.status,
+      noClaimReason: start.noClaimReason,
       blockerCount: start.blockers.length,
       blockerKinds: start.blockers.map((blocker) => blocker.kind),
       blockers: start.blockers.map(({ kind, path: blockerPath, details }) => ({
@@ -489,6 +501,17 @@ export function inspectLocalDevWorkflow(): LocalDevWorkflowReport {
     seed,
     teardown,
   };
+
+  writeProofLog({
+    event: 'teardown_path_observed',
+    status: 'observed',
+    details: {
+      status: teardown.status,
+      steps: teardown.steps,
+      notes: teardown.notes,
+      ownershipConditions: teardown.ownershipConditions,
+    },
+  });
 
   writeProofLog({
     event: 'workflow_completed',
