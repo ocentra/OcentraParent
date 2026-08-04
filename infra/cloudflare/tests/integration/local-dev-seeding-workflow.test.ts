@@ -340,8 +340,12 @@ describe('local dev seeding workflow', () => {
       'Import failed from [redacted-path]: billing module unavailable'
     );
     assert.equal(
-      redactRuntimeBlockerDetails('Failed in /workspace/OcentraParent/infra/cloudflare at /root/.cache/worker.ts'),
-      'Failed in [redacted-path] at [redacted-path]'
+      redactRuntimeBlockerDetails('route /api/v1/parents remains visible'),
+      'route /api/v1/parents remains visible'
+    );
+    assert.equal(
+      redactRuntimeBlockerDetails('Failed from /build/agent/OcentraParent/infra/cloudflare at /root/.cache/worker.ts'),
+      'Failed from [redacted-path] at [redacted-path]'
     );
   });
 

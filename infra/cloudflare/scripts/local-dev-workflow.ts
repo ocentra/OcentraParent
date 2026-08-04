@@ -229,9 +229,13 @@ function runCloudflareScript(command: string): CommandProbeResult {
 }
 
 export function redactRuntimeBlockerDetails(details: string): string {
-  return details.replace(
-    /(?:[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|file:\/\/\/[A-Za-z]:\/(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+|file:\/\/\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes|root|workspace)(?:\/[^/\r\n\t :"'`]*)*|(?<![:/A-Za-z0-9])\/(?:Users|home|private|tmp|var|etc|opt|srv|mnt|Volumes|root|workspace)(?:\/[^/\r\n\t :"'`]*)*)/gu,
+  const windowsAndFileUriRedacted = details.replace(
+    /(?:[A-Za-z]:[\\/](?:[^\\/\r\n\t :"'`]+[\\/])*[^\\/\r\n\t :"'`]+|file:\/\/\/(?:[A-Za-z]:\/)?(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+)/gu,
     '[redacted-path]'
+  );
+  return windowsAndFileUriRedacted.replace(
+    /(^|\b(?:at|from|in|path|file|module)\s+['"]?)(\/(?!\/)(?:[^/\r\n\t :"'`]+\/)*[^/\r\n\t :"'`]+)/gu,
+    '$1[redacted-path]'
   );
 }
 
