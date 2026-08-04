@@ -48,10 +48,10 @@ eventing-plan WP06 Journal Replay And Lineage generic replay/idempotency/journal
 ```
 
 WP11 owns enforcement-specific journal meaning; Eventing WP06 owns generic
-mechanics. WP04 consumes their explicit handoff. Eventing WP06 is historical
-with its cited proof absent in this checkout, so it must be explicitly selected
-or reopened by the Eventing plan before WP11 proceeds. If either is absent,
-stale, or only a test double, record `manual_required_state`/a precise blocker and keep
+mechanics. WP04 consumes their explicit handoff. Eventing WP06 is reopened with
+its cited proof absent in this checkout, so it must produce its actual handoff
+before WP11 proceeds. If either is absent, stale, or only a test double, record
+`manual_required_state`/a precise blocker and keep
 dispatch-ready, receipt, and parent-visible action claims unavailable.
 
 ## Source Inputs
@@ -122,8 +122,9 @@ clearly separate from broad app blocking.
 
 - Broad installed-app blocking remains manual-required until a separate adapter
   and proof path exists.
-- Trusted dispatch remains unscheduled until Eventing WP06 supplies or precisely
-  blocks its handoff and WP11 then supplies the durable-journal handoff.
+- Trusted dispatch remains unscheduled/manual-required until Eventing WP06
+  supplies its actual handoff and WP11 then supplies the durable-journal proof.
+  A precise blocker records the gap but does not satisfy either prerequisite.
 - Platform-specific restart/rollback behavior remains manual-required where the
   adapter cannot prove it.
 - Mobile and non-Windows parity remain unclaimed.

@@ -38,19 +38,20 @@ v0-8-enforcement-control-plan owns enforcement-specific action, rollback, approv
 ## Required handoff to WP04 trusted dispatch
 
 WP11 is not a downstream reporting embellishment. Before WP04 is scheduled for
-dispatch-ready proof, Eventing WP06 Journal Replay And Lineage must be selected
-or reopened by its Eventing owner and provide its generic replay/idempotency
-mechanics handoff. WP11 then provides the enforcement-specific durable journal
-contract and route to that exact prerequisite.
+dispatch-ready proof, Eventing WP06 Journal Replay And Lineage is reopened by
+its Eventing owner and must provide its generic replay/idempotency mechanics
+handoff. WP11 then provides the enforcement-specific durable journal contract
+and route to that actual prerequisite.
 
 The handoff must make these states queryable and durable enough for WP04 to
 consume: accepted/rejected dispatch intent, adapter result/no-op/mismatch/
 unavailable, rollback/recovery, actor/target/policy/evidence references, and
 redacted parent-visible receipt/read-model references. If the selected
-Eventing WP06 is currently historical with cited proof absent in this checkout.
-Until it is reopened/handed off or its exact blocker is retained, WP11 is
-blocked and WP04 remains manual-required; neither may manufacture a local
-journal or advance action state from a no-op.
+Eventing WP06 is reopened with cited proof absent in this checkout. Until its
+actual handoff is retained, WP11 is blocked and WP04 remains
+unscheduled/manual-required; an exact blocker records the gap but does not
+satisfy it. Neither may manufacture a local journal or advance action state
+from a no-op.
 
 ## Source Inputs
 

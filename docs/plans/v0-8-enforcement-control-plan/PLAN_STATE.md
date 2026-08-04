@@ -148,10 +148,13 @@ parent-visible receipt claims are considered.
   Rust-service, and proof-harness validation path rather than the broken
   `parent-domain` indirection.
 - Action-authority and adapter-execution gaps remain open in WP04, WP05, WP06,
-  and WP08. WP04's first gap is trusted dispatch plus a durable journal; the
+  and WP08. WP04 is unscheduled/manual-required until reopened Eventing WP06
+  supplies its actual journal/replay handoff and WP11 then supplies durable
+  journal proof; a recorded blocker does not reduce or satisfy this gap. The
   closed #606 unsafe/no-op slice does not reduce it.
 - Approval/audit/read-model visibility gaps remain open in WP10, WP11, WP12,
-  WP13, and WP14.
+  WP13, and WP14. WP11 remains blocked until the actual Eventing WP06 handoff
+  exists.
 - Integrity and anti-claim boundaries remain open in WP15, WP16, and WP17.
 - Playwright/UI and rollout gate closure remain open in WP19 and WP20.
 - Notification delivery, exact-URL control, network blocking, broad app

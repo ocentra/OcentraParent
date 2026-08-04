@@ -45,7 +45,7 @@ root is absent from the checkout. Use the four states below when assigning work:
 | screen | Capture/AI/live-view source exists; custody/platform closure open. | WP03 contract, then WP06–08 capture model/adapter. |
 | setup/install/provisioning | Source + focused tests; depends on identity/device/install truth. | Parent setup-to-child trust/install handoff. |
 | tracking | Strong source/test foundation; event spine and provider proof open. | WP34 tracking event contracts, then WP35–39 chains. |
-| v0.8 enforcement | Source + focused tests; adapters and parent-visible receipts open. | Eventing WP06 Journal Replay And Lineage (historical proof absent; reopen/select in Eventing) -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch. |
+| v0.8 enforcement | Source + focused tests; adapters and parent-visible receipts open. | Eventing WP06 Journal Replay And Lineage (reopened; proof/handoff absent) -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch. WP11/WP04 remain unscheduled/manual-required until both actual handoffs exist. |
 
 ### Priority order
 
@@ -99,7 +99,7 @@ proof artifact, checklist row, and merge state agree.
 
 | Plan | Code state | Main runtime owners | Evidence observed | Current blocker / dependency | Next unblocker |
 | --- | --- | --- | --- | --- | --- |
-| `account-identity-family-plan` | Foundation | `family-identity-core`, `provisioning-core`, `entitlement-core`, `schema` | Family identity has 13 source / 7 test files; setup and signed-entitlement paths exist. PR #607 is closed without merge; its TypeScript Cloudflare adapter/D1-test-double slice is not account-family authority evidence. | Account WP08 Rust schema/account-authority proof, Cloudflare WP06 D1/DO/KV binding/migration proof, and Cloudflare WP08 runner proof remain absent; Account WP06 is reopened to aggregate those exact handoffs. | Establish the Rust-owned account schema; route it through Cloudflare WP06 then WP08; rerun Account WP06 only after the three exact inputs exist or are precisely blocked. |
+| `account-identity-family-plan` | Foundation | `family-identity-core`, `provisioning-core`, `entitlement-core`, `schema` | Family identity has 13 source / 7 test files; setup and signed-entitlement paths exist. PR #607 is closed without merge; its TypeScript Cloudflare adapter/D1-test-double slice is not account-family authority evidence. | Account WP08 Rust schema/account-authority proof, Cloudflare WP06 D1/DO/KV binding/migration proof, and Cloudflare WP08 runner proof remain absent; Account WP06 is reopened to aggregate those exact handoffs. | Establish the Rust-owned account schema; route it through Cloudflare WP06 then WP08; rerun Account WP06 only after all three inputs are green. Any missing input remains a payment/policy/remote/device-trust scheduling block. |
 | `ai-plan` | Foundation | `child-ai-core`, `screen-ai-core`, `agent-service`, `schema` | AI runtime and service seams exist. | Safety/output invariants and consumer proof remain fragmented. | Close one typed AI-result-to-policy handoff with safety and negative-path proof. |
 | `app-plan` | Foundation | `app-core`, `agent-service`, `schema` | `app-core` has 3 source / 5 test files; service owns wider integration. | App-only authority and runtime evidence are incomplete. | Make app identity/evidence flow a single Rust-owned service path. |
 | `app-game-plan` | Integration | `app-game-core`, `agent-service`, `schema` | 25 source / 20 test files; inventory, runtime, journal, and policy code exist. | Live platform metadata/crawling and portal product rows are incomplete. | Finish one live Windows app/game capture-to-read-model path. |
@@ -121,7 +121,7 @@ proof artifact, checklist row, and merge state agree.
 | `screen-plan` | Foundation | `screen-core`, `screen-capture-adapter`, `screen-live-view-core` | Capture adapters and platform paths exist; screen core has 3 source / 3 test files. | Cross-platform custody and live-view closure are incomplete. | Prove custody/delete behavior for one supported OS capture path. |
 | `setup-install-provisioning-plan` | Integration | `provisioning-core`, setup/identity schemas, platform installers | Provisioning and setup readiness code exists. | Depends on identity, device trust, and child/parent installation truth. | Close a parent setup-to-child trust/install handoff after device trust exists. |
 | `tracking-plan` | Integration | `tracking-core`, `agent-service`, `schema` | 70 source / 41 test files; location/geofence/device-status runtime exists. | Real device/provider/retention product proof remains incomplete. | Run a provider-to-read-model-to-portal tracking path with retention proof. |
-| `v0-8-enforcement-control-plan` | Foundation | `child-enforcement-core`, `policy-control-core`, `agent-service`, schema | Contract and action-state surfaces exist. PR #606 is closed without merge because its policy slice was unsafe/no-op and is not implementation evidence. | Eventing WP06 Journal Replay And Lineage is historical with cited proof absent; its exact handoff must be reopened/selected by Eventing before WP11's durable enforcement journal and WP04 trusted dispatch. Platform adapters, rollback, integrity, and parent-visible receipt proof also remain open. | Reopen/select Eventing WP06 or retain its exact blocker, then WP11's durable journal handoff, then WP04 trusted dispatch before an adapter-backed execution/rollback slice. |
+| `v0-8-enforcement-control-plan` | Foundation | `child-enforcement-core`, `policy-control-core`, `agent-service`, schema | Contract and action-state surfaces exist. PR #606 is closed without merge because its policy slice was unsafe/no-op and is not implementation evidence. | Eventing WP06 Journal Replay And Lineage is reopened with cited proof and its typed WP11 handoff absent. WP11 and WP04 remain blocked/manual-required; platform adapters, rollback, integrity, and parent-visible receipt proof also remain open. | Produce Eventing WP06's actual journal/replay handoff, then WP11's durable journal proof, then schedule WP04 trusted dispatch before an adapter-backed execution/rollback slice. |
 
 ## Workpack execution audit
 
@@ -134,7 +134,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 
 | Plan | Execution rows | Doc-claimed closed | Open / partial / blocked / unknown | Freshly reverified | Scheduling note |
 | --- | ---: | ---: | ---: | ---: | --- |
-| `account-identity-family-plan` | 8 | 5 | 3 | 0 | Checklist now has 90/105 checked: WP01 is partial, Account WP08 is 0/11 open for Rust-schema/account-authority proof, and WP06 is reopened at 14/18 to aggregate Account WP08 plus Cloudflare WP06/WP08 evidence. PR #607's TS adapter/D1-test-double is not a workpack closure. |
+| `account-identity-family-plan` | 8 | 5 | 3 | 0 | Checklist now has 90/103 checked: WP01 is partial, Account WP08 is 0/9 open for Rust-schema/account-authority proof, and WP06 is reopened at 14/18 to aggregate Account WP08 plus Cloudflare WP06/WP08 evidence. PR #607's TS adapter/D1-test-double is not a workpack closure. |
 | `ai-plan` | 48 | 1 | 47 | 0 | Generic reset checklist does not reflect workpack state. |
 | `app-game-plan` | 88 | 54 | 34 | 0 | The remaining 34 are only `possibly done`; audit before implementation. |
 | `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
@@ -156,7 +156,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `screen-plan` | 40 | 18 | 22 | 0 | Eighteen checked workpacks are not reflected by the generic checklist. |
 | `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | WP06 is done as a blocker/aggregation packet but remains open for whole-plan scheduling; 93/93 checklist is not product completion. |
 | `tracking-plan` | 39 | 0 | 39 | 0 | Internally checked rows were intentionally reopened for audit/proof reruns. |
-| `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | #606 closed unmerged as unsafe/no-op. Reopen/select Eventing WP06 Journal Replay And Lineage, then schedule WP11 durable journal handoff before WP04 trusted dispatch; six checked workpacks are not reflected by the generic checklist. |
+| `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | #606 closed unmerged as unsafe/no-op. Eventing WP06 Journal Replay And Lineage is reopened; until its actual handoff and WP11 proof are present, WP04 remains unscheduled/manual-required. Six checked workpacks are not reflected by the generic checklist. |
 | **Total** | **525** | **143** | **382** | **0** | Plus 145 reference/source-only rows and 9 historical rows excluded from execution scheduling. |
 
 ### Acceptance state for each workpack
@@ -184,7 +184,7 @@ post-merge reverified`. Only the final state counts toward `Freshly reverified`.
 
 1. **Reconcile Cloudflare module dependencies, then run the proof-only WP07 successor**: resolve the current Wrangler/Workers-types module prerequisite first; from current source, rerun WP07's focused lint, unit, contract, and worker-boot gates and retain its bundle. Separately route Account WP08 Rust contract -> Cloudflare WP06 binding/migration -> Cloudflare WP08 module-runner proof -> Account WP06 aggregation. Only then schedule dependent payment/billing gates. Do not restore removed TypeScript contract ownership or revive #604.
 2. **Build device trust runtime**: parent presence and sealed device trust unblock safe account, setup, payment, remote, and enforcement decisions.
-3. **Close policy to enforcement in dependency order**: Eventing WP06 Journal Replay And Lineage (reopen/select or retain its exact blocker) -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch -> adapter -> receipt -> rollback. This becomes the reusable control path for browser, app/game, network, and screen.
+3. **Close policy to enforcement in dependency order**: Eventing WP06 Journal Replay And Lineage green handoff -> WP11 durable enforcement-journal handoff -> WP04 trusted dispatch -> adapter -> receipt -> rollback. Until the actual Eventing-to-WP11 handoff exists, WP11 and WP04 remain unscheduled/manual-required. This becomes the reusable control path for browser, app/game, network, and screen.
 4. **Use LAN/service as the first physical household proof**: pairing -> device state -> portal read model establishes the multi-device integration baseline.
 5. **Close custody and observability on that vertical slice**: correlated logs, retention/delete, and replay make later feature work trustworthy.
 6. **Scale feature producers**: browser, app/game, network, screen, tracking, and AI can then feed the same decision and evidence spine.

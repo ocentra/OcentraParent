@@ -43,7 +43,7 @@ All WP08 rows are intentionally open. This docs-only routing change records
 obligations; it does not assert source, test, migration, deployment, or
 production-runtime completion.
 
-- [ ] Rust-owned canonical account/family schema and compatibility boundary exists. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`.
+- [ ] Rust-owned canonical account/family schema and compatibility boundary exists, including the encoded TS-edge artifact `packages/schema-domain/src/generated-family-references.ts` generated from `crates/schema/src/family_references_ts.rs` and the matching contract drift test. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/00-rust-schema-authority-proof.md`.
 - [ ] Account, household, membership, role, device, invite/recovery, and session authority paths preserve canonical schema ownership. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/01-account-authority-parity-proof.md`.
 - [ ] Cross-household, revoked, stale, malformed, duplicate, and schema-incompatible authority cases reject or degrade safely. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/02-account-authority-negative-proof.md`.
 - [ ] Redacted correlated authority proof covers account, household, device, invite, recovery, and session decisions without a worker-runtime claim. Proof: `output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/03-redacted-authority-proof.md`.
@@ -137,8 +137,8 @@ production-runtime completion.
 ## WP06 Security Proof And Route Gate
 
 - [x] WP01 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
-- [ ] WP08 Rust schema/account-authority proof root consumed or precisely blocked. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/09-account-authority-cloudflare-storage-gate.md`.
-- [ ] Cloudflare WP06 storage proof and Cloudflare WP08 runner/proof are re-aggregated or their exact blockers are recorded; prior WP06 completion evidence is not reused. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/09-account-authority-cloudflare-storage-gate.md`.
+- [ ] Green WP08 Rust schema/account-authority proof root consumed; a recorded blocker leaves this gate and dependent scheduling blocked. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/09-account-authority-cloudflare-storage-gate.md`.
+- [ ] Green Cloudflare WP06 storage proof and Cloudflare WP08 runner/proof are re-aggregated; any exact blocker is recorded without reusing prior WP06 completion evidence or releasing dependent scheduling. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/09-account-authority-cloudflare-storage-gate.md`.
 - [x] WP02 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.
 - [x] WP03 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`; `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/05-origin-csrf-open-redirect-proof.md`.
 - [x] WP04 proof root consumed. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/00-security-proof-pack.md`.

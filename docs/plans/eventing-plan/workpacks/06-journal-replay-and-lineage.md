@@ -2,6 +2,10 @@
 
 Scope: prove append/replay behavior, lineage compatibility, event topology, journal modes, and replay safety.
 
+Current state: reopened / proof-absent. This packet is the selectable generic
+journal prerequisite for enforcement WP11. Existing focused crate tests do not
+constitute the missing topology/journal proof or the typed enforcement handoff.
+
 Source rows: `05-implementation-workpacks.md` rows 36-41 and 69-78.
 
 Read next:
@@ -29,9 +33,11 @@ Expected tests/proof:
 - `eventing.topology.manifest`
 - `eventing.runtime.no-global-singleton`
 - Proof includes fixture path, replay transcript, corruption case, migration/rollback note, and topology artifact.
+- Retain `output/eventing-plan-proof/06-journal-replay-and-lineage/00-enforcement-wp11-handoff.md` with the typed generic journal/replay/idempotency handoff. It is an Eventing-owned handoff record, not an enforcement implementation or proof of dispatch.
 
 Failure conditions:
 
 - Do not claim production retention/delete behavior; data custody owns that.
 - Do not claim remote replication; relay/cloud work owns that.
 - Do not replay side effects unless replay safety gate proves projection-only behavior.
+- Do not describe a blocker or existing crate test as an enforcement scheduling satisfaction; without the required handoff artifact, WP11 and WP04 remain blocked/manual-required.

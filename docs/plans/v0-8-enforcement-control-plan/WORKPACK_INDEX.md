@@ -25,7 +25,7 @@ Use this index to open exactly one assigned workpack. Do not read every file in
 | checked | [07 Unmanaged Browser Fallback](workpacks/07-unmanaged-browser-fallback.md)                       | 1,781 | 5/5 checked; 0 open |
 | checked | [09 Timer Recovery And Rollback](workpacks/09-timer-recovery-and-rollback.md)                     | 1,667 | 5/5 checked; 0 open |
 | checked | [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md)                           | 1,592 | 5/5 checked; 0 open |
-| open    | [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md)                           | 1,096 | 0/5 checked; 5 open; schedule only after Eventing WP06 Journal Replay And Lineage is reopened/handed off, then WP11's durable journal is available or precisely blocked |
+| blocked | [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md)                        | 1,096 | 0/5 checked; 5 open; unscheduled/manual-required until the actual Eventing WP06 journal handoff and then WP11 durable-journal proof are present; a recorded blocker does not satisfy scheduling |
 | open    | [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md)                       | 1,126 | 0/5 checked; 5 open |
 | open    | [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md)             | 1,127 | 0/5 checked; 5 open |
 | open    | [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md)     | 1,190 | 0/5 checked; 5 open |
@@ -48,7 +48,7 @@ to read every sibling plan.
 
 ## High-risk open families
 
-- Action authority and adapter execution: Eventing WP06 Journal Replay And Lineage (historical proof absent; reopen/select in the Eventing plan) -> WP11 durable journal handoff -> WP04, then WP05, WP06, WP08.
+- Action authority and adapter execution: Eventing WP06 Journal Replay And Lineage (reopened; proof/handoff absent) -> WP11 durable journal handoff -> WP04, then WP05, WP06, WP08. Until both handoffs are present, WP04 is unscheduled/manual-required.
 - Approval, audit, and read-model truth: WP10, WP11, WP13. WP11 is a scheduling prerequisite for WP04, not merely a downstream audit packet.
 - Integrity and non-claim boundaries: WP15, WP16, WP17.
 - Surface and rollout gate: WP12, WP14, WP19, WP20.

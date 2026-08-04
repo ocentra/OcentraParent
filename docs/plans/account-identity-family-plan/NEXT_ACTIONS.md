@@ -132,7 +132,7 @@ explicit request-safety blocker carried forward without fake-green closure
 
 - Runtime implementation is blocked until WP01 provider/custody decision is complete or the selected workpack explicitly implements that decision.
 - UI implementation is blocked until the required contract shape exists or a stub/blocker proof is written.
-- Payment/policy/remote/device-trust integration is blocked until the reopened WP06 route gate consumes Account WP08 plus Cloudflare WP06/WP08 or records precise blockers.
+- Payment/policy/remote/device-trust integration remains blocked until the reopened WP06 route gate consumes green Account WP08 plus Cloudflare WP06/WP08 proof. A precise blocker is recorded for audit only and does not release dependent scheduling.
 - Any claim involving secure auth/session requires WP03 and WP06 proof.
 - Any selected workpack that conflicts with `workpacks/00-owner-boundary-proof-gate.md` must be updated or blocked before source changes.
 

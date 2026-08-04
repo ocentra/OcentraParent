@@ -70,7 +70,7 @@ test-results/account-identity-family-plan-security-route-gate/
 ### WP08 Rust Schema And Account Authority
 
 ```text
-00-rust-schema-authority-proof.md
+00-rust-schema-authority-proof.md (records crates/schema/src/family_references_ts.rs -> packages/schema-domain/src/generated-family-references.ts plus the checked-in drift assertion)
 01-account-authority-parity-proof.md
 02-account-authority-negative-proof.md
 03-redacted-authority-proof.md

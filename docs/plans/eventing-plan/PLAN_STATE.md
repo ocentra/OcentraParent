@@ -63,7 +63,7 @@ crate tests can prove local reusable bus behavior only.
 event-domain metadata does not prove shared event contract implementation.
 agent-protocol/service tests prove protocol/service handoff only when selected.
 consumer plan proof is required before claiming product behavior.
-WP10 remains open until its proof roots and LAN/remote-access handoff verification exist.
+WP06 is reopened for the exact enforcement WP11 journal handoff and remains open until its journal/topology proof plus typed handoff artifact exist. WP10 remains open until its proof roots and LAN/remote-access handoff verification exist.
 ```
 
 ## Resume route
@@ -112,12 +112,15 @@ WP10 remains open until its proof roots and LAN/remote-access handoff verificati
 
 - Workpacks indexed: 13 route workpacks.
 - Workpack source: `05-implementation-workpacks.md` rows split into focused files under `workpacks/`.
-- Historical route docs describe prior closure for WP01-WP11, but the cited proof bundle is not present in this checkout.
-- Workpacks open in truth: WP10 consumer-boundary handoff only.
-- Current meaning: implementation surfaces exist across the crate and its mirrors, WP11/WP12/WP13 are locally proved, but the plan remains open because WP10 still lacks complete proof.
+- Historical route docs describe prior closure for WP01-WP11, but the cited proof bundle is not present in this checkout. WP06 is explicitly reopened rather than treated as historical closure because enforcement WP11 needs its exact handoff.
+- Workpacks open in truth: WP06 journal/replay-to-enforcement handoff and WP10 consumer-boundary handoff.
+- Current meaning: implementation surfaces exist across the crate and its mirrors, WP11/WP12/WP13 are locally proved, but the plan remains open because WP06 and WP10 lack their required proof/handoff roots.
 
 ### Active/open workpacks
 
+- [06 Journal Replay And Lineage](workpacks/06-journal-replay-and-lineage.md)
+  is reopened as the prerequisite for enforcement WP11; its crate tests are not
+  the missing journal/topology proof or the typed enforcement handoff.
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
 
 ## Validation reality
@@ -129,7 +132,7 @@ WP10 remains open until its proof roots and LAN/remote-access handoff verificati
 - Focused downstream mirror validation also passes: `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts` and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
 - Scoped WP11 proof regeneration now passes through the reusable eventing surface and writes proof artifacts under `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
 - `npm run type-check --workspace @ocentra-parent/agent-protocol-domain` now passes again, and the focused policy-control/contract tests plus touched-file architecture gate pass for the scoped WP11 source files.
-- Current interpretation: the reusable runtime behavior is partially exercised, WP11/WP12/WP13 are locally proved, but the plan remains open because WP10 still lacks its local proof roots and consumer-plan handoff verification.
+- Current interpretation: the reusable runtime behavior is partially exercised, WP11/WP12/WP13 are locally proved, but the plan remains open because WP06 lacks its journal/topology/enforcement handoff proof and WP10 lacks its local proof roots and consumer-plan handoff verification.
 
 ## Default no-read list
 

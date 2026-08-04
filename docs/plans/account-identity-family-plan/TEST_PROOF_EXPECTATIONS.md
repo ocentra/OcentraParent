@@ -130,6 +130,7 @@ Expected focused commands:
 ```bash
 # Canonical Rust schema crate plus focused account/family authority coverage.
 cargo test -p ocentra-schema --test contract
+cargo test -p ocentra-schema --test contract family_references_generated_typescript_matches_checked_in_file
 cargo test -p ocentra-family-identity-core household_authority
 npm run lint:architecture -- --files crates/schema crates/family-identity-core
 
@@ -142,6 +143,7 @@ Expected proof:
 
 ```text
 Rust canonical schema authority and compatibility boundary
+exact Rust-generated TS-edge artifact `packages/schema-domain/src/generated-family-references.ts` plus checked-in drift validation
 account-family authority parity and negative-path proof
 redacted correlated authority proof
 Cloudflare WP06 then WP08 handoff and no-claim boundary
@@ -155,6 +157,7 @@ wrong household or revoked/stale actor cannot read or mutate authority state
 malformed/duplicate/schema-incompatible records reject or degrade safely
 schema-incompatible authority input cannot invent a successful decision
 Account WP08 cannot report a D1 test double or Cloudflare runner as its own proof
+TS edge code cannot become the account-authority owner or bypass the Rust generated-artifact drift test
 account, household, device, invite, recovery, and session operations have focused negative coverage
 authority proof redacts sensitive values and preserves a safe correlation ID
 ```
@@ -327,6 +330,10 @@ Cloudflare WP06 storage proof and Cloudflare WP08 runner/proof exist or exact bl
 route sync proof names consumers and handoffs
 manual-required gap register exists
 ```
+
+An exact blocker records a failed prerequisite but does not release payment,
+policy, remote, or device-trust scheduling; those consumers remain blocked until
+the required input is actually proven green.
 
 Required negative cases:
 

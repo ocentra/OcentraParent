@@ -44,6 +44,11 @@ account/family ownership into that plan's shared worker scaffold.
 crates/schema or the owning Rust crate:
   canonical account/family/session/device-authority contracts, migration-facing
   shape compatibility, and cross-boundary literals/DTOs.
+  The current TS-edge handoff pattern is `crates/schema/src/family_references_ts.rs`
+  and `family_references.template.txt` ->
+  `packages/schema-domain/src/generated-family-references.ts`, checked by
+  `crates/schema/tests/contract/family_references.rs`. The generated TypeScript
+  file is an encoded Rust-contract projection, never an authority owner.
 
 crates/family-identity-core:
   Rust account/family runtime semantics and parity against the canonical schema.
@@ -80,7 +85,7 @@ Required artifacts:
 
 ## Acceptance obligations
 
-- [ ] Canonical account/family authority schemas are Rust-owned and consumed without TypeScript ownership drift.
+- [ ] Canonical account/family authority schemas are Rust-owned and consumed without TypeScript ownership drift; the exact encoded edge artifact is `packages/schema-domain/src/generated-family-references.ts` from `crates/schema/src/family_references_ts.rs`.
 - [ ] Account, household, membership, role, device, invite/recovery, and session authority preserve typed canonical scope and ownership.
 - [ ] Wrong-household, revoked, stale, malformed, duplicate, and schema-incompatible authority cases reject or degrade safely.
 - [ ] Redacted correlated account-authority proof covers account, household, device, invite, recovery, and session decisions without carrying a worker-runtime claim.
@@ -98,6 +103,7 @@ packet must cover the changed canonical Rust owner and family-identity runtime:
 ```bash
 # Canonical schema crate plus focused account/family authority coverage.
 cargo test -p ocentra-schema --test contract
+cargo test -p ocentra-schema --test contract family_references_generated_typescript_matches_checked_in_file
 cargo test -p ocentra-family-identity-core household_authority
 npm run lint:architecture -- --files crates/schema crates/family-identity-core
 
@@ -110,6 +116,11 @@ Cloudflare WP08, not this packet, runs Cloudflare module test scripts including
 Cloudflare handoff proof as a downstream blocker; do not substitute a test
 double. Run a protocol/service consumer only if this packet changes its typed
 handoff.
+
+The targeted `family_references_generated_typescript_matches_checked_in_file`
+contract test is the required Rust-to-TS-edge drift check. A schema-domain build
+or edge decode may be added only as a consumer check; neither may define account
+authority.
 
 ## Negative and no-claim boundary
 
