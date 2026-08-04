@@ -95,7 +95,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "build": "tsc --build tsconfig.json --force && node ../../scripts/fix-esm-imports.mjs dist",
     "bridge": "tsx scripts/log-bridge.ts",
     "db:ensure": "tsx scripts/ensure-db.ts",
     "db:rebuild": "tsx scripts/rebuild-db-from-ndjson.ts",

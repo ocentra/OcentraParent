@@ -13,7 +13,7 @@
     "seed:test-accounts:local": "tsx scripts/seed-test-accounts-local.ts",
     "proof:logger-ready": "npm --prefix ../../packages/logging-domain run build",
     "proof:local-dev": "npm run proof:logger-ready && tsx scripts/local-dev-proof.ts",
-    "test": "tsx scripts/test-runner.ts",
+    "test": "npm run test:logger-ready && tsx scripts/test-runner.ts",
     "test:unit": "tsx scripts/test-runner.ts --type=unit",
     "test:integration": "npm run test:logger-ready && tsx scripts/test-runner.ts --type=integration",
     "test:local-dev-workflow": "npm run test:logger-ready && node --import tsx --test tests/integration/local-dev-seeding-workflow.test.ts",

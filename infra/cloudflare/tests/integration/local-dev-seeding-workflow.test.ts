@@ -69,12 +69,26 @@ describe('local dev seeding workflow', () => {
     );
 
     if (workflow.seed.status === 'blocked') {
+      const blockedFamilies = workflow.seed.fixtureFamilies.filter((family) => family.populationState === 'blocked');
+      assert.ok(blockedFamilies.length > 0);
+      for (const family of blockedFamilies) {
+        assert.ok(family.blocker);
+        assert.ok(family.blocker?.details.length > 0);
+      }
+
+      const seedProof = buildSeedProofMilestoneDetails(workflow.seed);
+      assert.equal(seedProof.noClaimReason, 'seed-fixture-population-not-proven');
       assert.ok(
-        workflow.seed.fixtureFamilies.some(
-          (family) =>
-            family.populationState === 'blocked' && family.blocker?.details.includes('billing-account-runtime-boundary')
-        )
+        seedProof.fixtureFamilies
+          .filter((family) => family.populationState === 'blocked')
+          .every((family) => family.noClaimReason === 'seed-command-blocked')
       );
+
+      if (process.platform === 'win32') {
+        assert.ok(
+          blockedFamilies.some((family) => family.blocker?.details.includes('billing-account-runtime-boundary'))
+        );
+      }
     }
   });
 
@@ -205,8 +219,9 @@ describe('local dev seeding workflow', () => {
     assert.doesNotMatch(redacted, /[A-Z]:\\\\/);
   });
 
-  it('prepares the canonical logger before focused and integration test paths', () => {
+  it('prepares the canonical logger before default, focused, and integration test paths', () => {
     const packageJson = fs.readFileSync(path.join(cloudflareRoot, 'package.json'), 'utf8');
+    assert.match(packageJson, /"test": "npm run test:logger-ready && tsx scripts\/test-runner\.ts"/);
     assert.match(
       packageJson,
       /"test:local-dev-workflow": "npm run test:logger-ready && node --import tsx --test tests\/integration\/local-dev-seeding-workflow\.test\.ts"/
