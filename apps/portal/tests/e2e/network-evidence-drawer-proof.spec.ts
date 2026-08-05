@@ -2,10 +2,19 @@ import { expect, test } from '@playwright/test';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { ParentAgentEvent, ParentRoute } from '../../generated/parent-ui-bridge';
 import { NetworkEvidenceDrawerProof } from '../fixtures/network/network-evidence-drawer-proof-fixture';
+import { seedPortalNetworkActivityStore } from '../../../../scripts/test/portal-network-activity-seed.mjs';
 
 test.setTimeout(120_000);
 
 const shellReadyTimeoutMs = 90_000;
+
+test.beforeEach('refreshes the network evidence fixture after prior live capture', () => {
+  const activityDbPath = process.env['OCENTRA_PARENT_ACTIVITY_DB_PATH'];
+  if (activityDbPath === undefined || activityDbPath.trim().length === 0) {
+    throw new Error('Portal network evidence E2E requires OCENTRA_PARENT_ACTIVITY_DB_PATH.');
+  }
+  seedPortalNetworkActivityStore(activityDbPath);
+});
 
 test('network evidence drawer renders service-backed refs without unsupported claims', async ({ page }) => {
   const evidenceRefs = `${NetworkEvidenceDrawerProof.evidenceId} | ${NetworkEvidenceDrawerProof.journalEvidenceId}`;
