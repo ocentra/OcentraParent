@@ -18,9 +18,22 @@ fn probe_dir() -> Result<PathBuf, String> {
     Ok(root)
 }
 
+fn workspace_root() -> Result<PathBuf, String> {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .and_then(Path::parent)
+        .map(Path::to_path_buf)
+        .ok_or_else(|| "locate workspace root from family-identity-core manifest".to_owned())
+}
+
 fn write_probe(root: &Path) -> Result<(), String> {
     let manifest_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     let manifest_path = manifest_path.to_string_lossy().replace('\\', "/");
+    let lockfile = workspace_root()?.join("Cargo.lock");
+    io_result(
+        fs::copy(lockfile, root.join("Cargo.lock")).map(|_bytes| ()),
+        "copy workspace lockfile into external consumer probe",
+    )?;
     io_result(
         fs::write(
             root.join("Cargo.toml"),
@@ -77,7 +90,7 @@ fn caller_supplied_authority_flags_cannot_mint_a_parent_device_trust_ceremony() 
     let root = probe_dir()?;
     write_probe(&root)?;
     let output = Command::new("cargo")
-        .args(["check", "--quiet"])
+        .args(["check", "--quiet", "--offline"])
         .current_dir(&root)
         .output()
         .map_err(|error| format!("run external consumer probe: {error}"))?;

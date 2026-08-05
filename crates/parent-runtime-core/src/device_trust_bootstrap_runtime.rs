@@ -56,9 +56,51 @@ impl fmt::Debug for ParentDeviceTrustStagedCeremonyRef {
 }
 
 struct StagedParentDeviceTrustCeremony {
-    staged_at: Instant,
     trust_bootstrap_ref: String,
     ceremony: AuthorizedParentDeviceTrustCeremony,
+}
+
+struct TimedStagedCeremony<T> {
+    staged_at: Instant,
+    value: T,
+}
+
+/// Bounded one-shot opaque-handle cache in native runtime composition.
+///
+/// Callers own the payload type; this cache only owns handle expiry and removal.
+pub struct ExpiringStagedCeremonies<T> {
+    entries: HashMap<String, TimedStagedCeremony<T>>,
+}
+
+impl<T> Default for ExpiringStagedCeremonies<T> {
+    fn default() -> Self {
+        Self {
+            entries: HashMap::new(),
+        }
+    }
+}
+
+impl<T> ExpiringStagedCeremonies<T> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn insert(&mut self, ceremony_ref: String, value: T, staged_at: Instant) {
+        self.entries
+            .insert(ceremony_ref, TimedStagedCeremony { staged_at, value });
+    }
+
+    pub fn reap_expired(&mut self, now: Instant) {
+        self.entries.retain(|_ceremony_ref, staged| {
+            !STAGED_CEREMONY_TTL
+                .saturating_sub(now.saturating_duration_since(staged.staged_at))
+                .is_zero()
+        });
+    }
+
+    pub fn remove(&mut self, ceremony_ref: &str) -> Option<T> {
+        self.entries.remove(ceremony_ref).map(|staged| staged.value)
+    }
 }
 
 /// Production parent-runtime owner for the accepted-ceremony to platform-custody boundary.
@@ -139,7 +181,7 @@ impl ParentDeviceTrustBootstrapRuntime {
 /// receives an accepted ceremony or trust material from the webview payload.
 pub struct ParentDeviceTrustCommandFacade {
     runtime: ParentDeviceTrustBootstrapRuntime,
-    staged_ceremonies: Mutex<HashMap<String, StagedParentDeviceTrustCeremony>>,
+    staged_ceremonies: Mutex<ExpiringStagedCeremonies<StagedParentDeviceTrustCeremony>>,
 }
 
 impl ParentDeviceTrustCommandFacade {
@@ -147,7 +189,7 @@ impl ParentDeviceTrustCommandFacade {
         ParentDeviceTrustBootstrapRuntime::open(custody_root)
             .map(|runtime| Self {
                 runtime,
-                staged_ceremonies: Mutex::new(HashMap::new()),
+                staged_ceremonies: Mutex::new(ExpiringStagedCeremonies::new()),
             })
             .map_err(ParentDeviceTrustCommandError::Runtime)
     }
@@ -161,7 +203,6 @@ impl ParentDeviceTrustCommandFacade {
             return Err(ParentDeviceTrustCommandError::InvalidStagingRequest);
         }
         let staged = StagedParentDeviceTrustCeremony {
-            staged_at: Instant::now(),
             trust_bootstrap_ref,
             ceremony,
         };
@@ -169,12 +210,14 @@ impl ParentDeviceTrustCommandFacade {
             .staged_ceremonies
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let now = Instant::now();
+        staged_ceremonies.reap_expired(now);
         loop {
             let ceremony_ref = random_ceremony_ref()?;
-            if staged_ceremonies.contains_key(&ceremony_ref) {
+            if staged_ceremonies.entries.contains_key(&ceremony_ref) {
                 continue;
             }
-            staged_ceremonies.insert(ceremony_ref.clone(), staged);
+            staged_ceremonies.insert(ceremony_ref.clone(), staged, now);
             return Ok(ParentDeviceTrustStagedCeremonyRef(ceremony_ref));
         }
     }
@@ -187,13 +230,7 @@ impl ParentDeviceTrustCommandFacade {
             .staged_ceremonies
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
-        if staged_ceremonies
-            .get(ceremony_ref)
-            .is_some_and(|staged| staged.staged_at.elapsed() >= STAGED_CEREMONY_TTL)
-        {
-            staged_ceremonies.remove(ceremony_ref);
-            return Err(ParentDeviceTrustCommandError::UnknownOrConsumedCeremony);
-        }
+        staged_ceremonies.reap_expired(Instant::now());
         let staged = staged_ceremonies
             .remove(ceremony_ref)
             .ok_or(ParentDeviceTrustCommandError::UnknownOrConsumedCeremony)?;

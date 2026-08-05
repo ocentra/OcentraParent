@@ -78,11 +78,12 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 
 ## Current audit state
 
-- This branch has a Windows-only custody and dispatch safety slice. A native
-  parent-runtime facade consumes only an opaque staged-ceremony handle; the live
-  parent desktop command rejects an unstaged or already-consumed handle before it
-  can call `storage-custody-core`. The webview never supplies an accepted ceremony
-  or trust material. There is no record-backed household-authority owner yet, so
+- This branch has a Windows-only custody and dispatch safety slice. An unregistered
+  native parent-runtime facade consumes only an opaque staged-ceremony handle and
+  rejects an unstaged or already-consumed handle before it can call
+  `storage-custody-core`. No parent desktop bridge action is registered for this
+  facade, so this adapter-local rejection does not prove a live desktop-command or
+  webview dispatch path. There is no record-backed household-authority owner yet, so
   no ceremony issuer is exported to external/runtime callers; caller-supplied
   authority flags cannot mint a ceremony. That adapter
   source DPAPI-protects locally generated trust material with its family/account/device
