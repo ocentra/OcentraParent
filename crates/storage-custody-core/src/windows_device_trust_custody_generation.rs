@@ -3,7 +3,7 @@ use sha2::{Digest, Sha256};
 use std::{io, path::Path};
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
-use super::super::{active_record, record::hex, Error};
+use super::super::{active_record_scan, record::hex, Error};
 
 const DEVICE_TRUST_INSTALL_GENERATIONS_REGISTRY_PATH: &str =
     "Software\\Ocentra\\DeviceTrust\\InstallGenerations";
@@ -71,8 +71,8 @@ fn anchor_generation<'a>(
     }
     match (state, binding_hex, generation) {
         (Some(INSTALL_GENERATION_EMPTY), None, Some(generation)) => Ok(Some(generation)),
-        (Some(INSTALL_GENERATION_SEALED), Some(binding_hex), Some(generation)) => {
-            active_record::is_present(root, binding_hex)
+        (Some(INSTALL_GENERATION_SEALED), Some(_binding_hex), Some(generation)) => {
+            active_record_scan::any_present(root, generation)
                 .map(|present| present.then_some(generation))
         }
         _ => Ok(None),

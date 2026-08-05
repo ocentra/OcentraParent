@@ -38,13 +38,16 @@ pub(super) fn install_generation(root: &Path, root_was_absent: bool) -> Result<S
 pub(super) fn install_generation_fence(root: &Path) -> Result<fs::File, Error> {
     let parent = root.parent().ok_or(Error::Invalid)?;
     fs::create_dir_all(parent).map_err(|_error| Error::Io)?;
-    let root_key = hex(Sha256::digest(root.to_string_lossy().as_bytes()));
+    let canonical_parent = parent.canonicalize().map_err(|_error| Error::Io)?;
+    let root_name = root.file_name().ok_or(Error::Invalid)?;
+    let canonical_root = canonical_parent.join(root_name);
+    let root_key = hex(Sha256::digest(canonical_root.to_string_lossy().as_bytes()));
     let lock = fs::OpenOptions::new()
         .create(true)
         .read(true)
         .write(true)
         .truncate(false)
-        .open(parent.join(format!(".device-trust-install-generation-{root_key}.lock")))
+        .open(canonical_parent.join(format!(".device-trust-install-generation-{root_key}.lock")))
         .map_err(|_error| Error::Io)?;
     fs2::FileExt::lock_exclusive(&lock).map_err(|_error| Error::Io)?;
     Ok(lock)

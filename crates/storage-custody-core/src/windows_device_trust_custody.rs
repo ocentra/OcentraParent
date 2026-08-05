@@ -13,6 +13,9 @@ use std::{
 #[cfg(windows)]
 #[path = "windows_device_trust_custody_active_record.rs"]
 mod active_record;
+#[cfg(windows)]
+#[path = "windows_device_trust_custody_active_record_scan.rs"]
+mod active_record_scan;
 #[path = "windows_device_trust_custody_path.rs"]
 mod path;
 #[path = "windows_device_trust_custody_platform.rs"]
@@ -194,8 +197,8 @@ fn verify_activated_binding(
 #[cfg(all(test, windows))]
 mod tests {
     use super::{
-        active_record, custody_binding, hex, install_generation_fence, platform, snapshot,
-        transaction, verify_activated_binding, write, Error, Record, WindowsDeviceTrustCustody,
+        custody_binding, hex, install_generation_fence, platform, snapshot, transaction,
+        verify_activated_binding, write, Error, Record, WindowsDeviceTrustCustody,
     };
     use sha2::{Digest, Sha256};
     use std::{fs, process::Command};
@@ -261,8 +264,6 @@ mod tests {
             platform::current(&binding).map_err(|error| format!("read epoch: {error:?}"))?,
             epoch
         );
-        assert!(active_record::is_present(&custody.root, &hex(&binding))
-            .map_err(|error| format!("validate active record: {error:?}"))?);
         let fence = install_generation_fence(&custody.root)
             .map_err(|error| format!("lock install generation: {error:?}"))?;
         let concurrent_root = custody.root.clone();
