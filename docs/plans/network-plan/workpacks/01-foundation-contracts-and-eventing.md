@@ -73,3 +73,8 @@ These are proof-routing fields, not implementation code prescriptions.
 - The 2026-06-17 `network-foundation-shim-cleanup` slice is limited to the parent-domain TypeScript shim boundary and initial proof-root creation.
 - In this slice, `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` can be cleaned up without widening scope.
 - The remaining exact contradiction for WP01 is the public `./network-control-catalog` surface, which must be resolved before the control-catalog shim family can be removed honestly.
+
+## Current typed-eventing sub-slice
+
+- `NetworkFlowObservedEvent` now consumes the reusable `ocentra-eventing` `DomainEvent` and `EventEnvelope` boundary directly, with a stored-envelope round trip and blank-device-reference rejection recorded in [the focused proof](../../../proof/network-plan/01-network-foundation-eventing-contract.md).
+- This is only a foundation contract handoff. WP01 remains open: it does not prove the remaining schema parity, evidence-grade, policy-action, private-bus audit, service runtime, or platform rows.
