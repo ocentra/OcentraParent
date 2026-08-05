@@ -15,12 +15,9 @@ use ocentra_parent_agent_protocol::{
     DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
     DeviceRuntimeSurface, LanPairingParentAuthority,
 };
+use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
-    dispatch_parent_ui_action_with_device_trust, load_parent_route_snapshot,
-};
-use ocentra_parent_runtime_core::{
-    device_trust_bootstrap_runtime::ParentDeviceTrustCommandFacade,
-    parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState,
+    dispatch_parent_ui_action, load_parent_route_snapshot,
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -28,7 +25,7 @@ use ocentra_schema::parent_ui_bridge::{
     PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS,
 };
 use serde::Serialize;
-use tauri::{AppHandle, Emitter, Manager, State as TauriState};
+use tauri::{AppHandle, Emitter, State as TauriState};
 
 use self::parent_route_subscription_delivery::{
     deliver_parent_route_subscription_event, ParentRouteSubscriptionDeliveryState,
@@ -37,8 +34,6 @@ use self::parent_route_subscription_delivery::{
 pub mod parent_route_subscription_delivery;
 
 const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
-const PARENT_DEVICE_TRUST_STORAGE_DIRECTORY: &str = "device-trust";
-
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
 #[serde(transparent)]
 pub struct ParentRouteSubscriptionId(pub String);
@@ -120,8 +115,6 @@ pub struct ParentRouteSubscriptionRegistry {
     inner: Arc<ParentRouteSubscriptionRegistryInner>,
 }
 
-pub struct ParentDeviceTrustCommandState(ParentDeviceTrustCommandFacade);
-
 #[derive(Default)]
 struct ParentRouteSubscriptionRegistryInner {
     next_id: AtomicU64,
@@ -177,11 +170,8 @@ fn parent_load_route(
 }
 
 #[tauri::command]
-fn parent_dispatch(
-    device_trust: TauriState<'_, ParentDeviceTrustCommandState>,
-    action: ParentUiAction,
-) -> ParentUiActionResult {
-    dispatch_parent_ui_action_with_device_trust(&action, &device_trust.0)
+fn parent_dispatch(action: ParentUiAction) -> ParentUiActionResult {
+    dispatch_parent_ui_action(&action)
 }
 
 #[tauri::command]
@@ -214,17 +204,6 @@ fn parent_unsubscribe_route(
 
 pub fn run() -> Result<(), ParentDesktopCommandError> {
     tauri::Builder::default()
-        .setup(|app| {
-            let root = app
-                .path()
-                .app_local_data_dir()
-                .map_err(|error| std::io::Error::other(error.to_string()))?
-                .join(PARENT_DEVICE_TRUST_STORAGE_DIRECTORY);
-            let device_trust = ParentDeviceTrustCommandFacade::open(root)
-                .map_err(|error| std::io::Error::other(format!("{error:?}")))?;
-            app.manage(ParentDeviceTrustCommandState(device_trust));
-            Ok(())
-        })
         .manage(ParentRouteSubscriptionRegistry::default())
         .invoke_handler(tauri::generate_handler![
             parent_platform_proof_state,

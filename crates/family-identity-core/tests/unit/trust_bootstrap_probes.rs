@@ -142,7 +142,7 @@ fn issue_valid_challenge(
 
 fn assert_redacted_debug<T: fmt::Debug>(value: &T, case: &TestCase) {
     let debug = format!("{value:?}");
-    for secret in [
+    [
         case.challenge_ref.as_str(),
         case.nonce_ref.as_str(),
         case.family_id.as_str(),
@@ -153,15 +153,15 @@ fn assert_redacted_debug<T: fmt::Debug>(value: &T, case: &TestCase) {
             .unwrap_or_default(),
         case.target_child_profile_id.as_deref().unwrap_or_default(),
         "PairChildDevice",
-    ] {
-        if secret.is_empty() {
-            continue;
-        }
+    ]
+    .into_iter()
+    .filter(|secret| !secret.is_empty())
+    .for_each(|secret| {
         assert!(
             !debug.contains(secret),
             "debug output leaked {secret}: {debug}"
         );
-    }
+    });
 }
 
 fn external_consumer_probe_dir() -> PathBuf {
@@ -260,7 +260,7 @@ fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() ->
         accepted.map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     assert_redacted_debug(&accepted, &case);
     let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
-        trust_bootstrap_ref: case.trust_bootstrap_ref.clone(),
+        trust_bootstrap_ref: case.trust_bootstrap_ref,
         lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
         parent_presence: accepted,
     });
@@ -410,6 +410,44 @@ fn trust_bootstrap_operational_debug_redacts_identity_and_capability_material() 
             "operational Debug leaked protected trust material {protected}: {debug}"
         );
     }
+    Ok(())
+}
+
+#[test]
+fn parent_device_sealing_requires_a_binding_complete_authority_receipt() -> TestResult {
+    let mut case = test_case("authority-receipt");
+    case.action_device_child_profile_id = None;
+    case.target_child_profile_id = None;
+    let store = TestStore::new("authority-receipt");
+    let mut port = store.port()?;
+    let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
+    challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    port.issue_challenge(challenge.clone())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let mut assertion = assertion_for(&case, ACCEPTED_EXPIRY);
+    assertion.action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    assertion.action_device_child_profile_id = None;
+    assertion.target_child_profile_id = None;
+    let accepted = port
+        .verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: CorrelationId::parse("authority-receipt-correlation")
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+            challenge_ref: challenge.challenge_ref,
+            assertion,
+        })
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+
+    let direct = evaluate_trust_bootstrap(TrustBootstrapInput {
+        trust_bootstrap_ref: case.trust_bootstrap_ref,
+        lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+        parent_presence: accepted,
+    });
+    assert!(matches!(
+        direct,
+        TrustBootstrapDecision::ManualRequired(requirement)
+            if requirement.reason == TrustBootstrapManualRequirementReason::AuthorityReceiptRequired
+    ));
+
     Ok(())
 }
 

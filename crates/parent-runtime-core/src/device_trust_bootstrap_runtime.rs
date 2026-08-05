@@ -1,22 +1,26 @@
 //! Parent-runtime composition for the Windows-local device-trust sealing slice.
 
-use std::{collections::HashMap, path::Path, sync::Mutex};
+use std::{
+    collections::HashMap,
+    fmt,
+    path::Path,
+    sync::Mutex,
+    time::{Duration, Instant},
+};
 
 use getrandom::fill;
-use ocentra_family_identity_core::{
-    parent_presence::ParentPresenceVerificationAccepted,
-    trust_bootstrap::{
-        begin_parent_device_key_sealing, TrustBootstrapDecision, TrustBootstrapManualRequirement,
-        TrustBootstrapRejection,
-    },
+use ocentra_family_identity_core::trust_bootstrap::{
+    begin_parent_device_key_sealing, AuthorizedParentDeviceTrustCeremony, DeviceTrustRef,
+    TrustBootstrapDecision, TrustBootstrapManualRequirement, TrustBootstrapRejection,
 };
 use ocentra_storage_custody_core::windows_device_trust_custody::{
     Error as CustodyError, WindowsDeviceTrustCustody,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ParentDeviceTrustBootstrapResult {
-    Sealed,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParentDeviceTrustBootstrapResult {
+    /// Opaque correlation reference; this is never platform-sealed key material.
+    pub device_trust_ref: DeviceTrustRef,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -34,8 +38,10 @@ pub enum ParentDeviceTrustCommandError {
     Runtime(ParentDeviceTrustBootstrapError),
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq)]
 pub struct ParentDeviceTrustStagedCeremonyRef(String);
+
+const STAGED_CEREMONY_TTL: Duration = Duration::from_secs(300);
 
 impl ParentDeviceTrustStagedCeremonyRef {
     pub fn as_str(&self) -> &str {
@@ -43,9 +49,16 @@ impl ParentDeviceTrustStagedCeremonyRef {
     }
 }
 
+impl fmt::Debug for ParentDeviceTrustStagedCeremonyRef {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        formatter.write_str("ParentDeviceTrustStagedCeremonyRef([redacted])")
+    }
+}
+
 struct StagedParentDeviceTrustCeremony {
+    staged_at: Instant,
     trust_bootstrap_ref: String,
-    parent_presence: ParentPresenceVerificationAccepted,
+    ceremony: AuthorizedParentDeviceTrustCeremony,
 }
 
 /// Production parent-runtime owner for the accepted-ceremony to platform-custody boundary.
@@ -67,15 +80,13 @@ impl ParentDeviceTrustBootstrapRuntime {
     pub fn seal_verified_parent_device_trust(
         &self,
         trust_bootstrap_ref: String,
-        parent_presence: ParentPresenceVerificationAccepted,
+        ceremony: AuthorizedParentDeviceTrustCeremony,
         parent_device_trust_material: &[u8],
     ) -> Result<ParentDeviceTrustBootstrapResult, ParentDeviceTrustBootstrapError> {
-        match begin_parent_device_key_sealing(trust_bootstrap_ref, parent_presence) {
-            TrustBootstrapDecision::AwaitingPlatformKeySealing(request) => self
-                .custody
-                .seal_persist_activate(request, parent_device_trust_material)
-                .map(|()| ParentDeviceTrustBootstrapResult::Sealed)
-                .map_err(ParentDeviceTrustBootstrapError::Custody),
+        match begin_parent_device_key_sealing(trust_bootstrap_ref, ceremony) {
+            TrustBootstrapDecision::AwaitingPlatformKeySealing(request) => {
+                self.seal_request(request, parent_device_trust_material)
+            }
             TrustBootstrapDecision::Rejected(rejection) => Err(
                 ParentDeviceTrustBootstrapError::ParentPresenceRejected(rejection),
             ),
@@ -85,14 +96,27 @@ impl ParentDeviceTrustBootstrapRuntime {
         }
     }
 
-    pub fn unseal_current_parent_device_trust(
+    fn seal_request(
+        &self,
+        request: ocentra_family_identity_core::trust_bootstrap::AwaitingPlatformKeySealingRequest,
+        parent_device_trust_material: &[u8],
+    ) -> Result<ParentDeviceTrustBootstrapResult, ParentDeviceTrustBootstrapError> {
+        let device_trust_ref = request.device_trust_ref.clone();
+        self.custody
+            .seal_persist_activate(request, parent_device_trust_material)
+            .map_err(ParentDeviceTrustBootstrapError::Custody)?;
+        Ok(ParentDeviceTrustBootstrapResult { device_trust_ref })
+    }
+
+    pub fn current_parent_device_trust_is_available(
         &self,
         family_id: &str,
         parent_account_id: &str,
         device_ref: &str,
-    ) -> Result<Vec<u8>, ParentDeviceTrustBootstrapError> {
+    ) -> Result<(), ParentDeviceTrustBootstrapError> {
         self.custody
             .unseal_current(family_id, parent_account_id, device_ref)
+            .map(|_sealed_material| ())
             .map_err(ParentDeviceTrustBootstrapError::Custody)
     }
 
@@ -128,15 +152,19 @@ impl ParentDeviceTrustCommandFacade {
             .map_err(ParentDeviceTrustCommandError::Runtime)
     }
 
-    pub fn stage_accepted_parent_device_trust_ceremony(
+    pub fn stage_authorized_parent_device_trust_ceremony(
         &self,
         trust_bootstrap_ref: String,
-        parent_presence: ParentPresenceVerificationAccepted,
+        ceremony: AuthorizedParentDeviceTrustCeremony,
     ) -> Result<ParentDeviceTrustStagedCeremonyRef, ParentDeviceTrustCommandError> {
         if trust_bootstrap_ref.trim().is_empty() {
             return Err(ParentDeviceTrustCommandError::InvalidStagingRequest);
         }
-
+        let staged = StagedParentDeviceTrustCeremony {
+            staged_at: Instant::now(),
+            trust_bootstrap_ref,
+            ceremony,
+        };
         let mut staged_ceremonies = self
             .staged_ceremonies
             .lock()
@@ -146,13 +174,7 @@ impl ParentDeviceTrustCommandFacade {
             if staged_ceremonies.contains_key(&ceremony_ref) {
                 continue;
             }
-            staged_ceremonies.insert(
-                ceremony_ref.clone(),
-                StagedParentDeviceTrustCeremony {
-                    trust_bootstrap_ref,
-                    parent_presence,
-                },
-            );
+            staged_ceremonies.insert(ceremony_ref.clone(), staged);
             return Ok(ParentDeviceTrustStagedCeremonyRef(ceremony_ref));
         }
     }
@@ -161,10 +183,18 @@ impl ParentDeviceTrustCommandFacade {
         &self,
         ceremony_ref: &str,
     ) -> Result<ParentDeviceTrustBootstrapResult, ParentDeviceTrustCommandError> {
-        let staged = self
+        let mut staged_ceremonies = self
             .staged_ceremonies
             .lock()
-            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        if staged_ceremonies
+            .get(ceremony_ref)
+            .is_some_and(|staged| staged.staged_at.elapsed() >= STAGED_CEREMONY_TTL)
+        {
+            staged_ceremonies.remove(ceremony_ref);
+            return Err(ParentDeviceTrustCommandError::UnknownOrConsumedCeremony);
+        }
+        let staged = staged_ceremonies
             .remove(ceremony_ref)
             .ok_or(ParentDeviceTrustCommandError::UnknownOrConsumedCeremony)?;
         let mut material = [0_u8; 32];
@@ -172,20 +202,20 @@ impl ParentDeviceTrustCommandFacade {
         self.runtime
             .seal_verified_parent_device_trust(
                 staged.trust_bootstrap_ref,
-                staged.parent_presence,
+                staged.ceremony,
                 &material,
             )
             .map_err(ParentDeviceTrustCommandError::Runtime)
     }
 
-    pub fn unseal_current_parent_device_trust(
+    pub fn current_parent_device_trust_is_available(
         &self,
         family_id: &str,
         parent_account_id: &str,
         device_ref: &str,
-    ) -> Result<Vec<u8>, ParentDeviceTrustCommandError> {
+    ) -> Result<(), ParentDeviceTrustCommandError> {
         self.runtime
-            .unseal_current_parent_device_trust(family_id, parent_account_id, device_ref)
+            .current_parent_device_trust_is_available(family_id, parent_account_id, device_ref)
             .map_err(ParentDeviceTrustCommandError::Runtime)
     }
 

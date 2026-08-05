@@ -2,14 +2,14 @@ use std::fmt;
 
 use serde::Serialize;
 
-use crate::household_authority::{
-    validate_parent_step_up_assertion, HouseholdAuthorityAction,
-    ParentStepUpValidationFailureReason, ParentStepUpValidationInput,
-};
-use crate::parent_presence::ParentPresenceVerificationAccepted;
+use crate::household_authority::{HouseholdAuthorityAction, ParentStepUpValidationFailureReason};
+use crate::parent_presence::{ParentPresenceChallenge, ParentPresenceVerificationAccepted};
+
+#[path = "trust_bootstrap_authority.rs"]
+mod trust_bootstrap_authority;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Default)]
-struct TrustBootstrapSealingMarker;
+pub(crate) struct TrustBootstrapSealingMarker;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum TrustBootstrapLifecycleIntent {
@@ -24,6 +24,25 @@ pub struct TrustBootstrapInput {
     pub parent_presence: ParentPresenceVerificationAccepted,
 }
 
+/// Opaque, one-use ceremony accepted by both parent-presence and household authority.
+///
+/// Its receipt is crate-private so downstream runtime callers cannot substitute an
+/// action enum, alter the binding, or mint a sealing authorization themselves.
+#[derive(PartialEq, Eq)]
+pub struct AuthorizedParentDeviceTrustCeremony {
+    parent_presence: ParentPresenceVerificationAccepted,
+    authority_receipt: SealParentDeviceTrustAuthorityReceipt,
+}
+
+#[derive(PartialEq, Eq)]
+pub(crate) struct SealParentDeviceTrustAuthorityReceipt {
+    parent_presence_receipt_ref: String,
+    family_id: String,
+    parent_account_id: String,
+    device_ref: String,
+    action: HouseholdAuthorityAction,
+}
+
 #[derive(PartialEq, Eq, Serialize)]
 pub struct AwaitingPlatformKeySealingRequest {
     pub trust_bootstrap_ref: String,
@@ -33,7 +52,7 @@ pub struct AwaitingPlatformKeySealingRequest {
     pub parent_account_id: String,
     pub device_ref: String,
     #[serde(skip)]
-    sealing_marker: TrustBootstrapSealingMarker,
+    pub(crate) sealing_marker: TrustBootstrapSealingMarker,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -41,7 +60,7 @@ pub struct TrustBootstrapRejection {
     pub parent_step_up_failure_reason: ParentStepUpValidationFailureReason,
 }
 
-#[derive(PartialEq, Eq, Serialize)]
+#[derive(Clone, PartialEq, Eq, Serialize)]
 #[serde(transparent)]
 pub struct DeviceTrustRef(String);
 
@@ -55,6 +74,7 @@ pub enum DeviceTrustRefGenerationFailure {
 #[serde(rename_all = "kebab-case")]
 pub enum TrustBootstrapManualRequirementReason {
     AuthorizedChallengeActionUnavailable,
+    AuthorityReceiptRequired,
     ChildScopedCeremonyRejected,
     DeviceTrustReferenceGenerationUnavailable,
 }
@@ -114,92 +134,38 @@ impl fmt::Debug for AwaitingPlatformKeySealingRequest {
 }
 
 pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDecision {
-    let TrustBootstrapInput {
-        trust_bootstrap_ref,
-        lifecycle_intent,
-        parent_presence,
-    } = input;
-
-    let (
-        _parent_presence_receipt_ref,
-        parent_presence_challenge,
-        parent_step_up_assertion,
-        observed_at,
-    ) = parent_presence.into_trust_bootstrap_parts();
-
-    let validation_input = ParentStepUpValidationInput {
-        assertion: Some(parent_step_up_assertion),
-        family_id: parent_presence_challenge.family_id.clone(),
-        parent_account_id: parent_presence_challenge.parent_account_id.clone(),
-        action_device_id: parent_presence_challenge.action_device_id.clone(),
-        action_device_child_profile_id: parent_presence_challenge
-            .action_device_child_profile_id
-            .clone(),
-        target_child_profile_id: parent_presence_challenge.target_child_profile_id.clone(),
-        action: parent_presence_challenge.privileged_action,
-        observed_at: observed_at.to_string(),
-        expected_nonce: Some(parent_presence_challenge.nonce_ref),
-    };
-
-    let validation = validate_parent_step_up_assertion(&validation_input);
-
-    if let Some(parent_step_up_failure_reason) = validation.failure_reason {
-        return TrustBootstrapDecision::Rejected(TrustBootstrapRejection {
-            parent_step_up_failure_reason,
-        });
-    }
-
-    if parent_presence_challenge
-        .action_device_child_profile_id
-        .is_some()
-        || parent_presence_challenge.target_child_profile_id.is_some()
-    {
-        return TrustBootstrapDecision::ManualRequired(TrustBootstrapManualRequirement {
-            reason: TrustBootstrapManualRequirementReason::ChildScopedCeremonyRejected,
-        });
-    }
-
-    if !challenge_action_is_authorized_for_lifecycle_intent(
-        lifecycle_intent,
-        parent_presence_challenge.privileged_action,
-    ) {
-        return TrustBootstrapDecision::ManualRequired(TrustBootstrapManualRequirement {
-            reason: TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable,
-        });
-    }
-
-    let device_trust_ref = match DeviceTrustRef::generate() {
-        Ok(reference) => reference,
-        Err(DeviceTrustRefGenerationFailure::EntropyUnavailable) => {
-            return TrustBootstrapDecision::ManualRequired(TrustBootstrapManualRequirement {
-                reason:
-                    TrustBootstrapManualRequirementReason::DeviceTrustReferenceGenerationUnavailable,
-            });
-        }
-    };
-
-    TrustBootstrapDecision::AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest {
-        device_trust_ref,
-        trust_bootstrap_ref,
-        lifecycle_intent,
-        family_id: parent_presence_challenge.family_id,
-        parent_account_id: parent_presence_challenge.parent_account_id,
-        device_ref: parent_presence_challenge.action_device_id,
-        sealing_marker: TrustBootstrapSealingMarker,
-    })
+    trust_bootstrap_authority::evaluate(input, None)
 }
 
-/// Runtime entry point from a successfully consumed parent-presence ceremony.
-/// The accepted value remains opaque; callers cannot fabricate it through this API.
+/// Runtime entry point from a ceremony accepted by parent presence and household authority.
+/// The authority receipt remains opaque; callers cannot fabricate it through this API.
 pub fn begin_parent_device_key_sealing(
     trust_bootstrap_ref: String,
-    parent_presence: ParentPresenceVerificationAccepted,
+    ceremony: AuthorizedParentDeviceTrustCeremony,
 ) -> TrustBootstrapDecision {
-    evaluate_trust_bootstrap(TrustBootstrapInput {
-        trust_bootstrap_ref,
-        lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
-        parent_presence,
-    })
+    trust_bootstrap_authority::evaluate(
+        TrustBootstrapInput {
+            trust_bootstrap_ref,
+            lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+            parent_presence: ceremony.parent_presence,
+        },
+        Some(ceremony.authority_receipt),
+    )
+}
+
+impl SealParentDeviceTrustAuthorityReceipt {
+    pub(crate) fn matches(
+        &self,
+        parent_presence_receipt_ref: &crate::parent_presence::ParentPresenceReceiptRef,
+        challenge: &ParentPresenceChallenge,
+    ) -> bool {
+        self.parent_presence_receipt_ref == parent_presence_receipt_ref.as_str()
+            && self.family_id == challenge.family_id
+            && self.parent_account_id == challenge.parent_account_id
+            && self.device_ref == challenge.action_device_id
+            && self.action == challenge.privileged_action
+            && self.action == HouseholdAuthorityAction::SealParentDeviceTrust
+    }
 }
 
 fn challenge_action_is_authorized_for_lifecycle_intent(

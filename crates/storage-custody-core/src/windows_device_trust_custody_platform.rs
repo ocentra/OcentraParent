@@ -1,6 +1,14 @@
+#[cfg(windows)]
 use sha2::{Digest, Sha256};
+#[cfg(windows)]
+use std::io;
 
-use super::{hex, Error};
+#[cfg(windows)]
+use super::record::hex;
+use super::Error;
+
+#[cfg(windows)]
+const DEVICE_TRUST_EPOCHS_REGISTRY_PATH: &str = "Software\\Ocentra\\DeviceTrust\\Epochs";
 
 #[cfg(windows)]
 pub(super) fn protect(value: &[u8], binding: &[u8]) -> Result<Vec<u8>, Error> {
@@ -19,7 +27,7 @@ pub(super) fn activate(binding: &[u8], epoch: &[u8]) -> Result<(), Error> {
     use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
     let key = RegKey::predef(HKEY_CURRENT_USER)
-        .create_subkey("Software\\Ocentra\\DeviceTrust\\Epochs")
+        .create_subkey(DEVICE_TRUST_EPOCHS_REGISTRY_PATH)
         .map_err(|_error| Error::Platform)?
         .0;
     key.set_value(hex(Sha256::digest(binding)), &hex(protect(epoch, binding)?))
@@ -31,7 +39,7 @@ pub(super) fn current(binding: &[u8]) -> Result<Vec<u8>, Error> {
     use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
     let key = RegKey::predef(HKEY_CURRENT_USER)
-        .open_subkey("Software\\Ocentra\\DeviceTrust\\Epochs")
+        .open_subkey(DEVICE_TRUST_EPOCHS_REGISTRY_PATH)
         .map_err(|_error| Error::Missing)?;
     let protected_epoch: String = key
         .get_value(hex(Sha256::digest(binding)))
@@ -46,11 +54,15 @@ pub(super) fn remove(binding: &[u8]) -> Result<(), Error> {
         RegKey,
     };
 
-    RegKey::predef(HKEY_CURRENT_USER)
-        .open_subkey_with_flags("Software\\Ocentra\\DeviceTrust\\Epochs", KEY_WRITE)
+    let result = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey_with_flags(DEVICE_TRUST_EPOCHS_REGISTRY_PATH, KEY_WRITE)
         .map_err(|_error| Error::Missing)?
-        .delete_value(hex(Sha256::digest(binding)))
-        .map_err(|_error| Error::Missing)
+        .delete_value(hex(Sha256::digest(binding)));
+    match result {
+        Ok(()) => Ok(()),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Err(Error::Missing),
+        Err(_error) => Err(Error::Platform),
+    }
 }
 
 #[cfg(not(windows))]
@@ -78,14 +90,18 @@ pub(super) fn remove(_: &[u8]) -> Result<(), Error> {
     Err(Error::Platform)
 }
 
+#[cfg(windows)]
 fn decode_hex(value: &str) -> Result<Vec<u8>, Error> {
-    if !value.len().is_multiple_of(2) {
+    let bytes = value.as_bytes();
+    if !bytes.len().is_multiple_of(2) {
         return Err(Error::Missing);
     }
-    (0..value.len())
-        .step_by(2)
-        .map(|index| {
-            u8::from_str_radix(&value[index..index + 2], 16).map_err(|_error| Error::Missing)
+    bytes
+        .chunks_exact(2)
+        .map(|pair| {
+            std::str::from_utf8(pair)
+                .map_err(|_error| Error::Missing)
+                .and_then(|pair| u8::from_str_radix(pair, 16).map_err(|_error| Error::Missing))
         })
         .collect()
 }

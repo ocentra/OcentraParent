@@ -78,18 +78,21 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 
 ## Current audit state
 
-- This branch has a Windows-only runtime vertical slice. A native parent-runtime
-  facade stages an accepted parent ceremony;
-  the live parent desktop command consumes only its one-shot opaque handle and
-  passes the resulting sealing request to `storage-custody-core`. The webview
-  never supplies the accepted ceremony or trust material. That adapter
-  DPAPI-protects locally generated trust material with its family/account/device
+- This branch has a Windows-only custody and dispatch safety slice. A native
+  parent-runtime facade consumes only an opaque staged-ceremony handle; the live
+  parent desktop command rejects an unstaged or already-consumed handle before it
+  can call `storage-custody-core`. The webview never supplies an accepted ceremony
+  or trust material. There is no record-backed household-authority owner yet, so
+  no ceremony issuer is exported to external/runtime callers; caller-supplied
+  authority flags cannot mint a ceremony. That adapter
+  source DPAPI-protects locally generated trust material with its family/account/device
   binding, atomically persists the ciphertext record, and then activates a
   separately DPAPI-protected epoch below the current user's Windows registry
   hive. Revocation removes that epoch before best-effort record deletion, and
-  the Windows command-path test proves a copied record is rejected after the
-  epoch has been removed. Production parent-presence custody remains fail-closed
-  and does not yet stage operational ceremonies.
+  without an operational issuer, no end-to-end Windows seal or restored-record
+  execution proof is claimed. The focused custody test covers only idempotent
+  revocation of an unissued binding. Production parent-presence custody remains
+  fail-closed and does not yet stage operational ceremonies.
 - This is an unmerged source-and-test slice, not a workpack close. Android,
   Linux, iOS, and macOS platform custody are still absent. No encrypted recovery
   bundle, re-pair flow, entitlement unlock, child removal, or whole

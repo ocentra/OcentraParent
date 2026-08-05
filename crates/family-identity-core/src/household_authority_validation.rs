@@ -26,8 +26,10 @@ pub(crate) fn household_authority_failure_reason(
             HouseholdAuthorizationFailureReason::AccountNotActive,
         ),
         (
-            input.device_trust_state != DeviceTrustState::Trusted
-                && !bootstrap_sealing_state_is_allowed(input),
+            (input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+                && !bootstrap_sealing_state_is_allowed(input))
+                || (input.action != HouseholdAuthorityAction::SealParentDeviceTrust
+                    && input.device_trust_state != DeviceTrustState::Trusted),
             HouseholdAuthorizationFailureReason::DeviceNotTrusted,
         ),
         (

@@ -30,18 +30,20 @@ findings against lifecycle authority, household/device binding, sealing order,
 revoke/reset handling, and Windows-only proof. It must not be merged or used
 as WP02 proof without a production custody redesign.
 
-This replacement branch carries a separately reviewable Windows-only vertical
-slice: a native parent-runtime facade stages an opaque accepted
-parent-presence ceremony, and the live parent desktop `parent_dispatch` command
-consumes that one-shot handle before calling the custody adapter. The webview
-supplies neither the accepted ceremony nor trust material. The adapter persists
-DPAPI-protected ciphertext atomically in app data and activates a
-DPAPI-protected epoch in the current Windows user registry hive. The record is
-written before epoch activation; revocation removes the epoch before best-effort
-record deletion, so a restored app-data record is rejected. A real Windows
-command-path test exercises that chain. Production parent-presence custody still
-fails closed, so no operational ceremony producer is claimed. The branch is not
-merged, the generated proof root is local-only, and this does not close WP02.
+This replacement branch carries a separately reviewable Windows-only custody and
+authority-boundary source slice. There is no live desktop command path or bridge
+action for sealing, and no record-backed household-authority owner exports a
+ceremony issuer to external/runtime callers; caller-supplied authority flags cannot
+mint a ceremony. The webview supplies neither an accepted ceremony nor trust
+material. The adapter source persists DPAPI-protected ciphertext atomically in app
+data and activates a DPAPI-protected epoch in the current Windows user registry
+hive. The record is written before epoch activation; revocation removes the epoch
+before best-effort record deletion, so a restored app-data record is rejected.
+Without an operational issuer, no end-to-end Windows seal, desktop command-path,
+or restored-record execution proof is claimed; the focused custody test covers only
+idempotent revocation of an unissued binding. Production parent-presence custody
+still fails closed, the branch is not merged, the generated proof root is local-only,
+and this does not close WP02.
 
 ## Current Truth
 

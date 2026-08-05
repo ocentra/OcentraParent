@@ -48,7 +48,6 @@ use crate::agent_service_client::{
     load_network_runtime_event_chain_stream_snapshot, load_policy_preview_read_model_snapshot,
     load_tracking_read_model_snapshot,
 };
-use crate::device_trust_bootstrap_runtime::ParentDeviceTrustCommandFacade;
 
 use self::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use self::lan_route::{
@@ -165,18 +164,7 @@ fn lan_replay_is_bound_to_status(
 }
 
 pub fn dispatch_parent_ui_action(action: &ParentUiAction) -> ParentUiActionResult {
-    action_dispatch::dispatch_parent_ui_action_impl(action, None)
-}
-
-/// Dispatches a parent action through the desktop-owned native device-trust facade.
-///
-/// Only the desktop process can supply the facade. The webview action contains an
-/// opaque staged-ceremony handle, never an accepted ceremony or trust material.
-pub fn dispatch_parent_ui_action_with_device_trust(
-    action: &ParentUiAction,
-    device_trust: &ParentDeviceTrustCommandFacade,
-) -> ParentUiActionResult {
-    action_dispatch::dispatch_parent_ui_action_impl(action, Some(device_trust))
+    action_dispatch::dispatch_parent_ui_action_impl(action)
 }
 
 fn dedupe_route_events_by_event_id(

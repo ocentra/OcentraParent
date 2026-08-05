@@ -357,7 +357,26 @@ fn only_a_fresh_parent_controller_can_begin_parent_device_sealing() {
         assert_eq!(decision.failure_reason, None);
     }
 
+    for device_trust_state in [
+        DeviceTrustState::Trusted,
+        DeviceTrustState::Revoked,
+        DeviceTrustState::Disabled,
+    ] {
+        let decision = authorize_household_action(HouseholdAuthorityInput {
+            device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
+            device_trust_state,
+            action: HouseholdAuthorityAction::SealParentDeviceTrust,
+            ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+        });
+        assert_eq!(
+            decision.failure_reason,
+            Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
+        );
+    }
+
     let child_scoped = authorize_household_action(HouseholdAuthorityInput {
+        device_ownership_scope: DeviceOwnershipScope::ChildProfileDevice,
+        device_trust_state: DeviceTrustState::Pending,
         action: HouseholdAuthorityAction::SealParentDeviceTrust,
         ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
     });

@@ -30,9 +30,6 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
             return super::super::action_result_app_game::action_result_message(&action.action)
                 .to_string();
         }
-        ParentUiActionKind::DeviceTrustSealStagedCeremonyRequested => {
-            "parent Rust facade sealed a staged verified parent device-trust ceremony"
-        }
     }
     .to_string()
 }

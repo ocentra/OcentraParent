@@ -1,16 +1,23 @@
 //! Windows DPAPI custody with app-data records subordinate to a registry epoch.
-use atomicwrites::{AllowOverwrite, AtomicFile};
+use fs2::FileExt;
 use getrandom::fill;
 use ocentra_family_identity_core::trust_bootstrap::AwaitingPlatformKeySealingRequest;
-use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{
-    fs, io,
+    collections::HashMap,
+    fs::{self, OpenOptions},
     path::{Path, PathBuf},
+    sync::{Arc, Mutex},
 };
 
 #[path = "windows_device_trust_custody_platform.rs"]
 mod platform;
+#[path = "windows_device_trust_custody_record.rs"]
+mod record;
+use record::{
+    binding as custody_binding, hex, install_generation as load_or_create_install_generation,
+    remove, write, Record,
+};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Error {
@@ -21,20 +28,17 @@ pub enum Error {
     Io,
     Unseal,
 }
-#[derive(Serialize, Deserialize)]
-struct Record {
-    family: String,
-    account: String,
-    device: String,
-    epoch_hash: String,
-    ciphertext: Vec<u8>,
-}
 pub struct WindowsDeviceTrustCustody {
     root: PathBuf,
+    install_generation: String,
+    binding_locks: Mutex<HashMap<String, Arc<Mutex<()>>>>,
 }
 
 impl WindowsDeviceTrustCustody {
     pub fn open(root: impl AsRef<Path>) -> Result<Self, Error> {
+        if !cfg!(windows) {
+            return Err(Error::Platform);
+        }
         fs::create_dir_all(root.as_ref()).map_err(|_error| Error::Io)?;
         if fs::symlink_metadata(root.as_ref())
             .map_err(|_error| Error::Io)?
@@ -43,8 +47,11 @@ impl WindowsDeviceTrustCustody {
         {
             return Err(Error::Invalid);
         }
+        let root = root.as_ref().canonicalize().map_err(|_error| Error::Io)?;
         Ok(Self {
-            root: root.as_ref().canonicalize().map_err(|_error| Error::Io)?,
+            install_generation: load_or_create_install_generation(&root)?,
+            root,
+            binding_locks: Mutex::new(HashMap::new()),
         })
     }
     pub fn seal_persist_activate(
@@ -52,18 +59,20 @@ impl WindowsDeviceTrustCustody {
         request: AwaitingPlatformKeySealingRequest,
         material: &[u8],
     ) -> Result<(), Error> {
-        if material.is_empty()
-            || !valid(&request.family_id)
-            || !valid(&request.parent_account_id)
-            || !valid(&request.device_ref)
-        {
+        if material.is_empty() {
             return Err(Error::Invalid);
         }
-        let binding = binding(
+        let binding = custody_binding([
             &request.family_id,
             &request.parent_account_id,
             &request.device_ref,
-        );
+            &self.install_generation,
+        ])?;
+        let binding_lock = self.binding_lock(&binding);
+        let _binding_guard = binding_lock
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let _binding_fence = self.binding_fence(&binding)?;
         let mut epoch = [0; 32];
         fill(&mut epoch).map_err(|_error| Error::Platform)?;
         let record = Record {
@@ -73,8 +82,17 @@ impl WindowsDeviceTrustCustody {
             epoch_hash: hex(Sha256::digest(epoch)),
             ciphertext: platform::protect(material, &binding)?,
         };
-        write(&self.path(&binding), &record)?;
-        platform::activate(&binding, &epoch)
+        let record_path = self.path(&binding);
+        write(&record_path, &record)?;
+        if let Err(error) = platform::activate(&binding, &epoch) {
+            let _cleanup_result = fs::remove_file(&record_path);
+            return Err(error);
+        }
+        if platform::current(&binding)? != epoch {
+            let _cleanup_result = fs::remove_file(&record_path);
+            return Err(Error::Mismatch);
+        }
+        Ok(())
     }
     pub fn unseal_current(
         &self,
@@ -82,7 +100,12 @@ impl WindowsDeviceTrustCustody {
         account: &str,
         device: &str,
     ) -> Result<Vec<u8>, Error> {
-        let b = binding(family, account, device);
+        let b = custody_binding([family, account, device, &self.install_generation])?;
+        let binding_lock = self.binding_lock(&b);
+        let _binding_guard = binding_lock
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let _binding_fence = self.binding_fence(&b)?;
         let r: Record =
             serde_json::from_slice(&fs::read(self.path(&b)).map_err(|_error| Error::Missing)?)
                 .map_err(|_error| Error::Io)?;
@@ -96,29 +119,43 @@ impl WindowsDeviceTrustCustody {
         platform::unprotect(&r.ciphertext, &b)
     }
     pub fn revoke_or_reset(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
-        let b = binding(family, account, device);
-        platform::remove(&b)?;
-        let _ = fs::remove_file(self.path(&b));
-        Ok(())
+        let b = custody_binding([family, account, device, &self.install_generation])?;
+        let binding_lock = self.binding_lock(&b);
+        let _binding_guard = binding_lock
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        let _binding_fence = self.binding_fence(&b)?;
+        match platform::remove(&b) {
+            Ok(()) | Err(Error::Missing) => {}
+            Err(error) => return Err(error),
+        }
+        remove(&self.path(&b))
     }
     fn path(&self, b: &[u8]) -> PathBuf {
         self.root.join(format!("{}.sealed", hex(Sha256::digest(b))))
     }
-}
-fn valid(v: &str) -> bool {
-    !v.trim().is_empty()
-}
-fn binding(f: &str, a: &str, d: &str) -> Vec<u8> {
-    [f, a, d].join("\u{1f}").into_bytes()
-}
-fn hex(bytes: impl AsRef<[u8]>) -> String {
-    bytes.as_ref().iter().map(|b| format!("{b:02x}")).collect()
-}
-fn write(path: &Path, r: &Record) -> Result<(), Error> {
-    AtomicFile::new(path, AllowOverwrite)
-        .write(|f| {
-            serde_json::to_writer(&mut *f, r).map_err(io::Error::other)?;
-            f.sync_all()
-        })
-        .map_err(|_error| Error::Io)
+
+    fn binding_fence(&self, binding: &[u8]) -> Result<fs::File, Error> {
+        let fence = OpenOptions::new()
+            .create(true)
+            .read(true)
+            .write(true)
+            .truncate(false)
+            .open(
+                self.root
+                    .join(format!("{}.lock", hex(Sha256::digest(binding)))),
+            )
+            .map_err(|_error| Error::Io)?;
+        fence.lock_exclusive().map_err(|_error| Error::Io)?;
+        Ok(fence)
+    }
+
+    fn binding_lock(&self, binding: &[u8]) -> Arc<Mutex<()>> {
+        let key = hex(Sha256::digest(binding));
+        let mut locks = self
+            .binding_locks
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        Arc::clone(locks.entry(key).or_insert_with(|| Arc::new(Mutex::new(()))))
+    }
 }
