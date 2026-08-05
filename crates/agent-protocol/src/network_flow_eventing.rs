@@ -4,13 +4,16 @@ use ocentra_eventing::ids::{
     AggregateKey, EventType, IdempotencyKey, RuntimeInstanceId, SchemaVersion,
 };
 
-use super::{constants, NetworkFlowObservedEvent, NetworkRuntimeEventContract};
+use super::{constants, NetworkFlowObservedEvent};
 
 impl DomainEvent for NetworkFlowObservedEvent {
     fn contract(&self) -> Result<EventContract, EventingError> {
+        if self.schema_version != constants::network_flow::EVENT_SCHEMA_VERSION {
+            return Err(EventingError::InvalidVersion);
+        }
         Ok(EventContract::new(
-            EventType::parse(Self::EVENT_TYPE)?,
-            SchemaVersion::new(self.schema_version)?,
+            EventType::parse(constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED)?,
+            SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
         ))
     }
 
@@ -25,10 +28,12 @@ impl DomainEvent for NetworkFlowObservedEvent {
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         let flow_event_ref = IdempotencyKey::parse(self.flow_event_ref.clone())?;
+        let aggregate_key = self.aggregate_key()?;
         IdempotencyKey::parse(format!(
-            "{}{}-{}",
+            "{}{}-{}-{}",
             constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX,
-            Self::EVENT_TYPE,
+            constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED,
+            aggregate_key.as_str(),
             flow_event_ref.as_str()
         ))
     }

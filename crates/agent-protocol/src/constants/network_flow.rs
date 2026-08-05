@@ -17,6 +17,7 @@ pub const LABEL_PROCESS_UNKNOWN: &str = "Unknown process";
 
 pub const EVENT_SCHEMA_VERSION: u16 = 1;
 pub const EVENT_NETWORK_FLOW_OBSERVED: &str = "network.flow.observed";
+pub const EVENT_NETWORK_FLOW_EVENTING_OBSERVED: &str = "network.flow.eventing.observed";
 pub const EVENT_NETWORK_DOMAIN_OBSERVED: &str = "network.domain.observed";
 pub const EVENT_NETWORK_ACTIVITY_CLASSIFIED: &str = "network.activity.classified";
 pub const EVENT_NETWORK_REVIEW_REQUESTED: &str = "network.review.requested";

@@ -621,7 +621,11 @@ fn network_flow_observed_event_round_trips_through_typed_event_envelope(
 
     assert_eq!(
         envelope.contract.event_type.as_str(),
-        constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED
+        constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED
+    );
+    assert_ne!(
+        envelope.contract.event_type.as_str(),
+        NetworkFlowObservedEvent::EVENT_TYPE
     );
     assert_eq!(
         envelope.aggregate_key.as_str(),
@@ -634,14 +638,35 @@ fn network_flow_observed_event_round_trips_through_typed_event_envelope(
     assert_eq!(
         envelope.idempotency_key.as_str(),
         format!(
-            "{}{}-{}",
+            "{}{}-{}-{}",
             constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX,
-            constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
+            constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED,
+            envelope.aggregate_key.as_str(),
             constants::network_flow::TEST_FLOW_EVENT_REF
         )
     );
     assert_eq!(decoded, envelope);
     assert_eq!(decoded.payload, payload);
+
+    Ok(())
+}
+
+#[test]
+fn network_flow_observed_event_rejects_noncanonical_schema_version() {
+    let mut payload = network_flow_observed_event();
+    payload.schema_version = constants::network_flow::EVENT_SCHEMA_VERSION + 1;
+
+    assert_eq!(payload.contract(), Err(EventingError::InvalidVersion));
+}
+
+#[test]
+fn network_flow_observed_event_idempotency_is_device_scoped() -> Result<(), EventingError> {
+    let first = network_flow_observed_event();
+    let mut second = first.clone();
+    second.device_ref = "network-flow-eventing-contract-2".to_string();
+
+    assert_ne!(first.aggregate_key()?, second.aggregate_key()?);
+    assert_ne!(first.idempotency_key()?, second.idempotency_key()?);
 
     Ok(())
 }

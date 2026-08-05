@@ -76,5 +76,5 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Current typed-eventing sub-slice
 
-- `NetworkFlowObservedEvent` now consumes the reusable `ocentra-eventing` `DomainEvent` and `EventEnvelope` boundary directly, with a stored-envelope round trip and blank-device-reference rejection recorded in [the focused proof](../../../proof/network-plan/01-network-foundation-eventing-contract.md).
+- `NetworkFlowObservedEvent` now consumes the reusable `ocentra-eventing` `DomainEvent` and `EventEnvelope` boundary directly under the distinct `network.flow.eventing.observed` contract. The existing `network.flow.observed` runtime stream remains reserved for `NetworkRuntimeEventPayload` subscribers. The focused proof records stored-envelope round trip, blank-device-reference rejection, canonical schema enforcement, and device-scoped idempotency.
 - This is only a foundation contract handoff. WP01 remains open: it does not prove the remaining schema parity, evidence-grade, policy-action, private-bus audit, service runtime, or platform rows.
