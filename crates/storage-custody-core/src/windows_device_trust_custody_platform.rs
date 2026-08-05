@@ -1,7 +1,9 @@
 #[cfg(windows)]
+use getrandom::fill;
+#[cfg(windows)]
 use sha2::{Digest, Sha256};
 #[cfg(windows)]
-use std::io;
+use std::{io, path::Path};
 
 #[cfg(windows)]
 use super::record::hex;
@@ -9,6 +11,52 @@ use super::Error;
 
 #[cfg(windows)]
 const DEVICE_TRUST_EPOCHS_REGISTRY_PATH: &str = "Software\\Ocentra\\DeviceTrust\\Epochs";
+#[cfg(windows)]
+const DEVICE_TRUST_INSTALL_GENERATIONS_REGISTRY_PATH: &str =
+    "Software\\Ocentra\\DeviceTrust\\InstallGenerations";
+
+#[cfg(windows)]
+pub(super) fn load_or_rotate_install_generation(
+    root: &Path,
+    root_was_absent: bool,
+) -> Result<String, Error> {
+    use winreg::{enums::HKEY_CURRENT_USER, RegKey};
+
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .create_subkey(DEVICE_TRUST_INSTALL_GENERATIONS_REGISTRY_PATH)
+        .map_err(|_error| Error::Platform)?
+        .0;
+    let root_key = hex(Sha256::digest(root.to_string_lossy().as_bytes()));
+    if root_was_absent {
+        let generation = fresh_install_generation()?;
+        key.set_value(&root_key, &generation)
+            .map_err(|_error| Error::Platform)?;
+        return Ok(generation);
+    }
+    match key.get_value::<String, _>(&root_key) {
+        Ok(generation)
+            if generation.len() == 64
+                && generation.bytes().all(|byte| byte.is_ascii_hexdigit()) =>
+        {
+            Ok(generation)
+        }
+        Ok(_) => Err(Error::Invalid),
+        Err(error) if error.kind() == io::ErrorKind::NotFound => {
+            let generation = fresh_install_generation()?;
+            key.set_value(&root_key, &generation)
+                .map_err(|_error| Error::Platform)?;
+            Ok(generation)
+        }
+        Err(_error) => Err(Error::Platform),
+    }
+}
+
+#[cfg(windows)]
+fn fresh_install_generation() -> Result<String, Error> {
+    let mut bytes = [0_u8; 32];
+    fill(&mut bytes).map_err(|_error| Error::Platform)?;
+    Ok(hex(bytes))
+}
 
 #[cfg(windows)]
 pub(super) fn protect(value: &[u8], binding: &[u8]) -> Result<Vec<u8>, Error> {
@@ -117,12 +165,19 @@ pub(super) fn remove(_: &[u8]) -> Result<(), Error> {
     Err(Error::Platform)
 }
 
+#[cfg(not(windows))]
+pub(super) fn load_or_rotate_install_generation(_: &Path, _: bool) -> Result<String, Error> {
+    Err(Error::Platform)
+}
+
 #[cfg(windows)]
 fn decode_hex(value: &str) -> Result<Vec<u8>, Error> {
     let bytes = value.as_bytes();
-    if !bytes.len().is_multiple_of(2) {
-        return Err(Error::Missing);
-    }
+    bytes
+        .len()
+        .is_multiple_of(2)
+        .then_some(())
+        .ok_or(Error::Missing)?;
     bytes
         .chunks_exact(2)
         .map(|pair| {

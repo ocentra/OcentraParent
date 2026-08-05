@@ -39,6 +39,7 @@ impl WindowsDeviceTrustCustody {
         if !cfg!(windows) {
             return Err(Error::Platform);
         }
+        let root_was_absent = !root.as_ref().exists();
         fs::create_dir_all(root.as_ref()).map_err(|_error| Error::Io)?;
         if fs::symlink_metadata(root.as_ref())
             .map_err(|_error| Error::Io)?
@@ -49,7 +50,7 @@ impl WindowsDeviceTrustCustody {
         }
         let root = root.as_ref().canonicalize().map_err(|_error| Error::Io)?;
         Ok(Self {
-            install_generation: load_or_create_install_generation(&root)?,
+            install_generation: load_or_create_install_generation(&root, root_was_absent)?,
             root,
             binding_locks: Mutex::new(HashMap::new()),
         })
@@ -90,12 +91,7 @@ impl WindowsDeviceTrustCustody {
         }
         verify_activated_binding(&binding, &epoch, &record_path, platform::current(&binding))
     }
-    pub fn unseal_current(
-        &self,
-        family: &str,
-        account: &str,
-        device: &str,
-    ) -> Result<Vec<u8>, Error> {
+    pub fn unseal_current(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
         let b = custody_binding([family, account, device, &self.install_generation])?;
         let binding_lock = self.binding_lock(&b);
         let _binding_guard = binding_lock
@@ -112,7 +108,7 @@ impl WindowsDeviceTrustCustody {
         {
             return Err(Error::Mismatch);
         }
-        platform::unprotect(&r.ciphertext, &b)
+        platform::unprotect(&r.ciphertext, &b).map(|_plaintext| ())
     }
     pub fn revoke_or_reset(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
         let b = custody_binding([family, account, device, &self.install_generation])?;

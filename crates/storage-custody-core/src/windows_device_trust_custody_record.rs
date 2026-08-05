@@ -1,12 +1,8 @@
 use atomicwrites::{AllowOverwrite, AtomicFile};
-use fs2::FileExt;
 use serde::{Deserialize, Serialize};
 use std::{fs, io, path::Path};
 
-use super::Error;
-
-#[path = "windows_device_trust_custody_generation.rs"]
-mod generation;
+use super::{platform, Error};
 
 #[derive(Serialize, Deserialize)]
 pub(super) struct Record {
@@ -34,8 +30,7 @@ pub(super) fn binding(parts: [&str; 4]) -> Result<Vec<u8>, Error> {
     Ok(output)
 }
 
-pub(super) fn install_generation(root: &Path) -> Result<String, Error> {
-    let path = root.join("device-trust-install-generation");
+pub(super) fn install_generation(root: &Path, root_was_absent: bool) -> Result<String, Error> {
     let lock = fs::OpenOptions::new()
         .create(true)
         .read(true)
@@ -43,15 +38,8 @@ pub(super) fn install_generation(root: &Path) -> Result<String, Error> {
         .truncate(false)
         .open(root.join("device-trust-install-generation.lock"))
         .map_err(|_error| Error::Io)?;
-    lock.lock_exclusive().map_err(|_error| Error::Io)?;
-    match fs::read_to_string(&path) {
-        Ok(value) if value.len() == 64 && value.bytes().all(|byte| byte.is_ascii_hexdigit()) => {
-            Ok(value)
-        }
-        Ok(_) => Err(Error::Invalid),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => generation::create(&path),
-        Err(_error) => Err(Error::Io),
-    }
+    fs2::FileExt::lock_exclusive(&lock).map_err(|_error| Error::Io)?;
+    platform::load_or_rotate_install_generation(root, root_was_absent)
 }
 
 pub(super) fn hex(bytes: impl AsRef<[u8]>) -> String {

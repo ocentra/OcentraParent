@@ -54,18 +54,41 @@ fn concurrent_first_opens_share_one_install_generation() -> Result<(), String> {
 }
 
 #[test]
-fn partial_install_generation_is_rejected_on_reopen() -> Result<(), String> {
+fn reinstall_rotates_the_registry_generation_before_restored_records_can_be_read(
+) -> Result<(), String> {
+    let root = temporary_root("reinstall-generation");
+    let _cleanup = fs::remove_dir_all(&root);
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("first open: {error:?}"))?;
+    let first_generation = install_generation(&root)?;
+
+    fs::remove_dir_all(&root).map_err(|error| format!("remove custody root: {error}"))?;
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("reinstall open: {error:?}"))?;
+    let reinstall_generation = install_generation(&root)?;
+
+    assert_ne!(first_generation, reinstall_generation);
+    assert!(
+        !root.join("device-trust-install-generation").exists(),
+        "install generation must not be retained in restorable custody data"
+    );
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn corrupt_registry_install_generation_is_rejected_on_reopen() -> Result<(), String> {
     let root = temporary_root("partial-generation");
     let _cleanup = fs::remove_dir_all(&root);
     fs::create_dir_all(&root).map_err(|error| format!("create root: {error}"))?;
-    fs::write(root.join("device-trust-install-generation"), "partial")
-        .map_err(|error| format!("write partial generation: {error}"))?;
+    set_install_generation(&root, "partial")?;
 
     assert!(matches!(
         WindowsDeviceTrustCustody::open(&root),
         Err(Error::Invalid)
     ));
 
+    let _cleanup = remove_install_generation(&root);
     let _cleanup = fs::remove_dir_all(root);
     Ok(())
 }
@@ -147,8 +170,45 @@ fn temporary_root(name: &str) -> std::path::PathBuf {
 }
 
 fn install_generation(root: &std::path::Path) -> Result<String, String> {
-    fs::read_to_string(root.join("device-trust-install-generation"))
-        .map_err(|error| format!("read install generation: {error}"))
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey("Software\\Ocentra\\DeviceTrust\\InstallGenerations")
+        .map_err(|error| format!("open install-generation registry key: {error}"))?;
+    key.get_value(hex(Sha256::digest(
+        canonical_root(root)?.to_string_lossy().as_bytes(),
+    )))
+    .map_err(|error| format!("read install generation: {error}"))
+}
+
+fn set_install_generation(root: &std::path::Path, generation: &str) -> Result<(), String> {
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .create_subkey("Software\\Ocentra\\DeviceTrust\\InstallGenerations")
+        .map_err(|error| format!("open install-generation registry key: {error}"))?
+        .0;
+    key.set_value(
+        hex(Sha256::digest(
+            canonical_root(root)?.to_string_lossy().as_bytes(),
+        )),
+        &generation,
+    )
+    .map_err(|error| format!("write install generation: {error}"))
+}
+
+fn remove_install_generation(root: &std::path::Path) -> Result<(), String> {
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey_with_flags(
+            "Software\\Ocentra\\DeviceTrust\\InstallGenerations",
+            winreg::enums::KEY_WRITE,
+        )
+        .map_err(|error| format!("open install-generation registry key for cleanup: {error}"))?;
+    key.delete_value(hex(Sha256::digest(
+        canonical_root(root)?.to_string_lossy().as_bytes(),
+    )))
+    .map_err(|error| format!("remove install generation: {error}"))
+}
+
+fn canonical_root(root: &std::path::Path) -> Result<std::path::PathBuf, String> {
+    root.canonicalize()
+        .map_err(|error| format!("canonicalize root: {error}"))
 }
 
 fn binding(family: &str, account: &str, device: &str, generation: &str) -> Vec<u8> {
