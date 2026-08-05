@@ -3,7 +3,8 @@ use getrandom::fill;
 #[cfg(windows)]
 use sha2::{Digest, Sha256};
 #[cfg(windows)]
-use std::{io, path::Path};
+use std::io;
+use std::path::Path;
 
 #[cfg(windows)]
 use super::record::hex;
