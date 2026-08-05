@@ -93,7 +93,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - the canonical network contract source is `crates/schema` or the owning Rust crate; `packages/network-domain` is a package metadata/proof-consumer surface unless selected public exports exist;
 - real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
 - the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
-- only the slice-01 proof pack exists right now; broader plan proof bundles are still missing;
+- two bounded WP01 proof documents exist right now: `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` for the retired parent-domain frontage and `docs/proof/network-plan/01-network-foundation-eventing-contract.md` for the typed reusable-eventing handoff; broader plan proof bundles are still missing;
 - `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
 
 ## Current slice checkpoint
@@ -102,6 +102,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - This slice retires `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` because `@ocentra-parent/parent-domain` does not publish `./network-flow` or `./network-contracts`, and no live in-repo consumers were found for those parent-domain paths; it does not widen into Rust, portal, or platform proof.
 - The former `@ocentra-parent/parent-domain` `./network-control-catalog` contradiction is already retired as well; canonical `network-flow`, `network-contracts`, and control-catalog ownership remains only in `crates/schema`, the owning Rust crate, or selected network proof surfaces.
 - Proof pack for this slice lives at `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` with artifacts under `output/network-plan-proof/01-network-foundation-shim-cleanup/`.
+- The current WP01 eventing sub-slice is a direct `NetworkFlowObservedEvent` to reusable `DomainEvent`/`EventEnvelope` contract handoff in `crates/agent-protocol`; its focused round-trip and invalid-device-reference evidence live at `docs/proof/network-plan/01-network-foundation-eventing-contract.md`. This does not close WP01 or establish service, capture, policy, enforcement, or platform proof.
 
 ## What is already present in source
 

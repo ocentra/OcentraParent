@@ -17,8 +17,11 @@ use super::{
 use crate::network_flow::{
     NetworkRemoteDeliveryExternalCrossProcessTransportState, NetworkRuntimeEventContract,
 };
-use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::envelope::{DomainEvent, EventEnvelope, EventMetadata, EventSource};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{
+    CorrelationId, EventCustody, RuntimeInstanceId, RuntimeRole, SourceComponent, SourceService,
+};
 
 macro_rules! serialized_field {
     ($value:expr, $field:expr $(,)?) => {{
@@ -595,6 +598,108 @@ fn network_runtime_event_payload_uses_rust_owned_contract_and_key_shapes(
     );
 
     Ok(())
+}
+
+#[test]
+fn network_flow_observed_event_round_trips_through_typed_event_envelope(
+) -> Result<(), EventingError> {
+    let payload = network_flow_observed_event();
+    let envelope = EventEnvelope::from_event(
+        payload.clone(),
+        EventMetadata::new(
+            CorrelationId::parse("network-flow-envelope-round-trip-1")?,
+            EventSource::new(
+                EventCustody::parse("test-custody")?,
+                RuntimeRole::parse("child-agent")?,
+                SourceService::parse("agent-protocol-contract-test")?,
+                SourceComponent::parse("network-flow-eventing-contract")?,
+                RuntimeInstanceId::parse("network-flow-eventing-contract-1")?,
+            ),
+        ),
+    )?;
+    let decoded: EventEnvelope<NetworkFlowObservedEvent> = envelope.store()?.decode()?;
+
+    assert_eq!(
+        envelope.contract.event_type.as_str(),
+        constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED
+    );
+    assert_ne!(
+        envelope.contract.event_type.as_str(),
+        NetworkFlowObservedEvent::EVENT_TYPE
+    );
+    assert_eq!(
+        envelope.aggregate_key.as_str(),
+        format!(
+            "{}{}",
+            constants::network_flow::AGGREGATE_NETWORK_FLOW_PREFIX,
+            constants::network_flow::TEST_DEVICE_REF
+        )
+    );
+    assert_eq!(
+        envelope.idempotency_key.as_str(),
+        format!(
+            "{}{}-{}:{}-{}:{}",
+            constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX,
+            constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED,
+            envelope.aggregate_key.as_str().len(),
+            envelope.aggregate_key.as_str(),
+            constants::network_flow::TEST_FLOW_EVENT_REF.len(),
+            constants::network_flow::TEST_FLOW_EVENT_REF
+        )
+    );
+    assert_eq!(decoded, envelope);
+    assert_eq!(decoded.payload, payload);
+
+    Ok(())
+}
+
+#[test]
+fn network_flow_observed_event_rejects_noncanonical_schema_version() {
+    let mut payload = network_flow_observed_event();
+    payload.schema_version = constants::network_flow::EVENT_SCHEMA_VERSION + 1;
+
+    assert_eq!(payload.contract(), Err(EventingError::InvalidVersion));
+}
+
+#[test]
+fn network_flow_observed_event_idempotency_is_device_scoped() -> Result<(), EventingError> {
+    let first = network_flow_observed_event();
+    let mut second = first.clone();
+    second.device_ref = "network-flow-eventing-contract-2".to_string();
+
+    assert_ne!(first.aggregate_key()?, second.aggregate_key()?);
+    assert_ne!(first.idempotency_key()?, second.idempotency_key()?);
+
+    Ok(())
+}
+
+#[test]
+fn network_flow_observed_event_idempotency_disambiguates_hyphenated_components(
+) -> Result<(), EventingError> {
+    let mut first = network_flow_observed_event();
+    first.device_ref = "child-a".to_string();
+    first.flow_event_ref = "b-c".to_string();
+
+    let mut second = network_flow_observed_event();
+    second.device_ref = "child-a-b".to_string();
+    second.flow_event_ref = "c".to_string();
+
+    assert_ne!(first.idempotency_key()?, second.idempotency_key()?);
+
+    Ok(())
+}
+
+#[test]
+fn network_flow_observed_event_rejects_blank_device_reference() {
+    let mut payload = network_flow_observed_event();
+    payload.device_ref = "   ".to_string();
+
+    assert_eq!(
+        payload.aggregate_key(),
+        Err(EventingError::EmptyValue {
+            field: "runtime_instance_id"
+        })
+    );
 }
 
 #[test]

@@ -10,6 +10,8 @@ use crate::{
 };
 
 pub mod broker_delivery;
+#[path = "network_flow_eventing.rs"]
+mod network_flow_eventing;
 pub mod remote_delivery_reports;
 pub mod review;
 
