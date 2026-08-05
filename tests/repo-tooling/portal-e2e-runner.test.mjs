@@ -176,6 +176,9 @@ test('network drawer proof ids stay single-sourced across scripts and portal tes
   assert.equal(seedSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
   assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.eventId), false);
   assert.equal(proofSource.includes(NetworkEvidenceDrawerProofFixture.evidenceId), false);
+  assert.equal(e2eSource.includes('seedPortalNetworkActivityStore'), true);
+  assert.equal(e2eSource.includes('refreshes the network evidence fixture after prior live capture'), true);
+  assert.equal(e2eSource.includes("process.env['OCENTRA_PARENT_ACTIVITY_DB_PATH']"), true);
 });
 
 function holdDatabaseReadTransaction(activityDbPath, holdMs) {
