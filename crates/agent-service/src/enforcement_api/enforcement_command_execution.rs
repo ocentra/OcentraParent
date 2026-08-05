@@ -90,7 +90,7 @@ async fn execute_enforcement_command(
     };
     let before_action_outcome =
         journal_before_action_outcome(&request, &authorization.action, observed_at);
-    record_enforcement_audit(&request, &before_action_outcome, &paths, provenance).await?;
+    record_enforcement_audit(&request, &before_action_outcome, &paths, None).await?;
     let completed_at = EnforcementText(timestamp_now());
     let adapter_outcome = adapter_outcome_for_request(
         &request,

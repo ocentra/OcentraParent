@@ -26,10 +26,12 @@ only when its fields contain `ENFORCEMENT_AUDIT_EVENT`, the serialized typed
 execution audit, and the app-game dispatch result read-model identifier.
 That identifier is derived by the service from the
 `AgentActivityAppGameAdapterDispatchExecute` command boundary, not accepted
-from caller payload fields. Rejection records intentionally omit the typed audit
-field, so a pre-execution rejection cannot be presented as adapter execution.
-A typed audit whose actual execution fails remains visible; failed status alone
-is not used as the discriminator.
+from caller payload fields. It is stamped only on the final execution audit,
+not the durable pre-action `would-enforce` / `no-op` audit. Rejection records
+intentionally omit the typed audit field, so neither a pre-execution rejection
+nor a pre-action audit can be presented as adapter execution. A typed audit
+whose actual execution fails remains visible; failed status alone is not used
+as the discriminator.
 
 ## Query proof
 
@@ -69,6 +71,10 @@ cargo test -p ocentra-parent-agent-service --test app_game_activity_read_models 
 # passed: 1
 cargo test -p ocentra-parent-agent-service --test app_game_activity_read_models app_game_adapter_dispatch_result_service_tests::app_game_adapter_dispatch_readback_skips_newer_rejected_audit_for_typed_execution -- --exact
 # passed: 1
+cargo test -p ocentra-parent-agent-service --test app_game_activity_read_models app_game_adapter_dispatch_result_service_tests::app_game_adapter_dispatch_does_not_mark_pre_action_audit_as_execution_evidence -- --exact
+# passed: 1
+npm run lint:architecture -- --files crates/agent-service/src/enforcement_api/enforcement_command_execution.rs crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs
+# passed
 cargo test -p ocentra-parent-agent-service --test app_game_activity_read_models app_game_adapter_dispatch_result_service_tests::app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_readback -- --exact
 # passed: 1
 npm run lint:architecture -- --base origin/main --head HEAD
