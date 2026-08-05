@@ -67,8 +67,8 @@ Focused outcome:
 
 External blocker:
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` are deferred until WP01 restores the currently empty module dependency tree.
-- `infra/cloudflare/src/index.ts` uses the module-local generated billing-contract route; rerun the selected families after dependency restoration and retain only their then-current exact blockers.
+- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` have not retained WP05 proof. WP01's pinned resolver graph is available, so rerun the selected families and retain only their then-current exact blockers.
+- `infra/cloudflare/src/index.ts` uses the module-local generated billing-contract route; no private billing-domain import blocker is carried into WP05.
 - This blocker is outside the WP05 owner surface, so WP05 is not green; it is proof-present with an exact carried dependency blocker.
 
 Proof root:

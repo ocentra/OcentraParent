@@ -27,7 +27,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | source-present / retained-proof-absent | [WP04 Route Manifest And Domain Contracts](workpacks/04-route-manifest-and-domain-contracts.md) | 0/11 | `ROUTE_MANIFEST_MODEL.md`; `AUTH_BOUNDARY_MODEL.md` | no tracked root |
 | source-present / retained-proof-absent | [WP05 Auth Admin Support Boundary](workpacks/05-auth-admin-support-boundary.md) | 0/11 | `AUTH_BOUNDARY_MODEL.md`; `ROUTE_MANIFEST_MODEL.md` | no tracked root |
 | source-present / retained-proof-absent | [WP06 Storage DO D1 KV R2 Queue Bindings](workpacks/06-storage-do-d1-kv-r2-queue-bindings.md) | 0/11 | `STORAGE_BINDING_MODEL.md`; `SECURITY_PRIVACY_OBSERVABILITY.md` | no tracked root |
-| source-present / retained-proof-absent | [WP07 Local Dev Seeding And Fixtures](workpacks/07-local-dev-seeding-and-fixtures.md) | 0/10 | `LOCAL_DEV_AND_SEEDING_MODEL.md`; `TESTING_STRATEGY.md` | no tracked root |
+| ready / selected-next / retained-proof-absent | [WP07 Local Dev Seeding And Fixtures](workpacks/07-local-dev-seeding-and-fixtures.md) | 0/10 | `LOCAL_DEV_AND_SEEDING_MODEL.md`; `TESTING_STRATEGY.md` | no tracked root |
 | source-present / retained-proof-absent | [WP08 Testing Runner And Test Pyramid](workpacks/08-testing-runner-and-test-pyramid.md) | 0/12 | `REQUIRED_TEST_ASSERTION_MATRIX.md` | no tracked root |
 | source-present / retained-proof-absent | [WP09 Portal To Worker E2E Smoke](workpacks/09-portal-to-worker-e2e-smoke.md) | 0/10 | `TESTING_STRATEGY.md`; `REQUIRED_TEST_ASSERTION_MATRIX.md` | no tracked root |
 | source-present / retained-proof-absent | [WP10 Security Fuzz Property Observability](workpacks/10-security-fuzz-property-observability.md) | 0/12 | `SECURITY_PRIVACY_OBSERVABILITY.md`; `REQUIRED_TEST_ASSERTION_MATRIX.md` | no tracked root |
@@ -40,7 +40,7 @@ until matching output proof artifacts exist.
 ## Default execution order
 
 ```text
-WP00 -> WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> Account WP08 Rust-contract handoff -> Cloudflare WP06 storage binding/migration -> Cloudflare WP08 account-storage runner/proof -> WP07 -> WP09 -> WP10 -> WP11 -> WP12
+WP00 -> WP01 -> WP07 (first selected next) -> WP02 -> WP03 -> WP04 -> WP05 -> Account WP08 Rust-contract handoff -> Cloudflare WP06 storage binding/migration -> Cloudflare WP08 account-storage runner/proof -> WP09 -> WP10 -> WP11 -> WP12
 ```
 
 ## Dependency rules

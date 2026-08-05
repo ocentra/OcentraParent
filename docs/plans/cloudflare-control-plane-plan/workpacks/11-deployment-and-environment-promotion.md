@@ -43,8 +43,8 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Exact blocker set
 
-- Module dependency environment absent: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty tree. WP01 must retain a clean resolver graph before deploy dry-runs are rerun.
-- The worker uses module-local generated billing contracts; a deploy failure after dependency restoration must be recorded by its actual current diagnostics.
+- WP01 retains a clean pinned resolver graph: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` resolves `wrangler@4.118.0` with deduped `@cloudflare/workers-types@5.20260804.1`. Deployment dry-runs remain unproved and are owned by WP11.
+- The worker uses module-local generated billing contracts; any deploy failure must be recorded by its actual current diagnostics.
 - Placeholder-backed resource identifiers remain in both configs.
 - `AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"` remains active in both configs.
 - The current deploy scripts emit `--env` warnings because they do not point at matching `[env.*]` sections in the selected config file.

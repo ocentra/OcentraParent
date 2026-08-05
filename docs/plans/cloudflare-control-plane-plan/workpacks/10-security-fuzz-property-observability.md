@@ -65,8 +65,8 @@ Reduce the games security and external-tool surface to the Parent-required basel
 
 ## Exact blocker
 
-- Current prerequisite for every WP10 module command: WP01 must restore the empty dependency tree shown by `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types`.
-- `infra/cloudflare/src/index.ts` imports module-local generated billing contracts; after the resolver graph is clean, record the exact security/property/fuzz failure if one remains.
+- WP01's pinned graph is available: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` resolves `wrangler@4.118.0` with deduped `@cloudflare/workers-types@5.20260804.1`; this does not prove a WP10 command family.
+- `infra/cloudflare/src/index.ts` imports module-local generated billing contracts; record the exact security/property/fuzz failure if one remains.
 
 ## Validation truth
 
@@ -93,7 +93,7 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - Reject security claims without explicit test family ownership.
 - Reject observability claims that are not tied to a concrete redaction,
   auth-rejection, billing-status, or portal-smoke case.
-- Reject treating the older `cfcp-c1-proof.md` green slice as current family readiness while the WP01 resolver graph remains unresolved.
+- Reject treating the older `cfcp-c1-proof.md` green slice or the restored WP01 resolver graph as current WP10 family readiness.
 
 ## Failure conditions
 
@@ -105,4 +105,4 @@ Reduce the games security and external-tool surface to the Parent-required basel
 - This workpack does not prove current Cloudflare runtime readiness.
 - This workpack does not prove payment handoff readiness, account authority, trusted-device authority, or portal completion.
 - `OBS-03` stays blocked under current reruns because the required integration family does not boot.
-- WP10 stays open/blocked until WP01 retains a clean Wrangler/workers-types resolver graph and the required family commands rerun green.
+- WP10 stays open/blocked until its required family commands rerun green; WP01's clean Wrangler/workers-types resolver graph is a satisfied prerequisite, not WP10 proof.

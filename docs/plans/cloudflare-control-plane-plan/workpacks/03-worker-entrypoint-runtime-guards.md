@@ -35,12 +35,12 @@ Freeze the shared guard chain for env validation, CORS, request-size limits, kil
 
 - The shared worker entrypoint still owns env validation, CORS fail-fast, request-size limits, kill switch behavior, safe errors, and scheduled hook shape.
 - Unit suites that do not require `src/index.ts` boot passed.
-- Unit and integration suites that require the real worker entrypoint remain deferred while WP01's resolver graph is absent; `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty dependency tree.
+- Unit and integration suites that require the real worker entrypoint remain unproved; WP01's pinned resolver graph is available, so this workpack must rerun its own selected suites and retain their current result.
 - The scheduled hook shape is explicit in source but not runtime-proven.
 
 ## Exact blocker set
 
-- Current blocker: restore the WP01 module dependency environment, then rerun the entrypoint-dependent suite and record any resulting exact failure.
+- Current blocker: no retained WP03 entrypoint-dependent rerun; use the restored WP01 resolver graph, then record the suite's resulting exact failure or proof.
 
 ## Validations run
 

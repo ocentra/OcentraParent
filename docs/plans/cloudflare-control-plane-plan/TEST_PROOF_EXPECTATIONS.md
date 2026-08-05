@@ -164,13 +164,14 @@ production deployment claim requires WP11 proof
 
 ## Proof storage
 
-Raw or generated proof artifacts live under:
+Except for WP01, raw or generated proof artifacts live under:
 
 ```text
 output/cloudflare-control-plane-plan-proof/<workpack-id>/
 ```
 
-When a selected `PROOF_INDEX.md` route calls for compact, durable human proof,
-track it under `docs/proof/cloudflare-control-plane-plan/<workpack-id>/` and
-keep the raw/generated local output in the ignored `output/` root. WP01 uses
-that durable route; other workpacks remain governed by their selected proof route.
+WP01's selected and tracked proof route is
+`docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/`.
+Keep any raw/generated WP01 output under the ignored output root; it is not the
+selected proof location. Other workpacks remain governed by their selected
+`PROOF_INDEX.md` route.

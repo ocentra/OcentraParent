@@ -38,7 +38,7 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 - `infra/cloudflare/tests/unit/route-manifest.test.ts` now proves the manifest route-key list is exact, not merely pattern-valid.
 - `infra/cloudflare/tests/property/route-auth-state.property.test.ts` now proves `/auth/billing/manual-invoice` is the only elevated support-owned exception inside `/auth/billing/*`.
 - `ROUTE_MANIFEST_MODEL.md` and `AUTH_BOUNDARY_MODEL.md` now make that support exception explicit so consumer plans do not infer a second support-only API surface.
-- Contract and integration proof remain deferred while WP01's module dependency graph is empty, so WP04 cannot claim request/response contract readiness or live worker dispatch readiness.
+- Contract and integration proof remain absent. WP01's pinned resolver graph is available, but WP04 cannot claim request/response contract readiness or live worker dispatch readiness until its own focused results are retained.
 
 ## Proof IDs
 
@@ -57,8 +57,8 @@ Define the shared route groups and the rule that handlers consume manifest-owned
 
 ## Exact blocker set
 
-- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty module dependency tree.
-- `infra/cloudflare/src/index.ts` consumes `./generated/billing-contracts.js`; after WP01 restores dependencies, rerun boot-dependent and contract suites and record any then-current route/contract failure.
+- WP01's retained `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` graph resolves `wrangler@4.118.0` with deduped `@cloudflare/workers-types@5.20260804.1`; it is a prerequisite already satisfied, not WP04 proof.
+- `infra/cloudflare/src/index.ts` consumes `./generated/billing-contracts.js`; rerun boot-dependent and contract suites and record any then-current route/contract failure.
 
 ## Validation
 
