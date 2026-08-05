@@ -64,7 +64,7 @@ async fn app_game_adapter_dispatch_result_command_returns_typed_event() {
 }
 
 #[tokio::test]
-async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evidence() {
+async fn app_game_adapter_dispatch_result_command_ignores_unowned_store_audit_evidence() {
     let paths = temp_paths(constants::enforcement::TEST_AUDIT_EVENT_ID);
     cleanup_paths(&paths);
     let enforcement_event =
@@ -86,47 +86,13 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
         AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported
     );
     let read_model = dispatch_result_read_model(&event);
-    assert_eq!(read_model.adapter_execution_reported_count, 1);
-    assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
-    #[cfg(windows)]
-    assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 1);
-
-    #[cfg(not(windows))]
-    assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 0);
-    let accepted = require_some(
-        read_model.rows.iter().find(|row| {
-            row.dispatch_adapter_execution_result_id.as_deref()
-                == Some(constants::enforcement::TEST_RESULT_ID)
-        }),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
-    #[cfg(windows)]
-    assert!(accepted.adapter_dispatch_executed_claimed);
-
-    #[cfg(not(windows))]
-    assert!(!accepted.adapter_dispatch_executed_claimed);
-    assert_eq!(
-        accepted.dispatch_adapter_execution_result_id.as_deref(),
-        Some(constants::enforcement::TEST_RESULT_ID)
-    );
-    assert_eq!(
-        accepted
-            .dispatch_adapter_execution_audit_event_id
-            .as_deref(),
-        Some(constants::enforcement::TEST_AUDIT_EVENT_ID)
-    );
-
-    #[cfg(windows)]
-    assert_eq!(
-        accepted.dispatch_adapter_execution_status.as_deref(),
-        Some(constants::enforcement::RESULT_ACTUALLY_ENFORCED)
-    );
-
-    #[cfg(not(windows))]
-    assert_eq!(
-        accepted.dispatch_adapter_execution_status.as_deref(),
-        Some(constants::enforcement::RESULT_UNAVAILABLE)
-    );
+    assert_eq!(read_model.adapter_execution_reported_count, 0);
+    assert_eq!(read_model.adapter_execution_evidence_missing_count, 1);
+    assert!(read_model.rows.iter().all(|row| {
+        row.dispatch_adapter_execution_result_id.is_none()
+            && row.dispatch_adapter_execution_audit_event_id.is_none()
+            && !row.adapter_dispatch_executed_claimed
+    }));
 }
 
 #[tokio::test]
@@ -169,9 +135,11 @@ async fn app_game_adapter_dispatch_readback_excludes_rejected_enforcement_audits
 async fn app_game_adapter_dispatch_readback_skips_newer_rejected_audit_for_typed_execution() {
     let paths = temp_paths("rejected-audit-after-execution");
     cleanup_paths(&paths);
-    let accepted =
-        build_enforcement_audit_report_with_paths(enforcement_execute_command(), paths.clone())
-            .await;
+    let accepted = build_activity_app_game_adapter_dispatch_execute_report_with_paths(
+        dispatch_execute_command(),
+        paths.clone(),
+    )
+    .await;
     let mut rejected_command = enforcement_execute_command();
     rejected_command.payload.insert(
         constants::field::POLICY_TARGET_TYPE.to_string(),
@@ -199,7 +167,7 @@ async fn app_game_adapter_dispatch_readback_skips_newer_rejected_audit_for_typed
 
     assert_eq!(
         accepted.event,
-        AgentEventName::AgentEnforcementAuditReported
+        AgentEventName::AgentActivityAppGameAdapterDispatchExecuted
     );
     assert_eq!(rejected.event, AgentEventName::AgentCommandRejected);
     let read_model = dispatch_result_read_model(&event);

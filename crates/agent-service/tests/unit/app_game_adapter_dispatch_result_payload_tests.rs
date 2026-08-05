@@ -81,6 +81,10 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
         constants::field::ENFORCEMENT_AUDIT_EVENT.to_string(),
         LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
     );
+    payload.insert(
+        constants::field::SOURCE_READ_MODEL_ID.to_string(),
+        LogFieldValue::String(APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID.to_string()),
+    );
 
     let evidence = require_some(
         app_game_adapter_dispatch_execution_evidence(&payload),
@@ -100,6 +104,37 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
         evidence.audit_event_id,
         constants::enforcement::TEST_AUDIT_EVENT_ID
     );
+}
+
+#[test]
+fn app_game_adapter_dispatch_result_rejects_unowned_execution_audit_evidence() {
+    let mut payload = LogFields::new();
+    payload.insert(
+        constants::field::ENFORCEMENT_RESULT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_RESULT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_STATUS.to_string(),
+        LogFieldValue::String(constants::enforcement::RESULT_ACTUALLY_ENFORCED.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE.to_string(),
+        LogFieldValue::String(constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::SOURCE_READ_MODEL_ID.to_string(),
+        LogFieldValue::String("timer-enforcement-read-model".to_string()),
+    );
+
+    assert!(app_game_adapter_dispatch_execution_evidence(&payload).is_none());
 }
 
 #[test]
@@ -124,6 +159,10 @@ fn app_game_adapter_dispatch_result_keeps_typed_executed_failure_evidence() {
     payload.insert(
         constants::field::ENFORCEMENT_AUDIT_EVENT.to_string(),
         LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::SOURCE_READ_MODEL_ID.to_string(),
+        LogFieldValue::String(APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID.to_string()),
     );
 
     let evidence = require_some(

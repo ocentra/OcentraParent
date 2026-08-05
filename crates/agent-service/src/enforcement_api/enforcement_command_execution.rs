@@ -1,5 +1,7 @@
 #[path = "enforcement_command_execution/adapter_outcome.rs"]
 mod adapter_outcome;
+#[path = "enforcement_command_execution/provenance.rs"]
+mod provenance;
 
 use ocentra_parent_agent_core::enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementBoundaryOutcome,
@@ -31,6 +33,9 @@ use crate::{
 };
 
 use self::adapter_outcome::{adapter_outcome_for_request, final_input};
+use self::provenance::{
+    enforcement_audit_provenance, record_audit_provenance, EnforcementAuditProvenance,
+};
 use super::enforcement_pre_action_journal::journal_before_action_outcome;
 use super::enforcement_report_payload::{
     build_enforcement_report_payload, enforcement_journal_fields,
@@ -43,7 +48,8 @@ pub(super) async fn build_enforcement_audit_report_with_paths(
 ) -> AgentEventEnvelope {
     let target = command.source.clone();
     let correlation_id = command.message_id.clone();
-    match execute_enforcement_command(command, paths).await {
+    let provenance = enforcement_audit_provenance(&command.command);
+    match execute_enforcement_command(command, paths, provenance).await {
         Ok(payload) => build_event(
             constants::event_id::ENFORCEMENT_AUDIT_REPORTED,
             &correlation_id,
@@ -68,6 +74,7 @@ pub(super) async fn build_enforcement_audit_report_with_paths(
 async fn execute_enforcement_command(
     command: AgentCommandEnvelope,
     paths: EnforcementJournalPaths,
+    provenance: Option<EnforcementAuditProvenance>,
 ) -> Result<LogFields, EnforcementCommandExecutionError> {
     let observed_at = EnforcementText(timestamp_now());
     let request = parse_enforcement_command_payload(&command, &observed_at)
@@ -83,7 +90,7 @@ async fn execute_enforcement_command(
     };
     let before_action_outcome =
         journal_before_action_outcome(&request, &authorization.action, observed_at);
-    record_enforcement_audit(&request, &before_action_outcome, &paths).await?;
+    record_enforcement_audit(&request, &before_action_outcome, &paths, provenance).await?;
     let completed_at = EnforcementText(timestamp_now());
     let adapter_outcome = adapter_outcome_for_request(
         &request,
@@ -95,7 +102,7 @@ async fn execute_enforcement_command(
     let mut outcome = evaluate_enforcement_boundary(outcome_input)
         .map_err(EnforcementCommandExecutionError::BoundaryRejection)?;
     outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
-    let status = record_enforcement_audit(&request, &outcome, &paths).await?;
+    let status = record_enforcement_audit(&request, &outcome, &paths, provenance).await?;
     let active_state = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome(
         &outcome,
         &paths.timer_state_path,
@@ -112,8 +119,9 @@ async fn record_enforcement_audit(
     request: &EnforcementCommandPayload,
     outcome: &EnforcementBoundaryOutcome,
     paths: &EnforcementJournalPaths,
+    provenance: Option<EnforcementAuditProvenance>,
 ) -> Result<ActivityIngestStatus, EnforcementJournalBuildError> {
-    let event = enforcement_activity_event(request, outcome)?;
+    let event = enforcement_activity_event(request, outcome, provenance)?;
     record_enforcement_activity_event(event, paths).await
 }
 
@@ -152,7 +160,7 @@ fn rejected_enforcement_activity_event(
 ) -> ActivityEvent {
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: request.input.audit_event_id.clone(),
+        event_id: rejected_enforcement_event_id(request).0,
         observed_at: observed_at.0.clone(),
         source: ActivitySource {
             device_id: request.device_id.clone().0,
@@ -169,6 +177,12 @@ fn rejected_enforcement_activity_event(
         fields: rejected_enforcement_audit_fields(request, rejection),
         evidence: Vec::new(),
     }
+}
+
+fn rejected_enforcement_event_id(request: &EnforcementCommandPayload) -> EnforcementText {
+    let mut event_id = constants::enforcement::JOURNAL_REJECTED_ID_PREFIX.to_string();
+    event_id.push_str(&request.input.audit_event_id);
+    EnforcementText(event_id)
 }
 
 fn rejected_enforcement_audit_fields(
@@ -261,7 +275,10 @@ fn rejected_evidence_reference_ids(request: &EnforcementCommandPayload) -> Enfor
 fn enforcement_activity_event(
     request: &EnforcementCommandPayload,
     outcome: &EnforcementBoundaryOutcome,
+    provenance: Option<EnforcementAuditProvenance>,
 ) -> Result<ActivityEvent, EnforcementJournalBuildError> {
+    let mut fields = enforcement_journal_fields(outcome)?;
+    record_audit_provenance(&mut fields, provenance);
     Ok(ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: outcome.audit_event.audit_event_id.clone(),
@@ -278,7 +295,7 @@ fn enforcement_activity_event(
             subject_id: outcome.action.action_id.clone(),
             display_name: Some(outcome.action.mode.as_protocol_str().to_string()),
         },
-        fields: enforcement_journal_fields(outcome)?,
+        fields,
         evidence: Vec::new(),
     })
 }

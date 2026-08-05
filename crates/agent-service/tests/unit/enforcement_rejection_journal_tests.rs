@@ -79,6 +79,42 @@ async fn rejected_action_is_persisted_as_a_durable_enforcement_audit() -> TestRe
     Ok(())
 }
 
+#[tokio::test]
+async fn rejected_audit_does_not_dedupe_a_corrected_retry_final_audit() -> TestResult {
+    let paths = temp_paths("rejected-retry-final-audit");
+    cleanup_paths(&paths);
+
+    let rejected =
+        build_enforcement_audit_report_with_paths(rejected_command(), paths.clone()).await;
+    let completed =
+        build_enforcement_audit_report_with_paths(corrected_retry_command(), paths.clone()).await;
+    let store = test_ok(
+        ActivityStore::open(&paths.store_path),
+        constants::error::ACTIVITY_STORE_OPENS,
+    )?;
+
+    assert_eq!(rejected.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        completed.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+    assert!(test_ok(
+        store.contains_event_id(&format!(
+            "{}{}",
+            constants::enforcement::JOURNAL_REJECTED_ID_PREFIX,
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )),
+        constants::error::JOURNAL_READS,
+    )?);
+    assert!(test_ok(
+        store.contains_event_id(constants::enforcement::TEST_AUDIT_EVENT_ID),
+        constants::error::JOURNAL_READS,
+    )?);
+    cleanup_paths(&paths);
+
+    Ok(())
+}
+
 fn rejected_command() -> AgentCommandEnvelope {
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
@@ -96,6 +132,31 @@ fn rejected_command() -> AgentCommandEnvelope {
         command: AgentCommandName::AgentEnforcementExecute,
         payload: rejected_payload(),
     }
+}
+
+fn corrected_retry_command() -> AgentCommandEnvelope {
+    let mut command = rejected_command();
+    command.payload.insert(
+        constants::field::POLICY_TARGET_TYPE.to_string(),
+        LogFieldValue::String(policy_constants::TARGET_TYPE_PROCESS.to_string()),
+    );
+    command.payload.insert(
+        constants::field::TARGET_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_PROCESS_TARGET_ID.to_string()),
+    );
+    command.payload.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_PROCESS_TARGET_VALUE.to_string()),
+    );
+    command.payload.insert(
+        constants::field::POLICY_DRY_RUN.to_string(),
+        LogFieldValue::Boolean(true),
+    );
+    command.payload.insert(
+        constants::field::PROCESS_ID.to_string(),
+        LogFieldValue::Number(f64::from(u32::MAX)),
+    );
+    command
 }
 
 fn rejected_payload() -> LogFields {

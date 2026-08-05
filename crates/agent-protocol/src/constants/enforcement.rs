@@ -108,6 +108,7 @@ pub const REJECTION_ACTIVE_TIMER_STATE_MISMATCH: &str = "enforcement-active-time
 pub const REJECTION_PARENT_ACTION_REQUIRED: &str = "enforcement-parent-action-required";
 
 pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
+pub const JOURNAL_REJECTED_ID_PREFIX: &str = "0-rejected-";
 pub const JOURNAL_BEFORE_ACTION_ID_PREFIX: &str = "0-before-action-";
 pub const INTENT_ID_PREFIX: &str = "enforcement-intent-";
 pub const ACTION_ID_PREFIX: &str = "enforcement-action-";

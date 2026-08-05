@@ -108,6 +108,11 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
 pub(crate) fn app_game_adapter_dispatch_execution_evidence(
     fields: &LogFields,
 ) -> Option<AppGameAdapterDispatchExecutionEvidence> {
+    let source_read_model_id =
+        required_string(fields, StaticText(constants::field::SOURCE_READ_MODEL_ID)).ok()?;
+    if source_read_model_id.0 != APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID {
+        return None;
+    }
     required_string(
         fields,
         StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT),
