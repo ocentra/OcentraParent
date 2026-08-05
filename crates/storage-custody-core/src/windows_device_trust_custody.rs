@@ -16,6 +16,8 @@ mod active_record;
 #[cfg(windows)]
 #[path = "windows_device_trust_custody_active_record_scan.rs"]
 mod active_record_scan;
+#[path = "windows_device_trust_custody_commitment.rs"]
+mod commitment;
 #[path = "windows_device_trust_custody_path.rs"]
 mod path;
 #[path = "windows_device_trust_custody_platform.rs"]
@@ -97,6 +99,12 @@ impl WindowsDeviceTrustCustody {
         let previous = snapshot::preserve_active(&binding, &record_path)?;
         write(&record_path, &record)?;
         transaction::finish(
+            commitment::write(&binding, &record_path),
+            &binding,
+            &record_path,
+            &previous,
+        )?;
+        transaction::finish(
             platform::activate(&binding, &epoch),
             &binding,
             &record_path,
@@ -129,9 +137,8 @@ impl WindowsDeviceTrustCustody {
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         let _binding_fence = self.binding_fence(&b)?;
-        let r: Record =
-            serde_json::from_slice(&fs::read(self.path(&b)).map_err(|_error| Error::Missing)?)
-                .map_err(|_error| Error::Io)?;
+        let encoded = fs::read(self.path(&b)).map_err(|_error| Error::Missing)?;
+        let r: Record = serde_json::from_slice(&encoded).map_err(|_error| Error::Io)?;
         if r.family != family
             || r.account != account
             || r.device != device
@@ -139,6 +146,7 @@ impl WindowsDeviceTrustCustody {
         {
             return Err(Error::Mismatch);
         }
+        commitment::verify(&b, &encoded)?;
         platform::unprotect(&r.ciphertext, &b).map(|_plaintext| ())
     }
     pub fn revoke_or_reset(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {

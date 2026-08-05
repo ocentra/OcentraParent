@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use super::{
-    platform,
+    commitment, platform,
     record::{remove, write},
     snapshot::PreviousActiveRecord,
     Error,
@@ -26,6 +26,7 @@ fn restore_or_clear(binding: &[u8], record_path: &Path, previous: &Option<Previo
     let _cleanup_result = platform::remove(binding);
     if let Some(previous) = previous {
         let _restore_result = write(record_path, &previous.record);
+        let _restore_result = commitment::write(binding, record_path);
         let _restore_result = platform::activate(binding, &previous.epoch);
         return;
     }

@@ -127,6 +127,10 @@ mod tests {
     }
 }
 
+#[cfg(all(test, windows))]
+#[path = "windows_device_trust_custody_platform_decode_tests.rs"]
+mod decode_tests;
+
 #[cfg(not(windows))]
 pub(super) fn protect(_: &[u8], _: &[u8]) -> Result<Vec<u8>, Error> {
     Err(Error::Platform)
