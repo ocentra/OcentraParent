@@ -205,10 +205,11 @@ fn install_generation(root: &std::path::Path) -> Result<String, String> {
             canonical_root(root)?.to_string_lossy().as_bytes(),
         )))
         .map_err(|error| format!("read install generation: {error}"))?;
-    anchor
-        .split_once('|')
-        .map(|(_identity, generation)| generation.to_owned())
-        .ok_or_else(|| "parse install-generation anchor".to_owned())
+    let mut parts = anchor.split('|');
+    match (parts.next(), parts.next(), parts.next(), parts.next()) {
+        (Some(_identity), Some(generation), Some(_state), None) => Ok(generation.to_owned()),
+        _ => Err("parse install-generation anchor".to_owned()),
+    }
 }
 
 fn set_install_generation(root: &std::path::Path, generation: &str) -> Result<(), String> {
@@ -220,7 +221,7 @@ fn set_install_generation(root: &std::path::Path, generation: &str) -> Result<()
         hex(Sha256::digest(
             canonical_root(root)?.to_string_lossy().as_bytes(),
         )),
-        &format!("{}|{generation}", root_identity(root)?),
+        &format!("{}|{generation}|empty", root_identity(root)?),
     )
     .map_err(|error| format!("write install generation: {error}"))
 }

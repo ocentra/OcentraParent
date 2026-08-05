@@ -1,6 +1,4 @@
 #[cfg(windows)]
-use getrandom::fill;
-#[cfg(windows)]
 use sha2::{Digest, Sha256};
 #[cfg(windows)]
 use std::io;
@@ -11,80 +9,23 @@ use super::record::hex;
 use super::Error;
 
 #[cfg(windows)]
-const DEVICE_TRUST_EPOCHS_REGISTRY_PATH: &str = "Software\\Ocentra\\DeviceTrust\\Epochs";
-#[cfg(windows)]
-const DEVICE_TRUST_INSTALL_GENERATIONS_REGISTRY_PATH: &str =
-    "Software\\Ocentra\\DeviceTrust\\InstallGenerations";
+#[path = "windows_device_trust_custody_generation.rs"]
+mod generation;
 
+#[cfg(windows)]
+const DEVICE_TRUST_EPOCHS_REGISTRY_PATH: &str = "Software\\Ocentra\\DeviceTrust\\Epochs";
 #[cfg(windows)]
 pub(super) fn load_or_rotate_install_generation(
     root: &Path,
     root_was_absent: bool,
+    sealed_content_present: bool,
 ) -> Result<String, Error> {
-    use winreg::{enums::HKEY_CURRENT_USER, RegKey};
-
-    let key = RegKey::predef(HKEY_CURRENT_USER)
-        .create_subkey(DEVICE_TRUST_INSTALL_GENERATIONS_REGISTRY_PATH)
-        .map_err(|_error| Error::Platform)?
-        .0;
-    let root_key = hex(Sha256::digest(root.to_string_lossy().as_bytes()));
-    let identity = root_identity(root)?;
-    if root_was_absent {
-        let generation = fresh_install_generation()?;
-        key.set_value(&root_key, &format!("{identity}|{generation}"))
-            .map_err(|_error| Error::Platform)?;
-        return Ok(generation);
-    }
-    match key.get_value::<String, _>(&root_key) {
-        Ok(anchor) => anchor
-            .split_once('|')
-            .filter(|(stored_identity, generation)| {
-                stored_identity == &identity
-                    && generation.len() == 64
-                    && generation.bytes().all(|byte| byte.is_ascii_hexdigit())
-            })
-            .map(|(_identity, generation)| generation.to_owned())
-            .map(Ok)
-            .unwrap_or_else(|| rotate_install_generation(&key, &root_key, &identity)),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => {
-            rotate_install_generation(&key, &root_key, &identity)
-        }
-        Err(_error) => Err(Error::Platform),
-    }
+    generation::load_or_rotate(root, root_was_absent, sealed_content_present)
 }
 
 #[cfg(windows)]
-fn rotate_install_generation(
-    key: &winreg::RegKey,
-    root_key: &str,
-    identity: &str,
-) -> Result<String, Error> {
-    let generation = fresh_install_generation()?;
-    key.set_value(root_key, &format!("{identity}|{generation}"))
-        .map_err(|_error| Error::Platform)?;
-    Ok(generation)
-}
-
-#[cfg(windows)]
-fn root_identity(root: &Path) -> Result<String, Error> {
-    let metadata = root.metadata().map_err(|_error| Error::Io)?;
-    let created = metadata
-        .created()
-        .map_err(|_error| Error::Io)?
-        .duration_since(std::time::UNIX_EPOCH)
-        .map_err(|_error| Error::Io)?;
-    Ok(hex(Sha256::digest(format!(
-        "{}:{}",
-        root.to_string_lossy(),
-        created.as_nanos()
-    ))))
-}
-
-#[cfg(windows)]
-fn fresh_install_generation() -> Result<String, Error> {
-    let mut bytes = [0_u8; 32];
-    fill(&mut bytes).map_err(|_error| Error::Platform)?;
-    Ok(hex(bytes))
+pub(super) fn mark_install_generation_sealed(root: &Path, generation: &str) -> Result<(), Error> {
+    generation::mark_sealed(root, generation)
 }
 
 #[cfg(windows)]
@@ -195,7 +136,11 @@ pub(super) fn remove(_: &[u8]) -> Result<(), Error> {
 }
 
 #[cfg(not(windows))]
-pub(super) fn load_or_rotate_install_generation(_: &Path, _: bool) -> Result<String, Error> {
+pub(super) fn load_or_rotate_install_generation(
+    _: &Path,
+    _: bool,
+    _: bool,
+) -> Result<String, Error> {
     Err(Error::Platform)
 }
 

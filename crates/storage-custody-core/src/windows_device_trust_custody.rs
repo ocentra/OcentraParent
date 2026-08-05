@@ -10,6 +10,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+#[path = "windows_device_trust_custody_path.rs"]
+mod path;
 #[path = "windows_device_trust_custody_platform.rs"]
 mod platform;
 #[path = "windows_device_trust_custody_record.rs"]
@@ -39,18 +41,20 @@ impl WindowsDeviceTrustCustody {
         if !cfg!(windows) {
             return Err(Error::Platform);
         }
+        #[cfg(windows)]
+        path::validate_custody_root_and_ancestors(root.as_ref())?;
         let root_was_absent = !root.as_ref().exists();
         fs::create_dir_all(root.as_ref()).map_err(|_error| Error::Io)?;
-        if fs::symlink_metadata(root.as_ref())
-            .map_err(|_error| Error::Io)?
-            .file_type()
-            .is_symlink()
-        {
-            return Err(Error::Invalid);
-        }
+        #[cfg(windows)]
+        path::validate_custody_root_and_ancestors(root.as_ref())?;
+        let sealed_content_present = path::sealed_content_present(root.as_ref())?;
         let root = root.as_ref().canonicalize().map_err(|_error| Error::Io)?;
         Ok(Self {
-            install_generation: load_or_create_install_generation(&root, root_was_absent)?,
+            install_generation: load_or_create_install_generation(
+                &root,
+                root_was_absent,
+                sealed_content_present,
+            )?,
             root,
             binding_locks: Mutex::new(HashMap::new()),
         })
@@ -60,9 +64,7 @@ impl WindowsDeviceTrustCustody {
         request: AwaitingPlatformKeySealingRequest,
         material: &[u8],
     ) -> Result<(), Error> {
-        if material.is_empty() {
-            return Err(Error::Invalid);
-        }
+        path::validate_seal_material(material)?;
         let binding = custody_binding([
             &request.family_id,
             &request.parent_account_id,
@@ -89,7 +91,10 @@ impl WindowsDeviceTrustCustody {
             let _cleanup_result = fs::remove_file(&record_path);
             return Err(error);
         }
-        verify_activated_binding(&binding, &epoch, &record_path, platform::current(&binding))
+        verify_activated_binding(&binding, &epoch, &record_path, platform::current(&binding))?;
+        #[cfg(windows)]
+        platform::mark_install_generation_sealed(&self.root, &self.install_generation)?;
+        Ok(())
     }
     pub fn unseal_current(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
         let b = custody_binding([family, account, device, &self.install_generation])?;
@@ -183,7 +188,7 @@ mod tests {
         WindowsDeviceTrustCustody,
     };
     use sha2::{Digest, Sha256};
-    use std::fs;
+    use std::{fs, process::Command};
 
     #[test]
     fn verification_read_error_removes_the_persisted_record() -> Result<(), String> {
@@ -259,6 +264,106 @@ mod tests {
 
         let _cleanup = platform::remove(&binding);
         let _cleanup = fs::remove_dir_all(root);
+        Ok(())
+    }
+
+    #[test]
+    fn lost_sealed_content_rotates_generation_before_an_old_record_can_return() -> Result<(), String>
+    {
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-wp02-lost-sealed-content-{}",
+            std::process::id()
+        ));
+        let _cleanup = fs::remove_dir_all(&root);
+        let custody = WindowsDeviceTrustCustody::open(&root)
+            .map_err(|error| format!("open original custody: {error:?}"))?;
+        let old_generation = custody.install_generation.clone();
+        let binding = custody_binding(["family", "account", "device", &old_generation])
+            .map_err(|error| format!("derive original binding: {error:?}"))?;
+        let epoch = [8_u8; 32];
+        let record_path = custody.path(&binding);
+        write(
+            &record_path,
+            &Record {
+                family: "family".to_owned(),
+                account: "account".to_owned(),
+                device: "device".to_owned(),
+                epoch_hash: hex(Sha256::digest(epoch)),
+                ciphertext: platform::protect(b"sealed-material", &binding)
+                    .map_err(|error| format!("protect material: {error:?}"))?,
+            },
+        )
+        .map_err(|error| format!("write valid record: {error:?}"))?;
+        platform::activate(&binding, &epoch)
+            .map_err(|error| format!("activate original epoch: {error:?}"))?;
+        platform::mark_install_generation_sealed(&custody.root, &old_generation)
+            .map_err(|error| format!("mark sealed generation: {error:?}"))?;
+        let restored_record =
+            fs::read(&record_path).map_err(|error| format!("backup record: {error}"))?;
+
+        fs::remove_file(&record_path).map_err(|error| format!("lose sealed record: {error}"))?;
+        let after_loss = WindowsDeviceTrustCustody::open(&root)
+            .map_err(|error| format!("open after content loss: {error:?}"))?;
+        assert_ne!(old_generation, after_loss.install_generation);
+        fs::write(&record_path, restored_record)
+            .map_err(|error| format!("restore old record: {error}"))?;
+        assert_eq!(
+            after_loss.unseal_current("family", "account", "device"),
+            Err(Error::Missing)
+        );
+
+        let _cleanup = platform::remove(&binding);
+        let _cleanup = fs::remove_dir_all(root);
+        Ok(())
+    }
+
+    #[test]
+    fn custody_rejects_root_and_ancestor_junctions() -> Result<(), String> {
+        let base = std::env::temp_dir().join(format!(
+            "ocentra-wp02-custody-junction-{}",
+            std::process::id()
+        ));
+        let _cleanup = fs::remove_dir_all(&base);
+        fs::create_dir_all(&base).map_err(|error| format!("create base: {error}"))?;
+        let target = base.join("target");
+        fs::create_dir_all(&target).map_err(|error| format!("create target: {error}"))?;
+        let root_junction = base.join("root-junction");
+        let status = Command::new("cmd")
+            .args(["/C", "mklink", "/J"])
+            .arg(&root_junction)
+            .arg(&target)
+            .status()
+            .map_err(|error| format!("create root junction: {error}"))?;
+        if !status.success() {
+            return Err("create root junction command failed".to_owned());
+        }
+        assert!(matches!(
+            WindowsDeviceTrustCustody::open(&root_junction),
+            Err(Error::Invalid)
+        ));
+        fs::remove_dir(&root_junction).map_err(|error| format!("remove root junction: {error}"))?;
+
+        let ancestor_target = base.join("ancestor-target");
+        fs::create_dir_all(&ancestor_target)
+            .map_err(|error| format!("create ancestor target: {error}"))?;
+        let ancestor_junction = base.join("ancestor-junction");
+        let status = Command::new("cmd")
+            .args(["/C", "mklink", "/J"])
+            .arg(&ancestor_junction)
+            .arg(&ancestor_target)
+            .status()
+            .map_err(|error| format!("create ancestor junction: {error}"))?;
+        if !status.success() {
+            return Err("create ancestor junction command failed".to_owned());
+        }
+        assert!(matches!(
+            WindowsDeviceTrustCustody::open(ancestor_junction.join("custody")),
+            Err(Error::Invalid)
+        ));
+        fs::remove_dir(&ancestor_junction)
+            .map_err(|error| format!("remove ancestor junction: {error}"))?;
+
+        let _cleanup = fs::remove_dir_all(base);
         Ok(())
     }
 }
