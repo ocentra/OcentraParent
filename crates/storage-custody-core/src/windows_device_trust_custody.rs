@@ -16,9 +16,13 @@ mod path;
 mod platform;
 #[path = "windows_device_trust_custody_record.rs"]
 mod record;
+#[path = "windows_device_trust_custody_snapshot.rs"]
+mod snapshot;
+#[path = "windows_device_trust_custody_transaction.rs"]
+mod transaction;
 use record::{
     binding as custody_binding, hex, install_generation as load_or_create_install_generation,
-    remove, write, Record,
+    install_generation_fence, remove, write, Record,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -47,8 +51,9 @@ impl WindowsDeviceTrustCustody {
         fs::create_dir_all(root.as_ref()).map_err(|_error| Error::Io)?;
         #[cfg(windows)]
         path::validate_custody_root_and_ancestors(root.as_ref())?;
-        let sealed_content_present = path::sealed_content_present(root.as_ref())?;
         let root = root.as_ref().canonicalize().map_err(|_error| Error::Io)?;
+        let _generation_fence = install_generation_fence(&root)?;
+        let sealed_content_present = path::sealed_content_present(&root)?;
         Ok(Self {
             install_generation: load_or_create_install_generation(
                 &root,
@@ -65,6 +70,7 @@ impl WindowsDeviceTrustCustody {
         material: &[u8],
     ) -> Result<(), Error> {
         path::validate_seal_material(material)?;
+        let _generation_fence = install_generation_fence(&self.root)?;
         let binding = custody_binding([
             &request.family_id,
             &request.parent_account_id,
@@ -86,14 +92,27 @@ impl WindowsDeviceTrustCustody {
             ciphertext: platform::protect(material, &binding)?,
         };
         let record_path = self.path(&binding);
+        let previous = snapshot::preserve_active(&binding, &record_path)?;
         write(&record_path, &record)?;
-        if let Err(error) = platform::activate(&binding, &epoch) {
-            let _cleanup_result = fs::remove_file(&record_path);
-            return Err(error);
-        }
-        verify_activated_binding(&binding, &epoch, &record_path, platform::current(&binding))?;
+        transaction::finish(
+            platform::activate(&binding, &epoch),
+            &binding,
+            &record_path,
+            &previous,
+        )?;
+        transaction::finish(
+            verify_activated_binding(&epoch, platform::current(&binding)),
+            &binding,
+            &record_path,
+            &previous,
+        )?;
         #[cfg(windows)]
-        platform::mark_install_generation_sealed(&self.root, &self.install_generation)?;
+        transaction::finish(
+            platform::mark_install_generation_sealed(&self.root, &self.install_generation),
+            &binding,
+            &record_path,
+            &previous,
+        )?;
         Ok(())
     }
     pub fn unseal_current(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
@@ -158,34 +177,21 @@ impl WindowsDeviceTrustCustody {
 }
 
 fn verify_activated_binding(
-    binding: &[u8],
     epoch: &[u8],
-    record_path: &Path,
     verification: Result<Vec<u8>, Error>,
 ) -> Result<(), Error> {
     match verification {
         Ok(current) if current == epoch => Ok(()),
-        Ok(_) => {
-            rollback_activated_binding(binding, record_path);
-            Err(Error::Mismatch)
-        }
-        Err(error) => {
-            rollback_activated_binding(binding, record_path);
-            Err(error)
-        }
+        Ok(_) => Err(Error::Mismatch),
+        Err(error) => Err(error),
     }
-}
-
-fn rollback_activated_binding(binding: &[u8], record_path: &Path) {
-    let _cleanup_result = platform::remove(binding);
-    let _cleanup_result = fs::remove_file(record_path);
 }
 
 #[cfg(all(test, windows))]
 mod tests {
     use super::{
-        custody_binding, hex, platform, verify_activated_binding, write, Error, Record,
-        WindowsDeviceTrustCustody,
+        custody_binding, hex, install_generation_fence, platform, snapshot, transaction,
+        verify_activated_binding, write, Error, Record, WindowsDeviceTrustCustody,
     };
     use sha2::{Digest, Sha256};
     use std::{fs, process::Command};
@@ -202,11 +208,11 @@ mod tests {
         fs::write(&record_path, "sealed").map_err(|error| format!("write record: {error}"))?;
 
         assert_eq!(
-            verify_activated_binding(
+            transaction::finish(
+                verify_activated_binding(b"epoch", Err(Error::Platform)),
                 b"post-activation-cleanup",
-                b"epoch",
                 &record_path,
-                Err(Error::Platform)
+                &None,
             ),
             Err(Error::Platform)
         );
@@ -215,6 +221,104 @@ mod tests {
             "a verification read failure must remove the persisted record"
         );
 
+        let _cleanup = fs::remove_dir_all(root);
+        Ok(())
+    }
+
+    #[test]
+    fn generation_status_lock_keeps_a_concurrent_open_on_the_sealed_generation(
+    ) -> Result<(), String> {
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-wp02-generation-status-lock-{}",
+            std::process::id()
+        ));
+        let _cleanup = fs::remove_dir_all(&root);
+        let custody = WindowsDeviceTrustCustody::open(&root)
+            .map_err(|error| format!("open original custody: {error:?}"))?;
+        let generation = custody.install_generation.clone();
+        let fence = install_generation_fence(&custody.root)
+            .map_err(|error| format!("lock install generation: {error:?}"))?;
+        fs::write(custody.root.join("pending.sealed"), "sealed")
+            .map_err(|error| format!("write pending sealed record: {error}"))?;
+        let concurrent_root = custody.root.clone();
+        let (entered_sender, entered_receiver) = std::sync::mpsc::channel();
+        let opener = std::thread::spawn(move || {
+            entered_sender.send(()).map_err(|error| error.to_string())?;
+            WindowsDeviceTrustCustody::open(concurrent_root)
+                .map_err(|error| format!("open: {error:?}"))
+        });
+        entered_receiver
+            .recv()
+            .map_err(|error| format!("wait for opener: {error}"))?;
+        platform::mark_install_generation_sealed(&custody.root, &generation)
+            .map_err(|error| format!("mark sealed generation: {error:?}"))?;
+        drop(fence);
+        let opened = opener
+            .join()
+            .map_err(|_panic| "concurrent opener panicked".to_owned())??;
+        assert_eq!(opened.install_generation, generation);
+
+        let _cleanup = fs::remove_dir_all(root);
+        Ok(())
+    }
+
+    #[test]
+    fn failed_post_activation_status_restores_the_prior_active_record() -> Result<(), String> {
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-wp02-reseal-restore-{}",
+            std::process::id()
+        ));
+        let _cleanup = fs::remove_dir_all(&root);
+        let custody = WindowsDeviceTrustCustody::open(&root)
+            .map_err(|error| format!("open custody: {error:?}"))?;
+        let binding = custody_binding(["family", "account", "device", &custody.install_generation])
+            .map_err(|error| format!("derive binding: {error:?}"))?;
+        let record_path = custody.path(&binding);
+        let old_epoch = [9_u8; 32];
+        let old_record = Record {
+            family: "family".to_owned(),
+            account: "account".to_owned(),
+            device: "device".to_owned(),
+            epoch_hash: hex(Sha256::digest(old_epoch)),
+            ciphertext: platform::protect(b"old-material", &binding)
+                .map_err(|error| format!("protect old material: {error:?}"))?,
+        };
+        write(&record_path, &old_record).map_err(|error| format!("write old record: {error:?}"))?;
+        platform::activate(&binding, &old_epoch)
+            .map_err(|error| format!("activate old epoch: {error:?}"))?;
+        let previous = snapshot::preserve_active(&binding, &record_path)
+            .map_err(|error| format!("preserve old record: {error:?}"))?;
+
+        let new_epoch = [10_u8; 32];
+        write(
+            &record_path,
+            &Record {
+                epoch_hash: hex(Sha256::digest(new_epoch)),
+                ciphertext: platform::protect(b"new-material", &binding)
+                    .map_err(|error| format!("protect new material: {error:?}"))?,
+                ..old_record.clone()
+            },
+        )
+        .map_err(|error| format!("write new record: {error:?}"))?;
+        platform::activate(&binding, &new_epoch)
+            .map_err(|error| format!("activate new epoch: {error:?}"))?;
+        assert_eq!(
+            transaction::finish(Err(Error::Platform), &binding, &record_path, &previous),
+            Err(Error::Platform)
+        );
+        assert!(
+            platform::current(&binding)
+                .map_err(|error| format!("read restored epoch: {error:?}"))?
+                == old_epoch,
+            "the prior registry epoch must be restored"
+        );
+        let restored: Record = serde_json::from_slice(
+            &fs::read(&record_path).map_err(|error| format!("read restored record: {error}"))?,
+        )
+        .map_err(|error| format!("parse restored record: {error}"))?;
+        assert_eq!(restored.epoch_hash, old_record.epoch_hash);
+
+        let _cleanup = platform::remove(&binding);
         let _cleanup = fs::remove_dir_all(root);
         Ok(())
     }

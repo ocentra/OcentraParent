@@ -4,7 +4,7 @@ use std::{fs, io, path::Path};
 
 use super::{platform, Error};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub(super) struct Record {
     pub(super) family: String,
     pub(super) account: String,
@@ -35,6 +35,10 @@ pub(super) fn install_generation(
     root_was_absent: bool,
     sealed_content_present: bool,
 ) -> Result<String, Error> {
+    platform::load_or_rotate_install_generation(root, root_was_absent, sealed_content_present)
+}
+
+pub(super) fn install_generation_fence(root: &Path) -> Result<fs::File, Error> {
     let lock = fs::OpenOptions::new()
         .create(true)
         .read(true)
@@ -43,7 +47,7 @@ pub(super) fn install_generation(
         .open(root.join("device-trust-install-generation.lock"))
         .map_err(|_error| Error::Io)?;
     fs2::FileExt::lock_exclusive(&lock).map_err(|_error| Error::Io)?;
-    platform::load_or_rotate_install_generation(root, root_was_absent, sealed_content_present)
+    Ok(lock)
 }
 
 pub(super) fn hex(bytes: impl AsRef<[u8]>) -> String {
