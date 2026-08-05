@@ -27,28 +27,56 @@ pub(super) fn load_or_rotate_install_generation(
         .map_err(|_error| Error::Platform)?
         .0;
     let root_key = hex(Sha256::digest(root.to_string_lossy().as_bytes()));
+    let identity = root_identity(root)?;
     if root_was_absent {
         let generation = fresh_install_generation()?;
-        key.set_value(&root_key, &generation)
+        key.set_value(&root_key, &format!("{identity}|{generation}"))
             .map_err(|_error| Error::Platform)?;
         return Ok(generation);
     }
     match key.get_value::<String, _>(&root_key) {
-        Ok(generation)
-            if generation.len() == 64
-                && generation.bytes().all(|byte| byte.is_ascii_hexdigit()) =>
-        {
-            Ok(generation)
-        }
-        Ok(_) => Err(Error::Invalid),
+        Ok(anchor) => anchor
+            .split_once('|')
+            .filter(|(stored_identity, generation)| {
+                stored_identity == &identity
+                    && generation.len() == 64
+                    && generation.bytes().all(|byte| byte.is_ascii_hexdigit())
+            })
+            .map(|(_identity, generation)| generation.to_owned())
+            .map(Ok)
+            .unwrap_or_else(|| rotate_install_generation(&key, &root_key, &identity)),
         Err(error) if error.kind() == io::ErrorKind::NotFound => {
-            let generation = fresh_install_generation()?;
-            key.set_value(&root_key, &generation)
-                .map_err(|_error| Error::Platform)?;
-            Ok(generation)
+            rotate_install_generation(&key, &root_key, &identity)
         }
         Err(_error) => Err(Error::Platform),
     }
+}
+
+#[cfg(windows)]
+fn rotate_install_generation(
+    key: &winreg::RegKey,
+    root_key: &str,
+    identity: &str,
+) -> Result<String, Error> {
+    let generation = fresh_install_generation()?;
+    key.set_value(root_key, &format!("{identity}|{generation}"))
+        .map_err(|_error| Error::Platform)?;
+    Ok(generation)
+}
+
+#[cfg(windows)]
+fn root_identity(root: &Path) -> Result<String, Error> {
+    let metadata = root.metadata().map_err(|_error| Error::Io)?;
+    let created = metadata
+        .created()
+        .map_err(|_error| Error::Io)?
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|_error| Error::Io)?;
+    Ok(hex(Sha256::digest(format!(
+        "{}:{}",
+        root.to_string_lossy(),
+        created.as_nanos()
+    ))))
 }
 
 #[cfg(windows)]

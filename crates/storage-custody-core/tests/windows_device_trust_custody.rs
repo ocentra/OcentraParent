@@ -77,15 +77,42 @@ fn reinstall_rotates_the_registry_generation_before_restored_records_can_be_read
 }
 
 #[test]
-fn corrupt_registry_install_generation_is_rejected_on_reopen() -> Result<(), String> {
+fn corrupt_registry_install_generation_is_rotated_on_reopen() -> Result<(), String> {
     let root = temporary_root("partial-generation");
     let _cleanup = fs::remove_dir_all(&root);
     fs::create_dir_all(&root).map_err(|error| format!("create root: {error}"))?;
     set_install_generation(&root, "partial")?;
 
+    WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open corrupt registry anchor: {error:?}"))?;
+    assert_ne!(install_generation(&root)?, "partial");
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn restored_record_at_a_recreated_root_never_unseals() -> Result<(), String> {
+    let root = temporary_root("restored-root-identity");
+    let _cleanup = fs::remove_dir_all(&root);
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("first open: {error:?}"))?;
+    let old_generation = install_generation(&root)?;
+    let old_binding = binding("family", "account", "device", &old_generation);
+    let restored_record = root.join(format!("{}.sealed", hex(Sha256::digest(&old_binding))));
+    fs::write(&restored_record, "restored-record")
+        .map_err(|error| format!("write restored record backup: {error}"))?;
+    let backup = fs::read(&restored_record).map_err(|error| format!("read backup: {error}"))?;
+
+    fs::remove_dir_all(&root).map_err(|error| format!("remove custody root: {error}"))?;
+    fs::create_dir_all(&root).map_err(|error| format!("recreate custody root: {error}"))?;
+    fs::write(&restored_record, backup).map_err(|error| format!("restore record: {error}"))?;
+    let custody = WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open recreated root: {error:?}"))?;
+
     assert!(matches!(
-        WindowsDeviceTrustCustody::open(&root),
-        Err(Error::Invalid)
+        custody.unseal_current("family", "account", "device"),
+        Err(Error::Missing) | Err(Error::Io)
     ));
 
     let _cleanup = remove_install_generation(&root);
@@ -173,10 +200,15 @@ fn install_generation(root: &std::path::Path) -> Result<String, String> {
     let key = RegKey::predef(HKEY_CURRENT_USER)
         .open_subkey("Software\\Ocentra\\DeviceTrust\\InstallGenerations")
         .map_err(|error| format!("open install-generation registry key: {error}"))?;
-    key.get_value(hex(Sha256::digest(
-        canonical_root(root)?.to_string_lossy().as_bytes(),
-    )))
-    .map_err(|error| format!("read install generation: {error}"))
+    let anchor: String = key
+        .get_value(hex(Sha256::digest(
+            canonical_root(root)?.to_string_lossy().as_bytes(),
+        )))
+        .map_err(|error| format!("read install generation: {error}"))?;
+    anchor
+        .split_once('|')
+        .map(|(_identity, generation)| generation.to_owned())
+        .ok_or_else(|| "parse install-generation anchor".to_owned())
 }
 
 fn set_install_generation(root: &std::path::Path, generation: &str) -> Result<(), String> {
@@ -188,7 +220,7 @@ fn set_install_generation(root: &std::path::Path, generation: &str) -> Result<()
         hex(Sha256::digest(
             canonical_root(root)?.to_string_lossy().as_bytes(),
         )),
-        &generation,
+        &format!("{}|{generation}", root_identity(root)?),
     )
     .map_err(|error| format!("write install generation: {error}"))
 }
@@ -209,6 +241,23 @@ fn remove_install_generation(root: &std::path::Path) -> Result<(), String> {
 fn canonical_root(root: &std::path::Path) -> Result<std::path::PathBuf, String> {
     root.canonicalize()
         .map_err(|error| format!("canonicalize root: {error}"))
+}
+
+fn root_identity(root: &std::path::Path) -> Result<String, String> {
+    let root = canonical_root(root)?;
+    let metadata = root
+        .metadata()
+        .map_err(|error| format!("read root metadata: {error}"))?;
+    let created = metadata
+        .created()
+        .map_err(|error| format!("read root creation time: {error}"))?
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|error| format!("convert root creation time: {error}"))?;
+    Ok(hex(Sha256::digest(format!(
+        "{}:{}",
+        root.to_string_lossy(),
+        created.as_nanos()
+    ))))
 }
 
 fn binding(family: &str, account: &str, device: &str, generation: &str) -> Vec<u8> {

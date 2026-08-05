@@ -178,7 +178,11 @@ fn rollback_activated_binding(binding: &[u8], record_path: &Path) {
 
 #[cfg(all(test, windows))]
 mod tests {
-    use super::{verify_activated_binding, Error};
+    use super::{
+        custody_binding, hex, platform, verify_activated_binding, write, Error, Record,
+        WindowsDeviceTrustCustody,
+    };
+    use sha2::{Digest, Sha256};
     use std::fs;
 
     #[test]
@@ -206,6 +210,54 @@ mod tests {
             "a verification read failure must remove the persisted record"
         );
 
+        let _cleanup = fs::remove_dir_all(root);
+        Ok(())
+    }
+
+    #[test]
+    fn restored_valid_record_cannot_reuse_the_epoch_after_root_identity_changes(
+    ) -> Result<(), String> {
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-wp02-valid-restored-record-{}",
+            std::process::id()
+        ));
+        let _cleanup = fs::remove_dir_all(&root);
+        let custody = WindowsDeviceTrustCustody::open(&root)
+            .map_err(|error| format!("open original custody: {error:?}"))?;
+        let binding = custody_binding(["family", "account", "device", &custody.install_generation])
+            .map_err(|error| format!("derive original binding: {error:?}"))?;
+        let epoch = [7_u8; 32];
+        let record_path = custody.path(&binding);
+        write(
+            &record_path,
+            &Record {
+                family: "family".to_owned(),
+                account: "account".to_owned(),
+                device: "device".to_owned(),
+                epoch_hash: hex(Sha256::digest(epoch)),
+                ciphertext: platform::protect(b"sealed-material", &binding)
+                    .map_err(|error| format!("protect material: {error:?}"))?,
+            },
+        )
+        .map_err(|error| format!("write valid record: {error:?}"))?;
+        platform::activate(&binding, &epoch)
+            .map_err(|error| format!("activate original epoch: {error:?}"))?;
+        let restored_record =
+            fs::read(&record_path).map_err(|error| format!("backup record: {error}"))?;
+
+        fs::remove_dir_all(&root).map_err(|error| format!("remove custody root: {error}"))?;
+        fs::create_dir_all(&root).map_err(|error| format!("recreate custody root: {error}"))?;
+        fs::write(&record_path, restored_record)
+            .map_err(|error| format!("restore valid record: {error}"))?;
+        let restored = WindowsDeviceTrustCustody::open(&root)
+            .map_err(|error| format!("open restored custody: {error:?}"))?;
+
+        assert_eq!(
+            restored.unseal_current("family", "account", "device"),
+            Err(Error::Missing)
+        );
+
+        let _cleanup = platform::remove(&binding);
         let _cleanup = fs::remove_dir_all(root);
         Ok(())
     }

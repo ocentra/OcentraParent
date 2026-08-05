@@ -6,46 +6,22 @@ fn io_result(result: std::io::Result<()>, action: &str) -> Result<(), String> {
     result.map_err(|error| format!("{action}: {error}"))
 }
 
-fn probe_dir() -> Result<PathBuf, String> {
-    let root = std::env::temp_dir().join(format!(
-        "ocentra-family-identity-core-ceremony-mint-probe-{}",
+fn probe_source_path() -> Result<PathBuf, String> {
+    let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    io_result(
+        fs::create_dir_all(root.join("examples")),
+        "create workspace-owned probe directory",
+    )?;
+    Ok(root.join(format!(
+        "examples/ceremony_mint_boundary_probe_{}.rs",
         std::process::id()
-    ));
-    io_result(
-        fs::create_dir_all(root.join("src")),
-        "create probe source directory",
-    )?;
-    Ok(root)
+    )))
 }
 
-fn workspace_root() -> Result<PathBuf, String> {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .and_then(Path::parent)
-        .map(Path::to_path_buf)
-        .ok_or_else(|| "locate workspace root from family-identity-core manifest".to_owned())
-}
-
-fn write_probe(root: &Path) -> Result<(), String> {
-    let manifest_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    let manifest_path = manifest_path.to_string_lossy().replace('\\', "/");
-    let lockfile = workspace_root()?.join("Cargo.lock");
-    io_result(
-        fs::copy(lockfile, root.join("Cargo.lock")).map(|_bytes| ()),
-        "copy workspace lockfile into external consumer probe",
-    )?;
+fn write_probe(path: &Path) -> Result<(), String> {
     io_result(
         fs::write(
-            root.join("Cargo.toml"),
-            format!(
-                "[package]\nname = \"ocentra-family-identity-core-ceremony-mint-probe\"\nversion = \"0.0.0\"\nedition = \"2021\"\n\n[dependencies]\nocentra-family-identity-core = {{ path = \"{manifest_path}\" }}\n"
-            )
-        ),
-        "write probe manifest",
-    )?;
-    io_result(
-        fs::write(
-            root.join("src/main.rs"),
+            path,
             r#"use ocentra_family_identity_core::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -80,20 +56,37 @@ fn main() {
 }
 "#,
         ),
-        "write probe source",
+        "write workspace-owned probe source",
     )
 }
 
 #[test]
 fn caller_supplied_authority_flags_cannot_mint_a_parent_device_trust_ceremony() -> Result<(), String>
 {
-    let root = probe_dir()?;
-    write_probe(&root)?;
+    let source = probe_source_path()?;
+    let example = source
+        .file_stem()
+        .and_then(|value| value.to_str())
+        .ok_or_else(|| "derive workspace probe example name".to_owned())?;
+    write_probe(&source)?;
     let output = Command::new("cargo")
-        .args(["check", "--quiet", "--offline"])
-        .current_dir(&root)
+        .args([
+            "check",
+            "--quiet",
+            "--locked",
+            "--offline",
+            "--manifest-path",
+            concat!(env!("CARGO_MANIFEST_DIR"), "/Cargo.toml"),
+            "--example",
+            example,
+        ])
+        .current_dir(env!("CARGO_MANIFEST_DIR"))
         .output()
         .map_err(|error| format!("run external consumer probe: {error}"))?;
+    io_result(
+        fs::remove_file(&source),
+        "remove workspace-owned probe source",
+    )?;
     assert!(!output.status.success());
     let stderr = String::from_utf8_lossy(&output.stderr);
     assert!(
