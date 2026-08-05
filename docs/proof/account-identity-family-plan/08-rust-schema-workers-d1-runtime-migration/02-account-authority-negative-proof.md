@@ -16,3 +16,14 @@ The focused Rust tests fail closed at the canonical boundary:
 The direct duplicate/malformed tests each passed once in the WP08 lane; the
 authority/lifecycle suites passed as recorded in `16-validation-commands.md`.
 No runtime persistence or provider-login claim is made.
+
+The record-derived handoff adds direct contract negatives:
+
+- parent, child, and device records from different households reject as
+  `external-household` before authorization;
+- a device record not bound to the supplied child profile rejects as
+  `child-profile-not-bound`;
+- a revoked device record rejects as `device-not-trusted`;
+- stale session state rejects a remote-control action; and
+- a controller lease for another parent member is ignored and the action
+  rejects as `controller-lease-required`.

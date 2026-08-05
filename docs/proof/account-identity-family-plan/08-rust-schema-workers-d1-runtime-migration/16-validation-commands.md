@@ -18,3 +18,19 @@ Worktree: `E:\OcentraWorktrees\lanes\account-authority-wp08`
 
 No Cloudflare command was substituted: Cloudflare WP06/WP08 own migration and
 runner validation.
+
+## Record-derived authority handoff recovery (2026-08-05)
+
+| Command | Exit | Result | Notes |
+| --- | ---: | --- | --- |
+| `cargo fmt --check -p ocentra-family-identity-core` | 0 | pass | formatted Rust handoff and contract test |
+| `cargo check -p ocentra-family-identity-core` | 0 | pass | Rust authority crate check |
+| `cargo test -p ocentra-family-identity-core --test contract household_authority_handoff` | 0 | pass | 4 record-derived handoff contract tests |
+| `cargo test -p ocentra-family-identity-core household_authority` | 0 | pass | existing 15 authority tests plus the matching contract filter |
+| `cargo test -p ocentra-family-identity-core --test unit session_lifecycle` | 0 | pass | 13 session freshness/replay tests |
+| `cargo test -p ocentra-family-identity-core --test contract` | 0 | pass | 16 contract tests, including the four record-derived handoff cases |
+| `npm run lint:architecture -- --files crates/family-identity-core` | 0 | pass | focused architecture policy passed after exact serialized-envelope redaction assertion |
+| `git diff --check` | 0 | pass | no whitespace errors in the recovery slice |
+
+No Cloudflare D1 migration or runner command was run or claimed. Those remain
+owned by Cloudflare WP06 and WP08 respectively.

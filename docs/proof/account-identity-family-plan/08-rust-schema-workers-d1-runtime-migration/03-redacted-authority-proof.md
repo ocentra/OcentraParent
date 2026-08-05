@@ -12,3 +12,9 @@ models a redacted audit state for session authority.
 
 This is retained source-and-test proof, not an assertion that a Cloudflare
 worker emitted a production audit event.
+
+The 2026-08-05 handoff recovery makes the correlation boundary explicit through
+`HouseholdAuthorityEvaluationId` and records
+`HouseholdAuthorityHandoffRedactionState::IdentifiersOnly`. Its serializable
+decision contains only stable identifiers, action/decision state, and schema
+version; contract coverage asserts that a child display name is absent.

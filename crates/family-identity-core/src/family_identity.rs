@@ -12,6 +12,8 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use serde::{Deserialize, Serialize};
 
+pub mod household_authority_handoff;
+
 pub const CRATE_NAME: &str = "ocentra-family-identity-core";
 const ERROR_DEVICE_SCOPE_DECISION_ID: &str = "family identity device scope decision id";
 
@@ -141,6 +143,10 @@ pub struct DeviceScopeDecision {
 
 family_identity_text_id!(DeviceScopeEvaluationId, "family_identity.evaluation_id");
 family_identity_text_id!(DeviceScopeDecisionId, "family_identity.decision_id");
+family_identity_text_id!(
+    HouseholdAuthorityEvaluationId,
+    "family_identity.household_authority_evaluation_id"
+);
 family_identity_text_id!(FamilyIdentityAggregateId, "family_identity.aggregate_id");
 family_identity_text_id!(HouseholdId, "family_identity.household_id");
 family_identity_text_id!(ParentMemberId, "family_identity.parent_member_id");
