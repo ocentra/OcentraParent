@@ -3,6 +3,7 @@ mod adapter_outcome;
 #[path = "enforcement_command_execution/provenance.rs"]
 mod provenance;
 
+use ocentra_eventing::ids::CorrelationId;
 use ocentra_parent_agent_core::enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
@@ -16,6 +17,7 @@ use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::logging::LogLevel;
@@ -36,7 +38,10 @@ use self::adapter_outcome::{adapter_outcome_for_request, final_input};
 use self::provenance::{
     enforcement_audit_provenance, record_audit_provenance, EnforcementAuditProvenance,
 };
-use super::enforcement_pre_action_journal::journal_before_action_outcome;
+use super::enforcement_pre_action_journal::{
+    eventing_journal::{append_enforcement_audit_journal_event, EnforcementEventingJournalPath},
+    journal_before_action_outcome,
+};
 use super::enforcement_report_payload::{
     build_enforcement_report_payload, enforcement_journal_fields,
 };
@@ -90,6 +95,13 @@ async fn execute_enforcement_command(
     };
     let before_action_outcome =
         journal_before_action_outcome(&request, &authorization.action, observed_at);
+    let command_correlation_id = EnforcementText(command.message_id.clone());
+    record_eventing_enforcement_audit(
+        &command_correlation_id,
+        &before_action_outcome,
+        &paths,
+    )
+    .await?;
     record_enforcement_audit(&request, &before_action_outcome, &paths, None).await?;
     let completed_at = EnforcementText(timestamp_now());
     let adapter_outcome = adapter_outcome_for_request(
@@ -102,6 +114,12 @@ async fn execute_enforcement_command(
     let mut outcome = evaluate_enforcement_boundary(outcome_input)
         .map_err(EnforcementCommandExecutionError::BoundaryRejection)?;
     outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
+    record_eventing_enforcement_audit(
+        &command_correlation_id,
+        &outcome,
+        &paths,
+    )
+    .await?;
     let status = record_enforcement_audit(&request, &outcome, &paths, provenance).await?;
     let active_state = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome(
         &outcome,
@@ -115,6 +133,29 @@ async fn execute_enforcement_command(
         .map_err(EnforcementCommandExecutionError::Journal)?;
     record_audit_provenance(&mut payload, provenance);
     Ok(payload)
+}
+
+async fn record_eventing_enforcement_audit(
+    command_correlation_id: &EnforcementText,
+    outcome: &EnforcementBoundaryOutcome,
+    paths: &EnforcementJournalPaths,
+) -> Result<(), EnforcementJournalBuildError> {
+    let mut eventing_journal_path = paths.journal_path.clone();
+    eventing_journal_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
+    append_enforcement_audit_journal_event(
+        EnforcementEventingJournalPath {
+            path: eventing_journal_path,
+        },
+        EnforcementAuditJournalEvent::from(&outcome.audit_event),
+        CorrelationId::parse(command_correlation_id.0.clone()).map_err(eventing_journal_error)?,
+    )
+    .await
+    .map(|_| ())
+    .map_err(eventing_journal_error)
+}
+
+fn eventing_journal_error(_: impl std::fmt::Debug) -> EnforcementJournalBuildError {
+    EnforcementJournalBuildError::Store
 }
 
 async fn record_enforcement_audit(

@@ -2,10 +2,10 @@
 
 ## Scope
 
-This hand-authored durable manifest records only reusable local Eventing
-journal, replay, idempotency, and topology mechanics. It does not implement an
-enforcement adapter, choose an enforcement action, invoke a platform effect, or
-prove enforcement dispatch.
+This hand-authored durable manifest records reusable local Eventing journal,
+replay, idempotency, and topology mechanics plus the narrow production consumer
+handoff in `agent-service`. It does not implement an enforcement adapter, choose
+an enforcement action, invoke a platform effect, or prove enforcement dispatch.
 
 ## Typed mechanics available to the enforcement owner
 
@@ -17,13 +17,38 @@ prove enforcement dispatch.
 | Safe replay | `ReplayFilter`, `ReplayCursor`, and `ReplayMode::ProjectionOnly` | Projection replay has no authority to invoke handlers; action delivery requires an explicit action-mode read. |
 | Topology review | `EventTopologyManifest` from contracts, publishers, subscribers, family variants, and accepted one-sided entries | Covered, no-publisher, no-subscriber, and accepted-one-sided states are explicit and deterministic. |
 
+## Implemented consumer handoff
+
+`EnforcementAuditJournalEvent` is the redacted typed Eventing payload. It keeps
+only audit/action/result identifiers, typed audit/result/adapter/capability
+statuses, and observed time; it does not copy actor, target, evidence, policy,
+or rollback payloads into the generic NDJSON journal.
+
+The production call path is:
+
+```text
+build_enforcement_audit_report_with_paths
+  -> execute_enforcement_command
+  -> record_eventing_enforcement_audit
+  -> append_enforcement_audit_journal_event
+  -> hash-chained idempotent Eventing NDJSON append
+  -> existing activity audit write
+  -> adapter outcome / final audit summary
+```
+
+The before-action summary is written before the existing activity audit write
+and before adapter selection. The final summary is written before its matching
+activity audit write. Eventing metadata reuses the audit id and observed time,
+so an exact retry returns the original journal sequence instead of appending a
+duplicate. Replay is read only through `ReplayMode::ProjectionOnly`.
+
 ## Consumer boundary
 
-Enforcement WP11 may consume these generic mechanics only after it owns a
-typed enforcement event contract, an adapter boundary, authorization, audit
-storage, and action/rollback proof. This handoff is `local-bus-only`; it does
-not prove cross-process delivery, policy authority, retention/deletion, or
-platform side effects.
+Enforcement WP11 consumes the typed audit-summary handoff while retaining its
+adapter boundary, authorization, encrypted activity audit storage, and
+action/rollback proof. This handoff is `local-bus-only`; it does not prove
+cross-process delivery, policy authority, retention/deletion, or platform side
+effects.
 
 ## Required use constraints
 
@@ -41,6 +66,7 @@ platform side effects.
 
 ## Handoff status
 
-The generic Eventing prerequisite is evidenced. Enforcement WP11/WP04 still
-own adapter authority, action execution, authorization, audit, rollback, and
+The generic Eventing prerequisite and narrow typed audit-summary consumer
+handoff are evidenced. Enforcement WP11/WP04 still own adapter authority,
+action execution, authorization, activity audit custody, rollback, and
 platform-side-effect proof.

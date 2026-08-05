@@ -108,6 +108,15 @@ pub const REJECTION_ACTIVE_TIMER_STATE_MISMATCH: &str = "enforcement-active-time
 pub const REJECTION_PARENT_ACTION_REQUIRED: &str = "enforcement-parent-action-required";
 
 pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
+pub const EVENT_AUDIT_JOURNAL_RECORDED: &str = "enforcement.audit-journal.recorded";
+pub const EVENT_SCHEMA_VERSION: u16 = 1;
+pub const EVENTING_AGGREGATE_AUDIT_PREFIX: &str = "enforcement-audit-";
+pub const EVENTING_IDEMPOTENCY_AUDIT_PREFIX: &str = "enforcement-audit-idempotency-";
+pub const EVENTING_CUSTODY_LOCAL_AUDIT: &str = "local-audit";
+pub const EVENTING_RUNTIME_ROLE_AGENT: &str = "agent";
+pub const EVENTING_SOURCE_COMPONENT: &str = "enforcement-command-execution";
+pub const EVENTING_RUNTIME_INSTANCE: &str = "default";
+pub const EVENTING_JOURNAL_EXTENSION: &str = "eventing.ndjson";
 pub const JOURNAL_REJECTED_ID_PREFIX: &str = "0-rejected-";
 pub const JOURNAL_BEFORE_ACTION_ID_PREFIX: &str = "0-before-action-";
 pub const INTENT_ID_PREFIX: &str = "enforcement-intent-";

@@ -8,7 +8,8 @@ use super::{
     ParentDeviceReference, ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform,
     PolicyAction, PolicyTarget, PolicyTargetType,
 };
-use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::{envelope::DomainEvent, expect_value::ExpectValue};
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent;
 
 #[test]
 fn unavailable_audit_event_serializes_result_capability_and_unavailable_status_boundary() {
@@ -31,6 +32,59 @@ fn unavailable_audit_event_serializes_result_capability_and_unavailable_status_b
         serialized["unavailableStatus"]["unavailableReason"],
         enforcement::UNAVAILABLE_ADAPTER_UNAVAILABLE
     );
+}
+
+#[test]
+fn audit_event_projects_to_a_redacted_typed_eventing_journal_contract() {
+    let capability = degraded_capability();
+    let unavailable_status = unavailable_status(capability.clone());
+    let action = enforcement_action(&enforcement_intent(), capability.clone());
+    let result = enforcement_result(&action, capability.clone(), unavailable_status.clone());
+    let audit = enforcement_audit(action, result, capability, unavailable_status);
+    let journal = EnforcementAuditJournalEvent::from(&audit);
+    let contract = journal.contract().expect_value("journal event contract");
+    let aggregate_key = journal
+        .aggregate_key()
+        .expect_value("journal aggregate key");
+    let idempotency_key = journal
+        .idempotency_key()
+        .expect_value("journal idempotency key");
+
+    assert_eq!(
+        contract.event_type.as_str(),
+        enforcement::EVENT_AUDIT_JOURNAL_RECORDED
+    );
+    assert_eq!(
+        contract.schema_version.value(),
+        enforcement::EVENT_SCHEMA_VERSION
+    );
+    assert_eq!(
+        aggregate_key.as_str(),
+        format!(
+            "{}{}",
+            enforcement::EVENTING_AGGREGATE_AUDIT_PREFIX,
+            audit.action.action_id
+        )
+    );
+    assert_eq!(
+        idempotency_key.as_str(),
+        format!(
+            "{}{}",
+            enforcement::EVENTING_IDEMPOTENCY_AUDIT_PREFIX,
+            audit.audit_event_id
+        )
+    );
+    assert_eq!(journal.audit_event_id, audit.audit_event_id);
+    assert_eq!(journal.action_id, audit.action.action_id);
+    assert_eq!(journal.result_id, audit.result.result_id);
+    assert_eq!(journal.audit_event_kind, audit.audit_event_kind);
+    assert_eq!(journal.result_status, audit.result.status);
+    assert_eq!(
+        journal.adapter_result_code,
+        audit.result.adapter_result_code
+    );
+    assert_eq!(journal.capability_state, audit.capability.capability_state);
+    assert_eq!(journal.observed_at, audit.observed_at);
 }
 
 fn degraded_capability() -> EnforcementCapabilityStatus {

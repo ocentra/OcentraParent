@@ -130,6 +130,11 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
+    let _ =
+        enforcement_pre_action_journal::eventing_journal::append_enforcement_audit_journal_event;
+    let _ = enforcement_pre_action_journal::eventing_journal::EnforcementEventingJournalPath {
+        path: std::path::PathBuf::new(),
+    };
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
 }

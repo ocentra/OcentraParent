@@ -4,8 +4,10 @@ Scope: prove append/replay behavior, lineage compatibility, event topology, jour
 
 Current state: locally proved. This packet is the selectable generic journal
 prerequisite for enforcement WP11. The retained WP06 durable manifest now ties the
-focused crate evidence to the topology/journal proof and typed enforcement
-handoff; it does not implement or prove enforcement dispatch.
+focused crate evidence to the topology/journal proof and the production typed,
+redacted enforcement-audit journal handoff. The handoff records before-action and
+final audit summaries before their corresponding activity audit writes; it does
+not implement or prove enforcement dispatch.
 
 Source rows: `05-implementation-workpacks.md` rows 36-41 and 69-78.
 
