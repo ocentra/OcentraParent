@@ -1,18 +1,20 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_family_identity_core::family_identity::{
     household_authority_handoff::{
-        evaluate_household_authority_handoff, HouseholdAuthorityHandoffRedactionState,
-        HouseholdAuthorityHandoffRequest, HOUSEHOLD_AUTHORITY_HANDOFF_SCHEMA_VERSION,
+        evaluate_household_authority_handoff, HouseholdAuthorityChildTarget,
+        HouseholdAuthorityHandoffRedactionState, HouseholdAuthorityHandoffRequest,
+        ParentControllerDeviceTrustProof, HOUSEHOLD_AUTHORITY_HANDOFF_SCHEMA_VERSION,
     },
-    ActorAccountState, ChildCustodyLabel, ChildProfile, ChildProfileId, DeviceId,
-    DeviceRegistration, DeviceRouteStateLabel, DeviceTrustState, HouseholdAuthorityEvaluationId,
-    HouseholdId, HouseholdMembershipState, HouseholdRole, ParentControllerLease,
-    ParentControllerLeaseId, ParentMember, ParentMemberId, SessionFreshnessState,
+    ActorAccountState, ChildProfileId, DeviceId, DeviceRegistration, DeviceRouteStateLabel,
+    DeviceTrustState, HouseholdAuthorityEvaluationId, HouseholdId, HouseholdMembershipState,
+    HouseholdRole, ParentControllerLease, ParentControllerLeaseId, ParentMember, ParentMemberId,
+    SessionFreshnessState,
 };
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, HouseholdAuthorizationFailureReason, HouseholdAuthorizationState,
     ParentControllerLeaseState,
 };
+use ocentra_family_identity_core::parent_presence::ParentPresenceObservedAt;
 
 fn handoff_request(action: HouseholdAuthorityAction) -> HouseholdAuthorityHandoffRequest {
     HouseholdAuthorityHandoffRequest {
@@ -26,14 +28,11 @@ fn handoff_request(action: HouseholdAuthorityAction) -> HouseholdAuthorityHandof
             "2026-08-05T00:00:00Z",
         )
         .expect_value("parent member"),
-        child_profile: ChildProfile::new(
-            ChildProfileId::parse("child-1").expect_value("child id"),
-            HouseholdId::parse("household-1").expect_value("household id"),
-            "child display name is not emitted by the handoff",
-            vec![DeviceId::parse("device-1").expect_value("device id")],
-            ChildCustodyLabel::parse("family-custody").expect_value("custody label"),
-        )
-        .expect_value("child profile"),
+        child_target: HouseholdAuthorityChildTarget {
+            child_id: ChildProfileId::parse("child-1").expect_value("child id"),
+            household_id: HouseholdId::parse("household-1").expect_value("household id"),
+            device_ids: vec![DeviceId::parse("device-1").expect_value("device id")],
+        },
         device_registration: DeviceRegistration::new(
             DeviceId::parse("device-1").expect_value("device id"),
             ChildProfileId::parse("child-1").expect_value("child id"),
@@ -44,10 +43,19 @@ fn handoff_request(action: HouseholdAuthorityAction) -> HouseholdAuthorityHandof
             None,
         )
         .expect_value("device registration"),
+        parent_controller_device: ParentControllerDeviceTrustProof {
+            parent_member_id: ParentMemberId::parse("parent-1").expect_value("parent member id"),
+            household_id: HouseholdId::parse("household-1").expect_value("household id"),
+            device_id: DeviceId::parse("parent-controller-1").expect_value("device id"),
+            trust_state: DeviceTrustState::Trusted,
+            stale_since: None,
+        },
         actor_account_state: ActorAccountState::Active,
         session_freshness_state: SessionFreshnessState::Fresh,
         capability_granted: true,
         controller_lease: None,
+        observed_at: ParentPresenceObservedAt::from_canonical_utc("2026-08-05T00:30:00.000Z")
+            .expect_value("observed at"),
         action,
     }
 }
@@ -98,9 +106,25 @@ fn record_derived_handoff_is_versioned_correlated_and_identifier_only() {
 }
 
 #[test]
+fn serializable_child_target_contains_only_stable_identifiers() {
+    let request = handoff_request(HouseholdAuthorityAction::ChangePolicy);
+    let encoded = serde_json::to_value(&request.child_target).expect_value("serialize target");
+
+    assert_eq!(
+        encoded,
+        serde_json::json!({
+            "child_id": "child-1",
+            "household_id": "household-1",
+            "device_ids": ["device-1"],
+        })
+    );
+    assert!(encoded.get("display_name").is_none());
+}
+
+#[test]
 fn cross_household_records_are_rejected_before_authorization() {
     let mut request = handoff_request(HouseholdAuthorityAction::ChangePolicy);
-    request.child_profile.household_id = HouseholdId::parse("household-2").expect_value("id");
+    request.child_target.household_id = HouseholdId::parse("household-2").expect_value("id");
 
     let decision = evaluate_household_authority_handoff(request);
 
@@ -125,11 +149,19 @@ fn unbound_or_untrusted_child_device_records_are_rejected() {
     );
 
     let mut untrusted = handoff_request(HouseholdAuthorityAction::ViewChildStatus);
-    untrusted.device_registration.trust_state = DeviceTrustState::Revoked;
+    untrusted.parent_controller_device.trust_state = DeviceTrustState::Revoked;
     let untrusted_decision = evaluate_household_authority_handoff(untrusted);
     assert_eq!(
         untrusted_decision.decision.failure_reason,
         Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
+    );
+
+    let mut unassigned = handoff_request(HouseholdAuthorityAction::ViewChildStatus);
+    unassigned.child_target.device_ids = vec![DeviceId::parse("device-2").expect_value("id")];
+    let unassigned_decision = evaluate_household_authority_handoff(unassigned);
+    assert_eq!(
+        unassigned_decision.decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::ChildProfileNotBound)
     );
 }
 
@@ -148,9 +180,9 @@ fn stale_session_and_mismatched_controller_lease_are_rejected() {
         ParentControllerLease::new(
             ParentControllerLeaseId::parse("lease-1").expect_value("lease id"),
             ParentMemberId::parse("parent-2").expect_value("parent member id"),
-            DeviceId::parse("device-1").expect_value("device id"),
-            "2026-08-05T00:00:00Z",
-            "2026-08-05T01:00:00Z",
+            DeviceId::parse("parent-controller-1").expect_value("device id"),
+            "2026-08-05T00:00:00.000Z",
+            "2026-08-05T01:00:00.000Z",
             ParentControllerLeaseState::Active,
         )
         .expect_value("lease"),
@@ -159,5 +191,34 @@ fn stale_session_and_mismatched_controller_lease_are_rejected() {
     assert_eq!(
         lease_decision.decision.failure_reason,
         Some(HouseholdAuthorizationFailureReason::ControllerLeaseRequired)
+    );
+}
+
+#[test]
+fn expired_or_stale_parent_controller_proof_is_rejected() {
+    let mut expired = handoff_request(HouseholdAuthorityAction::StartRemoteControl);
+    expired.controller_lease = Some(
+        ParentControllerLease::new(
+            ParentControllerLeaseId::parse("lease-1").expect_value("lease id"),
+            ParentMemberId::parse("parent-1").expect_value("parent member id"),
+            DeviceId::parse("parent-controller-1").expect_value("device id"),
+            "2026-08-05T00:00:00.000Z",
+            "2026-08-05T00:15:00.000Z",
+            ParentControllerLeaseState::Active,
+        )
+        .expect_value("lease"),
+    );
+    let expired_decision = evaluate_household_authority_handoff(expired);
+    assert_eq!(
+        expired_decision.decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::ControllerLeaseExpired)
+    );
+
+    let mut stale = handoff_request(HouseholdAuthorityAction::ChangePolicy);
+    stale.parent_controller_device.stale_since = Some("2026-08-05T00:15:00.000Z".to_string());
+    let stale_decision = evaluate_household_authority_handoff(stale);
+    assert_eq!(
+        stale_decision.decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
     );
 }

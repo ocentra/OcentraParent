@@ -4,14 +4,15 @@
 //! household authority evaluator. It intentionally carries neither display names nor secrets.
 
 use super::{
-    ActorAccountState, ChildProfile, ChildProfileBindingState, DeviceOwnershipScope,
-    DeviceRegistration, HouseholdAuthorityEvaluationId, HouseholdId, ParentControllerLease,
-    ParentMember, SessionFreshnessState,
+    ActorAccountState, ChildProfileBindingState, ChildProfileId, DeviceId, DeviceOwnershipScope,
+    DeviceRegistration, DeviceTrustState, HouseholdAuthorityEvaluationId, HouseholdId,
+    ParentControllerLease, ParentMember, ParentMemberId, SessionFreshnessState,
 };
 use crate::household_authority::{
     authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityDecision,
     HouseholdAuthorityInput, ParentControllerLeaseState,
 };
+use crate::parent_presence::ParentPresenceObservedAt;
 use serde::{Deserialize, Serialize};
 
 pub const HOUSEHOLD_AUTHORITY_HANDOFF_SCHEMA_VERSION: u16 = 1;
@@ -23,15 +24,33 @@ pub enum HouseholdAuthorityHandoffRedactionState {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct HouseholdAuthorityChildTarget {
+    pub child_id: ChildProfileId,
+    pub household_id: HouseholdId,
+    pub device_ids: Vec<DeviceId>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ParentControllerDeviceTrustProof {
+    pub parent_member_id: ParentMemberId,
+    pub household_id: HouseholdId,
+    pub device_id: DeviceId,
+    pub trust_state: DeviceTrustState,
+    pub stale_since: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct HouseholdAuthorityHandoffRequest {
     pub evaluation_id: HouseholdAuthorityEvaluationId,
     pub parent_member: ParentMember,
-    pub child_profile: ChildProfile,
+    pub child_target: HouseholdAuthorityChildTarget,
     pub device_registration: DeviceRegistration,
+    pub parent_controller_device: ParentControllerDeviceTrustProof,
     pub actor_account_state: ActorAccountState,
     pub session_freshness_state: SessionFreshnessState,
     pub capability_granted: bool,
     pub controller_lease: Option<ParentControllerLease>,
+    pub observed_at: ParentPresenceObservedAt,
     pub action: HouseholdAuthorityAction,
 }
 
@@ -63,7 +82,7 @@ pub fn evaluate_household_authority_handoff(
         membership_state: request.parent_member.invite_state,
         child_profile_binding_state: child_profile_binding_state(&request),
         device_ownership_scope: device_ownership_scope(&request),
-        device_trust_state: request.device_registration.trust_state,
+        device_trust_state: parent_controller_trust_state(&request),
         session_freshness_state: request.session_freshness_state,
         capability_granted: request.capability_granted,
         controller_lease_state: controller_lease_state(&request),
@@ -75,7 +94,7 @@ pub fn evaluate_household_authority_handoff(
         evaluation_id: request.evaluation_id,
         household_id,
         parent_member_id: request.parent_member.member_id,
-        child_profile_id: request.child_profile.child_id,
+        child_profile_id: request.child_target.child_id,
         device_id: request.device_registration.device_id,
         action: request.action,
         decision,
@@ -84,17 +103,20 @@ pub fn evaluate_household_authority_handoff(
 }
 
 fn same_family(request: &HouseholdAuthorityHandoffRequest) -> bool {
-    request.parent_member.household_id == request.child_profile.household_id
+    request.parent_member.household_id == request.child_target.household_id
         && request.parent_member.household_id == request.device_registration.household_id
+        && request.parent_member.household_id == request.parent_controller_device.household_id
 }
 
 fn child_profile_binding_state(
     request: &HouseholdAuthorityHandoffRequest,
 ) -> ChildProfileBindingState {
-    if request
-        .device_registration
-        .validate_child_profile(&request.child_profile)
-        .is_ok()
+    if request.device_registration.child_id == request.child_target.child_id
+        && request.device_registration.household_id == request.child_target.household_id
+        && request
+            .child_target
+            .device_ids
+            .contains(&request.device_registration.device_id)
     {
         ChildProfileBindingState::Bound
     } else {
@@ -110,12 +132,36 @@ fn device_ownership_scope(request: &HouseholdAuthorityHandoffRequest) -> DeviceO
     }
 }
 
+fn parent_controller_trust_state(request: &HouseholdAuthorityHandoffRequest) -> DeviceTrustState {
+    if request.parent_controller_device.parent_member_id != request.parent_member.member_id
+        || request.parent_controller_device.stale_since.is_some()
+    {
+        DeviceTrustState::Revoked
+    } else {
+        request.parent_controller_device.trust_state
+    }
+}
+
 fn controller_lease_state(
     request: &HouseholdAuthorityHandoffRequest,
 ) -> Option<ParentControllerLeaseState> {
     request.controller_lease.as_ref().and_then(|lease| {
         (lease.parent_member_id == request.parent_member.member_id
-            && lease.device_id == request.device_registration.device_id)
-            .then_some(lease.revocation_state)
+            && lease.device_id == request.parent_controller_device.device_id)
+            .then(|| derived_controller_lease_state(lease, &request.observed_at))
     })
+}
+
+fn derived_controller_lease_state(
+    lease: &ParentControllerLease,
+    observed_at: &ParentPresenceObservedAt,
+) -> ParentControllerLeaseState {
+    if lease.revocation_state != ParentControllerLeaseState::Active {
+        return lease.revocation_state;
+    }
+
+    match ParentPresenceObservedAt::from_canonical_utc(&lease.expires_at) {
+        Ok(expires_at) if expires_at.is_after(observed_at) => ParentControllerLeaseState::Active,
+        Ok(_) | Err(_) => ParentControllerLeaseState::Expired,
+    }
 }
