@@ -93,7 +93,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - the canonical network contract source is `crates/schema` or the owning Rust crate; `packages/network-domain` is a package metadata/proof-consumer surface unless selected public exports exist;
 - real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
 - the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
-- only the slice-01 proof pack exists right now; broader plan proof bundles are still missing;
+- two bounded WP01 proof documents exist right now: `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` for the retired parent-domain frontage and `docs/proof/network-plan/01-network-foundation-eventing-contract.md` for the typed reusable-eventing handoff; broader plan proof bundles are still missing;
 - `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
 
 ## Current slice checkpoint
