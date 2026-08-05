@@ -48,7 +48,11 @@ export async function assertLanRouteSurface(page: Page): Promise<void> {
 }
 
 async function selectFreshServiceBackedLanDevice(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
-  const deviceChoice = surface.getByRole('button', { name: /^Select (?!LAN |Parent Portal$).+/ }).first();
+  const lanScopeChoice = surface.getByRole('button', { exact: true, name: 'Select LAN Devices' });
+  await expect(lanScopeChoice).toBeVisible({ timeout: 30_000 });
+  await lanScopeChoice.click({ force: true });
+
+  const deviceChoice = surface.getByRole('button', { name: /^Select (?!LAN |Parent Portal$|Portal$).+/ }).first();
   await expect(deviceChoice).toBeVisible({ timeout: 30_000 });
   const deviceLabel = ((await deviceChoice.getAttribute('aria-label')) ?? '').replace(/^Select /, '');
   await deviceChoice.click({ force: true });
