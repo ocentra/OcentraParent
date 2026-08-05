@@ -52,6 +52,23 @@ const POLICY_PREVIEW_PARENT_ACCESS_LABELS: &[(&str, &str)] = &[
     ("unauthenticated", "Unauthenticated"),
     ("proof-missing", "Proof missing"),
 ];
+const POLICY_PREVIEW_CONFLICT_FINDING_KINDS: &[&str] = &[
+    "schedule-conflict",
+    "overlapping-schedule",
+    "timezone-boundary",
+    "ambiguous-local-time",
+    "nonexistent-local-time",
+    "clock-skew",
+];
+const POLICY_PREVIEW_CONFLICT_EXPLANATION_CODES: &[&str] = &[
+    "schedule-conflict",
+    "overlapping-schedule",
+    "schedule-timezone-boundary",
+    "timezone-boundary-conflict",
+    "ambiguous-local-time",
+    "nonexistent-local-time",
+    "clock-skew",
+];
 
 pub(super) fn policy_preview_unavailable_summary(
     event: Option<&ParentRouteEventSnapshot>,
@@ -108,17 +125,25 @@ pub(super) fn policy_preview_has_confirmed_controller_decision(
 pub(super) fn policy_preview_has_conflict_finding(
     read_model: &ParentPolicyPreviewReadModelSnapshot,
 ) -> bool {
-    let finding_kinds = read_model
-        .policy_preview_finding_kinds
-        .as_deref()
-        .unwrap_or_default()
-        .to_ascii_lowercase();
-    let explanation_code = read_model
-        .policy_preview_target_explanation_code
-        .as_deref()
-        .unwrap_or_default()
-        .to_ascii_lowercase();
-    finding_kinds.contains("conflict") || explanation_code.contains("conflict")
+    policy_preview_has_protocol_value(
+        read_model.policy_preview_finding_kinds.as_deref(),
+        POLICY_PREVIEW_CONFLICT_FINDING_KINDS,
+    ) || policy_preview_has_protocol_value(
+        read_model.policy_preview_target_explanation_code.as_deref(),
+        POLICY_PREVIEW_CONFLICT_EXPLANATION_CODES,
+    )
+}
+
+fn policy_preview_has_protocol_value(value: Option<&str>, expected_values: &[&str]) -> bool {
+    value
+        .into_iter()
+        .flat_map(|value| value.split(','))
+        .map(str::trim)
+        .any(|value| {
+            expected_values
+                .iter()
+                .any(|expected| value.eq_ignore_ascii_case(expected))
+        })
 }
 
 pub(super) fn policy_preview_parent_access_readable_value(

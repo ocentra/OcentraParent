@@ -1,5 +1,7 @@
 use std::time::Duration;
 
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 use serde_json::json;
 
@@ -188,6 +190,101 @@ fn policy_preview_confirm_action_dispatches_rust_owned_command_and_reloads_snaps
         detail_value("Audit reference"),
         Some("audit.policy-request.confirmed")
     );
+}
+
+#[test]
+fn policy_preview_real_conflict_reasons_are_projected_before_manual_review() {
+    for (field, finding_kind) in [
+        (
+            constants::field::POLICY_PREVIEW_FINDING_KINDS,
+            "overlapping-schedule",
+        ),
+        (
+            constants::field::POLICY_PREVIEW_FINDING_KINDS,
+            "ambiguous-local-time",
+        ),
+        (
+            constants::field::POLICY_PREVIEW_TARGET_EXPLANATION_CODE,
+            "schedule-timezone-boundary",
+        ),
+        (
+            constants::field::POLICY_PREVIEW_TARGET_EXPLANATION_CODE,
+            "nonexistent-local-time",
+        ),
+        (
+            constants::field::POLICY_PREVIEW_TARGET_EXPLANATION_CODE,
+            "clock-skew",
+        ),
+    ] {
+        let card = policy_preview_attention_card(&[
+            (constants::field::POLICY_PREVIEW_SAVE_STATE, "blocked"),
+            (
+                constants::field::POLICY_PREVIEW_MANUAL_REVIEW_STATE,
+                "required",
+            ),
+            (field, finding_kind),
+        ]);
+        assert_eq!(
+            card,
+            json!({
+                "title": "Parent attention",
+                "summary": "Conflict requires parent review before this preview can be saved.",
+                "details": [
+                    { "label": "Attention type", "value": "Conflict" },
+                    { "label": "Conflict evidence", "value": finding_kind },
+                    { "label": "Save state", "value": "Blocked" }
+                ]
+            })
+        );
+    }
+}
+
+#[test]
+fn policy_preview_unsupported_target_precedes_manual_review_attention() {
+    let card = policy_preview_attention_card(&[
+        (constants::field::POLICY_PREVIEW_SAVE_STATE, "blocked"),
+        (
+            constants::field::POLICY_PREVIEW_MANUAL_REVIEW_STATE,
+            "required",
+        ),
+        (constants::field::POLICY_PREVIEW_TARGET_STATE, "unsupported"),
+    ]);
+    assert_eq!(
+        card["summary"],
+        json!("This target is unsupported and cannot be saved from this policy path.")
+    );
+    assert_eq!(
+        card["details"][0],
+        json!({ "label": "Attention type", "value": "Unsupported target" })
+    );
+}
+
+#[test]
+fn policy_preview_offline_and_stale_target_attention_precedes_manual_review_without_save_state() {
+    for target_state in ["offline", "stale"] {
+        let card = policy_preview_attention_card(&[
+            (constants::field::POLICY_PREVIEW_TARGET_STATE, target_state),
+            (
+                constants::field::POLICY_PREVIEW_MANUAL_REVIEW_STATE,
+                "required",
+            ),
+        ]);
+        assert_eq!(card["title"], json!("Parent attention"));
+        assert_eq!(
+            card["details"][0],
+            json!({ "label": "Attention type", "value": format!("Target {target_state}") })
+        );
+        assert_eq!(
+            card["details"][1]["value"]
+                .as_str()
+                .map(str::to_ascii_lowercase),
+            Some(target_state.to_string())
+        );
+        assert_eq!(
+            card["details"][2],
+            json!({ "label": "Save state", "value": "Not reported" })
+        );
+    }
 }
 
 #[test]
@@ -872,4 +969,30 @@ fn route_snapshot_json(route: ParentRouteId, label: TestContext) -> serde_json::
         serde_json::to_value(load_parent_route_snapshot(route, None)),
         label.0,
     )
+}
+
+fn policy_preview_attention_card(fields: &[(&str, &str)]) -> serde_json::Value {
+    let mut response = policy_preview_response_event();
+    for (field, value) in fields {
+        response.payload.insert(
+            (*field).to_string(),
+            LogFieldValue::String((*value).to_string()),
+        );
+    }
+    let (address, capture) = start_local_server_with_capture_responses(vec![response]);
+    let snapshot = with_agent_addr(&address, || {
+        route_snapshot_json(
+            ParentRouteId::Approvals,
+            TestContext("policy preview attention route serializes"),
+        )
+    });
+    let request = require_ok(
+        capture.recv_timeout(Duration::from_secs(1)),
+        "captured policy preview attention load arrives",
+    );
+    assert_eq!(
+        request.command["command"],
+        json!("agent.policy.preview.read-model.get")
+    );
+    snapshot["liveActivity"]["policyPreviewPanel"]["cards"][0].clone()
 }
