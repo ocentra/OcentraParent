@@ -54,14 +54,41 @@ pub(super) fn remove(binding: &[u8]) -> Result<(), Error> {
         RegKey,
     };
 
-    let result = RegKey::predef(HKEY_CURRENT_USER)
+    let key = RegKey::predef(HKEY_CURRENT_USER)
         .open_subkey_with_flags(DEVICE_TRUST_EPOCHS_REGISTRY_PATH, KEY_WRITE)
-        .map_err(|_error| Error::Missing)?
-        .delete_value(hex(Sha256::digest(binding)));
+        .map_err(|error| registry_open_error(&error))?;
+    let result = key.delete_value(hex(Sha256::digest(binding)));
     match result {
         Ok(()) => Ok(()),
         Err(error) if error.kind() == io::ErrorKind::NotFound => Err(Error::Missing),
         Err(_error) => Err(Error::Platform),
+    }
+}
+
+#[cfg(windows)]
+fn registry_open_error(error: &io::Error) -> Error {
+    if error.kind() == io::ErrorKind::NotFound {
+        Error::Missing
+    } else {
+        Error::Platform
+    }
+}
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::{registry_open_error, Error};
+    use std::io;
+
+    #[test]
+    fn registry_key_open_only_swallows_not_found() {
+        assert_eq!(
+            registry_open_error(&io::Error::from(io::ErrorKind::NotFound)),
+            Error::Missing
+        );
+        assert_eq!(
+            registry_open_error(&io::Error::from(io::ErrorKind::PermissionDenied)),
+            Error::Platform
+        );
     }
 }
 

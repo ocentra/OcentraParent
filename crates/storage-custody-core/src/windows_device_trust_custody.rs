@@ -88,11 +88,7 @@ impl WindowsDeviceTrustCustody {
             let _cleanup_result = fs::remove_file(&record_path);
             return Err(error);
         }
-        if platform::current(&binding)? != epoch {
-            let _cleanup_result = fs::remove_file(&record_path);
-            return Err(Error::Mismatch);
-        }
-        Ok(())
+        verify_activated_binding(&binding, &epoch, &record_path, platform::current(&binding))
     }
     pub fn unseal_current(
         &self,
@@ -157,5 +153,64 @@ impl WindowsDeviceTrustCustody {
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         Arc::clone(locks.entry(key).or_insert_with(|| Arc::new(Mutex::new(()))))
+    }
+}
+
+fn verify_activated_binding(
+    binding: &[u8],
+    epoch: &[u8],
+    record_path: &Path,
+    verification: Result<Vec<u8>, Error>,
+) -> Result<(), Error> {
+    match verification {
+        Ok(current) if current == epoch => Ok(()),
+        Ok(_) => {
+            rollback_activated_binding(binding, record_path);
+            Err(Error::Mismatch)
+        }
+        Err(error) => {
+            rollback_activated_binding(binding, record_path);
+            Err(error)
+        }
+    }
+}
+
+fn rollback_activated_binding(binding: &[u8], record_path: &Path) {
+    let _cleanup_result = platform::remove(binding);
+    let _cleanup_result = fs::remove_file(record_path);
+}
+
+#[cfg(all(test, windows))]
+mod tests {
+    use super::{verify_activated_binding, Error};
+    use std::fs;
+
+    #[test]
+    fn verification_read_error_removes_the_persisted_record() -> Result<(), String> {
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-wp02-post-activation-cleanup-{}",
+            std::process::id()
+        ));
+        let _cleanup = fs::remove_dir_all(&root);
+        fs::create_dir_all(&root).map_err(|error| format!("create root: {error}"))?;
+        let record_path = root.join("record.sealed");
+        fs::write(&record_path, "sealed").map_err(|error| format!("write record: {error}"))?;
+
+        assert_eq!(
+            verify_activated_binding(
+                b"post-activation-cleanup",
+                b"epoch",
+                &record_path,
+                Err(Error::Platform)
+            ),
+            Err(Error::Platform)
+        );
+        assert!(
+            !record_path.exists(),
+            "a verification read failure must remove the persisted record"
+        );
+
+        let _cleanup = fs::remove_dir_all(root);
+        Ok(())
     }
 }

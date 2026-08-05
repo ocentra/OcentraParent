@@ -1,4 +1,5 @@
 use super::*;
+use crate::parent_ui_bridge::action_result_app_game;
 
 pub(super) fn action_result_message(action: &ParentUiAction) -> String {
     match action.action {
@@ -27,8 +28,7 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         }
         ParentUiActionKind::AppGameAdapterDispatchExecuteRequested
         | ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
-            return super::super::action_result_app_game::action_result_message(&action.action)
-                .to_string();
+            return action_result_app_game::action_result_message(&action.action).to_string();
         }
     }
     .to_string()

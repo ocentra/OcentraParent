@@ -1,42 +1,63 @@
 use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 
 #[test]
-fn tombstone_outbox_recovers_intent_until_terminal_publish() {
+fn tombstone_outbox_recovers_intent_until_terminal_publish() -> Result<(), String> {
     let directory = std::env::temp_dir().join(format!("ocentra-tombstone-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
-    let store = RetentionDeleteTombstoneStore::open(&directory).expect("open");
+    let store = RetentionDeleteTombstoneStore::open(&directory)
+        .map_err(|error| format!("open tombstone outbox: {error}"))?;
     store
         .persist_intent("delete:one".to_string(), "proof:one".to_string())
-        .expect("intent");
-    let reopened = RetentionDeleteTombstoneStore::open(&directory).expect("reopen");
-    assert_eq!(reopened.records().expect("records").len(), 1);
+        .map_err(|error| format!("persist tombstone intent: {error}"))?;
+    let reopened = RetentionDeleteTombstoneStore::open(&directory)
+        .map_err(|error| format!("reopen tombstone outbox: {error}"))?;
+    assert_eq!(
+        reopened
+            .records()
+            .map_err(|error| format!("read persisted tombstone records: {error}"))?
+            .len(),
+        1
+    );
     reopened
         .mark_terminal_published("delete:one")
-        .expect("terminal");
-    assert_eq!(reopened.records().expect("empty").len(), 0);
+        .map_err(|error| format!("mark terminal tombstone: {error}"))?;
+    assert_eq!(
+        reopened
+            .records()
+            .map_err(|error| format!("read empty tombstone records: {error}"))?
+            .len(),
+        0
+    );
     let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
 }
 
 #[test]
-fn tombstone_outbox_rejects_corrupt_durable_metadata() {
+fn tombstone_outbox_rejects_corrupt_durable_metadata() -> Result<(), String> {
     let directory =
         std::env::temp_dir().join(format!("ocentra-tombstone-corrupt-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
-    let store = RetentionDeleteTombstoneStore::open(&directory).expect("open");
+    let store = RetentionDeleteTombstoneStore::open(&directory)
+        .map_err(|error| format!("open tombstone outbox: {error}"))?;
     std::fs::write(
         directory.join("retention-delete-tombstones.json"),
         b"not-json",
     )
-    .expect("corrupt");
-    assert_eq!(
-        store.records().expect_err("corrupt metadata").kind(),
-        std::io::ErrorKind::InvalidData
-    );
+    .map_err(|error| format!("write corrupt tombstone metadata: {error}"))?;
+    match store.records() {
+        Err(error) => assert_eq!(error.kind(), std::io::ErrorKind::InvalidData),
+        Ok(records) => {
+            return Err(format!(
+                "expected corrupt metadata rejection, got {records:?}"
+            ))
+        }
+    }
     let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
 }
 
 #[test]
-fn tombstone_outbox_serializes_concurrent_intents() {
+fn tombstone_outbox_serializes_concurrent_intents() -> Result<(), String> {
     let directory =
         std::env::temp_dir().join(format!("ocentra-tombstone-race-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
@@ -50,39 +71,45 @@ fn tombstone_outbox_serializes_concurrent_intents() {
         }));
     }
     for worker in workers {
-        worker.join().expect("join").expect("intent");
+        worker
+            .join()
+            .map_err(|_error| "tombstone worker panicked".to_string())?
+            .map_err(|error| format!("persist concurrent tombstone intent: {error}"))?;
     }
     let count = RetentionDeleteTombstoneStore::open(&directory)
-        .expect("open")
+        .map_err(|error| format!("reopen tombstone outbox: {error}"))?
         .records()
-        .expect("records")
+        .map_err(|error| format!("read concurrent tombstone records: {error}"))?
         .len();
     assert_eq!(count, 8);
     let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
 }
 
 #[test]
-fn tombstone_outbox_atomic_replacements_survive_reopen() {
+fn tombstone_outbox_atomic_replacements_survive_reopen() -> Result<(), String> {
     let directory =
         std::env::temp_dir().join(format!("ocentra-tombstone-replace-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&directory);
-    let store = RetentionDeleteTombstoneStore::open(&directory).expect("open");
+    let store = RetentionDeleteTombstoneStore::open(&directory)
+        .map_err(|error| format!("open tombstone outbox: {error}"))?;
     store
         .persist_intent("delete:first".to_string(), "proof:first".to_string())
-        .expect("first intent");
+        .map_err(|error| format!("persist first tombstone intent: {error}"))?;
     store
         .persist_intent("delete:second".to_string(), "proof:second".to_string())
-        .expect("second intent");
+        .map_err(|error| format!("persist second tombstone intent: {error}"))?;
     store
         .mark_terminal_published("delete:first")
-        .expect("first terminal");
+        .map_err(|error| format!("mark first tombstone terminal: {error}"))?;
 
     let records = RetentionDeleteTombstoneStore::open(&directory)
-        .expect("reopen")
+        .map_err(|error| format!("reopen tombstone outbox: {error}"))?
         .records()
-        .expect("records");
+        .map_err(|error| format!("read replacement tombstone records: {error}"))?;
     assert_eq!(records.len(), 1);
     assert_eq!(records[0].deletion_ref, "delete:second");
     assert!(records[0].terminal_pending);
     let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
 }
