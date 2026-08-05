@@ -49,6 +49,112 @@ describe('policy preview portal route panel', () => {
   });
 });
 
+describe('policy preview portal attention cards', () => {
+  it('renders Rust-owned conflict attention before the ordinary preview cards', () => {
+    const markup = renderToStaticMarkup(
+      createElement(PolicyPreviewRoutePanel, {
+        actions: policyPreviewActions(),
+        commandEnabled: true,
+        panel: {
+          ...activeControllerPolicyPreviewPanel(),
+          cards: [
+            {
+              title: 'Parent attention',
+              summary: 'Conflict requires parent review before this preview can be saved.',
+              details: [
+                { label: 'Attention type', value: 'Conflict' },
+                { label: 'Conflict evidence', value: 'overlapping-schedule' },
+                { label: 'Save state', value: 'Blocked' },
+              ],
+            },
+            ...policyPreviewCards('https://example.test/latest', 'Confirmed'),
+          ],
+        },
+      })
+    );
+
+    expect(markup.indexOf('Parent attention')).toBeLessThan(markup.indexOf('Preview state'));
+    expect(markup).toContain('Conflict requires parent review before this preview can be saved.');
+    expect(markup).toContain('overlapping-schedule');
+  });
+
+  it('renders Rust-owned manual-required and unsupported attention without collapsing them into blocked conflict', () => {
+    for (const [attentionType, summary, evidenceLabel, evidenceValue] of [
+      [
+        'Manual review required',
+        'Manual review is required before this preview can be saved.',
+        'Manual-review state',
+        'Required',
+      ],
+      [
+        'Unsupported target',
+        'This target is unsupported and cannot be saved from this policy path.',
+        'Target state',
+        'Unsupported',
+      ],
+    ] as const) {
+      const markup = renderToStaticMarkup(
+        createElement(PolicyPreviewRoutePanel, {
+          actions: policyPreviewActions(),
+          commandEnabled: true,
+          panel: {
+            ...activeControllerPolicyPreviewPanel(),
+            cards: [
+              {
+                title: 'Parent attention',
+                summary,
+                details: [
+                  { label: 'Attention type', value: attentionType },
+                  { label: evidenceLabel, value: evidenceValue },
+                  { label: 'Save state', value: 'Blocked' },
+                ],
+              },
+              ...policyPreviewCards('https://example.test/latest', 'Confirmed'),
+            ],
+          },
+        })
+      );
+
+      expect(markup.indexOf('Parent attention')).toBeLessThan(markup.indexOf('Preview state'));
+      expect(markup).toContain(attentionType);
+      expect(markup).toContain(summary);
+      expect(markup).toContain(evidenceValue);
+      expect(markup).toContain('Blocked');
+    }
+  });
+});
+
+describe('policy preview portal blocked attention', () => {
+  it('renders Rust-owned non-conflict blocked attention without presenting it as conflict', () => {
+    const markup = renderToStaticMarkup(
+      createElement(PolicyPreviewRoutePanel, {
+        actions: policyPreviewActions(),
+        commandEnabled: true,
+        panel: {
+          ...activeControllerPolicyPreviewPanel(),
+          cards: [
+            {
+              title: 'Parent attention',
+              summary: 'This preview is blocked and cannot be saved until its blocking state is resolved.',
+              details: [
+                { label: 'Attention type', value: 'Save blocked' },
+                { label: 'Blocking evidence', value: 'offline-target' },
+                { label: 'Save state', value: 'Blocked' },
+              ],
+            },
+            ...policyPreviewCards('https://example.test/latest', 'Confirmed'),
+          ],
+        },
+      })
+    );
+
+    expect(markup.indexOf('Parent attention')).toBeLessThan(markup.indexOf('Preview state'));
+    expect(markup).toContain('Save blocked');
+    expect(markup).toContain('offline-target');
+    expect(markup).not.toContain('Conflict requires parent review before this preview can be saved.');
+  });
+});
+
 function activeControllerPolicyPreviewPanel(): ParentPolicyPreviewPanelSnapshot {
   return {
     ...policyPreviewPanelIdentity(),

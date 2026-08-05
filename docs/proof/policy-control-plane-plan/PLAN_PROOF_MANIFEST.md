@@ -28,7 +28,7 @@ This manifest records current proof presence and route-status wording only. It d
 | Workpack | State | Evidence |
 | --- | --- | --- |
 | WP01 source of truth | Present | `01-source-of-truth-matrix-proof.md`, `01-schema-negative-proof.md`, `01-version-skew-proof.md`, `01-duplicate-truth-negative-proof.md`, `01-ai-preview-not-write-proof.md`, `01-authz-negative-proof.md` |
-| WP02 parent authoring/preview | Open | no `02-*.md` closeout bundle under the canonical root; `02-no-claim-boundary.md` is universal only |
+| WP02 parent authoring/preview | Partial / open | `02-conflict-visible-proof.md` proves a Rust-owned, portal-rendered conflict/manual-required/unsupported attention slice; parent template/manual-rule authoring, preview-to-save confirmation UX, and opaque confirmed-request relay remain open. `02-no-claim-boundary.md` is universal only. |
 | WP03 domain policy compilers | Present | `03-domain-compiler-matrix-proof.md`, `03-domain-fixture-proof.md`, `03-unsupported-manual-required-proof.md`, `03-version-compat-proof.md`, `03-deterministic-output-proof.md` |
 | WP04 delivery/ack/audit | Partial / dependency-blocked | `04-delivery-state-machine-proof.md`, `04-delivery-replay-and-ordering-proof.md`, `04-delivery-degraded-and-parent-visible-proof.md`, `04-delivery-audit-rollback-proof.md`; contract evidence is current, but trusted adapter authority, inspectable execution trace, and real enforcement execution proof are absent |
 | WP05 ask-parent/overrides | Open | no `05-*.md` closeout bundle under the canonical root |

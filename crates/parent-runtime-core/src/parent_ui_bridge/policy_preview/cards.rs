@@ -1,13 +1,32 @@
 use super::access_summary::policy_preview_access_summary_impl;
 use super::access_write::policy_preview_access_write_authority_impl;
 use super::helpers::{
-    policy_preview_detail, policy_preview_optional_display_value, policy_preview_optional_value,
+    policy_preview_detail, policy_preview_has_conflict_finding,
+    policy_preview_optional_display_value, policy_preview_optional_value,
     policy_preview_parent_access_readable_value, policy_preview_product_claim,
     policy_preview_readable_value, policy_preview_required_readable_value,
     policy_preview_reviewed_by_value,
 };
 use super::summary::{policy_preview_source_lifecycle_summary_impl, policy_preview_summary_impl};
 use super::*;
+
+const POLICY_PREVIEW_TARGET_ATTENTION: &[(&str, &str, &str)] = &[
+    (
+        "unsupported",
+        "Unsupported target",
+        "This target is unsupported and cannot be saved from this policy path.",
+    ),
+    (
+        "offline",
+        "Target offline",
+        "This target is offline and cannot be saved until it is reachable.",
+    ),
+    (
+        "stale",
+        "Target stale",
+        "This target is stale and cannot be saved until its current state is refreshed.",
+    ),
+];
 
 pub(super) fn policy_preview_cards_impl(
     read_model: Option<&ParentPolicyPreviewReadModelSnapshot>,
@@ -22,13 +41,100 @@ pub(super) fn policy_preview_cards_impl(
             policy_preview_access_card_impl(parent_access_state, None),
             policy_preview_boundary_card_impl(),
         ],
-        Some(read_model) => vec![
-            policy_preview_state_card_impl(read_model),
-            policy_preview_source_card_impl(read_model),
-            policy_preview_access_card_impl(parent_access_state, Some(read_model)),
-            policy_preview_boundary_card_impl(),
-        ],
+        Some(read_model) => {
+            let mut cards = Vec::new();
+            if let Some(attention) = policy_preview_attention_card_impl(read_model) {
+                cards.push(attention);
+            }
+            cards.extend([
+                policy_preview_state_card_impl(read_model),
+                policy_preview_source_card_impl(read_model),
+                policy_preview_access_card_impl(parent_access_state, Some(read_model)),
+                policy_preview_boundary_card_impl(),
+            ]);
+            cards
+        }
     }
+}
+
+fn policy_preview_attention_card_impl(
+    read_model: &ParentPolicyPreviewReadModelSnapshot,
+) -> Option<ParentPolicyPreviewPanelCardSnapshot> {
+    let (attention_type, summary, evidence_label, evidence_value) =
+        if policy_preview_has_conflict_finding(read_model) {
+            (
+                "Conflict",
+                "Conflict requires parent review before this preview can be saved.",
+                "Conflict evidence",
+                policy_preview_optional_value(
+                    read_model
+                        .policy_preview_finding_kinds
+                        .as_deref()
+                        .or(read_model.policy_preview_target_explanation_code.as_deref()),
+                ),
+            )
+        } else if let Some((attention_type, summary)) =
+            policy_preview_target_attention(read_model.policy_preview_target_state.as_deref())
+        {
+            (
+                attention_type,
+                summary,
+                "Target state",
+                policy_preview_readable_value(read_model.policy_preview_target_state.as_deref()),
+            )
+        } else if read_model.policy_preview_manual_review_state.as_deref() == Some("required")
+            || read_model.policy_preview_target_state.as_deref() == Some("manual-required")
+        {
+            (
+                "Manual review required",
+                "Manual review is required before this preview can be saved.",
+                "Manual-review state",
+                policy_preview_readable_value(
+                    read_model
+                        .policy_preview_manual_review_state
+                        .as_deref()
+                        .or(read_model.policy_preview_target_state.as_deref()),
+                ),
+            )
+        } else if read_model.policy_preview_save_state.as_deref() == Some("blocked") {
+            (
+                "Save blocked",
+                "This preview is blocked and cannot be saved until its blocking state is resolved.",
+                "Blocking evidence",
+                policy_preview_optional_value(
+                    read_model
+                        .policy_preview_finding_kinds
+                        .as_deref()
+                        .or(read_model.policy_preview_target_explanation_code.as_deref()),
+                ),
+            )
+        } else {
+            return None;
+        };
+
+    Some(ParentPolicyPreviewPanelCardSnapshot {
+        title: "Parent attention".to_string(),
+        summary: summary.to_string(),
+        details: vec![
+            policy_preview_detail("Attention type", attention_type.to_string()),
+            policy_preview_detail(evidence_label, evidence_value),
+            policy_preview_detail(
+                "Save state",
+                policy_preview_readable_value(read_model.policy_preview_save_state.as_deref()),
+            ),
+        ],
+    })
+}
+
+fn policy_preview_target_attention(
+    target_state: Option<&str>,
+) -> Option<(&'static str, &'static str)> {
+    target_state.and_then(|target_state| {
+        POLICY_PREVIEW_TARGET_ATTENTION
+            .iter()
+            .find(|(state, _, _)| *state == target_state)
+            .map(|(_, attention_type, summary)| (*attention_type, *summary))
+    })
 }
 
 pub(super) fn policy_preview_state_card_impl(
