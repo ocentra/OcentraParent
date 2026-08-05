@@ -31,6 +31,8 @@ mod enforcement_capability;
 mod enforcement_cross_platform_capability_proof_read_model;
 #[path = "enforcement_cross_platform_capability_proof_read_model_tests.rs"]
 mod enforcement_cross_platform_capability_proof_read_model_tests;
+#[path = "enforcement_eventing_retry_production_tests.rs"]
+mod enforcement_eventing_retry_production_tests;
 #[path = "enforcement_integrity_runtime_audit_proof.rs"]
 mod enforcement_integrity_runtime_audit_proof;
 #[path = "enforcement_integrity_runtime_audit_read_model_tests.rs"]
@@ -75,6 +77,33 @@ mod integrity_alert_status_bridge_read_model_tests;
 mod json_contract;
 #[path = "notification_provider_status_boundary_read_model_tests.rs"]
 mod notification_provider_status_boundary_read_model_tests;
+mod production_enforcement_api {
+    use std::path::PathBuf;
+
+    use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentEventEnvelope};
+
+    #[path = "../../../src/enforcement_api/enforcement_command_execution.rs"]
+    mod enforcement_command_execution;
+    use crate::enforcement_pre_action_journal;
+    #[path = "../../../src/enforcement_api/enforcement_report_payload.rs"]
+    pub(crate) mod enforcement_report_payload;
+
+    #[derive(Clone, Debug, PartialEq, Eq)]
+    pub(crate) struct EnforcementJournalPaths {
+        pub(crate) journal_path: PathBuf,
+        pub(crate) key_path: PathBuf,
+        pub(crate) store_path: PathBuf,
+        pub(crate) timer_state_path: crate::enforcement_timer_state_path::EnforcementTimerStatePath,
+    }
+
+    pub(crate) async fn build_enforcement_audit_report_with_paths(
+        command: AgentCommandEnvelope,
+        paths: EnforcementJournalPaths,
+    ) -> AgentEventEnvelope {
+        enforcement_command_execution::build_enforcement_audit_report_with_paths(command, paths)
+            .await
+    }
+}
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 #[path = "../../src/time.rs"]

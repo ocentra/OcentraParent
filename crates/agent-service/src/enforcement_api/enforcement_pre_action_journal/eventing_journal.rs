@@ -23,8 +23,16 @@ pub(crate) async fn append_enforcement_audit_journal_event(
     event: EnforcementAuditJournalEvent,
     correlation_id: CorrelationId,
 ) -> Result<JournalAppend, EventingError> {
-    let journal =
-        NdjsonEventJournal::with_options(journal_path.path, NdjsonJournalOptions::hash_chain());
+    let path = journal_path.path;
+    if let Some(parent) = path.parent() {
+        tokio::fs::create_dir_all(parent)
+            .await
+            .map_err(|error| EventingError::JournalIo {
+                path: parent.display().to_string(),
+                reason: error.to_string(),
+            })?;
+    }
+    let journal = NdjsonEventJournal::with_options(path, NdjsonJournalOptions::hash_chain());
     let metadata = EventMetadata::from_parts(
         EventId::parse(event.audit_event_id.clone())?,
         correlation_id,

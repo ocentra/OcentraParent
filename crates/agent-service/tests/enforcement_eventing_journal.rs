@@ -1,7 +1,10 @@
 #[path = "../src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs"]
 mod eventing_journal;
 
-use std::{ffi::OsString, fs::remove_file};
+use std::{
+    ffi::OsString,
+    fs::{remove_dir, remove_file},
+};
 
 use ocentra_eventing::{
     expect_value::ExpectValue,
@@ -19,16 +22,18 @@ use ocentra_parent_agent_protocol::{
 
 #[tokio::test]
 async fn typed_enforcement_audit_append_is_idempotent_and_replays_projection_only() {
-    let activity_journal_path = std::env::temp_dir().join(format!(
-        "enforcement-eventing-journal-{}.activity",
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-journal-{}",
         EventId::generated().as_str()
     ));
+    let activity_journal_path = root.join("nested").join("activity.activity");
     let event = journal_event();
     let mut eventing_path = activity_journal_path.clone();
     eventing_path.set_extension(enforcement::EVENTING_JOURNAL_EXTENSION);
     let journal_path = eventing_journal::EnforcementEventingJournalPath {
         path: eventing_path.clone(),
     };
+    assert!(!root.join("nested").exists());
     let first = eventing_journal::append_enforcement_audit_journal_event(
         journal_path.clone(),
         event.clone(),
@@ -64,6 +69,8 @@ async fn typed_enforcement_audit_append_is_idempotent_and_replays_projection_onl
         .expect_value("typed enforcement audit replay decode");
     drop(journal);
     cleanup(&eventing_path);
+    remove_dir(root.join("nested")).expect_value("nested test directory removed");
+    remove_dir(&root).expect_value("test directory removed");
 
     assert_eq!(decoded.payload, event);
 }

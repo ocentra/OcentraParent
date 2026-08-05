@@ -81,6 +81,8 @@ async fn execute_enforcement_command(
     paths: EnforcementJournalPaths,
     provenance: Option<EnforcementAuditProvenance>,
 ) -> Result<LogFields, EnforcementCommandExecutionError> {
+    let command_correlation_id = EnforcementText(command.message_id.clone());
+    let command_sent_at = EnforcementText(command.sent_at.clone());
     let observed_at = EnforcementText(timestamp_now());
     let request = parse_enforcement_command_payload(&command, &observed_at)
         .map_err(EnforcementCommandExecutionError::PayloadRejection)?;
@@ -95,9 +97,9 @@ async fn execute_enforcement_command(
     };
     let before_action_outcome =
         journal_before_action_outcome(&request, &authorization.action, observed_at);
-    let command_correlation_id = EnforcementText(command.message_id.clone());
     record_eventing_enforcement_audit(
         &command_correlation_id,
+        &command_sent_at,
         &before_action_outcome,
         &paths,
     )
@@ -116,6 +118,7 @@ async fn execute_enforcement_command(
     outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
     record_eventing_enforcement_audit(
         &command_correlation_id,
+        &command_sent_at,
         &outcome,
         &paths,
     )
@@ -137,6 +140,7 @@ async fn execute_enforcement_command(
 
 async fn record_eventing_enforcement_audit(
     command_correlation_id: &EnforcementText,
+    command_sent_at: &EnforcementText,
     outcome: &EnforcementBoundaryOutcome,
     paths: &EnforcementJournalPaths,
 ) -> Result<(), EnforcementJournalBuildError> {
@@ -146,7 +150,7 @@ async fn record_eventing_enforcement_audit(
         EnforcementEventingJournalPath {
             path: eventing_journal_path,
         },
-        EnforcementAuditJournalEvent::from(&outcome.audit_event),
+        eventing_audit_event(outcome, command_sent_at),
         CorrelationId::parse(command_correlation_id.0.clone()).map_err(eventing_journal_error)?,
     )
     .await
@@ -156,6 +160,15 @@ async fn record_eventing_enforcement_audit(
 
 fn eventing_journal_error(_: impl std::fmt::Debug) -> EnforcementJournalBuildError {
     EnforcementJournalBuildError::Store
+}
+
+fn eventing_audit_event(
+    outcome: &EnforcementBoundaryOutcome,
+    command_sent_at: &EnforcementText,
+) -> EnforcementAuditJournalEvent {
+    let mut event = EnforcementAuditJournalEvent::from(&outcome.audit_event);
+    event.observed_at = command_sent_at.0.clone();
+    event
 }
 
 async fn record_enforcement_audit(

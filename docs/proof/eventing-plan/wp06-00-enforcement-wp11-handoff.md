@@ -38,9 +38,12 @@ build_enforcement_audit_report_with_paths
 
 The before-action summary is written before the existing activity audit write
 and before adapter selection. The final summary is written before its matching
-activity audit write. Eventing metadata reuses the audit id and observed time,
-so an exact retry returns the original journal sequence instead of appending a
-duplicate. Replay is read only through `ReplayMode::ProjectionOnly`.
+activity audit write. The Eventing event id remains the audit-summary id, while
+its correlation and recorded time are the stable command `message_id` and
+`sent_at`. That makes a command retry byte-identical at the Eventing boundary,
+so it returns the original journal sequence instead of appending a duplicate.
+The append path creates the parent directory before it opens the sidecar;
+replay is read only through `ReplayMode::ProjectionOnly`.
 
 ## Consumer boundary
 
@@ -57,6 +60,8 @@ effects.
   enforcement-owned exception requiring separate authority and rollback proof.
 - Preserve event id, idempotency key, correlation id, schema version, event
   type, aggregate key, and journal phase in consumer proof.
+- Correlate the Eventing sidecar to the transport command message id, not to
+  an audit-summary id.
 
 ## Evidence
 
