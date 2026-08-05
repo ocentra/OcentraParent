@@ -30,10 +30,12 @@ impl DomainEvent for NetworkFlowObservedEvent {
         let flow_event_ref = IdempotencyKey::parse(self.flow_event_ref.clone())?;
         let aggregate_key = self.aggregate_key()?;
         IdempotencyKey::parse(format!(
-            "{}{}-{}-{}",
+            "{}{}-{}:{}-{}:{}",
             constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX,
             constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED,
+            aggregate_key.as_str().len(),
             aggregate_key.as_str(),
+            flow_event_ref.as_str().len(),
             flow_event_ref.as_str()
         ))
     }

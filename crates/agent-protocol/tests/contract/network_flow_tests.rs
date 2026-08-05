@@ -638,10 +638,12 @@ fn network_flow_observed_event_round_trips_through_typed_event_envelope(
     assert_eq!(
         envelope.idempotency_key.as_str(),
         format!(
-            "{}{}-{}-{}",
+            "{}{}-{}:{}-{}:{}",
             constants::network_flow::IDEMPOTENCY_NETWORK_RUNTIME_PREFIX,
             constants::network_flow::EVENT_NETWORK_FLOW_EVENTING_OBSERVED,
+            envelope.aggregate_key.as_str().len(),
             envelope.aggregate_key.as_str(),
+            constants::network_flow::TEST_FLOW_EVENT_REF.len(),
             constants::network_flow::TEST_FLOW_EVENT_REF
         )
     );
@@ -666,6 +668,22 @@ fn network_flow_observed_event_idempotency_is_device_scoped() -> Result<(), Even
     second.device_ref = "network-flow-eventing-contract-2".to_string();
 
     assert_ne!(first.aggregate_key()?, second.aggregate_key()?);
+    assert_ne!(first.idempotency_key()?, second.idempotency_key()?);
+
+    Ok(())
+}
+
+#[test]
+fn network_flow_observed_event_idempotency_disambiguates_hyphenated_components(
+) -> Result<(), EventingError> {
+    let mut first = network_flow_observed_event();
+    first.device_ref = "child-a".to_string();
+    first.flow_event_ref = "b-c".to_string();
+
+    let mut second = network_flow_observed_event();
+    second.device_ref = "child-a-b".to_string();
+    second.flow_event_ref = "c".to_string();
+
     assert_ne!(first.idempotency_key()?, second.idempotency_key()?);
 
     Ok(())
