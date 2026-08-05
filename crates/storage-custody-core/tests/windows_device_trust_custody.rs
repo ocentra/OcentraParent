@@ -112,7 +112,7 @@ fn restored_record_at_a_recreated_root_never_unseals() -> Result<(), String> {
 
     assert!(matches!(
         custody.unseal_current("family", "account", "device"),
-        Err(Error::Missing) | Err(Error::Io)
+        Err(Error::Platform)
     ));
 
     let _cleanup = remove_install_generation(&root);
@@ -142,7 +142,7 @@ fn corrupt_multibyte_registry_epoch_is_rejected_without_panic() -> Result<(), St
 
     assert_eq!(
         custody.unseal_current("family", "account", "device"),
-        Err(Error::Missing)
+        Err(Error::Platform)
     );
 
     let _cleanup = key.delete_value(&binding_hash);
@@ -192,6 +192,29 @@ fn binding_fence_blocks_a_second_custody_handle_until_release() -> Result<(), St
     Ok(())
 }
 
+#[test]
+fn unrelated_sealed_file_cannot_preserve_a_sealed_install_generation() -> Result<(), String> {
+    let root = temporary_root("unrelated-sealed-file");
+    let _cleanup = fs::remove_dir_all(&root);
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("first open: {error:?}"))?;
+    let generation = install_generation(&root)?;
+    let binding = binding("family", "account", "device", &generation);
+    set_sealed_install_generation(&root, &generation, &hex(&binding))?;
+    fs::write(
+        root.join("unrelated.sealed"),
+        "not an active binding record",
+    )
+    .map_err(|error| format!("write unrelated sealed file: {error}"))?;
+
+    WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open after unrelated sealed file: {error:?}"))?;
+    assert_ne!(install_generation(&root)?, generation);
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
 fn temporary_root(name: &str) -> std::path::PathBuf {
     std::env::temp_dir().join(format!("ocentra-wp02-{name}-{}", std::process::id()))
 }
@@ -206,10 +229,38 @@ fn install_generation(root: &std::path::Path) -> Result<String, String> {
         )))
         .map_err(|error| format!("read install generation: {error}"))?;
     let mut parts = anchor.split('|');
-    match (parts.next(), parts.next(), parts.next(), parts.next()) {
-        (Some(_identity), Some(generation), Some(_state), None) => Ok(generation.to_owned()),
+    match (
+        parts.next(),
+        parts.next(),
+        parts.next(),
+        parts.next(),
+        parts.next(),
+    ) {
+        (Some(_identity), Some(generation), Some(_state), binding, None)
+            if binding.is_none() || binding.is_some_and(|binding| !binding.is_empty()) =>
+        {
+            Ok(generation.to_owned())
+        }
         _ => Err("parse install-generation anchor".to_owned()),
     }
+}
+
+fn set_sealed_install_generation(
+    root: &std::path::Path,
+    generation: &str,
+    binding_hex: &str,
+) -> Result<(), String> {
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .create_subkey("Software\\Ocentra\\DeviceTrust\\InstallGenerations")
+        .map_err(|error| format!("open install-generation registry key: {error}"))?
+        .0;
+    key.set_value(
+        hex(Sha256::digest(
+            canonical_root(root)?.to_string_lossy().as_bytes(),
+        )),
+        &format!("{}|{generation}|sealed|{binding_hex}", root_identity(root)?),
+    )
+    .map_err(|error| format!("write sealed install generation: {error}"))
 }
 
 fn set_install_generation(root: &std::path::Path, generation: &str) -> Result<(), String> {

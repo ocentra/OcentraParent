@@ -18,14 +18,23 @@ const DEVICE_TRUST_EPOCHS_REGISTRY_PATH: &str = "Software\\Ocentra\\DeviceTrust\
 pub(super) fn load_or_rotate_install_generation(
     root: &Path,
     root_was_absent: bool,
-    sealed_content_present: bool,
 ) -> Result<String, Error> {
-    generation::load_or_rotate(root, root_was_absent, sealed_content_present)
+    generation::load_or_rotate(root, root_was_absent)
 }
 
 #[cfg(windows)]
-pub(super) fn mark_install_generation_sealed(root: &Path, generation: &str) -> Result<(), Error> {
-    generation::mark_sealed(root, generation)
+pub(super) fn mark_install_generation_sealed(
+    root: &Path,
+    generation: &str,
+    binding: &[u8],
+) -> Result<(), Error> {
+    generation::mark_sealed(root, generation, binding)
+}
+
+/// User-scope DPAPI and HKCU state cannot attest a parent-presence ceremony.
+/// This custody adapter remains unavailable until a non-user-writable authenticated authority exists.
+pub(super) fn require_authenticated_parent_authority() -> Result<(), Error> {
+    Err(Error::Platform)
 }
 
 #[cfg(windows)]
@@ -58,10 +67,10 @@ pub(super) fn current(binding: &[u8]) -> Result<Vec<u8>, Error> {
 
     let key = RegKey::predef(HKEY_CURRENT_USER)
         .open_subkey(DEVICE_TRUST_EPOCHS_REGISTRY_PATH)
-        .map_err(|_error| Error::Missing)?;
+        .map_err(|error| registry_open_error(&error))?;
     let protected_epoch: String = key
         .get_value(hex(Sha256::digest(binding)))
-        .map_err(|_error| Error::Missing)?;
+        .map_err(|error| registry_open_error(&error))?;
     unprotect(&decode_hex(&protected_epoch)?, binding)
 }
 
@@ -94,7 +103,7 @@ fn registry_open_error(error: &io::Error) -> Error {
 
 #[cfg(all(test, windows))]
 mod tests {
-    use super::{registry_open_error, Error};
+    use super::{registry_open_error, require_authenticated_parent_authority, Error};
     use std::io;
 
     #[test]
@@ -106,6 +115,14 @@ mod tests {
         assert_eq!(
             registry_open_error(&io::Error::from(io::ErrorKind::PermissionDenied)),
             Error::Platform
+        );
+    }
+
+    #[test]
+    fn user_scope_dpapi_is_not_parent_ceremony_authority() {
+        assert_eq!(
+            require_authenticated_parent_authority(),
+            Err(Error::Platform)
         );
     }
 }
@@ -136,11 +153,7 @@ pub(super) fn remove(_: &[u8]) -> Result<(), Error> {
 }
 
 #[cfg(not(windows))]
-pub(super) fn load_or_rotate_install_generation(
-    _: &Path,
-    _: bool,
-    _: bool,
-) -> Result<String, Error> {
+pub(super) fn load_or_rotate_install_generation(_: &Path, _: bool) -> Result<String, Error> {
     Err(Error::Platform)
 }
 

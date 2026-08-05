@@ -10,6 +10,9 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+#[cfg(windows)]
+#[path = "windows_device_trust_custody_active_record.rs"]
+mod active_record;
 #[path = "windows_device_trust_custody_path.rs"]
 mod path;
 #[path = "windows_device_trust_custody_platform.rs"]
@@ -47,19 +50,14 @@ impl WindowsDeviceTrustCustody {
         }
         #[cfg(windows)]
         path::validate_custody_root_and_ancestors(root.as_ref())?;
+        let _generation_fence = install_generation_fence(root.as_ref())?;
         let root_was_absent = !root.as_ref().exists();
         fs::create_dir_all(root.as_ref()).map_err(|_error| Error::Io)?;
         #[cfg(windows)]
         path::validate_custody_root_and_ancestors(root.as_ref())?;
         let root = root.as_ref().canonicalize().map_err(|_error| Error::Io)?;
-        let _generation_fence = install_generation_fence(&root)?;
-        let sealed_content_present = path::sealed_content_present(&root)?;
         Ok(Self {
-            install_generation: load_or_create_install_generation(
-                &root,
-                root_was_absent,
-                sealed_content_present,
-            )?,
+            install_generation: load_or_create_install_generation(&root, root_was_absent)?,
             root,
             binding_locks: Mutex::new(HashMap::new()),
         })
@@ -69,6 +67,7 @@ impl WindowsDeviceTrustCustody {
         request: AwaitingPlatformKeySealingRequest,
         material: &[u8],
     ) -> Result<(), Error> {
+        platform::require_authenticated_parent_authority()?;
         path::validate_seal_material(material)?;
         let _generation_fence = install_generation_fence(&self.root)?;
         let binding = custody_binding([
@@ -108,7 +107,11 @@ impl WindowsDeviceTrustCustody {
         )?;
         #[cfg(windows)]
         transaction::finish(
-            platform::mark_install_generation_sealed(&self.root, &self.install_generation),
+            platform::mark_install_generation_sealed(
+                &self.root,
+                &self.install_generation,
+                &binding,
+            ),
             &binding,
             &record_path,
             &previous,
@@ -116,6 +119,7 @@ impl WindowsDeviceTrustCustody {
         Ok(())
     }
     pub fn unseal_current(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
+        platform::require_authenticated_parent_authority()?;
         let b = custody_binding([family, account, device, &self.install_generation])?;
         let binding_lock = self.binding_lock(&b);
         let _binding_guard = binding_lock
@@ -190,8 +194,8 @@ fn verify_activated_binding(
 #[cfg(all(test, windows))]
 mod tests {
     use super::{
-        custody_binding, hex, install_generation_fence, platform, snapshot, transaction,
-        verify_activated_binding, write, Error, Record, WindowsDeviceTrustCustody,
+        active_record, custody_binding, hex, install_generation_fence, platform, snapshot,
+        transaction, verify_activated_binding, write, Error, Record, WindowsDeviceTrustCustody,
     };
     use sha2::{Digest, Sha256};
     use std::{fs, process::Command};
@@ -236,10 +240,31 @@ mod tests {
         let custody = WindowsDeviceTrustCustody::open(&root)
             .map_err(|error| format!("open original custody: {error:?}"))?;
         let generation = custody.install_generation.clone();
+        let binding = custody_binding(["family", "account", "device", &generation])
+            .map_err(|error| format!("derive binding: {error:?}"))?;
+        let epoch = [6_u8; 32];
+        write(
+            &custody.path(&binding),
+            &Record {
+                family: "family".to_owned(),
+                account: "account".to_owned(),
+                device: "device".to_owned(),
+                epoch_hash: hex(Sha256::digest(epoch)),
+                ciphertext: platform::protect(b"sealed-material", &binding)
+                    .map_err(|error| format!("protect material: {error:?}"))?,
+            },
+        )
+        .map_err(|error| format!("write active record: {error:?}"))?;
+        platform::activate(&binding, &epoch)
+            .map_err(|error| format!("activate epoch: {error:?}"))?;
+        assert_eq!(
+            platform::current(&binding).map_err(|error| format!("read epoch: {error:?}"))?,
+            epoch
+        );
+        assert!(active_record::is_present(&custody.root, &hex(&binding))
+            .map_err(|error| format!("validate active record: {error:?}"))?);
         let fence = install_generation_fence(&custody.root)
             .map_err(|error| format!("lock install generation: {error:?}"))?;
-        fs::write(custody.root.join("pending.sealed"), "sealed")
-            .map_err(|error| format!("write pending sealed record: {error}"))?;
         let concurrent_root = custody.root.clone();
         let (entered_sender, entered_receiver) = std::sync::mpsc::channel();
         let opener = std::thread::spawn(move || {
@@ -250,7 +275,7 @@ mod tests {
         entered_receiver
             .recv()
             .map_err(|error| format!("wait for opener: {error}"))?;
-        platform::mark_install_generation_sealed(&custody.root, &generation)
+        platform::mark_install_generation_sealed(&custody.root, &generation, &binding)
             .map_err(|error| format!("mark sealed generation: {error:?}"))?;
         drop(fence);
         let opened = opener
@@ -258,6 +283,7 @@ mod tests {
             .map_err(|_panic| "concurrent opener panicked".to_owned())??;
         assert_eq!(opened.install_generation, generation);
 
+        let _cleanup = platform::remove(&binding);
         let _cleanup = fs::remove_dir_all(root);
         Ok(())
     }
@@ -363,7 +389,7 @@ mod tests {
 
         assert_eq!(
             restored.unseal_current("family", "account", "device"),
-            Err(Error::Missing)
+            Err(Error::Platform)
         );
 
         let _cleanup = platform::remove(&binding);
@@ -400,7 +426,7 @@ mod tests {
         .map_err(|error| format!("write valid record: {error:?}"))?;
         platform::activate(&binding, &epoch)
             .map_err(|error| format!("activate original epoch: {error:?}"))?;
-        platform::mark_install_generation_sealed(&custody.root, &old_generation)
+        platform::mark_install_generation_sealed(&custody.root, &old_generation, &binding)
             .map_err(|error| format!("mark sealed generation: {error:?}"))?;
         let restored_record =
             fs::read(&record_path).map_err(|error| format!("backup record: {error}"))?;
@@ -413,7 +439,7 @@ mod tests {
             .map_err(|error| format!("restore old record: {error}"))?;
         assert_eq!(
             after_loss.unseal_current("family", "account", "device"),
-            Err(Error::Missing)
+            Err(Error::Platform)
         );
 
         let _cleanup = platform::remove(&binding);

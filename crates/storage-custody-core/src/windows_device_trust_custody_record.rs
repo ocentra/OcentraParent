@@ -1,5 +1,6 @@
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use std::{fs, io, path::Path};
 
 use super::{platform, Error};
@@ -30,21 +31,20 @@ pub(super) fn binding(parts: [&str; 4]) -> Result<Vec<u8>, Error> {
     Ok(output)
 }
 
-pub(super) fn install_generation(
-    root: &Path,
-    root_was_absent: bool,
-    sealed_content_present: bool,
-) -> Result<String, Error> {
-    platform::load_or_rotate_install_generation(root, root_was_absent, sealed_content_present)
+pub(super) fn install_generation(root: &Path, root_was_absent: bool) -> Result<String, Error> {
+    platform::load_or_rotate_install_generation(root, root_was_absent)
 }
 
 pub(super) fn install_generation_fence(root: &Path) -> Result<fs::File, Error> {
+    let parent = root.parent().ok_or(Error::Invalid)?;
+    fs::create_dir_all(parent).map_err(|_error| Error::Io)?;
+    let root_key = hex(Sha256::digest(root.to_string_lossy().as_bytes()));
     let lock = fs::OpenOptions::new()
         .create(true)
         .read(true)
         .write(true)
         .truncate(false)
-        .open(root.join("device-trust-install-generation.lock"))
+        .open(parent.join(format!(".device-trust-install-generation-{root_key}.lock")))
         .map_err(|_error| Error::Io)?;
     fs2::FileExt::lock_exclusive(&lock).map_err(|_error| Error::Io)?;
     Ok(lock)
