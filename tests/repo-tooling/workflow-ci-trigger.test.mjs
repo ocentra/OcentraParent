@@ -163,6 +163,7 @@ test('non-desktop Rust workflows skip Tauri system dependencies without skipping
     'ci-rust-agent-core.yml',
     'ci-rust-agent-protocol.yml',
     'ci-rust-agent-service.yml',
+    'dependency-policy.yml',
   ];
 
   assert.match(setupCi, /install-tauri-system-dependencies:[\s\S]*default: 'true'/u);
