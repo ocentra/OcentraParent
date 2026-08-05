@@ -156,13 +156,14 @@ test('CI target workflows are split by runnable area', () => {
   }
 });
 
-test('non-desktop Rust workflows skip Tauri system dependencies without skipping Rust setup', () => {
+test('non-Tauri Rust workflows skip Tauri system dependencies without skipping Rust setup', () => {
   const setupCi = readFileSync(join(repoRoot, '.github', 'actions', 'setup-ci', 'action.yml'), 'utf8');
   const nonDesktopRustWorkflows = [
     'ci-rust-adapters.yml',
     'ci-rust-agent-core.yml',
     'ci-rust-agent-protocol.yml',
     'ci-rust-agent-service.yml',
+    'dependency-policy.yml',
   ];
 
   assert.match(setupCi, /install-tauri-system-dependencies:[\s\S]*default: 'true'/u);
