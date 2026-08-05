@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::enforcement::EnforcementIntentSource;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentRoute;
 
 use super::field_access::evidence_references;
 use super::field_access::optional_string;
@@ -65,7 +66,18 @@ pub(crate) fn parse_enforcement_command_payload(
         process_id,
         device_id: EnforcementDeviceRefText(command.target.device_id.clone()),
         platform: command.target.platform.clone(),
+        source_peer_id: EnforcementText(command.source.peer_id.clone()),
+        target_route: target_route_text(&command.target.route),
     })
+}
+
+fn target_route_text(route: &AgentRoute) -> EnforcementText {
+    let value = match route {
+        AgentRoute::Localhost => constants::value::DEVICE_RUNTIME_ROUTE_LOCALHOST,
+        AgentRoute::LocalNetwork => constants::value::DEVICE_RUNTIME_ROUTE_LOCAL_NETWORK,
+        AgentRoute::CloudRelay => constants::value::DEVICE_RUNTIME_ROUTE_CLOUD_RELAY,
+    };
+    EnforcementText(value.to_string())
 }
 
 fn parse_policy_payload(

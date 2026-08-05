@@ -111,8 +111,10 @@ async fn execute_enforcement_command(
     .await
     .map_err(activity_capture_store_error)?;
 
-    build_enforcement_report_payload(&outcome, &status, active_state.as_ref())
-        .map_err(EnforcementCommandExecutionError::Journal)
+    let mut payload = build_enforcement_report_payload(&outcome, &status, active_state.as_ref())
+        .map_err(EnforcementCommandExecutionError::Journal)?;
+    record_audit_provenance(&mut payload, provenance);
+    Ok(payload)
 }
 
 async fn record_enforcement_audit(
@@ -189,6 +191,14 @@ fn rejected_enforcement_audit_fields(
     request: &EnforcementCommandPayload,
     rejection: EnforcementBoundaryRejection,
 ) -> LogFields {
+    rejected_enforcement_identity_fields(request)
+        .into_inner()
+        .into_iter()
+        .chain(rejected_enforcement_outcome_fields(request, rejection).into_inner())
+        .collect()
+}
+
+fn rejected_enforcement_identity_fields(request: &EnforcementCommandPayload) -> LogFields {
     let intent = &request.input.intent;
     let decision = &request.input.decision;
     fields_from_pairs(vec![
@@ -212,6 +222,22 @@ fn rejected_enforcement_audit_fields(
             constants::field::TARGET_ID,
             LogFieldValue::String(intent.target.target_id.clone()),
         ),
+        (
+            constants::field::COMMAND_SOURCE_PEER_ID,
+            LogFieldValue::String(request.source_peer_id.0.clone()),
+        ),
+        (
+            constants::field::COMMAND_TARGET_ROUTE,
+            LogFieldValue::String(request.target_route.0.clone()),
+        ),
+    ])
+}
+
+fn rejected_enforcement_outcome_fields(
+    request: &EnforcementCommandPayload,
+    rejection: EnforcementBoundaryRejection,
+) -> LogFields {
+    fields_from_pairs(vec![
         (
             constants::field::ENFORCEMENT_ACTION_ID,
             LogFieldValue::String(request.input.action_id.clone()),

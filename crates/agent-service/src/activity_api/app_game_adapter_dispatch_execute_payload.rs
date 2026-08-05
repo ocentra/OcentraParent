@@ -239,10 +239,14 @@ fn result_identity_pairs(
 
 fn execution_pairs(payload: &LogFields) -> Result<FieldPairs, DispatchError> {
     let status = required_string(payload, FieldKey(constants::field::ENFORCEMENT_STATUS))?;
+    let command_name = match payload.get(constants::field::EXECUTION_COMMAND_NAME) {
+        Some(LogFieldValue::String(value)) => value.as_str(),
+        _ => APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND,
+    };
     Ok(FieldPairs(vec![
         (
             constants::field::EXECUTION_COMMAND_NAME,
-            LogFieldValue::String(APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND.to_string()),
+            LogFieldValue::String(command_name.to_string()),
         ),
         (
             constants::field::EXECUTION_EVENT_NAME,

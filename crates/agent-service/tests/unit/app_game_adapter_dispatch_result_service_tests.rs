@@ -5,7 +5,8 @@ use std::string::String as TestString;
 
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
-    AppGameAdapterDispatchResultReadModel, APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID,
+    AppGameAdapterDispatchResultReadModel, APP_GAME_ADAPTER_DISPATCH_EXECUTE_COMMAND,
+    APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID,
 };
 use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_PARENT_PLATFORM_WINDOWS;
 use ocentra_parent_agent_protocol::constants;
@@ -18,7 +19,7 @@ use ocentra_parent_agent_protocol::transport::{
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 
 use crate::enforcement_api::{build_enforcement_audit_report_with_paths, EnforcementJournalPaths};
-use crate::test_invariants::{require_json_decode, require_some};
+use crate::test_invariants::{require_json_decode, require_ok, require_some};
 use crate::test_text::TestText;
 
 use super::app_game_adapter_dispatch_execute_payload::build_activity_app_game_adapter_dispatch_execute_report_with_paths;
@@ -226,6 +227,14 @@ async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_r
         ActivityStorePath(paths.store_path.clone()),
     )
     .await;
+    let stored_audit = require_some(
+        require_ok(
+            ActivityStore::open(&paths.store_path)
+                .and_then(|store| store.latest_enforcement_audit_fields()),
+            constants::error::ACTIVITY_STORE_OPENS,
+        ),
+        constants::error::JOURNAL_READS,
+    );
     cleanup_paths(&paths);
 
     assert_eq!(
@@ -233,6 +242,20 @@ async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_r
         AgentEventName::AgentActivityAppGameAdapterDispatchExecuted
     );
     let execute_result = dispatch_execute_result(&execute_event);
+    assert_eq!(
+        execute_result
+            .get(constants::field::EXECUTION_COMMAND_NAME)
+            .and_then(|value| value.as_str()),
+        Some(APP_GAME_ADAPTER_DISPATCH_EXECUTE_COMMAND)
+    );
+    assert_eq!(
+        stored_audit
+            .get(constants::field::EXECUTION_COMMAND_NAME)
+            .cloned(),
+        Some(LogFieldValue::String(
+            APP_GAME_ADAPTER_DISPATCH_EXECUTE_COMMAND.to_string()
+        ))
+    );
     assert_eq!(
         execute_result
             .get(constants::field::EXECUTION_RESULT_ID)

@@ -63,6 +63,16 @@ async fn rejected_action_is_persisted_as_a_durable_enforcement_audit() -> TestRe
         ))
     );
     assert_eq!(
+        fields.get(constants::field::COMMAND_SOURCE_PEER_ID),
+        Some(&LogFieldValue::String(
+            constants::peer::PORTAL_DEV.to_string()
+        ))
+    );
+    assert_eq!(
+        fields.get(constants::field::COMMAND_TARGET_ROUTE),
+        Some(&LogFieldValue::String("local-network".to_string()))
+    );
+    assert_eq!(
         fields.get(constants::field::REASON),
         Some(&LogFieldValue::String(
             constants::enforcement::REJECTION_TARGET_MISMATCH.to_string()
@@ -127,7 +137,7 @@ fn rejected_command() -> AgentCommandEnvelope {
         target: AgentMessageTarget {
             device_id: constants::enforcement::TEST_CHILD_DEVICE_ID.to_string(),
             platform: constants::enforcement::PLATFORM_WINDOWS.to_string(),
-            route: AgentRoute::Localhost,
+            route: AgentRoute::LocalNetwork,
         },
         command: AgentCommandName::AgentEnforcementExecute,
         payload: rejected_payload(),

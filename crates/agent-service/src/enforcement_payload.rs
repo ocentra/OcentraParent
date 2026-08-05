@@ -80,6 +80,8 @@ pub(crate) struct EnforcementCommandPayload {
     pub process_id: Option<u32>,
     pub device_id: EnforcementDeviceRefText,
     pub platform: String,
+    pub source_peer_id: EnforcementText,
+    pub target_route: EnforcementText,
 }
 
 #[derive(Clone, Debug, PartialEq)]

@@ -55,6 +55,14 @@ rejection is selected.
 
 ## Validation
 
+## Retained proof artifact status
+
+No inspectable generated proof artifact is retained under this workpack's
+`output/` or `test-results/` paths at this commit. The commands below describe
+the regression coverage, but they are not themselves retained proof evidence.
+Accordingly, the retained-artifact requirement remains an explicit open gap;
+this note does not claim that requirement complete.
+
 ```text
 cargo test -p ocentra-parent-agent-service --test enforcement_runtime enforcement_rejection_journal_tests::rejected_action_is_persisted_as_a_durable_enforcement_audit -- --exact
 cargo test -p ocentra-parent-agent-core --test unit activity_store_enforcement_audit_tests::activity_store_uses_persisted_insert_order_for_equal_time_enforcement_audits -- --exact
