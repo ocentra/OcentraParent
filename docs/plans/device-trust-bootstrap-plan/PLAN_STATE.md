@@ -22,6 +22,21 @@ unissued-parent-challenge test evidence only: it does not close a device-trust
 workpack or change this plan's partial/open state. Platform key sealing,
 step-up, recovery, tamper, and trusted-device product-chain work remain open.
 
+## WP02 review disposition — 2026-08-05
+
+PR [#616](https://github.com/ocentra/OcentraParent/pull/616) is open and
+unmerged. Its proposed Windows DPAPI/lifecycle packet has material review
+findings against lifecycle authority, household/device binding, sealing order,
+revoke/reset handling, and Windows-only proof. It must not be merged or used
+as WP02 proof without a production custody redesign.
+
+At current `main` (`580fb9ec`), there is no
+`crates/storage-custody-core/src/windows_dpapi_key_sealing.rs`, no
+`crates/family-identity-core/src/trust_bootstrap/current_authority.rs`, and no
+`output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` proof root.
+Therefore no merged production Windows custody coordinator owns sealed-key
+persistence or current authority. WP02 remains blocked and open.
+
 ## Current Truth
 
 This plan owns the one-time trust bootstrap layer for parent and child devices. The product model is still: pair once, trust once, seal locally, and keep that trust until a parent revokes, removes, or resets the device.
@@ -120,6 +135,7 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for debug/test parent-presence challenges, exact pre-initialization allowlisting of integrity-critical schema objects, global nonce uniqueness, opaque OS-random receipt capabilities, atomic first publication, and concurrent process/restart replay proof. Windows file and ancestor custody checks remain exercised only through the explicit debug/test seam; they are not production custody proof.
 - Production parent-presence custody is fail-closed before path creation on every platform. A debug-only test seam exercises owner-private creation, path checks, and permission rejection without making an operational production claim.
 - Trust-bootstrap sealing remains manual-required because the authority contract has no specifically authorized device-trust sealing action. Low-risk authority actions are not promoted into sealing authority.
+- No merged production Windows custody coordinator owns sealed-key persistence plus a non-restorable current-authority source; PR #616 remains an unaccepted redesign input, not runtime proof.
 - Parent-presence decisions are correlated and redacted, inserted transactionally into the canonical parent-presence SQLite outbox, and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Pending rows drain on restart, and stable event identities make recovery idempotent. This is durable local journal evidence only; it does not claim subscriber delivery, a broader event-bus runtime, or complete device-trust lifecycle integration.
 - No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
 - No execution-grade local key sealing implementation exists yet in repo code.
