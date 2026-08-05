@@ -78,8 +78,25 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 
 ## Current audit state
 
-- No proof root currently exists on disk for this workpack.
-- Platform custody expectations are modeled, but platform-backed sealing runtime proof is still missing on Windows, Android, and Linux; iOS and macOS proof remain external-platform constraints from this host.
+- This branch has a Windows-only runtime vertical slice. A native parent-runtime
+  facade stages an accepted parent ceremony;
+  the live parent desktop command consumes only its one-shot opaque handle and
+  passes the resulting sealing request to `storage-custody-core`. The webview
+  never supplies the accepted ceremony or trust material. That adapter
+  DPAPI-protects locally generated trust material with its family/account/device
+  binding, atomically persists the ciphertext record, and then activates a
+  separately DPAPI-protected epoch below the current user's Windows registry
+  hive. Revocation removes that epoch before best-effort record deletion, and
+  the Windows command-path test proves a copied record is rejected after the
+  epoch has been removed. Production parent-presence custody remains fail-closed
+  and does not yet stage operational ceremonies.
+- This is an unmerged source-and-test slice, not a workpack close. Android,
+  Linux, iOS, and macOS platform custody are still absent. No encrypted recovery
+  bundle, re-pair flow, entitlement unlock, child removal, or whole
+  device-trust state machine is claimed here.
+- The required proof root is generated locally under
+  `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` and is not
+  committed product truth.
 
 ## Negative cases
 

@@ -29,6 +29,9 @@ pub struct AwaitingPlatformKeySealingRequest {
     pub trust_bootstrap_ref: String,
     pub device_trust_ref: DeviceTrustRef,
     pub lifecycle_intent: TrustBootstrapLifecycleIntent,
+    pub family_id: String,
+    pub parent_account_id: String,
+    pub device_ref: String,
     #[serde(skip)]
     sealing_marker: TrustBootstrapSealingMarker,
 }
@@ -52,6 +55,7 @@ pub enum DeviceTrustRefGenerationFailure {
 #[serde(rename_all = "kebab-case")]
 pub enum TrustBootstrapManualRequirementReason {
     AuthorizedChallengeActionUnavailable,
+    ChildScopedCeremonyRejected,
     DeviceTrustReferenceGenerationUnavailable,
 }
 
@@ -125,11 +129,13 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
 
     let validation_input = ParentStepUpValidationInput {
         assertion: Some(parent_step_up_assertion),
-        family_id: parent_presence_challenge.family_id,
-        parent_account_id: parent_presence_challenge.parent_account_id,
-        action_device_id: parent_presence_challenge.action_device_id,
-        action_device_child_profile_id: parent_presence_challenge.action_device_child_profile_id,
-        target_child_profile_id: parent_presence_challenge.target_child_profile_id,
+        family_id: parent_presence_challenge.family_id.clone(),
+        parent_account_id: parent_presence_challenge.parent_account_id.clone(),
+        action_device_id: parent_presence_challenge.action_device_id.clone(),
+        action_device_child_profile_id: parent_presence_challenge
+            .action_device_child_profile_id
+            .clone(),
+        target_child_profile_id: parent_presence_challenge.target_child_profile_id.clone(),
         action: parent_presence_challenge.privileged_action,
         observed_at: observed_at.to_string(),
         expected_nonce: Some(parent_presence_challenge.nonce_ref),
@@ -140,6 +146,16 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
     if let Some(parent_step_up_failure_reason) = validation.failure_reason {
         return TrustBootstrapDecision::Rejected(TrustBootstrapRejection {
             parent_step_up_failure_reason,
+        });
+    }
+
+    if parent_presence_challenge
+        .action_device_child_profile_id
+        .is_some()
+        || parent_presence_challenge.target_child_profile_id.is_some()
+    {
+        return TrustBootstrapDecision::ManualRequired(TrustBootstrapManualRequirement {
+            reason: TrustBootstrapManualRequirementReason::ChildScopedCeremonyRejected,
         });
     }
 
@@ -166,7 +182,23 @@ pub fn evaluate_trust_bootstrap(input: TrustBootstrapInput) -> TrustBootstrapDec
         device_trust_ref,
         trust_bootstrap_ref,
         lifecycle_intent,
+        family_id: parent_presence_challenge.family_id,
+        parent_account_id: parent_presence_challenge.parent_account_id,
+        device_ref: parent_presence_challenge.action_device_id,
         sealing_marker: TrustBootstrapSealingMarker,
+    })
+}
+
+/// Runtime entry point from a successfully consumed parent-presence ceremony.
+/// The accepted value remains opaque; callers cannot fabricate it through this API.
+pub fn begin_parent_device_key_sealing(
+    trust_bootstrap_ref: String,
+    parent_presence: ParentPresenceVerificationAccepted,
+) -> TrustBootstrapDecision {
+    evaluate_trust_bootstrap(TrustBootstrapInput {
+        trust_bootstrap_ref,
+        lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+        parent_presence,
     })
 }
 
@@ -174,10 +206,9 @@ fn challenge_action_is_authorized_for_lifecycle_intent(
     lifecycle_intent: TrustBootstrapLifecycleIntent,
     challenge_action: HouseholdAuthorityAction,
 ) -> bool {
-    const SEAL_PARENT_DEVICE_TRUST_ACTIONS: &[HouseholdAuthorityAction] = &[];
     match lifecycle_intent {
         TrustBootstrapLifecycleIntent::SealParentDeviceTrust => {
-            SEAL_PARENT_DEVICE_TRUST_ACTIONS.contains(&challenge_action)
+            challenge_action == HouseholdAuthorityAction::SealParentDeviceTrust
         }
     }
 }

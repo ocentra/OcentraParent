@@ -341,6 +341,45 @@ fn revoked_or_untrusted_device_is_denied_even_for_parent() {
 }
 
 #[test]
+fn only_a_fresh_parent_controller_can_begin_parent_device_sealing() {
+    for device_trust_state in [DeviceTrustState::Pending, DeviceTrustState::ResetRequired] {
+        let decision = authorize_household_action(HouseholdAuthorityInput {
+            device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
+            device_trust_state,
+            action: HouseholdAuthorityAction::SealParentDeviceTrust,
+            ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+        });
+
+        assert_eq!(
+            decision.authorization_state,
+            HouseholdAuthorizationState::Authorized
+        );
+        assert_eq!(decision.failure_reason, None);
+    }
+
+    let child_scoped = authorize_household_action(HouseholdAuthorityInput {
+        action: HouseholdAuthorityAction::SealParentDeviceTrust,
+        ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+    });
+    assert_eq!(
+        child_scoped.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::WrongDeviceScope)
+    );
+
+    let stale = authorize_household_action(HouseholdAuthorityInput {
+        device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
+        device_trust_state: DeviceTrustState::Pending,
+        session_freshness_state: SessionFreshnessState::Stale,
+        action: HouseholdAuthorityAction::SealParentDeviceTrust,
+        ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+    });
+    assert_eq!(
+        stale.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::SessionNotFresh)
+    );
+}
+
+#[test]
 fn external_household_membership_drift_and_wrong_device_scope_are_denied() {
     let external_household = authorize_household_action(HouseholdAuthorityInput {
         same_family: false,

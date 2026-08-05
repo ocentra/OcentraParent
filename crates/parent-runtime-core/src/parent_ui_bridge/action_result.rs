@@ -25,11 +25,13 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         ParentUiActionKind::ScreenSettingsReplaceRequested => {
             "parent Rust facade requested screen settings replace"
         }
-        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested => {
-            "parent Rust facade requested app/game adapter dispatch execution"
+        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested
+        | ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
+            return super::super::action_result_app_game::action_result_message(&action.action)
+                .to_string();
         }
-        ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
-            "parent Rust facade requested app/game timer parent preference setup"
+        ParentUiActionKind::DeviceTrustSealStagedCeremonyRequested => {
+            "parent Rust facade sealed a staged verified parent device-trust ceremony"
         }
     }
     .to_string()

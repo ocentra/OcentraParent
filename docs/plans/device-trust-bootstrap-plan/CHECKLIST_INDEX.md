@@ -11,7 +11,7 @@ WP01 review refresh (2026-07-19): DTB-01 remains unchecked. A partial Rust paren
 | ID | Checklist | Workpack | Status | Proof target |
 | --- | --- | --- | --- | --- |
 | DTB-01 | Trust source of truth defined | 01-device-trust-source-of-truth | [ ] partial runtime slice only | local untracked `output/device-trust-bootstrap-plan-proof/01-*` plus visible source/tests |
-| DTB-02 | Platform key sealing matrix defined | 02-local-key-sealing | [ ] blocked: model only; #616 is unmerged, `main` lacks a production Windows sealed-key persistence/current-authority owner, and the WP02 proof root is absent | `output/device-trust-bootstrap-plan-proof/02-*` |
+| DTB-02 | Platform key sealing matrix defined | 02-local-key-sealing | [ ] partial: this unmerged branch stages an accepted ceremony only in native parent runtime; the live parent desktop command consumes its one-shot opaque handle and invokes the Windows DPAPI ciphertext plus external registry-epoch custody slice with restored-record rejection. Production ceremony custody, Android/Linux/iOS/macOS, recovery/re-pair, and merged CI proof remain open | local untracked `output/device-trust-bootstrap-plan-proof/02-*` plus visible source/tests and current CI after merge |
 | DTB-03 | Parent step-up policy defined | 03-parent-step-up-auth | [ ] | `output/device-trust-bootstrap-plan-proof/03-*` |
 | DTB-04 | QR approval bridge defined | 04-phone-qr-approval-bridge | [ ] | `output/device-trust-bootstrap-plan-proof/04-*` |
 | DTB-05 | Device-bound entitlement model defined | 05-entitlement-device-license | [ ] | `output/device-trust-bootstrap-plan-proof/05-*` |

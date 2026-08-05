@@ -1695,6 +1695,7 @@ pub enum ParentUiActionKind {
     ScreenSettingsReplaceRequested,
     AppGameAdapterDispatchExecuteRequested,
     AppGameTimerParentPreferenceSetupRequested,
+    DeviceTrustSealStagedCeremonyRequested,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

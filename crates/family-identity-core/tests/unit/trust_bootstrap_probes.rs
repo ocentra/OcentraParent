@@ -154,6 +154,9 @@ fn assert_redacted_debug<T: fmt::Debug>(value: &T, case: &TestCase) {
         case.target_child_profile_id.as_deref().unwrap_or_default(),
         "PairChildDevice",
     ] {
+        if secret.is_empty() {
+            continue;
+        }
         assert!(
             !debug.contains(secret),
             "debug output leaked {secret}: {debug}"
@@ -240,7 +243,9 @@ fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
 
 #[test]
 fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() -> TestResult {
-    let case = test_case("manual-seal");
+    let mut case = test_case("manual-seal");
+    case.action_device_child_profile_id = None;
+    case.target_child_profile_id = None;
     let store = TestStore::new("manual-seal");
     let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
@@ -271,7 +276,9 @@ fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() ->
 
 #[test]
 fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> TestResult {
-    let case = test_case("low-risk-manual-seal");
+    let mut case = test_case("low-risk-manual-seal");
+    case.action_device_child_profile_id = None;
+    case.target_child_profile_id = None;
     let store = TestStore::new("low-risk-manual-seal");
     let mut port = store.port()?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
@@ -297,6 +304,38 @@ fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> Tes
         TrustBootstrapDecision::ManualRequired(requirement)
             if requirement.reason
                 == TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable
+    ));
+    Ok(())
+}
+
+#[test]
+fn trust_bootstrap_rejects_a_child_scoped_parent_sealing_ceremony() -> TestResult {
+    let case = test_case("child-scoped-sealing");
+    let store = TestStore::new("child-scoped-sealing");
+    let mut port = store.port()?;
+    let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
+    challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    assert_eq!(port.issue_challenge(challenge), Ok(()));
+    let mut assertion = assertion_for(&case, ACCEPTED_EXPIRY);
+    assertion.action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    let accepted = port
+        .verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: CorrelationId::parse("child-scoped-sealing-correlation")
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+            challenge_ref: case.challenge_ref.clone(),
+            assertion,
+        })
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+
+    assert!(matches!(
+        evaluate_trust_bootstrap(TrustBootstrapInput {
+            trust_bootstrap_ref: case.trust_bootstrap_ref,
+            lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+            parent_presence: accepted,
+        }),
+        TrustBootstrapDecision::ManualRequired(requirement)
+            if requirement.reason
+                == TrustBootstrapManualRequirementReason::ChildScopedCeremonyRejected
     ));
     Ok(())
 }
