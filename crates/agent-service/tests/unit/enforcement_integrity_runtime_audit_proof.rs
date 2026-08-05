@@ -11,7 +11,7 @@ use ocentra_parent_agent_protocol::enforcement_integrity_runtime_audit::V08Enfor
 use ocentra_parent_agent_protocol::policy_constants;
 use serde_json::{json, Value};
 
-use super::enforcement_integrity_runtime_audit_read_model::{
+use super::enforcement_api::enforcement_integrity_runtime_audit_read_model::{
     v08_enforcement_integrity_runtime_audit_read_model, GeneratedAtTextRef,
 };
 use crate::test_invariants::{require_ok, require_some};

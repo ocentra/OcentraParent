@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields, LogLevel};
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use super::app_game_adapter_dispatch_result_payload::app_game_adapter_dispatch_result_read_model;
@@ -65,7 +65,6 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_execute_report_with
         );
     };
     let mut enforcement_command = command;
-    enforcement_command.command = AgentCommandName::AgentEnforcementExecute;
     enforcement_command.payload = scoped_adapter_enforcement_payload();
     let enforcement_event =
         build_enforcement_audit_report_with_paths(enforcement_command, paths).await;
@@ -240,10 +239,14 @@ fn result_identity_pairs(
 
 fn execution_pairs(payload: &LogFields) -> Result<FieldPairs, DispatchError> {
     let status = required_string(payload, FieldKey(constants::field::ENFORCEMENT_STATUS))?;
+    let command_name = match payload.get(constants::field::EXECUTION_COMMAND_NAME) {
+        Some(LogFieldValue::String(value)) => value.as_str(),
+        _ => APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND,
+    };
     Ok(FieldPairs(vec![
         (
             constants::field::EXECUTION_COMMAND_NAME,
-            LogFieldValue::String(APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND.to_string()),
+            LogFieldValue::String(command_name.to_string()),
         ),
         (
             constants::field::EXECUTION_EVENT_NAME,

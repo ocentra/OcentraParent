@@ -17,8 +17,6 @@ mod activity_api {
 mod activity_store_path;
 #[path = "../../src/dev_log.rs"]
 mod dev_log;
-#[path = "../../src/enforcement_api/enforcement_broad_adapter_proof_read_model.rs"]
-mod enforcement_broad_adapter_proof_read_model;
 #[path = "enforcement_broad_adapter_proof_read_model_tests.rs"]
 mod enforcement_broad_adapter_proof_read_model_tests;
 #[path = "../../src/enforcement_browser_domain_adapter_app_control_proof_states.rs"]
@@ -35,8 +33,6 @@ mod enforcement_cross_platform_capability_proof_read_model;
 mod enforcement_cross_platform_capability_proof_read_model_tests;
 #[path = "enforcement_integrity_runtime_audit_proof.rs"]
 mod enforcement_integrity_runtime_audit_proof;
-#[path = "../../src/enforcement_api/enforcement_integrity_runtime_audit_read_model.rs"]
-mod enforcement_integrity_runtime_audit_read_model;
 #[path = "enforcement_integrity_runtime_audit_read_model_tests.rs"]
 mod enforcement_integrity_runtime_audit_read_model_tests;
 #[path = "../../src/enforcement_os_adapter_product_proof_read_model.rs"]
@@ -49,10 +45,8 @@ mod enforcement_payload;
 mod enforcement_policy_dispatch_read_model;
 #[path = "enforcement_policy_dispatch_read_model_tests.rs"]
 mod enforcement_policy_dispatch_read_model_tests;
-#[path = "../../src/enforcement_api/enforcement_pre_action_journal.rs"]
-mod enforcement_pre_action_journal;
-#[path = "../../src/enforcement_api/enforcement_supported_adapter_runtime_proof_read_model.rs"]
-mod enforcement_supported_adapter_runtime_proof_read_model;
+#[path = "enforcement_rejection_journal_tests.rs"]
+mod enforcement_rejection_journal_tests;
 #[path = "enforcement_supported_adapter_runtime_proof_read_model_tests.rs"]
 mod enforcement_supported_adapter_runtime_proof_read_model_tests;
 #[path = "../../src/enforcement_timer_api.rs"]
@@ -75,14 +69,10 @@ mod event_builder;
 mod fields;
 #[path = "../../src/host_identity_read_model.rs"]
 mod host_identity_read_model;
-#[path = "../../src/enforcement_api/integrity_alert_status_bridge_read_model.rs"]
-mod integrity_alert_status_bridge_read_model;
 #[path = "integrity_alert_status_bridge_read_model_tests.rs"]
 mod integrity_alert_status_bridge_read_model_tests;
 #[path = "../../src/json_contract.rs"]
 mod json_contract;
-#[path = "../../src/enforcement_api/notification_provider_status_boundary_read_model.rs"]
-mod notification_provider_status_boundary_read_model;
 #[path = "notification_provider_status_boundary_read_model_tests.rs"]
 mod notification_provider_status_boundary_read_model_tests;
 #[path = "../support/test_invariants.rs"]
@@ -94,11 +84,16 @@ mod windows_adapter_artifact_gate_read_model;
 #[path = "../../src/windows_adapter_capability_read_model.rs"]
 mod windows_adapter_capability_read_model;
 
-#[path = "enforcement_runtime/enforcement_api.rs"]
+#[path = "../../src/enforcement_api.rs"]
 mod enforcement_api;
 
 #[test]
 fn link_runtime_helpers_used_by_the_current_harness() {
+    let _ = enforcement_api::build_enforcement_audit_report;
+    let _ = enforcement_api::build_enforcement_product_control_spine_report;
+    let _ = enforcement_api::build_enforcement_policy_dispatch_report;
+    let _ = enforcement_api::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report;
+    let _ = enforcement_api::enforcement_supported_adapter_runtime_proof_report::build_enforcement_supported_adapter_runtime_proof_report;
     let _ = activity_capture::spawn_startup_activity_capture;
     let _ = activity_capture::startup_activity_capture_enabled;
     let _ = activity_capture::startup_activity_capture_enabled_for_value;

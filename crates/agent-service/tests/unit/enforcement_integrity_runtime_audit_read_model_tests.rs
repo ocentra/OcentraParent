@@ -24,7 +24,7 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
-use super::enforcement_integrity_runtime_audit_read_model::{
+use super::enforcement_api::enforcement_integrity_runtime_audit_read_model::{
     v08_enforcement_integrity_runtime_audit_read_model, GeneratedAtTextRef,
 };
 use crate::test_invariants::require_some;

@@ -5,7 +5,7 @@ use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAl
 use ocentra_parent_agent_protocol::integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeEntry;
 use ocentra_parent_agent_protocol::policy_constants;
 
-use super::integrity_alert_status_bridge_read_model::{
+use super::enforcement_api::integrity_alert_status_bridge_read_model::{
     v08_integrity_alert_status_bridge_read_model, GeneratedAtTextRef,
 };
 use super::test_text::TestText;

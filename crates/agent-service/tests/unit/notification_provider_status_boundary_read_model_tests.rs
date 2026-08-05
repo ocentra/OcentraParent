@@ -7,7 +7,7 @@ use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08Not
 use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationQuietHoursReadiness;
 use ocentra_parent_agent_protocol::policy_constants;
 
-use super::notification_provider_status_boundary_read_model::{
+use super::enforcement_api::notification_provider_status_boundary_read_model::{
     v08_notification_provider_status_boundary_read_model, GeneratedAtTextRef,
 };
 
