@@ -66,33 +66,31 @@ These are field requirements for proof routing, not implementation code prescrip
 
 ## Execution truth
 
-- The handoff artifact now records the current accepted Cloudflare proof roots relevant to payment assumptions from WP01 through WP11.
-- No Cloudflare proof roots remain missing in the current handoff inventory.
-- Payment remains blocked because the accepted roots still carry external billing-boundary blockers, WP02 lint debt, manual-required authority and deployment states, and no downstream payment acknowledgment is owned or recorded here.
+- The handoff artifact records WP01's durable module-scaffold proof root only; it does not accept generated or planned output roots from WP02 through WP11 as current proof.
+- Selected proof bundles for WP02 through WP11 remain missing and must be rerun by their owning workpacks before payment may consume them.
+- Payment remains blocked because the accepted WP01 root carries no runtime completion, while WP02 through WP11 proof, external billing-boundary blockers, manual-required authority and deployment states, and downstream payment acknowledgment remain open.
 
 ## Accepted proof roots
 
-- `docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/`
-- `output/cloudflare-control-plane-plan-proof/02-wrangler-env-bindings/`
-- `output/cloudflare-control-plane-plan-proof/03-worker-entrypoint-runtime-guards/`
-- `output/cloudflare-control-plane-plan-proof/04-route-manifest-and-domain-contracts/`
-- `output/cloudflare-control-plane-plan-proof/05-auth-admin-support-boundary/`
-- `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
-- `output/cloudflare-control-plane-plan-proof/07-local-dev-seeding-and-fixtures/`
-- `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
-- `output/cloudflare-control-plane-plan-proof/09-portal-to-worker-e2e-smoke/`
-- `output/cloudflare-control-plane-plan-proof/10-security-fuzz-property-observability/`
-- `output/cloudflare-control-plane-plan-proof/11-deployment-and-environment-promotion/`
+- `docs/proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold/` (WP01 only; bounded module-scaffold and pinned resolver-graph evidence)
 
 ## Exact blocker set
 
 - Missing proof roots:
-  - none under the current Cloudflare proof inventory
+  - WP02 `wrangler-env-bindings`
+  - WP03 `worker-entrypoint-runtime-guards`
+  - WP04 `route-manifest-and-domain-contracts`
+  - WP05 `auth-admin-support-boundary`
+  - WP06 `storage-do-d1-kv-r2-queue-bindings`
+  - WP07 `local-dev-seeding-and-fixtures`
+  - WP08 `testing-runner-and-test-pyramid`
+  - WP09 `portal-to-worker-e2e-smoke`
+  - WP10 `security-fuzz-property-observability`
+  - WP11 `deployment-and-environment-promotion`
 - Accepted-root carried blockers:
   - WP01's clean pinned Wrangler/Workers-types resolver graph is retained under its durable docs proof route; broader Cloudflare runtime, local-dev, validation, and deploy reruns still require each selected workpack's own proof and do not inherit WP01 completion.
   - the worker's generated billing-contract route is module-local, so no private `packages/billing-domain/src/*` import is a carried payment blocker.
-  - WP02 also carries module-lint debt from:
-    - `infra/cloudflare/src/fixtures.ts` TypeScript return-path errors
+  - WP02 through WP11 each retain their own source, runtime, and proof blockers until an owning workpack records current evidence; their absent proof roots are not accepted by this handoff.
 - Dependency and readiness states:
   - account/session authority: `manual-required / blocked`
   - trusted-parent-device authority: `manual-required / blocked`
