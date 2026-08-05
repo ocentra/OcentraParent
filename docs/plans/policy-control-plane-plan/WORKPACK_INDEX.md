@@ -5,7 +5,7 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 | Workpack | Purpose | Status |
 | ------------------------------------------------------------------------------- | --------------------------------------------- | ------- |
 | [01-policy-source-of-truth](workpacks/01-policy-source-of-truth.md) | Typed policy source truth, versioning, ownership. | Checked |
-| [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Open |
+| [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Open / partial reviewed slice on PR [#615](https://github.com/ocentra/OcentraParent/pull/615); CI-active and not closure |
 | [03-domain-policy-compilers](workpacks/03-domain-policy-compilers.md) | Domain compiler contracts and handoffs. | Checked |
 | [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Contract checked / runtime blocked |
 | [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md) | Ask-parent, bonus time, overrides, approvals. | Open |
