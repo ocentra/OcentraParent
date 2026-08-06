@@ -25,7 +25,7 @@ pub(crate) mod enforcement_broad_adapter_proof_read_model;
 #[path = "enforcement_api/enforcement_broad_adapter_proof_report.rs"]
 pub(crate) mod enforcement_broad_adapter_proof_report;
 #[path = "enforcement_api/enforcement_command_execution.rs"]
-mod enforcement_command_execution;
+pub(crate) mod enforcement_command_execution;
 #[path = "enforcement_api/enforcement_integrity_runtime_audit_read_model.rs"]
 pub(crate) mod enforcement_integrity_runtime_audit_read_model;
 #[path = "enforcement_api/enforcement_pre_action_journal.rs"]

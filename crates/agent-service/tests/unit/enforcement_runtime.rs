@@ -89,7 +89,7 @@ mod windows_adapter_artifact_gate_read_model;
 mod windows_adapter_capability_read_model;
 
 #[path = "../../src/enforcement_api.rs"]
-mod enforcement_api;
+pub(crate) mod enforcement_api;
 
 #[test]
 fn link_runtime_helpers_used_by_the_current_harness() {
@@ -134,8 +134,8 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
-    let _ = enforcement_pre_action_journal::eventing_journal::append_enforcement_audit_journal_event_phase;
-    let _ = enforcement_pre_action_journal::eventing_journal::EnforcementEventingJournalPath {
+    let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::append_enforcement_audit_journal_event_phase;
+    let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::EnforcementEventingJournalPath {
         path: std::path::PathBuf::new(),
     };
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;

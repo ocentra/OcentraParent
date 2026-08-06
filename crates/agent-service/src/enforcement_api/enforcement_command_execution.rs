@@ -50,7 +50,7 @@ use super::enforcement_report_payload::{
 };
 use super::EnforcementJournalPaths;
 
-pub(super) async fn build_enforcement_audit_report_with_paths(
+pub(crate) async fn build_enforcement_audit_report_with_paths(
     command: AgentCommandEnvelope,
     paths: EnforcementJournalPaths,
 ) -> AgentEventEnvelope {
