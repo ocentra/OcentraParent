@@ -34,7 +34,6 @@ use self::parent_route_subscription_delivery::{
 pub mod parent_route_subscription_delivery;
 
 const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
-
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
 #[serde(transparent)]
 pub struct ParentRouteSubscriptionId(pub String);

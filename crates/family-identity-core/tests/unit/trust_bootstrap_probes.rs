@@ -142,7 +142,7 @@ fn issue_valid_challenge(
 
 fn assert_redacted_debug<T: fmt::Debug>(value: &T, case: &TestCase) {
     let debug = format!("{value:?}");
-    for secret in [
+    [
         case.challenge_ref.as_str(),
         case.nonce_ref.as_str(),
         case.family_id.as_str(),
@@ -153,12 +153,15 @@ fn assert_redacted_debug<T: fmt::Debug>(value: &T, case: &TestCase) {
             .unwrap_or_default(),
         case.target_child_profile_id.as_deref().unwrap_or_default(),
         "PairChildDevice",
-    ] {
+    ]
+    .into_iter()
+    .filter(|secret| !secret.is_empty())
+    .for_each(|secret| {
         assert!(
             !debug.contains(secret),
             "debug output leaked {secret}: {debug}"
         );
-    }
+    });
 }
 
 fn external_consumer_probe_dir() -> PathBuf {
@@ -240,7 +243,9 @@ fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
 
 #[test]
 fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() -> TestResult {
-    let case = test_case("manual-seal");
+    let mut case = test_case("manual-seal");
+    case.action_device_child_profile_id = None;
+    case.target_child_profile_id = None;
     let store = TestStore::new("manual-seal");
     let mut port = store.port()?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
@@ -255,7 +260,7 @@ fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() ->
         accepted.map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     assert_redacted_debug(&accepted, &case);
     let decision = evaluate_trust_bootstrap(TrustBootstrapInput {
-        trust_bootstrap_ref: case.trust_bootstrap_ref.clone(),
+        trust_bootstrap_ref: case.trust_bootstrap_ref,
         lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
         parent_presence: accepted,
     });
@@ -271,7 +276,9 @@ fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() ->
 
 #[test]
 fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> TestResult {
-    let case = test_case("low-risk-manual-seal");
+    let mut case = test_case("low-risk-manual-seal");
+    case.action_device_child_profile_id = None;
+    case.target_child_profile_id = None;
     let store = TestStore::new("low-risk-manual-seal");
     let mut port = store.port()?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
@@ -297,6 +304,38 @@ fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> Tes
         TrustBootstrapDecision::ManualRequired(requirement)
             if requirement.reason
                 == TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable
+    ));
+    Ok(())
+}
+
+#[test]
+fn trust_bootstrap_rejects_a_child_scoped_parent_sealing_ceremony() -> TestResult {
+    let case = test_case("child-scoped-sealing");
+    let store = TestStore::new("child-scoped-sealing");
+    let mut port = store.port()?;
+    let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
+    challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    assert_eq!(port.issue_challenge(challenge), Ok(()));
+    let mut assertion = assertion_for(&case, ACCEPTED_EXPIRY);
+    assertion.action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    let accepted = port
+        .verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: CorrelationId::parse("child-scoped-sealing-correlation")
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+            challenge_ref: case.challenge_ref.clone(),
+            assertion,
+        })
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+
+    assert!(matches!(
+        evaluate_trust_bootstrap(TrustBootstrapInput {
+            trust_bootstrap_ref: case.trust_bootstrap_ref,
+            lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+            parent_presence: accepted,
+        }),
+        TrustBootstrapDecision::ManualRequired(requirement)
+            if requirement.reason
+                == TrustBootstrapManualRequirementReason::ChildScopedCeremonyRejected
     ));
     Ok(())
 }
@@ -371,6 +410,44 @@ fn trust_bootstrap_operational_debug_redacts_identity_and_capability_material() 
             "operational Debug leaked protected trust material {protected}: {debug}"
         );
     }
+    Ok(())
+}
+
+#[test]
+fn parent_device_sealing_requires_a_binding_complete_authority_receipt() -> TestResult {
+    let mut case = test_case("authority-receipt");
+    case.action_device_child_profile_id = None;
+    case.target_child_profile_id = None;
+    let store = TestStore::new("authority-receipt");
+    let mut port = store.port()?;
+    let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
+    challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    port.issue_challenge(challenge.clone())
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let mut assertion = assertion_for(&case, ACCEPTED_EXPIRY);
+    assertion.action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    assertion.action_device_child_profile_id = None;
+    assertion.target_child_profile_id = None;
+    let accepted = port
+        .verify_and_consume(ParentPresenceVerificationInput {
+            correlation_id: CorrelationId::parse("authority-receipt-correlation")
+                .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
+            challenge_ref: challenge.challenge_ref,
+            assertion,
+        })
+        .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+
+    let direct = evaluate_trust_bootstrap(TrustBootstrapInput {
+        trust_bootstrap_ref: case.trust_bootstrap_ref,
+        lifecycle_intent: TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+        parent_presence: accepted,
+    });
+    assert!(matches!(
+        direct,
+        TrustBootstrapDecision::ManualRequired(requirement)
+            if requirement.reason == TrustBootstrapManualRequirementReason::AuthorityReceiptRequired
+    ));
+
     Ok(())
 }
 

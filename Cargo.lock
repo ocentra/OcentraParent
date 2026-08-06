@@ -2684,12 +2684,15 @@ name = "ocentra-parent-runtime-core"
 version = "0.1.1"
 dependencies = [
  "chrono",
+ "getrandom 0.3.4",
  "ocentra-child-runtime",
  "ocentra-eventing",
+ "ocentra-family-identity-core",
  "ocentra-lan-core",
  "ocentra-parent-agent-protocol",
  "ocentra-policy-control-core",
  "ocentra-schema",
+ "ocentra-storage-custody-core",
  "serde",
  "serde_json",
  "tokio",
@@ -2782,10 +2785,15 @@ version = "0.1.1"
 dependencies = [
  "atomicwrites",
  "fs2",
+ "getrandom 0.3.4",
  "ocentra-eventing",
+ "ocentra-family-identity-core",
  "ocentra-schema",
  "serde",
  "serde_json",
+ "sha2",
+ "windows-dpapi",
+ "winreg",
 ]
 
 [[package]]
@@ -4617,6 +4625,17 @@ dependencies = [
  "windows-link 0.2.1",
  "windows-result 0.4.1",
  "windows-strings 0.5.1",
+]
+
+[[package]]
+name = "windows-dpapi"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2981752d6f11bdcab4db52be8ad5c0e6a6d4d6d566764b3058cc1ee473e6479e"
+dependencies = [
+ "anyhow",
+ "log",
+ "winapi",
 ]
 
 [[package]]

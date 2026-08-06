@@ -26,7 +26,10 @@ pub(crate) fn household_authority_failure_reason(
             HouseholdAuthorizationFailureReason::AccountNotActive,
         ),
         (
-            input.device_trust_state != DeviceTrustState::Trusted,
+            (input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+                && !bootstrap_sealing_state_is_allowed(input))
+                || (input.action != HouseholdAuthorityAction::SealParentDeviceTrust
+                    && input.device_trust_state != DeviceTrustState::Trusted),
             HouseholdAuthorizationFailureReason::DeviceNotTrusted,
         ),
         (
@@ -42,6 +45,11 @@ pub(crate) fn household_authority_failure_reason(
         (
             requires_child_profile_device_scope(input.action)
                 && input.device_ownership_scope != DeviceOwnershipScope::ChildProfileDevice,
+            HouseholdAuthorizationFailureReason::WrongDeviceScope,
+        ),
+        (
+            input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+                && input.device_ownership_scope != DeviceOwnershipScope::ParentControllerDevice,
             HouseholdAuthorizationFailureReason::WrongDeviceScope,
         ),
         (
@@ -132,7 +140,8 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
         (role, action),
         (
             HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
-            HouseholdAuthorityAction::PairChildDevice
+            HouseholdAuthorityAction::SealParentDeviceTrust
+                | HouseholdAuthorityAction::PairChildDevice
                 | HouseholdAuthorityAction::RevokeChildDevice
                 | HouseholdAuthorityAction::ChangePolicy
         ) | (
@@ -178,7 +187,8 @@ fn controller_lease_failure_reason(
 fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
-        HouseholdAuthorityAction::ChangePolicy
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
@@ -215,6 +225,14 @@ fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
         action,
         HouseholdAuthorityAction::StartRemoteView | HouseholdAuthorityAction::StartRemoteControl
     )
+}
+
+fn bootstrap_sealing_state_is_allowed(input: &HouseholdAuthorityInput) -> bool {
+    input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+        && matches!(
+            input.device_trust_state,
+            DeviceTrustState::Pending | DeviceTrustState::ResetRequired
+        )
 }
 
 fn matches_target_child_profile(asserted: Option<&str>, expected: Option<&str>) -> bool {

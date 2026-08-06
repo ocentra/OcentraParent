@@ -1,4 +1,5 @@
 mod action_dispatch;
+mod action_result_app_game;
 pub mod lan_replay_rejection_episode;
 mod lan_route;
 mod presentation;

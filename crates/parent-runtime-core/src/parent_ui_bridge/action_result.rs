@@ -1,4 +1,5 @@
 use super::*;
+use crate::parent_ui_bridge::action_result_app_game;
 
 pub(super) fn action_result_message(action: &ParentUiAction) -> String {
     match action.action {
@@ -25,11 +26,9 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         ParentUiActionKind::ScreenSettingsReplaceRequested => {
             "parent Rust facade requested screen settings replace"
         }
-        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested => {
-            "parent Rust facade requested app/game adapter dispatch execution"
-        }
-        ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
-            "parent Rust facade requested app/game timer parent preference setup"
+        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested
+        | ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
+            return action_result_app_game::action_result_message(&action.action).to_string();
         }
     }
     .to_string()

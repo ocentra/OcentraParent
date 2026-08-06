@@ -135,6 +135,24 @@ fn production_custody_fails_closed_before_creating_a_path() {
     assert!(!store.path().exists());
 }
 
+#[test]
+fn debug_custody_requires_an_existing_verified_parent_directory() -> TestResult {
+    let store = TestStore::new("debug-custody-parent-precondition");
+    let parent = store
+        .path()
+        .parent()
+        .ok_or(ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    let missing_parent = parent.join("missing-parent");
+    let path = missing_parent.join("parent-presence.sqlite");
+
+    assert!(matches!(
+        ParentPresenceVerificationPort::open_unsealed_test_custody(path),
+        Err(ParentPresenceStorageFailureReason::CustodyUnavailable)
+    ));
+    assert!(!missing_parent.exists());
+    Ok(())
+}
+
 #[cfg(windows)]
 #[test]
 fn windows_custody_pins_final_file_and_every_ancestor_against_substitution() -> TestResult {
