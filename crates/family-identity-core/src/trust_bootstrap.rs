@@ -70,6 +70,7 @@ pub struct PersistedPlatformKeyUnsealingCredential {
 /// It is intentionally not caller-supplied at the platform sealing boundary.
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ApprovedParentDeviceCeremony {
+    pub family_id: String,
     trust_subject: String,
     device_ref: String,
     device_role: String,

@@ -114,6 +114,7 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
 
 struct CurrentAuthority<'a> {
     trusted: bool,
+    family_id: &'a str,
     trust_subject: &'a str,
     device_ref: &'a str,
     lifecycle_generation: u64,
@@ -123,10 +124,14 @@ struct CurrentAuthority<'a> {
 impl CurrentParentDeviceTrustAuthoritySource for CurrentAuthority<'_> {
     fn current_authorized_parent_device(
         &self,
+        family_id: &str,
         trust_subject: &str,
         device_ref: &str,
     ) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError> {
-        (self.trusted && self.trust_subject == trust_subject && self.device_ref == device_ref)
+        (self.trusted
+            && self.family_id == family_id
+            && self.trust_subject == trust_subject
+            && self.device_ref == device_ref)
             .then_some(CurrentParentDeviceTrustAuthority {
                 lifecycle_generation: self.lifecycle_generation,
                 installation_binding_generation: self.installation_binding_generation,
@@ -137,11 +142,13 @@ impl CurrentParentDeviceTrustAuthoritySource for CurrentAuthority<'_> {
 
 fn current_parent_authority_for_device<'a>(
     trusted: bool,
+    family_id: &'a str,
     trust_subject: &'a str,
     device_ref: &'a str,
 ) -> CurrentAuthority<'a> {
     CurrentAuthority {
         trusted,
+        family_id,
         trust_subject,
         device_ref,
         lifecycle_generation: 1,
@@ -306,8 +313,8 @@ fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() ->
 fn current_parent_unsealing_authority_rejects_revoked_reset_and_reinstall_lifecycle_states() {
     for trusted in [false, false, false, false] {
         assert_eq!(
-            current_parent_authority_for_device(trusted, "parent", "device")
-                .current_authorized_parent_device("parent", "device"),
+            current_parent_authority_for_device(trusted, "family", "parent", "device")
+                .current_authorized_parent_device("family", "parent", "device"),
             Err(CurrentParentDeviceTrustAuthorityError::NotTrusted)
         );
     }

@@ -23,6 +23,7 @@ const WINDOWS_MACHINE_GUID_VALUE: &str = "MachineGuid";
 
 #[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DpapiKeySealingContext {
+    pub family_id: String,
     pub trust_subject: String,
     pub device_ref: String,
     pub device_role: String,
@@ -37,6 +38,7 @@ impl DpapiKeySealingContext {
     ) -> Self {
         let ceremony = credential.approved_parent_device_ceremony();
         Self {
+            family_id: ceremony.family_id.to_owned(),
             trust_subject: ceremony.trust_subject().to_owned(),
             device_ref: ceremony.device_ref().to_owned(),
             device_role: ceremony.device_role().to_owned(),
@@ -45,7 +47,8 @@ impl DpapiKeySealingContext {
         }
     }
     fn validate(&self) -> Result<(), DpapiKeySealingError> {
-        if self.trust_subject.trim().is_empty()
+        if self.family_id.trim().is_empty()
+            || self.trust_subject.trim().is_empty()
             || self.device_ref.trim().is_empty()
             || self.device_role.trim().is_empty()
             || self.lifecycle_generation == 0
@@ -75,6 +78,7 @@ impl fmt::Debug for DpapiKeySealingContext {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         formatter
             .debug_struct("DpapiKeySealingContext")
+            .field("family_id", &"[redacted]")
             .field("trust_subject", &"[redacted]")
             .field("device_ref", &"[redacted]")
             .field("device_role", &"[redacted]")
@@ -142,7 +146,11 @@ pub fn seal_for_current_windows_user(
     let unsealing_credential = authorization.consume_for_platform_key_sealing();
     let ceremony = unsealing_credential.approved_parent_device_ceremony();
     let authority = current_authority_source
-        .current_authorized_parent_device(ceremony.trust_subject(), ceremony.device_ref())
+        .current_authorized_parent_device(
+            &ceremony.family_id,
+            ceremony.trust_subject(),
+            ceremony.device_ref(),
+        )
         .map_err(|_error| DpapiKeySealingError::CurrentAuthorityRequired)?;
     let context = DpapiKeySealingContext::from_approved_ceremony(&unsealing_credential, authority);
     context.validate()?;
@@ -170,6 +178,7 @@ pub fn unseal_for_current_windows_user(
 ) -> Result<Vec<u8>, DpapiKeySealingError> {
     require_current_parent_device_trust_authority(
         current_authority_source,
+        &sealed_key.context.family_id,
         &sealed_key.context.trust_subject,
         &sealed_key.context.device_ref,
         sealed_key.context.lifecycle_generation,
@@ -272,6 +281,7 @@ fn canonical_binding_bytes(
 ) -> Vec<u8> {
     let fields = [
         format!("ocentra-device-trust-dpapi-v{SEALED_KEY_FORMAT_VERSION}"),
+        context.family_id.clone(),
         context.trust_subject.clone(),
         context.device_ref.clone(),
         context.device_role.clone(),

@@ -79,6 +79,12 @@ Trust sealing must remain manual-required until the authority contract exposes a
 
 Windows DPAPI adapter validation:
 
+**Windows-only proof label.** The commands below are a Windows-host proof
+requirement. On non-Windows hosts, the adapter is expected to return
+`PlatformUnavailable`; a passing compile or skipped `#[cfg(windows)]` test is
+not DPAPI proof. Record non-Windows execution as `unsupported-platform`
+coverage, not as same-device or persisted-blob validation.
+
 ```powershell
 cargo check -p ocentra-storage-custody-core
 cargo test -p ocentra-family-identity-core --test unit trust_bootstrap_probes
