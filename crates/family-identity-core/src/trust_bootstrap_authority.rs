@@ -1,9 +1,9 @@
 use crate::household_authority::{validate_parent_step_up_assertion, ParentStepUpValidationInput};
 use crate::trust_bootstrap::{
-    challenge_action_is_authorized_for_lifecycle_intent, AwaitingPlatformKeySealingRequest,
-    DeviceTrustRef, DeviceTrustRefGenerationFailure, SealParentDeviceTrustAuthorityReceipt,
-    TrustBootstrapDecision, TrustBootstrapInput, TrustBootstrapManualRequirement,
-    TrustBootstrapManualRequirementReason, TrustBootstrapRejection, TrustBootstrapSealingMarker,
+    AwaitingPlatformKeySealingRequest, DeviceTrustRef, DeviceTrustRefGenerationFailure,
+    SealParentDeviceTrustAuthorityReceipt, TrustBootstrapDecision, TrustBootstrapInput,
+    TrustBootstrapManualRequirement, TrustBootstrapManualRequirementReason,
+    TrustBootstrapRejection, TrustBootstrapSealingMarker,
 };
 
 pub(crate) fn evaluate(
@@ -38,9 +38,12 @@ pub(crate) fn evaluate(
     {
         return manual(TrustBootstrapManualRequirementReason::ChildScopedCeremonyRejected);
     }
-    if !challenge_action_is_authorized_for_lifecycle_intent(
-        lifecycle_intent,
-        challenge.privileged_action,
+    if !matches!(
+        (lifecycle_intent, challenge.privileged_action),
+        (
+            crate::trust_bootstrap::TrustBootstrapLifecycleIntent::SealParentDeviceTrust,
+            crate::household_authority::HouseholdAuthorityAction::SealParentDeviceTrust
+        )
     ) {
         return manual(TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable);
     }
@@ -55,15 +58,23 @@ pub(crate) fn evaluate(
             );
         }
     };
-    TrustBootstrapDecision::AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest {
-        device_trust_ref,
-        trust_bootstrap_ref,
-        lifecycle_intent,
-        family_id: challenge.family_id,
-        parent_account_id: challenge.parent_account_id,
-        device_ref: challenge.action_device_id,
-        sealing_marker: TrustBootstrapSealingMarker,
-    })
+    TrustBootstrapDecision::AwaitingPlatformKeySealing(Box::new(
+        AwaitingPlatformKeySealingRequest {
+            device_trust_ref,
+            trust_bootstrap_ref,
+            lifecycle_intent,
+            approved_parent_device_ceremony: super::ApprovedParentDeviceCeremony {
+                family_id: challenge.family_id.clone(),
+                trust_subject: challenge.parent_account_id.clone(),
+                device_ref: challenge.action_device_id.clone(),
+                device_role: "trusted-parent".to_owned(),
+            },
+            family_id: challenge.family_id,
+            parent_account_id: challenge.parent_account_id,
+            device_ref: challenge.action_device_id,
+            sealing_marker: TrustBootstrapSealingMarker,
+        },
+    ))
 }
 
 fn manual(reason: TrustBootstrapManualRequirementReason) -> TrustBootstrapDecision {

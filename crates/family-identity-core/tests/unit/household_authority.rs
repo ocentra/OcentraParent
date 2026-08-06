@@ -434,6 +434,9 @@ fn external_household_membership_drift_and_wrong_device_scope_are_denied() {
 #[test]
 fn parent_step_up_required_actions_are_explicit() {
     assert!(requires_parent_step_up(
+        HouseholdAuthorityAction::SealParentDeviceTrust
+    ));
+    assert!(requires_parent_step_up(
         HouseholdAuthorityAction::PairChildDevice
     ));
     assert!(requires_parent_step_up(
@@ -442,6 +445,52 @@ fn parent_step_up_required_actions_are_explicit() {
     assert!(!requires_parent_step_up(
         HouseholdAuthorityAction::ViewChildStatus
     ));
+}
+
+#[test]
+fn parent_device_sealing_requires_parent_owner_and_parent_controller_scope() {
+    let authorized = authorize_household_action(HouseholdAuthorityInput {
+        child_profile_binding_state: ChildProfileBindingState::Missing,
+        device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
+        action: HouseholdAuthorityAction::SealParentDeviceTrust,
+        ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+    });
+    assert_eq!(
+        authorized.authorization_state,
+        HouseholdAuthorizationState::Authorized
+    );
+    assert_eq!(
+        authorized.elevated_confirmation_state,
+        ElevatedConfirmationState::Required
+    );
+
+    let guardian = authorize_household_action(HouseholdAuthorityInput {
+        actor_role: HouseholdRole::CoParentGuardian,
+        child_profile_binding_state: ChildProfileBindingState::Missing,
+        device_ownership_scope: DeviceOwnershipScope::ParentControllerDevice,
+        action: HouseholdAuthorityAction::SealParentDeviceTrust,
+        ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+    });
+    assert_eq!(
+        guardian.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::RoleNotAuthorized)
+    );
+
+    for device_ownership_scope in [
+        DeviceOwnershipScope::ChildProfileDevice,
+        DeviceOwnershipScope::OtherDevice,
+    ] {
+        let wrong_scope = authorize_household_action(HouseholdAuthorityInput {
+            child_profile_binding_state: ChildProfileBindingState::Missing,
+            device_ownership_scope,
+            action: HouseholdAuthorityAction::SealParentDeviceTrust,
+            ..trusted_parent_input(HouseholdAuthorityAction::SealParentDeviceTrust)
+        });
+        assert_eq!(
+            wrong_scope.failure_reason,
+            Some(HouseholdAuthorizationFailureReason::WrongDeviceScope)
+        );
+    }
 }
 
 #[test]

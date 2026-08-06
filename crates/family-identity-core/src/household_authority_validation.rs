@@ -48,7 +48,7 @@ pub(crate) fn household_authority_failure_reason(
             HouseholdAuthorizationFailureReason::WrongDeviceScope,
         ),
         (
-            input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+            requires_parent_controller_device_scope(input.action)
                 && input.device_ownership_scope != DeviceOwnershipScope::ParentControllerDevice,
             HouseholdAuthorizationFailureReason::WrongDeviceScope,
         ),
@@ -124,7 +124,8 @@ pub(crate) fn elevated_confirmation_state(
 ) -> ElevatedConfirmationState {
     if matches!(
         action,
-        HouseholdAuthorityAction::RevokeChildDevice
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
             | HouseholdAuthorityAction::ManageBilling
@@ -139,9 +140,11 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
     matches!(
         (role, action),
         (
-            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
+            HouseholdRole::ParentOwner,
             HouseholdAuthorityAction::SealParentDeviceTrust
-                | HouseholdAuthorityAction::PairChildDevice
+        ) | (
+            HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
+            HouseholdAuthorityAction::PairChildDevice
                 | HouseholdAuthorityAction::RevokeChildDevice
                 | HouseholdAuthorityAction::ChangePolicy
         ) | (
@@ -220,6 +223,10 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
     )
 }
 
+fn requires_parent_controller_device_scope(action: HouseholdAuthorityAction) -> bool {
+    matches!(action, HouseholdAuthorityAction::SealParentDeviceTrust)
+}
+
 fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
@@ -230,8 +237,14 @@ fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
 fn bootstrap_sealing_state_is_allowed(input: &HouseholdAuthorityInput) -> bool {
     input.action == HouseholdAuthorityAction::SealParentDeviceTrust
         && matches!(
-            input.device_trust_state,
-            DeviceTrustState::Pending | DeviceTrustState::ResetRequired
+            (input.device_trust_state, input.child_profile_binding_state),
+            (DeviceTrustState::Pending | DeviceTrustState::ResetRequired, _)
+                // A trusted parent controller with no child binding is the established
+                // controller path used when sealing local parent-device custody.
+                | (
+                    DeviceTrustState::Trusted,
+                    ChildProfileBindingState::Missing
+                )
         )
 }
 

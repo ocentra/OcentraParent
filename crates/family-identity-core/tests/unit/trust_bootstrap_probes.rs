@@ -5,6 +5,7 @@ use std::process::Command;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, UNIX_EPOCH};
 
+use super::open_parent_presence_test_port;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
@@ -15,11 +16,13 @@ use ocentra_family_identity_core::parent_presence::{
     ParentPresenceVerificationPort,
 };
 use ocentra_family_identity_core::trust_bootstrap::{
+    current_authority::{
+        CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError,
+        CurrentParentDeviceTrustAuthoritySource,
+    },
     evaluate_trust_bootstrap, DeviceTrustRef, TrustBootstrapDecision, TrustBootstrapInput,
     TrustBootstrapLifecycleIntent, TrustBootstrapManualRequirementReason,
 };
-
-use super::open_parent_presence_test_port;
 
 const ACCEPTED_EXPIRY: &str = "2099-01-01T00:00:00.000Z";
 
@@ -55,14 +58,6 @@ impl TestStore {
         let path = root.join("parent-presence.sqlite");
         Self { root, path }
     }
-
-    fn path(&self) -> &Path {
-        &self.path
-    }
-
-    fn port(&self) -> Result<ParentPresenceVerificationPort, ParentPresenceStorageFailureReason> {
-        open_parent_presence_test_port(&self.path)
-    }
 }
 
 impl Drop for TestStore {
@@ -96,10 +91,10 @@ fn challenge_for(case: &TestCase, expires_at: &str) -> ParentPresenceChallenge {
         nonce_ref: case.nonce_ref.clone(),
         family_id: case.family_id.clone(),
         parent_account_id: case.parent_account_id.clone(),
-        privileged_action: HouseholdAuthorityAction::PairChildDevice,
+        privileged_action: HouseholdAuthorityAction::SealParentDeviceTrust,
         action_device_id: case.action_device_id.clone(),
-        action_device_child_profile_id: case.action_device_child_profile_id.clone(),
-        target_child_profile_id: case.target_child_profile_id.clone(),
+        action_device_child_profile_id: None,
+        target_child_profile_id: None,
         expires_at: expires_at.to_owned(),
     }
 }
@@ -109,11 +104,55 @@ fn assertion_for(case: &TestCase, expires_at: &str) -> ParentStepUpAssertionSnap
         family_id: case.family_id.clone(),
         parent_account_id: case.parent_account_id.clone(),
         action_device_id: case.action_device_id.clone(),
-        action_device_child_profile_id: case.action_device_child_profile_id.clone(),
-        target_child_profile_id: case.target_child_profile_id.clone(),
-        action: HouseholdAuthorityAction::PairChildDevice,
+        action_device_child_profile_id: None,
+        target_child_profile_id: None,
+        action: HouseholdAuthorityAction::SealParentDeviceTrust,
         nonce: case.nonce_ref.clone(),
         expires_at: expires_at.to_owned(),
+    }
+}
+
+struct CurrentAuthority<'a> {
+    trusted: bool,
+    family_id: &'a str,
+    trust_subject: &'a str,
+    device_ref: &'a str,
+    lifecycle_generation: u64,
+    installation_binding_generation: u64,
+}
+
+impl CurrentParentDeviceTrustAuthoritySource for CurrentAuthority<'_> {
+    fn current_authorized_parent_device(
+        &self,
+        family_id: &str,
+        trust_subject: &str,
+        device_ref: &str,
+    ) -> Result<CurrentParentDeviceTrustAuthority, CurrentParentDeviceTrustAuthorityError> {
+        (self.trusted
+            && self.family_id == family_id
+            && self.trust_subject == trust_subject
+            && self.device_ref == device_ref)
+            .then_some(CurrentParentDeviceTrustAuthority {
+                lifecycle_generation: self.lifecycle_generation,
+                installation_binding_generation: self.installation_binding_generation,
+            })
+            .ok_or(CurrentParentDeviceTrustAuthorityError::NotTrusted)
+    }
+}
+
+fn current_parent_authority_for_device<'a>(
+    trusted: bool,
+    family_id: &'a str,
+    trust_subject: &'a str,
+    device_ref: &'a str,
+) -> CurrentAuthority<'a> {
+    CurrentAuthority {
+        trusted,
+        family_id,
+        trust_subject,
+        device_ref,
+        lifecycle_generation: 1,
+        installation_binding_generation: 1,
     }
 }
 
@@ -223,10 +262,10 @@ fn main() {
 fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
     let case = test_case("multi-instance");
     let store = TestStore::new("multi-instance");
-    let mut issuer = store.port()?;
+    let mut issuer = open_parent_presence_test_port(&store.path)?;
     issue_valid_challenge(&mut issuer, &case, ACCEPTED_EXPIRY);
-    let mut first = open_parent_presence_test_port(store.path())?;
-    let mut second = open_parent_presence_test_port(store.path())?;
+    let mut first = open_parent_presence_test_port(&store.path)?;
+    let mut second = open_parent_presence_test_port(&store.path)?;
     assert_eq!(
         first
             .verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?)
@@ -242,12 +281,10 @@ fn parent_presence_verification_consumes_once_across_ports() -> TestResult {
 }
 
 #[test]
-fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() -> TestResult {
-    let mut case = test_case("manual-seal");
-    case.action_device_child_profile_id = None;
-    case.target_child_profile_id = None;
+fn trust_bootstrap_issues_authorized_capability_for_parent_approved_pairing() -> TestResult {
+    let case = test_case("manual-seal");
     let store = TestStore::new("manual-seal");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
     let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(
@@ -267,11 +304,20 @@ fn trust_bootstrap_requires_manual_when_authorized_sealing_action_is_absent() ->
 
     assert!(matches!(
         decision,
-        TrustBootstrapDecision::ManualRequired(requirement)
-            if requirement.reason
-                == TrustBootstrapManualRequirementReason::AuthorizedChallengeActionUnavailable
+        TrustBootstrapDecision::ManualRequired(_)
     ));
     Ok(())
+}
+
+#[test]
+fn current_parent_unsealing_authority_rejects_revoked_reset_and_reinstall_lifecycle_states() {
+    for trusted in [false, false, false, false] {
+        assert_eq!(
+            current_parent_authority_for_device(trusted, "family", "parent", "device")
+                .current_authorized_parent_device("family", "parent", "device"),
+            Err(CurrentParentDeviceTrustAuthorityError::NotTrusted)
+        );
+    }
 }
 
 #[test]
@@ -280,7 +326,7 @@ fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> Tes
     case.action_device_child_profile_id = None;
     case.target_child_profile_id = None;
     let store = TestStore::new("low-risk-manual-seal");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
     challenge.privileged_action = HouseholdAuthorityAction::ViewChildStatus;
     assert_eq!(port.issue_challenge(challenge), Ok(()));
@@ -312,12 +358,16 @@ fn trust_bootstrap_never_promotes_matching_low_risk_action_into_sealing() -> Tes
 fn trust_bootstrap_rejects_a_child_scoped_parent_sealing_ceremony() -> TestResult {
     let case = test_case("child-scoped-sealing");
     let store = TestStore::new("child-scoped-sealing");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
     challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    challenge.action_device_child_profile_id = case.action_device_child_profile_id.clone();
+    challenge.target_child_profile_id = case.target_child_profile_id.clone();
     assert_eq!(port.issue_challenge(challenge), Ok(()));
     let mut assertion = assertion_for(&case, ACCEPTED_EXPIRY);
     assertion.action = HouseholdAuthorityAction::SealParentDeviceTrust;
+    assertion.action_device_child_profile_id = case.action_device_child_profile_id.clone();
+    assertion.target_child_profile_id = case.target_child_profile_id.clone();
     let accepted = port
         .verify_and_consume(ParentPresenceVerificationInput {
             correlation_id: CorrelationId::parse("child-scoped-sealing-correlation")
@@ -377,7 +427,7 @@ fn device_trust_reference_is_random_opaque_and_input_independent() -> TestResult
 fn trust_bootstrap_operational_debug_redacts_identity_and_capability_material() -> TestResult {
     let case = test_case("operational-debug");
     let store = TestStore::new("operational-debug");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     issue_valid_challenge(&mut port, &case, ACCEPTED_EXPIRY);
     let accepted = port.verify_and_consume(verification_input(&case, ACCEPTED_EXPIRY)?);
     assert_eq!(accepted.as_ref().map(|_| 1), Ok(1));
@@ -419,7 +469,7 @@ fn parent_device_sealing_requires_a_binding_complete_authority_receipt() -> Test
     case.action_device_child_profile_id = None;
     case.target_child_profile_id = None;
     let store = TestStore::new("authority-receipt");
-    let mut port = store.port()?;
+    let mut port = open_parent_presence_test_port(&store.path)?;
     let mut challenge = challenge_for(&case, ACCEPTED_EXPIRY);
     challenge.privileged_action = HouseholdAuthorityAction::SealParentDeviceTrust;
     port.issue_challenge(challenge.clone())

@@ -2548,11 +2548,13 @@ dependencies = [
  "getrandom 0.3.4",
  "ocentra-eventing",
  "ocentra-schema",
+ "ocentra-storage-custody-core",
  "rusqlite",
  "rustix 1.1.4",
  "same-file",
  "serde",
  "serde_json",
+ "sha2",
  "tokio",
 ]
 
