@@ -2,7 +2,7 @@
 
 ## Status
 
-`blocked / proof-present`
+`in progress / limited retention lifecycle proven`
 
 ## Goal
 
@@ -18,11 +18,17 @@ WP07 cannot convert blockers, manual-required rows, or one proof family into bro
 
 ## Execution truth
 
-- The WP07 proof root did not exist before this packet.
-- Proof roots exist for WP02, WP03, WP04, WP05, WP06, and WP08.
-- The WP01 proof-root directory exists, but none of its required proof files are present, so the rollout gate cannot accept a complete source-of-truth pack.
-- WP03 remains `open-blocked / proof-present` with a concrete schema-domain build blocker.
-- WP08 has a real proof root and blocked validation log, but `WORKPACK_INDEX.md` still reports it as `open`, so route/index truth is not fully green.
+- A clean checkout does not contain the ignored `output/` proof root that older
+  WP07 checklist rows cited. Those rows cannot be used as current aggregate
+  evidence.
+- This packet now proves one real retention lifecycle: a Rust-owned expired
+  custody action is journaled idempotently, persisted through the child-runtime
+  durable tombstone outbox, survives reopen, and remains pending until explicit
+  acknowledgement. A typed non-delete action is rejected before it can create a
+  tombstone intent.
+- The lifecycle proof is deliberately narrower than the rollout gate. It does
+  not establish WP01/WP02/WP03/WP05/WP06/WP08 aggregate acceptance, provider
+  execution, portal application, or plan-wide readiness.
 
 ## Required rollout artifact fields
 
@@ -42,15 +48,32 @@ WP07 cannot convert blockers, manual-required rows, or one proof family into bro
 ## Proof pack outcome
 
 - Accepted proof roots:
-  - WP02 encryption key custody
-  - WP04 retention/delete/tombstone
-  - WP05 export/import/backup/recovery
-  - WP06 report/query custody
+  - None for aggregate route status until durable, reviewable proof artifacts
+    are available from a clean checkout.
 - Missing proof roots:
-  - WP01 custody source of truth
+  - WP01, WP02, WP03, WP04, WP05, WP06, and WP08 aggregate inputs remain
+    unaccepted by this gate.
 - Carried blockers:
-  - WP03 schema-domain build and wrapper proof remain blocked
-  - WP08 focused schema contract test remains blocked and route/index truth still lags the proof root
+  - The output proof-root retention/publication model is unresolved: `output/`
+    is ignored, so a fresh clone cannot audit the older cited artifact paths.
+  - Provider, portal, AI, notification, Cloudflare, account, and device-trust
+    runtime evidence remains owned by adjacent plans.
+
+## Current code proof
+
+```text
+storage-custody action event
+  -> child runtime durable tombstone intent (atomic outbox write)
+  -> idempotent NDJSON event journal append
+  -> process reopen recovery
+  -> explicit terminal acknowledgement compacts the row to a minimal
+     terminal idempotency marker (the marker is retained for replay protection)
+```
+
+Focused test owners:
+
+- `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`
+- `crates/child-runtime/tests/unit/runtime_gate.rs`
 
 ## Validation expectations for this packet
 

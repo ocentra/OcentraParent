@@ -14,7 +14,9 @@
 
 # Data Custody Storage Plan Next Actions
 
-1. Select the next smallest open workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md); WP01, WP02, WP03, WP04, WP05, WP06, and WP08 are complete, and WP07 still needs its aggregate refresh.
+1. Resolve the WP07 aggregate-proof publication model so fresh checkouts can
+   audit reviewable proof artifacts, then re-accept each upstream workpack from
+   current code and validation rather than historical `output/` references.
 2. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md) for the next selected workpack.
 3. Select required proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
 4. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
@@ -34,7 +36,9 @@
 - WP05 export/import/backup/recovery is closed with green implementation, proof artifacts, and focused validation.
 - WP06 report/query custody is closed with green implementation, proof artifacts, and focused validation.
 - WP03 parent-owned cloud sync is closed with green Rust contract/runtime coverage, green schema-domain build/test/proof reruns, and a refreshed proof root under `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/`.
-- WP07 rollout gate still needs its own refresh because its current aggregate text predates the WP01 proof root and should not be treated as current aggregate truth.
+- WP07 now has a focused Rust retention lifecycle proof, but aggregate route
+  acceptance remains open because its historic ignored `output/` artifacts are
+  absent from a clean checkout.
 - WP08 parent storage settings/apply flow is closed with green Rust contract/runtime coverage, green schema-domain build/test/proof reruns, and a refreshed proof root under `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`.
 - State remains open until provider sync, AI runtime custody, rollout refresh, and any carried blocked proof slices are closed with test artifacts or exact blocker resolution.
 - Keep this file and `PLAN_STATE.md` synchronized before any DONE/PR_READY claim.

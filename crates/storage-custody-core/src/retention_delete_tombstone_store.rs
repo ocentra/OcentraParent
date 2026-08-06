@@ -6,18 +6,67 @@ use std::{
 
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
-use serde::{Deserialize, Serialize};
 
-const STORE_VERSION: u16 = 1;
+mod record;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+use ocentra_eventing::envelope::StoredEventEnvelope;
+
+use crate::storage_custody::{
+    LocalPayloadRetentionAction, StorageCustodyActionPlannedEvent, StorageTombstoneState,
+};
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct RetentionDeleteOutboxRecord {
     pub version: u16,
     pub deletion_ref: String,
     pub proof_ref: String,
     pub terminal_pending: bool,
+    payload: RetentionDeleteOutboxPayload,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub(super) enum RetentionDeleteOutboxPayload {
+    LegacyVersionOne,
+    Typed(Box<TypedTombstoneOutboxPayload>),
+    TerminalMarker,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub(super) struct TypedTombstoneOutboxPayload {
+    pub(super) action: StorageCustodyActionPlannedEvent,
+    pub(super) envelope: StoredEventEnvelope,
+}
+
+impl RetentionDeleteOutboxRecord {
+    pub fn typed_action_and_envelope(
+        &self,
+    ) -> Option<(&StorageCustodyActionPlannedEvent, &StoredEventEnvelope)> {
+        if let RetentionDeleteOutboxPayload::Typed(payload) = &self.payload {
+            Some((&payload.action, &payload.envelope))
+        } else {
+            None
+        }
+    }
+
+    fn typed(
+        deletion_ref: String,
+        proof_ref: String,
+        action: StorageCustodyActionPlannedEvent,
+        envelope: StoredEventEnvelope,
+    ) -> Self {
+        record::typed(deletion_ref, proof_ref, action, envelope)
+    }
+
+    fn decode(value: serde_json::Value) -> Result<Self, serde_json::Error> {
+        record::decode(value)
+    }
+
+    fn encode(&self) -> Result<serde_json::Value, serde_json::Error> {
+        record::encode(self)
+    }
+}
+
+#[derive(Clone)]
 pub struct RetentionDeleteTombstoneStore {
     path: PathBuf,
 }
@@ -42,27 +91,57 @@ impl RetentionDeleteTombstoneStore {
 
     pub fn records(&self) -> io::Result<Vec<RetentionDeleteOutboxRecord>> {
         match fs::read(&self.path) {
-            Ok(bytes) => serde_json::from_slice(&bytes)
-                .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error)),
+            Ok(bytes) => {
+                let values: Vec<serde_json::Value> = serde_json::from_slice(&bytes)
+                    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
+                values
+                    .into_iter()
+                    .map(RetentionDeleteOutboxRecord::decode)
+                    .collect::<Result<Vec<_>, _>>()
+                    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))
+            }
             Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(Vec::new()),
             Err(error) => Err(error),
         }
     }
 
-    pub fn persist_intent(&self, deletion_ref: String, proof_ref: String) -> io::Result<()> {
+    pub fn persist_action_plan_intent(
+        &self,
+        envelope: StoredEventEnvelope,
+        action: StorageCustodyActionPlannedEvent,
+    ) -> io::Result<()> {
+        if action.action_plan.tombstone_state != StorageTombstoneState::Write
+            || action.action_plan.local_payload_retention_action
+                != LocalPayloadRetentionAction::Delete
+        {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidInput,
+                "only a coherent delete custody action can create a tombstone intent",
+            ));
+        }
+
+        let deletion_ref = format!(
+            "storage-custody-delete:{}",
+            action.source_decision_id.as_str()
+        );
+        let proof_ref = action.action_plan_id.as_str().to_owned();
         let lock = self.lock()?;
         lock.lock_exclusive()?;
         let mut records = self.records()?;
-        if !records
-            .iter()
-            .any(|record| record.deletion_ref == deletion_ref)
+        if let Some(existing) = records
+            .iter_mut()
+            .find(|record| record.deletion_ref == deletion_ref)
         {
-            records.push(RetentionDeleteOutboxRecord {
-                version: STORE_VERSION,
+            // A v1 pending row has no typed action/envelope to replay. A
+            // repeated typed custody event is the migration boundary.
+            existing.replace_legacy_pending_with_typed(deletion_ref, proof_ref, action, envelope);
+        } else {
+            records.push(RetentionDeleteOutboxRecord::typed(
                 deletion_ref,
                 proof_ref,
-                terminal_pending: true,
-            });
+                action,
+                envelope,
+            ));
         }
         let result = self.write(&records);
         FileExt::unlock(&lock)?;
@@ -73,16 +152,27 @@ impl RetentionDeleteTombstoneStore {
         let lock = self.lock()?;
         lock.lock_exclusive()?;
         let mut records = self.records()?;
-        records.retain(|record| record.deletion_ref != deletion_ref);
+        for record in &mut records {
+            if record.deletion_ref == deletion_ref {
+                record.terminal_pending = false;
+                record.version = record::TERMINAL_MARKER_STORE_VERSION;
+                record.payload = RetentionDeleteOutboxPayload::TerminalMarker;
+            }
+        }
         let result = self.write(&records);
         FileExt::unlock(&lock)?;
         result
     }
 
     fn write(&self, records: &[RetentionDeleteOutboxRecord]) -> io::Result<()> {
+        let encoded = records
+            .iter()
+            .map(RetentionDeleteOutboxRecord::encode)
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(io::Error::other)?;
         AtomicFile::new(&self.path, AllowOverwrite)
             .write(|file| {
-                serde_json::to_writer(&mut *file, records).map_err(io::Error::other)?;
+                serde_json::to_writer(&mut *file, &encoded).map_err(io::Error::other)?;
                 file.sync_all()
             })
             .map_err(|error| io::Error::other(error.to_string()))?;

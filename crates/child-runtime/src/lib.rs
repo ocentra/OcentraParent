@@ -11,8 +11,10 @@
 mod event_flow_scaffold;
 
 pub mod child_domain_runtime_flow;
+pub mod child_runtime_tombstone_event_flow;
 pub mod policy_control_runtime_flow;
 pub mod runtime_gate;
+pub mod runtime_gate_tombstone;
 pub mod tracking_config_update_flow;
 pub mod tracking_runtime_flow;
 
