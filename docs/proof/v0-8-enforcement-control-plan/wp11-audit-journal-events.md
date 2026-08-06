@@ -53,6 +53,15 @@ The regression inserts a lexically later executed audit followed by a
 rejection-prefixed audit at the same timestamp and proves the later persisted
 rejection is selected.
 
+`ActivityStore::recent_enforcement_audit_fields` provides the bounded query
+needed for the WP11 recent-action-history checklist row. It returns only the
+already-stored `LogFields`, newest first, using the same `observed_at DESC,
+rowid DESC` ordering as the existing enforcement audit query. Its focused
+regression proves a two-entry cap, equal-timestamp insertion ordering, and
+that a zero limit returns no records even when an audit exists. This is a
+storage query only: it does not invent a parent summary, create action state,
+or make the remaining journal transition families complete.
+
 ## Validation
 
 ## Retained proof artifact status
@@ -66,6 +75,10 @@ this note does not claim that requirement complete.
 ```text
 cargo test -p ocentra-parent-agent-service --test enforcement_runtime enforcement_rejection_journal_tests::rejected_action_is_persisted_as_a_durable_enforcement_audit -- --exact
 cargo test -p ocentra-parent-agent-core --test unit activity_store_enforcement_audit_tests::activity_store_uses_persisted_insert_order_for_equal_time_enforcement_audits -- --exact
+# passed: 1
+cargo test -p ocentra-parent-agent-core --test unit activity_store_enforcement_audit_tests::activity_store_reads_bounded_recent_enforcement_audit_history_in_persisted_order -- --exact
+# passed: 1
+cargo test -p ocentra-parent-agent-core --test unit activity_store_enforcement_audit_tests::activity_store_returns_empty_recent_enforcement_audit_history_for_zero_limit -- --exact
 # passed: 1
 cargo test -p ocentra-parent-agent-service --test enforcement_runtime enforcement_rejection_journal_tests::rejected_audit_does_not_dedupe_a_corrected_retry_final_audit -- --exact
 # passed: 1

@@ -151,6 +151,63 @@ fn activity_store_reads_latest_matching_enforcement_audit_fields() -> TestResult
 }
 
 #[test]
+fn activity_store_reads_bounded_recent_enforcement_audit_history_in_persisted_order() -> TestResult
+{
+    let store = open_in_memory_store();
+    let observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT;
+    ingest_enforcement_events(
+        &store,
+        &[
+            enforcement_audit_event_at(
+                constants::enforcement::TEST_AUDIT_EVENT_ID,
+                constants::enforcement::TEST_RESULT_ID,
+                observed_at,
+            ),
+            enforcement_audit_event_at(
+                "executed-audit",
+                constants::enforcement::TEST_TIMER_STATE_ID,
+                observed_at,
+            ),
+            enforcement_audit_event_at(
+                constants::enforcement::TEST_TIMER_EVENT_ID,
+                constants::enforcement::TEST_TIMER_STATE_ID,
+                constants::activity_store::TEST_SECOND_OBSERVED_AT,
+            ),
+        ],
+    );
+
+    let fields = recent_enforcement_audit_fields(&store, 2)?;
+
+    assert_eq!(fields.len(), 2);
+    assert_eq!(
+        fields[0].get(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TEST_TIMER_EVENT_ID.to_string()
+        ))
+    );
+    assert_eq!(
+        fields[1].get(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        Some(&LogFieldValue::String("executed-audit".to_string()))
+    );
+    Ok(())
+}
+
+#[test]
+fn activity_store_returns_empty_recent_enforcement_audit_history_for_zero_limit() -> TestResult {
+    let store = open_in_memory_store();
+    ingest_enforcement_events(
+        &store,
+        &[enforcement_audit_event(
+            constants::enforcement::TEST_AUDIT_EVENT_ID,
+            constants::enforcement::TEST_RESULT_ID,
+        )],
+    );
+
+    assert!(recent_enforcement_audit_fields(&store, 0)?.is_empty());
+    Ok(())
+}
+
+#[test]
 fn activity_store_returns_no_enforcement_audit_fields_when_empty() -> TestResult {
     let store = open_in_memory_store();
 
@@ -177,6 +234,13 @@ fn latest_matching_enforcement_audit_fields(
     predicate: impl FnMut(&LogFields) -> bool,
 ) -> Result<Option<LogFields>, TestText> {
     activity_store_query(store.latest_matching_enforcement_audit_fields(predicate))
+}
+
+fn recent_enforcement_audit_fields(
+    store: &ActivityStore,
+    limit: u64,
+) -> Result<Vec<LogFields>, TestText> {
+    activity_store_query(store.recent_enforcement_audit_fields(limit))
 }
 
 fn activity_store_open<T, E>(result: Result<T, E>) -> Result<T, TestText>
