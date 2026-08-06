@@ -4,10 +4,11 @@ use ed25519_dalek::{Signer, SigningKey};
 use ocentra_parent_agent_core::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAuditOutcome, AuthenticatedDeliveryGrantConsumeError,
     AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumer,
-    AuthenticatedDeliveryGrantExpectation,
+    AuthenticatedDeliveryGrantExpectation, AuthenticatedDeliveryGrantVerifier,
 };
 use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrant, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
+    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCarrier,
+    AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
 type TestResult<T = ()> = Result<T, Box<dyn std::error::Error + Send + Sync>>;
@@ -65,16 +66,28 @@ fn expected() -> AuthenticatedDeliveryGrantExpectation {
     }
 }
 
+fn pinned_verifier(key: &SigningKey) -> TestResult<AuthenticatedDeliveryGrantVerifier> {
+    must(AuthenticatedDeliveryGrantVerifier::from_pinned_public_key(
+        "parent-key-1",
+        key.verifying_key().to_bytes(),
+    ))
+}
+
+fn carrier(grant: AuthenticatedDeliveryGrant) -> TestResult<AuthenticatedDeliveryGrantCarrier> {
+    must(AuthenticatedDeliveryGrantCarrier::new(grant))
+}
+
 #[test]
 fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let path = store_path("restart-replay");
     let mut first = must(AuthenticatedDeliveryGrantConsumer::open(
         &path,
-        key.verifying_key(),
+        pinned_verifier(&key)?,
     ))?;
     let grant = signed_grant(&key);
-    let consumed = must(first.consume(&grant, &expected(), "correlation-1"))?;
+    let carrier = carrier(grant.clone())?;
+    let consumed = must(first.consume(&carrier, &expected(), "correlation-1"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::Consumed(audit) = consumed else {
         return Err(std::io::Error::other("first consume must apply").into());
     };
@@ -86,9 +99,9 @@ fn consumer_persists_atomic_consume_and_rejects_restart_replay() -> TestResult {
     drop(first);
     let mut reopened = must(AuthenticatedDeliveryGrantConsumer::open(
         &path,
-        key.verifying_key(),
+        pinned_verifier(&key)?,
     ))?;
-    let replay = must(reopened.consume(&grant, &expected(), "correlation-2"))?;
+    let replay = must(reopened.consume(&carrier, &expected(), "correlation-2"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(audit) = replay else {
         return Err(std::io::Error::other("restart replay must reject").into());
     };
@@ -104,33 +117,33 @@ fn consumer_rejects_tamper_wrong_target_expiry_and_revocation() -> TestResult {
     let key = SigningKey::from_bytes(&[4; 32]);
     let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
         store_path("negative"),
-        key.verifying_key(),
+        pinned_verifier(&key)?,
     ))?;
     let grant = signed_grant(&key);
     let mut tampered = grant.clone();
     tampered.target_device_id = "other-device".to_owned();
     assert_eq!(
-        consumer.consume(&tampered, &expected(), "correlation-1"),
+        consumer.consume(&carrier(tampered)?, &expected(), "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::SignatureRejected)
     );
     let mut wrong_target = grant.clone();
     wrong_target.target_device_id = "other-device".to_owned();
     wrong_target.signature = key.sign(&wrong_target.signing_bytes()).to_bytes().to_vec();
     assert_eq!(
-        consumer.consume(&wrong_target, &expected(), "correlation-1"),
+        consumer.consume(&carrier(wrong_target)?, &expected(), "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
     );
     let mut expired = grant.clone();
     expired.expires_at = "2026-07-28T00:00:30Z".to_owned();
     expired.signature = key.sign(&expired.signing_bytes()).to_bytes().to_vec();
     assert_eq!(
-        consumer.consume(&expired, &expected(), "correlation-1"),
+        consumer.consume(&carrier(expired)?, &expected(), "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::Expired)
     );
     let mut revoked = expected();
     revoked.revocation_version = "revocation-2".to_owned();
     assert_eq!(
-        consumer.consume(&grant, &revoked, "correlation-1"),
+        consumer.consume(&carrier(grant)?, &revoked, "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::Revoked)
     );
     Ok(())
@@ -143,19 +156,19 @@ fn failed_commit_rolls_back_consume_so_retry_after_reopen_is_safe() -> TestResul
     let grant = signed_grant(&key);
     let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
         &path,
-        key.verifying_key(),
+        pinned_verifier(&key)?,
     ))?;
     consumer.inject_next_commit_failure_for_debug();
     assert_eq!(
-        consumer.consume(&grant, &expected(), "correlation-1"),
+        consumer.consume(&carrier(grant.clone())?, &expected(), "correlation-1"),
         Err(AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)
     );
     drop(consumer);
     let mut reopened = must(AuthenticatedDeliveryGrantConsumer::open(
         &path,
-        key.verifying_key(),
+        pinned_verifier(&key)?,
     ))?;
-    let outcome = must(reopened.consume(&grant, &expected(), "correlation-2"))?;
+    let outcome = must(reopened.consume(&carrier(grant)?, &expected(), "correlation-2"))?;
     let AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_) = outcome else {
         return Err(std::io::Error::other("uncommitted consume must retry safely").into());
     };
@@ -174,14 +187,17 @@ fn concurrent_consumers_allow_exactly_one_durable_consume() -> TestResult {
         let grant = grant.clone();
         let expected = expected.clone();
         let barrier = std::sync::Arc::clone(&barrier);
-        let verifying_key = key.verifying_key();
+        let public_key = key.verifying_key().to_bytes();
         std::thread::spawn(move || {
             barrier.wait();
             let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
                 path,
-                verifying_key,
+                must(AuthenticatedDeliveryGrantVerifier::from_pinned_public_key(
+                    "parent-key-1",
+                    public_key,
+                ))?,
             ))?;
-            must(consumer.consume(&grant, &expected, correlation))
+            must(consumer.consume(&carrier(grant)?, &expected, correlation))
         })
     });
     let mut outcomes = Vec::new();
@@ -212,5 +228,26 @@ fn concurrent_consumers_allow_exactly_one_durable_consume() -> TestResult {
         .count();
     assert_eq!(consumed, 1);
     assert_eq!(replayed, 1);
+    Ok(())
+}
+
+#[test]
+fn consumer_rejects_a_grant_for_an_unpinned_issuer_before_execution() -> TestResult {
+    let pinned_key = SigningKey::from_bytes(&[4; 32]);
+    let unpinned_key = SigningKey::from_bytes(&[9; 32]);
+    let mut grant = signed_grant(&unpinned_key);
+    grant.issuer_key_id = "other-parent-key".to_owned();
+    grant.signature = unpinned_key
+        .sign(&grant.signing_bytes())
+        .to_bytes()
+        .to_vec();
+    let mut consumer = must(AuthenticatedDeliveryGrantConsumer::open(
+        store_path("unpinned-issuer"),
+        pinned_verifier(&pinned_key)?,
+    ))?;
+    assert_eq!(
+        consumer.consume(&carrier(grant)?, &expected(), "correlation-1"),
+        Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected)
+    );
     Ok(())
 }

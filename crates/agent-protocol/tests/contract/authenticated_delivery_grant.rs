@@ -1,6 +1,6 @@
 use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
-    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantValidationError,
-    AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
+    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCarrier,
+    AuthenticatedDeliveryGrantValidationError, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
 };
 
 fn grant() -> AuthenticatedDeliveryGrant {
@@ -52,5 +52,31 @@ fn authenticated_delivery_grant_rejects_malformed_digest_and_time_window() {
     assert_eq!(
         expired.validate_shape(),
         Err(AuthenticatedDeliveryGrantValidationError::InvalidTimeWindow)
+    );
+}
+
+#[test]
+fn authenticated_delivery_grant_carrier_round_trips_without_verifier_material() {
+    let carrier = AuthenticatedDeliveryGrantCarrier::new(grant()).expect("create carrier");
+    let encoded = serde_json::to_value(&carrier).expect("serialize carrier");
+    assert_eq!(encoded.as_object().map(|value| value.len()), Some(1));
+    assert_eq!(
+        encoded.get("grant"),
+        Some(&serde_json::to_value(grant()).expect("serialize expected grant"))
+    );
+    assert!(encoded.get("verifyingKey").is_none());
+    let decoded: AuthenticatedDeliveryGrantCarrier =
+        serde_json::from_value(encoded).expect("decode carrier");
+    assert_eq!(decoded.grant(), &grant());
+    assert_eq!(decoded.validate_shape(), Ok(()));
+}
+
+#[test]
+fn authenticated_delivery_grant_carrier_rejects_invalid_grant_before_handoff() {
+    let mut malformed = grant();
+    malformed.signature.clear();
+    assert_eq!(
+        AuthenticatedDeliveryGrantCarrier::new(malformed),
+        Err(AuthenticatedDeliveryGrantValidationError::InvalidSignature)
     );
 }

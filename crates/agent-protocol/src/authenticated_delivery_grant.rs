@@ -30,6 +30,31 @@ pub struct AuthenticatedDeliveryGrant {
     pub signature: Vec<u8>,
 }
 
+/// Typed handoff payload for a delivery grant. This carries only the signed grant;
+/// verifier custody stays with the receiving runtime and is never transported here.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AuthenticatedDeliveryGrantCarrier {
+    grant: AuthenticatedDeliveryGrant,
+}
+
+impl AuthenticatedDeliveryGrantCarrier {
+    pub fn new(
+        grant: AuthenticatedDeliveryGrant,
+    ) -> Result<Self, AuthenticatedDeliveryGrantValidationError> {
+        grant.validate_shape()?;
+        Ok(Self { grant })
+    }
+
+    pub fn grant(&self) -> &AuthenticatedDeliveryGrant {
+        &self.grant
+    }
+
+    pub fn validate_shape(&self) -> Result<(), AuthenticatedDeliveryGrantValidationError> {
+        self.grant.validate_shape()
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum AuthenticatedDeliveryGrantValidationError {
     UnsupportedSchemaVersion,
