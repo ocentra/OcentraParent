@@ -217,6 +217,7 @@ pub struct ParentControllerLease {
     pub device_id: DeviceId,
     pub issued_at: String,
     pub expires_at: String,
+    pub granted_actions: Vec<HouseholdAuthorityAction>,
     pub revocation_state: ParentControllerLeaseState,
 }
 

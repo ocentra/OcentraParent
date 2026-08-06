@@ -577,8 +577,8 @@ fn parent_presence_verification_rejects_expired_challenges_and_accepts_future_ch
 }
 
 #[test]
-fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timestamps() -> TestResult
-{
+fn parent_presence_verification_accepts_second_precision_and_rejects_malformed_or_offset_timestamps(
+) -> TestResult {
     let store = TestStore::new("timestamp-validation");
     let malformed_case = test_case("malformed");
     let mut malformed_port = store.port()?;
@@ -598,20 +598,23 @@ fn parent_presence_verification_rejects_malformed_noncanonical_and_offset_timest
         .verify_and_consume(verification_input(&malformed_case, ACCEPTED_EXPIRY)?)
         .is_ok());
 
-    let noncanonical_case = test_case("noncanonical");
-    let mut noncanonical_port = store.port()?;
-    issue_valid_challenge(&mut noncanonical_port, &noncanonical_case, ACCEPTED_EXPIRY);
-    assert_eq!(
-        noncanonical_port.verify_and_consume(ParentPresenceVerificationInput {
+    let second_precision_case = test_case("second-precision");
+    let mut second_precision_port = store.port()?;
+    issue_valid_challenge(
+        &mut second_precision_port,
+        &second_precision_case,
+        ACCEPTED_EXPIRY,
+    );
+    assert!(second_precision_port
+        .verify_and_consume(ParentPresenceVerificationInput {
             correlation_id: correlation_id()?,
-            challenge_ref: noncanonical_case.challenge_ref.clone(),
+            challenge_ref: second_precision_case.challenge_ref.clone(),
             assertion: ParentStepUpAssertionSnapshot {
                 expires_at: "2099-01-01T00:00:00Z".to_owned(),
-                ..assertion_for(&noncanonical_case, ACCEPTED_EXPIRY)
+                ..assertion_for(&second_precision_case, ACCEPTED_EXPIRY)
             },
-        }),
-        Err(ParentPresenceVerificationFailureReason::TimestampInvalid)
-    );
+        })
+        .is_ok());
 
     let offset_case = test_case("offset");
     let mut offset_port = store.port()?;

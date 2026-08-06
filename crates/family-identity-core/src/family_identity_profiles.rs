@@ -130,6 +130,7 @@ impl ParentControllerLease {
         device_id: DeviceId,
         issued_at: impl Into<String>,
         expires_at: impl Into<String>,
+        granted_actions: Vec<HouseholdAuthorityAction>,
         revocation_state: ParentControllerLeaseState,
     ) -> Result<Self, EventingError> {
         Ok(Self {
@@ -144,6 +145,7 @@ impl ParentControllerLease {
                 "family_identity.parent_controller_lease.expires_at",
                 expires_at,
             )?,
+            granted_actions,
             revocation_state,
         })
     }

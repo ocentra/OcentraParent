@@ -47,6 +47,7 @@ fn handoff_request(action: HouseholdAuthorityAction) -> HouseholdAuthorityHandof
             parent_member_id: ParentMemberId::parse("parent-1").expect_value("parent member id"),
             household_id: HouseholdId::parse("household-1").expect_value("household id"),
             device_id: DeviceId::parse("parent-controller-1").expect_value("device id"),
+            role: HouseholdRole::ParentOwner,
             trust_state: DeviceTrustState::Trusted,
             stale_since: None,
         },
@@ -163,6 +164,22 @@ fn unbound_or_untrusted_child_device_records_are_rejected() {
         unassigned_decision.decision.failure_reason,
         Some(HouseholdAuthorizationFailureReason::ChildProfileNotBound)
     );
+
+    let mut revoked_target = handoff_request(HouseholdAuthorityAction::ViewChildStatus);
+    revoked_target.device_registration.trust_state = DeviceTrustState::Revoked;
+    let revoked_target_decision = evaluate_household_authority_handoff(revoked_target);
+    assert_eq!(
+        revoked_target_decision.decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
+    );
+
+    let mut stale_target = handoff_request(HouseholdAuthorityAction::ViewChildStatus);
+    stale_target.device_registration.stale_since = Some("2026-08-05T00:15:00.000Z".to_string());
+    let stale_target_decision = evaluate_household_authority_handoff(stale_target);
+    assert_eq!(
+        stale_target_decision.decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
+    );
 }
 
 #[test]
@@ -183,6 +200,7 @@ fn stale_session_and_mismatched_controller_lease_are_rejected() {
             DeviceId::parse("parent-controller-1").expect_value("device id"),
             "2026-08-05T00:00:00.000Z",
             "2026-08-05T01:00:00.000Z",
+            vec![HouseholdAuthorityAction::StartRemoteControl],
             ParentControllerLeaseState::Active,
         )
         .expect_value("lease"),
@@ -204,6 +222,7 @@ fn expired_or_stale_parent_controller_proof_is_rejected() {
             DeviceId::parse("parent-controller-1").expect_value("device id"),
             "2026-08-05T00:00:00.000Z",
             "2026-08-05T00:15:00.000Z",
+            vec![HouseholdAuthorityAction::StartRemoteControl],
             ParentControllerLeaseState::Active,
         )
         .expect_value("lease"),
@@ -220,5 +239,54 @@ fn expired_or_stale_parent_controller_proof_is_rejected() {
     assert_eq!(
         stale_decision.decision.failure_reason,
         Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
+    );
+
+    let mut wrong_role = handoff_request(HouseholdAuthorityAction::ChangePolicy);
+    wrong_role.parent_controller_device.role = HouseholdRole::ChildDeviceAgent;
+    let wrong_role_decision = evaluate_household_authority_handoff(wrong_role);
+    assert_eq!(
+        wrong_role_decision.decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::DeviceNotTrusted)
+    );
+}
+
+#[test]
+fn controller_lease_binds_action_scope_and_accepts_second_precision_expiry() {
+    let mut action_scoped = handoff_request(HouseholdAuthorityAction::StartRemoteControl);
+    action_scoped.controller_lease = Some(
+        ParentControllerLease::new(
+            ParentControllerLeaseId::parse("lease-1").expect_value("lease id"),
+            ParentMemberId::parse("parent-1").expect_value("parent member id"),
+            DeviceId::parse("parent-controller-1").expect_value("device id"),
+            "2026-08-05T00:00:00Z",
+            "2026-08-05T01:00:00Z",
+            vec![HouseholdAuthorityAction::StartRemoteView],
+            ParentControllerLeaseState::Active,
+        )
+        .expect_value("lease"),
+    );
+    let action_scoped_decision = evaluate_household_authority_handoff(action_scoped);
+    assert_eq!(
+        action_scoped_decision.decision.failure_reason,
+        Some(HouseholdAuthorizationFailureReason::ControllerLeaseRequired)
+    );
+
+    let mut second_precision = handoff_request(HouseholdAuthorityAction::StartRemoteControl);
+    second_precision.controller_lease = Some(
+        ParentControllerLease::new(
+            ParentControllerLeaseId::parse("lease-2").expect_value("lease id"),
+            ParentMemberId::parse("parent-1").expect_value("parent member id"),
+            DeviceId::parse("parent-controller-1").expect_value("device id"),
+            "2026-08-05T00:00:00Z",
+            "2026-08-05T01:00:00Z",
+            vec![HouseholdAuthorityAction::StartRemoteControl],
+            ParentControllerLeaseState::Active,
+        )
+        .expect_value("lease"),
+    );
+    let second_precision_decision = evaluate_household_authority_handoff(second_precision);
+    assert_eq!(
+        second_precision_decision.decision.authorization_state,
+        HouseholdAuthorizationState::Authorized
     );
 }

@@ -6,7 +6,7 @@
 use super::{
     ActorAccountState, ChildProfileBindingState, ChildProfileId, DeviceId, DeviceOwnershipScope,
     DeviceRegistration, DeviceTrustState, HouseholdAuthorityEvaluationId, HouseholdId,
-    ParentControllerLease, ParentMember, ParentMemberId, SessionFreshnessState,
+    HouseholdRole, ParentControllerLease, ParentMember, ParentMemberId, SessionFreshnessState,
 };
 use crate::household_authority::{
     authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityDecision,
@@ -35,6 +35,7 @@ pub struct ParentControllerDeviceTrustProof {
     pub parent_member_id: ParentMemberId,
     pub household_id: HouseholdId,
     pub device_id: DeviceId,
+    pub role: HouseholdRole,
     pub trust_state: DeviceTrustState,
     pub stale_since: Option<String>,
 }
@@ -82,7 +83,7 @@ pub fn evaluate_household_authority_handoff(
         membership_state: request.parent_member.invite_state,
         child_profile_binding_state: child_profile_binding_state(&request),
         device_ownership_scope: device_ownership_scope(&request),
-        device_trust_state: parent_controller_trust_state(&request),
+        device_trust_state: device_trust_state(&request),
         session_freshness_state: request.session_freshness_state,
         capability_granted: request.capability_granted,
         controller_lease_state: controller_lease_state(&request),
@@ -132,8 +133,21 @@ fn device_ownership_scope(request: &HouseholdAuthorityHandoffRequest) -> DeviceO
     }
 }
 
+fn device_trust_state(request: &HouseholdAuthorityHandoffRequest) -> DeviceTrustState {
+    if request.device_registration.stale_since.is_some() {
+        return DeviceTrustState::Revoked;
+    }
+
+    if request.device_registration.trust_state != DeviceTrustState::Trusted {
+        return request.device_registration.trust_state;
+    }
+
+    parent_controller_trust_state(request)
+}
+
 fn parent_controller_trust_state(request: &HouseholdAuthorityHandoffRequest) -> DeviceTrustState {
     if request.parent_controller_device.parent_member_id != request.parent_member.member_id
+        || request.parent_controller_device.role != request.parent_member.role
         || request.parent_controller_device.stale_since.is_some()
     {
         DeviceTrustState::Revoked
@@ -147,8 +161,9 @@ fn controller_lease_state(
 ) -> Option<ParentControllerLeaseState> {
     request.controller_lease.as_ref().and_then(|lease| {
         (lease.parent_member_id == request.parent_member.member_id
-            && lease.device_id == request.parent_controller_device.device_id)
-            .then(|| derived_controller_lease_state(lease, &request.observed_at))
+            && lease.device_id == request.parent_controller_device.device_id
+            && lease.granted_actions.contains(&request.action))
+        .then(|| derived_controller_lease_state(lease, &request.observed_at))
     })
 }
 
