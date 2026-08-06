@@ -20,42 +20,16 @@ impl ParentPresenceObservedAt {
 fn parse_canonical_utc(
     value: &str,
 ) -> Result<ParentPresenceObservedAt, ParentPresenceTimestampParseFailureReason> {
-    if value.len() != 24 {
-        return Err(classify_timestamp_shape(value));
-    }
-
     let bytes = value.as_bytes();
-    if !matches!(
-        bytes,
-        [
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'-',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'-',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'T',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b':',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b':',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'.',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'0'..=b'9',
-            b'Z'
-        ]
-    ) {
-        return Err(classify_timestamp_shape(value));
-    }
+    let millisecond = match bytes {
+        [b'0'..=b'9', b'0'..=b'9', b'0'..=b'9', b'0'..=b'9', b'-', b'0'..=b'9', b'0'..=b'9', b'-', b'0'..=b'9', b'0'..=b'9', b'T', b'0'..=b'9', b'0'..=b'9', b':', b'0'..=b'9', b'0'..=b'9', b':', b'0'..=b'9', b'0'..=b'9', b'Z'] => {
+            0
+        }
+        [b'0'..=b'9', b'0'..=b'9', b'0'..=b'9', b'0'..=b'9', b'-', b'0'..=b'9', b'0'..=b'9', b'-', b'0'..=b'9', b'0'..=b'9', b'T', b'0'..=b'9', b'0'..=b'9', b':', b'0'..=b'9', b'0'..=b'9', b':', b'0'..=b'9', b'0'..=b'9', b'.', b'0'..=b'9', b'0'..=b'9', b'0'..=b'9', b'Z'] => {
+            parse_slice(value, 20, 23)?
+        }
+        _ => return Err(classify_timestamp_shape(value)),
+    };
 
     let year = parse_slice(value, 0, 4)?;
     let month = parse_slice(value, 5, 7)?;
@@ -63,7 +37,6 @@ fn parse_canonical_utc(
     let hour = parse_slice(value, 11, 13)?;
     let minute = parse_slice(value, 14, 16)?;
     let second = parse_slice(value, 17, 19)?;
-    let millisecond = parse_slice(value, 20, 23)?;
 
     if month == 0 || month > 12 {
         return Err(ParentPresenceTimestampParseFailureReason::Malformed);
@@ -90,7 +63,7 @@ fn parse_canonical_utc(
 }
 
 fn classify_timestamp_shape(value: &str) -> ParentPresenceTimestampParseFailureReason {
-    if value.len() > 23 && matches!(value.as_bytes()[23], b'+' | b'-') {
+    if value.len() > 19 && matches!(value.as_bytes()[19], b'+' | b'-') {
         ParentPresenceTimestampParseFailureReason::OffsetNotAllowed
     } else if value.ends_with('Z') {
         ParentPresenceTimestampParseFailureReason::NonCanonical

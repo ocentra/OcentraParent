@@ -169,11 +169,16 @@ fn active_controller_lease_round_trips_and_stays_reusable() {
         DeviceId::parse("device-1").expect_value("device id"),
         "2026-06-27T01:00:00Z",
         "2026-06-27T02:00:00Z",
+        vec![HouseholdAuthorityAction::StartRemoteView],
         ParentControllerLeaseState::Active,
     )
     .expect_value("active lease record");
 
     let json = serde_json::to_value(&lease).expect_value("serialize controller lease");
+    assert_eq!(
+        json.get("granted_actions"),
+        Some(&serde_json::json!(["start-remote-view"]))
+    );
     let round_trip: ParentControllerLease =
         serde_json::from_value(json).expect_value("deserialize controller lease");
 
@@ -191,6 +196,7 @@ fn revoked_controller_lease_cannot_be_reused() {
         DeviceId::parse("device-1").expect_value("device id"),
         "2026-06-27T01:00:00Z",
         "2026-06-27T02:00:00Z",
+        vec![HouseholdAuthorityAction::StartRemoteControl],
         ParentControllerLeaseState::Revoked,
     )
     .expect_value("revoked lease record");

@@ -1,1 +1,2 @@
 mod family_identity_contracts;
+mod household_authority_handoff;

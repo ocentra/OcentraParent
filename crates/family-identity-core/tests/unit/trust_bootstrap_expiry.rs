@@ -110,11 +110,7 @@ fn port_at(
 #[test]
 fn parent_presence_issuance_rejects_invalid_expiry_without_reserving_identities(
 ) -> Result<(), ParentPresenceStorageFailureReason> {
-    for invalid in [
-        "not-a-timestamp",
-        "2099-01-01T00:00:00Z",
-        "2099-01-01T00:00:00.000-04:00",
-    ] {
+    for invalid in ["not-a-timestamp", "2099-01-01T00:00:00.000-04:00"] {
         let case = case("invalid-issuance");
         let (root, mut port) = port("invalid-issuance")?;
         assert_eq!(
@@ -131,6 +127,19 @@ fn parent_presence_issuance_rejects_invalid_expiry_without_reserving_identities(
         drop(port);
         let _cleanup = fs::remove_dir_all(root);
     }
+
+    let second_precision_case = case("second-precision-issuance");
+    let (root, mut port) = port("second-precision-issuance")?;
+    assert_eq!(
+        port.issue_challenge(challenge(&second_precision_case, "2099-01-01T00:00:00Z")),
+        Ok(())
+    );
+    assert!(port
+        .verify_and_consume(input(&second_precision_case, "2099-01-01T00:00:00Z")?)
+        .is_ok());
+    drop(port);
+    let _cleanup = fs::remove_dir_all(root);
+
     assert_eq!(
         serde_json::to_string(&ParentPresenceChallengeIssuanceFailureReason::TimestampInvalid)
             .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?,
