@@ -1,3 +1,6 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -538,6 +541,55 @@ pub struct EnforcementAuditEvent {
     pub parent_override: Option<ParentActionReference>,
     pub journal_sequence: Option<String>,
     pub observed_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct EnforcementAuditJournalEvent {
+    pub audit_event_id: String,
+    pub action_id: String,
+    pub result_id: String,
+    pub audit_event_kind: EnforcementAuditEventKind,
+    pub result_status: EnforcementResultStatus,
+    pub adapter_result_code: EnforcementAdapterResultCode,
+    pub capability_state: EnforcementCapabilityState,
+    pub observed_at: String,
+}
+
+impl From<&EnforcementAuditEvent> for EnforcementAuditJournalEvent {
+    fn from(audit: &EnforcementAuditEvent) -> Self {
+        Self {
+            audit_event_id: audit.audit_event_id.clone(),
+            action_id: audit.action.action_id.clone(),
+            result_id: audit.result.result_id.clone(),
+            audit_event_kind: audit.audit_event_kind,
+            result_status: audit.result.status,
+            adapter_result_code: audit.result.adapter_result_code,
+            capability_state: audit.capability.capability_state,
+            observed_at: audit.observed_at.clone(),
+        }
+    }
+}
+
+impl DomainEvent for EnforcementAuditJournalEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(enforcement_constants::EVENT_AUDIT_JOURNAL_RECORDED)?,
+            SchemaVersion::new(enforcement_constants::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        let mut value = String::from(enforcement_constants::EVENTING_AGGREGATE_AUDIT_PREFIX);
+        value.push_str(&self.action_id);
+        AggregateKey::parse(value)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(enforcement_constants::EVENTING_IDEMPOTENCY_AUDIT_PREFIX);
+        value.push_str(&self.audit_event_id);
+        IdempotencyKey::parse(value)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

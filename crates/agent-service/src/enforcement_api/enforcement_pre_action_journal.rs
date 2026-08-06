@@ -12,6 +12,9 @@ use ocentra_parent_agent_protocol::enforcement::EnforcementRollbackState;
 
 use crate::enforcement_payload::{EnforcementCommandPayload, EnforcementText};
 
+#[path = "enforcement_pre_action_journal/eventing_journal.rs"]
+pub(crate) mod eventing_journal;
+
 pub(crate) fn journal_before_action_outcome(
     request: &EnforcementCommandPayload,
     action: &EnforcementAction,

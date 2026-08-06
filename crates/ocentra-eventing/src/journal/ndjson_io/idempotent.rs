@@ -3,7 +3,9 @@ use std::sync::Arc;
 use crate::journal::JournalAppend;
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, StoredEventEnvelope};
 
-use super::idempotent_match::matching_append;
+use super::idempotent_match::{
+    is_legacy_idempotent_candidate, matching_append, matching_append_by_event_id,
+};
 use super::{NdjsonEventJournal, NdjsonJournalEntry};
 
 impl NdjsonEventJournal {
@@ -42,9 +44,7 @@ impl NdjsonEventJournal {
             .map(|(index, line)| decode_entry(line, index + 1))
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
-            .filter(|entry| {
-                entry.envelope != *envelope || entry.phase == JournalDispatchPhase::AfterDispatch
-            })
+            .filter(|entry| is_legacy_idempotent_candidate(entry, envelope))
             .filter_map(|entry| {
                 matching_append(entry, envelope, JournalDispatchPhase::AfterDispatch)
             })
@@ -53,6 +53,21 @@ impl NdjsonEventJournal {
             return matches.swap_remove(index).map(Some);
         }
         Ok(matches.into_iter().find_map(Result::ok))
+    }
+
+    pub(super) async fn existing_append_by_event_id(
+        &self,
+        envelope: &StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> Result<Option<JournalAppend>, EventingError> {
+        let contents = read_journal(self).await?;
+        let entries = contents
+            .lines()
+            .enumerate()
+            .filter(|(_index, line)| !line.trim().is_empty())
+            .map(|(index, line)| decode_entry(line, index + 1))
+            .collect::<Result<Vec<_>, _>>()?;
+        matching_append_by_event_id(entries, envelope, phase)
     }
 }
 

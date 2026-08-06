@@ -31,6 +31,8 @@ mod enforcement_capability;
 mod enforcement_cross_platform_capability_proof_read_model;
 #[path = "enforcement_cross_platform_capability_proof_read_model_tests.rs"]
 mod enforcement_cross_platform_capability_proof_read_model_tests;
+#[path = "enforcement_eventing_retry_production_tests.rs"]
+mod enforcement_eventing_retry_production_tests;
 #[path = "enforcement_integrity_runtime_audit_proof.rs"]
 mod enforcement_integrity_runtime_audit_proof;
 #[path = "enforcement_integrity_runtime_audit_read_model_tests.rs"]
@@ -75,6 +77,8 @@ mod integrity_alert_status_bridge_read_model_tests;
 mod json_contract;
 #[path = "notification_provider_status_boundary_read_model_tests.rs"]
 mod notification_provider_status_boundary_read_model_tests;
+#[path = "production_enforcement_api/mod.rs"]
+mod production_enforcement_api;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 #[path = "../../src/time.rs"]
@@ -85,7 +89,7 @@ mod windows_adapter_artifact_gate_read_model;
 mod windows_adapter_capability_read_model;
 
 #[path = "../../src/enforcement_api.rs"]
-mod enforcement_api;
+pub(crate) mod enforcement_api;
 
 #[test]
 fn link_runtime_helpers_used_by_the_current_harness() {
@@ -130,6 +134,10 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
+    let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::append_enforcement_audit_journal_event_phase;
+    let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::EnforcementEventingJournalPath {
+        path: std::path::PathBuf::new(),
+    };
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
 }

@@ -6,6 +6,43 @@ use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, Store
 use super::{JournalAppend, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions};
 
 impl NdjsonEventJournal {
+    /// Append an after-dispatch envelope once per event id.
+    ///
+    /// Enforcement retries can legitimately observe a different adapter result
+    /// after the first attempt (for example, a process may already be gone).
+    /// The first durable audit envelope remains authoritative for that event id;
+    /// a retry must not turn that changed projection into a duplicate rejection.
+    pub async fn append_idempotent_by_event_id(
+        &self,
+        envelope: &StoredEventEnvelope,
+    ) -> Result<JournalAppend, EventingError> {
+        self.append_phase_idempotent_by_event_id(envelope, JournalDispatchPhase::AfterDispatch)
+            .await
+    }
+
+    pub async fn append_phase_idempotent_by_event_id(
+        &self,
+        envelope: &StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> Result<JournalAppend, EventingError> {
+        let _append_permit = Arc::clone(&self.append_gate)
+            .acquire_owned()
+            .await
+            .expect_value("journal append gate remains open");
+        let _append_file_lock = self.acquire_append_file_lock().await?;
+        self.repair_incomplete_trailing_record().await?;
+        self.refresh_state_if_unrecovered().await?;
+        match self.existing_append_by_event_id(envelope, phase).await? {
+            Some(append) => {
+                self.sync_existing_journal().await?;
+                Ok(append)
+            }
+            None => self.append_entry_with_gate(envelope, phase).await,
+        }
+    }
+}
+
+impl NdjsonEventJournal {
     async fn append_entry(
         &self,
         envelope: &StoredEventEnvelope,
