@@ -3,7 +3,9 @@
 use std::{path::Path, time::Duration};
 
 use ed25519_dalek::{Signature, VerifyingKey};
-use ocentra_parent_agent_protocol::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
+use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
+    AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCarrier,
+};
 use rusqlite::{params, Connection, OptionalExtension, TransactionBehavior};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -62,9 +64,44 @@ pub enum AuthenticatedDeliveryGrantConsumeError {
     StorageUnavailable,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AuthenticatedDeliveryGrantVerifierError {
+    InvalidIssuerKeyId,
+    InvalidPublicKey,
+}
+
+/// A receiver-owned pinned issuer verifier. The signed delivery carrier never
+/// carries this key, so a sender cannot choose its own trust root.
+pub struct AuthenticatedDeliveryGrantVerifier {
+    issuer_key_id: String,
+    verifying_key: VerifyingKey,
+}
+
+impl AuthenticatedDeliveryGrantVerifier {
+    pub fn from_pinned_public_key(
+        issuer_key_id: impl Into<String>,
+        public_key: [u8; 32],
+    ) -> Result<Self, AuthenticatedDeliveryGrantVerifierError> {
+        let issuer_key_id = issuer_key_id.into();
+        if issuer_key_id.trim().is_empty() {
+            return Err(AuthenticatedDeliveryGrantVerifierError::InvalidIssuerKeyId);
+        }
+        let verifying_key = VerifyingKey::from_bytes(&public_key)
+            .map_err(|_error| AuthenticatedDeliveryGrantVerifierError::InvalidPublicKey)?;
+        Ok(Self {
+            issuer_key_id,
+            verifying_key,
+        })
+    }
+
+    pub fn issuer_key_id(&self) -> &str {
+        &self.issuer_key_id
+    }
+}
+
 pub struct AuthenticatedDeliveryGrantConsumer {
     connection: Connection,
-    verifying_key: VerifyingKey,
+    verifier: AuthenticatedDeliveryGrantVerifier,
     #[cfg(debug_assertions)]
     fail_next_commit: bool,
 }
@@ -72,7 +109,7 @@ pub struct AuthenticatedDeliveryGrantConsumer {
 impl AuthenticatedDeliveryGrantConsumer {
     pub fn open(
         path: impl AsRef<Path>,
-        verifying_key: VerifyingKey,
+        verifier: AuthenticatedDeliveryGrantVerifier,
     ) -> Result<Self, AuthenticatedDeliveryGrantConsumeError> {
         let connection = Connection::open(path)
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
@@ -87,7 +124,7 @@ impl AuthenticatedDeliveryGrantConsumer {
             .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::StorageUnavailable)?;
         Ok(Self {
             connection,
-            verifying_key,
+            verifier,
             #[cfg(debug_assertions)]
             fail_next_commit: false,
         })
@@ -95,12 +132,13 @@ impl AuthenticatedDeliveryGrantConsumer {
 
     pub fn consume(
         &mut self,
-        grant: &AuthenticatedDeliveryGrant,
+        carrier: &AuthenticatedDeliveryGrantCarrier,
         expected: &AuthenticatedDeliveryGrantExpectation,
         correlation_id: impl Into<String>,
     ) -> Result<AuthenticatedDeliveryGrantConsumeOutcome, AuthenticatedDeliveryGrantConsumeError>
     {
-        validate_grant(grant, expected, &self.verifying_key)?;
+        let grant = carrier.grant();
+        validate_grant(grant, expected, &self.verifier)?;
         let correlation_id = correlation_id.into();
         if correlation_id.trim().is_empty() {
             return Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected);
@@ -169,14 +207,20 @@ impl AuthenticatedDeliveryGrantConsumer {
 fn validate_grant(
     grant: &AuthenticatedDeliveryGrant,
     expected: &AuthenticatedDeliveryGrantExpectation,
-    verifying_key: &VerifyingKey,
+    verifier: &AuthenticatedDeliveryGrantVerifier,
 ) -> Result<(), AuthenticatedDeliveryGrantConsumeError> {
     grant
         .validate_shape()
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::InvalidGrant)?;
+    if expected.issuer_key_id != verifier.issuer_key_id()
+        || grant.issuer_key_id != verifier.issuer_key_id()
+    {
+        return Err(AuthenticatedDeliveryGrantConsumeError::BindingRejected);
+    }
     let signature = Signature::from_slice(&grant.signature)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::SignatureRejected)?;
-    verifying_key
+    verifier
+        .verifying_key
         .verify_strict(&grant.signing_bytes(), &signature)
         .map_err(|_error| AuthenticatedDeliveryGrantConsumeError::SignatureRejected)?;
     if grant.dry_run {
@@ -188,8 +232,7 @@ fn validate_grant(
     if grant.revocation_version != expected.revocation_version {
         return Err(AuthenticatedDeliveryGrantConsumeError::Revoked);
     }
-    if grant.issuer_key_id != expected.issuer_key_id
-        || grant.household_id != expected.household_id
+    if grant.household_id != expected.household_id
         || grant.child_profile_id != expected.child_profile_id
         || grant.target_device_id != expected.target_device_id
         || grant.policy_decision_id != expected.policy_decision_id

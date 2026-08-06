@@ -110,6 +110,15 @@ Focused validation should record:
 Owned-process terminate/time-limit proof exists in narrow form. It must remain
 clearly separate from broad app blocking.
 
+### Active pre-dispatch contract packet
+
+`codex/v08-wp04-grant-handoff-contract` establishes only a typed authenticated
+grant carrier and a receiver-owned pinned-verifier boundary. It does not route
+a grant into the executor, call an adapter, add a journal, create a receipt, or
+change any checkbox: WP11 remains the scheduling prerequisite for dispatch.
+Its focused negative proof is retained under this workpack's deterministic
+proof root.
+
 ## Negative Cases
 
 - pid mismatch or stale process identity must reject rather than hit the wrong target
