@@ -6,7 +6,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 ## Current status
 
-`source-present / dependency-reconciliation-proof-absent`
+`source-present / focused-validation-recorded / no-production-claim`
 
 ## First-touch surface
 
@@ -24,6 +24,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 - `infra/cloudflare/package.json`
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
 - `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/03-package-dependency-graph.md`
+- [tracked receipt](../../../proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold.md)
 
 ## Execution truth
 
@@ -38,7 +39,8 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
   - real runtime files include `src/index.ts`, `src/env.ts`, `src/routes.ts`, `src/billing-binding-read-model.ts`, `src/fixtures.ts`, `src/testing.ts`, `src/auth/model.ts`, `src/auth/verifier.ts`, and `src/security/redaction.ts`
   - scaffold-only directories still carry `README.md` placeholders under `src/durable-objects/`, `src/flows/`, `src/handlers/`, `src/observability/`, `src/providers/`, `src/queues/`, and `src/storage/`
 - The former missing `billing-domain` import blocker is stale: `infra/cloudflare` now consumes module-local generated billing contracts.
-- This worktree cannot reproduce the earlier lint/unit command claims because `infra/cloudflare/node_modules` is absent (`tsc` and `tsx` are unavailable). The WP01 prerequisite is the clean reconciliation of the selected `wrangler` and `@cloudflare/workers-types` peer relationship: the current `wrangler@4.118.0` optional peer requires `@cloudflare/workers-types ^5.20260730.1`, while this module declares `^4.20260601.0`. Retain the selected resolver graph and command result before checking CF-01 or selecting WP07.
+- The selected dependency graph now resolves normally: `wrangler@4.115.0` with `@cloudflare/workers-types@5.20260804.1`, from the declared `^5.20260722.1` range. The former Wrangler/Workers Types peer mismatch is closed for this module graph.
+- Focused current gates pass: module lint; unit `49/49`; contract `14/14`; integration `70/70`, including real local Wrangler Worker boot; and Cloudflare architecture policy. The detailed command log and negative/teardown records are retained under `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` with a tracked receipt alongside this plan.
 
 ## Acceptance
 
@@ -46,7 +48,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 - Package scripts are explicit.
 - The concentrated runtime surface versus placeholder subdirectories is explicit.
 - The selected `wrangler` and `@cloudflare/workers-types` declarations resolve without a peer mismatch, with the exact resolver output retained in `03-package-dependency-graph.md`.
-- WP07 remains blocked until WP01 retains that clean graph plus the focused command results; a recorded resolver blocker is not permission to run or close WP07.
+- WP07 remains a separate proof-only workpack and is not closed or started by this WP01 refresh.
 
 ## Proof IDs
 
@@ -68,18 +70,17 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 - Do not claim module completion from directory existence alone.
 
-## Historical validations, not current graph proof
+## Current focused validations
 
 - `npm --prefix infra/cloudflare run lint` -> passed
 - `npm --prefix infra/cloudflare run test:unit` -> passed (49 tests across 7 suites)
+- `npm --prefix infra/cloudflare run test:contract` -> passed (14 tests)
+- `npm --prefix infra/cloudflare run test:integration` -> passed (70 tests, including real local Wrangler Worker boot)
 - `npm run lint:architecture -- --files infra/cloudflare` -> passed (architecture-policy and generated-artifacts)
-
-These historical command observations do not replace the retained clean package
-graph required for WP01 or release WP07.
 
 ## No-claim boundary
 
 - This workpack does not claim payment readiness, account authority, trusted-device authority, storage operations readiness, or deployment readiness.
 - This workpack does not claim runtime completeness from placeholder directories, docs, or script presence alone.
 - This workpack claims only its scaffold/package-script acceptance and its scoped validation. It does not claim broader Cloudflare runtime readiness.
-- This workpack gates WP07's proof-only successor on the retained clean Wrangler/Workers-types graph; it does not grant a bypass from a precise dependency blocker.
+- This workpack records a clean local dependency graph and focused validation only; it does not grant a bypass for WP07's separate local-dev proof requirements.
