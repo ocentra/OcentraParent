@@ -4,7 +4,24 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Last live-code audit: 2026-07-17, on `main` at `37146806c`.
+Last broad source inventory: 2026-07-17, on `main` at `37146806c`. The dated
+merged-code delta immediately below overrides older snapshot wording for its
+named plans; historical rows remain routing context, not current closure proof.
+
+## Current merged-code train - 2026-08-06
+
+Live baseline: `origin/main` at `36969f92a6a41573284d1ae93e422640bd3d873e`.
+This refresh inspected merged source, retained proof paths, and required CI for
+the four PRs below. It records delivered slices only; no row upgrades a plan or
+product path to complete.
+
+| Plan / workpack | Merged source, tests, and proof observed on the baseline | Fresh required CI | Honest current state / next unblocker |
+| --- | --- | --- | --- |
+| Eventing WP06 journal/replay/lineage | [#621](https://github.com/ocentra/OcentraParent/pull/621) merged as `96735c5715cca0a59858febcfe43a2370707d43c`. `agent-protocol`, `agent-service`, and `ocentra-eventing` carry the typed enforcement audit-journal handoff and retry/idempotency coverage; retained evidence is `docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md` and `wp06-16-validation-commands.md`. | [run 31064093081](https://github.com/ocentra/OcentraParent/actions/runs/31064093081): required format/types/Rust, full validation, and package-preview gates passed. | WP06's merged handoff is evidenced. The plan stays open on WP10 LAN consumer proof and its consumer-plan handoff. |
+| Account identity/family WP08 authority parity | [#622](https://github.com/ocentra/OcentraParent/pull/622) merged as `36969f92a6a41573284d1ae93e422640bd3d873e`. `family-identity-core` contains the account/household authority handoff and contract/negative tests; durable parity, negative, redaction, Cloudflare-handoff, and validation records are tracked under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`. | [run 31067638811](https://github.com/ocentra/OcentraParent/actions/runs/31067638811): required format/types/Rust, full validation, and package-preview gates passed. | The Rust authority/generated-edge slice is merged and proven. Cloudflare WP06/WP08 runtime/migration work and Account WP06 aggregation remain open. |
+| Device trust WP02 Windows local custody | [#623](https://github.com/ocentra/OcentraParent/pull/623) merged as `46bb53da4d0dfbdd8d1b40937abfd67262aac8c3`. `storage-custody-core` has `windows_device_trust_custody` plus Windows/unsupported-platform tests, with the authority path in `family-identity-core` and `parent-runtime-core`. | [run 31057272950](https://github.com/ocentra/OcentraParent/actions/runs/31057272950): required format/types/Rust, full validation, and package-preview gates passed. | Narrow Windows-only custody slice is merged. Cross-platform custody, recovery/reset/re-pair, QR approval, and child tamper/uninstall proof remain open. |
+| Device trust WP03 parent step-up | [#627](https://github.com/ocentra/OcentraParent/pull/627) merged as `1ce56056c8c233addafe89feec7008c2bdda7059`. `family-identity-core::parent_step_up_authority` and `schema::parent_step_up_receipt` provide the fail-closed authority/receipt boundary with unit and contract coverage. | [run 31061365961](https://github.com/ocentra/OcentraParent/actions/runs/31061365961): required format/types/Rust, full validation, and package-preview gates passed. | The record-backed parent-step-up boundary is merged; it is not phone-QR, recovery-bundle, entitlement, or child-uninstall runtime closure. |
+| Network WP01 typed-eventing handoff | [#617](https://github.com/ocentra/OcentraParent/pull/617) remains the merged bounded `NetworkFlowObservedEvent` to reusable `DomainEvent`/`EventEnvelope` contract handoff. Its retained contract proof is `docs/proof/network-plan/01-network-foundation-eventing-contract.md`. | Historical merged evidence; no fresh network-runtime CI assertion is made by this docs refresh. | WP01 and all seven sibling network workpacks remain open; next is the remaining WP01 contract obligations, then parser-to-policy runtime proof. |
 
 ## Merged-baseline evidence delta — 2026-08-05
 
