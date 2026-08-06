@@ -48,6 +48,17 @@ pub enum DeviceTrustLifecycleEventKind {
     Activated,
 }
 
+struct LifecycleEventInput<'a> {
+    family_id: &'a str,
+    trust_subject: &'a str,
+    device_ref: &'a str,
+    correlation_id: &'a str,
+    kind: DeviceTrustLifecycleEventKind,
+    state: DeviceTrustLifecycleState,
+    lifecycle_generation: u64,
+    installation_binding_generation: u64,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum DeviceTrustLifecycleRedaction {
@@ -136,14 +147,16 @@ impl DeviceTrustLifecycleRepository {
         ).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
         Self::insert_event(
             &transaction,
-            family_id,
-            trust_subject,
-            device_ref,
-            correlation_id,
-            DeviceTrustLifecycleEventKind::Registered,
-            DeviceTrustLifecycleState::Pending,
-            1,
-            installation_binding_generation,
+            &LifecycleEventInput {
+                family_id,
+                trust_subject,
+                device_ref,
+                correlation_id,
+                kind: DeviceTrustLifecycleEventKind::Registered,
+                state: DeviceTrustLifecycleState::Pending,
+                lifecycle_generation: 1,
+                installation_binding_generation,
+            },
         )?;
         transaction
             .commit()
@@ -192,18 +205,20 @@ impl DeviceTrustLifecycleRepository {
         };
         Self::insert_event(
             &transaction,
-            family_id,
-            trust_subject,
-            device_ref,
-            correlation_id,
-            kind,
-            if reset_required {
-                DeviceTrustLifecycleState::ResetRequired
-            } else {
-                DeviceTrustLifecycleState::Revoked
+            &LifecycleEventInput {
+                family_id,
+                trust_subject,
+                device_ref,
+                correlation_id,
+                kind,
+                state: if reset_required {
+                    DeviceTrustLifecycleState::ResetRequired
+                } else {
+                    DeviceTrustLifecycleState::Revoked
+                },
+                lifecycle_generation: next_generation,
+                installation_binding_generation: installation_generation,
             },
-            next_generation,
-            installation_generation,
         )?;
         transaction
             .commit()
@@ -262,14 +277,16 @@ impl DeviceTrustLifecycleRepository {
         ).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
         Self::insert_event(
             &transaction,
-            family_id,
-            trust_subject,
-            device_ref,
-            correlation_id,
-            DeviceTrustLifecycleEventKind::Repaired,
-            DeviceTrustLifecycleState::Trusted,
-            next_generation,
-            installation_binding_generation,
+            &LifecycleEventInput {
+                family_id,
+                trust_subject,
+                device_ref,
+                correlation_id,
+                kind: DeviceTrustLifecycleEventKind::Repaired,
+                state: DeviceTrustLifecycleState::Trusted,
+                lifecycle_generation: next_generation,
+                installation_binding_generation,
+            },
         )?;
         transaction
             .commit()
@@ -323,14 +340,16 @@ impl DeviceTrustLifecycleRepository {
             .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
         Self::insert_event(
             &transaction,
-            family_id,
-            trust_subject,
-            device_ref,
-            correlation_id,
-            DeviceTrustLifecycleEventKind::Activated,
-            DeviceTrustLifecycleState::Trusted,
-            next_generation,
-            installation_generation,
+            &LifecycleEventInput {
+                family_id,
+                trust_subject,
+                device_ref,
+                correlation_id,
+                kind: DeviceTrustLifecycleEventKind::Activated,
+                state: DeviceTrustLifecycleState::Trusted,
+                lifecycle_generation: next_generation,
+                installation_binding_generation: installation_generation,
+            },
         )?;
         transaction
             .commit()
@@ -405,15 +424,18 @@ impl DeviceTrustLifecycleRepository {
 
     fn insert_event(
         transaction: &rusqlite::Transaction<'_>,
-        family_id: &str,
-        trust_subject: &str,
-        device_ref: &str,
-        correlation_id: &str,
-        kind: DeviceTrustLifecycleEventKind,
-        state: DeviceTrustLifecycleState,
-        lifecycle_generation: u64,
-        installation_binding_generation: u64,
+        input: &LifecycleEventInput<'_>,
     ) -> Result<(), DeviceTrustLifecycleError> {
+        let LifecycleEventInput {
+            family_id,
+            trust_subject,
+            device_ref,
+            correlation_id,
+            kind,
+            state,
+            lifecycle_generation,
+            installation_binding_generation,
+        } = *input;
         let device_binding = redacted_binding(family_id, trust_subject, device_ref);
         let household_binding = redacted_binding(family_id, "household", "household");
         let event_id = format!("{device_binding}:{correlation_id}:{lifecycle_generation}");

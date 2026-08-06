@@ -127,7 +127,7 @@ impl ParentDeviceTrustBootstrapRuntime {
     ) -> Result<ParentDeviceTrustBootstrapResult, ParentDeviceTrustBootstrapError> {
         match begin_parent_device_key_sealing(trust_bootstrap_ref, ceremony) {
             TrustBootstrapDecision::AwaitingPlatformKeySealing(request) => {
-                self.seal_request(request, parent_device_trust_material)
+                self.seal_request(*request, parent_device_trust_material)
             }
             TrustBootstrapDecision::Rejected(rejection) => Err(
                 ParentDeviceTrustBootstrapError::ParentPresenceRejected(rejection),

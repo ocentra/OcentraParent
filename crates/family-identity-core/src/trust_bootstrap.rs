@@ -107,7 +107,7 @@ pub struct TrustBootstrapManualRequirement {
 
 #[derive(Debug, PartialEq, Eq, Serialize)]
 pub enum TrustBootstrapDecision {
-    AwaitingPlatformKeySealing(AwaitingPlatformKeySealingRequest),
+    AwaitingPlatformKeySealing(Box<AwaitingPlatformKeySealingRequest>),
     Rejected(TrustBootstrapRejection),
     ManualRequired(TrustBootstrapManualRequirement),
 }
