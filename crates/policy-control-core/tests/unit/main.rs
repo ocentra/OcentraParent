@@ -7,6 +7,8 @@ mod test_support;
 #[path = "policy_control.rs"]
 mod policy_control;
 
+#[path = "authenticated_delivery_grant.rs"]
+mod authenticated_delivery_grant;
 #[path = "policy_authority.rs"]
 mod policy_authority;
 

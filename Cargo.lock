@@ -2601,6 +2601,7 @@ dependencies = [
  "base64",
  "chacha20poly1305",
  "chrono",
+ "ed25519-dalek",
  "fs2",
  "ocentra-eventing",
  "ocentra-network-evidence",
@@ -2716,8 +2717,10 @@ dependencies = [
 name = "ocentra-policy-control-core"
 version = "0.1.1"
 dependencies = [
+ "ed25519-dalek",
  "ocentra-eventing",
  "ocentra-evidence",
+ "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
