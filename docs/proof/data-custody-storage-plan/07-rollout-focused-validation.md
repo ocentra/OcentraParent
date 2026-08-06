@@ -15,6 +15,14 @@ npm run precommit
 git diff --check
 ```
 
+## Observed results
+
+The focused commands completed successfully on this revision: the custody
+store filter ran **8 passed**, the child-runtime tombstone filter ran **2
+passed**, and the event-flow filter ran **2 passed**. Architecture policy,
+Enforcer guard, and the staged pre-commit validation also completed without
+findings.
+
 ## Assertions covered
 
 - typed delete intents survive restart until terminal publication;
@@ -24,5 +32,4 @@ git diff --check
 - transient journal I/O remains retryable while identity/corruption errors
   propagate to the owning runtime path.
 
-The command results are refreshed by the PR validation run for this revision;
-the file is a tracked audit pointer rather than an ignored generated log.
+The file is a tracked audit pointer rather than an ignored generated log.
