@@ -144,8 +144,7 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
             HouseholdAuthorityAction::SealParentDeviceTrust
         ) | (
             HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
-            HouseholdAuthorityAction::SealParentDeviceTrust
-                | HouseholdAuthorityAction::PairChildDevice
+            HouseholdAuthorityAction::PairChildDevice
                 | HouseholdAuthorityAction::RevokeChildDevice
                 | HouseholdAuthorityAction::ChangePolicy
         ) | (
@@ -238,8 +237,14 @@ fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
 fn bootstrap_sealing_state_is_allowed(input: &HouseholdAuthorityInput) -> bool {
     input.action == HouseholdAuthorityAction::SealParentDeviceTrust
         && matches!(
-            input.device_trust_state,
-            DeviceTrustState::Pending | DeviceTrustState::ResetRequired
+            (input.device_trust_state, input.child_profile_binding_state),
+            (DeviceTrustState::Pending | DeviceTrustState::ResetRequired, _)
+                // A trusted parent controller with no child binding is the established
+                // controller path used when sealing local parent-device custody.
+                | (
+                    DeviceTrustState::Trusted,
+                    ChildProfileBindingState::Missing
+                )
         )
 }
 
