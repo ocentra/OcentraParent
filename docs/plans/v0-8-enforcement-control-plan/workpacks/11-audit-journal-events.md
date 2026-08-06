@@ -102,12 +102,15 @@ Focused validation should record:
 - [ ] Journal timer and rollback transitions.
 - [ ] Journal approvals, denials, expiry, and overrides.
 - [ ] Include evidence, policy, actor, route, and target references.
-- [ ] Add read-model/query coverage for recent action history.
+- [x] Add read-model/query coverage for recent action history.
 
 Current evidence mapping:
 
 - The typed-request authorization-rejection subcase is durable and queryable;
   see `docs/proof/v0-8-enforcement-control-plan/wp11-audit-journal-events.md`.
+- `ActivityStore::recent_enforcement_audit_fields` now returns a caller-bounded,
+  newest-first view of stored enforcement-audit fields. Its focused regression
+  proves the cap, SQLite timestamp/rowid order, and the zero-limit boundary.
 - The unchecked rows deliberately remain the completion authority for the
   remaining transition families; this proof does not convert them to done.
 
@@ -120,8 +123,9 @@ The fail-safe authorization-rejection boundary is now durable and queryable:
 the service records a typed `EnforcementAuditRecorded` activity event before it
 returns `AgentCommandRejected`. See
 `docs/proof/v0-8-enforcement-control-plan/wp11-audit-journal-events.md`.
-The checklist remains open until each required transition family has its own
-selected validation and durable query proof.
+The recent-history query row is now covered, but the workpack remains open
+until each remaining transition family has its own selected validation and
+durable query proof.
 
 ## Negative Cases
 
