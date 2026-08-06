@@ -3,7 +3,9 @@ use std::fs::{remove_dir, remove_file};
 use ocentra_eventing::{
     expect_value::ExpectValue,
     ids::EventId,
-    journal::{ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions},
+    journal::{
+        ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions, policy::JournalDispatchPhase,
+    },
     replay::ReplayFilter,
 };
 use ocentra_parent_agent_protocol::{
@@ -47,6 +49,20 @@ async fn production_command_retry_keeps_eventing_identity_and_command_correlatio
         record.envelope.correlation_id.as_str() == command.message_id
             && record.envelope.observed_at.as_str() == command.sent_at
     }));
+    let raw = tokio::fs::read_to_string(&eventing_path)
+        .await
+        .expect_value("read production eventing journal");
+    let entries = raw
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| {
+            serde_json::from_str::<ocentra_eventing::journal::ndjson::NdjsonJournalEntry>(line)
+        })
+        .collect::<Result<Vec<_>, _>>()
+        .expect_value("decode production eventing journal");
+    assert_eq!(entries.len(), 2);
+    assert_eq!(entries[0].phase, JournalDispatchPhase::BeforeDispatch);
+    assert_eq!(entries[1].phase, JournalDispatchPhase::AfterDispatch);
 
     drop(journal);
     cleanup(&paths, &eventing_path, &root);

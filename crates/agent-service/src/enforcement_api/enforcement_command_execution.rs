@@ -4,6 +4,7 @@ mod adapter_outcome;
 mod provenance;
 
 use ocentra_eventing::ids::CorrelationId;
+use ocentra_eventing::journal::policy::JournalDispatchPhase;
 use ocentra_parent_agent_core::enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementBoundaryOutcome,
     EnforcementBoundaryRejection,
@@ -39,7 +40,9 @@ use self::provenance::{
     enforcement_audit_provenance, record_audit_provenance, EnforcementAuditProvenance,
 };
 use super::enforcement_pre_action_journal::{
-    eventing_journal::{append_enforcement_audit_journal_event, EnforcementEventingJournalPath},
+    eventing_journal::{
+        append_enforcement_audit_journal_event_phase, EnforcementEventingJournalPath,
+    },
     journal_before_action_outcome,
 };
 use super::enforcement_report_payload::{
@@ -102,6 +105,7 @@ async fn execute_enforcement_command(
         &command_sent_at,
         &before_action_outcome,
         &paths,
+        JournalDispatchPhase::BeforeDispatch,
     )
     .await?;
     record_enforcement_audit(&request, &before_action_outcome, &paths, None).await?;
@@ -121,6 +125,7 @@ async fn execute_enforcement_command(
         &command_sent_at,
         &outcome,
         &paths,
+        JournalDispatchPhase::AfterDispatch,
     )
     .await?;
     let status = record_enforcement_audit(&request, &outcome, &paths, provenance).await?;
@@ -143,15 +148,17 @@ async fn record_eventing_enforcement_audit(
     command_sent_at: &EnforcementText,
     outcome: &EnforcementBoundaryOutcome,
     paths: &EnforcementJournalPaths,
+    phase: JournalDispatchPhase,
 ) -> Result<(), EnforcementJournalBuildError> {
     let mut eventing_journal_path = paths.journal_path.clone();
     eventing_journal_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
-    append_enforcement_audit_journal_event(
+    append_enforcement_audit_journal_event_phase(
         EnforcementEventingJournalPath {
             path: eventing_journal_path,
         },
         eventing_audit_event(outcome, command_sent_at),
         CorrelationId::parse(command_correlation_id.0.clone()).map_err(eventing_journal_error)?,
+        phase,
     )
     .await
     .map(|_| ())

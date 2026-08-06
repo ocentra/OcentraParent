@@ -25,3 +25,32 @@ pub(super) fn matching_append(
         })),
     }
 }
+
+pub(super) fn matching_append_by_event_id(
+    entries: Vec<NdjsonJournalEntry>,
+    envelope: &StoredEventEnvelope,
+    expected_phase: JournalDispatchPhase,
+) -> Result<Option<JournalAppend>, EventingError> {
+    let Some(entry) = entries
+        .into_iter()
+        .find(|entry| entry.envelope.event_id == envelope.event_id)
+    else {
+        return Ok(None);
+    };
+    if entry.phase != expected_phase
+        || entry.envelope.contract != envelope.contract
+        || entry.envelope.correlation_id != envelope.correlation_id
+    {
+        return Err(EventingError::DuplicateEventId {
+            event_id: envelope.event_id.clone(),
+        });
+    }
+    Ok(Some(entry.append))
+}
+
+pub(super) fn is_legacy_idempotent_candidate(
+    entry: &NdjsonJournalEntry,
+    envelope: &StoredEventEnvelope,
+) -> bool {
+    entry.envelope != *envelope || entry.phase == JournalDispatchPhase::AfterDispatch
+}

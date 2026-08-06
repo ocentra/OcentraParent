@@ -7,6 +7,7 @@ use ocentra_eventing::{
         CorrelationId, EventCustody, EventId, RecordedAt, RuntimeInstanceId, RuntimeRole,
         SourceComponent, SourceService,
     },
+    journal::policy::JournalDispatchPhase,
     journal::{ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions, JournalAppend},
 };
 use ocentra_parent_agent_protocol::{
@@ -18,13 +19,17 @@ pub(crate) struct EnforcementEventingJournalPath {
     pub(crate) path: PathBuf,
 }
 
-pub(crate) async fn append_enforcement_audit_journal_event(
+pub(crate) async fn append_enforcement_audit_journal_event_phase(
     journal_path: EnforcementEventingJournalPath,
     event: EnforcementAuditJournalEvent,
     correlation_id: CorrelationId,
+    phase: JournalDispatchPhase,
 ) -> Result<JournalAppend, EventingError> {
     let path = journal_path.path;
-    if let Some(parent) = path.parent() {
+    if let Some(parent) = path
+        .parent()
+        .filter(|parent| !parent.as_os_str().is_empty())
+    {
         tokio::fs::create_dir_all(parent)
             .await
             .map_err(|error| EventingError::JournalIo {
@@ -41,7 +46,13 @@ pub(crate) async fn append_enforcement_audit_journal_event(
         None,
     );
     let stored = EventEnvelope::from_event(event, metadata)?.store()?;
-    journal.append_idempotent(&stored).await
+    match phase {
+        JournalDispatchPhase::BeforeDispatch | JournalDispatchPhase::AfterDispatch => {
+            journal
+                .append_phase_idempotent_by_event_id(&stored, phase)
+                .await
+        }
+    }
 }
 
 fn event_source() -> Result<EventSource, EventingError> {

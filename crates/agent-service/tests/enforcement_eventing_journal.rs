@@ -9,7 +9,9 @@ use std::{
 use ocentra_eventing::{
     expect_value::ExpectValue,
     ids::{CorrelationId, EventId},
-    journal::{ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions},
+    journal::{
+        ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions, policy::JournalDispatchPhase,
+    },
     replay::ReplayFilter,
 };
 use ocentra_parent_agent_protocol::{
@@ -34,19 +36,21 @@ async fn typed_enforcement_audit_append_is_idempotent_and_replays_projection_onl
         path: eventing_path.clone(),
     };
     assert!(!root.join("nested").exists());
-    let first = eventing_journal::append_enforcement_audit_journal_event(
+    let first = eventing_journal::append_enforcement_audit_journal_event_phase(
         journal_path.clone(),
         event.clone(),
         CorrelationId::parse(enforcement::TEST_AUDIT_EVENT_ID.to_string())
             .expect_value("typed correlation id"),
+        JournalDispatchPhase::AfterDispatch,
     )
     .await
     .expect_value("first typed enforcement audit append");
-    let second = eventing_journal::append_enforcement_audit_journal_event(
+    let second = eventing_journal::append_enforcement_audit_journal_event_phase(
         journal_path,
         event.clone(),
         CorrelationId::parse(enforcement::TEST_AUDIT_EVENT_ID.to_string())
             .expect_value("typed correlation id"),
+        JournalDispatchPhase::AfterDispatch,
     )
     .await
     .expect_value("idempotent typed enforcement audit append");
@@ -73,6 +77,30 @@ async fn typed_enforcement_audit_append_is_idempotent_and_replays_projection_onl
     remove_dir(&root).expect_value("test directory removed");
 
     assert_eq!(decoded.payload, event);
+}
+
+#[tokio::test]
+async fn bare_relative_eventing_path_does_not_require_empty_parent_directory() {
+    let file_name = format!(
+        "enforcement-eventing-bare-{}.eventing",
+        EventId::generated().as_str()
+    );
+    let eventing_path = std::path::PathBuf::from(&file_name);
+    let journal_path = eventing_journal::EnforcementEventingJournalPath {
+        path: eventing_path.clone(),
+    };
+    let result = eventing_journal::append_enforcement_audit_journal_event_phase(
+        journal_path,
+        journal_event(),
+        CorrelationId::parse(enforcement::TEST_AUDIT_EVENT_ID.to_string())
+            .expect_value("typed correlation id"),
+        JournalDispatchPhase::AfterDispatch,
+    )
+    .await
+    .expect_value("bare relative eventing audit append");
+
+    assert_eq!(result.sequence, 1);
+    cleanup(&eventing_path);
 }
 
 fn journal_event() -> EnforcementAuditJournalEvent {
