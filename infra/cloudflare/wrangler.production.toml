@@ -17,6 +17,11 @@ binding = "BILLING_D1"
 database_name = "ocentra-parent-billing"
 database_id = "REPLACE_WITH_PRODUCTION_D1_ID"
 
+[[d1_databases]]
+binding = "ACCOUNT_IDENTITY_D1"
+database_name = "ocentra-parent-account-identity"
+database_id = "REPLACE_WITH_PRODUCTION_ACCOUNT_IDENTITY_D1_ID"
+
 [[kv_namespaces]]
 binding = "BILLING_RATE_LIMIT_KV"
 id = "REPLACE_WITH_PRODUCTION_RATE_LIMIT_KV_ID"

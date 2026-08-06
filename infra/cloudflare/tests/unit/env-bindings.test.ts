@@ -40,6 +40,7 @@ function createEnv(overrides: Partial<Env> = {}): Env {
     INTERNAL_QUEUE_SHARED_SECRET: 'queue-secret',
     ENTITLEMENT_SIGNING_KEY_REF: 'signing-key-test-ref',
     BILLING_D1: {} as D1Database,
+    ACCOUNT_IDENTITY_D1: {} as D1Database,
     BILLING_DO: {} as DurableObjectNamespace,
     REFERRAL_DO: {} as DurableObjectNamespace,
     ENTITLEMENT_SNAPSHOT_DO: {} as DurableObjectNamespace,
@@ -95,6 +96,7 @@ describe('env validation', () => {
 
   it('tracks required and optional bindings separately from hard env validation', () => {
     const env = createEnv({
+      ACCOUNT_IDENTITY_D1: undefined,
       BILLING_AUDIT_R2: undefined,
       ANALYTICS: undefined,
     });
@@ -109,6 +111,7 @@ describe('env validation', () => {
       BILLING_DEAD_LETTER_QUEUE: 'configured',
       BILLING_RATE_LIMIT_KV: 'configured',
       BILLING_CONFIG_KV: 'configured',
+      ACCOUNT_IDENTITY_D1: 'missing',
       BILLING_AUDIT_R2: 'missing',
       ANALYTICS: 'missing',
     });
@@ -136,6 +139,7 @@ describe('env validation', () => {
     const ownership = getBindingOwnership();
 
     assert.deepEqual(Object.keys(ownership).sort(), [
+      'ACCOUNT_IDENTITY_D1',
       'ANALYTICS',
       'BILLING_AUDIT_R2',
       'BILLING_CONFIG_KV',
@@ -236,6 +240,15 @@ describe('env validation', () => {
       childDataStorage: 'forbidden',
       readinessState: 'required',
     });
+    assert.deepEqual(ownership.ACCOUNT_IDENTITY_D1, {
+      owner: 'account-identity-store',
+      purpose: 'minimal provider-subject to Ocentra account mapping',
+      bindingFamily: 'd1',
+      privacyBoundary: 'provider subject and account metadata only; no child telemetry or raw claims',
+      childDataStorage: 'forbidden',
+      readinessState: 'manual-required',
+      rejectedUse: 'must not become household, child, device, role, or session storage',
+    });
     assert.deepEqual(ownership.BILLING_RATE_LIMIT_KV, {
       owner: 'billing-rate-limit-guard',
       purpose: 'rate limits and lightweight abuse counters',
@@ -258,6 +271,7 @@ describe('env validation', () => {
   it('keeps development and production wrangler bindings explicit and aligned with the storage binding model', () => {
     for (const config of [wranglerDevConfig, wranglerProductionConfig]) {
       assert.match(config, /binding = "BILLING_D1"/);
+      assert.match(config, /binding = "ACCOUNT_IDENTITY_D1"/);
       assert.match(config, /binding = "BILLING_RATE_LIMIT_KV"/);
       assert.match(config, /binding = "BILLING_CONFIG_KV"/);
       assert.match(config, /binding = "BILLING_RECONCILIATION_QUEUE"/);

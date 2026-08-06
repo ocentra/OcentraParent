@@ -26,6 +26,7 @@ export interface Env {
   GOOGLE_PLAY_SERVICE_ACCOUNT_REF?: string;
   ENTITLEMENT_SIGNING_KEY_REF?: string;
   BILLING_D1?: D1Database;
+  ACCOUNT_IDENTITY_D1?: D1Database;
   BILLING_DO?: DurableObjectNamespace;
   REFERRAL_DO?: DurableObjectNamespace;
   ENTITLEMENT_SNAPSHOT_DO?: DurableObjectNamespace;
@@ -50,7 +51,7 @@ export const REQUIRED_BINDING_KEYS = [
   'BILLING_RATE_LIMIT_KV',
   'BILLING_CONFIG_KV',
 ] as const;
-export const OPTIONAL_BINDING_KEYS = ['BILLING_AUDIT_R2', 'ANALYTICS'] as const;
+export const OPTIONAL_BINDING_KEYS = ['ACCOUNT_IDENTITY_D1', 'BILLING_AUDIT_R2', 'ANALYTICS'] as const;
 const OPTIONAL_ENV_KEYS = [
   'REQUEST_MAX_BYTES',
   'BILLING_ROUTE_KILL_SWITCH',
@@ -96,6 +97,15 @@ export const BINDING_OWNERSHIP = {
     privacyBoundary: 'billing, support, and reconciliation records only; no child telemetry or raw child data',
     childDataStorage: 'forbidden',
     readinessState: 'required',
+  },
+  ACCOUNT_IDENTITY_D1: {
+    owner: 'account-identity-store',
+    purpose: 'minimal provider-subject to Ocentra account mapping',
+    bindingFamily: 'd1',
+    privacyBoundary: 'provider subject and account metadata only; no child telemetry or raw claims',
+    childDataStorage: 'forbidden',
+    readinessState: 'manual-required',
+    rejectedUse: 'must not become household, child, device, role, or session storage',
   },
   BILLING_DO: {
     owner: 'billing-control-do',
