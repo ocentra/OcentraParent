@@ -18,7 +18,7 @@
 
 This plan owns data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
-Route status: execution-grade architecture, UI docs, and test/proof inventory now exist. WP01 custody source of truth, WP02 encryption key custody, WP03 parent-owned cloud sync, WP04 retention/delete/tombstone, WP05 export/import/backup/recovery, WP06 report/query custody, and WP08 parent storage settings/apply flow now have green implementation-plus-proof roots. WP07 rollout proof and route gate still needs its own refresh because its current aggregate text predates the new WP01/WP03 proof state and must not be treated as current aggregate truth.
+Route status: execution-grade architecture, UI docs, and test/proof inventory now exist. WP01 custody source of truth, WP02 encryption key custody, WP03 parent-owned cloud sync, WP04 retention/delete/tombstone, WP05 export/import/backup/recovery, WP06 report/query custody, and WP08 parent storage settings/apply flow now have green implementation-plus-proof roots. WP07 rollout proof and route gate is refreshed with a focused child-runtime lifecycle and tracked command-evidence pointer; its ignored aggregate proof roots remain unavailable in a clean checkout, so WP07 is still not accepted as aggregate route truth.
 
 ## Current ownership interpretation
 

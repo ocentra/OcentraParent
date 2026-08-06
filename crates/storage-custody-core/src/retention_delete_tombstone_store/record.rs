@@ -9,7 +9,22 @@ use super::{
     RetentionDeleteOutboxPayload, RetentionDeleteOutboxRecord, TypedTombstoneOutboxPayload,
 };
 
-const TYPED_STORE_VERSION: u16 = 2;
+impl RetentionDeleteOutboxRecord {
+    pub(super) fn replace_legacy_pending_with_typed(
+        &mut self,
+        deletion_ref: String,
+        proof_ref: String,
+        action: StorageCustodyActionPlannedEvent,
+        envelope: StoredEventEnvelope,
+    ) {
+        if self.terminal_pending && self.typed_action_and_envelope().is_none() {
+            *self = Self::typed(deletion_ref, proof_ref, action, envelope);
+        }
+    }
+}
+
+pub(super) const TYPED_STORE_VERSION: u16 = 2;
+pub(super) const TERMINAL_MARKER_STORE_VERSION: u16 = 3;
 
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -28,6 +43,15 @@ struct TypedVersionTwoRecord {
     proof_ref: String,
     action: StorageCustodyActionPlannedEvent,
     envelope: StoredEventEnvelope,
+    terminal_pending: bool,
+}
+
+#[derive(Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+struct TerminalMarkerVersionThreeRecord {
+    version: u16,
+    deletion_ref: String,
+    proof_ref: String,
     terminal_pending: bool,
 }
 
@@ -55,6 +79,7 @@ pub(super) fn decode(
     match record_version(&value)? {
         1 => decode_legacy(value),
         TYPED_STORE_VERSION => decode_typed(value),
+        TERMINAL_MARKER_STORE_VERSION => decode_terminal_marker(value),
         _ => Err(unsupported_version_error()),
     }
 }
@@ -67,6 +92,7 @@ pub(super) fn encode(
         RetentionDeleteOutboxPayload::Typed(payload) => {
             encode_typed(record, &payload.action, &payload.envelope)
         }
+        RetentionDeleteOutboxPayload::TerminalMarker => encode_terminal_marker(record),
     }
 }
 
@@ -107,6 +133,19 @@ fn decode_typed(
     })
 }
 
+fn decode_terminal_marker(
+    value: serde_json::Value,
+) -> Result<RetentionDeleteOutboxRecord, serde_json::Error> {
+    let marker: TerminalMarkerVersionThreeRecord = serde_json::from_value(value)?;
+    Ok(RetentionDeleteOutboxRecord {
+        version: marker.version,
+        deletion_ref: marker.deletion_ref,
+        proof_ref: marker.proof_ref,
+        terminal_pending: marker.terminal_pending,
+        payload: RetentionDeleteOutboxPayload::TerminalMarker,
+    })
+}
+
 fn encode_legacy(
     record: &RetentionDeleteOutboxRecord,
 ) -> Result<serde_json::Value, serde_json::Error> {
@@ -129,6 +168,17 @@ fn encode_typed(
         proof_ref: record.proof_ref.clone(),
         action: action.clone(),
         envelope: envelope.clone(),
+        terminal_pending: record.terminal_pending,
+    })
+}
+
+fn encode_terminal_marker(
+    record: &RetentionDeleteOutboxRecord,
+) -> Result<serde_json::Value, serde_json::Error> {
+    serde_json::to_value(TerminalMarkerVersionThreeRecord {
+        version: record.version,
+        deletion_ref: record.deletion_ref.clone(),
+        proof_ref: record.proof_ref.clone(),
         terminal_pending: record.terminal_pending,
     })
 }

@@ -14,7 +14,8 @@ use ocentra_storage_custody_core::{
 };
 
 use crate::runtime_gate_tombstone::{
-    persist_child_runtime_tombstone_action_with_milestones, ChildRuntimeTombstonePublicationOutcome,
+    persist_child_runtime_tombstone_action, persist_child_runtime_tombstone_action_with_milestones,
+    ChildRuntimeTombstonePublicationOutcome,
 };
 
 #[derive(Clone)]
@@ -46,5 +47,20 @@ impl ChildRuntimeTombstoneEventFlow {
             &action,
         )
         .await
+    }
+
+    /// Production delivery entry point for callers that require a journal
+    /// append before acknowledging the custody action. Keeping this call on
+    /// the event-flow object ensures runtime custody events do not bypass the
+    /// durable outbox/journal gate through a test-only helper.
+    pub async fn publish_action_and_require_journal(
+        &self,
+        action: StorageCustodyActionPlannedEvent,
+        metadata: EventMetadata,
+    ) -> std::io::Result<ocentra_eventing::journal::JournalAppend> {
+        let envelope = EventEnvelope::from_event(action.clone(), metadata)
+            .and_then(|event| event.store())
+            .map_err(std::io::Error::other)?;
+        persist_child_runtime_tombstone_action(&self.journal, &self.store, &envelope, &action).await
     }
 }

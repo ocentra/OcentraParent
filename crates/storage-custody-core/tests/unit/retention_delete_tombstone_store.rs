@@ -24,6 +24,8 @@ fn tombstone_outbox_recovers_intent_until_terminal_publish(
     let records = reopened.records()?;
     assert_eq!(records.len(), 1);
     assert!(!records[0].terminal_pending);
+    assert_eq!(records[0].version, 3);
+    assert_eq!(records[0].typed_action_and_envelope(), None);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }
@@ -141,7 +143,7 @@ fn tombstone_outbox_migrates_legacy_version_one_before_decoding_typed_records(
     std::fs::create_dir_all(&directory)?;
     std::fs::write(
         directory.join("retention-delete-tombstones.json"),
-        r#"[{"version":1,"deletion_ref":"storage-custody-delete:legacy-decision","proof_ref":"storage-custody-action:legacy-decision","terminal_pending":true}]"#,
+        r#"[{"version":1,"deletion_ref":"storage-custody-delete:retention-delete-decision-2","proof_ref":"storage-custody-action:retention-delete-decision-2","terminal_pending":true}]"#,
     )?;
 
     let store = RetentionDeleteTombstoneStore::open(&directory)?;
@@ -150,7 +152,7 @@ fn tombstone_outbox_migrates_legacy_version_one_before_decoding_typed_records(
     assert_eq!(legacy[0].version, 1);
     assert_eq!(
         legacy[0].deletion_ref,
-        "storage-custody-delete:legacy-decision"
+        "storage-custody-delete:retention-delete-decision-2"
     );
     assert!(legacy[0].terminal_pending);
     assert_eq!(legacy[0].typed_action_and_envelope(), None);
@@ -161,20 +163,19 @@ fn tombstone_outbox_migrates_legacy_version_one_before_decoding_typed_records(
 
     let restarted = RetentionDeleteTombstoneStore::open(&directory)?;
     let records = restarted.records()?;
-    assert_eq!(records.len(), 2);
-    assert_eq!(records[0].version, 1);
+    assert_eq!(records.len(), 1);
+    assert_eq!(records[0].version, 2);
     assert!(records[0].terminal_pending);
-    assert_eq!(records[0].typed_action_and_envelope(), None);
-    assert_eq!(records[1].version, 2);
     assert_eq!(
-        records[1].typed_action_and_envelope(),
+        records[0].typed_action_and_envelope(),
         Some((&action, &envelope))
     );
 
-    restarted.mark_terminal_published("storage-custody-delete:legacy-decision")?;
+    restarted.mark_terminal_published("storage-custody-delete:retention-delete-decision-2")?;
     let after_acknowledgement = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
     assert!(!after_acknowledgement[0].terminal_pending);
-    assert_eq!(after_acknowledgement[1].version, 2);
+    assert_eq!(after_acknowledgement[0].version, 3);
+    assert_eq!(after_acknowledgement[0].typed_action_and_envelope(), None);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }

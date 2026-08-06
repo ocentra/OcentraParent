@@ -534,6 +534,13 @@ async fn child_runtime_custody_event_flow_proves_correlated_outbox_and_journal_m
         ]
     );
     assert_eq!(report.append.map(|append| append.sequence), Some(1));
+    let strict_append = flow
+        .publish_action_and_require_journal(
+            expired_retention_delete_action("child-runtime-flow-strict")?,
+            retention_delete_metadata()?,
+        )
+        .await?;
+    assert_eq!(strict_append.sequence, 2);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }

@@ -28,6 +28,7 @@ pub struct RetentionDeleteOutboxRecord {
 pub(super) enum RetentionDeleteOutboxPayload {
     LegacyVersionOne,
     Typed(Box<TypedTombstoneOutboxPayload>),
+    TerminalMarker,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -40,11 +41,10 @@ impl RetentionDeleteOutboxRecord {
     pub fn typed_action_and_envelope(
         &self,
     ) -> Option<(&StorageCustodyActionPlannedEvent, &StoredEventEnvelope)> {
-        match &self.payload {
-            RetentionDeleteOutboxPayload::LegacyVersionOne => None,
-            RetentionDeleteOutboxPayload::Typed(payload) => {
-                Some((&payload.action, &payload.envelope))
-            }
+        if let RetentionDeleteOutboxPayload::Typed(payload) = &self.payload {
+            Some((&payload.action, &payload.envelope))
+        } else {
+            None
         }
     }
 
@@ -128,10 +128,14 @@ impl RetentionDeleteTombstoneStore {
         let lock = self.lock()?;
         lock.lock_exclusive()?;
         let mut records = self.records()?;
-        if !records
-            .iter()
-            .any(|record| record.deletion_ref == deletion_ref)
+        if let Some(existing) = records
+            .iter_mut()
+            .find(|record| record.deletion_ref == deletion_ref)
         {
+            // A v1 pending row has no typed action/envelope to replay. A
+            // repeated typed custody event is the migration boundary.
+            existing.replace_legacy_pending_with_typed(deletion_ref, proof_ref, action, envelope);
+        } else {
             records.push(RetentionDeleteOutboxRecord::typed(
                 deletion_ref,
                 proof_ref,
@@ -151,6 +155,8 @@ impl RetentionDeleteTombstoneStore {
         for record in &mut records {
             if record.deletion_ref == deletion_ref {
                 record.terminal_pending = false;
+                record.version = record::TERMINAL_MARKER_STORE_VERSION;
+                record.payload = RetentionDeleteOutboxPayload::TerminalMarker;
             }
         }
         let result = self.write(&records);

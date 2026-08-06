@@ -63,10 +63,11 @@ WP07 cannot convert blockers, manual-required rows, or one proof family into bro
 
 ```text
 storage-custody action event
-  -> idempotent NDJSON event journal
-  -> child runtime durable tombstone intent
+  -> child runtime durable tombstone intent (atomic outbox write)
+  -> idempotent NDJSON event journal append
   -> process reopen recovery
-  -> explicit terminal acknowledgement removes intent
+  -> explicit terminal acknowledgement compacts the row to a minimal
+     terminal idempotency marker (the marker is retained for replay protection)
 ```
 
 Focused test owners:

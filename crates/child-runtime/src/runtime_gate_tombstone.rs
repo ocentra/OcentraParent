@@ -1,5 +1,8 @@
 //! Child-runtime boundary for typed retention tombstone publication.
 
+#[path = "runtime_gate_tombstone_error.rs"]
+mod runtime_gate_tombstone_error;
+
 use ocentra_eventing::{
     envelope::{DomainEvent, StoredEventEnvelope},
     ids::CorrelationId,
@@ -7,6 +10,8 @@ use ocentra_eventing::{
 };
 use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
+
+use runtime_gate_tombstone_error::is_retryable_journal_error;
 
 /// Observable, correlation-bound milestones for a child-runtime tombstone
 /// publication attempt. These are deliberately typed rather than log text so
@@ -93,7 +98,7 @@ pub async fn persist_child_runtime_tombstone_action_with_milestones(
                 },
             ))
         }
-        Err(_) => {
+        Err(error) if is_retryable_journal_error(&error) => {
             milestones.push(ChildRuntimeTombstoneMilestone::JournalAppendPendingRetry);
             Ok(
                 ChildRuntimeTombstonePublicationOutcome::PendingJournalRetry(
@@ -105,6 +110,7 @@ pub async fn persist_child_runtime_tombstone_action_with_milestones(
                 ),
             )
         }
+        Err(error) => Err(std::io::Error::other(error.to_string())),
     }
 }
 
