@@ -22,28 +22,25 @@ unissued-parent-challenge test evidence only: it does not close a device-trust
 workpack or change this plan's partial/open state. Platform key sealing,
 step-up, recovery, tamper, and trusted-device product-chain work remain open.
 
-## WP02 review disposition — 2026-08-05
+## WP02/WP03 merged-slice disposition — 2026-08-06
 
-PR [#616](https://github.com/ocentra/OcentraParent/pull/616) is open and
-unmerged. Its proposed Windows DPAPI/lifecycle packet has material review
-findings against lifecycle authority, household/device binding, sealing order,
-revoke/reset handling, and Windows-only proof. It must not be merged or used
-as WP02 proof without a production custody redesign.
+PR [#616](https://github.com/ocentra/OcentraParent/pull/616) remains rejected
+branch evidence; its review findings must not be used as WP02 proof. Its
+replacement, [#623](https://github.com/ocentra/OcentraParent/pull/623), merged
+as `46bb53da4d0dfbdd8d1b40937abfd67262aac8c3` after required CI passed. The
+merged Windows-only slice owns DPAPI-protected record/registry-epoch custody in
+`storage-custody-core`, binds the accepted ceremony through
+`family-identity-core`, and exposes the selected parent-runtime/desktop bridge
+path with focused Windows and unsupported-platform tests. Record-before-epoch
+activation and epoch-first revocation ensure a restored app-data record is not
+accepted after revocation.
 
-This replacement branch carries a separately reviewable Windows-only custody and
-authority-boundary source slice. There is no live desktop command path or bridge
-action for sealing, and no record-backed household-authority owner exports a
-ceremony issuer to external/runtime callers; caller-supplied authority flags cannot
-mint a ceremony. The webview supplies neither an accepted ceremony nor trust
-material. The adapter source persists DPAPI-protected ciphertext atomically in app
-data and activates a DPAPI-protected epoch in the current Windows user registry
-hive. The record is written before epoch activation; revocation removes the epoch
-before best-effort record deletion, so a restored app-data record is rejected.
-Without an operational issuer, no end-to-end Windows seal, desktop command-path,
-or restored-record execution proof is claimed; the focused custody test covers only
-idempotent revocation of an unissued binding. Production parent-presence custody
-still fails closed, the branch is not merged, the generated proof root is local-only,
-and this does not close WP02.
+PR [#627](https://github.com/ocentra/OcentraParent/pull/627) also merged as
+`1ce56056c8c233addafe89feec7008c2bdda7059`, adding the fail-closed
+record-backed parent-step-up authority and canonical receipt contract. These
+are merged WP02/WP03 slices, not device-trust-plan closure: cross-platform
+custody, recovery/reset/re-pair, phone-QR approval, entitlement binding, and
+child tamper/uninstall runtime proof remain open.
 
 ## Current Truth
 
@@ -109,9 +106,9 @@ remote-access-plan and policy-control-plane-plan:
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
 - Login/session proof, LAN pairing proof, package install proof, and license proof are all insufficient for device trust.
-- Windows-only local key sealing has a visible parent-desktop command and
-  parent-runtime source/test vertical slice on an unmerged branch; Android,
-  Linux, iOS, and macOS custody implementations and their proof remain absent.
+- The merged Windows-only WP02 local-custody slice has a visible parent-desktop
+  command and parent-runtime source/test vertical path; Android, Linux, iOS,
+  and macOS custody implementations and their proof remain absent.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```
@@ -144,22 +141,21 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
 - `packages/parent-domain` is mostly frontage for this slice and currently fails the repo re-export architecture gate on the named LAN/tamper bridge files.
 - `crates/family-identity-core` has durable explicit-path SQLite issuance/consumption for debug/test parent-presence challenges, exact pre-initialization allowlisting of integrity-critical schema objects, global nonce uniqueness, opaque OS-random receipt capabilities, atomic first publication, and concurrent process/restart replay proof. Windows file and ancestor custody checks remain exercised only through the explicit debug/test seam; they are not production custody proof.
 - Production parent-presence custody is fail-closed before path creation on every platform. A debug-only test seam exercises owner-private creation, path checks, and permission rejection without making an operational production claim.
-- The unmerged WP02 vertical slice introduces a specific
-  `SealParentDeviceTrust` authority action. It permits only a fresh
-  parent-controller ceremony in pending/reset state, rejects child-scoped and
-  low-risk ceremonies, and does not make login or ordinary parent authority a
-  sealing capability.
-- No merged production Windows custody coordinator owns sealed-key persistence
-  plus a current-authority source. The current branch's native parent-runtime
-  staging facade passes a one-shot opaque handle through the parent desktop
-  command into its registry-epoch custody adapter after the accepted ceremony;
-  production parent-presence custody remains fail-closed, and this is not a
-  complete trust lifecycle or recovery implementation.
+- The merged WP02 vertical slice introduces a specific `SealParentDeviceTrust`
+  authority action. It permits only a fresh parent-controller ceremony in
+  pending/reset state, rejects child-scoped and low-risk ceremonies, and does
+  not make login or ordinary parent authority a sealing capability.
+- Merged Windows custody coordinates sealed-key persistence with a
+  current-authority source through the parent-runtime/desktop bridge. It is a
+  bounded Windows vertical slice, not a complete trust lifecycle, recovery, or
+  cross-platform custody implementation.
 - Parent-presence decisions are correlated and redacted, inserted transactionally into the canonical parent-presence SQLite outbox, and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Pending rows drain on restart, and stable event identities make recovery idempotent. This is durable local journal evidence only; it does not claim subscriber delivery, a broader event-bus runtime, or complete device-trust lifecycle integration.
 - No complete device-trust state machine exists yet beyond that narrow parent-presence bootstrap boundary.
-- No merged cross-platform local key sealing implementation exists. The current
-  branch has only the narrow Windows DPAPI/registry-epoch vertical slice.
-- No execution-grade parent step-up, phone QR approval bridge, encrypted recovery bundle handling, entitlement-binding runtime, or child uninstall authorization runtime exists yet in repo code.
+- No merged cross-platform local key sealing implementation exists; the merged
+  DPAPI/registry-epoch vertical slice is Windows-only.
+- A fail-closed record-backed parent-step-up authority and receipt contract are
+  merged, but phone-QR approval, encrypted recovery bundles, entitlement
+  binding, and child-uninstall authorization runtime remain absent.
 - Login alone does not create trust, child devices do not own the trust root, and revocation must win over stale state.
 
 ## Execution Gate
