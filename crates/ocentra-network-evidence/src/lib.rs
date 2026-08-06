@@ -26,6 +26,7 @@ pub mod local_platform_probe;
 pub mod managed_browser;
 pub mod notification;
 pub mod packet;
+pub mod parser_policy;
 pub mod pcap;
 pub mod performance;
 pub mod pipeline;
