@@ -1,6 +1,7 @@
 mod device_scope;
 #[path = "household_authority.rs"]
 mod household_authority_tests;
+mod parent_step_up_authority;
 mod session_lifecycle;
 mod setup_lifecycle;
 mod trust_bootstrap;
