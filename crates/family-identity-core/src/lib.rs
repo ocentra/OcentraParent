@@ -28,6 +28,7 @@ mod parent_presence_store_sql_comments;
 mod parent_presence_store_sql_quoted;
 mod parent_presence_store_sql_shape;
 mod parent_presence_store_sql_tokenizer;
+pub mod parent_step_up_authority;
 pub mod session_lifecycle;
 pub mod setup_lifecycle;
 mod setup_lifecycle_validation;

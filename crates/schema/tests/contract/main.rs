@@ -73,6 +73,8 @@ mod parent_agent_protocol_bridge_defaults;
 mod parent_owned_sync_export;
 #[path = "parent_screen_settings_command_state.rs"]
 mod parent_screen_settings_command_state;
+#[path = "parent_step_up_receipt.rs"]
+mod parent_step_up_receipt;
 #[path = "parent_storage_settings_apply_flow.rs"]
 mod parent_storage_settings_apply_flow;
 #[path = "parent_ui_bridge.rs"]

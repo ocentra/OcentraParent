@@ -43,6 +43,7 @@ const prettierExtensions = new Set([
 const maxPrettierChunkChars = process.platform === 'win32' ? 4000 : 16000;
 const maxScopedFileChunkChars = process.platform === 'win32' ? 4000 : 14000;
 const defaultCommandTimeoutMs = 30 * 60 * 1000;
+const processTreeTerminationGraceMs = 250;
 let activeValidationChild = null;
 
 const fullValidations = [
@@ -171,8 +172,20 @@ export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {
       resolve(result);
     };
 
-    child.once('error', (error) => finish({ status: 1, error, timedOut }));
-    child.once('close', (status, signal) => finish({ status: status ?? 1, signal, timedOut }));
+    const finishAfterTermination = (result) => {
+      if (!timedOut) {
+        finish(result);
+        return;
+      }
+
+      // The direct child can close before its process-group descendants have
+      // drained. Keep the timeout result pending briefly so callers do not
+      // observe side effects from a nested validation process after return.
+      setTimeout(() => finish(result), processTreeTerminationGraceMs);
+    };
+
+    child.once('error', (error) => finishAfterTermination({ status: 1, error, timedOut }));
+    child.once('close', (status, signal) => finishAfterTermination({ status: status ?? 1, signal, timedOut }));
   });
 }
 
