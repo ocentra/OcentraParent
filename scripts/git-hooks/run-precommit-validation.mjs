@@ -185,9 +185,7 @@ export function runCommand(command, args, { timeoutMs = commandTimeoutMs() } = {
     };
 
     child.once('error', (error) => finishAfterTermination({ status: 1, error, timedOut }));
-    child.once('close', (status, signal) =>
-      finishAfterTermination({ status: status ?? 1, signal, timedOut })
-    );
+    child.once('close', (status, signal) => finishAfterTermination({ status: status ?? 1, signal, timedOut }));
   });
 }
 
