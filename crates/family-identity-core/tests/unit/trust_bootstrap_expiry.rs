@@ -8,6 +8,8 @@ use ocentra_family_identity_core::household_authority::{
 };
 use ocentra_family_identity_core::parent_presence::{
     ParentPresenceChallenge, ParentPresenceChallengeIssuanceFailureReason,
+    ParentPresenceCustodyDecisionBoundary, ParentPresenceCustodyDecisionOwner,
+    ParentPresenceCustodyDecisionRedaction, ParentPresenceCustodyDecisionResult,
     ParentPresenceStorageFailureReason, ParentPresenceVerificationFailureReason,
     ParentPresenceVerificationInput, ParentPresenceVerificationPort,
 };
@@ -211,6 +213,36 @@ fn parent_presence_verification_rejects_assertion_at_exact_expiry(
     assert_eq!(
         port.verify_and_consume(input(&case, ACCEPTED_EXPIRY)?),
         Err(ParentPresenceVerificationFailureReason::Expired)
+    );
+    drop(port);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn parent_presence_verification_rejects_unissued_challenges_without_consuming(
+) -> Result<(), ParentPresenceStorageFailureReason> {
+    let case = case("not-issued");
+    let (root, mut port) = port("not-issued")?;
+    assert_eq!(
+        port.verify_and_consume(input(&case, ACCEPTED_EXPIRY)?),
+        Err(ParentPresenceVerificationFailureReason::ChallengeNotIssued)
+    );
+    let artifact = port
+        .take_custody_artifact()
+        .ok_or(ParentPresenceStorageFailureReason::CustodyUnavailable)?;
+    assert_eq!(artifact.result, ParentPresenceCustodyDecisionResult::Rejected);
+    assert_eq!(
+        artifact.owner,
+        ParentPresenceCustodyDecisionOwner::FamilyIdentityCore
+    );
+    assert_eq!(
+        artifact.boundary,
+        ParentPresenceCustodyDecisionBoundary::VerifyAndConsume
+    );
+    assert_eq!(
+        artifact.redaction,
+        ParentPresenceCustodyDecisionRedaction::SensitiveInputsOmitted
     );
     drop(port);
     let _cleanup = fs::remove_dir_all(root);
