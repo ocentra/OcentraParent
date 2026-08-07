@@ -297,3 +297,10 @@ it('product bridge guard: the product route shell does not mount parallel diagno
     expect(source).not.toContain(panel);
   }
 });
+
+it('product bridge guard: LAN target selection is persisted before route actions use the selected child device', () => {
+  const source = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');
+
+  expect(source).toContain("from '@ocentra-parent/portal-domain/manage-target-selection'");
+  expect(source).toContain('onTargetChange={writeStoredManageTargetSelection}');
+});
