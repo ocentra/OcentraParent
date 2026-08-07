@@ -408,6 +408,64 @@ fn rolled_back_execution_receipt_validates_without_minting_adapter_authority() -
 }
 
 #[test]
+fn compiled_delivery_execution_receipt_and_rollback_chain_validates_end_to_end() -> TestResult {
+    let source = helpers::sample_policy_source_document()?;
+    let compiled = test_ok!(
+        ocentra_policy_control_core::policy_source::compile_domain_policy_artifact(
+            &source,
+            ocentra_policy_control_core::policy_source::PolicyConsumerDomain::Tracking,
+        ),
+        "compile typed policy before delivery"
+    );
+    let queued = test_ok!(
+        ocentra_policy_control_core::policy_delivery::queue_policy_delivery(
+            &compiled,
+            helpers::sample_delivery_target()?,
+            helpers::sample_delivery_id()?,
+            helpers::attempt("attempt-queued")?,
+            vec![helpers::audit_ref("audit-policy-queued")?],
+        ),
+        "queue compiled policy for delivery"
+    );
+    let delivered_record = test_ok!(
+        apply_policy_delivery_transition(
+            &queued,
+            transition(2, "attempt-delivered-chain", PolicyDeliveryState::Delivered)?,
+        ),
+        "deliver compiled policy"
+    )
+    .into_record();
+    let mut rollback_transition = transition(
+        3,
+        "attempt-rollback-chain",
+        PolicyDeliveryState::RolledBack,
+    )?;
+    rollback_transition.reason_code = Some(reason("adapter-failed")?);
+    rollback_transition.rollback_reference_state = Some(PolicyDeliveryState::Delivered);
+    let receipt = execution_receipt(&delivered_record, &rollback_transition);
+
+    test_ok!(
+        validate_policy_delivery_execution_receipt(
+            &delivered_record,
+            &rollback_transition,
+            Some(&receipt),
+        ),
+        "validate adapter execution receipt for rollback"
+    );
+    let rolled_back_record = test_ok!(
+        apply_policy_delivery_transition(&delivered_record, rollback_transition),
+        "apply rollback after validated receipt evidence"
+    )
+    .into_record();
+    assert_eq!(rolled_back_record.state, PolicyDeliveryState::RolledBack);
+    assert_eq!(
+        rolled_back_record.rollback_reference_state,
+        Some(PolicyDeliveryState::Delivered)
+    );
+    Ok(())
+}
+
+#[test]
 fn generic_stored_rolled_back_receipt_is_rejected_as_unauthenticated() -> TestResult {
     let queued = sample_queued_delivery()?;
     let delivered = test_ok!(
