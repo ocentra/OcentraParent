@@ -62,5 +62,6 @@ pub(super) fn empty_publish_report(
         handled_count: 0,
         dead_letter_count,
         handler_reports: Vec::new(),
+        journal_appends: Vec::new(),
     }
 }

@@ -16,9 +16,62 @@ use super::{
         TEST_TARGET,
     },
     support::{
-        cleanup, event_type, journal_path, stored_event, tamper_first_journal_payload_label,
+        bus_with_recording_journal, cleanup, event_type, journal_path, shared_log, snapshot,
+        stored_event, subscribe_log_handler, tamper_first_journal_payload_label,
     },
 };
+
+#[tokio::test]
+async fn publish_report_exposes_each_durable_journal_append() {
+    let log = shared_log();
+    let bus = bus_with_recording_journal(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        Arc::clone(&log),
+    );
+    subscribe_log_handler(&bus, Arc::clone(&log)).await;
+
+    let report = bus
+        .publish(
+            test_event(TestText("durable-report".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("publication succeeds with durable journal");
+
+    assert_eq!(report.journal_appends.len(), 2);
+    assert_eq!(report.journal_appends[0].sequence, 1);
+    assert_eq!(report.journal_appends[1].sequence, 3);
+    assert_eq!(
+        snapshot(&log),
+        vec![
+            format!("journal:{TEST_EVENT_TYPE}"),
+            "handler".to_owned(),
+            format!("journal:{TEST_EVENT_TYPE}"),
+        ]
+    );
+}
+
+#[tokio::test]
+async fn no_subscriber_publish_report_exposes_only_before_dispatch_append() {
+    let log = shared_log();
+    let bus = bus_with_recording_journal(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        Arc::clone(&log),
+    );
+
+    let report = bus
+        .publish(
+            test_event(TestText("durable-no-subscriber-report".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("no-subscriber publication records before-dispatch journal append");
+
+    assert_eq!(report.subscriber_count, 0);
+    assert_eq!(report.journal_appends.len(), 1);
+    assert_eq!(report.journal_appends[0].sequence, 1);
+    assert_eq!(snapshot(&log), vec![format!("journal:{TEST_EVENT_TYPE}")]);
+}
 
 #[tokio::test]
 async fn replay_cursor_and_filters_read_ordered_projection_records() {
