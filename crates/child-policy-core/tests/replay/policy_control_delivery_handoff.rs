@@ -370,6 +370,32 @@ fn delivery_rollback_requires_reason_and_reference_state() {
 }
 
 #[test]
+fn delivery_rollback_with_valid_context_still_requires_trusted_execution_receipt() {
+    let queued = queued_delivery();
+    let mut rollback = transition(
+        2,
+        PolicyDeliveryAttemptId::parse("attempt-rollback-without-receipt")
+            .expect_value("policy attempt id"),
+        PolicyDeliveryState::RolledBack,
+    );
+    rollback.reason_code = Some(reason(
+        PolicyReasonCode::parse("adapter-failed").expect_value("policy reason code"),
+    ));
+    rollback.rollback_reference_state = Some(PolicyDeliveryState::Applied);
+
+    let error = apply_policy_control_delivery_handoff(&queued, rollback)
+        .expect_err_value("rollback without trusted execution receipt must fail closed");
+
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.state",
+            value: "missing adapter execution receipt for rolled-back".to_string(),
+        }
+    );
+}
+
+#[test]
 fn delivery_supersede_requires_newer_policy_version() {
     let queued = queued_delivery();
     let mut superseded = transition(
