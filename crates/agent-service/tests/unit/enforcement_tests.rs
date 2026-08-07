@@ -8,6 +8,7 @@ use ocentra_parent_agent_core::enforcement_readiness::broad_os_adapter_readiness
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditEvent;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::policy_constants;
@@ -38,6 +39,14 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
     );
     let status = require_ok(store.status(), constants::error::ACTIVITY_STORE_QUERIES);
     let journal_event_ids = journal_event_ids(&paths);
+    let audit: EnforcementAuditEvent = require_json_decode(
+        require_some(
+            optional_log_string(&event.payload, constants::field::ENFORCEMENT_AUDIT_EVENT),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        )
+        .to_string(),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentEnforcementAuditReported);
@@ -54,6 +63,7 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
         ))
     );
     assert_eq!(status.events_stored, 2);
+    assert_eq!(audit.journal_sequence, Some("2".to_string()));
     assert_eq!(
         journal_event_ids,
         vec![
@@ -158,7 +168,7 @@ async fn enforcement_execute_rejects_missing_process_id_before_adapter_execution
     let paths = temp_paths(constants::enforcement::REJECTION_PROCESS_ID_REQUIRED);
     cleanup_paths(&paths);
     let mut command = command(false);
-    command.payload.remove(constants::field::PROCESS_ID);
+    command.payload = payload_without_process_id(false);
     let event = build_enforcement_audit_report_with_paths(command, paths.clone()).await;
     cleanup_paths(&paths);
 
@@ -353,6 +363,14 @@ fn command_for_target(
 }
 
 fn payload(dry_run: bool) -> LogFields {
+    payload_with_process_id(dry_run, true)
+}
+
+fn payload_without_process_id(dry_run: bool) -> LogFields {
+    payload_with_process_id(dry_run, false)
+}
+
+fn payload_with_process_id(dry_run: bool, include_process_id: bool) -> LogFields {
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::POLICY_DECISION_ID.to_string(),
@@ -418,10 +436,12 @@ fn payload(dry_run: bool) -> LogFields {
         constants::field::ENFORCEMENT_TIMER_EVENT_ID.to_string(),
         LogFieldValue::String(constants::enforcement::TEST_TIMER_EVENT_ID.to_string()),
     );
-    fields.insert(
-        constants::field::PROCESS_ID.to_string(),
-        LogFieldValue::Number(f64::from(u32::MAX)),
-    );
+    if include_process_id {
+        fields.insert(
+            constants::field::PROCESS_ID.to_string(),
+            LogFieldValue::Number(f64::from(u32::MAX)),
+        );
+    }
     fields
 }
 
@@ -431,7 +451,7 @@ fn payload_for_target(
 ) -> LogFields {
     let target_type = target_type.to_string();
     let suffix = suffix.to_string();
-    let mut fields = payload(false);
+    let mut fields = payload_without_process_id(false);
     fields.insert(
         constants::field::POLICY_TARGET_TYPE.to_string(),
         LogFieldValue::String(target_type),
@@ -444,7 +464,6 @@ fn payload_for_target(
         constants::field::POLICY_TARGET_VALUE.to_string(),
         LogFieldValue::String(suffix),
     );
-    fields.remove(constants::field::PROCESS_ID);
     fields
 }
 
@@ -491,9 +510,11 @@ fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
             constants::activity_store::TEST_STORE_SUFFIX,
             constants::activity_store::FILE_EXTENSION,
         ),
-        timer_state_path: build_path(
-            constants::enforcement::TIMER_STATE_ID_PREFIX,
-            constants::activity_store::FILE_EXTENSION,
+        timer_state_path: crate::enforcement_timer_state_path::EnforcementTimerStatePath(
+            build_path(
+                constants::enforcement::TIMER_STATE_ID_PREFIX,
+                constants::activity_store::FILE_EXTENSION,
+            ),
         ),
     }
 }

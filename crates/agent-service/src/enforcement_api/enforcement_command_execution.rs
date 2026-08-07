@@ -119,8 +119,7 @@ async fn execute_enforcement_command(
     let outcome_input = final_input(request.input.clone(), adapter_outcome, &completed_at);
     let mut outcome = evaluate_enforcement_boundary(outcome_input)
         .map_err(EnforcementCommandExecutionError::BoundaryRejection)?;
-    outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
-    record_eventing_enforcement_audit(
+    let final_journal_append = record_eventing_enforcement_audit(
         &command_correlation_id,
         &command_sent_at,
         &outcome,
@@ -128,6 +127,7 @@ async fn execute_enforcement_command(
         JournalDispatchPhase::AfterDispatch,
     )
     .await?;
+    outcome.audit_event.journal_sequence = Some(final_journal_append.sequence.to_string());
     let status = record_enforcement_audit(&request, &outcome, &paths, provenance).await?;
     let active_state = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome(
         &outcome,
@@ -149,7 +149,7 @@ async fn record_eventing_enforcement_audit(
     outcome: &EnforcementBoundaryOutcome,
     paths: &EnforcementJournalPaths,
     phase: JournalDispatchPhase,
-) -> Result<(), EnforcementJournalBuildError> {
+) -> Result<ocentra_eventing::journal::JournalAppend, EnforcementJournalBuildError> {
     let mut eventing_journal_path = paths.journal_path.clone();
     eventing_journal_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
     append_enforcement_audit_journal_event_phase(
@@ -161,7 +161,6 @@ async fn record_eventing_enforcement_audit(
         phase,
     )
     .await
-    .map(|_| ())
     .map_err(eventing_journal_error)
 }
 
