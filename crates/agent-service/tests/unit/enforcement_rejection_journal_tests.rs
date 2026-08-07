@@ -1,6 +1,15 @@
+use ocentra_eventing::{
+    expect_value::ExpectValue,
+    journal::{ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions},
+    replay::ReplayFilter,
+};
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
     constants,
+    enforcement::{
+        EnforcementAdapterResultCode, EnforcementAuditEventKind, EnforcementAuditJournalEvent,
+        EnforcementResultStatus,
+    },
     logging::{LogFieldValue, LogFields},
     policy_constants,
     transport::{
@@ -20,6 +29,7 @@ async fn rejected_action_is_persisted_as_a_durable_enforcement_audit() -> TestRe
     let paths = temp_paths("rejected-action-journal");
     cleanup_paths(&paths);
     let event = build_enforcement_audit_report_with_paths(rejected_command(), paths.clone()).await;
+    let eventing_audit = rejected_eventing_audit(&paths).await;
     let fields = test_some(
         test_ok(
             ActivityStore::open(&paths.store_path),
@@ -85,8 +95,45 @@ async fn rejected_action_is_persisted_as_a_durable_enforcement_audit() -> TestRe
         ))
     );
     assert!(fields.get(constants::field::POLICY_TARGET_VALUE).is_none());
+    assert_eq!(
+        eventing_audit.audit_event_id,
+        format!(
+            "{}{}",
+            constants::enforcement::JOURNAL_REJECTED_ID_PREFIX,
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )
+    );
+    assert_eq!(
+        eventing_audit.audit_event_kind,
+        EnforcementAuditEventKind::Failed
+    );
+    assert_eq!(
+        eventing_audit.result_status,
+        EnforcementResultStatus::Failed
+    );
+    assert_eq!(
+        eventing_audit.adapter_result_code,
+        EnforcementAdapterResultCode::NoOp
+    );
 
     Ok(())
+}
+
+async fn rejected_eventing_audit(paths: &EnforcementJournalPaths) -> EnforcementAuditJournalEvent {
+    let mut eventing_path = paths.journal_path.clone();
+    eventing_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
+    let journal =
+        NdjsonEventJournal::with_options(eventing_path, NdjsonJournalOptions::hash_chain());
+    let replay = journal
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("rejected enforcement audit journal replays");
+    assert_eq!(replay.records.len(), 1);
+    replay.records[0]
+        .envelope
+        .decode::<EnforcementAuditJournalEvent>()
+        .expect_value("rejected enforcement audit journal decodes")
+        .payload
 }
 
 #[tokio::test]
