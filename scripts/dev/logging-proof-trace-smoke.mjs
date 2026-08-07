@@ -6,20 +6,16 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
-import { appendTestLogEntries } from '@ocentra-parent/logging-domain/test-log/ndjsonWriter';
-import { getTestLogScopeDir, listNdjsonFiles } from '@ocentra-parent/logging-domain/test-log/ndjsonPaths';
-import { RunType, TestLogOrigin, TestLogScope } from '@ocentra-parent/logging-domain/test-log/types';
-import { createBridgeServer } from '@ocentra-parent/logging-domain/transport/bridgeServer';
-import {
-  fetchRunInfoFromBridge,
-  flushBridgeRun,
-  notifyBridgeRunStarted,
-} from '@ocentra-parent/logging-domain/transport/bridgeTransport';
-import { GeneratedDevLogMessage as DevLogMessage } from '@ocentra-parent/schema-domain/generated/logging-contracts';
-import { sendPortalProofTraceLog } from '../../apps/portal/src/dev-logger.ts';
-import { getProofTrace, getProofTraceGaps } from './lib/log-query-service.mjs';
-
 const workspaceRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+const generatedLoggingContractsArtifact = path.join(
+  workspaceRoot,
+  'packages/schema-domain/dist/generated-logging-contracts.js'
+);
+const contractBuildInfoFiles = [
+  'packages/schema-domain/tsconfig.tsbuildinfo',
+  'packages/logging-domain/tsconfig.tsbuildinfo',
+  'packages/portal-domain/tsconfig.tsbuildinfo',
+].map((relativePath) => path.join(workspaceRoot, relativePath));
 const expectedSteps = ['portal.route.opened', 'portal.action.clicked', 'portal.ui.rendered'];
 
 function optionValue(argv, name) {
@@ -60,6 +56,50 @@ function removeDir(targetPath) {
   fs.rmSync(targetPath, { force: true, recursive: true });
 }
 
+function ensureGeneratedLoggingContractsArtifact() {
+  if (!fs.existsSync(generatedLoggingContractsArtifact)) {
+    for (const buildInfoFile of contractBuildInfoFiles) {
+      fs.rmSync(buildInfoFile, { force: true });
+    }
+    const result = spawnSync('npm', ['run', 'build:contracts'], {
+      cwd: workspaceRoot,
+      encoding: 'utf8',
+      shell: process.platform === 'win32',
+      windowsHide: true,
+    });
+    if (result.status !== 0) {
+      throw new Error(
+        `schema-domain prerequisite build failed\nstdout:\n${result.stdout ?? ''}\nstderr:\n${result.stderr ?? ''}`
+      );
+    }
+  }
+  ensure(fs.existsSync(generatedLoggingContractsArtifact), 'schema-domain generated logging contracts are unavailable');
+}
+
+async function loadSmokeDependencies() {
+  const [ndjsonWriter, ndjsonPaths, testLogTypes, bridgeServer, bridgeTransport, schemaContracts, portalLogger, query] =
+    await Promise.all([
+      import('@ocentra-parent/logging-domain/test-log/ndjsonWriter'),
+      import('@ocentra-parent/logging-domain/test-log/ndjsonPaths'),
+      import('@ocentra-parent/logging-domain/test-log/types'),
+      import('@ocentra-parent/logging-domain/transport/bridgeServer'),
+      import('@ocentra-parent/logging-domain/transport/bridgeTransport'),
+      import('@ocentra-parent/schema-domain/generated/logging-contracts'),
+      import('../../apps/portal/src/dev-logger.ts'),
+      import('./lib/log-query-service.mjs'),
+    ]);
+  return {
+    ...ndjsonWriter,
+    ...ndjsonPaths,
+    ...testLogTypes,
+    ...bridgeServer,
+    ...bridgeTransport,
+    ...schemaContracts,
+    ...portalLogger,
+    ...query,
+  };
+}
+
 function runAgentQuery(args, env) {
   const result = spawnSync(process.execPath, [path.join(workspaceRoot, 'scripts/dev/agent-query.mjs'), ...args], {
     cwd: workspaceRoot,
@@ -75,15 +115,15 @@ function runAgentQuery(args, env) {
   return result.stdout.trimEnd();
 }
 
-function seedStaleProofTrace(rootDir, proofId) {
-  appendTestLogEntries(
+function seedStaleProofTrace(dependencies, rootDir, proofId) {
+  dependencies.appendTestLogEntries(
     [
       {
         schemaVersion: 1,
         type: 'log',
-        scope: TestLogScope.ParentPortal,
+        scope: dependencies.TestLogScope.ParentPortal,
         runId: proofId,
-        runType: RunType.Single,
+        runType: dependencies.RunType.Single,
         suiteType: 'integration',
         testName: 'logging-proof-trace-smoke',
         timestamp: Date.now() - 10_000,
@@ -104,7 +144,7 @@ function seedStaleProofTrace(rootDir, proofId) {
         correlationId: `${proofId}-correlation`,
         tags: [],
         stack: null,
-        origin: TestLogOrigin.Test,
+        origin: dependencies.TestLogOrigin.Test,
         environment: 'test',
       },
     ],
@@ -133,6 +173,12 @@ async function closeServer(server) {
 
 async function main() {
   const argv = process.argv.slice(2);
+  ensureGeneratedLoggingContractsArtifact();
+  if (argv.includes('--verify-schema-prerequisite')) {
+    process.stdout.write(`${JSON.stringify({ generatedLoggingContractsArtifact })}\n`);
+    return;
+  }
+  const dependencies = await loadSmokeDependencies();
   const explicitRoot = optionValue(argv, '--root');
   const keepRoot = argv.includes('--keep-root') || explicitRoot != null;
   const rootDir = explicitRoot == null ? makeTempDir() : path.resolve(explicitRoot);
@@ -145,34 +191,38 @@ async function main() {
 
   const proofId = 'wp10-proof-trace-smoke';
   const staleProofId = 'wp10-stale-proof-trace';
-  const bridgeServer = createBridgeServer({ rootDir });
+  const bridgeServer = dependencies.createBridgeServer({ rootDir });
 
   try {
-    seedStaleProofTrace(rootDir, staleProofId);
-    const staleFilesBeforeStart = listNdjsonFiles(getTestLogScopeDir(TestLogScope.ParentPortal, rootDir)).length;
+    seedStaleProofTrace(dependencies, rootDir, staleProofId);
+    const staleFilesBeforeStart = dependencies.listNdjsonFiles(
+      dependencies.getTestLogScopeDir(dependencies.TestLogScope.ParentPortal, rootDir)
+    ).length;
     ensure(staleFilesBeforeStart > 0, 'stale proof trace seed did not create any NDJSON rows');
 
     const address = await listen(bridgeServer);
     const endpoint = `http://127.0.0.1:${address.port}`;
 
-    const started = await notifyBridgeRunStarted(endpoint, {
+    const started = await dependencies.notifyBridgeRunStarted(endpoint, {
       runId: proofId,
-      runType: RunType.Single,
+      runType: dependencies.RunType.Single,
       suiteType: 'integration',
-      scope: TestLogScope.ParentPortal,
+      scope: dependencies.TestLogScope.ParentPortal,
     });
     ensure(started, 'bridge run-start request did not succeed');
 
-    const runInfo = await fetchRunInfoFromBridge(endpoint);
+    const runInfo = await dependencies.fetchRunInfoFromBridge(endpoint);
     ensure(runInfo?.runId === proofId, 'bridge run info does not reflect the current proof-trace run');
 
-    const staleFilesAfterStart = listNdjsonFiles(getTestLogScopeDir(TestLogScope.ParentPortal, rootDir)).length;
+    const staleFilesAfterStart = dependencies.listNdjsonFiles(
+      dependencies.getTestLogScopeDir(dependencies.TestLogScope.ParentPortal, rootDir)
+    ).length;
     ensure(staleFilesAfterStart === 0, 'bridge run-start did not wipe stale proof-trace rows');
 
     let staleProofRemoved = false;
     try {
-      await getProofTrace({
-        scope: TestLogScope.ParentPortal,
+      await dependencies.getProofTrace({
+        scope: dependencies.TestLogScope.ParentPortal,
         proofId: staleProofId,
         limit: 10,
       });
@@ -184,8 +234,8 @@ async function main() {
     }
     ensure(staleProofRemoved, 'stale proof trace remained queryable after the fresh run started');
 
-    const routeOpened = await sendPortalProofTraceLog(
-      DevLogMessage.PortalStarted,
+    const routeOpened = await dependencies.sendPortalProofTraceLog(
+      dependencies.GeneratedDevLogMessage.PortalStarted,
       {
         proofId,
         traceStep: 'portal.route.opened',
@@ -196,8 +246,8 @@ async function main() {
       {},
       endpoint
     );
-    const actionClicked = await sendPortalProofTraceLog(
-      DevLogMessage.PortalCommandSent,
+    const actionClicked = await dependencies.sendPortalProofTraceLog(
+      dependencies.GeneratedDevLogMessage.PortalCommandSent,
       {
         proofId,
         traceStep: 'portal.action.clicked',
@@ -211,8 +261,8 @@ async function main() {
       },
       endpoint
     );
-    const uiRendered = await sendPortalProofTraceLog(
-      DevLogMessage.PortalEventReceived,
+    const uiRendered = await dependencies.sendPortalProofTraceLog(
+      dependencies.GeneratedDevLogMessage.PortalEventReceived,
       {
         proofId,
         traceStep: 'portal.ui.rendered',
@@ -231,10 +281,10 @@ async function main() {
       routeOpened && actionClicked && uiRendered,
       'portal proof-trace rows were not written through the local bridge'
     );
-    ensure(await flushBridgeRun(endpoint, proofId), 'bridge flush request did not succeed');
+    ensure(await dependencies.flushBridgeRun(endpoint, proofId), 'bridge flush request did not succeed');
 
-    const trace = await getProofTrace({
-      scope: TestLogScope.ParentPortal,
+    const trace = await dependencies.getProofTrace({
+      scope: dependencies.TestLogScope.ParentPortal,
       proofId,
       limit: 10,
     });
@@ -243,8 +293,8 @@ async function main() {
       'query service returned unexpected proof-trace steps'
     );
 
-    const gaps = await getProofTraceGaps({
-      scope: TestLogScope.ParentPortal,
+    const gaps = await dependencies.getProofTraceGaps({
+      scope: dependencies.TestLogScope.ParentPortal,
       proofId,
       expectedSteps,
       limit: 10,
@@ -258,7 +308,7 @@ async function main() {
       OCENTRA_PARENT_LOG_DIR: rootDir,
     };
     const cliTrace = runAgentQuery(
-      ['proof-trace', `--scope=${TestLogScope.ParentPortal}`, `--proof-id=${proofId}`, '--limit=10'],
+      ['proof-trace', `--scope=${dependencies.TestLogScope.ParentPortal}`, `--proof-id=${proofId}`, '--limit=10'],
       queryEnv
     );
     ensure(cliTrace.includes(`proof_id: ${proofId}`), 'CLI proof-trace output did not include the proof id');
@@ -268,7 +318,7 @@ async function main() {
     const cliGaps = runAgentQuery(
       [
         'proof-trace-gaps',
-        `--scope=${TestLogScope.ParentPortal}`,
+        `--scope=${dependencies.TestLogScope.ParentPortal}`,
         `--proof-id=${proofId}`,
         `--expected-steps-json=${JSON.stringify(expectedSteps)}`,
         '--limit=10',
@@ -286,7 +336,7 @@ async function main() {
       `${JSON.stringify(
         {
           smoke: 'proof-trace',
-          scope: TestLogScope.ParentPortal,
+          scope: dependencies.TestLogScope.ParentPortal,
           proofId,
           staleProofRemoved,
           rootDir: keepRoot ? rootDir.replace(/\\/g, '/') : null,
