@@ -8,6 +8,58 @@ Last broad source inventory: 2026-07-17, on `main` at `37146806c`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
+## Consolidated branch code/test inventory - 2026-08-07
+
+This is a live **source and test-topology** pass on the one E: integration
+worktree, `codex/consolidated-code-test-20260807` at `54466387b`. It counted
+the plan-owned Rust/worker/UI source and crate-visible test files, then traced
+the active policy request path. Counts mean files exist; they do **not** mean
+the feature is accepted, a test was run today, or a workpack is complete.
+
+There are **23 plan folders** and **526 scheduled workpack rows** in this
+checkout (not 24 plans). The code train contains four unmerged commits beyond
+`origin/main`: the LAN portal target persistence repair plus Eventing/WP11
+enforcement-journal sequence, timer-transition, and rejected-outcome repairs.
+Those enforcement/eventing repairs have focused local Rust tests and scoped
+architecture checks; they have intentionally not started a PR or long CI yet.
+
+| Plan | Live code/test topology observed | Code-first state and next executable dependency |
+| --- | --- | --- |
+| Account identity/family | `family-identity-core` 43/23, `provisioning-core` 9/7, `storage-custody-core` 78/16 source/test files. | Core authority/custody exists; Cloudflare binding/migration and real provider/runtime routes remain separate work. |
+| AI | `child-ai-core` 3/2 and `screen-ai-core` 20/3, joined through the shared agent/eventing stack. | Foundation only; next is one typed AI-result-to-policy consumer with negative safety coverage. |
+| App/game | `app-game-core` 21/15 plus service adapters/read models. | Integration source exists; choose one live Windows capture-to-read-model path before treating any customer control path as ready. |
+| App | `app-core` 3/5 plus shared agent-service integration. | Foundation only; app identity/evidence must become one service-backed runtime path. |
+| Browser | `browser-core` 33/20 plus service policy/adapter surfaces. | Integration source exists; managed command, adapter result, rollback, and parent-visible state are not a closed product path. |
+| Child runtime distribution | `child-runtime` 31/9 plus service/protocol sources. | Runtime source exists; Windows service lifecycle/package smoke remains the next physical blocker. |
+| Cloudflare control plane | `infra/cloudflare` 20/29 worker source/test files. | Local worker/contract source exists; deployment, account binding/migration, and payment runtime are not proven. |
+| Data custody/storage | `storage-custody-core` 78/16, `ocentra-evidence` 1/4, eventing 80/34. | Core custody shapes exist; select retention/delete/export through service and journal. |
+| Device trust bootstrap | `family-identity-core` 43/23 and `storage-custody-core` 78/16. | Windows custody/step-up slices exist, but durable trusted-device lifecycle, recovery, and cross-platform proof remain open. |
+| Eventing | `ocentra-eventing` 80/34 plus protocol/service consumers. | Durable journal foundation exists; current branch repairs the WP11 consumer sequencing. Next is the policy/enforcement consumer path, not a proof-only closeout. |
+| LAN | `lan-core` 241/42 and `parent-runtime-core` 102/18. | Substantial pairing/runtime source exists; a real paired-device lifecycle through service and portal is still required. |
+| Logging parity | `logging-core` 19/7 plus agent-service/portal integrations. | Foundation exists; enforce correlated logging on one product path rather than counting instrumentation alone. |
+| Network | `network-core` 19/6 and `ocentra-network-evidence` 237/60. | Typed eventing foundation exists; complete parser-to-policy/service runtime before platform claims. |
+| Parent desktop/runtime distribution | `parent-runtime-core` 102/18 plus parent shell/package surfaces. | Runtime surfaces exist; signed package launch/rollback smoke is not yet product closure. |
+| Payment/subscription | `billing-core` 17/4 and `entitlement-core` 8/5. | Core source exists; Cloudflare/account/trust dependency chain blocks a real checkout-to-entitlement path. |
+| Policy control plane | `policy-control-core` 126/34, child policy/runtime and service seams. | Typed request/approval/delivery functions exist. The parent service only confirms requests; it does not persist and resolve a parent decision into child delivery. Policy WP05 and Enforcement WP10 share that missing durable action/transport boundary. |
+| Portal UX | `apps/portal` 104/50 and `portal-domain` 112/14. | Real presentation/test topology exists; it needs service-backed actions, not more presentation-only completion claims. |
+| Remote access | `remote-access-core` 2/5 with adjacent screen/LAN surfaces. | Scaffold; build view-only session grant/revoke state before any control capability. |
+| Screen AI pipeline | `screen-ai-core` 20/3 and capture/agent/eventing seams. | Foundation; next is a redacted selected-window capture to typed AI-result chain. |
+| Screen | `screen-core` 3/3, live view 3/4, capture adapter 7/3. | Foundation; prove custody/delete on one supported capture platform. |
+| Setup/install/provisioning | `provisioning-core` 9/7 and `child-runtime` 31/9. | Integration source exists; parent setup-to-child trust/install depends on device-trust lifecycle truth. |
+| Tracking | `tracking-core` 39/41 plus agent/eventing/network evidence owners. | Strong source/test topology; real provider-to-read-model-to-portal retention path remains open. |
+| V0.8 enforcement | `child-enforcement-core` 8/3 plus policy/service/eventing owners. | Foundation. Current branch repaired journal evidence for command, timer, and rejected outcomes. Parent approval/override remains blocked on the durable policy-action/child-delivery boundary above; adapters and rollback stay unclaimed. |
+
+### Current dependency decision
+
+The highest-value next implementation is **not** another isolated enforcement
+adapter. The live code shows a shared gap: after a child request is confirmed,
+there is no durable parent-owned request/decision repository and no canonical
+parent-action transport that invokes `policy-control-core` resolution then
+queues child delivery. That boundary must be designed and implemented under
+Policy WP05 / Enforcement WP10, with actor/device/route/version, expiry,
+duplicate/replay, audit, and notification-no-claim negatives. It unblocks the
+policy, enforcement, portal, app/game, browser, network, and screen plans.
+
 ## Current merged-code train - 2026-08-06
 
 Live baseline: `origin/main` at `0923976516098d36962566c2eea3933e6d878b00`.
