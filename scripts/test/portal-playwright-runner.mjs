@@ -24,6 +24,7 @@ import {
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import {
   buildPortalE2eRustServices,
+  createLoopbackOnlyTestEnvironment,
   ensureParentDevBridgeBinaryUnlocked,
   spawnAgentService,
   spawnParentDevBridge,
@@ -65,6 +66,7 @@ const parentBridgeUrl = createParentDevBridgeUrl(parentBridgePort);
 const logBridgeUrl = createHttpOrigin(ParentDevHost.Loopback, logBridgePort);
 const portalLogBridgeEnvKey = 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL';
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
+const loopbackTestEnvironment = createLoopbackOnlyTestEnvironment();
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];
 const playwrightArgs = playwrightArguments(process.argv.slice(2));
@@ -115,7 +117,7 @@ try {
   await ensureParentDevBridgeBinaryUnlocked(repoRoot);
   const bridge = spawnParentDevBridge(
     {
-      ...process.env,
+      ...loopbackTestEnvironment,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
       [ParentDevEnv.DevLogDir]: devLogDir,
@@ -133,7 +135,7 @@ try {
   const portal = spawnVitePortal(
     portalPort,
     {
-      ...process.env,
+      ...loopbackTestEnvironment,
       [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
       [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
@@ -188,7 +190,7 @@ process.exit(exitCode);
 function spawnAgent() {
   return spawnAgentService(
     {
-      ...process.env,
+      ...loopbackTestEnvironment,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
       [ParentDevEnv.ActivityDbPath]: activityDbPath,
@@ -208,7 +210,7 @@ function spawnLogBridge() {
     cwd: repoRoot,
     detached: process.platform !== 'win32',
     env: {
-      ...process.env,
+      ...loopbackTestEnvironment,
       OCENTRA_PARENT_LOG_BRIDGE_HOST: ParentDevHost.Loopback,
       OCENTRA_PARENT_LOG_BRIDGE_PORT: String(logBridgePort),
       OCENTRA_PARENT_LOG_DIR: devLogDir,
@@ -246,7 +248,7 @@ function runPlaywright() {
     {
       cwd: portalRoot,
       env: {
-        ...process.env,
+        ...loopbackTestEnvironment,
         [ParentDevEnv.ActivityDbPath]: activityDbPath,
         [ParentDevEnv.DevLogDir]: devLogDir,
       },
