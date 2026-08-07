@@ -51,6 +51,8 @@ mod enforcement_policy_dispatch_read_model_tests;
 mod enforcement_rejection_journal_tests;
 #[path = "enforcement_supported_adapter_runtime_proof_read_model_tests.rs"]
 mod enforcement_supported_adapter_runtime_proof_read_model_tests;
+#[path = "enforcement_tests.rs"]
+mod enforcement_tests;
 #[path = "../../src/enforcement_timer_api.rs"]
 mod enforcement_timer_api;
 #[path = "enforcement_timer_expiry_tests.rs"]
