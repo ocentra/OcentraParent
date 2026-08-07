@@ -18,7 +18,8 @@ use crate::enforcement_timer_payload::{
     EnforcementTimerCommandPayload, EnforcementTimerPayloadError,
 };
 use crate::enforcement_timer_report::{
-    record_timer_activity, timer_report_payload, unavailable_timer_payload, TimerReportError,
+    record_timer_activity, record_timer_eventing_audit, timer_report_payload,
+    unavailable_timer_payload, TimerReportError,
 };
 use crate::enforcement_timer_state_file::{
     read_active_timer_state, remove_active_timer_state, store_active_timer_state_for_outcome,
@@ -93,7 +94,8 @@ async fn recover_timer(
     };
     validate_expected_action(&request, &state)?;
     let mut outcome = restart_recovered_timer_outcome(&state, request.transition_ids.clone());
-    outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
+    let journal_append = record_timer_eventing_audit(&request, &outcome, &paths).await?;
+    outcome.audit_event.journal_sequence = Some(journal_append.sequence.to_string());
     let status = record_timer_activity(&request, &outcome, &paths).await?;
     let active_state = store_active_timer_state_for_outcome(
         &outcome,
@@ -122,7 +124,8 @@ async fn expire_timer(
         expire_app_time_limit_for_owned_process(target, &request.transition_ids.observed_at);
     let mut outcome =
         expired_timer_outcome(&state, request.transition_ids.clone(), adapter_outcome);
-    outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
+    let journal_append = record_timer_eventing_audit(&request, &outcome, &paths).await?;
+    outcome.audit_event.journal_sequence = Some(journal_append.sequence.to_string());
     let status = record_timer_activity(&request, &outcome, &paths).await?;
     remove_active_timer_state(&timer_state_path)
         .await
@@ -148,7 +151,8 @@ async fn cancel_timer(
         .ok_or(EnforcementTimerCommandError::ParentActionRequired)?;
     let mut outcome =
         cancelled_timer_outcome(&state, request.transition_ids.clone(), parent_override);
-    outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
+    let journal_append = record_timer_eventing_audit(&request, &outcome, &paths).await?;
+    outcome.audit_event.journal_sequence = Some(journal_append.sequence.to_string());
     let status = record_timer_activity(&request, &outcome, &paths).await?;
     remove_active_timer_state(&timer_state_path)
         .await

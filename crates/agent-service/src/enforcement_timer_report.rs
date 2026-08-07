@@ -1,3 +1,7 @@
+use ocentra_eventing::{
+    ids::CorrelationId,
+    journal::{policy::JournalDispatchPhase, JournalAppend},
+};
 use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryOutcome;
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::activity::ActivityEventKind;
@@ -13,8 +17,15 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::{
-    activity_capture::record_activity_events_to_paths, enforcement_api::EnforcementJournalPaths,
-    enforcement_timer_payload::EnforcementTimerCommandPayload, fields::fields_from_pairs,
+    activity_capture::record_activity_events_to_paths,
+    enforcement_api::{
+        enforcement_pre_action_journal::eventing_journal::{
+            append_enforcement_audit_journal_event_phase, EnforcementEventingJournalPath,
+        },
+        EnforcementJournalPaths,
+    },
+    enforcement_timer_payload::EnforcementTimerCommandPayload,
+    fields::fields_from_pairs,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -44,6 +55,30 @@ pub(crate) async fn record_timer_activity(
     })
     .await
     .map_err(activity_capture_store_error)?
+}
+
+pub(crate) async fn record_timer_eventing_audit(
+    request: &EnforcementTimerCommandPayload,
+    outcome: &EnforcementBoundaryOutcome,
+    paths: &EnforcementJournalPaths,
+) -> Result<JournalAppend, TimerReportError> {
+    let mut eventing_journal_path = paths.journal_path.clone();
+    eventing_journal_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
+    let mut event = ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent::from(
+        &outcome.audit_event,
+    );
+    event.observed_at = request.command_sent_at.0.clone();
+    append_enforcement_audit_journal_event_phase(
+        EnforcementEventingJournalPath {
+            path: eventing_journal_path,
+        },
+        event,
+        CorrelationId::parse(request.command_correlation_id.0.clone())
+            .map_err(eventing_journal_store_error)?,
+        JournalDispatchPhase::AfterDispatch,
+    )
+    .await
+    .map_err(eventing_journal_store_error)
 }
 
 pub(crate) fn timer_report_payload(
@@ -254,6 +289,10 @@ fn evidence_reference_ids(outcome: &EnforcementBoundaryOutcome) -> TimerFieldTex
 }
 
 fn activity_capture_store_error(_: impl std::fmt::Debug) -> TimerReportError {
+    TimerReportError::Store
+}
+
+fn eventing_journal_store_error(_: impl std::fmt::Debug) -> TimerReportError {
     TimerReportError::Store
 }
 
