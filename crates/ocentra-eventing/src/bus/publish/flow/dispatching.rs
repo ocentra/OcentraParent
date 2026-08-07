@@ -19,13 +19,15 @@ pub(super) async fn publish_without_subscribers(
     {
         NoSubscriberQueueDecision::Dispatch(queue_report)
         | NoSubscriberQueueDecision::Queued(queue_report) => {
+            let journal_append = bus
+                .append_journal_phase(&stored, crate::JournalDispatchPhase::BeforeDispatch)
+                .await?;
             bus.record_stored_snapshot(&stored).await;
-            Ok(empty_publish_report(
-                &stored,
-                dispatch_mode,
-                queue_report,
-                0,
-            ))
+            let mut report = empty_publish_report(&stored, dispatch_mode, queue_report, 0);
+            if let Some(append) = journal_append {
+                report.journal_appends.push(append);
+            }
+            Ok(report)
         }
         NoSubscriberQueueDecision::QueuedWithDeadLetter(queue_report, dropped, reason, error) => {
             let dropped = *dropped;

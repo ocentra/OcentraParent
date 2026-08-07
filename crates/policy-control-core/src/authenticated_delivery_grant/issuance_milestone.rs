@@ -127,27 +127,13 @@ impl EventBusAuthenticatedDeliveryGrantIssuancePublisher {
         };
         let metadata = EventMetadata::new(correlation_id, self.source.clone());
         if tokio::runtime::Handle::try_current().is_ok() {
-            return publish_from_entered_runtime(self.event_bus.clone(), milestone, metadata);
+            return Err(EventingError::InvalidHandlerPolicy {
+                reason: "authenticated delivery grant issuance cannot synchronously wait for durable persistence inside a Tokio runtime"
+                    .to_owned(),
+            });
         }
         publish_on_current_thread_runtime(self.event_bus.clone(), milestone, metadata)
     }
-}
-
-fn publish_from_entered_runtime(
-    event_bus: EventBus,
-    milestone: AuthenticatedDeliveryGrantIssuanceAttemptMilestone,
-    metadata: EventMetadata,
-) -> Result<(), EventingError> {
-    let publisher = std::thread::Builder::new()
-        .spawn(move || publish_on_current_thread_runtime(event_bus, milestone, metadata))
-        .map_err(|error| EventingError::InvalidHandlerPolicy {
-            reason: error.to_string(),
-        })?;
-    publisher
-        .join()
-        .map_err(|_error| EventingError::InvalidHandlerPolicy {
-            reason: "issuance milestone publisher thread panicked".to_owned(),
-        })?
 }
 
 fn publish_on_current_thread_runtime(
@@ -171,10 +157,11 @@ fn publish_on_current_thread_runtime(
 }
 
 fn require_durable_milestone(report: &PublishReport) -> Result<(), EventingError> {
-    if report.subscriber_count == 0 {
+    if report.journal_appends.is_empty() {
         return Err(EventingError::InvalidHandlerPolicy {
-            reason: "authenticated delivery grant issuance milestone requires a durable subscriber"
-                .to_owned(),
+            reason:
+                "authenticated delivery grant issuance milestone requires a durable journal append"
+                    .to_owned(),
         });
     }
     Ok(())

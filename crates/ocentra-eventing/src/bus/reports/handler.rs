@@ -1,5 +1,6 @@
 use crate::{
-    CorrelationId, EventId, EventType, EventingError, QueueReport, SubscriberId, TargetHandler,
+    CorrelationId, EventId, EventType, EventingError, JournalAppend, QueueReport, SubscriberId,
+    TargetHandler,
 };
 
 use super::DispatchMode;
@@ -85,6 +86,8 @@ pub struct PublishReport {
     pub handled_count: usize,
     pub dead_letter_count: usize,
     pub handler_reports: Vec<HandlerReport>,
+    /// Successful durable journal writes performed for this publication.
+    pub journal_appends: Vec<JournalAppend>,
 }
 
 impl PublishReport {
