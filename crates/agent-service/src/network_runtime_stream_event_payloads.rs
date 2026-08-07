@@ -16,6 +16,7 @@ use ocentra_parent_agent_protocol::network_flow::NetworkPolicyDecisionCompletedE
 use ocentra_parent_agent_protocol::network_flow::NetworkPolicyEvaluationRequestedEvent;
 use ocentra_parent_agent_protocol::network_flow::NetworkPortalReadModelUpdatedEvent;
 use ocentra_parent_agent_protocol::network_flow::NetworkRuntimeEventPayload;
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::network_runtime_stream_event_values as values;
 
@@ -218,15 +219,14 @@ pub(crate) fn network_audit_entry_committed(
     event_ref: &values::NetworkRuntimeStreamRef,
     payload: &NetworkRuntimeEventPayload,
 ) -> Value {
-    let policy_decision_ref = payload
-        .policy_decision_ref
-        .as_ref()
-        .map(|value| values::NetworkRuntimeStreamRef(value.clone()));
     values::json_value(NetworkAuditEntryCommittedEvent {
         schema_version: constants::network_flow::EVENT_SCHEMA_VERSION,
         audit_entry_ref: event_ref.0.clone(),
         previous_event_ref: values::previous_event_ref(payload).0,
-        policy_decision_ref: values::ref_or_current(&policy_decision_ref, event_ref).0,
+        policy_decision_ref: payload
+            .policy_decision_ref
+            .clone()
+            .unwrap_or_else(|| policy_constants::HANDOFF_NOT_REQUESTED.to_string()),
         enforcement_command_ref: payload.enforcement_command_ref.clone(),
         enforcement_result_ref: payload.enforcement_result_ref.clone(),
         evidence_refs: values::evidence_refs(payload)

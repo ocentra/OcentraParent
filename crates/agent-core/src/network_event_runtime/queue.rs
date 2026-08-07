@@ -153,8 +153,13 @@ async fn publish_flow_observation(
     observed_at: &str,
 ) -> Result<PublishReport, EventingError> {
     let phase = NetworkRuntimePhase::FlowObserved;
-    let payload =
-        super::network_runtime_event_payload_from_observation(phase, observation, observed_at);
+    let decision = super::network_runtime_decision_from_observation(observation);
+    let payload = super::network_runtime_event_payload_from_observation(
+        phase,
+        observation,
+        observed_at,
+        decision,
+    );
     let metadata = network_event_metadata(phase, observation, observed_at, phase.target_handler())?;
     bus.publish(payload, metadata).await
 }
