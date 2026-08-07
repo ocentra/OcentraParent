@@ -106,6 +106,7 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
     ));
 
     let timer = payload_timer_event(&cancel_event.payload)?;
+    let recovered_audit = payload_audit_event(&recovered_event.payload)?;
     let audit = payload_audit_event(&cancel_event.payload)?;
     assert_eq!(timer.action_id, constants::enforcement::TEST_ACTION_ID);
     assert_eq!(
@@ -119,6 +120,8 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
             .map(|reference| reference.action_reference_id.as_str()),
         Some(constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
+    assert_eq!(recovered_audit.journal_sequence, Some("3".to_string()));
+    assert_eq!(audit.journal_sequence, Some("4".to_string()));
 
     Ok(())
 }
@@ -164,6 +167,14 @@ fn execute_command() -> AgentCommandEnvelope {
 }
 
 fn recover_command() -> AgentCommandEnvelope {
+    let mut payload = timer_payload();
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}-recover",
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )),
+    );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         message_id: constants::enforcement::TEST_TIMER_EVENT_ID.to_string(),
@@ -171,7 +182,7 @@ fn recover_command() -> AgentCommandEnvelope {
         source: portal_peer(),
         target: target(),
         command: AgentCommandName::AgentEnforcementTimerRecover,
-        payload: timer_payload(),
+        payload,
     }
 }
 
@@ -180,6 +191,13 @@ fn cancel_command() -> AgentCommandEnvelope {
     payload.insert(
         constants::field::PARENT_ACTION_REFERENCE_ID.to_string(),
         LogFieldValue::String(constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}-cancel",
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )),
     );
     payload.insert(
         constants::field::PARENT_ACTOR_ID.to_string(),

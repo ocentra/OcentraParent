@@ -24,6 +24,8 @@ pub(crate) enum EnforcementTimerPayloadError {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementTimerCommandPayload {
+    pub command_correlation_id: EnforcementTimerText,
+    pub command_sent_at: EnforcementTimerText,
     pub transition_ids: EnforcementTimerTransitionIds,
     pub expected_action_id: Option<EnforcementTimerText>,
     pub parent_override:
@@ -38,6 +40,8 @@ pub(crate) fn parse_timer_recovery_payload(
     observed_at: &GeneratedAtText,
 ) -> EnforcementTimerCommandPayload {
     EnforcementTimerCommandPayload {
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
         transition_ids: parse_transition_ids(
             &command.payload,
             EnforcementTimerTextRef(&command.message_id),
@@ -59,6 +63,8 @@ pub(crate) fn parse_timer_expiry_payload(
     observed_at: &GeneratedAtText,
 ) -> Result<EnforcementTimerCommandPayload, EnforcementTimerPayloadError> {
     Ok(EnforcementTimerCommandPayload {
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
         transition_ids: parse_transition_ids(
             &command.payload,
             EnforcementTimerTextRef(&command.message_id),
@@ -80,6 +86,8 @@ pub(crate) fn parse_parent_override_payload(
     observed_at: &GeneratedAtText,
 ) -> Result<EnforcementTimerCommandPayload, EnforcementTimerPayloadError> {
     Ok(EnforcementTimerCommandPayload {
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
         transition_ids: parse_transition_ids(
             &command.payload,
             EnforcementTimerTextRef(&command.message_id),

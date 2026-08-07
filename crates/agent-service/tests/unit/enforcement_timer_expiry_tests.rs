@@ -86,6 +86,7 @@ async fn assert_timer_expiry_uses_persisted_state_and_clears_it(
         audit.audit_event_kind.as_protocol_str(),
         expire_audit_kind().to_string()
     );
+    assert_eq!(audit.journal_sequence, Some("3".to_string()));
 
     Ok(())
 }
@@ -198,6 +199,13 @@ fn expire_command() -> AgentCommandEnvelope {
     payload.insert(
         constants::field::PROCESS_ID.to_string(),
         LogFieldValue::Number(f64::from(u32::MAX)),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}-expire",
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )),
     );
 
     AgentCommandEnvelope {
