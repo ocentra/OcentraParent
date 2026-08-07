@@ -4,6 +4,19 @@ import { rm } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
 
+const LOCAL_NETWORK_ENVIRONMENT_KEYS = Object.freeze([
+  'OCENTRA_PARENT_DEV_NETWORK',
+  'OCENTRA_PARENT_AGENT_LOCAL_NETWORK_ENABLED',
+]);
+
+export function createLoopbackOnlyTestEnvironment(environment = process.env) {
+  const loopbackEnvironment = { ...environment };
+  for (const key of LOCAL_NETWORK_ENVIRONMENT_KEYS) {
+    delete loopbackEnvironment[key];
+  }
+  return loopbackEnvironment;
+}
+
 export function resolveDebugAgentServicePath(repoRoot = process.cwd()) {
   const binaryName = process.platform === 'win32' ? 'ocentra-parent-agent-service.exe' : 'ocentra-parent-agent-service';
   return join(repoRoot, 'target', 'debug', binaryName);

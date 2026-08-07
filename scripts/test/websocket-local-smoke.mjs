@@ -12,7 +12,7 @@ import {
   isLikelyParentAgentOccupant,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
-import { resolveDebugAgentServicePath } from './agent-service-process.mjs';
+import { createLoopbackOnlyTestEnvironment, resolveDebugAgentServicePath } from './agent-service-process.mjs';
 import { createPortalSmokeCommandEnvelope } from './websocket-command-envelope.mjs';
 import { parseAgentEventEnvelope } from './websocket-event-envelope.mjs';
 import { runAgentEventWebSocketSession } from './websocket-smoke-client.mjs';
@@ -21,13 +21,14 @@ const port = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(port);
 const wsUrl = createAgentWebSocketUrl(port);
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-dev-log-'));
+const loopbackTestEnvironment = createLoopbackOnlyTestEnvironment();
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log);
 
 const service = spawn(resolveDebugAgentServicePath(), [], {
   cwd: process.cwd(),
   env: {
-    ...process.env,
+    ...loopbackTestEnvironment,
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
     [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.sqlite'),
     [ParentDevEnv.DevLogDir]: devLogDir,
