@@ -7,6 +7,7 @@ use ocentra_eventing::ids::{
     RuntimeInstanceId, RuntimeRole, SchemaVersion, SourceComponent, SourceService,
 };
 use ocentra_schema::authenticated_delivery_grant::AuthenticatedDeliveryGrant;
+use sha2::{Digest, Sha256};
 
 use super::AuthenticatedDeliveryGrantIssuanceError;
 
@@ -50,6 +51,7 @@ pub struct AuthenticatedDeliveryGrantIssuanceMilestone {
     pub outcome: AuthenticatedDeliveryGrantIssuanceOutcome,
     pub rejection: Option<AuthenticatedDeliveryGrantIssuanceRejection>,
     pub redaction_state: bool,
+    pub grant_fingerprint: Option<String>,
 }
 
 impl DomainEvent for AuthenticatedDeliveryGrantIssuanceMilestone {
@@ -194,15 +196,17 @@ pub(crate) fn issuance_milestone_for(
     result: &Result<AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantIssuanceError>,
 ) -> AuthenticatedDeliveryGrantIssuanceMilestone {
     match result {
-        Ok(_grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
+        Ok(grant) => AuthenticatedDeliveryGrantIssuanceMilestone {
             outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Accepted,
             rejection: None,
             redaction_state: true,
+            grant_fingerprint: Some(format!("{:x}", Sha256::digest(grant.signing_bytes()))),
         },
         Err(error) => AuthenticatedDeliveryGrantIssuanceMilestone {
             outcome: AuthenticatedDeliveryGrantIssuanceOutcome::Rejected,
             rejection: Some(rejection_for(*error)),
             redaction_state: true,
+            grant_fingerprint: None,
         },
     }
 }
