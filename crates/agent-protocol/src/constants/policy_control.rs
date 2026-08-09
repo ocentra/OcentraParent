@@ -160,6 +160,8 @@ pub mod request {
     pub const FIELD_RESOLVED_APPROVAL_ID: &str = "policy_request.resolved_approval_id";
     pub const FIELD_HOUSEHOLD_ID: &str = "policy_request.household_id";
     pub const FIELD_POLICY_VERSION: &str = "policy_request.policy_version";
+    pub const FIELD_CANONICAL_CONFIRMED_REQUEST_JSON: &str =
+        "policy_request.canonical_confirmed_request_json";
 
     pub const OVERRIDE_ID_PREFIX: &str = "policy-override:";
     pub const VALUE_DUPLICATE_SUBMISSION_KEY_PREFIX: &str = "duplicate submission key ";

@@ -27,6 +27,7 @@ use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfi
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmResultState;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmTargetKind;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use ocentra_policy_control_core::policy_request::ChildPolicyRequest;
 
 use crate::{
     activity_report_env_lock::REPORT_ENV_LOCK, fields::fields_from_pairs,
@@ -112,6 +113,28 @@ async fn policy_request_assistant_preview_confirm_accepts_valid_parent_confirmat
         assert_eq!(
             read_model.rows[0].policy_audit_reference_id.as_deref(),
             Some("audit.policy-request.confirmed")
+        );
+        let fields = store
+            .enforcement_audit_fields_by_event_id("audit.policy-request.confirmed")
+            .map_err(|error| {
+                IoError::other(format!(
+                    "{}: {error:?}",
+                    constants::error::ACTIVITY_STORE_QUERIES
+                ))
+            })?
+            .ok_or_else(|| IoError::other(constants::error::ACTIVITY_STORE_QUERIES))?;
+        let canonical_request_json = fields
+            .get(constants::policy_control::request::FIELD_CANONICAL_CONFIRMED_REQUEST_JSON)
+            .and_then(|value| match value {
+                LogFieldValue::String(value) => Some(value),
+                _ => None,
+            })
+            .ok_or_else(|| IoError::other(constants::error::ACTIVITY_STORE_QUERIES))?;
+        let canonical_request: ChildPolicyRequest = serde_json::from_str(canonical_request_json)?;
+        assert_eq!(canonical_request.request_id.as_str(), "policy-request-1");
+        assert_eq!(
+            canonical_request.assistant_confirmation_state,
+            PolicyAssistantConfirmationState::ParentConfirmed
         );
 
         Ok(())

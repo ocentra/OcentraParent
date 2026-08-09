@@ -312,7 +312,12 @@ fn confirmed_policy_preview_activity_event(
     confirmed_request: &ChildPolicyRequest,
 ) -> Option<ActivityEvent> {
     let target = supported_policy_preview_target(request)?;
-    let fields = build_confirmed_policy_preview_fields(request, confirmed_request, &target);
+    let canonical_confirmed_request = serde_json::to_string(confirmed_request).ok()?;
+    let mut fields = build_confirmed_policy_preview_fields(request, confirmed_request, &target);
+    fields.insert(
+        constants::policy_control::request::FIELD_CANONICAL_CONFIRMED_REQUEST_JSON.to_string(),
+        LogFieldValue::String(canonical_confirmed_request),
+    );
 
     Some(ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
