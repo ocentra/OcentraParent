@@ -43,8 +43,7 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
         require_some(
             optional_log_string(&event.payload, constants::field::ENFORCEMENT_AUDIT_EVENT),
             constants::error::AGENT_EVENT_SERIALIZES,
-        )
-        .to_string(),
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     cleanup_paths(&paths);
@@ -272,16 +271,14 @@ fn assert_unwired_adapter_readiness(
         require_some(
             optional_log_string(&event.payload, constants::field::ENFORCEMENT_ACTION),
             constants::error::AGENT_EVENT_SERIALIZES,
-        )
-        .to_string(),
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let result: ocentra_parent_agent_protocol::enforcement::EnforcementResult = require_json_decode(
         require_some(
             optional_log_string(&event.payload, constants::field::ENFORCEMENT_RESULT),
             constants::error::AGENT_EVENT_SERIALIZES,
-        )
-        .to_string(),
+        ),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
     let readiness = require_some(

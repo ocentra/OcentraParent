@@ -2149,6 +2149,7 @@ export type ParentUiActionKind =
   | 'reconnect'
   | 'agent-command-requested'
   | 'policy-request-assistant-preview-confirm-requested'
+  | 'policy-request-parent-resolution-requested'
   | 'lan-pairing-browser-discovery-scan-requested'
   | 'network-flow-read-model-refresh-requested'
   | 'tracking-retention-settings-write-requested'
