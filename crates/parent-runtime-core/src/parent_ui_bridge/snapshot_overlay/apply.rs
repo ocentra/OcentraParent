@@ -8,6 +8,8 @@ mod app_game_timer_parent_preference_setup_requested;
 mod handlers;
 #[path = "apply/policy_request_assistant_preview_confirm_requested.rs"]
 mod policy_request_assistant_preview_confirm_requested;
+#[path = "apply/policy_request_parent_resolution_requested.rs"]
+mod policy_request_parent_resolution_requested;
 #[path = "apply/screen_settings_get_requested.rs"]
 mod screen_settings_get_requested;
 #[path = "apply/screen_settings_replace_requested.rs"]

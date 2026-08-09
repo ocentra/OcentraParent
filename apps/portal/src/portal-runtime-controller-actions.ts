@@ -122,6 +122,13 @@ export function createPortalRuntimeActions(
         dispatchHostAction,
         payload
       ),
+    requestPolicyRequestParentResolution: (payload: ParentUiActionPayload) =>
+      createDispatchActionWithPayload(
+        ParentUiActionKind.PolicyRequestParentResolutionRequested,
+        deps,
+        dispatchHostAction,
+        payload
+      ),
     requestScreenSettingsGet: (payload: ParentUiActionPayload) =>
       createDispatchActionWithPayload(ParentUiActionKind.ScreenSettingsGetRequested, deps, dispatchHostAction, payload),
     requestScreenSettingsReplace: (payload: ParentUiActionPayload) =>

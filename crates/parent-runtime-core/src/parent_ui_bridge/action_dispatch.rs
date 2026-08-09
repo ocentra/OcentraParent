@@ -16,6 +16,7 @@ pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentU
             | ParentUiActionKind::Reconnect
             | ParentUiActionKind::AgentCommandRequested
             | ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested
+            | ParentUiActionKind::PolicyRequestParentResolutionRequested
             | ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested
             | ParentUiActionKind::NetworkFlowReadModelRefreshRequested
             | ParentUiActionKind::TrackingRetentionSettingsWriteRequested

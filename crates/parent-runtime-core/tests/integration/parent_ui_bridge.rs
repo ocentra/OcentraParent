@@ -44,6 +44,8 @@ use serde_json::{json, Value};
 mod common;
 #[path = "parent_ui_bridge/lan_replay_tests.rs"]
 mod lan_replay_tests;
+#[path = "parent_ui_bridge/policy_request_resolution_tests.rs"]
+mod policy_request_resolution_tests;
 #[path = "parent_ui_bridge/runtime_and_activity_tests.rs"]
 mod runtime_and_activity_tests;
 #[path = "parent_ui_bridge/snapshot_and_dispatch_tests.rs"]
