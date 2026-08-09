@@ -15086,14 +15086,21 @@
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/08-open-source-dependency-adoption.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/",
+        "statusText": "Validation — dependency/security review and boundary test are current; runtime adoption remains open.",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "stateOverride": {
+          "reason": "Dependency matrix decisions and the trust-root boundary test are current; runtime library adoption, platform ceremony, CI, review, and main merge remain open.",
+          "evidence": [
+            "docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md",
+            "output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/16-validation-commands.log"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15104,7 +15111,9 @@
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": [
+            "output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption"
+          ],
           "checklist": [
             "docs/plans/device-trust-bootstrap-plan/CHECKLIST_INDEX.md"
           ],

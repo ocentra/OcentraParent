@@ -26,7 +26,7 @@ matrix's narrower scheduled-row view). Current derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 202 | 5 | 2 | 1 | 441 | 3 |
+| 202 | 5 | 1 | 1 | 442 | 3 |
 
 The graph validates at 678 nodes and 678 edges, with 24 migration/dependency
 review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
@@ -79,6 +79,7 @@ gates and have not been run or claimed here.
 | Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1; child-policy delivery binding 11/11; child-runtime delivery facade 5/5. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding is enforced through the child-runtime facade. Trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
 | Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
 | Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. Durable manifest: `docs/proof/remote-access-plan/slice-01-capability-fabric.md`. | Contract slice is `validation`. Pairing/relay/device-trust/session runtime, revoke/remove flow, custody, abuse proof, CI, review, and main merge remain open; remote input/control remains deferred. |
+| Device-trust WP08 dependency adoption | Dependency matrix covers WebAuthn, passkey, keyring, encrypted-bundle, and RustDesk decisions; contract test 1/1 passed; scoped architecture and Enforcer guard passed. Durable manifest: `docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md`. | Review slice is `validation`. Runtime adoption, platform ceremony, key sealing, recovery execution, CI, review, and main merge remain open. |
 | Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
 | App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; schema-domain build/type-check and `app-runtime-decision.test.ts` passed 11/11; scoped architecture and Enforcer guards passed. | Contract/runtime-decision code/test slice and local proof are current. Installed inventory, broader app runtime/service/portal path, CI, review, and main merge remain open. |
 | Other 18 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |

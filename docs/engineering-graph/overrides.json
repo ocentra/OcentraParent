@@ -30,6 +30,16 @@
         "docs/proof/remote-access-plan/slice-01-capability-fabric.md",
         "output/remote-access-plan-proof/01-remote-capability-fabric/16-validation-commands.log"
       ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption",
+      "state": "validation",
+      "reason": "Dependency matrix decisions and the trust-root boundary test are current; runtime library adoption, platform ceremony, CI, review, and main merge remain open.",
+      "statusText": "Validation — dependency/security review and boundary test are current; runtime adoption remains open.",
+      "evidence": [
+        "docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md",
+        "output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/16-validation-commands.log"
+      ]
     }
   ],
   "proofOverrides": [

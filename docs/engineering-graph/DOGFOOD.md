@@ -9,9 +9,9 @@ Imported plans: 23
 Imported workpacks: 654
 Graph valid: 678 nodes, 678 edges
 Review items: 24
-READY: 2
+READY: 1
 BLOCKED: 5
-VALIDATION: 441
+VALIDATION: 442
 ```
 
 The policy-control slice is a useful dependency example:
@@ -25,12 +25,10 @@ graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
   WP-policy-control-plane-plan-04-delivery-ack-audit is blocked
 ```
 
-The graph currently exposes two independent READY workpacks, so those can be
-assigned in parallel after the normal Enforcer claim/guard step. Remote WP01
-was moved to `validation` after its focused contract/test slice was replayed;
-its runtime lifecycle remains open:
+The graph currently exposes one READY workpack. Remote WP01 and device-trust
+WP08 were moved to `validation` after their focused slices were replayed; both
+retain explicit runtime/no-claim boundaries:
 
-- `WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption`
 - `WP-network-plan-08-control-catalog-reference-routing`
 
 The queries used were:
