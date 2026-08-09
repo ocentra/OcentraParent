@@ -68,6 +68,9 @@ pub(crate) async fn record_timer_eventing_audit(
         &outcome.audit_event,
     );
     event.observed_at = request.command_sent_at.0.clone();
+    event.device_id = Some(request.device_id.0.clone());
+    event.source_peer_id = Some(request.source_peer_id.0.clone());
+    event.target_route = Some(request.target_route.0.clone());
     append_enforcement_audit_journal_event_phase(
         EnforcementEventingJournalPath {
             path: eventing_journal_path,
