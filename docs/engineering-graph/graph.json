@@ -662,15 +662,15 @@
       "path": "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
       "parent": "PLAN-account-identity-family-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -728,15 +728,15 @@
       "path": "docs/plans/ai-plan/workpacks/02-current-ai-snapshot-and-gap-map.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -759,15 +759,15 @@
       "path": "docs/plans/ai-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -790,15 +790,15 @@
       "path": "docs/plans/ai-plan/workpacks/04-rust-protocol-parity-for-ai-contracts.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -821,15 +821,15 @@
       "path": "docs/plans/ai-plan/workpacks/05-local-model-runtime-status-hardening.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -852,15 +852,15 @@
       "path": "docs/plans/ai-plan/workpacks/06-local-provider-capability-hardening.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -883,15 +883,15 @@
       "path": "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -914,15 +914,15 @@
       "path": "docs/plans/ai-plan/workpacks/08-ai-provider-routing-contract.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -945,15 +945,15 @@
       "path": "docs/plans/ai-plan/workpacks/09-local-evidence-context-builder-v1.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -976,15 +976,15 @@
       "path": "docs/plans/ai-plan/workpacks/10-evidence-reference-normalization.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1007,15 +1007,15 @@
       "path": "docs/plans/ai-plan/workpacks/11-parent-rule-context-builder.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1038,15 +1038,15 @@
       "path": "docs/plans/ai-plan/workpacks/12-prompt-template-version-registry.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1069,15 +1069,15 @@
       "path": "docs/plans/ai-plan/workpacks/13-deterministic-no-model-classifier-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1100,15 +1100,15 @@
       "path": "docs/plans/ai-plan/workpacks/14-local-text-llm-adapter-boundary.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1131,15 +1131,15 @@
       "path": "docs/plans/ai-plan/workpacks/15-local-text-llm-execution-dry-run-adapter.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1162,15 +1162,15 @@
       "path": "docs/plans/ai-plan/workpacks/16-output-parser-and-schema-validator.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1193,15 +1193,15 @@
       "path": "docs/plans/ai-plan/workpacks/17-degraded-timeout-invalid-output-handling.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1224,15 +1224,15 @@
       "path": "docs/plans/ai-plan/workpacks/18-deterministic-policy-evaluator-integration.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1255,15 +1255,15 @@
       "path": "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1286,15 +1286,15 @@
       "path": "docs/plans/ai-plan/workpacks/20-parent-explanation-read-model.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1317,15 +1317,15 @@
       "path": "docs/plans/ai-plan/workpacks/21-memory-reference-contract.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1348,15 +1348,15 @@
       "path": "docs/plans/ai-plan/workpacks/22-short-window-recent-activity-memory.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1379,15 +1379,15 @@
       "path": "docs/plans/ai-plan/workpacks/23-evidence-backed-semantic-memory.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1410,15 +1410,15 @@
       "path": "docs/plans/ai-plan/workpacks/24-knowledge-graph-reference-contract.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1441,15 +1441,15 @@
       "path": "docs/plans/ai-plan/workpacks/25-minimal-graph-edges-for-safety-context.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1472,15 +1472,15 @@
       "path": "docs/plans/ai-plan/workpacks/26-tabagent-code-audit-and-reuse-map.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1503,15 +1503,15 @@
       "path": "docs/plans/ai-plan/workpacks/27-tabagent-native-bridge-reuse-candidate.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1534,15 +1534,15 @@
       "path": "docs/plans/ai-plan/workpacks/28-tabagent-model-lifecycle-cache-reuse-candidate.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1565,15 +1565,15 @@
       "path": "docs/plans/ai-plan/workpacks/29-tabagent-memory-graph-reuse-candidate.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1596,15 +1596,15 @@
       "path": "docs/plans/ai-plan/workpacks/30-ocr-worker-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1627,15 +1627,15 @@
       "path": "docs/plans/ai-plan/workpacks/31-guided-vlm-worker-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1658,15 +1658,15 @@
       "path": "docs/plans/ai-plan/workpacks/32-family-ai-hub-and-remote-assistant-boundary.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1689,15 +1689,15 @@
       "path": "docs/plans/ai-plan/workpacks/33-browser-url-video-ai-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1720,15 +1720,15 @@
       "path": "docs/plans/ai-plan/workpacks/34-browser-social-feed-signup-ai-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1751,15 +1751,15 @@
       "path": "docs/plans/ai-plan/workpacks/35-browser-game-cloud-game-ai-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1782,15 +1782,15 @@
       "path": "docs/plans/ai-plan/workpacks/36-app-game-unknown-classifier-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1813,15 +1813,15 @@
       "path": "docs/plans/ai-plan/workpacks/37-tracking-location-safety-analysis-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1844,15 +1844,15 @@
       "path": "docs/plans/ai-plan/workpacks/38-screen-ocr-vlm-router-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1875,15 +1875,15 @@
       "path": "docs/plans/ai-plan/workpacks/39-device-hardware-model-fit-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1906,15 +1906,15 @@
       "path": "docs/plans/ai-plan/workpacks/40-model-catalog-artifact-integrity-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1937,15 +1937,15 @@
       "path": "docs/plans/ai-plan/workpacks/41-llama-gguf-runtime-packaging-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1968,15 +1968,15 @@
       "path": "docs/plans/ai-plan/workpacks/42-inference-settings-template-governance-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -1999,15 +1999,15 @@
       "path": "docs/plans/ai-plan/workpacks/43-ai-activity-portal-surface-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -2030,15 +2030,15 @@
       "path": "docs/plans/ai-plan/workpacks/44-provider-api-authorization-custody-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -2061,15 +2061,15 @@
       "path": "docs/plans/ai-plan/workpacks/45-remote-redacted-report-assistant-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -2092,15 +2092,15 @@
       "path": "docs/plans/ai-plan/workpacks/46-security-privacy-negative-gates-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -2123,15 +2123,15 @@
       "path": "docs/plans/ai-plan/workpacks/47-performance-resource-battery-proof-lane.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -2154,15 +2154,15 @@
       "path": "docs/plans/ai-plan/workpacks/48-rollout-checklist-and-pr-gate.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10151,15 +10151,15 @@
       "path": "docs/plans/app-game-plan/workpacks/app-control-capability-guide.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10185,15 +10185,15 @@
       "path": "docs/plans/app-game-plan/workpacks/app-control-schema-proposal.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10219,15 +10219,15 @@
       "path": "docs/plans/app-game-plan/workpacks/app-control-settings-inventory.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10253,15 +10253,15 @@
       "path": "docs/plans/app-game-plan/workpacks/game-control-capability-guide.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10287,15 +10287,15 @@
       "path": "docs/plans/app-game-plan/workpacks/game-control-schema-proposal.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10321,15 +10321,15 @@
       "path": "docs/plans/app-game-plan/workpacks/game-control-settings-inventory.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13731,15 +13731,15 @@
       "path": "docs/plans/browser-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13767,15 +13767,15 @@
       "path": "docs/plans/browser-plan/workpacks/02-source-index-and-doc-reconciliation.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13803,15 +13803,15 @@
       "path": "docs/plans/browser-plan/workpacks/03-browser-inventory-model.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13837,15 +13837,15 @@
       "path": "docs/plans/browser-plan/workpacks/04-windows-browser-inventory-adapter.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13873,15 +13873,15 @@
       "path": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13909,15 +13909,15 @@
       "path": "docs/plans/browser-plan/workpacks/06-managed-profile-store.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13943,15 +13943,15 @@
       "path": "docs/plans/browser-plan/workpacks/07-managed-chromium-launcher.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13977,15 +13977,15 @@
       "path": "docs/plans/browser-plan/workpacks/08-bridge-custody-and-security.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14011,15 +14011,15 @@
       "path": "docs/plans/browser-plan/workpacks/09-cdp-version-and-target-adapter.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14047,15 +14047,15 @@
       "path": "docs/plans/browser-plan/workpacks/10-tab-evidence-mapper.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14081,15 +14081,15 @@
       "path": "docs/plans/browser-plan/workpacks/11-active-tab-proof-model.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14115,15 +14115,15 @@
       "path": "docs/plans/browser-plan/workpacks/12-journal-and-sqlite-browser-ingest.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14151,15 +14151,15 @@
       "path": "docs/plans/browser-plan/workpacks/13-browser-read-models-and-service-events.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14187,15 +14187,15 @@
       "path": "docs/plans/browser-plan/workpacks/14-portal-browser-status-surfaces.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14223,15 +14223,15 @@
       "path": "docs/plans/browser-plan/workpacks/15-browser-policy-authoring-manifest.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14259,15 +14259,15 @@
       "path": "docs/plans/browser-plan/workpacks/16-policy-target-compiler.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14293,15 +14293,15 @@
       "path": "docs/plans/browser-plan/workpacks/17-managed-intervention-and-block-page.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14329,15 +14329,15 @@
       "path": "docs/plans/browser-plan/workpacks/18-unmanaged-browser-detection.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14363,15 +14363,15 @@
       "path": "docs/plans/browser-plan/workpacks/19-unmanaged-fallback-ux-and-actions.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14399,15 +14399,15 @@
       "path": "docs/plans/browser-plan/workpacks/20-windows-applocker-app-control-proof.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14435,15 +14435,15 @@
       "path": "docs/plans/browser-plan/workpacks/21-extension-and-native-host-boundary.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14471,15 +14471,15 @@
       "path": "docs/plans/browser-plan/workpacks/22-performance-and-service-health.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14507,15 +14507,15 @@
       "path": "docs/plans/browser-plan/workpacks/23-e2e-and-manual-proof-artifacts.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14543,15 +14543,15 @@
       "path": "docs/plans/browser-plan/workpacks/24-rollout-checklist-and-pr-gate.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14579,15 +14579,15 @@
       "path": "docs/plans/browser-plan/workpacks/browser-control-1057-settings-inventory.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14615,15 +14615,15 @@
       "path": "docs/plans/browser-plan/workpacks/browser-control-coverage-matrix.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14649,15 +14649,15 @@
       "path": "docs/plans/browser-plan/workpacks/browser-control-schema-proposal.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14683,15 +14683,15 @@
       "path": "docs/plans/browser-plan/workpacks/browser-policy-questionnaire-forest-v1.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14719,15 +14719,15 @@
       "path": "docs/plans/browser-plan/workpacks/browser-policy-settings-catalog.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14753,15 +14753,15 @@
       "path": "docs/plans/browser-plan/workpacks/managed-unmanaged-browser.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16818,15 +16818,15 @@
       "path": "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17952,15 +17952,15 @@
       "path": "docs/plans/logging-domain-parity/workpacks/01-current-state-and-reference-audit.md",
       "parent": "PLAN-logging-domain-parity",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "logging-domain-parity",
         "indexPath": "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
         "statusText": "audit-open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18282,15 +18282,15 @@
       "path": "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18318,15 +18318,15 @@
       "path": "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18352,15 +18352,15 @@
       "path": "docs/plans/network-plan/workpacks/03-classification-and-correlation.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18388,15 +18388,15 @@
       "path": "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18424,15 +18424,15 @@
       "path": "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18460,15 +18460,15 @@
       "path": "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18496,15 +18496,15 @@
       "path": "docs/plans/network-plan/workpacks/07-performance-security-rollout.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18744,15 +18744,15 @@
       "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/05-parent-ios-package.md",
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18822,15 +18822,15 @@
       "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/07-parent-client-signing-store-matrix.md",
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18943,15 +18943,15 @@
       "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md",
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18978,15 +18978,15 @@
       "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/11-proof-ci-release-gate.md",
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19212,15 +19212,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19247,15 +19247,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/06-security-privacy-observability.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19282,15 +19282,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/08-provider-adapter-portability.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19317,15 +19317,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/09-regional-payment-rollout.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19352,15 +19352,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19387,15 +19387,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/11-parent-website-billing-dashboard.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19422,15 +19422,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19457,15 +19457,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/07-rollout-proof-and-route-gate.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19633,14 +19633,14 @@
       "parent": "PLAN-policy-control-plane-plan",
       "dependsOn": ["WP-policy-control-plane-plan-04-delivery-ack-audit"],
       "state": "blocked",
-      "lifecycleState": "ready",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "Open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19972,15 +19972,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/05-policy-authoring-control-center.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20012,15 +20012,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/06-schedules-time-budgets-and-templates.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20052,15 +20052,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/07-parent-requests-and-approvals.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20092,15 +20092,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/08-activity-evidence-and-diagnostics.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20132,15 +20132,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20172,15 +20172,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/11-assistant-action-preview-flow.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20212,15 +20212,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/12-reports-notifications-and-custody.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20252,15 +20252,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/13-degraded-empty-stale-and-error-states.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20292,15 +20292,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/14-audit-history-and-copy-debug.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20332,15 +20332,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/15-accessibility-responsive-keyboard-ux.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20372,15 +20372,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/16-no-fake-data-contract-adapter.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20412,15 +20412,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/17-playwright-screenshot-proof.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20452,15 +20452,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/18-parent-mobile-shell-readiness.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20492,15 +20492,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/19-product-docs-and-checklist-sync.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20532,15 +20532,15 @@
       "path": "docs/plans/portal-ux-household-surfaces-plan/workpacks/20-manual-user-review-gate.md",
       "parent": "PLAN-portal-ux-household-surfaces-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "portal-ux-household-surfaces-plan",
         "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20790,15 +20790,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/01-prerequisite-merge-and-branch-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20828,15 +20828,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/02-real-trigger-to-capture-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20866,15 +20866,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/03-capture-to-ai-analysis-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20904,15 +20904,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20942,15 +20942,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/05-policy-action-dry-run-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20980,15 +20980,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/06-journal-read-model-and-portal-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21018,15 +21018,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/07-deletion-retention-and-custody-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21056,15 +21056,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/08-live-operator-proof-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21094,15 +21094,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/09-performance-cadence-and-backpressure-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21132,15 +21132,15 @@
       "path": "docs/plans/screen-ai-pipeline-plan/workpacks/10-final-rollout-and-pr-gate.md",
       "parent": "PLAN-screen-ai-pipeline-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-ai-pipeline-plan",
         "indexPath": "docs/plans/screen-ai-pipeline-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21808,15 +21808,15 @@
       "path": "docs/plans/screen-plan/workpacks/01-source-index-and-doc-reconciliation.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21844,15 +21844,15 @@
       "path": "docs/plans/screen-plan/workpacks/02-current-screen-snapshot-and-gap-map.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21880,15 +21880,15 @@
       "path": "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21916,15 +21916,15 @@
       "path": "docs/plans/screen-plan/workpacks/05-capability-status-contract.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21950,15 +21950,15 @@
       "path": "docs/plans/screen-plan/workpacks/06-capture-scope-model.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -21984,15 +21984,15 @@
       "path": "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22018,15 +22018,15 @@
       "path": "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22052,15 +22052,15 @@
       "path": "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22088,15 +22088,15 @@
       "path": "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22124,15 +22124,15 @@
       "path": "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22160,15 +22160,15 @@
       "path": "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22194,15 +22194,15 @@
       "path": "docs/plans/screen-plan/workpacks/15-encrypted-temporary-image-queue.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22230,15 +22230,15 @@
       "path": "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22264,15 +22264,15 @@
       "path": "docs/plans/screen-plan/workpacks/18-screen-analysis-result-schema.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22298,15 +22298,15 @@
       "path": "docs/plans/screen-plan/workpacks/20-result-validator-and-invalid-output-handling.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22334,15 +22334,15 @@
       "path": "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22368,15 +22368,15 @@
       "path": "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22402,15 +22402,15 @@
       "path": "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22438,15 +22438,15 @@
       "path": "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22472,15 +22472,15 @@
       "path": "docs/plans/screen-plan/workpacks/29-proof-tiers-and-proof-packs.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22506,15 +22506,15 @@
       "path": "docs/plans/screen-plan/workpacks/30-test-suite-playwright-rollout-pr-gate.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22542,15 +22542,15 @@
       "path": "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22578,15 +22578,15 @@
       "path": "docs/plans/screen-plan/workpacks/screen-control-settings-inventory.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22614,15 +22614,15 @@
       "path": "docs/plans/screen-plan/workpacks/screen-evidence-analysis-capability-guide.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22650,15 +22650,15 @@
       "path": "docs/plans/screen-plan/workpacks/screen-evidence-analysis-schema-proposal.md",
       "parent": "PLAN-screen-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "screen-plan",
         "indexPath": "docs/plans/screen-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -22979,15 +22979,15 @@
       "path": "docs/plans/tracking-plan/workpacks/25-policy-compiler-for-tracking-rules.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23010,15 +23010,15 @@
       "path": "docs/plans/tracking-plan/workpacks/27-escalation-engine.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23041,15 +23041,15 @@
       "path": "docs/plans/tracking-plan/workpacks/28-temporary-live-tracking-mode.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23072,15 +23072,15 @@
       "path": "docs/plans/tracking-plan/workpacks/29-missing-device-mode.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23103,15 +23103,15 @@
       "path": "docs/plans/tracking-plan/workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23134,15 +23134,15 @@
       "path": "docs/plans/tracking-plan/workpacks/01-source-index-and-repo-reconciliation.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23165,15 +23165,15 @@
       "path": "docs/plans/tracking-plan/workpacks/02-current-tracking-snapshot-and-gap-map.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23196,15 +23196,15 @@
       "path": "docs/plans/tracking-plan/workpacks/03-contract-boundary-and-effect-schemas.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23227,15 +23227,15 @@
       "path": "docs/plans/tracking-plan/workpacks/04-location-evidence-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23258,15 +23258,15 @@
       "path": "docs/plans/tracking-plan/workpacks/05-device-status-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23289,15 +23289,15 @@
       "path": "docs/plans/tracking-plan/workpacks/06-permission-and-capability-status-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23320,15 +23320,15 @@
       "path": "docs/plans/tracking-plan/workpacks/07-retention-and-custody-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23351,15 +23351,15 @@
       "path": "docs/plans/tracking-plan/workpacks/08-android-foreground-location-adapter.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23382,15 +23382,15 @@
       "path": "docs/plans/tracking-plan/workpacks/09-android-background-location-and-geofence-adapter.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23413,15 +23413,15 @@
       "path": "docs/plans/tracking-plan/workpacks/10-android-battery-connectivity-and-status-adapter.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23444,15 +23444,15 @@
       "path": "docs/plans/tracking-plan/workpacks/11-ios-core-location-foreground-adapter.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23475,15 +23475,15 @@
       "path": "docs/plans/tracking-plan/workpacks/12-ios-background-region-significant-change-adapter.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23506,15 +23506,15 @@
       "path": "docs/plans/tracking-plan/workpacks/13-desktop-location-and-presence-hint-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23537,15 +23537,15 @@
       "path": "docs/plans/tracking-plan/workpacks/14-geofence-rule-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23568,15 +23568,15 @@
       "path": "docs/plans/tracking-plan/workpacks/15-geofence-transition-engine.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23599,15 +23599,15 @@
       "path": "docs/plans/tracking-plan/workpacks/16-expected-place-schedule-engine.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23630,15 +23630,15 @@
       "path": "docs/plans/tracking-plan/workpacks/17-parent-acknowledgement-and-exception-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23661,15 +23661,15 @@
       "path": "docs/plans/tracking-plan/workpacks/18-child-check-in-flow.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23692,15 +23692,15 @@
       "path": "docs/plans/tracking-plan/workpacks/19-nearby-place-provider-abstraction.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23723,15 +23723,15 @@
       "path": "docs/plans/tracking-plan/workpacks/20-google-places-and-poi-provider-adapter.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23754,15 +23754,15 @@
       "path": "docs/plans/tracking-plan/workpacks/21-place-category-taxonomy-and-ambiguity-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23785,15 +23785,15 @@
       "path": "docs/plans/tracking-plan/workpacks/22-local-parent-defined-place-database.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23816,15 +23816,15 @@
       "path": "docs/plans/tracking-plan/workpacks/23-ai-location-safety-analysis-contracts.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23847,15 +23847,15 @@
       "path": "docs/plans/tracking-plan/workpacks/24-ai-provider-routing.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23878,15 +23878,15 @@
       "path": "docs/plans/tracking-plan/workpacks/26-alert-severity-and-notification-model.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23909,15 +23909,15 @@
       "path": "docs/plans/tracking-plan/workpacks/30-parent-and-child-ui-ux-surfaces.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23940,15 +23940,15 @@
       "path": "docs/plans/tracking-plan/workpacks/31-platform-extension-checklists-and-proof-routing.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -23971,15 +23971,15 @@
       "path": "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24002,15 +24002,15 @@
       "path": "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24033,15 +24033,15 @@
       "path": "docs/plans/tracking-plan/workpacks/35-parent-tracking-config-command-event-flow.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24064,15 +24064,15 @@
       "path": "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24095,15 +24095,15 @@
       "path": "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24126,15 +24126,15 @@
       "path": "docs/plans/tracking-plan/workpacks/38-tracking-notification-and-escalation-event-flow.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24157,15 +24157,15 @@
       "path": "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24188,15 +24188,15 @@
       "path": "docs/plans/tracking-plan/workpacks/device-location-tracking-capability-guide.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24219,15 +24219,15 @@
       "path": "docs/plans/tracking-plan/workpacks/device-location-tracking-schema-proposal.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24250,15 +24250,15 @@
       "path": "docs/plans/tracking-plan/workpacks/tracking-control-settings-inventory.md",
       "parent": "PLAN-tracking-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24561,15 +24561,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/05-app-game-session-handoff.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24601,15 +24601,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/06-managed-browser-session-control.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24641,15 +24641,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/08-network-domain-report-only-boundary.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24681,15 +24681,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/10-parent-approval-override.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24721,15 +24721,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24761,15 +24761,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/12-child-facing-status-and-reasons.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24801,15 +24801,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/13-service-read-models-and-api.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24841,15 +24841,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/14-portal-control-state-consumption.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24881,15 +24881,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/15-integrity-heartbeat-permission-loss.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24921,15 +24921,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/16-tamper-uninstall-non-claim-design.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -24961,15 +24961,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/17-cross-platform-unavailable-states.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25001,15 +25001,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/19-playwright-ui-proof.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -25041,15 +25041,15 @@
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/20-rollout-docs-ci-pr-gate.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "v0-8-enforcement-control-plan",
         "indexPath": "docs/plans/v0-8-enforcement-control-plan/WORKPACK_INDEX.md",
         "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

@@ -28,7 +28,7 @@ consumption. Current derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 252 | 9 | 210 | 2 | 206 | 0 |
+| 462 | 9 | 0 | 2 | 206 | 0 |
 
 The graph validates at 703 nodes and 703 edges, with 24 migration/dependency
 review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,

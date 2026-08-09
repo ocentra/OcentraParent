@@ -390,7 +390,8 @@ export function classifyWorkpackStatus(statusText) {
   if (value.includes('done') || value.includes('complete') || value.includes('merged')) {
     return 'done';
   }
-  if (value.includes('open') && !value.includes('unknown')) return 'ready';
+  if (value.includes('ready')) return 'ready';
+  if (value.includes('open') && !value.includes('unknown')) return 'planned';
   return 'planned';
 }
 
@@ -427,8 +428,10 @@ async function buildCompletionContract(root, planSlug, workpackPath) {
   const testsText = tests ? await readText(root, tests) : null;
   const expectedProofRoot = declaredProofRoot(testsText, planSlug, workpackPath);
   const durableProofRoot = normalizeRepoPath(path.join('docs', 'proof', planSlug));
-  const proofCandidates = expectedProofRoot !== durableProofRoot ? [expectedProofRoot] : [durableProofRoot];
-  const proof = await firstExisting(root, proofCandidates);
+  // Generated output is an expected artifact, not a portable graph reference:
+  // output/ is ignored and may exist only in one checkout.  Only retain a
+  // durable docs/proof reference in the checked-in graph.
+  const durableProof = expectedProofRoot === durableProofRoot ? await firstExisting(root, [durableProofRoot]) : null;
   const adr = await firstExisting(root, [
     normalizeRepoPath(path.join(planRoot, 'adr')),
     normalizeRepoPath(path.join(planRoot, 'adrs')),
@@ -442,7 +445,7 @@ async function buildCompletionContract(root, planSlug, workpackPath) {
     references: {
       implementation: [workpackPath],
       tests: tests ? [tests] : [],
-      proof: proof ? [proof] : [],
+      proof: durableProof ? [durableProof] : [],
       checklist: checklist ? [checklist] : [],
       adr: adr ? [adr] : [],
     },
@@ -581,7 +584,23 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   for (const workpack of workpacks) {
     edges.push({ from: workpack.parent, to: workpack.id, kind: 'contains', confidence: 'structural' });
   }
-  for (const edge of overrides.edges) edges.push(edge);
+  for (const edge of overrides.edges) {
+    edges.push(edge);
+    if (edge.kind !== 'depends_on') continue;
+    const evidence = Array.isArray(edge.evidence) ? edge.evidence : [];
+    const missingEvidence = evidence.filter((reference) => !pathExistsSync(repoRoot, reference));
+    if (edge.confidence !== 'reviewed' || evidence.length === 0 || missingEvidence.length > 0) {
+      ambiguities.push({
+        scope: `edge:${edge.from}->${edge.to}`,
+        reason: 'Reviewed dependency edges require confidence=reviewed and existing evidence paths.',
+        evidenceGaps: [
+          ...(edge.confidence !== 'reviewed' ? ['confidence must be reviewed'] : []),
+          ...(evidence.length === 0 ? ['evidence is missing'] : []),
+          ...missingEvidence.map((reference) => `missing evidence ${reference}`),
+        ],
+      });
+    }
+  }
 
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
   for (const override of overrides.stateOverrides) {
@@ -589,17 +608,27 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     if (!node || !STATES.has(override.state)) continue;
     const evidence = Array.isArray(override.evidence) ? override.evidence : [];
     const missingEvidence = evidence.filter((reference) => !pathExistsSync(repoRoot, reference));
-    node.state = override.state;
-    node.lifecycleState = override.state;
+    const rejectionReasons = [
+      ...(override.state !== 'validation' ? ['state overrides may only record validation slices'] : []),
+      ...(evidence.length === 0 ? ['evidence is required'] : []),
+      ...missingEvidence.map((reference) => `missing evidence ${reference}`),
+    ];
     node.metadata = {
       ...node.metadata,
       stateOverride: {
         reason: override.reason ?? 'reviewed state override',
         evidence,
       },
-      ...(missingEvidence.length > 0 ? { stateOverrideEvidenceGaps: missingEvidence } : {}),
+      ...(rejectionReasons.length > 0 ? { stateOverrideRejected: rejectionReasons } : {}),
+      ...(rejectionReasons.length > 0 ? { needsReview: true } : {}),
+    };
+    if (rejectionReasons.length > 0) continue;
+    node.state = override.state;
+    node.lifecycleState = override.state;
+    node.metadata = {
+      ...node.metadata,
       ...(override.statusText ? { statusText: override.statusText } : {}),
-      needsReview: missingEvidence.length > 0,
+      needsReview: false,
     };
   }
   for (const override of overrides.proofOverrides) {
@@ -638,15 +667,6 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       },
     };
   }
-  for (const edge of edges.filter((candidate) => candidate.kind === 'depends_on')) {
-    const dependent = nodeById.get(edge.from);
-    const dependency = nodeById.get(edge.to);
-    if (!dependent || !dependency) continue;
-    dependent.dependsOn ??= [];
-    if (!dependent.dependsOn.includes(dependency.id)) dependent.dependsOn.push(dependency.id);
-    if (dependency.state !== 'done') dependent.state = 'blocked';
-  }
-
   // A documented DONE status is only a starting hint.  Recompute it against
   // the completion contract before writing the repo-owned graph so stale
   // checklist prose cannot leave a false DONE node behind.
@@ -663,6 +683,17 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       statusText: `Validation — completion contract gaps: ${gaps.join('; ')}`,
       needsReview: false,
     };
+  }
+
+  // Apply dependency blocking after DONE demotion.  A stale DONE dependency
+  // must become validation before its dependents are derived as blocked.
+  for (const edge of edges.filter((candidate) => candidate.kind === 'depends_on')) {
+    const dependent = nodeById.get(edge.from);
+    const dependency = nodeById.get(edge.to);
+    if (!dependent || !dependency) continue;
+    dependent.dependsOn ??= [];
+    if (!dependent.dependsOn.includes(dependency.id)) dependent.dependsOn.push(dependency.id);
+    if (dependency.state !== 'done') dependent.state = 'blocked';
   }
 
   return {
@@ -861,7 +892,10 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
       }
     }
     if (!node.path) errors.push(`${node.id} is missing path`);
-    else if (!pathExistsSync(root, node.path)) warnings.push(`${node.id} path is missing: ${node.path}`);
+    else if (!pathExistsSync(root, node.path)) {
+      if (node.kind === 'workpack') errors.push(`${node.id} workpack path is missing: ${node.path}`);
+      else warnings.push(`${node.id} path is missing: ${node.path}`);
+    }
     for (const [requirement, references] of Object.entries(node.completion?.references ?? {})) {
       for (const reference of references) {
         if (!pathExistsSync(root, reference))
@@ -891,6 +925,9 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
     for (const reference of node.metadata?.stateOverride?.evidence ?? []) {
       if (!pathExistsSync(root, reference)) errors.push(`${node.id} state override evidence is missing: ${reference}`);
     }
+    for (const reason of node.metadata?.stateOverrideRejected ?? []) {
+      errors.push(`${node.id} state override rejected: ${reason}`);
+    }
     for (const reference of node.metadata?.proofOverride?.evidence ?? []) {
       if (!pathExistsSync(root, reference)) errors.push(`${node.id} proof override evidence is missing: ${reference}`);
     }
@@ -908,6 +945,16 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
       const dependent = map.get(edge.from);
       if (dependent && !(dependent.dependsOn ?? []).includes(edge.to)) {
         errors.push(`${edge.from} has depends_on edge ${edge.to} without a matching dependsOn entry`);
+      }
+      if (edge.confidence !== 'reviewed') {
+        errors.push(`${edge.from} -> ${edge.to} depends_on edge must have confidence=reviewed`);
+      }
+      const evidence = Array.isArray(edge.evidence) ? edge.evidence : [];
+      if (evidence.length === 0) errors.push(`${edge.from} -> ${edge.to} depends_on edge is missing evidence`);
+      for (const reference of evidence) {
+        if (!pathExistsSync(root, reference)) {
+          errors.push(`${edge.from} -> ${edge.to} dependency evidence is missing: ${reference}`);
+        }
       }
     }
   }
@@ -974,6 +1021,18 @@ export function explainBlocked(graph, nodeId, { root = process.cwd() } = {}) {
       gaps.length > 0
         ? `completion contract gaps: ${gaps.join('; ')}`
         : 'completion contract still needs validation evidence'
+    );
+  }
+  if (states.get(node.id) === 'blocked' && reasons.length === 0) {
+    const lifecycleReason =
+      node.metadata?.statusText ??
+      node.metadata?.stateOverride?.reason ??
+      node.metadata?.sourceStatusText ??
+      node.metadata?.stateOverrideRejected?.join('; ');
+    reasons.push(
+      lifecycleReason
+        ? `lifecycle blocker: ${lifecycleReason}`
+        : 'lifecycle blocker: the workpack is marked blocked without a dependency explanation'
     );
   }
   return { node, state: states.get(node.id), reasons };

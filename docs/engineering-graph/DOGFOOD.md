@@ -9,8 +9,8 @@ Imported plans: 23
 Imported workpacks: 679
 Graph valid: 703 nodes, 703 edges
 Review items: 24
-PLANNED: 252
-READY: 210
+PLANNED: 462
+READY: 0
 ACTIVE: 2
 BLOCKED: 9
 VALIDATION: 206
@@ -43,11 +43,12 @@ graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
   WP-policy-control-plane-plan-04-delivery-ack-audit is blocked
 ```
 
-The graph currently exposes 210 READY workpacks, 206 validation workpacks, and
-9 blocked workpacks. Remote WP01, device-trust WP08, and network WP08 are in
-`validation` after focused slices were replayed; all retain explicit
-runtime/no-claim boundaries. The graph therefore tells the next worker which
-work is eligible to claim while keeping validation and blocked work visible.
+The graph currently exposes no READY workpack: 462 remain planned pending
+readiness/dependency review, 206 are in validation, and 9 are blocked. Remote
+WP01, device-trust WP08, and network WP08 are in `validation` after focused
+slices were replayed; all retain explicit runtime/no-claim boundaries. The
+graph therefore refuses to authorize unreviewed `Open` rows while keeping
+validation and blocked work visible.
 Three imported eventing rows that were previously labelled `done` are also now
 `validation`: their durable plan manifest exists, but the generated proof roots
 declared by the workpack contract are absent in this checkout. That is

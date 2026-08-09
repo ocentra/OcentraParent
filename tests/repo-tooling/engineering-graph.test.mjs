@@ -8,10 +8,12 @@ import test from 'node:test';
 import {
   GRAPH_SCHEMA_VERSION,
   buildCodeInventory,
+  buildBootstrapGraph,
   buildProgressReport,
   classifyWorkpackStatus,
   deriveStates,
   completionGaps,
+  explainBlocked,
   graphSourceDrift,
   loadGraph,
   parseWorkpackRows,
@@ -49,7 +51,52 @@ test('workpack status is read from the declared Status or State column', () => {
 
   assert.equal(parseWorkpackRows(statusFirst)[0].statusText, 'Open');
   assert.equal(parseWorkpackRows(statusLast)[0].statusText, 'Complete');
+  assert.equal(classifyWorkpackStatus('Open'), 'planned');
+  assert.equal(classifyWorkpackStatus('Ready'), 'ready');
   assert.equal(classifyWorkpackStatus('Incomplete; not merged'), 'planned');
+});
+
+test('missing workpack paths fail validation instead of authorizing phantom work', () => {
+  const value = graph([workpack('MISSING-PATH', 'ready', { path: 'workpacks/does-not-exist.md' })]);
+  const report = validateGraph(value, { root: repoRoot });
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.some((error) => error.includes('workpack path is missing')));
+});
+
+test('graph why explains lifecycle-only blockers', () => {
+  const value = graph([
+    workpack('LIFECYCLE-BLOCKED', 'blocked', {
+      metadata: { needsReview: false, statusText: 'Waiting for human security decision' },
+    }),
+  ]);
+  const explanation = explainBlocked(value, 'LIFECYCLE-BLOCKED', { root: repoRoot });
+  assert.equal(explanation.state, 'blocked');
+  assert.ok(explanation.reasons.some((reason) => reason.includes('human security decision')));
+});
+
+test('state overrides require an evidenced validation slice', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-overrides-'));
+  await mkdir(path.join(root, 'docs', 'plans', 'example-plan', 'workpacks'), { recursive: true });
+  await mkdir(path.join(root, 'docs', 'engineering-graph'), { recursive: true });
+  await writeFile(
+    path.join(root, 'docs', 'plans', 'example-plan', 'WORKPACK_INDEX.md'),
+    '# Example plan\n\n| Workpack | Status |\n| --- | --- |\n| [01 Example](workpacks/01-example.md) | Open |\n'
+  );
+  await writeFile(path.join(root, 'docs', 'plans', 'example-plan', 'workpacks', '01-example.md'), '# Example\n');
+  await writeFile(
+    path.join(root, 'docs', 'engineering-graph', 'overrides.json'),
+    JSON.stringify({
+      schemaVersion: 1,
+      edges: [],
+      stateOverrides: [{ id: 'WP-example-plan-01-example', state: 'validation', reason: 'missing evidence' }],
+    })
+  );
+
+  const imported = await buildBootstrapGraph({ root });
+  const node = imported.nodes.find((candidate) => candidate.id === 'WP-example-plan-01-example');
+  assert.equal(node.state, 'planned');
+  assert.ok(node.metadata.needsReview);
+  assert.ok(node.metadata.stateOverrideRejected.includes('evidence is required'));
 });
 
 test('graph source drift is actionable', () => {
@@ -149,6 +196,16 @@ test('dependency declarations and edge kinds must agree', () => {
   assert.equal(report.ok, false);
   assert.ok(report.errors.some((error) => error.includes('unsupported kind')));
   assert.ok(report.errors.some((error) => error.includes('matching depends_on')));
+});
+
+test('reviewed dependency edges require existing evidence', () => {
+  const value = graph(
+    [workpack('A', 'ready', { dependsOn: ['B'] }), workpack('B', 'done')],
+    [{ from: 'A', to: 'B', kind: 'depends_on', confidence: 'reviewed' }]
+  );
+  const report = validateGraph(value, { root: repoRoot });
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.some((error) => error.includes('depends_on edge is missing evidence')));
 });
 
 test('failed workpacks propagate to their plan state', () => {
@@ -272,7 +329,8 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.ok(!scoped.some((node) => node.id.startsWith('WP-browser-plan-')));
 
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
-  assert.ok(globalSummary.ready.length > 0);
+  assert.equal(globalSummary.ready.length, 0);
+  assert.ok(globalSummary.blocked.length > 0);
 });
 
 test('progress report joins derived workpack state with reviewed plan topology', async () => {

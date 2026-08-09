@@ -11,6 +11,7 @@ import {
   explainBlocked,
   graphSourceDrift,
   loadGraph,
+  planId,
   relatedNodes,
   scopeNodes,
   summarizeGraph,
@@ -133,7 +134,8 @@ async function run(command, args) {
   if (
     scope &&
     ['status', 'ready', 'next', 'parallel', 'blocked', 'report', 'code'].includes(command) &&
-    !map.has(scope)
+    !map.has(scope) &&
+    !(command === 'code' && map.has(planId(scope)))
   ) {
     console.error(`Unknown graph scope: ${scope}`);
     process.exitCode = 1;
