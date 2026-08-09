@@ -32,6 +32,11 @@ pub(crate) async fn resolve(
         Ok(resolution) => resolution,
         Err(error) => return reject_core_error(request, base_request, error.into()),
     };
+    if let Some(binding) = request.delivery_binding.as_ref() {
+        if let Err(error) = domain::validate_delivery_binding(&resolution.request, binding) {
+            return reject_core_error(request, base_request, error);
+        }
+    }
     let notification_claim_state =
         match policy_control_request_resolution_handoff(resolution.clone()) {
             Ok(_) => PolicyRequestAssistantPreviewConfirmClaimState::Claimed,

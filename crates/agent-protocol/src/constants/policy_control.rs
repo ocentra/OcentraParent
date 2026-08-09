@@ -199,6 +199,18 @@ pub mod request {
     pub const STATUS_REPLAY_REJECTED: &str = "replay-rejected";
 }
 
+pub mod delivery_binding {
+    pub const STATUS_ERROR: &str =
+        "policy_delivery_binding.request_status: approved-or-modified-required";
+    pub const MISMATCH_ERROR: &str = "policy_delivery_binding.{field}: request-binding-mismatch";
+    pub const FIELD_PLACEHOLDER: &str = "{field}";
+    pub const FIELD_HOUSEHOLD_ID: &str = "household_id";
+    pub const FIELD_CHILD_PROFILE_ID: &str = "child_profile_id";
+    pub const FIELD_DEVICE_ID: &str = "device_id";
+    pub const FIELD_SOURCE_DOCUMENT_ID: &str = "source_document_id";
+    pub const FIELD_POLICY_VERSION: &str = "policy_version";
+}
+
 pub mod delivery {
     pub const FIELD_DELIVERY_ID: &str = "policy_delivery.delivery_id";
     pub const FIELD_ATTEMPT_ID: &str = "policy_delivery.attempt_id";

@@ -1,7 +1,10 @@
 use ocentra_eventing::error::EventingError;
-use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
+use ocentra_parent_agent_protocol::constants::{self, policy_control::delivery_binding};
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionRequest;
+use ocentra_parent_agent_protocol::transport::{
+    PolicyRequestParentResolutionDeliveryBinding, PolicyRequestParentResolutionRequest,
+};
 use ocentra_policy_control_core::policy_request::{
     ChildPolicyRequest, ParentPolicyApproval, PolicyApprovalId, PolicyDurationMinutes,
     PolicyRequestTimestamp,
@@ -69,6 +72,57 @@ pub(crate) fn build_parent_policy_approval(
             request.approval_audit_reference_id.clone(),
         )?,
     })
+}
+
+pub(crate) fn validate_delivery_binding(
+    resolved_request: &ChildPolicyRequest,
+    binding: &PolicyRequestParentResolutionDeliveryBinding,
+) -> Result<(), ResolutionError> {
+    if !matches!(
+        resolved_request.status,
+        PolicyRequestStatus::Approved | PolicyRequestStatus::Modified
+    ) {
+        return Err(ResolutionError::from_message(ErrorMessage(
+            delivery_binding::STATUS_ERROR.to_string(),
+        )));
+    }
+    if binding.household_id != resolved_request.household_id.as_str() {
+        return Err(binding_mismatch(FieldName(
+            delivery_binding::FIELD_HOUSEHOLD_ID,
+        )));
+    }
+    if binding.child_profile_id != resolved_request.child_profile_id.as_str() {
+        return Err(binding_mismatch(FieldName(
+            delivery_binding::FIELD_CHILD_PROFILE_ID,
+        )));
+    }
+    if binding.device_id.as_deref()
+        != resolved_request
+            .device_id
+            .as_ref()
+            .map(|value| value.as_str())
+    {
+        return Err(binding_mismatch(FieldName(
+            delivery_binding::FIELD_DEVICE_ID,
+        )));
+    }
+    if binding.source_document_id != resolved_request.source_document_id.as_str() {
+        return Err(binding_mismatch(FieldName(
+            delivery_binding::FIELD_SOURCE_DOCUMENT_ID,
+        )));
+    }
+    if binding.policy_version != u64::from(resolved_request.policy_version) {
+        return Err(binding_mismatch(FieldName(
+            delivery_binding::FIELD_POLICY_VERSION,
+        )));
+    }
+    Ok(())
+}
+
+fn binding_mismatch(field: FieldName) -> ResolutionError {
+    ResolutionError::from_message(ErrorMessage(
+        delivery_binding::MISMATCH_ERROR.replace(delivery_binding::FIELD_PLACEHOLDER, field.0),
+    ))
 }
 
 fn canonical_request(
