@@ -29,6 +29,7 @@ use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfi
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmResultState;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmTargetKind;
 use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionDecision;
+use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionDeliveryBinding;
 use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionRequest;
 use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionResult;
 use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionResultState;
@@ -344,6 +345,27 @@ async fn policy_request_parent_resolution_reconstructs_confirmed_request_and_rep
             Some("replayed-resolution")
         );
 
+        let mut mismatched_request = resolution_request.clone();
+        mismatched_request
+            .delivery_binding
+            .as_mut()
+            .expect("delivery binding fixture")
+            .household_id = "another-household".to_string();
+        let mismatched_event =
+            handle_local_command_text_for_test(crate::test_text::TestText::from_display(
+                serde_json::to_string(&parent_resolution_command_envelope(&mismatched_request)?)?,
+            ))
+            .await;
+        let mismatched_result = parent_resolution_result(&mismatched_event)?;
+        assert_eq!(
+            mismatched_result.result_state,
+            PolicyRequestParentResolutionResultState::Rejected
+        );
+        assert_eq!(
+            mismatched_result.rejection_reason.as_deref(),
+            Some("policy_delivery_binding.household_id: request-binding-mismatch")
+        );
+
         Ok(())
     }
     .await;
@@ -425,6 +447,13 @@ fn default_parent_resolution_request() -> PolicyRequestParentResolutionRequest {
         override_expires_at: Some("2026-06-18T00:30:00Z".to_string()),
         decided_at: "2026-06-18T00:10:00Z".to_string(),
         approval_audit_reference_id: "audit.policy-request.resolved".to_string(),
+        delivery_binding: Some(PolicyRequestParentResolutionDeliveryBinding {
+            household_id: "family-local".to_string(),
+            child_profile_id: "child-profile-1".to_string(),
+            device_id: Some(constants::peer::LOCAL_DEV_AGENT.to_string()),
+            source_document_id: "policy-document-1".to_string(),
+            policy_version: 1,
+        }),
     }
 }
 

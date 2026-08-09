@@ -635,6 +635,17 @@ pub enum PolicyRequestParentResolutionResultState {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PolicyRequestParentResolutionDeliveryBinding {
+    /// Identity assertions only; this does not grant adapter execution authority.
+    pub household_id: String,
+    pub child_profile_id: String,
+    pub device_id: Option<String>,
+    pub source_document_id: String,
+    pub policy_version: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct PolicyRequestParentResolutionRequest {
     pub schema_version: u16,
     pub command_id: String,
@@ -649,6 +660,8 @@ pub struct PolicyRequestParentResolutionRequest {
     pub override_expires_at: Option<String>,
     pub decided_at: String,
     pub approval_audit_reference_id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delivery_binding: Option<PolicyRequestParentResolutionDeliveryBinding>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
