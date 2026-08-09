@@ -376,6 +376,82 @@ async fn policy_request_parent_resolution_reconstructs_confirmed_request_and_rep
 }
 
 #[tokio::test]
+async fn policy_request_parent_resolution_persists_denial_audit_without_override() -> TestResult {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path("policy-request-resolution-denied");
+    cleanup_path(&store_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+
+    let test_result: TestResult = async {
+        let confirmation_body = serde_json::to_string(&command_envelope(
+            &default_policy_request_assistant_preview_confirm_request(),
+        )?)?;
+        let _confirmation = handle_local_command_text_for_test(
+            crate::test_text::TestText::from_display(confirmation_body),
+        )
+        .await;
+
+        let mut resolution_request = default_parent_resolution_request();
+        resolution_request.command_id =
+            "policy-request-parent-resolution-denied-command".to_string();
+        resolution_request.approval_id = "approval-denied".to_string();
+        resolution_request.decision = PolicyRequestParentResolutionDecision::Deny;
+        resolution_request.approved_action = None;
+        resolution_request.override_expires_at = None;
+        resolution_request.approval_audit_reference_id = "audit.policy-request.denied".to_string();
+        resolution_request.delivery_binding = None;
+
+        let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(
+            serde_json::to_string(&parent_resolution_command_envelope(&resolution_request)?)?,
+        ))
+        .await;
+        let result = parent_resolution_result(&event)?;
+
+        assert_eq!(
+            event.event,
+            AgentEventName::AgentPolicyRequestParentResolutionResolved
+        );
+        assert_eq!(
+            result.result_state,
+            PolicyRequestParentResolutionResultState::Resolved
+        );
+        assert_eq!(result.policy_request_status, PolicyRequestStatus::Denied);
+        assert_eq!(result.request_id.as_deref(), Some("policy-request-1"));
+        assert_eq!(
+            result.resolved_approval_id.as_deref(),
+            Some("approval-denied")
+        );
+        assert_eq!(result.temporary_override_id, None);
+
+        let store = ActivityStore::open(&store_path)
+            .map_err(|error| IoError::other(format!("activity store opens: {error:?}")))?;
+        let resolution_fields = store
+            .enforcement_audit_fields_by_event_id("audit.policy-request.denied")
+            .map_err(|error| IoError::other(format!("activity fields query: {error:?}")))?
+            .ok_or_else(|| IoError::other(constants::error::ACTIVITY_STORE_QUERIES))?;
+        assert_eq!(
+            resolution_fields.get(constants::field::POLICY_REQUEST_STATUS),
+            Some(&LogFieldValue::String(
+                constants::policy_control::request::STATUS_DENIED.to_string(),
+            ))
+        );
+        assert!(resolution_fields
+            .get(constants::policy_control::request::FIELD_CANONICAL_RESOLVED_REQUEST_JSON)
+            .is_some());
+        assert!(resolution_fields
+            .get(constants::policy_control::request::FIELD_CANONICAL_TEMPORARY_OVERRIDE_JSON)
+            .is_none());
+
+        Ok(())
+    }
+    .await;
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+    test_result
+}
+
+#[tokio::test]
 async fn policy_request_parent_resolution_rejects_missing_confirmed_audit() -> TestResult {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let store_path = temp_path("policy-request-resolution-missing");
