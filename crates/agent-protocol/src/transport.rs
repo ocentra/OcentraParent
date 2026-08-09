@@ -211,6 +211,8 @@ pub enum AgentCommandName {
     AgentPolicyPreviewReadModelGet,
     #[serde(rename = "agent.policy.request.assistant-preview.confirm")]
     AgentPolicyRequestAssistantPreviewConfirm,
+    #[serde(rename = "agent.policy.request.parent-resolution.resolve")]
+    AgentPolicyRequestParentResolutionResolve,
     #[serde(rename = "agent.browser-policy.get")]
     AgentBrowserPolicyGet,
     #[serde(rename = "agent.browser-policy.preview")]
@@ -405,6 +407,8 @@ pub enum AgentEventName {
     AgentPolicyPreviewReadModelReported,
     #[serde(rename = "agent.policy.request.assistant-preview.confirm.reported")]
     AgentPolicyRequestAssistantPreviewConfirmReported,
+    #[serde(rename = "agent.policy.request.parent-resolution.resolved")]
+    AgentPolicyRequestParentResolutionResolved,
     #[serde(rename = "agent.browser-policy.reported")]
     AgentBrowserPolicyReported,
     #[serde(rename = "agent.browser-policy.previewed")]
@@ -606,6 +610,66 @@ pub struct PolicyRequestAssistantPreviewConfirmResult {
     pub child_device_delivery_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
     pub provider_delivery_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
     pub platform_enforcement_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub product_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestParentResolutionDecision {
+    #[serde(rename = "grant")]
+    Grant,
+    #[serde(rename = "deny")]
+    Deny,
+    #[serde(rename = "modify")]
+    Modify,
+    #[serde(rename = "expire")]
+    Expire,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PolicyRequestParentResolutionResultState {
+    #[serde(rename = "resolved")]
+    Resolved,
+    #[serde(rename = "rejected")]
+    Rejected,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PolicyRequestParentResolutionRequest {
+    pub schema_version: u16,
+    pub command_id: String,
+    pub confirmed_audit_reference_id: String,
+    pub approval_id: String,
+    pub parent_actor_id: String,
+    pub parent_actor_role: PolicyRequestAssistantPreviewConfirmActorRole,
+    pub parent_actor_state: PolicyRequestAssistantPreviewConfirmActorState,
+    pub decision: PolicyRequestParentResolutionDecision,
+    pub approved_action: Option<PolicyRequestAssistantPreviewConfirmAction>,
+    pub approved_bonus_minutes: Option<u16>,
+    pub override_expires_at: Option<String>,
+    pub decided_at: String,
+    pub approval_audit_reference_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct PolicyRequestParentResolutionResult {
+    pub schema_version: u16,
+    pub command_id: String,
+    pub confirmed_audit_reference_id: String,
+    pub request_id: Option<String>,
+    pub result_state: PolicyRequestParentResolutionResultState,
+    pub policy_request_status: PolicyPreviewRequestStatusValue,
+    pub resolved_approval_id: Option<String>,
+    pub temporary_override_id: Option<String>,
+    pub resolved_at: Option<String>,
+    pub rejection_reason: Option<String>,
+    pub command_transport_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub service_validation_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub activity_store_lookup_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub policy_resolution_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub notification_handoff_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
+    pub child_device_delivery_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
     pub product_claim_state: PolicyRequestAssistantPreviewConfirmClaimState,
 }
 
