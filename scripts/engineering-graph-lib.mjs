@@ -6,6 +6,36 @@ import prettier from 'prettier';
 export const GRAPH_SCHEMA_VERSION = 1;
 export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
 export const OVERRIDES_PATH = 'docs/engineering-graph/overrides.json';
+export const CODE_MAP_PATH = 'docs/engineering-graph/code-map.json';
+
+const CODE_EXTENSIONS = new Set([
+  '.c',
+  '.cc',
+  '.cpp',
+  '.cs',
+  '.dart',
+  '.go',
+  '.java',
+  '.js',
+  '.jsx',
+  '.kt',
+  '.kts',
+  '.mjs',
+  '.rs',
+  '.swift',
+  '.ts',
+  '.tsx',
+]);
+const IGNORED_CODE_DIRECTORIES = new Set([
+  '.git',
+  '.next',
+  'build',
+  'coverage',
+  'dist',
+  'node_modules',
+  'target',
+  'test-results',
+]);
 
 const NODE_KINDS = new Set(['goal', 'plan', 'workpack']);
 const STATES = new Set(['planned', 'blocked', 'ready', 'active', 'validation', 'done', 'failed', 'paused']);
@@ -45,6 +75,98 @@ async function readText(root, relativePath) {
     if (error?.code === 'ENOENT') return null;
     throw error;
   }
+}
+
+export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
+  const text = await readText(root, codeMapPath);
+  if (!text) throw new Error(`Code map is missing: ${codeMapPath}`);
+  const map = JSON.parse(text);
+  if (map?.schemaVersion !== 1 || !map?.plans || typeof map.plans !== 'object') {
+    throw new Error(`${codeMapPath} must declare schemaVersion 1 and a plans object`);
+  }
+  return map;
+}
+
+function isTestPath(relativePath) {
+  const normalized = normalizeRepoPath(relativePath).toLowerCase();
+  const basename = path.basename(normalized);
+  return (
+    normalized.split('/').some((part) => ['test', 'tests', '__tests__', 'spec', 'specs'].includes(part)) ||
+    /(?:\.test|\.spec|_test)(?:\.[^.]+)+$/.test(basename) ||
+    /^(?:test[-_]|spec[-_])/.test(basename)
+  );
+}
+
+async function walkCodeFiles(root, relativeDirectory) {
+  const files = [];
+  async function visit(relativePath) {
+    const absolutePath = path.join(root, relativePath);
+    let entries;
+    try {
+      entries = await readdir(absolutePath, { withFileTypes: true });
+    } catch (error) {
+      if (error?.code === 'ENOENT') return;
+      throw error;
+    }
+    for (const entry of entries) {
+      if (entry.isDirectory() && IGNORED_CODE_DIRECTORIES.has(entry.name)) continue;
+      const child = normalizeRepoPath(path.join(relativePath, entry.name));
+      if (entry.isDirectory()) {
+        await visit(child);
+        continue;
+      }
+      if (entry.isFile() && CODE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) {
+        files.push(child);
+      }
+    }
+  }
+  await visit(normalizeRepoPath(relativeDirectory));
+  return files;
+}
+
+export async function buildCodeInventory({ root = process.cwd(), codeMapPath = CODE_MAP_PATH, scope } = {}) {
+  const codeMap = await loadCodeMap(root, codeMapPath);
+  const selected = Object.entries(codeMap.plans).filter(
+    ([planSlug]) => !scope || planId(planSlug) === scope || planSlug === scope
+  );
+  const plans = [];
+  for (const [planSlug, roots] of selected) {
+    const uniqueRoots = [...new Set(roots.map(normalizeRepoPath))];
+    const missingRoots = uniqueRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
+    const files = [];
+    for (const relativePath of uniqueRoots.filter((candidate) => !missingRoots.includes(candidate))) {
+      files.push(...(await walkCodeFiles(root, relativePath)));
+    }
+    const uniqueFiles = [...new Set(files)].sort();
+    const testFiles = uniqueFiles.filter(isTestPath);
+    const implementationFiles = uniqueFiles.filter((file) => !isTestPath(file));
+    const state =
+      implementationFiles.length === 0 ? 'no-source' : testFiles.length === 0 ? 'source-only' : 'code-and-tests';
+    plans.push({
+      planId: planId(planSlug),
+      planSlug,
+      roots: uniqueRoots,
+      missingRoots,
+      state,
+      codeFiles: uniqueFiles.length,
+      implementationFiles: implementationFiles.length,
+      testFiles: testFiles.length,
+      implementationPaths: implementationFiles,
+      testPaths: testFiles,
+    });
+  }
+  return {
+    schemaVersion: codeMap.schemaVersion,
+    authority: codeMap.authority,
+    codeMapPath,
+    plans,
+    totals: {
+      plans: plans.length,
+      codeFiles: plans.reduce((total, plan) => total + plan.codeFiles, 0),
+      implementationFiles: plans.reduce((total, plan) => total + plan.implementationFiles, 0),
+      testFiles: plans.reduce((total, plan) => total + plan.testFiles, 0),
+    },
+  };
 }
 
 async function pathExists(root, relativePath) {

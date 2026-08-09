@@ -14,6 +14,9 @@ does not replace those artifacts or duplicate their detailed intent.
   by the selected workpack; ADRs own architectural decisions.
 - `AGENTS.md` and the routed agent documents own execution behavior and safety.
 - The user remains the authority for unresolved product or scope decisions.
+- `code-map.json` owns reviewed plan-to-runtime ownership roots. `graph:code`
+  scans those roots live and reports implementation/test topology; file counts
+  never promote a plan or workpack to accepted.
 
 ## Commands
 
@@ -21,6 +24,8 @@ does not replace those artifacts or duplicate their detailed intent.
 npm run graph:bootstrap             # preview the import
 npm run graph:bootstrap -- --write # rebuild graph.json from docs/plans
 npm run graph:validate
+npm run graph:code
+npm run graph:code -- PLAN-policy-control-plane-plan
 npm run graph:status
 npm run graph:ready
 npm run graph:parallel
@@ -36,6 +41,12 @@ Use a plan or goal ID as a scope for `status`, `ready`, `parallel`, and
 `blocked`. `parallel` is the deterministic set of independent workpacks whose
 derived state is READY; when it is empty, the graph is not authorizing new
 work.
+
+`graph:code` accepts a plan ID or plan slug and answers the code-first question:
+which reviewed runtime roots exist, how many implementation files are present,
+and how many test files are present. It is intentionally a topology audit, not
+a test runner or a completion certificate; focused test results, proof, CI,
+checklists, and merge state remain separate gates.
 
 ## Import policy
 

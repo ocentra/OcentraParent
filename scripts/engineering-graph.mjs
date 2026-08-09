@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   GRAPH_PATH,
+  buildCodeInventory,
   buildBootstrapGraph,
   deriveStates,
   explainBlocked,
@@ -24,6 +25,7 @@ Usage:
   npm run graph:bootstrap                 Preview imported graph counts
   npm run graph:bootstrap -- --write      Rebuild docs/engineering-graph/graph.json
   npm run graph:status [scope-id]
+  npm run graph:code [scope-id]
   npm run graph:ready [scope-id]
   npm run graph:parallel [scope-id]
   npm run graph:next [scope-id]
@@ -111,6 +113,23 @@ async function run(command, args) {
     console.log(
       `Imported ${graph.migration.importedPlans} plans and ${graph.migration.importedWorkpacks} workpacks; ${graph.migration.ambiguities.length} review items remain.`
     );
+    return;
+  }
+
+  if (command === 'code') {
+    const inventory = await buildCodeInventory({ root, scope: args[0] });
+    console.log(`Code map: ${inventory.codeMapPath}`);
+    console.log(`Plans: ${inventory.totals.plans}`);
+    console.log(`Implementation files: ${inventory.totals.implementationFiles}`);
+    console.log(`Test files: ${inventory.totals.testFiles}`);
+    console.log('\nPlan code/test topology:');
+    for (const plan of inventory.plans) {
+      const missing = plan.missingRoots.length ? ` missing=${plan.missingRoots.join(',')}` : '';
+      console.log(
+        `${plan.planId} [${plan.state}] implementation=${plan.implementationFiles} tests=${plan.testFiles} roots=${plan.roots.length}${missing}`
+      );
+    }
+    console.log('\nCounts are live file topology only; they do not claim acceptance, proof, CI, or merge.');
     return;
   }
 

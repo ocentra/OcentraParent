@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
+import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
+import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 
 import {
   GRAPH_SCHEMA_VERSION,
+  buildCodeInventory,
   deriveStates,
   completionGaps,
   loadGraph,
@@ -152,6 +155,34 @@ test('missing expected artifacts demote stale DONE to validation', () => {
   const report = validateGraph(value, { root: repoRoot });
   assert.equal(report.ok, false);
   assert.ok(report.errors.some((error) => error.includes('missing expected artifact')));
+});
+
+test('code inventory reports implementation and test topology without claiming acceptance', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-'));
+  await mkdir(path.join(root, 'crates', 'example', 'src'), { recursive: true });
+  await mkdir(path.join(root, 'crates', 'example', 'tests'), { recursive: true });
+  await mkdir(path.join(root, 'docs', 'engineering-graph'), { recursive: true });
+  await writeFile(path.join(root, 'crates', 'example', 'src', 'lib.rs'), 'pub fn value() {}\n');
+  await writeFile(path.join(root, 'crates', 'example', 'tests', 'unit.rs'), '#[test] fn value() {}\n');
+  await writeFile(
+    path.join(root, 'docs', 'engineering-graph', 'code-map.json'),
+    JSON.stringify({
+      schemaVersion: 1,
+      authority: 'test map',
+      plans: { 'example-plan': ['crates/example'] },
+    })
+  );
+
+  const inventory = await buildCodeInventory({ root });
+  assert.deepEqual(inventory.totals, {
+    plans: 1,
+    codeFiles: 2,
+    implementationFiles: 1,
+    testFiles: 1,
+  });
+  assert.equal(inventory.plans[0].state, 'code-and-tests');
+  assert.deepEqual(inventory.plans[0].missingRoots, []);
+  assert.deepEqual(inventory.plans[0].testPaths, ['crates/example/tests/unit.rs']);
 });
 
 test('repository bootstrap is queryable and keeps plan scope isolated', async () => {
