@@ -40,3 +40,11 @@ WP01 capability fabric -> WP04 pairing/standing grants -> WP02 live-screen relay
 - [ ] Define revoke/remove-device/reconnect/crash-recovery semantics.
 - [ ] Define retention/export/delete boundary for remote artifacts and diagnostics.
 - [ ] Define abuse/security proof matrix and route sync.
+
+## Latest code/test checkpoint (2026-08-09)
+
+WP01's narrow Rust contract is locally validated and recorded in
+`docs/proof/remote-access-plan/slice-01-capability-fabric.md`. Continue with
+the runtime-owned gaps in the ordered queue: pairing/standing grants (WP04),
+live relay/session behavior (WP02), relay abuse controls (WP05), then rollout
+proof (WP06). Keep remote input/control deferred.

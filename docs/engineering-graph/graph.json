@@ -9550,7 +9550,7 @@
             "docs/plans/app-plan/workpacks/02-source-index-and-doc-reconciliation.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9584,7 +9584,7 @@
             "docs/plans/app-plan/workpacks/03-current-app-snapshot-and-gap-map.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9616,7 +9616,7 @@
             "docs/plans/app-plan/workpacks/04-app-identity-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9648,7 +9648,7 @@
             "docs/plans/app-plan/workpacks/05-installed-app-inventory-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9680,7 +9680,7 @@
             "docs/plans/app-plan/workpacks/06-windows-installed-app-inventory-adapter.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9714,7 +9714,7 @@
             "docs/plans/app-plan/workpacks/07-windows-store-uwp-appx-inventory-adapter.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9748,7 +9748,7 @@
             "docs/plans/app-plan/workpacks/08-windows-process-runtime-evidence-adapter.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9782,7 +9782,7 @@
             "docs/plans/app-plan/workpacks/09-windows-foreground-app-evidence-adapter.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9816,7 +9816,7 @@
             "docs/plans/app-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9850,7 +9850,7 @@
             "docs/plans/app-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9884,7 +9884,7 @@
             "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9918,7 +9918,7 @@
             "docs/plans/app-plan/workpacks/103-timer-service-read-model-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9952,7 +9952,7 @@
             "docs/plans/app-plan/workpacks/104-timer-service-event-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -9984,7 +9984,7 @@
             "docs/plans/app-plan/workpacks/105-timer-service-read-api-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10016,7 +10016,7 @@
             "docs/plans/app-plan/workpacks/106-timer-service-read-api-response-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10050,7 +10050,7 @@
             "docs/plans/app-plan/workpacks/107-timer-service-read-api-response-consumer-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10084,7 +10084,7 @@
             "docs/plans/app-plan/workpacks/108-timer-service-read-api-response-consumer-parent-surface-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10118,7 +10118,7 @@
             "docs/plans/app-plan/workpacks/10-cross-platform-authority-matrix.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10150,7 +10150,7 @@
             "docs/plans/app-plan/workpacks/11-app-category-and-risk-taxonomy.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10182,7 +10182,7 @@
             "docs/plans/app-plan/workpacks/12-app-sessionization-and-duration-engine.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10216,7 +10216,7 @@
             "docs/plans/app-plan/workpacks/13-journal-and-sqlite-app-ingest.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10248,7 +10248,7 @@
             "docs/plans/app-plan/workpacks/14-app-read-models-and-service-events.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10282,7 +10282,7 @@
             "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10316,7 +10316,7 @@
             "docs/plans/app-plan/workpacks/16-new-app-and-unknown-app-approval-flow.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10350,7 +10350,7 @@
             "docs/plans/app-plan/workpacks/17-risk-app-detection.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10382,7 +10382,7 @@
             "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10416,7 +10416,7 @@
             "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10450,7 +10450,7 @@
             "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10484,7 +10484,7 @@
             "docs/plans/app-plan/workpacks/21-windows-owned-process-terminate-time-limit-proof.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10518,7 +10518,7 @@
             "docs/plans/app-plan/workpacks/22-broad-blocking-proof-gates.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10550,7 +10550,7 @@
             "docs/plans/app-plan/workpacks/23-app-ai-classifier-digest-boundary.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10584,7 +10584,7 @@
             "docs/plans/app-plan/workpacks/24-platform-extension-checklist-and-proof-routing.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10618,7 +10618,7 @@
             "docs/plans/app-plan/workpacks/25-install-and-uninstall-approval-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10652,7 +10652,7 @@
             "docs/plans/app-plan/workpacks/26-performance-and-service-health.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10684,7 +10684,7 @@
             "docs/plans/app-plan/workpacks/27-e2e-and-manual-proof-artifacts.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10716,7 +10716,7 @@
             "docs/plans/app-plan/workpacks/28-rollout-checklist-and-pr-gate.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10748,7 +10748,7 @@
             "docs/plans/app-plan/workpacks/29-rust-protocol-evidence-identity-parity.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10782,7 +10782,7 @@
             "docs/plans/app-plan/workpacks/30-rust-protocol-authority-classifier-parity.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10816,7 +10816,7 @@
             "docs/plans/app-plan/workpacks/31-journal-sqlite-authority-classifier-storage.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10850,7 +10850,7 @@
             "docs/plans/app-plan/workpacks/32-live-process-snapshot-source.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10882,7 +10882,7 @@
             "docs/plans/app-plan/workpacks/33-live-process-journal-sqlite-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10916,7 +10916,7 @@
             "docs/plans/app-plan/workpacks/34-service-capture-app-game-live-process-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10950,7 +10950,7 @@
             "docs/plans/app-plan/workpacks/35-service-app-game-recurring-freshness.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -10984,7 +10984,7 @@
             "docs/plans/app-plan/workpacks/36-live-foreground-window-source.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11016,7 +11016,7 @@
             "docs/plans/app-plan/workpacks/37-service-foreground-capture-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11050,7 +11050,7 @@
             "docs/plans/app-plan/workpacks/38-service-authority-classifier-surface-evidence.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11084,7 +11084,7 @@
             "docs/plans/app-plan/workpacks/39-authority-classifier-read-model-counts.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11118,7 +11118,7 @@
             "docs/plans/app-plan/workpacks/40-app-game-boundary-read-model-event.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11152,7 +11152,7 @@
             "docs/plans/app-plan/workpacks/41-live-windows-inventory-source.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11184,7 +11184,7 @@
             "docs/plans/app-plan/workpacks/42-service-windows-inventory-capture-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11218,7 +11218,7 @@
             "docs/plans/app-plan/workpacks/43-live-windows-store-package-source.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11252,7 +11252,7 @@
             "docs/plans/app-plan/workpacks/44-service-windows-store-package-capture-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11286,7 +11286,7 @@
             "docs/plans/app-plan/workpacks/45-live-windows-registry-inventory-source.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11320,7 +11320,7 @@
             "docs/plans/app-plan/workpacks/46-service-windows-registry-capture-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11354,7 +11354,7 @@
             "docs/plans/app-plan/workpacks/47-backend-source-freshness-read-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11388,7 +11388,7 @@
             "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11420,7 +11420,7 @@
             "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11452,7 +11452,7 @@
             "docs/plans/app-plan/workpacks/53-notification-intent-contract.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11484,7 +11484,7 @@
             "docs/plans/app-plan/workpacks/54-policy-readiness-portal-renderer.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11516,7 +11516,7 @@
             "docs/plans/app-plan/workpacks/56-notification-service-read-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11548,7 +11548,7 @@
             "docs/plans/app-plan/workpacks/58-notification-local-outbox-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11580,7 +11580,7 @@
             "docs/plans/app-plan/workpacks/59-notification-scheduler-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11612,7 +11612,7 @@
             "docs/plans/app-plan/workpacks/60-notification-audit-history-bridge.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11646,7 +11646,7 @@
             "docs/plans/app-plan/workpacks/61-notification-provider-preflight.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11678,7 +11678,7 @@
             "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11712,7 +11712,7 @@
             "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11746,7 +11746,7 @@
             "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11780,7 +11780,7 @@
             "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11814,7 +11814,7 @@
             "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11848,7 +11848,7 @@
             "docs/plans/app-plan/workpacks/67-notification-parent-surface-renderer.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11882,7 +11882,7 @@
             "docs/plans/app-plan/workpacks/74-source-freshness-policy-consumption.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11916,7 +11916,7 @@
             "docs/plans/app-plan/workpacks/75-source-freshness-preview-gate.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11948,7 +11948,7 @@
             "docs/plans/app-plan/workpacks/76-source-gated-policy-preview-read-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -11982,7 +11982,7 @@
             "docs/plans/app-plan/workpacks/78-source-gated-policy-preview-timer-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12016,7 +12016,7 @@
             "docs/plans/app-plan/workpacks/79-source-gated-policy-preview-timer-status.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12050,7 +12050,7 @@
             "docs/plans/app-plan/workpacks/81-source-gated-policy-preview-timer-runtime-readiness.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12084,7 +12084,7 @@
             "docs/plans/app-plan/workpacks/82-source-gated-policy-preview-timer-scheduler-persistence.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12118,7 +12118,7 @@
             "docs/plans/app-plan/workpacks/83-source-gated-policy-preview-timer-audit-rollback-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12152,7 +12152,7 @@
             "docs/plans/app-plan/workpacks/84-source-gated-policy-preview-timer-audit-rollback-read-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12186,7 +12186,7 @@
             "docs/plans/app-plan/workpacks/85-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12220,7 +12220,7 @@
             "docs/plans/app-plan/workpacks/86-source-gated-policy-preview-timer-service-readiness-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12254,7 +12254,7 @@
             "docs/plans/app-plan/workpacks/87-source-gated-policy-preview-timer-service-readiness-read-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12288,7 +12288,7 @@
             "docs/plans/app-plan/workpacks/88-source-gated-policy-preview-timer-service-readiness-protocol-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12322,7 +12322,7 @@
             "docs/plans/app-plan/workpacks/89-source-gated-policy-preview-timer-service-readiness-protocol-read-model.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12356,7 +12356,7 @@
             "docs/plans/app-plan/workpacks/90-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12390,7 +12390,7 @@
             "docs/plans/app-plan/workpacks/91-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12424,7 +12424,7 @@
             "docs/plans/app-plan/workpacks/92-source-gated-policy-preview-timer-service-readiness-read-api-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12458,7 +12458,7 @@
             "docs/plans/app-plan/workpacks/93-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12492,7 +12492,7 @@
             "docs/plans/app-plan/workpacks/94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12526,7 +12526,7 @@
             "docs/plans/app-plan/workpacks/95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12560,7 +12560,7 @@
             "docs/plans/app-plan/workpacks/96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12594,7 +12594,7 @@
             "docs/plans/app-plan/workpacks/97-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12628,7 +12628,7 @@
             "docs/plans/app-plan/workpacks/98-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -12662,7 +12662,7 @@
             "docs/plans/app-plan/workpacks/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.md"
           ],
           "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/app-plan"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15178,7 +15178,7 @@
             "docs/plans/eventing-plan/workpacks/01-source-boundary-and-semantics-audit.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15212,7 +15212,7 @@
             "docs/plans/eventing-plan/workpacks/02-crate-contract-and-type-boundary.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15246,7 +15246,7 @@
             "docs/plans/eventing-plan/workpacks/03-dispatch-runtime-and-lifecycle.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15280,7 +15280,7 @@
             "docs/plans/eventing-plan/workpacks/04-queue-idempotency-dead-letter.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15314,7 +15314,7 @@
             "docs/plans/eventing-plan/workpacks/05-request-response-contracts.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15346,7 +15346,7 @@
             "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15378,7 +15378,7 @@
             "docs/plans/eventing-plan/workpacks/07-parent-protocol-event-contracts.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15412,7 +15412,7 @@
             "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15444,7 +15444,7 @@
             "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15478,7 +15478,7 @@
             "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md"
           ],
           "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/eventing-plan"],
+          "proof": [],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15501,7 +15501,11 @@
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "Proof complete: the scoped WP11 proof roots exist locally under output/eventing-plan-proof/63-type-safety-source-gate/, 66-76-source-safety/, 67-lock-await/, and 68-fixture-parity/, while package-wide @ocentra-parent/agent-protocol-domain type-check, focused policy-control-audit-redaction.test.ts / policy-control-delivery-read-model.test.ts / contracts.test.ts, and the touched-file lint:architecture gate all pass.",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "proofOverride": {
+          "reason": "The durable eventing plan manifest explicitly records WP11 proof roots and validation; the generic plan root is not inferred for siblings.",
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15535,7 +15539,11 @@
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "Proof complete: docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md, output/eventing-plan-proof/rollout-proof/proof-summary.json, test-results/eventing-rollout-proof/proof.json, and output/eventing-plan-proof/rollout-proof/pr-done-report.md reconcile the route docs to the current open-state truth.",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "proofOverride": {
+          "reason": "The durable eventing plan manifest explicitly records the WP12 route-proof bundle and its validation; the generic plan root is not inferred for siblings.",
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15567,7 +15575,11 @@
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "Proof complete: output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json plus test-results/eventing-test-folder-layout-regression-audit/proof.json; no local src/tests path or src/lib.rs test shim remains.",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "proofOverride": {
+          "reason": "The durable eventing plan manifest explicitly records the WP13 regression audit and proof roots; the generic plan root is not inferred for siblings.",
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15920,7 +15932,7 @@
             "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15954,7 +15966,7 @@
             "docs/plans/network-plan/workpacks/02-passive-capture-and-parsing.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -15986,7 +15998,7 @@
             "docs/plans/network-plan/workpacks/03-classification-and-correlation.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -16020,7 +16032,7 @@
             "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -16054,7 +16066,7 @@
             "docs/plans/network-plan/workpacks/05-intervention-adapter-proof-gates.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -16088,7 +16100,7 @@
             "docs/plans/network-plan/workpacks/06-analyzer-ai-audit-and-risk-budget.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -16122,7 +16134,7 @@
             "docs/plans/network-plan/workpacks/07-performance-security-rollout.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -16154,7 +16166,7 @@
             "docs/plans/network-plan/workpacks/08-control-catalog-reference-routing.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/network-plan"],
+          "proof": [],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -17988,14 +18000,21 @@
       "path": "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md",
       "parent": "PLAN-remote-access-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "remote-access-plan",
         "indexPath": "docs/plans/remote-access-plan/WORKPACK_INDEX.md",
-        "statusText": "Open — Rust capability-fabric contract and focused schema tests exist; pairing/relay/device-trust/session runtime and retained proof remain open",
+        "statusText": "Validation — view-only capability contract and focused tests are current; runtime lifecycle and integration remain open.",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "stateOverride": {
+          "reason": "Rust-owned view-only capability contract and focused negative tests are current; relay, pairing lifecycle, device-trust integration, custody, CI, review, and main merge remain open.",
+          "evidence": [
+            "docs/proof/remote-access-plan/slice-01-capability-fabric.md",
+            "output/remote-access-plan-proof/01-remote-capability-fabric/16-validation-commands.log"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18004,7 +18023,9 @@
             "docs/plans/remote-access-plan/workpacks/01-remote-capability-fabric.md"
           ],
           "tests": ["docs/plans/remote-access-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": [
+            "output/remote-access-plan-proof/01-remote-capability-fabric"
+          ],
           "checklist": ["docs/plans/remote-access-plan/CHECKLIST_INDEX.md"],
           "adr": []
         },
@@ -18564,7 +18585,7 @@
             "docs/plans/screen-plan/workpacks/04-parent-opt-in-settings-contract.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18598,7 +18619,7 @@
             "docs/plans/screen-plan/workpacks/10-macos-capture-adapter-plan-proof.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18632,7 +18653,7 @@
             "docs/plans/screen-plan/workpacks/11-linux-capture-adapter-plan-proof.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18666,7 +18687,7 @@
             "docs/plans/screen-plan/workpacks/17-local-ocr-vision-runtime-model.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18700,7 +18721,7 @@
             "docs/plans/screen-plan/workpacks/19-sensitive-text-and-redaction-model.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18734,7 +18755,7 @@
             "docs/plans/screen-plan/workpacks/24-enforcement-handoff-guard.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18766,7 +18787,7 @@
             "docs/plans/screen-plan/workpacks/25-parent-portal-summary-ui.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18798,7 +18819,7 @@
             "docs/plans/screen-plan/workpacks/26-child-disclosure-ux.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18830,7 +18851,7 @@
             "docs/plans/screen-plan/workpacks/27-screenshot-retention-optional-mode.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18864,7 +18885,7 @@
             "docs/plans/screen-plan/workpacks/31-screen-intelligence-router.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18896,7 +18917,7 @@
             "docs/plans/screen-plan/workpacks/32-browser-structured-extraction-before-screenshot.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18930,7 +18951,7 @@
             "docs/plans/screen-plan/workpacks/33-managed-browser-cdp-screenshot-capture-path.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18964,7 +18985,7 @@
             "docs/plans/screen-plan/workpacks/34-ocr-tesseract-baseline.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -18996,7 +19017,7 @@
             "docs/plans/screen-plan/workpacks/35-ocr-paddleocr-ppocr-evaluation.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19030,7 +19051,7 @@
             "docs/plans/screen-plan/workpacks/36-small-vlm-guided-classifier-evaluation.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19064,7 +19085,7 @@
             "docs/plans/screen-plan/workpacks/37-family-ai-hub-screen-analysis-queue.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19098,7 +19119,7 @@
             "docs/plans/screen-plan/workpacks/38-local-ai-resource-scheduler-priority-queue.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19132,7 +19153,7 @@
             "docs/plans/screen-plan/workpacks/40-detector-prompt-packs-and-schema-tests.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19166,7 +19187,7 @@
             "docs/plans/screen-plan/workpacks/01-source-index-and-doc-reconciliation.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19200,7 +19221,7 @@
             "docs/plans/screen-plan/workpacks/02-current-screen-snapshot-and-gap-map.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19234,7 +19255,7 @@
             "docs/plans/screen-plan/workpacks/03-contract-boundary-and-effect-schemas.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19268,7 +19289,7 @@
             "docs/plans/screen-plan/workpacks/05-capability-status-contract.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19300,7 +19321,7 @@
             "docs/plans/screen-plan/workpacks/06-capture-scope-model.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19332,7 +19353,7 @@
             "docs/plans/screen-plan/workpacks/07-capture-trigger-model.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19364,7 +19385,7 @@
             "docs/plans/screen-plan/workpacks/08-platform-adapter-abstraction.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19396,7 +19417,7 @@
             "docs/plans/screen-plan/workpacks/09-windows-capture-adapter-plan-proof.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19430,7 +19451,7 @@
             "docs/plans/screen-plan/workpacks/12-android-mediaprojection-adapter-plan-proof.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19464,7 +19485,7 @@
             "docs/plans/screen-plan/workpacks/13-ios-replaykit-adapter-plan-proof.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19498,7 +19519,7 @@
             "docs/plans/screen-plan/workpacks/14-protected-surface-detector.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19530,7 +19551,7 @@
             "docs/plans/screen-plan/workpacks/15-encrypted-temporary-image-queue.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19564,7 +19585,7 @@
             "docs/plans/screen-plan/workpacks/16-queue-scheduler-and-debouncer.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19596,7 +19617,7 @@
             "docs/plans/screen-plan/workpacks/18-screen-analysis-result-schema.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19628,7 +19649,7 @@
             "docs/plans/screen-plan/workpacks/20-result-validator-and-invalid-output-handling.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19662,7 +19683,7 @@
             "docs/plans/screen-plan/workpacks/21-journal-and-sqlite-ingest.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19694,7 +19715,7 @@
             "docs/plans/screen-plan/workpacks/22-deletion-and-retention-proof.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19726,7 +19747,7 @@
             "docs/plans/screen-plan/workpacks/23-policy-compiler-for-screen-derived-evidence.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19760,7 +19781,7 @@
             "docs/plans/screen-plan/workpacks/28-live-view-optional-mode.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19792,7 +19813,7 @@
             "docs/plans/screen-plan/workpacks/29-proof-tiers-and-proof-packs.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19824,7 +19845,7 @@
             "docs/plans/screen-plan/workpacks/30-test-suite-playwright-rollout-pr-gate.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19858,7 +19879,7 @@
             "docs/plans/screen-plan/workpacks/39-redacted-summary-only-remote-boundary.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19892,7 +19913,7 @@
             "docs/plans/screen-plan/workpacks/screen-control-settings-inventory.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19926,7 +19947,7 @@
             "docs/plans/screen-plan/workpacks/screen-evidence-analysis-capability-guide.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -19960,7 +19981,7 @@
             "docs/plans/screen-plan/workpacks/screen-evidence-analysis-schema-proposal.md"
           ],
           "tests": ["docs/plans/screen-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": ["docs/proof/screen-plan"],
+          "proof": [],
           "checklist": ["docs/plans/screen-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -21445,7 +21466,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21483,7 +21504,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21521,7 +21542,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21559,7 +21580,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21597,7 +21618,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21635,7 +21656,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21673,7 +21694,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21711,7 +21732,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21749,7 +21770,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21787,7 +21808,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21825,7 +21846,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21863,7 +21884,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21901,7 +21922,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21939,7 +21960,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -21977,7 +21998,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -22015,7 +22036,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -22053,7 +22074,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -22091,7 +22112,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -22129,7 +22150,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
@@ -22167,7 +22188,7 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": ["docs/proof/v0-8-enforcement-control-plan"],
+          "proof": [],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],

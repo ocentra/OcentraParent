@@ -148,6 +148,14 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
     'output/app-plan-proof/01-contract-boundary-and-effect-schemas',
   ]);
 
+  const remoteSibling = value.nodes.find((node) => node.id === 'WP-remote-access-plan-02-live-screen-relay');
+  assert.deepEqual(remoteSibling.completion.references.proof, []);
+
+  const eventingProofOverride = value.nodes.find(
+    (node) => node.id === 'WP-eventing-plan-11-type-safety-and-ownership-hardening'
+  );
+  assert.deepEqual(eventingProofOverride.completion.references.proof, ['docs/proof/eventing-plan']);
+
   const blockedId = 'WP-policy-control-plane-plan-05-ask-parent-overrides';
   const dependencyId = 'WP-policy-control-plane-plan-04-delivery-ack-audit';
   assert.equal(deriveStates(value, { root: repoRoot }).get(blockedId), 'blocked');

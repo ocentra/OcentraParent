@@ -41,7 +41,9 @@ parsed from its `WORKPACK_INDEX.md`. It records ambiguous or unknown imports in
 prose. Reviewed dependency edges live in `overrides.json` and must carry
 evidence. A reviewed `stateOverrides` entry may record a current validation
 slice (never an unverified `done` claim) and must point to its proof manifest
-and command evidence.
+and command evidence. A reviewed `proofOverrides` entry may point a completed
+workpack at a durable plan-level manifest when that manifest explicitly covers
+the workpack; a generic proof directory is not sufficient by itself.
 
 ## Completion
 

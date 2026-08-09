@@ -20,6 +20,36 @@
         "docs/proof/app-plan/slice-01-app-runtime-decision.md",
         "output/app-plan-proof/01-contract-boundary-and-effect-schemas/16-validation-commands.log"
       ]
+    },
+    {
+      "id": "WP-remote-access-plan-01-remote-capability-fabric",
+      "state": "validation",
+      "reason": "Rust-owned view-only capability contract and focused negative tests are current; relay, pairing lifecycle, device-trust integration, custody, CI, review, and main merge remain open.",
+      "statusText": "Validation — view-only capability contract and focused tests are current; runtime lifecycle and integration remain open.",
+      "evidence": [
+        "docs/proof/remote-access-plan/slice-01-capability-fabric.md",
+        "output/remote-access-plan-proof/01-remote-capability-fabric/16-validation-commands.log"
+      ]
+    }
+  ],
+  "proofOverrides": [
+    {
+      "id": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
+      "proof": ["docs/proof/eventing-plan"],
+      "reason": "The durable eventing plan manifest explicitly records WP11 proof roots and validation; the generic plan root is not inferred for siblings.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+    },
+    {
+      "id": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
+      "proof": ["docs/proof/eventing-plan"],
+      "reason": "The durable eventing plan manifest explicitly records the WP12 route-proof bundle and its validation; the generic plan root is not inferred for siblings.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+    },
+    {
+      "id": "WP-eventing-plan-13-test-folder-layout-regression-audit",
+      "proof": ["docs/proof/eventing-plan"],
+      "reason": "The durable eventing plan manifest explicitly records the WP13 regression audit and proof roots; the generic plan root is not inferred for siblings.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
     }
   ],
   "ambiguities": [

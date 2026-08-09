@@ -15,3 +15,11 @@ This checklist tracks execution only. Proof artifacts are collected in the desig
 - [x] Collect proof artifacts in the designated local artifact path.
 - [x] Record the proof location outside the plan folder.
 - [x] Prepare PR-ready notes.
+
+## Selected slice: WP01 capability fabric (2026-08-09)
+
+- [x] Replayed the Rust-owned view-only capability contract tests (3/3).
+- [x] Ran Rust format, scoped architecture, and Enforcer guard checks.
+- [x] Recorded the durable manifest at `docs/proof/remote-access-plan/slice-01-capability-fabric.md`.
+- [ ] Pairing/standing-access, relay/session, device-trust, revoke/remove,
+  custody, abuse, rollout, CI, review, and main-merge gates remain open.

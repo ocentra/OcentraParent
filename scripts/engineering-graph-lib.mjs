@@ -146,7 +146,8 @@ async function buildCompletionContract(root, planSlug, workpackPath) {
   const testsText = tests ? await readText(root, tests) : null;
   const expectedProofRoot = declaredProofRoot(testsText, planSlug, workpackPath);
   const durableProofRoot = normalizeRepoPath(path.join('docs', 'proof', planSlug));
-  const proof = await firstExisting(root, [expectedProofRoot, durableProofRoot]);
+  const proofCandidates = expectedProofRoot !== durableProofRoot ? [expectedProofRoot] : [durableProofRoot];
+  const proof = await firstExisting(root, proofCandidates);
   const adr = await firstExisting(root, [
     normalizeRepoPath(path.join(planRoot, 'adr')),
     normalizeRepoPath(path.join(planRoot, 'adrs')),
@@ -243,6 +244,7 @@ async function readOverrides(root, overridesPath) {
     edges: Array.isArray(parsed.edges) ? parsed.edges : [],
     ambiguities: Array.isArray(parsed.ambiguities) ? parsed.ambiguities : [],
     stateOverrides: Array.isArray(parsed.stateOverrides) ? parsed.stateOverrides : [],
+    proofOverrides: Array.isArray(parsed.proofOverrides) ? parsed.proofOverrides : [],
   };
 }
 
@@ -300,6 +302,22 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       },
       ...(override.statusText ? { statusText: override.statusText } : {}),
       needsReview: false,
+    };
+  }
+  for (const override of overrides.proofOverrides) {
+    const node = nodeById.get(override.id);
+    const proof = Array.isArray(override.proof) ? override.proof : [];
+    if (!node?.completion || proof.length === 0) continue;
+    node.completion.references = {
+      ...node.completion.references,
+      proof,
+    };
+    node.metadata = {
+      ...node.metadata,
+      proofOverride: {
+        reason: override.reason ?? 'reviewed proof reference override',
+        evidence: override.evidence ?? [],
+      },
     };
   }
   for (const edge of edges.filter((candidate) => candidate.kind === 'depends_on')) {
