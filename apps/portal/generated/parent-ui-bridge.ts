@@ -1191,6 +1191,7 @@ export const ParentDevBridgeRoute = {
 export type ParentDevBridgeRouteName = (typeof ParentDevBridgeRoute)[keyof typeof ParentDevBridgeRoute];
 
 export const ParentUiActionPayloadField = {
+  PolicyRequestParentResolutionRequest: 'policyRequestParentResolutionRequest',
   ScreenSettingsRequest: 'screenSettingsRequest',
   ScreenSettingsResponse: 'screenSettingsResponse',
   ScreenSettingsUpdateKind: 'screenSettingsUpdateKind',
@@ -2161,6 +2162,7 @@ export const ParentUiActionKind = {
   Reconnect: 'reconnect',
   AgentCommandRequested: 'agent-command-requested',
   PolicyRequestAssistantPreviewConfirmRequested: 'policy-request-assistant-preview-confirm-requested',
+  PolicyRequestParentResolutionRequested: 'policy-request-parent-resolution-requested',
   LanPairingBrowserDiscoveryScanRequested: 'lan-pairing-browser-discovery-scan-requested',
   NetworkFlowReadModelRefreshRequested: 'network-flow-read-model-refresh-requested',
   TrackingRetentionSettingsWriteRequested: 'tracking-retention-settings-write-requested',
