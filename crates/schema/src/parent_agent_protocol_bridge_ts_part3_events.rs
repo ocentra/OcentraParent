@@ -240,6 +240,10 @@ fn event_descriptors_local_policy_lan_network() -> Vec<ProtocolLiteralDescriptor
             "PolicyRequestAssistantPreviewConfirmReported",
             AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported,
         ),
+        event(
+            "PolicyRequestParentResolutionResolved",
+            AgentEventName::AgentPolicyRequestParentResolutionResolved,
+        ),
     ]
 }
 

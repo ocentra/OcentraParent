@@ -162,6 +162,10 @@ pub mod request {
     pub const FIELD_POLICY_VERSION: &str = "policy_request.policy_version";
     pub const FIELD_CANONICAL_CONFIRMED_REQUEST_JSON: &str =
         "policy_request.canonical_confirmed_request_json";
+    pub const FIELD_CANONICAL_RESOLVED_REQUEST_JSON: &str =
+        "policy_request.canonical_resolved_request_json";
+    pub const FIELD_CANONICAL_TEMPORARY_OVERRIDE_JSON: &str =
+        "policy_request.canonical_temporary_override_json";
 
     pub const OVERRIDE_ID_PREFIX: &str = "policy-override:";
     pub const VALUE_DUPLICATE_SUBMISSION_KEY_PREFIX: &str = "duplicate submission key ";
