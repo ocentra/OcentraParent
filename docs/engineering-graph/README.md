@@ -26,6 +26,9 @@ npm run graph:bootstrap -- --write # rebuild graph.json from docs/plans
 npm run graph:validate
 npm run graph:code
 npm run graph:code -- PLAN-policy-control-plane-plan
+npm run graph:report
+npm run graph:report -- --json
+npm run graph:report -- PLAN-policy-control-plane-plan
 npm run graph:status
 npm run graph:ready
 npm run graph:parallel
@@ -47,6 +50,14 @@ which reviewed runtime roots exist, how many implementation files are present,
 and how many test files are present. It is intentionally a topology audit, not
 a test runner or a completion certificate; focused test results, proof, CI,
 checklists, and merge state remain separate gates.
+
+`graph:report` is the canonical “where are we?” query. It joins every selected
+plan's derived workpack states/counts and completion-contract path gaps with its
+live reviewed-root implementation/test topology. The JSON form is intended for
+agents and dashboards. Workpack rows deliberately say
+`codeTestTopology: plan-reviewed-roots` because this repository does not yet
+have reviewed workpack-to-file ownership maps; the report never infers those
+maps from filenames or Markdown prose.
 
 ## Import policy
 

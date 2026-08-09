@@ -8,6 +8,7 @@ import test from 'node:test';
 import {
   GRAPH_SCHEMA_VERSION,
   buildCodeInventory,
+  buildProgressReport,
   deriveStates,
   completionGaps,
   loadGraph,
@@ -227,4 +228,26 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
 
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
   assert.equal(globalSummary.ready.length, 0);
+});
+
+test('progress report joins derived workpack state with reviewed plan topology', async () => {
+  const report = await buildProgressReport({ root: repoRoot });
+  assert.equal(report.scope, 'GOAL-ocentra-parent');
+  assert.equal(report.totals.plans, 23);
+  assert.ok(report.totals.workpacks >= 500);
+  assert.equal(report.validation.ok, true);
+  assert.ok(report.totals.implementationFiles > 0);
+  assert.ok(report.totals.testFiles > 0);
+
+  const policy = report.plans.find((plan) => plan.id === 'PLAN-policy-control-plane-plan');
+  assert.ok(policy);
+  assert.equal(policy.codeTestTopology.scope, 'reviewed-plan-roots');
+  assert.ok(policy.codeTestTopology.implementationFiles > 0);
+  assert.ok(policy.codeTestTopology.testFiles > 0);
+  assert.ok(policy.workpacks.rows.every((workpack) => workpack.codeTestTopology === 'plan-reviewed-roots'));
+
+  const blocked = policy.workpacks.rows.find(
+    (workpack) => workpack.id === 'WP-policy-control-plane-plan-05-ask-parent-overrides'
+  );
+  assert.equal(blocked.state, 'blocked');
 });

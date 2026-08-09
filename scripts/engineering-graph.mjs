@@ -6,6 +6,7 @@ import {
   GRAPH_PATH,
   buildCodeInventory,
   buildBootstrapGraph,
+  buildProgressReport,
   deriveStates,
   explainBlocked,
   loadGraph,
@@ -26,6 +27,7 @@ Usage:
   npm run graph:bootstrap -- --write      Rebuild docs/engineering-graph/graph.json
   npm run graph:status [scope-id]
   npm run graph:code [scope-id]
+  npm run graph:report [scope-id] [--json]
   npm run graph:ready [scope-id]
   npm run graph:parallel [scope-id]
   npm run graph:next [scope-id]
@@ -40,6 +42,10 @@ Usage:
 
 function flag(args, name) {
   return args.includes(name);
+}
+
+function positionalArg(args) {
+  return args.find((argument) => !argument.startsWith('--'));
 }
 
 function nodeMap(graph) {
@@ -117,7 +123,7 @@ async function run(command, args) {
   }
 
   if (command === 'code') {
-    const inventory = await buildCodeInventory({ root, scope: args[0] });
+    const inventory = await buildCodeInventory({ root, scope: positionalArg(args) });
     console.log(`Code map: ${inventory.codeMapPath}`);
     console.log(`Plans: ${inventory.totals.plans}`);
     console.log(`Implementation files: ${inventory.totals.implementationFiles}`);
@@ -133,7 +139,48 @@ async function run(command, args) {
     return;
   }
 
-  const scope = args[0];
+  if (command === 'report') {
+    const report = await buildProgressReport({ root, scope: positionalArg(args) });
+    if (flag(args, '--json')) {
+      console.log(JSON.stringify(report, null, 2));
+      return;
+    }
+    console.log(`Scope: ${report.scope}`);
+    console.log(`Plans: ${report.totals.plans}`);
+    console.log(`Workpacks: ${report.totals.workpacks}`);
+    for (const [state, count] of Object.entries(report.totals.states)) {
+      console.log(`${state.toUpperCase().padEnd(10)} ${count}`);
+    }
+    console.log(`Implementation files: ${report.totals.implementationFiles}`);
+    console.log(`Test files: ${report.totals.testFiles}`);
+    console.log('\nPlan matrix (state is graph-derived; code/test is reviewed plan-root topology):');
+    for (const plan of report.plans) {
+      const counts = Object.entries(plan.workpacks.counts)
+        .filter(([, count]) => count > 0)
+        .map(([state, count]) => `${state}=${count}`)
+        .join(', ');
+      const topology = plan.codeTestTopology;
+      console.log(
+        `${plan.id} [${plan.state}] workpacks=${plan.workpacks.total} (${counts || 'none'}) ` +
+          `implementation=${topology.implementationFiles} tests=${topology.testFiles} ` +
+          `code=${topology.state}`
+      );
+      const exceptions = plan.workpacks.rows.filter((workpack) =>
+        ['blocked', 'active', 'validation', 'failed'].includes(workpack.state)
+      );
+      for (const workpack of exceptions.slice(0, 8)) {
+        const gaps = workpack.completionContract.gaps.length ? ` gaps=${workpack.completionContract.gaps.length}` : '';
+        console.log(`  - ${workpack.id} [${workpack.state}]${gaps}`);
+      }
+      if (exceptions.length > 8) console.log(`  - ... ${exceptions.length - 8} more non-planned rows`);
+    }
+    console.log(
+      '\nAuthority: code/test counts are live topology only; they do not claim acceptance, proof, CI, review, or merge.'
+    );
+    return;
+  }
+
+  const scope = positionalArg(args);
   const states = deriveStates(graph, { root });
   const map = nodeMap(graph);
   if (command === 'status') {

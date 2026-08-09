@@ -169,6 +169,105 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
   };
 }
 
+function stateCounts(nodes, states) {
+  const counts = Object.fromEntries([...STATES].map((state) => [state, 0]));
+  for (const node of nodes) counts[states.get(node.id)] += 1;
+  return counts;
+}
+
+/**
+ * Join the graph's derived workpack state with the reviewed plan-to-runtime
+ * code/test inventory.  The two sources intentionally remain separate:
+ * code/test counts prove that files exist under an owned plan root, while the
+ * graph state proves dependency and completion-contract state.  This report
+ * is the machine-readable answer to "where are we?" without turning file
+ * counts into a completion claim.
+ */
+export async function buildProgressReport({ root = process.cwd(), scope } = {}) {
+  const graph = await loadGraph(root);
+  const validation = validateGraph(graph, { root });
+  if (!validation.ok) {
+    throw new Error(`Cannot build progress report from an invalid graph: ${validation.errors.join('; ')}`);
+  }
+  const states = deriveStates(graph, { root });
+  const scoped = scopeNodes(graph, scope);
+  const plans = scoped.filter((node) => node.kind === 'plan');
+  const inventory = await buildCodeInventory({ root, scope });
+  const inventoryByPlan = new Map(inventory.plans.map((plan) => [plan.planId, plan]));
+  const workpacksByPlan = new Map();
+  for (const plan of plans) workpacksByPlan.set(plan.id, []);
+  for (const node of scoped.filter((candidate) => candidate.kind === 'workpack')) {
+    workpacksByPlan.get(node.parent)?.push(node);
+  }
+
+  const planReports = plans.map((plan) => {
+    const workpacks = workpacksByPlan.get(plan.id) ?? [];
+    const planInventory = inventoryByPlan.get(plan.id);
+    const workpackReports = workpacks
+      .sort((left, right) => left.id.localeCompare(right.id))
+      .map((workpack) => {
+        const gaps = completionGaps(root, workpack);
+        return {
+          id: workpack.id,
+          title: workpack.title,
+          state: states.get(workpack.id),
+          storedState: workpack.state,
+          completionContract: {
+            pathsPresent: gaps.length === 0,
+            gaps,
+          },
+          // A workpack-to-file map is not inferred from prose.  This explicit
+          // scope label prevents consumers from mistaking plan-root topology
+          // for workpack-level implementation ownership.
+          codeTestTopology: 'plan-reviewed-roots',
+        };
+      });
+    const counts = stateCounts(workpacks, states);
+    return {
+      id: plan.id,
+      slug: plan.metadata?.planSlug,
+      title: plan.title,
+      state: states.get(plan.id),
+      workpacks: {
+        total: workpackReports.length,
+        counts,
+        rows: workpackReports,
+      },
+      codeTestTopology: {
+        scope: 'reviewed-plan-roots',
+        state: planInventory?.state ?? 'no-code-map-entry',
+        roots: planInventory?.roots ?? [],
+        missingRoots: planInventory?.missingRoots ?? [],
+        implementationFiles: planInventory?.implementationFiles ?? 0,
+        testFiles: planInventory?.testFiles ?? 0,
+      },
+    };
+  });
+
+  const allWorkpacks = scoped.filter((node) => node.kind === 'workpack');
+  return {
+    schemaVersion: 1,
+    authority: {
+      graphState: 'derived dependency, lifecycle, and completion-contract state',
+      codeTestTopology: 'live files under reviewed plan-to-runtime roots',
+      acceptance: 'tests, proof, CI, review, and merge remain separate gates',
+    },
+    scope: scope ?? 'GOAL-ocentra-parent',
+    plans: planReports,
+    totals: {
+      plans: plans.length,
+      workpacks: allWorkpacks.length,
+      states: stateCounts(allWorkpacks, states),
+      implementationFiles: inventory.totals.implementationFiles,
+      testFiles: inventory.totals.testFiles,
+    },
+    validation: {
+      ok: validation.ok,
+      warnings: validation.warnings,
+    },
+  };
+}
+
 async function pathExists(root, relativePath) {
   try {
     await readFile(path.join(root, relativePath));

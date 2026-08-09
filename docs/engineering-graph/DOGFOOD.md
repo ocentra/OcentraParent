@@ -13,7 +13,22 @@ READY: 0
 BLOCKED: 5
 VALIDATION: 446
 DONE: 0
+Implementation files: 12320
+Test files: 7113
 ```
+
+The joined report is the canonical operator view:
+
+```powershell
+npm run graph:report
+npm run graph:report -- --json
+npm run graph:report -- PLAN-policy-control-plane-plan
+```
+
+It reports all 23 plans and 654 workpack rows, with graph-derived workpack
+state alongside live implementation/test topology under reviewed plan roots.
+The topology is deliberately labelled plan-scoped; it is not a per-workpack
+ownership claim or an acceptance/CI/merge certificate.
 
 The policy-control slice is a useful dependency example:
 

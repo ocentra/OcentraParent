@@ -121,6 +121,7 @@
     "graph:bootstrap": "node scripts/engineering-graph.mjs bootstrap",
     "graph:status": "node scripts/engineering-graph.mjs status",
     "graph:code": "node scripts/engineering-graph.mjs code",
+    "graph:report": "node scripts/engineering-graph.mjs report",
     "graph:ready": "node scripts/engineering-graph.mjs ready",
     "graph:parallel": "node scripts/engineering-graph.mjs parallel",
     "graph:next": "node scripts/engineering-graph.mjs next",
