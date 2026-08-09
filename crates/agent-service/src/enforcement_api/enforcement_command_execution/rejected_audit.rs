@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::{
     constants,
     enforcement::{
         EnforcementAdapterResultCode, EnforcementAuditEventKind, EnforcementAuditJournalEvent,
-        EnforcementResultStatus,
+        EnforcementResultStatus, EnforcementRollbackState,
     },
     logging::{LogFieldValue, LogFields},
 };
@@ -38,6 +38,7 @@ pub(super) async fn record_rejected_enforcement_audit(
         command_correlation_id,
         command_sent_at,
         request,
+        rejection,
         paths,
     )
     .await?;
@@ -52,6 +53,7 @@ async fn record_rejected_eventing_enforcement_audit(
     command_correlation_id: &EnforcementText,
     command_sent_at: &EnforcementText,
     request: &EnforcementCommandPayload,
+    rejection: EnforcementBoundaryRejection,
     paths: &EnforcementJournalPaths,
 ) -> Result<(), EnforcementJournalBuildError> {
     let mut eventing_journal_path = paths.journal_path.clone();
@@ -60,7 +62,7 @@ async fn record_rejected_eventing_enforcement_audit(
         EnforcementEventingJournalPath {
             path: eventing_journal_path,
         },
-        rejected_eventing_audit_event(request, command_sent_at),
+        rejected_eventing_audit_event(request, command_sent_at, rejection),
         CorrelationId::parse(command_correlation_id.0.clone()).map_err(eventing_journal_error)?,
         JournalDispatchPhase::AfterDispatch,
     )
@@ -72,15 +74,42 @@ async fn record_rejected_eventing_enforcement_audit(
 fn rejected_eventing_audit_event(
     request: &EnforcementCommandPayload,
     command_sent_at: &EnforcementText,
+    rejection: EnforcementBoundaryRejection,
 ) -> EnforcementAuditJournalEvent {
+    let input = &request.input;
+    let intent = &input.intent;
+    let capability = &input.capability;
     EnforcementAuditJournalEvent {
         audit_event_id: rejected_enforcement_event_id(request).0,
         action_id: request.input.action_id.clone(),
+        intent_id: intent.intent_id.clone(),
         result_id: request.input.result_id.clone(),
+        policy_decision_id: intent.policy_decision_id.clone(),
+        policy_version: input.policy_version.clone(),
+        policy_action: intent.requested_action,
+        target_id: intent.target.target_id.clone(),
+        target_type: intent.target.target_type,
+        adapter_kind: capability.adapter_kind,
+        platform: capability.platform,
         audit_event_kind: EnforcementAuditEventKind::Failed,
         result_status: EnforcementResultStatus::Failed,
         adapter_result_code: EnforcementAdapterResultCode::NoOp,
-        capability_state: request.input.capability.capability_state,
+        capability_state: capability.capability_state,
+        evidence_references: intent.evidence_references.clone(),
+        actor: intent.actor.clone(),
+        parent_override: intent.parent_approval.clone(),
+        unavailable_status: None,
+        rollback_state: EnforcementRollbackState::NotRequired,
+        dry_run: input.decision.dry_run,
+        reason_codes: input.decision.reason_codes.clone(),
+        reason: Some(rejection.as_protocol_str().to_string()),
+        requested_at: input.requested_at.clone(),
+        started_at: None,
+        completed_at: None,
+        journal_sequence: None,
+        device_id: Some(request.device_id.0.clone()),
+        source_peer_id: Some(request.source_peer_id.0.clone()),
+        target_route: Some(request.target_route.0.clone()),
         observed_at: command_sent_at.0.clone(),
     }
 }

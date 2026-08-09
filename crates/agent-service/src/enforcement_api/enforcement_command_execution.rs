@@ -114,6 +114,7 @@ async fn execute_enforcement_command(
     record_eventing_enforcement_audit(
         &command_correlation_id,
         &command_sent_at,
+        &request,
         &before_action_outcome,
         &paths,
         JournalDispatchPhase::BeforeDispatch,
@@ -133,6 +134,7 @@ async fn execute_enforcement_command(
     let final_journal_append = record_eventing_enforcement_audit(
         &command_correlation_id,
         &command_sent_at,
+        &request,
         &outcome,
         &paths,
         JournalDispatchPhase::AfterDispatch,
@@ -157,6 +159,7 @@ async fn execute_enforcement_command(
 async fn record_eventing_enforcement_audit(
     command_correlation_id: &EnforcementText,
     command_sent_at: &EnforcementText,
+    request: &EnforcementCommandPayload,
     outcome: &EnforcementBoundaryOutcome,
     paths: &EnforcementJournalPaths,
     phase: JournalDispatchPhase,
@@ -167,7 +170,7 @@ async fn record_eventing_enforcement_audit(
         EnforcementEventingJournalPath {
             path: eventing_journal_path,
         },
-        eventing_audit_event(outcome, command_sent_at),
+        eventing_audit_event(request, outcome, command_sent_at),
         CorrelationId::parse(command_correlation_id.0.clone()).map_err(eventing_journal_error)?,
         phase,
     )
@@ -180,10 +183,14 @@ fn eventing_journal_error(_: impl std::fmt::Debug) -> EnforcementJournalBuildErr
 }
 
 fn eventing_audit_event(
+    request: &EnforcementCommandPayload,
     outcome: &EnforcementBoundaryOutcome,
     command_sent_at: &EnforcementText,
 ) -> EnforcementAuditJournalEvent {
     let mut event = EnforcementAuditJournalEvent::from(&outcome.audit_event);
+    event.device_id = Some(request.device_id.0.clone());
+    event.source_peer_id = Some(request.source_peer_id.0.clone());
+    event.target_route = Some(request.target_route.0.clone());
     event.observed_at = command_sent_at.0.clone();
     event
 }
