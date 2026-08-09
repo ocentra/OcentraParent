@@ -157,7 +157,11 @@ async function run(command, args) {
         console.log('Completion contract:');
         for (const requirement of node.completion.required) {
           const refs = node.completion.references?.[requirement] ?? [];
+          const expected = node.completion.expected?.[requirement] ?? [];
           console.log(`  ${requirement}: ${refs.join(', ') || 'missing'}`);
+          if (refs.length === 0 && expected.length > 0) {
+            console.log(`    expected: ${expected.join(', ')}`);
+          }
         }
       }
       return;

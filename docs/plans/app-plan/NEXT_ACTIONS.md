@@ -14,6 +14,10 @@
 
 # Native Apps Plan Next Actions
 
+Latest selected slice: WP01 contract-boundary code/test validation is recorded
+locally; do not treat it as full plan closure. The next slice must be selected
+from the graph and must preserve the app-only owner boundary.
+
 1. Select the smallest current workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
 2. Read `workpacks/00-owner-boundary-proof-gate.md` to apply current app-plan owner/import/proof rules.
 3. If the selected workpack owner path is unclear, classify it with [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md).

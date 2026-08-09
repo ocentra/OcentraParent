@@ -39,14 +39,19 @@ The bootstrap imports every plan directory and every workpack row that can be
 parsed from its `WORKPACK_INDEX.md`. It records ambiguous or unknown imports in
 `graph.json.migration.ambiguities`; it does not invent hard dependencies from
 prose. Reviewed dependency edges live in `overrides.json` and must carry
-evidence.
+evidence. A reviewed `stateOverrides` entry may record a current validation
+slice (never an unverified `done` claim) and must point to its proof manifest
+and command evidence.
 
 ## Completion
 
 `done` is not a free-form checklist label. A workpack's completion contract
 points to implementation, test, proof, and checklist artifacts. Validation
 rejects duplicate IDs, missing references, dependency cycles, invalid states,
-contradictory readiness, and `done` nodes whose contract is incomplete.
+contradictory readiness, and `done` nodes whose contract is incomplete. Proof
+root conventions are imported from each plan's `TEST_PROOF_EXPECTATIONS.md`;
+durable `docs/proof/<plan>` manifests are accepted when the plan explicitly
+retains them.
 
 ## Adding a workpack
 

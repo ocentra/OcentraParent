@@ -26,7 +26,7 @@ matrix's narrower scheduled-row view). Current derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 202 | 5 | 4 | 1 | 439 | 3 |
+| 202 | 5 | 3 | 1 | 440 | 3 |
 
 The graph validates at 678 nodes and 678 edges, with 24 migration/dependency
 review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
@@ -80,7 +80,7 @@ gates and have not been run or claimed here.
 | Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
 | Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. | Contract slice verified. Pairing/relay/device-trust/session runtime and retained proof remain open; remote input/control remains deferred. |
 | Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
-| App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; scoped architecture and Enforcer guards passed. The schema-domain Vitest runner was unavailable because this checkout has no installed `node_modules/.bin/vitest`. | Rust boundary verified; TypeScript contract test and broader app runtime/service/portal path remain open. No proof/CI/main merge claim. |
+| App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; schema-domain build/type-check and `app-runtime-decision.test.ts` passed 11/11; scoped architecture and Enforcer guards passed. | Contract/runtime-decision code/test slice and local proof are current. Installed inventory, broader app runtime/service/portal path, CI, review, and main merge remain open. |
 | Other 18 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
 
 ### Current dependency decision

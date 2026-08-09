@@ -10,6 +10,18 @@
       "reason": "Delivery identity and audit boundary precede ask-parent delivery wiring."
     }
   ],
+  "stateOverrides": [
+    {
+      "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
+      "state": "validation",
+      "reason": "Focused contract/runtime tests and local proof are current; CI, review, and main merge remain open.",
+      "statusText": "Validation — code, focused tests, and local proof are current; CI, review, and main merge remain open.",
+      "evidence": [
+        "docs/proof/app-plan/slice-01-app-runtime-decision.md",
+        "output/app-plan-proof/01-contract-boundary-and-effect-schemas/16-validation-commands.log"
+      ]
+    }
+  ],
   "ambiguities": [
     {
       "scope": "all imported workpacks",
