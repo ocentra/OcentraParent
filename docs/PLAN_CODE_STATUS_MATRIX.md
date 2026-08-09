@@ -11,13 +11,13 @@ named plans; historical rows remain routing context, not current closure proof.
 ## Consolidated branch code/test inventory - 2026-08-09
 
 This is a live **source and test-topology** pass on the one E: integration
-worktree, `codex/consolidated-code-test-20260807` at `9b093b953`. It counted
+worktree, `codex/consolidated-code-test-20260807` at `e78703f15`. It counted
 the plan-owned Rust/worker/UI source and crate-visible test files, then traced
 the active policy request path. Counts mean files exist; they do **not** mean
 the feature is accepted, a test was run today, or a workpack is complete.
 
 There are **23 plan folders** and **526 scheduled workpack rows** in this
-checkout (not 24 plans). The consolidated code train is **17 commits ahead of
+checkout (not 24 plans). The consolidated code train is **24 commits ahead of
 `main`/`origin/main`**. It contains the LAN target repair, enforcement-journal
 sequence repairs, and the parent policy-resolution contract/service/UI slice.
 The new slices have focused local Rust tests and scoped architecture/Enforcer
@@ -28,7 +28,7 @@ checks; no PR, CI run, or merge to `main` has been claimed for this branch.
 | Account identity/family | `family-identity-core` 43/23, `provisioning-core` 9/7, `storage-custody-core` 78/16 source/test files. | Core authority/custody exists; Cloudflare binding/migration and real provider/runtime routes remain separate work. |
 | AI | `child-ai-core` 3/2 and `screen-ai-core` 20/3, joined through the shared agent/eventing stack. | Foundation only; next is one typed AI-result-to-policy consumer with negative safety coverage. |
 | App/game | `app-game-core` 21/15 plus service adapters/read models. | Integration source exists; choose one live Windows capture-to-read-model path before treating any customer control path as ready. |
-| App | `app-core` 3/5 plus shared agent-service integration. | Foundation only; app identity/evidence must become one service-backed runtime path. |
+| App | `app-core` 3/5 plus shared agent-service integration and the versioned runtime-decision contract slice. | WP01 runtime-decision envelope/tuple boundary and Rust contract/invariant tests are freshly consolidated; app identity/evidence/session/service path remains open. |
 | Browser | `browser-core` 33/20 plus service policy/adapter surfaces. | Integration source exists; managed command, adapter result, rollback, and parent-visible state are not a closed product path. |
 | Child runtime distribution | `child-runtime` 31/9 plus service/protocol sources. | Runtime source exists; Windows service lifecycle/package smoke remains the next physical blocker. |
 | Cloudflare control plane | `infra/cloudflare` 20/29 worker source/test files. | Local worker/contract source exists; deployment, account binding/migration, and payment runtime are not proven. |
@@ -61,7 +61,8 @@ gates and have not been run or claimed here.
 | Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
 | Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. | Contract slice verified. Pairing/relay/device-trust/session runtime and retained proof remain open; remote input/control remains deferred. |
 | Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
-| Other 19 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
+| App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; scoped architecture and Enforcer guards passed. The schema-domain Vitest runner was unavailable because this checkout has no installed `node_modules/.bin/vitest`. | Rust boundary verified; TypeScript contract test and broader app runtime/service/portal path remain open. No proof/CI/main merge claim. |
+| Other 18 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
 
 ### Current dependency decision
 
