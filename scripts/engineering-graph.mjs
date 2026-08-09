@@ -25,6 +25,7 @@ Usage:
   npm run graph:bootstrap -- --write      Rebuild docs/engineering-graph/graph.json
   npm run graph:status [scope-id]
   npm run graph:ready [scope-id]
+  npm run graph:parallel [scope-id]
   npm run graph:next [scope-id]
   npm run graph:blocked [scope-id]
   npm run graph:inspect <id>
@@ -128,11 +129,12 @@ async function run(command, args) {
     printList(summary.blocked, states, { limit: 25 });
     return;
   }
-  if (command === 'ready' || command === 'next') {
-    printList(
-      scopeNodes(graph, scope).filter((node) => states.get(node.id) === 'ready'),
-      states
+  if (command === 'ready' || command === 'next' || command === 'parallel') {
+    const ready = scopeNodes(graph, scope).filter(
+      (node) => node.kind === 'workpack' && states.get(node.id) === 'ready'
     );
+    if (command === 'parallel') console.log(`Parallel-ready workpacks: ${ready.length}`);
+    printList(ready, states);
     return;
   }
   if (command === 'blocked') {

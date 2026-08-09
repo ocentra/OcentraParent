@@ -23,6 +23,7 @@ npm run graph:bootstrap -- --write # rebuild graph.json from docs/plans
 npm run graph:validate
 npm run graph:status
 npm run graph:ready
+npm run graph:parallel
 npm run graph:next
 npm run graph:blocked
 npm run graph:inspect WP-policy-control-plane-plan-05-ask-parent-overrides
@@ -31,7 +32,10 @@ npm run graph:dependents WP-policy-control-plane-plan-04-delivery-ack-audit
 npm run graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
 ```
 
-Use a plan or goal ID as a scope for `status`, `ready`, and `blocked`.
+Use a plan or goal ID as a scope for `status`, `ready`, `parallel`, and
+`blocked`. `parallel` is the deterministic set of independent workpacks whose
+derived state is READY; when it is empty, the graph is not authorizing new
+work.
 
 ## Import policy
 

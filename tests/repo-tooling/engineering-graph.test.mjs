@@ -156,6 +156,13 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   );
   assert.deepEqual(eventingProofOverride.completion.references.proof, ['docs/proof/eventing-plan']);
 
+  const networkRouting = value.nodes.find((node) => node.id === 'WP-network-plan-08-control-catalog-reference-routing');
+  assert.equal(networkRouting.state, 'validation');
+  assert.match(networkRouting.metadata.statusText, /^Validation/);
+  assert.deepEqual(networkRouting.completion.references.proof, [
+    'output/network-plan-proof/08-control-catalog-reference-routing',
+  ]);
+
   const blockedId = 'WP-policy-control-plane-plan-05-ask-parent-overrides';
   const dependencyId = 'WP-policy-control-plane-plan-04-delivery-ack-audit';
   assert.equal(deriveStates(value, { root: repoRoot }).get(blockedId), 'blocked');
@@ -165,4 +172,7 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.ok(scoped.some((node) => node.id === planId('app-plan')));
   assert.ok(scoped.every((node) => node.parent === planId('app-plan') || node.id === planId('app-plan')));
   assert.ok(!scoped.some((node) => node.id.startsWith('WP-browser-plan-')));
+
+  const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
+  assert.equal(globalSummary.ready.length, 0);
 });

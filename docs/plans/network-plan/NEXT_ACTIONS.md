@@ -76,3 +76,9 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 - [ ] Remove source-index drift and architecture-ban re-export drift from the canonical network surface before calling WP01 truthful.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+
+## Latest checkpoint — 2026-08-09
+
+- WP08 route-boundary test and durable validation manifest are current.
+- Continue with the next assigned runtime workpack (WP01-WP07); do not use the
+  control catalog or this route test as network implementation proof.

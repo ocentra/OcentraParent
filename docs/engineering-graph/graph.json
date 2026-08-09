@@ -16159,14 +16159,21 @@
       "path": "docs/plans/network-plan/workpacks/08-control-catalog-reference-routing.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
-        "statusText": "Until giant capability/schema/settings docs are only opened by exact selected control work.",
+        "statusText": "Validation — catalog routing and no-default-read boundary are current; runtime work remains separate.",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "stateOverride": {
+          "reason": "Reference-routing contract and exact-source boundary test are current; no network runtime implementation claim, CI, review, or main merge.",
+          "evidence": [
+            "docs/proof/network-plan/slice-08-control-catalog-routing.md",
+            "output/network-plan-proof/08-control-catalog-reference-routing/16-validation-commands.log"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16175,7 +16182,9 @@
             "docs/plans/network-plan/workpacks/08-control-catalog-reference-routing.md"
           ],
           "tests": ["docs/plans/network-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "proof": [
+            "output/network-plan-proof/08-control-catalog-reference-routing"
+          ],
           "checklist": ["docs/plans/network-plan/implementation-checklist.md"],
           "adr": []
         },
