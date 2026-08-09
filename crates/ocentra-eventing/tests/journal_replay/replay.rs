@@ -224,7 +224,15 @@ async fn action_replay_dispatches_queued_drain_event_once() {
         .await
         .expect_value("action replay dispatches once");
 
-    assert_eq!(projection.records.len(), 2);
+    assert_eq!(projection.records.len(), 3);
+    assert_eq!(
+        projection
+            .records
+            .iter()
+            .map(|record| record.sequence)
+            .collect::<Vec<_>>(),
+        vec![1, 2, 3]
+    );
     assert_eq!(reports.len(), 1);
     assert_eq!(reports[0].handled_count, 1);
     assert_eq!(*replay_handled.lock().await, 1);
