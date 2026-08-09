@@ -5,6 +5,7 @@ use ocentra_eventing::{
 };
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::{
+    activity::policy::PolicyTargetType,
     constants,
     enforcement::{
         EnforcementAdapterResultCode, EnforcementAuditEventKind, EnforcementAuditJournalEvent,
@@ -95,6 +96,12 @@ async fn rejected_action_is_persisted_as_a_durable_enforcement_audit() -> TestRe
         ))
     );
     assert!(fields.get(constants::field::POLICY_TARGET_VALUE).is_none());
+    assert_rejected_eventing_audit_projection(&eventing_audit);
+
+    Ok(())
+}
+
+fn assert_rejected_eventing_audit_projection(eventing_audit: &EnforcementAuditJournalEvent) {
     assert_eq!(
         eventing_audit.audit_event_id,
         format!(
@@ -115,8 +122,41 @@ async fn rejected_action_is_persisted_as_a_durable_enforcement_audit() -> TestRe
         eventing_audit.adapter_result_code,
         EnforcementAdapterResultCode::NoOp
     );
-
-    Ok(())
+    assert_eq!(
+        eventing_audit.policy_decision_id,
+        policy_constants::TEST_DECISION_ID
+    );
+    assert_eq!(
+        eventing_audit.policy_version,
+        policy_constants::TEST_POLICY_VERSION
+    );
+    assert_eq!(
+        eventing_audit.target_id,
+        constants::enforcement::TEST_CHILD_DEVICE_ID
+    );
+    assert_eq!(eventing_audit.target_type, PolicyTargetType::Device);
+    assert_eq!(
+        eventing_audit.evidence_references[0].evidence_reference_id,
+        policy_constants::TEST_EVIDENCE_ID
+    );
+    assert_eq!(
+        eventing_audit.reason,
+        Some(constants::enforcement::REJECTION_TARGET_MISMATCH.to_string())
+    );
+    assert_eq!(
+        eventing_audit.device_id,
+        Some(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string())
+    );
+    assert_eq!(
+        eventing_audit.target_route,
+        Some("local-network".to_string())
+    );
+    let serialized = serde_json::to_value(eventing_audit)
+        .expect_value("rejected enforcement journal projection serializes");
+    assert!(!serialized
+        .as_object()
+        .expect_value("rejected journal projection object")
+        .contains_key("targetValue"));
 }
 
 async fn rejected_eventing_audit(paths: &EnforcementJournalPaths) -> EnforcementAuditJournalEvent {

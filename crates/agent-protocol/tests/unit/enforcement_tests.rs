@@ -11,6 +11,7 @@ use super::{
     PolicyTarget, PolicyTargetType,
 };
 use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent;
 
 const TIMER_TRANSITION_CASES: &[(
     EnforcementTimerEventKind,
@@ -143,6 +144,63 @@ fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
         enforcement::TIMER_RESTART_RECOVERED
     );
     assert_eq!(serialized_timer["recoveredAfterRestart"], true);
+}
+
+#[test]
+fn enforcement_journal_projection_retains_audit_references_without_raw_target_value() {
+    let capability = process_capability();
+    let mut intent = enforcement_intent();
+    intent.actor = Some(parent_actor());
+    intent.parent_approval = Some(parent_action_reference());
+    let action = enforcement_action(&intent);
+    let result = enforcement_result(&action, capability.clone());
+    let audit = EnforcementAuditEvent {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        audit_event_id: enforcement::TEST_AUDIT_EVENT_ID.to_string(),
+        audit_event_kind: EnforcementAuditEventKind::Succeeded,
+        action,
+        result,
+        capability,
+        unavailable_status: None,
+        policy_version: policy::TEST_POLICY_VERSION.to_string(),
+        evidence_references: vec![evidence()],
+        actor: intent.actor.clone(),
+        parent_override: intent.parent_approval.clone(),
+        journal_sequence: Some(enforcement::TEST_JOURNAL_SEQUENCE.to_string()),
+        observed_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+
+    let journal = EnforcementAuditJournalEvent::from(&audit);
+    let serialized =
+        serde_json::to_value(&journal).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(journal.policy_decision_id, policy::TEST_DECISION_ID);
+    assert_eq!(journal.target_id, enforcement::TEST_PROCESS_TARGET_ID);
+    assert_eq!(journal.target_type, PolicyTargetType::Process);
+    assert_eq!(journal.evidence_references, vec![evidence()]);
+    assert_eq!(journal.actor, intent.actor);
+    assert_eq!(journal.parent_override, intent.parent_approval);
+    assert_eq!(journal.rollback_state, EnforcementRollbackState::Available);
+    assert_eq!(serialized["policyAction"], policy::ACTION_BLOCK);
+    assert_eq!(serialized["targetId"], enforcement::TEST_PROCESS_TARGET_ID);
+    assert_eq!(serialized["targetType"], policy::TARGET_TYPE_PROCESS);
+    assert_eq!(
+        serialized["adapterKind"],
+        enforcement::ADAPTER_KIND_PROCESS_CONTROL
+    );
+    assert_eq!(serialized["platform"], enforcement::PLATFORM_WINDOWS);
+    assert_eq!(
+        serialized["evidenceReferences"][0]["evidenceReferenceId"],
+        policy::TEST_EVIDENCE_ID
+    );
+    assert_eq!(
+        serialized["parentOverride"]["actionReferenceId"],
+        enforcement::TEST_PARENT_ACTION_REFERENCE_ID
+    );
+    assert!(!serialized
+        .as_object()
+        .expect_value("journal projection object")
+        .contains_key("targetValue"));
 }
 
 #[test]

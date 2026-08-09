@@ -15,11 +15,14 @@ use ocentra_eventing::{
     replay::ReplayFilter,
 };
 use ocentra_parent_agent_protocol::{
-    constants::enforcement,
+    activity::policy::{PolicyAction, PolicyTargetType},
+    constants::{enforcement, peer},
     enforcement::{
-        EnforcementAdapterResultCode, EnforcementAuditEventKind, EnforcementAuditJournalEvent,
-        EnforcementCapabilityState, EnforcementResultStatus,
+        EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementAuditEventKind,
+        EnforcementAuditJournalEvent, EnforcementCapabilityState, EnforcementResultStatus,
+        EnforcementRollbackState, ParentPlatform,
     },
+    policy_constants as policy,
 };
 
 #[tokio::test]
@@ -107,11 +110,34 @@ fn journal_event() -> EnforcementAuditJournalEvent {
     EnforcementAuditJournalEvent {
         audit_event_id: enforcement::TEST_AUDIT_EVENT_ID.to_string(),
         action_id: enforcement::TEST_ACTION_ID.to_string(),
+        intent_id: enforcement::TEST_INTENT_ID.to_string(),
         result_id: enforcement::TEST_RESULT_ID.to_string(),
+        policy_decision_id: policy::TEST_DECISION_ID.to_string(),
+        policy_version: policy::TEST_POLICY_VERSION.to_string(),
+        policy_action: PolicyAction::Block,
+        target_id: enforcement::TEST_PROCESS_TARGET_ID.to_string(),
+        target_type: PolicyTargetType::Process,
+        adapter_kind: EnforcementAdapterKind::ProcessControl,
+        platform: ParentPlatform::Windows,
         audit_event_kind: EnforcementAuditEventKind::Attempted,
         result_status: EnforcementResultStatus::WouldEnforce,
         adapter_result_code: EnforcementAdapterResultCode::NoOp,
         capability_state: EnforcementCapabilityState::Supported,
+        evidence_references: Vec::new(),
+        actor: None,
+        parent_override: None,
+        unavailable_status: None,
+        rollback_state: EnforcementRollbackState::NotRequired,
+        dry_run: true,
+        reason_codes: Vec::new(),
+        reason: None,
+        requested_at: policy::TEST_EVALUATED_AT.to_string(),
+        started_at: None,
+        completed_at: None,
+        journal_sequence: None,
+        device_id: Some(enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+        source_peer_id: Some(peer::PORTAL_DEV.to_string()),
+        target_route: Some("local-network".to_string()),
         observed_at: "2026-08-05T00:00:00Z".to_string(),
     }
 }

@@ -4,7 +4,9 @@ use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersi
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    activity::policy::{ParentActorReference, ParentEvidenceReference, PolicyAction, PolicyTarget},
+    activity::policy::{
+        ParentActorReference, ParentEvidenceReference, PolicyAction, PolicyTarget, PolicyTargetType,
+    },
     activity::policy_context::ParentDeviceReference,
     constants::enforcement as enforcement_constants,
 };
@@ -548,11 +550,34 @@ pub struct EnforcementAuditEvent {
 pub struct EnforcementAuditJournalEvent {
     pub audit_event_id: String,
     pub action_id: String,
+    pub intent_id: String,
     pub result_id: String,
+    pub policy_decision_id: String,
+    pub policy_version: String,
+    pub policy_action: PolicyAction,
+    pub target_id: String,
+    pub target_type: PolicyTargetType,
+    pub adapter_kind: EnforcementAdapterKind,
+    pub platform: ParentPlatform,
     pub audit_event_kind: EnforcementAuditEventKind,
     pub result_status: EnforcementResultStatus,
     pub adapter_result_code: EnforcementAdapterResultCode,
     pub capability_state: EnforcementCapabilityState,
+    pub evidence_references: Vec<ParentEvidenceReference>,
+    pub actor: Option<ParentActorReference>,
+    pub parent_override: Option<ParentActionReference>,
+    pub unavailable_status: Option<EnforcementUnavailableStatus>,
+    pub rollback_state: EnforcementRollbackState,
+    pub dry_run: bool,
+    pub reason_codes: Vec<String>,
+    pub reason: Option<String>,
+    pub requested_at: String,
+    pub started_at: Option<String>,
+    pub completed_at: Option<String>,
+    pub journal_sequence: Option<String>,
+    pub device_id: Option<String>,
+    pub source_peer_id: Option<String>,
+    pub target_route: Option<String>,
     pub observed_at: String,
 }
 
@@ -561,11 +586,38 @@ impl From<&EnforcementAuditEvent> for EnforcementAuditJournalEvent {
         Self {
             audit_event_id: audit.audit_event_id.clone(),
             action_id: audit.action.action_id.clone(),
+            intent_id: audit.action.intent_id.clone(),
             result_id: audit.result.result_id.clone(),
+            policy_decision_id: audit.action.policy_decision_id.clone(),
+            policy_version: audit.policy_version.clone(),
+            policy_action: audit.action.policy_action,
+            target_id: audit.action.target.target_id.clone(),
+            target_type: audit.action.target.target_type,
+            adapter_kind: audit.action.adapter_kind,
+            platform: audit.action.platform,
             audit_event_kind: audit.audit_event_kind,
             result_status: audit.result.status,
             adapter_result_code: audit.result.adapter_result_code,
             capability_state: audit.capability.capability_state,
+            evidence_references: audit.evidence_references.clone(),
+            actor: audit.actor.clone(),
+            parent_override: audit.parent_override.clone(),
+            unavailable_status: audit.unavailable_status.clone(),
+            rollback_state: audit.result.rollback_state,
+            dry_run: audit.action.dry_run,
+            reason_codes: audit.action.reason_codes.clone(),
+            reason: audit
+                .result
+                .failed_reason
+                .clone()
+                .or_else(|| audit.result.unavailable_reason.clone()),
+            requested_at: audit.action.requested_at.clone(),
+            started_at: Some(audit.result.started_at.clone()),
+            completed_at: audit.result.completed_at.clone(),
+            journal_sequence: audit.journal_sequence.clone(),
+            device_id: None,
+            source_peer_id: None,
+            target_route: None,
             observed_at: audit.observed_at.clone(),
         }
     }
