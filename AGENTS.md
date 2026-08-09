@@ -74,8 +74,11 @@ and workpack state; it does not replace the detailed Markdown plans, proof
 requirements, tests, ADRs, or these agent rules.
 
 Before planned work, run `npm run graph:validate`, then query `npm run
-graph:status`, `npm run graph:ready`, or `npm run graph:inspect <id>`. Do not
-start a graph-blocked workpack. When asked “where are we?”, query graph status;
+graph:report` for the joined workpack-state and live implementation/test
+topology (use `--json` for machine consumption), or use `npm run graph:ready`
+and `npm run graph:inspect <id>`. Do not start a graph-blocked workpack. When
+asked “where are we?”, query the report; use `graph:status` and `graph:code`
+for focused views;
 when asked “what is next?”, query graph ready/why; when asked to continue, take
 only legal READY work in the requested scope. A workpack becomes DONE only
 when its graph completion contract validates implementation, required tests,

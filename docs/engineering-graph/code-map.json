@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "authority": "Reviewed plan-to-runtime ownership map; file counts are live topology, not acceptance.",
+  "plans": {
+    "account-identity-family-plan": [
+      "crates/family-identity-core",
+      "crates/provisioning-core",
+      "crates/storage-custody-core",
+      "crates/entitlement-core",
+      "infra/cloudflare"
+    ],
+    "ai-plan": ["crates/child-ai-core", "crates/screen-ai-core", "crates/agent-service", "crates/schema"],
+    "app-game-plan": ["crates/app-game-core", "crates/agent-service", "crates/schema"],
+    "app-plan": ["crates/app-core", "crates/agent-service", "crates/schema"],
+    "browser-plan": ["crates/browser-core", "crates/agent-service", "apps/portal"],
+    "child-agent-runtime-distribution-plan": ["crates/child-runtime"],
+    "cloudflare-control-plane-plan": ["infra/cloudflare", "packages/schema-domain"],
+    "data-custody-storage-plan": [
+      "crates/storage-custody-core",
+      "crates/ocentra-evidence",
+      "crates/ocentra-eventing",
+      "crates/agent-service"
+    ],
+    "device-trust-bootstrap-plan": ["crates/family-identity-core", "crates/storage-custody-core", "crates/schema"],
+    "eventing-plan": ["crates/ocentra-eventing", "crates/agent-protocol", "crates/agent-service"],
+    "lan-plan": ["crates/lan-core", "crates/agent-service", "crates/agent-core", "crates/schema", "apps/portal"],
+    "logging-domain-parity": ["crates/logging-core", "packages/logging-domain", "crates/agent-service", "apps/portal"],
+    "network-plan": [
+      "crates/network-core",
+      "crates/ocentra-network-evidence",
+      "crates/agent-protocol",
+      "crates/agent-service"
+    ],
+    "parent-desktop-runtime-package-plan": ["crates/parent-runtime-core", "apps/parent-desktop"],
+    "payment-subscription-plan": ["crates/billing-core", "crates/entitlement-core", "infra/cloudflare"],
+    "policy-control-plane-plan": [
+      "crates/policy-control-core",
+      "crates/agent-service",
+      "crates/schema",
+      "crates/child-policy-core",
+      "crates/parent-runtime-core"
+    ],
+    "portal-ux-household-surfaces-plan": ["apps/portal", "packages/portal-domain", "crates/agent-service"],
+    "remote-access-plan": [
+      "crates/remote-access-core",
+      "crates/screen-live-view-core",
+      "crates/lan-core",
+      "apps/portal"
+    ],
+    "screen-ai-pipeline-plan": [
+      "crates/screen-core",
+      "crates/screen-ai-core",
+      "crates/screen-capture-adapter",
+      "crates/agent-service"
+    ],
+    "screen-plan": [
+      "crates/screen-core",
+      "crates/screen-capture-adapter",
+      "crates/screen-live-view-core",
+      "crates/storage-custody-core"
+    ],
+    "setup-install-provisioning-plan": [
+      "crates/provisioning-core",
+      "crates/family-identity-core",
+      "crates/child-runtime",
+      "crates/schema"
+    ],
+    "tracking-plan": [
+      "crates/tracking-core",
+      "crates/agent-service",
+      "crates/schema",
+      "crates/ocentra-eventing",
+      "crates/ocentra-network-evidence"
+    ],
+    "v0-8-enforcement-control-plan": [
+      "crates/child-enforcement-core",
+      "crates/policy-control-core",
+      "crates/agent-service",
+      "crates/ocentra-eventing",
+      "crates/schema"
+    ]
+  }
+}

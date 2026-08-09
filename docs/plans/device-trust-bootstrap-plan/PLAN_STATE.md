@@ -158,6 +158,17 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
   binding, and child-uninstall authorization runtime remain absent.
 - Login alone does not create trust, child devices do not own the trust root, and revocation must win over stale state.
 
+## Latest selected slice (2026-08-09)
+
+WP08 dependency adoption review was replayed on the consolidated E: branch.
+The contract test passed 1/1, the scoped architecture gate passed, and Enforcer
+guard passed. The tracked manifest is
+`docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md`.
+
+This is a validation slice only. It does not claim runtime dependency adoption,
+platform ceremony, key sealing, recovery execution, device-trust closure, CI,
+review, or main merge.
+
 ## Execution Gate
 
 - Route and implementation continue from [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).

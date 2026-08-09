@@ -6,12 +6,31 @@ answer the orchestration questions without chat history.
 
 ```text
 Imported plans: 23
-Imported workpacks: 654
-Graph valid: 678 nodes, 678 edges
+Imported workpacks: 679
+Graph valid: 703 nodes, 703 edges
 Review items: 24
-READY: 3
-BLOCKED: 5
+PLANNED: 252
+READY: 210
+ACTIVE: 2
+BLOCKED: 9
+VALIDATION: 206
+DONE: 0
+Implementation files: 2780
+Test files: 1171
 ```
+
+The joined report is the canonical operator view:
+
+```powershell
+npm run graph:report
+npm run graph:report -- --json
+npm run graph:report -- PLAN-policy-control-plane-plan
+```
+
+It reports all 23 plans and 679 workpack rows, with graph-derived workpack
+state alongside live implementation/test topology under reviewed plan roots.
+The topology is deliberately labelled plan-scoped; it is not a per-workpack
+ownership claim or an acceptance/CI/merge certificate.
 
 The policy-control slice is a useful dependency example:
 
@@ -24,12 +43,15 @@ graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
   WP-policy-control-plane-plan-04-delivery-ack-audit is blocked
 ```
 
-The graph also exposes four independent READY workpacks, so those can be
-assigned in parallel after the normal Enforcer claim/guard step:
-
-- `WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption`
-- `WP-network-plan-08-control-catalog-reference-routing`
-- `WP-remote-access-plan-01-remote-capability-fabric`
+The graph currently exposes 210 READY workpacks, 206 validation workpacks, and
+9 blocked workpacks. Remote WP01, device-trust WP08, and network WP08 are in
+`validation` after focused slices were replayed; all retain explicit
+runtime/no-claim boundaries. The graph therefore tells the next worker which
+work is eligible to claim while keeping validation and blocked work visible.
+Three imported eventing rows that were previously labelled `done` are also now
+`validation`: their durable plan manifest exists, but the generated proof roots
+declared by the workpack contract are absent in this checkout. That is
+intentional evidence-first demotion, not lost work.
 
 The queries used were:
 
@@ -38,6 +60,8 @@ npm run graph:bootstrap -- --write
 npm run graph:validate
 npm run graph:status
 npm run graph:ready
+npm run graph:parallel
 npm run graph:inspect WP-policy-control-plane-plan-05-ask-parent-overrides
 npm run graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
+npm run graph:inspect WP-network-plan-08-control-catalog-reference-routing
 ```

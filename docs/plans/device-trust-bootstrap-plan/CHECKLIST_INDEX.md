@@ -19,3 +19,11 @@ WP01 review refresh (2026-07-19): DTB-01 remains unchecked. A partial Rust paren
 | DTB-07 | Child tamper and uninstall model defined | 07-child-tamper-uninstall | [ ] | `output/device-trust-bootstrap-plan-proof/07-*` |
 | DTB-08 | Dependency adoption decisions recorded | 08-open-source-dependency-adoption | [ ] | `output/device-trust-bootstrap-plan-proof/08-*` |
 | DTB-09 | Route gate and sync checks defined | 09-cross-plan-route-gate | [ ] | `output/device-trust-bootstrap-plan-proof/09-*` |
+
+## Selected slice: WP08 dependency adoption (2026-08-09)
+
+- [x] Replayed the dependency adoption boundary test (1/1).
+- [x] Ran the scoped architecture and Enforcer guard checks.
+- [x] Recorded the durable manifest at `docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md`.
+- [ ] Runtime adoption, platform ceremony, key sealing, recovery execution,
+  CI, review, and main-merge gates remain open.

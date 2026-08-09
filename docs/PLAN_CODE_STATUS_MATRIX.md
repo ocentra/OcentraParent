@@ -21,14 +21,16 @@ the feature is accepted, a test was run today, or a workpack is complete.
 
 The repo-owned graph is now the mechanical status source over these plan rows;
 the matrix remains the human-readable code/test audit. `graph.json` imports 23
-plan directories and 654 workpack rows (the older 526-row figure above is the
-matrix's narrower scheduled-row view). Current derived workpack state is:
+plan directories and 679 workpack rows (the older 526-row figure above is the
+matrix's narrower scheduled-row view). Run `npm run graph:report` for the
+joined state/topology view or `npm run graph:report -- --json` for machine
+consumption. Current derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 202 | 5 | 3 | 1 | 440 | 3 |
+| 252 | 9 | 210 | 2 | 206 | 0 |
 
-The graph validates at 678 nodes and 678 edges, with 24 migration/dependency
+The graph validates at 703 nodes and 703 edges, with 24 migration/dependency
 review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
 `graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
 checklist prose. A graph `DONE` state requires the referenced implementation,
@@ -78,7 +80,10 @@ gates and have not been run or claimed here.
 | --- | --- | --- |
 | Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1; child-policy delivery binding 11/11; child-runtime delivery facade 5/5. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding is enforced through the child-runtime facade. Trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
 | Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
-| Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. | Contract slice verified. Pairing/relay/device-trust/session runtime and retained proof remain open; remote input/control remains deferred. |
+| Policy WP04 receipt-aware transition precondition | `policy-control-core` unit target: 46/46 focused tests passed; `child-policy-core` delivery-handoff replay target: 12/12 passed. The trusted-receipt transition seam persists a matching adapter receipt and keeps the ordinary receiptless path fail-closed; scoped architecture, Rust format, and Enforcer commit gates passed. | Code/test slice is `validation`, not WP04 closure. The parent-runtime-to-agent-service trusted dispatch ledger, Eventing WP06 -> WP11 durable-journal handoff, OS adapter side effect, rollback execution, retained WP04 proof bundle, CI, review, and main merge remain open. |
+| Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. Durable manifest: `docs/proof/remote-access-plan/slice-01-capability-fabric.md`. | Contract slice is `validation`. Pairing/relay/device-trust/session runtime, revoke/remove flow, custody, abuse proof, CI, review, and main merge remain open; remote input/control remains deferred. |
+| Device-trust WP08 dependency adoption | Dependency matrix covers WebAuthn, passkey, keyring, encrypted-bundle, and RustDesk decisions; contract test 1/1 passed; scoped architecture and Enforcer guard passed. Durable manifest: `docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md`. | Review slice is `validation`. Runtime adoption, platform ceremony, key sealing, recovery execution, CI, review, and main merge remain open. |
+| Network WP08 control-catalog routing | Focused route-boundary contract test 1/1 passed; exact capability/schema/settings source docs and no-default-read/no-runtime-claim wording are asserted. Scoped architecture and Enforcer guard passed. Durable manifest: `docs/proof/network-plan/slice-08-control-catalog-routing.md`. | Reference-routing slice is `validation`. Network runtime/parser/classification/policy/enforcement/platform work remains open; CI, review, and main merge remain open. |
 | Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
 | App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; schema-domain build/type-check and `app-runtime-decision.test.ts` passed 11/11; scoped architecture and Enforcer guards passed. | Contract/runtime-decision code/test slice and local proof are current. Installed inventory, broader app runtime/service/portal path, CI, review, and main merge remain open. |
 | Other 18 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
@@ -88,6 +93,8 @@ gates and have not been run or claimed here.
 The artifact/target identity contract is present at the child delivery boundary,
 enforced by the child-runtime facade, and now carried through the
 parent-resolution transport/service binding with focused mismatch coverage.
+The policy owner now exposes a receipt-aware transition seam, but that seam only
+accepts adapter evidence; it does not mint authority or perform an OS action.
 The next implementation is the enforcement-owned trusted adapter and durable
 WP11 journal route. Until that route supplies non-forgeable execution authority,
 delivery remains manual-required rather than active. Actor/device/route/version,

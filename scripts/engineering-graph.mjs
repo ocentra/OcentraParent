@@ -4,9 +4,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   GRAPH_PATH,
+  buildCodeInventory,
   buildBootstrapGraph,
+  buildProgressReport,
   deriveStates,
   explainBlocked,
+  graphSourceDrift,
   loadGraph,
   relatedNodes,
   scopeNodes,
@@ -24,7 +27,10 @@ Usage:
   npm run graph:bootstrap                 Preview imported graph counts
   npm run graph:bootstrap -- --write      Rebuild docs/engineering-graph/graph.json
   npm run graph:status [scope-id]
+  npm run graph:code [scope-id]
+  npm run graph:report [scope-id] [--json]
   npm run graph:ready [scope-id]
+  npm run graph:parallel [scope-id]
   npm run graph:next [scope-id]
   npm run graph:blocked [scope-id]
   npm run graph:inspect <id>
@@ -39,6 +45,10 @@ function flag(args, name) {
   return args.includes(name);
 }
 
+function positionalArg(args) {
+  return args.find((argument) => !argument.startsWith('--'));
+}
+
 function nodeMap(graph) {
   return new Map(graph.nodes.map((node) => [node.id, node]));
 }
@@ -50,6 +60,10 @@ function printNode(node, states) {
   if (node.path) console.log(`Path: ${node.path}`);
   if (node.parent) console.log(`Parent: ${node.parent}`);
   if (node.metadata?.statusText) console.log(`Plan status: ${node.metadata.statusText}`);
+  if (node.metadata?.completionGaps?.length) {
+    console.log('Completion gaps:');
+    for (const gap of node.metadata.completionGaps) console.log(`  - ${gap}`);
+  }
 }
 
 function printList(nodes, states, { limit = Number.POSITIVE_INFINITY } = {}) {
@@ -98,7 +112,12 @@ async function run(command, args) {
   if (command === 'validate') {
     for (const error of validation.errors) console.error(`ERROR ${error}`);
     for (const warning of validation.warnings) console.warn(`WARN ${warning}`);
-    if (!validation.ok) {
+    const generated = await buildBootstrapGraph({ root });
+    const generatedValidation = validateGraph(generated, { root });
+    for (const error of generatedValidation.errors) console.error(`ERROR generated graph: ${error}`);
+    for (const warning of generatedValidation.warnings) console.warn(`WARN generated graph: ${warning}`);
+    for (const error of graphSourceDrift(graph, generated)) console.error(`ERROR ${error}`);
+    if (!validation.ok || !generatedValidation.ok || graphSourceDrift(graph, generated).length > 0) {
       process.exitCode = 1;
       return;
     }
@@ -109,9 +128,77 @@ async function run(command, args) {
     return;
   }
 
-  const scope = args[0];
-  const states = deriveStates(graph, { root });
+  const scope = positionalArg(args);
   const map = nodeMap(graph);
+  if (
+    scope &&
+    ['status', 'ready', 'next', 'parallel', 'blocked', 'report', 'code'].includes(command) &&
+    !map.has(scope)
+  ) {
+    console.error(`Unknown graph scope: ${scope}`);
+    process.exitCode = 1;
+    return;
+  }
+
+  if (command === 'code') {
+    const inventory = await buildCodeInventory({ root, scope });
+    console.log(`Code map: ${inventory.codeMapPath}`);
+    console.log(`Plans: ${inventory.totals.plans}`);
+    console.log(`Implementation files: ${inventory.totals.implementationFiles}`);
+    console.log(`Test files: ${inventory.totals.testFiles}`);
+    console.log('\nPlan code/test topology:');
+    for (const plan of inventory.plans) {
+      const missing = plan.missingRoots.length ? ` missing=${plan.missingRoots.join(',')}` : '';
+      console.log(
+        `${plan.planId} [${plan.state}] implementation=${plan.implementationFiles} tests=${plan.testFiles} roots=${plan.roots.length}${missing}`
+      );
+    }
+    console.log('\nCounts are live file topology only; they do not claim acceptance, proof, CI, or merge.');
+    return;
+  }
+
+  if (command === 'report') {
+    const report = await buildProgressReport({ root, scope });
+    if (flag(args, '--json')) {
+      console.log(JSON.stringify(report, null, 2));
+      return;
+    }
+    console.log(`Scope: ${report.scope}`);
+    console.log(`Plans: ${report.totals.plans}`);
+    console.log(`Workpacks: ${report.totals.workpacks}`);
+    for (const [state, count] of Object.entries(report.totals.states)) {
+      console.log(`${state.toUpperCase().padEnd(10)} ${count}`);
+    }
+    console.log(`Implementation files: ${report.totals.implementationFiles}`);
+    console.log(`Test files: ${report.totals.testFiles}`);
+    console.log('\nPlan matrix (state is graph-derived; code/test is reviewed plan-root topology):');
+    for (const plan of report.plans) {
+      const counts = Object.entries(plan.workpacks.counts)
+        .filter(([, count]) => count > 0)
+        .map(([state, count]) => `${state}=${count}`)
+        .join(', ');
+      const topology = plan.codeTestTopology;
+      console.log(
+        `${plan.id} [${plan.state}] workpacks=${plan.workpacks.total} (${counts || 'none'}) ` +
+          `implementation=${topology.implementationFiles} tests=${topology.testFiles} ` +
+          `code=${topology.state}`
+      );
+      const exceptions = plan.workpacks.rows.filter((workpack) =>
+        ['blocked', 'active', 'validation', 'failed'].includes(workpack.state)
+      );
+      for (const workpack of exceptions.slice(0, 8)) {
+        const gaps = workpack.completionContract.gaps.length ? ` gaps=${workpack.completionContract.gaps.length}` : '';
+        console.log(`  - ${workpack.id} [${workpack.state}]${gaps}`);
+      }
+      if (exceptions.length > 8) console.log(`  - ... ${exceptions.length - 8} more non-planned rows`);
+    }
+    console.log(
+      '\nAuthority: code/test counts are live topology only; they do not claim acceptance, proof, CI, review, or merge.'
+    );
+    return;
+  }
+
+  const states = deriveStates(graph, { root });
   if (command === 'status') {
     const summary = summarizeGraph(graph, scope, { root });
     console.log(`Scope: ${summary.scope}`);
@@ -128,11 +215,12 @@ async function run(command, args) {
     printList(summary.blocked, states, { limit: 25 });
     return;
   }
-  if (command === 'ready' || command === 'next') {
-    printList(
-      scopeNodes(graph, scope).filter((node) => states.get(node.id) === 'ready'),
-      states
+  if (command === 'ready' || command === 'next' || command === 'parallel') {
+    const ready = scopeNodes(graph, scope).filter(
+      (node) => node.kind === 'workpack' && states.get(node.id) === 'ready'
     );
+    if (command === 'parallel') console.log(`Parallel-ready workpacks: ${ready.length}`);
+    printList(ready, states);
     return;
   }
   if (command === 'blocked') {
@@ -162,6 +250,11 @@ async function run(command, args) {
           if (refs.length === 0 && expected.length > 0) {
             console.log(`    expected: ${expected.join(', ')}`);
           }
+        }
+        const expected = Object.entries(node.completion.expected ?? {});
+        if (expected.length > 0) {
+          console.log('Expected artifacts:');
+          for (const [requirement, refs] of expected) console.log(`  ${requirement}: ${refs.join(', ') || 'missing'}`);
         }
       }
       return;
