@@ -10,9 +10,8 @@ Imported workpacks: 679
 Graph valid: 703 nodes, 703 edges
 Review items: 24
 READY: 0
-BLOCKED: 7
-ACTIVE: 3
-VALIDATION: 467
+BLOCKED: 5
+VALIDATION: 471
 DONE: 0
 Implementation files: 12320
 Test files: 7113

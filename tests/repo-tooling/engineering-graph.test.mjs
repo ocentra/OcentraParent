@@ -258,4 +258,12 @@ test('repository bootstrap imports numeric-table workpacks from their existing f
   assert.equal(lanWorkpacks.length, 25);
   assert.ok(lanWorkpacks.every((workpack) => workpack.metadata.sourceFormat === 'numeric-table-row'));
   assert.ok(lanWorkpacks.some((workpack) => workpack.path.endsWith('25-rollout-checklist-and-pr-gate.md')));
+  assert.equal(
+    lanWorkpacks.find((workpack) => workpack.id === 'WP-lan-plan-18-signed-child-hello-heartbeat').state,
+    'validation'
+  );
+  assert.equal(
+    lanWorkpacks.find((workpack) => workpack.id === 'WP-lan-plan-22-current-state-and-gap-map').state,
+    'validation'
+  );
 });

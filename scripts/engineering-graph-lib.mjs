@@ -341,7 +341,10 @@ export function parseWorkpackRows(indexText, availableWorkpackPaths = []) {
     rows.push({
       title: humanize(stem),
       relativePath,
-      statusText: cleanMarkdownText(cells.slice(1).join(' | ')),
+      // In this table format only the state column controls lifecycle.  The
+      // current-truth column may legitimately mention a manual-required
+      // boundary without making the workpack itself graph-blocked.
+      statusText: cleanMarkdownText(cells[1] ?? match[2]),
       sourceFormat: 'numeric-table-row',
     });
   }
