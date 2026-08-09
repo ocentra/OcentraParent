@@ -40,6 +40,10 @@ npm run graph:dependents WP-policy-control-plane-plan-04-delivery-ack-audit
 npm run graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
 ```
 
+`graph:validate` rebuilds the graph in memory from the current plan indexes and
+fails if the checked-in `graph.json` has drifted. Run the bootstrap write command
+after adding, removing, or renaming a workpack.
+
 Use a plan or goal ID as a scope for `status`, `ready`, `parallel`, and
 `blocked`. `parallel` is the deterministic set of independent workpacks whose
 derived state is READY; when it is empty, the graph is not authorizing new
@@ -86,6 +90,13 @@ Proof root conventions are imported from each plan's
 `TEST_PROOF_EXPECTATIONS.md`; durable `docs/proof/<plan>` manifests are
 accepted when the plan explicitly retains them, but they do not silently
 replace a missing generated artifact.
+
+Plan and workpack Markdown is context, not implementation/test execution proof.
+The graph therefore does not accept a `done` state from paths alone. A reviewed
+`completionEvidenceOverrides` entry must provide concrete implementation, test,
+proof, and checklist evidence paths for the workpack; each path is checked for
+existence and recorded as reviewed. This keeps a source inventory or a checklist
+row from silently becoming a completion claim.
 
 ## Adding a workpack
 

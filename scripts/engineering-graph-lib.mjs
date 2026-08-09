@@ -39,6 +39,7 @@ const IGNORED_CODE_DIRECTORIES = new Set([
 
 const NODE_KINDS = new Set(['goal', 'plan', 'workpack']);
 const STATES = new Set(['planned', 'blocked', 'ready', 'active', 'validation', 'done', 'failed', 'paused']);
+const EDGE_KINDS = new Set(['contains', 'depends_on']);
 
 export function normalizeRepoPath(value) {
   return value.split(path.sep).join('/');
@@ -126,10 +127,14 @@ async function walkCodeFiles(root, relativeDirectory) {
 
 export async function buildCodeInventory({ root = process.cwd(), codeMapPath = CODE_MAP_PATH, scope } = {}) {
   const codeMap = await loadCodeMap(root, codeMapPath);
+  const rootScope = !scope || scope === 'GOAL-ocentra-parent';
   const selected = Object.entries(codeMap.plans).filter(
-    ([planSlug]) => !scope || planId(planSlug) === scope || planSlug === scope
+    ([planSlug]) => rootScope || planId(planSlug) === scope || planSlug === scope
   );
   const plans = [];
+  const allCodeFiles = new Set();
+  const allImplementationFiles = new Set();
+  const allTestFiles = new Set();
   for (const [planSlug, roots] of selected) {
     const uniqueRoots = [...new Set(roots.map(normalizeRepoPath))];
     const missingRoots = uniqueRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
@@ -140,6 +145,9 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     const uniqueFiles = [...new Set(files)].sort();
     const testFiles = uniqueFiles.filter(isTestPath);
     const implementationFiles = uniqueFiles.filter((file) => !isTestPath(file));
+    for (const file of uniqueFiles) allCodeFiles.add(file);
+    for (const file of implementationFiles) allImplementationFiles.add(file);
+    for (const file of testFiles) allTestFiles.add(file);
     const state =
       implementationFiles.length === 0 ? 'no-source' : testFiles.length === 0 ? 'source-only' : 'code-and-tests';
     plans.push({
@@ -162,9 +170,9 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     plans,
     totals: {
       plans: plans.length,
-      codeFiles: plans.reduce((total, plan) => total + plan.codeFiles, 0),
-      implementationFiles: plans.reduce((total, plan) => total + plan.implementationFiles, 0),
-      testFiles: plans.reduce((total, plan) => total + plan.testFiles, 0),
+      codeFiles: allCodeFiles.size,
+      implementationFiles: allImplementationFiles.size,
+      testFiles: allTestFiles.size,
     },
   };
 }
@@ -300,6 +308,7 @@ function cleanMarkdownText(value) {
 
 export function parseWorkpackRows(indexText, availableWorkpackPaths = []) {
   if (!indexText) return [];
+  const statusColumn = tableColumnIndex(indexText, /^(?:status|state|lifecycle)$/iu);
   const rows = [];
   for (const line of indexText.split(/\r?\n/)) {
     const match = line.match(/\[([^\]]+)\]\((workpacks\/[^)]+\.md)\)/i);
@@ -308,7 +317,7 @@ export function parseWorkpackRows(indexText, availableWorkpackPaths = []) {
       .split('|')
       .map((cell) => cell.trim())
       .filter(Boolean);
-    const statusText = cleanMarkdownText(cells.at(-1) ?? '');
+    const statusText = cleanMarkdownText(cells[statusColumn ?? cells.length - 1] ?? '');
     rows.push({
       title: cleanMarkdownText(match[1]),
       relativePath: normalizeRepoPath(match[2]),
@@ -344,15 +353,32 @@ export function parseWorkpackRows(indexText, availableWorkpackPaths = []) {
       // In this table format only the state column controls lifecycle.  The
       // current-truth column may legitimately mention a manual-required
       // boundary without making the workpack itself graph-blocked.
-      statusText: cleanMarkdownText(cells[1] ?? match[2]),
+      statusText: cleanMarkdownText(cells[statusColumn ?? 1] ?? match[2]),
       sourceFormat: 'numeric-table-row',
     });
   }
   return rows;
 }
 
+function tableColumnIndex(indexText, headerPattern) {
+  for (const line of indexText.split(/\r?\n/)) {
+    if (!line.includes('|')) continue;
+    const cells = line
+      .split('|')
+      .map((cell) => cell.trim())
+      .filter(Boolean);
+    if (cells.length === 0 || cells.every((cell) => /^:?-{3,}:?$/u.test(cell))) continue;
+    const index = cells.findIndex((cell) => headerPattern.test(cell));
+    if (index >= 0) return index;
+  }
+  return null;
+}
+
 export function classifyWorkpackStatus(statusText) {
   const value = statusText.toLowerCase();
+  if (/\b(?:incomplete|unfinished|unmerged|not\s+(?:done|complete|merged|active))\b/u.test(value)) {
+    return 'planned';
+  }
   if (value.includes('blocked') || value.includes('manual-required')) return 'blocked';
   if (value.includes('failed')) return 'failed';
   if (value.includes('paused')) return 'paused';
@@ -412,6 +438,7 @@ async function buildCompletionContract(root, planSlug, workpackPath) {
   const expected = expectedProofRoot !== durableProofRoot ? { proof: [expectedProofRoot] } : {};
   return {
     required,
+    reviewed: {},
     references: {
       implementation: [workpackPath],
       tests: tests ? [tests] : [],
@@ -510,6 +537,9 @@ async function readOverrides(root, overridesPath) {
     ambiguities: Array.isArray(parsed.ambiguities) ? parsed.ambiguities : [],
     stateOverrides: Array.isArray(parsed.stateOverrides) ? parsed.stateOverrides : [],
     proofOverrides: Array.isArray(parsed.proofOverrides) ? parsed.proofOverrides : [],
+    completionEvidenceOverrides: Array.isArray(parsed.completionEvidenceOverrides)
+      ? parsed.completionEvidenceOverrides
+      : [],
   };
 }
 
@@ -557,16 +587,19 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   for (const override of overrides.stateOverrides) {
     const node = nodeById.get(override.id);
     if (!node || !STATES.has(override.state)) continue;
+    const evidence = Array.isArray(override.evidence) ? override.evidence : [];
+    const missingEvidence = evidence.filter((reference) => !pathExistsSync(repoRoot, reference));
     node.state = override.state;
     node.lifecycleState = override.state;
     node.metadata = {
       ...node.metadata,
       stateOverride: {
         reason: override.reason ?? 'reviewed state override',
-        evidence: override.evidence ?? [],
+        evidence,
       },
+      ...(missingEvidence.length > 0 ? { stateOverrideEvidenceGaps: missingEvidence } : {}),
       ...(override.statusText ? { statusText: override.statusText } : {}),
-      needsReview: false,
+      needsReview: missingEvidence.length > 0,
     };
   }
   for (const override of overrides.proofOverrides) {
@@ -581,6 +614,26 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       ...node.metadata,
       proofOverride: {
         reason: override.reason ?? 'reviewed proof reference override',
+        evidence: override.evidence ?? [],
+      },
+    };
+  }
+  for (const override of overrides.completionEvidenceOverrides) {
+    const node = nodeById.get(override.id);
+    if (!node?.completion) continue;
+    const reviewed = { ...(node.completion.reviewed ?? {}) };
+    const references = { ...(node.completion.references ?? {}) };
+    for (const requirement of node.completion.required ?? []) {
+      const evidence = Array.isArray(override[requirement]) ? override[requirement] : [];
+      if (evidence.length === 0) continue;
+      references[requirement] = evidence;
+      reviewed[requirement] = true;
+    }
+    node.completion = { ...node.completion, reviewed, references };
+    node.metadata = {
+      ...node.metadata,
+      completionEvidenceOverride: {
+        reason: override.reason ?? 'reviewed completion evidence override',
         evidence: override.evidence ?? [],
       },
     };
@@ -656,6 +709,9 @@ export function completionGaps(root, node) {
   for (const requirement of requirements) {
     const references = node.completion.references?.[requirement] ?? [];
     const expected = node.completion.expected?.[requirement] ?? [];
+    if (required.has(requirement) && node.completion.reviewed?.[requirement] !== true) {
+      gaps.push(`${requirement}: reviewed evidence is not recorded`);
+    }
     if (required.has(requirement) && references.length === 0 && expected.length === 0) {
       gaps.push(`${requirement}: no reference or expected artifact is declared`);
       continue;
@@ -701,6 +757,7 @@ export function deriveStates(graph, { root = process.cwd() } = {}) {
     const children = graph.nodes.filter((candidate) => candidate.parent === node.id);
     const childStates = children.map((child) => states.get(child.id));
     if (childStates.length > 0 && childStates.every((state) => state === 'done')) states.set(node.id, 'done');
+    else if (childStates.some((state) => state === 'failed')) states.set(node.id, 'failed');
     else if (childStates.some((state) => state === 'active' || state === 'validation' || state === 'ready')) {
       states.set(node.id, 'active');
     } else if (childStates.some((state) => state === 'blocked')) states.set(node.id, 'blocked');
@@ -797,6 +854,11 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
     }
     for (const dependency of node.dependsOn ?? []) {
       if (!map.has(dependency)) errors.push(`${node.id} references missing dependency ${dependency}`);
+      else if (
+        !graph.edges.some((edge) => edge.kind === 'depends_on' && edge.from === node.id && edge.to === dependency)
+      ) {
+        errors.push(`${node.id} declares dependency ${dependency} without a matching depends_on edge`);
+      }
     }
     if (!node.path) errors.push(`${node.id} is missing path`);
     else if (!pathExistsSync(root, node.path)) warnings.push(`${node.id} path is missing: ${node.path}`);
@@ -826,11 +888,28 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
         `${node.id} is marked done but its completion contract is unsatisfied: ${completionGaps(root, node).join('; ')}`
       );
     }
+    for (const reference of node.metadata?.stateOverride?.evidence ?? []) {
+      if (!pathExistsSync(root, reference)) errors.push(`${node.id} state override evidence is missing: ${reference}`);
+    }
+    for (const reference of node.metadata?.proofOverride?.evidence ?? []) {
+      if (!pathExistsSync(root, reference)) errors.push(`${node.id} proof override evidence is missing: ${reference}`);
+    }
+    for (const reference of node.metadata?.completionEvidenceOverride?.evidence ?? []) {
+      if (!pathExistsSync(root, reference)) errors.push(`${node.id} completion evidence is missing: ${reference}`);
+    }
   }
   for (const edge of graph.edges) {
     if (!map.has(edge.from)) errors.push(`edge references missing from node ${edge.from}`);
     if (!map.has(edge.to)) errors.push(`edge references missing to node ${edge.to}`);
     if (!edge.kind) errors.push(`edge ${edge.from} -> ${edge.to} is missing kind`);
+    else if (!EDGE_KINDS.has(edge.kind))
+      errors.push(`edge ${edge.from} -> ${edge.to} has unsupported kind ${edge.kind}`);
+    if (edge.kind === 'depends_on') {
+      const dependent = map.get(edge.from);
+      if (dependent && !(dependent.dependsOn ?? []).includes(edge.to)) {
+        errors.push(`${edge.from} has depends_on edge ${edge.to} without a matching dependsOn entry`);
+      }
+    }
   }
   for (const cycle of detectCycles(graph)) errors.push(`dependency cycle: ${cycle.join(' -> ')}`);
   const states = deriveStates(graph, { root });
@@ -849,6 +928,25 @@ function pathExistsSync(root, relativePath) {
 export async function loadGraph(root, graphPath = GRAPH_PATH) {
   const text = await readFile(path.join(root, graphPath), 'utf8');
   return JSON.parse(text);
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return value.map(canonicalJson);
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonicalJson(value[key])])
+    );
+  }
+  return value;
+}
+
+export function graphSourceDrift(checkedIn, generated) {
+  if (JSON.stringify(canonicalJson(checkedIn)) === JSON.stringify(canonicalJson(generated))) return [];
+  return [
+    `checked-in graph differs from the current plan/workpack source (${checkedIn.nodes?.length ?? 0} nodes vs ${generated.nodes?.length ?? 0}); run npm run graph:bootstrap -- --write`,
+  ];
 }
 
 export async function writeGraph(root, graphPath, graph) {

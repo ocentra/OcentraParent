@@ -9,6 +9,7 @@ import {
   buildProgressReport,
   deriveStates,
   explainBlocked,
+  graphSourceDrift,
   loadGraph,
   relatedNodes,
   scopeNodes,
@@ -111,7 +112,12 @@ async function run(command, args) {
   if (command === 'validate') {
     for (const error of validation.errors) console.error(`ERROR ${error}`);
     for (const warning of validation.warnings) console.warn(`WARN ${warning}`);
-    if (!validation.ok) {
+    const generated = await buildBootstrapGraph({ root });
+    const generatedValidation = validateGraph(generated, { root });
+    for (const error of generatedValidation.errors) console.error(`ERROR generated graph: ${error}`);
+    for (const warning of generatedValidation.warnings) console.warn(`WARN generated graph: ${warning}`);
+    for (const error of graphSourceDrift(graph, generated)) console.error(`ERROR ${error}`);
+    if (!validation.ok || !generatedValidation.ok || graphSourceDrift(graph, generated).length > 0) {
       process.exitCode = 1;
       return;
     }
@@ -122,8 +128,20 @@ async function run(command, args) {
     return;
   }
 
+  const scope = positionalArg(args);
+  const map = nodeMap(graph);
+  if (
+    scope &&
+    ['status', 'ready', 'next', 'parallel', 'blocked', 'report', 'code'].includes(command) &&
+    !map.has(scope)
+  ) {
+    console.error(`Unknown graph scope: ${scope}`);
+    process.exitCode = 1;
+    return;
+  }
+
   if (command === 'code') {
-    const inventory = await buildCodeInventory({ root, scope: positionalArg(args) });
+    const inventory = await buildCodeInventory({ root, scope });
     console.log(`Code map: ${inventory.codeMapPath}`);
     console.log(`Plans: ${inventory.totals.plans}`);
     console.log(`Implementation files: ${inventory.totals.implementationFiles}`);
@@ -140,7 +158,7 @@ async function run(command, args) {
   }
 
   if (command === 'report') {
-    const report = await buildProgressReport({ root, scope: positionalArg(args) });
+    const report = await buildProgressReport({ root, scope });
     if (flag(args, '--json')) {
       console.log(JSON.stringify(report, null, 2));
       return;
@@ -180,9 +198,7 @@ async function run(command, args) {
     return;
   }
 
-  const scope = positionalArg(args);
   const states = deriveStates(graph, { root });
-  const map = nodeMap(graph);
   if (command === 'status') {
     const summary = summarizeGraph(graph, scope, { root });
     console.log(`Scope: ${summary.scope}`);

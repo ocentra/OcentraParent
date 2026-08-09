@@ -16,40 +16,28 @@
       "state": "validation",
       "reason": "Focused contract/runtime tests and local proof are current; CI, review, and main merge remain open.",
       "statusText": "Validation — code, focused tests, and local proof are current; CI, review, and main merge remain open.",
-      "evidence": [
-        "docs/proof/app-plan/slice-01-app-runtime-decision.md",
-        "output/app-plan-proof/01-contract-boundary-and-effect-schemas/16-validation-commands.log"
-      ]
+      "evidence": ["docs/proof/app-plan/slice-01-app-runtime-decision.md"]
     },
     {
       "id": "WP-remote-access-plan-01-remote-capability-fabric",
       "state": "validation",
       "reason": "Rust-owned view-only capability contract and focused negative tests are current; relay, pairing lifecycle, device-trust integration, custody, CI, review, and main merge remain open.",
       "statusText": "Validation — view-only capability contract and focused tests are current; runtime lifecycle and integration remain open.",
-      "evidence": [
-        "docs/proof/remote-access-plan/slice-01-capability-fabric.md",
-        "output/remote-access-plan-proof/01-remote-capability-fabric/16-validation-commands.log"
-      ]
+      "evidence": ["docs/proof/remote-access-plan/slice-01-capability-fabric.md"]
     },
     {
       "id": "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption",
       "state": "validation",
       "reason": "Dependency matrix decisions and the trust-root boundary test are current; runtime library adoption, platform ceremony, CI, review, and main merge remain open.",
       "statusText": "Validation — dependency/security review and boundary test are current; runtime adoption remains open.",
-      "evidence": [
-        "docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md",
-        "output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/16-validation-commands.log"
-      ]
+      "evidence": ["docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md"]
     },
     {
       "id": "WP-network-plan-08-control-catalog-reference-routing",
       "state": "validation",
       "reason": "Reference-routing contract and exact-source boundary test are current; no network runtime implementation claim, CI, review, or main merge.",
       "statusText": "Validation — catalog routing and no-default-read boundary are current; runtime work remains separate.",
-      "evidence": [
-        "docs/proof/network-plan/slice-08-control-catalog-routing.md",
-        "output/network-plan-proof/08-control-catalog-reference-routing/16-validation-commands.log"
-      ]
+      "evidence": ["docs/proof/network-plan/slice-08-control-catalog-routing.md"]
     }
   ],
   "proofOverrides": [

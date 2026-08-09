@@ -9,9 +9,12 @@ import {
   GRAPH_SCHEMA_VERSION,
   buildCodeInventory,
   buildProgressReport,
+  classifyWorkpackStatus,
   deriveStates,
   completionGaps,
+  graphSourceDrift,
   loadGraph,
+  parseWorkpackRows,
   planId,
   relatedNodes,
   scopeNodes,
@@ -39,6 +42,24 @@ function workpack(id, state, extra = {}) {
 function graph(nodes, edges = []) {
   return { schemaVersion: GRAPH_SCHEMA_VERSION, nodes, edges };
 }
+
+test('workpack status is read from the declared Status or State column', () => {
+  const statusFirst = `| Status | Workpack | Proof root |\n| --- | --- | --- |\n| Open | [one](workpacks/01-one.md) | docs/proof/one |`;
+  const statusLast = `| Workpack | Purpose | Status |\n| --- | --- | --- |\n| [two](workpacks/02-two.md) | scope | Complete |`;
+
+  assert.equal(parseWorkpackRows(statusFirst)[0].statusText, 'Open');
+  assert.equal(parseWorkpackRows(statusLast)[0].statusText, 'Complete');
+  assert.equal(classifyWorkpackStatus('Incomplete; not merged'), 'planned');
+});
+
+test('graph source drift is actionable', () => {
+  const value = graph([workpack('A', 'planned')]);
+  assert.deepEqual(graphSourceDrift(value, value), []);
+  assert.match(
+    graphSourceDrift(value, graph([workpack('A', 'planned'), workpack('B', 'planned')]))[0],
+    /graph:bootstrap/u
+  );
+});
 
 test('dependency resolution derives READY after a DONE dependency', () => {
   const value = graph(
@@ -118,6 +139,27 @@ test('missing dependency references fail validation', () => {
   assert.ok(report.errors.some((error) => error.includes('MISSING')));
 });
 
+test('dependency declarations and edge kinds must agree', () => {
+  const value = graph(
+    [workpack('A', 'ready', { dependsOn: ['B'] }), workpack('B', 'done')],
+    [{ from: 'A', to: 'B', kind: 'depends-on' }]
+  );
+
+  const report = validateGraph(value, { root: repoRoot });
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.some((error) => error.includes('unsupported kind')));
+  assert.ok(report.errors.some((error) => error.includes('matching depends_on')));
+});
+
+test('failed workpacks propagate to their plan state', () => {
+  const value = graph([
+    { id: 'PLAN-test', kind: 'plan', title: 'Test', path: 'AGENTS.md', parent: 'GOAL-test', state: 'active' },
+    { ...workpack('FAILED', 'failed'), parent: 'PLAN-test' },
+  ]);
+  value.nodes.push({ id: 'GOAL-test', kind: 'goal', title: 'Test', path: 'AGENTS.md', parent: null, state: 'active' });
+  assert.equal(deriveStates(value, { root: repoRoot }).get('PLAN-test'), 'failed');
+});
+
 test('DONE requires every completion-contract reference', () => {
   const value = graph([
     workpack('DONE-BUT-INCOMPLETE', 'done', {
@@ -151,6 +193,8 @@ test('missing expected artifacts demote stale DONE to validation', () => {
 
   assert.equal(deriveStates(value, { root: repoRoot }).get('STALE-DONE'), 'validation');
   assert.deepEqual(completionGaps(repoRoot, value.nodes[0]), [
+    'implementation: reviewed evidence is not recorded',
+    'proof: reviewed evidence is not recorded',
     'proof: missing expected artifact output/does-not-exist',
   ]);
   const report = validateGraph(value, { root: repoRoot });
@@ -227,7 +271,7 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.ok(!scoped.some((node) => node.id.startsWith('WP-browser-plan-')));
 
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
-  assert.equal(globalSummary.ready.length, 0);
+  assert.ok(globalSummary.ready.length > 0);
 });
 
 test('progress report joins derived workpack state with reviewed plan topology', async () => {
@@ -250,6 +294,14 @@ test('progress report joins derived workpack state with reviewed plan topology',
     (workpack) => workpack.id === 'WP-policy-control-plane-plan-05-ask-parent-overrides'
   );
   assert.equal(blocked.state, 'blocked');
+});
+
+test('root goal scope includes the full reviewed code map', async () => {
+  const unscoped = await buildCodeInventory({ root: repoRoot });
+  const rootScoped = await buildCodeInventory({ root: repoRoot, scope: 'GOAL-ocentra-parent' });
+  assert.equal(rootScoped.totals.plans, unscoped.totals.plans);
+  assert.equal(rootScoped.totals.implementationFiles, unscoped.totals.implementationFiles);
+  assert.equal(rootScoped.totals.testFiles, unscoped.totals.testFiles);
 });
 
 test('repository bootstrap imports numeric-table workpacks from their existing files', async () => {
