@@ -20,12 +20,18 @@ use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
 use ocentra_parent_agent_protocol::transport::AgentPeer;
 use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmAction;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmActorRole;
+use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmActorState;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmClaimState;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmRequest;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmResult;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmResultState;
 use ocentra_parent_agent_protocol::transport::PolicyRequestAssistantPreviewConfirmTargetKind;
+use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionDecision;
+use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionRequest;
+use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionResult;
+use ocentra_parent_agent_protocol::transport::PolicyRequestParentResolutionResultState;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_policy_control_core::policy_request::ChildPolicyRequest;
 
@@ -267,6 +273,112 @@ async fn policy_request_assistant_preview_confirm_rejects_invalid_parent_authori
     Ok(())
 }
 
+#[tokio::test]
+async fn policy_request_parent_resolution_reconstructs_confirmed_request_and_replays_safely(
+) -> TestResult {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path("policy-request-resolution");
+    cleanup_path(&store_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+
+    let test_result: TestResult = async {
+        let confirmation_body = serde_json::to_string(&command_envelope(
+            &default_policy_request_assistant_preview_confirm_request(),
+        )?)?;
+        let _confirmation = handle_local_command_text_for_test(
+            crate::test_text::TestText::from_display(confirmation_body),
+        )
+        .await;
+
+        let resolution_request = default_parent_resolution_request();
+        let resolution_body =
+            serde_json::to_string(&parent_resolution_command_envelope(&resolution_request)?)?;
+        let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(
+            resolution_body,
+        ))
+        .await;
+        let result = parent_resolution_result(&event)?;
+
+        assert_eq!(
+            event.event,
+            AgentEventName::AgentPolicyRequestParentResolutionResolved
+        );
+        assert_eq!(
+            result.result_state,
+            PolicyRequestParentResolutionResultState::Resolved
+        );
+        assert_eq!(result.policy_request_status, PolicyRequestStatus::Approved);
+        assert_eq!(result.request_id.as_deref(), Some("policy-request-1"));
+        assert_eq!(
+            result.temporary_override_id.as_deref(),
+            Some("policy-override:approval-1")
+        );
+        assert_eq!(
+            result.child_device_delivery_claim_state,
+            PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed
+        );
+
+        let store = ActivityStore::open(&store_path)
+            .map_err(|error| IoError::other(format!("activity store opens: {error:?}")))?;
+        let resolution_fields = store
+            .enforcement_audit_fields_by_event_id("audit.policy-request.resolved")
+            .map_err(|error| IoError::other(format!("activity fields query: {error:?}")))?
+            .ok_or_else(|| IoError::other(constants::error::ACTIVITY_STORE_QUERIES))?;
+        assert!(resolution_fields
+            .get(constants::policy_control::request::FIELD_CANONICAL_RESOLVED_REQUEST_JSON)
+            .is_some());
+
+        let replay_body =
+            serde_json::to_string(&parent_resolution_command_envelope(&resolution_request)?)?;
+        let replay_event = handle_local_command_text_for_test(
+            crate::test_text::TestText::from_display(replay_body),
+        )
+        .await;
+        let replay_result = parent_resolution_result(&replay_event)?;
+        assert_eq!(
+            replay_result.result_state,
+            PolicyRequestParentResolutionResultState::Resolved
+        );
+        assert_eq!(
+            replay_result.rejection_reason.as_deref(),
+            Some("replayed-resolution")
+        );
+
+        Ok(())
+    }
+    .await;
+
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+    test_result
+}
+
+#[tokio::test]
+async fn policy_request_parent_resolution_rejects_missing_confirmed_audit() -> TestResult {
+    let _guard = REPORT_ENV_LOCK.lock().await;
+    let store_path = temp_path("policy-request-resolution-missing");
+    cleanup_path(&store_path);
+    std::env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
+    let request = default_parent_resolution_request();
+    let event = handle_local_command_text_for_test(crate::test_text::TestText::from_display(
+        serde_json::to_string(&parent_resolution_command_envelope(&request)?)?,
+    ))
+    .await;
+    let result = parent_resolution_result(&event)?;
+
+    assert_eq!(
+        result.result_state,
+        PolicyRequestParentResolutionResultState::Rejected
+    );
+    assert_eq!(
+        result.rejection_reason.as_deref(),
+        Some("confirmed-request-not-found")
+    );
+    std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
+    cleanup_path(&store_path);
+    Ok(())
+}
+
 fn command_envelope(
     request: &PolicyRequestAssistantPreviewConfirmRequest,
 ) -> Result<AgentCommandEnvelope, serde_json::Error> {
@@ -296,6 +408,62 @@ fn command_envelope_without_request() -> Result<AgentCommandEnvelope, serde_json
         payload: LogFields::new(),
         ..command_envelope(&default_policy_request_assistant_preview_confirm_request())?
     })
+}
+
+fn default_parent_resolution_request() -> PolicyRequestParentResolutionRequest {
+    PolicyRequestParentResolutionRequest {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        command_id: "policy-request-parent-resolution-command".to_string(),
+        confirmed_audit_reference_id: "audit.policy-request.confirmed".to_string(),
+        approval_id: "approval-1".to_string(),
+        parent_actor_id: "parent-1".to_string(),
+        parent_actor_role: PolicyRequestAssistantPreviewConfirmActorRole::Parent,
+        parent_actor_state: PolicyRequestAssistantPreviewConfirmActorState::Active,
+        decision: PolicyRequestParentResolutionDecision::Grant,
+        approved_action: Some(PolicyRequestAssistantPreviewConfirmAction::TimeLimit),
+        approved_bonus_minutes: None,
+        override_expires_at: Some("2026-06-18T00:30:00Z".to_string()),
+        decided_at: "2026-06-18T00:10:00Z".to_string(),
+        approval_audit_reference_id: "audit.policy-request.resolved".to_string(),
+    }
+}
+
+fn parent_resolution_command_envelope(
+    request: &PolicyRequestParentResolutionRequest,
+) -> Result<AgentCommandEnvelope, serde_json::Error> {
+    Ok(AgentCommandEnvelope {
+        schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
+        message_id: request.command_id.clone(),
+        sent_at: "2026-06-18T00:10:00Z".to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        target: AgentMessageTarget {
+            device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            platform: "windows".to_string(),
+            route: AgentRoute::Localhost,
+        },
+        command: AgentCommandName::AgentPolicyRequestParentResolutionResolve,
+        payload: fields_from_pairs(vec![(
+            constants::field::POLICY_REQUEST_PARENT_RESOLUTION_REQUEST,
+            LogFieldValue::String(serde_json::to_string(request)?),
+        )]),
+    })
+}
+
+fn parent_resolution_result(
+    event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
+) -> Result<PolicyRequestParentResolutionResult, Box<dyn Error>> {
+    match event
+        .payload
+        .get(constants::field::POLICY_REQUEST_PARENT_RESOLUTION_RESULT)
+    {
+        Some(LogFieldValue::String(text)) => Ok(serde_json::from_str(text)?),
+        _ => Err(Box::new(IoError::other(
+            constants::error::AGENT_EVENT_SERIALIZES,
+        ))),
+    }
 }
 
 fn result_payload(

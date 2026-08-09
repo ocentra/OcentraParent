@@ -38,6 +38,8 @@ mod lan_command_reports;
 mod network_command_reports;
 #[path = "websocket/policy_request_confirm.rs"]
 mod policy_request_confirm;
+#[path = "websocket/policy_request_resolution.rs"]
+mod policy_request_resolution;
 #[path = "websocket/socket_session.rs"]
 mod socket_session;
 #[path = "websocket/tracking_retention_settings_write.rs"]
