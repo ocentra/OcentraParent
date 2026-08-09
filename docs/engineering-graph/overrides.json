@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "edges": [
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": ["docs/PLAN_CODE_STATUS_MATRIX.md", "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md"],
+      "reason": "Delivery identity and audit boundary precede ask-parent delivery wiring."
+    }
+  ],
+  "ambiguities": [
+    {
+      "scope": "all imported workpacks",
+      "reason": "Prose dependency language is not promoted to a hard edge without a reviewed override.",
+      "nextAction": "Add a reviewed edge here with evidence, or add explicit dependency metadata to the owning workpack."
+    }
+  ]
+}
