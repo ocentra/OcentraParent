@@ -51,6 +51,10 @@ function printNode(node, states) {
   if (node.path) console.log(`Path: ${node.path}`);
   if (node.parent) console.log(`Parent: ${node.parent}`);
   if (node.metadata?.statusText) console.log(`Plan status: ${node.metadata.statusText}`);
+  if (node.metadata?.completionGaps?.length) {
+    console.log('Completion gaps:');
+    for (const gap of node.metadata.completionGaps) console.log(`  - ${gap}`);
+  }
 }
 
 function printList(nodes, states, { limit = Number.POSITIVE_INFINITY } = {}) {
@@ -164,6 +168,11 @@ async function run(command, args) {
           if (refs.length === 0 && expected.length > 0) {
             console.log(`    expected: ${expected.join(', ')}`);
           }
+        }
+        const expected = Object.entries(node.completion.expected ?? {});
+        if (expected.length > 0) {
+          console.log('Expected artifacts:');
+          for (const [requirement, refs] of expected) console.log(`  ${requirement}: ${refs.join(', ') || 'missing'}`);
         }
       }
       return;

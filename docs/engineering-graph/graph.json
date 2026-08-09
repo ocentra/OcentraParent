@@ -15503,18 +15503,21 @@
       "path": "docs/plans/eventing-plan/workpacks/11-type-safety-and-ownership-hardening.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "done",
-      "lifecycleState": "done",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Proof complete: the scoped WP11 proof roots exist locally under output/eventing-plan-proof/63-type-safety-source-gate/, 66-76-source-safety/, 67-lock-await/, and 68-fixture-parity/, while package-wide @ocentra-parent/agent-protocol-domain type-check, focused policy-control-audit-redaction.test.ts / policy-control-delivery-read-model.test.ts / contracts.test.ts, and the touched-file lint:architecture gate all pass.",
+        "statusText": "Validation — completion contract gaps: proof: missing expected artifact output/eventing-plan-proof/11-type-safety-and-ownership-hardening",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records WP11 proof roots and validation; the generic plan root is not inferred for siblings.",
           "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
-        }
+        },
+        "completionGaps": [
+          "proof: missing expected artifact output/eventing-plan-proof/11-type-safety-and-ownership-hardening"
+        ]
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15541,18 +15544,21 @@
       "path": "docs/plans/eventing-plan/workpacks/12-rollout-proof-and-pr-gate.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "done",
-      "lifecycleState": "done",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Proof complete: docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md, output/eventing-plan-proof/rollout-proof/proof-summary.json, test-results/eventing-rollout-proof/proof.json, and output/eventing-plan-proof/rollout-proof/pr-done-report.md reconcile the route docs to the current open-state truth.",
+        "statusText": "Validation — completion contract gaps: proof: missing expected artifact output/eventing-plan-proof/12-rollout-proof-and-pr-gate",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records the WP12 route-proof bundle and its validation; the generic plan root is not inferred for siblings.",
           "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
-        }
+        },
+        "completionGaps": [
+          "proof: missing expected artifact output/eventing-plan-proof/12-rollout-proof-and-pr-gate"
+        ]
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15577,18 +15583,21 @@
       "path": "docs/plans/eventing-plan/workpacks/13-test-folder-layout-regression-audit.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "done",
-      "lifecycleState": "done",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Proof complete: output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json plus test-results/eventing-test-folder-layout-regression-audit/proof.json; no local src/tests path or src/lib.rs test shim remains.",
+        "statusText": "Validation — completion contract gaps: proof: missing expected artifact output/eventing-plan-proof/13-test-folder-layout-regression-audit",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records the WP13 regression audit and proof roots; the generic plan root is not inferred for siblings.",
           "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
-        }
+        },
+        "completionGaps": [
+          "proof: missing expected artifact output/eventing-plan-proof/13-test-folder-layout-regression-audit"
+        ]
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

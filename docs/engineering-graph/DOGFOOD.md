@@ -11,7 +11,8 @@ Graph valid: 678 nodes, 678 edges
 Review items: 24
 READY: 0
 BLOCKED: 5
-VALIDATION: 443
+VALIDATION: 446
+DONE: 0
 ```
 
 The policy-control slice is a useful dependency example:
@@ -29,7 +30,10 @@ The graph currently exposes no READY workpack. Remote WP01, device-trust WP08,
 and network WP08 are in `validation` after focused slices were replayed; all
 retain explicit runtime/no-claim boundaries. The graph therefore tells the next
 worker to inspect validation/blocked work rather than inventing a new READY
-task.
+task. Three imported eventing rows that were previously labelled `done` are
+also now `validation`: their durable plan manifest exists, but the generated
+proof roots declared by the workpack contract are absent in this checkout.
+That is intentional evidence-first demotion, not lost work.
 
 The queries used were:
 

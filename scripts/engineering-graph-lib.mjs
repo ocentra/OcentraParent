@@ -329,6 +329,24 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     if (dependency.state !== 'done') dependent.state = 'blocked';
   }
 
+  // A documented DONE status is only a starting hint.  Recompute it against
+  // the completion contract before writing the repo-owned graph so stale
+  // checklist prose cannot leave a false DONE node behind.
+  for (const node of nodes) {
+    if (node.kind !== 'workpack' || node.state !== 'done') continue;
+    const gaps = completionGaps(repoRoot, node);
+    if (gaps.length === 0) continue;
+    node.state = 'validation';
+    node.lifecycleState = 'validation';
+    node.metadata = {
+      ...node.metadata,
+      completionGaps: gaps,
+      sourceStatusText: node.metadata.statusText,
+      statusText: `Validation — completion contract gaps: ${gaps.join('; ')}`,
+      needsReview: false,
+    };
+  }
+
   return {
     schemaVersion: GRAPH_SCHEMA_VERSION,
     sourceOfTruth: GRAPH_PATH,
@@ -361,13 +379,34 @@ function nodeMap(graph) {
   return new Map(graph.nodes.map((node) => [node.id, node]));
 }
 
+export function completionGaps(root, node) {
+  if (!node.completion) return [];
+  const gaps = [];
+  const required = new Set(node.completion.required ?? []);
+  const requirements = new Set([
+    ...required,
+    ...Object.keys(node.completion.references ?? {}),
+    ...Object.keys(node.completion.expected ?? {}),
+  ]);
+  for (const requirement of requirements) {
+    const references = node.completion.references?.[requirement] ?? [];
+    const expected = node.completion.expected?.[requirement] ?? [];
+    if (required.has(requirement) && references.length === 0 && expected.length === 0) {
+      gaps.push(`${requirement}: no reference or expected artifact is declared`);
+      continue;
+    }
+    for (const reference of references) {
+      if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing reference ${reference}`);
+    }
+    for (const reference of expected) {
+      if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing expected artifact ${reference}`);
+    }
+  }
+  return gaps;
+}
+
 function completionSatisfied(root, node) {
-  if (!node.completion) return true;
-  return node.completion.required.every(
-    (requirement) =>
-      (node.completion.references?.[requirement] ?? []).length > 0 &&
-      (node.completion.references?.[requirement] ?? []).every((reference) => pathExistsSync(root, reference))
-  );
+  return completionGaps(root, node).length === 0;
 }
 
 export function deriveNodeState(graph, node, states = new Map(), root = process.cwd(), visiting = new Set()) {
@@ -502,8 +541,25 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
           warnings.push(`${node.id} ${requirement} reference is missing: ${reference}`);
       }
     }
+    if (node.lifecycleState && !STATES.has(node.lifecycleState)) {
+      errors.push(`${node.id} has invalid lifecycleState ${node.lifecycleState}`);
+    }
+    // Expected artifacts are intentionally allowed to be absent while a node
+    // is in validation.  A stale DONE node is an actionable warning/error and
+    // is handled by completionGaps below; warning on every open workpack would
+    // turn graph validation into an unreadable dump.
+    if (node.state === 'done' || node.lifecycleState === 'done') {
+      for (const [requirement, references] of Object.entries(node.completion?.expected ?? {})) {
+        for (const reference of references) {
+          if (!pathExistsSync(root, reference))
+            warnings.push(`${node.id} ${requirement} expected artifact is missing: ${reference}`);
+        }
+      }
+    }
     if (node.state === 'done' && !completionSatisfied(root, node)) {
-      errors.push(`${node.id} is marked done but its completion contract is unsatisfied`);
+      errors.push(
+        `${node.id} is marked done but its completion contract is unsatisfied: ${completionGaps(root, node).join('; ')}`
+      );
     }
   }
   for (const edge of graph.edges) {
@@ -549,7 +605,14 @@ export function explainBlocked(graph, nodeId, { root = process.cwd() } = {}) {
     else if (states.get(dependency.id) !== 'done') reasons.push(`${dependency.id} is ${states.get(dependency.id)}`);
   }
   if (node.metadata?.needsReview) reasons.push('migration/import status needs review before readiness');
-  if (states.get(node.id) === 'validation') reasons.push('completion contract still needs validation evidence');
+  if (states.get(node.id) === 'validation') {
+    const gaps = completionGaps(root, node);
+    reasons.push(
+      gaps.length > 0
+        ? `completion contract gaps: ${gaps.join('; ')}`
+        : 'completion contract still needs validation evidence'
+    );
+  }
   return { node, state: states.get(node.id), reasons };
 }
 

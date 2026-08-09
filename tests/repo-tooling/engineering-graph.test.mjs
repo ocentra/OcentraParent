@@ -6,6 +6,7 @@ import test from 'node:test';
 import {
   GRAPH_SCHEMA_VERSION,
   deriveStates,
+  completionGaps,
   loadGraph,
   planId,
   relatedNodes,
@@ -131,6 +132,26 @@ test('DONE requires every completion-contract reference', () => {
   const report = validateGraph(value, { root: repoRoot });
   assert.equal(report.ok, false);
   assert.ok(report.errors.some((error) => error.includes('completion contract')));
+});
+
+test('missing expected artifacts demote stale DONE to validation', () => {
+  const value = graph([
+    workpack('STALE-DONE', 'done', {
+      completion: {
+        required: ['implementation', 'proof'],
+        references: { implementation: ['AGENTS.md'], proof: ['AGENTS.md'] },
+        expected: { proof: ['output/does-not-exist'] },
+      },
+    }),
+  ]);
+
+  assert.equal(deriveStates(value, { root: repoRoot }).get('STALE-DONE'), 'validation');
+  assert.deepEqual(completionGaps(repoRoot, value.nodes[0]), [
+    'proof: missing expected artifact output/does-not-exist',
+  ]);
+  const report = validateGraph(value, { root: repoRoot });
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.some((error) => error.includes('missing expected artifact')));
 });
 
 test('repository bootstrap is queryable and keeps plan scope isolated', async () => {

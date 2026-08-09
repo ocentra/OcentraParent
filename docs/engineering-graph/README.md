@@ -54,10 +54,14 @@ the workpack; a generic proof directory is not sufficient by itself.
 `done` is not a free-form checklist label. A workpack's completion contract
 points to implementation, test, proof, and checklist artifacts. Validation
 rejects duplicate IDs, missing references, dependency cycles, invalid states,
-contradictory readiness, and `done` nodes whose contract is incomplete. Proof
-root conventions are imported from each plan's `TEST_PROOF_EXPECTATIONS.md`;
-durable `docs/proof/<plan>` manifests are accepted when the plan explicitly
-retains them.
+contradictory readiness, and `done` nodes whose contract is incomplete. When a
+plan declares an `output/` or other generated proof root, that path is an
+expected artifact and must exist too; a stale imported `done` row is demoted to
+`validation` during bootstrap and `graph why` reports the exact missing path.
+Proof root conventions are imported from each plan's
+`TEST_PROOF_EXPECTATIONS.md`; durable `docs/proof/<plan>` manifests are
+accepted when the plan explicitly retains them, but they do not silently
+replace a missing generated artifact.
 
 ## Adding a workpack
 
