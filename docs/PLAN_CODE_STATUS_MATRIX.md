@@ -41,14 +41,14 @@ checks; no PR, CI run, or merge to `main` has been claimed for this branch.
 | Network | `network-core` 19/6 and `ocentra-network-evidence` 237/60. | Typed eventing foundation exists; complete parser-to-policy/service runtime before platform claims. |
 | Parent desktop/runtime distribution | `parent-runtime-core` 102/18 plus parent shell/package surfaces. | Runtime surfaces exist; signed package launch/rollback smoke is not yet product closure. |
 | Payment/subscription | `billing-core` 17/4 and `entitlement-core` 8/5. | Core source exists; Cloudflare/account/trust dependency chain blocks a real checkout-to-entitlement path. |
-| Policy control plane | `policy-control-core` 126/34, child policy/runtime and service seams. | Parent-resolution contract/service/UI and replay/audit persistence now exist and are freshly focused-tested; the trusted compiled-artifact → child-delivery/adapter-execution boundary remains open and unclaimed. |
+| Policy control plane | `policy-control-core` 126/34, child policy/runtime and service seams. | Parent-resolution contract/service/UI and replay/audit persistence now exist; approved-request → compiled-artifact → child/device/domain binding is now code-backed and focused-tested. Trusted adapter execution and product delivery remain open and unclaimed. |
 | Portal UX | `apps/portal` 104/50 and `portal-domain` 112/14. | Real presentation/test topology exists; it needs service-backed actions, not more presentation-only completion claims. |
 | Remote access | `remote-access-core` 2/5 with adjacent screen/LAN surfaces plus the Rust-owned schema capability-fabric contract. | WP01 view-only capability authorization contract and focused schema tests now exist; pairing/relay/session runtime, device-trust integration, revoke/remove flow, and proof remain open. |
 | Screen AI pipeline | `screen-ai-core` 20/3 and capture/agent/eventing seams. | Foundation; next is a redacted selected-window capture to typed AI-result chain. |
 | Screen | `screen-core` 3/3, live view 3/4, capture adapter 7/3. | Foundation; prove custody/delete on one supported capture platform. |
 | Setup/install/provisioning | `provisioning-core` 9/7 and `child-runtime` 31/9. | Integration source exists; parent setup-to-child trust/install depends on device-trust lifecycle truth. |
 | Tracking | `tracking-core` 39/41 plus agent/eventing/network evidence owners and the Rust-owned WP34 event catalog. | WP34 event identity/required-field validation and focused schema tests now exist; runtime publishers, journal/read-model consumers, provider path, and proof remain open. |
-| V0.8 enforcement | `child-enforcement-core` 8/3 plus policy/service/eventing owners. | Journal sequencing and parent-resolution slices are code/test verified; trusted adapter execution, child delivery, rollback, and product-visible receipts remain open/unclaimed. |
+| V0.8 enforcement | `child-enforcement-core` 8/3 plus policy/service/eventing owners. | Journal sequencing, parent-resolution, and request/artifact/target binding slices are code/test verified; trusted adapter execution, child delivery, rollback, and product-visible receipts remain open/unclaimed. |
 
 ## Fresh code/test verification on 2026-08-09
 
@@ -58,7 +58,7 @@ gates and have not been run or claimed here.
 
 | Slice | Code and focused validation observed | Honest state |
 | --- | --- | --- |
-| Policy WP05 / Enforcement WP10 parent resolution | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Implementation slice verified. Child-device delivery, trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
+| Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1; child-policy delivery binding 11/11. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding is verified. Trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
 | Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
 | Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. | Contract slice verified. Pairing/relay/device-trust/session runtime and retained proof remain open; remote input/control remains deferred. |
 | Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
@@ -67,16 +67,15 @@ gates and have not been run or claimed here.
 
 ### Current dependency decision
 
-The highest-value next implementation is **not** another isolated enforcement
-adapter. The live code now has a durable parent-resolution contract/service/UI
-slice with replay/audit persistence, but its request shape still has no
-compiled artifact/source document or delivery target for a trusted adapter.
-Child-device delivery and product notification therefore remain explicitly
-unclaimed. The next dependency is an owning artifact/target contract and
-trusted-adapter handoff under Policy WP04/WP05 and Enforcement WP10/WP11, with
-actor/device/route/version, expiry, duplicate/replay, audit, and
-notification-no-claim negatives. That is the shared unblocker for policy,
-enforcement, portal, app/game, browser, network, and screen paths.
+The artifact/target identity contract is now present at the child delivery
+boundary and has focused negative coverage. The next implementation is to wire
+that typed handoff into the parent-resolution transport/service and then connect
+it to the enforcement-owned trusted adapter and durable WP11 journal route.
+Until that route supplies non-forgeable execution authority, delivery remains
+manual-required rather than active. Actor/device/route/version, expiry,
+duplicate/replay, audit, and notification-no-claim negatives remain required
+for the next slice. This is still the shared unblocker for policy, enforcement,
+portal, app/game, browser, network, and screen paths.
 
 ## Current merged-code train - 2026-08-06
 
