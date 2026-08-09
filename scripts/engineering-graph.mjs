@@ -1,0 +1,183 @@
+#!/usr/bin/env node
+
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  GRAPH_PATH,
+  buildBootstrapGraph,
+  deriveStates,
+  explainBlocked,
+  loadGraph,
+  relatedNodes,
+  scopeNodes,
+  summarizeGraph,
+  validateGraph,
+  writeGraph,
+} from './engineering-graph-lib.mjs';
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+function usage() {
+  console.log(`Engineering graph control plane
+
+Usage:
+  npm run graph:bootstrap                 Preview imported graph counts
+  npm run graph:bootstrap -- --write      Rebuild docs/engineering-graph/graph.json
+  npm run graph:status [scope-id]
+  npm run graph:ready [scope-id]
+  npm run graph:next [scope-id]
+  npm run graph:blocked [scope-id]
+  npm run graph:inspect <id>
+  npm run graph:deps <id>
+  npm run graph:dependents <id>
+  npm run graph:why <id>
+  npm run graph:validate
+`);
+}
+
+function flag(args, name) {
+  return args.includes(name);
+}
+
+function nodeMap(graph) {
+  return new Map(graph.nodes.map((node) => [node.id, node]));
+}
+
+function printNode(node, states) {
+  console.log(`${node.id} [${node.kind}]`);
+  console.log(`Title: ${node.title}`);
+  console.log(`State: ${states.get(node.id)}`);
+  if (node.path) console.log(`Path: ${node.path}`);
+  if (node.parent) console.log(`Parent: ${node.parent}`);
+  if (node.metadata?.statusText) console.log(`Plan status: ${node.metadata.statusText}`);
+}
+
+function printList(nodes, states, { limit = Number.POSITIVE_INFINITY } = {}) {
+  if (nodes.length === 0) {
+    console.log('(none)');
+    return;
+  }
+  for (const node of nodes.slice(0, limit)) {
+    console.log(`${node.id} [${states.get(node.id)}] ${node.title}`);
+  }
+  if (nodes.length > limit) console.log(`... ${nodes.length - limit} more; scope or use a focused command.`);
+}
+
+async function run(command, args) {
+  if (command === 'help' || command === undefined) {
+    usage();
+    return;
+  }
+  if (command === 'bootstrap') {
+    const graph = await buildBootstrapGraph({ root });
+    const report = validateGraph(graph, { root });
+    console.log(`Imported plans: ${graph.migration.importedPlans}`);
+    console.log(`Imported workpacks: ${graph.migration.importedWorkpacks}`);
+    console.log(`Ambiguities requiring review: ${graph.migration.ambiguities.length}`);
+    if (report.errors.length > 0) {
+      for (const error of report.errors) console.error(`ERROR ${error}`);
+      process.exitCode = 1;
+      return;
+    }
+    if (flag(args, '--write')) {
+      await writeGraph(root, GRAPH_PATH, graph);
+      console.log(`Wrote ${GRAPH_PATH}`);
+    } else {
+      console.log('Preview only; pass --write to update the checked-in graph.');
+    }
+    return;
+  }
+
+  const graph = await loadGraph(root);
+  const validation = validateGraph(graph, { root });
+  if (!validation.ok && command !== 'validate') {
+    for (const error of validation.errors) console.error(`ERROR ${error}`);
+    process.exitCode = 1;
+    return;
+  }
+  if (command === 'validate') {
+    for (const error of validation.errors) console.error(`ERROR ${error}`);
+    for (const warning of validation.warnings) console.warn(`WARN ${warning}`);
+    if (!validation.ok) {
+      process.exitCode = 1;
+      return;
+    }
+    console.log(`Graph valid: ${graph.nodes.length} nodes, ${graph.edges.length} edges.`);
+    console.log(
+      `Imported ${graph.migration.importedPlans} plans and ${graph.migration.importedWorkpacks} workpacks; ${graph.migration.ambiguities.length} review items remain.`
+    );
+    return;
+  }
+
+  const scope = args[0];
+  const states = deriveStates(graph, { root });
+  const map = nodeMap(graph);
+  if (command === 'status') {
+    const summary = summarizeGraph(graph, scope, { root });
+    console.log(`Scope: ${summary.scope}`);
+    console.log(`Plans: ${summary.plans}`);
+    console.log(`Workpacks: ${summary.workpacks}`);
+    for (const [state, count] of Object.entries(summary.counts)) {
+      console.log(`${state.toUpperCase().padEnd(10)} ${count}`);
+    }
+    console.log('\nActive / validating:');
+    printList(summary.active, states, { limit: 25 });
+    console.log('\nReady:');
+    printList(summary.ready, states);
+    console.log('\nBlocked:');
+    printList(summary.blocked, states, { limit: 25 });
+    return;
+  }
+  if (command === 'ready' || command === 'next') {
+    printList(
+      scopeNodes(graph, scope).filter((node) => states.get(node.id) === 'ready'),
+      states
+    );
+    return;
+  }
+  if (command === 'blocked') {
+    printList(
+      scopeNodes(graph, scope).filter((node) => states.get(node.id) === 'blocked'),
+      states
+    );
+    return;
+  }
+  if (['inspect', 'deps', 'dependents', 'why'].includes(command)) {
+    if (!scope || !map.has(scope)) {
+      console.error(`Unknown graph node: ${scope ?? '<missing id>'}`);
+      process.exitCode = 1;
+      return;
+    }
+    const node = map.get(scope);
+    if (command === 'inspect') {
+      printNode(node, states);
+      console.log(`Depends on: ${relatedNodes(graph, scope, 'deps').join(', ') || 'none'}`);
+      console.log(`Unlocks: ${relatedNodes(graph, scope, 'dependents').join(', ') || 'none'}`);
+      if (node.completion) {
+        console.log('Completion contract:');
+        for (const requirement of node.completion.required) {
+          const refs = node.completion.references?.[requirement] ?? [];
+          console.log(`  ${requirement}: ${refs.join(', ') || 'missing'}`);
+        }
+      }
+      return;
+    }
+    if (command === 'why') {
+      const explanation = explainBlocked(graph, scope, { root });
+      console.log(`${scope} is ${explanation.state}.`);
+      for (const reason of explanation.reasons) console.log(`- ${reason}`);
+      return;
+    }
+    const ids = relatedNodes(graph, scope, command);
+    printList(ids.map((id) => map.get(id)).filter(Boolean), states);
+    return;
+  }
+  console.error(`Unknown graph command: ${command}`);
+  usage();
+  process.exitCode = 1;
+}
+
+run(process.argv[2], process.argv.slice(3)).catch((error) => {
+  console.error(error?.stack ?? error);
+  process.exitCode = 1;
+});

@@ -67,6 +67,22 @@ Stage 3, stop when routed:
   owning feature doc, `docs/product-capability-checklist.md`, the selected
   plan's `PLAN_STATE.md`, and the current workpack.
 
+## Engineering graph control plane
+
+The repo-owned graph at `docs/engineering-graph/graph.json` coordinates plan
+and workpack state; it does not replace the detailed Markdown plans, proof
+requirements, tests, ADRs, or these agent rules.
+
+Before planned work, run `npm run graph:validate`, then query `npm run
+graph:status`, `npm run graph:ready`, or `npm run graph:inspect <id>`. Do not
+start a graph-blocked workpack. When asked “where are we?”, query graph status;
+when asked “what is next?”, query graph ready/why; when asked to continue, take
+only legal READY work in the requested scope. A workpack becomes DONE only
+when its graph completion contract validates implementation, required tests,
+proof, checklist, and any required ADR evidence. Do not edit graph state to
+claim completion; update source plans/workpacks and rebuild with
+`npm run graph:bootstrap -- --write`.
+
 ## Before editing
 
 State the lane/mode, plan, feature doc, assigned workpack, files you intend to
