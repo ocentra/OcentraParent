@@ -58,7 +58,7 @@ gates and have not been run or claimed here.
 
 | Slice | Code and focused validation observed | Honest state |
 | --- | --- | --- |
-| Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1; child-policy delivery binding 11/11. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding is verified. Trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
+| Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1; child-policy delivery binding 11/11; child-runtime delivery facade 5/5. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding is enforced through the child-runtime facade. Trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
 | Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
 | Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. | Contract slice verified. Pairing/relay/device-trust/session runtime and retained proof remain open; remote input/control remains deferred. |
 | Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
@@ -68,9 +68,10 @@ gates and have not been run or claimed here.
 ### Current dependency decision
 
 The artifact/target identity contract is now present at the child delivery
-boundary and has focused negative coverage. The next implementation is to wire
-that typed handoff into the parent-resolution transport/service and then connect
-it to the enforcement-owned trusted adapter and durable WP11 journal route.
+boundary and enforced by the child-runtime facade, with focused negative
+coverage. The next implementation is to carry a typed binding reference through
+the parent-resolution transport/service and then connect it to the
+enforcement-owned trusted adapter and durable WP11 journal route.
 Until that route supplies non-forgeable execution authority, delivery remains
 manual-required rather than active. Actor/device/route/version, expiry,
 duplicate/replay, audit, and notification-no-claim negatives remain required
