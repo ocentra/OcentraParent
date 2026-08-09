@@ -43,6 +43,43 @@ fn activity_store_reads_latest_enforcement_audit_fields() -> TestResult {
 }
 
 #[test]
+fn activity_store_reads_enforcement_audit_fields_by_exact_event_id() -> TestResult {
+    let store = open_in_memory_store();
+    let requested_event_id = constants::enforcement::TEST_AUDIT_EVENT_ID;
+    ingest_enforcement_events(
+        &store,
+        &[
+            enforcement_audit_event(requested_event_id, constants::enforcement::TEST_RESULT_ID),
+            enforcement_audit_event(
+                constants::enforcement::TEST_TIMER_EVENT_ID,
+                constants::enforcement::TEST_TIMER_STATE_ID,
+            ),
+        ],
+    );
+
+    let fields = some(
+        enforcement_audit_fields_by_event_id(&store, requested_event_id)?,
+        constants::error::ACTIVITY_STORE_QUERIES,
+    )?;
+
+    assert_eq!(
+        fields.get(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        Some(&LogFieldValue::String(requested_event_id.to_string()))
+    );
+    assert_eq!(
+        fields.get(constants::field::ENFORCEMENT_RESULT_ID),
+        Some(&LogFieldValue::String(
+            constants::enforcement::TEST_RESULT_ID.to_string()
+        ))
+    );
+    assert_eq!(
+        enforcement_audit_fields_by_event_id(&store, "missing-audit-event-id")?,
+        None
+    );
+    Ok(())
+}
+
+#[test]
 fn activity_store_reads_most_recent_enforcement_audit_fields_only() -> TestResult {
     let store = open_in_memory_store();
     ingest_enforcement_events(
@@ -227,6 +264,13 @@ fn ingest_enforcement_events(store: &ActivityStore, events: &[ActivityEvent]) {
 
 fn latest_enforcement_audit_fields(store: &ActivityStore) -> Result<Option<LogFields>, TestText> {
     activity_store_query(store.latest_enforcement_audit_fields())
+}
+
+fn enforcement_audit_fields_by_event_id(
+    store: &ActivityStore,
+    event_id: &str,
+) -> Result<Option<LogFields>, TestText> {
+    activity_store_query(store.enforcement_audit_fields_by_event_id(event_id))
 }
 
 fn latest_matching_enforcement_audit_fields(
