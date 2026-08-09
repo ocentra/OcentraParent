@@ -8,7 +8,7 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 | [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Open / partial reviewed slice on PR [#615](https://github.com/ocentra/OcentraParent/pull/615); CI-active and not closure |
 | [03-domain-policy-compilers](workpacks/03-domain-policy-compilers.md) | Domain compiler contracts and handoffs. | Checked |
 | [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Contract checked / runtime blocked |
-| [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md) | Ask-parent, bonus time, overrides, approvals. | Open |
+| [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md) | Ask-parent, bonus time, overrides, approvals. | Open — parent-resolution contract/service/UI implementation and focused tests now exist; child delivery/artifact/adapter/proof remain open |
 | [06-rollout-proof-and-route-gate](workpacks/06-rollout-proof-and-route-gate.md) | Proof pack, route sync, and no-overclaim gate. | Checked |
 | [07-schedule-time-budget-conflict-model](workpacks/07-schedule-time-budget-conflict-model.md) | Timezone/DST, budgets, and conflict precedence. | Checked |
 | [08-policy-event-model](workpacks/08-policy-event-model.md) | Event families, idempotency, replay, and audit linkage. | Checked |
