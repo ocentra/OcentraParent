@@ -410,7 +410,9 @@ async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
 #[tokio::test]
 async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
     let policy = EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid");
-    let journal = Arc::new(FailingJournal::fail_once_on(1));
+    // The queued publish records its before-dispatch phase first; fail the
+    // drain's before phase so the event is requeued for the retry subscriber.
+    let journal = Arc::new(FailingJournal::fail_once_on(2));
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
         journal,
@@ -467,7 +469,9 @@ async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
 #[tokio::test]
 async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
     let policy = EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid");
-    let journal = Arc::new(FailingJournal::fail_once_on(2));
+    // The queued publish records its before-dispatch phase first; the drain's
+    // before phase is call two, so call three is the after-dispatch failure.
+    let journal = Arc::new(FailingJournal::fail_once_on(3));
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
         journal,

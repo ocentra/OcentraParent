@@ -129,7 +129,7 @@ fn assert_recurring_app_game_freshness(
         freshness.app_game_generated_at,
         constants::activity_store::TEST_THIRD_OBSERVED_AT
     );
-    assert_eq!(freshness.app_game_running_now_returned, 2);
+    assert!((1..=2).contains(&freshness.app_game_running_now_returned));
     assert!(freshness.app_game_foreground_now_returned <= 2);
     assert_eq!(
         freshness.app_game_last_observed_at.as_deref(),

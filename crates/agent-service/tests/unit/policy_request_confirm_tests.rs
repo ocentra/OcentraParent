@@ -346,11 +346,11 @@ async fn policy_request_parent_resolution_reconstructs_confirmed_request_and_rep
         );
 
         let mut mismatched_request = resolution_request.clone();
-        mismatched_request
-            .delivery_binding
-            .as_mut()
-            .expect("delivery binding fixture")
-            .household_id = "another-household".to_string();
+        crate::test_invariants::require_some(
+            mismatched_request.delivery_binding.as_mut(),
+            "delivery binding fixture",
+        )
+        .household_id = "another-household".to_string();
         let mismatched_event =
             handle_local_command_text_for_test(crate::test_text::TestText::from_display(
                 serde_json::to_string(&parent_resolution_command_envelope(&mismatched_request)?)?,

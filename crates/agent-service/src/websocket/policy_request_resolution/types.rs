@@ -19,7 +19,7 @@ pub(crate) struct RejectionReason(pub(crate) String);
 #[derive(Clone, Debug)]
 pub(crate) struct ErrorMessage(pub(crate) String);
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Copy, Debug)]
 pub(crate) struct FieldName(pub(crate) &'static str);
 
 #[derive(Clone, Debug)]

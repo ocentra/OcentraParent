@@ -16,6 +16,7 @@ const ACTIVITY_STORE_OPEN_ERROR: &str = "activity-store-open";
 const ACTIVITY_STORE_LOOKUP_ERROR: &str = "activity-store-lookup";
 const ACTIVITY_STORE_TASK_ERROR: &str = "activity-store-task";
 
+#[derive(Clone, Copy)]
 enum StoreErrorKind {
     Open,
     Lookup,
