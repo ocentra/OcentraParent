@@ -42,11 +42,11 @@ checks; no PR, CI run, or merge to `main` has been claimed for this branch.
 | Payment/subscription | `billing-core` 17/4 and `entitlement-core` 8/5. | Core source exists; Cloudflare/account/trust dependency chain blocks a real checkout-to-entitlement path. |
 | Policy control plane | `policy-control-core` 126/34, child policy/runtime and service seams. | Parent-resolution contract/service/UI and replay/audit persistence now exist and are freshly focused-tested; the trusted compiled-artifact → child-delivery/adapter-execution boundary remains open and unclaimed. |
 | Portal UX | `apps/portal` 104/50 and `portal-domain` 112/14. | Real presentation/test topology exists; it needs service-backed actions, not more presentation-only completion claims. |
-| Remote access | `remote-access-core` 2/5 with adjacent screen/LAN surfaces. | Scaffold; build view-only session grant/revoke state before any control capability. |
+| Remote access | `remote-access-core` 2/5 with adjacent screen/LAN surfaces plus the Rust-owned schema capability-fabric contract. | WP01 view-only capability authorization contract and focused schema tests now exist; pairing/relay/session runtime, device-trust integration, revoke/remove flow, and proof remain open. |
 | Screen AI pipeline | `screen-ai-core` 20/3 and capture/agent/eventing seams. | Foundation; next is a redacted selected-window capture to typed AI-result chain. |
 | Screen | `screen-core` 3/3, live view 3/4, capture adapter 7/3. | Foundation; prove custody/delete on one supported capture platform. |
 | Setup/install/provisioning | `provisioning-core` 9/7 and `child-runtime` 31/9. | Integration source exists; parent setup-to-child trust/install depends on device-trust lifecycle truth. |
-| Tracking | `tracking-core` 39/41 plus agent/eventing/network evidence owners. | Strong source/test topology; real provider-to-read-model-to-portal retention path remains open. |
+| Tracking | `tracking-core` 39/41 plus agent/eventing/network evidence owners and the Rust-owned WP34 event catalog. | WP34 event identity/required-field validation and focused schema tests now exist; runtime publishers, journal/read-model consumers, provider path, and proof remain open. |
 | V0.8 enforcement | `child-enforcement-core` 8/3 plus policy/service/eventing owners. | Journal sequencing and parent-resolution slices are code/test verified; trusted adapter execution, child delivery, rollback, and product-visible receipts remain open/unclaimed. |
 
 ## Fresh code/test verification on 2026-08-09
@@ -59,7 +59,9 @@ gates and have not been run or claimed here.
 | --- | --- | --- |
 | Policy WP05 / Enforcement WP10 parent resolution | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Implementation slice verified. Child-device delivery, trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
 | Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
-| Other 21 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
+| Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. | Contract slice verified. Pairing/relay/device-trust/session runtime and retained proof remain open; remote input/control remains deferred. |
+| Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
+| Other 19 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
 
 ### Current dependency decision
 

@@ -53,7 +53,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | open    | [WP30 Parent And Child UI/UX Surfaces](workpacks/30-parent-and-child-ui-ux-surfaces.md)                                   | 24,016 | 72/74 checked; 2 open |
 | open    | [WP31 Platform Extension Checklists And Proof Routing](workpacks/31-platform-extension-checklists-and-proof-routing.md)   |  7,398 | 19/24 checked; 5 open |
 | open    | [WP32 Journal SQLite And Read-Model Proof](workpacks/32-journal-sqlite-and-read-model-proof.md)                           | 21,929 | 73/76 checked; 3 open |
-| open    | [WP34 Tracking Event Contracts And Protocol Constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md)   |  4,248 | 0/0 checked; on-disk audit open    |
+| open    | [WP34 Tracking Event Contracts And Protocol Constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md)   |  4,248 | 0/0 checked; Rust event catalog and focused schema tests exist; runtime/audit proof remains open |
 | open    | [WP35 Parent Tracking Config Command Event Flow](workpacks/35-parent-tracking-config-command-event-flow.md)               |  3,281 | 0/0 checked; on-disk audit open    |
 | open    | [WP36 Tracking Detection Cascade Event Flow](workpacks/36-tracking-detection-cascade-event-flow.md)                       |  4,015 | 0/0 checked; on-disk audit open    |
 | open    | [WP37 Tracking Event Journal Replay And Projection](workpacks/37-tracking-event-journal-replay-and-projection.md)        |  2,550 | 0/0 checked; on-disk audit open    |
