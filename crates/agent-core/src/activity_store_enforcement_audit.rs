@@ -5,6 +5,13 @@ use rusqlite::{params, Connection};
 use crate::{ActivityStore, ActivityStoreError};
 
 impl ActivityStore {
+    pub fn enforcement_audit_fields_by_event_id(
+        &self,
+        event_id: &str,
+    ) -> Result<Option<LogFields>, ActivityStoreError> {
+        enforcement_audit_fields_by_event_id(&self.connection, event_id)
+    }
+
     pub fn latest_enforcement_audit_fields(&self) -> Result<Option<LogFields>, ActivityStoreError> {
         latest_enforcement_audit_fields(&self.connection)
     }
@@ -21,6 +28,25 @@ impl ActivityStore {
         limit: u64,
     ) -> Result<Vec<LogFields>, ActivityStoreError> {
         recent_enforcement_audit_fields(&self.connection, limit)
+    }
+}
+
+fn enforcement_audit_fields_by_event_id(
+    connection: &Connection,
+    event_id: &str,
+) -> Result<Option<LogFields>, ActivityStoreError> {
+    let mut statement =
+        connection.prepare(constants::sqlite::SELECT_ENFORCEMENT_AUDIT_FIELDS_BY_EVENT_ID)?;
+    let mut rows = statement.query(params![
+        event_id,
+        constants::activity_event_kind::ENFORCEMENT_AUDIT_RECORDED
+    ])?;
+    match rows.next()? {
+        Some(row) => {
+            let fields_json: String = row.get(0)?;
+            Ok(Some(serde_json::from_str::<LogFields>(&fields_json)?))
+        }
+        None => Ok(None),
     }
 }
 
