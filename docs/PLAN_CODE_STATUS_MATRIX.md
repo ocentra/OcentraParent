@@ -11,13 +11,13 @@ named plans; historical rows remain routing context, not current closure proof.
 ## Consolidated branch code/test inventory - 2026-08-09
 
 This is a live **source and test-topology** pass on the one E: integration
-worktree, `codex/consolidated-code-test-20260807` at `e78703f15`. It counted
+worktree, `codex/consolidated-code-test-20260807` at `47ea9e5dd`. It counted
 the plan-owned Rust/worker/UI source and crate-visible test files, then traced
 the active policy request path. Counts mean files exist; they do **not** mean
 the feature is accepted, a test was run today, or a workpack is complete.
 
 There are **23 plan folders** and **526 scheduled workpack rows** in this
-checkout (not 24 plans). The consolidated code train is **24 commits ahead of
+checkout (not 24 plans). The consolidated code train is **26 commits ahead of
 `main`/`origin/main`**. It contains the LAN target repair, enforcement-journal
 sequence repairs, and the parent policy-resolution contract/service/UI slice.
 The new slices have focused local Rust tests and scoped architecture/Enforcer
