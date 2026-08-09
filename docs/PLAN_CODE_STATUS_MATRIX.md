@@ -17,6 +17,24 @@ the plan-owned Rust/worker/UI source and crate-visible test files, then traced
 the active policy request path. Counts mean files exist; they do **not** mean
 the feature is accepted, a test was run today, or a workpack is complete.
 
+## Executable graph control-plane snapshot - 2026-08-09
+
+The repo-owned graph is now the mechanical status source over these plan rows;
+the matrix remains the human-readable code/test audit. `graph.json` imports 23
+plan directories and 654 workpack rows (the older 526-row figure above is the
+matrix's narrower scheduled-row view). Current derived workpack state is:
+
+| Planned | Blocked | Ready | Active | Validation | Done |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 202 | 5 | 4 | 1 | 439 | 3 |
+
+The graph validates at 678 nodes and 678 edges, with 24 migration/dependency
+review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
+`graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
+checklist prose. A graph `DONE` state requires the referenced implementation,
+test, proof, checklist, and any detected ADR paths to exist; it does not claim
+that CI or a product path has been merged.
+
 There are **23 plan folders** and **526 scheduled workpack rows** in this
 checkout (not 24 plans). The consolidated code train is ahead of
 `main`/`origin/main`. It contains the LAN target repair, enforcement-journal
@@ -67,16 +85,15 @@ gates and have not been run or claimed here.
 
 ### Current dependency decision
 
-The artifact/target identity contract is now present at the child delivery
-boundary and enforced by the child-runtime facade, with focused negative
-coverage. The next implementation is to carry a typed binding reference through
-the parent-resolution transport/service and then connect it to the
-enforcement-owned trusted adapter and durable WP11 journal route.
-Until that route supplies non-forgeable execution authority, delivery remains
-manual-required rather than active. Actor/device/route/version, expiry,
-duplicate/replay, audit, and notification-no-claim negatives remain required
-for the next slice. This is still the shared unblocker for policy, enforcement,
-portal, app/game, browser, network, and screen paths.
+The artifact/target identity contract is present at the child delivery boundary,
+enforced by the child-runtime facade, and now carried through the
+parent-resolution transport/service binding with focused mismatch coverage.
+The next implementation is the enforcement-owned trusted adapter and durable
+WP11 journal route. Until that route supplies non-forgeable execution authority,
+delivery remains manual-required rather than active. Actor/device/route/version,
+expiry, duplicate/replay, audit, and notification-no-claim negatives remain
+required for that next slice. This is still the shared unblocker for policy,
+enforcement, portal, app/game, browser, network, and screen paths.
 
 ## Current merged-code train - 2026-08-06
 
