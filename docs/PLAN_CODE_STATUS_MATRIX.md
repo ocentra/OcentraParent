@@ -21,16 +21,16 @@ the feature is accepted, a test was run today, or a workpack is complete.
 
 The repo-owned graph is now the mechanical status source over these plan rows;
 the matrix remains the human-readable code/test audit. `graph.json` imports 23
-plan directories and 654 workpack rows (the older 526-row figure above is the
+plan directories and 679 workpack rows (the older 526-row figure above is the
 matrix's narrower scheduled-row view). Run `npm run graph:report` for the
 joined state/topology view or `npm run graph:report -- --json` for machine
 consumption. Current derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 202 | 5 | 0 | 1 | 446 | 0 |
+| 202 | 7 | 0 | 3 | 467 | 0 |
 
-The graph validates at 678 nodes and 678 edges, with 24 migration/dependency
+The graph validates at 703 nodes and 703 edges, with 24 migration/dependency
 review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
 `graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
 checklist prose. A graph `DONE` state requires the referenced implementation,

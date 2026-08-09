@@ -251,3 +251,11 @@ test('progress report joins derived workpack state with reviewed plan topology',
   );
   assert.equal(blocked.state, 'blocked');
 });
+
+test('repository bootstrap imports numeric-table workpacks from their existing files', async () => {
+  const graph = await loadGraph(repoRoot);
+  const lanWorkpacks = graph.nodes.filter((node) => node.id.startsWith('WP-lan-plan-'));
+  assert.equal(lanWorkpacks.length, 25);
+  assert.ok(lanWorkpacks.every((workpack) => workpack.metadata.sourceFormat === 'numeric-table-row'));
+  assert.ok(lanWorkpacks.some((workpack) => workpack.path.endsWith('25-rollout-checklist-and-pr-gate.md')));
+});

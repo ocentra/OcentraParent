@@ -298,7 +298,7 @@ function cleanMarkdownText(value) {
     .trim();
 }
 
-export function parseWorkpackRows(indexText) {
+export function parseWorkpackRows(indexText, availableWorkpackPaths = []) {
   if (!indexText) return [];
   const rows = [];
   for (const line of indexText.split(/\r?\n/)) {
@@ -313,6 +313,36 @@ export function parseWorkpackRows(indexText) {
       title: cleanMarkdownText(match[1]),
       relativePath: normalizeRepoPath(match[2]),
       statusText,
+      sourceFormat: 'linked-row',
+    });
+  }
+  if (rows.length > 0 || availableWorkpackPaths.length === 0) return rows;
+
+  // Some plan indexes use a compact ID/state table and keep the authoritative
+  // workpack filename in `workpacks/`.  Import that existing format instead of
+  // silently treating the plan as if it had no workpacks (LAN currently uses
+  // this form for rows 01-25).
+  const pathsByNumber = new Map();
+  for (const candidate of availableWorkpackPaths) {
+    const basename = path.basename(candidate);
+    const match = basename.match(/^(\d{1,3})[-_].+\.md$/i);
+    if (match) pathsByNumber.set(String(Number(match[1])), normalizeRepoPath(candidate));
+  }
+  for (const line of indexText.split(/\r?\n/)) {
+    const match = line.match(/^\s*\|\s*`?(\d{1,3})`?\s*\|\s*([^|]+)\|/);
+    if (!match) continue;
+    const relativePath = pathsByNumber.get(String(Number(match[1])));
+    if (!relativePath) continue;
+    const cells = line
+      .split('|')
+      .map((cell) => cell.trim())
+      .filter(Boolean);
+    const stem = path.basename(relativePath).replace(/\.md$/i, '');
+    rows.push({
+      title: humanize(stem),
+      relativePath,
+      statusText: cleanMarkdownText(cells.slice(1).join(' | ')),
+      sourceFormat: 'numeric-table-row',
     });
   }
   return rows;
@@ -327,6 +357,7 @@ export function classifyWorkpackStatus(statusText) {
     return 'active';
   }
   if (value.includes('checked') || value.includes('validation')) return 'validation';
+  if (value.includes('partial')) return 'validation';
   if (value.includes('done') || value.includes('complete') || value.includes('merged')) {
     return 'done';
   }
@@ -398,7 +429,16 @@ async function buildPlan(root, planEntry) {
     firstHeading(indexText) ??
     firstHeading(await readText(root, normalizeRepoPath(path.join(planRoot, 'README.md')))) ??
     humanize(planSlug);
-  const rows = parseWorkpackRows(indexText);
+  const workpackDirectory = path.join(root, planRoot, 'workpacks');
+  let availableWorkpackPaths = [];
+  try {
+    availableWorkpackPaths = (await readdir(workpackDirectory, { withFileTypes: true }))
+      .filter((entry) => entry.isFile() && entry.name.toLowerCase().endsWith('.md'))
+      .map((entry) => normalizeRepoPath(path.join('workpacks', entry.name)));
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  const rows = parseWorkpackRows(indexText, availableWorkpackPaths);
   const workpacks = [];
   for (const row of rows) {
     const relativePath = normalizeRepoPath(path.join(planRoot, row.relativePath));
@@ -417,6 +457,7 @@ async function buildPlan(root, planEntry) {
         planSlug,
         indexPath,
         statusText: row.statusText,
+        sourceFormat: row.sourceFormat ?? 'linked-row',
         dependencyConfidence: 'unreviewed',
         needsReview: storedState === 'planned',
       },

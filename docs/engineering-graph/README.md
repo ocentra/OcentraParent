@@ -62,7 +62,9 @@ maps from filenames or Markdown prose.
 ## Import policy
 
 The bootstrap imports every plan directory and every workpack row that can be
-parsed from its `WORKPACK_INDEX.md`. It records ambiguous or unknown imports in
+parsed from its `WORKPACK_INDEX.md`. It supports both linked rows and the
+existing numeric-ID table format when a matching `workpacks/<id>-*.md` file is
+present. It records ambiguous or unknown imports in
 `graph.json.migration.ambiguities`; it does not invent hard dependencies from
 prose. Reviewed dependency edges live in `overrides.json` and must carry
 evidence. A reviewed `stateOverrides` entry may record a current validation
