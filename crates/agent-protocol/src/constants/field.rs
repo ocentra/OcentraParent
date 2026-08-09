@@ -54,6 +54,8 @@ pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REQUEST: &str =
     "policyRequestAssistantPreviewConfirmRequest";
 pub const POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_RESULT: &str =
     "policyRequestAssistantPreviewConfirmResult";
+pub const POLICY_REQUEST_PARENT_RESOLUTION_REQUEST: &str = "policyRequestParentResolutionRequest";
+pub const POLICY_REQUEST_PARENT_RESOLUTION_RESULT: &str = "policyRequestParentResolutionResult";
 pub const ACTIVE_TAB_CAPABILITY: &str = "activeTabCapability";
 pub const ACTIVE_PROOF_SOURCE: &str = "activeProofSource";
 pub const ACTIVE_STATE: &str = "activeState";
