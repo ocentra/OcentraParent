@@ -21712,7 +21712,9 @@
           "tests": [
             "docs/plans/v0-8-enforcement-control-plan/TEST_PROOF_EXPECTATIONS.md"
           ],
-          "proof": [],
+          "proof": [
+            "output/v0-8-enforcement-control-plan-proof/04-owned-process-time-limit"
+          ],
           "checklist": [
             "docs/plans/v0-8-enforcement-control-plan/CHECKLIST_INDEX.md"
           ],
