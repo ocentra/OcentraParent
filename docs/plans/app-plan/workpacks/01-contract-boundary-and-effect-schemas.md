@@ -1,5 +1,20 @@
 # 01 Contract Boundary And Effect Schemas
 
+## Live validation update (2026-08-09)
+
+The canonical app runtime-decision boundary is present in
+`packages/schema-domain/src/app-runtime-decision.ts` over the Rust-owned
+`crates/app-core` contract. The schema-domain build, type-check, and focused
+`app-runtime-decision.test.ts` suite pass 11/11; `cargo test -p
+ocentra-app-core app -- --nocapture` passes 8 focused runtime tests. Scoped
+architecture and Enforcer guard checks pass. Local proof is recorded at
+`docs/proof/app-plan/slice-01-app-runtime-decision.md` with raw command output
+under `output/app-plan-proof/01-contract-boundary-and-effect-schemas/`.
+
+This is not broad app-plan closure: installed inventory, process/foreground
+capture, service/portal integration, platform proof, CI, review, and main merge
+remain open.
+
 Sources: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), and [test blueprint](../v0-5-native-apps-test-blueprint.md).
 
 ## Where We Are

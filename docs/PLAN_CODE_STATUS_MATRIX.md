@@ -8,6 +8,93 @@ Last broad source inventory: 2026-07-17, on `main` at `37146806c`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
+## Consolidated branch code/test inventory - 2026-08-09
+
+This is a live **source and test-topology** pass on the one E: integration
+worktree, `codex/consolidated-code-test-20260807` (verify the live head with
+`git rev-parse HEAD`). It counted
+the plan-owned Rust/worker/UI source and crate-visible test files, then traced
+the active policy request path. Counts mean files exist; they do **not** mean
+the feature is accepted, a test was run today, or a workpack is complete.
+
+## Executable graph control-plane snapshot - 2026-08-09
+
+The repo-owned graph is now the mechanical status source over these plan rows;
+the matrix remains the human-readable code/test audit. `graph.json` imports 23
+plan directories and 654 workpack rows (the older 526-row figure above is the
+matrix's narrower scheduled-row view). Current derived workpack state is:
+
+| Planned | Blocked | Ready | Active | Validation | Done |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 202 | 5 | 3 | 1 | 440 | 3 |
+
+The graph validates at 678 nodes and 678 edges, with 24 migration/dependency
+review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
+`graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
+checklist prose. A graph `DONE` state requires the referenced implementation,
+test, proof, checklist, and any detected ADR paths to exist; it does not claim
+that CI or a product path has been merged.
+
+There are **23 plan folders** and **526 scheduled workpack rows** in this
+checkout (not 24 plans). The consolidated code train is ahead of
+`main`/`origin/main`. It contains the LAN target repair, enforcement-journal
+sequence repairs, and the parent policy-resolution contract/service/UI slice.
+The new slices have focused local Rust tests and scoped architecture/Enforcer
+checks; no PR, CI run, or merge to `main` has been claimed for this branch.
+
+| Plan | Live code/test topology observed | Code-first state and next executable dependency |
+| --- | --- | --- |
+| Account identity/family | `family-identity-core` 43/23, `provisioning-core` 9/7, `storage-custody-core` 78/16 source/test files. | Core authority/custody exists; Cloudflare binding/migration and real provider/runtime routes remain separate work. |
+| AI | `child-ai-core` 3/2 and `screen-ai-core` 20/3, joined through the shared agent/eventing stack. | Foundation only; next is one typed AI-result-to-policy consumer with negative safety coverage. |
+| App/game | `app-game-core` 21/15 plus service adapters/read models. | Integration source exists; choose one live Windows capture-to-read-model path before treating any customer control path as ready. |
+| App | `app-core` 3/5 plus shared agent-service integration and the versioned runtime-decision contract slice. | WP01 runtime-decision envelope/tuple boundary and Rust contract/invariant tests are freshly consolidated; app identity/evidence/session/service path remains open. |
+| Browser | `browser-core` 33/20 plus service policy/adapter surfaces. | Integration source exists; managed command, adapter result, rollback, and parent-visible state are not a closed product path. |
+| Child runtime distribution | `child-runtime` 31/9 plus service/protocol sources. | Runtime source exists; Windows service lifecycle/package smoke remains the next physical blocker. |
+| Cloudflare control plane | `infra/cloudflare` 20/29 worker source/test files. | Local worker/contract source exists; deployment, account binding/migration, and payment runtime are not proven. |
+| Data custody/storage | `storage-custody-core` 78/16, `ocentra-evidence` 1/4, eventing 80/34. | Core custody shapes exist; select retention/delete/export through service and journal. |
+| Device trust bootstrap | `family-identity-core` 43/23 and `storage-custody-core` 78/16. | Windows custody/step-up slices exist, but durable trusted-device lifecycle, recovery, and cross-platform proof remain open. |
+| Eventing | `ocentra-eventing` 80/34 plus protocol/service consumers. | Journal/replay and WP11 sequence repairs are freshly tested (24/24 journal/replay, 2/2 enforcement-eventing, 43/43 enforcement-runtime filtered); WP10 LAN consumer/product proof remains open. |
+| LAN | `lan-core` 241/42 and `parent-runtime-core` 102/18. | Substantial pairing/runtime source exists; a real paired-device lifecycle through service and portal is still required. |
+| Logging parity | `logging-core` 19/7 plus agent-service/portal integrations. | Foundation exists; enforce correlated logging on one product path rather than counting instrumentation alone. |
+| Network | `network-core` 19/6 and `ocentra-network-evidence` 237/60. | Typed eventing foundation exists; complete parser-to-policy/service runtime before platform claims. |
+| Parent desktop/runtime distribution | `parent-runtime-core` 102/18 plus parent shell/package surfaces. | Runtime surfaces exist; signed package launch/rollback smoke is not yet product closure. |
+| Payment/subscription | `billing-core` 17/4 and `entitlement-core` 8/5. | Core source exists; Cloudflare/account/trust dependency chain blocks a real checkout-to-entitlement path. |
+| Policy control plane | `policy-control-core` 126/34, child policy/runtime and service seams. | Parent-resolution contract/service/UI and replay/audit persistence now exist; approved-request → compiled-artifact → child/device/domain binding is now code-backed and focused-tested. Trusted adapter execution and product delivery remain open and unclaimed. |
+| Portal UX | `apps/portal` 104/50 and `portal-domain` 112/14. | Real presentation/test topology exists; it needs service-backed actions, not more presentation-only completion claims. |
+| Remote access | `remote-access-core` 2/5 with adjacent screen/LAN surfaces plus the Rust-owned schema capability-fabric contract. | WP01 view-only capability authorization contract and focused schema tests now exist; pairing/relay/session runtime, device-trust integration, revoke/remove flow, and proof remain open. |
+| Screen AI pipeline | `screen-ai-core` 20/3 and capture/agent/eventing seams. | Foundation; next is a redacted selected-window capture to typed AI-result chain. |
+| Screen | `screen-core` 3/3, live view 3/4, capture adapter 7/3. | Foundation; prove custody/delete on one supported capture platform. |
+| Setup/install/provisioning | `provisioning-core` 9/7 and `child-runtime` 31/9. | Integration source exists; parent setup-to-child trust/install depends on device-trust lifecycle truth. |
+| Tracking | `tracking-core` 39/41 plus agent/eventing/network evidence owners and the Rust-owned WP34 event catalog. | WP34 event identity/required-field validation and focused schema tests now exist; runtime publishers, journal/read-model consumers, provider path, and proof remain open. |
+| V0.8 enforcement | `child-enforcement-core` 8/3 plus policy/service/eventing owners. | Journal sequencing, parent-resolution, and request/artifact/target binding slices are code/test verified; trusted adapter execution, child delivery, rollback, and product-visible receipts remain open/unclaimed. |
+
+## Fresh code/test verification on 2026-08-09
+
+This is the current implementation evidence for the consolidated branch, not a
+completion certificate. Proof artifacts and CI are intentionally separate
+gates and have not been run or claimed here.
+
+| Slice | Code and focused validation observed | Honest state |
+| --- | --- | --- |
+| Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2; parent-runtime UI 1/1; child-policy delivery binding 11/11; child-runtime delivery facade 5/5. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding is enforced through the child-runtime facade. Trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
+| Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
+| Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 3 focused contract tests passed. Rust format, architecture, generated-artifact, and Enforcer gates passed. | Contract slice verified. Pairing/relay/device-trust/session runtime and retained proof remain open; remote input/control remains deferred. |
+| Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode/AI safety validation; 3 focused contract tests passed as part of the 105-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
+| App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; schema-domain build/type-check and `app-runtime-decision.test.ts` passed 11/11; scoped architecture and Enforcer guards passed. | Contract/runtime-decision code/test slice and local proof are current. Installed inventory, broader app runtime/service/portal path, CI, review, and main merge remain open. |
+| Other 18 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
+
+### Current dependency decision
+
+The artifact/target identity contract is present at the child delivery boundary,
+enforced by the child-runtime facade, and now carried through the
+parent-resolution transport/service binding with focused mismatch coverage.
+The next implementation is the enforcement-owned trusted adapter and durable
+WP11 journal route. Until that route supplies non-forgeable execution authority,
+delivery remains manual-required rather than active. Actor/device/route/version,
+expiry, duplicate/replay, audit, and notification-no-claim negatives remain
+required for that next slice. This is still the shared unblocker for policy,
+enforcement, portal, app/game, browser, network, and screen paths.
+
 ## Current merged-code train - 2026-08-06
 
 Live baseline: `origin/main` at `0923976516098d36962566c2eea3933e6d878b00`.

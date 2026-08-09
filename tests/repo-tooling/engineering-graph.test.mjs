@@ -141,6 +141,13 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.equal(value.nodes.filter((node) => node.kind === 'plan').length, 23);
   assert.ok(value.nodes.filter((node) => node.kind === 'workpack').length >= 500);
 
+  const appContract = value.nodes.find((node) => node.id === 'WP-app-plan-01-contract-boundary-and-effect-schemas');
+  assert.equal(appContract.state, 'validation');
+  assert.match(appContract.metadata.statusText, /^Validation/);
+  assert.deepEqual(appContract.completion.expected.proof, [
+    'output/app-plan-proof/01-contract-boundary-and-effect-schemas',
+  ]);
+
   const blockedId = 'WP-policy-control-plane-plan-05-ask-parent-overrides';
   const dependencyId = 'WP-policy-control-plane-plan-04-delivery-ack-audit';
   assert.equal(deriveStates(value, { root: repoRoot }).get(blockedId), 'blocked');

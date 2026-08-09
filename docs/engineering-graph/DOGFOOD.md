@@ -9,7 +9,7 @@ Imported plans: 23
 Imported workpacks: 654
 Graph valid: 678 nodes, 678 edges
 Review items: 24
-READY: 4
+READY: 3
 BLOCKED: 5
 ```
 
@@ -27,7 +27,6 @@ graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
 The graph also exposes four independent READY workpacks, so those can be
 assigned in parallel after the normal Enforcer claim/guard step:
 
-- `WP-app-plan-01-contract-boundary-and-effect-schemas`
 - `WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption`
 - `WP-network-plan-08-control-catalog-reference-routing`
 - `WP-remote-access-plan-01-remote-capability-fabric`

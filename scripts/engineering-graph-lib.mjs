@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
+import prettier from 'prettier';
 
 export const GRAPH_SCHEMA_VERSION = 1;
 export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
@@ -129,18 +130,30 @@ async function firstExisting(root, candidates) {
   return null;
 }
 
+function declaredProofRoot(testsText, planSlug, workpackPath) {
+  const section = testsText?.match(/^##\s+Proof root\b([\s\S]*?)(?=^##\s)/im)?.[1] ?? '';
+  const match = section.match(/((?:output|docs\/proof)\/[A-Za-z0-9._/-]+(?:<[^>\r\n]+>)?\/?)/);
+  const fallback = normalizeRepoPath(path.join('docs', 'proof', planSlug));
+  const candidate = match?.[1] ?? fallback;
+  const workpackStem = path.basename(workpackPath).replace(/\.md$/i, '');
+  return normalizeRepoPath(candidate.replace(/<workpack-file-stem>|<workpack-id>/gi, workpackStem).replace(/\/+$/, ''));
+}
+
 async function buildCompletionContract(root, planSlug, workpackPath) {
   const planRoot = path.join('docs', 'plans', planSlug);
   const checklist = await firstExisting(root, planContextCandidates(planSlug).slice(0, 3));
   const tests = await firstExisting(root, planContextCandidates(planSlug).slice(3));
-  const proofRoot = normalizeRepoPath(path.join('docs', 'proof', planSlug));
-  const proof = (await pathExists(root, proofRoot)) ? proofRoot : null;
+  const testsText = tests ? await readText(root, tests) : null;
+  const expectedProofRoot = declaredProofRoot(testsText, planSlug, workpackPath);
+  const durableProofRoot = normalizeRepoPath(path.join('docs', 'proof', planSlug));
+  const proof = await firstExisting(root, [expectedProofRoot, durableProofRoot]);
   const adr = await firstExisting(root, [
     normalizeRepoPath(path.join(planRoot, 'adr')),
     normalizeRepoPath(path.join(planRoot, 'adrs')),
   ]);
   const required = ['implementation', 'tests', 'proof', 'checklist'];
   if (adr) required.push('adr');
+  const expected = expectedProofRoot !== durableProofRoot ? { proof: [expectedProofRoot] } : {};
   return {
     required,
     references: {
@@ -150,6 +163,7 @@ async function buildCompletionContract(root, planSlug, workpackPath) {
       checklist: checklist ? [checklist] : [],
       adr: adr ? [adr] : [],
     },
+    ...(Object.keys(expected).length > 0 ? { expected } : {}),
   };
 }
 
@@ -228,6 +242,7 @@ async function readOverrides(root, overridesPath) {
   return {
     edges: Array.isArray(parsed.edges) ? parsed.edges : [],
     ambiguities: Array.isArray(parsed.ambiguities) ? parsed.ambiguities : [],
+    stateOverrides: Array.isArray(parsed.stateOverrides) ? parsed.stateOverrides : [],
   };
 }
 
@@ -272,6 +287,21 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   for (const edge of overrides.edges) edges.push(edge);
 
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  for (const override of overrides.stateOverrides) {
+    const node = nodeById.get(override.id);
+    if (!node || !STATES.has(override.state)) continue;
+    node.state = override.state;
+    node.lifecycleState = override.state;
+    node.metadata = {
+      ...node.metadata,
+      stateOverride: {
+        reason: override.reason ?? 'reviewed state override',
+        evidence: override.evidence ?? [],
+      },
+      ...(override.statusText ? { statusText: override.statusText } : {}),
+      needsReview: false,
+    };
+  }
   for (const edge of edges.filter((candidate) => candidate.kind === 'depends_on')) {
     const dependent = nodeById.get(edge.from);
     const dependency = nodeById.get(edge.to);
@@ -484,7 +514,9 @@ export async function loadGraph(root, graphPath = GRAPH_PATH) {
 
 export async function writeGraph(root, graphPath, graph) {
   const target = path.join(root, graphPath);
-  await writeFile(target, `${JSON.stringify(graph, null, 2)}\n`, 'utf8');
+  const source = JSON.stringify(graph, null, 2);
+  const formatted = await prettier.format(source, { filepath: target, parser: 'json' });
+  await writeFile(target, formatted, 'utf8');
 }
 
 export function explainBlocked(graph, nodeId, { root = process.cwd() } = {}) {
