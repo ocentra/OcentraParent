@@ -3,7 +3,7 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_grant::{
     RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantContext,
     RemoteAccessGrantDisclosureState, RemoteAccessGrantError, RemoteAccessGrantParentGrant,
-    RemoteAccessGrantState, RemoteAccessGrantTransition,
+    RemoteAccessGrantState, RemoteAccessGrantTransition, RemoteAccessGrantTransitionAuthority,
 };
 use ocentra_schema::remote_capability_fabric::{
     RemoteActorRole, RemoteDeviceTrustState, RemoteRoute,
@@ -34,6 +34,7 @@ fn context_for(attempt_ref: &'static str) -> RemoteAccessGrantContext<'static> {
         child_device_ref: CHILD,
         route: ROUTE,
         attempt_ref,
+        transition_authority: RemoteAccessGrantTransitionAuthority::Parent,
         device_trust_state: RemoteDeviceTrustState::Trusted,
         parent_authorized: true,
         child_disclosed: true,
@@ -143,9 +144,14 @@ fn revoke_and_remove_require_parent_authority() {
             .result,
         Err(RemoteAccessGrantError::ParentAuthorityRequired)
     );
+    let mut unauthorized_remove = context();
+    unauthorized_remove.parent_authorized = false;
     assert_eq!(
         grant
-            .transition(RemoteAccessGrantTransition::RemoveDevice, unauthorized)
+            .transition(
+                RemoteAccessGrantTransition::RemoveDevice,
+                unauthorized_remove
+            )
             .result,
         Err(RemoteAccessGrantError::ParentAuthorityRequired)
     );
@@ -445,6 +451,26 @@ fn accepted_attempt_replays_the_original_report_after_retry_and_restore() {
         RemoteAccessGrantState::ReconnectPending
     );
     assert!(restored_active.can_reconnect());
+
+    let mut progressed = paired_grant();
+    let activated = progressed.transition_with_audit(
+        RemoteAccessGrantTransition::Activate,
+        context_for("attempt-progress-activate"),
+    );
+    activated.result.expect_value("activate progressed grant");
+    progressed
+        .transition(
+            RemoteAccessGrantTransition::Pause,
+            context_for("attempt-progress-pause"),
+        )
+        .result
+        .expect_value("pause progressed grant");
+    let progressed_retry = progressed.transition(
+        RemoteAccessGrantTransition::Activate,
+        context_for("attempt-progress-activate"),
+    );
+    assert_eq!(progressed_retry.result, activated.result);
+    assert_eq!(progressed_retry.audit, activated.audit);
 }
 
 #[test]
@@ -620,10 +646,12 @@ fn early_terminal_states_round_trip_with_lifecycle_evidence() {
         )
         .result
         .expect_value("confirm parent");
+    let mut route_independent_remove = context_for("attempt-confirmed-remove");
+    route_independent_remove.route = RemoteRoute::CloudRelay;
     confirmed
         .transition(
             RemoteAccessGrantTransition::RemoveDevice,
-            context_for("attempt-confirmed-remove"),
+            route_independent_remove,
         )
         .result
         .expect_value("remove confirmed grant");
@@ -679,11 +707,12 @@ fn denied_and_failed_pairing_outcomes_are_terminal_and_persisted() {
         "audit-failed",
     )
     .expect_value("grant request");
+    let mut system_failure = context_for("attempt-fail");
+    system_failure.actor_ref = "system-failure";
+    system_failure.parent_authorized = false;
+    system_failure.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
     failed
-        .transition(
-            RemoteAccessGrantTransition::Fail,
-            context_for("attempt-fail"),
-        )
+        .transition(RemoteAccessGrantTransition::Fail, system_failure)
         .result
         .expect_value("fail grant");
     assert_eq!(failed.state(), RemoteAccessGrantState::Failed);
@@ -697,13 +726,23 @@ fn denied_and_failed_pairing_outcomes_are_terminal_and_persisted() {
 #[test]
 fn audit_attempt_refs_are_unique_per_attempt_and_stable_on_retry() {
     let mut grant = paired_grant();
-    grant
-        .transition(
-            RemoteAccessGrantTransition::Activate,
-            context_for("attempt-cycle-activate"),
-        )
-        .result
-        .expect_value("activate");
+    let activate = grant.transition_with_audit(
+        RemoteAccessGrantTransition::Activate,
+        context_for("attempt-cycle-activate"),
+    );
+    activate.result.expect_value("activate");
+    let conflicting = grant.transition_with_audit(
+        RemoteAccessGrantTransition::Revoke,
+        context_for("attempt-cycle-activate"),
+    );
+    assert_eq!(
+        conflicting.result,
+        Err(RemoteAccessGrantError::InvalidTransition)
+    );
+    assert_ne!(
+        conflicting.audit.idempotency_key(),
+        activate.audit.idempotency_key()
+    );
     let pause_one = grant.transition_with_audit(
         RemoteAccessGrantTransition::Pause,
         context_for("attempt-cycle-pause-one"),
@@ -814,13 +853,11 @@ fn deserialization_rejects_state_without_required_lifecycle_evidence() {
 fn grant_round_trips_without_losing_terminal_state() {
     let mut grant = paired_grant();
     let stale_attempt = "attempt-stale-activate";
-    grant
-        .transition(
-            RemoteAccessGrantTransition::Activate,
-            context_for(stale_attempt),
-        )
-        .result
-        .expect_value("activate");
+    let accepted = grant.transition_with_audit(
+        RemoteAccessGrantTransition::Activate,
+        context_for(stale_attempt),
+    );
+    accepted.result.expect_value("activate");
     grant
         .transition(RemoteAccessGrantTransition::Revoke, context())
         .result
@@ -831,6 +868,11 @@ fn grant_round_trips_without_losing_terminal_state() {
     );
     assert_eq!(retry.result, Err(RemoteAccessGrantError::InvalidTransition));
     assert_eq!(retry.audit.outcome, RemoteAccessGrantAuditOutcome::Denied);
+    assert_ne!(retry.audit.audit_ref, accepted.audit.audit_ref);
+    assert_ne!(
+        retry.audit.idempotency_key(),
+        accepted.audit.idempotency_key()
+    );
     let json = serde_json::to_value(&grant).expect_value("serialize grant");
     let restored: RemoteAccessGrant =
         serde_json::from_value(json).expect_value("deserialize grant");

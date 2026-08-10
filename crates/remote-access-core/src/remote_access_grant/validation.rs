@@ -1,10 +1,11 @@
-use ocentra_schema::remote_capability_fabric::{RemoteActorRole, RemoteDeviceTrustState};
+use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 
 use super::{
-    RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantDisclosureState,
-    RemoteAccessGrantError, RemoteAccessGrantParentGrant, RemoteAccessGrantState,
-    RemoteAccessGrantTransition,
+    RemoteAccessGrant, RemoteAccessGrantDisclosureState, RemoteAccessGrantError,
+    RemoteAccessGrantParentGrant, RemoteAccessGrantState,
 };
+
+pub(super) use super::validation_context::context;
 
 pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     if [
@@ -25,47 +26,6 @@ pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
 pub(super) fn actor_role(role: &RemoteActorRole) -> Result<(), RemoteAccessGrantError> {
     if role == &RemoteActorRole::ChildAgent {
         return Err(RemoteAccessGrantError::WrongActor);
-    }
-    Ok(())
-}
-
-pub(super) fn context(
-    grant: &RemoteAccessGrant,
-    transition: RemoteAccessGrantTransition,
-    context: &RemoteAccessGrantContext<'_>,
-) -> Result<(), RemoteAccessGrantError> {
-    if context.attempt_ref.trim().is_empty() {
-        return Err(RemoteAccessGrantError::EmptyField);
-    }
-    if context.household_ref != grant.household_ref {
-        return Err(RemoteAccessGrantError::WrongHousehold);
-    }
-    if context.actor_ref != grant.parent_actor_ref
-        && (!context.parent_authorized
-            || !matches!(
-                transition,
-                RemoteAccessGrantTransition::Revoke
-                    | RemoteAccessGrantTransition::RemoveDevice
-                    | RemoteAccessGrantTransition::Deny
-                    | RemoteAccessGrantTransition::Fail
-            ))
-    {
-        return Err(RemoteAccessGrantError::WrongActor);
-    }
-    if context.child_device_ref != grant.child_device_ref {
-        return Err(RemoteAccessGrantError::WrongDevice);
-    }
-    if context.route != grant.route {
-        return Err(RemoteAccessGrantError::WrongRoute);
-    }
-    if matches!(
-        transition,
-        RemoteAccessGrantTransition::Pair
-            | RemoteAccessGrantTransition::Activate
-            | RemoteAccessGrantTransition::Reconnect
-    ) && context.device_trust_state != RemoteDeviceTrustState::Trusted
-    {
-        return Err(RemoteAccessGrantError::DeviceTrustRequired);
     }
     Ok(())
 }

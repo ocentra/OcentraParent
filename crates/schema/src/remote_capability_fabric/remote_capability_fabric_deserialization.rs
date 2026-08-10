@@ -2,7 +2,8 @@ use serde::{de::Error as _, Deserialize, Deserializer};
 
 use super::{
     RemoteActorRole, RemoteCapabilityGrant, RemoteCapabilityType, RemoteDeviceTrustState,
-    RemoteGrantState, RemotePairingState, RemoteParentGrantState, RemoteRoute, RemoteSessionState,
+    RemoteDiagnosticRedactionState, RemoteGrantState, RemotePairingState, RemoteParentGrantState,
+    RemoteRoute, RemoteSessionState,
 };
 
 #[derive(Deserialize)]
@@ -23,7 +24,7 @@ struct RemoteCapabilityGrantWire {
     session_state: RemoteSessionState,
     device_trust_state: RemoteDeviceTrustState,
     audit_ref: String,
-    diagnostic_redaction_state: String,
+    diagnostic_redaction_state: RemoteDiagnosticRedactionState,
     no_claim: String,
 }
 

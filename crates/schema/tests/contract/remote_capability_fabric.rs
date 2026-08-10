@@ -18,7 +18,7 @@ fn paired_live_view_grant() -> contracts::RemoteCapabilityGrant {
         session_state: contracts::RemoteSessionState::Connecting,
         device_trust_state: contracts::RemoteDeviceTrustState::Trusted,
         audit_ref: "remote-audit-alpha".to_string(),
-        diagnostic_redaction_state: "redacted".to_string(),
+        diagnostic_redaction_state: contracts::RemoteDiagnosticRedactionState::Redacted,
         no_claim: "not-remote-control; not-relay-production-readiness".to_string(),
     }
 }
@@ -192,6 +192,17 @@ fn remote_capability_allows_only_parent_granted_support_live_view() {
             contracts::RemoteRoute::LocalNetwork,
         ),
         Ok(())
+    );
+
+    grant.diagnostic_redaction_state = contracts::RemoteDiagnosticRedactionState::Raw;
+    assert_eq!(
+        grant.authorize_live_view(
+            "household-alpha",
+            "parent-owner-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
+        ),
+        Err(contracts::RemoteCapabilityAuthorizationError::DiagnosticRedactionRequired)
     );
 }
 

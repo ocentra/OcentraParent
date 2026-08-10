@@ -10,9 +10,11 @@
 mod audit;
 mod errors;
 mod replay;
+mod replay_identity;
 mod serialization;
 mod transition;
 mod validation;
+mod validation_context;
 
 use ocentra_schema::remote_capability_fabric::{
     RemoteActorRole, RemoteDeviceTrustState, RemoteRoute,
@@ -113,10 +115,17 @@ pub struct RemoteAccessGrantContext<'a> {
     pub child_device_ref: &'a str,
     pub route: RemoteRoute,
     pub attempt_ref: &'a str,
+    pub transition_authority: RemoteAccessGrantTransitionAuthority,
     pub device_trust_state: RemoteDeviceTrustState,
     pub parent_authorized: bool,
     pub child_disclosed: bool,
     pub parent_grant_approved: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RemoteAccessGrantTransitionAuthority {
+    Parent,
+    SystemFailure,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -194,7 +203,7 @@ impl RemoteAccessGrant {
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
         let actor_ref = context.actor_ref.to_owned();
-        let route = context.route;
+        let route = replay_identity::audit_route(self, transition, &context);
         let attempt_ref = context.attempt_ref.to_owned();
         if let Some(previous) = self
             .attempts

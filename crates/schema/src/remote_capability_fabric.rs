@@ -6,6 +6,7 @@
 
 use serde::{Deserialize, Serialize};
 
+mod remote_capability_fabric_authorization;
 mod remote_capability_fabric_deserialization;
 
 pub const REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION: &str = "remote-capability-fabric-v2";
@@ -88,6 +89,14 @@ pub enum RemoteDeviceTrustState {
     Expired,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RemoteDiagnosticRedactionState {
+    Redacted,
+    Raw,
+    Unknown,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum RemoteCapabilityAuthorizationError {
@@ -104,6 +113,7 @@ pub enum RemoteCapabilityAuthorizationError {
     WrongRoute,
     DeviceTrustRequired,
     MissingAuditRef,
+    DiagnosticRedactionRequired,
     SessionNotLiveViewEligible,
 }
 
@@ -114,10 +124,8 @@ pub struct RemoteCapabilityGrant {
     pub grant_ref: String,
     pub household_ref: String,
     pub child_device_ref: String,
-    #[serde(default = "default_remote_route")]
     pub route: RemoteRoute,
     pub parent_actor_ref: String,
-    #[serde(default = "default_parent_grant_state")]
     pub parent_grant: RemoteParentGrantState,
     pub capability_type: RemoteCapabilityType,
     pub actor_role: RemoteActorRole,
@@ -126,7 +134,7 @@ pub struct RemoteCapabilityGrant {
     pub session_state: RemoteSessionState,
     pub device_trust_state: RemoteDeviceTrustState,
     pub audit_ref: String,
-    pub diagnostic_redaction_state: String,
+    pub diagnostic_redaction_state: RemoteDiagnosticRedactionState,
     pub no_claim: String,
 }
 
@@ -155,6 +163,10 @@ impl RemoteCapabilityGrant {
         if !role_is_authorized {
             return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
         }
+        remote_capability_fabric_authorization::require_safe_support_redaction(
+            &self.actor_role,
+            self.diagnostic_redaction_state,
+        )?;
         if let Some(error) = (self.parent_actor_ref != requesting_parent_actor_ref)
             .then_some(RemoteCapabilityAuthorizationError::WrongParentActor)
             .or_else(|| {

@@ -1,5 +1,6 @@
 use super::super::{
     RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantError, RemoteAccessGrantState,
+    RemoteAccessGrantTransitionAuthority,
 };
 
 pub(super) fn revoke(
@@ -33,7 +34,9 @@ pub(super) fn fail(
     grant: &RemoteAccessGrant,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
-    require_parent_authority(context)?;
+    if context.transition_authority != RemoteAccessGrantTransitionAuthority::SystemFailure {
+        require_parent_authority(context)?;
+    }
     terminal_state(grant)?;
     Ok(RemoteAccessGrantState::Failed)
 }
