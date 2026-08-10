@@ -83,6 +83,7 @@ pub enum RemoteCapabilityAuthorizationError {
     GrantNotActive,
     Revoked,
     DeviceRemoved,
+    WrongChildDevice,
     DeviceTrustRequired,
     MissingAuditRef,
     SessionNotLiveViewEligible,
@@ -112,6 +113,7 @@ impl RemoteCapabilityGrant {
         &self,
         expected_household_ref: &str,
         requesting_parent_actor_ref: &str,
+        requested_child_device_ref: &str,
     ) -> Result<(), RemoteCapabilityAuthorizationError> {
         if self.schema_version != REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION {
             return Err(RemoteCapabilityAuthorizationError::UnsupportedSchemaVersion);
@@ -128,8 +130,14 @@ impl RemoteCapabilityGrant {
         ) {
             return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
         }
-        if self.parent_actor_ref != requesting_parent_actor_ref {
-            return Err(RemoteCapabilityAuthorizationError::WrongParentActor);
+        if let Some(error) = (self.parent_actor_ref != requesting_parent_actor_ref)
+            .then_some(RemoteCapabilityAuthorizationError::WrongParentActor)
+            .or_else(|| {
+                (self.child_device_ref != requested_child_device_ref)
+                    .then_some(RemoteCapabilityAuthorizationError::WrongChildDevice)
+            })
+        {
+            return Err(error);
         }
         if self.pairing_state != RemotePairingState::Paired {
             return Err(RemoteCapabilityAuthorizationError::PairingRequired);

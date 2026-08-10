@@ -124,7 +124,8 @@ their adjacent plan handoffs.
 The narrow Rust-owned capability contract and focused negative tests were
 replayed on the consolidated E: branch. Authorization now checks the exact
 supported schema version, the authenticated requesting parent actor against
-`parent_actor_ref`, and a nonblank audit reference before allowing live view.
+`parent_actor_ref`, the requested child device against `child_device_ref`, and
+a nonblank audit reference before allowing live view.
 The durable validation manifest is
 `docs/proof/remote-access-plan/slice-01-capability-fabric.md`; local reproducible
 output is under
