@@ -222,6 +222,30 @@ fn tombstone_outbox_rejects_an_incoherent_delete_plan() -> Result<(), Box<dyn st
     Ok(())
 }
 
+#[test]
+fn tombstone_outbox_rejects_acknowledgement_for_an_unknown_deletion_ref(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-tombstone-unknown-ack-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let action = action_for(RetentionWindowState::Expired)?;
+    store.persist_action_plan_intent(envelope_for(&action)?, action)?;
+
+    let error = store
+        .mark_terminal_published("storage-custody-delete:does-not-exist")
+        .expect_err("unknown deletion refs must not be acknowledged");
+    assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+    let records = store.records()?;
+    assert_eq!(records.len(), 1);
+    assert!(records[0].terminal_pending);
+    assert_eq!(records[0].version, 2);
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
 fn action_for(
     retention_window_state: RetentionWindowState,
 ) -> Result<

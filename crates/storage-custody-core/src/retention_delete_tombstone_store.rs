@@ -152,6 +152,16 @@ impl RetentionDeleteTombstoneStore {
         let lock = self.lock()?;
         lock.lock_exclusive()?;
         let mut records = self.records()?;
+        if !records
+            .iter()
+            .any(|record| record.deletion_ref == deletion_ref)
+        {
+            FileExt::unlock(&lock)?;
+            return Err(io::Error::new(
+                io::ErrorKind::NotFound,
+                format!("unknown retention delete tombstone: {deletion_ref}"),
+            ));
+        }
         for record in &mut records {
             if record.deletion_ref == deletion_ref {
                 record.terminal_pending = false;

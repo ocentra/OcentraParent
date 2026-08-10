@@ -348,6 +348,28 @@ async fn child_runtime_persists_and_recovers_typed_tombstone_action_before_ackno
 }
 
 #[tokio::test]
+async fn child_runtime_rejects_acknowledgement_for_an_unknown_tombstone(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-unknown-ack-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+
+    let error = runtime_gate_tombstone::acknowledge_child_runtime_tombstone_publication(
+        &store,
+        "storage-custody-delete:does-not-exist",
+    )
+    .await
+    .expect_err("unknown tombstones must not be acknowledged");
+    assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
+    assert!(store.records()?.is_empty());
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
 async fn child_runtime_replays_a_durable_tombstone_obligation_after_journal_failure(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let directory = std::env::temp_dir().join(format!(

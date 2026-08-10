@@ -136,6 +136,15 @@
         "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs"
       ]
     },
+    "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/storage-custody-core/src/retention_delete_tombstone_store.rs",
+        "crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs",
+        "crates/child-runtime/src/runtime_gate_tombstone.rs",
+        "crates/child-runtime/tests/unit/runtime_gate.rs"
+      ]
+    },
     "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit": {
       "planSlug": "v0-8-enforcement-control-plan",
       "roots": [

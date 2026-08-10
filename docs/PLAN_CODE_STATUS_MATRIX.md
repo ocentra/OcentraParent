@@ -10,9 +10,10 @@ named plans; historical rows remain routing context, not current closure proof.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
-This is a live **source and test-topology** pass on the one E: integration
-worktree, `codex/consolidated-code-test-20260807` (verify the live head with
-`git rev-parse HEAD`). It counted
+This is the recorded **source and test-topology** pass from 2026-08-09 on the
+then-consolidated E: integration worktree. Verify the current checkout with
+`git rev-parse HEAD`; the executable graph snapshot below is the current
+authority. It counted
 the plan-owned Rust/worker/UI source and crate-visible test files, then traced
 the active policy request path. Counts mean files exist; they do **not** mean
 the feature is accepted, a test was run today, or a workpack is complete.
@@ -24,15 +25,20 @@ the matrix remains the human-readable code/test audit. `graph.json` imports 23
 plan directories and 679 workpack rows (the older 526-row figure above is the
 matrix's narrower scheduled-row view). Run `npm run graph:report` for the
 joined state/topology view or `npm run graph:report -- --json` for machine
-consumption. Current derived workpack state is:
+consumption. This snapshot was refreshed from the single E: checkout on
+2026-08-10 after the WP07 code/test ownership map was reviewed. Current
+derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 454 | 9 | 0 | 2 | 213 | 1 |
+| 453 | 9 | 0 | 2 | 214 | 1 |
 
 The graph validates at 703 nodes and 705 edges, with 34 migration/dependency
-review items. Historical source/test rows are now classified as `validation`
-instead of being counted as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
+review items. Eleven workpacks now have explicit reviewed code/test maps;
+WP07 is mapped to its storage-custody and child-runtime lifecycle files while
+remaining `active` until its aggregate proof contract is satisfied. Historical
+source/test rows are now classified as `validation` instead of being counted
+as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
 `graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
 checklist prose. A graph `DONE` state requires the referenced implementation,
 test, proof, checklist, and any detected ADR paths to exist; it does not claim
@@ -42,8 +48,8 @@ There are **23 plan folders** and **526 scheduled workpack rows** in this
 checkout (not 24 plans). The consolidated code train is merged to current
 `main` and contains the LAN target repair, enforcement-journal sequence
 repairs, parent policy-resolution/delivery binding, remote/tracking contracts,
-and app runtime-decision contracts. The live reviewed-root topology is 2,801
-implementation files and 1,175 test files. Scoped Enforcer, architecture,
+and app runtime-decision contracts. The live reviewed-root topology is 2,816
+implementation files and 1,178 test files. Scoped Enforcer, architecture,
 generated-artifact, Rust, TypeScript, portal, and pre-commit validation pass.
 Required CI run `31366692141` passed and PR #643 merged this train to `main` as
 `47a2ac717`; proof custody and product-workpack acceptance remain separate
