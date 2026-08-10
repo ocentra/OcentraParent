@@ -62,6 +62,16 @@ pub(crate) async fn record_timer_eventing_audit(
     outcome: &EnforcementBoundaryOutcome,
     paths: &EnforcementJournalPaths,
 ) -> Result<JournalAppend, TimerReportError> {
+    record_timer_eventing_audit_phase(request, outcome, paths, JournalDispatchPhase::AfterDispatch)
+        .await
+}
+
+pub(crate) async fn record_timer_eventing_audit_phase(
+    request: &EnforcementTimerCommandPayload,
+    outcome: &EnforcementBoundaryOutcome,
+    paths: &EnforcementJournalPaths,
+    phase: JournalDispatchPhase,
+) -> Result<JournalAppend, TimerReportError> {
     let mut eventing_journal_path = paths.journal_path.clone();
     eventing_journal_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
     let mut event = ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent::from(
@@ -78,7 +88,7 @@ pub(crate) async fn record_timer_eventing_audit(
         event,
         CorrelationId::parse(request.command_correlation_id.0.clone())
             .map_err(eventing_journal_store_error)?,
-        JournalDispatchPhase::AfterDispatch,
+        phase,
     )
     .await
     .map_err(eventing_journal_store_error)
