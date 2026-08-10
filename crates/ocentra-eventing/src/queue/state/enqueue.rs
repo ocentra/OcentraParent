@@ -120,7 +120,7 @@ fn drop_oldest_and_dead_letter(
             queued_count: state.queued.len(),
             capacity: queue.policy.capacity(),
         },
-        Box::new(dropped.stored),
+        Box::new(dropped),
         DeadLetterReason::QueueOverflow,
         EventingError::QueueCapacityExceeded {
             event_type: dropped_event_type,

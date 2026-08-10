@@ -8,6 +8,8 @@ use crate::bus::{DispatchMode, EventBus, SubscriberRecord};
 use crate::queue::state::NoSubscriberQueueDecision;
 use crate::{EventingError, ExpectValue, PublishReport, QueueDisposition, StoredEventEnvelope};
 
+use super::queued;
+
 pub(super) async fn publish_without_subscribers(
     bus: &EventBus,
     stored: StoredEventEnvelope,
@@ -17,8 +19,7 @@ pub(super) async fn publish_without_subscribers(
         .queue
         .enqueue_no_subscriber(stored.clone(), bus.clock.now())?
     {
-        NoSubscriberQueueDecision::Dispatch(queue_report)
-        | NoSubscriberQueueDecision::Queued(queue_report) => {
+        NoSubscriberQueueDecision::Dispatch(queue_report) => {
             let journal_append = bus
                 .append_journal_phase(&stored, crate::JournalDispatchPhase::BeforeDispatch)
                 .await?;
@@ -29,19 +30,20 @@ pub(super) async fn publish_without_subscribers(
             }
             Ok(report)
         }
+        NoSubscriberQueueDecision::Queued(queue_report) => {
+            queued::publish_queued(bus, stored, dispatch_mode, queue_report).await
+        }
         NoSubscriberQueueDecision::QueuedWithDeadLetter(queue_report, dropped, reason, error) => {
-            let dropped = *dropped;
-            bus.record_stored_snapshot(&stored).await;
-            let dead_letter = DeadLetter::for_queue(&dropped, reason, error);
-            bus.queue
-                .mark_completed(&dropped.event_id, dropped.idempotency_key.clone());
-            bus.record_dead_letter(dead_letter).await;
-            Ok(empty_publish_report(
-                &stored,
+            queued::publish_with_dropped_dead_letter(
+                bus,
+                stored,
                 dispatch_mode,
                 queue_report,
-                1,
-            ))
+                dropped,
+                reason,
+                error,
+            )
+            .await
         }
         NoSubscriberQueueDecision::DeadLetter(queue_report, reason, error) => {
             bus.record_stored_snapshot(&stored).await;

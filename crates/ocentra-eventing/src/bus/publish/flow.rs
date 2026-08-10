@@ -8,6 +8,7 @@ use crate::bus::reports::dead_letters_for;
 use crate::bus::reports::handler::{HandlerOutcome, HandlerReport};
 
 mod dispatching;
+mod queued;
 
 pub(super) async fn publish_with_mode<E>(
     bus: &EventBus,

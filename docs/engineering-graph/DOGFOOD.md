@@ -29,7 +29,7 @@ npm run graph:report -- PLAN-policy-control-plane-plan
 
 It reports all 23 plans and 679 workpack rows, with graph-derived workpack
 state alongside live implementation/test topology under reviewed plan roots.
-Seven focused workpacks now also have explicit reviewed code/test maps; those
+Eight focused workpacks now also have explicit reviewed code/test maps; those
 rows expose exact paths, while every unmapped row remains
 `unknown-workpack-ownership`. Neither topology mode is an acceptance/CI/merge
 certificate.

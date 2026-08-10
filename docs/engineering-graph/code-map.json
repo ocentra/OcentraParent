@@ -132,6 +132,14 @@
         "crates/agent-service/tests/unit/enforcement_timer_expiry_tests.rs",
         "crates/agent-service/tests/unit/enforcement_timer_tests.rs"
       ]
+    },
+    "WP-eventing-plan-04-queue-idempotency-dead-letter": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/ocentra-eventing/src/queue",
+        "crates/ocentra-eventing/src/bus/publish/flow/dispatching.rs",
+        "crates/ocentra-eventing/tests/unit/queue.rs"
+      ]
     }
   }
 }
