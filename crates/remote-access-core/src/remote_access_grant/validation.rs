@@ -33,11 +33,15 @@ pub(super) fn actor_role(role: &RemoteActorRole) -> Result<(), RemoteAccessGrant
 pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     fields(grant)?;
     actor_role(&grant.actor_role)?;
+    if grant.attempts.len() > super::MAX_REPLAY_ATTEMPTS {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
     if grant.attempts.iter().any(|attempt| {
         attempt.grant_id != grant.grant_id
             || attempt.audit_ref != grant.audit_ref
             || attempt.attempt_ref.trim().is_empty()
-            || attempt.route != grant.route
+            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
+                && attempt.route != grant.route)
     }) {
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }

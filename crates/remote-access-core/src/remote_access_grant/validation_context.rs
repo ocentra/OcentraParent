@@ -29,6 +29,15 @@ pub(super) fn context(
     if context.child_device_ref != grant.child_device_ref {
         return Err(RemoteAccessGrantError::WrongDevice);
     }
+    if matches!(
+        transition,
+        RemoteAccessGrantTransition::Pair
+            | RemoteAccessGrantTransition::Activate
+            | RemoteAccessGrantTransition::Reconnect
+    ) && !context.parent_authorized
+    {
+        return Err(RemoteAccessGrantError::ParentAuthorityRequired);
+    }
     if transition != RemoteAccessGrantTransition::RemoveDevice && context.route != grant.route {
         return Err(RemoteAccessGrantError::WrongRoute);
     }

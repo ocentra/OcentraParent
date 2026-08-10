@@ -27,7 +27,7 @@ fn context() -> RemoteAccessGrantContext<'static> {
     context_for(attempt_ref)
 }
 
-fn context_for(attempt_ref: &'static str) -> RemoteAccessGrantContext<'static> {
+pub(super) fn context_for(attempt_ref: &'static str) -> RemoteAccessGrantContext<'static> {
     RemoteAccessGrantContext {
         household_ref: HOUSEHOLD,
         actor_ref: PARENT,
@@ -42,7 +42,7 @@ fn context_for(attempt_ref: &'static str) -> RemoteAccessGrantContext<'static> {
     }
 }
 
-fn paired_grant() -> RemoteAccessGrant {
+pub(super) fn paired_grant() -> RemoteAccessGrant {
     let mut grant = RemoteAccessGrant::request(
         "grant-alpha",
         HOUSEHOLD,

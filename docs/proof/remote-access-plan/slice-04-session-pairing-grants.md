@@ -22,8 +22,8 @@ terminal snapshots. The graph state is `validation`, not `done`.
 | Command | Result |
 | --- | --- |
 | `cargo fmt --all -- --check` | passed |
-| `cargo test -p ocentra-remote-access-core --test unit` | 34 passed, 0 failed |
-| `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 6 passed, 0 failed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 37 passed, 0 failed |
+| `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 7 passed, 0 failed |
 | `cargo clippy -p ocentra-remote-access-core --all-targets -- -D warnings` | passed |
 | `npm run lint:architecture -- --files crates/remote-access-core crates/schema` | passed |
 | `npm run graph:validate --silent` | passed; 703 nodes, 705 edges |

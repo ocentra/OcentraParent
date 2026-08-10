@@ -16,7 +16,7 @@ and rollout proof remain open.
 
 | Command | Result |
 | --- | --- |
-| `cargo test -p ocentra-schema --test contract remote_capability_fabric -- --nocapture` | 6 passed, 0 failed (103 filtered) |
+| `cargo test -p ocentra-schema --test contract remote_capability_fabric -- --nocapture` | 7 passed, 0 failed (103 filtered) |
 | `cargo fmt --all -- --check` | passed |
 | `npm run lint:architecture -- --files crates/schema/src/remote_capability_fabric.rs crates/schema/tests/contract/remote_capability_fabric.rs docs/plans/remote-access-plan` | passed |
 | `npm run hub:guard` | passed; no findings/conflicts |

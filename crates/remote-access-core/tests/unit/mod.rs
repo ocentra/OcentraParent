@@ -9,6 +9,7 @@ use ocentra_remote_access_core::remote_access_session::{
 };
 
 mod grant;
+mod grant_replay;
 mod session;
 mod session_authorization;
 

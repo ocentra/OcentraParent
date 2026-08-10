@@ -104,7 +104,9 @@
       "roots": [
         "crates/remote-access-core/src/remote_access_grant",
         "crates/remote-access-core/tests/unit/grant.rs",
+        "crates/remote-access-core/tests/unit/grant_replay.rs",
         "crates/schema/src/remote_capability_fabric.rs",
+        "crates/schema/src/remote_capability_fabric/remote_capability_fabric_authorization.rs",
         "crates/schema/src/remote_capability_fabric/remote_capability_fabric_deserialization.rs",
         "crates/schema/tests/contract/remote_capability_fabric.rs"
       ]

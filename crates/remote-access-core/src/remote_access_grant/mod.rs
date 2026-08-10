@@ -16,6 +16,11 @@ mod transition;
 mod validation;
 mod validation_context;
 
+/// Number of transition attempts retained for idempotent replay after a grant
+/// is persisted. Older attempts fall out of the bounded replay window rather
+/// than allowing an unbounded attacker-controlled history to grow.
+pub(super) const MAX_REPLAY_ATTEMPTS: usize = 64;
+
 use ocentra_schema::remote_capability_fabric::{
     RemoteActorRole, RemoteDeviceTrustState, RemoteRoute,
 };
@@ -236,6 +241,9 @@ impl RemoteAccessGrant {
                 audit_ref: self.audit_ref.clone(),
             },
         };
+        if self.attempts.len() == MAX_REPLAY_ATTEMPTS {
+            self.attempts.remove(0);
+        }
         self.attempts.push(report.audit.clone());
         report
     }
