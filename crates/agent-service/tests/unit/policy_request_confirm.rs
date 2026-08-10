@@ -25,6 +25,8 @@ mod fields;
 mod json_contract;
 #[path = "../../src/websocket/policy_request_confirm.rs"]
 mod policy_request_confirm;
+#[path = "../../src/websocket/policy_request_resolution/persistence.rs"]
+mod policy_request_resolution_persistence;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 #[path = "../../src/time.rs"]

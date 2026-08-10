@@ -13,35 +13,37 @@ pub(crate) async fn resolve(
     request: &PolicyRequestParentResolutionRequest,
     snapshot: ResolutionSnapshot,
 ) -> PolicyRequestParentResolutionResult {
-    let approval = match domain::build_parent_policy_approval(&snapshot.confirmed_request, request)
-    {
-        Ok(approval) => approval,
-        Err(error) => return reject_core_error(request, &snapshot.confirmed_request, error.into()),
-    };
     let base_request = snapshot
         .previous_resolution
         .as_ref()
         .map(|previous| &previous.request)
         .unwrap_or(&snapshot.confirmed_request);
+    resolve_inner(command, request, &snapshot)
+        .await
+        .unwrap_or_else(|error| reject_core_error(request, base_request, error))
+}
+
+async fn resolve_inner(
+    command: &AgentCommandEnvelope,
+    request: &PolicyRequestParentResolutionRequest,
+    snapshot: &ResolutionSnapshot,
+) -> Result<PolicyRequestParentResolutionResult, ResolutionError> {
+    let approval = domain::build_parent_policy_approval(&snapshot.confirmed_request, request)?;
     let existing_override = snapshot
         .previous_resolution
         .as_ref()
         .and_then(|previous| previous.temporary_override.as_ref());
-    let resolution = match resolve_parent_policy_approval(base_request, approval, existing_override)
-    {
-        Ok(resolution) => resolution,
-        Err(error) => return reject_core_error(request, base_request, error.into()),
-    };
+    let base_request = snapshot
+        .previous_resolution
+        .as_ref()
+        .map(|previous| &previous.request)
+        .unwrap_or(&snapshot.confirmed_request);
+    let resolution = resolve_parent_policy_approval(base_request, approval, existing_override)?;
     if let Some(binding) = request.delivery_binding.as_ref() {
-        if let Err(error) = domain::validate_delivery_binding(&resolution.request, binding) {
-            return reject_core_error(request, base_request, error);
-        }
+        domain::validate_delivery_binding(&resolution.request, binding)?;
     }
-    let notification_claim_state =
-        match policy_control_request_resolution_handoff(resolution.clone()) {
-            Ok(_) => PolicyRequestAssistantPreviewConfirmClaimState::Claimed,
-            Err(error) => return reject_core_error(request, base_request, error.into()),
-        };
+    policy_control_request_resolution_handoff(resolution.clone())?;
+    let notification_claim_state = PolicyRequestAssistantPreviewConfirmClaimState::Claimed;
     let result = result::resolved(
         request,
         &resolution,
@@ -49,9 +51,9 @@ pub(crate) async fn resolve(
         snapshot.previous_resolution.is_some(),
     );
     if snapshot.previous_resolution.is_none() {
-        let _ = store::persist_resolution(command, request, &resolution, &result).await;
+        store::persist_resolution(command, request, &resolution, &result).await?;
     }
-    result
+    Ok(result)
 }
 
 fn reject_core_error(

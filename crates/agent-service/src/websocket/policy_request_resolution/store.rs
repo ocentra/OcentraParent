@@ -9,9 +9,10 @@ use std::fmt::{Debug, Display};
 
 use crate::activity_store_path::activity_db_path;
 
-use super::types::{AuditEventId, ErrorMessage, RequestIdText, ResolutionError};
-
-use super::audit;
+use super::{
+    audit, persistence,
+    types::{AuditEventId, ErrorMessage, RequestIdText, ResolutionError},
+};
 
 const ACTIVITY_STORE_OPEN_ERROR: &str = "activity-store-open";
 const ACTIVITY_STORE_LOOKUP_ERROR: &str = "activity-store-lookup";
@@ -111,16 +112,18 @@ pub(crate) async fn persist_resolution(
     request: &PolicyRequestParentResolutionRequest,
     resolution: &PolicyRequestResolution,
     result: &PolicyRequestParentResolutionResult,
-) -> bool {
-    let Some(event) = audit::build_event(command, request, resolution, result) else {
-        return false;
-    };
+) -> Result<(), ResolutionError> {
+    let event = audit::build_event(command, request, resolution, result).ok_or_else(|| {
+        ResolutionError::from_message(ErrorMessage(
+            constants::value::ACTIVITY_STORE_UNAVAILABLE.to_string(),
+        ))
+    })?;
     let path = activity_db_path();
-    tokio::task::spawn_blocking(move || {
-        ActivityStore::open(&path)
-            .and_then(|store| store.ingest_events(&[event]))
-            .is_ok()
-    })
-    .await
-    .unwrap_or(false)
+    persistence::persist_activity_event(path, event)
+        .await
+        .map_err(|_error| {
+            ResolutionError::from_message(ErrorMessage(
+                constants::value::ACTIVITY_STORE_UNAVAILABLE.to_string(),
+            ))
+        })
 }

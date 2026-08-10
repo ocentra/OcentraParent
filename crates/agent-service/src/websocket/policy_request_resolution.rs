@@ -18,6 +18,8 @@ mod domain;
 mod execute;
 #[path = "policy_request_resolution/mapping.rs"]
 mod mapping;
+#[path = "policy_request_resolution/persistence.rs"]
+mod persistence;
 #[path = "policy_request_resolution/result.rs"]
 mod result;
 #[path = "policy_request_resolution/snapshot.rs"]
