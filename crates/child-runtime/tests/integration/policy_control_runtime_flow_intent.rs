@@ -356,6 +356,27 @@ fn resolved_request_queues_delivery_and_surfaces_manual_required_without_losing_
         .is_none());
     assert!(queued.delivery.source_rollback_ref.is_none());
 
+    let mut mismatched_target = sample_delivery_target();
+    mismatched_target.device_id =
+        PolicyDeviceId::parse("device-other").required("mismatched policy device id");
+    let error = queue_policy_control_delivery_handoff(
+        &compiled,
+        mismatched_target,
+        &resolved.request,
+        resolved.temporary_override.as_ref(),
+        PolicyDeliveryId::parse("delivery-mismatched-target").required("policy delivery id"),
+        PolicyDeliveryAttemptId::parse("attempt-mismatched-target").required("policy attempt id"),
+        vec![audit_ref("audit-policy-queued")],
+    )
+    .required_err("cross-request target must not queue");
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.target.device_id",
+            value: "request-target-mismatch".to_string(),
+        }
+    );
+
     let applied = apply_policy_control_delivery_handoff(
         &resolved.request,
         resolved.temporary_override.as_ref(),
@@ -424,8 +445,8 @@ fn replay_and_expire_paths_do_not_create_extra_delivery_truth() {
     assert_eq!(
         error,
         EventingError::InvalidValue {
-            field: "policy_control_notification.delivery_state",
-            value: "expired".to_string(),
+            field: "policy_delivery.request_status",
+            value: "approved-or-modified-required:expired".to_string(),
         }
     );
 }

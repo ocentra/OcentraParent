@@ -1264,6 +1264,11 @@ pub type PolicyRequestAssistantPreviewConfirmResultState =
     transport::PolicyRequestAssistantPreviewConfirmResultState;
 pub type PolicyRequestAssistantPreviewConfirmTargetKind =
     transport::PolicyRequestAssistantPreviewConfirmTargetKind;
+pub type PolicyRequestParentResolutionDecision = transport::PolicyRequestParentResolutionDecision;
+pub type PolicyRequestParentResolutionRequest = transport::PolicyRequestParentResolutionRequest;
+pub type PolicyRequestParentResolutionResult = transport::PolicyRequestParentResolutionResult;
+pub type PolicyRequestParentResolutionResultState =
+    transport::PolicyRequestParentResolutionResultState;
 pub type PolicyRequestOrigin = activity::policy_preview::PolicyRequestOrigin;
 pub type PolicyRequestStatus = activity::policy_preview::PolicyRequestStatus;
 pub type PolicyRule = activity::policy::PolicyRule;

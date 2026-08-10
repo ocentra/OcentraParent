@@ -74,7 +74,7 @@ pub(crate) enum NoSubscriberQueueDecision {
     Queued(QueueReport),
     QueuedWithDeadLetter(
         QueueReport,
-        Box<StoredEventEnvelope>,
+        Box<QueuedEnvelope>,
         DeadLetterReason,
         EventingError,
     ),

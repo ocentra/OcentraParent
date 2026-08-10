@@ -1,0 +1,251 @@
+{
+  "event_type": "app.runtime.decision-recorded",
+  "current_schema_version": 2,
+  "current_decisions": [
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "foreground",
+        "classification_state": "known-policy-app"
+      },
+      "decision": {
+        "observation_intent": "ForegroundAppRequiresPolicy",
+        "runtime_action_state": "record-foreground",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "foreground",
+        "classification_state": "unknown-app"
+      },
+      "decision": {
+        "observation_intent": "UnknownAppRequiresAi",
+        "runtime_action_state": "record-foreground",
+        "ai_handoff_state": "required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "foreground",
+        "classification_state": "inventory-only"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-inventory",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "background",
+        "classification_state": "known-policy-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-inventory",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "background",
+        "classification_state": "unknown-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-inventory",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "background",
+        "classification_state": "inventory-only"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-inventory",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "unknown",
+        "classification_state": "known-policy-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-inventory",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "unknown",
+        "classification_state": "unknown-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-inventory",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "unknown",
+        "classification_state": "inventory-only"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-inventory",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "foreground",
+        "classification_state": "known-policy-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "foreground",
+        "classification_state": "unknown-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "foreground",
+        "classification_state": "inventory-only"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "background",
+        "classification_state": "known-policy-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "background",
+        "classification_state": "unknown-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "background",
+        "classification_state": "inventory-only"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "unknown",
+        "classification_state": "known-policy-app"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": { "capability_state": "missing", "foreground_state": "unknown", "classification_state": "unknown-app" },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    },
+    {
+      "input": {
+        "capability_state": "missing",
+        "foreground_state": "unknown",
+        "classification_state": "inventory-only"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "manual-required",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    }
+  ],
+  "legacy_v1_decision_deltas": [
+    {
+      "input": {
+        "capability_state": "supported",
+        "foreground_state": "foreground",
+        "classification_state": "inventory-only"
+      },
+      "decision": {
+        "observation_intent": "InventoryObservationOnly",
+        "runtime_action_state": "record-foreground",
+        "ai_handoff_state": "not-required",
+        "policy_handoff_state": "do-not-publish"
+      }
+    }
+  ]
+}

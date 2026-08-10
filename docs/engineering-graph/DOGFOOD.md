@@ -15,8 +15,8 @@ ACTIVE: 2
 BLOCKED: 9
 VALIDATION: 206
 DONE: 0
-Implementation files: 2780
-Test files: 1171
+Implementation files: 2800
+Test files: 1175
 ```
 
 The joined report is the canonical operator view:
@@ -29,8 +29,10 @@ npm run graph:report -- PLAN-policy-control-plane-plan
 
 It reports all 23 plans and 679 workpack rows, with graph-derived workpack
 state alongside live implementation/test topology under reviewed plan roots.
-The topology is deliberately labelled plan-scoped; it is not a per-workpack
-ownership claim or an acceptance/CI/merge certificate.
+Eight focused workpacks now also have explicit reviewed code/test maps; those
+rows expose exact paths, while every unmapped row remains
+`unknown-workpack-ownership`. Neither topology mode is an acceptance/CI/merge
+certificate.
 
 The policy-control slice is a useful dependency example:
 

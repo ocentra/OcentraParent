@@ -83,12 +83,16 @@ mod parent_ui_bridge;
 mod parent_ui_bridge_ts;
 #[path = "policy_enforcement.rs"]
 mod policy_enforcement;
+#[path = "remote_capability_fabric.rs"]
+mod remote_capability_fabric;
 #[path = "report_query_custody.rs"]
 mod report_query_custody;
 #[path = "retention_delete_tombstone.rs"]
 mod retention_delete_tombstone;
 #[path = "setup_device_trust_handoff.rs"]
 mod setup_device_trust_handoff;
+#[path = "tracking_event_contracts.rs"]
+mod tracking_event_contracts;
 #[path = "typescript_literal.rs"]
 mod typescript_literal;
 #[path = "v0_8_notification_provider_status_boundary.rs"]

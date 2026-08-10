@@ -283,6 +283,10 @@ fn command_descriptors_local_policy_lan_policy() -> Vec<ProtocolLiteralDescripto
             "PolicyRequestAssistantPreviewConfirm",
             AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm,
         ),
+        command(
+            "PolicyRequestParentResolutionResolve",
+            AgentCommandName::AgentPolicyRequestParentResolutionResolve,
+        ),
         command("BrowserPolicyGet", AgentCommandName::AgentBrowserPolicyGet),
         command(
             "BrowserPolicyPreview",

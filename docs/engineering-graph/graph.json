@@ -19602,7 +19602,7 @@
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Contract checked / runtime blocked",
+        "statusText": "Contract checked / runtime blocked; request/artifact/target identity binding is enforced through the child-runtime facade and focused-tested",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -19637,7 +19637,7 @@
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Open",
+        "statusText": "Open — parent-resolution contract/service/UI plus approved-request delivery binding and child-runtime enforcement now exist; transport wiring, notification, trusted adapter, and proof remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true

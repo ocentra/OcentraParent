@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import prettier from 'prettier';
 
 export const GRAPH_SCHEMA_VERSION = 1;
 export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
@@ -85,6 +84,17 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
   if (map?.schemaVersion !== 1 || !map?.plans || typeof map.plans !== 'object') {
     throw new Error(`${codeMapPath} must declare schemaVersion 1 and a plans object`);
   }
+  if (
+    map.workpacks !== undefined &&
+    (!map.workpacks || typeof map.workpacks !== 'object' || Array.isArray(map.workpacks))
+  ) {
+    throw new Error(`${codeMapPath} workpacks must be an object when present`);
+  }
+  for (const [workpackId, entry] of Object.entries(map.workpacks ?? {})) {
+    if (!entry || typeof entry !== 'object' || !Array.isArray(entry.roots) || entry.roots.length === 0) {
+      throw new Error(`${codeMapPath} workpack ${workpackId} must declare a non-empty roots array`);
+    }
+  }
   return map;
 }
 
@@ -107,6 +117,10 @@ async function walkCodeFiles(root, relativeDirectory) {
       entries = await readdir(absolutePath, { withFileTypes: true });
     } catch (error) {
       if (error?.code === 'ENOENT') return;
+      if (error?.code === 'ENOTDIR') {
+        if (CODE_EXTENSIONS.has(path.extname(relativePath).toLowerCase())) files.push(normalizeRepoPath(relativePath));
+        return;
+      }
       throw error;
     }
     for (const entry of entries) {
@@ -163,16 +177,45 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
       testPaths: testFiles,
     });
   }
+  const workpacks = [];
+  for (const [workpackId, entry] of Object.entries(codeMap.workpacks ?? {})) {
+    const planSlug = entry.planSlug ?? null;
+    if (!rootScope && planSlug && planId(planSlug) !== scope && planSlug !== scope) continue;
+    if (!rootScope && !planSlug && !workpackId.startsWith(`WP-${String(scope).replace(/^PLAN-/u, '')}-`)) continue;
+    const uniqueRoots = [...new Set(entry.roots.map(normalizeRepoPath))];
+    const missingRoots = uniqueRoots.filter((relativePath) => !pathExistsSync(root, relativePath));
+    const files = [];
+    for (const relativePath of uniqueRoots.filter((candidate) => !missingRoots.includes(candidate))) {
+      files.push(...(await walkCodeFiles(root, relativePath)));
+    }
+    const uniqueFiles = [...new Set(files)].sort();
+    const testFiles = uniqueFiles.filter(isTestPath);
+    const implementationFiles = uniqueFiles.filter((file) => !isTestPath(file));
+    workpacks.push({
+      workpackId,
+      planSlug,
+      roots: uniqueRoots,
+      missingRoots,
+      state: implementationFiles.length === 0 ? 'no-source' : testFiles.length === 0 ? 'source-only' : 'code-and-tests',
+      codeFiles: uniqueFiles.length,
+      implementationFiles: implementationFiles.length,
+      testFiles: testFiles.length,
+      implementationPaths: implementationFiles,
+      testPaths: testFiles,
+    });
+  }
   return {
     schemaVersion: codeMap.schemaVersion,
     authority: codeMap.authority,
     codeMapPath,
     plans,
+    workpacks,
     totals: {
       plans: plans.length,
       codeFiles: allCodeFiles.size,
       implementationFiles: allImplementationFiles.size,
       testFiles: allTestFiles.size,
+      reviewedWorkpackMaps: workpacks.length,
     },
   };
 }
@@ -202,6 +245,7 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
   const plans = scoped.filter((node) => node.kind === 'plan');
   const inventory = await buildCodeInventory({ root, scope });
   const inventoryByPlan = new Map(inventory.plans.map((plan) => [plan.planId, plan]));
+  const inventoryByWorkpack = new Map(inventory.workpacks.map((workpack) => [workpack.workpackId, workpack]));
   const workpacksByPlan = new Map();
   for (const plan of plans) workpacksByPlan.set(plan.id, []);
   for (const node of scoped.filter((candidate) => candidate.kind === 'workpack')) {
@@ -215,6 +259,7 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
       .sort((left, right) => left.id.localeCompare(right.id))
       .map((workpack) => {
         const gaps = completionGaps(root, workpack);
+        const workpackInventory = inventoryByWorkpack.get(workpack.id);
         return {
           id: workpack.id,
           title: workpack.title,
@@ -224,10 +269,21 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
             pathsPresent: gaps.length === 0,
             gaps,
           },
-          // A workpack-to-file map is not inferred from prose.  This explicit
-          // scope label prevents consumers from mistaking plan-root topology
-          // for workpack-level implementation ownership.
-          codeTestTopology: 'plan-reviewed-roots',
+          // A workpack-to-file map is never inferred from prose.  Explicit
+          // reviewed entries expose exact code/test topology; every other row
+          // stays visibly unknown instead of inheriting a plan-wide count.
+          codeTestTopology: workpackInventory
+            ? {
+                scope: 'reviewed-workpack-roots',
+                state: workpackInventory.state,
+                roots: workpackInventory.roots,
+                missingRoots: workpackInventory.missingRoots,
+                implementationFiles: workpackInventory.implementationFiles,
+                testFiles: workpackInventory.testFiles,
+                implementationPaths: workpackInventory.implementationPaths,
+                testPaths: workpackInventory.testPaths,
+              }
+            : 'unknown-workpack-ownership',
         };
       });
     const counts = stateCounts(workpacks, states);
@@ -268,6 +324,7 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
       states: stateCounts(allWorkpacks, states),
       implementationFiles: inventory.totals.implementationFiles,
       testFiles: inventory.totals.testFiles,
+      reviewedWorkpackMaps: inventory.totals.reviewedWorkpackMaps,
     },
     validation: {
       ok: validation.ok,
@@ -749,12 +806,26 @@ export function completionGaps(root, node) {
     }
     for (const reference of references) {
       if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing reference ${reference}`);
+      if (
+        node.completion.reviewed?.[requirement] === true &&
+        isPlanningDocumentEvidence(node, requirement, reference)
+      ) {
+        gaps.push(`${requirement}: planning document is not executable evidence ${reference}`);
+      }
     }
     for (const reference of expected) {
       if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing expected artifact ${reference}`);
     }
   }
   return gaps;
+}
+
+function isPlanningDocumentEvidence(node, requirement, reference) {
+  if (!['implementation', 'tests'].includes(requirement)) return false;
+  const planSlug = node.metadata?.planSlug;
+  if (typeof planSlug !== 'string' || planSlug.length === 0) return false;
+  const normalized = normalizeRepoPath(reference);
+  return normalized.startsWith(`docs/plans/${planSlug}/`);
 }
 
 function completionSatisfied(root, node) {
@@ -999,6 +1070,10 @@ export function graphSourceDrift(checkedIn, generated) {
 export async function writeGraph(root, graphPath, graph) {
   const target = path.join(root, graphPath);
   const source = JSON.stringify(graph, null, 2);
+  // Read-only graph queries must remain usable from a fresh checkout where
+  // workspace dependencies have not been installed yet.  Keep the formatter
+  // on the write-only path so validate/report/status do not fail at import.
+  const { default: prettier } = await import('prettier');
   const formatted = await prettier.format(source, { filepath: target, parser: 'json' });
   await writeFile(target, formatted, 'utf8');
 }

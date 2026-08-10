@@ -122,7 +122,11 @@ their adjacent plan handoffs.
 ## Live validation update (2026-08-09)
 
 The narrow Rust-owned capability contract and focused negative tests were
-replayed on the consolidated E: branch. The durable validation manifest is
+replayed on the consolidated E: branch. Authorization now checks the exact
+supported schema version, the authenticated requesting parent actor against
+`parent_actor_ref`, the requested child device against `child_device_ref`, and
+a nonblank audit reference before allowing live view.
+The durable validation manifest is
 `docs/proof/remote-access-plan/slice-01-capability-fabric.md`; local reproducible
 output is under
 `output/remote-access-plan-proof/01-remote-capability-fabric/`.

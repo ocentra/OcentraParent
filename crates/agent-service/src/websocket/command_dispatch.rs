@@ -60,7 +60,8 @@ pub(super) fn build_command_event(
             | AgentCommandName::AgentParentAssistantMessageSend
             | AgentCommandName::AgentParentAssistantQuickActionStart
             | AgentCommandName::AgentPolicyPreviewReadModelGet
-            | AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm => {
+            | AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm
+            | AgentCommandName::AgentPolicyRequestParentResolutionResolve => {
                 build_ai_command_report(command).await
             }
             command_name if is_browser_policy_command(&command_name) => {

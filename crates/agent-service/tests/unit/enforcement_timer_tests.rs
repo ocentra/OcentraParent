@@ -4,9 +4,16 @@ use std::{
     path::PathBuf,
 };
 
+use ocentra_eventing::{
+    expect_value::ExpectValue,
+    ids::EventId,
+    journal::{ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions},
+    replay::ReplayFilter,
+};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::enforcement::EnforcementActiveTimerState;
 use ocentra_parent_agent_protocol::enforcement::EnforcementAuditEvent;
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent;
 use ocentra_parent_agent_protocol::enforcement::EnforcementTimerEvent;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -106,6 +113,7 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
     ));
 
     let timer = payload_timer_event(&cancel_event.payload)?;
+    let recovered_audit = payload_audit_event(&recovered_event.payload)?;
     let audit = payload_audit_event(&cancel_event.payload)?;
     assert_eq!(timer.action_id, constants::enforcement::TEST_ACTION_ID);
     assert_eq!(
@@ -119,7 +127,58 @@ async fn timer_recovery_and_parent_cancel_use_persisted_active_state() -> TestRe
             .map(|reference| reference.action_reference_id.as_str()),
         Some(constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID)
     );
+    assert_eq!(recovered_audit.journal_sequence, Some("3".to_string()));
+    assert_eq!(audit.journal_sequence, Some("4".to_string()));
 
+    Ok(())
+}
+
+#[tokio::test]
+async fn timer_eventing_projection_retains_device_source_and_route_context() -> TestResult {
+    let paths = temp_paths(format!("{}-eventing", EventId::generated().as_str()));
+    cleanup_paths(&paths);
+    let execute_event =
+        build_enforcement_audit_report_with_paths(execute_command(), paths.clone()).await;
+    assert_eq!(
+        execute_event.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+    let _ = build_enforcement_timer_report_with_paths(recover_command(), paths.clone()).await;
+    let _ = build_enforcement_timer_report_with_paths(cancel_command(), paths.clone()).await;
+
+    let eventing_path = timer_eventing_path(&paths);
+    let journal =
+        NdjsonEventJournal::with_options(eventing_path.clone(), NdjsonJournalOptions::hash_chain());
+    let replay = journal
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("replay timer eventing audit projection");
+    let events = replay
+        .records
+        .iter()
+        .map(|record| {
+            record
+                .envelope
+                .decode::<EnforcementAuditJournalEvent>()
+                .expect_value("decode timer eventing audit projection")
+                .payload
+        })
+        .collect::<Vec<_>>();
+
+    assert_eq!(events.len(), 4);
+    assert!(events.iter().all(|event| {
+        event.device_id.as_deref() == Some(constants::enforcement::TEST_CHILD_DEVICE_ID)
+            && event.source_peer_id.as_deref() == Some(constants::peer::PORTAL_DEV)
+            && event.target_route.as_deref() == Some("localhost")
+    }));
+    assert!(events.iter().any(|event| {
+        event.parent_override.as_ref().is_some_and(|reference| {
+            reference.action_reference_id == constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID
+        })
+    }));
+
+    drop(journal);
+    cleanup_paths(&paths);
     Ok(())
 }
 
@@ -164,6 +223,14 @@ fn execute_command() -> AgentCommandEnvelope {
 }
 
 fn recover_command() -> AgentCommandEnvelope {
+    let mut payload = timer_payload();
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}-recover",
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )),
+    );
     AgentCommandEnvelope {
         schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
         message_id: constants::enforcement::TEST_TIMER_EVENT_ID.to_string(),
@@ -171,7 +238,7 @@ fn recover_command() -> AgentCommandEnvelope {
         source: portal_peer(),
         target: target(),
         command: AgentCommandName::AgentEnforcementTimerRecover,
-        payload: timer_payload(),
+        payload,
     }
 }
 
@@ -180,6 +247,13 @@ fn cancel_command() -> AgentCommandEnvelope {
     payload.insert(
         constants::field::PARENT_ACTION_REFERENCE_ID.to_string(),
         LogFieldValue::String(constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}-cancel",
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )),
     );
     payload.insert(
         constants::field::PARENT_ACTOR_ID.to_string(),
@@ -367,11 +441,23 @@ fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
     }
 }
 
+fn timer_eventing_path(paths: &EnforcementJournalPaths) -> PathBuf {
+    let mut path = paths.journal_path.clone();
+    path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
+    path
+}
+
 fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let _ = remove_file(&paths.journal_path);
     let _ = remove_file(&paths.key_path);
     let _ = remove_file(&paths.store_path);
     let _ = remove_file(&paths.timer_state_path);
+    let eventing_path = timer_eventing_path(paths);
+    let _ = remove_file(&eventing_path);
+    let _ = remove_file(eventing_path.with_extension(format!(
+        "{}.append.lock",
+        constants::enforcement::EVENTING_JOURNAL_EXTENSION
+    )));
     let mut wal_path = paths.store_path.clone();
     wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(wal_path);

@@ -7,6 +7,9 @@ pub(super) fn rust_owned_command_for_action(
         ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
             Some(AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm)
         }
+        ParentUiActionKind::PolicyRequestParentResolutionRequested => {
+            Some(AgentCommandName::AgentPolicyRequestParentResolutionResolve)
+        }
         ParentUiActionKind::TrackingRetentionSettingsWriteRequested => {
             Some(AgentCommandName::AgentActivityTrackingRetentionSettingsWrite)
         }

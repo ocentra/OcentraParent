@@ -237,6 +237,30 @@ test('DONE requires every completion-contract reference', () => {
   assert.ok(report.errors.some((error) => error.includes('completion contract')));
 });
 
+test('completion evidence cannot reuse planning documents as executable implementation or tests', () => {
+  const value = graph([
+    workpack('WP-app-plan-01-contract-boundary-and-effect-schemas', 'done', {
+      metadata: { needsReview: false, planSlug: 'app-plan' },
+      completion: {
+        required: ['implementation', 'tests'],
+        reviewed: { implementation: true, tests: true },
+        references: {
+          implementation: ['docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md'],
+          tests: ['docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md'],
+        },
+      },
+    }),
+  ]);
+
+  assert.deepEqual(completionGaps(repoRoot, value.nodes[0]), [
+    'implementation: planning document is not executable evidence docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md',
+    'tests: planning document is not executable evidence docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md',
+  ]);
+  const report = validateGraph(value, { root: repoRoot });
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.some((error) => error.includes('completion contract')));
+});
+
 test('missing expected artifacts demote stale DONE to validation', () => {
   const value = graph([
     workpack('STALE-DONE', 'done', {
@@ -281,6 +305,7 @@ test('code inventory reports implementation and test topology without claiming a
     codeFiles: 2,
     implementationFiles: 1,
     testFiles: 1,
+    reviewedWorkpackMaps: 0,
   });
   assert.equal(inventory.plans[0].state, 'code-and-tests');
   assert.deepEqual(inventory.plans[0].missingRoots, []);
@@ -347,12 +372,34 @@ test('progress report joins derived workpack state with reviewed plan topology',
   assert.equal(policy.codeTestTopology.scope, 'reviewed-plan-roots');
   assert.ok(policy.codeTestTopology.implementationFiles > 0);
   assert.ok(policy.codeTestTopology.testFiles > 0);
-  assert.ok(policy.workpacks.rows.every((workpack) => workpack.codeTestTopology === 'plan-reviewed-roots'));
+  assert.ok(
+    policy.workpacks.rows.every(
+      (workpack) =>
+        workpack.codeTestTopology === 'unknown-workpack-ownership' ||
+        workpack.codeTestTopology.scope === 'reviewed-workpack-roots'
+    )
+  );
 
   const blocked = policy.workpacks.rows.find(
     (workpack) => workpack.id === 'WP-policy-control-plane-plan-05-ask-parent-overrides'
   );
   assert.equal(blocked.state, 'blocked');
+});
+
+test('reviewed workpack code maps stay exact while unmapped rows remain unknown', async () => {
+  const report = await buildProgressReport({ root: repoRoot });
+  const app = report.plans.find((plan) => plan.id === 'PLAN-app-plan');
+  const mapped = app.workpacks.rows.find(
+    (workpack) => workpack.id === 'WP-app-plan-01-contract-boundary-and-effect-schemas'
+  );
+  assert.equal(mapped.codeTestTopology.scope, 'reviewed-workpack-roots');
+  assert.ok(mapped.codeTestTopology.implementationFiles > 0);
+  assert.ok(mapped.codeTestTopology.testFiles > 0);
+  assert.ok(mapped.codeTestTopology.implementationPaths.some((file) => file.endsWith('runtime_decision.rs')));
+  const unmapped = app.workpacks.rows.find(
+    (workpack) => workpack.id === 'WP-app-plan-21-windows-owned-process-terminate-time-limit-proof'
+  );
+  assert.equal(unmapped.codeTestTopology, 'unknown-workpack-ownership');
 });
 
 test('root goal scope includes the full reviewed code map', async () => {

@@ -434,6 +434,27 @@ pub(crate) fn policy_request_assistant_preview_confirmed_response_event() -> Age
     }
 }
 
+pub(crate) fn policy_request_parent_resolution_resolved_response_event() -> AgentEventEnvelope {
+    AgentEventEnvelope {
+        schema_version: 1,
+        event_id: "agent.policy.request.parent-resolution.resolved-1".to_string(),
+        correlation_id: "cmd-policy-request-resolution-1".to_string(),
+        sent_at: "2026-06-18T00:11:01Z".to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            role: AgentPeerRole::AgentService,
+        },
+        target: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        event: AgentEventName::AgentPolicyRequestParentResolutionResolved,
+        severity: LogLevel::Info,
+        payload: std::collections::BTreeMap::new().into(),
+        snapshot: None,
+    }
+}
+
 pub(crate) fn app_game_route_load_response_events() -> Vec<AgentEventEnvelope> {
     vec![
         app_game_notification_readiness_response_event(),

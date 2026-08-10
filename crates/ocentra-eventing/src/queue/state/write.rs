@@ -1,9 +1,58 @@
 use crate::{EventId, IdempotencyKey};
 
-use super::{EventQueue, EventQueueClearReport};
+use super::{EventQueue, EventQueueClearReport, QueuedEnvelope};
 use crate::ExpectValue;
 
 impl EventQueue {
+    pub(crate) fn rollback_queued(&self, event_id: &EventId) -> bool {
+        let mut state = self.state.lock().expect_value("event queue lock");
+        let Some(position) = state
+            .queued
+            .iter()
+            .position(|queued| &queued.stored.event_id == event_id)
+        else {
+            return false;
+        };
+        let queued = state
+            .queued
+            .remove(position)
+            .expect_value("queued rollback position remains valid");
+        state.queued_event_ids.remove(&queued.stored.event_id);
+        if self.policy.idempotency_registry_enabled() {
+            state.queued_keys.remove(&queued.stored.idempotency_key);
+        }
+        true
+    }
+
+    pub(crate) fn rollback_overflow(&self, event_id: &EventId, dropped: QueuedEnvelope) -> bool {
+        let mut state = self.state.lock().expect_value("event queue lock");
+        let Some(position) = state
+            .queued
+            .iter()
+            .position(|queued| &queued.stored.event_id == event_id)
+        else {
+            return false;
+        };
+        let queued = state
+            .queued
+            .remove(position)
+            .expect_value("overflow rollback position remains valid");
+        state.queued_event_ids.remove(&queued.stored.event_id);
+        if self.policy.idempotency_registry_enabled() {
+            state.queued_keys.remove(&queued.stored.idempotency_key);
+        }
+        state
+            .queued_event_ids
+            .insert(dropped.stored.event_id.clone());
+        if self.policy.idempotency_registry_enabled() {
+            state
+                .queued_keys
+                .insert(dropped.stored.idempotency_key.clone());
+        }
+        state.queued.push_front(dropped);
+        true
+    }
+
     pub(crate) fn mark_completed(&self, event_id: &EventId, key: IdempotencyKey) {
         let mut state = self.state.lock().expect_value("event queue lock");
         state.in_flight_event_ids.remove(event_id);

@@ -1,6 +1,9 @@
-use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementActiveTimerState, EnforcementResultStatus, EnforcementTimerEventKind,
-    ParentActionReference,
+use ocentra_parent_agent_protocol::{
+    constants,
+    enforcement::{
+        EnforcementActiveTimerState, EnforcementResultStatus, EnforcementTimerEventKind,
+        ParentActionReference,
+    },
 };
 
 use crate::enforcement_boundary::EnforcementBoundaryOutcome;
@@ -54,6 +57,33 @@ pub fn restart_recovered_timer_outcome(
         EnforcementTimerEventKind::RestartRecovered,
         EnforcementResultStatus::NoOp,
         None,
+    )
+}
+
+pub fn expiring_timer_before_dispatch_outcome(
+    state: &EnforcementActiveTimerState,
+    ids: EnforcementTimerTransitionIds,
+) -> EnforcementBoundaryOutcome {
+    let before_dispatch_ids = EnforcementTimerTransitionIds {
+        result_id: before_dispatch_id(&ids.result_id),
+        audit_event_id: before_dispatch_id(&ids.audit_event_id),
+        timer_event_id: before_dispatch_id(&ids.timer_event_id),
+        observed_at: ids.observed_at,
+    };
+    enforcement_timer_state_transition::transition_outcome(
+        state,
+        before_dispatch_ids,
+        EnforcementTimerEventKind::Expired,
+        EnforcementResultStatus::WouldEnforce,
+        None,
+    )
+}
+
+fn before_dispatch_id(value: &str) -> String {
+    format!(
+        "{}{}",
+        constants::enforcement::JOURNAL_BEFORE_ACTION_ID_PREFIX,
+        value
     )
 }
 

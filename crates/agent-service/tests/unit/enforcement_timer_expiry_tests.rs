@@ -1,5 +1,14 @@
 use std::fs::{read_to_string, remove_file};
 
+#[cfg(windows)]
+use std::fs::{create_dir_all, remove_dir};
+
+#[cfg(windows)]
+use ocentra_eventing::{
+    ids::EventId,
+    journal::{ndjson::NdjsonJournalEntry, policy::JournalDispatchPhase},
+};
+
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -35,7 +44,10 @@ async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() -> TestRes
     );
 
     #[cfg(windows)]
-    assert_timer_expiry_uses_persisted_state_and_clears_it(&paths).await?;
+    Box::pin(assert_timer_expiry_uses_persisted_state_and_clears_it(
+        &paths,
+    ))
+    .await?;
 
     #[cfg(not(windows))]
     assert_timer_expiry_without_supported_adapter_reports_missing_state(&paths, &execute_event)
@@ -43,6 +55,112 @@ async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() -> TestRes
 
     cleanup_paths(&paths);
 
+    Ok(())
+}
+
+#[cfg(windows)]
+#[tokio::test]
+async fn timer_expiry_journals_before_and_after_dispatch() -> TestResult {
+    let paths = temp_paths(format!(
+        "timer-expiry-phases-{}",
+        EventId::generated().as_str()
+    ));
+    cleanup_paths(&paths);
+
+    let execute_event =
+        build_enforcement_audit_report_with_paths(time_limit_execute_command(), paths.clone())
+            .await;
+    assert_eq!(
+        execute_event.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+
+    let expire_event =
+        build_enforcement_timer_report_with_paths(expire_command(), paths.clone()).await;
+    assert_eq!(
+        expire_event.event,
+        AgentEventName::AgentEnforcementTimerReported
+    );
+
+    let mut eventing_path = paths.journal_path.clone();
+    eventing_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
+    let raw = test_ok(
+        read_to_string(&eventing_path),
+        constants::error::JOURNAL_READS,
+    )?;
+    let entries = raw
+        .lines()
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| {
+            test_ok(
+                serde_json::from_str::<NdjsonJournalEntry>(line),
+                constants::error::JOURNAL_READS,
+            )
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+
+    assert_eq!(entries.len(), 4);
+    assert_eq!(entries[2].phase, JournalDispatchPhase::BeforeDispatch);
+    assert_eq!(entries[3].phase, JournalDispatchPhase::AfterDispatch);
+    assert_ne!(entries[2].envelope.event_id, entries[3].envelope.event_id);
+
+    let _ = remove_file(eventing_path);
+    cleanup_paths(&paths);
+    Ok(())
+}
+
+#[cfg(windows)]
+#[tokio::test]
+async fn timer_expiry_journal_failure_preserves_active_state_before_dispatch() -> TestResult {
+    let paths = temp_paths(format!(
+        "timer-expiry-journal-failure-{}",
+        EventId::generated().as_str()
+    ));
+    cleanup_paths(&paths);
+
+    let execute_event =
+        build_enforcement_audit_report_with_paths(time_limit_execute_command(), paths.clone())
+            .await;
+    assert_eq!(
+        execute_event.event,
+        AgentEventName::AgentEnforcementAuditReported
+    );
+
+    let mut eventing_path = paths.journal_path.clone();
+    eventing_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
+    let _ = remove_file(&eventing_path);
+    test_ok(
+        create_dir_all(&eventing_path),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+
+    let expire_event =
+        build_enforcement_timer_report_with_paths(expire_command(), paths.clone()).await;
+    assert_eq!(expire_event.event, AgentEventName::AgentCommandRejected);
+    let retained_state = read_state(&paths)?;
+    assert_eq!(
+        retained_state.action.action_id,
+        constants::enforcement::TEST_ACTION_ID
+    );
+    assert_eq!(
+        retained_state
+            .timer_event
+            .timer_event_kind
+            .as_protocol_str(),
+        constants::enforcement::TIMER_CREATED
+    );
+    assert_eq!(
+        expire_event.payload.get(constants::field::REASON),
+        Some(&LogFieldValue::String(
+            constants::value::ACTIVITY_CAPTURE_STORE_ERROR.to_string()
+        ))
+    );
+
+    test_ok(
+        remove_dir(&eventing_path),
+        constants::error::JOURNAL_APPENDS,
+    )?;
+    cleanup_paths(&paths);
     Ok(())
 }
 
@@ -86,6 +204,7 @@ async fn assert_timer_expiry_uses_persisted_state_and_clears_it(
         audit.audit_event_kind.as_protocol_str(),
         expire_audit_kind().to_string()
     );
+    assert_eq!(audit.journal_sequence, Some("4".to_string()));
 
     Ok(())
 }
@@ -198,6 +317,13 @@ fn expire_command() -> AgentCommandEnvelope {
     payload.insert(
         constants::field::PROCESS_ID.to_string(),
         LogFieldValue::Number(f64::from(u32::MAX)),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(format!(
+            "{}-expire",
+            constants::enforcement::TEST_AUDIT_EVENT_ID
+        )),
     );
 
     AgentCommandEnvelope {
@@ -375,6 +501,9 @@ fn temp_paths(suffix: impl std::fmt::Display) -> EnforcementJournalPaths {
 
 fn cleanup_paths(paths: &EnforcementJournalPaths) {
     let _ = remove_file(&paths.journal_path);
+    let mut eventing_path = paths.journal_path.clone();
+    eventing_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
+    let _ = remove_file(eventing_path);
     let _ = remove_file(&paths.key_path);
     let _ = remove_file(&paths.store_path);
     let _ = remove_file(&paths.timer_state_path);

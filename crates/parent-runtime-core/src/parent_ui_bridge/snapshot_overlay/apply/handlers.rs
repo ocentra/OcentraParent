@@ -9,6 +9,9 @@ pub(super) fn apply_snapshot_overlay_for_action_impl(
         ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
             policy_request_assistant_preview_confirm_requested::apply(result, snapshot_overlay)
         }
+        ParentUiActionKind::PolicyRequestParentResolutionRequested => {
+            policy_request_parent_resolution_requested::apply(result, snapshot_overlay)
+        }
         ParentUiActionKind::TrackingRetentionSettingsWriteRequested => {
             tracking_retention_settings_write_requested::apply(result, snapshot_overlay)
         }

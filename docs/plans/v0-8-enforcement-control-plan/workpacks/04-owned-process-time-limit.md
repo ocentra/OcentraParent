@@ -119,6 +119,21 @@ change any checkbox: WP11 remains the scheduling prerequisite for dispatch.
 Its focused negative proof is retained under this workpack's deterministic
 proof root.
 
+### 2026-07-28 receipt persistence precondition
+
+The receipt-required policy-delivery transition currently fails closed on the
+ordinary handoff. A matching public receipt is not trusted-adapter authority
+and must not be used to claim persistence or execution. This workpack remains
+open until the parent-runtime-to-agent-service trusted dispatch ledger issues
+non-forgeable adapter authority, persists verified provenance, and supports an
+authenticated reload boundary. It is not a claim that a portal envelope has
+trusted authority or that an OS adapter has executed.
+
+The remaining execution boundary is explicit: agent-service currently rebuilds
+policy inputs from command payload fields and does not yet consume an
+authenticated persisted trusted-delivery record. Until that bridge exists,
+direct service payloads cannot be used as WP04 trusted-adapter proof.
+
 ## Negative Cases
 
 - pid mismatch or stale process identity must reject rather than hit the wrong target

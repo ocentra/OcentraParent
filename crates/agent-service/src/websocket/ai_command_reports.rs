@@ -12,6 +12,7 @@ use crate::{
 use super::{
     basic_reports::build_log_snapshot_report,
     policy_request_confirm::build_policy_request_assistant_preview_confirm_report,
+    policy_request_resolution::build_policy_request_parent_resolution_report,
 };
 
 pub(super) async fn build_ai_command_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
@@ -32,6 +33,9 @@ pub(super) async fn build_ai_command_report(command: AgentCommandEnvelope) -> Ag
         }
         AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm => {
             build_policy_request_assistant_preview_confirm_report(command).await
+        }
+        AgentCommandName::AgentPolicyRequestParentResolutionResolve => {
+            build_policy_request_parent_resolution_report(command).await
         }
         _ => build_log_snapshot_report(command),
     }

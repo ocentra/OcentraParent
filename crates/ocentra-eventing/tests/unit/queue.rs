@@ -408,9 +408,105 @@ async fn in_flight_duplicate_guard_rejects_concurrent_event_id() {
 }
 
 #[tokio::test]
+async fn failed_initial_queued_publish_rolls_back_for_same_event_retry() {
+    let policy = EventQueuePolicy::no_subscriber_queue(2)
+        .expect_value("queue policy is valid")
+        .with_idempotency_registry();
+    let journal = Arc::new(FailingJournal::fail_once_on(1));
+    let bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal,
+        policy,
+    );
+    let event_id = TestText("initial-queued-journal-failure-event".to_owned());
+    let key = TestText("initial-queued-journal-failure-key".to_owned());
+    let first = bus
+        .publish(
+            test_event_with_idempotency(TestText(TEST_LABEL.to_owned()), key.clone()),
+            metadata_with_event_id(TestText(TEST_TARGET.to_owned()), event_id.clone()),
+        )
+        .await;
+    assert!(matches!(first, Err(EventingError::JournalIo { .. })));
+    assert_eq!(bus.metrics_snapshot().await.queue.queued_event_count, 0);
+
+    bus.publish(
+        test_event_with_idempotency(TestText(TEST_LABEL.to_owned()), key),
+        metadata_with_event_id(TestText(TEST_TARGET.to_owned()), event_id),
+    )
+    .await
+    .expect_value("same event retries after queue rollback");
+    assert_eq!(bus.metrics_snapshot().await.queue.queued_event_count, 1);
+}
+
+#[tokio::test]
+async fn failed_overflow_journal_append_restores_dropped_event_without_dead_letter() {
+    let policy = EventQueuePolicy::no_subscriber_queue(1)
+        .expect_value("queue policy is valid")
+        .with_idempotency_registry();
+    let journal = Arc::new(FailingJournal::fail_once_on(2));
+    let bus = EventBus::with_journal_and_queue_policy(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal,
+        policy,
+    );
+    bus.publish(
+        test_event_with_idempotency(
+            TestText("first preserved".to_owned()),
+            TestText("overflow-rollback-first-key".to_owned()),
+        ),
+        metadata_with_event_id(
+            TestText(TEST_TARGET.to_owned()),
+            TestText("overflow-rollback-first-event".to_owned()),
+        ),
+    )
+    .await
+    .expect_value("first event queues");
+
+    let failed = bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("second rejected".to_owned()),
+                TestText("overflow-rollback-second-key".to_owned()),
+            ),
+            metadata_with_event_id(
+                TestText(TEST_TARGET.to_owned()),
+                TestText("overflow-rollback-second-event".to_owned()),
+            ),
+        )
+        .await;
+    assert!(matches!(failed, Err(EventingError::JournalIo { .. })));
+    assert_eq!(bus.metrics_snapshot().await.queue.queued_event_count, 1);
+    assert!(bus.dead_letters().await.is_empty());
+
+    let handled = Arc::new(Mutex::new(Vec::new()));
+    let handled_clone = Arc::clone(&handled);
+    bus.subscribe::<TestEvent, _, _>(
+        subscriber(
+            TestText(TEST_SUBSCRIBER.to_owned()),
+            TestText(TEST_TARGET.to_owned()),
+        ),
+        move |context| {
+            let handled = Arc::clone(&handled_clone);
+            async move {
+                handled.lock().await.push(context.payload().label.clone());
+                Ok(())
+            }
+        },
+    )
+    .await
+    .expect_value("subscriber drains restored oldest event");
+    assert_eq!(
+        handled.lock().await.as_slice(),
+        &["first preserved".to_owned()]
+    );
+}
+
+#[tokio::test]
 async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
     let policy = EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid");
-    let journal = Arc::new(FailingJournal::fail_once_on(1));
+    // The queued publish records its before-dispatch phase first; fail the
+    // drain's before phase so the event is requeued for the retry subscriber.
+    let journal = Arc::new(FailingJournal::fail_once_on(2));
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
         journal,
@@ -467,7 +563,9 @@ async fn failed_subscribe_drain_preserves_queued_event_for_retry() {
 #[tokio::test]
 async fn after_dispatch_journal_failure_does_not_replay_handler_work() {
     let policy = EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid");
-    let journal = Arc::new(FailingJournal::fail_once_on(2));
+    // The queued publish records its before-dispatch phase first; the drain's
+    // before phase is call two, so call three is the after-dispatch failure.
+    let journal = Arc::new(FailingJournal::fail_once_on(3));
     let bus = EventBus::with_journal_and_queue_policy(
         JournalPolicy::before_and_after_dispatch(JournalSelector::All),
         journal,

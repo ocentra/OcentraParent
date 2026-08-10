@@ -24,6 +24,8 @@ pub(crate) enum EnforcementTimerPayloadError {
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementTimerCommandPayload {
+    pub command_correlation_id: EnforcementTimerText,
+    pub command_sent_at: EnforcementTimerText,
     pub transition_ids: EnforcementTimerTransitionIds,
     pub expected_action_id: Option<EnforcementTimerText>,
     pub parent_override:
@@ -31,6 +33,8 @@ pub(crate) struct EnforcementTimerCommandPayload {
     pub process_id: Option<u32>,
     pub device_id: EnforcementTimerText,
     pub platform: EnforcementTimerText,
+    pub source_peer_id: EnforcementTimerText,
+    pub target_route: EnforcementTimerText,
 }
 
 pub(crate) fn parse_timer_recovery_payload(
@@ -38,6 +42,8 @@ pub(crate) fn parse_timer_recovery_payload(
     observed_at: &GeneratedAtText,
 ) -> EnforcementTimerCommandPayload {
     EnforcementTimerCommandPayload {
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
         transition_ids: parse_transition_ids(
             &command.payload,
             EnforcementTimerTextRef(&command.message_id),
@@ -51,6 +57,8 @@ pub(crate) fn parse_timer_recovery_payload(
         process_id: None,
         device_id: EnforcementTimerText(command.target.device_id.clone()),
         platform: EnforcementTimerText(command.target.platform.clone()),
+        source_peer_id: EnforcementTimerText(command.source.peer_id.clone()),
+        target_route: target_route_text(&command.target.route),
     }
 }
 
@@ -59,6 +67,8 @@ pub(crate) fn parse_timer_expiry_payload(
     observed_at: &GeneratedAtText,
 ) -> Result<EnforcementTimerCommandPayload, EnforcementTimerPayloadError> {
     Ok(EnforcementTimerCommandPayload {
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
         transition_ids: parse_transition_ids(
             &command.payload,
             EnforcementTimerTextRef(&command.message_id),
@@ -72,6 +82,8 @@ pub(crate) fn parse_timer_expiry_payload(
         process_id: Some(helpers::required_process_id(&command.payload)?),
         device_id: EnforcementTimerText(command.target.device_id.clone()),
         platform: EnforcementTimerText(command.target.platform.clone()),
+        source_peer_id: EnforcementTimerText(command.source.peer_id.clone()),
+        target_route: target_route_text(&command.target.route),
     })
 }
 
@@ -80,6 +92,8 @@ pub(crate) fn parse_parent_override_payload(
     observed_at: &GeneratedAtText,
 ) -> Result<EnforcementTimerCommandPayload, EnforcementTimerPayloadError> {
     Ok(EnforcementTimerCommandPayload {
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
         transition_ids: parse_transition_ids(
             &command.payload,
             EnforcementTimerTextRef(&command.message_id),
@@ -96,7 +110,26 @@ pub(crate) fn parse_parent_override_payload(
         process_id: None,
         device_id: EnforcementTimerText(command.target.device_id.clone()),
         platform: EnforcementTimerText(command.target.platform.clone()),
+        source_peer_id: EnforcementTimerText(command.source.peer_id.clone()),
+        target_route: target_route_text(&command.target.route),
     })
+}
+
+fn target_route_text(
+    route: &ocentra_parent_agent_protocol::transport::AgentRoute,
+) -> EnforcementTimerText {
+    let value = match route {
+        ocentra_parent_agent_protocol::transport::AgentRoute::Localhost => {
+            constants::value::DEVICE_RUNTIME_ROUTE_LOCALHOST
+        }
+        ocentra_parent_agent_protocol::transport::AgentRoute::LocalNetwork => {
+            constants::value::DEVICE_RUNTIME_ROUTE_LOCAL_NETWORK
+        }
+        ocentra_parent_agent_protocol::transport::AgentRoute::CloudRelay => {
+            constants::value::DEVICE_RUNTIME_ROUTE_CLOUD_RELAY
+        }
+    };
+    EnforcementTimerText(value.to_string())
 }
 
 fn parse_transition_ids(

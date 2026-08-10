@@ -93,6 +93,8 @@ pub(crate) mod enforcement_api;
 
 #[test]
 fn link_runtime_helpers_used_by_the_current_harness() {
+    test_invariants::require_ok::<_, ()>(Ok(()), "link");
+    test_invariants::require_some(Some(()), "link");
     let _ = enforcement_api::build_enforcement_audit_report;
     let _ = enforcement_api::build_enforcement_product_control_spine_report;
     let _ = enforcement_api::build_enforcement_policy_dispatch_report;

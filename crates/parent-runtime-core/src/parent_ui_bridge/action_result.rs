@@ -11,6 +11,9 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
             "parent Rust facade requested policy preview parent confirmation"
         }
+        ParentUiActionKind::PolicyRequestParentResolutionRequested => {
+            "parent Rust facade requested parent policy request resolution"
+        }
         ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested => {
             "parent Rust facade requested LAN pairing browser discovery scan"
         }

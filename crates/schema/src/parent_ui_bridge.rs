@@ -1688,6 +1688,7 @@ pub enum ParentUiActionKind {
     Reconnect,
     AgentCommandRequested,
     PolicyRequestAssistantPreviewConfirmRequested,
+    PolicyRequestParentResolutionRequested,
     LanPairingBrowserDiscoveryScanRequested,
     NetworkFlowReadModelRefreshRequested,
     TrackingRetentionSettingsWriteRequested,
