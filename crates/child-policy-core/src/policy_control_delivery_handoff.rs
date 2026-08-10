@@ -1,11 +1,9 @@
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyRequestStatus;
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition_with_execution_receipt,
     apply_policy_delivery_transition_without_execution_receipt, queue_policy_delivery,
-    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryExecutionReceipt,
-    PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliveryState, PolicyDeliveryTarget,
-    PolicyDeliveryTransition,
+    PolicyDeliveryApplyOutcome, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord,
+    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_request::{
     validate_child_policy_request, ChildPolicyRequest,
@@ -129,28 +127,17 @@ fn validate_request_delivery_binding(
     Ok(())
 }
 
+/// Applies child-policy delivery transitions without execution authority.
+///
+/// Receipt-required states are downgraded to `ManualRequired`; the concrete
+/// adapter boundary is intentionally not exported from this crate, so a
+/// caller cannot manufacture an execution receipt and activate delivery.
 pub fn apply_policy_control_delivery_handoff(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
 ) -> Result<PolicyControlDeliveryApplyReport, EventingError> {
     let transition = fail_closed_receipt_required_transition(transition)?;
     let outcome = apply_policy_delivery_transition_without_execution_receipt(current, transition)?;
-    Ok(PolicyControlDeliveryApplyReport {
-        delivery: outcome.clone().into_record(),
-        outcome,
-    })
-}
-
-/// Applies only an adapter-owned receipt to a receipt-required delivery state.
-/// The child policy handoff deliberately has no way to manufacture this proof
-/// from a portal acknowledgement or a policy preview.
-pub fn apply_trusted_adapter_delivery_handoff(
-    current: &PolicyDeliveryRecord,
-    transition: PolicyDeliveryTransition,
-    receipt: PolicyDeliveryExecutionReceipt,
-) -> Result<PolicyControlDeliveryApplyReport, EventingError> {
-    let outcome =
-        apply_policy_delivery_transition_with_execution_receipt(current, transition, receipt)?;
     Ok(PolicyControlDeliveryApplyReport {
         delivery: outcome.clone().into_record(),
         outcome,
