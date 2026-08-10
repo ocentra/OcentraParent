@@ -237,6 +237,30 @@ test('DONE requires every completion-contract reference', () => {
   assert.ok(report.errors.some((error) => error.includes('completion contract')));
 });
 
+test('completion evidence cannot reuse planning documents as executable implementation or tests', () => {
+  const value = graph([
+    workpack('WP-app-plan-01-contract-boundary-and-effect-schemas', 'done', {
+      metadata: { needsReview: false, planSlug: 'app-plan' },
+      completion: {
+        required: ['implementation', 'tests'],
+        reviewed: { implementation: true, tests: true },
+        references: {
+          implementation: ['docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md'],
+          tests: ['docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md'],
+        },
+      },
+    }),
+  ]);
+
+  assert.deepEqual(completionGaps(repoRoot, value.nodes[0]), [
+    'implementation: planning document is not executable evidence docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md',
+    'tests: planning document is not executable evidence docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md',
+  ]);
+  const report = validateGraph(value, { root: repoRoot });
+  assert.equal(report.ok, false);
+  assert.ok(report.errors.some((error) => error.includes('completion contract')));
+});
+
 test('missing expected artifacts demote stale DONE to validation', () => {
   const value = graph([
     workpack('STALE-DONE', 'done', {

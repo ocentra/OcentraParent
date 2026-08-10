@@ -806,12 +806,26 @@ export function completionGaps(root, node) {
     }
     for (const reference of references) {
       if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing reference ${reference}`);
+      if (
+        node.completion.reviewed?.[requirement] === true &&
+        isPlanningDocumentEvidence(node, requirement, reference)
+      ) {
+        gaps.push(`${requirement}: planning document is not executable evidence ${reference}`);
+      }
     }
     for (const reference of expected) {
       if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing expected artifact ${reference}`);
     }
   }
   return gaps;
+}
+
+function isPlanningDocumentEvidence(node, requirement, reference) {
+  if (!['implementation', 'tests'].includes(requirement)) return false;
+  const planSlug = node.metadata?.planSlug;
+  if (typeof planSlug !== 'string' || planSlug.length === 0) return false;
+  const normalized = normalizeRepoPath(reference);
+  return normalized.startsWith(`docs/plans/${planSlug}/`);
 }
 
 function completionSatisfied(root, node) {
