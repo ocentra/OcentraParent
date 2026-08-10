@@ -5,6 +5,10 @@
 
 use serde::{Deserialize, Serialize};
 
+use ocentra_parent_agent_protocol::constants::tracking_config_update::{
+    CHANGE_APPROVED_EVENT_TYPE, CHANGE_REJECTED_EVENT_TYPE, CHANGE_REQUESTED_EVENT_TYPE,
+};
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum TrackingEventFamily {
@@ -61,7 +65,7 @@ pub enum TrackingEventContractError {
 
 pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
     spec(
-        "tracking.config.change-requested",
+        CHANGE_REQUESTED_EVENT_TYPE,
         TrackingEventFamily::Config,
         true,
         false,
@@ -69,7 +73,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "tracking.config.change-approved",
+        CHANGE_APPROVED_EVENT_TYPE,
         TrackingEventFamily::Config,
         true,
         false,
@@ -77,7 +81,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "tracking.config.change-rejected",
+        CHANGE_REJECTED_EVENT_TYPE,
         TrackingEventFamily::Config,
         true,
         false,
@@ -109,7 +113,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "expected-place.status.evaluated",
+        "expected_place.status.evaluated",
         TrackingEventFamily::Evaluation,
         true,
         true,
@@ -117,7 +121,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "nearby-place.analysis.requested",
+        "nearby_place.analysis.requested",
         TrackingEventFamily::Ai,
         true,
         true,
@@ -125,7 +129,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "nearby-place.analysis.completed",
+        "nearby_place.analysis.completed",
         TrackingEventFamily::Ai,
         true,
         true,
@@ -141,7 +145,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "tracking.live-mode.start-requested",
+        "tracking.live_mode.start_requested",
         TrackingEventFamily::LiveMode,
         true,
         true,
@@ -149,7 +153,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         true,
     ),
     spec(
-        "tracking.live-mode.started",
+        "tracking.live_mode.started",
         TrackingEventFamily::LiveMode,
         true,
         true,
@@ -157,7 +161,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         true,
     ),
     spec(
-        "tracking.live-mode.stop-requested",
+        "tracking.live_mode.stop_requested",
         TrackingEventFamily::LiveMode,
         true,
         true,
@@ -165,7 +169,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         true,
     ),
     spec(
-        "tracking.live-mode.stopped",
+        "tracking.live_mode.stopped",
         TrackingEventFamily::LiveMode,
         true,
         true,
@@ -189,7 +193,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "notification.dispatch.result-observed",
+        "notification.dispatch.result_observed",
         TrackingEventFamily::Notification,
         true,
         true,
@@ -205,7 +209,7 @@ pub const TRACKING_EVENT_CONTRACTS: [TrackingEventContractSpec; 19] = [
         false,
     ),
     spec(
-        "escalation.result-observed",
+        "escalation.result_observed",
         TrackingEventFamily::Escalation,
         true,
         true,

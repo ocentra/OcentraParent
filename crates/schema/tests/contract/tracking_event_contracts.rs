@@ -1,5 +1,8 @@
 use std::collections::BTreeSet;
 
+use ocentra_parent_agent_protocol::constants::tracking_config_update::{
+    CHANGE_APPROVED_EVENT_TYPE, CHANGE_REJECTED_EVENT_TYPE, CHANGE_REQUESTED_EVENT_TYPE,
+};
 use ocentra_schema::tracking_event_contracts::{
     tracking_event_contract, validate_tracking_event_contract, TrackingEventContractError,
     TrackingEventContractInput, TrackingEventFamily, TRACKING_EVENT_CONTRACTS,
@@ -13,27 +16,50 @@ fn tracking_event_contracts_are_unique_and_cover_every_wp34_family() {
         .collect::<BTreeSet<_>>();
     assert_eq!(event_types.len(), TRACKING_EVENT_CONTRACTS.len());
     for event_type in [
-        "tracking.config.change-requested",
-        "tracking.config.change-approved",
-        "tracking.config.change-rejected",
+        CHANGE_REQUESTED_EVENT_TYPE,
+        CHANGE_APPROVED_EVENT_TYPE,
+        CHANGE_REJECTED_EVENT_TYPE,
         "tracking.config.applied",
         "location.evidence.observed",
         "geofence.transition.evaluated",
+        "expected_place.status.evaluated",
+        "nearby_place.analysis.requested",
+        "nearby_place.analysis.completed",
+        "tracking.detection.completed",
+        "tracking.live_mode.start_requested",
+        "tracking.live_mode.started",
+        "tracking.live_mode.stop_requested",
+        "tracking.live_mode.stopped",
+        "notification.intent.created",
+        "notification.dispatch.requested",
+        "notification.dispatch.result_observed",
+        "escalation.intent.created",
+        "escalation.result_observed",
+    ] {
+        assert!(event_types.contains(event_type), "missing {event_type}");
+    }
+}
+
+#[test]
+fn tracking_event_contracts_reject_hyphenated_aliases() {
+    for event_type in [
+        "tracking.config.change-requested",
+        "tracking.config.change-approved",
+        "tracking.config.change-rejected",
         "expected-place.status.evaluated",
         "nearby-place.analysis.requested",
         "nearby-place.analysis.completed",
-        "tracking.detection.completed",
         "tracking.live-mode.start-requested",
         "tracking.live-mode.started",
         "tracking.live-mode.stop-requested",
         "tracking.live-mode.stopped",
-        "notification.intent.created",
-        "notification.dispatch.requested",
         "notification.dispatch.result-observed",
-        "escalation.intent.created",
         "escalation.result-observed",
     ] {
-        assert!(event_types.contains(event_type), "missing {event_type}");
+        assert!(
+            tracking_event_contract(event_type).is_none(),
+            "non-canonical alias unexpectedly accepted: {event_type}"
+        );
     }
 }
 
@@ -77,7 +103,7 @@ fn tracking_event_contracts_bind_live_mode_and_ai_safety_fields() {
     let input = valid_input();
     assert_eq!(
         validate_tracking_event_contract(
-            "tracking.live-mode.started",
+            "tracking.live_mode.started",
             TrackingEventContractInput {
                 live_mode_ttl_seconds: Some(0),
                 ..input
@@ -87,7 +113,7 @@ fn tracking_event_contracts_bind_live_mode_and_ai_safety_fields() {
     );
     assert_eq!(
         validate_tracking_event_contract(
-            "nearby-place.analysis.requested",
+            "nearby_place.analysis.requested",
             TrackingEventContractInput {
                 ai_authority_field_present: true,
                 ..input
@@ -96,7 +122,7 @@ fn tracking_event_contracts_bind_live_mode_and_ai_safety_fields() {
         Err(TrackingEventContractError::AiAuthorityFieldForbidden)
     );
     assert_eq!(
-        tracking_event_contract("nearby-place.analysis.completed")
+        tracking_event_contract("nearby_place.analysis.completed")
             .map(|specification| specification.family),
         Some(TrackingEventFamily::Ai)
     );
