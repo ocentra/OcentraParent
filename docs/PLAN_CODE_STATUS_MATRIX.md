@@ -41,7 +41,7 @@ There are **23 plan folders** and **526 scheduled workpack rows** in this
 checkout (not 24 plans). The consolidated code train is rebased on current
 `main` and contains the LAN target repair, enforcement-journal sequence
 repairs, parent policy-resolution/delivery binding, remote/tracking contracts,
-and app runtime-decision contracts. The live reviewed-root topology is 2,799
+and app runtime-decision contracts. The live reviewed-root topology is 2,800
 implementation files and 1,175 test files. Scoped Enforcer, architecture,
 generated-artifact, Rust, TypeScript, portal, and pre-commit validation pass;
 fresh PR CI, review, proof custody, and merge to `main` remain separate gates.
