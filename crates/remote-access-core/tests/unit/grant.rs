@@ -471,8 +471,11 @@ fn accepted_attempt_replays_the_original_report_after_retry_and_restore() {
         RemoteAccessGrantTransition::Activate,
         context_for("attempt-progress-activate"),
     );
-    assert_eq!(progressed_retry.result, activated.result);
-    assert_eq!(progressed_retry.audit, activated.audit);
+    assert_eq!(
+        progressed_retry.result,
+        Err(RemoteAccessGrantError::InvalidTransition)
+    );
+    assert_eq!(progressed.state(), RemoteAccessGrantState::Paused);
 }
 
 #[test]

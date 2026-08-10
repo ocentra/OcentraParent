@@ -61,13 +61,14 @@ pub(super) fn supersede(
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     require_parent_authority(context)?;
-    terminal_state(grant)?;
     let replacement = grant
         .pending_supersession
         .as_deref()
         .filter(|replacement| !replacement.trim().is_empty())
+        .map(str::to_owned)
         .ok_or(RemoteAccessGrantError::SupersedingGrantRequired)?;
-    grant.superseded_by = Some(replacement.to_owned());
+    terminal_state(grant)?;
+    grant.superseded_by = Some(replacement);
     Ok(RemoteAccessGrantState::Superseded)
 }
 

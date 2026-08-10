@@ -26,7 +26,7 @@ struct RemoteCapabilityGrantWire {
     session_state: RemoteSessionState,
     device_trust_state: RemoteDeviceTrustState,
     audit_ref: String,
-    diagnostic_redaction_state: RemoteDiagnosticRedactionState,
+    diagnostic_redaction_state: String,
     no_claim: String,
 }
 
@@ -43,6 +43,19 @@ impl<'de> Deserialize<'de> for RemoteCapabilityGrant {
             (_, None) => {
                 return Err(D::Error::custom(
                     "remote capability fabric v2 payload must include route",
+                ));
+            }
+        };
+        let diagnostic_redaction_state = match wire.diagnostic_redaction_state.as_str() {
+            "redacted" => RemoteDiagnosticRedactionState::Redacted,
+            "raw" => RemoteDiagnosticRedactionState::Raw,
+            "unknown" => RemoteDiagnosticRedactionState::Unknown,
+            _ if wire.schema_version == "remote-capability-fabric-v1" => {
+                RemoteDiagnosticRedactionState::Unknown
+            }
+            _ => {
+                return Err(D::Error::custom(
+                    "remote capability fabric payload has an invalid diagnostic redaction state",
                 ));
             }
         };
@@ -64,7 +77,7 @@ impl<'de> Deserialize<'de> for RemoteCapabilityGrant {
             session_state: wire.session_state,
             device_trust_state: wire.device_trust_state,
             audit_ref: wire.audit_ref,
-            diagnostic_redaction_state: wire.diagnostic_redaction_state,
+            diagnostic_redaction_state,
             no_claim: wire.no_claim,
         })
     }

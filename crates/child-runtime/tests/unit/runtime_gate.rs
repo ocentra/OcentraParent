@@ -424,6 +424,66 @@ async fn child_runtime_replays_a_durable_tombstone_obligation_after_journal_fail
 }
 
 #[tokio::test]
+async fn child_runtime_startup_recovery_replays_pending_outbox_through_event_flow(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-startup-recovery-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
+        StorageCustodyAggregateId::parse("child-runtime-startup-family")?,
+        StorageCustodyDecisionId::parse("child-runtime-startup-decision")?,
+        StorageCustodyInput {
+            location: StorageCustodyLocation::ParentDeviceLocal,
+            retention_window_state: RetentionWindowState::Expired,
+            parent_export_state: ParentExportState::NotRequested,
+            remote_sync_state: RemoteSyncState::Disabled,
+        },
+    ));
+    let journal_path = directory.join("retention-delete.ndjson");
+    let journal =
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain());
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let envelope =
+        EventEnvelope::from_event(action.clone(), retention_delete_metadata()?)?.store()?;
+    journal.inject_next_sync_failure_for_debug();
+    assert!(
+        runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+            &journal, &store, &envelope, &action,
+        )
+        .await
+        .is_err()
+    );
+
+    let restarted = ChildRuntimeTombstoneEventFlow::new(
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain()),
+        RetentionDeleteTombstoneStore::open(&directory)?,
+    );
+    let recovered = restarted.recover_pending().await?;
+    assert_eq!(recovered.journaled.len(), 1);
+    assert!(recovered.pending_journal_retry.is_empty());
+    assert_eq!(recovered.journaled[0].sequence, 1);
+    assert!(RetentionDeleteTombstoneStore::open(&directory)?.records()?[0].terminal_pending);
+
+    let replayed = restarted.recover_pending().await?;
+    assert_eq!(replayed.journaled.len(), 1);
+    assert_eq!(replayed.journaled[0].sequence, 1);
+    assert!(replayed.pending_journal_retry.is_empty());
+
+    let records = RetentionDeleteTombstoneStore::open(&directory)?.records()?;
+    runtime_gate_tombstone::acknowledge_child_runtime_tombstone_publication(
+        &store,
+        &records[0].deletion_ref,
+    )
+    .await?;
+    assert!(!RetentionDeleteTombstoneStore::open(&directory)?.records()?[0].terminal_pending);
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
 async fn child_runtime_rejects_a_journal_envelope_for_a_different_custody_action(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let directory = std::env::temp_dir().join(format!(

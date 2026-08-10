@@ -18,7 +18,7 @@
 
 This plan owns data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
-Route status: execution-grade architecture, UI docs, and test/proof inventory now exist. WP01 custody source of truth, WP02 encryption key custody, WP03 parent-owned cloud sync, WP04 retention/delete/tombstone, WP05 export/import/backup/recovery, WP06 report/query custody, and WP08 parent storage settings/apply flow now have green implementation-plus-proof roots. WP07 rollout proof and route gate is refreshed with a focused child-runtime lifecycle and tracked command-evidence pointer; its ignored aggregate proof roots remain unavailable in a clean checkout, so WP07 is still not accepted as aggregate route truth.
+Route status: execution-grade architecture, UI docs, and test/proof inventory now exist. WP01 custody source of truth, WP02 encryption key custody, WP03 parent-owned cloud sync, WP04 retention/delete/tombstone, WP05 export/import/backup/recovery, WP06 report/query custody, and WP08 parent storage settings/apply flow now have green implementation-plus-proof roots. WP07 rollout proof and route gate is refreshed with a focused child-runtime lifecycle, a reusable startup-recovery entry point, and tracked command-evidence pointer; its ignored aggregate proof roots remain unavailable in a clean checkout, so WP07 is still not accepted as aggregate route truth.
 
 ## Current ownership interpretation
 
@@ -71,7 +71,10 @@ Import preview remains non-mutating; WP05 restore/apply proof covers only the sh
 Restore/apply proof must prove tombstone preservation and reject resurrection.
 WP06 report/query proof root now proves source refs, citation allowlists, redaction, deletion/expiry behavior, stable pagination, stale/conflict honesty, and rate-limit boundaries at the shared contract/runtime layer.
 WP08 parent storage settings/apply flow proof root now proves explicit storage mode labels, preview-before-apply, separate disconnect/delete states, manual-required visibility, and no-claim portal/provider-runtime boundaries at the shared contract/runtime layer; it is not final portal rendering, host wiring, or provider execution proof.
-WP07 can aggregate only accepted proof roots plus exact carried blockers.
+WP07 can aggregate only accepted proof roots plus exact carried blockers. Its
+`ChildRuntimeTombstoneEventFlow::recover_pending` method is an explicit
+service-startup seam; until a concrete child-service owner invokes it and proves
+restart behavior there, it is not live service lifecycle completion.
 ```
 
 ## Current Route Status
@@ -92,9 +95,10 @@ WP07 can aggregate only accepted proof roots plus exact carried blockers.
 - WP05 export/import/backup/recovery is now implemented and proved through `crates/schema/src/export_import_backup_recovery.rs`, `crates/storage-custody-core/src/export_import_backup_recovery.rs`, and `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`.
 - WP06 report/query custody is now implemented and proved through `crates/schema/src/report_query_custody.rs`, `crates/storage-custody-core/src/report_query_custody.rs`, `packages/schema-domain/src/generated/report-query-custody-contracts.ts`, and `output/data-custody-storage-plan-proof/06-report-query-custody/`.
 - WP07 has a focused, real retention lifecycle through the Rust event journal,
-  child-runtime durable outbox, restart recovery, and explicit terminal
+  child-runtime durable outbox, reusable startup recovery, and explicit terminal
   acknowledgement. Its cited aggregate `output/` proof root is not present in a
-  clean checkout because `output/` is ignored, so WP07 cannot yet be used for
+  clean checkout because `output/` is ignored, and no concrete child-service
+  startup owner invokes the recovery seam yet, so WP07 cannot be used for
   aggregate route truth.
 - WP08 parent storage settings/apply flow is now implemented and proved through `crates/schema/src/parent_storage_settings_apply_flow.rs`, `crates/schema/src/parent_storage_settings_apply_flow_ts.rs`, `crates/storage-custody-core/src/parent_storage_settings_apply_flow.rs`, `packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contracts.ts`, `packages/schema-domain/src/parent-storage-settings-apply-flow.ts`, and `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`.
 

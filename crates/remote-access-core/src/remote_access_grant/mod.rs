@@ -272,7 +272,7 @@ impl RemoteAccessGrant {
         let result = self.apply_transition(transition, &context);
         self.pending_supersession = None;
         let report = replay::transition_report(self, transition, context, result);
-        replay_capacity::record(self, capacity, &report);
+        replay_capacity::record(self, &capacity, &report);
         report
     }
 

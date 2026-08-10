@@ -43,7 +43,7 @@ pub(super) fn prepare(
 
 pub(super) fn record(
     grant: &mut RemoteAccessGrant,
-    capacity: Capacity,
+    capacity: &Capacity,
     report: &RemoteAccessGrantTransitionReport,
 ) {
     match capacity {

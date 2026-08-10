@@ -15,7 +15,8 @@ use ocentra_storage_custody_core::{
 
 use crate::runtime_gate_tombstone::{
     persist_child_runtime_tombstone_action, persist_child_runtime_tombstone_action_with_milestones,
-    ChildRuntimeTombstonePublicationOutcome,
+    replay_pending_child_runtime_tombstones, ChildRuntimeTombstonePublicationOutcome,
+    ChildRuntimeTombstoneRecoveryReport,
 };
 
 #[derive(Clone)]
@@ -62,5 +63,12 @@ impl ChildRuntimeTombstoneEventFlow {
             .and_then(|event| event.store())
             .map_err(std::io::Error::other)?;
         persist_child_runtime_tombstone_action(&self.journal, &self.store, &envelope, &action).await
+    }
+
+    /// Service startup recovery entry point. It republishes durable pending
+    /// obligations through the idempotent journal and leaves acknowledgement
+    /// to the owning terminal-delivery path.
+    pub async fn recover_pending(&self) -> std::io::Result<ChildRuntimeTombstoneRecoveryReport> {
+        replay_pending_child_runtime_tombstones(&self.journal, &self.store).await
     }
 }

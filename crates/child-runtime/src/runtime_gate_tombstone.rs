@@ -2,6 +2,8 @@
 
 #[path = "runtime_gate_tombstone_error.rs"]
 mod runtime_gate_tombstone_error;
+#[path = "runtime_gate_tombstone_recovery.rs"]
+pub mod runtime_gate_tombstone_recovery;
 
 use ocentra_eventing::{
     envelope::{DomainEvent, StoredEventEnvelope},
@@ -12,6 +14,9 @@ use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDel
 use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
 
 use runtime_gate_tombstone_error::is_retryable_journal_error;
+
+pub type ChildRuntimeTombstoneRecoveryReport =
+    runtime_gate_tombstone_recovery::ChildRuntimeTombstoneRecoveryReport;
 
 /// Observable, correlation-bound milestones for a child-runtime tombstone
 /// publication attempt. These are deliberately typed rather than log text so
@@ -112,6 +117,13 @@ pub async fn persist_child_runtime_tombstone_action_with_milestones(
         }
         Err(error) => Err(std::io::Error::other(error.to_string())),
     }
+}
+
+pub async fn replay_pending_child_runtime_tombstones(
+    journal: &NdjsonEventJournal,
+    store: &RetentionDeleteTombstoneStore,
+) -> std::io::Result<ChildRuntimeTombstoneRecoveryReport> {
+    runtime_gate_tombstone_recovery::replay_pending_child_runtime_tombstones(journal, store).await
 }
 
 /// Removes a durable tombstone intent only after the terminal publication is

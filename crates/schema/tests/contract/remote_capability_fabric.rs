@@ -238,6 +238,7 @@ fn remote_capability_v1_payload_is_deserializable_but_rejected_by_version() {
         crate::assert_context!("grant serializes"),
     );
     encoded["schemaVersion"] = json!("remote-capability-fabric-v1");
+    encoded["diagnosticRedactionState"] = json!("legacy-unconstrained-redaction");
     if let Some(object) = encoded.as_object_mut() {
         object.remove("route");
         object.remove("parentGrant");
@@ -247,6 +248,10 @@ fn remote_capability_v1_payload_is_deserializable_but_rejected_by_version() {
         crate::assert_context!("legacy grant deserializes with defaults"),
     );
     assert_eq!(restored.route, contracts::RemoteRoute::Localhost);
+    assert_eq!(
+        restored.diagnostic_redaction_state,
+        contracts::RemoteDiagnosticRedactionState::Unknown
+    );
     assert_eq!(
         restored.authorize_live_view(
             "household-alpha",

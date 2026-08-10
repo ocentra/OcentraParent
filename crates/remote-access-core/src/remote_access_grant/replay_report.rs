@@ -29,7 +29,7 @@ fn access_start_replay_error(
     grant: &RemoteAccessGrant,
     transition: RemoteAccessGrantTransition,
 ) -> Option<RemoteAccessGrantError> {
-    live_access_start_state(transition)?;
+    let expected_state = live_access_start_state(transition)?;
     if grant.stop_recovery == super::RemoteAccessGrantStopRecoveryState::Pending
         && matches!(
             transition,
@@ -38,15 +38,7 @@ fn access_start_replay_error(
     {
         return Some(RemoteAccessGrantError::ReconnectDenied);
     }
-    matches!(
-        grant.state,
-        RemoteAccessGrantState::Revoked
-            | RemoteAccessGrantState::Removed
-            | RemoteAccessGrantState::Denied
-            | RemoteAccessGrantState::Failed
-            | RemoteAccessGrantState::Superseded
-    )
-    .then_some(RemoteAccessGrantError::InvalidTransition)
+    (grant.state != expected_state).then_some(RemoteAccessGrantError::InvalidTransition)
 }
 
 pub(super) fn existing_report(

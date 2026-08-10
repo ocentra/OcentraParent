@@ -68,6 +68,38 @@ fn accepted_access_start_replay_rechecks_current_parent_authority() {
 }
 
 #[test]
+fn supersede_without_replacement_preserves_pending_stop_recovery() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-supersede-recovery-activate"),
+        )
+        .result
+        .expect_value("activate grant");
+    let mut system_stop = context_for("attempt-supersede-recovery-stop");
+    system_stop.actor_ref = "system-failure";
+    system_stop.parent_authorized = false;
+    system_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    grant
+        .transition(RemoteAccessGrantTransition::Stop, system_stop)
+        .result
+        .expect_value("system stop");
+
+    let report = grant.transition(
+        RemoteAccessGrantTransition::Supersede,
+        context_for("attempt-supersede-recovery-missing"),
+    );
+    assert_eq!(
+        report.result,
+        Err(RemoteAccessGrantError::SupersedingGrantRequired)
+    );
+    assert_eq!(grant.state(), RemoteAccessGrantState::Stopped);
+    let encoded = serde_json::to_value(&grant).expect_value("serialize pending recovery");
+    assert_eq!(encoded["stop_recovery"], serde_json::json!("pending"));
+}
+
+#[test]
 fn restart_recovery_marker_survives_a_denial_and_another_round_trip() {
     let mut grant = paired_grant();
     grant
