@@ -28,23 +28,26 @@ consumption. Current derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 462 | 9 | 0 | 2 | 206 | 0 |
+| 454 | 9 | 0 | 2 | 214 | 0 |
 
 The graph validates at 703 nodes and 703 edges, with 24 migration/dependency
-review items. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
+review items. Historical source/test rows are now classified as `validation`
+instead of being counted as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
 `graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
 checklist prose. A graph `DONE` state requires the referenced implementation,
 test, proof, checklist, and any detected ADR paths to exist; it does not claim
 that CI or a product path has been merged.
 
 There are **23 plan folders** and **526 scheduled workpack rows** in this
-checkout (not 24 plans). The consolidated code train is rebased on current
+checkout (not 24 plans). The consolidated code train is merged to current
 `main` and contains the LAN target repair, enforcement-journal sequence
 repairs, parent policy-resolution/delivery binding, remote/tracking contracts,
-and app runtime-decision contracts. The live reviewed-root topology is 2,800
+and app runtime-decision contracts. The live reviewed-root topology is 2,801
 implementation files and 1,175 test files. Scoped Enforcer, architecture,
-generated-artifact, Rust, TypeScript, portal, and pre-commit validation pass;
-fresh PR CI, review, proof custody, and merge to `main` remain separate gates.
+generated-artifact, Rust, TypeScript, portal, and pre-commit validation pass.
+Required CI run `31355642313` passed and PR #640 merged this train to `main` as
+`ddec6d6c7`; proof custody and product-workpack acceptance remain separate
+gates.
 
 | Plan | Live code/test topology observed | Code-first state and next executable dependency |
 | --- | --- | --- |
@@ -76,19 +79,20 @@ fresh PR CI, review, proof custody, and merge to `main` remain separate gates.
 
 This is the current implementation evidence for the consolidated branch, not a
 completion certificate. Local code/test/pre-commit gates pass; retained proof
-artifacts, fresh CI, review, and merge are intentionally separate gates.
+artifacts and product-workpack acceptance remain separate gates. The
+consolidated train's required CI and normal merge are recorded above.
 
 | Slice | Code and focused validation observed | Honest state |
 | --- | --- | --- |
-| Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2 plus the persistence-failure unit test 1/1 and confirmation target 3/3; parent-runtime UI 1/1; child-policy delivery binding 11/11; child-runtime delivery facade 5/5. Successful parent resolution now fails closed when durable activity-audit persistence cannot open or ingest, with `ACTIVITY_STORE_UNAVAILABLE` returned to the caller. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding and audit-persistence failure propagation are code/test verified. Trusted adapter execution, product notification, retained proof, CI, and main merge remain open/unclaimed. |
-| Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified. Retained proof, CI, and main merge remain open; LAN consumer/product proof is still open. |
-| Eventing WP04 queue/idempotency/dead-letter rollback | `cargo test -p ocentra-eventing --tests` passed 31 contract, 2 integration, 24 journal-replay, 57 unit, and 2 version-skew tests, including initial queued-publish rollback and drop-oldest overflow restoration after journal failure. `cargo fmt --all -- --check`, scoped architecture, `hub:guard`, and `git diff --check` passed. | Code/test repair is locally verified; the eventing workpack and plan remain open until retained proof, CI, review, and main merge agree. |
-| Policy WP04 receipt-aware transition precondition | `policy-control-core` unit target: 46/46 focused tests passed; `child-policy-core` delivery-handoff replay target: 12/12 passed. The trusted-receipt transition seam persists a matching adapter receipt and keeps the ordinary receiptless path fail-closed; scoped architecture, Rust format, and Enforcer commit gates passed. | Code/test slice is `validation`, not WP04 closure. The parent-runtime-to-agent-service trusted dispatch ledger, Eventing WP06 -> WP11 durable-journal handoff, OS adapter side effect, rollback execution, retained WP04 proof bundle, CI, review, and main merge remain open. |
-| Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 4 focused contract tests passed, including exact schema-version, authenticated-parent, requested-child-device, and nonblank-audit checks. Rust format, architecture, generated-artifact, and Enforcer gates passed. Durable manifest: `docs/proof/remote-access-plan/slice-01-capability-fabric.md`. | Contract slice is `validation`. Pairing/relay/device-trust/session runtime, revoke/remove flow, custody, abuse proof, CI, review, and main merge remain open; remote input/control remains deferred. |
-| Device-trust WP08 dependency adoption | Dependency matrix covers WebAuthn, passkey, keyring, encrypted-bundle, and RustDesk decisions; contract test 1/1 passed; scoped architecture and Enforcer guard passed. Durable manifest: `docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md`. | Review slice is `validation`. Runtime adoption, platform ceremony, key sealing, recovery execution, CI, review, and main merge remain open. |
-| Network WP08 control-catalog routing | Focused route-boundary contract test 1/1 passed; exact capability/schema/settings source docs and no-default-read/no-runtime-claim wording are asserted. Scoped architecture and Enforcer guard passed. Durable manifest: `docs/proof/network-plan/slice-08-control-catalog-routing.md`. | Reference-routing slice is `validation`. Network runtime/parser/classification/policy/enforcement/platform work remains open; CI, review, and main merge remain open. |
+| Policy WP05 / Enforcement WP10 parent resolution and delivery binding | Protocol 2/2; agent-service parent-resolution 2/2 plus the persistence-failure unit test 1/1 and confirmation target 3/3; parent-runtime UI 1/1; child-policy delivery binding 11/11; child-runtime delivery facade 5/5. Successful parent resolution now fails closed when durable activity-audit persistence cannot open or ingest, with `ACTIVITY_STORE_UNAVAILABLE` returned to the caller. Rust format check, scoped architecture gates, generated-artifact check, and Enforcer guard passed. | Request/artifact/target identity binding and audit-persistence failure propagation are code/test verified; consolidated CI and main merge are complete. Trusted adapter execution, product notification, retained proof, and workpack closure remain open. |
+| Eventing WP06 / Enforcement WP11 journal | `ocentra-eventing` journal/replay 24/24; service enforcement-eventing 2/2; enforcement-runtime focused target 43/43 passed (7 filtered). Rust format check, scoped architecture gate, and Enforcer guard passed. | Code/test slice verified; consolidated CI and main merge are complete. Retained proof and LAN consumer/product proof remain open. |
+| Eventing WP04 queue/idempotency/dead-letter rollback | `cargo test -p ocentra-eventing --tests` passed 31 contract, 2 integration, 24 journal-replay, 57 unit, and 2 version-skew tests, including initial queued-publish rollback and drop-oldest overflow restoration after journal failure. `cargo fmt --all -- --check`, scoped architecture, `hub:guard`, and `git diff --check` passed. | Code/test repair is locally verified and merged with the consolidated CI train; the eventing workpack and plan remain open until retained proof and acceptance agree. |
+| Policy WP04 receipt-aware transition precondition | `policy-control-core` unit target: 46/46 focused tests passed; `child-policy-core` delivery-handoff replay target: 12/12 passed. The trusted-receipt transition seam persists a matching adapter receipt and keeps the ordinary receiptless path fail-closed; scoped architecture, Rust format, and Enforcer commit gates passed. | Code/test slice is `validation`, not WP04 closure; consolidated CI and main merge are complete. The parent-runtime-to-agent-service trusted dispatch ledger, Eventing WP06 -> WP11 durable-journal handoff, OS adapter side effect, rollback execution, retained WP04 proof bundle, and workpack acceptance remain open. |
+| Remote WP01 capability fabric | `crates/schema` Rust-owned view-only capability/grant/session contract; 4 focused contract tests passed, including exact schema-version, authenticated-parent, requested-child-device, and nonblank-audit checks. Rust format, architecture, generated-artifact, and Enforcer gates passed. Durable manifest: `docs/proof/remote-access-plan/slice-01-capability-fabric.md`. | Contract slice is `validation`; consolidated CI and main merge are complete. Pairing/relay/device-trust/session runtime, revoke/remove flow, custody, abuse proof, and workpack acceptance remain open; remote input/control remains deferred. |
+| Device-trust WP08 dependency adoption | Dependency matrix covers WebAuthn, passkey, keyring, encrypted-bundle, and RustDesk decisions; contract test 1/1 passed; scoped architecture and Enforcer guard passed. Durable manifest: `docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md`. | Review slice is `validation`; consolidated CI and main merge are complete. Runtime adoption, platform ceremony, key sealing, recovery execution, retained proof, and workpack acceptance remain open. |
+| Network WP08 control-catalog routing | Focused route-boundary contract test 1/1 passed; exact capability/schema/settings source docs and no-default-read/no-runtime-claim wording are asserted. Scoped architecture and Enforcer guard passed. Durable manifest: `docs/proof/network-plan/slice-08-control-catalog-routing.md`. | Reference-routing slice is `validation`; consolidated CI and main merge are complete. Network runtime/parser/classification/policy/enforcement/platform work and workpack acceptance remain open. |
 | Tracking WP34 event contracts | `crates/schema` Rust-owned 19-event catalog with required causation/evidence/policy/live-mode TTL/audit/reason/transition and typed AI payload safety validation; 4 focused contract tests passed as part of the 107-test schema contract target. | Contract slice verified. Runtime event publishers, journal/replay projection, portal read model, and retained proof/audit remain open. |
-| App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; schema-domain build/type-check and `app-runtime-decision.test.ts` passed 11/11; scoped architecture and Enforcer guards passed. | Contract/runtime-decision code/test slice and local proof are current. Installed inventory, broader app runtime/service/portal path, CI, review, and main merge remain open. |
+| App WP01 runtime decision boundary | `ocentra-app-core` contract 4/4 and invariant 2/2 passed; schema-domain build/type-check and `app-runtime-decision.test.ts` passed 11/11; scoped architecture and Enforcer guards passed. | Contract/runtime-decision code/test slice and local proof are current; consolidated CI and main merge are complete. Installed inventory, broader app runtime/service/portal path, retained proof, and workpack acceptance remain open. |
 | Other 18 plan folders | This pass rechecked topology and selected dependency rows only; no fresh focused implementation validation was run for those plans. | Not closure. Their existing matrix/workpack rows remain routing context until each code/test slice is audited. |
 
 ### Current dependency decision

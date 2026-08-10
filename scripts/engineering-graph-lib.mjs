@@ -436,6 +436,7 @@ export function classifyWorkpackStatus(statusText) {
   if (/\b(?:incomplete|unfinished|unmerged|not\s+(?:done|complete|merged|active))\b/u.test(value)) {
     return 'planned';
   }
+  if (value.includes('historical')) return 'validation';
   if (value.includes('blocked') || value.includes('manual-required')) return 'blocked';
   if (value.includes('failed')) return 'failed';
   if (value.includes('paused')) return 'paused';

@@ -9,13 +9,13 @@ Imported plans: 23
 Imported workpacks: 679
 Graph valid: 703 nodes, 703 edges
 Review items: 24
-PLANNED: 462
+PLANNED: 454
 READY: 0
 ACTIVE: 2
 BLOCKED: 9
-VALIDATION: 206
+VALIDATION: 214
 DONE: 0
-Implementation files: 2800
+Implementation files: 2801
 Test files: 1175
 ```
 

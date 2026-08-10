@@ -53,6 +53,7 @@ test('workpack status is read from the declared Status or State column', () => {
   assert.equal(parseWorkpackRows(statusLast)[0].statusText, 'Complete');
   assert.equal(classifyWorkpackStatus('Open'), 'planned');
   assert.equal(classifyWorkpackStatus('Ready'), 'ready');
+  assert.equal(classifyWorkpackStatus('historical'), 'validation');
   assert.equal(classifyWorkpackStatus('Incomplete; not merged'), 'planned');
 });
 
@@ -334,6 +335,11 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
     (node) => node.id === 'WP-eventing-plan-11-type-safety-and-ownership-hardening'
   );
   assert.deepEqual(eventingProofOverride.completion.references.proof, ['docs/proof/eventing-plan']);
+
+  const eventingHistorical = value.nodes.find(
+    (node) => node.id === 'WP-eventing-plan-04-queue-idempotency-dead-letter'
+  );
+  assert.equal(eventingHistorical.state, 'validation');
 
   const networkRouting = value.nodes.find((node) => node.id === 'WP-network-plan-08-control-catalog-reference-routing');
   assert.equal(networkRouting.state, 'validation');
