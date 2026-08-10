@@ -731,6 +731,47 @@ fn audit_attempt_refs_are_unique_per_attempt_and_stable_on_retry() {
         denied_one.audit.idempotency_key(),
         denied_two.audit.idempotency_key()
     );
+
+    let mut second_grant = RemoteAccessGrant::request(
+        "grant-beta",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-alpha",
+    )
+    .expect_value("second grant request");
+    second_grant
+        .transition(
+            RemoteAccessGrantTransition::ConfirmParent,
+            context_for("attempt-cycle-confirm-second-grant"),
+        )
+        .result
+        .expect_value("confirm second grant");
+    second_grant
+        .transition(
+            RemoteAccessGrantTransition::Pair,
+            context_for("attempt-cycle-pair-second-grant"),
+        )
+        .result
+        .expect_value("pair second grant");
+    second_grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-cycle-activate-second-grant"),
+        )
+        .result
+        .expect_value("activate second grant");
+    let second_grant_pause = second_grant.transition_with_audit(
+        RemoteAccessGrantTransition::Pause,
+        context_for("attempt-cycle-pause-one"),
+    );
+    second_grant_pause.result.expect_value("pause second grant");
+    assert_ne!(
+        pause_one.audit.idempotency_key(),
+        second_grant_pause.audit.idempotency_key()
+    );
 }
 
 #[test]

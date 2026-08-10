@@ -21,8 +21,8 @@ impl DomainEvent for RemoteAccessGrantAuditMilestone {
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         IdempotencyKey::parse(format!(
-            "remote-access-grant:{}:{}",
-            self.audit_ref, self.attempt_ref,
+            "remote-access-grant:{}:{}:{}",
+            self.grant_id, self.audit_ref, self.attempt_ref,
         ))
     }
 }

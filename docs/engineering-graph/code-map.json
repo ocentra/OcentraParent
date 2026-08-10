@@ -101,7 +101,12 @@
     },
     "WP-remote-access-plan-04-session-pairing-grants": {
       "planSlug": "remote-access-plan",
-      "roots": ["crates/remote-access-core/src/remote_access_grant", "crates/remote-access-core/tests/unit/grant.rs"]
+      "roots": [
+        "crates/remote-access-core/src/remote_access_grant",
+        "crates/remote-access-core/tests/unit/grant.rs",
+        "crates/schema/src/remote_capability_fabric.rs",
+        "crates/schema/tests/contract/remote_capability_fabric.rs"
+      ]
     },
     "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption": {
       "planSlug": "device-trust-bootstrap-plan",
