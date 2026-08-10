@@ -74,14 +74,17 @@ pub enum RemoteDeviceTrustState {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum RemoteCapabilityAuthorizationError {
+    UnsupportedSchemaVersion,
     CapabilityDeferred,
     WrongHousehold,
     WrongActorRole,
+    WrongParentActor,
     PairingRequired,
     GrantNotActive,
     Revoked,
     DeviceRemoved,
     DeviceTrustRequired,
+    MissingAuditRef,
     SessionNotLiveViewEligible,
 }
 
@@ -108,7 +111,11 @@ impl RemoteCapabilityGrant {
     pub fn authorize_live_view(
         &self,
         expected_household_ref: &str,
+        requesting_parent_actor_ref: &str,
     ) -> Result<(), RemoteCapabilityAuthorizationError> {
+        if self.schema_version != REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION {
+            return Err(RemoteCapabilityAuthorizationError::UnsupportedSchemaVersion);
+        }
         if self.capability_type != RemoteCapabilityType::LiveView {
             return Err(RemoteCapabilityAuthorizationError::CapabilityDeferred);
         }
@@ -120,6 +127,9 @@ impl RemoteCapabilityGrant {
             RemoteActorRole::ParentOwner | RemoteActorRole::CoParent
         ) {
             return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
+        }
+        if self.parent_actor_ref != requesting_parent_actor_ref {
+            return Err(RemoteCapabilityAuthorizationError::WrongParentActor);
         }
         if self.pairing_state != RemotePairingState::Paired {
             return Err(RemoteCapabilityAuthorizationError::PairingRequired);
@@ -135,6 +145,9 @@ impl RemoteCapabilityGrant {
         }
         if self.device_trust_state != RemoteDeviceTrustState::Trusted {
             return Err(RemoteCapabilityAuthorizationError::DeviceTrustRequired);
+        }
+        if self.audit_ref.trim().is_empty() {
+            return Err(RemoteCapabilityAuthorizationError::MissingAuditRef);
         }
         if !matches!(
             self.session_state,
