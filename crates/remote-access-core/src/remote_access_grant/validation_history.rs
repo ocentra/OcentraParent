@@ -1,17 +1,16 @@
+use super::validation_history_support;
 use super::{
     validation, RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantError,
     RemoteAccessGrantState, RemoteAccessGrantTransition,
 };
 
 pub(super) fn validate(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
-    if grant.attempts.is_empty() {
-        // Older persisted snapshots did not retain replay milestones. Their
-        // lifecycle evidence is still checked by the surrounding validators;
-        // a non-empty history, when present, must be ordered and reachable.
+    if validation_history_support::empty_history(grant)? {
         return Ok(());
     }
     let mut state = RemoteAccessGrantState::Requested;
-    for attempt in &grant.attempts {
+    for (index, attempt) in grant.attempts.iter().enumerate() {
+        state = validation_history_support::before_attempt(grant, state, index)?;
         if attempt.outcome == RemoteAccessGrantAuditOutcome::Denied {
             if attempt.resulting_state != state {
                 return Err(RemoteAccessGrantError::InvalidSerializedState);
@@ -25,12 +24,14 @@ pub(super) fn validate(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGran
         }
         state = attempt.resulting_state;
     }
+    state = validation_history_support::after_attempts(grant, state)?;
+    state = validation_history_support::terminal(grant, state)?;
     (state == grant.state)
         .then_some(())
         .ok_or(RemoteAccessGrantError::InvalidSerializedState)
 }
 
-fn transition_allowed_from(
+pub(super) fn transition_allowed_from(
     state: RemoteAccessGrantState,
     transition: RemoteAccessGrantTransition,
 ) -> bool {

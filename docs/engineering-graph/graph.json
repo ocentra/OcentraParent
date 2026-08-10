@@ -19561,12 +19561,12 @@
       "path": "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
       "parent": "PLAN-policy-control-plane-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Open / partial reviewed slice on PR [#615](https://github.com/ocentra/OcentraParent/pull/615); CI-active and not closure",
+        "statusText": "Open / partial reviewed slice; PR [#615](https://github.com/ocentra/OcentraParent/pull/615) merged, but the workpack is not closed",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

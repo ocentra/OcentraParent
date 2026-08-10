@@ -41,7 +41,7 @@ domain plans:
 
 ## WP02 integration snapshot — 2026-08-05
 
-- PR [#615](https://github.com/ocentra/OcentraParent/pull/615) at `cc01f9ae` is an open, reviewed partial WP02 slice with CI still active at this snapshot. It projects the Rust-owned parent-attention states for conflict, manual-required, and unsupported previews; its branch adds focused parent-runtime and portal tests plus `docs/proof/policy-control-plane-plan/02-conflict-visible-proof.md`.
+- PR [#615](https://github.com/ocentra/OcentraParent/pull/615) is merged (`17739c4f10889f007691bf4b320e55f1e9d9f9f4a6`) as a reviewed partial WP02 slice. It projects the Rust-owned parent-attention states for conflict, manual-required, and unsupported previews; its branch added focused parent-runtime and portal tests plus `docs/proof/policy-control-plane-plan/02-conflict-visible-proof.md`. The workpack remains open because the authoring/confirmation surface, trusted write boundary, remaining proof, and acceptance rows are not complete.
 - This evidence is visibility-only. It does not close WP02 or claim template/manual-rule authoring, preview-to-save confirmation, opaque confirmed-request relay, delivery, enforcement, child-device application, or the complete WP02 proof set.
 - Keep WP02 open until those owner paths are merged and their targeted proof/validation reconciles with the workpack.
 

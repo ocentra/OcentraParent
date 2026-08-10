@@ -12,16 +12,20 @@ mod errors;
 mod replay;
 mod replay_capacity;
 mod replay_identity;
+mod replay_report;
 mod serialization;
 mod transition;
 mod validation;
 mod validation_context;
 mod validation_history;
+mod validation_history_support;
+mod validation_terminal;
 
 /// Number of transition attempts retained for idempotent replay after a grant
 /// is persisted. Once the bounded window is full, a new attempt fails closed;
 /// retaining every recorded identity prevents an old accepted transition from
-/// being applied again after eviction.
+/// being applied again after eviction. A terminal transition can use the
+/// separate terminal milestone slot when all retained attempts are accepted.
 pub(super) const MAX_REPLAY_ATTEMPTS: usize = 64;
 
 use ocentra_schema::remote_capability_fabric::{
@@ -127,8 +131,12 @@ pub struct RemoteAccessGrant {
     parent_grant: RemoteAccessGrantParentGrant,
     audit_ref: String,
     attempts: Vec<RemoteAccessGrantAuditMilestone>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    terminal_milestone: Option<RemoteAccessGrantAuditMilestone>,
     superseded_by: Option<String>,
     stop_recovery: RemoteAccessGrantStopRecoveryState,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    restart_recovery_at: Option<usize>,
     #[serde(skip)]
     pending_supersession: Option<String>,
 }
@@ -217,8 +225,10 @@ impl RemoteAccessGrant {
             parent_grant: RemoteAccessGrantParentGrant::NotGranted,
             audit_ref: audit_ref.into(),
             attempts: Vec::new(),
+            terminal_milestone: None,
             superseded_by: None,
             stop_recovery: RemoteAccessGrantStopRecoveryState::NotRequired,
+            restart_recovery_at: None,
             pending_supersession: None,
         };
         validation::fields(&grant)?;
@@ -239,57 +249,30 @@ impl RemoteAccessGrant {
         transition: RemoteAccessGrantTransition,
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
-        let actor_ref = context.actor_ref.to_owned();
-        let route = replay_identity::audit_route(self, transition, &context);
-        let attempt_ref = context.attempt_ref.to_owned();
-        if let Some(previous) = self
-            .attempts
-            .iter()
-            .find(|attempt| attempt.attempt_ref == attempt_ref)
-        {
-            let child_device_retry = previous.outcome == RemoteAccessGrantAuditOutcome::Denied
-                && previous.error == Some(RemoteAccessGrantError::WrongDevice)
-                && previous.child_device_ref != context.child_device_ref;
-            if !child_device_retry {
-                return replay::existing_report(self, previous.clone(), transition, context);
+        if let Some(previous) = replay::previous_attempt(self, context.attempt_ref) {
+            if !replay::is_child_device_retry(&previous, &context) {
+                return replay_report::existing_report(self, previous, transition, context);
             }
         }
-        if !replay_capacity::prepare(self, transition) {
-            self.pending_supersession = None;
-            return replay::denied_report(
-                self,
-                transition,
-                context,
-                RemoteAccessGrantError::ReplayWindowExhausted,
-            );
-        }
+        let capacity = match replay_capacity::prepare(self, transition) {
+            replay_capacity::Capacity::Attempts => replay_capacity::Capacity::Attempts,
+            replay_capacity::Capacity::TerminalMilestone => {
+                replay_capacity::Capacity::TerminalMilestone
+            }
+            replay_capacity::Capacity::Exhausted => {
+                self.pending_supersession = None;
+                return replay_report::denied_report(
+                    self,
+                    transition,
+                    context,
+                    RemoteAccessGrantError::ReplayWindowExhausted,
+                );
+            }
+        };
         let result = self.apply_transition(transition, &context);
         self.pending_supersession = None;
-        let (outcome, error, resulting_state) = match result {
-            Ok(state) => (RemoteAccessGrantAuditOutcome::Accepted, None, state),
-            Err(error) => (
-                RemoteAccessGrantAuditOutcome::Denied,
-                Some(error),
-                self.state,
-            ),
-        };
-        let report = RemoteAccessGrantTransitionReport {
-            result,
-            audit: RemoteAccessGrantAuditMilestone {
-                grant_id: self.grant_id.clone(),
-                household_ref: self.household_ref.clone(),
-                actor_ref,
-                child_device_ref: context.child_device_ref.to_owned(),
-                route,
-                attempt_ref,
-                transition,
-                outcome,
-                resulting_state,
-                error,
-                audit_ref: self.audit_ref.clone(),
-            },
-        };
-        self.attempts.push(report.audit.clone());
+        let report = replay::transition_report(self, transition, context, result);
+        replay_capacity::record(self, capacity, &report);
         report
     }
 
@@ -318,7 +301,7 @@ impl RemoteAccessGrant {
             || self.route != replacement.route
             || self.capability != replacement.capability
         {
-            return replay::denied_report(
+            return replay_report::denied_report(
                 self,
                 RemoteAccessGrantTransition::Supersede,
                 context,

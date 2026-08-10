@@ -1,102 +1,69 @@
-use super::replay_identity::{audit_route, replay_denial_audit_ref, same_attempt_identity};
+use super::replay_identity::audit_route;
 use super::{
     RemoteAccessGrant, RemoteAccessGrantAuditMilestone, RemoteAccessGrantAuditOutcome,
-    RemoteAccessGrantContext, RemoteAccessGrantError, RemoteAccessGrantState,
-    RemoteAccessGrantTransition, RemoteAccessGrantTransitionReport,
+    RemoteAccessGrantContext, RemoteAccessGrantState, RemoteAccessGrantTransition,
+    RemoteAccessGrantTransitionReport,
 };
 
-pub(super) fn report(audit: RemoteAccessGrantAuditMilestone) -> RemoteAccessGrantTransitionReport {
-    let result = match audit.error {
-        Some(error) => Err(error),
-        None => Ok(audit.resulting_state),
+pub(super) fn previous_attempt(
+    grant: &RemoteAccessGrant,
+    attempt_ref: &str,
+) -> Option<RemoteAccessGrantAuditMilestone> {
+    grant
+        .terminal_milestone
+        .as_ref()
+        .filter(|attempt| attempt.attempt_ref == attempt_ref)
+        .cloned()
+        .or_else(|| {
+            grant
+                .attempts
+                .iter()
+                .rev()
+                .find(|attempt| attempt.attempt_ref == attempt_ref)
+                .cloned()
+        })
+}
+
+pub(super) fn is_child_device_retry(
+    previous: &RemoteAccessGrantAuditMilestone,
+    context: &RemoteAccessGrantContext<'_>,
+) -> bool {
+    previous.outcome == RemoteAccessGrantAuditOutcome::Denied
+        && previous.error == Some(super::RemoteAccessGrantError::WrongDevice)
+        && previous.child_device_ref != context.child_device_ref
+}
+
+pub(super) fn transition_report(
+    grant: &RemoteAccessGrant,
+    transition: RemoteAccessGrantTransition,
+    context: RemoteAccessGrantContext<'_>,
+    result: Result<RemoteAccessGrantState, super::RemoteAccessGrantError>,
+) -> RemoteAccessGrantTransitionReport {
+    let (outcome, error, resulting_state) = match result {
+        Ok(state) => (RemoteAccessGrantAuditOutcome::Accepted, None, state),
+        Err(error) => (
+            RemoteAccessGrantAuditOutcome::Denied,
+            Some(error),
+            grant.state,
+        ),
     };
-    RemoteAccessGrantTransitionReport { result, audit }
-}
-
-pub(super) fn live_access_start_state(
-    transition: RemoteAccessGrantTransition,
-) -> Option<RemoteAccessGrantState> {
-    match transition {
-        RemoteAccessGrantTransition::Pair => Some(RemoteAccessGrantState::Paired),
-        RemoteAccessGrantTransition::Activate | RemoteAccessGrantTransition::Reconnect => {
-            Some(RemoteAccessGrantState::Active)
-        }
-        _ => None,
-    }
-}
-
-pub(super) fn access_start_replay_error(
-    grant: &RemoteAccessGrant,
-    transition: RemoteAccessGrantTransition,
-) -> Option<RemoteAccessGrantError> {
-    live_access_start_state(transition)?;
-    if grant.stop_recovery == super::RemoteAccessGrantStopRecoveryState::Pending
-        && matches!(
-            transition,
-            RemoteAccessGrantTransition::Activate | RemoteAccessGrantTransition::Reconnect
-        )
-    {
-        return Some(RemoteAccessGrantError::ReconnectDenied);
-    }
-    matches!(
-        grant.state,
-        RemoteAccessGrantState::Revoked
-            | RemoteAccessGrantState::Removed
-            | RemoteAccessGrantState::Denied
-            | RemoteAccessGrantState::Failed
-            | RemoteAccessGrantState::Superseded
-    )
-    .then_some(RemoteAccessGrantError::InvalidTransition)
-}
-
-pub(super) fn existing_report(
-    grant: &RemoteAccessGrant,
-    previous: RemoteAccessGrantAuditMilestone,
-    transition: RemoteAccessGrantTransition,
-    context: RemoteAccessGrantContext<'_>,
-) -> RemoteAccessGrantTransitionReport {
-    if previous.transition != transition
-        || !same_attempt_identity(grant, &previous, transition, &context)
-    {
-        return denied_report(
-            grant,
-            transition,
-            context,
-            RemoteAccessGrantError::InvalidTransition,
-        );
-    }
-    if previous.outcome == RemoteAccessGrantAuditOutcome::Accepted {
-        if let Err(error) = super::validation_context::context(grant, transition, &context) {
-            return denied_report(grant, transition, context, error);
-        }
-        if let Some(error) = access_start_replay_error(grant, transition) {
-            return denied_report(grant, transition, context, error);
-        }
-    }
-    report(previous)
-}
-
-pub(super) fn denied_report(
-    grant: &RemoteAccessGrant,
-    transition: RemoteAccessGrantTransition,
-    context: RemoteAccessGrantContext<'_>,
-    error: RemoteAccessGrantError,
-) -> RemoteAccessGrantTransitionReport {
-    let route = audit_route(grant, transition, &context);
     RemoteAccessGrantTransitionReport {
-        result: Err(error),
+        result: match error {
+            Some(error) => Err(error),
+            None => Ok(resulting_state),
+        },
         audit: RemoteAccessGrantAuditMilestone {
             grant_id: grant.grant_id.clone(),
-            household_ref: grant.household_ref.clone(),
+            household_ref: super::replay_identity::audit_household(grant, &context, error),
             actor_ref: context.actor_ref.to_owned(),
             child_device_ref: context.child_device_ref.to_owned(),
-            route,
+            route: audit_route(grant, transition, &context),
             attempt_ref: context.attempt_ref.to_owned(),
             transition,
-            outcome: RemoteAccessGrantAuditOutcome::Denied,
-            resulting_state: grant.state,
-            error: Some(error),
-            audit_ref: replay_denial_audit_ref(grant, transition, &context, error),
+            outcome,
+            resulting_state,
+            error,
+            audit_ref: grant.audit_ref.clone(),
         },
     }
 }

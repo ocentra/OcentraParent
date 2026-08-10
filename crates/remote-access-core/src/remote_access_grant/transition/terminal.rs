@@ -19,7 +19,7 @@ pub(super) fn apply(
 }
 
 pub(super) fn revoke(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     require_safety_authority(context)?;
@@ -28,7 +28,7 @@ pub(super) fn revoke(
 }
 
 pub(super) fn remove_device(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     require_safety_authority(context)?;
@@ -37,7 +37,7 @@ pub(super) fn remove_device(
 }
 
 pub(super) fn deny(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     require_parent_authority(context)?;
@@ -46,7 +46,7 @@ pub(super) fn deny(
 }
 
 pub(super) fn fail(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if context.transition_authority != RemoteAccessGrantTransitionAuthority::SystemFailure {
@@ -89,15 +89,18 @@ fn require_parent_authority(
         .ok_or(RemoteAccessGrantError::ParentAuthorityRequired)
 }
 
-fn terminal_state(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
-    (!matches!(
+fn terminal_state(grant: &mut RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
+    if matches!(
         grant.state,
         RemoteAccessGrantState::Revoked
             | RemoteAccessGrantState::Removed
             | RemoteAccessGrantState::Denied
             | RemoteAccessGrantState::Failed
             | RemoteAccessGrantState::Superseded
-    ))
-    .then_some(())
-    .ok_or(RemoteAccessGrantError::InvalidTransition)
+    ) {
+        return Err(RemoteAccessGrantError::InvalidTransition);
+    }
+    grant.stop_recovery = super::super::RemoteAccessGrantStopRecoveryState::NotRequired;
+    grant.restart_recovery_at = None;
+    Ok(())
 }

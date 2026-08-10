@@ -25,9 +25,13 @@ struct RemoteAccessGrantSnapshot {
     #[serde(default)]
     attempts: Vec<super::RemoteAccessGrantAuditMilestone>,
     #[serde(default)]
+    terminal_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
+    #[serde(default)]
     superseded_by: Option<String>,
     #[serde(default)]
     stop_recovery: RemoteAccessGrantStopRecoveryState,
+    #[serde(default)]
+    restart_recovery_at: Option<usize>,
 }
 
 fn default_parent_grant() -> RemoteAccessGrantParentGrant {
@@ -50,6 +54,13 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
                 attempt.child_device_ref = snapshot.child_device_ref.clone();
             }
         }
+        let (state, restart_recovery_at) = match (persisted_state, snapshot.restart_recovery_at) {
+            (RemoteAccessGrantState::Active, None) => (
+                RemoteAccessGrantState::ReconnectPending,
+                Some(attempts.len()),
+            ),
+            (state, restart_recovery_at) => (state, restart_recovery_at),
+        };
         let grant = RemoteAccessGrant {
             grant_id: snapshot.grant_id,
             household_ref: snapshot.household_ref,
@@ -58,22 +69,18 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             parent_actor_ref: snapshot.parent_actor_ref,
             capability: snapshot.capability,
             actor_role: snapshot.actor_role,
-            state: persisted_state,
+            state,
             disclosure_state: snapshot.disclosure_state,
             parent_grant: snapshot.parent_grant,
             audit_ref: snapshot.audit_ref,
             attempts,
+            terminal_milestone: snapshot.terminal_milestone,
             superseded_by: snapshot.superseded_by,
             stop_recovery: snapshot.stop_recovery,
+            restart_recovery_at,
             pending_supersession: None,
         };
         validation::serialized(&grant).map_err(D::Error::custom)?;
-        Ok(RemoteAccessGrant {
-            state: match persisted_state {
-                RemoteAccessGrantState::Active => RemoteAccessGrantState::ReconnectPending,
-                state => state,
-            },
-            ..grant
-        })
+        Ok(grant)
     }
 }

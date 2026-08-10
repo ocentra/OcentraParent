@@ -32,6 +32,7 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
     fields(grant)?;
     actor_role(&grant.actor_role)?;
     validate_attempts(grant)?;
+    super::validation_terminal::validate(grant)?;
     super::validation_history::validate(grant)?;
     validate_supersession(grant)?;
     validate_lifecycle_evidence(grant)?;
@@ -47,6 +48,8 @@ fn validate_attempts(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
             || attempt.audit_ref != grant.audit_ref
             || attempt.attempt_ref.trim().is_empty()
             || attempt.child_device_ref.trim().is_empty()
+            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
+                && attempt.household_ref != grant.household_ref)
             || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
                 && attempt.child_device_ref != grant.child_device_ref)
             || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
@@ -118,6 +121,14 @@ fn validate_lifecycle_evidence(grant: &RemoteAccessGrant) -> Result<(), RemoteAc
 }
 
 fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
+    if let Some(index) = grant.restart_recovery_at {
+        if grant.state != RemoteAccessGrantState::ReconnectPending
+            || index > grant.attempts.len()
+            || grant.terminal_milestone.is_some()
+        {
+            return Err(RemoteAccessGrantError::InvalidSerializedState);
+        }
+    }
     if grant.stop_recovery == RemoteAccessGrantStopRecoveryState::Pending
         && !matches!(
             grant.state,
@@ -129,7 +140,7 @@ fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
     Ok(())
 }
 
-fn is_terminal(state: RemoteAccessGrantState) -> bool {
+pub(super) fn is_terminal(state: RemoteAccessGrantState) -> bool {
     matches!(
         state,
         RemoteAccessGrantState::Revoked

@@ -47,12 +47,23 @@ pub(super) fn same_attempt_identity(
     context: &RemoteAccessGrantContext<'_>,
 ) -> bool {
     previous.grant_id == grant.grant_id()
-        && previous.household_ref == grant.household_ref()
         && previous.household_ref == context.household_ref
         && previous.actor_ref == context.actor_ref
         && previous.child_device_ref == context.child_device_ref
         && previous.attempt_ref == context.attempt_ref
         && previous.route == audit_route(grant, transition, context)
+}
+
+pub(super) fn audit_household(
+    grant: &RemoteAccessGrant,
+    context: &RemoteAccessGrantContext<'_>,
+    error: Option<RemoteAccessGrantError>,
+) -> String {
+    if error == Some(RemoteAccessGrantError::WrongHousehold) {
+        context.household_ref.to_owned()
+    } else {
+        grant.household_ref.clone()
+    }
 }
 
 pub(super) fn transition_key(transition: RemoteAccessGrantTransition) -> &'static str {

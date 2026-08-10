@@ -1,11 +1,20 @@
-use super::{RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantTransition};
+use super::{
+    RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantTransition,
+    RemoteAccessGrantTransitionReport,
+};
+
+pub(super) enum Capacity {
+    Attempts,
+    TerminalMilestone,
+    Exhausted,
+}
 
 pub(super) fn prepare(
     grant: &mut RemoteAccessGrant,
     transition: RemoteAccessGrantTransition,
-) -> bool {
+) -> Capacity {
     if grant.attempts.len() < super::MAX_REPLAY_ATTEMPTS {
-        return true;
+        return Capacity::Attempts;
     }
     if !matches!(
         transition,
@@ -13,7 +22,7 @@ pub(super) fn prepare(
             | RemoteAccessGrantTransition::RemoveDevice
             | RemoteAccessGrantTransition::Supersede
     ) {
-        return false;
+        return Capacity::Exhausted;
     }
     grant
         .attempts
@@ -21,7 +30,27 @@ pub(super) fn prepare(
         .position(|attempt| attempt.outcome == RemoteAccessGrantAuditOutcome::Denied)
         .map(|index| {
             grant.attempts.remove(index);
-            true
+            Capacity::Attempts
         })
-        .unwrap_or(false)
+        .unwrap_or_else(|| {
+            if grant.terminal_milestone.is_none() {
+                Capacity::TerminalMilestone
+            } else {
+                Capacity::Exhausted
+            }
+        })
+}
+
+pub(super) fn record(
+    grant: &mut RemoteAccessGrant,
+    capacity: Capacity,
+    report: &RemoteAccessGrantTransitionReport,
+) {
+    match capacity {
+        Capacity::Attempts => grant.attempts.push(report.audit.clone()),
+        Capacity::TerminalMilestone if report.result.is_ok() => {
+            grant.terminal_milestone = Some(report.audit.clone());
+        }
+        Capacity::TerminalMilestone | Capacity::Exhausted => {}
+    }
 }
