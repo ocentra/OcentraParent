@@ -22,6 +22,8 @@ struct RemoteAccessGrantSnapshot {
     #[serde(default = "default_parent_grant")]
     parent_grant: RemoteAccessGrantParentGrant,
     audit_ref: String,
+    #[serde(default)]
+    attempts: Vec<super::RemoteAccessGrantAuditMilestone>,
 }
 
 fn default_parent_grant() -> RemoteAccessGrantParentGrant {
@@ -46,6 +48,7 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             disclosure_state: snapshot.disclosure_state,
             parent_grant: snapshot.parent_grant,
             audit_ref: snapshot.audit_ref,
+            attempts: snapshot.attempts,
         };
         validation::serialized(&grant).map_err(D::Error::custom)?;
         Ok(grant)

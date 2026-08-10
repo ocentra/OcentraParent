@@ -23,6 +23,8 @@ pub(super) fn apply(
         RemoteAccessGrantTransition::Reconnect => reconnect::complete(grant, context)?,
         RemoteAccessGrantTransition::Revoke => terminal::revoke(grant, context)?,
         RemoteAccessGrantTransition::RemoveDevice => terminal::remove_device(grant, context)?,
+        RemoteAccessGrantTransition::Deny => terminal::deny(grant, context)?,
+        RemoteAccessGrantTransition::Fail => terminal::fail(grant, context)?,
     };
     grant.state = next;
     Ok(next)

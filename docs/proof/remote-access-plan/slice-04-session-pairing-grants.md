@@ -22,8 +22,8 @@ terminal snapshots. The graph state is `validation`, not `done`.
 | Command | Result |
 | --- | --- |
 | `cargo fmt --all -- --check` | passed |
-| `cargo test -p ocentra-remote-access-core --test unit` | 31 passed, 0 failed |
-| `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 5 passed, 0 failed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 34 passed, 0 failed |
+| `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 6 passed, 0 failed |
 | `cargo clippy -p ocentra-remote-access-core --all-targets -- -D warnings` | passed |
 | `npm run lint:architecture -- --files crates/remote-access-core crates/schema` | passed |
 | `npm run graph:validate --silent` | passed; 703 nodes, 705 edges |
@@ -42,8 +42,10 @@ lifecycle evidence. They accept explicitly parent-approved support access,
 canonical parent-granted support live view, revocation by another authorized
 household actor, and emit accepted/denied redacted audit milestones.
 Serialization preserves both early
-and late terminal states. Attempt references make cycle audit ids distinct
-while retries with the same attempt remain idempotent.
+and late terminal states. Attempt references make cycle audit ids distinct and
+replay the original accepted or denied report across retries and restore.
+Typed device-trust handoff gates pairing and access-starting transitions.
+Explicit Denied and Failed states preserve terminal pairing outcomes.
 
 ## Review repair checkpoint (2026-08-10)
 
@@ -56,9 +58,12 @@ the default transition path returns its audit report; attempt references make
 audit idempotency keys unique per attempt; and grants carry the canonical
 route discriminator and reject route mismatch. A further reviewer pass
 required cross-actor authority to be limited to terminal transitions, support
-grants to carry a canonical parent-grant state, and reconnect-pending
-activation to remain behind the reconnect transition; those are now covered
-by focused tests. The earlier findings remain
+grants to carry a canonical parent-grant state, reconnect-pending activation
+to remain behind the reconnect transition, successful attempt retries to
+replay the original report, the route-bearing schema to move to v2 with a v1
+migration default, typed device-trust handoff to gate access starts, and
+explicit Denied/Failed terminal states; those are now covered by focused
+tests. The earlier findings remain
 covered: grant lifecycle fields are private with validated deserialization,
 terminal transitions accept a different currently-authorized household actor,
 support access requires an explicit parent-grant flag, and the canonical

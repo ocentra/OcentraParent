@@ -94,9 +94,10 @@ actor/household/device/route rejection, explicitly parent-approved support
 access, support/admin hidden-access rejection, authorized household-actor
 revoke/remove, cross-actor non-terminal rejection, terminal reconnect denial,
 reconnect-pending bypass rejection, canonical parent-granted support
-authorization, redacted accepted/denied audit milestones, unique per-attempt
-audit keys, and validated serialization round-trips for early and late
-terminal states.
+authorization, typed device-trust handoff, explicit Denied/Failed terminal
+states, accepted-attempt replay across restore, redacted accepted/denied audit
+milestones, unique per-attempt audit keys, and validated serialization
+round-trips for early and late terminal states.
 
 The first PR CI run passed all product/build/security/E2E jobs but the
 mergeability gate held six review threads. The follow-up code repair consumes

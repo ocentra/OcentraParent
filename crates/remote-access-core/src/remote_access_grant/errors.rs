@@ -10,6 +10,7 @@ impl fmt::Display for RemoteAccessGrantError {
             "grant context actor is not authorized",
             "grant context belongs to another child device",
             "grant context uses another route",
+            "trusted device proof is required",
             "current parent authority is required",
             "child disclosure is required",
             "support access requires an explicit parent grant",

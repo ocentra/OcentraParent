@@ -13,7 +13,9 @@ mod serialization;
 mod transition;
 mod validation;
 
-use ocentra_schema::remote_capability_fabric::{RemoteActorRole, RemoteRoute};
+use ocentra_schema::remote_capability_fabric::{
+    RemoteActorRole, RemoteDeviceTrustState, RemoteRoute,
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,6 +51,8 @@ pub enum RemoteAccessGrantState {
     ReconnectPending,
     Revoked,
     Removed,
+    Denied,
+    Failed,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -64,6 +68,8 @@ pub enum RemoteAccessGrantTransition {
     Reconnect,
     Revoke,
     RemoveDevice,
+    Deny,
+    Fail,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -74,6 +80,7 @@ pub enum RemoteAccessGrantError {
     WrongActor,
     WrongDevice,
     WrongRoute,
+    DeviceTrustRequired,
     ParentAuthorityRequired,
     ChildDisclosureRequired,
     SupportAccessRequiresParentGrant,
@@ -95,6 +102,7 @@ pub struct RemoteAccessGrant {
     disclosure_state: RemoteAccessGrantDisclosureState,
     parent_grant: RemoteAccessGrantParentGrant,
     audit_ref: String,
+    attempts: Vec<RemoteAccessGrantAuditMilestone>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -104,6 +112,7 @@ pub struct RemoteAccessGrantContext<'a> {
     pub child_device_ref: &'a str,
     pub route: RemoteRoute,
     pub attempt_ref: &'a str,
+    pub device_trust_state: RemoteDeviceTrustState,
     pub parent_authorized: bool,
     pub child_disclosed: bool,
     pub parent_grant_approved: bool,
@@ -163,6 +172,7 @@ impl RemoteAccessGrant {
             disclosure_state: RemoteAccessGrantDisclosureState::Undisclosed,
             parent_grant: RemoteAccessGrantParentGrant::NotGranted,
             audit_ref: audit_ref.into(),
+            attempts: Vec::new(),
         };
         validation::fields(&grant)?;
         validation::actor_role(&grant.actor_role)?;
@@ -185,6 +195,13 @@ impl RemoteAccessGrant {
         let actor_ref = context.actor_ref.to_owned();
         let route = context.route;
         let attempt_ref = context.attempt_ref.to_owned();
+        if let Some(previous) = self
+            .attempts
+            .iter()
+            .find(|attempt| attempt.attempt_ref == attempt_ref)
+        {
+            return replay_report(previous.clone());
+        }
         let result = self.apply_transition(transition, &context);
         let (outcome, error, resulting_state) = match result {
             Ok(state) => (RemoteAccessGrantAuditOutcome::Accepted, None, state),
@@ -194,7 +211,7 @@ impl RemoteAccessGrant {
                 self.state,
             ),
         };
-        RemoteAccessGrantTransitionReport {
+        let report = RemoteAccessGrantTransitionReport {
             result,
             audit: RemoteAccessGrantAuditMilestone {
                 grant_id: self.grant_id.clone(),
@@ -208,7 +225,9 @@ impl RemoteAccessGrant {
                 error,
                 audit_ref: self.audit_ref.clone(),
             },
-        }
+        };
+        self.attempts.push(report.audit.clone());
+        report
     }
 
     fn apply_transition(
@@ -273,4 +292,12 @@ impl RemoteAccessGrant {
     pub fn audit_ref(&self) -> &str {
         &self.audit_ref
     }
+}
+
+fn replay_report(audit: RemoteAccessGrantAuditMilestone) -> RemoteAccessGrantTransitionReport {
+    let result = match audit.error {
+        Some(error) => Err(error),
+        None => Ok(audit.resulting_state),
+    };
+    RemoteAccessGrantTransitionReport { result, audit }
 }

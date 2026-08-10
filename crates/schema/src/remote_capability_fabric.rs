@@ -6,7 +6,7 @@
 
 use serde::{Deserialize, Serialize};
 
-pub const REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION: &str = "remote-capability-fabric-v1";
+pub const REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION: &str = "remote-capability-fabric-v2";
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -30,6 +30,14 @@ pub enum RemoteRoute {
 pub enum RemoteParentGrantState {
     NotGranted,
     Granted,
+}
+
+fn default_remote_route() -> RemoteRoute {
+    RemoteRoute::Localhost
+}
+
+fn default_parent_grant_state() -> RemoteParentGrantState {
+    RemoteParentGrantState::NotGranted
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -78,7 +86,7 @@ pub enum RemoteSessionState {
     Failed,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum RemoteDeviceTrustState {
     Trusted,
@@ -112,8 +120,10 @@ pub struct RemoteCapabilityGrant {
     pub grant_ref: String,
     pub household_ref: String,
     pub child_device_ref: String,
+    #[serde(default = "default_remote_route")]
     pub route: RemoteRoute,
     pub parent_actor_ref: String,
+    #[serde(default = "default_parent_grant_state")]
     pub parent_grant: RemoteParentGrantState,
     pub capability_type: RemoteCapabilityType,
     pub actor_role: RemoteActorRole,

@@ -1,4 +1,4 @@
-use ocentra_schema::remote_capability_fabric::RemoteActorRole;
+use ocentra_schema::remote_capability_fabric::{RemoteActorRole, RemoteDeviceTrustState};
 
 use super::{
     RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantDisclosureState,
@@ -44,7 +44,10 @@ pub(super) fn context(
         && (!context.parent_authorized
             || !matches!(
                 transition,
-                RemoteAccessGrantTransition::Revoke | RemoteAccessGrantTransition::RemoveDevice
+                RemoteAccessGrantTransition::Revoke
+                    | RemoteAccessGrantTransition::RemoveDevice
+                    | RemoteAccessGrantTransition::Deny
+                    | RemoteAccessGrantTransition::Fail
             ))
     {
         return Err(RemoteAccessGrantError::WrongActor);
@@ -55,15 +58,35 @@ pub(super) fn context(
     if context.route != grant.route {
         return Err(RemoteAccessGrantError::WrongRoute);
     }
+    if matches!(
+        transition,
+        RemoteAccessGrantTransition::Pair
+            | RemoteAccessGrantTransition::Activate
+            | RemoteAccessGrantTransition::Reconnect
+    ) && context.device_trust_state != RemoteDeviceTrustState::Trusted
+    {
+        return Err(RemoteAccessGrantError::DeviceTrustRequired);
+    }
     Ok(())
 }
 
 pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     fields(grant)?;
     actor_role(&grant.actor_role)?;
+    if grant.attempts.iter().any(|attempt| {
+        attempt.grant_id != grant.grant_id
+            || attempt.audit_ref != grant.audit_ref
+            || attempt.attempt_ref.trim().is_empty()
+            || attempt.route != grant.route
+    }) {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
     let terminal = matches!(
         grant.state,
-        RemoteAccessGrantState::Revoked | RemoteAccessGrantState::Removed
+        RemoteAccessGrantState::Revoked
+            | RemoteAccessGrantState::Removed
+            | RemoteAccessGrantState::Denied
+            | RemoteAccessGrantState::Failed
     );
     if !terminal {
         let expected_disclosure = [

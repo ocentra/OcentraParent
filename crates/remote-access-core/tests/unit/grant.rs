@@ -5,15 +5,26 @@ use ocentra_remote_access_core::remote_access_grant::{
     RemoteAccessGrantDisclosureState, RemoteAccessGrantError, RemoteAccessGrantParentGrant,
     RemoteAccessGrantState, RemoteAccessGrantTransition,
 };
-use ocentra_schema::remote_capability_fabric::{RemoteActorRole, RemoteRoute};
+use ocentra_schema::remote_capability_fabric::{
+    RemoteActorRole, RemoteDeviceTrustState, RemoteRoute,
+};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 const HOUSEHOLD: &str = "household-alpha";
 const PARENT: &str = "parent-alpha";
 const CHILD: &str = "child-alpha";
 const ROUTE: RemoteRoute = RemoteRoute::LocalNetwork;
+static ATTEMPT_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 fn context() -> RemoteAccessGrantContext<'static> {
-    context_for("attempt-default")
+    let attempt_ref = Box::leak(
+        format!(
+            "attempt-auto-{}",
+            ATTEMPT_COUNTER.fetch_add(1, Ordering::Relaxed)
+        )
+        .into_boxed_str(),
+    );
+    context_for(attempt_ref)
 }
 
 fn context_for(attempt_ref: &'static str) -> RemoteAccessGrantContext<'static> {
@@ -23,6 +34,7 @@ fn context_for(attempt_ref: &'static str) -> RemoteAccessGrantContext<'static> {
         child_device_ref: CHILD,
         route: ROUTE,
         attempt_ref,
+        device_trust_state: RemoteDeviceTrustState::Trusted,
         parent_authorized: true,
         child_disclosed: true,
         parent_grant_approved: true,
@@ -327,8 +339,10 @@ fn transition_report_exposes_accepted_and_denied_redacted_audit_milestones() {
         "audit-report",
     )
     .expect_value("grant request");
-    let accepted =
-        grant.transition_with_audit(RemoteAccessGrantTransition::ConfirmParent, context());
+    let accepted = grant.transition_with_audit(
+        RemoteAccessGrantTransition::ConfirmParent,
+        context_for("attempt-report-accepted"),
+    );
     assert_eq!(accepted.result, Ok(RemoteAccessGrantState::ParentConfirmed));
     assert_eq!(
         accepted.audit.outcome,
@@ -336,7 +350,7 @@ fn transition_report_exposes_accepted_and_denied_redacted_audit_milestones() {
     );
     assert!(accepted.audit.error.is_none());
     assert_eq!(accepted.audit.route, ROUTE);
-    assert_eq!(accepted.audit.attempt_ref, "attempt-default");
+    assert_eq!(accepted.audit.attempt_ref, "attempt-report-accepted");
     accepted.audit.contract().expect_value("audit contract");
 
     let mut denied_context = context();
@@ -373,6 +387,44 @@ fn default_transition_returns_an_audited_report() {
     assert_eq!(report.result, Ok(RemoteAccessGrantState::ParentConfirmed));
     assert_eq!(report.audit.route, ROUTE);
     assert_eq!(report.audit.attempt_ref, "attempt-default-report");
+}
+
+#[test]
+fn accepted_attempt_replays_the_original_report_after_retry_and_restore() {
+    let mut grant = RemoteAccessGrant::request(
+        "grant-replay",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-replay",
+    )
+    .expect_value("grant request");
+    let first = grant.transition_with_audit(
+        RemoteAccessGrantTransition::ConfirmParent,
+        context_for("attempt-replay-confirm"),
+    );
+    assert_eq!(first.result, Ok(RemoteAccessGrantState::ParentConfirmed));
+
+    let retry = grant.transition_with_audit(
+        RemoteAccessGrantTransition::ConfirmParent,
+        context_for("attempt-replay-confirm"),
+    );
+    assert_eq!(retry.result, first.result);
+    assert_eq!(retry.audit, first.audit);
+    assert_eq!(grant.state(), RemoteAccessGrantState::ParentConfirmed);
+
+    let mut restored: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&grant).expect_value("serialize replay history"),
+    )
+    .expect_value("deserialize replay history");
+    let restored_retry = restored.transition(
+        RemoteAccessGrantTransition::ConfirmParent,
+        context_for("attempt-replay-confirm"),
+    );
+    assert_eq!(restored_retry.result, first.result);
+    assert_eq!(restored_retry.audit, first.audit);
 }
 
 #[test]
@@ -468,6 +520,45 @@ fn route_mismatch_is_denied_before_lifecycle_transition() {
 }
 
 #[test]
+fn untrusted_device_cannot_pair_or_start_live_access() {
+    let mut requested = RemoteAccessGrant::request(
+        "grant-untrusted-pair",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-untrusted-pair",
+    )
+    .expect_value("grant request");
+    requested
+        .transition(
+            RemoteAccessGrantTransition::ConfirmParent,
+            context_for("attempt-untrusted-confirm"),
+        )
+        .result
+        .expect_value("confirm parent");
+    let mut untrusted = context_for("attempt-untrusted-pair");
+    untrusted.device_trust_state = RemoteDeviceTrustState::Missing;
+    assert_eq!(
+        requested
+            .transition(RemoteAccessGrantTransition::Pair, untrusted)
+            .result,
+        Err(RemoteAccessGrantError::DeviceTrustRequired)
+    );
+
+    let mut paired = paired_grant();
+    let mut expired = context_for("attempt-expired-activate");
+    expired.device_trust_state = RemoteDeviceTrustState::Expired;
+    assert_eq!(
+        paired
+            .transition(RemoteAccessGrantTransition::Activate, expired)
+            .result,
+        Err(RemoteAccessGrantError::DeviceTrustRequired)
+    );
+}
+
+#[test]
 fn early_terminal_states_round_trip_with_lifecycle_evidence() {
     let mut requested = RemoteAccessGrant::request(
         "grant-requested-terminal",
@@ -521,6 +612,66 @@ fn early_terminal_states_round_trip_with_lifecycle_evidence() {
     )
     .expect_value("deserialize confirmed terminal");
     assert_eq!(restored_confirmed, confirmed);
+}
+
+#[test]
+fn denied_and_failed_pairing_outcomes_are_terminal_and_persisted() {
+    let mut denied = RemoteAccessGrant::request(
+        "grant-denied",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-denied",
+    )
+    .expect_value("grant request");
+    denied
+        .transition(
+            RemoteAccessGrantTransition::Deny,
+            context_for("attempt-deny"),
+        )
+        .result
+        .expect_value("deny grant");
+    assert_eq!(denied.state(), RemoteAccessGrantState::Denied);
+    assert_eq!(
+        denied
+            .transition(
+                RemoteAccessGrantTransition::Pair,
+                context_for("attempt-denied-pair"),
+            )
+            .result,
+        Err(RemoteAccessGrantError::InvalidTransition)
+    );
+    let restored_denied: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&denied).expect_value("serialize denied grant"),
+    )
+    .expect_value("deserialize denied grant");
+    assert_eq!(restored_denied, denied);
+
+    let mut failed = RemoteAccessGrant::request(
+        "grant-failed",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-failed",
+    )
+    .expect_value("grant request");
+    failed
+        .transition(
+            RemoteAccessGrantTransition::Fail,
+            context_for("attempt-fail"),
+        )
+        .result
+        .expect_value("fail grant");
+    assert_eq!(failed.state(), RemoteAccessGrantState::Failed);
+    let restored_failed: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&failed).expect_value("serialize failed grant"),
+    )
+    .expect_value("deserialize failed grant");
+    assert_eq!(restored_failed, failed);
 }
 
 #[test]

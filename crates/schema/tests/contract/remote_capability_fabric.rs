@@ -196,9 +196,36 @@ fn remote_capability_allows_only_parent_granted_support_live_view() {
 }
 
 #[test]
+fn remote_capability_v1_payload_is_deserializable_but_rejected_by_version() {
+    let mut encoded = result_or_unreachable(
+        serde_json::to_value(paired_live_view_grant()),
+        crate::assert_context!("grant serializes"),
+    );
+    encoded["schemaVersion"] = json!("remote-capability-fabric-v1");
+    encoded.as_object_mut().map(|object| {
+        object.remove("route");
+        object.remove("parentGrant");
+    });
+    let restored = result_or_unreachable(
+        serde_json::from_value::<contracts::RemoteCapabilityGrant>(encoded),
+        crate::assert_context!("legacy grant deserializes with defaults"),
+    );
+    assert_eq!(restored.route, contracts::RemoteRoute::Localhost);
+    assert_eq!(
+        restored.authorize_live_view(
+            "household-alpha",
+            "parent-owner-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::Localhost,
+        ),
+        Err(contracts::RemoteCapabilityAuthorizationError::UnsupportedSchemaVersion)
+    );
+}
+
+#[test]
 fn remote_capability_rejects_unknown_schema_version_and_missing_audit_reference() {
     let mut grant = paired_live_view_grant();
-    grant.schema_version = "remote-capability-fabric-v2".to_string();
+    grant.schema_version = "remote-capability-fabric-v3".to_string();
     assert_eq!(
         grant.authorize_live_view(
             "household-alpha",
