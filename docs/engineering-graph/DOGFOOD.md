@@ -1,21 +1,22 @@
 # Engineering graph dogfood
 
 This is the first live query of the graph against the existing repository. It
-does not claim a workpack is complete; it demonstrates that the graph can
+does not claim all workpacks are complete; it demonstrates that the graph can
 answer the orchestration questions without chat history.
 
 ```text
 Imported plans: 23
 Imported workpacks: 679
-Graph valid: 703 nodes, 703 edges
-Review items: 24
-PLANNED: 462
+Graph valid: 703 nodes, 705 edges
+Review items: 34
+Unindexed workpack files requiring review: 40
+PLANNED: 454
 READY: 0
 ACTIVE: 2
 BLOCKED: 9
-VALIDATION: 206
-DONE: 0
-Implementation files: 2800
+VALIDATION: 213
+DONE: 1
+Implementation files: 2801
 Test files: 1175
 ```
 
@@ -27,9 +28,21 @@ npm run graph:report -- --json
 npm run graph:report -- PLAN-policy-control-plane-plan
 ```
 
+For the complete plan/workpack handoff matrix use:
+
+```powershell
+npm run graph:matrix
+npm run graph:matrix -- --state validation
+npm run graph:matrix -- --json
+```
+
+When the graph has no READY work, `graph:next` distinguishes the legal READY
+set from the unblocked validation/review queue. The queue is a repair or
+evidence handoff, not authorization to bypass the READY gate.
+
 It reports all 23 plans and 679 workpack rows, with graph-derived workpack
 state alongside live implementation/test topology under reviewed plan roots.
-Eight focused workpacks now also have explicit reviewed code/test maps; those
+Nine focused workpacks now also have explicit reviewed code/test maps; those
 rows expose exact paths, while every unmapped row remains
 `unknown-workpack-ownership`. Neither topology mode is an acceptance/CI/merge
 certificate.
@@ -45,16 +58,20 @@ graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
   WP-policy-control-plane-plan-04-delivery-ack-audit is blocked
 ```
 
-The graph currently exposes no READY workpack: 462 remain planned pending
-readiness/dependency review, 206 are in validation, and 9 are blocked. Remote
+The graph currently exposes no READY workpack: 454 remain planned pending
+readiness/dependency review, 213 are in validation, and 9 are blocked. Remote
 WP01, device-trust WP08, and network WP08 are in `validation` after focused
 slices were replayed; all retain explicit runtime/no-claim boundaries. The
 graph therefore refuses to authorize unreviewed `Open` rows while keeping
-validation and blocked work visible.
-Three imported eventing rows that were previously labelled `done` are also now
-`validation`: their durable plan manifest exists, but the generated proof roots
-declared by the workpack contract are absent in this checkout. That is
-intentional evidence-first demotion, not lost work.
+validation and blocked work visible. `DONE` is one: Eventing WP06 is promoted
+only because its reviewed code/test map, durable proof bundle, checklist, and
+explicit durable-proof override all exist. The graph still refuses every row
+whose completion contract is incomplete; the remaining Eventing validation rows
+retain their missing evidence instead of inheriting WP06's proof.
+
+The migration audit also finds 40 Markdown files under `workpacks/` that are
+not linked by an index row. They remain review items rather than silently
+becoming graph workpacks; most are README, legacy, proposal, or support files.
 
 The queries used were:
 

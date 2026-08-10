@@ -134,6 +134,19 @@ policy inputs from command payload fields and does not yet consume an
 authenticated persisted trusted-delivery record. Until that bridge exists,
 direct service payloads cannot be used as WP04 trusted-adapter proof.
 
+### 2026-08-10 code/test correction
+
+The Windows owned-process adapter now records an already-exited target as an
+audited `NoOp` with `PROCESS_ALREADY_EXITED`, rather than claiming
+`ActuallyEnforced`. The time-limit boundary preserves its separate `Expired`
+outcome for that terminal process result. The focused agent-core enforcement
+target passed 53 tests and the agent-service enforcement target passed 40;
+Rust format, targeted clippy, architecture policy, Enforcer guard, and diff
+checks also passed on the consolidated E: branch. This is a code/test slice,
+not WP04 completion: the checklist remains 0/5 and the trusted persisted
+dispatch, durable journal, rollback, retained proof, CI, and main-merge gates
+remain open.
+
 ## Negative Cases
 
 - pid mismatch or stale process identity must reject rather than hit the wrong target

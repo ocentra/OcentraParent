@@ -30,6 +30,9 @@ npm run graph:code -- PLAN-policy-control-plane-plan
 npm run graph:report
 npm run graph:report -- --json
 npm run graph:report -- PLAN-policy-control-plane-plan
+npm run graph:matrix
+npm run graph:matrix -- PLAN-policy-control-plane-plan --state blocked
+npm run graph:matrix -- --json
 npm run graph:status
 npm run graph:ready
 npm run graph:parallel
@@ -64,6 +67,19 @@ paths under `reviewed-workpack-roots`; every other row reports
 `unknown-workpack-ownership` and inherits no plan-wide count. The report never
 infers ownership from filenames or Markdown prose.
 
+`graph:matrix` is the operator view for a plan-by-plan review. It prints a
+summary row for every plan and a workpack row for every imported workpack with
+derived state, reviewed code/test topology (or explicit unknown ownership),
+completion-gap count, dependency blockers, and downstream unlocks. Use
+`--state` to focus a handoff (for example `--state validation`) or `--json`
+for automation. The matrix is a view over the graph; it is not a second
+source of truth.
+
+`graph:next` first prints graph-authorized READY work. If no READY work exists,
+it prints the unblocked active/validation queue and says explicitly that this
+queue is not permission to start new work. That distinction prevents a
+validation backlog from being mistaken for scheduler authorization.
+
 ## Import policy
 
 The bootstrap imports every plan directory and every workpack row that can be
@@ -76,7 +92,20 @@ evidence. A reviewed `stateOverrides` entry may record a current validation
 slice (never an unverified `done` claim) and must point to its proof manifest
 and command evidence. A reviewed `proofOverrides` entry may point a completed
 workpack at a durable plan-level manifest when that manifest explicitly covers
-the workpack; a generic proof directory is not sufficient by itself.
+the workpack; a generic proof directory is not sufficient by itself. If the
+workpack's test expectations declare a generated `output/` proof root that is
+intentionally not checked in, the override must also set
+`satisfiesExpected: true` and carry an existing evidence manifest. The graph
+then accepts only the explicit durable proof references; it does not silently
+ignore a missing output path.
+
+The bootstrap also scans every Markdown file physically present under each
+`workpacks/` directory. Files not linked from that plan's
+`WORKPACK_INDEX.md` are recorded in
+`graph.json.migration.unindexedWorkpackArtifacts` and added to the review
+items. They are not promoted to workpack nodes because they may be README,
+proposal, legacy, or support material. This keeps the import conservative
+without hiding files from the operator.
 
 ## Completion
 
@@ -85,9 +114,11 @@ points to implementation, test, proof, and checklist artifacts. Validation
 rejects duplicate IDs, missing references, dependency cycles, invalid states,
 contradictory readiness, and `done` nodes whose contract is incomplete. When a
 plan declares an `output/` or other generated proof root, that path is an
-expected artifact and must exist too; a stale imported `done` row is demoted to
-`validation` during bootstrap and `graph why` reports the exact missing path.
-Proof root conventions are imported from each plan's
+expected artifact and normally must exist; a stale imported `done` row is
+demoted to `validation` during bootstrap and `graph why` reports the exact
+missing path. An explicit evidence-backed durable-proof override is the only
+exception for a workpack that names a checked-in proof bundle as its retained
+artifact. Proof root conventions are imported from each plan's
 `TEST_PROOF_EXPECTATIONS.md`; durable `docs/proof/<plan>` manifests are
 accepted when the plan explicitly retains them, but they do not silently
 replace a missing generated artifact.

@@ -260,11 +260,18 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
       .map((workpack) => {
         const gaps = completionGaps(root, workpack);
         const workpackInventory = inventoryByWorkpack.get(workpack.id);
+        const dependsOn = relatedNodes(graph, workpack.id, 'deps');
+        const blockers = dependsOn
+          .filter((dependencyId) => states.get(dependencyId) !== 'done')
+          .map((dependencyId) => ({ id: dependencyId, state: states.get(dependencyId) ?? 'unknown' }));
         return {
           id: workpack.id,
           title: workpack.title,
           state: states.get(workpack.id),
           storedState: workpack.state,
+          dependsOn,
+          blockers,
+          unlocks: relatedNodes(graph, workpack.id, 'dependents'),
           completionContract: {
             pathsPresent: gaps.length === 0,
             gaps,
@@ -309,6 +316,7 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
   });
 
   const allWorkpacks = scoped.filter((node) => node.kind === 'workpack');
+  const unindexedWorkpackArtifacts = graph.migration?.unindexedWorkpackArtifacts ?? [];
   return {
     schemaVersion: 1,
     authority: {
@@ -326,10 +334,77 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
       testFiles: inventory.totals.testFiles,
       reviewedWorkpackMaps: inventory.totals.reviewedWorkpackMaps,
     },
+    migration: {
+      reviewItems: graph.migration?.ambiguities?.length ?? 0,
+      unindexedWorkpackFiles: unindexedWorkpackArtifacts.reduce(
+        (total, artifact) => total + (artifact.paths?.length ?? 0),
+        0
+      ),
+      unindexedWorkpackArtifacts,
+    },
     validation: {
       ok: validation.ok,
       warnings: validation.warnings,
     },
+  };
+}
+
+/**
+ * Flatten the joined report into the operator matrix used for plan-by-plan
+ * status reviews.  This intentionally keeps unknown workpack ownership
+ * explicit; plan-root counts are never copied into a workpack row.
+ */
+export function flattenProgressReport(report) {
+  return report.plans.flatMap((plan) =>
+    plan.workpacks.rows.map((workpack) => {
+      const topology = workpack.codeTestTopology;
+      return {
+        planId: plan.id,
+        planTitle: plan.title,
+        planState: plan.state,
+        workpackId: workpack.id,
+        workpackTitle: workpack.title,
+        state: workpack.state,
+        storedState: workpack.storedState,
+        codeState: typeof topology === 'string' ? topology : topology.state,
+        implementationFiles: typeof topology === 'string' ? null : topology.implementationFiles,
+        testFiles: typeof topology === 'string' ? null : topology.testFiles,
+        dependsOn: workpack.dependsOn,
+        blockers: workpack.blockers,
+        unlocks: workpack.unlocks,
+        completionGapCount: workpack.completionContract.gaps.length,
+        completionGaps: workpack.completionContract.gaps,
+      };
+    })
+  );
+}
+
+/**
+ * Return legal READY work first.  When the graph authorizes no new work, also
+ * expose unblocked active/validation rows that are candidates for evidence or
+ * review.  The latter are explicitly not READY authorization.
+ */
+export function nextWork(graph, { root = process.cwd(), scope } = {}) {
+  const states = deriveStates(graph, { root });
+  const workpacks = scopeNodes(graph, scope).filter((node) => node.kind === 'workpack');
+  const ready = workpacks.filter((node) => states.get(node.id) === 'ready');
+  const validationQueue = workpacks
+    .filter((node) => ['active', 'validation'].includes(states.get(node.id)))
+    .filter((node) => relatedNodes(graph, node.id, 'deps').every((dependencyId) => states.get(dependencyId) === 'done'))
+    .sort((left, right) => {
+      const rank = (node) => (states.get(node.id) === 'active' ? 0 : 1);
+      return rank(left) - rank(right) || left.id.localeCompare(right.id);
+    });
+  return {
+    scope: scope ?? 'GOAL-ocentra-parent',
+    authorized: ready,
+    validationQueue,
+    recommendation:
+      ready.length > 0
+        ? 'Start only READY workpacks; validation and proof remain part of their completion contract.'
+        : validationQueue.length > 0
+          ? 'No READY workpack is authorized. Finish the unblocked validation/review queue before starting new work.'
+          : 'No READY or unblocked validation work exists; inspect blocked workpacks and their dependency reasons.',
   };
 }
 
@@ -436,6 +511,7 @@ export function classifyWorkpackStatus(statusText) {
   if (/\b(?:incomplete|unfinished|unmerged|not\s+(?:done|complete|merged|active))\b/u.test(value)) {
     return 'planned';
   }
+  if (value.includes('historical')) return 'validation';
   if (value.includes('blocked') || value.includes('manual-required')) return 'blocked';
   if (value.includes('failed')) return 'failed';
   if (value.includes('paused')) return 'paused';
@@ -529,6 +605,10 @@ async function buildPlan(root, planEntry) {
     if (error?.code !== 'ENOENT') throw error;
   }
   const rows = parseWorkpackRows(indexText, availableWorkpackPaths);
+  const indexedPaths = new Set(rows.map((row) => normalizeRepoPath(row.relativePath)));
+  const unindexedWorkpackFiles = availableWorkpackPaths.filter(
+    (candidate) => !indexedPaths.has(normalizeRepoPath(candidate))
+  );
   const workpacks = [];
   for (const row of rows) {
     const relativePath = normalizeRepoPath(path.join(planRoot, row.relativePath));
@@ -571,6 +651,7 @@ async function buildPlan(root, planEntry) {
       },
     },
     workpacks,
+    unindexedWorkpackFiles,
     ambiguity:
       rows.length === 0
         ? {
@@ -590,7 +671,15 @@ async function buildPlan(root, planEntry) {
 
 async function readOverrides(root, overridesPath) {
   const text = await readText(root, overridesPath);
-  if (!text) return { edges: [], ambiguities: [] };
+  if (!text) {
+    return {
+      edges: [],
+      ambiguities: [],
+      stateOverrides: [],
+      proofOverrides: [],
+      completionEvidenceOverrides: [],
+    };
+  }
   const parsed = JSON.parse(text);
   return {
     edges: Array.isArray(parsed.edges) ? parsed.edges : [],
@@ -612,11 +701,27 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   const plans = [];
   const workpacks = [];
   const ambiguities = [];
+  const unindexedWorkpackArtifacts = [];
   for (const entry of entries) {
     const result = await buildPlan(repoRoot, entry);
     plans.push(result.plan);
     workpacks.push(...result.workpacks);
     ambiguities.push(result.ambiguity);
+    if (result.unindexedWorkpackFiles.length > 0) {
+      const artifact = {
+        planId: result.plan.id,
+        indexPath: result.plan.metadata.indexPath,
+        paths: result.unindexedWorkpackFiles,
+      };
+      unindexedWorkpackArtifacts.push(artifact);
+      ambiguities.push({
+        scope: `${result.plan.id}:unindexed-workpack-files`,
+        reason:
+          'Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.',
+        path: result.plan.metadata.indexPath,
+        unindexedWorkpackFiles: result.unindexedWorkpackFiles,
+      });
+    }
   }
 
   const overrides = await readOverrides(repoRoot, overridesPath);
@@ -701,6 +806,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       proofOverride: {
         reason: override.reason ?? 'reviewed proof reference override',
         evidence: override.evidence ?? [],
+        satisfiesExpected: override.satisfiesExpected === true,
       },
     };
   }
@@ -770,6 +876,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     migration: {
       importedPlans: plans.length,
       importedWorkpacks: workpacks.length,
+      unindexedWorkpackArtifacts,
       ambiguities: [...ambiguities, ...overrides.ambiguities],
       dependencyPolicy:
         'Only structural parent edges and reviewed entries in overrides.json are hard graph edges; prose dependencies remain review items.',
@@ -814,10 +921,18 @@ export function completionGaps(root, node) {
       }
     }
     for (const reference of expected) {
-      if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing expected artifact ${reference}`);
+      if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
+        gaps.push(`${requirement}: missing expected artifact ${reference}`);
+      }
     }
   }
   return gaps;
+}
+
+function durableProofSatisfiesExpected(root, node, requirement) {
+  if (requirement !== 'proof' || node.metadata?.proofOverride?.satisfiesExpected !== true) return false;
+  const references = node.completion?.references?.proof ?? [];
+  return references.length > 0 && references.every((reference) => pathExistsSync(root, reference));
 }
 
 function isPlanningDocumentEvidence(node, requirement, reference) {
@@ -983,7 +1098,7 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
     if (node.state === 'done' || node.lifecycleState === 'done') {
       for (const [requirement, references] of Object.entries(node.completion?.expected ?? {})) {
         for (const reference of references) {
-          if (!pathExistsSync(root, reference))
+          if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement))
             warnings.push(`${node.id} ${requirement} expected artifact is missing: ${reference}`);
         }
       }

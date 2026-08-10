@@ -181,7 +181,7 @@ fn terminate_owned_process_impl(
     system.refresh_processes(ProcessesToUpdate::Some(&[pid]), true);
     let Some(process) = system.process(pid) else {
         return adapter_outcome(
-            EnforcementResultStatus::ActuallyEnforced,
+            EnforcementResultStatus::NoOp,
             EnforcementAdapterResultCode::ProcessAlreadyExited,
             Some(completed_at.to_string()),
             None,
