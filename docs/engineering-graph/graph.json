@@ -16492,15 +16492,15 @@
       "path": "docs/plans/eventing-plan/workpacks/01-source-boundary-and-semantics-audit.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16528,15 +16528,15 @@
       "path": "docs/plans/eventing-plan/workpacks/02-crate-contract-and-type-boundary.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16564,15 +16564,15 @@
       "path": "docs/plans/eventing-plan/workpacks/03-dispatch-runtime-and-lifecycle.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16600,15 +16600,15 @@
       "path": "docs/plans/eventing-plan/workpacks/04-queue-idempotency-dead-letter.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16636,15 +16636,15 @@
       "path": "docs/plans/eventing-plan/workpacks/05-request-response-contracts.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16670,33 +16670,60 @@
       "path": "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/eventing-plan-proof/06-journal-replay-and-lineage; checklist: reviewed evidence is not recorded",
+        "statusText": "done",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/eventing-plan-proof/06-journal-replay-and-lineage",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "proofOverride": {
+          "reason": "The retained WP06 handoff, journal/replay, topology/lineage, and validation records are the durable proof bundle named by the workpack.",
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": true
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed code, test, durable proof, and checklist paths for the workpack explicitly named done by the Eventing index. This does not promote enforcement WP11 or WP04.",
+          "evidence": [
+            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
+            "docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true,
+          "proof": true,
+          "checklist": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+            "crates/ocentra-eventing/src/journal",
+            "crates/ocentra-eventing/src/replay",
+            "crates/ocentra-eventing/src/topology.rs",
+            "crates/ocentra-eventing/src/bus/journaling.rs",
+            "crates/agent-protocol/src/enforcement.rs",
+            "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal"
           ],
-          "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "tests": [
+            "crates/ocentra-eventing/tests/journal_replay",
+            "crates/ocentra-eventing/tests/contract/topology_manifest.rs",
+            "crates/ocentra-eventing/tests/contract/compatibility_matrix.rs",
+            "crates/ocentra-eventing/tests/unit/production_shutdown.rs",
+            "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs",
+            "crates/agent-service/tests/enforcement_eventing_journal.rs",
+            "crates/agent-service/tests/unit/enforcement_runtime.rs"
+          ],
+          "proof": [
+            "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md",
+            "docs/proof/eventing-plan/wp06-01-journal-replay-proof.md",
+            "docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md",
+            "docs/proof/eventing-plan/wp06-16-validation-commands.md"
+          ],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -16712,15 +16739,15 @@
       "path": "docs/plans/eventing-plan/workpacks/07-parent-protocol-event-contracts.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16748,15 +16775,15 @@
       "path": "docs/plans/eventing-plan/workpacks/08-parent-runtime-integration.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16782,15 +16809,15 @@
       "path": "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "historical",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16863,7 +16890,8 @@
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records WP11 proof roots and validation; the generic plan root is not inferred for siblings.",
-          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": false
         },
         "completionGaps": [
           "implementation: reviewed evidence is not recorded",
@@ -16911,7 +16939,8 @@
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records the WP12 route-proof bundle and its validation; the generic plan root is not inferred for siblings.",
-          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": false
         },
         "completionGaps": [
           "implementation: reviewed evidence is not recorded",
@@ -16957,7 +16986,8 @@
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records the WP13 regression audit and proof roots; the generic plan root is not inferred for siblings.",
-          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": false
         },
         "completionGaps": [
           "implementation: reviewed evidence is not recorded",
@@ -24520,7 +24550,7 @@
       "title": "04 Owned-Process Time Limit",
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-v0-8-enforcement-control-plan-11-audit-journal-events"],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
@@ -24720,7 +24750,7 @@
       "title": "11 Audit And Journal Events",
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-eventing-plan-06-journal-replay-and-lineage"],
       "state": "planned",
       "lifecycleState": "planned",
       "metadata": {
@@ -29298,11 +29328,126 @@
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md"
       ],
       "reason": "Delivery identity and audit boundary precede ask-parent delivery wiring."
+    },
+    {
+      "from": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md",
+        "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md"
+      ],
+      "reason": "Enforcement-specific durable journal work consumes the generic Eventing journal/replay/idempotency handoff."
+    },
+    {
+      "from": "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit",
+      "to": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
+      ],
+      "reason": "Trusted owned-process dispatch must consume the enforcement-specific durable journal and authority boundary first."
     }
   ],
   "migration": {
     "importedPlans": 23,
     "importedWorkpacks": 679,
+    "unindexedWorkpackArtifacts": [
+      {
+        "planId": "PLAN-account-identity-family-plan",
+        "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/03-current-boundary-addendum.md"
+        ]
+      },
+      {
+        "planId": "PLAN-ai-plan",
+        "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/full-platform-portal-ai-execution-plan.md"
+        ]
+      },
+      {
+        "planId": "PLAN-app-game-plan",
+        "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
+        "planId": "PLAN-app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/00-owner-boundary-proof-gate.md"]
+      },
+      {
+        "planId": "PLAN-browser-plan",
+        "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/00-owner-boundary-proof-gate.md"]
+      },
+      {
+        "planId": "PLAN-eventing-plan",
+        "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/README.md", "workpacks/README_FULL_ORIGINAL.md"]
+      },
+      {
+        "planId": "PLAN-network-plan",
+        "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/network-control-capability-guide.md",
+          "workpacks/network-control-schema-proposal.md",
+          "workpacks/network-control-settings-inventory.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
+        "planId": "PLAN-parent-desktop-runtime-package-plan",
+        "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/01-tauri-shell-contract-boundary.md",
+          "workpacks/02-local-service-connection-command.md",
+          "workpacks/03-lan-route-and-controller-state.md",
+          "workpacks/04-parent-observer-read-only-state.md",
+          "workpacks/05-custody-and-source-labels.md",
+          "workpacks/06-parent-mobile-bridge-boundary.md",
+          "workpacks/07-windows-installer-and-preview.md",
+          "workpacks/08-cross-platform-package-preview-matrix.md",
+          "workpacks/09-update-channel-and-rollback-scaffold.md",
+          "workpacks/10-signing-notarization-store-claims.md",
+          "workpacks/11-support-diagnostics-and-redaction.md",
+          "workpacks/12-privacy-and-release-docs.md",
+          "workpacks/13-desktop-launch-smoke.md",
+          "workpacks/14-tauri-build-and-dev-scripts.md",
+          "workpacks/15-platform-capability-matrix.md",
+          "workpacks/16-release-branch-boundary.md",
+          "workpacks/17-github-actions-artifact-proof.md",
+          "workpacks/18-manual-platform-proof-runbook.md",
+          "workpacks/19-product-checklist-feature-doc-sync.md",
+          "workpacks/20-pr-ci-rollout-gate.md"
+        ]
+      },
+      {
+        "planId": "PLAN-portal-ux-household-surfaces-plan",
+        "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/manage UI proof checklist.md",
+          "workpacks/policy Ui fix.md",
+          "workpacks/portal and account Ui fix.md"
+        ]
+      },
+      {
+        "planId": "PLAN-tracking-plan",
+        "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/36-tracking-detection-cascade-schema-boundary.md"]
+      }
+    ],
     "ambiguities": [
       {
         "planId": "PLAN-account-identity-family-plan",
@@ -29311,10 +29456,28 @@
         "workpackCount": 8
       },
       {
+        "scope": "PLAN-account-identity-family-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/03-current-boundary-addendum.md"
+        ]
+      },
+      {
         "planId": "PLAN-ai-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "workpackCount": 48
+      },
+      {
+        "scope": "PLAN-ai-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/ai-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/full-platform-portal-ai-execution-plan.md"
+        ]
       },
       {
         "planId": "PLAN-app-game-plan",
@@ -29323,16 +29486,38 @@
         "workpackCount": 220
       },
       {
+        "scope": "PLAN-app-game-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
         "planId": "PLAN-app-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/app-plan/WORKPACK_INDEX.md",
         "workpackCount": 95
       },
       {
+        "scope": "PLAN-app-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": ["workpacks/00-owner-boundary-proof-gate.md"]
+      },
+      {
         "planId": "PLAN-browser-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "workpackCount": 30
+      },
+      {
+        "scope": "PLAN-browser-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/browser-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": ["workpacks/00-owner-boundary-proof-gate.md"]
       },
       {
         "planId": "PLAN-child-agent-runtime-distribution-plan",
@@ -29365,6 +29550,15 @@
         "workpackCount": 13
       },
       {
+        "scope": "PLAN-eventing-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
         "planId": "PLAN-lan-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/lan-plan/WORKPACK_INDEX.md",
@@ -29383,10 +29577,49 @@
         "workpackCount": 8
       },
       {
+        "scope": "PLAN-network-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/network-control-capability-guide.md",
+          "workpacks/network-control-schema-proposal.md",
+          "workpacks/network-control-settings-inventory.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
         "planId": "PLAN-parent-desktop-runtime-package-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "workpackCount": 11
+      },
+      {
+        "scope": "PLAN-parent-desktop-runtime-package-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/01-tauri-shell-contract-boundary.md",
+          "workpacks/02-local-service-connection-command.md",
+          "workpacks/03-lan-route-and-controller-state.md",
+          "workpacks/04-parent-observer-read-only-state.md",
+          "workpacks/05-custody-and-source-labels.md",
+          "workpacks/06-parent-mobile-bridge-boundary.md",
+          "workpacks/07-windows-installer-and-preview.md",
+          "workpacks/08-cross-platform-package-preview-matrix.md",
+          "workpacks/09-update-channel-and-rollback-scaffold.md",
+          "workpacks/10-signing-notarization-store-claims.md",
+          "workpacks/11-support-diagnostics-and-redaction.md",
+          "workpacks/12-privacy-and-release-docs.md",
+          "workpacks/13-desktop-launch-smoke.md",
+          "workpacks/14-tauri-build-and-dev-scripts.md",
+          "workpacks/15-platform-capability-matrix.md",
+          "workpacks/16-release-branch-boundary.md",
+          "workpacks/17-github-actions-artifact-proof.md",
+          "workpacks/18-manual-platform-proof-runbook.md",
+          "workpacks/19-product-checklist-feature-doc-sync.md",
+          "workpacks/20-pr-ci-rollout-gate.md"
+        ]
       },
       {
         "planId": "PLAN-payment-subscription-plan",
@@ -29405,6 +29638,16 @@
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "workpackCount": 20
+      },
+      {
+        "scope": "PLAN-portal-ux-household-surfaces-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/manage UI proof checklist.md",
+          "workpacks/policy Ui fix.md",
+          "workpacks/portal and account Ui fix.md"
+        ]
       },
       {
         "planId": "PLAN-remote-access-plan",
@@ -29435,6 +29678,14 @@
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "workpackCount": 42
+      },
+      {
+        "scope": "PLAN-tracking-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/36-tracking-detection-cascade-schema-boundary.md"
+        ]
       },
       {
         "planId": "PLAN-v0-8-enforcement-control-plan",

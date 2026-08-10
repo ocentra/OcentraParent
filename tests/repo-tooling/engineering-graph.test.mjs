@@ -14,8 +14,10 @@ import {
   deriveStates,
   completionGaps,
   explainBlocked,
+  flattenProgressReport,
   graphSourceDrift,
   loadGraph,
+  nextWork,
   parseWorkpackRows,
   planId,
   relatedNodes,
@@ -53,6 +55,7 @@ test('workpack status is read from the declared Status or State column', () => {
   assert.equal(parseWorkpackRows(statusLast)[0].statusText, 'Complete');
   assert.equal(classifyWorkpackStatus('Open'), 'planned');
   assert.equal(classifyWorkpackStatus('Ready'), 'ready');
+  assert.equal(classifyWorkpackStatus('historical'), 'validation');
   assert.equal(classifyWorkpackStatus('Incomplete; not merged'), 'planned');
 });
 
@@ -97,6 +100,36 @@ test('state overrides require an evidenced validation slice', async () => {
   assert.equal(node.state, 'planned');
   assert.ok(node.metadata.needsReview);
   assert.ok(node.metadata.stateOverrideRejected.includes('evidence is required'));
+});
+
+test('bootstrap reports workpack files that are not indexed instead of hiding them', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-unindexed-'));
+  await mkdir(path.join(root, 'docs', 'plans', 'example-plan', 'workpacks'), { recursive: true });
+  await writeFile(
+    path.join(root, 'docs', 'plans', 'example-plan', 'WORKPACK_INDEX.md'),
+    '# Example plan\n\n| Workpack | Status |\n| --- | --- |\n| [01 Example](workpacks/01-example.md) | Open |\n'
+  );
+  await writeFile(path.join(root, 'docs', 'plans', 'example-plan', 'workpacks', '01-example.md'), '# Example\n');
+  await writeFile(
+    path.join(root, 'docs', 'plans', 'example-plan', 'workpacks', 'legacy-proposal.md'),
+    '# Legacy proposal\n'
+  );
+
+  const imported = await buildBootstrapGraph({ root });
+  assert.deepEqual(imported.migration.unindexedWorkpackArtifacts, [
+    {
+      planId: 'PLAN-example-plan',
+      indexPath: 'docs/plans/example-plan/WORKPACK_INDEX.md',
+      paths: ['workpacks/legacy-proposal.md'],
+    },
+  ]);
+  assert.ok(
+    imported.migration.ambiguities.some(
+      (item) =>
+        item.scope === 'PLAN-example-plan:unindexed-workpack-files' &&
+        item.unindexedWorkpackFiles.includes('workpacks/legacy-proposal.md')
+    )
+  );
 });
 
 test('graph source drift is actionable', () => {
@@ -154,6 +187,68 @@ test('independent READY workpacks are returned as a parallel set', () => {
     summary.ready.map((node) => node.id),
     ['A', 'B']
   );
+});
+
+test('next work exposes unblocked validation when no READY work is authorized', () => {
+  const value = graph([
+    workpack('VALIDATION', 'validation'),
+    workpack('BLOCKED', 'blocked', { metadata: { needsReview: false, statusText: 'waiting on review' } }),
+  ]);
+
+  const queue = nextWork(value, { root: repoRoot });
+  assert.deepEqual(queue.authorized, []);
+  assert.deepEqual(
+    queue.validationQueue.map((node) => node.id),
+    ['VALIDATION']
+  );
+  assert.match(queue.recommendation, /No READY workpack is authorized/u);
+});
+
+test('flattened matrix preserves plan, topology, dependency, and completion gaps', () => {
+  const rows = flattenProgressReport({
+    plans: [
+      {
+        id: 'PLAN-example',
+        title: 'Example',
+        state: 'active',
+        workpacks: {
+          rows: [
+            {
+              id: 'WP-example-01',
+              title: 'One',
+              state: 'validation',
+              storedState: 'active',
+              dependsOn: ['WP-example-00'],
+              blockers: [{ id: 'WP-example-00', state: 'validation' }],
+              unlocks: ['WP-example-02'],
+              completionContract: { gaps: ['tests: missing'] },
+              codeTestTopology: { state: 'code-and-tests', implementationFiles: 2, testFiles: 1 },
+            },
+          ],
+        },
+      },
+    ],
+  });
+
+  assert.deepEqual(rows, [
+    {
+      planId: 'PLAN-example',
+      planTitle: 'Example',
+      planState: 'active',
+      workpackId: 'WP-example-01',
+      workpackTitle: 'One',
+      state: 'validation',
+      storedState: 'active',
+      codeState: 'code-and-tests',
+      implementationFiles: 2,
+      testFiles: 1,
+      dependsOn: ['WP-example-00'],
+      blockers: [{ id: 'WP-example-00', state: 'validation' }],
+      unlocks: ['WP-example-02'],
+      completionGapCount: 1,
+      completionGaps: ['tests: missing'],
+    },
+  ]);
 });
 
 test('dependency cycles fail validation', () => {
@@ -283,6 +378,27 @@ test('missing expected artifacts demote stale DONE to validation', () => {
   assert.ok(report.errors.some((error) => error.includes('missing expected artifact')));
 });
 
+test('explicit durable proof may satisfy a missing generated proof expectation', () => {
+  const value = graph([
+    workpack('DURABLE-PROOF', 'done', {
+      metadata: {
+        needsReview: false,
+        proofOverride: { satisfiesExpected: true },
+      },
+      completion: {
+        required: ['proof'],
+        reviewed: { proof: true },
+        references: { proof: ['AGENTS.md'] },
+        expected: { proof: ['output/portable-proof-bundle'] },
+      },
+    }),
+  ]);
+
+  assert.deepEqual(completionGaps(repoRoot, value.nodes[0]), []);
+  assert.equal(deriveStates(value, { root: repoRoot }).get('DURABLE-PROOF'), 'done');
+  assert.equal(validateGraph(value, { root: repoRoot }).ok, true);
+});
+
 test('code inventory reports implementation and test topology without claiming acceptance', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-'));
   await mkdir(path.join(root, 'crates', 'example', 'src'), { recursive: true });
@@ -334,6 +450,27 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
     (node) => node.id === 'WP-eventing-plan-11-type-safety-and-ownership-hardening'
   );
   assert.deepEqual(eventingProofOverride.completion.references.proof, ['docs/proof/eventing-plan']);
+
+  const eventingWp06 = value.nodes.find((node) => node.id === 'WP-eventing-plan-06-journal-replay-and-lineage');
+  assert.equal(eventingWp06.state, 'done');
+  assert.deepEqual(completionGaps(repoRoot, eventingWp06), []);
+  const eventingReport = await buildProgressReport({ root: repoRoot });
+  const eventingWp06Report = eventingReport.plans
+    .find((plan) => plan.id === 'PLAN-eventing-plan')
+    .workpacks.rows.find((workpack) => workpack.id === eventingWp06.id);
+  assert.equal(eventingWp06Report.codeTestTopology.scope, 'reviewed-workpack-roots');
+  assert.ok(eventingWp06Report.codeTestTopology.implementationPaths.some((file) => file.endsWith('src/journal.rs')));
+  assert.ok(eventingWp06Report.codeTestTopology.testPaths.some((file) => file.includes('tests/journal_replay/')));
+
+  const enforcementWp11 = value.nodes.find(
+    (node) => node.id === 'WP-v0-8-enforcement-control-plan-11-audit-journal-events'
+  );
+  assert.notEqual(enforcementWp11.state, 'done');
+
+  const eventingHistorical = value.nodes.find(
+    (node) => node.id === 'WP-eventing-plan-04-queue-idempotency-dead-letter'
+  );
+  assert.equal(eventingHistorical.state, 'validation');
 
   const networkRouting = value.nodes.find((node) => node.id === 'WP-network-plan-08-control-catalog-reference-routing');
   assert.equal(networkRouting.state, 'validation');

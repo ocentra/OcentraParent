@@ -86,6 +86,13 @@ proof, checklist, and any required ADR evidence. Do not edit graph state to
 claim completion; update source plans/workpacks and rebuild with
 `npm run graph:bootstrap -- --write`.
 
+For a complete handoff table across every imported plan/workpack, use
+`npm run graph:matrix` (or `--json` for a dashboard). It includes derived
+state, exact reviewed code/test topology where mapped, completion gaps,
+dependencies, blockers, and unlocks. `npm run graph:next` reports READY work;
+if none exists it reports only an explicitly labelled validation/review queue,
+never permission to bypass the READY gate.
+
 ## Before editing
 
 State the lane/mode, plan, feature doc, assigned workpack, files you intend to

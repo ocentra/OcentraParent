@@ -9,8 +9,10 @@ import {
   buildProgressReport,
   deriveStates,
   explainBlocked,
+  flattenProgressReport,
   graphSourceDrift,
   loadGraph,
+  nextWork,
   planId,
   relatedNodes,
   scopeNodes,
@@ -30,6 +32,7 @@ Usage:
   npm run graph:status [scope-id]
   npm run graph:code [scope-id]
   npm run graph:report [scope-id] [--json]
+  npm run graph:matrix [scope-id] [--state <state>] [--json]
   npm run graph:ready [scope-id]
   npm run graph:parallel [scope-id]
   npm run graph:next [scope-id]
@@ -47,7 +50,21 @@ function flag(args, name) {
 }
 
 function positionalArg(args) {
-  return args.find((argument) => !argument.startsWith('--'));
+  const valueFlags = new Set(['--state', '--limit']);
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index];
+    if (valueFlags.has(argument)) {
+      index += 1;
+      continue;
+    }
+    if (!argument.startsWith('--')) return argument;
+  }
+  return undefined;
+}
+
+function option(args, name) {
+  const index = args.indexOf(name);
+  return index >= 0 ? args[index + 1] : undefined;
 }
 
 function nodeMap(graph) {
@@ -89,6 +106,9 @@ async function run(command, args) {
     console.log(`Imported plans: ${graph.migration.importedPlans}`);
     console.log(`Imported workpacks: ${graph.migration.importedWorkpacks}`);
     console.log(`Ambiguities requiring review: ${graph.migration.ambiguities.length}`);
+    console.log(
+      `Unindexed workpack files requiring review: ${graph.migration.unindexedWorkpackArtifacts?.reduce((total, artifact) => total + artifact.paths.length, 0) ?? 0}`
+    );
     if (report.errors.length > 0) {
       for (const error of report.errors) console.error(`ERROR ${error}`);
       process.exitCode = 1;
@@ -133,7 +153,7 @@ async function run(command, args) {
   const map = nodeMap(graph);
   if (
     scope &&
-    ['status', 'ready', 'next', 'parallel', 'blocked', 'report', 'code'].includes(command) &&
+    ['status', 'ready', 'next', 'parallel', 'blocked', 'report', 'matrix', 'code'].includes(command) &&
     !map.has(scope) &&
     !(command === 'code' && map.has(planId(scope)))
   ) {
@@ -174,6 +194,8 @@ async function run(command, args) {
     console.log(`Implementation files: ${report.totals.implementationFiles}`);
     console.log(`Test files: ${report.totals.testFiles}`);
     console.log(`Reviewed workpack code maps: ${report.totals.reviewedWorkpackMaps}`);
+    console.log(`Migration review items: ${report.migration.reviewItems}`);
+    console.log(`Unindexed workpack files: ${report.migration.unindexedWorkpackFiles}`);
     console.log('\nPlan matrix (state is graph-derived; code/test is reviewed plan-root topology):');
     for (const plan of report.plans) {
       const counts = Object.entries(plan.workpacks.counts)
@@ -205,6 +227,59 @@ async function run(command, args) {
     return;
   }
 
+  if (command === 'matrix') {
+    const report = await buildProgressReport({ root, scope });
+    const rows = flattenProgressReport(report).filter(
+      (row) => !option(args, '--state') || row.state === option(args, '--state')
+    );
+    if (flag(args, '--json')) {
+      console.log(
+        JSON.stringify(
+          {
+            schemaVersion: 1,
+            scope: report.scope,
+            totals: report.totals,
+            rows,
+          },
+          null,
+          2
+        )
+      );
+      return;
+    }
+    console.log(`Scope: ${report.scope}`);
+    console.log(`Rows: ${rows.length}${option(args, '--state') ? ` (state=${option(args, '--state')})` : ''}`);
+    console.log('\nPlan summary:');
+    console.log('PLAN | STATE | WORKPACKS | COUNTS | IMPLEMENTATION | TESTS');
+    for (const plan of report.plans) {
+      const counts = Object.entries(plan.workpacks.counts)
+        .filter(([, count]) => count > 0)
+        .map(([state, count]) => `${state}=${count}`)
+        .join(',');
+      console.log(
+        `${plan.id} | ${plan.state} | ${plan.workpacks.total} | ${counts || 'none'} | ` +
+          `${plan.codeTestTopology.implementationFiles} | ${plan.codeTestTopology.testFiles}`
+      );
+    }
+    console.log('\nWorkpack matrix:');
+    console.log('PLAN | WORKPACK | STATE | CODE/TEST | GAPS | DEPENDS ON | BLOCKERS | UNLOCKS');
+    for (const row of rows) {
+      const topology =
+        row.implementationFiles === null
+          ? row.codeState
+          : `${row.codeState} ${row.implementationFiles}/${row.testFiles}`;
+      const blockerText = row.blockers.map((blocker) => `${blocker.id}[${blocker.state}]`).join(',') || '-';
+      console.log(
+        `${row.planId} | ${row.workpackId} | ${row.state} | ${topology} | ${row.completionGapCount} | ` +
+          `${row.dependsOn.join(',') || '-'} | ${blockerText} | ${row.unlocks.join(',') || '-'}`
+      );
+    }
+    console.log(
+      '\nUnknown code/test ownership is deliberate: add a reviewed code-map workpack entry before using file topology as evidence.'
+    );
+    return;
+  }
+
   const states = deriveStates(graph, { root });
   if (command === 'status') {
     const summary = summarizeGraph(graph, scope, { root });
@@ -223,6 +298,19 @@ async function run(command, args) {
     return;
   }
   if (command === 'ready' || command === 'next' || command === 'parallel') {
+    if (command === 'next') {
+      const queue = nextWork(graph, { root, scope });
+      if (queue.authorized.length > 0) {
+        console.log('READY workpacks (authorized):');
+        printList(queue.authorized, states);
+      } else {
+        console.log('No READY workpack is authorized.');
+        console.log(queue.recommendation);
+        console.log('\nUnblocked validation/review queue (not READY authorization):');
+        printList(queue.validationQueue, states, { limit: Number(option(args, '--limit') ?? 25) });
+      }
+      return;
+    }
     const ready = scopeNodes(graph, scope).filter(
       (node) => node.kind === 'workpack' && states.get(node.id) === 'ready'
     );
