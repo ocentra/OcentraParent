@@ -65,9 +65,9 @@ pub fn expiring_timer_before_dispatch_outcome(
     ids: EnforcementTimerTransitionIds,
 ) -> EnforcementBoundaryOutcome {
     let before_dispatch_ids = EnforcementTimerTransitionIds {
-        result_id: before_dispatch_id(ids.result_id),
-        audit_event_id: before_dispatch_id(ids.audit_event_id),
-        timer_event_id: before_dispatch_id(ids.timer_event_id),
+        result_id: before_dispatch_id(&ids.result_id),
+        audit_event_id: before_dispatch_id(&ids.audit_event_id),
+        timer_event_id: before_dispatch_id(&ids.timer_event_id),
         observed_at: ids.observed_at,
     };
     enforcement_timer_state_transition::transition_outcome(
@@ -79,7 +79,7 @@ pub fn expiring_timer_before_dispatch_outcome(
     )
 }
 
-fn before_dispatch_id(value: String) -> String {
+fn before_dispatch_id(value: &str) -> String {
     format!(
         "{}{}",
         constants::enforcement::JOURNAL_BEFORE_ACTION_ID_PREFIX,

@@ -44,7 +44,10 @@ async fn timer_expiry_uses_persisted_time_limit_state_and_clears_it() -> TestRes
     );
 
     #[cfg(windows)]
-    assert_timer_expiry_uses_persisted_state_and_clears_it(&paths).await?;
+    Box::pin(assert_timer_expiry_uses_persisted_state_and_clears_it(
+        &paths,
+    ))
+    .await?;
 
     #[cfg(not(windows))]
     assert_timer_expiry_without_supported_adapter_reports_missing_state(&paths, &execute_event)
