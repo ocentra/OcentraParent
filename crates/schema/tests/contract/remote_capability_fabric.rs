@@ -8,6 +8,7 @@ fn paired_live_view_grant() -> contracts::RemoteCapabilityGrant {
         grant_ref: "remote-grant-alpha".to_string(),
         household_ref: "household-alpha".to_string(),
         child_device_ref: "child-device-alpha".to_string(),
+        route: contracts::RemoteRoute::LocalNetwork,
         parent_actor_ref: "parent-owner-alpha".to_string(),
         capability_type: contracts::RemoteCapabilityType::LiveView,
         actor_role: contracts::RemoteActorRole::ParentOwner,
@@ -35,6 +36,7 @@ fn remote_capability_paired_access_round_trips_the_rust_owned_contract() {
     );
     assert_eq!(encoded["capabilityType"], json!("live-view"));
     assert_eq!(encoded["pairingState"], json!("paired"));
+    assert_eq!(encoded["route"], json!("local-network"));
     assert_eq!(encoded["diagnosticRedactionState"], json!("redacted"));
     assert!(encoded.get("schema_version").is_none());
     assert_eq!(
@@ -53,8 +55,18 @@ fn remote_capability_live_view_authorizes_only_the_paired_trusted_household_gran
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Ok(())
+    );
+    assert_eq!(
+        paired_live_view_grant().authorize_live_view(
+            "household-alpha",
+            "parent-owner-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::CloudRelay,
+        ),
+        Err(contracts::RemoteCapabilityAuthorizationError::WrongRoute)
     );
 }
 
@@ -68,6 +80,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::CapabilityDeferred)
     );
@@ -78,6 +91,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-other",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::WrongHousehold)
     );
@@ -87,6 +101,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::WrongActorRole)
     );
@@ -97,6 +112,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-other",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::WrongParentActor)
     );
@@ -107,6 +123,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-alpha",
             "child-device-other",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::WrongChildDevice)
     );
@@ -118,6 +135,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::PairingRequired)
     );
@@ -129,6 +147,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::DeviceTrustRequired)
     );
@@ -140,6 +159,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::Revoked)
     );
@@ -151,6 +171,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::DeviceRemoved)
     );
@@ -165,6 +186,7 @@ fn remote_capability_rejects_unknown_schema_version_and_missing_audit_reference(
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::UnsupportedSchemaVersion)
     );
@@ -176,6 +198,7 @@ fn remote_capability_rejects_unknown_schema_version_and_missing_audit_reference(
             "household-alpha",
             "parent-owner-alpha",
             "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::MissingAuditRef)
     );

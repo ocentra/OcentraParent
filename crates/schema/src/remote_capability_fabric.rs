@@ -17,6 +17,14 @@ pub enum RemoteCapabilityType {
     RemoteControlDeferred,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RemoteRoute {
+    Localhost,
+    LocalNetwork,
+    CloudRelay,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum RemoteActorRole {
@@ -84,6 +92,7 @@ pub enum RemoteCapabilityAuthorizationError {
     Revoked,
     DeviceRemoved,
     WrongChildDevice,
+    WrongRoute,
     DeviceTrustRequired,
     MissingAuditRef,
     SessionNotLiveViewEligible,
@@ -96,6 +105,7 @@ pub struct RemoteCapabilityGrant {
     pub grant_ref: String,
     pub household_ref: String,
     pub child_device_ref: String,
+    pub route: RemoteRoute,
     pub parent_actor_ref: String,
     pub capability_type: RemoteCapabilityType,
     pub actor_role: RemoteActorRole,
@@ -114,6 +124,7 @@ impl RemoteCapabilityGrant {
         expected_household_ref: &str,
         requesting_parent_actor_ref: &str,
         requested_child_device_ref: &str,
+        expected_route: RemoteRoute,
     ) -> Result<(), RemoteCapabilityAuthorizationError> {
         if self.schema_version != REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION {
             return Err(RemoteCapabilityAuthorizationError::UnsupportedSchemaVersion);
@@ -135,6 +146,10 @@ impl RemoteCapabilityGrant {
             .or_else(|| {
                 (self.child_device_ref != requested_child_device_ref)
                     .then_some(RemoteCapabilityAuthorizationError::WrongChildDevice)
+            })
+            .or_else(|| {
+                (self.route != expected_route)
+                    .then_some(RemoteCapabilityAuthorizationError::WrongRoute)
             })
         {
             return Err(error);

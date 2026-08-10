@@ -11,16 +11,16 @@ mod terminal;
 pub(super) fn apply(
     grant: &mut RemoteAccessGrant,
     transition: RemoteAccessGrantTransition,
-    context: RemoteAccessGrantContext<'_>,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     let next = match transition {
         RemoteAccessGrantTransition::ConfirmParent => confirm::parent(grant, context)?,
         RemoteAccessGrantTransition::Pair => confirm::pair(grant, context)?,
-        RemoteAccessGrantTransition::Activate => lifecycle::activate(grant)?,
+        RemoteAccessGrantTransition::Activate => lifecycle::activate(grant, context)?,
         RemoteAccessGrantTransition::Pause => lifecycle::pause(grant)?,
         RemoteAccessGrantTransition::Stop => lifecycle::stop(grant)?,
         RemoteAccessGrantTransition::RequestReconnect => reconnect::request(grant)?,
-        RemoteAccessGrantTransition::Reconnect => reconnect::complete(grant)?,
+        RemoteAccessGrantTransition::Reconnect => reconnect::complete(grant, context)?,
         RemoteAccessGrantTransition::Revoke => terminal::revoke(grant, context)?,
         RemoteAccessGrantTransition::RemoveDevice => terminal::remove_device(grant, context)?,
     };

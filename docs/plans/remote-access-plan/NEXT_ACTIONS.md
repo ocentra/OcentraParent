@@ -53,10 +53,12 @@ proof (WP06). Keep remote input/control deferred.
 
 WP04's narrow lifecycle slice is locally validated in
 `crates/remote-access-core/src/remote_access_grant/` with its focused unit
-tests. The follow-up repair also covers current authority at pair time,
-explicit support parent-grant visibility, canonical actor typing, immutable
-lifecycle fields with validated deserialization, authorized household-actor
-terminal transitions, and redacted accepted/denied audit milestones. Continue
-with fresh follow-up CI/review, persistence/adapter ownership, relay/session
-integration, device-trust handoff, child/portal disclosure, audit custody, and
-generated proof before treating the workpack as complete.
+tests. The follow-up repair also covers current authority at pair,
+activation, and reconnect time; explicit support parent-grant visibility;
+canonical actor and route typing; immutable lifecycle fields with validated
+deserialization; early-terminal round trips; authorized household-actor
+terminal transitions; per-attempt audit idempotency; and redacted
+accepted/denied audit milestones. Continue with fresh follow-up CI/review,
+persistence/adapter ownership, relay/session integration, device-trust
+handoff, child/portal disclosure, audit custody, and generated proof before
+treating the workpack as complete.

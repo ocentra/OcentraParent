@@ -1,7 +1,10 @@
-use super::super::{RemoteAccessGrant, RemoteAccessGrantError, RemoteAccessGrantState};
+use super::super::{
+    RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantError, RemoteAccessGrantState,
+};
 
 pub(super) fn activate(
     grant: &RemoteAccessGrant,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if !matches!(
         grant.state,
@@ -10,6 +13,9 @@ pub(super) fn activate(
             | RemoteAccessGrantState::Paused
     ) {
         return Err(RemoteAccessGrantError::InvalidTransition);
+    }
+    if !context.parent_authorized {
+        return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
     Ok(RemoteAccessGrantState::Active)
 }

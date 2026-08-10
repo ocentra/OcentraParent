@@ -4,7 +4,7 @@ use super::super::{
 
 pub(super) fn revoke(
     grant: &RemoteAccessGrant,
-    context: RemoteAccessGrantContext<'_>,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     require_parent_authority(context)?;
     terminal_state(grant)?;
@@ -13,7 +13,7 @@ pub(super) fn revoke(
 
 pub(super) fn remove_device(
     grant: &RemoteAccessGrant,
-    context: RemoteAccessGrantContext<'_>,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     require_parent_authority(context)?;
     terminal_state(grant)?;
@@ -21,7 +21,7 @@ pub(super) fn remove_device(
 }
 
 fn require_parent_authority(
-    context: RemoteAccessGrantContext<'_>,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<(), RemoteAccessGrantError> {
     context
         .parent_authorized

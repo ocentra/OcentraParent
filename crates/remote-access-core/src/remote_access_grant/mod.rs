@@ -13,7 +13,7 @@ mod serialization;
 mod transition;
 mod validation;
 
-use ocentra_schema::remote_capability_fabric::RemoteActorRole;
+use ocentra_schema::remote_capability_fabric::{RemoteActorRole, RemoteRoute};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -73,6 +73,7 @@ pub enum RemoteAccessGrantError {
     WrongHousehold,
     WrongActor,
     WrongDevice,
+    WrongRoute,
     ParentAuthorityRequired,
     ChildDisclosureRequired,
     SupportAccessRequiresParentGrant,
@@ -86,6 +87,7 @@ pub struct RemoteAccessGrant {
     grant_id: String,
     household_ref: String,
     child_device_ref: String,
+    route: RemoteRoute,
     parent_actor_ref: String,
     capability: RemoteAccessGrantCapability,
     actor_role: RemoteActorRole,
@@ -100,6 +102,8 @@ pub struct RemoteAccessGrantContext<'a> {
     pub household_ref: &'a str,
     pub actor_ref: &'a str,
     pub child_device_ref: &'a str,
+    pub route: RemoteRoute,
+    pub attempt_ref: &'a str,
     pub parent_authorized: bool,
     pub child_disclosed: bool,
     pub parent_grant_approved: bool,
@@ -119,6 +123,8 @@ pub struct RemoteAccessGrantAuditMilestone {
     pub grant_id: String,
     pub household_ref: String,
     pub actor_ref: String,
+    pub route: RemoteRoute,
+    pub attempt_ref: String,
     pub transition: RemoteAccessGrantTransition,
     pub outcome: RemoteAccessGrantAuditOutcome,
     pub resulting_state: RemoteAccessGrantState,
@@ -140,6 +146,7 @@ impl RemoteAccessGrant {
         grant_id: impl Into<String>,
         household_ref: impl Into<String>,
         child_device_ref: impl Into<String>,
+        route: RemoteRoute,
         parent_actor_ref: impl Into<String>,
         actor_role: RemoteActorRole,
         audit_ref: impl Into<String>,
@@ -148,6 +155,7 @@ impl RemoteAccessGrant {
             grant_id: grant_id.into(),
             household_ref: household_ref.into(),
             child_device_ref: child_device_ref.into(),
+            route,
             parent_actor_ref: parent_actor_ref.into(),
             capability: RemoteAccessGrantCapability::LiveView,
             actor_role,
@@ -165,8 +173,8 @@ impl RemoteAccessGrant {
         &mut self,
         transition: RemoteAccessGrantTransition,
         context: RemoteAccessGrantContext<'_>,
-    ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
-        self.transition_with_audit(transition, context).result
+    ) -> RemoteAccessGrantTransitionReport {
+        self.transition_with_audit(transition, context)
     }
 
     pub fn transition_with_audit(
@@ -174,7 +182,10 @@ impl RemoteAccessGrant {
         transition: RemoteAccessGrantTransition,
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
-        let result = self.apply_transition(transition, context);
+        let actor_ref = context.actor_ref.to_owned();
+        let route = context.route;
+        let attempt_ref = context.attempt_ref.to_owned();
+        let result = self.apply_transition(transition, &context);
         let (outcome, error, resulting_state) = match result {
             Ok(state) => (RemoteAccessGrantAuditOutcome::Accepted, None, state),
             Err(error) => (
@@ -188,7 +199,9 @@ impl RemoteAccessGrant {
             audit: RemoteAccessGrantAuditMilestone {
                 grant_id: self.grant_id.clone(),
                 household_ref: self.household_ref.clone(),
-                actor_ref: context.actor_ref.to_owned(),
+                actor_ref,
+                route,
+                attempt_ref,
                 transition,
                 outcome,
                 resulting_state,
@@ -201,7 +214,7 @@ impl RemoteAccessGrant {
     fn apply_transition(
         &mut self,
         transition: RemoteAccessGrantTransition,
-        context: RemoteAccessGrantContext<'_>,
+        context: &RemoteAccessGrantContext<'_>,
     ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
         validation::fields(self)?;
         validation::context(self, context)?;
@@ -227,6 +240,10 @@ impl RemoteAccessGrant {
 
     pub fn child_device_ref(&self) -> &str {
         &self.child_device_ref
+    }
+
+    pub fn route(&self) -> RemoteRoute {
+        self.route
     }
 
     pub fn parent_actor_ref(&self) -> &str {

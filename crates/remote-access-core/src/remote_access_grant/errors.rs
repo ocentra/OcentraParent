@@ -9,6 +9,7 @@ impl fmt::Display for RemoteAccessGrantError {
             "grant context belongs to another household",
             "grant context actor is not authorized",
             "grant context belongs to another child device",
+            "grant context uses another route",
             "current parent authority is required",
             "child disclosure is required",
             "support access requires an explicit parent grant",

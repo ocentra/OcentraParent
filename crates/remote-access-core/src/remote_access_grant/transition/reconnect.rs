@@ -1,6 +1,6 @@
 use super::super::{
-    RemoteAccessGrant, RemoteAccessGrantDisclosureState, RemoteAccessGrantError,
-    RemoteAccessGrantState,
+    RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantDisclosureState,
+    RemoteAccessGrantError, RemoteAccessGrantState,
 };
 
 pub(super) fn request(
@@ -17,11 +17,15 @@ pub(super) fn request(
 
 pub(super) fn complete(
     grant: &RemoteAccessGrant,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::ReconnectPending
         || grant.disclosure_state != RemoteAccessGrantDisclosureState::Disclosed
     {
         return Err(RemoteAccessGrantError::ReconnectDenied);
+    }
+    if !context.parent_authorized {
+        return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
     Ok(RemoteAccessGrantState::Active)
 }

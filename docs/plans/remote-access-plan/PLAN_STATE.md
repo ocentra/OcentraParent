@@ -65,7 +65,7 @@ Runtime rows remain open until selected code, tests, negative cases, redacted di
 
 Open gaps:
 
-- No remote pairing/access lifecycle with standing authority, revoke, removal, and audit.
+- No persistence-backed remote pairing/access runtime with adapter ownership, crash recovery, or durable audit custody.
 - No relay availability/fallback state machine.
 - No proof matrix for live view and standing access.
 - No retention/delete/export boundary for remote artifacts.
@@ -89,11 +89,12 @@ control, CI, review, or main merge.
 WP04 now has a Rust-owned pairing and standing-access lifecycle boundary in
 `crates/remote-access-core/src/remote_access_grant/`. The focused tests cover
 parent confirmation, child disclosure, paired/active/paused/stopped/reconnect
-states, current parent-authority rechecks, wrong actor/household/device
-rejection, explicitly parent-approved support access, support/admin
-hidden-access rejection, authorized household-actor revoke/remove, terminal
-reconnect denial, redacted accepted/denied audit milestones, and validated
-serialization round-trip of terminal state.
+states, route binding, current parent-authority rechecks, wrong
+actor/household/device/route rejection, explicitly parent-approved support
+access, support/admin hidden-access rejection, authorized household-actor
+revoke/remove, terminal reconnect denial, redacted accepted/denied audit
+milestones, unique per-attempt audit keys, and validated serialization
+round-trips for early and late terminal states.
 
 The first PR CI run passed all product/build/security/E2E jobs but the
 mergeability gate held six review threads. The follow-up code repair consumes

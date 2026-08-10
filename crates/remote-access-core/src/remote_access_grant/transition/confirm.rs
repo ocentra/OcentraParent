@@ -6,7 +6,7 @@ use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 
 pub(super) fn parent(
     grant: &mut RemoteAccessGrant,
-    context: RemoteAccessGrantContext<'_>,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::Requested {
         return Err(RemoteAccessGrantError::InvalidTransition);
@@ -23,7 +23,7 @@ pub(super) fn parent(
 
 pub(super) fn pair(
     grant: &mut RemoteAccessGrant,
-    context: RemoteAccessGrantContext<'_>,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::ParentConfirmed {
         return Err(RemoteAccessGrantError::InvalidTransition);

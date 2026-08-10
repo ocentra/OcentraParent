@@ -1,6 +1,7 @@
 use serde::{de::Error as _, Deserialize, Deserializer};
 
 use ocentra_schema::remote_capability_fabric::RemoteActorRole;
+use ocentra_schema::remote_capability_fabric::RemoteRoute;
 
 use super::{
     validation, RemoteAccessGrant, RemoteAccessGrantCapability, RemoteAccessGrantDisclosureState,
@@ -12,6 +13,7 @@ struct RemoteAccessGrantSnapshot {
     grant_id: String,
     household_ref: String,
     child_device_ref: String,
+    route: RemoteRoute,
     parent_actor_ref: String,
     capability: RemoteAccessGrantCapability,
     actor_role: RemoteActorRole,
@@ -36,6 +38,7 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             grant_id: snapshot.grant_id,
             household_ref: snapshot.household_ref,
             child_device_ref: snapshot.child_device_ref,
+            route: snapshot.route,
             parent_actor_ref: snapshot.parent_actor_ref,
             capability: snapshot.capability,
             actor_role: snapshot.actor_role,
