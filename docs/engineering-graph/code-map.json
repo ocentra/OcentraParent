@@ -142,6 +142,8 @@
         "crates/storage-custody-core/src/retention_delete_tombstone_store.rs",
         "crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs",
         "crates/child-runtime/src/runtime_gate_tombstone.rs",
+        "crates/child-runtime/src/runtime_gate_tombstone_recovery.rs",
+        "crates/child-runtime/src/child_runtime_tombstone_event_flow.rs",
         "crates/child-runtime/tests/unit/runtime_gate.rs"
       ]
     },
