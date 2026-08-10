@@ -79,5 +79,59 @@
       "crates/ocentra-eventing",
       "crates/schema"
     ]
+  },
+  "workpacks": {
+    "WP-app-plan-01-contract-boundary-and-effect-schemas": {
+      "planSlug": "app-plan",
+      "roots": [
+        "packages/schema-domain/src/app-runtime-decision.ts",
+        "packages/schema-domain/tests/contract/app-runtime-decision.test.ts",
+        "crates/app-core/src/runtime_decision.rs",
+        "crates/app-core/src/runtime_ids.rs",
+        "crates/app-core/tests/contract/runtime_decision.rs",
+        "crates/app-core/tests/invariant/runtime_decision.rs"
+      ]
+    },
+    "WP-remote-access-plan-01-remote-capability-fabric": {
+      "planSlug": "remote-access-plan",
+      "roots": [
+        "crates/schema/src/remote_capability_fabric.rs",
+        "crates/schema/tests/contract/remote_capability_fabric.rs"
+      ]
+    },
+    "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": ["tests/device-trust-bootstrap-plan/contract/dependency-adoption.test.mjs"]
+    },
+    "WP-network-plan-08-control-catalog-reference-routing": {
+      "planSlug": "network-plan",
+      "roots": ["tests/network-plan/contract/control-catalog-reference-routing.test.mjs"]
+    },
+    "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/schema/src/tracking_event_contracts.rs",
+        "crates/schema/tests/contract/tracking_event_contracts.rs"
+      ]
+    },
+    "WP-policy-control-plane-plan-04-delivery-ack-audit": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_delivery",
+        "crates/policy-control-core/tests/unit/policy_delivery_receipt_helpers.rs",
+        "crates/child-policy-core/src/policy_control_delivery_handoff.rs",
+        "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-core/src/enforcement_timer_state.rs",
+        "crates/agent-service/src/enforcement_timer_api",
+        "crates/agent-service/src/enforcement_timer_report.rs",
+        "crates/agent-service/tests/unit/enforcement_timer_expiry_tests.rs",
+        "crates/agent-service/tests/unit/enforcement_timer_tests.rs"
+      ]
+    }
   }
 }

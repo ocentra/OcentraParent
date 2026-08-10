@@ -173,6 +173,7 @@ async function run(command, args) {
     }
     console.log(`Implementation files: ${report.totals.implementationFiles}`);
     console.log(`Test files: ${report.totals.testFiles}`);
+    console.log(`Reviewed workpack code maps: ${report.totals.reviewedWorkpackMaps}`);
     console.log('\nPlan matrix (state is graph-derived; code/test is reviewed plan-root topology):');
     for (const plan of report.plans) {
       const counts = Object.entries(plan.workpacks.counts)
@@ -190,7 +191,11 @@ async function run(command, args) {
       );
       for (const workpack of exceptions.slice(0, 8)) {
         const gaps = workpack.completionContract.gaps.length ? ` gaps=${workpack.completionContract.gaps.length}` : '';
-        console.log(`  - ${workpack.id} [${workpack.state}]${gaps}`);
+        const topology =
+          typeof workpack.codeTestTopology === 'string'
+            ? workpack.codeTestTopology
+            : `${workpack.codeTestTopology.state} ${workpack.codeTestTopology.implementationFiles}/${workpack.codeTestTopology.testFiles}`;
+        console.log(`  - ${workpack.id} [${workpack.state}] code=${topology}${gaps}`);
       }
       if (exceptions.length > 8) console.log(`  - ... ${exceptions.length - 8} more non-planned rows`);
     }
@@ -241,6 +246,20 @@ async function run(command, args) {
     const node = map.get(scope);
     if (command === 'inspect') {
       printNode(node, states);
+      if (node.kind === 'workpack') {
+        const inventory = await buildCodeInventory({ root, scope: node.parent });
+        const topology = inventory.workpacks.find((entry) => entry.workpackId === node.id);
+        if (topology) {
+          console.log(`Code/test topology: ${topology.state}`);
+          console.log(`  Implementation files: ${topology.implementationFiles}`);
+          console.log(`  Test files: ${topology.testFiles}`);
+          console.log(`  Roots: ${topology.roots.join(', ')}`);
+          if (topology.missingRoots.length > 0) console.log(`  Missing roots: ${topology.missingRoots.join(', ')}`);
+        } else {
+          console.log('Code/test topology: unknown-workpack-ownership');
+          console.log('  Plan-root counts are available from graph:report; no reviewed workpack map exists yet.');
+        }
+      }
       console.log(`Depends on: ${relatedNodes(graph, scope, 'deps').join(', ') || 'none'}`);
       console.log(`Unlocks: ${relatedNodes(graph, scope, 'dependents').join(', ') || 'none'}`);
       if (node.completion) {

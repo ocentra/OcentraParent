@@ -14,9 +14,10 @@ does not replace those artifacts or duplicate their detailed intent.
   by the selected workpack; ADRs own architectural decisions.
 - `AGENTS.md` and the routed agent documents own execution behavior and safety.
 - The user remains the authority for unresolved product or scope decisions.
-- `code-map.json` owns reviewed plan-to-runtime ownership roots. `graph:code`
-  scans those roots live and reports implementation/test topology; file counts
-  never promote a plan or workpack to accepted.
+- `code-map.json` owns reviewed plan-to-runtime ownership roots. It may also
+  contain explicit `workpacks` entries for slices whose exact implementation
+  and test files have been reviewed. `graph:code` and `graph:report` scan those
+  roots live; file counts never promote a plan or workpack to accepted.
 
 ## Commands
 
@@ -58,10 +59,10 @@ checklists, and merge state remain separate gates.
 `graph:report` is the canonical “where are we?” query. It joins every selected
 plan's derived workpack states/counts and completion-contract path gaps with its
 live reviewed-root implementation/test topology. The JSON form is intended for
-agents and dashboards. Workpack rows deliberately say
-`codeTestTopology: plan-reviewed-roots` because this repository does not yet
-have reviewed workpack-to-file ownership maps; the report never infers those
-maps from filenames or Markdown prose.
+agents and dashboards. A mapped workpack reports exact implementation/test
+paths under `reviewed-workpack-roots`; every other row reports
+`unknown-workpack-ownership` and inherits no plan-wide count. The report never
+infers ownership from filenames or Markdown prose.
 
 ## Import policy
 
@@ -104,8 +105,11 @@ row from silently becoming a completion claim.
 2. Keep detailed scope, expected tests, proof, and ADR requirements in the
    existing routed documents.
 3. Add only reviewed hard dependencies to `overrides.json` with evidence.
-4. Run `npm run graph:bootstrap -- --write` and `npm run graph:validate`.
-5. Query `graph inspect` before assigning the workpack.
+4. If exact code/test ownership is known, add a `code-map.json.workpacks`
+   entry with the workpack ID and reviewed file/directory roots. Leave it
+   unmapped when ownership is uncertain.
+5. Run `npm run graph:bootstrap -- --write` and `npm run graph:validate`.
+6. Query `graph:inspect <workpack-id>` before assigning the workpack.
 
 The graph is intentionally conservative: an ambiguous imported workpack stays
 `planned` until its dependency/readiness context is reviewed.
