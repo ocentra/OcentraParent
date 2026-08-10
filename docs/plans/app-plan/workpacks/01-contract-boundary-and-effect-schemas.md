@@ -1,6 +1,6 @@
 # 01 Contract Boundary And Effect Schemas
 
-## Live completion update (2026-08-10)
+## Live validation update (2026-08-10)
 
 The canonical app runtime-decision boundary is present in
 `packages/schema-domain/src/app-runtime-decision.ts` over the Rust-owned
@@ -14,7 +14,9 @@ under `output/app-plan-proof/01-contract-boundary-and-effect-schemas/`.
 This is not broad app-plan closure: installed inventory, process/foreground
 capture, service/portal integration, platform proof, and product-path proof
 remain open. The contract slice's focused validation, Enforcer guard, fresh CI,
-review gate, and normal merge completed in PR #643 at `47a2ac717`.
+review gate, and normal merge completed in PR #643 at `47a2ac717`; the workpack
+remains in validation because its broader AI Worker Checklist and product
+scope are not complete.
 
 Sources: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), and [test blueprint](../v0-5-native-apps-test-blueprint.md).
 

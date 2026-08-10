@@ -10357,49 +10357,33 @@
       "path": "docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "done",
-      "lifecycleState": "done",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Done",
+        "statusText": "Validation — contract/runtime-decision slice is verified; the broader App WP01 checklist and product paths remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "proofOverride": {
-          "reason": "The durable App WP01 proof records focused contract/runtime validation, the no-claim boundary, and the fresh CI/main merge that completed this contract slice.",
-          "evidence": ["docs/proof/app-plan/slice-01-app-runtime-decision.md"],
-          "satisfiesExpected": true
-        },
-        "completionEvidenceOverride": {
-          "reason": "Reviewed App WP01 implementation, focused tests, durable proof, and checklist evidence after PR #643 merged the validated slice to main.",
+        "stateOverride": {
+          "reason": "The runtime-decision contract slice is code/test/proof/CI/main-merge verified, but the workpack's broader identity, inventory, runtime, session, policy, authority, action, enforcement, platform, and AI checklist remains open.",
           "evidence": [
             "docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
-            "docs/proof/app-plan/slice-01-app-runtime-decision.md",
-            "docs/PLAN_CODE_STATUS_MATRIX.md"
+            "docs/plans/app-plan/implementation-checklist.md",
+            "docs/proof/app-plan/slice-01-app-runtime-decision.md"
           ]
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {
-          "implementation": true,
-          "tests": true,
-          "proof": true,
-          "checklist": true
-        },
+        "reviewed": {},
         "references": {
           "implementation": [
-            "packages/schema-domain/src/app-runtime-decision.ts",
-            "crates/app-core/src/runtime_decision.rs",
-            "crates/app-core/src/runtime_ids.rs"
+            "docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md"
           ],
-          "tests": [
-            "packages/schema-domain/tests/contract/app-runtime-decision.test.ts",
-            "crates/app-core/tests/contract/runtime_decision.rs",
-            "crates/app-core/tests/invariant/runtime_decision.rs"
-          ],
-          "proof": ["docs/proof/app-plan/slice-01-app-runtime-decision.md"],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
           "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
           "adr": []
         },

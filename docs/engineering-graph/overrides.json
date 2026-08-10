@@ -34,6 +34,17 @@
   ],
   "stateOverrides": [
     {
+      "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
+      "state": "validation",
+      "reason": "The runtime-decision contract slice is code/test/proof/CI/main-merge verified, but the workpack's broader identity, inventory, runtime, session, policy, authority, action, enforcement, platform, and AI checklist remains open.",
+      "statusText": "Validation — contract/runtime-decision slice is verified; the broader App WP01 checklist and product paths remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
+        "docs/plans/app-plan/implementation-checklist.md",
+        "docs/proof/app-plan/slice-01-app-runtime-decision.md"
+      ]
+    },
+    {
       "id": "WP-remote-access-plan-01-remote-capability-fabric",
       "state": "validation",
       "reason": "Rust-owned view-only capability contract and focused negative tests are current; relay, pairing lifecycle, device-trust integration, custody, CI, review, and main merge remain open.",
@@ -56,13 +67,6 @@
     }
   ],
   "proofOverrides": [
-    {
-      "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
-      "proof": ["docs/proof/app-plan/slice-01-app-runtime-decision.md"],
-      "reason": "The durable App WP01 proof records focused contract/runtime validation, the no-claim boundary, and the fresh CI/main merge that completed this contract slice.",
-      "evidence": ["docs/proof/app-plan/slice-01-app-runtime-decision.md"],
-      "satisfiesExpected": true
-    },
     {
       "id": "WP-eventing-plan-06-journal-replay-and-lineage",
       "proof": [
@@ -95,27 +99,6 @@
     }
   ],
   "completionEvidenceOverrides": [
-    {
-      "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
-      "implementation": [
-        "packages/schema-domain/src/app-runtime-decision.ts",
-        "crates/app-core/src/runtime_decision.rs",
-        "crates/app-core/src/runtime_ids.rs"
-      ],
-      "tests": [
-        "packages/schema-domain/tests/contract/app-runtime-decision.test.ts",
-        "crates/app-core/tests/contract/runtime_decision.rs",
-        "crates/app-core/tests/invariant/runtime_decision.rs"
-      ],
-      "proof": ["docs/proof/app-plan/slice-01-app-runtime-decision.md"],
-      "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-      "reason": "Reviewed App WP01 implementation, focused tests, durable proof, and checklist evidence after PR #643 merged the validated slice to main.",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
-        "docs/proof/app-plan/slice-01-app-runtime-decision.md",
-        "docs/PLAN_CODE_STATUS_MATRIX.md"
-      ]
-    },
     {
       "id": "WP-eventing-plan-06-journal-replay-and-lineage",
       "implementation": [

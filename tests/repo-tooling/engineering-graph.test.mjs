@@ -437,8 +437,8 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.ok(value.nodes.filter((node) => node.kind === 'workpack').length >= 500);
 
   const appContract = value.nodes.find((node) => node.id === 'WP-app-plan-01-contract-boundary-and-effect-schemas');
-  assert.equal(appContract.state, 'done');
-  assert.match(appContract.metadata.statusText, /^Done/);
+  assert.equal(appContract.state, 'validation');
+  assert.match(appContract.metadata.statusText, /^Validation/);
   assert.deepEqual(appContract.completion.expected.proof, [
     'output/app-plan-proof/01-contract-boundary-and-effect-schemas',
   ]);
