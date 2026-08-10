@@ -30,6 +30,9 @@ npm run graph:code -- PLAN-policy-control-plane-plan
 npm run graph:report
 npm run graph:report -- --json
 npm run graph:report -- PLAN-policy-control-plane-plan
+npm run graph:matrix
+npm run graph:matrix -- PLAN-policy-control-plane-plan --state blocked
+npm run graph:matrix -- --json
 npm run graph:status
 npm run graph:ready
 npm run graph:parallel
@@ -63,6 +66,19 @@ agents and dashboards. A mapped workpack reports exact implementation/test
 paths under `reviewed-workpack-roots`; every other row reports
 `unknown-workpack-ownership` and inherits no plan-wide count. The report never
 infers ownership from filenames or Markdown prose.
+
+`graph:matrix` is the operator view for a plan-by-plan review. It prints a
+summary row for every plan and a workpack row for every imported workpack with
+derived state, reviewed code/test topology (or explicit unknown ownership),
+completion-gap count, dependency blockers, and downstream unlocks. Use
+`--state` to focus a handoff (for example `--state validation`) or `--json`
+for automation. The matrix is a view over the graph; it is not a second
+source of truth.
+
+`graph:next` first prints graph-authorized READY work. If no READY work exists,
+it prints the unblocked active/validation queue and says explicitly that this
+queue is not permission to start new work. That distinction prevents a
+validation backlog from being mistaken for scheduler authorization.
 
 ## Import policy
 

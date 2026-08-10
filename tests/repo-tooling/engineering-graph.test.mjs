@@ -14,8 +14,10 @@ import {
   deriveStates,
   completionGaps,
   explainBlocked,
+  flattenProgressReport,
   graphSourceDrift,
   loadGraph,
+  nextWork,
   parseWorkpackRows,
   planId,
   relatedNodes,
@@ -155,6 +157,68 @@ test('independent READY workpacks are returned as a parallel set', () => {
     summary.ready.map((node) => node.id),
     ['A', 'B']
   );
+});
+
+test('next work exposes unblocked validation when no READY work is authorized', () => {
+  const value = graph([
+    workpack('VALIDATION', 'validation'),
+    workpack('BLOCKED', 'blocked', { metadata: { needsReview: false, statusText: 'waiting on review' } }),
+  ]);
+
+  const queue = nextWork(value, { root: repoRoot });
+  assert.deepEqual(queue.authorized, []);
+  assert.deepEqual(
+    queue.validationQueue.map((node) => node.id),
+    ['VALIDATION']
+  );
+  assert.match(queue.recommendation, /No READY workpack is authorized/u);
+});
+
+test('flattened matrix preserves plan, topology, dependency, and completion gaps', () => {
+  const rows = flattenProgressReport({
+    plans: [
+      {
+        id: 'PLAN-example',
+        title: 'Example',
+        state: 'active',
+        workpacks: {
+          rows: [
+            {
+              id: 'WP-example-01',
+              title: 'One',
+              state: 'validation',
+              storedState: 'active',
+              dependsOn: ['WP-example-00'],
+              blockers: [{ id: 'WP-example-00', state: 'validation' }],
+              unlocks: ['WP-example-02'],
+              completionContract: { gaps: ['tests: missing'] },
+              codeTestTopology: { state: 'code-and-tests', implementationFiles: 2, testFiles: 1 },
+            },
+          ],
+        },
+      },
+    ],
+  });
+
+  assert.deepEqual(rows, [
+    {
+      planId: 'PLAN-example',
+      planTitle: 'Example',
+      planState: 'active',
+      workpackId: 'WP-example-01',
+      workpackTitle: 'One',
+      state: 'validation',
+      storedState: 'active',
+      codeState: 'code-and-tests',
+      implementationFiles: 2,
+      testFiles: 1,
+      dependsOn: ['WP-example-00'],
+      blockers: [{ id: 'WP-example-00', state: 'validation' }],
+      unlocks: ['WP-example-02'],
+      completionGapCount: 1,
+      completionGaps: ['tests: missing'],
+    },
+  ]);
 });
 
 test('dependency cycles fail validation', () => {

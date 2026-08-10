@@ -27,6 +27,18 @@ npm run graph:report -- --json
 npm run graph:report -- PLAN-policy-control-plane-plan
 ```
 
+For the complete plan/workpack handoff matrix use:
+
+```powershell
+npm run graph:matrix
+npm run graph:matrix -- --state validation
+npm run graph:matrix -- --json
+```
+
+When the graph has no READY work, `graph:next` distinguishes the legal READY
+set from the unblocked validation/review queue. The queue is a repair or
+evidence handoff, not authorization to bypass the READY gate.
+
 It reports all 23 plans and 679 workpack rows, with graph-derived workpack
 state alongside live implementation/test topology under reviewed plan roots.
 Nine focused workpacks now also have explicit reviewed code/test maps; those

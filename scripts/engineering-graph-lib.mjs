@@ -260,11 +260,18 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
       .map((workpack) => {
         const gaps = completionGaps(root, workpack);
         const workpackInventory = inventoryByWorkpack.get(workpack.id);
+        const dependsOn = relatedNodes(graph, workpack.id, 'deps');
+        const blockers = dependsOn
+          .filter((dependencyId) => states.get(dependencyId) !== 'done')
+          .map((dependencyId) => ({ id: dependencyId, state: states.get(dependencyId) ?? 'unknown' }));
         return {
           id: workpack.id,
           title: workpack.title,
           state: states.get(workpack.id),
           storedState: workpack.state,
+          dependsOn,
+          blockers,
+          unlocks: relatedNodes(graph, workpack.id, 'dependents'),
           completionContract: {
             pathsPresent: gaps.length === 0,
             gaps,
@@ -330,6 +337,65 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
       ok: validation.ok,
       warnings: validation.warnings,
     },
+  };
+}
+
+/**
+ * Flatten the joined report into the operator matrix used for plan-by-plan
+ * status reviews.  This intentionally keeps unknown workpack ownership
+ * explicit; plan-root counts are never copied into a workpack row.
+ */
+export function flattenProgressReport(report) {
+  return report.plans.flatMap((plan) =>
+    plan.workpacks.rows.map((workpack) => {
+      const topology = workpack.codeTestTopology;
+      return {
+        planId: plan.id,
+        planTitle: plan.title,
+        planState: plan.state,
+        workpackId: workpack.id,
+        workpackTitle: workpack.title,
+        state: workpack.state,
+        storedState: workpack.storedState,
+        codeState: typeof topology === 'string' ? topology : topology.state,
+        implementationFiles: typeof topology === 'string' ? null : topology.implementationFiles,
+        testFiles: typeof topology === 'string' ? null : topology.testFiles,
+        dependsOn: workpack.dependsOn,
+        blockers: workpack.blockers,
+        unlocks: workpack.unlocks,
+        completionGapCount: workpack.completionContract.gaps.length,
+        completionGaps: workpack.completionContract.gaps,
+      };
+    })
+  );
+}
+
+/**
+ * Return legal READY work first.  When the graph authorizes no new work, also
+ * expose unblocked active/validation rows that are candidates for evidence or
+ * review.  The latter are explicitly not READY authorization.
+ */
+export function nextWork(graph, { root = process.cwd(), scope } = {}) {
+  const states = deriveStates(graph, { root });
+  const workpacks = scopeNodes(graph, scope).filter((node) => node.kind === 'workpack');
+  const ready = workpacks.filter((node) => states.get(node.id) === 'ready');
+  const validationQueue = workpacks
+    .filter((node) => ['active', 'validation'].includes(states.get(node.id)))
+    .filter((node) => relatedNodes(graph, node.id, 'deps').every((dependencyId) => states.get(dependencyId) === 'done'))
+    .sort((left, right) => {
+      const rank = (node) => (states.get(node.id) === 'active' ? 0 : 1);
+      return rank(left) - rank(right) || left.id.localeCompare(right.id);
+    });
+  return {
+    scope: scope ?? 'GOAL-ocentra-parent',
+    authorized: ready,
+    validationQueue,
+    recommendation:
+      ready.length > 0
+        ? 'Start only READY workpacks; validation and proof remain part of their completion contract.'
+        : validationQueue.length > 0
+          ? 'No READY workpack is authorized. Finish the unblocked validation/review queue before starting new work.'
+          : 'No READY or unblocked validation work exists; inspect blocked workpacks and their dependency reasons.',
   };
 }
 
