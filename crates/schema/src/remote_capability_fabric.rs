@@ -25,6 +25,13 @@ pub enum RemoteRoute {
     CloudRelay,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RemoteParentGrantState {
+    NotGranted,
+    Granted,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum RemoteActorRole {
@@ -107,6 +114,7 @@ pub struct RemoteCapabilityGrant {
     pub child_device_ref: String,
     pub route: RemoteRoute,
     pub parent_actor_ref: String,
+    pub parent_grant: RemoteParentGrantState,
     pub capability_type: RemoteCapabilityType,
     pub actor_role: RemoteActorRole,
     pub pairing_state: RemotePairingState,
@@ -135,10 +143,12 @@ impl RemoteCapabilityGrant {
         if self.household_ref != expected_household_ref {
             return Err(RemoteCapabilityAuthorizationError::WrongHousehold);
         }
-        if !matches!(
+        let role_is_authorized = matches!(
             self.actor_role,
             RemoteActorRole::ParentOwner | RemoteActorRole::CoParent
-        ) {
+        ) || (self.actor_role == RemoteActorRole::SupportAdmin
+            && self.parent_grant == RemoteParentGrantState::Granted);
+        if !role_is_authorized {
             return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
         }
         if let Some(error) = (self.parent_actor_ref != requesting_parent_actor_ref)

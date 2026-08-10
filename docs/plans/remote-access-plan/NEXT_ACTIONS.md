@@ -57,8 +57,10 @@ tests. The follow-up repair also covers current authority at pair,
 activation, and reconnect time; explicit support parent-grant visibility;
 canonical actor and route typing; immutable lifecycle fields with validated
 deserialization; early-terminal round trips; authorized household-actor
-terminal transitions; per-attempt audit idempotency; and redacted
-accepted/denied audit milestones. Continue with fresh follow-up CI/review,
+terminal transitions with non-terminal actor rejection; canonical
+parent-granted support authorization; reconnect-pending gate enforcement;
+per-attempt audit idempotency; and redacted accepted/denied audit milestones.
+Continue with fresh follow-up CI/review,
 persistence/adapter ownership, relay/session integration, device-trust
 handoff, child/portal disclosure, audit custody, and generated proof before
 treating the workpack as complete.

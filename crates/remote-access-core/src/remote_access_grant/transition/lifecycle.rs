@@ -8,9 +8,7 @@ pub(super) fn activate(
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if !matches!(
         grant.state,
-        RemoteAccessGrantState::Paired
-            | RemoteAccessGrantState::ReconnectPending
-            | RemoteAccessGrantState::Paused
+        RemoteAccessGrantState::Paired | RemoteAccessGrantState::Paused
     ) {
         return Err(RemoteAccessGrantError::InvalidTransition);
     }

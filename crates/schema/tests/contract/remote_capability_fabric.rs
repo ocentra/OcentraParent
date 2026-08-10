@@ -10,6 +10,7 @@ fn paired_live_view_grant() -> contracts::RemoteCapabilityGrant {
         child_device_ref: "child-device-alpha".to_string(),
         route: contracts::RemoteRoute::LocalNetwork,
         parent_actor_ref: "parent-owner-alpha".to_string(),
+        parent_grant: contracts::RemoteParentGrantState::NotGranted,
         capability_type: contracts::RemoteCapabilityType::LiveView,
         actor_role: contracts::RemoteActorRole::ParentOwner,
         pairing_state: contracts::RemotePairingState::Paired,
@@ -96,6 +97,7 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
         Err(contracts::RemoteCapabilityAuthorizationError::WrongHousehold)
     );
     grant.actor_role = contracts::RemoteActorRole::SupportAdmin;
+    grant.parent_grant = contracts::RemoteParentGrantState::NotGranted;
     assert_eq!(
         grant.authorize_live_view(
             "household-alpha",
@@ -174,6 +176,22 @@ fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust
             contracts::RemoteRoute::LocalNetwork,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::DeviceRemoved)
+    );
+}
+
+#[test]
+fn remote_capability_allows_only_parent_granted_support_live_view() {
+    let mut grant = paired_live_view_grant();
+    grant.actor_role = contracts::RemoteActorRole::SupportAdmin;
+    grant.parent_grant = contracts::RemoteParentGrantState::Granted;
+    assert_eq!(
+        grant.authorize_live_view(
+            "household-alpha",
+            "parent-owner-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
+        ),
+        Ok(())
     );
 }
 

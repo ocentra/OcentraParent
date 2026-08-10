@@ -22,8 +22,8 @@ terminal snapshots. The graph state is `validation`, not `done`.
 | Command | Result |
 | --- | --- |
 | `cargo fmt --all -- --check` | passed |
-| `cargo test -p ocentra-remote-access-core --test unit` | 29 passed, 0 failed |
-| `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 4 passed, 0 failed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 31 passed, 0 failed |
+| `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 5 passed, 0 failed |
 | `cargo clippy -p ocentra-remote-access-core --all-targets -- -D warnings` | passed |
 | `npm run lint:architecture -- --files crates/remote-access-core crates/schema` | passed |
 | `npm run graph:validate --silent` | passed; 703 nodes, 705 edges |
@@ -34,12 +34,14 @@ terminal snapshots. The graph state is `validation`, not `done`.
 
 The focused tests reject wrong actor, wrong household, wrong child device,
 wrong route, undisclosed child pairing, stale parent authority at pair time,
-stale authority at activation/reconnect, unauthorized revoke/remove,
-support/admin hidden standing access, reconnect after revoke, reconnect after
-device removal, reactivation of removed grants, and deserialization with
-impossible lifecycle evidence. They accept explicitly parent-approved support
-access, revocation by another authorized household actor, and emit
-accepted/denied redacted audit milestones. Serialization preserves both early
+stale authority at activation/reconnect, cross-actor non-terminal transitions,
+unauthorized revoke/remove, support/admin hidden standing access, reconnect
+after revoke, reconnect after device removal, activation bypass from pending
+reconnect, reactivation of removed grants, and deserialization with impossible
+lifecycle evidence. They accept explicitly parent-approved support access,
+canonical parent-granted support live view, revocation by another authorized
+household actor, and emit accepted/denied redacted audit milestones.
+Serialization preserves both early
 and late terminal states. Attempt references make cycle audit ids distinct
 while retries with the same attempt remain idempotent.
 
@@ -52,7 +54,11 @@ findings in code and tests: access-starting transitions recheck current parent
 authority; terminal snapshots remain deserializable from pre-pairing states;
 the default transition path returns its audit report; attempt references make
 audit idempotency keys unique per attempt; and grants carry the canonical
-route discriminator and reject route mismatch. The earlier findings remain
+route discriminator and reject route mismatch. A further reviewer pass
+required cross-actor authority to be limited to terminal transitions, support
+grants to carry a canonical parent-grant state, and reconnect-pending
+activation to remain behind the reconnect transition; those are now covered
+by focused tests. The earlier findings remain
 covered: grant lifecycle fields are private with validated deserialization,
 terminal transitions accept a different currently-authorized household actor,
 support access requires an explicit parent-grant flag, and the canonical

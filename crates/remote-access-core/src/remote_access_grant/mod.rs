@@ -217,7 +217,7 @@ impl RemoteAccessGrant {
         context: &RemoteAccessGrantContext<'_>,
     ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
         validation::fields(self)?;
-        validation::context(self, context)?;
+        validation::context(self, transition, context)?;
         transition::apply(self, transition, context)
     }
 

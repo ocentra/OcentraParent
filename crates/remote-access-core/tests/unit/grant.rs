@@ -284,6 +284,38 @@ fn authorized_household_actor_can_revoke_another_parent_grant() {
 }
 
 #[test]
+fn authorized_other_actor_cannot_start_or_restore_another_parent_grant() {
+    let mut requested = RemoteAccessGrant::request(
+        "grant-cross-actor",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-cross-actor",
+    )
+    .expect_value("grant request");
+    let mut other_parent = context_for("attempt-cross-actor-confirm");
+    other_parent.actor_ref = "parent-other";
+    assert_eq!(
+        requested
+            .transition(RemoteAccessGrantTransition::ConfirmParent, other_parent)
+            .result,
+        Err(RemoteAccessGrantError::WrongActor)
+    );
+
+    let mut paired = paired_grant();
+    let mut other_parent = context_for("attempt-cross-actor-activate");
+    other_parent.actor_ref = "parent-other";
+    assert_eq!(
+        paired
+            .transition(RemoteAccessGrantTransition::Activate, other_parent)
+            .result,
+        Err(RemoteAccessGrantError::WrongActor)
+    );
+}
+
+#[test]
 fn transition_report_exposes_accepted_and_denied_redacted_audit_milestones() {
     let mut grant = RemoteAccessGrant::request(
         "grant-audit",
@@ -384,6 +416,41 @@ fn activate_and_reconnect_recheck_current_parent_authority() {
             .transition(RemoteAccessGrantTransition::Reconnect, revoked_authority)
             .result,
         Err(RemoteAccessGrantError::ParentAuthorityRequired)
+    );
+}
+
+#[test]
+fn reconnect_pending_cannot_bypass_the_reconnect_transition() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-bypass-activate"),
+        )
+        .result
+        .expect_value("activate");
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Pause,
+            context_for("attempt-bypass-pause"),
+        )
+        .result
+        .expect_value("pause");
+    grant
+        .transition(
+            RemoteAccessGrantTransition::RequestReconnect,
+            context_for("attempt-bypass-request"),
+        )
+        .result
+        .expect_value("reconnect request");
+    assert_eq!(
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Activate,
+                context_for("attempt-bypass-activate-pending"),
+            )
+            .result,
+        Err(RemoteAccessGrantError::InvalidTransition)
     );
 }
 

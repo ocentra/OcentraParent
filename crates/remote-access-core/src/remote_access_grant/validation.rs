@@ -3,6 +3,7 @@ use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 use super::{
     RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantDisclosureState,
     RemoteAccessGrantError, RemoteAccessGrantParentGrant, RemoteAccessGrantState,
+    RemoteAccessGrantTransition,
 };
 
 pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
@@ -30,6 +31,7 @@ pub(super) fn actor_role(role: &RemoteActorRole) -> Result<(), RemoteAccessGrant
 
 pub(super) fn context(
     grant: &RemoteAccessGrant,
+    transition: RemoteAccessGrantTransition,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<(), RemoteAccessGrantError> {
     if context.attempt_ref.trim().is_empty() {
@@ -38,7 +40,13 @@ pub(super) fn context(
     if context.household_ref != grant.household_ref {
         return Err(RemoteAccessGrantError::WrongHousehold);
     }
-    if context.actor_ref != grant.parent_actor_ref && !context.parent_authorized {
+    if context.actor_ref != grant.parent_actor_ref
+        && (!context.parent_authorized
+            || !matches!(
+                transition,
+                RemoteAccessGrantTransition::Revoke | RemoteAccessGrantTransition::RemoveDevice
+            ))
+    {
         return Err(RemoteAccessGrantError::WrongActor);
     }
     if context.child_device_ref != grant.child_device_ref {
