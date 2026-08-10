@@ -28,11 +28,11 @@ npm run graph:validate
 npm run graph:code
 npm run graph:code -- PLAN-policy-control-plane-plan
 npm run graph:report
-npm run graph:report -- --json
+npm run --silent graph:report -- --json
 npm run graph:report -- PLAN-policy-control-plane-plan
 npm run graph:matrix
 npm run graph:matrix -- PLAN-policy-control-plane-plan --state blocked
-npm run graph:matrix -- --json
+npm run --silent graph:matrix -- --json
 npm run graph:status
 npm run graph:ready
 npm run graph:parallel
@@ -74,6 +74,10 @@ completion-gap count, dependency blockers, and downstream unlocks. Use
 `--state` to focus a handoff (for example `--state validation`) or `--json`
 for automation. The matrix is a view over the graph; it is not a second
 source of truth.
+
+Use npm's `--silent` form for JSON output so npm does not prepend its lifecycle
+banner to the machine-readable payload. The equivalent direct invocation is
+`node scripts/engineering-graph.mjs report --json`.
 
 `graph:next` first prints graph-authorized READY work. If no READY work exists,
 it prints the unblocked active/validation queue and says explicitly that this

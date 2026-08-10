@@ -24,7 +24,7 @@ The joined report is the canonical operator view:
 
 ```powershell
 npm run graph:report
-npm run graph:report -- --json
+npm run --silent graph:report -- --json
 npm run graph:report -- PLAN-policy-control-plane-plan
 ```
 
@@ -33,7 +33,7 @@ For the complete plan/workpack handoff matrix use:
 ```powershell
 npm run graph:matrix
 npm run graph:matrix -- --state validation
-npm run graph:matrix -- --json
+npm run --silent graph:matrix -- --json
 ```
 
 When the graph has no READY work, `graph:next` distinguishes the legal READY
