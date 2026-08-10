@@ -32,6 +32,7 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
     fields(grant)?;
     actor_role(&grant.actor_role)?;
     validate_attempts(grant)?;
+    super::validation_history::validate(grant)?;
     validate_supersession(grant)?;
     validate_lifecycle_evidence(grant)?;
     validate_recovery(grant)
@@ -45,6 +46,9 @@ fn validate_attempts(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
         attempt.grant_id != grant.grant_id
             || attempt.audit_ref != grant.audit_ref
             || attempt.attempt_ref.trim().is_empty()
+            || attempt.child_device_ref.trim().is_empty()
+            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
+                && attempt.child_device_ref != grant.child_device_ref)
             || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
                 && attempt.route != grant.route)
             || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
@@ -151,7 +155,7 @@ const ACCEPTED_RESULTING_STATES: [RemoteAccessGrantState; 12] = [
     RemoteAccessGrantState::Superseded,
 ];
 
-fn accepted_resulting_state(
+pub(super) fn accepted_resulting_state(
     transition: super::RemoteAccessGrantTransition,
 ) -> RemoteAccessGrantState {
     ACCEPTED_RESULTING_STATES[transition as usize]

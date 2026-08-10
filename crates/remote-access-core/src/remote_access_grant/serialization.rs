@@ -43,10 +43,13 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
         // A persisted live grant cannot prove that the current parent authority
         // and device trust checks still hold after a restart.  Resume it at the
         // reconnect gate so a fresh, typed context must authorize live access.
-        let state = match snapshot.state {
-            RemoteAccessGrantState::Active => RemoteAccessGrantState::ReconnectPending,
-            state => state,
-        };
+        let persisted_state = snapshot.state;
+        let mut attempts = snapshot.attempts;
+        for attempt in &mut attempts {
+            if attempt.child_device_ref.trim().is_empty() {
+                attempt.child_device_ref = snapshot.child_device_ref.clone();
+            }
+        }
         let grant = RemoteAccessGrant {
             grant_id: snapshot.grant_id,
             household_ref: snapshot.household_ref,
@@ -55,16 +58,22 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             parent_actor_ref: snapshot.parent_actor_ref,
             capability: snapshot.capability,
             actor_role: snapshot.actor_role,
-            state,
+            state: persisted_state,
             disclosure_state: snapshot.disclosure_state,
             parent_grant: snapshot.parent_grant,
             audit_ref: snapshot.audit_ref,
-            attempts: snapshot.attempts,
+            attempts,
             superseded_by: snapshot.superseded_by,
             stop_recovery: snapshot.stop_recovery,
             pending_supersession: None,
         };
         validation::serialized(&grant).map_err(D::Error::custom)?;
-        Ok(grant)
+        Ok(RemoteAccessGrant {
+            state: match persisted_state {
+                RemoteAccessGrantState::Active => RemoteAccessGrantState::ReconnectPending,
+                state => state,
+            },
+            ..grant
+        })
     }
 }

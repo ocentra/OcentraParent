@@ -30,6 +30,14 @@ pub(super) fn access_start_replay_error(
     transition: RemoteAccessGrantTransition,
 ) -> Option<RemoteAccessGrantError> {
     live_access_start_state(transition)?;
+    if grant.stop_recovery == super::RemoteAccessGrantStopRecoveryState::Pending
+        && matches!(
+            transition,
+            RemoteAccessGrantTransition::Activate | RemoteAccessGrantTransition::Reconnect
+        )
+    {
+        return Some(RemoteAccessGrantError::ReconnectDenied);
+    }
     matches!(
         grant.state,
         RemoteAccessGrantState::Revoked
@@ -81,6 +89,7 @@ pub(super) fn denied_report(
             grant_id: grant.grant_id.clone(),
             household_ref: grant.household_ref.clone(),
             actor_ref: context.actor_ref.to_owned(),
+            child_device_ref: context.child_device_ref.to_owned(),
             route,
             attempt_ref: context.attempt_ref.to_owned(),
             transition,

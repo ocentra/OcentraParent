@@ -97,6 +97,13 @@ fn replay_history_rejects_new_attempts_when_full_and_preserves_old_identities() 
         Err(RemoteAccessGrantError::ReplayWindowExhausted)
     );
 
+    let safety = grant.transition(
+        RemoteAccessGrantTransition::Revoke,
+        context_for("attempt-replay-window-revoke"),
+    );
+    assert_eq!(safety.result, Ok(RemoteAccessGrantState::Revoked));
+    assert_eq!(grant.state(), RemoteAccessGrantState::Revoked);
+
     let mut oversized = encoded;
     let first_attempt = oversized["attempts"]
         .as_array()
@@ -147,6 +154,81 @@ fn accepted_milestone_result_state_must_match_its_transition() {
     assert_eq!(
         error.split(" at ").next(),
         Some("serialized grant state violates lifecycle invariants")
+    );
+}
+
+#[test]
+fn serialized_accepted_milestones_must_follow_reachable_history() {
+    let grant = paired_grant();
+    let mut encoded = serde_json::to_value(&grant).expect_value("serialize grant");
+    encoded["attempts"]
+        .as_array_mut()
+        .and_then(|attempts| attempts.first_mut())
+        .expect_value("confirm milestone")["transition"] = serde_json::json!("activate");
+    encoded["attempts"]
+        .as_array_mut()
+        .and_then(|attempts| attempts.first_mut())
+        .expect_value("activate milestone")["resultingState"] = serde_json::json!("active");
+    encoded["state"] = serde_json::json!("active");
+
+    let error = serde_json::from_value::<RemoteAccessGrant>(encoded)
+        .err()
+        .expect_value("unreachable accepted history must be rejected")
+        .to_string();
+    assert_eq!(
+        error.split(" at ").next(),
+        Some("serialized grant state violates lifecycle invariants")
+    );
+}
+
+#[test]
+fn replay_identity_binds_the_child_device_context() {
+    let mut grant = paired_grant();
+    let mut wrong_device = context_for("attempt-child-identity");
+    wrong_device.child_device_ref = "child-other";
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Activate, wrong_device)
+            .result,
+        Err(RemoteAccessGrantError::WrongDevice)
+    );
+
+    let retry = grant.transition(
+        RemoteAccessGrantTransition::Activate,
+        context_for("attempt-child-identity"),
+    );
+    assert_eq!(retry.result, Ok(RemoteAccessGrantState::Active));
+}
+
+#[test]
+fn activation_replay_is_rejected_while_system_recovery_is_pending() {
+    let mut grant = paired_grant();
+    grant
+        .transition_with_audit(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-recovery-activation"),
+        )
+        .result
+        .expect_value("activate grant");
+
+    let mut system_stop = context_for("attempt-recovery-system-stop");
+    system_stop.actor_ref = "system-failure";
+    system_stop.parent_authorized = false;
+    system_stop.transition_authority =
+        ocentra_remote_access_core::remote_access_grant::RemoteAccessGrantTransitionAuthority::SystemFailure;
+    grant
+        .transition(RemoteAccessGrantTransition::Stop, system_stop)
+        .result
+        .expect_value("system stop");
+
+    assert_eq!(
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Activate,
+                context_for("attempt-recovery-activation"),
+            )
+            .result,
+        Err(RemoteAccessGrantError::ReconnectDenied)
     );
 }
 

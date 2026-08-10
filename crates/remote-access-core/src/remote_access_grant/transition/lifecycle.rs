@@ -33,7 +33,10 @@ pub(super) fn stop(
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if !matches!(
         grant.state,
-        RemoteAccessGrantState::Active | RemoteAccessGrantState::Paused
+        RemoteAccessGrantState::Paired
+            | RemoteAccessGrantState::Active
+            | RemoteAccessGrantState::Paused
+            | RemoteAccessGrantState::ReconnectPending
     ) {
         return Err(RemoteAccessGrantError::InvalidTransition);
     }

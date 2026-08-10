@@ -10,11 +10,13 @@
 mod audit;
 mod errors;
 mod replay;
+mod replay_capacity;
 mod replay_identity;
 mod serialization;
 mod transition;
 mod validation;
 mod validation_context;
+mod validation_history;
 
 /// Number of transition attempts retained for idempotent replay after a grant
 /// is persisted. Once the bounded window is full, a new attempt fails closed;
@@ -172,6 +174,8 @@ pub struct RemoteAccessGrantAuditMilestone {
     pub grant_id: String,
     pub household_ref: String,
     pub actor_ref: String,
+    #[serde(default)]
+    pub child_device_ref: String,
     pub route: RemoteRoute,
     pub attempt_ref: String,
     pub transition: RemoteAccessGrantTransition,
@@ -243,9 +247,15 @@ impl RemoteAccessGrant {
             .iter()
             .find(|attempt| attempt.attempt_ref == attempt_ref)
         {
-            return replay::existing_report(self, previous.clone(), transition, context);
+            let child_device_retry = previous.outcome == RemoteAccessGrantAuditOutcome::Denied
+                && previous.error == Some(RemoteAccessGrantError::WrongDevice)
+                && previous.child_device_ref != context.child_device_ref;
+            if !child_device_retry {
+                return replay::existing_report(self, previous.clone(), transition, context);
+            }
         }
-        if self.attempts.len() >= MAX_REPLAY_ATTEMPTS {
+        if !replay_capacity::prepare(self, transition) {
+            self.pending_supersession = None;
             return replay::denied_report(
                 self,
                 transition,
@@ -269,6 +279,7 @@ impl RemoteAccessGrant {
                 grant_id: self.grant_id.clone(),
                 household_ref: self.household_ref.clone(),
                 actor_ref,
+                child_device_ref: context.child_device_ref.to_owned(),
                 route,
                 attempt_ref,
                 transition,

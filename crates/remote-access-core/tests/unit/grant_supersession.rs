@@ -98,6 +98,54 @@ fn system_failure_stop_requires_recovery_proof_before_reconnect() {
 }
 
 #[test]
+fn system_failure_can_stop_paired_and_reconnecting_grants() {
+    let mut paired = paired_grant();
+    let mut paired_stop = context_for("attempt-paired-system-stop");
+    paired_stop.actor_ref = "system-failure";
+    paired_stop.parent_authorized = false;
+    paired_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    assert_eq!(
+        paired
+            .transition(RemoteAccessGrantTransition::Stop, paired_stop)
+            .result,
+        Ok(RemoteAccessGrantState::Stopped)
+    );
+
+    let mut reconnecting = paired_grant();
+    reconnecting
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-reconnecting-activate"),
+        )
+        .result
+        .expect_value("activate before reconnecting stop");
+    reconnecting
+        .transition(
+            RemoteAccessGrantTransition::Pause,
+            context_for("attempt-reconnecting-pause"),
+        )
+        .result
+        .expect_value("pause before reconnecting stop");
+    reconnecting
+        .transition(
+            RemoteAccessGrantTransition::RequestReconnect,
+            context_for("attempt-reconnecting-request"),
+        )
+        .result
+        .expect_value("reconnect pending");
+    let mut reconnecting_stop = context_for("attempt-reconnecting-system-stop");
+    reconnecting_stop.actor_ref = "system-failure";
+    reconnecting_stop.parent_authorized = false;
+    reconnecting_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    assert_eq!(
+        reconnecting
+            .transition(RemoteAccessGrantTransition::Stop, reconnecting_stop)
+            .result,
+        Ok(RemoteAccessGrantState::Stopped)
+    );
+}
+
+#[test]
 fn same_scope_rotation_supersedes_the_old_grant_and_survives_restore() {
     let mut old_grant = paired_grant();
     old_grant

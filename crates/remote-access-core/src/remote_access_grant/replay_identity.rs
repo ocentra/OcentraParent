@@ -50,6 +50,7 @@ pub(super) fn same_attempt_identity(
         && previous.household_ref == grant.household_ref()
         && previous.household_ref == context.household_ref
         && previous.actor_ref == context.actor_ref
+        && previous.child_device_ref == context.child_device_ref
         && previous.attempt_ref == context.attempt_ref
         && previous.route == audit_route(grant, transition, context)
 }

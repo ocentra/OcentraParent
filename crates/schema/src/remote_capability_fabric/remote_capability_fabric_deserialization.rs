@@ -16,6 +16,8 @@ struct RemoteCapabilityGrantWire {
     route: Option<RemoteRoute>,
     parent_actor_ref: String,
     #[serde(default)]
+    support_actor_ref: Option<String>,
+    #[serde(default)]
     parent_grant: Option<RemoteParentGrantState>,
     capability_type: RemoteCapabilityType,
     actor_role: RemoteActorRole,
@@ -51,6 +53,7 @@ impl<'de> Deserialize<'de> for RemoteCapabilityGrant {
             child_device_ref: wire.child_device_ref,
             route,
             parent_actor_ref: wire.parent_actor_ref,
+            support_actor_ref: wire.support_actor_ref,
             parent_grant: wire
                 .parent_grant
                 .unwrap_or(RemoteParentGrantState::NotGranted),

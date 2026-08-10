@@ -10,6 +10,7 @@ fn paired_live_view_grant() -> contracts::RemoteCapabilityGrant {
         child_device_ref: "child-device-alpha".to_string(),
         route: contracts::RemoteRoute::LocalNetwork,
         parent_actor_ref: "parent-owner-alpha".to_string(),
+        support_actor_ref: None,
         parent_grant: contracts::RemoteParentGrantState::NotGranted,
         capability_type: contracts::RemoteCapabilityType::LiveView,
         actor_role: contracts::RemoteActorRole::ParentOwner,
@@ -184,21 +185,45 @@ fn remote_capability_allows_only_parent_granted_support_live_view() {
     let mut grant = paired_live_view_grant();
     grant.actor_role = contracts::RemoteActorRole::SupportAdmin;
     grant.parent_grant = contracts::RemoteParentGrantState::Granted;
+    grant.support_actor_ref = Some("support-admin-alpha".to_string());
     assert_eq!(
         grant.authorize_live_view(
             "household-alpha",
-            "parent-owner-alpha",
+            "support-admin-alpha",
             "child-device-alpha",
             contracts::RemoteRoute::LocalNetwork,
         ),
         Ok(())
     );
 
+    grant.support_actor_ref = Some("support-admin-other".to_string());
+    assert_eq!(
+        grant.authorize_live_view(
+            "household-alpha",
+            "support-admin-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
+        ),
+        Err(contracts::RemoteCapabilityAuthorizationError::WrongSupportActor)
+    );
+
+    grant.support_actor_ref = None;
+    assert_eq!(
+        grant.authorize_live_view(
+            "household-alpha",
+            "support-admin-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
+        ),
+        Err(contracts::RemoteCapabilityAuthorizationError::MissingSupportActor)
+    );
+
+    grant.support_actor_ref = Some("support-admin-alpha".to_string());
     grant.diagnostic_redaction_state = contracts::RemoteDiagnosticRedactionState::Raw;
     assert_eq!(
         grant.authorize_live_view(
             "household-alpha",
-            "parent-owner-alpha",
+            "support-admin-alpha",
             "child-device-alpha",
             contracts::RemoteRoute::LocalNetwork,
         ),

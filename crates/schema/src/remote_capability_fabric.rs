@@ -105,6 +105,8 @@ pub enum RemoteCapabilityAuthorizationError {
     WrongHousehold,
     WrongActorRole,
     WrongParentActor,
+    MissingSupportActor,
+    WrongSupportActor,
     PairingRequired,
     GrantNotActive,
     Revoked,
@@ -126,6 +128,7 @@ pub struct RemoteCapabilityGrant {
     pub child_device_ref: String,
     pub route: RemoteRoute,
     pub parent_actor_ref: String,
+    pub support_actor_ref: Option<String>,
     pub parent_grant: RemoteParentGrantState,
     pub capability_type: RemoteCapabilityType,
     pub actor_role: RemoteActorRole,
@@ -155,31 +158,23 @@ impl RemoteCapabilityGrant {
         if self.household_ref != expected_household_ref {
             return Err(RemoteCapabilityAuthorizationError::WrongHousehold);
         }
-        let role_is_authorized = matches!(
-            self.actor_role,
-            RemoteActorRole::ParentOwner | RemoteActorRole::CoParent
-        ) || (self.actor_role == RemoteActorRole::SupportAdmin
-            && self.parent_grant == RemoteParentGrantState::Granted);
-        if !role_is_authorized {
-            return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
-        }
+        remote_capability_fabric_authorization::require_actor(
+            &self.actor_role,
+            self.parent_grant,
+            self.support_actor_ref.as_deref(),
+            &self.parent_actor_ref,
+            requesting_parent_actor_ref,
+        )?;
         remote_capability_fabric_authorization::require_safe_support_redaction(
             &self.actor_role,
             self.diagnostic_redaction_state,
         )?;
-        if let Some(error) = (self.parent_actor_ref != requesting_parent_actor_ref)
-            .then_some(RemoteCapabilityAuthorizationError::WrongParentActor)
-            .or_else(|| {
-                (self.child_device_ref != requested_child_device_ref)
-                    .then_some(RemoteCapabilityAuthorizationError::WrongChildDevice)
-            })
-            .or_else(|| {
-                (self.route != expected_route)
-                    .then_some(RemoteCapabilityAuthorizationError::WrongRoute)
-            })
-        {
-            return Err(error);
-        }
+        remote_capability_fabric_authorization::require_target(
+            &self.child_device_ref,
+            requested_child_device_ref,
+            self.route,
+            expected_route,
+        )?;
         if self.pairing_state != RemotePairingState::Paired {
             return Err(RemoteCapabilityAuthorizationError::PairingRequired);
         }

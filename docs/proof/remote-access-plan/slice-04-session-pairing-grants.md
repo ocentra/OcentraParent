@@ -22,7 +22,7 @@ terminal snapshots. The graph state is `validation`, not `done`.
 | Command | Result |
 | --- | --- |
 | `cargo fmt --all -- --check` | passed |
-| `cargo test -p ocentra-remote-access-core --test unit` | 44 passed, 0 failed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 48 passed, 0 failed |
 | `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 7 passed, 0 failed |
 | `cargo clippy -p ocentra-remote-access-core --all-targets -- -D warnings` | passed |
 | `npm run lint:architecture -- --files crates/remote-access-core crates/schema` | passed |
@@ -46,25 +46,28 @@ and late terminal states. Attempt references make cycle audit ids distinct and
 replay the original accepted or denied report across retries and restore.
 Typed device-trust handoff gates pairing and access-starting transitions.
 Explicit Denied and Failed states preserve terminal pairing outcomes.
-The replay window retains all recorded identities and rejects new attempts once
-full; accepted milestones reject transition/result-state mismatches; replay
-denials include length-framed invalid-context identity; and system-failure
-stops require an explicit recovery proof before reconnect.
+The replay window retains accepted identities while expiring only denied
+identities when a safety transition needs capacity; accepted milestones reject
+transition/result-state mismatches and unreachable ordered history; replay
+identity binds the child device and includes length-framed invalid-context
+identity; activation replay is rejected during pending system recovery; system
+failure stops cover paired and reconnect-pending grants; and reconnect still
+requires an explicit recovery proof. Support grants carry a distinct support
+actor identity rather than conflating the approver with the grantee.
 
 ## Review repair checkpoint (2026-08-10)
 
 PR #645's initial full CI run passed all product, build, security, and
 portal-to-Rust E2E jobs, but the mergeability gate correctly held eight review
-threads. This repair addresses those findings in code, tests, and evidence:
-accepted transition milestones now validate their resulting state; the
-bounded replay history fails closed instead of evicting identities; replay
-denials and audit idempotency keys use unambiguous length-framed components;
-the supersession test is mapped; the unit count is current at 44; reconnect
-after a system-failure stop requires typed recovery proof; and the checked-in
-engineering graph is regenerated from plan sources. The earlier lifecycle,
-authority, schema-v2 migration, terminal-state, and device-trust findings
-remain covered by the focused suite. The follow-up CI run and review-thread
-resolution remain open until the updated commit is checked by GitHub.
+threads. The follow-up review added six concrete findings. This local repair
+addresses those six in code and tests: safety transitions can recover capacity
+without evicting accepted identities; accepted milestones validate ordered,
+reachable history; replay identity binds the child device; support grants bind
+an authenticated support actor separately from the parent approver; activation
+replay is blocked during pending recovery; and system-failure stop covers
+paired/reconnecting states. The focused unit count is now 48, the schema
+contract remains 7, and the follow-up CI run plus exact review-thread
+resolution remain open until GitHub checks the updated commit.
 
 ## No-claim boundary
 
