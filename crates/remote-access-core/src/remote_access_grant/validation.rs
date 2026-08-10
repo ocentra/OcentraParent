@@ -5,8 +5,6 @@ use super::{
     RemoteAccessGrantParentGrant, RemoteAccessGrantState,
 };
 
-pub(super) use super::validation_context::context;
-
 pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     if [
         grant.grant_id.as_str(),
@@ -42,6 +40,11 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
             || attempt.attempt_ref.trim().is_empty()
             || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
                 && attempt.route != grant.route)
+            || matches!(
+                (attempt.outcome, attempt.error.is_some()),
+                (super::RemoteAccessGrantAuditOutcome::Accepted, true)
+                    | (super::RemoteAccessGrantAuditOutcome::Denied, false)
+            )
     }) {
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
@@ -51,7 +54,19 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
             | RemoteAccessGrantState::Removed
             | RemoteAccessGrantState::Denied
             | RemoteAccessGrantState::Failed
+            | RemoteAccessGrantState::Superseded
     );
+    if grant.state == RemoteAccessGrantState::Superseded
+        && grant
+            .superseded_by
+            .as_deref()
+            .is_none_or(|replacement| replacement.trim().is_empty())
+    {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
+    if grant.state != RemoteAccessGrantState::Superseded && grant.superseded_by.is_some() {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
     if !terminal {
         let expected_disclosure = [
             RemoteAccessGrantDisclosureState::Undisclosed,

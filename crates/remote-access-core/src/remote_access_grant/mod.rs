@@ -61,6 +61,7 @@ pub enum RemoteAccessGrantState {
     Removed,
     Denied,
     Failed,
+    Superseded,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -78,6 +79,7 @@ pub enum RemoteAccessGrantTransition {
     RemoveDevice,
     Deny,
     Fail,
+    Supersede,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -95,6 +97,8 @@ pub enum RemoteAccessGrantError {
     InvalidTransition,
     InvalidSerializedState,
     ReconnectDenied,
+    SupersedingGrantRequired,
+    SupersedingGrantMismatch,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -111,6 +115,9 @@ pub struct RemoteAccessGrant {
     parent_grant: RemoteAccessGrantParentGrant,
     audit_ref: String,
     attempts: Vec<RemoteAccessGrantAuditMilestone>,
+    superseded_by: Option<String>,
+    #[serde(skip)]
+    pending_supersession: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -188,6 +195,8 @@ impl RemoteAccessGrant {
             parent_grant: RemoteAccessGrantParentGrant::NotGranted,
             audit_ref: audit_ref.into(),
             attempts: Vec::new(),
+            superseded_by: None,
+            pending_supersession: None,
         };
         validation::fields(&grant)?;
         validation::actor_role(&grant.actor_role)?;
@@ -218,6 +227,7 @@ impl RemoteAccessGrant {
             return replay::existing_report(self, previous.clone(), transition, context);
         }
         let result = self.apply_transition(transition, &context);
+        self.pending_supersession = None;
         let (outcome, error, resulting_state) = match result {
             Ok(state) => (RemoteAccessGrantAuditOutcome::Accepted, None, state),
             Err(error) => (
@@ -254,8 +264,35 @@ impl RemoteAccessGrant {
         context: &RemoteAccessGrantContext<'_>,
     ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
         validation::fields(self)?;
-        validation::context(self, transition, context)?;
+        validation_context::context(self, transition, context)?;
         transition::apply(self, transition, context)
+    }
+
+    /// Atomically marks this grant as superseded by a newer grant with the
+    /// same household, device, route, and capability scope. The owning grant
+    /// store/service is responsible for creating the replacement; this
+    /// boundary makes the old grant unusable before the replacement is used.
+    pub fn supersede_with(
+        &mut self,
+        replacement: &Self,
+        context: RemoteAccessGrantContext<'_>,
+    ) -> RemoteAccessGrantTransitionReport {
+        if self.grant_id == replacement.grant_id
+            || self.household_ref != replacement.household_ref
+            || self.child_device_ref != replacement.child_device_ref
+            || self.route != replacement.route
+            || self.capability != replacement.capability
+        {
+            return replay::denied_report(
+                self,
+                RemoteAccessGrantTransition::Supersede,
+                context,
+                RemoteAccessGrantError::SupersedingGrantMismatch,
+            );
+        }
+
+        self.pending_supersession = Some(replacement.grant_id.clone());
+        self.transition_with_audit(RemoteAccessGrantTransition::Supersede, context)
     }
 
     pub fn can_reconnect(&self) -> bool {
@@ -305,6 +342,10 @@ impl RemoteAccessGrant {
 
     pub fn parent_grant(&self) -> RemoteAccessGrantParentGrant {
         self.parent_grant
+    }
+
+    pub fn superseded_by(&self) -> Option<&str> {
+        self.superseded_by.as_deref()
     }
 
     pub fn audit_ref(&self) -> &str {

@@ -17,6 +17,8 @@ impl fmt::Display for RemoteAccessGrantError {
             "grant transition is invalid for the current state",
             "serialized grant state violates lifecycle invariants",
             "grant reconnect is denied",
+            "a replacement grant is required for supersession",
+            "replacement grant does not match the existing grant scope",
         ][*self as usize];
         formatter.write_str(message)
     }

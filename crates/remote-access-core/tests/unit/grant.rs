@@ -10,10 +10,10 @@ use ocentra_schema::remote_capability_fabric::{
 };
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-const HOUSEHOLD: &str = "household-alpha";
-const PARENT: &str = "parent-alpha";
-const CHILD: &str = "child-alpha";
-const ROUTE: RemoteRoute = RemoteRoute::LocalNetwork;
+pub(super) const HOUSEHOLD: &str = "household-alpha";
+pub(super) const PARENT: &str = "parent-alpha";
+pub(super) const CHILD: &str = "child-alpha";
+pub(super) const ROUTE: RemoteRoute = RemoteRoute::LocalNetwork;
 static ATTEMPT_COUNTER: AtomicUsize = AtomicUsize::new(0);
 
 fn context() -> RemoteAccessGrantContext<'static> {

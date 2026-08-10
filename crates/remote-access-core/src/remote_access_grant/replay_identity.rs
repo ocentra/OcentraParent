@@ -41,7 +41,7 @@ pub(super) fn same_attempt_identity(
 }
 
 fn transition_key(transition: RemoteAccessGrantTransition) -> &'static str {
-    const KEYS: [&str; 11] = [
+    const KEYS: [&str; 12] = [
         "confirm-parent",
         "pair",
         "activate",
@@ -53,6 +53,7 @@ fn transition_key(transition: RemoteAccessGrantTransition) -> &'static str {
         "remove-device",
         "deny",
         "fail",
+        "supersede",
     ];
     KEYS[transition as usize]
 }

@@ -94,3 +94,27 @@ fn replay_history_is_bounded_and_oversized_snapshots_are_rejected() -> Result<()
     );
     Ok(())
 }
+
+#[test]
+fn malformed_denied_milestone_cannot_manufacture_an_active_result() {
+    let grant = super::grant::paired_grant();
+    let mut encoded = serde_json::to_value(&grant).expect_value("serialize grant");
+    let attempt = encoded["attempts"]
+        .as_array_mut()
+        .and_then(|attempts| attempts.first_mut())
+        .expect_value("grant must retain an audit attempt");
+    attempt["outcome"] = serde_json::json!("denied");
+    attempt["error"] = serde_json::Value::Null;
+    attempt["resultingState"] = serde_json::json!("active");
+
+    let error = serde_json::from_value::<
+        ocentra_remote_access_core::remote_access_grant::RemoteAccessGrant,
+    >(encoded)
+    .err()
+    .expect_value("malformed denied milestone must be rejected")
+    .to_string();
+    assert_eq!(
+        error.split(" at ").next(),
+        Some("serialized grant state violates lifecycle invariants")
+    );
+}

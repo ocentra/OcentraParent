@@ -18,7 +18,15 @@ pub(super) fn context(
     }
     let system_failure =
         context.transition_authority == RemoteAccessGrantTransitionAuthority::SystemFailure;
-    if system_failure && transition != RemoteAccessGrantTransition::Fail {
+    if system_failure
+        && !matches!(
+            transition,
+            RemoteAccessGrantTransition::Revoke
+                | RemoteAccessGrantTransition::RemoveDevice
+                | RemoteAccessGrantTransition::Stop
+                | RemoteAccessGrantTransition::Fail
+        )
+    {
         return Err(RemoteAccessGrantError::WrongActor);
     }
     if context.actor_ref != grant.parent_actor_ref
@@ -58,7 +66,9 @@ fn is_parent_terminal(transition: RemoteAccessGrantTransition) -> bool {
         transition,
         RemoteAccessGrantTransition::Revoke
             | RemoteAccessGrantTransition::RemoveDevice
+            | RemoteAccessGrantTransition::Stop
             | RemoteAccessGrantTransition::Deny
             | RemoteAccessGrantTransition::Fail
+            | RemoteAccessGrantTransition::Supersede
     )
 }

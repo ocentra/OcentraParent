@@ -29,12 +29,19 @@ pub(super) fn pause(
 
 pub(super) fn stop(
     grant: &RemoteAccessGrant,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if !matches!(
         grant.state,
         RemoteAccessGrantState::Active | RemoteAccessGrantState::Paused
     ) {
         return Err(RemoteAccessGrantError::InvalidTransition);
+    }
+    if !context.parent_authorized
+        && context.transition_authority
+            != super::super::RemoteAccessGrantTransitionAuthority::SystemFailure
+    {
+        return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
     Ok(RemoteAccessGrantState::Stopped)
 }

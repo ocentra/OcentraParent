@@ -36,6 +36,7 @@ pub(super) fn access_start_replay_error(
             | RemoteAccessGrantState::Removed
             | RemoteAccessGrantState::Denied
             | RemoteAccessGrantState::Failed
+            | RemoteAccessGrantState::Superseded
     )
     .then_some(RemoteAccessGrantError::InvalidTransition)
 }
@@ -57,7 +58,7 @@ pub(super) fn existing_report(
         );
     }
     if previous.outcome == RemoteAccessGrantAuditOutcome::Accepted {
-        if let Err(error) = super::validation::context(grant, transition, &context) {
+        if let Err(error) = super::validation_context::context(grant, transition, &context) {
             return denied_report(grant, transition, context, error);
         }
         if let Some(error) = access_start_replay_error(grant, transition) {

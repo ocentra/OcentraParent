@@ -24,6 +24,8 @@ struct RemoteAccessGrantSnapshot {
     audit_ref: String,
     #[serde(default)]
     attempts: Vec<super::RemoteAccessGrantAuditMilestone>,
+    #[serde(default)]
+    superseded_by: Option<String>,
 }
 
 fn default_parent_grant() -> RemoteAccessGrantParentGrant {
@@ -56,6 +58,8 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             parent_grant: snapshot.parent_grant,
             audit_ref: snapshot.audit_ref,
             attempts: snapshot.attempts,
+            superseded_by: snapshot.superseded_by,
+            pending_supersession: None,
         };
         validation::serialized(&grant).map_err(D::Error::custom)?;
         Ok(grant)
