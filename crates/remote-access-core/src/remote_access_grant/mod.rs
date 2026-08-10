@@ -9,6 +9,7 @@
 
 mod audit;
 mod errors;
+mod replay;
 mod serialization;
 mod transition;
 mod validation;
@@ -200,7 +201,7 @@ impl RemoteAccessGrant {
             .iter()
             .find(|attempt| attempt.attempt_ref == attempt_ref)
         {
-            return replay_report(previous.clone());
+            return replay::existing_report(self, previous.clone(), transition, context);
         }
         let result = self.apply_transition(transition, &context);
         let (outcome, error, resulting_state) = match result {
@@ -292,12 +293,4 @@ impl RemoteAccessGrant {
     pub fn audit_ref(&self) -> &str {
         &self.audit_ref
     }
-}
-
-fn replay_report(audit: RemoteAccessGrantAuditMilestone) -> RemoteAccessGrantTransitionReport {
-    let result = match audit.error {
-        Some(error) => Err(error),
-        None => Ok(audit.resulting_state),
-    };
-    RemoteAccessGrantTransitionReport { result, audit }
 }

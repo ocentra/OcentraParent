@@ -425,6 +425,26 @@ fn accepted_attempt_replays_the_original_report_after_retry_and_restore() {
     );
     assert_eq!(restored_retry.result, first.result);
     assert_eq!(restored_retry.audit, first.audit);
+    let mut active = paired_grant();
+    active
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-restore-active"),
+        )
+        .result
+        .expect_value("activate grant");
+    let mut active_json = serde_json::to_value(&active).expect_value("serialize active grant");
+    assert!(active_json.is_object(), "grant object");
+    if let Some(object) = active_json.as_object_mut() {
+        object.remove("attempts");
+    }
+    let restored_active: RemoteAccessGrant =
+        serde_json::from_value(active_json).expect_value("restore active grant at reconnect gate");
+    assert_eq!(
+        restored_active.state(),
+        RemoteAccessGrantState::ReconnectPending
+    );
+    assert!(restored_active.can_reconnect());
 }
 
 #[test]
@@ -793,17 +813,27 @@ fn deserialization_rejects_state_without_required_lifecycle_evidence() {
 #[test]
 fn grant_round_trips_without_losing_terminal_state() {
     let mut grant = paired_grant();
+    let stale_attempt = "attempt-stale-activate";
     grant
-        .transition(RemoteAccessGrantTransition::Activate, context())
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for(stale_attempt),
+        )
         .result
         .expect_value("activate");
     grant
-        .transition(RemoteAccessGrantTransition::RemoveDevice, context())
+        .transition(RemoteAccessGrantTransition::Revoke, context())
         .result
-        .expect_value("remove device");
+        .expect_value("revoke grant");
+    let retry = grant.transition(
+        RemoteAccessGrantTransition::Activate,
+        context_for(stale_attempt),
+    );
+    assert_eq!(retry.result, Err(RemoteAccessGrantError::InvalidTransition));
+    assert_eq!(retry.audit.outcome, RemoteAccessGrantAuditOutcome::Denied);
     let json = serde_json::to_value(&grant).expect_value("serialize grant");
     let restored: RemoteAccessGrant =
         serde_json::from_value(json).expect_value("deserialize grant");
     assert_eq!(restored, grant);
-    assert_eq!(restored.state(), RemoteAccessGrantState::Removed);
+    assert_eq!(restored.state(), RemoteAccessGrantState::Revoked);
 }

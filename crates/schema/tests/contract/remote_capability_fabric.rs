@@ -202,10 +202,10 @@ fn remote_capability_v1_payload_is_deserializable_but_rejected_by_version() {
         crate::assert_context!("grant serializes"),
     );
     encoded["schemaVersion"] = json!("remote-capability-fabric-v1");
-    encoded.as_object_mut().map(|object| {
+    if let Some(object) = encoded.as_object_mut() {
         object.remove("route");
         object.remove("parentGrant");
-    });
+    }
     let restored = result_or_unreachable(
         serde_json::from_value::<contracts::RemoteCapabilityGrant>(encoded),
         crate::assert_context!("legacy grant deserializes with defaults"),
@@ -219,6 +219,28 @@ fn remote_capability_v1_payload_is_deserializable_but_rejected_by_version() {
             contracts::RemoteRoute::Localhost,
         ),
         Err(contracts::RemoteCapabilityAuthorizationError::UnsupportedSchemaVersion)
+    );
+}
+
+#[test]
+fn remote_capability_v2_payload_requires_an_explicit_route() {
+    let mut encoded = result_or_unreachable(
+        serde_json::to_value(paired_live_view_grant()),
+        crate::assert_context!("grant serializes"),
+    );
+    assert!(encoded.is_object(), "grant object");
+    if let Some(object) = encoded.as_object_mut() {
+        object.remove("route");
+    }
+    let restored = serde_json::from_value::<contracts::RemoteCapabilityGrant>(encoded);
+    let error = match restored {
+        Err(error) => error.to_string(),
+        Ok(grant) => format!("unexpected success for schema {}", grant.schema_version),
+    };
+    let message = error.split(" at line").next().unwrap_or(error.as_str());
+    assert_eq!(
+        message,
+        "remote capability fabric v2 payload must include route"
     );
 }
 

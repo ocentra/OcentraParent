@@ -6,6 +6,8 @@
 
 use serde::{Deserialize, Serialize};
 
+mod remote_capability_fabric_deserialization;
+
 pub const REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION: &str = "remote-capability-fabric-v2";
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -30,14 +32,6 @@ pub enum RemoteRoute {
 pub enum RemoteParentGrantState {
     NotGranted,
     Granted,
-}
-
-fn default_remote_route() -> RemoteRoute {
-    RemoteRoute::Localhost
-}
-
-fn default_parent_grant_state() -> RemoteParentGrantState {
-    RemoteParentGrantState::NotGranted
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -113,7 +107,7 @@ pub enum RemoteCapabilityAuthorizationError {
     SessionNotLiveViewEligible,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteCapabilityGrant {
     pub schema_version: String,
