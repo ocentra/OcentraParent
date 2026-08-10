@@ -99,6 +99,14 @@ intentionally not checked in, the override must also set
 then accepts only the explicit durable proof references; it does not silently
 ignore a missing output path.
 
+The bootstrap also scans every Markdown file physically present under each
+`workpacks/` directory. Files not linked from that plan's
+`WORKPACK_INDEX.md` are recorded in
+`graph.json.migration.unindexedWorkpackArtifacts` and added to the review
+items. They are not promoted to workpack nodes because they may be README,
+proposal, legacy, or support material. This keeps the import conservative
+without hiding files from the operator.
+
 ## Completion
 
 `done` is not a free-form checklist label. A workpack's completion contract

@@ -8,7 +8,8 @@ answer the orchestration questions without chat history.
 Imported plans: 23
 Imported workpacks: 679
 Graph valid: 703 nodes, 705 edges
-Review items: 24
+Review items: 34
+Unindexed workpack files requiring review: 40
 PLANNED: 454
 READY: 0
 ACTIVE: 2
@@ -67,6 +68,10 @@ only because its reviewed code/test map, durable proof bundle, checklist, and
 explicit durable-proof override all exist. The graph still refuses every row
 whose completion contract is incomplete; the remaining Eventing validation rows
 retain their missing evidence instead of inheriting WP06's proof.
+
+The migration audit also finds 40 Markdown files under `workpacks/` that are
+not linked by an index row. They remain review items rather than silently
+becoming graph workpacks; most are README, legacy, proposal, or support files.
 
 The queries used were:
 

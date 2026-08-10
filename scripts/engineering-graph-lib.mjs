@@ -316,6 +316,7 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
   });
 
   const allWorkpacks = scoped.filter((node) => node.kind === 'workpack');
+  const unindexedWorkpackArtifacts = graph.migration?.unindexedWorkpackArtifacts ?? [];
   return {
     schemaVersion: 1,
     authority: {
@@ -332,6 +333,14 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
       implementationFiles: inventory.totals.implementationFiles,
       testFiles: inventory.totals.testFiles,
       reviewedWorkpackMaps: inventory.totals.reviewedWorkpackMaps,
+    },
+    migration: {
+      reviewItems: graph.migration?.ambiguities?.length ?? 0,
+      unindexedWorkpackFiles: unindexedWorkpackArtifacts.reduce(
+        (total, artifact) => total + (artifact.paths?.length ?? 0),
+        0
+      ),
+      unindexedWorkpackArtifacts,
     },
     validation: {
       ok: validation.ok,
@@ -596,6 +605,10 @@ async function buildPlan(root, planEntry) {
     if (error?.code !== 'ENOENT') throw error;
   }
   const rows = parseWorkpackRows(indexText, availableWorkpackPaths);
+  const indexedPaths = new Set(rows.map((row) => normalizeRepoPath(row.relativePath)));
+  const unindexedWorkpackFiles = availableWorkpackPaths.filter(
+    (candidate) => !indexedPaths.has(normalizeRepoPath(candidate))
+  );
   const workpacks = [];
   for (const row of rows) {
     const relativePath = normalizeRepoPath(path.join(planRoot, row.relativePath));
@@ -638,6 +651,7 @@ async function buildPlan(root, planEntry) {
       },
     },
     workpacks,
+    unindexedWorkpackFiles,
     ambiguity:
       rows.length === 0
         ? {
@@ -657,7 +671,15 @@ async function buildPlan(root, planEntry) {
 
 async function readOverrides(root, overridesPath) {
   const text = await readText(root, overridesPath);
-  if (!text) return { edges: [], ambiguities: [] };
+  if (!text) {
+    return {
+      edges: [],
+      ambiguities: [],
+      stateOverrides: [],
+      proofOverrides: [],
+      completionEvidenceOverrides: [],
+    };
+  }
   const parsed = JSON.parse(text);
   return {
     edges: Array.isArray(parsed.edges) ? parsed.edges : [],
@@ -679,11 +701,27 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   const plans = [];
   const workpacks = [];
   const ambiguities = [];
+  const unindexedWorkpackArtifacts = [];
   for (const entry of entries) {
     const result = await buildPlan(repoRoot, entry);
     plans.push(result.plan);
     workpacks.push(...result.workpacks);
     ambiguities.push(result.ambiguity);
+    if (result.unindexedWorkpackFiles.length > 0) {
+      const artifact = {
+        planId: result.plan.id,
+        indexPath: result.plan.metadata.indexPath,
+        paths: result.unindexedWorkpackFiles,
+      };
+      unindexedWorkpackArtifacts.push(artifact);
+      ambiguities.push({
+        scope: `${result.plan.id}:unindexed-workpack-files`,
+        reason:
+          'Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.',
+        path: result.plan.metadata.indexPath,
+        unindexedWorkpackFiles: result.unindexedWorkpackFiles,
+      });
+    }
   }
 
   const overrides = await readOverrides(repoRoot, overridesPath);
@@ -838,6 +876,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     migration: {
       importedPlans: plans.length,
       importedWorkpacks: workpacks.length,
+      unindexedWorkpackArtifacts,
       ambiguities: [...ambiguities, ...overrides.ambiguities],
       dependencyPolicy:
         'Only structural parent edges and reviewed entries in overrides.json are hard graph edges; prose dependencies remain review items.',

@@ -106,6 +106,9 @@ async function run(command, args) {
     console.log(`Imported plans: ${graph.migration.importedPlans}`);
     console.log(`Imported workpacks: ${graph.migration.importedWorkpacks}`);
     console.log(`Ambiguities requiring review: ${graph.migration.ambiguities.length}`);
+    console.log(
+      `Unindexed workpack files requiring review: ${graph.migration.unindexedWorkpackArtifacts?.reduce((total, artifact) => total + artifact.paths.length, 0) ?? 0}`
+    );
     if (report.errors.length > 0) {
       for (const error of report.errors) console.error(`ERROR ${error}`);
       process.exitCode = 1;
@@ -191,6 +194,8 @@ async function run(command, args) {
     console.log(`Implementation files: ${report.totals.implementationFiles}`);
     console.log(`Test files: ${report.totals.testFiles}`);
     console.log(`Reviewed workpack code maps: ${report.totals.reviewedWorkpackMaps}`);
+    console.log(`Migration review items: ${report.migration.reviewItems}`);
+    console.log(`Unindexed workpack files: ${report.migration.unindexedWorkpackFiles}`);
     console.log('\nPlan matrix (state is graph-derived; code/test is reviewed plan-root topology):');
     for (const plan of report.plans) {
       const counts = Object.entries(plan.workpacks.counts)

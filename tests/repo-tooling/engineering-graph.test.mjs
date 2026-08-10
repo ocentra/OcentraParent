@@ -102,6 +102,36 @@ test('state overrides require an evidenced validation slice', async () => {
   assert.ok(node.metadata.stateOverrideRejected.includes('evidence is required'));
 });
 
+test('bootstrap reports workpack files that are not indexed instead of hiding them', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-unindexed-'));
+  await mkdir(path.join(root, 'docs', 'plans', 'example-plan', 'workpacks'), { recursive: true });
+  await writeFile(
+    path.join(root, 'docs', 'plans', 'example-plan', 'WORKPACK_INDEX.md'),
+    '# Example plan\n\n| Workpack | Status |\n| --- | --- |\n| [01 Example](workpacks/01-example.md) | Open |\n'
+  );
+  await writeFile(path.join(root, 'docs', 'plans', 'example-plan', 'workpacks', '01-example.md'), '# Example\n');
+  await writeFile(
+    path.join(root, 'docs', 'plans', 'example-plan', 'workpacks', 'legacy-proposal.md'),
+    '# Legacy proposal\n'
+  );
+
+  const imported = await buildBootstrapGraph({ root });
+  assert.deepEqual(imported.migration.unindexedWorkpackArtifacts, [
+    {
+      planId: 'PLAN-example-plan',
+      indexPath: 'docs/plans/example-plan/WORKPACK_INDEX.md',
+      paths: ['workpacks/legacy-proposal.md'],
+    },
+  ]);
+  assert.ok(
+    imported.migration.ambiguities.some(
+      (item) =>
+        item.scope === 'PLAN-example-plan:unindexed-workpack-files' &&
+        item.unindexedWorkpackFiles.includes('workpacks/legacy-proposal.md')
+    )
+  );
+});
+
 test('graph source drift is actionable', () => {
   const value = graph([workpack('A', 'planned')]);
   assert.deepEqual(graphSourceDrift(value, value), []);

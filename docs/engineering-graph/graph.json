@@ -29355,6 +29355,99 @@
   "migration": {
     "importedPlans": 23,
     "importedWorkpacks": 679,
+    "unindexedWorkpackArtifacts": [
+      {
+        "planId": "PLAN-account-identity-family-plan",
+        "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/03-current-boundary-addendum.md"
+        ]
+      },
+      {
+        "planId": "PLAN-ai-plan",
+        "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/full-platform-portal-ai-execution-plan.md"
+        ]
+      },
+      {
+        "planId": "PLAN-app-game-plan",
+        "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
+        "planId": "PLAN-app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/00-owner-boundary-proof-gate.md"]
+      },
+      {
+        "planId": "PLAN-browser-plan",
+        "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/00-owner-boundary-proof-gate.md"]
+      },
+      {
+        "planId": "PLAN-eventing-plan",
+        "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/README.md", "workpacks/README_FULL_ORIGINAL.md"]
+      },
+      {
+        "planId": "PLAN-network-plan",
+        "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/network-control-capability-guide.md",
+          "workpacks/network-control-schema-proposal.md",
+          "workpacks/network-control-settings-inventory.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
+        "planId": "PLAN-parent-desktop-runtime-package-plan",
+        "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/01-tauri-shell-contract-boundary.md",
+          "workpacks/02-local-service-connection-command.md",
+          "workpacks/03-lan-route-and-controller-state.md",
+          "workpacks/04-parent-observer-read-only-state.md",
+          "workpacks/05-custody-and-source-labels.md",
+          "workpacks/06-parent-mobile-bridge-boundary.md",
+          "workpacks/07-windows-installer-and-preview.md",
+          "workpacks/08-cross-platform-package-preview-matrix.md",
+          "workpacks/09-update-channel-and-rollback-scaffold.md",
+          "workpacks/10-signing-notarization-store-claims.md",
+          "workpacks/11-support-diagnostics-and-redaction.md",
+          "workpacks/12-privacy-and-release-docs.md",
+          "workpacks/13-desktop-launch-smoke.md",
+          "workpacks/14-tauri-build-and-dev-scripts.md",
+          "workpacks/15-platform-capability-matrix.md",
+          "workpacks/16-release-branch-boundary.md",
+          "workpacks/17-github-actions-artifact-proof.md",
+          "workpacks/18-manual-platform-proof-runbook.md",
+          "workpacks/19-product-checklist-feature-doc-sync.md",
+          "workpacks/20-pr-ci-rollout-gate.md"
+        ]
+      },
+      {
+        "planId": "PLAN-portal-ux-household-surfaces-plan",
+        "indexPath": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
+        "paths": [
+          "workpacks/manage UI proof checklist.md",
+          "workpacks/policy Ui fix.md",
+          "workpacks/portal and account Ui fix.md"
+        ]
+      },
+      {
+        "planId": "PLAN-tracking-plan",
+        "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "paths": ["workpacks/36-tracking-detection-cascade-schema-boundary.md"]
+      }
+    ],
     "ambiguities": [
       {
         "planId": "PLAN-account-identity-family-plan",
@@ -29363,10 +29456,28 @@
         "workpackCount": 8
       },
       {
+        "scope": "PLAN-account-identity-family-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/03-current-boundary-addendum.md"
+        ]
+      },
+      {
         "planId": "PLAN-ai-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/ai-plan/WORKPACK_INDEX.md",
         "workpackCount": 48
+      },
+      {
+        "scope": "PLAN-ai-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/ai-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/full-platform-portal-ai-execution-plan.md"
+        ]
       },
       {
         "planId": "PLAN-app-game-plan",
@@ -29375,16 +29486,38 @@
         "workpackCount": 220
       },
       {
+        "scope": "PLAN-app-game-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/00-owner-boundary-proof-gate.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
         "planId": "PLAN-app-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/app-plan/WORKPACK_INDEX.md",
         "workpackCount": 95
       },
       {
+        "scope": "PLAN-app-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": ["workpacks/00-owner-boundary-proof-gate.md"]
+      },
+      {
         "planId": "PLAN-browser-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/browser-plan/WORKPACK_INDEX.md",
         "workpackCount": 30
+      },
+      {
+        "scope": "PLAN-browser-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/browser-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": ["workpacks/00-owner-boundary-proof-gate.md"]
       },
       {
         "planId": "PLAN-child-agent-runtime-distribution-plan",
@@ -29417,6 +29550,15 @@
         "workpackCount": 13
       },
       {
+        "scope": "PLAN-eventing-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
         "planId": "PLAN-lan-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/lan-plan/WORKPACK_INDEX.md",
@@ -29435,10 +29577,49 @@
         "workpackCount": 8
       },
       {
+        "scope": "PLAN-network-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/network-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/network-control-capability-guide.md",
+          "workpacks/network-control-schema-proposal.md",
+          "workpacks/network-control-settings-inventory.md",
+          "workpacks/README.md",
+          "workpacks/README_FULL_ORIGINAL.md"
+        ]
+      },
+      {
         "planId": "PLAN-parent-desktop-runtime-package-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
         "workpackCount": 11
+      },
+      {
+        "scope": "PLAN-parent-desktop-runtime-package-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/01-tauri-shell-contract-boundary.md",
+          "workpacks/02-local-service-connection-command.md",
+          "workpacks/03-lan-route-and-controller-state.md",
+          "workpacks/04-parent-observer-read-only-state.md",
+          "workpacks/05-custody-and-source-labels.md",
+          "workpacks/06-parent-mobile-bridge-boundary.md",
+          "workpacks/07-windows-installer-and-preview.md",
+          "workpacks/08-cross-platform-package-preview-matrix.md",
+          "workpacks/09-update-channel-and-rollback-scaffold.md",
+          "workpacks/10-signing-notarization-store-claims.md",
+          "workpacks/11-support-diagnostics-and-redaction.md",
+          "workpacks/12-privacy-and-release-docs.md",
+          "workpacks/13-desktop-launch-smoke.md",
+          "workpacks/14-tauri-build-and-dev-scripts.md",
+          "workpacks/15-platform-capability-matrix.md",
+          "workpacks/16-release-branch-boundary.md",
+          "workpacks/17-github-actions-artifact-proof.md",
+          "workpacks/18-manual-platform-proof-runbook.md",
+          "workpacks/19-product-checklist-feature-doc-sync.md",
+          "workpacks/20-pr-ci-rollout-gate.md"
+        ]
       },
       {
         "planId": "PLAN-payment-subscription-plan",
@@ -29457,6 +29638,16 @@
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
         "workpackCount": 20
+      },
+      {
+        "scope": "PLAN-portal-ux-household-surfaces-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/portal-ux-household-surfaces-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/manage UI proof checklist.md",
+          "workpacks/policy Ui fix.md",
+          "workpacks/portal and account Ui fix.md"
+        ]
       },
       {
         "planId": "PLAN-remote-access-plan",
@@ -29487,6 +29678,14 @@
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
         "workpackCount": 42
+      },
+      {
+        "scope": "PLAN-tracking-plan:unindexed-workpack-files",
+        "reason": "Markdown files exist under the workpacks directory but are not linked by WORKPACK_INDEX.md; classify them before treating them as graph workpacks.",
+        "path": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "unindexedWorkpackFiles": [
+          "workpacks/36-tracking-detection-cascade-schema-boundary.md"
+        ]
       },
       {
         "planId": "PLAN-v0-8-enforcement-control-plan",
