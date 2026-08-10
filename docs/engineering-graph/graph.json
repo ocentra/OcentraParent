@@ -20718,15 +20718,23 @@
       "path": "docs/plans/remote-access-plan/workpacks/04-session-pairing-grants.md",
       "parent": "PLAN-remote-access-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "remote-access-plan",
         "indexPath": "docs/plans/remote-access-plan/WORKPACK_INDEX.md",
-        "statusText": "Planned",
+        "statusText": "Validation — pairing/standing-grant lifecycle code and focused tests are current; runtime integrations and acceptance gates remain open.",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "stateOverride": {
+          "reason": "The Rust-owned pairing and standing-grant lifecycle now has focused transition, disclosure, wrong-context, revoke/remove, reconnect-denial, support-boundary, and serialization tests; persistence adapters, relay/session integration, device-trust handoff, generated proof, CI, review, and main merge remain open.",
+          "evidence": [
+            "crates/remote-access-core/src/remote_access_grant",
+            "crates/remote-access-core/tests/unit/grant.rs",
+            "docs/proof/remote-access-plan/slice-04-session-pairing-grants.md"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

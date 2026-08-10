@@ -2748,6 +2748,7 @@ dependencies = [
  "ocentra-family-identity-core",
  "ocentra-policy-control-core",
  "serde",
+ "serde_json",
 ]
 
 [[package]]

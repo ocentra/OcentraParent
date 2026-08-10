@@ -84,6 +84,21 @@ standing access, relay/session runtime, device-trust integration,
 revoke/remove behavior, custody, portal disclosure, abuse controls, remote
 control, CI, review, or main merge.
 
+## Latest selected slice (2026-08-10)
+
+WP04 now has a Rust-owned pairing and standing-access lifecycle boundary in
+`crates/remote-access-core/src/remote_access_grant/`. The focused tests cover
+parent confirmation, child disclosure, paired/active/paused/stopped/reconnect
+states, wrong actor/household/device rejection, support/admin hidden-access
+rejection, parent-authorized revoke/remove, terminal reconnect denial, and
+serialization round-trip of terminal state.
+
+This is still `validation`, not `done`. Persistence adapters, relay/session
+integration, device-trust handoff, child/portal rendered disclosure, durable
+audit storage, generated proof output, CI, review, and main merge remain open.
+The durable local record is
+`docs/proof/remote-access-plan/slice-04-session-pairing-grants.md`.
+
 ## HID Execution Guard
 
 - Scope and completion source:

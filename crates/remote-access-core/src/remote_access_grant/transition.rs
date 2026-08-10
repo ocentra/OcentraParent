@@ -1,0 +1,29 @@
+use super::{
+    RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantError, RemoteAccessGrantState,
+    RemoteAccessGrantTransition,
+};
+
+mod confirm;
+mod lifecycle;
+mod reconnect;
+mod terminal;
+
+pub(super) fn apply(
+    grant: &mut RemoteAccessGrant,
+    transition: RemoteAccessGrantTransition,
+    context: RemoteAccessGrantContext<'_>,
+) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
+    let next = match transition {
+        RemoteAccessGrantTransition::ConfirmParent => confirm::parent(grant, context)?,
+        RemoteAccessGrantTransition::Pair => confirm::pair(grant, context)?,
+        RemoteAccessGrantTransition::Activate => lifecycle::activate(grant)?,
+        RemoteAccessGrantTransition::Pause => lifecycle::pause(grant)?,
+        RemoteAccessGrantTransition::Stop => lifecycle::stop(grant)?,
+        RemoteAccessGrantTransition::RequestReconnect => reconnect::request(grant)?,
+        RemoteAccessGrantTransition::Reconnect => reconnect::complete(grant)?,
+        RemoteAccessGrantTransition::Revoke => terminal::revoke(grant, context)?,
+        RemoteAccessGrantTransition::RemoveDevice => terminal::remove_device(grant, context)?,
+    };
+    grant.state = next;
+    Ok(next)
+}

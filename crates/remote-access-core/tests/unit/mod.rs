@@ -8,6 +8,7 @@ use ocentra_remote_access_core::remote_access_session::{
     RemoteAccessSessionRequestedEvent,
 };
 
+mod grant;
 mod session;
 mod session_authorization;
 
