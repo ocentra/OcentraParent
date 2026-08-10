@@ -147,6 +147,14 @@
         "crates/child-runtime/tests/unit/runtime_gate.rs"
       ]
     },
+    "WP-v0-8-enforcement-control-plan-11-audit-journal-events": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-service/src/enforcement_audit_history.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs",
+        "crates/agent-service/tests/enforcement_eventing_journal.rs"
+      ]
+    },
     "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit": {
       "planSlug": "v0-8-enforcement-control-plan",
       "roots": [

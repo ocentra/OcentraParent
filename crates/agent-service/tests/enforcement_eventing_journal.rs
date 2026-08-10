@@ -25,6 +25,11 @@ use ocentra_parent_agent_protocol::{
     policy_constants as policy,
 };
 
+use ocentra_parent_agent_service::enforcement_audit_history::{
+    read_enforcement_audit_history, EnforcementAuditHistoryKind, EnforcementAuditHistoryPath,
+    EnforcementAuditHistoryRow,
+};
+
 #[tokio::test]
 async fn typed_enforcement_audit_append_is_idempotent_and_replays_projection_only() {
     let root = std::env::temp_dir().join(format!(
@@ -104,6 +109,178 @@ async fn bare_relative_eventing_path_does_not_require_empty_parent_directory() {
 
     assert_eq!(result.sequence, 1);
     cleanup(&eventing_path);
+}
+
+#[tokio::test]
+async fn projection_history_orders_enforcement_transition_matrix_and_deduplicates_replay() {
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-history-{}",
+        EventId::generated().as_str()
+    ));
+    let eventing_path = root.join("audit.eventing");
+    let journal_path = eventing_journal::EnforcementEventingJournalPath {
+        path: eventing_path.clone(),
+    };
+    let matrix = transition_matrix();
+    append_transition_matrix(&journal_path, &matrix).await;
+
+    let rows = read_enforcement_audit_history(EnforcementAuditHistoryPath(eventing_path.clone()))
+        .await
+        .expect_value("projection-only enforcement history");
+    assert_transition_history(&rows);
+    cleanup(&eventing_path);
+    let _ = remove_dir(&root);
+}
+
+fn transition_matrix() -> [EnforcementAuditJournalEvent; 7] {
+    [
+        matrix_event(
+            "rejected",
+            EnforcementAuditEventKind::Failed,
+            EnforcementResultStatus::Failed,
+            EnforcementRollbackState::NotRequired,
+        ),
+        matrix_event(
+            "accepted",
+            EnforcementAuditEventKind::Attempted,
+            EnforcementResultStatus::WouldEnforce,
+            EnforcementRollbackState::NotRequired,
+        ),
+        matrix_event(
+            "no-op",
+            EnforcementAuditEventKind::Succeeded,
+            EnforcementResultStatus::NoOp,
+            EnforcementRollbackState::NotRequired,
+        ),
+        matrix_event(
+            "unavailable",
+            EnforcementAuditEventKind::Unavailable,
+            EnforcementResultStatus::Unavailable,
+            EnforcementRollbackState::Unavailable,
+        ),
+        matrix_event(
+            "expired",
+            EnforcementAuditEventKind::Expired,
+            EnforcementResultStatus::Expired,
+            EnforcementRollbackState::Available,
+        ),
+        matrix_event(
+            "rollback",
+            EnforcementAuditEventKind::RollbackCompleted,
+            EnforcementResultStatus::RolledBack,
+            EnforcementRollbackState::Completed,
+        ),
+        matrix_event(
+            "cancelled",
+            EnforcementAuditEventKind::Cancelled,
+            EnforcementResultStatus::Superseded,
+            EnforcementRollbackState::Completed,
+        ),
+    ]
+}
+
+async fn append_transition_matrix(
+    journal_path: &eventing_journal::EnforcementEventingJournalPath,
+    matrix: &[EnforcementAuditJournalEvent],
+) {
+    for event in matrix {
+        eventing_journal::append_enforcement_audit_journal_event_phase(
+            journal_path.clone(),
+            event.clone(),
+            CorrelationId::parse(format!("correlation:{}", event.audit_event_id))
+                .expect_value("matrix correlation id"),
+            JournalDispatchPhase::AfterDispatch,
+        )
+        .await
+        .expect_value("matrix append");
+    }
+    eventing_journal::append_enforcement_audit_journal_event_phase(
+        journal_path.clone(),
+        matrix[2].clone(),
+        CorrelationId::parse(format!("correlation:{}", matrix[2].audit_event_id))
+            .expect_value("duplicate correlation id"),
+        JournalDispatchPhase::AfterDispatch,
+    )
+    .await
+    .expect_value("duplicate matrix append");
+}
+
+fn assert_transition_history(rows: &[EnforcementAuditHistoryRow]) {
+    assert_eq!(rows.len(), 7);
+    assert_eq!(
+        rows.iter().map(|row| row.sequence).collect::<Vec<_>>(),
+        vec![1, 2, 3, 4, 5, 6, 7]
+    );
+    assert_eq!(
+        rows.iter().map(|row| row.kind).collect::<Vec<_>>(),
+        vec![
+            EnforcementAuditHistoryKind::RejectedIntent,
+            EnforcementAuditHistoryKind::AcceptedIntent,
+            EnforcementAuditHistoryKind::AdapterResult,
+            EnforcementAuditHistoryKind::AdapterResult,
+            EnforcementAuditHistoryKind::TimerExpired,
+            EnforcementAuditHistoryKind::TimerRollback,
+            EnforcementAuditHistoryKind::TimerCancelled,
+        ]
+    );
+    for row in rows {
+        assert_eq!(
+            row.event
+                .actor
+                .as_ref()
+                .map(|actor| actor.actor_id.as_str()),
+            Some("parent:actor-1")
+        );
+        assert_eq!(row.event.target_id, "process:owned-1");
+        assert_eq!(row.event.policy_decision_id, "policy:decision-1");
+        assert_eq!(
+            row.event.evidence_references[0].evidence_reference_id,
+            "evidence:redacted-1"
+        );
+        assert_eq!(row.event.target_route.as_deref(), Some("child:route-1"));
+        assert_eq!(
+            row.event.reason.as_deref(),
+            Some("redacted-transition-reason")
+        );
+    }
+}
+
+fn matrix_event(
+    suffix: &str,
+    audit_event_kind: EnforcementAuditEventKind,
+    result_status: EnforcementResultStatus,
+    rollback_state: EnforcementRollbackState,
+) -> EnforcementAuditJournalEvent {
+    let mut event = journal_event();
+    event.audit_event_id = if suffix == "rejected" {
+        format!("{}{suffix}", enforcement::JOURNAL_REJECTED_ID_PREFIX)
+    } else {
+        format!("audit:{suffix}")
+    };
+    event.action_id = format!("action:{suffix}");
+    event.intent_id = format!("intent:{suffix}");
+    event.result_id = format!("result:{suffix}");
+    event.policy_decision_id = "policy:decision-1".to_string();
+    event.target_id = "process:owned-1".to_string();
+    event.audit_event_kind = audit_event_kind;
+    event.result_status = result_status;
+    event.rollback_state = rollback_state;
+    event.actor = Some(
+        ocentra_parent_agent_protocol::activity::policy::ParentActorReference {
+            actor_id: "parent:actor-1".to_string(),
+            role: ocentra_parent_agent_protocol::activity::policy::ParentActorRole::Parent,
+        },
+    );
+    event.evidence_references = vec![
+        ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference {
+            evidence_reference_id: "evidence:redacted-1".to_string(),
+            kind: ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind::JournalEvent,
+            observed_at: "2026-08-10T00:00:00Z".to_string(),
+        },
+    ];
+    event.target_route = Some("child:route-1".to_string());
+    event.reason = Some("redacted-transition-reason".to_string());
+    event
 }
 
 fn journal_event() -> EnforcementAuditJournalEvent {
