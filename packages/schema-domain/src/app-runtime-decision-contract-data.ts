@@ -1,4 +1,4 @@
-// Copied from crates/app-core/tests/contract/fixtures/app-runtime-decision-contracts.json.
+// Generated from crates/app-core/tests/contract/fixtures/app-runtime-decision-contracts.json.
 // Rust contract tests own and exhaustively verify the current decision matrix.
 export const RustOwnedAppRuntimeDecisionContracts = {
   currentSchemaVersion: 2,
