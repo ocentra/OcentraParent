@@ -1,7 +1,7 @@
 use ocentra_app_core::runtime_decision::{
     app_runtime_decision_recorded_event, AppCapabilityState, AppClassificationState,
-    AppForegroundState, AppRuntimeInput, APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE,
-    APP_RUNTIME_DECISION_SCHEMA_VERSION,
+    AppForegroundState, AppRuntimeDecisionRecordedEvent, AppRuntimeInput,
+    APP_RUNTIME_DECISION_RECORDED_EVENT_TYPE, APP_RUNTIME_DECISION_SCHEMA_VERSION,
 };
 use ocentra_app_core::runtime_ids::{
     AppAggregateId, AppRuntimeDecisionId, APP_AGGREGATE_ID_PREFIX, APP_RUNTIME_DECISION_ID_PREFIX,
@@ -196,4 +196,28 @@ fn runtime_ids_reject_noncanonical_or_empty_suffixes() {
             ..
         })
     ));
+}
+
+#[test]
+fn schema_v1_runtime_decision_payload_deserializes_legacy_opaque_ids() {
+    let input = AppRuntimeInput {
+        capability_state: AppCapabilityState::Supported,
+        foreground_state: AppForegroundState::Background,
+        classification_state: AppClassificationState::InventoryOnly,
+    };
+    let current = app_runtime_decision_recorded_event(
+        AppAggregateId::parse("app.aggregate.child-device-1").expect("aggregate id parses"),
+        AppRuntimeDecisionId::parse("app.runtime-decision-1").expect("decision id parses"),
+        input,
+    );
+    let mut legacy_payload = serde_json::to_value(current).expect("event serializes");
+    legacy_payload["aggregate_id"] = serde_json::json!("child-device-1");
+    legacy_payload["decision_id"] = serde_json::json!("decision-1");
+
+    let decoded = serde_json::from_value::<AppRuntimeDecisionRecordedEvent>(legacy_payload)
+        .expect("schema-v1 runtime decision payload deserializes");
+
+    assert_eq!(decoded.aggregate_id.as_str(), "child-device-1");
+    assert_eq!(decoded.decision_id.as_str(), "decision-1");
+    assert_eq!(decoded.input, input);
 }
