@@ -40,7 +40,7 @@ pub(crate) async fn load(
                 PolicyRequestStatus::PreviewOnly,
             )
         })?;
-    let previous_resolution = load_previous(request, &confirmed_request).await?;
+    let previous_resolution = load_previous(&confirmed_request).await?;
     Ok(ResolutionSnapshot {
         confirmed_request,
         previous_resolution,
@@ -48,22 +48,22 @@ pub(crate) async fn load(
 }
 
 async fn load_previous(
-    request: &PolicyRequestParentResolutionRequest,
     confirmed_request: &ocentra_policy_control_core::policy_request::ChildPolicyRequest,
 ) -> Result<Option<super::types::PreviousResolution>, SnapshotError> {
-    let fields =
-        store::load_audit_fields(AuditEventId(request.approval_audit_reference_id.clone()))
-            .await
-            .map_err(|error| {
-                SnapshotError::new(
-                    error.into_reason(),
-                    true,
-                    Some(RequestIdText(
-                        confirmed_request.request_id.as_str().to_string(),
-                    )),
-                    confirmed_request.status,
-                )
-            })?;
+    let fields = store::load_previous_resolution_fields(RequestIdText(
+        confirmed_request.request_id.as_str().to_string(),
+    ))
+    .await
+    .map_err(|error| {
+        SnapshotError::new(
+            error.into_reason(),
+            true,
+            Some(RequestIdText(
+                confirmed_request.request_id.as_str().to_string(),
+            )),
+            confirmed_request.status,
+        )
+    })?;
     let Some(fields) = fields else {
         return Ok(None);
     };

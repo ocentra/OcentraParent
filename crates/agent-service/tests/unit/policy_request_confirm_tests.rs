@@ -345,6 +345,12 @@ async fn policy_request_parent_resolution_reconstructs_confirmed_request_and_rep
             Some("replayed-resolution")
         );
 
+        assert_resolution_replays_with_different_audit_reference(&resolution_request).await?;
+        let second_audit_fields = store
+            .enforcement_audit_fields_by_event_id("audit.policy-request.resolved-second")
+            .map_err(|error| IoError::other(format!("activity fields query: {error:?}")))?;
+        assert!(second_audit_fields.is_none());
+
         let mut mismatched_request = resolution_request.clone();
         crate::test_invariants::require_some(
             mismatched_request.delivery_binding.as_mut(),
@@ -373,6 +379,30 @@ async fn policy_request_parent_resolution_reconstructs_confirmed_request_and_rep
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
     cleanup_path(&store_path);
     test_result
+}
+
+async fn assert_resolution_replays_with_different_audit_reference(
+    resolution_request: &PolicyRequestParentResolutionRequest,
+) -> TestResult {
+    let mut different_audit_request = resolution_request.clone();
+    different_audit_request.approval_audit_reference_id =
+        "audit.policy-request.resolved-second".to_string();
+    let different_audit_event = handle_local_command_text_for_test(
+        crate::test_text::TestText::from_display(serde_json::to_string(
+            &parent_resolution_command_envelope(&different_audit_request)?,
+        )?),
+    )
+    .await;
+    let different_audit_result = parent_resolution_result(&different_audit_event)?;
+    assert_eq!(
+        different_audit_result.result_state,
+        PolicyRequestParentResolutionResultState::Resolved
+    );
+    assert_eq!(
+        different_audit_result.rejection_reason.as_deref(),
+        Some("replayed-resolution")
+    );
+    Ok(())
 }
 
 #[tokio::test]
