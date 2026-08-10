@@ -22,6 +22,36 @@ pub enum TrackingEventFamily {
     Escalation,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub struct TrackingLiveModeContext<'a> {
+    pub reason: Option<&'a str>,
+    pub transition_condition: Option<&'a str>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
+pub struct TrackingAiPayload<'a> {
+    pub uncertainty_state: Option<&'a str>,
+    pub policy_action: Option<&'a str>,
+    pub enforcement_action: Option<&'a str>,
+    pub notification_intent: Option<&'a str>,
+    pub live_mode_transition: Option<&'a str>,
+    pub escalation_intent: Option<&'a str>,
+}
+
+impl TrackingAiPayload<'_> {
+    fn carries_authority_fields(self) -> bool {
+        [
+            self.policy_action,
+            self.enforcement_action,
+            self.notification_intent,
+            self.live_mode_transition,
+            self.escalation_intent,
+        ]
+        .into_iter()
+        .any(|value| value.is_some_and(|value| !value.trim().is_empty()))
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct TrackingEventContractSpec {
     pub event_type: &'static str,
@@ -42,9 +72,9 @@ pub struct TrackingEventContractInput<'a> {
     pub policy_ref: Option<&'a str>,
     pub idempotency_key: Option<&'a str>,
     pub audit_ref: Option<&'a str>,
-    pub uncertainty_state: Option<&'a str>,
     pub live_mode_ttl_seconds: Option<u64>,
-    pub ai_authority_field_present: bool,
+    pub live_mode_context: Option<TrackingLiveModeContext<'a>>,
+    pub ai_payload: Option<TrackingAiPayload<'a>>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -59,7 +89,10 @@ pub enum TrackingEventContractError {
     MissingPolicyRef,
     MissingAuditRef,
     MissingLiveModeTtl,
+    MissingLiveModeReason,
+    MissingLiveModeTransitionCondition,
     MissingUncertaintyState,
+    MissingAiPayload,
     AiAuthorityFieldForbidden,
 }
 
@@ -284,13 +317,27 @@ pub fn validate_tracking_event_contract(
             return Err(TrackingEventContractError::MissingLiveModeTtl);
         }
         required(input.audit_ref, TrackingEventContractError::MissingAuditRef)?;
+        let live_mode = input
+            .live_mode_context
+            .ok_or(TrackingEventContractError::MissingLiveModeReason)?;
+        required(
+            live_mode.reason,
+            TrackingEventContractError::MissingLiveModeReason,
+        )?;
+        required(
+            live_mode.transition_condition,
+            TrackingEventContractError::MissingLiveModeTransitionCondition,
+        )?;
     }
     if specification.family == TrackingEventFamily::Ai {
+        let payload = input
+            .ai_payload
+            .ok_or(TrackingEventContractError::MissingAiPayload)?;
         required(
-            input.uncertainty_state,
+            payload.uncertainty_state,
             TrackingEventContractError::MissingUncertaintyState,
         )?;
-        if input.ai_authority_field_present {
+        if input.policy_ref.is_some() || payload.carries_authority_fields() {
             return Err(TrackingEventContractError::AiAuthorityFieldForbidden);
         }
     }

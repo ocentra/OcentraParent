@@ -4,8 +4,9 @@ use ocentra_parent_agent_protocol::constants::tracking_config_update::{
     CHANGE_APPROVED_EVENT_TYPE, CHANGE_REJECTED_EVENT_TYPE, CHANGE_REQUESTED_EVENT_TYPE,
 };
 use ocentra_schema::tracking_event_contracts::{
-    tracking_event_contract, validate_tracking_event_contract, TrackingEventContractError,
-    TrackingEventContractInput, TrackingEventFamily, TRACKING_EVENT_CONTRACTS,
+    tracking_event_contract, validate_tracking_event_contract, TrackingAiPayload,
+    TrackingEventContractError, TrackingEventContractInput, TrackingEventFamily,
+    TrackingLiveModeContext, TRACKING_EVENT_CONTRACTS,
 };
 
 #[test]
@@ -115,11 +116,53 @@ fn tracking_event_contracts_bind_live_mode_and_ai_safety_fields() {
         validate_tracking_event_contract(
             "nearby_place.analysis.requested",
             TrackingEventContractInput {
-                ai_authority_field_present: true,
+                policy_ref: None,
+                ai_payload: Some(TrackingAiPayload {
+                    uncertainty_state: Some("ambiguous"),
+                    policy_action: Some("policy-should-not-be-in-ai-payload"),
+                    ..Default::default()
+                }),
                 ..input
             }
         ),
         Err(TrackingEventContractError::AiAuthorityFieldForbidden)
+    );
+    assert_eq!(
+        validate_tracking_event_contract(
+            "nearby_place.analysis.requested",
+            TrackingEventContractInput {
+                policy_ref: None,
+                ai_payload: None,
+                ..input
+            }
+        ),
+        Err(TrackingEventContractError::MissingAiPayload)
+    );
+    assert_eq!(
+        validate_tracking_event_contract(
+            "tracking.live_mode.started",
+            TrackingEventContractInput {
+                live_mode_context: Some(TrackingLiveModeContext {
+                    reason: None,
+                    transition_condition: Some("parent-authorized"),
+                }),
+                ..input
+            }
+        ),
+        Err(TrackingEventContractError::MissingLiveModeReason)
+    );
+    assert_eq!(
+        validate_tracking_event_contract(
+            "tracking.live_mode.started",
+            TrackingEventContractInput {
+                live_mode_context: Some(TrackingLiveModeContext {
+                    reason: Some("parent-requested"),
+                    transition_condition: None,
+                }),
+                ..input
+            }
+        ),
+        Err(TrackingEventContractError::MissingLiveModeTransitionCondition)
     );
     assert_eq!(
         tracking_event_contract("nearby_place.analysis.completed")
@@ -138,8 +181,14 @@ fn valid_input() -> TrackingEventContractInput<'static> {
         policy_ref: Some("policy-1"),
         idempotency_key: Some("idempotency-1"),
         audit_ref: Some("audit-1"),
-        uncertainty_state: Some("ambiguous"),
         live_mode_ttl_seconds: Some(60),
-        ai_authority_field_present: false,
+        live_mode_context: Some(TrackingLiveModeContext {
+            reason: Some("parent-requested"),
+            transition_condition: Some("parent-authorized"),
+        }),
+        ai_payload: Some(TrackingAiPayload {
+            uncertainty_state: Some("ambiguous"),
+            ..Default::default()
+        }),
     }
 }
