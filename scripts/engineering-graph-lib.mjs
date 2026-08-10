@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { readFile, readdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import prettier from 'prettier';
 
 export const GRAPH_SCHEMA_VERSION = 1;
 export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
@@ -999,6 +998,10 @@ export function graphSourceDrift(checkedIn, generated) {
 export async function writeGraph(root, graphPath, graph) {
   const target = path.join(root, graphPath);
   const source = JSON.stringify(graph, null, 2);
+  // Read-only graph queries must remain usable from a fresh checkout where
+  // workspace dependencies have not been installed yet.  Keep the formatter
+  // on the write-only path so validate/report/status do not fail at import.
+  const { default: prettier } = await import('prettier');
   const formatted = await prettier.format(source, { filepath: target, parser: 'json' });
   await writeFile(target, formatted, 'utf8');
 }
