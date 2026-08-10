@@ -64,3 +64,10 @@ These are proof-routing fields, not implementation code prescriptions.
 
 - The 2026-06-17 `network-foundation-shim-cleanup` slice uses WP08 only to keep the control-catalog surface honest while the parent-domain shim cleanup is in progress.
 - The exact remaining decision is whether `@ocentra-parent/parent-domain` continues to publish `./network-control-catalog`, or whether that path must be retired before the remaining control-catalog shim files are deleted.
+
+## Live validation — 2026-08-09
+
+- Focused contract test: `node --test tests/network-plan/contract/control-catalog-reference-routing.test.mjs` — 1 passed, 0 failed.
+- Scoped architecture validation and `npm run hub:guard` passed.
+- Durable validation manifest: `docs/proof/network-plan/slice-08-control-catalog-routing.md`.
+- This is `validation`, not `done`: the catalog remains reference material and does not prove network runtime, policy, enforcement, portal, platform, or production behavior.

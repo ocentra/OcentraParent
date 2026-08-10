@@ -117,6 +117,20 @@
     "security:sbom": "node scripts/security/write-sbom.mjs",
     "build": "turbo run build",
     "test:tooling": "node --test tests/repo-tooling/*.test.mjs",
+    "graph": "node scripts/engineering-graph.mjs",
+    "graph:bootstrap": "node scripts/engineering-graph.mjs bootstrap",
+    "graph:status": "node scripts/engineering-graph.mjs status",
+    "graph:code": "node scripts/engineering-graph.mjs code",
+    "graph:report": "node scripts/engineering-graph.mjs report",
+    "graph:ready": "node scripts/engineering-graph.mjs ready",
+    "graph:parallel": "node scripts/engineering-graph.mjs parallel",
+    "graph:next": "node scripts/engineering-graph.mjs next",
+    "graph:blocked": "node scripts/engineering-graph.mjs blocked",
+    "graph:inspect": "node scripts/engineering-graph.mjs inspect",
+    "graph:deps": "node scripts/engineering-graph.mjs deps",
+    "graph:dependents": "node scripts/engineering-graph.mjs dependents",
+    "graph:why": "node scripts/engineering-graph.mjs why",
+    "graph:validate": "node scripts/engineering-graph.mjs validate",
     "test:parent-mobile-package-source-artifact-proof": "node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.parent-mobile-package-source-artifact-proof",
     "test:parent-android-package-proof": "node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.parent-android-package-proof",
     "test:parent-desktop-release-support-proof": "node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.parent-desktop-release-support-proof",
@@ -192,6 +206,7 @@
     "vitest": "^4.1.0"
   },
   "overrides": {
-    "esbuild": "0.28.1"
+    "esbuild": "0.28.1",
+    "nanoid": "3.3.17"
   }
 }

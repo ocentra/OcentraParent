@@ -71,6 +71,15 @@ Manual-required adapter proof is not adapter execution.
 - Default action: choose one workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md), then choose expected tests/proof from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
 - Current limitation: this plan defines ownership, expected proof, and handoff boundaries. It does not claim implementation is complete.
 
+## Latest selected-slice evidence (2026-08-09)
+
+WP01 contract-boundary code and tests are locally validated: schema-domain
+build/type-check and 11/11 focused Vitest tests pass, while app-core focused
+runtime-decision tests pass 8/8. The local proof manifest is
+`docs/proof/app-plan/slice-01-app-runtime-decision.md`. The plan remains open
+for inventory/runtime capture, service/portal integration, platform proof, CI,
+review, and merge evidence.
+
 ## Open Product Gaps
 
 - Product acceptance rows need to be reconciled against the named feature and expectation docs.

@@ -78,6 +78,14 @@ Real platform proof remains required for platform claims unless explicitly marke
 2. Read `NEXT_ACTIONS.md` when starting/resuming.
 3. Read `WORKPACK_INDEX.md`.
 4. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+
+## Latest validation slice — 2026-08-09
+
+WP08 control-catalog reference routing now has an executable route-boundary
+contract test and durable manifest at
+`docs/proof/network-plan/slice-08-control-catalog-routing.md`. The graph state
+is `validation`, not `done`: no network runtime, policy, enforcement, portal,
+platform, CI, review, or main-merge claim is made by this slice.
 5. Open only the assigned workpack.
 6. Use `CHECKLIST_INDEX.md` for exact checklist sections.
 7. Use `PROOF_INDEX.md` for proof artifacts.

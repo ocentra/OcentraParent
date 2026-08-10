@@ -6,3 +6,9 @@
 4. Re-open WP02, WP03, WP04, and WP06 around actual runtime seams: platform key sealing, parent step-up, QR approval, and encrypted recovery bundles.
 5. Re-open WP05 and WP07 around real trust binding and parent-controlled uninstall/tamper execution instead of contract-only frontage.
 6. Replace doc-only proof with runtime coverage and keep proof outside the plan folder under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`.
+
+## Latest code/test checkpoint (2026-08-09)
+
+WP08's review matrix and boundary test are current, but this workpack remains
+research-level. Continue with the runtime-owned gaps in WP02/WP03/WP04/WP06
+before treating any dependency candidate as an adopted trust-root component.

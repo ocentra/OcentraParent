@@ -72,6 +72,18 @@ Open gaps:
 - No child-visible disclosure state proof.
 - No relay abuse/load/replay/cross-household proof.
 
+## Latest selected slice (2026-08-09)
+
+WP01's Rust-owned view-only capability/grant/session contract was replayed on
+the consolidated E: branch. The focused contract target passed 3/3 tests,
+format and scoped architecture passed, and Enforcer guard passed. The tracked
+manifest is `docs/proof/remote-access-plan/slice-01-capability-fabric.md`.
+
+This is a validation slice only. It does not close the plan or claim pairing,
+standing access, relay/session runtime, device-trust integration,
+revoke/remove behavior, custody, portal disclosure, abuse controls, remote
+control, CI, review, or main merge.
+
 ## HID Execution Guard
 
 - Scope and completion source:

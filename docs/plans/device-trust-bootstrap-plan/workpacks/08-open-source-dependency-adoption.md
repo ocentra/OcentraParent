@@ -32,3 +32,16 @@ Purpose: evaluate WebAuthn, keyring, and encrypted-bundle dependencies for adopt
 - Rust does not automatically mean safe to adopt.
 - AGPL or large remote-desktop code does not become the trust root.
 - A keyring adapter does not replace the platform store boundary.
+
+## Live validation update (2026-08-09)
+
+The dependency matrix and trust-root boundary test were replayed on the
+consolidated E: branch. The durable manifest is
+`docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md`; local
+reproducible output is under
+`output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/`.
+
+The graph records this docs/review slice as `validation`, not `done`. No
+candidate has been wired into the device-trust runtime by this slice, and no
+platform ceremony, key sealing, recovery execution, CI, review, or main merge
+claim is made.
