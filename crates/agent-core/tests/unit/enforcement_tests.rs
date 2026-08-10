@@ -342,6 +342,7 @@ fn process_adapter_reports_real_platform_result_with_explicit_rollback_state() -
 
     #[cfg(windows)]
     {
+        assert_eq!(outcome.status.as_protocol_str(), enforcement::RESULT_NO_OP);
         assert_eq!(
             outcome.adapter_result_code.as_protocol_str(),
             enforcement::ADAPTER_PROCESS_ALREADY_EXITED

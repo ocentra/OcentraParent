@@ -1,9 +1,9 @@
 use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
 use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementAction, EnforcementAdapterKind, EnforcementCapabilityState,
-    EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementMode,
-    EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
+    EnforcementAction, EnforcementAdapterKind, EnforcementAdapterResultCode,
+    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
+    EnforcementMode, EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
     EnforcementUnavailableReason, ParentPlatform,
 };
 use ocentra_parent_agent_protocol::policy_constants;
@@ -124,7 +124,10 @@ fn time_limit_outcome_from_process_outcome(
     outcome: EnforcementAdapterOutcome,
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
-    if outcome.status == EnforcementResultStatus::ActuallyEnforced {
+    if outcome.status == EnforcementResultStatus::ActuallyEnforced
+        || (outcome.status == EnforcementResultStatus::NoOp
+            && outcome.adapter_result_code == EnforcementAdapterResultCode::ProcessAlreadyExited)
+    {
         return EnforcementAdapterOutcome {
             status: EnforcementResultStatus::Expired,
             adapter_result_code: outcome.adapter_result_code,

@@ -79,7 +79,7 @@ async fn enforcement_execute_records_audit_event_to_journal_and_store() {
         assert_eq!(
             event.payload.get(constants::field::ENFORCEMENT_STATUS),
             Some(&LogFieldValue::String(
-                constants::enforcement::RESULT_ACTUALLY_ENFORCED.to_string()
+                constants::enforcement::RESULT_NO_OP.to_string()
             ))
         );
         assert_eq!(
@@ -142,14 +142,22 @@ async fn enforcement_execute_reports_final_adapter_result_after_before_action_jo
     assert_eq!(summary.returned, 2);
 
     #[cfg(windows)]
-    assert_eq!(
-        event
-            .payload
-            .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-        Some(&LogFieldValue::String(
-            constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
-        ))
-    );
+    {
+        assert_eq!(
+            event.payload.get(constants::field::ENFORCEMENT_STATUS),
+            Some(&LogFieldValue::String(
+                constants::enforcement::RESULT_NO_OP.to_string()
+            ))
+        );
+        assert_eq!(
+            event
+                .payload
+                .get(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+            Some(&LogFieldValue::String(
+                constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()
+            ))
+        );
+    }
 
     #[cfg(not(windows))]
     assert_eq!(
