@@ -702,6 +702,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       proofOverride: {
         reason: override.reason ?? 'reviewed proof reference override',
         evidence: override.evidence ?? [],
+        satisfiesExpected: override.satisfiesExpected === true,
       },
     };
   }
@@ -815,10 +816,18 @@ export function completionGaps(root, node) {
       }
     }
     for (const reference of expected) {
-      if (!pathExistsSync(root, reference)) gaps.push(`${requirement}: missing expected artifact ${reference}`);
+      if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
+        gaps.push(`${requirement}: missing expected artifact ${reference}`);
+      }
     }
   }
   return gaps;
+}
+
+function durableProofSatisfiesExpected(root, node, requirement) {
+  if (requirement !== 'proof' || node.metadata?.proofOverride?.satisfiesExpected !== true) return false;
+  const references = node.completion?.references?.proof ?? [];
+  return references.length > 0 && references.every((reference) => pathExistsSync(root, reference));
 }
 
 function isPlanningDocumentEvidence(node, requirement, reference) {
@@ -984,7 +993,7 @@ export function validateGraph(graph, { root = process.cwd() } = {}) {
     if (node.state === 'done' || node.lifecycleState === 'done') {
       for (const [requirement, references] of Object.entries(node.completion?.expected ?? {})) {
         for (const reference of references) {
-          if (!pathExistsSync(root, reference))
+          if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement))
             warnings.push(`${node.id} ${requirement} expected artifact is missing: ${reference}`);
         }
       }

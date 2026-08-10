@@ -284,6 +284,27 @@ test('missing expected artifacts demote stale DONE to validation', () => {
   assert.ok(report.errors.some((error) => error.includes('missing expected artifact')));
 });
 
+test('explicit durable proof may satisfy a missing generated proof expectation', () => {
+  const value = graph([
+    workpack('DURABLE-PROOF', 'done', {
+      metadata: {
+        needsReview: false,
+        proofOverride: { satisfiesExpected: true },
+      },
+      completion: {
+        required: ['proof'],
+        reviewed: { proof: true },
+        references: { proof: ['AGENTS.md'] },
+        expected: { proof: ['output/portable-proof-bundle'] },
+      },
+    }),
+  ]);
+
+  assert.deepEqual(completionGaps(repoRoot, value.nodes[0]), []);
+  assert.equal(deriveStates(value, { root: repoRoot }).get('DURABLE-PROOF'), 'done');
+  assert.equal(validateGraph(value, { root: repoRoot }).ok, true);
+});
+
 test('code inventory reports implementation and test topology without claiming acceptance', async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-'));
   await mkdir(path.join(root, 'crates', 'example', 'src'), { recursive: true });
@@ -335,6 +356,22 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
     (node) => node.id === 'WP-eventing-plan-11-type-safety-and-ownership-hardening'
   );
   assert.deepEqual(eventingProofOverride.completion.references.proof, ['docs/proof/eventing-plan']);
+
+  const eventingWp06 = value.nodes.find((node) => node.id === 'WP-eventing-plan-06-journal-replay-and-lineage');
+  assert.equal(eventingWp06.state, 'done');
+  assert.deepEqual(completionGaps(repoRoot, eventingWp06), []);
+  const eventingReport = await buildProgressReport({ root: repoRoot });
+  const eventingWp06Report = eventingReport.plans
+    .find((plan) => plan.id === 'PLAN-eventing-plan')
+    .workpacks.rows.find((workpack) => workpack.id === eventingWp06.id);
+  assert.equal(eventingWp06Report.codeTestTopology.scope, 'reviewed-workpack-roots');
+  assert.ok(eventingWp06Report.codeTestTopology.implementationPaths.some((file) => file.endsWith('src/journal.rs')));
+  assert.ok(eventingWp06Report.codeTestTopology.testPaths.some((file) => file.includes('tests/journal_replay/')));
+
+  const enforcementWp11 = value.nodes.find(
+    (node) => node.id === 'WP-v0-8-enforcement-control-plan-11-audit-journal-events'
+  );
+  assert.notEqual(enforcementWp11.state, 'done');
 
   const eventingHistorical = value.nodes.find(
     (node) => node.id === 'WP-eventing-plan-04-queue-idempotency-dead-letter'

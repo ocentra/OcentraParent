@@ -16670,33 +16670,60 @@
       "path": "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "done",
+      "lifecycleState": "done",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/eventing-plan-proof/06-journal-replay-and-lineage; checklist: reviewed evidence is not recorded",
+        "statusText": "done",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/eventing-plan-proof/06-journal-replay-and-lineage",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "proofOverride": {
+          "reason": "The retained WP06 handoff, journal/replay, topology/lineage, and validation records are the durable proof bundle named by the workpack.",
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": true
+        },
+        "completionEvidenceOverride": {
+          "reason": "Reviewed code, test, durable proof, and checklist paths for the workpack explicitly named done by the Eventing index. This does not promote enforcement WP11 or WP04.",
+          "evidence": [
+            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
+            "docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"
+          ]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true,
+          "tests": true,
+          "proof": true,
+          "checklist": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+            "crates/ocentra-eventing/src/journal",
+            "crates/ocentra-eventing/src/replay",
+            "crates/ocentra-eventing/src/topology.rs",
+            "crates/ocentra-eventing/src/bus/journaling.rs",
+            "crates/agent-protocol/src/enforcement.rs",
+            "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal"
           ],
-          "tests": ["docs/plans/eventing-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
+          "tests": [
+            "crates/ocentra-eventing/tests/journal_replay",
+            "crates/ocentra-eventing/tests/contract/topology_manifest.rs",
+            "crates/ocentra-eventing/tests/contract/compatibility_matrix.rs",
+            "crates/ocentra-eventing/tests/unit/production_shutdown.rs",
+            "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs",
+            "crates/agent-service/tests/enforcement_eventing_journal.rs",
+            "crates/agent-service/tests/unit/enforcement_runtime.rs"
+          ],
+          "proof": [
+            "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md",
+            "docs/proof/eventing-plan/wp06-01-journal-replay-proof.md",
+            "docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md",
+            "docs/proof/eventing-plan/wp06-16-validation-commands.md"
+          ],
           "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
           "adr": []
         },
@@ -16863,7 +16890,8 @@
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records WP11 proof roots and validation; the generic plan root is not inferred for siblings.",
-          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": false
         },
         "completionGaps": [
           "implementation: reviewed evidence is not recorded",
@@ -16911,7 +16939,8 @@
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records the WP12 route-proof bundle and its validation; the generic plan root is not inferred for siblings.",
-          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": false
         },
         "completionGaps": [
           "implementation: reviewed evidence is not recorded",
@@ -16957,7 +16986,8 @@
         "needsReview": false,
         "proofOverride": {
           "reason": "The durable eventing plan manifest explicitly records the WP13 regression audit and proof roots; the generic plan root is not inferred for siblings.",
-          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+          "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+          "satisfiesExpected": false
         },
         "completionGaps": [
           "implementation: reviewed evidence is not recorded",
@@ -24520,7 +24550,7 @@
       "title": "04 Owned-Process Time Limit",
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-v0-8-enforcement-control-plan-11-audit-journal-events"],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
@@ -24720,7 +24750,7 @@
       "title": "11 Audit And Journal Events",
       "path": "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md",
       "parent": "PLAN-v0-8-enforcement-control-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-eventing-plan-06-journal-replay-and-lineage"],
       "state": "planned",
       "lifecycleState": "planned",
       "metadata": {
@@ -29298,6 +29328,28 @@
         "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md"
       ],
       "reason": "Delivery identity and audit boundary precede ask-parent delivery wiring."
+    },
+    {
+      "from": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md",
+        "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md"
+      ],
+      "reason": "Enforcement-specific durable journal work consumes the generic Eventing journal/replay/idempotency handoff."
+    },
+    {
+      "from": "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit",
+      "to": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
+      ],
+      "reason": "Trusted owned-process dispatch must consume the enforcement-specific durable journal and authority boundary first."
     }
   ],
   "migration": {

@@ -76,7 +76,12 @@ evidence. A reviewed `stateOverrides` entry may record a current validation
 slice (never an unverified `done` claim) and must point to its proof manifest
 and command evidence. A reviewed `proofOverrides` entry may point a completed
 workpack at a durable plan-level manifest when that manifest explicitly covers
-the workpack; a generic proof directory is not sufficient by itself.
+the workpack; a generic proof directory is not sufficient by itself. If the
+workpack's test expectations declare a generated `output/` proof root that is
+intentionally not checked in, the override must also set
+`satisfiesExpected: true` and carry an existing evidence manifest. The graph
+then accepts only the explicit durable proof references; it does not silently
+ignore a missing output path.
 
 ## Completion
 
@@ -85,9 +90,11 @@ points to implementation, test, proof, and checklist artifacts. Validation
 rejects duplicate IDs, missing references, dependency cycles, invalid states,
 contradictory readiness, and `done` nodes whose contract is incomplete. When a
 plan declares an `output/` or other generated proof root, that path is an
-expected artifact and must exist too; a stale imported `done` row is demoted to
-`validation` during bootstrap and `graph why` reports the exact missing path.
-Proof root conventions are imported from each plan's
+expected artifact and normally must exist; a stale imported `done` row is
+demoted to `validation` during bootstrap and `graph why` reports the exact
+missing path. An explicit evidence-backed durable-proof override is the only
+exception for a workpack that names a checked-in proof bundle as its retained
+artifact. Proof root conventions are imported from each plan's
 `TEST_PROOF_EXPECTATIONS.md`; durable `docs/proof/<plan>` manifests are
 accepted when the plan explicitly retains them, but they do not silently
 replace a missing generated artifact.
