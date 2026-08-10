@@ -16,7 +16,7 @@ ACTIVE: 1
 BLOCKED: 9
 VALIDATION: 215
 DONE: 1
-Implementation files: 2821
+Implementation files: 2823
 Test files: 1178
 ```
 
@@ -42,7 +42,7 @@ evidence handoff, not authorization to bypass the READY gate.
 
 It reports all 23 plans and 679 workpack rows, with graph-derived workpack
 state alongside live implementation/test topology under reviewed plan roots.
-Eleven focused workpacks now also have explicit reviewed code/test maps; those
+Twelve focused workpacks now also have explicit reviewed code/test maps; those
 rows expose exact paths, while every unmapped row remains
 `unknown-workpack-ownership`. Neither topology mode is an acceptance/CI/merge
 certificate.

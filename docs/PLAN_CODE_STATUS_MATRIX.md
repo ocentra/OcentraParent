@@ -69,7 +69,7 @@ than one plan; they are not completion percentages.
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 864 | 485 |
 
 The graph validates at 703 nodes and 705 edges, with 34 migration/dependency
-review items. Eleven workpacks now have explicit reviewed code/test maps;
+review items. Twelve workpacks now have explicit reviewed code/test maps;
 WP07 is mapped to its storage-custody and child-runtime lifecycle files while
 remaining `active` until its aggregate proof contract is satisfied. WP04 is
 mapped to its remote-access/schema lifecycle code and focused tests while
