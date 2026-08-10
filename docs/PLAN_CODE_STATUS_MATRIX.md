@@ -38,11 +38,13 @@ test, proof, checklist, and any detected ADR paths to exist; it does not claim
 that CI or a product path has been merged.
 
 There are **23 plan folders** and **526 scheduled workpack rows** in this
-checkout (not 24 plans). The consolidated code train is ahead of
-`main`/`origin/main`. It contains the LAN target repair, enforcement-journal
-sequence repairs, and the parent policy-resolution contract/service/UI slice.
-The new slices have focused local Rust tests and scoped architecture/Enforcer
-checks; no PR, CI run, or merge to `main` has been claimed for this branch.
+checkout (not 24 plans). The consolidated code train is rebased on current
+`main` and contains the LAN target repair, enforcement-journal sequence
+repairs, parent policy-resolution/delivery binding, remote/tracking contracts,
+and app runtime-decision contracts. The live reviewed-root topology is 2,799
+implementation files and 1,175 test files. Scoped Enforcer, architecture,
+generated-artifact, Rust, TypeScript, portal, and pre-commit validation pass;
+fresh PR CI, review, proof custody, and merge to `main` remain separate gates.
 
 | Plan | Live code/test topology observed | Code-first state and next executable dependency |
 | --- | --- | --- |
@@ -73,8 +75,8 @@ checks; no PR, CI run, or merge to `main` has been claimed for this branch.
 ## Fresh code/test verification on 2026-08-09
 
 This is the current implementation evidence for the consolidated branch, not a
-completion certificate. Proof artifacts and CI are intentionally separate
-gates and have not been run or claimed here.
+completion certificate. Local code/test/pre-commit gates pass; retained proof
+artifacts, fresh CI, review, and merge are intentionally separate gates.
 
 | Slice | Code and focused validation observed | Honest state |
 | --- | --- | --- |
