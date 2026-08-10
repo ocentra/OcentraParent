@@ -2747,6 +2747,7 @@ dependencies = [
  "ocentra-eventing",
  "ocentra-family-identity-core",
  "ocentra-policy-control-core",
+ "ocentra-schema",
  "serde",
  "serde_json",
 ]

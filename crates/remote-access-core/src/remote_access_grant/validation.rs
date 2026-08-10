@@ -1,4 +1,9 @@
-use super::{RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantError};
+use ocentra_schema::remote_capability_fabric::RemoteActorRole;
+
+use super::{
+    RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantDisclosureState,
+    RemoteAccessGrantError, RemoteAccessGrantParentGrant, RemoteAccessGrantState,
+};
 
 pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     if [
@@ -16,6 +21,13 @@ pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
     Ok(())
 }
 
+pub(super) fn actor_role(role: &RemoteActorRole) -> Result<(), RemoteAccessGrantError> {
+    if role == &RemoteActorRole::ChildAgent {
+        return Err(RemoteAccessGrantError::WrongActor);
+    }
+    Ok(())
+}
+
 pub(super) fn context(
     grant: &RemoteAccessGrant,
     context: RemoteAccessGrantContext<'_>,
@@ -23,11 +35,51 @@ pub(super) fn context(
     if context.household_ref != grant.household_ref {
         return Err(RemoteAccessGrantError::WrongHousehold);
     }
-    if context.actor_ref != grant.parent_actor_ref {
+    if context.actor_ref != grant.parent_actor_ref && !context.parent_authorized {
         return Err(RemoteAccessGrantError::WrongActor);
     }
     if context.child_device_ref != grant.child_device_ref {
         return Err(RemoteAccessGrantError::WrongDevice);
+    }
+    Ok(())
+}
+
+pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
+    fields(grant)?;
+    actor_role(&grant.actor_role)?;
+    let expected_disclosure = [
+        RemoteAccessGrantDisclosureState::Undisclosed,
+        RemoteAccessGrantDisclosureState::Undisclosed,
+        RemoteAccessGrantDisclosureState::Disclosed,
+        RemoteAccessGrantDisclosureState::Disclosed,
+        RemoteAccessGrantDisclosureState::Disclosed,
+        RemoteAccessGrantDisclosureState::Disclosed,
+        RemoteAccessGrantDisclosureState::Disclosed,
+        RemoteAccessGrantDisclosureState::Disclosed,
+        RemoteAccessGrantDisclosureState::Disclosed,
+    ][grant.state as usize];
+    if grant.disclosure_state != expected_disclosure {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
+    let expected_parent_grant = [
+        RemoteAccessGrantParentGrant::NotGranted,
+        RemoteAccessGrantParentGrant::Granted,
+        RemoteAccessGrantParentGrant::Granted,
+        RemoteAccessGrantParentGrant::Granted,
+        RemoteAccessGrantParentGrant::Granted,
+        RemoteAccessGrantParentGrant::Granted,
+        RemoteAccessGrantParentGrant::Granted,
+        RemoteAccessGrantParentGrant::Granted,
+        RemoteAccessGrantParentGrant::Granted,
+    ][grant.state as usize];
+    if grant.parent_grant != expected_parent_grant {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
+    if grant.actor_role == RemoteActorRole::SupportAdmin
+        && grant.state != RemoteAccessGrantState::Requested
+        && grant.parent_grant != RemoteAccessGrantParentGrant::Granted
+    {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
     Ok(())
 }

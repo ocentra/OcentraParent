@@ -1,10 +1,11 @@
 use super::super::{
-    RemoteAccessGrant, RemoteAccessGrantActorRole, RemoteAccessGrantContext,
-    RemoteAccessGrantDisclosureState, RemoteAccessGrantError, RemoteAccessGrantState,
+    RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantDisclosureState,
+    RemoteAccessGrantError, RemoteAccessGrantParentGrant, RemoteAccessGrantState,
 };
+use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 
 pub(super) fn parent(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     context: RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::Requested {
@@ -13,9 +14,10 @@ pub(super) fn parent(
     if !context.parent_authorized {
         return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
-    if grant.actor_role == RemoteAccessGrantActorRole::SupportAdmin {
+    if grant.actor_role() == RemoteActorRole::SupportAdmin && !context.parent_grant_approved {
         return Err(RemoteAccessGrantError::SupportAccessRequiresParentGrant);
     }
+    grant.parent_grant = RemoteAccessGrantParentGrant::Granted;
     Ok(RemoteAccessGrantState::ParentConfirmed)
 }
 
@@ -25,6 +27,9 @@ pub(super) fn pair(
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::ParentConfirmed {
         return Err(RemoteAccessGrantError::InvalidTransition);
+    }
+    if !context.parent_authorized {
+        return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
     if !context.child_disclosed {
         return Err(RemoteAccessGrantError::ChildDisclosureRequired);

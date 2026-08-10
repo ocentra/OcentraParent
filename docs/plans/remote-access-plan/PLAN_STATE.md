@@ -89,9 +89,20 @@ control, CI, review, or main merge.
 WP04 now has a Rust-owned pairing and standing-access lifecycle boundary in
 `crates/remote-access-core/src/remote_access_grant/`. The focused tests cover
 parent confirmation, child disclosure, paired/active/paused/stopped/reconnect
-states, wrong actor/household/device rejection, support/admin hidden-access
-rejection, parent-authorized revoke/remove, terminal reconnect denial, and
+states, current parent-authority rechecks, wrong actor/household/device
+rejection, explicitly parent-approved support access, support/admin
+hidden-access rejection, authorized household-actor revoke/remove, terminal
+reconnect denial, redacted accepted/denied audit milestones, and validated
 serialization round-trip of terminal state.
+
+The first PR CI run passed all product/build/security/E2E jobs but the
+mergeability gate held six review threads. The follow-up code repair consumes
+the canonical schema `RemoteActorRole`, encapsulates lifecycle mutation,
+validates deserialized state, and records the review findings in the durable
+proof manifest. This remains `validation`; follow-up CI, resolved review,
+persistence/adapter ownership, relay/session integration, device-trust
+handoff, child/portal disclosure, audit custody, and generated proof remain
+open.
 
 This is still `validation`, not `done`. Persistence adapters, relay/session
 integration, device-trust handoff, child/portal rendered disclosure, durable
