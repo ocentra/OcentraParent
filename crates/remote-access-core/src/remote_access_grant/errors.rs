@@ -19,6 +19,7 @@ impl fmt::Display for RemoteAccessGrantError {
             "grant reconnect is denied",
             "a replacement grant is required for supersession",
             "replacement grant does not match the existing grant scope",
+            "the grant replay window is exhausted for new attempts",
         ][*self as usize];
         formatter.write_str(message)
     }

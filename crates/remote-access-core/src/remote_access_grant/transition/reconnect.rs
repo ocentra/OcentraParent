@@ -1,6 +1,7 @@
 use super::super::{
     RemoteAccessGrant, RemoteAccessGrantContext, RemoteAccessGrantDisclosureState,
-    RemoteAccessGrantError, RemoteAccessGrantState,
+    RemoteAccessGrantError, RemoteAccessGrantRecoveryProof, RemoteAccessGrantState,
+    RemoteAccessGrantStopRecoveryState,
 };
 
 pub(super) fn request(
@@ -16,7 +17,7 @@ pub(super) fn request(
 }
 
 pub(super) fn complete(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::ReconnectPending
@@ -27,5 +28,11 @@ pub(super) fn complete(
     if !context.parent_authorized {
         return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
+    if grant.stop_recovery == RemoteAccessGrantStopRecoveryState::Pending
+        && context.recovery_proof != RemoteAccessGrantRecoveryProof::SystemConditionCleared
+    {
+        return Err(RemoteAccessGrantError::ReconnectDenied);
+    }
+    grant.stop_recovery = RemoteAccessGrantStopRecoveryState::NotRequired;
     Ok(RemoteAccessGrantState::Active)
 }

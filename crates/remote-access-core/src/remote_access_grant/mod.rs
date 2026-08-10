@@ -17,8 +17,9 @@ mod validation;
 mod validation_context;
 
 /// Number of transition attempts retained for idempotent replay after a grant
-/// is persisted. Older attempts fall out of the bounded replay window rather
-/// than allowing an unbounded attacker-controlled history to grow.
+/// is persisted. Once the bounded window is full, a new attempt fails closed;
+/// retaining every recorded identity prevents an old accepted transition from
+/// being applied again after eviction.
 pub(super) const MAX_REPLAY_ATTEMPTS: usize = 64;
 
 use ocentra_schema::remote_capability_fabric::{
@@ -82,6 +83,14 @@ pub enum RemoteAccessGrantTransition {
     Supersede,
 }
 
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RemoteAccessGrantStopRecoveryState {
+    #[default]
+    NotRequired,
+    Pending,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum RemoteAccessGrantError {
@@ -99,6 +108,7 @@ pub enum RemoteAccessGrantError {
     ReconnectDenied,
     SupersedingGrantRequired,
     SupersedingGrantMismatch,
+    ReplayWindowExhausted,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
@@ -116,6 +126,7 @@ pub struct RemoteAccessGrant {
     audit_ref: String,
     attempts: Vec<RemoteAccessGrantAuditMilestone>,
     superseded_by: Option<String>,
+    stop_recovery: RemoteAccessGrantStopRecoveryState,
     #[serde(skip)]
     pending_supersession: Option<String>,
 }
@@ -132,12 +143,19 @@ pub struct RemoteAccessGrantContext<'a> {
     pub parent_authorized: bool,
     pub child_disclosed: bool,
     pub parent_grant_approved: bool,
+    pub recovery_proof: RemoteAccessGrantRecoveryProof,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RemoteAccessGrantTransitionAuthority {
     Parent,
     SystemFailure,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RemoteAccessGrantRecoveryProof {
+    NotRequired,
+    SystemConditionCleared,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -196,6 +214,7 @@ impl RemoteAccessGrant {
             audit_ref: audit_ref.into(),
             attempts: Vec::new(),
             superseded_by: None,
+            stop_recovery: RemoteAccessGrantStopRecoveryState::NotRequired,
             pending_supersession: None,
         };
         validation::fields(&grant)?;
@@ -226,6 +245,14 @@ impl RemoteAccessGrant {
         {
             return replay::existing_report(self, previous.clone(), transition, context);
         }
+        if self.attempts.len() >= MAX_REPLAY_ATTEMPTS {
+            return replay::denied_report(
+                self,
+                transition,
+                context,
+                RemoteAccessGrantError::ReplayWindowExhausted,
+            );
+        }
         let result = self.apply_transition(transition, &context);
         self.pending_supersession = None;
         let (outcome, error, resulting_state) = match result {
@@ -251,9 +278,6 @@ impl RemoteAccessGrant {
                 audit_ref: self.audit_ref.clone(),
             },
         };
-        if self.attempts.len() == MAX_REPLAY_ATTEMPTS {
-            self.attempts.remove(0);
-        }
         self.attempts.push(report.audit.clone());
         report
     }

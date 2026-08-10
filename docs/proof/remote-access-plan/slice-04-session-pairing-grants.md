@@ -22,7 +22,7 @@ terminal snapshots. The graph state is `validation`, not `done`.
 | Command | Result |
 | --- | --- |
 | `cargo fmt --all -- --check` | passed |
-| `cargo test -p ocentra-remote-access-core --test unit` | 37 passed, 0 failed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 44 passed, 0 failed |
 | `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 7 passed, 0 failed |
 | `cargo clippy -p ocentra-remote-access-core --all-targets -- -D warnings` | passed |
 | `npm run lint:architecture -- --files crates/remote-access-core crates/schema` | passed |
@@ -46,30 +46,25 @@ and late terminal states. Attempt references make cycle audit ids distinct and
 replay the original accepted or denied report across retries and restore.
 Typed device-trust handoff gates pairing and access-starting transitions.
 Explicit Denied and Failed states preserve terminal pairing outcomes.
+The replay window retains all recorded identities and rejects new attempts once
+full; accepted milestones reject transition/result-state mismatches; replay
+denials include length-framed invalid-context identity; and system-failure
+stops require an explicit recovery proof before reconnect.
 
 ## Review repair checkpoint (2026-08-10)
 
 PR #645's initial full CI run passed all product, build, security, and
-portal-to-Rust E2E jobs, but the mergeability gate correctly held six review
-threads. The follow-up repair also addresses the five subsequent review
-findings in code and tests: access-starting transitions recheck current parent
-authority; terminal snapshots remain deserializable from pre-pairing states;
-the default transition path returns its audit report; attempt references make
-audit idempotency keys unique per attempt; and grants carry the canonical
-route discriminator and reject route mismatch. A further reviewer pass
-required cross-actor authority to be limited to terminal transitions, support
-grants to carry a canonical parent-grant state, reconnect-pending activation
-to remain behind the reconnect transition, successful attempt retries to
-replay the original report, the route-bearing schema to move to v2 with a v1
-migration default, typed device-trust handoff to gate access starts, and
-explicit Denied/Failed terminal states; those are now covered by focused
-tests. The earlier findings remain
-covered: grant lifecycle fields are private with validated deserialization,
-terminal transitions accept a different currently-authorized household actor,
-support access requires an explicit parent-grant flag, and the canonical
-schema `RemoteActorRole` is consumed. The follow-up CI run and
-review-thread resolution remain open until the updated commit is checked by
-GitHub.
+portal-to-Rust E2E jobs, but the mergeability gate correctly held eight review
+threads. This repair addresses those findings in code, tests, and evidence:
+accepted transition milestones now validate their resulting state; the
+bounded replay history fails closed instead of evicting identities; replay
+denials and audit idempotency keys use unambiguous length-framed components;
+the supersession test is mapped; the unit count is current at 44; reconnect
+after a system-failure stop requires typed recovery proof; and the checked-in
+engineering graph is regenerated from plan sources. The earlier lifecycle,
+authority, schema-v2 migration, terminal-state, and device-trust findings
+remain covered by the focused suite. The follow-up CI run and review-thread
+resolution remain open until the updated commit is checked by GitHub.
 
 ## No-claim boundary
 

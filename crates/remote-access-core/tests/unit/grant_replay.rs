@@ -1,4 +1,5 @@
 use super::grant::{context_for, paired_grant};
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_grant::{
     RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantError,
@@ -49,7 +50,8 @@ fn denied_wrong_route_attempt_survives_serialization() {
 }
 
 #[test]
-fn replay_history_is_bounded_and_oversized_snapshots_are_rejected() -> Result<(), String> {
+fn replay_history_rejects_new_attempts_when_full_and_preserves_old_identities() -> Result<(), String>
+{
     let mut grant = RemoteAccessGrant::request(
         "grant-replay-window",
         "household-alpha",
@@ -61,7 +63,7 @@ fn replay_history_is_bounded_and_oversized_snapshots_are_rejected() -> Result<()
     )
     .expect_value("grant request");
 
-    for index in 0..65 {
+    for index in 0..64 {
         let attempt_ref = Box::leak(format!("attempt-replay-window-{index}").into_boxed_str());
         let mut wrong_actor = context_for(attempt_ref);
         wrong_actor.actor_ref = "parent-other";
@@ -74,6 +76,26 @@ fn replay_history_is_bounded_and_oversized_snapshots_are_rejected() -> Result<()
         .as_array()
         .ok_or("bounded replay history must serialize as an array")?;
     assert_eq!(attempts.len(), 64);
+
+    let first_attempt = "attempt-replay-window-0";
+    let mut first_retry = context_for(first_attempt);
+    first_retry.actor_ref = "parent-other";
+    let retry = grant.transition(RemoteAccessGrantTransition::ConfirmParent, first_retry);
+    assert_eq!(retry.result, Err(RemoteAccessGrantError::WrongActor));
+
+    let new_attempt = context_for("attempt-replay-window-64");
+    let exhausted = grant.transition(RemoteAccessGrantTransition::ConfirmParent, new_attempt);
+    assert_eq!(
+        exhausted.result,
+        Err(RemoteAccessGrantError::ReplayWindowExhausted)
+    );
+    assert_eq!(grant.state(), RemoteAccessGrantState::Requested);
+    assert_eq!(
+        grant
+            .transition_with_audit(RemoteAccessGrantTransition::ConfirmParent, new_attempt)
+            .result,
+        Err(RemoteAccessGrantError::ReplayWindowExhausted)
+    );
 
     let mut oversized = encoded;
     let first_attempt = oversized["attempts"]
@@ -93,6 +115,62 @@ fn replay_history_is_bounded_and_oversized_snapshots_are_rejected() -> Result<()
         "serialized grant state violates lifecycle invariants"
     );
     Ok(())
+}
+
+#[test]
+fn accepted_milestone_result_state_must_match_its_transition() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-accepted-state-activate"),
+        )
+        .result
+        .expect_value("activate grant");
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Pause,
+            context_for("attempt-accepted-state-pause"),
+        )
+        .result
+        .expect_value("pause grant");
+
+    let mut encoded = serde_json::to_value(&grant).expect_value("serialize grant");
+    encoded["attempts"]
+        .as_array_mut()
+        .and_then(|attempts| attempts.last_mut())
+        .expect_value("pause milestone")["resultingState"] = serde_json::json!("active");
+    let error = serde_json::from_value::<RemoteAccessGrant>(encoded)
+        .err()
+        .expect_value("accepted state mismatch must be rejected")
+        .to_string();
+    assert_eq!(
+        error.split(" at ").next(),
+        Some("serialized grant state violates lifecycle invariants")
+    );
+}
+
+#[test]
+fn replay_denial_identity_includes_the_invalid_context() {
+    let mut grant = paired_grant();
+    let denied = grant.transition_with_audit(
+        RemoteAccessGrantTransition::Reconnect,
+        context_for("attempt-context-denied"),
+    );
+    assert_eq!(denied.result, Err(RemoteAccessGrantError::ReconnectDenied));
+
+    let mut different_route = context_for("attempt-context-denied");
+    different_route.route = RemoteRoute::CloudRelay;
+    let different =
+        grant.transition_with_audit(RemoteAccessGrantTransition::Reconnect, different_route);
+    assert_eq!(
+        different.result,
+        Err(RemoteAccessGrantError::InvalidTransition)
+    );
+    assert_ne!(
+        denied.audit.idempotency_key(),
+        different.audit.idempotency_key()
+    );
 }
 
 #[test]

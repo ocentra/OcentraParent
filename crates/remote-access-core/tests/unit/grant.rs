@@ -3,7 +3,8 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_grant::{
     RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantContext,
     RemoteAccessGrantDisclosureState, RemoteAccessGrantError, RemoteAccessGrantParentGrant,
-    RemoteAccessGrantState, RemoteAccessGrantTransition, RemoteAccessGrantTransitionAuthority,
+    RemoteAccessGrantRecoveryProof, RemoteAccessGrantState, RemoteAccessGrantTransition,
+    RemoteAccessGrantTransitionAuthority,
 };
 use ocentra_schema::remote_capability_fabric::{
     RemoteActorRole, RemoteDeviceTrustState, RemoteRoute,
@@ -39,6 +40,7 @@ pub(super) fn context_for(attempt_ref: &'static str) -> RemoteAccessGrantContext
         parent_authorized: true,
         child_disclosed: true,
         parent_grant_approved: true,
+        recovery_proof: RemoteAccessGrantRecoveryProof::NotRequired,
     }
 }
 

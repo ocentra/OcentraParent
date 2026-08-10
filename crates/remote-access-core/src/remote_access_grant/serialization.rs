@@ -5,7 +5,7 @@ use ocentra_schema::remote_capability_fabric::RemoteRoute;
 
 use super::{
     validation, RemoteAccessGrant, RemoteAccessGrantCapability, RemoteAccessGrantDisclosureState,
-    RemoteAccessGrantParentGrant, RemoteAccessGrantState,
+    RemoteAccessGrantParentGrant, RemoteAccessGrantState, RemoteAccessGrantStopRecoveryState,
 };
 
 #[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
@@ -26,6 +26,8 @@ struct RemoteAccessGrantSnapshot {
     attempts: Vec<super::RemoteAccessGrantAuditMilestone>,
     #[serde(default)]
     superseded_by: Option<String>,
+    #[serde(default)]
+    stop_recovery: RemoteAccessGrantStopRecoveryState,
 }
 
 fn default_parent_grant() -> RemoteAccessGrantParentGrant {
@@ -59,6 +61,7 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             audit_ref: snapshot.audit_ref,
             attempts: snapshot.attempts,
             superseded_by: snapshot.superseded_by,
+            stop_recovery: snapshot.stop_recovery,
             pending_supersession: None,
         };
         validation::serialized(&grant).map_err(D::Error::custom)?;

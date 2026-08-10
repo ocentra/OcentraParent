@@ -1,7 +1,7 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_grant::{
-    RemoteAccessGrant, RemoteAccessGrantError, RemoteAccessGrantState, RemoteAccessGrantTransition,
-    RemoteAccessGrantTransitionAuthority,
+    RemoteAccessGrant, RemoteAccessGrantError, RemoteAccessGrantRecoveryProof,
+    RemoteAccessGrantState, RemoteAccessGrantTransition, RemoteAccessGrantTransitionAuthority,
 };
 use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 
@@ -48,6 +48,53 @@ fn system_failure_can_stop_revoke_or_remove_without_parent_authority() {
         .result
         .expect_value("system stop");
     assert_eq!(stopped.state(), RemoteAccessGrantState::Stopped);
+}
+
+#[test]
+fn system_failure_stop_requires_recovery_proof_before_reconnect() {
+    let mut stopped = paired_grant();
+    stopped
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-recovery-stop-activate"),
+        )
+        .result
+        .expect_value("activate before recovery stop");
+
+    let mut system_stop = context_for("attempt-recovery-stop");
+    system_stop.actor_ref = "system-failure";
+    system_stop.parent_authorized = false;
+    system_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    stopped
+        .transition(RemoteAccessGrantTransition::Stop, system_stop)
+        .result
+        .expect_value("system stop");
+    stopped
+        .transition(
+            RemoteAccessGrantTransition::RequestReconnect,
+            context_for("attempt-recovery-request"),
+        )
+        .result
+        .expect_value("reconnect request");
+
+    assert_eq!(
+        stopped
+            .transition(
+                RemoteAccessGrantTransition::Reconnect,
+                context_for("attempt-recovery-denied"),
+            )
+            .result,
+        Err(RemoteAccessGrantError::ReconnectDenied)
+    );
+
+    let mut cleared = context_for("attempt-recovery-cleared");
+    cleared.recovery_proof = RemoteAccessGrantRecoveryProof::SystemConditionCleared;
+    assert_eq!(
+        stopped
+            .transition(RemoteAccessGrantTransition::Reconnect, cleared)
+            .result,
+        Ok(RemoteAccessGrantState::Active)
+    );
 }
 
 #[test]

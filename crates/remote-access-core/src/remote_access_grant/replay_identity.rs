@@ -1,6 +1,6 @@
 use super::{
     RemoteAccessGrant, RemoteAccessGrantAuditMilestone, RemoteAccessGrantContext,
-    RemoteAccessGrantTransition,
+    RemoteAccessGrantError, RemoteAccessGrantTransition,
 };
 use ocentra_schema::remote_capability_fabric::RemoteRoute;
 
@@ -19,12 +19,25 @@ pub(super) fn audit_route(
 pub(super) fn replay_denial_audit_ref(
     grant: &RemoteAccessGrant,
     transition: RemoteAccessGrantTransition,
+    context: &RemoteAccessGrantContext<'_>,
+    error: RemoteAccessGrantError,
 ) -> String {
     format!(
-        "{}:replay-denied:{}",
-        grant.audit_ref(),
-        transition_key(transition)
+        "{}:replay-denied:{}:{}:{}:{}:{}:{}:{}:{}",
+        encode_component(grant.audit_ref()),
+        encode_component(transition_key(transition)),
+        encode_component(grant.grant_id()),
+        encode_component(context.household_ref),
+        encode_component(context.actor_ref),
+        encode_component(context.child_device_ref),
+        encode_component(route_key(audit_route(grant, transition, context))),
+        encode_component(context.attempt_ref),
+        encode_component(error_key(error)),
     )
+}
+
+pub(super) fn encode_component(value: &str) -> String {
+    format!("{}:{}", value.len(), value)
 }
 
 pub(super) fn same_attempt_identity(
@@ -35,12 +48,13 @@ pub(super) fn same_attempt_identity(
 ) -> bool {
     previous.grant_id == grant.grant_id()
         && previous.household_ref == grant.household_ref()
+        && previous.household_ref == context.household_ref
         && previous.actor_ref == context.actor_ref
         && previous.attempt_ref == context.attempt_ref
         && previous.route == audit_route(grant, transition, context)
 }
 
-fn transition_key(transition: RemoteAccessGrantTransition) -> &'static str {
+pub(super) fn transition_key(transition: RemoteAccessGrantTransition) -> &'static str {
     const KEYS: [&str; 12] = [
         "confirm-parent",
         "pair",
@@ -56,4 +70,32 @@ fn transition_key(transition: RemoteAccessGrantTransition) -> &'static str {
         "supersede",
     ];
     KEYS[transition as usize]
+}
+
+const ROUTE_KEYS: [&str; 3] = ["localhost", "local-network", "cloud-relay"];
+
+fn route_key(route: RemoteRoute) -> &'static str {
+    ROUTE_KEYS[route as usize]
+}
+
+const ERROR_KEYS: [&str; 15] = [
+    "empty-field",
+    "wrong-household",
+    "wrong-actor",
+    "wrong-device",
+    "wrong-route",
+    "device-trust-required",
+    "parent-authority-required",
+    "child-disclosure-required",
+    "support-access-requires-parent-grant",
+    "invalid-transition",
+    "invalid-serialized-state",
+    "reconnect-denied",
+    "superseding-grant-required",
+    "superseding-grant-mismatch",
+    "replay-window-exhausted",
+];
+
+fn error_key(error: RemoteAccessGrantError) -> &'static str {
+    ERROR_KEYS[error as usize]
 }

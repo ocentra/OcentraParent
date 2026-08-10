@@ -2,7 +2,7 @@ use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 
 use super::{
     RemoteAccessGrant, RemoteAccessGrantDisclosureState, RemoteAccessGrantError,
-    RemoteAccessGrantParentGrant, RemoteAccessGrantState,
+    RemoteAccessGrantParentGrant, RemoteAccessGrantState, RemoteAccessGrantStopRecoveryState,
 };
 
 pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
@@ -31,6 +31,13 @@ pub(super) fn actor_role(role: &RemoteActorRole) -> Result<(), RemoteAccessGrant
 pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     fields(grant)?;
     actor_role(&grant.actor_role)?;
+    validate_attempts(grant)?;
+    validate_supersession(grant)?;
+    validate_lifecycle_evidence(grant)?;
+    validate_recovery(grant)
+}
+
+fn validate_attempts(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     if grant.attempts.len() > super::MAX_REPLAY_ATTEMPTS {
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
@@ -40,6 +47,8 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
             || attempt.attempt_ref.trim().is_empty()
             || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
                 && attempt.route != grant.route)
+            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
+                && accepted_resulting_state(attempt.transition) != attempt.resulting_state)
             || matches!(
                 (attempt.outcome, attempt.error.is_some()),
                 (super::RemoteAccessGrantAuditOutcome::Accepted, true)
@@ -48,14 +57,10 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
     }) {
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
-    let terminal = matches!(
-        grant.state,
-        RemoteAccessGrantState::Revoked
-            | RemoteAccessGrantState::Removed
-            | RemoteAccessGrantState::Denied
-            | RemoteAccessGrantState::Failed
-            | RemoteAccessGrantState::Superseded
-    );
+    Ok(())
+}
+
+fn validate_supersession(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     if grant.state == RemoteAccessGrantState::Superseded
         && grant
             .superseded_by
@@ -67,7 +72,11 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
     if grant.state != RemoteAccessGrantState::Superseded && grant.superseded_by.is_some() {
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
-    if !terminal {
+    Ok(())
+}
+
+fn validate_lifecycle_evidence(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
+    if !is_terminal(grant.state) {
         let expected_disclosure = [
             RemoteAccessGrantDisclosureState::Undisclosed,
             RemoteAccessGrantDisclosureState::Undisclosed,
@@ -102,4 +111,48 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
     Ok(())
+}
+
+fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
+    if grant.stop_recovery == RemoteAccessGrantStopRecoveryState::Pending
+        && !matches!(
+            grant.state,
+            RemoteAccessGrantState::Stopped | RemoteAccessGrantState::ReconnectPending
+        )
+    {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
+    Ok(())
+}
+
+fn is_terminal(state: RemoteAccessGrantState) -> bool {
+    matches!(
+        state,
+        RemoteAccessGrantState::Revoked
+            | RemoteAccessGrantState::Removed
+            | RemoteAccessGrantState::Denied
+            | RemoteAccessGrantState::Failed
+            | RemoteAccessGrantState::Superseded
+    )
+}
+
+const ACCEPTED_RESULTING_STATES: [RemoteAccessGrantState; 12] = [
+    RemoteAccessGrantState::ParentConfirmed,
+    RemoteAccessGrantState::Paired,
+    RemoteAccessGrantState::Active,
+    RemoteAccessGrantState::Paused,
+    RemoteAccessGrantState::Stopped,
+    RemoteAccessGrantState::ReconnectPending,
+    RemoteAccessGrantState::Active,
+    RemoteAccessGrantState::Revoked,
+    RemoteAccessGrantState::Removed,
+    RemoteAccessGrantState::Denied,
+    RemoteAccessGrantState::Failed,
+    RemoteAccessGrantState::Superseded,
+];
+
+fn accepted_resulting_state(
+    transition: super::RemoteAccessGrantTransition,
+) -> RemoteAccessGrantState {
+    ACCEPTED_RESULTING_STATES[transition as usize]
 }

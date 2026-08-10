@@ -28,7 +28,7 @@ pub(super) fn pause(
 }
 
 pub(super) fn stop(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if !matches!(
@@ -43,5 +43,12 @@ pub(super) fn stop(
     {
         return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
+    grant.stop_recovery = if context.transition_authority
+        == super::super::RemoteAccessGrantTransitionAuthority::SystemFailure
+    {
+        super::super::RemoteAccessGrantStopRecoveryState::Pending
+    } else {
+        super::super::RemoteAccessGrantStopRecoveryState::NotRequired
+    };
     Ok(RemoteAccessGrantState::Stopped)
 }
