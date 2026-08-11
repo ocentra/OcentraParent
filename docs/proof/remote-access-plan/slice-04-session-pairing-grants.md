@@ -123,6 +123,34 @@ This checkpoint closes only those reviewed grant-boundary defects locally. It
 does not claim WP04, the remote-access plan, fresh CI, review resolution, or a
 merge to `main`.
 
+## Review repair checkpoint (2026-08-11, authority and replay capacity)
+
+The next PR #645 review pass found three additional correctness defects. Audit
+milestones now persist the transition authority used by the live grant
+transition, so a nonempty system component identity can be restored only when
+the serialized milestone carries `SystemFailure` authority and the transition
+is a permitted safety transition. The audit event identity also includes that
+authority. At the full replay-window boundary, an allowed retry with the real
+child device replaces only its matching `WrongDevice` denial before recording
+the corrected result; it does not evict an unrelated denial or accepted audit
+history. The shared live-view contract rejects blank or whitespace-only stored
+and requesting parent actor references before equality can authorize access.
+
+| Command | Result |
+| --- | --- |
+| `cargo fmt --check` | passed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 73 passed, 0 failed |
+| `cargo test -p ocentra-schema --test contract remote_capability_fabric_authorization` | 2 passed, 0 failed; 111 unrelated tests filtered |
+| `npm run lint:architecture -- --files <12 touched remote-access/schema files>` | passed |
+| `npm run enforcer:check -- architecture-policy source-shape required-tests no-test-doubles validation-bypass` | passed |
+| `git diff --check` | passed |
+| `npm run hub:guard` | passed; no findings, blockers, conflicts, or merge risks |
+
+This remains a narrow review-repair checkpoint. It does not claim WP04, the
+remote-access plan, fresh CI, resolved review, persistence/relay integration,
+device-trust ownership, child or portal disclosure, custody, generated proof,
+or merge to `main`.
+
 ## No-claim boundary
 
 This manifest does not claim persistence adapters, relay/session transport,

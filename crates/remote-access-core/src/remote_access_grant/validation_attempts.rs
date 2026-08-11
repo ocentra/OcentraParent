@@ -49,7 +49,8 @@ fn has_invalid_accepted_actor(
         == ocentra_schema::remote_capability_fabric::RemoteActorRole::SupportAdmin
         && grant.parent_grant == super::RemoteAccessGrantParentGrant::Granted
         && grant.support_actor_ref.as_deref() == Some(attempt.actor_ref.as_str());
-    let system_actor = attempt.actor_ref == "system-failure"
+    let system_actor = attempt.transition_authority
+        == super::RemoteAccessGrantTransitionAuthority::SystemFailure
         && matches!(
             attempt.transition,
             super::RemoteAccessGrantTransition::Stop

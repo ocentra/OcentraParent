@@ -182,8 +182,10 @@ pub struct RemoteAccessGrantRequest {
     pub support_actor_ref: Option<String>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
 pub enum RemoteAccessGrantTransitionAuthority {
+    #[default]
     Parent,
     SystemFailure,
 }
@@ -213,6 +215,8 @@ pub struct RemoteAccessGrantAuditMilestone {
     pub route: RemoteRoute,
     pub attempt_ref: String,
     pub transition: RemoteAccessGrantTransition,
+    #[serde(default)]
+    pub transition_authority: RemoteAccessGrantTransitionAuthority,
     pub outcome: RemoteAccessGrantAuditOutcome,
     pub resulting_state: RemoteAccessGrantState,
     pub error: Option<RemoteAccessGrantError>,

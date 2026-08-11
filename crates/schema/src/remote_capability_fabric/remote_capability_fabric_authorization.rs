@@ -18,7 +18,10 @@ pub(super) fn require_actor(
             if support_actor_ref.is_some() {
                 return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
             }
-            if parent_actor_ref != requesting_actor_ref {
+            if parent_actor_ref.trim().is_empty()
+                || requesting_actor_ref.trim().is_empty()
+                || parent_actor_ref != requesting_actor_ref
+            {
                 return Err(RemoteCapabilityAuthorizationError::WrongParentActor);
             }
         }

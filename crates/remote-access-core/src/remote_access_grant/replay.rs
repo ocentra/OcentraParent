@@ -114,6 +114,7 @@ pub(super) fn transition_report(
             route: audit_route(grant, transition, &context),
             attempt_ref: context.attempt_ref.to_owned(),
             transition,
+            transition_authority: context.transition_authority,
             outcome,
             resulting_state,
             error,

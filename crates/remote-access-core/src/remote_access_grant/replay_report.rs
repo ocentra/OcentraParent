@@ -85,6 +85,7 @@ pub(super) fn denied_report(
             route,
             attempt_ref: context.attempt_ref.to_owned(),
             transition,
+            transition_authority: context.transition_authority,
             outcome: RemoteAccessGrantAuditOutcome::Denied,
             resulting_state: grant.state,
             error: Some(error),

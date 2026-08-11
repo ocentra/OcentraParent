@@ -20,6 +20,12 @@ pub(super) fn prepare(
     if grant.attempts.len() < super::MAX_REPLAY_ATTEMPTS {
         return Capacity::Attempts;
     }
+    if let Some(index) = grant.attempts.iter().position(|attempt| {
+        super::replay::is_child_device_retry(grant, attempt, transition, context)
+    }) {
+        grant.attempts.remove(index);
+        return Capacity::Attempts;
+    }
     if let Some(capacity) =
         super::replay_capacity_recovery::reserved_capacity(grant, transition, context)
     {

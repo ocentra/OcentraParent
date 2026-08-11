@@ -5,7 +5,8 @@ use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersi
 use super::{
     replay_identity::{encode_component, transition_key},
     RemoteAccessGrantAuditMilestone, RemoteAccessGrantAuditOutcome,
-    REMOTE_ACCESS_GRANT_AUDIT_EVENT_TYPE, REMOTE_ACCESS_GRANT_AUDIT_SCHEMA_VERSION,
+    RemoteAccessGrantTransitionAuthority, REMOTE_ACCESS_GRANT_AUDIT_EVENT_TYPE,
+    REMOTE_ACCESS_GRANT_AUDIT_SCHEMA_VERSION,
 };
 
 impl DomainEvent for RemoteAccessGrantAuditMilestone {
@@ -22,15 +23,23 @@ impl DomainEvent for RemoteAccessGrantAuditMilestone {
 
     fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
         IdempotencyKey::parse(format!(
-            "remote-access-grant:{}:{}:{}:{}:{}:{}:{}",
+            "remote-access-grant:{}:{}:{}:{}:{}:{}:{}:{}",
             encode_component(&self.grant_id),
             encode_component(&self.audit_ref),
             encode_component(&self.child_device_ref),
             encode_component(&self.attempt_ref),
             encode_component(self.replacement_grant_id.as_deref().unwrap_or("")),
             encode_component(transition_key(self.transition)),
+            encode_component(transition_authority_key(self.transition_authority)),
             encode_component(outcome_key(self.outcome)),
         ))
+    }
+}
+
+fn transition_authority_key(authority: RemoteAccessGrantTransitionAuthority) -> &'static str {
+    match authority {
+        RemoteAccessGrantTransitionAuthority::Parent => "parent",
+        RemoteAccessGrantTransitionAuthority::SystemFailure => "system-failure",
     }
 }
 

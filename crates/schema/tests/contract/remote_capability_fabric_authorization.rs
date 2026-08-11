@@ -45,3 +45,27 @@ fn remote_capability_requires_a_granted_parent_authorization_for_parent_roles() 
         );
     }
 }
+
+#[test]
+fn remote_capability_rejects_blank_parent_actor_references() {
+    for role in [
+        contracts::RemoteActorRole::ParentOwner,
+        contracts::RemoteActorRole::CoParent,
+    ] {
+        for (stored_actor_ref, requesting_actor_ref) in
+            [("", ""), (" ", " "), ("parent-owner-alpha", " ")]
+        {
+            let mut grant = paired_parent_grant(role.clone(), stored_actor_ref);
+            grant.parent_grant = contracts::RemoteParentGrantState::Granted;
+            assert_eq!(
+                grant.authorize_live_view(
+                    "household-alpha",
+                    requesting_actor_ref,
+                    "child-device-alpha",
+                    contracts::RemoteRoute::LocalNetwork,
+                ),
+                Err(contracts::RemoteCapabilityAuthorizationError::WrongParentActor)
+            );
+        }
+    }
+}

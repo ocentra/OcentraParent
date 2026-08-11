@@ -4,6 +4,9 @@ use ocentra_remote_access_core::remote_access_grant::{
 };
 
 use super::grant::{context_for, paired_grant};
+use ocentra_remote_access_core::remote_access_grant::{
+    RemoteAccessGrantState, RemoteAccessGrantTransitionAuthority,
+};
 
 #[test]
 fn deserialization_rejects_terminal_snapshot_without_prior_lifecycle_evidence() {
@@ -56,6 +59,40 @@ fn deserialization_rejects_blank_or_untrusted_accepted_actors() {
             .expect_value("accepted pair milestone")["actorRef"] = serde_json::json!(actor_ref);
         assert_invalid_snapshot(tampered, "tampered accepted actor is rejected");
     }
+}
+
+#[test]
+fn deserialization_preserves_component_system_authority_for_accepted_stops() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-component-system-activate"),
+        )
+        .result
+        .expect_value("activate grant before system stop");
+    let mut system_stop = context_for("attempt-component-system-stop");
+    system_stop.actor_ref = "watchdog";
+    system_stop.parent_authorized = false;
+    system_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Stop, system_stop)
+            .result,
+        Ok(RemoteAccessGrantState::Stopped)
+    );
+
+    let encoded = serde_json::to_value(&grant).expect_value("serialize component system stop");
+    let restored: RemoteAccessGrant =
+        serde_json::from_value(encoded.clone()).expect_value("restore component system stop");
+    assert_eq!(restored, grant);
+
+    let mut tampered = encoded;
+    tampered["attempts"]
+        .as_array_mut()
+        .and_then(|attempts| attempts.last_mut())
+        .expect_value("system stop milestone")["transitionAuthority"] = serde_json::json!("parent");
+    assert_invalid_snapshot(tampered, "system actor requires persisted system authority");
 }
 
 fn assert_invalid_snapshot(json: serde_json::Value, expectation: &str) {
