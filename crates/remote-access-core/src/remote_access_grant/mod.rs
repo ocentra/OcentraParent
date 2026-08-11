@@ -265,7 +265,7 @@ impl RemoteAccessGrant {
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
         if let Some(previous) = replay::previous_attempt(self, context.attempt_ref) {
-            if !replay::is_child_device_retry(&previous, &context) {
+            if !replay::is_child_device_retry(&previous, transition, &context) {
                 self.pending_supersession = None;
                 return replay_report::existing_report(self, previous, transition, context);
             }

@@ -26,10 +26,15 @@ pub(super) fn previous_attempt(
 
 pub(super) fn is_child_device_retry(
     previous: &RemoteAccessGrantAuditMilestone,
+    transition: RemoteAccessGrantTransition,
     context: &RemoteAccessGrantContext<'_>,
 ) -> bool {
     previous.outcome == RemoteAccessGrantAuditOutcome::Denied
         && previous.error == Some(super::RemoteAccessGrantError::WrongDevice)
+        && previous.transition == transition
+        && previous.household_ref == context.household_ref
+        && previous.actor_ref == context.actor_ref
+        && previous.route == context.route
         && previous.child_device_ref != context.child_device_ref
 }
 

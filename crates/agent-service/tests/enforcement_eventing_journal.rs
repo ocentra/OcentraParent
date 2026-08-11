@@ -168,6 +168,60 @@ async fn typed_provenance_does_not_infer_rejection_from_an_event_id_prefix() {
     let _ = remove_dir(&root);
 }
 
+#[tokio::test]
+async fn legacy_pre_dispatch_and_typed_final_dry_run_remain_distinct() {
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-legacy-provenance-{}",
+        EventId::generated().as_str()
+    ));
+    let eventing_path = root.join("audit.eventing");
+    let journal_path = eventing_journal::EnforcementEventingJournalPath {
+        path: eventing_path.clone(),
+    };
+    let mut legacy_payload =
+        serde_json::to_value(journal_event()).expect_value("serialize legacy journal shape");
+    legacy_payload
+        .as_object_mut()
+        .expect_value("legacy journal object")
+        .remove("provenance");
+    let mut legacy: EnforcementAuditJournalEvent = serde_json::from_value(legacy_payload)
+        .expect_value("deserialize journal record written before provenance");
+    assert_eq!(legacy.provenance, EnforcementAuditJournalProvenance::Legacy);
+    legacy.audit_event_id = "audit:legacy-before-dispatch".to_string();
+    eventing_journal::append_enforcement_audit_journal_event_phase(
+        journal_path.clone(),
+        legacy,
+        CorrelationId::parse("correlation:legacy-before-dispatch".to_string())
+            .expect_value("legacy correlation id"),
+        JournalDispatchPhase::AfterDispatch,
+    )
+    .await
+    .expect_value("append legacy pre-dispatch projection");
+
+    let mut final_dry_run = journal_event();
+    final_dry_run.audit_event_id = "audit:typed-final-dry-run".to_string();
+    final_dry_run.provenance = EnforcementAuditJournalProvenance::AdapterResult;
+    final_dry_run.completed_at = Some("2026-08-05T00:00:01Z".to_string());
+    eventing_journal::append_enforcement_audit_journal_event_phase(
+        journal_path,
+        final_dry_run,
+        CorrelationId::parse("correlation:typed-final-dry-run".to_string())
+            .expect_value("typed final correlation id"),
+        JournalDispatchPhase::AfterDispatch,
+    )
+    .await
+    .expect_value("append typed final dry-run result");
+
+    let rows = read_enforcement_audit_history(EnforcementAuditHistoryPath(eventing_path.clone()))
+        .await
+        .expect_value("read distinct legacy and final provenance rows");
+    assert_eq!(rows.len(), 2);
+    assert_eq!(rows[0].kind, EnforcementAuditHistoryKind::AcceptedIntent);
+    assert_eq!(rows[1].kind, EnforcementAuditHistoryKind::AdapterResult);
+    cleanup(&eventing_path);
+    let _ = remove_dir(&root);
+}
+
 fn transition_matrix() -> [EnforcementAuditJournalEvent; 7] {
     [
         matrix_event(

@@ -28,6 +28,8 @@ pub(super) fn apply(
         | RemoteAccessGrantTransition::Supersede => terminal::apply(grant, transition, context)?,
     };
     grant.state = next;
-    grant.restart_recovery_at = None;
+    if transition != RemoteAccessGrantTransition::Reconnect {
+        grant.restart_recovery_at = None;
+    }
     Ok(next)
 }

@@ -53,12 +53,10 @@ pub(super) fn require_target(
 }
 
 pub(super) fn require_safe_support_redaction(
-    actor_role: &RemoteActorRole,
+    _actor_role: &RemoteActorRole,
     redaction_state: RemoteDiagnosticRedactionState,
 ) -> Result<(), RemoteCapabilityAuthorizationError> {
-    if *actor_role == RemoteActorRole::SupportAdmin
-        && redaction_state != RemoteDiagnosticRedactionState::Redacted
-    {
+    if redaction_state != RemoteDiagnosticRedactionState::Redacted {
         return Err(RemoteCapabilityAuthorizationError::DiagnosticRedactionRequired);
     }
     Ok(())

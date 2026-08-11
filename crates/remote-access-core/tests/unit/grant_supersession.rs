@@ -1,11 +1,47 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_grant::{
     RemoteAccessGrant, RemoteAccessGrantError, RemoteAccessGrantRecoveryProof,
-    RemoteAccessGrantState, RemoteAccessGrantTransition, RemoteAccessGrantTransitionAuthority,
+    RemoteAccessGrantRequest, RemoteAccessGrantState, RemoteAccessGrantTransition,
+    RemoteAccessGrantTransitionAuthority,
 };
 use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 
 use super::grant::{context_for, paired_grant, CHILD, HOUSEHOLD, PARENT, ROUTE};
+
+#[test]
+fn support_actor_shape_is_rejected_during_request_construction() {
+    let missing_support_actor =
+        RemoteAccessGrant::request_with_support_actor(RemoteAccessGrantRequest {
+            grant_id: "grant-support-missing".to_string(),
+            household_ref: HOUSEHOLD.to_string(),
+            child_device_ref: CHILD.to_string(),
+            route: ROUTE,
+            parent_actor_ref: PARENT.to_string(),
+            actor_role: RemoteActorRole::SupportAdmin,
+            audit_ref: "audit-support-missing".to_string(),
+            support_actor_ref: None,
+        });
+    assert_eq!(
+        missing_support_actor,
+        Err(RemoteAccessGrantError::InvalidSerializedState)
+    );
+
+    let parent_with_support_actor =
+        RemoteAccessGrant::request_with_support_actor(RemoteAccessGrantRequest {
+            grant_id: "grant-parent-support".to_string(),
+            household_ref: HOUSEHOLD.to_string(),
+            child_device_ref: CHILD.to_string(),
+            route: ROUTE,
+            parent_actor_ref: PARENT.to_string(),
+            actor_role: RemoteActorRole::ParentOwner,
+            audit_ref: "audit-parent-support".to_string(),
+            support_actor_ref: Some("support-admin-alpha".to_string()),
+        });
+    assert_eq!(
+        parent_with_support_actor,
+        Err(RemoteAccessGrantError::InvalidSerializedState)
+    );
+}
 
 #[test]
 fn system_failure_can_stop_revoke_or_remove_without_parent_authority() {

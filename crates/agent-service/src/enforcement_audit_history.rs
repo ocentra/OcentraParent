@@ -63,20 +63,35 @@ pub async fn read_enforcement_audit_history(
 
 fn history_kind(event: &EnforcementAuditJournalEvent) -> EnforcementAuditHistoryKind {
     match event.provenance {
+        EnforcementAuditJournalProvenance::Legacy => {
+            if event.audit_event_kind == EnforcementAuditEventKind::Attempted
+                && event.result_status
+                    == ocentra_parent_agent_protocol::enforcement::EnforcementResultStatus::WouldEnforce
+                && event.completed_at.is_none()
+            {
+                EnforcementAuditHistoryKind::AcceptedIntent
+            } else {
+                adapter_history_kind(event)
+            }
+        }
         EnforcementAuditJournalProvenance::RejectedIntent => {
             EnforcementAuditHistoryKind::RejectedIntent
         }
         EnforcementAuditJournalProvenance::AcceptedIntent => {
             EnforcementAuditHistoryKind::AcceptedIntent
         }
-        EnforcementAuditJournalProvenance::AdapterResult => match event.audit_event_kind {
-            EnforcementAuditEventKind::Expired => EnforcementAuditHistoryKind::TimerExpired,
-            EnforcementAuditEventKind::RollbackRequested
-            | EnforcementAuditEventKind::RollbackCompleted => {
-                EnforcementAuditHistoryKind::TimerRollback
-            }
-            EnforcementAuditEventKind::Cancelled => EnforcementAuditHistoryKind::TimerCancelled,
-            _ => EnforcementAuditHistoryKind::AdapterResult,
-        },
+        EnforcementAuditJournalProvenance::AdapterResult => adapter_history_kind(event),
+    }
+}
+
+fn adapter_history_kind(event: &EnforcementAuditJournalEvent) -> EnforcementAuditHistoryKind {
+    match event.audit_event_kind {
+        EnforcementAuditEventKind::Expired => EnforcementAuditHistoryKind::TimerExpired,
+        EnforcementAuditEventKind::RollbackRequested
+        | EnforcementAuditEventKind::RollbackCompleted => {
+            EnforcementAuditHistoryKind::TimerRollback
+        }
+        EnforcementAuditEventKind::Cancelled => EnforcementAuditHistoryKind::TimerCancelled,
+        _ => EnforcementAuditHistoryKind::AdapterResult,
     }
 }

@@ -296,6 +296,69 @@ fn accepted_milestone_result_state_must_match_its_transition() {
 }
 
 #[test]
+fn completed_restart_recovery_retains_its_original_reconnect_boundary() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-restart-completed-activate"),
+        )
+        .result
+        .expect_value("activate grant");
+
+    let mut restored: RemoteAccessGrant =
+        serde_json::from_value(serde_json::to_value(&grant).expect_value("serialize active grant"))
+            .expect_value("restore active grant at reconnect boundary");
+    restored
+        .transition(
+            RemoteAccessGrantTransition::Reconnect,
+            context_for("attempt-restart-completed-reconnect"),
+        )
+        .result
+        .expect_value("complete recovered reconnect");
+    assert_eq!(restored.state(), RemoteAccessGrantState::Active);
+
+    let round_tripped: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&restored).expect_value("serialize completed recovery"),
+    )
+    .expect_value("restore completed recovery without moving its boundary");
+    assert_eq!(round_tripped, restored);
+}
+
+#[test]
+fn corrected_device_retry_cannot_reuse_an_attempt_for_another_transition() {
+    let mut grant = paired_grant();
+    let mut wrong_device = context_for("attempt-corrected-device");
+    wrong_device.child_device_ref = "child-other";
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Activate, wrong_device)
+            .result,
+        Err(RemoteAccessGrantError::WrongDevice)
+    );
+
+    let mismatched_transition = grant.transition(
+        RemoteAccessGrantTransition::Revoke,
+        context_for("attempt-corrected-device"),
+    );
+    assert_eq!(
+        mismatched_transition.result,
+        Err(RemoteAccessGrantError::InvalidTransition)
+    );
+    assert_eq!(grant.state(), RemoteAccessGrantState::Paired);
+
+    assert_eq!(
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Activate,
+                context_for("attempt-corrected-device"),
+            )
+            .result,
+        Ok(RemoteAccessGrantState::Active)
+    );
+}
+
+#[test]
 fn serialized_accepted_milestones_must_follow_reachable_history() {
     let grant = paired_grant();
     let mut encoded = serde_json::to_value(&grant).expect_value("serialize grant");

@@ -586,9 +586,12 @@ pub struct EnforcementAuditJournalEvent {
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum EnforcementAuditJournalProvenance {
+    /// Journal records written before provenance was introduced. Projection
+    /// consumers may derive only the safe legacy accepted-intent shape.
+    #[default]
+    Legacy,
     RejectedIntent,
     AcceptedIntent,
-    #[default]
     AdapterResult,
 }
 
@@ -607,13 +610,7 @@ impl From<&EnforcementAuditEvent> for EnforcementAuditJournalEvent {
             adapter_kind: audit.action.adapter_kind,
             platform: audit.action.platform,
             audit_event_kind: audit.audit_event_kind,
-            provenance: if audit.audit_event_kind == EnforcementAuditEventKind::Attempted
-                && audit.result.status == EnforcementResultStatus::WouldEnforce
-            {
-                EnforcementAuditJournalProvenance::AcceptedIntent
-            } else {
-                EnforcementAuditJournalProvenance::AdapterResult
-            },
+            provenance: EnforcementAuditJournalProvenance::AdapterResult,
             result_status: audit.result.status,
             adapter_result_code: audit.result.adapter_result_code,
             capability_state: audit.capability.capability_state,

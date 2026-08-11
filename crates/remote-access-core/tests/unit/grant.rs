@@ -458,6 +458,16 @@ fn accepted_attempt_replays_the_original_report_after_retry_and_restore() {
         "persisted non-requested grant must retain transition history"
     );
 
+    let mut explicit_empty_history =
+        serde_json::to_value(&active).expect_value("serialize active grant for empty history");
+    explicit_empty_history["attempts"] = serde_json::json!([]);
+    let explicit_empty_error = serde_json::from_value::<RemoteAccessGrant>(explicit_empty_history)
+        .expect_err_value("non-requested snapshots with explicit empty history must be rejected");
+    assert_eq!(
+        explicit_empty_error.to_string(),
+        "persisted non-requested grant must retain transition history"
+    );
+
     let mut progressed = paired_grant();
     let activated = progressed.transition_with_audit(
         RemoteAccessGrantTransition::Activate,

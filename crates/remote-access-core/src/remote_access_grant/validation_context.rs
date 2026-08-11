@@ -31,6 +31,7 @@ impl RemoteAccessGrant {
         };
         super::validation::fields(&grant)?;
         super::validation::actor_role(&grant.actor_role)?;
+        validate_support_actor(&grant)?;
         Ok(grant)
     }
 }

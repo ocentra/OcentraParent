@@ -123,8 +123,10 @@ fn validate_lifecycle_evidence(grant: &RemoteAccessGrant) -> Result<(), RemoteAc
 
 fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     if let Some(index) = grant.restart_recovery_at {
-        if grant.state != RemoteAccessGrantState::ReconnectPending
-            || index > grant.attempts.len()
+        if !matches!(
+            grant.state,
+            RemoteAccessGrantState::ReconnectPending | RemoteAccessGrantState::Active
+        ) || index > grant.attempts.len()
             || grant.terminal_milestone.is_some()
         {
             return Err(RemoteAccessGrantError::InvalidSerializedState);

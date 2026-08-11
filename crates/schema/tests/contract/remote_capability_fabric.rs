@@ -73,6 +73,32 @@ fn remote_capability_live_view_authorizes_only_the_paired_trusted_household_gran
 }
 
 #[test]
+fn remote_capability_live_view_requires_redaction_for_every_actor_role() {
+    let mut grant = paired_live_view_grant();
+    grant.diagnostic_redaction_state = contracts::RemoteDiagnosticRedactionState::Raw;
+    assert_eq!(
+        grant.authorize_live_view(
+            "household-alpha",
+            "parent-owner-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
+        ),
+        Err(contracts::RemoteCapabilityAuthorizationError::DiagnosticRedactionRequired)
+    );
+
+    grant.diagnostic_redaction_state = contracts::RemoteDiagnosticRedactionState::Unknown;
+    assert_eq!(
+        grant.authorize_live_view(
+            "household-alpha",
+            "parent-owner-alpha",
+            "child-device-alpha",
+            contracts::RemoteRoute::LocalNetwork,
+        ),
+        Err(contracts::RemoteCapabilityAuthorizationError::DiagnosticRedactionRequired)
+    );
+}
+
+#[test]
 fn remote_capability_rejects_deferred_control_wrong_household_role_pairing_trust_and_terminal_grants(
 ) {
     let mut grant = paired_live_view_grant();

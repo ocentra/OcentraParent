@@ -51,7 +51,9 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
         // reconnect gate so a fresh, typed context must authorize live access.
         let persisted_state = snapshot.state;
         let attempts_present = snapshot.attempts.is_some();
-        if !attempts_present && snapshot.state != RemoteAccessGrantState::Requested {
+        if snapshot.state != RemoteAccessGrantState::Requested
+            && (!attempts_present || snapshot.attempts.as_ref().is_some_and(Vec::is_empty))
+        {
             return Err(D::Error::custom(
                 "persisted non-requested grant must retain transition history",
             ));
