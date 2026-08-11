@@ -1,8 +1,8 @@
 use ocentra_schema::remote_capability_fabric::RemoteActorRole;
 
 use super::{
-    RemoteAccessGrant, RemoteAccessGrantDisclosureState, RemoteAccessGrantError,
-    RemoteAccessGrantParentGrant, RemoteAccessGrantState, RemoteAccessGrantStopRecoveryState,
+    RemoteAccessGrant, RemoteAccessGrantError, RemoteAccessGrantState,
+    RemoteAccessGrantStopRecoveryState,
 };
 
 pub(super) fn fields(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
@@ -32,40 +32,12 @@ pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
     fields(grant)?;
     actor_role(&grant.actor_role)?;
     super::validation_context::validate_support_actor(grant)?;
-    validate_attempts(grant)?;
+    super::validation_attempts::validate(grant)?;
     super::validation_terminal::validate(grant)?;
     super::validation_history::validate(grant)?;
     validate_supersession(grant)?;
-    validate_lifecycle_evidence(grant)?;
+    super::validation_lifecycle::validate(grant)?;
     validate_recovery(grant)
-}
-
-fn validate_attempts(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
-    if grant.attempts.len() > super::MAX_REPLAY_ATTEMPTS {
-        return Err(RemoteAccessGrantError::InvalidSerializedState);
-    }
-    if grant.attempts.iter().any(|attempt| {
-        attempt.grant_id != grant.grant_id
-            || attempt.audit_ref != grant.audit_ref
-            || attempt.attempt_ref.trim().is_empty()
-            || attempt.child_device_ref.trim().is_empty()
-            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
-                && attempt.household_ref != grant.household_ref)
-            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
-                && attempt.child_device_ref != grant.child_device_ref)
-            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
-                && attempt.route != grant.route)
-            || (attempt.outcome == super::RemoteAccessGrantAuditOutcome::Accepted
-                && accepted_resulting_state(attempt.transition) != attempt.resulting_state)
-            || matches!(
-                (attempt.outcome, attempt.error.is_some()),
-                (super::RemoteAccessGrantAuditOutcome::Accepted, true)
-                    | (super::RemoteAccessGrantAuditOutcome::Denied, false)
-            )
-    }) {
-        return Err(RemoteAccessGrantError::InvalidSerializedState);
-    }
-    Ok(())
 }
 
 fn validate_supersession(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
@@ -78,44 +50,6 @@ fn validate_supersession(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
     if grant.state != RemoteAccessGrantState::Superseded && grant.superseded_by.is_some() {
-        return Err(RemoteAccessGrantError::InvalidSerializedState);
-    }
-    Ok(())
-}
-
-fn validate_lifecycle_evidence(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
-    if !is_terminal(grant.state) {
-        let expected_disclosure = [
-            RemoteAccessGrantDisclosureState::Undisclosed,
-            RemoteAccessGrantDisclosureState::Undisclosed,
-            RemoteAccessGrantDisclosureState::Disclosed,
-            RemoteAccessGrantDisclosureState::Disclosed,
-            RemoteAccessGrantDisclosureState::Disclosed,
-            RemoteAccessGrantDisclosureState::Disclosed,
-            RemoteAccessGrantDisclosureState::Disclosed,
-            RemoteAccessGrantDisclosureState::Disclosed,
-            RemoteAccessGrantDisclosureState::Disclosed,
-        ][grant.state as usize];
-        let expected_parent_grant = [
-            RemoteAccessGrantParentGrant::NotGranted,
-            RemoteAccessGrantParentGrant::Granted,
-            RemoteAccessGrantParentGrant::Granted,
-            RemoteAccessGrantParentGrant::Granted,
-            RemoteAccessGrantParentGrant::Granted,
-            RemoteAccessGrantParentGrant::Granted,
-            RemoteAccessGrantParentGrant::Granted,
-            RemoteAccessGrantParentGrant::Granted,
-            RemoteAccessGrantParentGrant::Granted,
-        ][grant.state as usize];
-        if grant.disclosure_state != expected_disclosure
-            || grant.parent_grant != expected_parent_grant
-        {
-            return Err(RemoteAccessGrantError::InvalidSerializedState);
-        }
-    }
-    if grant.disclosure_state == RemoteAccessGrantDisclosureState::Disclosed
-        && grant.parent_grant != RemoteAccessGrantParentGrant::Granted
-    {
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }
     Ok(())

@@ -16,9 +16,11 @@ mod replay_report;
 mod serialization;
 mod transition;
 mod validation;
+mod validation_attempts;
 mod validation_context;
 mod validation_history;
 mod validation_history_support;
+mod validation_lifecycle;
 mod validation_terminal;
 
 /// Number of transition attempts retained for idempotent replay after a grant

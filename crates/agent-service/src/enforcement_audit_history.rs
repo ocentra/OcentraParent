@@ -7,11 +7,11 @@ use ocentra_eventing::{
     replay::ReplayFilter,
 };
 use ocentra_parent_agent_protocol::{
-    constants::enforcement,
-    enforcement::{
-        EnforcementAuditEventKind, EnforcementAuditJournalEvent, EnforcementAuditJournalProvenance,
-    },
+    constants::enforcement, enforcement::EnforcementAuditJournalEvent,
 };
+
+#[path = "enforcement_audit_history/kind.rs"]
+mod kind;
 
 /// Filesystem boundary for the projection-only enforcement journal reader.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -54,44 +54,9 @@ pub async fn read_enforcement_audit_history(
             let decoded = record.envelope.decode::<EnforcementAuditJournalEvent>()?;
             Ok(EnforcementAuditHistoryRow {
                 sequence: record.sequence,
-                kind: history_kind(&decoded.payload),
+                kind: kind::for_event(&decoded.payload),
                 event: decoded.payload,
             })
         })
         .collect()
-}
-
-fn history_kind(event: &EnforcementAuditJournalEvent) -> EnforcementAuditHistoryKind {
-    match event.provenance {
-        EnforcementAuditJournalProvenance::Legacy => {
-            if event.audit_event_kind == EnforcementAuditEventKind::Attempted
-                && event.result_status
-                    == ocentra_parent_agent_protocol::enforcement::EnforcementResultStatus::WouldEnforce
-                && event.completed_at.is_none()
-            {
-                EnforcementAuditHistoryKind::AcceptedIntent
-            } else {
-                adapter_history_kind(event)
-            }
-        }
-        EnforcementAuditJournalProvenance::RejectedIntent => {
-            EnforcementAuditHistoryKind::RejectedIntent
-        }
-        EnforcementAuditJournalProvenance::AcceptedIntent => {
-            EnforcementAuditHistoryKind::AcceptedIntent
-        }
-        EnforcementAuditJournalProvenance::AdapterResult => adapter_history_kind(event),
-    }
-}
-
-fn adapter_history_kind(event: &EnforcementAuditJournalEvent) -> EnforcementAuditHistoryKind {
-    match event.audit_event_kind {
-        EnforcementAuditEventKind::Expired => EnforcementAuditHistoryKind::TimerExpired,
-        EnforcementAuditEventKind::RollbackRequested
-        | EnforcementAuditEventKind::RollbackCompleted => {
-            EnforcementAuditHistoryKind::TimerRollback
-        }
-        EnforcementAuditEventKind::Cancelled => EnforcementAuditHistoryKind::TimerCancelled,
-        _ => EnforcementAuditHistoryKind::AdapterResult,
-    }
 }

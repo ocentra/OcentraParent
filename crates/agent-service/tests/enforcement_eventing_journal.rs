@@ -222,6 +222,47 @@ async fn legacy_pre_dispatch_and_typed_final_dry_run_remain_distinct() {
     let _ = remove_dir(&root);
 }
 
+#[tokio::test]
+async fn legacy_rejection_and_timer_pre_dispatch_keep_their_history_kind() {
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-legacy-kind-{}",
+        EventId::generated().as_str()
+    ));
+    let eventing_path = root.join("audit.eventing");
+    let journal_path = eventing_journal::EnforcementEventingJournalPath {
+        path: eventing_path.clone(),
+    };
+    let mut legacy_rejection = journal_event();
+    legacy_rejection.audit_event_id = "audit:legacy-rejection".to_string();
+    legacy_rejection.audit_event_kind = EnforcementAuditEventKind::Failed;
+    legacy_rejection.result_status = EnforcementResultStatus::Failed;
+    let mut legacy_timer = journal_event();
+    legacy_timer.audit_event_id = "audit:legacy-timer-pre-dispatch".to_string();
+    legacy_timer.audit_event_kind = EnforcementAuditEventKind::Expired;
+    legacy_timer.result_status = EnforcementResultStatus::WouldEnforce;
+
+    for event in [legacy_rejection, legacy_timer] {
+        let legacy = legacy_journal_event(event);
+        eventing_journal::append_enforcement_audit_journal_event_phase(
+            journal_path.clone(),
+            legacy.clone(),
+            CorrelationId::parse(format!("correlation:{}", legacy.audit_event_id))
+                .expect_value("legacy correlation id"),
+            JournalDispatchPhase::AfterDispatch,
+        )
+        .await
+        .expect_value("append legacy journal record");
+    }
+
+    let rows = read_enforcement_audit_history(EnforcementAuditHistoryPath(eventing_path.clone()))
+        .await
+        .expect_value("read legacy journal history");
+    assert_eq!(rows[0].kind, EnforcementAuditHistoryKind::RejectedIntent);
+    assert_eq!(rows[1].kind, EnforcementAuditHistoryKind::TimerExpired);
+    cleanup(&eventing_path);
+    let _ = remove_dir(&root);
+}
+
 fn transition_matrix() -> [EnforcementAuditJournalEvent; 7] {
     [
         matrix_event(
@@ -417,6 +458,15 @@ fn journal_event() -> EnforcementAuditJournalEvent {
         target_route: Some("local-network".to_string()),
         observed_at: "2026-08-05T00:00:00Z".to_string(),
     }
+}
+
+fn legacy_journal_event(event: EnforcementAuditJournalEvent) -> EnforcementAuditJournalEvent {
+    let mut payload = serde_json::to_value(event).expect_value("serialize legacy journal shape");
+    payload
+        .as_object_mut()
+        .expect_value("legacy journal object")
+        .remove("provenance");
+    serde_json::from_value(payload).expect_value("deserialize journal record without provenance")
 }
 
 fn cleanup(eventing_path: &std::path::Path) {
