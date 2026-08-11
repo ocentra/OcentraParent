@@ -68,8 +68,8 @@ const portalLogBridgeEnvKey = 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL';
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const loopbackTestEnvironment = createLoopbackOnlyTestEnvironment();
 const managedBrowserStatusEnvironment = {
-  OCENTRA_MANAGED_BROWSER_EXECUTABLE: path.join(devLogDir, 'managed-browser-unavailable.exe'),
-  OCENTRA_MANAGED_BROWSER_PROFILE_DIR: path.join(devLogDir, 'managed-browser-profile'),
+  OCENTRA_PARENT_MANAGED_BROWSER_EXECUTABLE: path.join(devLogDir, 'managed-browser-unavailable.exe'),
+  OCENTRA_PARENT_MANAGED_BROWSER_PROFILE_DIR: path.join(devLogDir, 'managed-browser-profile'),
 };
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];

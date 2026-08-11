@@ -335,6 +335,14 @@ impl RemoteAccessGrant {
         replacement: &Self,
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
+        if !validation_context::has_valid_replay_identity(&context) {
+            return replay_report::denied_report(
+                self,
+                RemoteAccessGrantTransition::Supersede,
+                context,
+                RemoteAccessGrantError::EmptyField,
+            );
+        }
         if !replay::replacement_scope_matches(self, replacement) {
             return replay_report::denied_report(
                 self,

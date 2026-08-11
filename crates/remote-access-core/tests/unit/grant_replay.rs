@@ -468,6 +468,19 @@ fn system_recovery_reserves_capacity_for_reconnect_request_and_completion() {
             .result,
         Ok(RemoteAccessGrantState::Active)
     );
+    restarted
+        .transition(
+            RemoteAccessGrantTransition::Revoke,
+            context_for("attempt-system-recovery-terminal-revoke"),
+        )
+        .result
+        .expect_value("terminal invalidation must retain saturated recovery evidence");
+    let terminal: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&restarted)
+            .expect_value("serialize saturated terminal system recovery"),
+    )
+    .expect_value("restore saturated terminal system recovery");
+    assert_eq!(terminal.state(), RemoteAccessGrantState::Revoked);
 }
 
 #[test]

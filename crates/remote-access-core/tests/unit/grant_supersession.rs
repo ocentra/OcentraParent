@@ -328,6 +328,36 @@ fn supersession_rejects_a_different_scope_or_missing_replacement() {
 }
 
 #[test]
+fn invalid_supersession_identity_does_not_arm_a_replacement() {
+    let mut grant = paired_grant();
+    let replacement = RemoteAccessGrant::request(
+        "grant-invalid-supersession-replacement",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-invalid-supersession-replacement",
+    )
+    .expect_value("replacement grant");
+    let mut invalid_context = context_for("attempt-invalid-supersession-identity");
+    invalid_context.household_ref = " ";
+    assert_eq!(
+        grant.supersede_with(&replacement, invalid_context).result,
+        Err(RemoteAccessGrantError::EmptyField)
+    );
+    assert_eq!(
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Supersede,
+                context_for("attempt-supersession-without-replacement"),
+            )
+            .result,
+        Err(RemoteAccessGrantError::SupersedingGrantRequired)
+    );
+}
+
+#[test]
 fn replayed_supersession_does_not_leave_a_pending_replacement_armed() {
     let mut grant = paired_grant();
     grant

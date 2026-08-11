@@ -69,6 +69,33 @@ paired/reconnecting states. The focused unit count is now 54, the schema
 contract remains 7, and the follow-up CI run plus exact review-thread
 resolution remain open until GitHub checks the updated commit.
 
+## Review repair checkpoint (2026-08-11)
+
+The next review pass found three additional P2 correctness issues. The
+follow-up repair keeps the saturated system-failure `Stop` recovery milestone
+when a dependent reconnect-request milestone remains through a terminal
+transition, so the terminal snapshot remains deserializable. It rejects an
+invalid supersession replay identity before a replacement grant can be armed,
+and it corrects the portal E2E runner to supply the managed-browser executable
+and profile variables consumed by the agent service.
+
+Captured local validation for this repair:
+
+| Command | Result |
+| --- | --- |
+| `cargo fmt --check` | passed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 69 passed, 0 failed |
+| `node --check scripts/test/portal-playwright-runner.mjs` | passed |
+| `npm run lint:architecture -- --files crates/remote-access-core/src/remote_access_grant crates/remote-access-core/tests/unit/grant_replay.rs crates/remote-access-core/tests/unit/grant_supersession.rs scripts/test/portal-playwright-runner.mjs` | passed |
+| `npm run enforcer:check -- architecture-policy source-shape required-tests no-test-doubles validation-bypass` | passed |
+| `npm run hub:guard` | passed; no findings, blockers, conflicts, or merge risks |
+
+The direct portal-to-Rust runner was started locally in its isolated loopback
+environment and completed its child-process cleanup, but this desktop harness
+did not retain the parent exit stream after the session timeout. It is not
+claimed as a local pass here; the corrected environment wiring requires the
+fresh PR CI portal E2E gates before this review checkpoint can be accepted.
+
 ## No-claim boundary
 
 This manifest does not claim persistence adapters, relay/session transport,
