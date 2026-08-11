@@ -328,6 +328,46 @@ fn supersession_rejects_a_different_scope_or_missing_replacement() {
 }
 
 #[test]
+fn supersession_rejects_a_terminal_same_scope_replacement() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-supersede-terminal-old-activate"),
+        )
+        .result
+        .expect_value("activate old grant");
+    let mut terminal_replacement = RemoteAccessGrant::request(
+        "grant-terminal-replacement",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-terminal-replacement",
+    )
+    .expect_value("terminal replacement grant");
+    terminal_replacement
+        .transition(
+            RemoteAccessGrantTransition::Revoke,
+            context_for("attempt-terminal-replacement-revoke"),
+        )
+        .result
+        .expect_value("revoke replacement before supersession");
+
+    assert_eq!(
+        grant
+            .supersede_with(
+                &terminal_replacement,
+                context_for("attempt-supersede-terminal-replacement"),
+            )
+            .result,
+        Err(RemoteAccessGrantError::SupersedingGrantMismatch)
+    );
+    assert_eq!(grant.state(), RemoteAccessGrantState::Active);
+}
+
+#[test]
 fn invalid_supersession_identity_does_not_arm_a_replacement() {
     let mut grant = paired_grant();
     let replacement = RemoteAccessGrant::request(

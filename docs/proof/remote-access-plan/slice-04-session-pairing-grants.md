@@ -96,6 +96,33 @@ did not retain the parent exit stream after the session timeout. It is not
 claimed as a local pass here; the corrected environment wiring requires the
 fresh PR CI portal E2E gates before this review checkpoint can be accepted.
 
+## Paginated review repair checkpoint (2026-08-11)
+
+The PR review gate paginates review threads. A second page contained three
+additional findings after the first 100 threads: completed saturated
+system-failure recovery needed a fresh stop slot, restored accepted audit
+milestones needed actor validation, and a rotation replacement could not be
+terminal. The Rust-owned grant boundary now recycles only a fully completed
+active recovery sequence before reserving a later system-failure stop; it
+retains pending/restart evidence for replay and terminal serialization. It
+rejects blank or untrusted accepted actors during restore, permitting only the
+recorded parent, a parent-approved support actor, or the canonical
+`system-failure` authority on its permitted safety transitions. It also accepts
+supersession replacements only while they remain newly requested.
+
+| Command | Result |
+| --- | --- |
+| `cargo fmt --check` | passed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 71 passed, 0 failed |
+| `git diff --check` | passed |
+| `npm run lint:architecture -- --files crates/remote-access-core/src/remote_access_grant/replay_capacity_recovery.rs crates/remote-access-core/src/remote_access_grant/validation_attempts.rs crates/remote-access-core/src/remote_access_grant/replay.rs crates/remote-access-core/tests/unit/grant.rs crates/remote-access-core/tests/unit/grant_persistence.rs crates/remote-access-core/tests/unit/grant_replay.rs crates/remote-access-core/tests/unit/grant_supersession.rs` | passed |
+| `npm run enforcer:check -- architecture-policy source-shape required-tests no-test-doubles validation-bypass` | passed |
+| `npm run hub:guard` | passed; no findings, blockers, conflicts, or merge risks |
+
+This checkpoint closes only those reviewed grant-boundary defects locally. It
+does not claim WP04, the remote-access plan, fresh CI, review resolution, or a
+merge to `main`.
+
 ## No-claim boundary
 
 This manifest does not claim persistence adapters, relay/session transport,

@@ -80,6 +80,7 @@ pub(super) fn replacement_scope_matches(
     replacement: &RemoteAccessGrant,
 ) -> bool {
     grant.grant_id != replacement.grant_id
+        && replacement.state == RemoteAccessGrantState::Requested
         && grant.household_ref == replacement.household_ref
         && grant.child_device_ref == replacement.child_device_ref
         && grant.route == replacement.route

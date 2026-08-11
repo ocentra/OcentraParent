@@ -27,6 +27,7 @@ fn has_invalid_attempt(grant: &RemoteAccessGrant) -> bool {
                 && attempt.route != grant.route)
             || (attempt.outcome == RemoteAccessGrantAuditOutcome::Accepted
                 && accepted_resulting_state(attempt.transition) != attempt.resulting_state)
+            || has_invalid_accepted_actor(grant, attempt)
             || has_invalid_supersession_replacement(grant, attempt)
             || matches!(
                 (attempt.outcome, attempt.error.is_some()),
@@ -34,6 +35,29 @@ fn has_invalid_attempt(grant: &RemoteAccessGrant) -> bool {
                     | (RemoteAccessGrantAuditOutcome::Denied, false)
             )
     })
+}
+
+fn has_invalid_accepted_actor(
+    grant: &RemoteAccessGrant,
+    attempt: &RemoteAccessGrantAuditMilestone,
+) -> bool {
+    if attempt.outcome != RemoteAccessGrantAuditOutcome::Accepted {
+        return false;
+    }
+    let parent_actor = attempt.actor_ref == grant.parent_actor_ref;
+    let support_actor = grant.actor_role
+        == ocentra_schema::remote_capability_fabric::RemoteActorRole::SupportAdmin
+        && grant.parent_grant == super::RemoteAccessGrantParentGrant::Granted
+        && grant.support_actor_ref.as_deref() == Some(attempt.actor_ref.as_str());
+    let system_actor = attempt.actor_ref == "system-failure"
+        && matches!(
+            attempt.transition,
+            super::RemoteAccessGrantTransition::Stop
+                | super::RemoteAccessGrantTransition::Revoke
+                | super::RemoteAccessGrantTransition::RemoveDevice
+                | super::RemoteAccessGrantTransition::Fail
+        );
+    attempt.actor_ref.trim().is_empty() || !(parent_actor || support_actor || system_actor)
 }
 
 fn has_invalid_supersession_replacement(

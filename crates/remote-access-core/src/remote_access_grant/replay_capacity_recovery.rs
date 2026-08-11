@@ -4,13 +4,14 @@ use super::{
 };
 
 pub(super) fn system_failure_stop_capacity(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     transition: RemoteAccessGrantTransition,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Option<Capacity> {
     if transition == RemoteAccessGrantTransition::Stop
         && context.transition_authority == RemoteAccessGrantTransitionAuthority::SystemFailure
     {
+        recycle_completed_recovery_sequence(grant);
         return Some(if grant.stop_recovery_milestone.is_none() {
             Capacity::StopRecoveryMilestone
         } else {
@@ -18,6 +19,20 @@ pub(super) fn system_failure_stop_capacity(
         });
     }
     None
+}
+
+fn recycle_completed_recovery_sequence(grant: &mut RemoteAccessGrant) {
+    if grant.state != RemoteAccessGrantState::Active
+        || grant.stop_recovery != super::RemoteAccessGrantStopRecoveryState::NotRequired
+        || grant.stop_recovery_milestone.is_none()
+        || grant.reconnect_request_recovery_milestone.is_none()
+        || grant.restart_recovery_milestone.is_none()
+    {
+        return;
+    }
+    grant.stop_recovery_milestone = None;
+    grant.reconnect_request_recovery_milestone = None;
+    grant.restart_recovery_milestone = None;
 }
 
 pub(super) fn is_restart_reconnect(
@@ -40,7 +55,7 @@ pub(super) fn is_system_recovery_reconnect_request(
 }
 
 pub(super) fn reserved_capacity(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
     transition: RemoteAccessGrantTransition,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Option<Capacity> {

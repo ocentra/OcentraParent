@@ -44,6 +44,20 @@ fn deserialization_rejects_duplicate_attempt_references() {
     assert_invalid_snapshot(json, "duplicate replay identity is rejected");
 }
 
+#[test]
+fn deserialization_rejects_blank_or_untrusted_accepted_actors() {
+    let grant = paired_grant();
+    let encoded = serde_json::to_value(&grant).expect_value("serialize accepted grant history");
+    for actor_ref in [" ", "parent-other"] {
+        let mut tampered = encoded.clone();
+        tampered["attempts"]
+            .as_array_mut()
+            .and_then(|attempts| attempts.last_mut())
+            .expect_value("accepted pair milestone")["actorRef"] = serde_json::json!(actor_ref);
+        assert_invalid_snapshot(tampered, "tampered accepted actor is rejected");
+    }
+}
+
 fn assert_invalid_snapshot(json: serde_json::Value, expectation: &str) {
     let restored = serde_json::from_value::<RemoteAccessGrant>(json);
     let error = restored.err().expect_value(expectation);

@@ -426,33 +426,17 @@ fn system_recovery_reserves_capacity_for_reconnect_request_and_completion() {
         Some(64)
     );
 
-    let mut system_stop = context_for("attempt-system-recovery-stop");
-    system_stop.actor_ref = "system-failure";
-    system_stop.parent_authorized = false;
-    system_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
-    assert_eq!(
-        grant
-            .transition(RemoteAccessGrantTransition::Stop, system_stop)
-            .result,
-        Ok(RemoteAccessGrantState::Stopped)
+    complete_saturated_system_recovery(
+        &mut grant,
+        "attempt-system-recovery-stop",
+        "attempt-system-recovery-request",
+        "attempt-system-recovery-reconnect",
     );
-    assert_eq!(
-        grant
-            .transition(
-                RemoteAccessGrantTransition::RequestReconnect,
-                context_for("attempt-system-recovery-request"),
-            )
-            .result,
-        Ok(RemoteAccessGrantState::ReconnectPending)
-    );
-    let mut recovery_context = context_for("attempt-system-recovery-reconnect");
-    recovery_context.recovery_proof =
-        ocentra_remote_access_core::remote_access_grant::RemoteAccessGrantRecoveryProof::SystemConditionCleared;
-    assert_eq!(
-        grant
-            .transition(RemoteAccessGrantTransition::Reconnect, recovery_context)
-            .result,
-        Ok(RemoteAccessGrantState::Active)
+    complete_saturated_system_recovery(
+        &mut grant,
+        "attempt-system-recovery-later-stop",
+        "attempt-system-recovery-later-request",
+        "attempt-system-recovery-later-reconnect",
     );
     let mut restarted: RemoteAccessGrant = serde_json::from_value(
         serde_json::to_value(&grant).expect_value("serialize recovered saturated grant"),
@@ -481,6 +465,42 @@ fn system_recovery_reserves_capacity_for_reconnect_request_and_completion() {
     )
     .expect_value("restore saturated terminal system recovery");
     assert_eq!(terminal.state(), RemoteAccessGrantState::Revoked);
+}
+
+fn complete_saturated_system_recovery(
+    grant: &mut RemoteAccessGrant,
+    stop_attempt_ref: &'static str,
+    request_attempt_ref: &'static str,
+    reconnect_attempt_ref: &'static str,
+) {
+    let mut system_stop = context_for(stop_attempt_ref);
+    system_stop.actor_ref = "system-failure";
+    system_stop.parent_authorized = false;
+    system_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Stop, system_stop)
+            .result,
+        Ok(RemoteAccessGrantState::Stopped)
+    );
+    assert_eq!(
+        grant
+            .transition(
+                RemoteAccessGrantTransition::RequestReconnect,
+                context_for(request_attempt_ref),
+            )
+            .result,
+        Ok(RemoteAccessGrantState::ReconnectPending)
+    );
+    let mut recovery_context = context_for(reconnect_attempt_ref);
+    recovery_context.recovery_proof =
+        ocentra_remote_access_core::remote_access_grant::RemoteAccessGrantRecoveryProof::SystemConditionCleared;
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Reconnect, recovery_context)
+            .result,
+        Ok(RemoteAccessGrantState::Active)
+    );
 }
 
 #[test]
