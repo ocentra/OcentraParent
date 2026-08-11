@@ -103,6 +103,22 @@ async fn timer_expiry_journals_before_and_after_dispatch() -> TestResult {
     assert_eq!(entries[2].phase, JournalDispatchPhase::BeforeDispatch);
     assert_eq!(entries[3].phase, JournalDispatchPhase::AfterDispatch);
     assert_ne!(entries[2].envelope.event_id, entries[3].envelope.event_id);
+    let before_payload = test_ok(
+        serde_json::to_value(&entries[2]),
+        constants::error::JOURNAL_READS,
+    )?;
+    let after_payload = test_ok(
+        serde_json::to_value(&entries[3]),
+        constants::error::JOURNAL_READS,
+    )?;
+    assert_eq!(
+        before_payload["envelope"]["payload"]["provenance"],
+        serde_json::json!("accepted-intent")
+    );
+    assert_eq!(
+        after_payload["envelope"]["payload"]["provenance"],
+        serde_json::json!("adapter-result")
+    );
 
     let _ = remove_file(eventing_path);
     cleanup_paths(&paths);

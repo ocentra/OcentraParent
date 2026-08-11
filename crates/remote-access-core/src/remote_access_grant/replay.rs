@@ -10,17 +10,24 @@ pub(super) fn previous_attempt(
     attempt_ref: &str,
 ) -> Option<RemoteAccessGrantAuditMilestone> {
     grant
-        .terminal_milestone
+        .stop_recovery_milestone
         .as_ref()
         .filter(|attempt| attempt.attempt_ref == attempt_ref)
         .cloned()
         .or_else(|| {
             grant
-                .attempts
-                .iter()
-                .rev()
-                .find(|attempt| attempt.attempt_ref == attempt_ref)
+                .terminal_milestone
+                .as_ref()
+                .filter(|attempt| attempt.attempt_ref == attempt_ref)
                 .cloned()
+                .or_else(|| {
+                    grant
+                        .attempts
+                        .iter()
+                        .rev()
+                        .find(|attempt| attempt.attempt_ref == attempt_ref)
+                        .cloned()
+                })
         })
 }
 

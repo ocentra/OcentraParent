@@ -6,6 +6,7 @@ use super::{
 
 pub(super) enum Capacity {
     Attempts,
+    StopRecoveryMilestone,
     ReservedMilestone,
     Exhausted,
 }
@@ -18,7 +19,14 @@ pub(super) fn prepare(
     if grant.attempts.len() < super::MAX_REPLAY_ATTEMPTS {
         return Capacity::Attempts;
     }
-    if !can_use_reserved_milestone(transition, context) {
+    if is_system_failure_stop(transition, context) {
+        return if grant.stop_recovery_milestone.is_none() {
+            Capacity::StopRecoveryMilestone
+        } else {
+            Capacity::Exhausted
+        };
+    }
+    if !can_use_reserved_milestone(transition) {
         return Capacity::Exhausted;
     }
     grant
@@ -38,17 +46,21 @@ pub(super) fn prepare(
         })
 }
 
-fn can_use_reserved_milestone(
-    transition: RemoteAccessGrantTransition,
-    context: &RemoteAccessGrantContext<'_>,
-) -> bool {
+fn can_use_reserved_milestone(transition: RemoteAccessGrantTransition) -> bool {
     matches!(
         transition,
         RemoteAccessGrantTransition::Revoke
             | RemoteAccessGrantTransition::RemoveDevice
             | RemoteAccessGrantTransition::Supersede
-    ) || (transition == RemoteAccessGrantTransition::Stop
-        && context.transition_authority == RemoteAccessGrantTransitionAuthority::SystemFailure)
+    )
+}
+
+fn is_system_failure_stop(
+    transition: RemoteAccessGrantTransition,
+    context: &RemoteAccessGrantContext<'_>,
+) -> bool {
+    transition == RemoteAccessGrantTransition::Stop
+        && context.transition_authority == RemoteAccessGrantTransitionAuthority::SystemFailure
 }
 
 pub(super) fn record(
@@ -58,9 +70,12 @@ pub(super) fn record(
 ) {
     match capacity {
         Capacity::Attempts => grant.attempts.push(report.audit.clone()),
+        Capacity::StopRecoveryMilestone if report.result.is_ok() => {
+            grant.stop_recovery_milestone = Some(report.audit.clone());
+        }
         Capacity::ReservedMilestone if report.result.is_ok() => {
             grant.terminal_milestone = Some(report.audit.clone());
         }
-        Capacity::ReservedMilestone | Capacity::Exhausted => {}
+        Capacity::StopRecoveryMilestone | Capacity::ReservedMilestone | Capacity::Exhausted => {}
     }
 }

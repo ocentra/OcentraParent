@@ -102,6 +102,8 @@ fn terminal_state(grant: &mut RemoteAccessGrant) -> Result<(), RemoteAccessGrant
         return Err(RemoteAccessGrantError::InvalidTransition);
     }
     grant.stop_recovery = super::super::RemoteAccessGrantStopRecoveryState::NotRequired;
+    grant.stop_recovery_milestone = None;
     grant.restart_recovery_at = None;
+    grant.restart_recovery_history.clear();
     Ok(())
 }

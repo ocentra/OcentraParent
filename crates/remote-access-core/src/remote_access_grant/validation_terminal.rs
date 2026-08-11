@@ -38,7 +38,6 @@ fn is_reserved_transition(transition: RemoteAccessGrantTransition) -> bool {
             | RemoteAccessGrantTransition::Deny
             | RemoteAccessGrantTransition::Fail
             | RemoteAccessGrantTransition::Supersede
-            | RemoteAccessGrantTransition::Stop
     )
 }
 
@@ -50,11 +49,6 @@ fn matches_grant_state(
     grant: &RemoteAccessGrant,
     attempt: &super::RemoteAccessGrantAuditMilestone,
 ) -> bool {
-    if attempt.transition == RemoteAccessGrantTransition::Stop {
-        return grant.state == super::RemoteAccessGrantState::Stopped
-            && grant.stop_recovery == super::RemoteAccessGrantStopRecoveryState::Pending
-            && attempt.resulting_state == grant.state;
-    }
     validation::is_terminal(grant.state)
         && attempt.resulting_state == grant.state
         && validation::accepted_resulting_state(attempt.transition) == attempt.resulting_state

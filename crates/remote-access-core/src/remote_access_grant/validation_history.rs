@@ -25,6 +25,7 @@ pub(super) fn validate(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGran
         state = attempt.resulting_state;
     }
     state = validation_history_support::after_attempts(grant, state)?;
+    state = validation_history_support::stop_recovery(grant, state)?;
     state = validation_history_support::terminal(grant, state)?;
     (state == grant.state)
         .then_some(())

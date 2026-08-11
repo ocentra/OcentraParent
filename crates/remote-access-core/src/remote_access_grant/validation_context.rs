@@ -24,9 +24,11 @@ impl RemoteAccessGrant {
             audit_ref: request.audit_ref,
             attempts: Vec::new(),
             terminal_milestone: None,
+            stop_recovery_milestone: None,
             superseded_by: None,
             stop_recovery: super::RemoteAccessGrantStopRecoveryState::NotRequired,
             restart_recovery_at: None,
+            restart_recovery_history: Vec::new(),
             pending_supersession: None,
         };
         super::validation::fields(&grant)?;

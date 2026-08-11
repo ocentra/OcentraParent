@@ -291,12 +291,19 @@ fn system_failure_stop_uses_reserved_replay_capacity_after_history_saturation() 
     let encoded = serde_json::to_value(&grant).expect_value("serialize saturated system stop");
     assert_eq!(encoded["attempts"].as_array().map(Vec::len), Some(64));
     assert_eq!(encoded["stop_recovery"], serde_json::json!("pending"));
+    assert!(encoded["stop_recovery_milestone"].is_object());
 
     let mut restored: RemoteAccessGrant =
         serde_json::from_value(encoded).expect_value("restore saturated system stop");
     let replay = restored.transition(RemoteAccessGrantTransition::Stop, system_stop);
     assert_eq!(replay.result, stopped.result);
     assert_eq!(replay.audit, stopped.audit);
+
+    let revoked = restored.transition(
+        RemoteAccessGrantTransition::Revoke,
+        context_for("attempt-saturated-revoke-after-system-stop"),
+    );
+    assert_eq!(revoked.result, Ok(RemoteAccessGrantState::Revoked));
 }
 
 #[test]
@@ -355,13 +362,21 @@ fn completed_restart_recovery_retains_its_original_reconnect_boundary() {
         .expect_value("complete recovered reconnect");
     assert_eq!(restored.state(), RemoteAccessGrantState::Active);
 
-    let round_tripped: RemoteAccessGrant = serde_json::from_value(
+    let mut restarted: RemoteAccessGrant = serde_json::from_value(
         serde_json::to_value(&restored).expect_value("serialize completed recovery"),
     )
-    .expect_value("restore completed recovery without moving its boundary");
-    assert_eq!(round_tripped, restored);
+    .expect_value("restore completed recovery at a fresh reconnect boundary");
+    assert_eq!(restarted.state(), RemoteAccessGrantState::ReconnectPending);
+    restarted
+        .transition(
+            RemoteAccessGrantTransition::Reconnect,
+            context_for("attempt-restart-completed-second-reconnect"),
+        )
+        .result
+        .expect_value("complete second recovered reconnect");
+    assert_eq!(restarted.state(), RemoteAccessGrantState::Active);
 
-    restored
+    restarted
         .transition(
             RemoteAccessGrantTransition::Pause,
             context_for("attempt-restart-completed-pause"),
@@ -369,10 +384,26 @@ fn completed_restart_recovery_retains_its_original_reconnect_boundary() {
         .result
         .expect_value("pause completed recovery");
     let paused_round_trip: RemoteAccessGrant = serde_json::from_value(
-        serde_json::to_value(&restored).expect_value("serialize paused completed recovery"),
+        serde_json::to_value(&restarted).expect_value("serialize paused completed recovery"),
     )
     .expect_value("restore paused completed recovery without moving its boundary");
-    assert_eq!(paused_round_trip, restored);
+    assert_eq!(paused_round_trip, restarted);
+}
+
+#[test]
+fn parent_only_request_rejects_support_actor_role() {
+    assert_eq!(
+        RemoteAccessGrant::request(
+            "grant-parent-only-support",
+            "household-1",
+            "child-device-1",
+            RemoteRoute::LocalNetwork,
+            "parent-1",
+            RemoteActorRole::SupportAdmin,
+            "audit-parent-only-support",
+        ),
+        Err(RemoteAccessGrantError::WrongActor)
+    );
 }
 
 #[test]

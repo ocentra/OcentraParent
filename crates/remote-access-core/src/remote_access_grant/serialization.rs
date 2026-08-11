@@ -29,15 +29,28 @@ struct RemoteAccessGrantSnapshot {
     #[serde(default)]
     terminal_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
     #[serde(default)]
+    stop_recovery_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
+    #[serde(default)]
     superseded_by: Option<String>,
     #[serde(default)]
     stop_recovery: RemoteAccessGrantStopRecoveryState,
     #[serde(default)]
     restart_recovery_at: Option<usize>,
+    #[serde(default)]
+    restart_recovery_history: Vec<usize>,
 }
 
 fn default_parent_grant() -> RemoteAccessGrantParentGrant {
     RemoteAccessGrantParentGrant::NotGranted
+}
+
+fn record_restart_recovery_boundary(history: &mut Vec<usize>, boundary: Option<usize>) {
+    let Some(boundary) = boundary else {
+        return;
+    };
+    if !history.contains(&boundary) {
+        history.push(boundary);
+    }
 }
 
 impl<'de> Deserialize<'de> for RemoteAccessGrant {
@@ -64,12 +77,18 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
                 attempt.child_device_ref = snapshot.child_device_ref.clone();
             }
         }
-        let (state, restart_recovery_at) = match (persisted_state, snapshot.restart_recovery_at) {
-            (RemoteAccessGrantState::Active, None) => (
+        let mut restart_recovery_history = snapshot.restart_recovery_history;
+        let (state, restart_recovery_at) = if persisted_state == RemoteAccessGrantState::Active {
+            record_restart_recovery_boundary(
+                &mut restart_recovery_history,
+                snapshot.restart_recovery_at,
+            );
+            (
                 RemoteAccessGrantState::ReconnectPending,
                 Some(attempts.len()),
-            ),
-            (state, restart_recovery_at) => (state, restart_recovery_at),
+            )
+        } else {
+            (persisted_state, snapshot.restart_recovery_at)
         };
         let grant = RemoteAccessGrant {
             grant_id: snapshot.grant_id,
@@ -86,9 +105,11 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             audit_ref: snapshot.audit_ref,
             attempts,
             terminal_milestone: snapshot.terminal_milestone,
+            stop_recovery_milestone: snapshot.stop_recovery_milestone,
             superseded_by: snapshot.superseded_by,
             stop_recovery: snapshot.stop_recovery,
             restart_recovery_at,
+            restart_recovery_history,
             pending_supersession: None,
         };
         validation::serialized(&grant).map_err(D::Error::custom)?;

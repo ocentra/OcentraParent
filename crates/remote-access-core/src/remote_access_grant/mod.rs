@@ -135,10 +135,14 @@ pub struct RemoteAccessGrant {
     attempts: Vec<RemoteAccessGrantAuditMilestone>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     terminal_milestone: Option<RemoteAccessGrantAuditMilestone>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    stop_recovery_milestone: Option<RemoteAccessGrantAuditMilestone>,
     superseded_by: Option<String>,
     stop_recovery: RemoteAccessGrantStopRecoveryState,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     restart_recovery_at: Option<usize>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    restart_recovery_history: Vec<usize>,
     #[serde(skip)]
     pending_supersession: Option<String>,
 }
@@ -226,6 +230,9 @@ impl RemoteAccessGrant {
         actor_role: RemoteActorRole,
         audit_ref: impl Into<String>,
     ) -> Result<Self, RemoteAccessGrantError> {
+        if actor_role == RemoteActorRole::SupportAdmin {
+            return Err(RemoteAccessGrantError::WrongActor);
+        }
         let grant = Self {
             grant_id: grant_id.into(),
             household_ref: household_ref.into(),
@@ -241,9 +248,11 @@ impl RemoteAccessGrant {
             parent_grant: RemoteAccessGrantParentGrant::NotGranted,
             attempts: Vec::new(),
             terminal_milestone: None,
+            stop_recovery_milestone: None,
             superseded_by: None,
             stop_recovery: RemoteAccessGrantStopRecoveryState::NotRequired,
             restart_recovery_at: None,
+            restart_recovery_history: Vec::new(),
             pending_supersession: None,
         };
         validation::fields(&grant)?;
@@ -272,6 +281,9 @@ impl RemoteAccessGrant {
         }
         let capacity = match replay_capacity::prepare(self, transition, &context) {
             replay_capacity::Capacity::Attempts => replay_capacity::Capacity::Attempts,
+            replay_capacity::Capacity::StopRecoveryMilestone => {
+                replay_capacity::Capacity::StopRecoveryMilestone
+            }
             replay_capacity::Capacity::ReservedMilestone => {
                 replay_capacity::Capacity::ReservedMilestone
             }
