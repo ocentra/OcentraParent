@@ -69,3 +69,26 @@ fn remote_capability_rejects_blank_parent_actor_references() {
         }
     }
 }
+
+#[test]
+fn remote_capability_rejects_blank_child_device_references() {
+    for (stored_child_device_ref, requested_child_device_ref) in
+        [("", ""), (" ", " "), ("child-device-alpha", " ")]
+    {
+        let mut grant = paired_parent_grant(
+            contracts::RemoteActorRole::ParentOwner,
+            "parent-owner-alpha",
+        );
+        grant.parent_grant = contracts::RemoteParentGrantState::Granted;
+        grant.child_device_ref = stored_child_device_ref.to_string();
+        assert_eq!(
+            grant.authorize_live_view(
+                "household-alpha",
+                "parent-owner-alpha",
+                requested_child_device_ref,
+                contracts::RemoteRoute::LocalNetwork,
+            ),
+            Err(contracts::RemoteCapabilityAuthorizationError::WrongChildDevice)
+        );
+    }
+}

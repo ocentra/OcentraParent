@@ -49,7 +49,10 @@ pub(super) fn require_target(
     route: RemoteRoute,
     expected_route: RemoteRoute,
 ) -> Result<(), RemoteCapabilityAuthorizationError> {
-    if child_device_ref != requested_child_device_ref {
+    if child_device_ref.trim().is_empty()
+        || requested_child_device_ref.trim().is_empty()
+        || child_device_ref != requested_child_device_ref
+    {
         return Err(RemoteCapabilityAuthorizationError::WrongChildDevice);
     }
     if route != expected_route {

@@ -151,6 +151,15 @@ remote-access plan, fresh CI, resolved review, persistence/relay integration,
 device-trust ownership, child or portal disclosure, custody, generated proof,
 or merge to `main`.
 
+## Review repair checkpoint (2026-08-11, blank child-device identity)
+
+The late P1 review found that two blank child-device references compared equal
+at the shared live-view authorization boundary. The boundary now rejects blank
+or whitespace-only stored and requested child-device references before comparing
+them. The focused schema contract covers blank stored/requested identities and
+a valid stored identity paired with a blank request. This is a narrow
+fail-closed authorization repair; it does not claim WP04 or plan completion.
+
 ## No-claim boundary
 
 This manifest does not claim persistence adapters, relay/session transport,
