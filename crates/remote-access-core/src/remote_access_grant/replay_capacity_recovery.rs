@@ -26,5 +26,45 @@ pub(super) fn is_restart_reconnect(
 ) -> bool {
     transition == RemoteAccessGrantTransition::Reconnect
         && grant.state == RemoteAccessGrantState::ReconnectPending
-        && grant.restart_recovery_at == Some(grant.attempts.len())
+        && (grant.restart_recovery_at == Some(grant.attempts.len())
+            || grant.reconnect_request_recovery_milestone.is_some())
+}
+
+pub(super) fn is_system_recovery_reconnect_request(
+    grant: &RemoteAccessGrant,
+    transition: RemoteAccessGrantTransition,
+) -> bool {
+    transition == RemoteAccessGrantTransition::RequestReconnect
+        && grant.state == RemoteAccessGrantState::Stopped
+        && grant.stop_recovery == super::RemoteAccessGrantStopRecoveryState::Pending
+}
+
+pub(super) fn reserved_capacity(
+    grant: &RemoteAccessGrant,
+    transition: RemoteAccessGrantTransition,
+    context: &RemoteAccessGrantContext<'_>,
+) -> Option<Capacity> {
+    if let Some(capacity) = system_failure_stop_capacity(grant, transition, context) {
+        return Some(capacity);
+    }
+    if is_system_recovery_reconnect_request(grant, transition) {
+        return Some(if grant.reconnect_request_recovery_milestone.is_none() {
+            Capacity::ReconnectRequestRecoveryMilestone
+        } else {
+            Capacity::Exhausted
+        });
+    }
+    if !is_restart_reconnect(grant, transition) {
+        return None;
+    }
+    Some(
+        if grant.restart_recovery_milestone.is_none()
+            || (grant.reconnect_request_recovery_milestone.is_some()
+                && grant.restart_recovery_at == Some(grant.attempts.len()))
+        {
+            Capacity::RestartRecoveryMilestone
+        } else {
+            Capacity::Exhausted
+        },
+    )
 }

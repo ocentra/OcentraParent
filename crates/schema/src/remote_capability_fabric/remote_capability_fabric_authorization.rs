@@ -12,6 +12,9 @@ pub(super) fn require_actor(
 ) -> Result<(), RemoteCapabilityAuthorizationError> {
     match role {
         RemoteActorRole::ParentOwner | RemoteActorRole::CoParent => {
+            if parent_grant != RemoteParentGrantState::Granted {
+                return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
+            }
             if support_actor_ref.is_some() {
                 return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
             }

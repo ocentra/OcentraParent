@@ -6,12 +6,16 @@ use super::super::{
 
 pub(super) fn request(
     grant: &RemoteAccessGrant,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if !matches!(
         grant.state,
         RemoteAccessGrantState::Paused | RemoteAccessGrantState::Stopped
     ) {
         return Err(RemoteAccessGrantError::ReconnectDenied);
+    }
+    if !context.parent_authorized {
+        return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
     Ok(RemoteAccessGrantState::ReconnectPending)
 }

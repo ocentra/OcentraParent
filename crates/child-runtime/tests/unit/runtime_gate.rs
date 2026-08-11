@@ -50,6 +50,9 @@ use ocentra_storage_custody_core::storage_custody::{
     StorageCustodyLocation,
 };
 
+#[path = "runtime_gate_tombstone_recovery.rs"]
+mod runtime_gate_tombstone_recovery;
+
 trait ResultRequiredExt<T, E> {
     fn required(self, context: impl std::fmt::Display) -> T;
 }

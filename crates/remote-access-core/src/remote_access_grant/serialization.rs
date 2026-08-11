@@ -31,6 +31,8 @@ struct RemoteAccessGrantSnapshot {
     #[serde(default)]
     stop_recovery_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
     #[serde(default)]
+    reconnect_request_recovery_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
+    #[serde(default)]
     restart_recovery_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
     #[serde(default)]
     superseded_by: Option<String>,
@@ -66,6 +68,8 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
         // reconnect gate so a fresh, typed context must authorize live access.
         let persisted_state = snapshot.state;
         let attempts_present = snapshot.attempts.is_some();
+        let has_reconnect_request_recovery =
+            snapshot.reconnect_request_recovery_milestone.is_some();
         if snapshot.state != RemoteAccessGrantState::Requested
             && (!attempts_present || snapshot.attempts.as_ref().is_some_and(Vec::is_empty))
         {
@@ -108,7 +112,9 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             attempts,
             terminal_milestone: snapshot.terminal_milestone,
             stop_recovery_milestone: snapshot.stop_recovery_milestone,
-            restart_recovery_milestone: (persisted_state != RemoteAccessGrantState::Active)
+            reconnect_request_recovery_milestone: snapshot.reconnect_request_recovery_milestone,
+            restart_recovery_milestone: (persisted_state != RemoteAccessGrantState::Active
+                || has_reconnect_request_recovery)
                 .then_some(snapshot.restart_recovery_milestone)
                 .flatten(),
             superseded_by: snapshot.superseded_by,

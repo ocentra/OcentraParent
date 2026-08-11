@@ -16,6 +16,13 @@ pub(super) fn previous_attempt(
         .cloned()
         .or_else(|| {
             grant
+                .reconnect_request_recovery_milestone
+                .as_ref()
+                .filter(|attempt| attempt.attempt_ref == attempt_ref)
+                .cloned()
+        })
+        .or_else(|| {
+            grant
                 .restart_recovery_milestone
                 .as_ref()
                 .filter(|attempt| attempt.attempt_ref == attempt_ref)

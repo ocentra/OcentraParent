@@ -11,7 +11,7 @@ fn paired_live_view_grant() -> contracts::RemoteCapabilityGrant {
         route: contracts::RemoteRoute::LocalNetwork,
         parent_actor_ref: "parent-owner-alpha".to_string(),
         support_actor_ref: None,
-        parent_grant: contracts::RemoteParentGrantState::NotGranted,
+        parent_grant: contracts::RemoteParentGrantState::Granted,
         capability_type: contracts::RemoteCapabilityType::LiveView,
         actor_role: contracts::RemoteActorRole::ParentOwner,
         pairing_state: contracts::RemotePairingState::Paired,

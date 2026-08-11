@@ -24,10 +24,26 @@ pub(super) fn validate(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGran
         }
         state = attempt.resulting_state;
     }
-    state = validation_history_support::after_attempts(grant, state)?;
-    state = validation_history_support::restart_recovery(grant, state)?;
+    if grant.reconnect_request_recovery_milestone.is_none() {
+        state = validation_history_support::after_attempts(grant, state)?;
+    }
+    if grant.reconnect_request_recovery_milestone.is_none() {
+        state = validation_history_support::restart_recovery(grant, state)?;
+    }
     state = validation_history_support::stop_recovery(grant, state)?;
+    state = validation_history_support::reconnect_request_recovery(grant, state)?;
+    if grant.reconnect_request_recovery_milestone.is_some() {
+        state = validation_history_support::restart_recovery(grant, state)?;
+    }
     state = validation_history_support::terminal(grant, state)?;
+    if grant.reconnect_request_recovery_milestone.is_some()
+        && grant.restart_recovery_milestone.is_some()
+        && grant.state == RemoteAccessGrantState::ReconnectPending
+        && grant.restart_recovery_at == Some(grant.attempts.len())
+        && state == RemoteAccessGrantState::Active
+    {
+        state = RemoteAccessGrantState::ReconnectPending;
+    }
     (state == grant.state)
         .then_some(())
         .ok_or(RemoteAccessGrantError::InvalidSerializedState)

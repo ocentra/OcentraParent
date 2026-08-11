@@ -56,6 +56,13 @@ fn validate_supersession(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGr
 }
 
 fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
+    if is_terminal(grant.state) {
+        return grant
+            .restart_recovery_at
+            .is_none_or(|index| index <= grant.attempts.len())
+            .then_some(())
+            .ok_or(RemoteAccessGrantError::InvalidSerializedState);
+    }
     if let Some(index) = grant.restart_recovery_at {
         if !matches!(
             grant.state,
@@ -69,7 +76,9 @@ fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
         }
     }
     if grant.restart_recovery_milestone.is_some()
-        && (grant.state != RemoteAccessGrantState::Active
+        && (!(grant.state == RemoteAccessGrantState::Active
+            || (grant.state == RemoteAccessGrantState::ReconnectPending
+                && grant.reconnect_request_recovery_milestone.is_some()))
             || grant.restart_recovery_at != Some(grant.attempts.len())
             || grant.terminal_milestone.is_some())
     {

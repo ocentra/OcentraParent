@@ -25,6 +25,7 @@ impl RemoteAccessGrant {
             attempts: Vec::new(),
             terminal_milestone: None,
             stop_recovery_milestone: None,
+            reconnect_request_recovery_milestone: None,
             restart_recovery_milestone: None,
             superseded_by: None,
             stop_recovery: super::RemoteAccessGrantStopRecoveryState::NotRequired,
@@ -61,7 +62,7 @@ pub(super) fn context(
     transition: RemoteAccessGrantTransition,
     context: &RemoteAccessGrantContext<'_>,
 ) -> Result<(), RemoteAccessGrantError> {
-    if context.attempt_ref.trim().is_empty() {
+    if !has_valid_replay_identity(context) {
         return Err(RemoteAccessGrantError::EmptyField);
     }
     if context.household_ref != grant.household_ref {
@@ -97,6 +98,8 @@ pub(super) fn context(
         transition,
         RemoteAccessGrantTransition::Pair
             | RemoteAccessGrantTransition::Activate
+            | RemoteAccessGrantTransition::Pause
+            | RemoteAccessGrantTransition::RequestReconnect
             | RemoteAccessGrantTransition::Reconnect
     ) && !context.parent_authorized
     {
@@ -115,6 +118,13 @@ pub(super) fn context(
         return Err(RemoteAccessGrantError::DeviceTrustRequired);
     }
     Ok(())
+}
+
+pub(super) fn has_valid_replay_identity(context: &RemoteAccessGrantContext<'_>) -> bool {
+    !context.household_ref.trim().is_empty()
+        && !context.actor_ref.trim().is_empty()
+        && !context.child_device_ref.trim().is_empty()
+        && !context.attempt_ref.trim().is_empty()
 }
 
 fn is_parent_terminal(transition: RemoteAccessGrantTransition) -> bool {

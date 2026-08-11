@@ -17,9 +17,9 @@ pub(super) fn apply(
         RemoteAccessGrantTransition::ConfirmParent => confirm::parent(grant, context)?,
         RemoteAccessGrantTransition::Pair => confirm::pair(grant, context)?,
         RemoteAccessGrantTransition::Activate => lifecycle::activate(grant, context)?,
-        RemoteAccessGrantTransition::Pause => lifecycle::pause(grant)?,
+        RemoteAccessGrantTransition::Pause => lifecycle::pause(grant, context)?,
         RemoteAccessGrantTransition::Stop => lifecycle::stop(grant, context)?,
-        RemoteAccessGrantTransition::RequestReconnect => reconnect::request(grant)?,
+        RemoteAccessGrantTransition::RequestReconnect => reconnect::request(grant, context)?,
         RemoteAccessGrantTransition::Reconnect => reconnect::complete(grant, context)?,
         RemoteAccessGrantTransition::Revoke
         | RemoteAccessGrantTransition::RemoveDevice

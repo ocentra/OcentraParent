@@ -6,6 +6,7 @@ use super::{
 pub(super) enum Capacity {
     Attempts,
     StopRecoveryMilestone,
+    ReconnectRequestRecoveryMilestone,
     RestartRecoveryMilestone,
     ReservedMilestone,
     Exhausted,
@@ -20,16 +21,9 @@ pub(super) fn prepare(
         return Capacity::Attempts;
     }
     if let Some(capacity) =
-        super::replay_capacity_recovery::system_failure_stop_capacity(grant, transition, context)
+        super::replay_capacity_recovery::reserved_capacity(grant, transition, context)
     {
         return capacity;
-    }
-    if super::replay_capacity_recovery::is_restart_reconnect(grant, transition) {
-        return if grant.restart_recovery_milestone.is_none() {
-            Capacity::RestartRecoveryMilestone
-        } else {
-            Capacity::Exhausted
-        };
     }
     if !can_use_reserved_milestone(transition) {
         return Capacity::Exhausted;
@@ -70,6 +64,9 @@ pub(super) fn record(
         Capacity::StopRecoveryMilestone if report.result.is_ok() => {
             grant.stop_recovery_milestone = Some(report.audit.clone());
         }
+        Capacity::ReconnectRequestRecoveryMilestone if report.result.is_ok() => {
+            grant.reconnect_request_recovery_milestone = Some(report.audit.clone());
+        }
         Capacity::RestartRecoveryMilestone if report.result.is_ok() => {
             grant.restart_recovery_milestone = Some(report.audit.clone());
         }
@@ -77,6 +74,7 @@ pub(super) fn record(
             grant.terminal_milestone = Some(report.audit.clone());
         }
         Capacity::StopRecoveryMilestone
+        | Capacity::ReconnectRequestRecoveryMilestone
         | Capacity::RestartRecoveryMilestone
         | Capacity::ReservedMilestone
         | Capacity::Exhausted => {}

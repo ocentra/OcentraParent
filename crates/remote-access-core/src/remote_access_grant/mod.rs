@@ -142,6 +142,8 @@ pub struct RemoteAccessGrant {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     stop_recovery_milestone: Option<RemoteAccessGrantAuditMilestone>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    reconnect_request_recovery_milestone: Option<RemoteAccessGrantAuditMilestone>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     restart_recovery_milestone: Option<RemoteAccessGrantAuditMilestone>,
     superseded_by: Option<String>,
     stop_recovery: RemoteAccessGrantStopRecoveryState,
@@ -257,6 +259,7 @@ impl RemoteAccessGrant {
             attempts: Vec::new(),
             terminal_milestone: None,
             stop_recovery_milestone: None,
+            reconnect_request_recovery_milestone: None,
             restart_recovery_milestone: None,
             superseded_by: None,
             stop_recovery: RemoteAccessGrantStopRecoveryState::NotRequired,
@@ -282,33 +285,30 @@ impl RemoteAccessGrant {
         transition: RemoteAccessGrantTransition,
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
+        if !validation_context::has_valid_replay_identity(&context) {
+            return replay_report::denied_report(
+                self,
+                transition,
+                context,
+                RemoteAccessGrantError::EmptyField,
+            );
+        }
         if let Some(previous) = replay::previous_attempt(self, context.attempt_ref) {
             if !replay::is_child_device_retry(self, &previous, transition, &context) {
                 self.pending_supersession = None;
                 return replay_report::existing_report(self, previous, transition, context);
             }
         }
-        let capacity = match replay_capacity::prepare(self, transition, &context) {
-            replay_capacity::Capacity::Attempts => replay_capacity::Capacity::Attempts,
-            replay_capacity::Capacity::StopRecoveryMilestone => {
-                replay_capacity::Capacity::StopRecoveryMilestone
-            }
-            replay_capacity::Capacity::RestartRecoveryMilestone => {
-                replay_capacity::Capacity::RestartRecoveryMilestone
-            }
-            replay_capacity::Capacity::ReservedMilestone => {
-                replay_capacity::Capacity::ReservedMilestone
-            }
-            replay_capacity::Capacity::Exhausted => {
-                self.pending_supersession = None;
-                return replay_report::denied_report(
-                    self,
-                    transition,
-                    context,
-                    RemoteAccessGrantError::ReplayWindowExhausted,
-                );
-            }
-        };
+        let capacity = replay_capacity::prepare(self, transition, &context);
+        if matches!(capacity, replay_capacity::Capacity::Exhausted) {
+            self.pending_supersession = None;
+            return replay_report::denied_report(
+                self,
+                transition,
+                context,
+                RemoteAccessGrantError::ReplayWindowExhausted,
+            );
+        }
         let result = self.apply_transition(transition, &context);
         self.pending_supersession = None;
         let report = replay::transition_report(self, transition, context, result);

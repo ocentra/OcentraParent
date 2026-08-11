@@ -43,6 +43,65 @@ fn terminal_transition_clears_pending_system_recovery() {
 }
 
 #[test]
+fn terminal_invalidation_retains_completed_restart_recovery_history() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-terminal-restart-history-activate"),
+        )
+        .result
+        .expect_value("activate grant");
+    let mut restored: RemoteAccessGrant =
+        serde_json::from_value(serde_json::to_value(&grant).expect_value("serialize active grant"))
+            .expect_value("restore active grant at reconnect boundary");
+    restored
+        .transition(
+            RemoteAccessGrantTransition::Reconnect,
+            context_for("attempt-terminal-restart-history-reconnect"),
+        )
+        .result
+        .expect_value("complete restarted reconnect");
+    restored
+        .transition(
+            RemoteAccessGrantTransition::Revoke,
+            context_for("attempt-terminal-restart-history-revoke"),
+        )
+        .result
+        .expect_value("revoke restored grant");
+    let terminal = serde_json::to_value(&restored).expect_value("serialize terminal grant");
+    let round_tripped: RemoteAccessGrant =
+        serde_json::from_value(terminal).expect_value("restore terminal grant");
+    assert_eq!(round_tripped, restored);
+}
+
+#[test]
+fn malformed_replay_identity_is_not_retained_as_a_denial() {
+    let mut grant = paired_grant();
+    let encoded_before = serde_json::to_value(&grant).expect_value("serialize initial grant");
+    let mut missing_attempt_ref = context_for("attempt-will-be-cleared");
+    missing_attempt_ref.attempt_ref = " ";
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Activate, missing_attempt_ref)
+            .result,
+        Err(RemoteAccessGrantError::EmptyField)
+    );
+    let mut missing_device_ref = context_for("attempt-missing-device-ref");
+    missing_device_ref.child_device_ref = " ";
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Activate, missing_device_ref)
+            .result,
+        Err(RemoteAccessGrantError::EmptyField)
+    );
+    assert_eq!(
+        serde_json::to_value(&grant).expect_value("serialize after invalid identities"),
+        encoded_before
+    );
+}
+
+#[test]
 fn accepted_access_start_replay_rechecks_current_parent_authority() {
     let mut grant = paired_grant();
     let first = grant.transition_with_audit(
@@ -338,6 +397,77 @@ fn system_failure_stop_uses_reserved_replay_capacity_after_history_saturation() 
         context_for("attempt-saturated-revoke-after-system-stop"),
     );
     assert_eq!(revoked.result, Ok(RemoteAccessGrantState::Revoked));
+}
+
+#[test]
+fn system_recovery_reserves_capacity_for_reconnect_request_and_completion() {
+    let mut grant = paired_grant();
+    for index in 0..31 {
+        let activate_ref =
+            Box::leak(format!("attempt-system-recovery-activate-{index}").into_boxed_str());
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Activate,
+                context_for(activate_ref),
+            )
+            .result
+            .expect_value("activate saturated grant");
+        let pause_ref =
+            Box::leak(format!("attempt-system-recovery-pause-{index}").into_boxed_str());
+        grant
+            .transition(RemoteAccessGrantTransition::Pause, context_for(pause_ref))
+            .result
+            .expect_value("pause saturated grant");
+    }
+    assert_eq!(
+        serde_json::to_value(&grant).expect_value("serialize saturated grant")["attempts"]
+            .as_array()
+            .map(Vec::len),
+        Some(64)
+    );
+
+    let mut system_stop = context_for("attempt-system-recovery-stop");
+    system_stop.actor_ref = "system-failure";
+    system_stop.parent_authorized = false;
+    system_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Stop, system_stop)
+            .result,
+        Ok(RemoteAccessGrantState::Stopped)
+    );
+    assert_eq!(
+        grant
+            .transition(
+                RemoteAccessGrantTransition::RequestReconnect,
+                context_for("attempt-system-recovery-request"),
+            )
+            .result,
+        Ok(RemoteAccessGrantState::ReconnectPending)
+    );
+    let mut recovery_context = context_for("attempt-system-recovery-reconnect");
+    recovery_context.recovery_proof =
+        ocentra_remote_access_core::remote_access_grant::RemoteAccessGrantRecoveryProof::SystemConditionCleared;
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Reconnect, recovery_context)
+            .result,
+        Ok(RemoteAccessGrantState::Active)
+    );
+    let mut restarted: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&grant).expect_value("serialize recovered saturated grant"),
+    )
+    .expect_value("restore recovered saturated grant at a fresh reconnect boundary");
+    assert_eq!(restarted.state(), RemoteAccessGrantState::ReconnectPending);
+    let mut restarted_context = context_for("attempt-system-recovery-restart");
+    restarted_context.recovery_proof =
+        ocentra_remote_access_core::remote_access_grant::RemoteAccessGrantRecoveryProof::SystemConditionCleared;
+    assert_eq!(
+        restarted
+            .transition(RemoteAccessGrantTransition::Reconnect, restarted_context)
+            .result,
+        Ok(RemoteAccessGrantState::Active)
+    );
 }
 
 #[test]

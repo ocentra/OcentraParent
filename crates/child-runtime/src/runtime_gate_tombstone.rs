@@ -4,6 +4,8 @@
 mod runtime_gate_tombstone_error;
 #[path = "runtime_gate_tombstone_recovery.rs"]
 pub mod runtime_gate_tombstone_recovery;
+#[path = "runtime_gate_tombstone_recovery_validation.rs"]
+mod runtime_gate_tombstone_recovery_validation;
 
 use ocentra_eventing::{
     envelope::{DomainEvent, StoredEventEnvelope},

@@ -9,6 +9,7 @@ use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDel
 use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
 
 use super::runtime_gate_tombstone_error::is_retryable_journal_error;
+use super::runtime_gate_tombstone_recovery_validation::is_completed_terminal_marker;
 
 /// Startup replay result for durable tombstone obligations. A replayed
 /// journal append is not an acknowledgement: the owning delivery path must
@@ -37,7 +38,7 @@ pub async fn replay_pending_child_runtime_tombstones(
         pending_journal_retry: Vec::new(),
     };
     for record in records {
-        if !record.terminal_pending {
+        if is_completed_terminal_marker(&record)? {
             continue;
         }
         let Some((action, envelope)) = record.typed_action_and_envelope() else {

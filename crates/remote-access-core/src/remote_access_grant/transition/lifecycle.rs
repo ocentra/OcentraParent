@@ -20,9 +20,13 @@ pub(super) fn activate(
 
 pub(super) fn pause(
     grant: &mut RemoteAccessGrant,
+    context: &RemoteAccessGrantContext<'_>,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::Active {
         return Err(RemoteAccessGrantError::InvalidTransition);
+    }
+    if !context.parent_authorized {
+        return Err(RemoteAccessGrantError::ParentAuthorityRequired);
     }
     grant.restart_recovery_milestone = None;
     Ok(RemoteAccessGrantState::Paused)
