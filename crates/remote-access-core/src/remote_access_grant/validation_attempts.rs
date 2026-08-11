@@ -1,6 +1,6 @@
 use super::{
-    validation::accepted_resulting_state, RemoteAccessGrant, RemoteAccessGrantAuditOutcome,
-    RemoteAccessGrantError,
+    validation::accepted_resulting_state, RemoteAccessGrant, RemoteAccessGrantAuditMilestone,
+    RemoteAccessGrantAuditOutcome, RemoteAccessGrantError,
 };
 
 pub(super) fn validate(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
@@ -37,8 +37,23 @@ fn has_invalid_attempt(grant: &RemoteAccessGrant) -> bool {
 
 fn has_duplicate_attempt_ref(grant: &RemoteAccessGrant) -> bool {
     grant.attempts.iter().enumerate().any(|(index, attempt)| {
-        grant.attempts[..index]
-            .iter()
-            .any(|prior| prior.attempt_ref == attempt.attempt_ref)
+        grant.attempts[..index].iter().any(|prior| {
+            prior.attempt_ref == attempt.attempt_ref
+                && !is_corrected_child_device_retry(prior, attempt)
+        })
     })
+}
+
+fn is_corrected_child_device_retry(
+    prior: &RemoteAccessGrantAuditMilestone,
+    current: &RemoteAccessGrantAuditMilestone,
+) -> bool {
+    prior.outcome == RemoteAccessGrantAuditOutcome::Denied
+        && prior.error == Some(RemoteAccessGrantError::WrongDevice)
+        && current.outcome == RemoteAccessGrantAuditOutcome::Accepted
+        && prior.transition == current.transition
+        && prior.household_ref == current.household_ref
+        && prior.actor_ref == current.actor_ref
+        && prior.route == current.route
+        && prior.child_device_ref != current.child_device_ref
 }

@@ -134,6 +134,22 @@ async fn projection_history_orders_enforcement_transition_matrix_and_deduplicate
 }
 
 #[tokio::test]
+async fn projection_history_is_empty_before_the_first_enforcement_event() {
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-empty-history-{}",
+        EventId::generated().as_str()
+    ));
+    let eventing_path = root.join("audit.eventing");
+
+    let rows = read_enforcement_audit_history(EnforcementAuditHistoryPath(eventing_path))
+        .await
+        .expect_value("empty history before first journal append");
+
+    assert_eq!(rows, Vec::<EnforcementAuditHistoryRow>::new());
+    assert!(!root.exists());
+}
+
+#[tokio::test]
 async fn typed_provenance_does_not_infer_rejection_from_an_event_id_prefix() {
     let root = std::env::temp_dir().join(format!(
         "enforcement-eventing-provenance-{}",

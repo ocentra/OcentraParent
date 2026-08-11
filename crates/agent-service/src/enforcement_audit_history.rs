@@ -40,6 +40,9 @@ pub struct EnforcementAuditHistoryRow {
 pub async fn read_enforcement_audit_history(
     journal_path: EnforcementAuditHistoryPath,
 ) -> Result<Vec<EnforcementAuditHistoryRow>, EventingError> {
+    if !journal_path.0.exists() {
+        return Ok(Vec::new());
+    }
     let event_type = EventType::parse(enforcement::EVENT_AUDIT_JOURNAL_RECORDED)?;
     let journal =
         NdjsonEventJournal::with_options(journal_path.0, NdjsonJournalOptions::hash_chain());

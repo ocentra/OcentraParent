@@ -485,6 +485,40 @@ async fn child_runtime_startup_recovery_replays_pending_outbox_through_event_flo
 }
 
 #[tokio::test]
+async fn child_runtime_startup_recovery_refuses_pending_legacy_tombstone(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-legacy-recovery-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    std::fs::write(
+        directory.join("retention-delete-tombstones.json"),
+        r#"[{"version":1,"deletion_ref":"storage-custody-delete:legacy-decision","proof_ref":"storage-custody-action:legacy-decision","terminal_pending":true}]"#,
+    )?;
+
+    let event_flow = ChildRuntimeTombstoneEventFlow::new(
+        NdjsonEventJournal::with_options(
+            directory.join("retention-delete.ndjson"),
+            NdjsonJournalOptions::hash_chain(),
+        ),
+        RetentionDeleteTombstoneStore::open(&directory)?,
+    );
+    let error = event_flow
+        .recover_pending()
+        .await
+        .expect_err_value("pending legacy tombstone must require migration");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+    assert_eq!(
+        error.to_string(),
+        "child-runtime tombstone recovery requires manual migration for a pending legacy tombstone"
+    );
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
 async fn child_runtime_startup_recovery_rejects_tampered_tombstone_identity(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let directory = std::env::temp_dir().join(format!(

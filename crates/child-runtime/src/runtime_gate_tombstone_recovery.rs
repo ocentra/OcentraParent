@@ -20,8 +20,8 @@ pub struct ChildRuntimeTombstoneRecoveryReport {
 }
 
 /// Replays every still-pending typed tombstone obligation after runtime
-/// startup. Legacy rows and terminal markers are skipped because they do not
-/// contain a typed event that can be safely reconstructed.
+/// startup. Terminal markers are skipped. A pending legacy row fails closed
+/// because it lacks the typed event needed for a safe reconstruction.
 pub async fn replay_pending_child_runtime_tombstones(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
@@ -41,7 +41,10 @@ pub async fn replay_pending_child_runtime_tombstones(
             continue;
         }
         let Some((action, envelope)) = record.typed_action_and_envelope() else {
-            continue;
+            return Err(std::io::Error::new(
+                std::io::ErrorKind::InvalidData,
+                "child-runtime tombstone recovery requires manual migration for a pending legacy tombstone",
+            ));
         };
         let decoded = envelope
             .decode::<StorageCustodyActionPlannedEvent>()

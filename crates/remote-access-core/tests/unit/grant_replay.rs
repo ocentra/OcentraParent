@@ -437,6 +437,16 @@ fn corrected_device_retry_cannot_reuse_an_attempt_for_another_transition() {
             .result,
         Ok(RemoteAccessGrantState::Active)
     );
+
+    let encoded = serde_json::to_value(&grant).expect_value("serialize corrected-device grant");
+    let restored: RemoteAccessGrant =
+        serde_json::from_value(encoded.clone()).expect_value("restore corrected-device grant");
+    assert_eq!(restored.state(), RemoteAccessGrantState::ReconnectPending);
+    assert_eq!(
+        serde_json::to_value(&restored).expect_value("serialize restored corrected-device grant")
+            ["attempts"],
+        encoded["attempts"]
+    );
 }
 
 #[test]
