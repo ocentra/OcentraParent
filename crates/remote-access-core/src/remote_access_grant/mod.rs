@@ -270,10 +270,10 @@ impl RemoteAccessGrant {
                 return replay_report::existing_report(self, previous, transition, context);
             }
         }
-        let capacity = match replay_capacity::prepare(self, transition) {
+        let capacity = match replay_capacity::prepare(self, transition, &context) {
             replay_capacity::Capacity::Attempts => replay_capacity::Capacity::Attempts,
-            replay_capacity::Capacity::TerminalMilestone => {
-                replay_capacity::Capacity::TerminalMilestone
+            replay_capacity::Capacity::ReservedMilestone => {
+                replay_capacity::Capacity::ReservedMilestone
             }
             replay_capacity::Capacity::Exhausted => {
                 self.pending_supersession = None;

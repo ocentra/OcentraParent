@@ -125,7 +125,9 @@ fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
     if let Some(index) = grant.restart_recovery_at {
         if !matches!(
             grant.state,
-            RemoteAccessGrantState::ReconnectPending | RemoteAccessGrantState::Active
+            RemoteAccessGrantState::ReconnectPending
+                | RemoteAccessGrantState::Active
+                | RemoteAccessGrantState::Paused
         ) || index > grant.attempts.len()
             || grant.terminal_milestone.is_some()
         {

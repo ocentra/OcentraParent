@@ -10,7 +10,7 @@ pub(super) fn validate(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGran
     if !has_terminal_capacity(grant) || has_denied_attempt(grant) {
         return invalid();
     }
-    if !is_terminal_transition(attempt.transition) || !is_accepted(attempt) {
+    if !is_reserved_transition(attempt.transition) || !is_accepted(attempt) {
         return invalid();
     }
     if !matches_grant_state(grant, attempt) || !matches_identity(grant, attempt) {
@@ -30,7 +30,7 @@ fn has_denied_attempt(grant: &RemoteAccessGrant) -> bool {
         .any(|entry| entry.outcome == RemoteAccessGrantAuditOutcome::Denied)
 }
 
-fn is_terminal_transition(transition: RemoteAccessGrantTransition) -> bool {
+fn is_reserved_transition(transition: RemoteAccessGrantTransition) -> bool {
     matches!(
         transition,
         RemoteAccessGrantTransition::Revoke
@@ -38,6 +38,7 @@ fn is_terminal_transition(transition: RemoteAccessGrantTransition) -> bool {
             | RemoteAccessGrantTransition::Deny
             | RemoteAccessGrantTransition::Fail
             | RemoteAccessGrantTransition::Supersede
+            | RemoteAccessGrantTransition::Stop
     )
 }
 
@@ -49,6 +50,11 @@ fn matches_grant_state(
     grant: &RemoteAccessGrant,
     attempt: &super::RemoteAccessGrantAuditMilestone,
 ) -> bool {
+    if attempt.transition == RemoteAccessGrantTransition::Stop {
+        return grant.state == super::RemoteAccessGrantState::Stopped
+            && grant.stop_recovery == super::RemoteAccessGrantStopRecoveryState::Pending
+            && attempt.resulting_state == grant.state;
+    }
     validation::is_terminal(grant.state)
         && attempt.resulting_state == grant.state
         && validation::accepted_resulting_state(attempt.transition) == attempt.resulting_state

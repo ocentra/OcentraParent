@@ -263,6 +263,43 @@ fn terminal_invalidation_is_available_after_accepted_history_saturation() {
 }
 
 #[test]
+fn system_failure_stop_uses_reserved_replay_capacity_after_history_saturation() {
+    let mut grant = paired_grant();
+    for index in 0..31 {
+        let activate_ref =
+            Box::leak(format!("attempt-saturated-stop-activate-{index}").into_boxed_str());
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Activate,
+                context_for(activate_ref),
+            )
+            .result
+            .expect_value("activate saturated grant");
+        let pause_ref = Box::leak(format!("attempt-saturated-stop-pause-{index}").into_boxed_str());
+        grant
+            .transition(RemoteAccessGrantTransition::Pause, context_for(pause_ref))
+            .result
+            .expect_value("pause saturated grant");
+    }
+
+    let mut system_stop = context_for("attempt-saturated-system-stop");
+    system_stop.actor_ref = "system-failure";
+    system_stop.parent_authorized = false;
+    system_stop.transition_authority = RemoteAccessGrantTransitionAuthority::SystemFailure;
+    let stopped = grant.transition(RemoteAccessGrantTransition::Stop, system_stop);
+    assert_eq!(stopped.result, Ok(RemoteAccessGrantState::Stopped));
+    let encoded = serde_json::to_value(&grant).expect_value("serialize saturated system stop");
+    assert_eq!(encoded["attempts"].as_array().map(Vec::len), Some(64));
+    assert_eq!(encoded["stop_recovery"], serde_json::json!("pending"));
+
+    let mut restored: RemoteAccessGrant =
+        serde_json::from_value(encoded).expect_value("restore saturated system stop");
+    let replay = restored.transition(RemoteAccessGrantTransition::Stop, system_stop);
+    assert_eq!(replay.result, stopped.result);
+    assert_eq!(replay.audit, stopped.audit);
+}
+
+#[test]
 fn accepted_milestone_result_state_must_match_its_transition() {
     let mut grant = paired_grant();
     grant
@@ -323,6 +360,19 @@ fn completed_restart_recovery_retains_its_original_reconnect_boundary() {
     )
     .expect_value("restore completed recovery without moving its boundary");
     assert_eq!(round_tripped, restored);
+
+    restored
+        .transition(
+            RemoteAccessGrantTransition::Pause,
+            context_for("attempt-restart-completed-pause"),
+        )
+        .result
+        .expect_value("pause completed recovery");
+    let paused_round_trip: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&restored).expect_value("serialize paused completed recovery"),
+    )
+    .expect_value("restore paused completed recovery without moving its boundary");
+    assert_eq!(paused_round_trip, restored);
 }
 
 #[test]
