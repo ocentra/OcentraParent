@@ -31,6 +31,7 @@ pub(super) fn actor_role(role: &RemoteActorRole) -> Result<(), RemoteAccessGrant
 pub(super) fn serialized(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantError> {
     fields(grant)?;
     actor_role(&grant.actor_role)?;
+    super::validation_context::validate_support_actor(grant)?;
     validate_attempts(grant)?;
     super::validation_terminal::validate(grant)?;
     super::validation_history::validate(grant)?;

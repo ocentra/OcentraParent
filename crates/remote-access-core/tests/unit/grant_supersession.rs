@@ -219,3 +219,37 @@ fn supersession_rejects_a_different_scope_or_missing_replacement() {
         Err(RemoteAccessGrantError::SupersedingGrantRequired)
     );
 }
+
+#[test]
+fn replayed_supersession_does_not_leave_a_pending_replacement_armed() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-supersede-replay"),
+        )
+        .result
+        .expect_value("activate before replayed supersession");
+    let replacement = RemoteAccessGrant::request(
+        "grant-replay-replacement",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-replay-replacement",
+    )
+    .expect_value("replacement grant");
+
+    let _replayed = grant.supersede_with(&replacement, context_for("attempt-supersede-replay"));
+    assert_eq!(grant.state(), RemoteAccessGrantState::Active);
+    assert_eq!(
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Supersede,
+                context_for("attempt-supersede-public"),
+            )
+            .result,
+        Err(RemoteAccessGrantError::SupersedingGrantRequired)
+    );
+}

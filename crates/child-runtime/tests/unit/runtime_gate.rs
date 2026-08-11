@@ -21,6 +21,7 @@ use ocentra_entitlement_core::entitlement_snapshot_values::{
     EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
 };
 use ocentra_eventing::envelope::{DomainEvent, EventEnvelope, EventMetadata, EventSource};
+use ocentra_eventing::expect_value::ExpectErrValue;
 use ocentra_eventing::ids::{
     CorrelationId, EventCustody, IdempotencyKey, RuntimeInstanceId, RuntimeRole, SourceComponent,
     SourceService,
@@ -362,7 +363,7 @@ async fn child_runtime_rejects_acknowledgement_for_an_unknown_tombstone(
         "storage-custody-delete:does-not-exist",
     )
     .await
-    .expect_err("unknown tombstones must not be acknowledged");
+    .expect_err_value("unknown tombstones must not be acknowledged");
     assert_eq!(error.kind(), std::io::ErrorKind::NotFound);
     assert!(store.records()?.is_empty());
     let _ = std::fs::remove_dir_all(&directory);
@@ -479,6 +480,60 @@ async fn child_runtime_startup_recovery_replays_pending_outbox_through_event_flo
     )
     .await?;
     assert!(!RetentionDeleteTombstoneStore::open(&directory)?.records()?[0].terminal_pending);
+    let _ = std::fs::remove_dir_all(&directory);
+    Ok(())
+}
+
+#[tokio::test]
+async fn child_runtime_startup_recovery_rejects_tampered_tombstone_identity(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = std::env::temp_dir().join(format!(
+        "ocentra-child-runtime-tampered-recovery-{}",
+        std::process::id()
+    ));
+    let _ = std::fs::remove_dir_all(&directory);
+    std::fs::create_dir_all(&directory)?;
+    let action = storage_custody_action_planned_event(storage_custody_decision_recorded_event(
+        StorageCustodyAggregateId::parse("child-runtime-tampered-family")?,
+        StorageCustodyDecisionId::parse("child-runtime-tampered-decision")?,
+        StorageCustodyInput {
+            location: StorageCustodyLocation::ParentDeviceLocal,
+            retention_window_state: RetentionWindowState::Expired,
+            parent_export_state: ParentExportState::NotRequested,
+            remote_sync_state: RemoteSyncState::Disabled,
+        },
+    ));
+    let journal_path = directory.join("journal.ndjson");
+    let journal =
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain());
+    let store = RetentionDeleteTombstoneStore::open(&directory)?;
+    let envelope =
+        EventEnvelope::from_event(action.clone(), retention_delete_metadata()?)?.store()?;
+    journal.inject_next_sync_failure_for_debug();
+    assert!(
+        runtime_gate_tombstone::persist_child_runtime_tombstone_action(
+            &journal, &store, &envelope, &action,
+        )
+        .await
+        .is_err()
+    );
+
+    let tombstone_path = directory.join("retention-delete-tombstones.json");
+    let encoded = String::from_utf8(std::fs::read(&tombstone_path)?)?.replace(
+        "\"aggregate_id\":\"child-runtime-tampered-family\"",
+        "\"aggregate_id\":\"tampered-family\"",
+    );
+    std::fs::write(&tombstone_path, encoded.as_bytes())?;
+
+    let restarted = ChildRuntimeTombstoneEventFlow::new(
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain()),
+        RetentionDeleteTombstoneStore::open(&directory)?,
+    );
+    let error = restarted
+        .recover_pending()
+        .await
+        .expect_err_value("tampered durable identity must fail closed");
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
     let _ = std::fs::remove_dir_all(&directory);
     Ok(())
 }

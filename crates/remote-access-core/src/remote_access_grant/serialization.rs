@@ -23,7 +23,9 @@ struct RemoteAccessGrantSnapshot {
     parent_grant: RemoteAccessGrantParentGrant,
     audit_ref: String,
     #[serde(default)]
-    attempts: Vec<super::RemoteAccessGrantAuditMilestone>,
+    attempts: Option<Vec<super::RemoteAccessGrantAuditMilestone>>,
+    #[serde(default)]
+    support_actor_ref: Option<String>,
     #[serde(default)]
     terminal_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
     #[serde(default)]
@@ -48,7 +50,13 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
         // and device trust checks still hold after a restart.  Resume it at the
         // reconnect gate so a fresh, typed context must authorize live access.
         let persisted_state = snapshot.state;
-        let mut attempts = snapshot.attempts;
+        let attempts_present = snapshot.attempts.is_some();
+        if !attempts_present && snapshot.state != RemoteAccessGrantState::Requested {
+            return Err(D::Error::custom(
+                "persisted non-requested grant must retain transition history",
+            ));
+        }
+        let mut attempts = snapshot.attempts.unwrap_or_default();
         for attempt in &mut attempts {
             if attempt.child_device_ref.trim().is_empty() {
                 attempt.child_device_ref = snapshot.child_device_ref.clone();
@@ -67,6 +75,7 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             child_device_ref: snapshot.child_device_ref,
             route: snapshot.route,
             parent_actor_ref: snapshot.parent_actor_ref,
+            support_actor_ref: snapshot.support_actor_ref,
             capability: snapshot.capability,
             actor_role: snapshot.actor_role,
             state,

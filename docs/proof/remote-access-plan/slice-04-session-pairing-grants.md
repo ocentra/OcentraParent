@@ -22,7 +22,7 @@ terminal snapshots. The graph state is `validation`, not `done`.
 | Command | Result |
 | --- | --- |
 | `cargo fmt --all -- --check` | passed |
-| `cargo test -p ocentra-remote-access-core --test unit` | 48 passed, 0 failed |
+| `cargo test -p ocentra-remote-access-core --test unit` | 54 passed, 0 failed |
 | `cargo test -p ocentra-schema --test contract remote_capability_fabric` | 7 passed, 0 failed |
 | `cargo clippy -p ocentra-remote-access-core --all-targets -- -D warnings` | passed |
 | `npm run lint:architecture -- --files crates/remote-access-core crates/schema` | passed |
@@ -59,13 +59,13 @@ actor identity rather than conflating the approver with the grantee.
 
 PR #645's initial full CI run passed all product, build, security, and
 portal-to-Rust E2E jobs, but the mergeability gate correctly held eight review
-threads. The follow-up review added six concrete findings. This local repair
-addresses those six in code and tests: safety transitions can recover capacity
+threads. The follow-up review added seven concrete findings. This local repair
+addresses those seven in code and tests: safety transitions can recover capacity
 without evicting accepted identities; accepted milestones validate ordered,
 reachable history; replay identity binds the child device; support grants bind
 an authenticated support actor separately from the parent approver; activation
 replay is blocked during pending recovery; and system-failure stop covers
-paired/reconnecting states. The focused unit count is now 48, the schema
+paired/reconnecting states. The focused unit count is now 54, the schema
 contract remains 7, and the follow-up CI run plus exact review-thread
 resolution remain open until GitHub checks the updated commit.
 

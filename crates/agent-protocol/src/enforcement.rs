@@ -560,6 +560,8 @@ pub struct EnforcementAuditJournalEvent {
     pub adapter_kind: EnforcementAdapterKind,
     pub platform: ParentPlatform,
     pub audit_event_kind: EnforcementAuditEventKind,
+    #[serde(default)]
+    pub provenance: EnforcementAuditJournalProvenance,
     pub result_status: EnforcementResultStatus,
     pub adapter_result_code: EnforcementAdapterResultCode,
     pub capability_state: EnforcementCapabilityState,
@@ -581,6 +583,15 @@ pub struct EnforcementAuditJournalEvent {
     pub observed_at: String,
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum EnforcementAuditJournalProvenance {
+    RejectedIntent,
+    AcceptedIntent,
+    #[default]
+    AdapterResult,
+}
+
 impl From<&EnforcementAuditEvent> for EnforcementAuditJournalEvent {
     fn from(audit: &EnforcementAuditEvent) -> Self {
         Self {
@@ -596,6 +607,13 @@ impl From<&EnforcementAuditEvent> for EnforcementAuditJournalEvent {
             adapter_kind: audit.action.adapter_kind,
             platform: audit.action.platform,
             audit_event_kind: audit.audit_event_kind,
+            provenance: if audit.audit_event_kind == EnforcementAuditEventKind::Attempted
+                && audit.result.status == EnforcementResultStatus::WouldEnforce
+            {
+                EnforcementAuditJournalProvenance::AcceptedIntent
+            } else {
+                EnforcementAuditJournalProvenance::AdapterResult
+            },
             result_status: audit.result.status,
             adapter_result_code: audit.result.adapter_result_code,
             capability_state: audit.capability.capability_state,

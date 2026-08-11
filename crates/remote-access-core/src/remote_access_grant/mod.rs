@@ -124,6 +124,8 @@ pub struct RemoteAccessGrant {
     child_device_ref: String,
     route: RemoteRoute,
     parent_actor_ref: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    support_actor_ref: Option<String>,
     capability: RemoteAccessGrantCapability,
     actor_role: RemoteActorRole,
     state: RemoteAccessGrantState,
@@ -154,6 +156,18 @@ pub struct RemoteAccessGrantContext<'a> {
     pub child_disclosed: bool,
     pub parent_grant_approved: bool,
     pub recovery_proof: RemoteAccessGrantRecoveryProof,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RemoteAccessGrantRequest {
+    pub grant_id: String,
+    pub household_ref: String,
+    pub child_device_ref: String,
+    pub route: RemoteRoute,
+    pub parent_actor_ref: String,
+    pub actor_role: RemoteActorRole,
+    pub audit_ref: String,
+    pub support_actor_ref: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -218,12 +232,13 @@ impl RemoteAccessGrant {
             child_device_ref: child_device_ref.into(),
             route,
             parent_actor_ref: parent_actor_ref.into(),
-            capability: RemoteAccessGrantCapability::LiveView,
             actor_role,
+            audit_ref: audit_ref.into(),
+            support_actor_ref: None,
+            capability: RemoteAccessGrantCapability::LiveView,
             state: RemoteAccessGrantState::Requested,
             disclosure_state: RemoteAccessGrantDisclosureState::Undisclosed,
             parent_grant: RemoteAccessGrantParentGrant::NotGranted,
-            audit_ref: audit_ref.into(),
             attempts: Vec::new(),
             terminal_milestone: None,
             superseded_by: None,
@@ -251,6 +266,7 @@ impl RemoteAccessGrant {
     ) -> RemoteAccessGrantTransitionReport {
         if let Some(previous) = replay::previous_attempt(self, context.attempt_ref) {
             if !replay::is_child_device_retry(&previous, &context) {
+                self.pending_supersession = None;
                 return replay_report::existing_report(self, previous, transition, context);
             }
         }

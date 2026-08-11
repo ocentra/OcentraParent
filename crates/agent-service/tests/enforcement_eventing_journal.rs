@@ -19,8 +19,9 @@ use ocentra_parent_agent_protocol::{
     constants::{enforcement, peer},
     enforcement::{
         EnforcementAdapterKind, EnforcementAdapterResultCode, EnforcementAuditEventKind,
-        EnforcementAuditJournalEvent, EnforcementCapabilityState, EnforcementResultStatus,
-        EnforcementRollbackState, ParentPlatform,
+        EnforcementAuditJournalEvent, EnforcementAuditJournalProvenance,
+        EnforcementCapabilityState, EnforcementResultStatus, EnforcementRollbackState,
+        ParentPlatform,
     },
     policy_constants as policy,
 };
@@ -128,6 +129,41 @@ async fn projection_history_orders_enforcement_transition_matrix_and_deduplicate
         .await
         .expect_value("projection-only enforcement history");
     assert_transition_history(&rows);
+    cleanup(&eventing_path);
+    let _ = remove_dir(&root);
+}
+
+#[tokio::test]
+async fn typed_provenance_does_not_infer_rejection_from_an_event_id_prefix() {
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-provenance-{}",
+        EventId::generated().as_str()
+    ));
+    let eventing_path = root.join("audit.eventing");
+    let journal_path = eventing_journal::EnforcementEventingJournalPath {
+        path: eventing_path.clone(),
+    };
+    let mut event = matrix_event(
+        "false-prefix",
+        EnforcementAuditEventKind::Failed,
+        EnforcementResultStatus::Failed,
+        EnforcementRollbackState::NotRequired,
+    );
+    event.audit_event_id = format!("{}false-prefix", enforcement::JOURNAL_REJECTED_ID_PREFIX);
+    event.provenance = EnforcementAuditJournalProvenance::AdapterResult;
+    eventing_journal::append_enforcement_audit_journal_event_phase(
+        journal_path.clone(),
+        event.clone(),
+        CorrelationId::parse(format!("correlation:{}", event.audit_event_id))
+            .expect_value("false-prefix correlation id"),
+        JournalDispatchPhase::AfterDispatch,
+    )
+    .await
+    .expect_value("false-prefix append");
+    let rows = read_enforcement_audit_history(EnforcementAuditHistoryPath(eventing_path.clone()))
+        .await
+        .expect_value("typed provenance history");
+    assert_eq!(rows[0].kind, EnforcementAuditHistoryKind::AdapterResult);
     cleanup(&eventing_path);
     let _ = remove_dir(&root);
 }
@@ -263,6 +299,15 @@ fn matrix_event(
     event.policy_decision_id = "policy:decision-1".to_string();
     event.target_id = "process:owned-1".to_string();
     event.audit_event_kind = audit_event_kind;
+    event.provenance = if suffix == "rejected" {
+        EnforcementAuditJournalProvenance::RejectedIntent
+    } else if audit_event_kind == EnforcementAuditEventKind::Attempted
+        && result_status == EnforcementResultStatus::WouldEnforce
+    {
+        EnforcementAuditJournalProvenance::AcceptedIntent
+    } else {
+        EnforcementAuditJournalProvenance::AdapterResult
+    };
     event.result_status = result_status;
     event.rollback_state = rollback_state;
     event.actor = Some(
@@ -297,6 +342,7 @@ fn journal_event() -> EnforcementAuditJournalEvent {
         adapter_kind: EnforcementAdapterKind::ProcessControl,
         platform: ParentPlatform::Windows,
         audit_event_kind: EnforcementAuditEventKind::Attempted,
+        provenance: EnforcementAuditJournalProvenance::AcceptedIntent,
         result_status: EnforcementResultStatus::WouldEnforce,
         adapter_result_code: EnforcementAdapterResultCode::NoOp,
         capability_state: EnforcementCapabilityState::Supported,

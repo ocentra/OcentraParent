@@ -255,12 +255,10 @@ fn terminal_invalidation_is_available_after_accepted_history_saturation() {
     assert!(encoded["terminal_milestone"].is_object());
     assert_eq!(encoded["attempts"].as_array().map(Vec::len), Some(64));
 
-    let restored: RemoteAccessGrant =
+    let mut restored: RemoteAccessGrant =
         serde_json::from_value(encoded).expect_value("restore saturated terminal grant");
     assert_eq!(restored.state(), RemoteAccessGrantState::Revoked);
-    let replay = restored
-        .clone()
-        .transition(RemoteAccessGrantTransition::Revoke, revoke_context);
+    let replay = restored.transition(RemoteAccessGrantTransition::Revoke, revoke_context);
     assert_eq!(replay.result, Ok(RemoteAccessGrantState::Revoked));
 }
 

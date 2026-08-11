@@ -1,10 +1,11 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectErrValue;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_grant::{
     RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantContext,
     RemoteAccessGrantDisclosureState, RemoteAccessGrantError, RemoteAccessGrantParentGrant,
-    RemoteAccessGrantRecoveryProof, RemoteAccessGrantState, RemoteAccessGrantTransition,
-    RemoteAccessGrantTransitionAuthority,
+    RemoteAccessGrantRecoveryProof, RemoteAccessGrantRequest, RemoteAccessGrantState,
+    RemoteAccessGrantTransition, RemoteAccessGrantTransitionAuthority,
 };
 use ocentra_schema::remote_capability_fabric::{
     RemoteActorRole, RemoteDeviceTrustState, RemoteRoute,
@@ -217,15 +218,16 @@ fn pairing_rejects_wrong_actor_household_device_and_undisclosed_child() {
 
 #[test]
 fn support_role_cannot_create_hidden_standing_access() {
-    let mut grant = RemoteAccessGrant::request(
-        "grant-support",
-        HOUSEHOLD,
-        CHILD,
-        ROUTE,
-        PARENT,
-        RemoteActorRole::SupportAdmin,
-        "audit-support",
-    )
+    let mut grant = RemoteAccessGrant::request_with_support_actor(RemoteAccessGrantRequest {
+        grant_id: "grant-support".to_string(),
+        household_ref: HOUSEHOLD.to_string(),
+        child_device_ref: CHILD.to_string(),
+        route: ROUTE,
+        parent_actor_ref: PARENT.to_string(),
+        actor_role: RemoteActorRole::SupportAdmin,
+        audit_ref: "audit-support".to_string(),
+        support_actor_ref: Some("support-admin-alpha".to_string()),
+    })
     .expect_value("grant request");
     let mut hidden_context = context();
     hidden_context.parent_grant_approved = false;
@@ -239,22 +241,25 @@ fn support_role_cannot_create_hidden_standing_access() {
 
 #[test]
 fn explicitly_approved_support_access_is_parent_visible_and_audited() {
-    let mut grant = RemoteAccessGrant::request(
-        "grant-support",
-        HOUSEHOLD,
-        CHILD,
-        ROUTE,
-        PARENT,
-        RemoteActorRole::SupportAdmin,
-        "audit-support",
-    )
+    let mut grant = RemoteAccessGrant::request_with_support_actor(RemoteAccessGrantRequest {
+        grant_id: "grant-support".to_string(),
+        household_ref: HOUSEHOLD.to_string(),
+        child_device_ref: CHILD.to_string(),
+        route: ROUTE,
+        parent_actor_ref: PARENT.to_string(),
+        actor_role: RemoteActorRole::SupportAdmin,
+        audit_ref: "audit-support".to_string(),
+        support_actor_ref: Some("support-admin-alpha".to_string()),
+    })
     .expect_value("grant request");
     grant
         .transition(RemoteAccessGrantTransition::ConfirmParent, context())
         .result
         .expect_value("approved support confirmation");
+    let mut support_pair = context_for("attempt-support-pair");
+    support_pair.actor_ref = "support-admin-alpha";
     grant
-        .transition(RemoteAccessGrantTransition::Pair, context())
+        .transition(RemoteAccessGrantTransition::Pair, support_pair)
         .result
         .expect_value("approved support pairing");
     assert_eq!(grant.parent_grant(), RemoteAccessGrantParentGrant::Granted);
@@ -446,13 +451,12 @@ fn accepted_attempt_replays_the_original_report_after_retry_and_restore() {
     if let Some(object) = active_json.as_object_mut() {
         object.remove("attempts");
     }
-    let restored_active: RemoteAccessGrant =
-        serde_json::from_value(active_json).expect_value("restore active grant at reconnect gate");
+    let restore_error = serde_json::from_value::<RemoteAccessGrant>(active_json)
+        .expect_err_value("non-requested snapshots without history must be rejected");
     assert_eq!(
-        restored_active.state(),
-        RemoteAccessGrantState::ReconnectPending
+        restore_error.to_string(),
+        "persisted non-requested grant must retain transition history"
     );
-    assert!(restored_active.can_reconnect());
 
     let mut progressed = paired_grant();
     let activated = progressed.transition_with_audit(

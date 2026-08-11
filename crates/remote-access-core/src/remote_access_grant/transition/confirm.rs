@@ -17,6 +17,9 @@ pub(super) fn parent(
     if grant.actor_role() == RemoteActorRole::SupportAdmin && !context.parent_grant_approved {
         return Err(RemoteAccessGrantError::SupportAccessRequiresParentGrant);
     }
+    if grant.actor_role() == RemoteActorRole::SupportAdmin && grant.support_actor_ref.is_none() {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
     grant.parent_grant = RemoteAccessGrantParentGrant::Granted;
     Ok(RemoteAccessGrantState::ParentConfirmed)
 }
