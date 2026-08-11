@@ -1,12 +1,12 @@
 use super::{
     RemoteAccessGrant, RemoteAccessGrantAuditOutcome, RemoteAccessGrantContext,
-    RemoteAccessGrantTransition, RemoteAccessGrantTransitionAuthority,
-    RemoteAccessGrantTransitionReport,
+    RemoteAccessGrantTransition, RemoteAccessGrantTransitionReport,
 };
 
 pub(super) enum Capacity {
     Attempts,
     StopRecoveryMilestone,
+    RestartRecoveryMilestone,
     ReservedMilestone,
     Exhausted,
 }
@@ -19,9 +19,14 @@ pub(super) fn prepare(
     if grant.attempts.len() < super::MAX_REPLAY_ATTEMPTS {
         return Capacity::Attempts;
     }
-    if is_system_failure_stop(transition, context) {
-        return if grant.stop_recovery_milestone.is_none() {
-            Capacity::StopRecoveryMilestone
+    if let Some(capacity) =
+        super::replay_capacity_recovery::system_failure_stop_capacity(grant, transition, context)
+    {
+        return capacity;
+    }
+    if super::replay_capacity_recovery::is_restart_reconnect(grant, transition) {
+        return if grant.restart_recovery_milestone.is_none() {
+            Capacity::RestartRecoveryMilestone
         } else {
             Capacity::Exhausted
         };
@@ -55,14 +60,6 @@ fn can_use_reserved_milestone(transition: RemoteAccessGrantTransition) -> bool {
     )
 }
 
-fn is_system_failure_stop(
-    transition: RemoteAccessGrantTransition,
-    context: &RemoteAccessGrantContext<'_>,
-) -> bool {
-    transition == RemoteAccessGrantTransition::Stop
-        && context.transition_authority == RemoteAccessGrantTransitionAuthority::SystemFailure
-}
-
 pub(super) fn record(
     grant: &mut RemoteAccessGrant,
     capacity: &Capacity,
@@ -73,9 +70,15 @@ pub(super) fn record(
         Capacity::StopRecoveryMilestone if report.result.is_ok() => {
             grant.stop_recovery_milestone = Some(report.audit.clone());
         }
+        Capacity::RestartRecoveryMilestone if report.result.is_ok() => {
+            grant.restart_recovery_milestone = Some(report.audit.clone());
+        }
         Capacity::ReservedMilestone if report.result.is_ok() => {
             grant.terminal_milestone = Some(report.audit.clone());
         }
-        Capacity::StopRecoveryMilestone | Capacity::ReservedMilestone | Capacity::Exhausted => {}
+        Capacity::StopRecoveryMilestone
+        | Capacity::RestartRecoveryMilestone
+        | Capacity::ReservedMilestone
+        | Capacity::Exhausted => {}
     }
 }

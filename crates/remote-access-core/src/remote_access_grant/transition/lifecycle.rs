@@ -19,11 +19,12 @@ pub(super) fn activate(
 }
 
 pub(super) fn pause(
-    grant: &RemoteAccessGrant,
+    grant: &mut RemoteAccessGrant,
 ) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
     if grant.state != RemoteAccessGrantState::Active {
         return Err(RemoteAccessGrantError::InvalidTransition);
     }
+    grant.restart_recovery_milestone = None;
     Ok(RemoteAccessGrantState::Paused)
 }
 
@@ -53,5 +54,6 @@ pub(super) fn stop(
     } else {
         super::super::RemoteAccessGrantStopRecoveryState::NotRequired
     };
+    grant.restart_recovery_milestone = None;
     Ok(RemoteAccessGrantState::Stopped)
 }

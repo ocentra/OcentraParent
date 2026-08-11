@@ -1,6 +1,6 @@
 #![forbid(unsafe_code)]
 
-//! Rust-owned pairing and standing-access lifecycle for remote live view.
+//! Rust-owned remote live-view pairing and standing-access lifecycle.
 //!
 //! This module owns the deterministic lifecycle boundary only. Persistence,
 //! relay transport, portal disclosure rendering, device-trust enrollment, and
@@ -11,6 +11,7 @@ mod audit;
 mod errors;
 mod replay;
 mod replay_capacity;
+mod replay_capacity_recovery;
 mod replay_identity;
 mod replay_report;
 mod serialization;
@@ -23,11 +24,12 @@ mod validation_history_support;
 mod validation_lifecycle;
 mod validation_terminal;
 
-/// Number of transition attempts retained for idempotent replay after a grant
+/// Number of transition attempts retained after a grant
 /// is persisted. Once the bounded window is full, a new attempt fails closed;
 /// retaining every recorded identity prevents an old accepted transition from
-/// being applied again after eviction. A terminal transition can use the
-/// separate terminal milestone slot when all retained attempts are accepted.
+/// being applied again after eviction. Terminal and restart-recovery
+/// transitions retain their own bounded milestones when all retained attempts
+/// are accepted.
 pub(super) const MAX_REPLAY_ATTEMPTS: usize = 64;
 
 use ocentra_schema::remote_capability_fabric::{
@@ -139,6 +141,8 @@ pub struct RemoteAccessGrant {
     terminal_milestone: Option<RemoteAccessGrantAuditMilestone>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     stop_recovery_milestone: Option<RemoteAccessGrantAuditMilestone>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    restart_recovery_milestone: Option<RemoteAccessGrantAuditMilestone>,
     superseded_by: Option<String>,
     stop_recovery: RemoteAccessGrantStopRecoveryState,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -210,6 +214,8 @@ pub struct RemoteAccessGrantAuditMilestone {
     pub outcome: RemoteAccessGrantAuditOutcome,
     pub resulting_state: RemoteAccessGrantState,
     pub error: Option<RemoteAccessGrantError>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub replacement_grant_id: Option<String>,
     pub audit_ref: String,
 }
 
@@ -251,6 +257,7 @@ impl RemoteAccessGrant {
             attempts: Vec::new(),
             terminal_milestone: None,
             stop_recovery_milestone: None,
+            restart_recovery_milestone: None,
             superseded_by: None,
             stop_recovery: RemoteAccessGrantStopRecoveryState::NotRequired,
             restart_recovery_at: None,
@@ -276,7 +283,7 @@ impl RemoteAccessGrant {
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
         if let Some(previous) = replay::previous_attempt(self, context.attempt_ref) {
-            if !replay::is_child_device_retry(&previous, transition, &context) {
+            if !replay::is_child_device_retry(self, &previous, transition, &context) {
                 self.pending_supersession = None;
                 return replay_report::existing_report(self, previous, transition, context);
             }
@@ -285,6 +292,9 @@ impl RemoteAccessGrant {
             replay_capacity::Capacity::Attempts => replay_capacity::Capacity::Attempts,
             replay_capacity::Capacity::StopRecoveryMilestone => {
                 replay_capacity::Capacity::StopRecoveryMilestone
+            }
+            replay_capacity::Capacity::RestartRecoveryMilestone => {
+                replay_capacity::Capacity::RestartRecoveryMilestone
             }
             replay_capacity::Capacity::ReservedMilestone => {
                 replay_capacity::Capacity::ReservedMilestone
@@ -318,25 +328,30 @@ impl RemoteAccessGrant {
 
     /// Atomically marks this grant as superseded by a newer grant with the
     /// same household, device, route, and capability scope. The owning grant
-    /// store/service is responsible for creating the replacement; this
+    /// store/service creates the replacement; this
     /// boundary makes the old grant unusable before the replacement is used.
     pub fn supersede_with(
         &mut self,
         replacement: &Self,
         context: RemoteAccessGrantContext<'_>,
     ) -> RemoteAccessGrantTransitionReport {
-        if self.grant_id == replacement.grant_id
-            || self.household_ref != replacement.household_ref
-            || self.child_device_ref != replacement.child_device_ref
-            || self.route != replacement.route
-            || self.capability != replacement.capability
-        {
+        if !replay::replacement_scope_matches(self, replacement) {
             return replay_report::denied_report(
                 self,
                 RemoteAccessGrantTransition::Supersede,
                 context,
                 RemoteAccessGrantError::SupersedingGrantMismatch,
             );
+        }
+        if let Some(previous) = replay::previous_attempt(self, context.attempt_ref) {
+            if !replay::matches_supersession_replacement(self, &previous, &replacement.grant_id) {
+                return replay_report::denied_report(
+                    self,
+                    RemoteAccessGrantTransition::Supersede,
+                    context,
+                    RemoteAccessGrantError::SupersedingGrantMismatch,
+                );
+            }
         }
 
         self.pending_supersession = Some(replacement.grant_id.clone());

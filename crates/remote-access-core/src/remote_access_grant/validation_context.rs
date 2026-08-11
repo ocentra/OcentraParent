@@ -25,6 +25,7 @@ impl RemoteAccessGrant {
             attempts: Vec::new(),
             terminal_milestone: None,
             stop_recovery_milestone: None,
+            restart_recovery_milestone: None,
             superseded_by: None,
             stop_recovery: super::RemoteAccessGrantStopRecoveryState::NotRequired,
             restart_recovery_at: None,

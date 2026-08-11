@@ -88,6 +88,7 @@ pub(super) fn denied_report(
             outcome: RemoteAccessGrantAuditOutcome::Denied,
             resulting_state: grant.state,
             error: Some(error),
+            replacement_grant_id: None,
             audit_ref: replay_denial_audit_ref(grant, transition, &context, error),
         },
     }

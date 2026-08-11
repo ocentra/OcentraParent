@@ -16,6 +16,13 @@ pub(super) fn previous_attempt(
         .cloned()
         .or_else(|| {
             grant
+                .restart_recovery_milestone
+                .as_ref()
+                .filter(|attempt| attempt.attempt_ref == attempt_ref)
+                .cloned()
+        })
+        .or_else(|| {
+            grant
                 .terminal_milestone
                 .as_ref()
                 .filter(|attempt| attempt.attempt_ref == attempt_ref)
@@ -32,6 +39,7 @@ pub(super) fn previous_attempt(
 }
 
 pub(super) fn is_child_device_retry(
+    grant: &RemoteAccessGrant,
     previous: &RemoteAccessGrantAuditMilestone,
     transition: RemoteAccessGrantTransition,
     context: &RemoteAccessGrantContext<'_>,
@@ -43,6 +51,32 @@ pub(super) fn is_child_device_retry(
         && previous.actor_ref == context.actor_ref
         && previous.route == context.route
         && previous.child_device_ref != context.child_device_ref
+        && context.child_device_ref == grant.child_device_ref
+}
+
+pub(super) fn matches_supersession_replacement(
+    grant: &RemoteAccessGrant,
+    previous: &RemoteAccessGrantAuditMilestone,
+    replacement_grant_id: &str,
+) -> bool {
+    previous.transition != RemoteAccessGrantTransition::Supersede
+        || previous.outcome != RemoteAccessGrantAuditOutcome::Accepted
+        || previous
+            .replacement_grant_id
+            .as_deref()
+            .or(grant.superseded_by.as_deref())
+            .is_none_or(|recorded| recorded == replacement_grant_id)
+}
+
+pub(super) fn replacement_scope_matches(
+    grant: &RemoteAccessGrant,
+    replacement: &RemoteAccessGrant,
+) -> bool {
+    grant.grant_id != replacement.grant_id
+        && grant.household_ref == replacement.household_ref
+        && grant.child_device_ref == replacement.child_device_ref
+        && grant.route == replacement.route
+        && grant.capability == replacement.capability
 }
 
 pub(super) fn transition_report(
@@ -75,6 +109,11 @@ pub(super) fn transition_report(
             outcome,
             resulting_state,
             error,
+            replacement_grant_id: if transition == RemoteAccessGrantTransition::Supersede {
+                grant.superseded_by.clone()
+            } else {
+                None
+            },
             audit_ref: grant.audit_ref.clone(),
         },
     }

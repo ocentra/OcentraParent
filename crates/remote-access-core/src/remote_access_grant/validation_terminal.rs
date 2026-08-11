@@ -63,6 +63,12 @@ fn matches_identity(
         && attempt.household_ref == grant.household_ref
         && attempt.child_device_ref == grant.child_device_ref
         && attempt.route == grant.route
+        && (matches!(
+            attempt.transition,
+            RemoteAccessGrantTransition::Supersede
+                if attempt.replacement_grant_id.as_deref() == grant.superseded_by.as_deref()
+        ) || (attempt.transition != RemoteAccessGrantTransition::Supersede
+            && attempt.replacement_grant_id.is_none()))
 }
 
 fn invalid() -> Result<(), RemoteAccessGrantError> {

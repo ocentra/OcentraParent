@@ -1,3 +1,4 @@
+use ocentra_eventing::envelope::DomainEvent;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_remote_access_core::remote_access_grant::{
     RemoteAccessGrant, RemoteAccessGrantError, RemoteAccessGrantRecoveryProof,
@@ -223,6 +224,76 @@ fn same_scope_rotation_supersedes_the_old_grant_and_survives_restore() {
     .expect_value("deserialize superseded grant");
     assert_eq!(restored.state(), RemoteAccessGrantState::Superseded);
     assert_eq!(restored.superseded_by(), Some("grant-rotated"));
+}
+
+#[test]
+fn supersession_replay_requires_the_persisted_replacement_grant() {
+    let mut grant = paired_grant();
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Activate,
+            context_for("attempt-supersede-bound-activate"),
+        )
+        .result
+        .expect_value("activate grant before supersession");
+    let replacement_a = RemoteAccessGrant::request(
+        "grant-supersede-bound-a",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-supersede-bound-a",
+    )
+    .expect_value("first replacement grant");
+    let replacement_b = RemoteAccessGrant::request(
+        "grant-supersede-bound-b",
+        HOUSEHOLD,
+        CHILD,
+        ROUTE,
+        PARENT,
+        RemoteActorRole::ParentOwner,
+        "audit-supersede-bound-b",
+    )
+    .expect_value("second replacement grant");
+    let context = context_for("attempt-supersede-bound");
+    let mut alternate_grant = grant.clone();
+    let alternate = alternate_grant.supersede_with(&replacement_b, context);
+    assert_eq!(alternate.result, Ok(RemoteAccessGrantState::Superseded));
+    let first = grant.supersede_with(&replacement_a, context);
+    assert_eq!(first.result, Ok(RemoteAccessGrantState::Superseded));
+    assert_eq!(
+        first.audit.replacement_grant_id.as_deref(),
+        Some("grant-supersede-bound-a")
+    );
+    assert_ne!(
+        first
+            .audit
+            .idempotency_key()
+            .expect_value("first replacement event identity"),
+        alternate
+            .audit
+            .idempotency_key()
+            .expect_value("second replacement event identity")
+    );
+    assert_eq!(
+        grant.supersede_with(&replacement_b, context).result,
+        Err(RemoteAccessGrantError::SupersedingGrantMismatch)
+    );
+    assert_eq!(grant.superseded_by(), Some("grant-supersede-bound-a"));
+
+    let mut restored: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&grant).expect_value("serialize replacement-bound supersession"),
+    )
+    .expect_value("restore replacement-bound supersession");
+    assert_eq!(
+        restored.supersede_with(&replacement_a, context).result,
+        Ok(RemoteAccessGrantState::Superseded)
+    );
+    assert_eq!(
+        restored.supersede_with(&replacement_b, context).result,
+        Err(RemoteAccessGrantError::SupersedingGrantMismatch)
+    );
 }
 
 #[test]

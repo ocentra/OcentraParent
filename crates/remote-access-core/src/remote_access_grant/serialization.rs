@@ -31,6 +31,8 @@ struct RemoteAccessGrantSnapshot {
     #[serde(default)]
     stop_recovery_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
     #[serde(default)]
+    restart_recovery_milestone: Option<super::RemoteAccessGrantAuditMilestone>,
+    #[serde(default)]
     superseded_by: Option<String>,
     #[serde(default)]
     stop_recovery: RemoteAccessGrantStopRecoveryState,
@@ -106,6 +108,9 @@ impl<'de> Deserialize<'de> for RemoteAccessGrant {
             attempts,
             terminal_milestone: snapshot.terminal_milestone,
             stop_recovery_milestone: snapshot.stop_recovery_milestone,
+            restart_recovery_milestone: (persisted_state != RemoteAccessGrantState::Active)
+                .then_some(snapshot.restart_recovery_milestone)
+                .flatten(),
             superseded_by: snapshot.superseded_by,
             stop_recovery: snapshot.stop_recovery,
             restart_recovery_at,

@@ -68,6 +68,13 @@ fn validate_recovery(grant: &RemoteAccessGrant) -> Result<(), RemoteAccessGrantE
             return Err(RemoteAccessGrantError::InvalidSerializedState);
         }
     }
+    if grant.restart_recovery_milestone.is_some()
+        && (grant.state != RemoteAccessGrantState::Active
+            || grant.restart_recovery_at != Some(grant.attempts.len())
+            || grant.terminal_milestone.is_some())
+    {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
     if grant.stop_recovery == RemoteAccessGrantStopRecoveryState::Pending
         && !matches!(
             grant.state,

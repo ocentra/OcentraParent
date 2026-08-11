@@ -27,12 +27,24 @@ fn has_invalid_attempt(grant: &RemoteAccessGrant) -> bool {
                 && attempt.route != grant.route)
             || (attempt.outcome == RemoteAccessGrantAuditOutcome::Accepted
                 && accepted_resulting_state(attempt.transition) != attempt.resulting_state)
+            || has_invalid_supersession_replacement(grant, attempt)
             || matches!(
                 (attempt.outcome, attempt.error.is_some()),
                 (RemoteAccessGrantAuditOutcome::Accepted, true)
                     | (RemoteAccessGrantAuditOutcome::Denied, false)
             )
     })
+}
+
+fn has_invalid_supersession_replacement(
+    grant: &RemoteAccessGrant,
+    attempt: &RemoteAccessGrantAuditMilestone,
+) -> bool {
+    if attempt.transition != super::RemoteAccessGrantTransition::Supersede {
+        return attempt.replacement_grant_id.is_some();
+    }
+    attempt.outcome == RemoteAccessGrantAuditOutcome::Accepted
+        && attempt.replacement_grant_id.as_deref() != grant.superseded_by.as_deref()
 }
 
 fn has_duplicate_attempt_ref(grant: &RemoteAccessGrant) -> bool {

@@ -7,6 +7,7 @@ pub(super) fn empty_history(grant: &RemoteAccessGrant) -> Result<bool, RemoteAcc
     if !grant.attempts.is_empty()
         || grant.terminal_milestone.is_some()
         || grant.stop_recovery_milestone.is_some()
+        || grant.restart_recovery_milestone.is_some()
         || !grant.restart_recovery_history.is_empty()
     {
         return Ok(false);
@@ -66,6 +67,32 @@ pub(super) fn stop_recovery(
         || attempt.household_ref != grant.household_ref
         || attempt.child_device_ref != grant.child_device_ref
         || attempt.route != grant.route
+        || attempt.replacement_grant_id.is_some()
+    {
+        return Err(RemoteAccessGrantError::InvalidSerializedState);
+    }
+    Ok(attempt.resulting_state)
+}
+
+pub(super) fn restart_recovery(
+    grant: &RemoteAccessGrant,
+    state: RemoteAccessGrantState,
+) -> Result<RemoteAccessGrantState, RemoteAccessGrantError> {
+    let Some(attempt) = grant.restart_recovery_milestone.as_ref() else {
+        return Ok(state);
+    };
+    if attempt.transition != super::RemoteAccessGrantTransition::Reconnect
+        || attempt.outcome != RemoteAccessGrantAuditOutcome::Accepted
+        || attempt.error.is_some()
+        || state != RemoteAccessGrantState::ReconnectPending
+        || grant.restart_recovery_at != Some(grant.attempts.len())
+        || attempt.resulting_state != RemoteAccessGrantState::Active
+        || attempt.grant_id != grant.grant_id
+        || attempt.audit_ref != grant.audit_ref
+        || attempt.household_ref != grant.household_ref
+        || attempt.child_device_ref != grant.child_device_ref
+        || attempt.route != grant.route
+        || attempt.replacement_grant_id.is_some()
     {
         return Err(RemoteAccessGrantError::InvalidSerializedState);
     }

@@ -152,6 +152,40 @@ fn denied_wrong_route_attempt_survives_serialization() {
 }
 
 #[test]
+fn wrong_device_retry_cannot_change_to_a_second_wrong_device() {
+    let mut grant = paired_grant();
+    let mut first_wrong_device = context_for("attempt-wrong-device-retry");
+    first_wrong_device.child_device_ref = "child-other-a";
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Activate, first_wrong_device)
+            .result,
+        Err(RemoteAccessGrantError::WrongDevice)
+    );
+
+    let mut second_wrong_device = context_for("attempt-wrong-device-retry");
+    second_wrong_device.child_device_ref = "child-other-b";
+    assert_eq!(
+        grant
+            .transition(RemoteAccessGrantTransition::Activate, second_wrong_device)
+            .result,
+        Err(RemoteAccessGrantError::InvalidTransition)
+    );
+
+    let mut restored: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&grant).expect_value("serialize wrong-device retry"),
+    )
+    .expect_value("restore only the original wrong-device denial");
+    assert_eq!(restored.state(), RemoteAccessGrantState::Paired);
+    assert_eq!(
+        restored
+            .transition(RemoteAccessGrantTransition::Activate, first_wrong_device)
+            .result,
+        Err(RemoteAccessGrantError::WrongDevice)
+    );
+}
+
+#[test]
 fn replay_history_rejects_new_attempts_when_full_and_preserves_old_identities() -> Result<(), String>
 {
     let mut grant = RemoteAccessGrant::request(
@@ -304,6 +338,81 @@ fn system_failure_stop_uses_reserved_replay_capacity_after_history_saturation() 
         context_for("attempt-saturated-revoke-after-system-stop"),
     );
     assert_eq!(revoked.result, Ok(RemoteAccessGrantState::Revoked));
+}
+
+#[test]
+fn restart_reconnect_uses_reserved_replay_capacity_after_active_history_saturation() {
+    let mut grant = paired_grant();
+    for index in 0..30 {
+        let activate_ref =
+            Box::leak(format!("attempt-saturated-restart-activate-{index}").into_boxed_str());
+        grant
+            .transition(
+                RemoteAccessGrantTransition::Activate,
+                context_for(activate_ref),
+            )
+            .result
+            .expect_value("activate saturated restart grant");
+        let pause_ref =
+            Box::leak(format!("attempt-saturated-restart-pause-{index}").into_boxed_str());
+        grant
+            .transition(RemoteAccessGrantTransition::Pause, context_for(pause_ref))
+            .result
+            .expect_value("pause saturated restart grant");
+    }
+    grant
+        .transition(
+            RemoteAccessGrantTransition::RequestReconnect,
+            context_for("attempt-saturated-restart-request"),
+        )
+        .result
+        .expect_value("request reconnect at the final replay slot");
+    grant
+        .transition(
+            RemoteAccessGrantTransition::Reconnect,
+            context_for("attempt-saturated-restart-prep"),
+        )
+        .result
+        .expect_value("complete reconnect at the final replay slot");
+    assert_eq!(grant.state(), RemoteAccessGrantState::Active);
+    assert_eq!(
+        serde_json::to_value(&grant).expect_value("serialize saturated active grant")["attempts"]
+            .as_array()
+            .map(Vec::len),
+        Some(64)
+    );
+
+    let mut restored: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&grant).expect_value("restore saturated active grant"),
+    )
+    .expect_value("restart recovery must remain available after saturation");
+    assert_eq!(restored.state(), RemoteAccessGrantState::ReconnectPending);
+    let recovery_context = context_for("attempt-saturated-restart-recovery");
+    let recovered = restored.transition(RemoteAccessGrantTransition::Reconnect, recovery_context);
+    assert_eq!(recovered.result, Ok(RemoteAccessGrantState::Active));
+    assert!(
+        serde_json::to_value(&restored).expect_value("serialize recovered saturated grant")
+            ["restart_recovery_milestone"]
+            .is_object()
+    );
+    let replay = restored.transition(RemoteAccessGrantTransition::Reconnect, recovery_context);
+    assert_eq!(replay.result, recovered.result);
+    assert_eq!(replay.audit, recovered.audit);
+
+    let mut restarted: RemoteAccessGrant = serde_json::from_value(
+        serde_json::to_value(&restored).expect_value("serialize completed saturated recovery"),
+    )
+    .expect_value("a later restart must receive a fresh reserved recovery slot");
+    assert_eq!(restarted.state(), RemoteAccessGrantState::ReconnectPending);
+    assert_eq!(
+        restarted
+            .transition(
+                RemoteAccessGrantTransition::Reconnect,
+                context_for("attempt-saturated-restart-second-recovery"),
+            )
+            .result,
+        Ok(RemoteAccessGrantState::Active)
+    );
 }
 
 #[test]
