@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementAuditEventKind, EnforcementAuditJournalEvent, EnforcementAuditJournalProvenance,
+    EnforcementAdapterKind, EnforcementAuditEventKind, EnforcementAuditJournalEvent,
+    EnforcementAuditJournalProvenance,
 };
 
 use super::EnforcementAuditHistoryKind;
@@ -21,6 +22,9 @@ pub(super) fn for_event(event: &EnforcementAuditJournalEvent) -> EnforcementAudi
 }
 
 fn adapter_result(event: &EnforcementAuditJournalEvent) -> EnforcementAuditHistoryKind {
+    if event.adapter_kind != EnforcementAdapterKind::TimerControl {
+        return EnforcementAuditHistoryKind::AdapterResult;
+    }
     match event.audit_event_kind {
         EnforcementAuditEventKind::Expired => EnforcementAuditHistoryKind::TimerExpired,
         EnforcementAuditEventKind::RollbackRequested

@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{io::ErrorKind, path::PathBuf};
 
 use ocentra_eventing::{
     error::EventingError,
@@ -40,8 +40,21 @@ pub struct EnforcementAuditHistoryRow {
 pub async fn read_enforcement_audit_history(
     journal_path: EnforcementAuditHistoryPath,
 ) -> Result<Vec<EnforcementAuditHistoryRow>, EventingError> {
-    if !journal_path.0.exists() {
-        return Ok(Vec::new());
+    let metadata = match std::fs::metadata(&journal_path.0) {
+        Ok(metadata) => metadata,
+        Err(error) if error.kind() == ErrorKind::NotFound => return Ok(Vec::new()),
+        Err(error) => {
+            return Err(EventingError::JournalIo {
+                path: journal_path.0.display().to_string(),
+                reason: error.to_string(),
+            });
+        }
+    };
+    if !metadata.is_file() {
+        return Err(EventingError::JournalIo {
+            path: journal_path.0.display().to_string(),
+            reason: std::io::Error::from(ErrorKind::InvalidInput).to_string(),
+        });
     }
     let event_type = EventType::parse(enforcement::EVENT_AUDIT_JOURNAL_RECORDED)?;
     let journal =

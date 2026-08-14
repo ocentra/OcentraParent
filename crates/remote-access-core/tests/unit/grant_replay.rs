@@ -348,6 +348,17 @@ fn terminal_invalidation_is_available_after_accepted_history_saturation() {
     assert!(encoded["terminal_milestone"].is_object());
     assert_eq!(encoded["attempts"].as_array().map(Vec::len), Some(64));
 
+    for field in ["actorRef", "attemptRef"] {
+        let mut tampered = encoded.clone();
+        tampered["terminal_milestone"][field] = serde_json::json!(" ");
+        assert_eq!(
+            serde_json::from_value::<RemoteAccessGrant>(tampered)
+                .map(|_| ())
+                .map_err(|error| error.to_string()),
+            Err("serialized grant state violates lifecycle invariants".to_owned())
+        );
+    }
+
     let mut restored: RemoteAccessGrant =
         serde_json::from_value(encoded).expect_value("restore saturated terminal grant");
     assert_eq!(restored.state(), RemoteAccessGrantState::Revoked);

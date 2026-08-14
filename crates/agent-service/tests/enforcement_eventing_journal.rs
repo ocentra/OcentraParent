@@ -7,6 +7,7 @@ use std::{
 };
 
 use ocentra_eventing::{
+    error::EventingError,
     expect_value::ExpectValue,
     ids::{CorrelationId, EventId},
     journal::{
@@ -150,6 +151,18 @@ async fn projection_history_is_empty_before_the_first_enforcement_event() {
 }
 
 #[tokio::test]
+async fn projection_history_surfaces_invalid_journal_metadata() {
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-invalid-metadata-{}",
+        EventId::generated().as_str()
+    ));
+    std::fs::create_dir(&root).expect_value("create invalid journal directory");
+    let result = read_enforcement_audit_history(EnforcementAuditHistoryPath(root.clone())).await;
+    assert!(matches!(result, Err(EventingError::JournalIo { .. })));
+    remove_dir(&root).expect_value("remove invalid journal directory");
+}
+
+#[tokio::test]
 async fn typed_provenance_does_not_infer_rejection_from_an_event_id_prefix() {
     let root = std::env::temp_dir().join(format!(
         "enforcement-eventing-provenance-{}",
@@ -279,8 +292,54 @@ async fn legacy_rejection_and_timer_pre_dispatch_keep_their_history_kind() {
     let _ = remove_dir(&root);
 }
 
+#[tokio::test]
+async fn non_timer_adapter_results_do_not_receive_timer_history_kinds() {
+    let root = std::env::temp_dir().join(format!(
+        "enforcement-eventing-non-timer-kind-{}",
+        EventId::generated().as_str()
+    ));
+    let eventing_path = root.join("audit.eventing");
+    let journal_path = eventing_journal::EnforcementEventingJournalPath {
+        path: eventing_path.clone(),
+    };
+    let events = [
+        matrix_event(
+            "process-expired",
+            EnforcementAuditEventKind::Expired,
+            EnforcementResultStatus::Expired,
+            EnforcementRollbackState::Available,
+        ),
+        matrix_event(
+            "process-rollback",
+            EnforcementAuditEventKind::RollbackCompleted,
+            EnforcementResultStatus::RolledBack,
+            EnforcementRollbackState::Completed,
+        ),
+        matrix_event(
+            "process-cancelled",
+            EnforcementAuditEventKind::Cancelled,
+            EnforcementResultStatus::Superseded,
+            EnforcementRollbackState::Completed,
+        ),
+    ];
+    append_transition_matrix(&journal_path, &events).await;
+    let rows = read_enforcement_audit_history(EnforcementAuditHistoryPath(eventing_path.clone()))
+        .await
+        .expect_value("read process-control results");
+    assert_eq!(
+        rows.iter().map(|row| row.kind).collect::<Vec<_>>(),
+        vec![
+            EnforcementAuditHistoryKind::AdapterResult,
+            EnforcementAuditHistoryKind::AdapterResult,
+            EnforcementAuditHistoryKind::AdapterResult,
+        ]
+    );
+    cleanup(&eventing_path);
+    let _ = remove_dir(&root);
+}
+
 fn transition_matrix() -> [EnforcementAuditJournalEvent; 7] {
-    [
+    let mut matrix = [
         matrix_event(
             "rejected",
             EnforcementAuditEventKind::Failed,
@@ -323,7 +382,11 @@ fn transition_matrix() -> [EnforcementAuditJournalEvent; 7] {
             EnforcementResultStatus::Superseded,
             EnforcementRollbackState::Completed,
         ),
-    ]
+    ];
+    for event in &mut matrix[4..] {
+        event.adapter_kind = EnforcementAdapterKind::TimerControl;
+    }
+    matrix
 }
 
 async fn append_transition_matrix(

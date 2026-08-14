@@ -58,7 +58,9 @@ fn matches_identity(
     grant: &RemoteAccessGrant,
     attempt: &super::RemoteAccessGrantAuditMilestone,
 ) -> bool {
-    attempt.grant_id == grant.grant_id
+    !attempt.actor_ref.trim().is_empty()
+        && !attempt.attempt_ref.trim().is_empty()
+        && attempt.grant_id == grant.grant_id
         && attempt.audit_ref == grant.audit_ref
         && attempt.household_ref == grant.household_ref
         && attempt.child_device_ref == grant.child_device_ref
