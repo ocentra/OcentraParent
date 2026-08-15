@@ -44,7 +44,18 @@ authority.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Completion - 2026-06-03
+## Current status - Phase 1 open
+
+The 2026-08-15 code audit found that the former TypeScript implementation
+owners were removed and the current Rust file only reproduces the generated
+TypeScript contract text. The workpack is therefore ready for implementation,
+not complete or in validation.
+
+Phase 1 still requires a Rust-owned compiler algorithm and focused checked-in
+tests for the target families and negative states in this workpack. Phase 2
+focused execution/Enforcer and Phase 3 proof remain later gates.
+
+## Historical bounded contract slice - 2026-06-03
 
 - Owner/lane: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
@@ -56,7 +67,7 @@ Use the standard checklist in [workpacks README](README.md).
 - Test source:
   `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
 
-Completed proof:
+The former TypeScript slice recorded:
 
 - Specific app/game targets require identity proof.
 - Unknown app/game targets compile only from unknown-state proof.
@@ -68,7 +79,11 @@ Completed proof:
   refs.
 - Unproved block-launch compiles to manual-required with disabled handoff.
 
-Deferred:
+That slice explicitly deferred:
 
 - Rust/service parity, runtime evaluator execution, portal authoring/preview UI,
   timers, notifications, rollback, and adapter execution.
+
+The removed `packages/parent-domain` files and ignored output root are
+historical evidence only; they do not satisfy the current Rust-first Phase 1
+implementation or test requirement.

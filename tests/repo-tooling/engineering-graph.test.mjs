@@ -565,7 +565,10 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.ok(!scoped.some((node) => node.id.startsWith('WP-browser-plan-')));
 
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
-  assert.equal(globalSummary.ready.length, 0);
+  assert.deepEqual(
+    globalSummary.ready.map((node) => node.id),
+    ['WP-app-game-plan-19-policy-target-compiler-for-app-game-rules']
+  );
   assert.ok(globalSummary.blocked.length > 0);
 });
 
