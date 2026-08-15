@@ -127,14 +127,153 @@
         "crates/schema/tests/contract/tracking_event_contracts.rs"
       ]
     },
+    "WP-policy-control-plane-plan-01-policy-source-of-truth": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/agent-protocol/src/policy_preview.rs",
+        "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_source",
+        "crates/policy-control-core/tests/unit/policy_source.rs",
+        "crates/policy-control-core/tests/version-skew/policy_source.rs",
+        "crates/policy-control-core/tests/version-skew/policy_source_migration.rs",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts"
+      ]
+    },
+    "WP-policy-control-plane-plan-02-parent-authoring-preview": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/agent-protocol/src/policy_preview.rs",
+        "crates/policy-control-core/src/policy_preview.rs",
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request",
+        "crates/policy-control-core/tests/unit/policy_preview.rs",
+        "crates/policy-control-core/tests/unit/policy_preview_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_request.rs",
+        "crates/policy-control-core/tests/version-skew/policy_preview.rs",
+        "crates/policy-control-core/tests/version-skew/policy_preview_helpers.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/policy_preview.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/policy_preview",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs",
+        "apps/portal/generated/parent-ui-bridge.ts",
+        "apps/portal/src/PolicyPreviewRoutePanel.tsx",
+        "apps/portal/tests/policy/policy-preview-route-panel.test.ts",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts"
+      ]
+    },
+    "WP-policy-control-plane-plan-03-domain-policy-compilers": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_compiler.rs",
+        "crates/policy-control-core/src/policy_contract_helpers_ts.rs",
+        "crates/policy-control-core/src/policy_contract_helpers_ts.contracts.txt",
+        "crates/policy-control-core/tests/unit/policy_compiler.rs",
+        "crates/policy-control-core/tests/unit/policy_contract_helpers.rs",
+        "crates/policy-control-core/tests/version-skew/policy_compiler.rs",
+        "packages/schema-domain/src/generated-policy-control-helpers-contracts.ts",
+        "packages/schema-domain/src/generated-policy-control-helpers.ts",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts"
+      ]
+    },
+    "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_source/validation/time",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule",
+        "crates/policy-control-core/src/policy_conflict.rs",
+        "crates/policy-control-core/src/policy_conflict",
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request",
+        "crates/policy-control-core/tests/unit/policy_source.rs",
+        "crates/policy-control-core/tests/unit/policy_contract_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_conflict.rs",
+        "crates/policy-control-core/tests/unit/policy_conflict_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_request.rs",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts",
+        "packages/schema-domain/src/generated-policy-control-helpers-contracts.ts",
+        "packages/schema-domain/src/generated-policy-control-helpers.ts"
+      ]
+    },
+    "WP-policy-control-plane-plan-08-policy-event-model": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_event.rs",
+        "crates/policy-control-core/src/policy_event",
+        "crates/policy-control-core/tests/unit/policy_event.rs",
+        "crates/policy-control-core/tests/version-skew/policy_event.rs"
+      ]
+    },
     "WP-policy-control-plane-plan-04-delivery-ack-audit": {
       "planSlug": "policy-control-plane-plan",
       "roots": [
+        "crates/policy-control-core/src/policy_delivery.rs",
         "crates/policy-control-core/src/policy_delivery",
+        "crates/policy-control-core/tests/unit/policy_delivery.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_metadata.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_receipt.rs",
         "crates/policy-control-core/tests/unit/policy_delivery_receipt_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_receipt_identity.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_receipt_redaction.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_record_boundaries.rs",
+        "crates/policy-control-core/tests/version-skew/policy_delivery.rs",
+        "crates/policy-control-core/tests/version-skew/policy_delivery_helpers.rs",
+        "crates/policy-control-core/tests/version-skew/policy_delivery_hydration_boundaries.rs",
         "crates/child-policy-core/src/policy_control_delivery_handoff.rs",
-        "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs"
+        "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs",
+        "crates/child-runtime/src/policy_control_runtime_flow.rs",
+        "crates/child-runtime/tests/integration/policy_control_runtime_flow_intent.rs",
+        "crates/child-notification-core/src/policy_control_notification.rs",
+        "crates/child-notification-core/tests/observability/policy_control_notification.rs"
       ]
+    },
+    "WP-policy-control-plane-plan-05-ask-parent-overrides": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request",
+        "crates/policy-control-core/tests/unit/policy_request.rs",
+        "crates/policy-control-core/tests/version-skew/policy_request.rs",
+        "crates/child-policy-core/src/policy_control_request.rs",
+        "crates/child-policy-core/src/policy_control_request_handoff.rs",
+        "crates/child-policy-core/src/policy_control_delivery_handoff.rs",
+        "crates/child-policy-core/tests/replay/policy_control_request_handoff.rs",
+        "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs",
+        "crates/child-runtime/src/policy_control_runtime_flow.rs",
+        "crates/child-runtime/tests/integration/policy_control_runtime_flow_intent.rs",
+        "crates/child-notification-core/src/policy_control_notification.rs",
+        "crates/child-notification-core/src/policy_control_notification_audit.rs",
+        "crates/child-notification-core/src/policy_control_notification_state.rs",
+        "crates/child-notification-core/src/policy_control_notification_validation.rs",
+        "crates/child-notification-core/tests/observability/policy_control_notification.rs",
+        "crates/agent-service/src/websocket/policy_request_confirm.rs",
+        "crates/agent-service/src/websocket/policy_request_confirm",
+        "crates/agent-service/src/websocket/policy_request_confirm_mapping.rs",
+        "crates/agent-service/src/websocket/policy_request_resolution.rs",
+        "crates/agent-service/src/websocket/policy_request_resolution",
+        "crates/agent-service/tests/unit/policy_request_confirm.rs",
+        "crates/agent-service/tests/unit/policy_request_confirm_tests.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/action_result.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_assistant_preview_confirm_requested.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_parent_resolution_requested.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs",
+        "apps/portal/generated/parent-ui-bridge.ts",
+        "apps/portal/src/PolicyPreviewRoutePanel.tsx",
+        "apps/portal/tests/policy/policy-preview-route-panel.test.ts"
+      ]
+    },
+    "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate": {
+      "planSlug": "policy-control-plane-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-data-custody-storage-plan-01-custody-source-of-truth": {
       "planSlug": "data-custody-storage-plan",
