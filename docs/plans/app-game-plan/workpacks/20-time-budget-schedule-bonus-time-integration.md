@@ -30,11 +30,11 @@ bonus-time, schedule, and audit refs.
 
 ## Tests And Proof
 
-- Time budget uses stored session summaries.
-- Foreground-only and running-time modes stay distinct.
-- Bonus time extends decision with audit refs.
-- Dry-run exposes expected action without executing.
-- Restart recovery preserves active timer state where implemented.
+- [x] Time budget uses stored session summaries.
+- [x] Foreground-only and running-time modes stay distinct.
+- [x] Bonus time extends decision with audit refs.
+- [x] Dry-run exposes expected action without executing.
+- [x] Restart recovery preserves active timer state where implemented.
 
 ## Done Signal
 
@@ -43,19 +43,41 @@ and capability state.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1/2 Complete; Phase 3 Open
 
-The 2026-08-15 code audit found that the historical TypeScript owners and test
-paths below are no longer tracked. WP51 now provides a Rust-owned generic
-compiler/evaluator boundary, but there is no current composition from stored
-`AppGameSessionSummary` rows into daily/weekly running-versus-foreground budget
-evaluation, schedule evidence, bonus approval/audit refs, and active/recovered
-timer state.
+Commit `b82cfc608` adds the current Rust-owned composition from stored
+`AppGameSessionSummary` rows into the WP51 runtime evaluator. It carries an
+explicit daily/weekly period, keeps running and foreground duration modes
+distinct, rounds partial stored milliseconds up instead of undercounting,
+binds active schedule evidence to the compiler input, preserves pending or
+approved bonus audit refs, and carries active or restart-recovered timer refs.
+Duplicate/incoherent summaries, manual-estimate bypasses, mismatched schedule
+evidence, and timers attached to non-time-limit actions fail closed. Adapter
+state remains `NotDispatched`.
 
-This workpack is active for that bounded `ocentra-app-game-core` composition
-and focused contract tests. The slice must remain dry-run and may not claim
-service persistence, portal/child UX, notifications, timer scheduling,
-rollback, or adapter execution.
+Current source/test owners:
+
+- `crates/app-game-core/src/app_game_time_budget.rs`
+- `crates/app-game-core/src/app_game_time_budget_types.rs`
+- `crates/app-game-core/src/app_game_time_budget_sessions.rs`
+- `crates/app-game-core/src/app_game_time_budget_schedule.rs`
+- `crates/app-game-core/src/app_game_time_budget_policy.rs`
+- `crates/app-game-core/tests/contract/app_game_time_budget.rs`
+
+Verified on 2026-08-15:
+
+- Focused WP20 contract tests: 6 passed.
+- `cargo test -p ocentra-app-game-core --test contract`: 74 passed.
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`: passed.
+- Focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, `no-naked-domain-strings`, `validation-bypass`, and
+  `reexports`: passed for the eight touched source/test files.
+- The repository pre-commit hook reran crate tests, focused architecture,
+  generated-artifact, contract/source-shape, and Rust-format gates: passed.
+
+Phase 3 remains open. This slice does not claim service persistence,
+portal/child UX, notification delivery, timer scheduling, rollback, platform
+adapter execution, retained proof, or whole-plan readiness.
 
 ## Historical Contract Completion - 2026-06-03
 

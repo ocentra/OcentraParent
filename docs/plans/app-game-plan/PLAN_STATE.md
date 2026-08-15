@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **156** have current production source plus expected checked-in tests for their
+- **157** have current production source plus expected checked-in tests for their
   bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **45** retain a concrete production-code or expected-test gap.
+  packets; **44** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -90,7 +90,7 @@ packages/schema-domain:
 - Scoped owned-process time-limit dispatch, parent preference request
   persistence/outbox, adapter readiness/dispatch, platform status, receipt,
   parent-runtime, and portal surfaces are present with bounded tests.
-- These do not erase the 45 Phase 1 gaps or claim cross-platform/provider/child
+- These do not erase the 44 Phase 1 gaps or claim cross-platform/provider/child
   delivery and physical proof.
 
 ## Historical gap narrative
@@ -108,7 +108,7 @@ Phase 1 authority where they conflict with `CODE_AUDIT.md`.
 - Unknown approval flow now has a Rust-owned typed candidate producer and durable synchronized Eventing lifecycle for request, parent response, expiry, restart replay, idempotency, and manual-required unsupported blocks. Service composition, notification delivery, service read models, parent/child UI, and adapter execution remain incomplete.
 - Native game budget policy now has a Rust-owned `ocentra-app-game-core` composition over the WP19 compiler and WP51 evaluator. It counts known games and parent-approved launcher-game candidates, excludes launcher-only/unapproved candidates, rejects incoherent/duplicate/bypass inputs, preserves advisory rating/UGC/multiplayer/purchase signals, and stays dry-run with no adapter dispatch. Service persistence, portal authoring/preview UI, bonus-time integration, notifications, retained proof, and adapter execution remain open.
 - App/game policy target compiler now has parent-domain contract proof for app/game targets, identity/unknown/category/schedule/capability/authority proof, device/local-user/freshness rejection, dry-run-only decisions, and manual-required unproved block-launch. It does not yet provide Rust/service parity, runtime evaluator execution, portal rule authoring/preview UI, timer integration, notifications, rollback, or adapter execution.
-- App/game time-budget policy now has parent-domain contract proof for stored app/game session refs, running versus foreground duration modes, schedule evidence, bonus-time approval/audit refs, ask-parent/manual-required dry-run states, effective budget math, and restart-recovered timer refs. It does not yet provide Rust/service parity, runtime evaluator execution, service persistence, portal budget authoring/preview UI, notification delivery, child request UX, adapter execution, or platform timer/rollback execution.
+- App/game time-budget policy now has a Rust-owned `ocentra-app-game-core` composition from stored session summaries into the WP51 evaluator. It preserves daily/weekly scope, running versus foreground duration, bound schedule evidence, pending/approved bonus audit refs, effective budget math, and active/recovered timer refs while remaining dry-run. Service persistence, portal/child UX, notification delivery, timer scheduling/rollback, retained proof, and adapter execution remain open.
 - Child-facing app/game UX now has parent-domain/text-domain contract proof for respectful warning, approval-needed, time-limit, request submitted/approved/ denied, manual-required, and unavailable states with safe copy tokens, evidence refs, child reason/status refs, and no private diagnostics. It does not yet provide live child UI, native overlay rendering, portal preview screenshots, notification delivery, service persistence, Rust/WebSocket parity, adapter execution, or platform shield/block behavior.
 
 ## Current proof interpretation
