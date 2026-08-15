@@ -233,6 +233,43 @@
         "crates/child-notification-core/tests/observability/policy_control_notification.rs"
       ]
     },
+    "WP-policy-control-plane-plan-05-ask-parent-overrides": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request",
+        "crates/policy-control-core/tests/unit/policy_request.rs",
+        "crates/policy-control-core/tests/version-skew/policy_request.rs",
+        "crates/child-policy-core/src/policy_control_request.rs",
+        "crates/child-policy-core/src/policy_control_request_handoff.rs",
+        "crates/child-policy-core/src/policy_control_delivery_handoff.rs",
+        "crates/child-policy-core/tests/replay/policy_control_request_handoff.rs",
+        "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs",
+        "crates/child-runtime/src/policy_control_runtime_flow.rs",
+        "crates/child-runtime/tests/integration/policy_control_runtime_flow_intent.rs",
+        "crates/child-notification-core/src/policy_control_notification.rs",
+        "crates/child-notification-core/src/policy_control_notification_audit.rs",
+        "crates/child-notification-core/src/policy_control_notification_state.rs",
+        "crates/child-notification-core/src/policy_control_notification_validation.rs",
+        "crates/child-notification-core/tests/observability/policy_control_notification.rs",
+        "crates/agent-service/src/websocket/policy_request_confirm.rs",
+        "crates/agent-service/src/websocket/policy_request_confirm",
+        "crates/agent-service/src/websocket/policy_request_confirm_mapping.rs",
+        "crates/agent-service/src/websocket/policy_request_resolution.rs",
+        "crates/agent-service/src/websocket/policy_request_resolution",
+        "crates/agent-service/tests/unit/policy_request_confirm.rs",
+        "crates/agent-service/tests/unit/policy_request_confirm_tests.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/action_result.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_assistant_preview_confirm_requested.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_parent_resolution_requested.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs",
+        "apps/portal/generated/parent-ui-bridge.ts",
+        "apps/portal/src/PolicyPreviewRoutePanel.tsx",
+        "apps/portal/tests/policy/policy-preview-route-panel.test.ts"
+      ]
+    },
     "WP-data-custody-storage-plan-01-custody-source-of-truth": {
       "planSlug": "data-custody-storage-plan",
       "roots": [
