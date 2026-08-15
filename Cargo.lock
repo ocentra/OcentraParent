@@ -2668,6 +2668,7 @@ dependencies = [
  "ocentra-parent-runtime-core",
  "ocentra-parent-screen-capture-adapter",
  "ocentra-policy-control-core",
+ "ocentra-schema",
  "ocentra-screen-live-view-core",
  "serde",
  "serde_json",

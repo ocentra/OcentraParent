@@ -129,6 +129,8 @@ mod activity_store_policy_preview_tests;
 mod activity_store_screen_evidence_tests;
 #[path = "activity_store_tests.rs"]
 mod activity_store_tests;
+#[path = "authenticated_delivery_execution.rs"]
+mod authenticated_delivery_execution;
 #[path = "authenticated_delivery_grant.rs"]
 mod authenticated_delivery_grant;
 #[path = "authenticated_delivery_grant_rejection_retention.rs"]

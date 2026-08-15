@@ -6,7 +6,7 @@ use std::fs::{create_dir_all, remove_dir};
 #[cfg(windows)]
 use ocentra_eventing::{
     ids::EventId,
-    journal::{ndjson::NdjsonJournalEntry, policy::JournalDispatchPhase},
+    journal::{ndjson::NdjsonJournalRecord, policy::JournalDispatchPhase},
 };
 
 use ocentra_parent_agent_protocol::constants;
@@ -91,11 +91,16 @@ async fn timer_expiry_journals_before_and_after_dispatch() -> TestResult {
     let entries = raw
         .lines()
         .filter(|line| !line.trim().is_empty())
-        .map(|line| {
+        .enumerate()
+        .map(|(index, line)| {
             test_ok(
-                serde_json::from_str::<NdjsonJournalEntry>(line),
+                NdjsonJournalRecord::parse(line, index + 1),
                 constants::error::JOURNAL_READS,
             )
+        })
+        .filter_map(|record| match record {
+            Ok(record) => record.entry().map(Ok),
+            Err(error) => Some(Err(error)),
         })
         .collect::<Result<Vec<_>, _>>()?;
 

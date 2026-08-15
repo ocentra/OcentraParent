@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 mod authenticated_delivery_grant_retention;
+pub mod execution_validation;
 mod rejection_audit;
 mod sqlite_contention;
 mod storage_keys;
