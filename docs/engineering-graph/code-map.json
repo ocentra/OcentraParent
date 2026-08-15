@@ -38,7 +38,19 @@
       "crates/agent-protocol",
       "crates/agent-service"
     ],
-    "parent-desktop-runtime-package-plan": ["crates/parent-runtime-core", "apps/parent-desktop"],
+    "parent-desktop-runtime-package-plan": [
+      "crates/parent-runtime-core",
+      "crates/schema",
+      "apps/parent-desktop",
+      "apps/portal",
+      "packages/portal-domain",
+      "platforms/android/parent",
+      "platforms/ios/OcentraParentMobile",
+      "scripts/dev/dev-parent-desktop.mjs",
+      "scripts/release/parent-android",
+      "scripts/release/parent-ios",
+      "scripts/release/parent-desktop-release-support-proof.mjs"
+    ],
     "payment-subscription-plan": ["crates/billing-core", "crates/entitlement-core", "infra/cloudflare"],
     "policy-control-plane-plan": [
       "crates/policy-control-core",
@@ -552,6 +564,143 @@
       "planSlug": "payment-subscription-plan",
       "codeExpectation": "no-code-required",
       "roots": []
+    },
+    "WP-parent-desktop-runtime-package-plan-01-parent-client-scope-and-route-boundary": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-parent-desktop-runtime-package-plan-02-parent-web-portal-distribution": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "packages/portal-domain/src/hosted-portal-distribution.ts",
+        "packages/portal-domain/src/hosted-portal-distribution.generated.ts",
+        "packages/portal-domain/src/hosted-portal-distribution.generated-path.ts",
+        "packages/portal-domain/src/hosted-portal-distribution.generated-policy.ts",
+        "packages/portal-domain/tests/unit/hosted-portal-distribution.test.ts",
+        "apps/portal/src/hosted-portal-distribution.tsx",
+        "apps/portal/src/main.ts",
+        "apps/portal/tests/unit/hosted-portal-distribution.test.ts",
+        "apps/portal/tests/e2e/hosted-portal-distribution.spec.ts"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-03-parent-desktop-shell-package": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "apps/parent-desktop",
+        "scripts/dev/dev-parent-desktop.mjs",
+        ".github/workflows/ci-parent-desktop-tauri.yml",
+        "tests/repo-tooling/platform-packaging.test.mjs"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-04-parent-android-package": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "platforms/android/parent",
+        "scripts/release/parent-android/build-parent-mobile-package.mjs",
+        "scripts/smoke/android-apk-smoke.sh",
+        ".github/workflows/ci-parent-mobile.yml",
+        ".github/workflows/ci-package-parent-android.yml",
+        "tests/repo-tooling/platform-packaging.test.mjs"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-05-parent-ios-package": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "platforms/ios/OcentraParentMobile.xcodeproj",
+        "platforms/ios/OcentraParentMobile",
+        "scripts/release/parent-ios/build-parent-mobile-simulator-app.sh",
+        "scripts/smoke/ios-simulator-smoke.sh",
+        ".github/workflows/ci-parent-mobile.yml",
+        ".github/workflows/ci-package-parent-ios.yml",
+        "tests/repo-tooling/platform-packaging.test.mjs"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-06-parent-local-service-route-bridge": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "apps/parent-desktop/src-tauri/src/lib.rs",
+        "apps/parent-desktop/src-tauri/src/parent_route_subscription_delivery.rs",
+        "apps/parent-desktop/src-tauri/tests/unit/desktop_shell.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs",
+        "crates/parent-runtime-core/tests/unit/parent_ui_bridge",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/schema/tests/contract/parent_ui_bridge.rs",
+        "crates/schema/tests/contract/parent_ui_bridge"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-07-parent-client-signing-store-matrix": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "apps/parent-desktop/src-tauri/src/lib.rs",
+        "apps/parent-desktop/src-tauri/tests/unit/desktop_shell.rs",
+        "scripts/release/parent-desktop-release-support-proof.mjs",
+        "tests/repo-tooling/platform-packaging.test.mjs"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-08-parent-client-update-rollback": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "apps/parent-desktop/src-tauri/src/lib.rs",
+        "apps/parent-desktop/src-tauri/tests/unit/desktop_shell.rs",
+        "scripts/release/parent-desktop-release-support-proof.mjs",
+        "tests/repo-tooling/platform-packaging.test.mjs"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-09-parent-client-launch-smoke-matrix": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "apps/portal/src/hosted-portal-distribution.tsx",
+        "apps/portal/tests/e2e/hosted-portal-distribution.spec.ts",
+        "apps/parent-desktop/src-tauri/src/lib.rs",
+        "apps/parent-desktop/src-tauri/tests/unit/desktop_shell.rs",
+        "scripts/dev/dev-parent-desktop.mjs",
+        "platforms/android/parent",
+        "platforms/ios/OcentraParentMobile.xcodeproj",
+        "platforms/ios/OcentraParentMobile",
+        "scripts/release/parent-android/build-parent-mobile-package.mjs",
+        "scripts/release/parent-ios/build-parent-mobile-simulator-app.sh",
+        "scripts/smoke/android-apk-smoke.sh",
+        "scripts/smoke/ios-simulator-smoke.sh",
+        ".github/workflows/ci-parent-desktop-tauri.yml",
+        ".github/workflows/ci-parent-mobile.yml",
+        ".github/workflows/ci-package-parent-android.yml",
+        ".github/workflows/ci-package-parent-ios.yml",
+        "tests/repo-tooling/platform-packaging.test.mjs"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/browser.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/presentation.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs",
+        "packages/portal-domain/src/setup-first-run-panel.ts",
+        "packages/portal-domain/tests/unit/setup-first-run-panel.test.ts",
+        "apps/portal/src/SetupFirstRunRoutePanel.tsx",
+        "apps/portal/tests/unit/setup-first-run-route-panel.test.ts"
+      ]
+    },
+    "WP-parent-desktop-runtime-package-plan-11-proof-ci-release-gate": {
+      "planSlug": "parent-desktop-runtime-package-plan",
+      "roots": [
+        ".github/workflows/ci.yml",
+        ".github/workflows/ci-parent-desktop-tauri.yml",
+        ".github/workflows/ci-parent-mobile.yml",
+        ".github/workflows/ci-package-parent-android.yml",
+        ".github/workflows/ci-package-parent-ios.yml",
+        ".github/workflows/package-preview.yml",
+        ".github/workflows/release.yml",
+        "scripts/release/parent-desktop-release-support-proof.mjs",
+        "tests/repo-tooling/platform-packaging.test.mjs"
+      ]
     },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
