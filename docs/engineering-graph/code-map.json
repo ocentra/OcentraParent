@@ -140,6 +140,29 @@
         "packages/schema-domain/src/policy.ts"
       ]
     },
+    "WP-policy-control-plane-plan-02-parent-authoring-preview": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/agent-protocol/src/policy_preview.rs",
+        "crates/policy-control-core/src/policy_preview.rs",
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request",
+        "crates/policy-control-core/tests/unit/policy_preview.rs",
+        "crates/policy-control-core/tests/unit/policy_preview_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_request.rs",
+        "crates/policy-control-core/tests/version-skew/policy_preview.rs",
+        "crates/policy-control-core/tests/version-skew/policy_preview_helpers.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/policy_preview.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/policy_preview",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs",
+        "apps/portal/generated/parent-ui-bridge.ts",
+        "apps/portal/src/PolicyPreviewRoutePanel.tsx",
+        "apps/portal/tests/policy/policy-preview-route-panel.test.ts",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts"
+      ]
+    },
     "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model": {
       "planSlug": "policy-control-plane-plan",
       "roots": [
