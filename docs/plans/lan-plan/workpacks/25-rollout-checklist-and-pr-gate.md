@@ -66,9 +66,10 @@ Current verified rollout truth on 2026-06-28:
   `cargo lint-architecture crates/agent-service/tests/unit/lan_pairing.rs crates/agent-service/tests/unit/lan_pairing_household_device_spine.rs crates/parent-runtime-core/tests/unit/parent_ui_bridge/snapshot_and_dispatch_tests.rs`,
   and
   `npm run lint:architecture -- --files apps/portal/e2e/portal-ui.spec.ts apps/portal/e2e/portal-route-scaffold-assertions.ts`.
-- The broader wrapper gates are green in this lane on 2026-06-28:
-  `cmd /c npm run build:contracts` and
-  `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs`.
+- The 2026-08-15 code-first audit invalidates the broader wrapper claim:
+  `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` is absent from the
+  current repository. `build:contracts` history does not substitute for that
+  missing aggregate verifier.
 - The current Windows portal Playwright rerun is green in this lane on
   2026-06-28:
   `$env:OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC='portal-ui.spec.ts'; node scripts/test/portal-playwright-runner.mjs`.
@@ -123,7 +124,12 @@ Current verified LAN replay-consumer truth on 2026-07-19:
   including later scoped gates, are recorded in the current proof root. These
   are separate automated seams and do not constitute backend-to-Tauri-emitter-
   to-portal-listener proof or manual runtime proof.
-- WP25 remains `partial/manual`. This local consumer proof does not close the
+
+Accordingly, WP25 is Phase 1 incomplete until WP16 adds the integrated
+backend-to-`AppHandle`-to-listener regression and WP20 restores or replaces its
+missing aggregate verifier programs. Physical/manual topology evidence remains
+a later Phase 3 gate.
+- WP25 remains `partial/code-test gap`. The existing seam coverage does not close the
   Tauri-emitter-to-portal-listener gap, physical multi-device, router/firewall,
   signed-artifact, restart, or manual topology evidence rows and does not
   support broad PR-ready or DONE.
