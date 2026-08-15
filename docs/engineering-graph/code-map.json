@@ -90,6 +90,25 @@
         "infra/cloudflare/tests/unit/env-bindings.test.ts"
       ]
     },
+    "WP-account-identity-family-plan-02-identity-household-role-model": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity",
+        "crates/family-identity-core/src/family_identity_text_ids.rs",
+        "crates/family-identity-core/src/family_identity_helpers.rs",
+        "crates/family-identity-core/src/family_identity_profiles.rs",
+        "crates/family-identity-core/src/family_identity_profiles_validation.rs",
+        "crates/family-identity-core/src/household_authority.rs",
+        "crates/family-identity-core/src/household_authority_validation.rs",
+        "crates/family-identity-core/src/household_authority_proof.rs",
+        "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
+        "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
+        "crates/family-identity-core/tests/unit/household_authority.rs",
+        "crates/provisioning-core/src/provisioning_install/family_context.rs",
+        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+      ]
+    },
     "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration": {
       "planSlug": "account-identity-family-plan",
       "roots": [
