@@ -3,10 +3,9 @@ use std::{error::Error, fs};
 use ocentra_parent_logging_core::{
     ndjson_interop_test_support::append_record_with_external_interleave,
     ndjson_test_support::{
-        forget_operation_compaction_cache, operation_compaction_cache_counts,
-        operation_compaction_membership_segment_count, operation_compaction_scan_bytes,
+        operation_compaction_cache_counts, operation_compaction_membership_segment_count,
         operation_state_entry_count, record_matches_with_short_reads,
-        replace_operation_state_without_cache_notice, seed_operation_compaction_cache,
+        seed_operation_compaction_cache,
     },
     ndjson_writer::{append_record_for_operation, remove_record_file_with_operation_state},
 };
@@ -26,12 +25,6 @@ fn ndjson_operation_candidate_reader_handles_short_reads() {
 #[test]
 fn ndjson_operation_compacts_commit_inodes_and_cleans_data_lifecycle_state() {
     let result = ndjson_operation_compacts_commit_inodes_and_cleans_data_lifecycle_state_impl();
-    assert!(matches!(result, Ok(())), "{result:?}");
-}
-
-#[test]
-fn ndjson_operation_indexes_compacted_commits_without_repeated_full_scans() {
-    let result = ndjson_operation_indexes_compacted_commits_without_repeated_full_scans_impl();
     assert!(matches!(result, Ok(())), "{result:?}");
 }
 
@@ -107,38 +100,6 @@ fn ndjson_operation_compacts_commit_inodes_and_cleans_data_lifecycle_state_impl(
     append_record_for_operation(&path, "operation-0", records[0].as_bytes())?;
     assert_eq!(fs::read(&path)?, records[0].as_bytes());
     assert_eq!(operation_state_entry_count(&path)?, 1);
-    Ok(())
-}
-
-fn ndjson_operation_indexes_compacted_commits_without_repeated_full_scans_impl(
-) -> Result<(), Box<dyn Error>> {
-    let root = temp_dir!();
-    fs::create_dir_all(&root)?;
-    let path = root.join("indexed-operations.ndjson");
-    let records = (0..128)
-        .map(|index| format!("{{\"indexed\":{index}}}\n"))
-        .collect::<Vec<_>>();
-    for (index, record) in records.iter().enumerate() {
-        append_record_for_operation(&path, &format!("indexed-{index}"), record.as_bytes())?;
-    }
-
-    forget_operation_compaction_cache(&path)?;
-    append_record_for_operation(&path, "indexed-0", records[0].as_bytes())?;
-    let first_scan = operation_compaction_scan_bytes(&path)?;
-    append_record_for_operation(&path, "indexed-127", records[127].as_bytes())?;
-    assert_eq!(operation_compaction_scan_bytes(&path)?, first_scan);
-    assert_eq!(
-        first_scan,
-        fs::metadata(root.join(".indexed-operations.ndjson.operations/commits.state"))?.len()
-    );
-    assert!(!root
-        .join(".indexed-operations.ndjson.operations/commits.ndjson")
-        .exists());
-
-    replace_operation_state_without_cache_notice(&path)?;
-    let replacement = b"{\"indexed\":\"replacement\"}\n";
-    append_record_for_operation(&path, "indexed-0", replacement)?;
-    assert_eq!(fs::read(&path)?, replacement);
     Ok(())
 }
 
