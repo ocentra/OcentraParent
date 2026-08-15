@@ -159,6 +159,11 @@
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
       ]
     },
+    "WP-account-identity-family-plan-06-security-proof-and-route-gate": {
+      "planSlug": "account-identity-family-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
     "WP-account-identity-family-plan-07-parent-account-family-setup-ui": {
       "planSlug": "account-identity-family-plan",
       "roots": [
