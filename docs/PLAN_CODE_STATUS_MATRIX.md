@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `ea1a12b17`. The dated
+baseline at `406df7e54`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -28,11 +28,12 @@ the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
 Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,911
-implementation files and 1,214 test files, but only **87 of 679 workpacks**
-(12.81%) have reviewed, exact code/test ownership maps. Account Identity,
-Cloudflare Control Plane, Data Custody, Device Trust, Eventing,
-Payment/Subscription, Policy Control Plane, and Setup/Install/Provisioning are fully mapped; 592 workpacks across the repository
+This is the key code-first limitation: live plan roots contain 2,917
+implementation files and 1,214 test files, but only **98 of 679 workpacks**
+(14.43%) have reviewed, exact code/test ownership maps. Account Identity,
+Cloudflare Control Plane, Data Custody, Device Trust, Eventing, Parent Client
+Runtime Distribution, Payment/Subscription, Policy Control Plane, and
+Setup/Install/Provisioning are fully mapped; 581 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -55,7 +56,7 @@ strong enough for workpack-level decisions.
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 693 / 470 | 0 / 10 | Unattributed at workpack level despite current crate tests and CI. |
 | Network | 8 | 7/0/0/0/1/0 | 942 / 520 | 1 / 8 | Partial; WP08 reference routing is mapped. |
-| Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 107 / 21 | 0 / 11 | Unattributed. |
+| Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 / 181 | 11 / 11 | Fully code-mapped; WP01, WP04, WP05, and WP09 are Phase 1 complete for their bounded scope, while seven workpacks retain concrete runtime or expected-test gaps. |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 13 / 13 | Fully code-mapped; WP00 is complete for Phase 1 code/expected-test writing, while twelve workpacks retain concrete code/test gaps. |
 | Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 8 / 8 | Fully code-mapped; WP03 is Phase 1 complete and seven workpacks retain concrete code/test gaps. |
 | Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 683 / 448 | 0 / 20 | Unattributed. |
@@ -291,6 +292,38 @@ Thus 6/7 are complete for code/expected-test writing, while the whole product
 journey remains blocked by WP07 plus explicitly sibling-owned runtime proof.
 No Phase 2 passing-test or Phase 3 proof/PR_READY claim is inferred.
 
+### Parent Client Runtime Distribution Phase 1 code/test audit - 2026-08-15
+
+This audit follows the current parent web, Tauri desktop, Android parent, iOS
+parent, route-bridge, workflow, and release-helper source. The 20 historical
+desktop-only workpack files that are not selected by `WORKPACK_INDEX.md` remain
+legacy reference material and are not silently counted as additional current
+workpacks. Enforcer-hosted proof scripts were inspected where package scripts
+route to them, but only repository-owned files are recorded as graph roots. No
+mapped test is claimed passing until the Phase 2 rerun.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Parent Client Scope And Route Boundary | Expected topology is `no-code-required`; this packet owns the canonical parent-client versus setup/child-runtime/portal ownership decision. | **Complete for Phase 1** | No product implementation is owned by this routing packet. Its boundary still has to be obeyed by WP02/WP03/WP06; their current code does not become correct merely because WP01 documents the split. |
+| WP02 Parent Web Portal Distribution | Six implementation files and three tests provide pathname-based preview/staging/production rendering, wrong-route rejection, parent-only copy, and deterministic unit/Playwright coverage. | **Incomplete** | Authentication is considered successful unless the URL says `?auth=missing`; cache freshness is likewise a query parameter, and the enabled action button has no production action. There is no hosted deployment configuration or real session/cache input. The generated TypeScript claims a Rust source file that is absent. This is a distribution-status demo, not a real hosted authenticated parent portal boundary. |
+| WP03 Parent Desktop Shell Package | Five implementation files and three tests provide a real Tauri shell, built-portal frontend binding, invoke/listen route commands, subscriptions, a TCP reachability probe, and Windows package/build anchors. | **Incomplete** | The platform state hard-codes active controller lease, local-network route/custody, and implemented child-agent/AI-provider roles even when the service is unavailable. Route loading calls `parent-runtime-core` in-process rather than decoding a typed local-service response, and the dedicated CI workflow type-checks/builds but does not package and exercise the Tauri artifact. Expected negative tests for unauthorized/version-mismatch/stale service responses are absent. |
+| WP04 Parent Android Package | The parent-only Gradle project, launcher activity, versioned/checksummed APK builder, dedicated CI emulator install/launch/uninstall workflow, repository topology test, and Enforcer parent-package/source-boundary harness are written. | **Complete for Phase 1** | Release signing and Google Play publication remain manual/Phase 3 inputs. Phase 2 must rerun the build and emulator smoke; this row does not claim store readiness or child-agent authority. |
+| WP05 Parent iOS Package | The parent-only Xcode project, simulator status app, versioned/checksummed package builder, dedicated macOS CI simulator install/launch workflow, repository topology test, and Enforcer source-boundary harness are written. | **Complete for Phase 1** | Device signing, provisioning profiles, TestFlight, App Store review, and a physical-device run remain manual/Phase 3 inputs. Phase 2 still must rerun the simulator build/smoke. |
+| WP06 Parent Local-Service Route Bridge | Twelve implementation files and twelve tests cover the Rust route snapshot schema, route subscription delivery/deduplication, LAN read-model projection, and desktop command surface. | **Incomplete** | The desktop shell only probes whether a TCP socket accepts, then constructs package/authority fields locally. It does not perform a typed health/version/auth handshake or load route state from a service transport; `parent_load_route` directly calls the in-process parent runtime. Hard-coded controller, source, and custody state can therefore disagree with the reachable service. |
+| WP07 Parent Client Signing Store Matrix | The desktop state and release-support helper expose manual-required signing/notarization/store labels, with general packaging assertions. | **Incomplete** | There is no parent-client per-artifact authority matrix or focused test. The helper incorrectly labels Android Play and iOS TestFlight rows as `child-mobile`, and it records no parent Android/iOS artifact hash, certificate, provisioning, notarization, store-review, or signing-authority state. |
+| WP08 Parent Client Update Rollback | The desktop status shape and release-support helper distinguish scaffold, unavailable, and manual-required labels; selected assertions preserve those labels. | **Incomplete** | There is no parent-client updater: no manifest fetch, signature/checksum verification, apply state machine, durable update journal, rollback executor, failure recovery, or tampered/replayed manifest tests. Static unavailable/manual labels are honest but are not update/rollback implementation. |
+| WP09 Parent Client Launch Smoke Matrix | Web Playwright launch coverage, desktop launch/build anchors, Android emulator smoke, iOS simulator smoke, repository packaging assertions, and the Enforcer four-row matrix harness are written. | **Complete for Phase 1** | The matrix harness is Enforcer-owned rather than a repository code root, and actual smoke outcomes remain Phase 2/manual evidence. Launch smoke does not establish auth, setup, signing/store, update/rollback, or child-runtime readiness. |
+| WP10 Setup Handoff Contracts | Six nearby implementation files and three tests expose the Start-route setup panel through the Rust bridge and portal projection. | **Incomplete** | This is the setup status panel already audited under Setup WP07, not an explicit setup-to-parent-client-distribution request/response contract. There is no package target/version/integrity/install-precondition handoff, expiry/replay protection, consumer acknowledgement, compatibility contract, or focused boundary test. |
+| WP11 Proof CI Release Gate | CI detects parent desktop/mobile changes and has dedicated desktop build, Android emulator, and iOS simulator jobs; generic release/packaging assertions and a release-support helper exist. | **Incomplete** | There is no executable parent-client aggregate gate that validates WP01-WP10 required fields and accepted/missing roots. The production release workflow builds the child Windows agent MSI, not signed parent desktop/mobile artifacts, and no parent-client promotion gate enforces signing/store, setup handoff, negative, teardown, rollback, or allowed/blocked claim truth. |
+
+**Parent Client Runtime Distribution Phase 1 result:** all 11/11 current
+workpacks now have reviewed code/test ownership. WP01, WP04, WP05, and WP09 are
+complete for code/expected-test writing within their bounded routing/package/
+smoke scope. WP02, WP03, WP06, WP07, WP08, WP10, and WP11 retain real runtime
+or expected-test gaps. The plan's seven document-claimed closures therefore do
+not establish product or release completion. No Phase 2 passing-test, signing,
+store, or Phase 3 proof/PR_READY claim is inferred.
+
 ## Consolidated branch code/test inventory - 2026-08-09
 
 This is the recorded **source and test-topology** pass from 2026-08-09 on the
@@ -340,7 +373,7 @@ than one plan; they are not completion percentages.
 | LAN | 25 | 0/0/0/0/25/0 | 1,335 | 627 |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 652 | 463 |
 | Network | 8 | 7/0/0/0/1/0 | 931 | 519 |
-| Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 107 | 21 |
+| Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 | 181 |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 | 39 |
 | Policy control plane | 8 | 0/2/0/0/6/0 | 881 | 472 |
 | Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 673 | 448 |
@@ -391,7 +424,7 @@ gates.
 | LAN | `lan-core` 241/42 and `parent-runtime-core` 102/18. | Substantial pairing/runtime source exists; a real paired-device lifecycle through service and portal is still required. |
 | Logging parity | `logging-core` 19/7 plus agent-service/portal integrations. | Foundation exists; enforce correlated logging on one product path rather than counting instrumentation alone. |
 | Network | `network-core` 19/6 and `ocentra-network-evidence` 237/60. | Typed eventing foundation exists; complete parser-to-policy/service runtime before platform claims. |
-| Parent desktop/runtime distribution | `parent-runtime-core` 102/18 plus parent shell/package surfaces. | Runtime surfaces exist; signed package launch/rollback smoke is not yet product closure. |
+| Parent desktop/runtime distribution | 497/181 across the reviewed parent runtime, schema, portal, Tauri, Android/iOS, and package-helper roots. | Package and smoke mechanics exist, but hosted authority, typed service truth, signing/store, updater/rollback, setup handoff, and the aggregate release gate remain open. |
 | Payment/subscription | `billing-core` 17/4 and `entitlement-core` 8/5. | Core source exists; Cloudflare/account/trust dependency chain blocks a real checkout-to-entitlement path. |
 | Policy control plane | `policy-control-core` 126/34, child policy/runtime and service seams. | Parent-resolution contract/service/UI and replay/audit persistence now exist; approved-request → compiled-artifact → child/device/domain binding is now code-backed and focused-tested. Trusted adapter execution and product delivery remain open and unclaimed. |
 | Portal UX | `apps/portal` 104/50 and `portal-domain` 112/14. | Real presentation/test topology exists; it needs service-backed actions, not more presentation-only completion claims. |
@@ -575,7 +608,7 @@ proof artifact, checklist row, and merge state agree.
 | `lan-plan` | Integration | `lan-core`, `agent-service`, `agent-core`, `schema` | 241 source / 91 test files; pairing, discovery, heartbeat, revocation, inventory, and read models exist. | Physical/consumer product proof and open follow-on workpacks remain. | Close a paired-device lifecycle through service and portal on a real platform. |
 | `logging-domain-parity` | Foundation | `logging-core`, `logging-domain`, `agent-service`, portal | Logger, local evidence, MCP/query, and portal paths exist. | Broad adoption and several proof-root closeouts remain. | Make logging/proof correlation mandatory for one high-value product chain. |
 | `network-plan` | Foundation | `network-core`, `ocentra-network-evidence`, `agent-protocol`, `agent-service` | Merged #617 added the bounded WP01 typed-eventing handoff: `NetworkFlowObservedEvent` maps directly to reusable `DomainEvent`/`EventEnvelope` under the distinct `network.flow.eventing.observed` contract. The retained [contract proof](proof/network-plan/01-network-foundation-eventing-contract.md) covers stored-envelope round trip, blank-device rejection, canonical schema enforcement, and collision-safe length-prefixed idempotency keys. | WP01 remains open: schema parity, evidence grade, policy action/handoff, no-private-bus audit, service-runtime, and platform proof are still incomplete; broader parser and policy bundles also remain open. | Complete the remaining WP01 contract obligations before escalating to parser-to-policy runtime proof. |
-| `parent-client-runtime-distribution-plan` | Integration | Tauri parent desktop, Android/iOS parent projects, `parent-runtime-core` | Tauri shell and Android/iOS roots exist; focused package proof paths exist. | Whole release/signing/rollback readiness is unproven. | Produce one signed desktop package plus launch/rollback smoke. |
+| `parent-client-runtime-distribution-plan` | Fully audited / Phase 1 incomplete | Tauri parent desktop, hosted portal, Android/iOS parent projects, `parent-runtime-core`, parent CI/package helpers | All 11 workpacks have reviewed code/test ownership. WP01 is a bounded no-code route packet; WP04/WP05 have real parent package projects plus dedicated CI smoke; WP09's cross-target smoke harness is written. | Seven workpacks still lack real hosted auth/cache, typed local-service transport, honest service-derived authority state, parent artifact signing/store matrix, updater/rollback runtime, setup-distribution handoff, or a parent-client aggregate release gate. | Fix WP02 hosted authority and WP06/WP03 service truth first, then WP10 setup handoff, WP07 signing matrix, WP08 updater/rollback, and WP11 aggregate gate. Run Phase 2 per target only after those writing gaps close. |
 | `payment-subscription-plan` | Fully audited / Phase 1 incomplete | `billing-core`, `entitlement-core`, Rust billing schemas, Cloudflare worker, portal consumer boundary | All 13 workpacks have reviewed code/test ownership. Real schema, webhook classification, entitlement gates, Worker routes, and focused tests exist, but only WP00 has no Phase 1 writing gap. | Twelve workpacks still lack required pricing authority, provider execution/verification, durable ledger/retry state, trusted entitlement signatures, regional/referral lifecycle, parent/admin UI, or the payment-specific rollout verifier. The plan's `done` labels for WP01/WP03/WP04 overstate live runtime closure. | Complete WP01 pricing authority first, then WP02-WP04 checkout/webhook/entitlement runtime foundations; continue in dependency order through WP05/WP06/WP08-WP12 and finish with WP07. Run focused tests/Enforcer only after each Phase 1 slice is written; proof remains last. |
 | `policy-control-plane-plan` | Integration | `policy-control-core`, `agent-service`, `schema`, eventing | 126 source / 25 test files; compiler, preview, delivery, conflict, and authority code exist. | Policy-to-enforcement command/rollback product proof is incomplete. | Prove typed policy compile, delivery, execution receipt, and rollback. |
 | `portal-ux-household-surfaces-plan` | Integration | `apps/portal`, `portal-domain`, HostBridge/service read models | Portal has 113 source / 87 test files and real route/panel code. | Several screens remain proof/presentation surfaces without completed backend actions. | Choose a service-backed household flow and prove the full click-through. |
@@ -610,7 +643,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `lan-plan` | 25 | 13 | 12 | 0 | Remaining rows are mainly partial/manual physical proof, not twelve ordinary code packets. |
 | `logging-domain-parity` | 10 | 0 | 10 | 0 | Five partial-proof, four source-present, one audit-open. |
 | `network-plan` | 8 | 0 | 8 | 0 | Merged #617 proves one bounded WP01 typed-eventing contract handoff; WP01 and its seven sibling workpacks remain open, so this is not a workpack closure. |
-| `parent-client-runtime-distribution-plan` | 11 | 7 | 4 | 0 | Routed through `parent-desktop-runtime-package-plan`; state/index and checklist disagree on WP03/WP04. |
+| `parent-client-runtime-distribution-plan` | 11 | 7 | 4 | 0 | Fully mapped from live source/tests. WP01, WP04, WP05, and WP09 are Phase 1 complete for bounded route/package/smoke writing; WP02, WP03, WP06-WP08, WP10, and WP11 retain concrete gaps, so seven document-claimed closures are not product closure. |
 | `payment-subscription-plan` | 13 | 3 | 10 | 0 | Fully mapped from live code/tests. WP00 is Phase 1 complete as a no-code handoff; WP01-WP12 retain concrete code or expected-test gaps, and the three doc-claimed closures do not match runtime truth. |
 | `policy-control-plane-plan` | 8 | 6 | 2 | 0 | Six checked workpacks are not reflected by the generic checklist status. |
 | `portal-ux-household-surfaces-plan` | 20 | 5 | 15 | 0 | Checklist is stale relative to the workpack index. |
