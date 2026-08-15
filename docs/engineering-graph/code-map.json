@@ -21,7 +21,14 @@
       "crates/ocentra-eventing",
       "crates/agent-service"
     ],
-    "device-trust-bootstrap-plan": ["crates/family-identity-core", "crates/storage-custody-core", "crates/schema"],
+    "device-trust-bootstrap-plan": [
+      "crates/family-identity-core",
+      "crates/storage-custody-core",
+      "crates/schema",
+      "crates/parent-runtime-core",
+      "crates/entitlement-core",
+      "crates/child-enforcement-core"
+    ],
     "eventing-plan": ["crates/ocentra-eventing", "crates/agent-protocol", "crates/agent-service"],
     "lan-plan": ["crates/lan-core", "crates/agent-service", "crates/agent-core", "crates/schema", "apps/portal"],
     "logging-domain-parity": ["crates/logging-core", "packages/logging-domain", "crates/agent-service", "apps/portal"],
@@ -575,9 +582,157 @@
         "crates/schema/tests/contract/remote_capability_fabric.rs"
       ]
     },
+    "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": [
+        "crates/family-identity-core/src/device_trust_lifecycle.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
+        "crates/family-identity-core/src/parent_presence.rs",
+        "crates/family-identity-core/src/parent_presence_event_delivery.rs",
+        "crates/family-identity-core/src/parent_presence_port.rs",
+        "crates/family-identity-core/src/parent_presence_port_decision.rs",
+        "crates/family-identity-core/src/parent_presence_store.rs",
+        "crates/family-identity-core/src/parent_presence_store_file.rs",
+        "crates/family-identity-core/src/parent_presence_store_file_creation.rs",
+        "crates/family-identity-core/src/parent_presence_store_file_platform.rs",
+        "crates/family-identity-core/src/parent_presence_store_file_temporary.rs",
+        "crates/family-identity-core/src/parent_presence_store_integrity.rs",
+        "crates/family-identity-core/src/parent_presence_store_outbox.rs",
+        "crates/family-identity-core/src/parent_presence_store_path.rs",
+        "crates/family-identity-core/src/parent_presence_store_receipt.rs",
+        "crates/family-identity-core/src/parent_presence_store_schema.rs",
+        "crates/family-identity-core/src/parent_presence_store_schema_objects.rs",
+        "crates/family-identity-core/src/parent_presence_store_sql_comments.rs",
+        "crates/family-identity-core/src/parent_presence_store_sql_quoted.rs",
+        "crates/family-identity-core/src/parent_presence_store_sql_shape.rs",
+        "crates/family-identity-core/src/parent_presence_store_sql_tokenizer.rs",
+        "crates/family-identity-core/src/trust_bootstrap.rs",
+        "crates/family-identity-core/src/trust_bootstrap",
+        "crates/family-identity-core/src/trust_bootstrap_authority.rs",
+        "crates/family-identity-core/src/trust_bootstrap_clock.rs",
+        "crates/family-identity-core/src/trust_bootstrap_time.rs",
+        "crates/family-identity-core/src/trust_bootstrap_validation.rs",
+        "crates/family-identity-core/src/trust_bootstrap_validation_map.rs",
+        "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_cross_process.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_event_delivery.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_event_delivery_recovery.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_expiry.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_nonce_process.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_receipt_integrity.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_store_integrity.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_store_metadata.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_store_schema.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs"
+      ]
+    },
+    "WP-device-trust-bootstrap-plan-02-local-key-sealing": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": [
+        "crates/storage-custody-core/src/windows_device_trust_custody.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_active_record.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_active_record_scan.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_commitment.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_commitment_tests.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_generation.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_path.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_platform.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_platform_decode_tests.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_record.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_snapshot.rs",
+        "crates/storage-custody-core/src/windows_device_trust_custody_transaction.rs",
+        "crates/storage-custody-core/src/windows_dpapi_key_sealing.rs",
+        "crates/storage-custody-core/tests/windows_device_trust_custody.rs",
+        "crates/storage-custody-core/tests/windows_device_trust_custody_generation.rs",
+        "crates/storage-custody-core/tests/windows_device_trust_custody_unsupported.rs",
+        "crates/parent-runtime-core/src/device_trust_bootstrap_runtime.rs",
+        "crates/parent-runtime-core/tests/integration/device_trust_bootstrap_runtime.rs",
+        "crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs",
+        "tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs"
+      ]
+    },
+    "WP-device-trust-bootstrap-plan-03-parent-step-up-auth": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": [
+        "crates/family-identity-core/src/parent_step_up_authority.rs",
+        "crates/family-identity-core/src/parent_step_up_proof.rs",
+        "crates/family-identity-core/tests/unit/parent_step_up_authority.rs",
+        "crates/family-identity-core/tests/unit/parent_step_up_proof.rs",
+        "crates/schema/src/parent_step_up_receipt.rs",
+        "crates/schema/tests/contract/parent_step_up_receipt.rs",
+        "tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs"
+      ]
+    },
+    "WP-device-trust-bootstrap-plan-04-phone-qr-approval-bridge": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": ["tests/device-trust-bootstrap-plan/contract/phone-qr-approval-bridge.test.mjs"]
+    },
+    "WP-device-trust-bootstrap-plan-05-entitlement-device-license": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": [
+        "crates/entitlement-core/src/entitlement_access.rs",
+        "crates/entitlement-core/src/entitlement_access_reasons.rs",
+        "crates/entitlement-core/src/entitlement_access_reasons_policy.rs",
+        "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_text_id.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_values.rs",
+        "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
+        "crates/entitlement-core/tests/unit/capability_access.rs",
+        "crates/entitlement-core/tests/unit/capability_gate.rs",
+        "crates/schema/src/billing_entitlement_proof.rs",
+        "crates/schema/src/billing_entitlement_runtime_proof.rs",
+        "crates/schema/tests/contract/billing_entitlement_proof.rs",
+        "crates/schema/tests/contract/billing_entitlement_runtime_proof.rs",
+        "tests/device-trust-bootstrap-plan/contract/entitlement-device-license.test.mjs"
+      ]
+    },
+    "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": [
+        "crates/family-identity-core/src/device_trust_lifecycle.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle_authority.rs",
+        "crates/family-identity-core/tests/contract/device_trust_lifecycle.rs",
+        "crates/schema/src/export_import_backup_recovery.rs",
+        "crates/schema/src/export_import_backup_recovery",
+        "crates/schema/tests/contract/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_build.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_logic.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_rejection.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_response.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_sections.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs",
+        "tests/device-trust-bootstrap-plan/contract/recovery-reset-re-pair.test.mjs",
+        "tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs"
+      ]
+    },
+    "WP-device-trust-bootstrap-plan-07-child-tamper-uninstall": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "roots": [
+        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs",
+        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.ts.txt",
+        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status_support.ts.txt",
+        "crates/child-enforcement-core/tests/contract/tamper_uninstall_artifact_status.rs",
+        "tests/device-trust-bootstrap-plan/contract/child-tamper-uninstall.test.mjs",
+        "tests/device-trust-bootstrap-plan/security/child-tamper-uninstall.test.mjs"
+      ]
+    },
     "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption": {
       "planSlug": "device-trust-bootstrap-plan",
+      "codeExpectation": "tests-only",
       "roots": ["tests/device-trust-bootstrap-plan/contract/dependency-adoption.test.mjs"]
+    },
+    "WP-device-trust-bootstrap-plan-09-cross-plan-route-gate": {
+      "planSlug": "device-trust-bootstrap-plan",
+      "codeExpectation": "tests-only",
+      "roots": [
+        "tests/device-trust-bootstrap-plan/e2e/category-roots.test.mjs",
+        "tests/device-trust-bootstrap-plan/e2e/route-gate-alignment.test.mjs",
+        "tests/device-trust-bootstrap-plan/security/no-mock-fake-green.test.mjs"
+      ]
     },
     "WP-network-plan-08-control-catalog-reference-routing": {
       "planSlug": "network-plan",

@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `30f407f0e`. The dated
+baseline at `5314ce3ff`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -29,10 +29,10 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,911
-implementation files and 1,214 test files, but only **72 of 679 workpacks**
-(10.60%) have reviewed, exact code/test ownership maps. Account Identity,
-Cloudflare Control Plane, Data Custody, Eventing, Payment/Subscription, and
-Policy Control Plane are fully mapped; 607 workpacks across the repository
+implementation files and 1,214 test files, but only **80 of 679 workpacks**
+(11.78%) have reviewed, exact code/test ownership maps. Account Identity,
+Cloudflare Control Plane, Data Custody, Device Trust, Eventing,
+Payment/Subscription, and Policy Control Plane are fully mapped; 599 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -50,7 +50,7 @@ strong enough for workpack-level decisions.
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 13 / 13 | Fully code-mapped; WP00-WP02 and WP04 are Phase 1 complete, while nine workpacks retain concrete code/test gaps. |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
-| Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
+| Device trust bootstrap | 9 | 1/2/0/0/6/0 | 426 / 131 | 9 / 9 | Fully code-mapped; WP08 is complete for its research/test-only scope, while eight workpacks retain concrete code/test gaps. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 693 / 470 | 0 / 10 | Unattributed at workpack level despite current crate tests and CI. |
@@ -236,6 +236,33 @@ including the final WP07 gate, retain concrete runtime or expected-test gaps.
 The workpack index's `done` labels for WP01, WP03, and WP04 are contradicted by
 the live implementation boundaries above and must not drive scheduling or
 release claims. No Phase 2 passing-test or Phase 3 proof claim is inferred.
+
+### Device Trust Bootstrap Phase 1 code/test audit - 2026-08-15
+
+This table follows the live Rust/runtime/test paths, including code outside the
+plan's older three-root summary. Plan-local Node tests that only read Markdown
+are recorded as document tests, not runtime evidence. No mapped test is claimed
+passing until the Phase 2 rerun.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Device Trust Source Of Truth | Twenty-eight mapped implementation files and twelve tests cover a typed durable lifecycle repository, platform-authority sidecar generations, pending/trusted/revoked/reset/re-pair transitions, redacted outbox events, explicit-path parent-presence custody, concurrency, restart/replay, schema/path integrity, opaque CSPRNG references, and fail-closed Eventing delivery. | **Incomplete** | The lifecycle and parent-presence APIs have no production caller outside their crates/tests. Production parent-presence custody intentionally returns unavailable on every platform, and no live product composition owns bootstrap-through-revoke/reset/re-pair state. The strong library boundary is not yet the product trust source of truth. |
+| WP02 Local Key Sealing | Fourteen mapped implementation files and six tests cover a Windows DPAPI/current-user registry epoch, atomic sealed-record custody, wrong binding/revoked/generation negatives, an opaque one-shot staged-ceremony facade, and unsupported-platform behavior. | **Incomplete** | The parent-runtime facade is not registered in a desktop/native command path and no operational ceremony issuer exists. Android, Linux, iOS, and macOS custody plus encrypted recovery fallback are absent; the current slice is Windows-only and cannot close wrong-user/device/key/reinstall behavior across supported platforms. |
+| WP03 Parent Step-Up Auth | Three mapped implementation files and four tests cover signed action/household/device/target-bound receipts, expiry, replay, trust-epoch changes, tampering, and schema round trips. | **Incomplete** | The only production verifier is the fail-closed unavailable verifier. No passkey/WebAuthn, biometric, or OS-native ceremony acquires the proof, no runtime caller consumes it as a live high-risk action boundary, and no durable one-shot replay owner exists. |
+| WP04 Phone QR Approval Bridge | The sole mapped test asserts wording in the plan model. | **Incomplete** | There is no typed QR challenge/response contract, phone or desktop runtime bridge, one-shot/expiry store, audit append, or executable wrong-household/action/target/device/replay test. This is document coverage only. |
+| WP05 Entitlement Device License | Eight mapped implementation files and six tests cover entitlement access decisions, signed-snapshot/runtime-proof shapes, limits, freshness/expiry/revocation labels, generated contracts, and selected capability denials. | **Incomplete** | Snapshot derivation copies caller-supplied signature/key text and trusts a caller-supplied verification enum; it neither signs nor verifies a device/household binding and has no production consumer. Revocation-over-stale-cache and copied-binary/config rejection are not proved through a trusted device runtime. |
+| WP06 Recovery Reset Re-Pair | Sixteen mapped implementation files and five tests cover durable lifecycle reset/revoke/re-pair generations, copied-database authority failure, encrypted versioned bundle construction, wrong household/key/corruption/migration preflight, tombstone preservation, confirmation labels, and idempotent result derivation. | **Incomplete** | `apply_restore` only returns a result object; it does not mutate or roll back product state. The generic export/import bundle has no device-trust runtime caller and is not joined to lifecycle authority, so no encrypted restore followed by explicit audited re-pair exists. |
+| WP07 Child Tamper Uninstall | The mapped child-enforcement status contract and three tests expose honest per-platform/manual-required artifact rows and assert the parent-authority/no-fake-anti-root boundary. | **Incomplete** | This is a proof/read-model contract that deliberately reports missing/manual evidence. No child-service tamper signal drives trust revocation, no parent-authorized uninstall command reaches a platform/package adapter, and no test proves revoked cached trust stops unlocking behavior. |
+| WP08 Open Source Dependency Adoption | The tests-only packet and retained review matrix classify WebAuthn, passkey, keyring, encrypted-bundle, and RustDesk candidates while keeping every trust root explicit. | **Complete for Phase 1** | No implementation is owned by this research workpack. Any selected dependency still requires a separately authorized runtime adapter slice and Phase 2/3 validation. |
+| WP09 Cross Plan Route Gate | Three mapped tests verify the test-category folders and selected plan/index wording. | **Incomplete** | No executable aggregator validates the required route-gate fields, accepted/missing proof roots, adjacent typed handoffs, blockers, manual-required gaps, or allowed/blocked claims. Document/taxonomy assertions cannot authorize readiness. |
+
+**Device Trust Bootstrap Phase 1 result:** all 9/9 workpacks now have reviewed
+code/test ownership. WP08 is complete for its bounded research/test-only scope;
+WP01-WP07 and WP09 retain concrete runtime or expected-test gaps. The plan's
+real Windows custody, lifecycle, step-up-proof, entitlement, recovery-contract,
+and tamper-status libraries materially reduce the remaining work, but none is a
+live end-to-end trusted-device product path. No Phase 2 passing-test, platform,
+or Phase 3 proof claim is inferred.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
@@ -516,7 +543,7 @@ proof artifact, checklist row, and merge state agree.
 | `child-agent-runtime-distribution-plan` | Integration | `child-runtime`, platform projects, release scripts | Child runtime, Android/iOS/Linux/macOS artifacts and proof surfaces exist. | Windows lifecycle/package proof is blocked; release proof is not whole-product readiness. | Resolve Windows service lifecycle and package smoke proof. |
 | `cloudflare-control-plane-plan` | Fully audited / Phase 1 incomplete | `infra/cloudflare`, account/billing contracts, portal consumer boundary | All 13 workpacks now have reviewed code/test ownership. WP00-WP02 and WP04 are complete for code/expected-test writing; the Worker, bindings, runner, local-dev, security, and contract source is real. | Nine workpacks still lack required runtime/authority/persistence/consumer/deployment or verifier code. The sharpest gaps are real auth/provider verification, durable DO state, account migration isolation, actual persisted local seeding, a true portal consumer smoke, and deployment/rollback automation. | Complete the nine Phase 1 rows before broad Cloudflare tests or proof regeneration; then run focused module families and Enforcer, followed by retained proof and the payment handoff gate. |
 | `data-custody-storage-plan` | Integration | `storage-custody-core`, `ocentra-evidence`, `ocentra-eventing` | Storage core has 63 source / 12 test files; custody/delete/export shapes exist. | Rollout/route-gate aggregation and cross-runtime custody proof remain open. | Prove one retention/delete/export flow through storage, eventing, and service. |
-| `device-trust-bootstrap-plan` | Foundation / blocked | `schema`, `family-identity-core`, platform secure stores | Parent step-up validation, handoff schemas, trust helpers, and focused tests exist. PR #605 merged with fresh 60-job CI, but it is narrow unissued-parent-challenge test evidence only. | Concrete platform key-sealing adapters and the complete trusted-device product chain remain open; the plan stays partial/open. | Freeze the minimal parent-presence plus platform-sealed trust interface inside the owning core before shared-service integration. |
+| `device-trust-bootstrap-plan` | Fully audited / Phase 1 incomplete | `family-identity-core`, `storage-custody-core`, `parent-runtime-core`, `entitlement-core`, `child-enforcement-core`, `schema` | All 9 workpacks have reviewed code/test ownership. Durable lifecycle/parent-presence libraries, a Windows DPAPI custody slice, signed step-up proof contracts, entitlement/recovery contracts, and honest tamper-status rows are real; WP08 is complete for its research/test-only scope. | Eight workpacks still lack required production composition, cross-platform custody, live approval/QR authority, trusted entitlement verification, actual restore/re-pair mutation, child tamper/uninstall execution, or a route-gate verifier. | Complete WP01's live trust-owner composition first, then WP02/WP03 platform custody and authority; continue in dependency order through WP04-WP07 and close with WP09 after WP08's bounded research packet. |
 | `eventing-plan` | Integration | `ocentra-eventing`, `agent-protocol`, `agent-service` | 76 source / 34 test files; WP06 journal/replay, topology, version-skew, and typed handoff surfaces are retained and graph-mapped. | WP10 LAN consumer proof remains open; downstream Enforcement WP11 owns the enforcement-specific durable journal contract. | Select the WP10 consumer path and prove replay/idempotency end to end; then complete Enforcement WP11 before WP04. |
 | `lan-plan` | Integration | `lan-core`, `agent-service`, `agent-core`, `schema` | 241 source / 91 test files; pairing, discovery, heartbeat, revocation, inventory, and read models exist. | Physical/consumer product proof and open follow-on workpacks remain. | Close a paired-device lifecycle through service and portal on a real platform. |
 | `logging-domain-parity` | Foundation | `logging-core`, `logging-domain`, `agent-service`, portal | Logger, local evidence, MCP/query, and portal paths exist. | Broad adoption and several proof-root closeouts remain. | Make logging/proof correlation mandatory for one high-value product chain. |
@@ -551,7 +578,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `child-agent-runtime-distribution-plan` | 11 | 10 | 1 | 0 | Index claims ten complete while the generic checklist reports none. |
 | `cloudflare-control-plane-plan` | 13 | 0 | 13 | 0 | Fully mapped from live source/tests. WP00-WP02 and WP04 are Phase 1 complete for code/expected-test writing; no proof row is freshly reverified, and WP03 plus WP05-WP12 have concrete Phase 1 gaps. |
 | `data-custody-storage-plan` | 8 | 7 | 1 | 0 | Workpack index and checklist disagree in both directions on several rows. |
-| `device-trust-bootstrap-plan` | 9 | 0 | 9 | 0 | #605 merged with fresh 60-job CI, but it is narrow test evidence only. Five partial, three blocked, one docs-only; adapter-backed runtime closure is missing. |
+| `device-trust-bootstrap-plan` | 9 | 0 | 9 | 0 | Fully mapped from live code/tests. WP08 is Phase 1 complete for its bounded research/test-only scope; WP01-WP07 and WP09 retain concrete production-integration or expected-test gaps, so no adapter-backed product closure is claimed. |
 | `eventing-plan` | 5 | 3 | 2 | 0 | Five selectable workpacks: WP06 and WP10 are open; eight historical rows are excluded and must not be rescheduled. |
 | `lan-plan` | 25 | 13 | 12 | 0 | Remaining rows are mainly partial/manual physical proof, not twelve ordinary code packets. |
 | `logging-domain-parity` | 10 | 0 | 10 | 0 | Five partial-proof, four source-present, one audit-open. |
