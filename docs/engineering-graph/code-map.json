@@ -203,10 +203,25 @@
     "WP-policy-control-plane-plan-04-delivery-ack-audit": {
       "planSlug": "policy-control-plane-plan",
       "roots": [
+        "crates/policy-control-core/src/policy_delivery.rs",
         "crates/policy-control-core/src/policy_delivery",
+        "crates/policy-control-core/tests/unit/policy_delivery.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_metadata.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_receipt.rs",
         "crates/policy-control-core/tests/unit/policy_delivery_receipt_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_receipt_identity.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_receipt_redaction.rs",
+        "crates/policy-control-core/tests/unit/policy_delivery_record_boundaries.rs",
+        "crates/policy-control-core/tests/version-skew/policy_delivery.rs",
+        "crates/policy-control-core/tests/version-skew/policy_delivery_helpers.rs",
+        "crates/policy-control-core/tests/version-skew/policy_delivery_hydration_boundaries.rs",
         "crates/child-policy-core/src/policy_control_delivery_handoff.rs",
-        "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs"
+        "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs",
+        "crates/child-runtime/src/policy_control_runtime_flow.rs",
+        "crates/child-runtime/tests/integration/policy_control_runtime_flow_intent.rs",
+        "crates/child-notification-core/src/policy_control_notification.rs",
+        "crates/child-notification-core/tests/observability/policy_control_notification.rs"
       ]
     },
     "WP-data-custody-storage-plan-01-custody-source-of-truth": {
