@@ -40,7 +40,23 @@ where proof is missing.
 - [ ] Approval survives restart where storage exists through replayable/replayed
       persistence state plus audit refs.
 
-## Completed Contract Slice - 2026-06-03
+## Current Status - Phase 1 Active
+
+The 2026-08-15 code audit found that the historical TypeScript contract owner
+named below was removed. Current Rust protocol code retains string-shaped
+approval request/decision DTOs and serialization tests, but it does not yet
+produce unknown candidates or own a durable approval lifecycle with expiry,
+idempotent replay, and fail-closed transition tests.
+
+This workpack is therefore active for a bounded Rust-owned implementation in
+`ocentra-app-game-core`. The slice must add typed candidate production and a
+durable journal/replay state machine covering allow, deny, ask-child,
+report-only, unsupported-block/manual-required, expiry, override, stale or
+mismatched evidence, and duplicate/replayed transitions. It does not claim a
+service command, portal or child UI, notification delivery, or platform adapter
+execution.
+
+## Historical Contract Slice - 2026-06-03
 
 - Owner/lane: codex-c.
 - Branch: `codex/app-game-read-model-service-events`.
