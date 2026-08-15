@@ -149,6 +149,16 @@ incomplete with concrete gaps above. WP06 correctly maps as no-product-code,
 but its stale/missing executable validation route prevents Phase 1 closure.
 No Phase 2 passing-test or Phase 3 proof claim is inferred from this audit.
 
+### Account Identity Family Phase 1 code/test audit - 2026-08-15
+
+This table records reviewed implementation and expected test code. It does not
+promote checked workpacks or historical proof into current completion. The
+plan is being audited one workpack at a time before one whole-plan PR.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Auth Provider Decision | A narrow Cloudflare D1 adapter and environment ownership declaration store only provider-subject to Ocentra-account mappings. Two unit-test files cover persistence/update, lookup, uniqueness conflict, missing-binding manual-required behavior, malformed inputs, binding ownership, and configuration presence. | **Incomplete** | The adapter and schema initializer have no production caller outside tests. No external token-verification route, account/session runtime wiring, deployed D1 migration, or household/member/role/device authority implementation is connected to this boundary. The workpack itself records the provider decision as partial and forbids treating this storage helper as login or family-authority readiness. |
+
 ## Consolidated branch code/test inventory - 2026-08-09
 
 This is the recorded **source and test-topology** pass from 2026-08-09 on the

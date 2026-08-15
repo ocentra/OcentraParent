@@ -81,6 +81,15 @@
     ]
   },
   "workpacks": {
+    "WP-account-identity-family-plan-01-auth-provider-decision": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "infra/cloudflare/src/storage/account-identity-store.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/tests/unit/account-identity-store.test.ts",
+        "infra/cloudflare/tests/unit/env-bindings.test.ts"
+      ]
+    },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
       "roots": [
