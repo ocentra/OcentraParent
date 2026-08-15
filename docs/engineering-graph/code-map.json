@@ -183,7 +183,18 @@
       "crates/child-policy-core",
       "crates/parent-runtime-core"
     ],
-    "portal-ux-household-surfaces-plan": ["apps/portal", "packages/portal-domain", "crates/agent-service"],
+    "portal-ux-household-surfaces-plan": [
+      "apps/portal",
+      "packages/portal-domain",
+      "crates/parent-runtime-core",
+      "crates/agent-service",
+      "crates/schema",
+      "platforms/android/parent",
+      "platforms/ios/OcentraParentMobile",
+      ".github/workflows/ci-parent-mobile.yml",
+      "scripts/release/parent-android",
+      "scripts/release/parent-ios"
+    ],
     "remote-access-plan": [
       "crates/schema/src/remote_capability_fabric.rs",
       "crates/schema/src/remote_capability_fabric",
@@ -2420,6 +2431,234 @@
     },
     "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate": {
       "planSlug": "policy-control-plane-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-portal-ux-household-surfaces-plan-01-service-backed-shell-and-navigation": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/src/host-bridge.ts",
+        "apps/portal/src/portal-state.ts",
+        "apps/portal/tests/portal/portal-state-target.test.ts",
+        "apps/portal/tests/unit/host-bridge.test.ts",
+        "packages/portal-domain/src/parent-portal-service-state.ts",
+        "packages/portal-domain/tests/unit/parent-portal-service-state.test.ts",
+        "crates/parent-runtime-core/src/parent_ui_bridge/portal",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-02-household-first-run-and-profiles": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/SetupFirstRunRoutePanel.tsx",
+        "apps/portal/tests/unit/setup-first-run-route-panel.test.ts",
+        "apps/portal/tests/e2e/setup-first-run-ui-proof.spec.ts",
+        "packages/portal-domain/src/setup-first-run-panel.ts",
+        "packages/portal-domain/tests/unit/setup-first-run-panel.test.ts",
+        "crates/parent-runtime-core/src/parent_ui_bridge/browser.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-03-device-inventory-and-source-states": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/tests/live-activity",
+        "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts",
+        "packages/portal-domain/src/live-activity-lan-add-device.ts",
+        "packages/portal-domain/src/live-activity-lan-diagnostics.ts",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/lan.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-04-selected-device-context": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "packages/portal-domain/src/manage-target-selection.ts",
+        "packages/portal-domain/tests/unit/manage-target-selection.test.ts",
+        "apps/portal/src/portal-state.ts",
+        "apps/portal/tests/portal/portal-state-target.test.ts",
+        "apps/portal/tests/e2e/portal-ui.spec.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-05-policy-authoring-control-center": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/PolicyPreviewRoutePanel.tsx",
+        "apps/portal/tests/policy/policy-preview-route-panel.test.ts",
+        "crates/parent-runtime-core/src/parent_ui_bridge/policy_preview",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-06-schedules-time-budgets-and-templates": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "packages/portal-domain/src/parent-portal-manage-data.ts",
+        "packages/portal-domain/src/portal-route-state.generated.ts",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-assertions.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-07-parent-requests-and-approvals": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx",
+        "apps/portal/tests/unit/app-game-timer-parent-surface-panel.test.ts",
+        "apps/portal/src/PolicyPreviewRoutePanel.tsx",
+        "apps/portal/tests/policy/policy-preview-route-panel.test.ts",
+        "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_parent_resolution_requested.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-08-activity-evidence-and-diagnostics": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/src/PortalDiagnosticsRoutePanel.tsx",
+        "apps/portal/src/diagnostics-export.ts",
+        "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts",
+        "apps/portal/tests/diagnostics/diagnostics-export.test.ts",
+        "packages/portal-domain/src/network-evidence-drawer.ts",
+        "packages/portal-domain/src/diagnostics.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-09-browser-app-and-network-surfaces": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/browser-intervention-panel.ts",
+        "apps/portal/src/BrowserParentExplanationRoutePanel.tsx",
+        "apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx",
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/tests/browser/browser-intervention-panel.test.ts",
+        "apps/portal/tests/browser/browser-parent-explanation-panel.test.ts",
+        "apps/portal/tests/unit/app-game-timer-parent-surface-panel.test.ts",
+        "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-10-lan-pairing-state-consumption": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/src/lan-replay-snapshot-binding.ts",
+        "apps/portal/src/lan-replay-provenance.ts",
+        "apps/portal/tests/live-activity",
+        "apps/portal/tests/e2e/lan-source-matrix-visual-proof.spec.ts",
+        "apps/portal/tests/e2e/lan-command-center-proof.spec.ts",
+        "packages/portal-domain/src/live-activity-lan-add-device.ts",
+        "packages/portal-domain/src/live-activity-lan-diagnostics.ts",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_replay_rejection_episode.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-11-assistant-action-preview-flow": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "packages/portal-domain/src/parent-assistant-chat.ts",
+        "packages/portal-domain/src/parent-assistant-chat-impl.ts",
+        "packages/portal-domain/src/parent-assistant-chat-quick-actions.ts",
+        "apps/portal/tests/e2e/assistant-chat-ui-proof.spec.ts",
+        "apps/portal/tests/e2e/portal-route-scaffold-product-assistant.ts",
+        "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_assistant_preview_confirm_requested.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-12-reports-notifications-and-custody": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
+        "apps/portal/src/SocialAlertReportRoutePanel.tsx",
+        "apps/portal/src/tracking-retention-settings-hosted-ui-proof.ts",
+        "apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts",
+        "apps/portal/tests/browser/social-alert-report-panel.test.ts",
+        "packages/portal-domain/src/tracking-notification-parent-surface-hosted-ui-proof.ts",
+        "packages/portal-domain/src/tracking-report-export-hosted-ui-proof.ts",
+        "packages/portal-domain/src/tracking-retention-settings-hosted-ui-proof.ts",
+        "packages/portal-domain/tests/unit/tracking-notification-parent-surface-hosted-ui-proof.test.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-13-degraded-empty-stale-and-error-states": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "packages/portal-domain/src/parent-portal-service-state.ts",
+        "packages/portal-domain/tests/unit/parent-portal-service-state.test.ts",
+        "apps/portal/src/SetupFirstRunRoutePanel.tsx",
+        "apps/portal/tests/unit/setup-first-run-route-panel.test.ts",
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-14-audit-history-and-copy-debug": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/PortalDiagnosticsRoutePanel.tsx",
+        "apps/portal/src/diagnostics-panel.ts",
+        "apps/portal/src/diagnostics-export.ts",
+        "apps/portal/tests/diagnostics/diagnostics-export.test.ts",
+        "apps/portal/tests/e2e/portal-ui.spec.ts",
+        "packages/portal-domain/src/diagnostics.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-15-accessibility-responsive-keyboard-ux": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "apps/portal/src/styles",
+        "apps/portal/src/portal-unified-chrome.css",
+        "apps/portal/src/portal-frame-layout-style.ts",
+        "apps/portal/tests/e2e/portal-route-scaffold-common.ts",
+        "apps/portal/tests/e2e/portal-ui.spec.ts",
+        "apps/portal/tests/e2e/tracking-hosted-ui-proof-accessibility.ts",
+        "apps/portal/tests/e2e/social-alert-report-ui-proof-accessibility.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-16-no-fake-data-contract-adapter": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "packages/portal-domain/src/portal-contract-adapter.ts",
+        "packages/portal-domain/tests/unit/contracts.test.ts",
+        "apps/portal/src/host-bridge.ts",
+        "apps/portal/generated/parent-ui-bridge.ts",
+        "apps/portal/tests/unit/host-bridge.test.ts",
+        "apps/portal/tests/unit/parent-ui-bridge.test.ts",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-17-playwright-screenshot-proof": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "codeExpectation": "tests-only",
+      "roots": [
+        "apps/portal/tests/e2e/browser-failures.ts",
+        "apps/portal/tests/e2e/browser-ai-parent-explanation-ui-proof.spec.ts",
+        "apps/portal/tests/e2e/network-evidence-drawer-proof.spec.ts",
+        "apps/portal/tests/e2e/screen-summary-ui-proof.spec.ts",
+        "apps/portal/tests/e2e/social-dashboard-ui-proof.spec.ts",
+        "apps/portal/tests/e2e/tracking-hosted-ui-proof.spec.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-18-parent-mobile-shell-readiness": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "roots": [
+        "platforms/android/parent",
+        "platforms/ios/OcentraParentMobile",
+        ".github/workflows/ci-parent-mobile.yml",
+        "scripts/release/parent-android",
+        "scripts/release/parent-ios",
+        "apps/portal/src/styles",
+        "apps/portal/tests/e2e/portal-ui.spec.ts"
+      ]
+    },
+    "WP-portal-ux-household-surfaces-plan-19-product-docs-and-checklist-sync": {
+      "planSlug": "portal-ux-household-surfaces-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-portal-ux-household-surfaces-plan-20-manual-user-review-gate": {
+      "planSlug": "portal-ux-household-surfaces-plan",
       "codeExpectation": "no-code-required",
       "roots": []
     },
