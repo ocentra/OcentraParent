@@ -215,6 +215,151 @@
         "crates/family-identity-core/tests/unit/session_lifecycle.rs"
       ]
     },
+    "WP-cloudflare-control-plane-plan-00-games-infra-parity-extraction": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/package.json",
+        "infra/cloudflare/wrangler.toml",
+        "infra/cloudflare/wrangler.production.toml",
+        "infra/cloudflare/.dev.vars.example",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/routes.ts",
+        "infra/cloudflare/scripts/test-runner.ts",
+        "infra/cloudflare/tests/unit/env-bindings.test.ts",
+        "infra/cloudflare/tests/unit/route-manifest.test.ts",
+        "infra/cloudflare/tests/integration/worker-runtime-real.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-02-wrangler-env-bindings": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/wrangler.toml",
+        "infra/cloudflare/wrangler.production.toml",
+        "infra/cloudflare/.dev.vars.example",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/tests/unit/env-bindings.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-03-worker-entrypoint-runtime-guards": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/security/redaction.ts",
+        "infra/cloudflare/tests/unit/kill-switch.test.ts",
+        "infra/cloudflare/tests/unit/request-limits.test.ts",
+        "infra/cloudflare/tests/security/cors-origin-rejection.test.ts",
+        "infra/cloudflare/tests/security/request-smuggling.test.ts",
+        "infra/cloudflare/tests/security/redaction.test.ts",
+        "infra/cloudflare/tests/integration/worker-health.test.ts",
+        "infra/cloudflare/tests/integration/worker-runtime-real.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-04-route-manifest-and-domain-contracts": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/src/routes.ts",
+        "infra/cloudflare/src/auth/model.ts",
+        "infra/cloudflare/src/generated/billing-contracts.ts",
+        "infra/cloudflare/tests/unit/route-manifest.test.ts",
+        "infra/cloudflare/tests/property/route-auth-state.property.test.ts",
+        "infra/cloudflare/tests/contract/billing-api-contract.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/src/auth/model.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/tests/unit/auth-boundary.test.ts",
+        "infra/cloudflare/tests/integration/admin-auth-rejection.test.ts",
+        "infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts",
+        "infra/cloudflare/tests/security/interactive-billing-boundary.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/wrangler.toml",
+        "infra/cloudflare/wrangler.production.toml",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/src/storage/account-identity-store.ts",
+        "infra/cloudflare/tests/unit/env-bindings.test.ts",
+        "infra/cloudflare/tests/unit/account-identity-store.test.ts",
+        "infra/cloudflare/tests/unit/billing-binding-read-model.test.ts",
+        "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
+        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-07-local-dev-seeding-and-fixtures": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/scripts/local-dev-workflow.ts",
+        "infra/cloudflare/scripts/local-dev-proof.ts",
+        "infra/cloudflare/scripts/seed-local.ts",
+        "infra/cloudflare/scripts/seed-products-local.ts",
+        "infra/cloudflare/scripts/seed-referrals-local.ts",
+        "infra/cloudflare/scripts/seed-test-accounts-local.ts",
+        "infra/cloudflare/src/fixtures.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/tests/integration/local-dev-seeding-workflow.test.ts",
+        "infra/cloudflare/tests/integration/worker-runtime-real.test.ts",
+        "infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts",
+        "infra/cloudflare/tests/property/billing-idempotency.property.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "codeExpectation": "tests-only",
+      "roots": ["infra/cloudflare/scripts/test-runner.ts", "infra/cloudflare/tests"]
+    },
+    "WP-cloudflare-control-plane-plan-09-portal-to-worker-e2e-smoke": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/testing.ts",
+        "infra/cloudflare/tests/e2e/portal-to-worker-billing-status.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-10-security-fuzz-property-observability": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/auth/model.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/security/redaction.ts",
+        "infra/cloudflare/tests/security",
+        "infra/cloudflare/tests/property",
+        "infra/cloudflare/tests/fuzz",
+        "infra/cloudflare/tests/integration/worker-health.test.ts",
+        "infra/cloudflare/tests/integration/pricing-public.test.ts",
+        "infra/cloudflare/tests/integration/billing-status-auth.test.ts",
+        "infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts",
+        "infra/cloudflare/tests/integration/admin-auth-rejection.test.ts"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-11-deployment-and-environment-promotion": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "roots": [
+        "infra/cloudflare/package.json",
+        "infra/cloudflare/wrangler.toml",
+        "infra/cloudflare/wrangler.production.toml"
+      ]
+    },
+    "WP-cloudflare-control-plane-plan-12-payment-plan-handoff-gate": {
+      "planSlug": "cloudflare-control-plane-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
       "roots": [
