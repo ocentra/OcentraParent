@@ -81,6 +81,140 @@
     ]
   },
   "workpacks": {
+    "WP-account-identity-family-plan-01-auth-provider-decision": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "infra/cloudflare/src/storage/account-identity-store.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/tests/unit/account-identity-store.test.ts",
+        "infra/cloudflare/tests/unit/env-bindings.test.ts"
+      ]
+    },
+    "WP-account-identity-family-plan-02-identity-household-role-model": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity",
+        "crates/family-identity-core/src/family_identity_text_ids.rs",
+        "crates/family-identity-core/src/family_identity_helpers.rs",
+        "crates/family-identity-core/src/family_identity_profiles.rs",
+        "crates/family-identity-core/src/family_identity_profiles_validation.rs",
+        "crates/family-identity-core/src/household_authority.rs",
+        "crates/family-identity-core/src/household_authority_validation.rs",
+        "crates/family-identity-core/src/household_authority_proof.rs",
+        "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
+        "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
+        "crates/family-identity-core/tests/unit/household_authority.rs",
+        "crates/provisioning-core/src/provisioning_install/family_context.rs",
+        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+      ]
+    },
+    "WP-account-identity-family-plan-03-session-token-lifecycle": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/family-identity-core/src/session_lifecycle.rs",
+        "crates/family-identity-core/tests/unit/session_lifecycle.rs",
+        "crates/provisioning-core/src/provisioning_install.rs",
+        "crates/provisioning-core/src/provisioning_install/family_context.rs",
+        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+      ]
+    },
+    "WP-account-identity-family-plan-04-invites-recovery-lifecycle": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity_setup_records.rs",
+        "crates/family-identity-core/src/setup_lifecycle.rs",
+        "crates/family-identity-core/src/setup_lifecycle_validation.rs",
+        "crates/family-identity-core/src/session_lifecycle.rs",
+        "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
+        "crates/family-identity-core/tests/unit/setup_lifecycle.rs",
+        "crates/family-identity-core/tests/unit/session_lifecycle.rs",
+        "crates/provisioning-core/src/provisioning_install.rs",
+        "crates/provisioning-core/src/provisioning_install/family_account.rs",
+        "crates/provisioning-core/src/provisioning_install/family_context.rs",
+        "crates/provisioning-core/src/provisioning_install/family_pairing.rs",
+        "crates/provisioning-core/src/provisioning_install/family_recovery.rs",
+        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+      ]
+    },
+    "WP-account-identity-family-plan-05-device-ownership-authz": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity/household_authority_handoff.rs",
+        "crates/family-identity-core/src/household_authority.rs",
+        "crates/family-identity-core/src/household_authority_proof.rs",
+        "crates/family-identity-core/src/household_authority_validation.rs",
+        "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
+        "crates/family-identity-core/tests/unit/household_authority.rs",
+        "crates/policy-control-core/src/authenticated_delivery_grant.rs",
+        "crates/policy-control-core/src/authenticated_delivery_grant/validation.rs",
+        "crates/policy-control-core/tests/unit/authenticated_delivery_grant.rs",
+        "crates/policy-control-core/tests/unit/authenticated_delivery_grant_basics.rs",
+        "crates/policy-control-core/tests/unit/authenticated_delivery_grant_device_trust.rs",
+        "crates/policy-control-core/tests/unit/authenticated_delivery_grant_provenance.rs",
+        "crates/provisioning-core/src/provisioning_install.rs",
+        "crates/provisioning-core/src/provisioning_install/family_context.rs",
+        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+      ]
+    },
+    "WP-account-identity-family-plan-06-security-proof-and-route-gate": {
+      "planSlug": "account-identity-family-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-account-identity-family-plan-07-parent-account-family-setup-ui": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/schema/tests/contract/parent_ui_bridge/fixtures.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/browser.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/presentation.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs",
+        "apps/portal/generated/parent-ui-bridge.ts",
+        "packages/portal-domain/src/setup-first-run-panel.ts",
+        "packages/portal-domain/tests/unit/setup-first-run-panel.test.ts",
+        "apps/portal/src/SetupFirstRunRoutePanel.tsx",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/unit/setup-first-run-route-panel.test.ts",
+        "apps/portal/tests/unit/parent-ui-bridge.test.ts",
+        "apps/portal/tests/e2e/setup-first-run-ui-proof.spec.ts"
+      ]
+    },
+    "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/schema/src/family_reference_primitives_ts.rs",
+        "crates/schema/src/family_reference_primitives.template.txt",
+        "crates/schema/src/family_references_ts.rs",
+        "crates/schema/src/family_references.template.txt",
+        "crates/schema/tests/contract/family_reference_primitives.rs",
+        "crates/schema/tests/contract/family_references.rs",
+        "packages/schema-domain/src/generated-family-reference-primitives.ts",
+        "packages/schema-domain/src/generated-family-references.ts",
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity",
+        "crates/family-identity-core/src/family_identity_text_ids.rs",
+        "crates/family-identity-core/src/family_identity_contract_text.rs",
+        "crates/family-identity-core/src/family_identity_helpers.rs",
+        "crates/family-identity-core/src/family_identity_profiles.rs",
+        "crates/family-identity-core/src/family_identity_profiles_validation.rs",
+        "crates/family-identity-core/src/family_identity_setup_records.rs",
+        "crates/family-identity-core/src/household_authority.rs",
+        "crates/family-identity-core/src/household_authority_validation.rs",
+        "crates/family-identity-core/src/household_authority_proof.rs",
+        "crates/family-identity-core/src/setup_lifecycle.rs",
+        "crates/family-identity-core/src/setup_lifecycle_validation.rs",
+        "crates/family-identity-core/src/session_lifecycle.rs",
+        "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
+        "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
+        "crates/family-identity-core/tests/unit/household_authority.rs",
+        "crates/family-identity-core/tests/unit/setup_lifecycle.rs",
+        "crates/family-identity-core/tests/unit/session_lifecycle.rs"
+      ]
+    },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
       "roots": [
