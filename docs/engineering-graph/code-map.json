@@ -473,10 +473,68 @@
     ],
     "tracking-plan": [
       "crates/tracking-core",
-      "crates/agent-service",
-      "crates/schema",
-      "crates/ocentra-eventing",
-      "crates/ocentra-network-evidence"
+      "crates/schema/src/tracking_event_contracts.rs",
+      "crates/schema/src/parent_agent_protocol_bridge_ts_part2_tracking.rs",
+      "crates/schema/tests/contract/tracking_event_contracts.rs",
+      "crates/agent-protocol/src/tracking",
+      "crates/agent-protocol/src/constants/tracking_runtime.rs",
+      "crates/agent-protocol/src/constants/tracking_config_update.rs",
+      "crates/agent-protocol/src/constants/tracking_retention_settings_write.rs",
+      "crates/agent-protocol/tests/contract/tracking_alert_evaluated_event.rs",
+      "crates/agent-protocol/tests/contract/tracking_config_update_events.rs",
+      "crates/agent-protocol/tests/contract/tracking_expected_place_state_evaluated_event.rs",
+      "crates/agent-protocol/tests/contract/tracking_identifiers.rs",
+      "crates/agent-protocol/tests/contract/tracking_read_model.rs",
+      "crates/agent-protocol/tests/contract/tracking_read_model_payload.rs",
+      "crates/agent-protocol/tests/contract/tracking_retention_settings_write_command.rs",
+      "crates/child-runtime/src/tracking_runtime_flow.rs",
+      "crates/child-runtime/src/tracking_runtime_flow",
+      "crates/child-runtime/src/tracking_config_update_flow.rs",
+      "crates/child-runtime/src/tracking_config_update_flow",
+      "crates/child-runtime/tests/unit/tracking_runtime_flow.rs",
+      "crates/child-runtime/tests/unit/tracking_config_update_flow.rs",
+      "crates/child-runtime/tests/integration/tracking_runtime_flow_intent.rs",
+      "crates/parent-runtime-core/src/tracking_dispatch.rs",
+      "crates/parent-runtime-core/src/tracking_config_update_flow.rs",
+      "crates/parent-runtime-core/src/tracking_config_update_flow",
+      "crates/parent-runtime-core/src/tracking_child_check_in_request_flow.rs",
+      "crates/parent-runtime-core/src/parent_ui_bridge/route_metadata/tracking.rs",
+      "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel.rs",
+      "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel",
+      "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/tracking.rs",
+      "crates/parent-runtime-core/src/agent_service_client/snapshots_tracking.rs",
+      "crates/parent-runtime-core/tests/unit/tracking_config_update_flow.rs",
+      "crates/parent-runtime-core/tests/unit/tracking_child_check_in_request_flow.rs",
+      "crates/child-policy-core/src/tracking_policy.rs",
+      "crates/child-policy-core/tests/unit/tracking_policy.rs",
+      "crates/child-notification-core/src/tracking_notification.rs",
+      "crates/child-notification-core/tests/contract/tracking_notification.rs",
+      "crates/child-ai-core/src/tracking_boundary.rs",
+      "crates/child-ai-core/tests/security/tracking_boundary.rs",
+      "crates/policy-control-core/src/policy_compiler.rs",
+      "crates/policy-control-core/tests/unit/policy_compiler.rs",
+      "crates/agent-core/src/tracking/mod.rs",
+      "crates/agent-core/tests/unit/tracking_read_model.rs",
+      "crates/agent-service/src/activity_api.rs",
+      "crates/agent-service/src/websocket/activity_command_reports.rs",
+      "crates/agent-service/src/websocket/tracking_retention_settings_write.rs",
+      "crates/agent-service/src/websocket/tracking_retention_settings_write_events.rs",
+      "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs",
+      "crates/agent-service/tests/unit/tracking_retention_settings_write_tests.rs",
+      "packages/portal-domain/src/tracking-status-panel.ts",
+      "packages/portal-domain/src/tracking-status-panel-helpers.ts",
+      "packages/portal-domain/src/tracking-status-panel-helpers-core.ts",
+      "packages/portal-domain/src/tracking-status-panel-helpers-read-model.ts",
+      "packages/portal-domain/src/tracking-child-check-in-proof.ts",
+      "packages/portal-domain/src/tracking-missing-device-hosted-ui-proof.ts",
+      "packages/portal-domain/src/tracking-notification-parent-surface-hosted-ui-proof.ts",
+      "packages/portal-domain/tests/unit/tracking-status-panel.test.ts",
+      "packages/portal-domain/tests/unit/tracking-notification-parent-surface-hosted-ui-proof.test.ts",
+      "apps/portal/src/TrackingStatusRoutePanel.tsx",
+      "apps/portal/src/tracking-status-route-panel-body.tsx",
+      "apps/portal/src/tracking-retention-settings-hosted-ui-proof.ts",
+      "apps/portal/tests/unit/tracking-status-panel.test.ts",
+      "apps/portal/tests/e2e/tracking-hosted-ui-proof.spec.ts"
     ],
     "v0-8-enforcement-control-plan": [
       "crates/child-enforcement-core",
@@ -3170,12 +3228,388 @@
       "codeExpectation": "no-code-required",
       "roots": []
     },
+    "WP-tracking-plan-01-source-index-and-repo-reconciliation": {
+      "planSlug": "tracking-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-tracking-plan-02-current-tracking-snapshot-and-gap-map": {
+      "planSlug": "tracking-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-tracking-plan-03-contract-boundary-and-effect-schemas": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/agent-protocol/src/tracking",
+        "crates/agent-protocol/src/constants/tracking_runtime.rs",
+        "crates/agent-protocol/tests/contract/tracking_identifiers.rs",
+        "crates/tracking-core/tests/unit/tracking_runtime_contract.rs"
+      ]
+    },
+    "WP-tracking-plan-04-location-evidence-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/agent-protocol/src/tracking/runtime_event.rs",
+        "crates/tracking-core/src/location_validation.rs",
+        "crates/tracking-core/tests/schema-negative/location_validation.rs",
+        "crates/tracking-core/tests/contract/runtime_events.rs"
+      ]
+    },
+    "WP-tracking-plan-05-device-status-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/src/status_device_rules.rs",
+        "crates/tracking-core/src/status_device_battery_rules.rs",
+        "crates/tracking-core/src/status_device_service_rules.rs",
+        "crates/tracking-core/tests/unit/status.rs"
+      ]
+    },
+    "WP-tracking-plan-06-permission-and-capability-status-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/src/status_capability_grants.rs",
+        "crates/tracking-core/src/status_capability_rules.rs",
+        "crates/tracking-core/src/status_capability_state_rules.rs",
+        "crates/tracking-core/tests/contract/capability_status.rs",
+        "crates/tracking-core/tests/unit/status.rs"
+      ]
+    },
+    "WP-tracking-plan-07-retention-and-custody-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/retention_runtime.rs",
+        "crates/tracking-core/src/retention_settings.rs",
+        "crates/tracking-core/tests/unit/retention_runtime.rs",
+        "crates/tracking-core/tests/unit/retention_settings.rs",
+        "crates/tracking-core/tests/retention/manual_required_status.rs",
+        "crates/agent-service/src/websocket/tracking_retention_settings_write.rs",
+        "crates/agent-service/tests/unit/tracking_retention_settings_write_tests.rs"
+      ]
+    },
+    "WP-tracking-plan-08-android-foreground-location-adapter": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/src/location_validation.rs",
+        "crates/tracking-core/tests/unit/status.rs",
+        "crates/tracking-core/tests/schema-negative/location_validation.rs"
+      ]
+    },
+    "WP-tracking-plan-09-android-background-location-and-geofence-adapter": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/src/geofence.rs",
+        "crates/tracking-core/tests/unit/status.rs",
+        "crates/tracking-core/tests/unit/geofence.rs"
+      ]
+    },
+    "WP-tracking-plan-10-android-battery-connectivity-and-status-adapter": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/src/status_device_battery_rules.rs",
+        "crates/tracking-core/src/status_device_rules.rs",
+        "crates/tracking-core/tests/unit/status.rs"
+      ]
+    },
+    "WP-tracking-plan-11-ios-core-location-foreground-adapter": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/src/location_validation.rs",
+        "crates/tracking-core/tests/unit/status.rs",
+        "crates/tracking-core/tests/schema-negative/location_validation.rs"
+      ]
+    },
+    "WP-tracking-plan-12-ios-background-region-significant-change-adapter": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/src/geofence.rs",
+        "crates/tracking-core/tests/unit/status.rs",
+        "crates/tracking-core/tests/unit/geofence.rs"
+      ]
+    },
+    "WP-tracking-plan-13-desktop-location-and-presence-hint-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/status.rs",
+        "crates/tracking-core/tests/unit/status.rs",
+        "packages/portal-domain/src/tracking-status-panel-helpers.ts",
+        "packages/portal-domain/tests/unit/tracking-status-panel.test.ts"
+      ]
+    },
+    "WP-tracking-plan-14-geofence-rule-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/geofence.rs",
+        "crates/tracking-core/tests/unit/geofence.rs",
+        "crates/tracking-core/tests/contract/runtime_events.rs"
+      ]
+    },
+    "WP-tracking-plan-15-geofence-transition-engine": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/geofence.rs",
+        "crates/tracking-core/tests/unit/geofence.rs",
+        "crates/tracking-core/tests/ordering/geofence_transition.rs"
+      ]
+    },
+    "WP-tracking-plan-16-expected-place-schedule-engine": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/expected_place.rs",
+        "crates/tracking-core/src/expected_place_evaluation_rules.rs",
+        "crates/tracking-core/tests/unit/expected_place.rs",
+        "crates/tracking-core/tests/clock-skew/expected_place_window.rs"
+      ]
+    },
+    "WP-tracking-plan-17-parent-acknowledgement-and-exception-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/parent_acknowledgement.rs",
+        "crates/tracking-core/src/expected_place_evaluation_exception_rules.rs",
+        "crates/tracking-core/tests/idempotency/parent_acknowledgement.rs",
+        "crates/tracking-core/tests/unit/expected_place.rs"
+      ]
+    },
+    "WP-tracking-plan-18-child-check-in-flow": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/child_check_in.rs",
+        "crates/parent-runtime-core/src/tracking_child_check_in_request_flow.rs",
+        "crates/child-runtime/src/tracking_runtime_flow/check_in_requests.rs",
+        "crates/tracking-core/tests/replay/child_check_in.rs",
+        "crates/parent-runtime-core/tests/unit/tracking_child_check_in_request_flow.rs",
+        "crates/child-runtime/tests/integration/tracking_runtime_flow_intent.rs"
+      ]
+    },
+    "WP-tracking-plan-19-nearby-place-provider-abstraction": {
+      "planSlug": "tracking-plan",
+      "roots": ["crates/tracking-core/src/nearby_place.rs", "crates/tracking-core/tests/unit/nearby_place.rs"]
+    },
+    "WP-tracking-plan-20-google-places-and-poi-provider-adapter": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/nearby_place.rs",
+        "crates/tracking-core/src/generated_bridge.rs",
+        "crates/tracking-core/tests/unit/nearby_place.rs",
+        "crates/tracking-core/tests/unit/generated_bridge_contracts.rs"
+      ]
+    },
+    "WP-tracking-plan-21-place-category-taxonomy-and-ambiguity-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/nearby_place.rs",
+        "crates/tracking-core/src/local_place_store.rs",
+        "crates/tracking-core/tests/unit/nearby_place.rs",
+        "crates/tracking-core/tests/unit/local_place_store.rs"
+      ]
+    },
+    "WP-tracking-plan-22-local-parent-defined-place-database": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/local_place.rs",
+        "crates/tracking-core/src/local_place_store.rs",
+        "crates/tracking-core/tests/schema-negative/local_place.rs",
+        "crates/tracking-core/tests/unit/local_place_store.rs"
+      ]
+    },
+    "WP-tracking-plan-23-ai-location-safety-analysis-contracts": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/ai_boundary.rs",
+        "crates/child-ai-core/src/tracking_boundary.rs",
+        "crates/tracking-core/tests/ai-boundary/ai_result_boundary.rs",
+        "crates/child-ai-core/tests/security/tracking_boundary.rs"
+      ]
+    },
+    "WP-tracking-plan-24-ai-provider-routing": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/ai_boundary.rs",
+        "crates/tracking-core/src/nearby_place.rs",
+        "crates/child-ai-core/src/tracking_boundary.rs",
+        "crates/tracking-core/tests/ai-boundary/ai_result_boundary.rs",
+        "crates/child-ai-core/tests/security/tracking_boundary.rs"
+      ]
+    },
+    "WP-tracking-plan-25-policy-compiler-for-tracking-rules": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_compiler.rs",
+        "crates/policy-control-core/tests/unit/policy_compiler.rs",
+        "crates/child-policy-core/src/tracking_policy.rs",
+        "crates/child-policy-core/tests/unit/tracking_policy.rs"
+      ]
+    },
+    "WP-tracking-plan-26-alert-severity-and-notification-model": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/alerting.rs",
+        "crates/child-notification-core/src/tracking_notification.rs",
+        "crates/tracking-core/tests/unit/alerting.rs",
+        "crates/tracking-core/tests/observability/alert_decision.rs",
+        "crates/child-notification-core/tests/contract/tracking_notification.rs"
+      ]
+    },
+    "WP-tracking-plan-27-escalation-engine": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/schema/src/tracking_event_contracts.rs",
+        "crates/tracking-core/src/alerting.rs",
+        "crates/schema/tests/contract/tracking_event_contracts.rs",
+        "crates/tracking-core/tests/observability/alert_decision.rs"
+      ]
+    },
+    "WP-tracking-plan-28-temporary-live-tracking-mode": {
+      "planSlug": "tracking-plan",
+      "roots": ["crates/tracking-core/src/temporary_live.rs", "crates/tracking-core/tests/rollback/temporary_live.rs"]
+    },
+    "WP-tracking-plan-29-missing-device-mode": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/missing_device.rs",
+        "crates/tracking-core/tests/unit/missing_device.rs",
+        "packages/portal-domain/src/tracking-missing-device-hosted-ui-proof.ts",
+        "packages/portal-domain/tests/unit/tracking-status-panel.test.ts"
+      ]
+    },
+    "WP-tracking-plan-30-parent-and-child-ui-ux-surfaces": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/tracking_panel",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/tracking.rs",
+        "packages/portal-domain/src/tracking-status-panel.ts",
+        "packages/portal-domain/src/tracking-status-panel-helpers.ts",
+        "packages/portal-domain/src/tracking-child-check-in-proof.ts",
+        "packages/portal-domain/src/tracking-missing-device-hosted-ui-proof.ts",
+        "packages/portal-domain/tests/unit/tracking-status-panel.test.ts",
+        "apps/portal/src/TrackingStatusRoutePanel.tsx",
+        "apps/portal/src/tracking-status-route-panel-body.tsx",
+        "apps/portal/tests/unit/tracking-status-panel.test.ts",
+        "apps/portal/tests/e2e/tracking-hosted-ui-proof.spec.ts"
+      ]
+    },
+    "WP-tracking-plan-31-platform-extension-checklists-and-proof-routing": {
+      "planSlug": "tracking-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-tracking-plan-32-journal-sqlite-and-read-model-proof": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/read_model.rs",
+        "crates/tracking-core/src/read_model_guard.rs",
+        "crates/tracking-core/src/read_model_rows.rs",
+        "crates/tracking-core/src/read_model_rows_aggregate.rs",
+        "crates/tracking-core/tests/unit/read_model.rs",
+        "crates/tracking-core/tests/migration/read_model_schema.rs",
+        "crates/tracking-core/tests/differential/read_model_counts.rs",
+        "crates/agent-core/src/tracking/mod.rs",
+        "crates/agent-core/tests/unit/tracking_read_model.rs",
+        "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs"
+      ]
+    },
+    "WP-tracking-plan-33-proof-gates-fixtures-rollout-and-pr-gate": {
+      "planSlug": "tracking-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
     "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants": {
       "planSlug": "tracking-plan",
       "roots": [
         "crates/schema/src/tracking_event_contracts.rs",
-        "crates/schema/tests/contract/tracking_event_contracts.rs"
+        "crates/schema/tests/contract/tracking_event_contracts.rs",
+        "crates/agent-protocol/src/tracking/runtime_event.rs",
+        "crates/agent-protocol/src/constants/tracking_runtime.rs",
+        "crates/agent-protocol/tests/contract/tracking_identifiers.rs"
       ]
+    },
+    "WP-tracking-plan-35-parent-tracking-config-command-event-flow": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/agent-protocol/src/tracking/config_update_event.rs",
+        "crates/agent-protocol/src/constants/tracking_config_update.rs",
+        "crates/parent-runtime-core/src/tracking_config_update_flow.rs",
+        "crates/parent-runtime-core/src/tracking_config_update_flow",
+        "crates/child-runtime/src/tracking_config_update_flow.rs",
+        "crates/child-runtime/src/tracking_config_update_flow",
+        "crates/agent-protocol/tests/contract/tracking_config_update_events.rs",
+        "crates/parent-runtime-core/tests/unit/tracking_config_update_flow.rs",
+        "crates/child-runtime/tests/unit/tracking_config_update_flow.rs"
+      ]
+    },
+    "WP-tracking-plan-36-tracking-detection-cascade-event-flow": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/child-runtime/src/tracking_runtime_flow.rs",
+        "crates/child-runtime/src/tracking_runtime_flow",
+        "crates/tracking-core/src/runtime_flow.rs",
+        "crates/child-policy-core/src/tracking_policy.rs",
+        "crates/child-notification-core/src/tracking_notification.rs",
+        "crates/child-ai-core/src/tracking_boundary.rs",
+        "crates/child-runtime/tests/unit/tracking_runtime_flow.rs",
+        "crates/child-runtime/tests/integration/tracking_runtime_flow_intent.rs",
+        "crates/tracking-core/tests/unit/runtime_side_branch.rs"
+      ]
+    },
+    "WP-tracking-plan-37-tracking-event-journal-replay-and-projection": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/child-runtime/src/tracking_runtime_flow.rs",
+        "crates/tracking-core/src/read_model.rs",
+        "crates/tracking-core/tests/replay/child_check_in.rs",
+        "crates/tracking-core/tests/unit/read_model.rs",
+        "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs"
+      ]
+    },
+    "WP-tracking-plan-38-tracking-notification-and-escalation-event-flow": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/schema/src/tracking_event_contracts.rs",
+        "crates/tracking-core/src/alerting.rs",
+        "crates/child-notification-core/src/tracking_notification.rs",
+        "crates/child-runtime/src/tracking_runtime_flow/subscriptions.rs",
+        "crates/schema/tests/contract/tracking_event_contracts.rs",
+        "crates/tracking-core/tests/observability/alert_decision.rs",
+        "crates/child-notification-core/tests/contract/tracking_notification.rs",
+        "crates/child-runtime/tests/integration/tracking_runtime_flow_intent.rs"
+      ]
+    },
+    "WP-tracking-plan-39-tracking-portal-event-read-model-proof": {
+      "planSlug": "tracking-plan",
+      "roots": [
+        "crates/tracking-core/src/read_model.rs",
+        "crates/agent-core/src/tracking/mod.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/tracking.rs",
+        "packages/portal-domain/src/tracking-status-panel.ts",
+        "apps/portal/src/TrackingStatusRoutePanel.tsx",
+        "crates/agent-service/tests/unit/tracking_read_model_service_tests.rs",
+        "packages/portal-domain/tests/unit/tracking-status-panel.test.ts",
+        "apps/portal/tests/unit/tracking-status-panel.test.ts"
+      ]
+    },
+    "WP-tracking-plan-device-location-tracking-capability-guide": {
+      "planSlug": "tracking-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-tracking-plan-device-location-tracking-schema-proposal": {
+      "planSlug": "tracking-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-tracking-plan-tracking-control-settings-inventory": {
+      "planSlug": "tracking-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-policy-control-plane-plan-01-policy-source-of-truth": {
       "planSlug": "policy-control-plane-plan",

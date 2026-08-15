@@ -1,5 +1,10 @@
 # Tracking Plan Health Report
 
+> **Current authority (2026-08-15):** this older documentation-health report is
+> superseded for code/test status by `PLAN_STATE.md`, `source-index.md`, and
+> `CODE_AUDIT.md`. In particular, `packages/tracking-domain` and the named
+> `scripts/test/tracking-*.mjs` proof suite are absent from the checkout.
+
 <!-- agent-capsule -->
 
 > Agent Capsule

@@ -1,5 +1,12 @@
 # Tracking Plan Implementation Checklist
 
+> **2026-08-15 code-audit overlay:** checklist history below is not current
+> implementation proof. Use `CODE_AUDIT.md` for the source/test result: 42/42
+> packets mapped, 24 bounded Phase 1 complete, 18 incomplete. References to
+> `packages/tracking-domain`, `codex/tracking-plan-full-continuation-a`, and
+> `scripts/test/tracking-*.mjs` describe historical or desired proof routes;
+> those paths are absent and cannot support a passing or DONE claim today.
+
 <!-- agent-capsule -->
 
 > Agent Capsule

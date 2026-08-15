@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `develop` organization
-baseline at `2ddbb0eaa` (tree-equal to `main` at `a41807d79`). The dated
+baseline at `bd27c29498` (tree-equal to `main` at `6728a1d441`). The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -20,8 +20,10 @@ There are no open pull requests. Remote branches are reduced to `main`,
 `develop`, `production`, and the protected
 `codex/archive/all-remote-tips-20260815`; the archive contains every deleted
 remote tip. The only registered OcentraParent worktree is `E:/OcentraParent`;
-the current local `codex/ai-plan-code-audit` branch is the sole active
-audit branch and has no remote branch yet.
+the current local `codex/tracking-plan-code-audit` branch is the sole active
+audit branch and has no remote branch yet. AI's 48-workpack audit reached
+`main` through PRs `#700`, `#701`, and `#702`; the Tracking audit below is the
+next unpublished whole-plan slice.
 
 The executable graph validates at 703 nodes and 705 edges. It imports **23**
 actual plan rows and 679 workpacks. The earlier apparent count of 24 included
@@ -29,14 +31,15 @@ the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
 Current derived state is 452 planned, 9 blocked, 0 ready, 1 active, 216 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,702
-implementation files and 1,116 test files, but only **324 of 679 workpacks**
-(47.72%) have reviewed, exact code/test ownership maps. Account Identity, AI,
+This is the key code-first limitation: live plan roots contain 2,704
+implementation files and 1,118 test files, but only **365 of 679 workpacks**
+(53.76%) have reviewed, exact code/test ownership maps. Account Identity, AI,
 Browser, LAN,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
 Payment/Subscription, Policy Control Plane, Portal UX/Household Surfaces,
-Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 355 workpacks across the repository
+Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, Tracking,
+and V0.8 Enforcement are fully mapped; 314 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -67,7 +70,7 @@ strong enough for workpack-level decisions.
 | Screen AI pipeline | 10 | 10/0/0/0/0/0 | 124 / 33 | 10 / 10 | Fully code-mapped; prerequisite routing is the only bounded Phase 1 row without a writing gap. WP02-WP10 retain production-composition, authority, durability, custody-negative, performance-test, or missing executable-harness gaps. |
 | Screen | 43 | 25/0/0/0/18/0 | 95 / 26 | 43 / 43 | Fully code-mapped; 9 of 40 executable workpacks are complete for bounded Phase 1 code/expected-test writing, 31 retain concrete gaps, and three imported reference packets own no executable code. |
 | Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 529 / 196 | 7 / 7 | Fully code-mapped; six workpacks have no Phase 1 writing gap, while WP07 remains a static unavailable-state panel rather than the required live first-run state machine. |
-| Tracking | 42 | 42/0/0/0/0/0 | 1,034 / 555 | 1 / 42 | Partial; WP34 event contracts are mapped. |
+| Tracking | 42 | 42/0/0/0/0/0 | 94 / 65 | 42 / 42 | Fully code-mapped; 24 bounded packets are Phase 1 complete and 18 retain concrete production-code or expected-test gaps. |
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 901 / 498 | 20 / 20 | Fully code-mapped; 7 workpacks have no Phase 1 writing gap in their bounded scope, while 13 retain concrete runtime, surface, lifecycle-test, or executable-harness gaps. |
 
 The next organization phase is not feature coding. Audit one plan at a time,
@@ -694,6 +697,28 @@ by a persistence-backed production runtime, and relay abuse controls are
 largely absent. No Phase 2 passing-test/Enforcer or Phase 3 proof/PR_READY claim
 is inferred.
 
+### Tracking Phase 1 code/test audit - 2026-08-15
+
+The code-first audit maps all 42 imported Tracking packets to precise current
+Rust, service, policy, child-runtime, notification, AI, and portal roots. The
+full row-by-row result is in
+`docs/plans/tracking-plan/CODE_AUDIT.md`; stale references to the absent
+`packages/tracking-domain` package and absent `scripts/test/tracking-*.mjs`
+verifiers were removed from the plan routing documents.
+
+**Tracking Phase 1 result:** 24 bounded packets have their core production code
+and expected test code written; 18 are incomplete. Typed contracts, validation,
+device/capability state, geofence and expected-place decisions,
+acknowledgement/check-in, policy compilation, alert/notification intents, a
+SQLite ActivityStore read model, and portal presentation are real. The live
+product chain is not complete: `TrackingRuntimeEventFlow` uses a process-local
+event bus, there is no durable cascade-to-journal-to-SQLite replay path, no
+production Android/iOS/desktop sensor adapters, no concrete places or AI
+provider route, no durable place store, and no durable notification/escalation
+outbox with provider receipts. WP37 durable journal/replay/projection is the
+first implementation unblocker. No Phase 2 passing-test/Enforcer or Phase 3
+proof/PR_READY claim is inferred.
+
 ## Consolidated branch code/test inventory - 2026-08-09
 
 This is the recorded **source and test-topology** pass from 2026-08-09 on the
@@ -730,35 +755,34 @@ than one plan; they are not completion percentages.
 
 | Plan | Workpacks | P/B/R/A/V/D | Implementation files | Test files |
 | --- | ---: | ---: | ---: | ---: |
-| Account identity/family | 8 | 1/0/0/0/7/0 | 157 | 81 |
+| Account identity/family | 8 | 1/0/0/0/7/0 | 159 | 82 |
 | AI | 48 | 46/0/0/0/2/0 | 118 | 39 |
-| App/game | 220 | 132/0/0/0/88/0 | 667 | 434 |
-| App | 95 | 94/0/0/0/1/0 | 649 | 419 |
+| App/game | 220 | 132/0/0/0/88/0 | 688 | 436 |
+| App | 95 | 94/0/0/0/1/0 | 670 | 421 |
 | Browser | 30 | 30/0/0/0/0/0 | 72 | 13 |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 | 10 |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 | 63 |
-| Data custody/storage | 9 | 1/0/0/1/7/0 | 636 | 406 |
-| Device trust bootstrap | 9 | 1/2/0/0/6/0 | 294 | 101 |
-| Eventing | 13 | 1/0/0/0/11/1 | 759 | 487 |
-| LAN | 25 | 0/0/0/0/25/0 | 1,335 | 627 |
-| Logging domain parity | 10 | 5/0/0/0/5/0 | 652 | 463 |
+| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 | 410 |
+| Device trust bootstrap | 9 | 1/2/0/0/6/0 | 426 | 131 |
+| Eventing | 13 | 1/0/0/0/11/1 | 777 | 492 |
+| LAN | 25 | 0/0/0/0/25/0 | 308 | 60 |
+| Logging domain parity | 10 | 5/0/0/0/5/0 | 127 | 49 |
 | Network | 8 | 7/0/0/0/1/0 | 378 | 99 |
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 | 181 |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 | 39 |
-| Policy control plane | 8 | 0/2/0/0/6/0 | 881 | 472 |
-| Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 673 | 448 |
-| Remote access | 6 | 4/0/0/0/2/0 | 368 | 134 |
-| Screen AI pipeline | 10 | 10/0/0/0/0/0 | 507 | 361 |
+| Policy control plane | 8 | 0/2/0/0/6/0 | 911 | 481 |
+| Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 974 | 531 |
+| Remote access | 6 | 4/0/0/0/2/0 | 35 | 19 |
+| Screen AI pipeline | 10 | 10/0/0/0/0/0 | 124 | 33 |
 | Screen | 43 | 25/0/0/0/18/0 | 95 | 26 |
-| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 256 | 101 |
-| Tracking | 42 | 42/0/0/0/0/0 | 1,006 | 549 |
-| V0.8 enforcement | 20 | 13/1/0/0/6/0 | 864 | 485 |
+| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 529 | 196 |
+| Tracking | 42 | 42/0/0/0/0/0 | 94 | 65 |
+| V0.8 enforcement | 20 | 13/1/0/0/6/0 | 901 | 498 |
 
 The graph validates at 703 nodes and 705 edges, with 34 migration/dependency
-review items. The live map now covers 251 of 679 workpacks. Browser contributes
-30 reviewed maps: 14 executable workpacks are Phase 1 complete for bounded
-scope, 10 retain concrete production-code or expected-test gaps, and six are
-reference-only. Graph states remain separate
+review items. The live map now covers 365 of 679 workpacks. Tracking contributes
+42 reviewed maps: 24 bounded packets are Phase 1 complete and 18 retain concrete
+production-code or expected-test gaps. Graph states remain separate
 from that code-first classification. Historical
 source/test rows are now classified as `validation` instead of being counted
 as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
@@ -985,7 +1009,7 @@ proof artifact, checklist row, and merge state agree.
 | `screen-ai-pipeline-plan` | Fully audited / Phase 1 incomplete | `screen-ai-core`, capture adapter, `agent-protocol`, `agent-core`, `agent-service`, portal | All 10 workpacks have reviewed code/test ownership. Real capture, encrypted queueing, local adapter execution, deletion, read models, and portal rendering exist; only WP01 has no bounded Phase 1 writing gap. | Nine workpacks remain incomplete: trigger ownership and parent settings are disconnected, canonical AI routing is not production-wired, policy/action authority is fabricated or absent, the normal event chain is not durably replayable, custody negatives are missing, and live/performance/final harnesses are unwritten. | Wire WP02 parent settings and real trigger owners first, then WP03 canonical AI routing and WP04 trusted policy handoff; complete action, journal, custody, performance, and operator/final gates in dependency order before Phase 2. |
 | `screen-plan` | Fully audited / Phase 1 incomplete | `screen-capture-adapter`, `agent-protocol`, `agent-core`, `agent-service`, `screen-ai-core`, `screen-live-view-core`, schema, Android agent, portal | All 43 imported packets have reviewed ownership: 40 executable workpacks plus three reference-only packets. Real parent settings, desktop/Linux capture, Android MediaProjection code, encrypted queueing, redaction, deletion, read models, portal UI, route guards, live-view gates, and local-AI scheduling exist. | Thirty-one executable workpacks retain code/test gaps. The sharpest are stale source/snapshot routing, missing iOS/Android/macOS/Linux platform tests, no protected-surface detector, no durable full-chain replay, fabricated policy refs, gate-only live view, no child disclosure, and missing CDP/OCR/VLM/detector/rollout harnesses. | Reconcile WP01/WP02 first, then close contracts/scope/platform safety (WP03/WP05-WP14) and queue/runtime composition (WP16-WP21) before policy/live/AI/rollout packets. Do not regenerate proof until those Phase 1 gaps close. |
 | `setup-install-provisioning-plan` | Fully audited / Phase 1 incomplete | `provisioning-core`, `child-runtime`, `parent-runtime-core`, `schema`, `portal-domain`, portal | All 7 workpacks have reviewed code/test ownership. WP01-WP04 and WP06 are bounded no-code handoff/aggregation packets; WP05's Rust readiness model and negative tests are real; WP07 has a Rust-owned portal boundary-status panel. | WP07 still hard-codes sibling states as unavailable and does not implement the required first-run state machine, screen flow, actions, or readiness-driven completion guard. Historical proof text also cites removed packages and requires Phase 3 reconciliation. | Implement WP07 against typed `provisioning-core` readiness, with blocked/degraded/manual transition tests; then run focused Phase 2 gates before reconciling proof and sibling handoffs in WP06. |
-| `tracking-plan` | Integration | `tracking-core`, `agent-service`, `schema` | 70 source / 41 test files; location/geofence/device-status runtime exists. | Real device/provider/retention product proof remains incomplete. | Run a provider-to-read-model-to-portal tracking path with retention proof. |
+| `tracking-plan` | Fully audited / Phase 1 incomplete | `tracking-core`, `schema`, `agent-protocol`, `child-runtime`, `parent-runtime-core`, `child-policy-core`, `child-notification-core`, `child-ai-core`, `policy-control-core`, `agent-core`, `agent-service`, portal-domain, portal | All 42 packets have reviewed code/test ownership. Twenty-four bounded packets have core code and expected tests across contracts, validation, status, geofence/expected-place decisions, acknowledgement/check-in, policy, alert intents, ActivityStore read models, and portal presentation. | Eighteen packets remain incomplete. The process-local event cascade is not durably journaled/replayed/projected; production platform sensor adapters, concrete places/AI providers, durable local places, notification/escalation delivery state, and an end-to-end restart-safe portal chain are absent. | Complete WP37 durable journal/replay/projection first, then WP38/WP27 delivery and escalation, WP22/WP07 persistence/custody, platform adapters, providers, and final composition/UI packets before Phase 2 or proof. |
 | `v0-8-enforcement-control-plan` | Foundation / fully audited, Phase 1 incomplete | `schema-domain`, `schema`, `agent-protocol`, `child-enforcement-core`, `policy-control-core`, `agent-core`, `agent-service`, browser/network owners, portal | All 20 workpacks have reviewed code/test maps. Typed contracts, evidence-bound dispatch, honest capability matrices, unmanaged fallback, report-only network state, and durable timer recovery are written. | Thirteen workpacks still lack trusted delivery/execution authority, complete audit transition families, app/game and managed-browser action receipts, aggregate service state, child/portal surfaces, live integrity/uninstall observation, platform-role separation, or whole-plan verifier/UI tests. | Complete WP11 -> WP04 -> WP05/WP06, then WP10/WP12/WP13, portal/integrity/platform surfaces, and finally WP18/WP19/WP20. Run focused Phase 2 validation only after each Phase 1 slice is written. |
 
 ## Workpack execution audit
