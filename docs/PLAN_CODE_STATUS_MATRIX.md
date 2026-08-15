@@ -4,9 +4,69 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Last broad source inventory: 2026-07-17, on `main` at `37146806c`. The dated
+Last broad source inventory: 2026-08-15, on `main` at `608ef84fb`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
+
+## Current merged repository and code/test audit baseline - 2026-08-15
+
+Repository organization is complete for this audit baseline. Consolidation PR
+`#646` merged normally to `main` as `608ef84fb` after CI run `31862487297`
+completed with 61 successful jobs and all three required gates green. `develop`
+was created at the same commit and has the same required checks, pull-request,
+conversation-resolution, no-force-push, and no-delete protections as `main`.
+There are no open pull requests. Remote branches are reduced to `main`,
+`develop`, `production`, and the protected
+`codex/archive/all-remote-tips-20260815`; the archive contains every deleted
+remote tip. Locally, only `main` and `develop` remain, and the only registered
+OcentraParent worktree is `E:/OcentraParent`.
+
+The executable graph validates at 703 nodes and 705 edges. It imports **23**
+actual plan rows and 679 workpacks. The earlier apparent count of 24 included
+the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
+Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
+validation, and 1 done.
+
+This is the key code-first limitation: live plan roots contain 2,911
+implementation files and 1,213 test files, but only **12 of 679 workpacks**
+(1.77%) have reviewed, exact code/test ownership maps. An unmapped workpack is
+therefore **unattributed**, not proven absent and not proven implemented. Do not
+turn the graph state or a checklist mark into a code-completion percentage.
+`npm run graph:matrix -- --json` is the complete 679-row table; the reviewed
+coverage below states how much of that table currently has source/test evidence
+strong enough for workpack-level decisions.
+
+| Plan | Workpacks | P/B/R/A/V/D | Live implementation/test files | Reviewed workpack maps | Code-first audit state |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Account identity/family | 8 | 1/0/0/0/7/0 | 159 / 82 | 0 / 8 | Unattributed; plan roots exist, but no exact workpack map is reviewed. |
+| AI | 48 | 47/0/0/0/1/0 | 690 / 421 | 0 / 48 | Unattributed; foundation code exists, workpack ownership is unaudited. |
+| App/game | 220 | 132/0/0/0/88/0 | 688 / 436 | 0 / 220 | Unattributed; the large validation set cannot be treated as implemented. |
+| App | 95 | 94/0/0/0/1/0 | 670 / 421 | 1 / 95 | Partial; WP01 contract/runtime-decision roots are mapped. |
+| Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
+| Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
+| Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 0 / 13 | Unattributed; source presence is not deployment/runtime completion. |
+| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 1 / 9 | Partial; WP07 lifecycle boundary is mapped, aggregate closure is not. |
+| Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
+| Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 2 / 13 | Partial; WP04 and WP06 are mapped, and only WP06 is graph-done. |
+| LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
+| Logging domain parity | 10 | 5/0/0/0/5/0 | 693 / 470 | 0 / 10 | Unattributed at workpack level despite current crate tests and CI. |
+| Network | 8 | 7/0/0/0/1/0 | 942 / 520 | 1 / 8 | Partial; WP08 reference routing is mapped. |
+| Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 107 / 21 | 0 / 11 | Unattributed. |
+| Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 0 / 13 | Unattributed; two workpacks are dependency-blocked. |
+| Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 1 / 8 | Partial; WP04 delivery/receipt roots are mapped but still blocked. |
+| Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 683 / 448 | 0 / 20 | Unattributed. |
+| Remote access | 6 | 4/0/0/0/2/0 | 371 / 137 | 2 / 6 | Partial; WP01 capability and WP04 pairing-grant roots are mapped. |
+| Screen AI pipeline | 10 | 10/0/0/0/0/0 | 517 / 361 | 0 / 10 | Unattributed. |
+| Screen | 43 | 25/0/0/0/18/0 | 95 / 26 | 0 / 43 | Unattributed. |
+| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 271 / 105 | 0 / 7 | Unattributed; rollout gate is dependency-blocked. |
+| Tracking | 42 | 42/0/0/0/0/0 | 1,034 / 555 | 1 / 42 | Partial; WP34 event contracts are mapped. |
+| V0.8 enforcement | 20 | 13/1/0/0/6/0 | 901 / 498 | 2 / 20 | Partial; WP04 and WP11 roots are mapped, with WP04 blocked on WP11. |
+
+The next organization phase is not feature coding. Audit one plan at a time,
+map each workpack to exact implementation and test roots, classify code/test
+gaps, then rebuild the graph. Only after a plan's Phase 1 map is complete may
+its focused tests and Enforcer checks be used for Phase 2 scheduling. Proof is
+the later acceptance phase, not a substitute for missing code or tests.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
