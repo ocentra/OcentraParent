@@ -48,7 +48,7 @@ strong enough for workpack-level decisions.
 | Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 0 / 13 | Unattributed; source presence is not deployment/runtime completion. |
-| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 1 / 9 | Partial; WP07 lifecycle boundary is mapped, aggregate closure is not. |
+| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
@@ -99,6 +99,30 @@ claimed passing here unless a current run is explicitly named.
 complete for code/test-writing scope, 10/13 still need code or expected tests.
 The graph remains 1 planned, 11 validation, and 1 done because code topology
 does not override checklist, proof, dependency, or acceptance state.
+
+### Data Custody plan Phase 1 code/test audit - 2026-08-15
+
+This table records current source and test code, not the workpack's checked
+status or ignored proof roots. Tests are not claimed passing unless a current
+run is named.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Custody Source Of Truth | Six Rust source/generator files, one generated TypeScript contract, and one Rust contract-test file implement the 28-class custody matrix and generated-edge drift check. | **Incomplete** | The claimed TypeScript boundary modules, TypeScript contract test, and proof runner do not exist on `main`. The two Rust tests cover serde and generated-file drift, but do not test the advertised class/hosting counts, unique row/class IDs, derived-source validity, redaction/notification rules, or forbidden-hosting invariants. |
+| WP02 Encryption Key Custody | Five Rust implementation/contract files and two test files cover platform rows, household/device mismatch, revoked/lost keys, hosted portal, universal-key rejection, mobile proof, and recovery states. | **Incomplete** | The decrypt decision carries `requested_scope` but never checks it against the selected platform row's `decrypt_authority`; a child-service row can therefore authorize a parent-owned-bundle request when caller-supplied match flags are true. No cross-scope authority negative test exists. |
+| WP03 Parent Owned Cloud Sync | Rust schema/generator and storage-custody derivation modules plus three Rust test files cover provider modes, ready/revoked refs, manifest integrity, conflict/retry state, tombstone separation, and no-default-Ocentra claims. | **Incomplete** | The claimed TypeScript contract/validation modules, TypeScript contract test, and manifest proof runner do not exist on `main`. Rust tests do not directly cover the declared wrong-account, folder-unavailable, partial-upload, provider-disconnect, and provider-delete visibility matrix. |
+| WP04 Retention Delete Tombstone | Rust schema, state-machine, proof-builder, durable typed outbox, and three test files cover all nine required states, wrong-role/expiry negatives, ordering/duplicates, redaction-before-propagation, replay/restore blocking, minimal audit, hard delete, durable reopen/concurrency/migration, corrupt metadata, incoherent actions, and unknown acknowledgement. | **Complete for Phase 1** | No missing shared-boundary code/test-writing gap found. Concrete child-service startup composition remains a WP07 integration gap; provider/device propagation stays an adjacent-owner runtime boundary. |
+| WP05 Export Import Backup Recovery | Rust schema, bundle builder, import preflight, restore/apply derivation, and two test files cover encrypted sections, integrity, redacted summaries, non-mutating/partial preview, wrong household/key/corrupt/expired/duplicate/migration negatives, confirmation, tombstone preservation, idempotency, and no support decrypt. | **Incomplete** | The in-scope backup cadence/manual-backup contract is absent. Supported migration is only a preflight label; no migration execution/rollback state machine or named migration-rollback test exists. Actual restore mutation remains outside this derivation-only surface. |
+| WP06 Report Query Custody | Rust schema/generator, generated TypeScript contracts, storage-custody derivation/proof modules, and three Rust test files cover all seven required states, stable page ordering, duplicate cursors, disallowed source classes, tombstone-required deletion, conflict metadata, cursor expiry, rate limiting, and generated-contract drift. | **Incomplete** | Runtime derivation trusts request-owned authority and citation fields: it does not reject an unauthorized/non-parent request, raw-child-evidence request, wrong household/child ownership, or unauthorized citation reference. The workpack-named TypeScript adapter/rules modules and TypeScript negative contract test do not exist. |
+| WP07 Rollout Proof And Route Gate | Storage-custody durable typed tombstone outbox plus child-runtime event-flow/recovery modules and three test files cover atomic persistence, reopen, concurrent writes, legacy migration, corruption, typed-delete-only enforcement, incoherent action rejection, unknown acknowledgement, journal failure/retry, idempotent restart replay, identity tampering, false-terminal rejection, and explicit terminal acknowledgement. | **Incomplete** | `ChildRuntimeTombstoneEventFlow::recover_pending` is used only inside child-runtime and its tests. No concrete child-service startup owner constructs or invokes it, and no service-owned restart test proves recovery before traffic. The child-runtime crate is library-only, so the existing seam is not live service integration. |
+| WP08 Parent Storage Settings Apply Flow | Rust schema/generator, generated TypeScript contracts, storage-custody card/preview/apply/action/proof modules, and two Rust test files cover explicit storage modes, visible manual-required state, restore preview, wrong-household and partial-restore negatives, separate disconnect/delete actions, delete-kind coverage, and generated-contract drift. | **Incomplete** | The apply input has no confirmation receipt or confirmed flag. Every preview sets `confirmation_required = true`, so runtime derivation rejects `Applied` and `Partial` unconditionally and cannot model a completed confirmed apply. The claimed TypeScript adapter/rules modules, TypeScript contract test, and focused proof runner do not exist. |
+| Migrated Data And AI UI Plan | The packet is a product/UI reference with proposed pre-contract read-model and intent names. Its explicit non-goals forbid UI implementation, route changes, provider/runtime work, model execution, and behavior changes in this slice. | **Complete for Phase 1** | No implementation or test code is required by this reference packet. Future production Data/AI UI work must be promoted into owning plan workpacks and typed contracts rather than attributed here. |
+
+**Data Custody Phase 1 result:** all 9/9 workpacks now have reviewed code/test
+ownership. WP04 and the source-only migrated UI reference are complete for the
+code-and-expected-test-writing phase. WP01-WP03 and WP05-WP08 remain incomplete
+with concrete gaps recorded above. No Phase 2 passing-test or Phase 3 proof
+claim is inferred from this ownership audit.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
