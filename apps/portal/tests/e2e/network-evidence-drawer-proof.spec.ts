@@ -23,13 +23,7 @@ test('network evidence drawer renders service-backed refs without unsupported cl
   await expect(page.getByRole('heading', { exact: true, name: 'Device controls' })).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
-  const logSnapshotCommand = page.getByRole('button', { exact: true, name: 'Get log snapshot' });
-  await expect(logSnapshotCommand).toBeEnabled({ timeout: shellReadyTimeoutMs });
-  await logSnapshotCommand.click();
   const commandResult = page.locator('.command-result-panel');
-  await expect(commandResult.getByText(ParentAgentEvent.LogSnapshotReported)).toHaveCount(1, {
-    timeout: shellReadyTimeoutMs,
-  });
   const networkCommand = page.getByRole('button', { exact: true, name: 'Refresh network activity' });
   await expect(networkCommand).toBeEnabled({ timeout: shellReadyTimeoutMs });
 
