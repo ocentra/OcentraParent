@@ -728,15 +728,15 @@
       "path": "docs/plans/ai-plan/workpacks/02-current-ai-snapshot-and-gap-map.md",
       "parent": "PLAN-ai-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "ai-plan",
         "indexPath": "docs/plans/ai-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "checked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
