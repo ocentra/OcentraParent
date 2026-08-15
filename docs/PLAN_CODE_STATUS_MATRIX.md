@@ -29,12 +29,12 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,966
-implementation files and 1,216 test files, but only **130 of 679 workpacks**
-(19.15%) have reviewed, exact code/test ownership maps. Account Identity,
+implementation files and 1,216 test files, but only **140 of 679 workpacks**
+(20.62%) have reviewed, exact code/test ownership maps. Account Identity,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
-Payment/Subscription, Policy Control Plane, Remote Access, Network, and
-Setup/Install/Provisioning are fully mapped; 549 workpacks across the repository
+Payment/Subscription, Policy Control Plane, Remote Access, Network, Screen AI,
+and Setup/Install/Provisioning are fully mapped; 539 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -62,7 +62,7 @@ strong enough for workpack-level decisions.
 | Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 8 / 8 | Fully code-mapped; WP03 is Phase 1 complete and seven workpacks retain concrete code/test gaps. |
 | Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 683 / 448 | 0 / 20 | Unattributed. |
 | Remote access | 6 | 4/0/0/0/2/0 | 35 / 19 | 6 / 6 | Fully code-mapped; WP01 and proof-only WP06 have no Phase 1 writing gap, while WP02-WP05 retain concrete runtime, deferred-control, persistence, or relay-security gaps. |
-| Screen AI pipeline | 10 | 10/0/0/0/0/0 | 517 / 361 | 0 / 10 | Unattributed. |
+| Screen AI pipeline | 10 | 10/0/0/0/0/0 | 124 / 33 | 10 / 10 | Fully code-mapped; prerequisite routing is the only bounded Phase 1 row without a writing gap. WP02-WP10 retain production-composition, authority, durability, custody-negative, performance-test, or missing executable-harness gaps. |
 | Screen | 43 | 25/0/0/0/18/0 | 95 / 26 | 0 / 43 | Unattributed. |
 | Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 529 / 196 | 7 / 7 | Fully code-mapped; six workpacks have no Phase 1 writing gap, while WP07 remains a static unavailable-state panel rather than the required live first-run state machine. |
 | Tracking | 42 | 42/0/0/0/0/0 | 1,034 / 555 | 1 / 42 | Partial; WP34 event contracts are mapped. |
@@ -96,6 +96,33 @@ been rerun in Phase 2.
 complete for code/test-writing scope and 6/8 still require production code or
 expected tests. No Network test pass, Enforcer acceptance, proof, or whole-plan
 completion is claimed by this Phase 1 audit.
+
+### Screen AI Pipeline Phase 1 code/test audit - 2026-08-15
+
+This audit follows the production startup, capture, queue, local-AI, event,
+read-model, and portal paths and compares them with the expected test and
+harness code. It does not use the unchecked plan rows as implementation truth,
+and it does not treat a generated event chain or proof description as a live
+policy/action path.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Prerequisite Merge And Branch Gate | This is a coordination-only prerequisite row with no owned production or test code. Current branch promotion is handled by the repository feature-to-`develop`-to-`main` process. | **Complete for Phase 1** | No code or expected-test writing belongs to this workpack. Exact prerequisite commit/PR records and stale-proof reconciliation remain Phase 3 coordination evidence. |
+| WP02 Real Trigger To Capture Gate | 31 implementation and 10 test files cover real selected-window capture, scheduler suppression/debounce, native foreground observation, timed cadence, encrypted queue writes, screen settings commands, and focused capture/runtime tests. | **Incomplete** | Production capture reads environment flags rather than the parent screen-settings store. Every foreground change is labeled `NativeAppForegroundStart`; browser URL/video/feed, browser game, native game, launcher, and unknown-process trigger kinds exist only as scheduler vocabulary or isolated tests and are not fed by owning runtimes. Cross-trigger and parent-disable integration tests are missing. |
+| WP03 Capture To AI Analysis Gate | 47 implementation and 9 test files cover encrypted queue leasing, a bounded local adapter process, schema-shaped result parsing, OCR redaction, provider unavailable/invalid states, and separate typed router/pipeline libraries. | **Incomplete** | Production never calls the `screen-ai-core` intelligence router, AI-hub router, or pipeline decision. The service sends the frame to one configured adapter process and accepts only `localVision`/`localOCR`; OCR-versus-VLM-versus-text-versus-deterministic routing and typed-context-only model consumption are not composed or tested end to end. |
+| WP04 AI Result To Policy Gate | 6 implementation and 4 test files validate local-AI output shape, confidence, provider kind, policy eligibility, and the screen enforcement handoff contract. | **Incomplete** | `service_policy_refs` creates a synthetic decision ID, fixed `allow` action, fixed reason, and fixed parent-rule ref whenever adapter output says `policyEligible`. No policy-control owner is invoked, stricter-parent-rule precedence is absent, and tests currently assert the fabricated metadata instead of proving a trusted AI-result-to-policy boundary. |
+| WP05 Policy Action Dry-Run Gate | 5 implementation and 3 test files provide a Rust handoff guard, policy/action phase-state helpers, and event-bridge rejection tests. | **Incomplete** | These are contract and event-shape guards only. There is no production dry-run dispatcher for observe, allow, warn, ask-parent, time-limit, block, or manual-required; no timer/expiry or owned-process adapter handoff is driven from a real policy decision, and no action-matrix integration tests exist. |
+| WP06 Journal Read Model And Portal Gate | 31 implementation and 8 test files cover typed screen phases, ActivityStore projection/query behavior, service event bridging, a service-backed portal summary panel, unavailable state, redaction, and UI screenshot test code. | **Incomplete** | The normal chain creates a new in-memory event bus per row; only deletion has a durable hash-chain journal. The portal reads ActivityStore summaries, but there is no durable replay of a real trigger/capture/AI/policy/action chain, and the displayed policy/action refs can originate from WP04's fabricated metadata. Durable full-chain replay and authority-negative tests are missing. |
+| WP07 Deletion Retention And Custody Gate | 17 implementation and 5 test files cover encrypted durable queue records, leases, delete-after-analysis, TTL sweeping, durable deletion outbox/restart replay, quarantine, delete-failure projection, and raw-image exclusion from policy/portal event payloads. | **Incomplete** | The core local custody mechanics are substantial, but the explicit no-remote/cloud-upload boundary and retention-only-with-parent-opt-in contract are not enforced by a production capability or dedicated negative tests. The external adapter process boundary also lacks a test proving it cannot select a remote transport while claiming local-only custody. |
+| WP08 Live Operator Proof Gate | The two workpack-owned executable test roots are mapped explicitly. Both are absent: `screen-ai-live-operator-proof.mjs` and `screen-ai-live-operator-artifact-gate.mjs`. | **Incomplete** | The plan describes a nine-scenario manifest harness and retained-artifact validator that do not exist in this checkout. This is missing expected harness/test code before it is a missing-proof problem. |
+| WP09 Performance Cadence And Backpressure Gate | 13 implementation and 4 test files cover cadence/debounce decisions, queue-size limits, foreground/cadence single-tick capture, analysis `max_jobs`/`max_ticks`, polling, and adapter timeout controls. | **Incomplete** | Existing tests prove isolated decisions or one recorded capture, not the required three-capture cadence, full-queue/no-fourth-row behavior, disable-stops-future-jobs runtime behavior, or repeated-analysis no-flood behavior. The multi-tick/backpressure test harness is unwritten. |
+| WP10 Final Rollout And PR Gate | The three named executable rollout test roots are mapped explicitly. `screen-ai-final-product-path-proof.mjs`, `screen-ai-service-winrt-ocr-proof.mjs`, and `screen-ai-household-mesh-proof.mjs` are absent. | **Incomplete** | The aggregate verifier/runner code is missing and every upstream production gap remains open. Final validation, proof, and PR promotion cannot honestly close this workpack until the executable gate exists and WP02-WP09 are complete. |
+
+**Screen AI Pipeline Phase 1 result:** 10/10 workpacks inspected and mapped;
+only the no-code prerequisite WP01 has no Phase 1 writing gap. Nine workpacks
+still require production composition, authority/custody corrections, expected
+integration tests, or executable harnesses. No Screen AI test pass, Enforcer
+acceptance, proof, or whole-plan completion is claimed by this audit.
 
 ### Eventing plan Phase 1 code/test audit - 2026-08-15
 
@@ -722,7 +749,7 @@ proof artifact, checklist row, and merge state agree.
 | `policy-control-plane-plan` | Integration | `policy-control-core`, `agent-service`, `schema`, eventing | 126 source / 25 test files; compiler, preview, delivery, conflict, and authority code exist. | Policy-to-enforcement command/rollback product proof is incomplete. | Prove typed policy compile, delivery, execution receipt, and rollback. |
 | `portal-ux-household-surfaces-plan` | Integration | `apps/portal`, `portal-domain`, HostBridge/service read models | Portal has 113 source / 87 test files and real route/panel code. | Several screens remain proof/presentation surfaces without completed backend actions. | Choose a service-backed household flow and prove the full click-through. |
 | `remote-access-plan` | Scaffold | `remote-access-core`, `screen-live-view-core`, LAN, portal | Remote core has 2 source / 5 test files; adjacent live-view pieces exist. | Session grants, relay, revocation, and safety proof are not implemented as a product path. | Build view-only session grant/revoke state before any control feature. |
-| `screen-ai-pipeline-plan` | Foundation | `screen-core`, `screen-ai-core`, capture adapter, `agent-service` | Capture/AI/service source and tests exist. | Trigger-to-capture-to-AI-to-policy operational proof remains open. | Close a redacted selected-window capture to typed AI-result proof. |
+| `screen-ai-pipeline-plan` | Fully audited / Phase 1 incomplete | `screen-ai-core`, capture adapter, `agent-protocol`, `agent-core`, `agent-service`, portal | All 10 workpacks have reviewed code/test ownership. Real capture, encrypted queueing, local adapter execution, deletion, read models, and portal rendering exist; only WP01 has no bounded Phase 1 writing gap. | Nine workpacks remain incomplete: trigger ownership and parent settings are disconnected, canonical AI routing is not production-wired, policy/action authority is fabricated or absent, the normal event chain is not durably replayable, custody negatives are missing, and live/performance/final harnesses are unwritten. | Wire WP02 parent settings and real trigger owners first, then WP03 canonical AI routing and WP04 trusted policy handoff; complete action, journal, custody, performance, and operator/final gates in dependency order before Phase 2. |
 | `screen-plan` | Foundation | `screen-core`, `screen-capture-adapter`, `screen-live-view-core` | Capture adapters and platform paths exist; screen core has 3 source / 3 test files. | Cross-platform custody and live-view closure are incomplete. | Prove custody/delete behavior for one supported OS capture path. |
 | `setup-install-provisioning-plan` | Fully audited / Phase 1 incomplete | `provisioning-core`, `child-runtime`, `parent-runtime-core`, `schema`, `portal-domain`, portal | All 7 workpacks have reviewed code/test ownership. WP01-WP04 and WP06 are bounded no-code handoff/aggregation packets; WP05's Rust readiness model and negative tests are real; WP07 has a Rust-owned portal boundary-status panel. | WP07 still hard-codes sibling states as unavailable and does not implement the required first-run state machine, screen flow, actions, or readiness-driven completion guard. Historical proof text also cites removed packages and requires Phase 3 reconciliation. | Implement WP07 against typed `provisioning-core` readiness, with blocked/degraded/manual transition tests; then run focused Phase 2 gates before reconciling proof and sibling handoffs in WP06. |
 | `tracking-plan` | Integration | `tracking-core`, `agent-service`, `schema` | 70 source / 41 test files; location/geofence/device-status runtime exists. | Real device/provider/retention product proof remains incomplete. | Run a provider-to-read-model-to-portal tracking path with retention proof. |
@@ -757,7 +784,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `policy-control-plane-plan` | 8 | 6 | 2 | 0 | Six checked workpacks are not reflected by the generic checklist status. |
 | `portal-ux-household-surfaces-plan` | 20 | 5 | 15 | 0 | Checklist is stale relative to the workpack index. |
 | `remote-access-plan` | 6 | 0 | 6 | 0 | Five planned rows and one deferred control row. |
-| `screen-ai-pipeline-plan` | 10 | 0 | 10 | 0 | Proof manifest/root is absent; rows correctly remain open. |
+| `screen-ai-pipeline-plan` | 10 | 0 | 10 | 0 | Fully mapped from live code/tests. WP01 is complete for its no-code prerequisite scope; WP02-WP10 retain concrete production-composition, authority, durability, custody-negative, performance-test, or missing executable-harness gaps. Proof remains deferred until those Phase 1 gaps close. |
 | `screen-plan` | 40 | 18 | 22 | 0 | Eighteen checked workpacks are not reflected by the generic checklist. |
 | `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | Fully mapped from live code/tests. Six workpacks have no Phase 1 writing gap within their bounded ownership; WP07 remains incomplete because the current portal panel reports unavailable static state instead of implementing the live first-run state machine. The 93/93 checklist is not product completion. |
 | `tracking-plan` | 39 | 0 | 39 | 0 | Internally checked rows were intentionally reopened for audit/proof reruns. |
