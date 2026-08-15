@@ -43,7 +43,21 @@ and capability state.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Completion - 2026-06-03
+## Current Status - Phase 1 Active
+
+The 2026-08-15 code audit found that the historical TypeScript owners and test
+paths below are no longer tracked. WP51 now provides a Rust-owned generic
+compiler/evaluator boundary, but there is no current composition from stored
+`AppGameSessionSummary` rows into daily/weekly running-versus-foreground budget
+evaluation, schedule evidence, bonus approval/audit refs, and active/recovered
+timer state.
+
+This workpack is active for that bounded `ocentra-app-game-core` composition
+and focused contract tests. The slice must remain dry-run and may not claim
+service persistence, portal/child UX, notifications, timer scheduling,
+rollback, or adapter execution.
+
+## Historical Contract Completion - 2026-06-03
 
 - Owner: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
