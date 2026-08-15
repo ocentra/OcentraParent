@@ -12,7 +12,45 @@
     "ai-plan": ["crates/child-ai-core", "crates/screen-ai-core", "crates/agent-service", "crates/schema"],
     "app-game-plan": ["crates/app-game-core", "crates/agent-service", "crates/schema"],
     "app-plan": ["crates/app-core", "crates/agent-service", "crates/schema"],
-    "browser-plan": ["crates/browser-core", "crates/agent-service", "apps/portal"],
+    "browser-plan": [
+      "crates/agent-protocol/src/browser.rs",
+      "crates/agent-protocol/src/browser",
+      "crates/agent-protocol/src/browser_inventory.rs",
+      "crates/agent-protocol/src/browser_managed.rs",
+      "crates/agent-protocol/src/browser_policy.rs",
+      "crates/agent-protocol/src/browser_intervention.rs",
+      "crates/agent-protocol/src/browser_read_model.rs",
+      "crates/agent-protocol/src/browser_unmanaged_enforcement.rs",
+      "crates/agent-protocol/tests/contract/browser_inventory_tests.rs",
+      "crates/agent-protocol/tests/contract/browser_managed_tests.rs",
+      "crates/agent-protocol/tests/contract/browser_read_model_tests.rs",
+      "crates/agent-protocol/tests/unit/browser_policy_tests.rs",
+      "crates/agent-protocol/tests/unit/browser_intervention_tests.rs",
+      "crates/agent-core/src/browser_bridge_poll.rs",
+      "crates/agent-core/src/browser_bridge_poll",
+      "crates/agent-core/src/browser_managed_session.rs",
+      "crates/agent-core/src/browser_managed_session",
+      "crates/agent-core/src/browser_event_runtime.rs",
+      "crates/agent-core/src/browser_event_runtime",
+      "crates/agent-core/src/browser_windows_inventory.rs",
+      "crates/agent-core/src/browser_windows_inventory",
+      "crates/agent-core/tests/unit/browser_bridge_tests.rs",
+      "crates/agent-core/tests/unit/browser_event_runtime_tests.rs",
+      "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
+      "crates/agent-core/tests/unit/browser_windows_inventory_tests.rs",
+      "crates/agent-service/src/browser_runtime.rs",
+      "crates/agent-service/src/browser_runtime_impl",
+      "crates/agent-service/src/browser_policy_runtime.rs",
+      "crates/agent-service/src/browser_policy_runtime_flow_impl",
+      "crates/agent-service/tests/unit/browser_runtime_tests.rs",
+      "crates/agent-service/tests/unit/browser_policy_api_tests.rs",
+      "packages/schema-domain/src/browser-control-manifest.ts",
+      "packages/schema-domain/tests/unit/browser-policy-control-catalog.test.ts",
+      "packages/portal-domain/src/browser-child-intervention-page.ts",
+      "apps/portal/src/browser-status-panel.ts",
+      "apps/portal/src/browser-intervention-panel.ts",
+      "apps/portal/tests/browser/browser-intervention-panel.test.ts"
+    ],
     "child-agent-runtime-distribution-plan": [
       "crates/child-runtime",
       "crates/schema/src/child_ios_entitlement_capability_proof.rs",
@@ -465,6 +503,263 @@
         "crates/family-identity-core/tests/unit/setup_lifecycle.rs",
         "crates/family-identity-core/tests/unit/session_lifecycle.rs"
       ]
+    },
+    "WP-browser-plan-01-contract-boundary-and-effect-schemas": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-protocol/src/browser.rs",
+        "crates/agent-protocol/src/browser_inventory.rs",
+        "crates/agent-protocol/src/browser_managed.rs",
+        "crates/agent-protocol/src/browser_policy.rs",
+        "crates/agent-protocol/src/browser_intervention.rs",
+        "crates/agent-protocol/tests/contract/browser_inventory_tests.rs",
+        "crates/agent-protocol/tests/contract/browser_managed_tests.rs",
+        "crates/agent-protocol/tests/unit/browser_policy_tests.rs",
+        "crates/agent-protocol/tests/unit/browser_intervention_tests.rs"
+      ]
+    },
+    "WP-browser-plan-02-source-index-and-doc-reconciliation": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-browser-plan-03-browser-inventory-model": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-protocol/src/browser_inventory.rs",
+        "crates/agent-protocol/src/browser_read_model.rs",
+        "crates/agent-protocol/tests/contract/browser_inventory_tests.rs",
+        "crates/agent-protocol/tests/contract/browser_read_model_tests.rs",
+        "crates/agent-service/src/browser_inventory_read_model.rs",
+        "crates/agent-service/tests/unit/browser_inventory_read_model_tests.rs"
+      ]
+    },
+    "WP-browser-plan-04-windows-browser-inventory-adapter": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_windows_inventory.rs",
+        "crates/agent-core/src/browser_windows_inventory",
+        "crates/agent-core/src/browser_windows_inventory_source.rs",
+        "crates/agent-core/src/browser_windows_package_inventory.rs",
+        "crates/agent-core/src/browser_windows_shortcut_source.rs",
+        "crates/agent-core/tests/unit/browser_windows_inventory_tests.rs",
+        "crates/agent-core/tests/unit/browser_windows_inventory_source_tests.rs",
+        "crates/agent-service/src/browser_inventory_read_model.rs",
+        "crates/agent-service/tests/unit/browser_inventory_read_model_tests.rs"
+      ]
+    },
+    "WP-browser-plan-05-cross-platform-inventory-matrix": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-protocol/src/browser_inventory.rs",
+        "crates/agent-protocol/tests/contract/browser_inventory_tests.rs",
+        "crates/agent-core/src/browser_windows_inventory.rs",
+        "crates/agent-core/tests/unit/browser_windows_inventory_tests.rs",
+        "platforms/android/agent/browser-shell/src/main/java/ca/ocentra/parent/browser/OcentraOwnedBrowserShellActivity.java"
+      ]
+    },
+    "WP-browser-plan-06-managed-profile-store": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_managed_session.rs",
+        "crates/agent-core/src/browser_managed_session/store",
+        "crates/agent-core/tests/unit/browser_managed_session_tests.rs"
+      ]
+    },
+    "WP-browser-plan-07-managed-chromium-launcher": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_managed_session/launch.rs",
+        "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
+        "crates/agent-service/src/browser_runtime.rs",
+        "crates/agent-service/src/browser_runtime_impl/launch.rs",
+        "crates/agent-service/tests/unit/browser_runtime_tests.rs"
+      ]
+    },
+    "WP-browser-plan-08-bridge-custody-and-security": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_bridge_http.rs",
+        "crates/agent-core/src/browser_bridge_poll.rs",
+        "crates/agent-core/src/browser_bridge_poll",
+        "crates/agent-core/tests/unit/browser_bridge_poll_security_tests.rs",
+        "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs"
+      ]
+    },
+    "WP-browser-plan-09-cdp-version-and-target-adapter": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_bridge_http.rs",
+        "crates/agent-core/src/browser_bridge_poll.rs",
+        "crates/agent-core/tests/unit/browser_bridge_cdp_adapter_tests.rs",
+        "crates/agent-core/tests/unit/browser_bridge_poll_tests.rs"
+      ]
+    },
+    "WP-browser-plan-10-tab-evidence-mapper": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_bridge_event.rs",
+        "crates/agent-core/src/browser_bridge_fields.rs",
+        "crates/agent-core/tests/unit/browser_bridge_tests.rs"
+      ]
+    },
+    "WP-browser-plan-11-active-tab-proof-model": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-protocol/src/browser_values/active_proof_source.rs",
+        "crates/agent-protocol/src/browser_values/active_tab_capability.rs",
+        "crates/agent-protocol/src/browser_values/active_tab_state.rs",
+        "crates/agent-protocol/tests/contract/browser_inventory_tests.rs",
+        "crates/agent-core/src/browser_bridge_event.rs",
+        "crates/agent-core/tests/unit/browser_bridge_tests.rs"
+      ]
+    },
+    "WP-browser-plan-12-journal-and-sqlite-browser-ingest": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_event_runtime.rs",
+        "crates/agent-core/src/browser_event_runtime",
+        "crates/agent-core/src/activity_store_browser.rs",
+        "crates/agent-core/tests/unit/browser_event_runtime_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_browser_tests.rs"
+      ]
+    },
+    "WP-browser-plan-13-browser-read-models-and-service-events": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-protocol/src/browser_read_model.rs",
+        "crates/agent-protocol/tests/contract/browser_read_model_tests.rs",
+        "crates/agent-service/src/browser_inventory_read_model.rs",
+        "crates/agent-service/src/browser_runtime_stream_api.rs",
+        "crates/agent-service/src/browser_runtime_stream_events.rs",
+        "crates/agent-service/tests/unit/browser_inventory_read_model_tests.rs",
+        "crates/agent-service/tests/unit/browser_runtime_stream_tests.rs"
+      ]
+    },
+    "WP-browser-plan-14-portal-browser-status-surfaces": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "apps/portal/src/browser-status-panel.ts",
+        "apps/portal/src/browser-intervention-panel.ts",
+        "apps/portal/tests/browser/browser-intervention-panel.test.ts",
+        "apps/portal/tests/unit/parent-ui-bridge.test.ts"
+      ]
+    },
+    "WP-browser-plan-15-browser-policy-authoring-manifest": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "packages/schema-domain/src/browser-control-manifest.ts",
+        "packages/schema-domain/src/generated-browser-control-manifest.ts",
+        "packages/schema-domain/tests/unit/browser-policy-control-catalog.test.ts",
+        "crates/agent-service/src/browser_policy_store.rs",
+        "crates/agent-service/tests/unit/browser_policy_manifest_patch_tests.rs"
+      ]
+    },
+    "WP-browser-plan-16-policy-target-compiler": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-service/src/browser_policy_compiler.rs",
+        "crates/agent-service/src/browser_policy_compiler_assessment.rs",
+        "crates/agent-service/tests/unit/browser_policy_compiler_tests.rs"
+      ]
+    },
+    "WP-browser-plan-17-managed-intervention-and-block-page": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_intervention_event.rs",
+        "crates/agent-core/tests/unit/activity_store_browser_intervention_tests.rs",
+        "crates/agent-service/src/browser_intervention_page.rs",
+        "packages/portal-domain/src/browser-child-intervention-page-impl.ts",
+        "scripts/test/browser-child-intervention-page-renderer.mjs"
+      ]
+    },
+    "WP-browser-plan-18-unmanaged-browser-detection": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-protocol/src/browser_unmanaged_enforcement.rs",
+        "crates/agent-protocol/tests/contract/browser_managed_tests.rs",
+        "crates/agent-core/src/browser_managed_discovery.rs",
+        "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-service/tests/unit/browser_runtime_tests.rs"
+      ]
+    },
+    "WP-browser-plan-19-unmanaged-fallback-ux-and-actions": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/activity_store_browser_intervention_fallback.rs",
+        "crates/agent-core/src/activity_store_browser_intervention_fallback_enforcement.rs",
+        "crates/agent-core/tests/unit/activity_store_browser_intervention_tests.rs",
+        "apps/portal/src/browser-intervention-panel.ts",
+        "apps/portal/tests/browser/browser-intervention-panel.test.ts"
+      ]
+    },
+    "WP-browser-plan-20-windows-applocker-app-control-proof": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-service/src/enforcement_browser_domain_adapter_app_control_proof_states.rs",
+        "crates/agent-service/src/enforcement_browser_domain_adapter_proof_read_model.rs",
+        "crates/agent-service/tests/unit/enforcement_browser_domain_adapter_proof_read_model_tests.rs"
+      ]
+    },
+    "WP-browser-plan-21-extension-and-native-host-boundary": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/agent-core/src/browser_bridge_native_host.rs",
+        "crates/agent-core/tests/unit/browser_bridge_native_host_tests.rs"
+      ]
+    },
+    "WP-browser-plan-22-performance-and-service-health": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "crates/browser-core/src/performance_budget.rs",
+        "crates/browser-core/tests/unit/performance_budget.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-service/tests/unit/browser_runtime_status.rs"
+      ]
+    },
+    "WP-browser-plan-23-e2e-and-manual-proof-artifacts": {
+      "planSlug": "browser-plan",
+      "roots": [
+        "apps/portal/src/BrowserParentExplanationRoutePanel.tsx",
+        "apps/portal/tests/e2e/browser-ai-parent-explanation-ui-proof.spec.ts",
+        "apps/portal/tests/e2e/browser-failures.ts"
+      ]
+    },
+    "WP-browser-plan-24-rollout-checklist-and-pr-gate": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-browser-plan-browser-control-1057-settings-inventory": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-browser-plan-browser-control-coverage-matrix": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-browser-plan-browser-control-schema-proposal": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-browser-plan-browser-policy-questionnaire-forest-v1": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-browser-plan-browser-policy-settings-catalog": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-browser-plan-managed-unmanaged-browser": {
+      "planSlug": "browser-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-child-agent-runtime-distribution-plan-01-child-agent-scope-and-route-boundary": {
       "planSlug": "child-agent-runtime-distribution-plan",
