@@ -136,6 +136,19 @@
         "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs"
       ]
     },
+    "WP-data-custody-storage-plan-01-custody-source-of-truth": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/data_custody_source_of_truth.rs",
+        "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
+        "crates/schema/src/data_custody_source_of_truth/sample.rs",
+        "crates/schema/src/data_custody_source_of_truth.template.txt",
+        "crates/schema/src/data_custody_source_of_truth_ts.rs",
+        "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs",
+        "crates/schema/tests/contract/data_custody_source_of_truth.rs",
+        "packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts"
+      ]
+    },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
       "roots": [

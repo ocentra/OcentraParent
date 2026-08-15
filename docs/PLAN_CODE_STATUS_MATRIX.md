@@ -48,7 +48,7 @@ strong enough for workpack-level decisions.
 | Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 0 / 13 | Unattributed; source presence is not deployment/runtime completion. |
-| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 1 / 9 | Partial; WP07 lifecycle boundary is mapped, aggregate closure is not. |
+| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 2 / 9 | Partial; WP01 contract and WP07 lifecycle boundary are mapped. WP01 is Phase 1 incomplete because several claimed test surfaces are absent. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
@@ -99,6 +99,21 @@ claimed passing here unless a current run is explicitly named.
 complete for code/test-writing scope, 10/13 still need code or expected tests.
 The graph remains 1 planned, 11 validation, and 1 done because code topology
 does not override checklist, proof, dependency, or acceptance state.
+
+### Data Custody plan Phase 1 code/test audit - 2026-08-15
+
+This table records current source and test code, not the workpack's checked
+status or ignored proof roots. Tests are not claimed passing unless a current
+run is named.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Custody Source Of Truth | Six Rust source/generator files, one generated TypeScript contract, and one Rust contract-test file implement the 28-class custody matrix and generated-edge drift check. | **Incomplete** | The claimed TypeScript boundary modules, TypeScript contract test, and proof runner do not exist on `main`. The two Rust tests cover serde and generated-file drift, but do not test the advertised class/hosting counts, unique row/class IDs, derived-source validity, redaction/notification rules, or forbidden-hosting invariants. |
+
+**Data Custody Phase 1 result so far:** 1/9 workpacks inspected and newly
+mapped in this audit; WP01 has core contract code but still needs expected test
+code before Phase 1 can be called complete. WP02 is next in the plan's declared
+dependency order.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
