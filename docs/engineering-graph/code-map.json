@@ -136,6 +136,127 @@
         "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs"
       ]
     },
+    "WP-data-custody-storage-plan-01-custody-source-of-truth": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/data_custody_source_of_truth.rs",
+        "crates/schema/src/data_custody_source_of_truth/identifiers.rs",
+        "crates/schema/src/data_custody_source_of_truth/sample.rs",
+        "crates/schema/src/data_custody_source_of_truth.template.txt",
+        "crates/schema/src/data_custody_source_of_truth_ts.rs",
+        "crates/schema/src/bin/export_data_custody_source_of_truth_contract_types.rs",
+        "crates/schema/tests/contract/data_custody_source_of_truth.rs",
+        "packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts"
+      ]
+    },
+    "WP-data-custody-storage-plan-02-encryption-key-custody": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/encryption_key_custody.rs",
+        "crates/schema/tests/contract/encryption_key_custody.rs",
+        "crates/storage-custody-core/src/encryption_key_custody.rs",
+        "crates/storage-custody-core/src/encryption_key_custody_attempts.rs",
+        "crates/storage-custody-core/src/encryption_key_custody_platform.rs",
+        "crates/storage-custody-core/src/encryption_key_custody_proof.rs",
+        "crates/storage-custody-core/tests/unit/encryption_key_custody.rs"
+      ]
+    },
+    "WP-data-custody-storage-plan-03-parent-owned-cloud-sync": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/parent_owned_sync_export.rs",
+        "crates/schema/src/parent_owned_sync_export",
+        "crates/schema/src/parent_owned_sync_export_ts.rs",
+        "crates/schema/src/bin/export_parent_owned_sync_export_contract_types.rs",
+        "crates/schema/tests/contract/parent_owned_sync_export.rs",
+        "crates/schema/tests/contract/parent_owned_sync_export_generated.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_proof.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate_destination.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate_refs.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate_visibility.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_state.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_tombstone.rs",
+        "crates/storage-custody-core/tests/unit/parent_owned_sync_export.rs",
+        "packages/schema-domain/src/generated-parent-owned-sync-export-contract-rules.ts",
+        "packages/schema-domain/src/generated-parent-owned-sync-export-contracts.ts"
+      ]
+    },
+    "WP-data-custody-storage-plan-04-retention-delete-tombstone": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/retention_delete_tombstone.rs",
+        "crates/schema/src/retention_delete_tombstone",
+        "crates/schema/tests/contract/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_finalize.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_logic.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_rank.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_rows.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_signal.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_logic.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_request.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_class.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_requirements.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_signal.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate_audit.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate_propagation.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_store.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_store",
+        "crates/storage-custody-core/tests/unit/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs"
+      ]
+    },
+    "WP-data-custody-storage-plan-05-export-import-backup-recovery": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/export_import_backup_recovery.rs",
+        "crates/schema/src/export_import_backup_recovery",
+        "crates/schema/tests/contract/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_build.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_logic.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_rejection.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_response.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_sections.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs"
+      ]
+    },
+    "WP-data-custody-storage-plan-06-report-query-custody": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/report_query_custody.rs",
+        "crates/schema/src/report_query_custody",
+        "crates/schema/src/report_query_custody_ts.rs",
+        "crates/schema/src/report_query_custody_contracts.template.txt",
+        "crates/schema/src/report_query_custody_contract_rules.request.template.txt",
+        "crates/schema/src/report_query_custody_contract_rules.state.template.txt",
+        "crates/schema/src/report_query_custody_contract_rules.proof.template.txt",
+        "crates/schema/src/bin/export_report_query_custody_contract_types.rs",
+        "crates/schema/tests/contract/report_query_custody.rs",
+        "crates/schema/tests/contract/report_query_custody_generated.rs",
+        "crates/storage-custody-core/src/report_query_custody.rs",
+        "crates/storage-custody-core/src/report_query_custody_proof.rs",
+        "crates/storage-custody-core/src/report_query_custody_row.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state_required.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state_shared.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state_terminal.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_validate.rs",
+        "crates/storage-custody-core/tests/unit/report_query_custody.rs",
+        "packages/schema-domain/src/generated-report-query-custody-contracts.ts",
+        "packages/schema-domain/src/generated-report-query-custody-contract-rules.ts"
+      ]
+    },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
       "roots": [
@@ -144,8 +265,42 @@
         "crates/child-runtime/src/runtime_gate_tombstone.rs",
         "crates/child-runtime/src/runtime_gate_tombstone_recovery.rs",
         "crates/child-runtime/src/child_runtime_tombstone_event_flow.rs",
-        "crates/child-runtime/tests/unit/runtime_gate.rs"
+        "crates/child-runtime/tests/unit/runtime_gate.rs",
+        "crates/child-runtime/tests/unit/runtime_gate_tombstone_recovery.rs"
       ]
+    },
+    "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/parent_storage_settings_apply_flow.rs",
+        "crates/schema/src/parent_storage_settings_apply_flow",
+        "crates/schema/src/parent_storage_settings_apply_flow_ts.rs",
+        "crates/schema/src/parent_storage_settings_apply_flow_contracts.template.txt",
+        "crates/schema/src/parent_storage_settings_apply_flow_rules.core.template.txt",
+        "crates/schema/src/parent_storage_settings_apply_flow_rules.modes.template.txt",
+        "crates/schema/src/parent_storage_settings_apply_flow_rules.states-early.template.txt",
+        "crates/schema/src/parent_storage_settings_apply_flow_rules.states-late.template.txt",
+        "crates/schema/src/bin/export_parent_storage_settings_apply_flow_contract_types.rs",
+        "crates/schema/tests/contract/parent_storage_settings_apply_flow.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_actions.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_apply.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_card.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_card_summary.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_card_ui.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_card_ui_ready.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_card_validate.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_preview.rs",
+        "crates/storage-custody-core/src/parent_storage_settings_apply_flow_proof.rs",
+        "crates/storage-custody-core/tests/unit/parent_storage_settings_apply_flow.rs",
+        "packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contracts.ts",
+        "packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contract-rules.ts"
+      ]
+    },
+    "WP-data-custody-storage-plan-data-and-ai-ui-plan": {
+      "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-v0-8-enforcement-control-plan-11-audit-journal-events": {
       "planSlug": "v0-8-enforcement-control-plan",
