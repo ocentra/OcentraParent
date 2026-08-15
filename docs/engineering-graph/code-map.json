@@ -109,6 +109,16 @@
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
       ]
     },
+    "WP-account-identity-family-plan-03-session-token-lifecycle": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/family-identity-core/src/session_lifecycle.rs",
+        "crates/family-identity-core/tests/unit/session_lifecycle.rs",
+        "crates/provisioning-core/src/provisioning_install.rs",
+        "crates/provisioning-core/src/provisioning_install/family_context.rs",
+        "crates/provisioning-core/tests/unit/readiness_flow.rs"
+      ]
+    },
     "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration": {
       "planSlug": "account-identity-family-plan",
       "roots": [
