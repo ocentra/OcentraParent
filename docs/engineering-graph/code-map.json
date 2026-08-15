@@ -5994,15 +5994,13 @@
     "WP-app-game-plan-19-policy-target-compiler-for-app-game-rules": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game.rs",
-        "crates/agent-protocol/src/app_game_authority_classifier.rs",
-        "crates/agent-protocol/tests/unit/app_game_tests.rs",
-        "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
-        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
-        "crates/agent-core/src/activity_store_app_game",
-        "crates/agent-core/tests/unit/activity_store_app_game",
-        "crates/agent-service/src/activity_capture/app_game.rs",
-        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+        "crates/app-game-core/src/app_game_policy_target_compiler.rs",
+        "crates/app-game-core/src/app_game_policy_target_compiler_evidence_validation.rs",
+        "crates/app-game-core/src/app_game_policy_target_compiler_helpers.rs",
+        "crates/app-game-core/src/app_game_policy_target_compiler_readiness.rs",
+        "crates/app-game-core/src/app_game_policy_target_compiler_references.rs",
+        "crates/app-game-core/src/app_game_policy_target_compiler_types.rs",
+        "crates/app-game-core/tests/contract/app_game_policy_target_compiler.rs"
       ]
     },
     "WP-app-game-plan-20-time-budget-schedule-bonus-time-integration": {

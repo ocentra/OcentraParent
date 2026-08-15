@@ -44,16 +44,26 @@ authority.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Current status - Phase 1 open
+## Current status - Phase 1 and Phase 2 complete; Phase 3 open
 
-The 2026-08-15 code audit found that the former TypeScript implementation
-owners were removed and the current Rust file only reproduces the generated
-TypeScript contract text. The workpack is therefore ready for implementation,
-not complete or in validation.
+The 2026-08-15 implementation at commit `bf81b400d` replaces the generated-text-only
+Rust wrapper with a Rust-owned deterministic policy target compiler. It covers all
+25 declared app/game target kinds, keeps every result dry-run, rejects unbound or
+stale evidence, and leaves unproved hard actions manual-required without enabling
+an enforcement handoff.
 
-Phase 1 still requires a Rust-owned compiler algorithm and focused checked-in
-tests for the target families and negative states in this workpack. Phase 2
-focused execution/Enforcer and Phase 3 proof remain later gates.
+Checked-in contract tests cover the workpack's target-family matrix, identity,
+unknown/category, schedule, device/user/freshness, capability, authority, reference,
+and no-invented-authority conditions. Focused validation is green:
+
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`
+- `cargo test -p ocentra-app-game-core --test contract` (`46 passed`)
+- focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, and `no-naked-domain-strings`
+
+Phase 3 retained proof and plan-level precommit/CI remain open. Runtime/service
+consumption is deliberately not claimed here; it remains owned by the downstream
+consumption workpacks, including WP177.
 
 ## Historical bounded contract slice - 2026-06-03
 
