@@ -159,6 +159,25 @@
         "crates/provisioning-core/tests/unit/readiness_flow.rs"
       ]
     },
+    "WP-account-identity-family-plan-07-parent-account-family-setup-ui": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/schema/tests/contract/parent_ui_bridge/fixtures.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/browser.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/presentation.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs",
+        "apps/portal/generated/parent-ui-bridge.ts",
+        "packages/portal-domain/src/setup-first-run-panel.ts",
+        "packages/portal-domain/tests/unit/setup-first-run-panel.test.ts",
+        "apps/portal/src/SetupFirstRunRoutePanel.tsx",
+        "apps/portal/src/ParentPortalRoute.tsx",
+        "apps/portal/tests/unit/setup-first-run-route-panel.test.ts",
+        "apps/portal/tests/unit/parent-ui-bridge.test.ts",
+        "apps/portal/tests/e2e/setup-first-run-ui-proof.spec.ts"
+      ]
+    },
     "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration": {
       "planSlug": "account-identity-family-plan",
       "roots": [
