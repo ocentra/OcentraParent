@@ -200,6 +200,15 @@
         "packages/schema-domain/src/generated-policy-control-helpers.ts"
       ]
     },
+    "WP-policy-control-plane-plan-08-policy-event-model": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_event.rs",
+        "crates/policy-control-core/src/policy_event",
+        "crates/policy-control-core/tests/unit/policy_event.rs",
+        "crates/policy-control-core/tests/version-skew/policy_event.rs"
+      ]
+    },
     "WP-policy-control-plane-plan-04-delivery-ack-audit": {
       "planSlug": "policy-control-plane-plan",
       "roots": [
