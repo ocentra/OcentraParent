@@ -40,7 +40,20 @@ Game budgets are useful and honest without treating every launcher row as play.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Completion - 2026-06-03
+## Current Status - Phase 1 Active
+
+The 2026-08-15 code audit found the historical TypeScript contract owner below
+was removed. Current Rust code has a generic compiler/evaluator and launcher
+evidence rows, but no native-game budget composition that classifies known-game,
+launcher-only, and parent-approved launcher-game-candidate sessions before
+runtime evaluation.
+
+This workpack is active for a bounded `ocentra-app-game-core` composition and
+focused tests. Rating, UGC, multiplayer, and purchase signals must remain
+advisory; the result must stay dry-run and must not add persistence, service,
+portal, notification, or adapter-execution claims.
+
+## Historical Contract Slice - 2026-06-03
 
 - Owner/lane: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
