@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `develop` organization
-baseline at `b22a85f93d` (tree-equal to `main` at `7054d158c1`). The dated
+baseline at `2ddbb0eaa` (tree-equal to `main` at `a41807d79`). The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -20,23 +20,23 @@ There are no open pull requests. Remote branches are reduced to `main`,
 `develop`, `production`, and the protected
 `codex/archive/all-remote-tips-20260815`; the archive contains every deleted
 remote tip. The only registered OcentraParent worktree is `E:/OcentraParent`;
-the current local `codex/lan-plan-code-audit` branch is the sole active
+the current local `codex/ai-plan-code-audit` branch is the sole active
 audit branch and has no remote branch yet.
 
 The executable graph validates at 703 nodes and 705 edges. It imports **23**
 actual plan rows and 679 workpacks. The earlier apparent count of 24 included
 the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
-Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
+Current derived state is 452 planned, 9 blocked, 0 ready, 1 active, 216 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,690
-implementation files and 1,109 test files, but only **276 of 679 workpacks**
-(40.65%) have reviewed, exact code/test ownership maps. Account Identity,
+This is the key code-first limitation: live plan roots contain 2,702
+implementation files and 1,116 test files, but only **324 of 679 workpacks**
+(47.72%) have reviewed, exact code/test ownership maps. Account Identity, AI,
 Browser, LAN,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
 Payment/Subscription, Policy Control Plane, Portal UX/Household Surfaces,
-Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 403 workpacks across the repository
+Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 355 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -47,7 +47,7 @@ strong enough for workpack-level decisions.
 | Plan | Workpacks | P/B/R/A/V/D | Live implementation/test files | Reviewed workpack maps | Code-first audit state |
 | --- | ---: | ---: | ---: | ---: | --- |
 | Account identity/family | 8 | 1/0/0/0/7/0 | 159 / 82 | 8 / 8 | Fully code-mapped; all eight remain incomplete for Phase 1 code/expected-test writing. |
-| AI | 48 | 47/0/0/0/1/0 | 690 / 421 | 0 / 48 | Unattributed; foundation code exists, workpack ownership is unaudited. |
+| AI | 48 | 46/0/0/0/2/0 | 118 / 39 | 48 / 48 | Fully code-mapped; 11 workpacks are Phase 1 complete for bounded scope and 37 retain concrete production-code or expected-test gaps. |
 | App/game | 220 | 132/0/0/0/88/0 | 688 / 436 | 0 / 220 | Unattributed; the large validation set cannot be treated as implemented. |
 | App | 95 | 94/0/0/0/1/0 | 670 / 421 | 1 / 95 | Partial; WP01 contract/runtime-decision roots are mapped. |
 | Browser | 30 | 30/0/0/0/0/0 | 72 / 13 | 30 / 30 | Fully code-mapped; 14 executable workpacks are Phase 1 complete for bounded scope, 10 retain concrete code/test gaps, and six imported packets are reference-only. |
@@ -718,7 +718,7 @@ derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 453 | 9 | 0 | 1 | 215 | 1 |
+| 452 | 9 | 0 | 1 | 216 | 1 |
 
 ### Graph-derived plan/workpack matrix
 
@@ -731,7 +731,7 @@ than one plan; they are not completion percentages.
 | Plan | Workpacks | P/B/R/A/V/D | Implementation files | Test files |
 | --- | ---: | ---: | ---: | ---: |
 | Account identity/family | 8 | 1/0/0/0/7/0 | 157 | 81 |
-| AI | 48 | 47/0/0/0/1/0 | 669 | 419 |
+| AI | 48 | 46/0/0/0/2/0 | 118 | 39 |
 | App/game | 220 | 132/0/0/0/88/0 | 667 | 434 |
 | App | 95 | 94/0/0/0/1/0 | 649 | 419 |
 | Browser | 30 | 30/0/0/0/0/0 | 72 | 13 |
@@ -965,7 +965,7 @@ proof artifact, checklist row, and merge state agree.
 | Plan | Code state | Main runtime owners | Evidence observed | Current blocker / dependency | Next unblocker |
 | --- | --- | --- | --- | --- | --- |
 | `account-identity-family-plan` | Foundation | `family-identity-core`, `provisioning-core`, `entitlement-core`, `schema`, narrow `infra/cloudflare` D1 adapter | Family identity has 13 source / 7 test files; setup and signed-entitlement paths exist. Merged [#632](https://github.com/ocentra/OcentraParent/pull/632) adds only a retained, optional/manual-required provider-subject mapping adapter with D1-shaped tests; the old #607 TypeScript test-double remains closed-unmerged and is not authority evidence. | Account WP08 Rust schema/account-authority proof is merged, but Cloudflare WP06 D1/DO/KV binding/migration proof, Cloudflare WP08 runner proof, external provider verification, and account runtime routes remain absent; Account WP06 is reopened to aggregate the required handoffs. | Keep #632's narrow custody boundary fail-closed; execute Cloudflare WP06 then WP08 from the Account WP08 handoff, prove deployment/migration and runtime routes, then rerun Account WP06 only after all required inputs are green. Any missing input remains a payment/policy/remote/device-trust scheduling block. |
-| `ai-plan` | Foundation | `child-ai-core`, `screen-ai-core`, `agent-service`, `schema` | AI runtime and service seams exist. | Safety/output invariants and consumer proof remain fragmented. | Close one typed AI-result-to-policy handoff with safety and negative-path proof. |
+| `ai-plan` | Fully audited / Phase 1 incomplete | `agent-protocol`, `agent-core`, `agent-service`, `child-ai-core`, `screen-ai-core`, browser/app-game/tracking evidence owners, portal-domain, portal | All 48 workpacks now have reviewed topology: 118 implementation and 39 test files in the narrowed plan roots. Eleven workpacks have bounded Phase 1 code/expected tests written. Real foundations include configured local `llama.cpp` execution, singleton scheduling, household LAN claim/lease/idempotency, Activity memory graph, tracking AI validation, Parent Assistant boundaries, and portal AI runtime cards. | Thirty-seven workpacks retain code/test gaps. Highest-impact missing systems are the canonical general AI contract family, durable general work lifecycle, SQLite-backed context/result journal, semantic memory, verified model artifact installer, owned OCR/VLM workers, unified explanation surface, trusted remote authorization/adapter, and complete security/performance tests. | Finish WP03/WP04, WP07, WP09/WP12, and WP14-WP19 in dependency order before memory/model/screen/feature closeout; run Phase 2 and Phase 3 only after the corresponding Phase 1 rows are complete. |
 | `app-plan` | Foundation | `app-core`, `agent-service`, `schema` | `app-core` has 3 source / 5 test files; service owns wider integration. | App-only authority and runtime evidence are incomplete. | Make app identity/evidence flow a single Rust-owned service path. |
 | `app-game-plan` | Integration | `app-game-core`, `agent-service`, `schema` | 25 source / 20 test files; inventory, runtime, journal, and policy code exist. | Live platform metadata/crawling and portal product rows are incomplete. | Finish one live Windows app/game capture-to-read-model path. |
 | `browser-plan` | Fully audited / Phase 1 incomplete | `agent-protocol`, `agent-core`, `agent-service`, `browser-core`, schema-domain, portal-domain, portal, Android owned shell | All 30 imported packets have reviewed ownership. Fourteen executable workpacks have bounded code/expected tests written; contracts, Windows inventory, managed launch, custody/CDP mapping, durable ingest/read models, policy manifest/compiler, and unmanaged detection are real. | Ten workpacks still lack cross-platform inventory, corrupt/concurrent profile-store negatives, active-focus evidence, complete portal status tests, trusted managed/unmanaged action execution, live AppLocker control, extension integration, health/load harnesses, or aggregate E2E. | Complete WP05/WP06 and WP11 first, then WP17/WP19; finish WP14 and WP20-WP23 before Phase 2 focused execution and Phase 3 proof. |
@@ -1000,7 +1000,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | Plan | Execution rows | Doc-claimed closed | Open / partial / blocked / unknown | Freshly reverified | Scheduling note |
 | --- | ---: | ---: | ---: | ---: | --- |
 | `account-identity-family-plan` | 8 | 5 | 3 | 0 | Checklist now has 90/103 checked: WP01 remains partial. Merged #632 adds retained D1 storage-adapter proof, but no checklist row changes because token verification, runtime routes, authority, deployment/migration, and WP01 acceptance remain open. Account WP08 is 0/9 open for Rust-schema/account-authority proof, and WP06 is reopened at 14/18 to aggregate Account WP08 plus Cloudflare WP06/WP08 evidence. PR #607's TS adapter/D1-test-double is not a workpack closure. |
-| `ai-plan` | 48 | 1 | 47 | 0 | Generic reset checklist does not reflect workpack state. |
+| `ai-plan` | 48 | 2 | 46 | 0 | Fully mapped from live source/tests. Eleven workpacks are Phase 1 complete for bounded code/test scope; 37 retain concrete production-code or expected-test gaps. WP01/WP02 now close the source-reconciliation/snapshot documentation work; the remaining checkbox split still does not describe implementation maturity. |
 | `app-game-plan` | 88 | 54 | 34 | 0 | The remaining 34 are only `possibly done`; audit before implementation. |
 | `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
 | `browser-plan` | 24 | 0 | 24 | 0 | Fully mapped from live code/tests. Fourteen executable workpacks are Phase 1 complete for bounded scope; ten retain concrete product-code or expected-test gaps. Six additional imported packets are reference-only and excluded from the 24 execution rows. |

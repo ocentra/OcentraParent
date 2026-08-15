@@ -24,28 +24,21 @@ This file is the short resume list for the next worker. It is derived from open 
 4. Open that workpack and exact checklist rows only.
 5. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
 
-## Highest-open workpacks by unchecked boxes
+## Dependency-first Phase 1 queue
 
-- [48 - Rollout Checklist And PR Gate](workpacks/48-rollout-checklist-and-pr-gate.md): 25 open of 25 boxes.
-- [32 - Household AI Provider Mesh And Remote Assistant Boundary](workpacks/32-family-ai-hub-and-remote-assistant-boundary.md): 11 open of 11 boxes.
-- [07 - AI Job Queue Contract](workpacks/07-ai-job-queue-contract.md): 10 open of 11 boxes.
-- [08 - AI Provider Routing Contract](workpacks/08-ai-provider-routing-contract.md): 10 open of 10 boxes.
-- [38 - Screen OCR VLM Router Lane](workpacks/38-screen-ocr-vlm-router-lane.md): 9 open of 9 boxes.
-- [31 - Guided VLM Worker Lane](workpacks/31-guided-vlm-worker-lane.md): 8 open of 8 boxes.
-- [46 - Security Privacy Negative Gates Lane](workpacks/46-security-privacy-negative-gates-lane.md): 8 open of 8 boxes.
-- [47 - Performance Resource Battery Proof Lane](workpacks/47-performance-resource-battery-proof-lane.md): 8 open of 8 boxes.
-- [03 - Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md): 6 open of 6 boxes.
-- [09 - Local Evidence Context Builder V1](workpacks/09-local-evidence-context-builder-v1.md): 6 open of 6 boxes.
-- [13 - Deterministic No-Model Classifier Lane](workpacks/13-deterministic-no-model-classifier-lane.md): 6 open of 6 boxes.
-- [14 - Local Text LLM Adapter Boundary](workpacks/14-local-text-llm-adapter-boundary.md): 6 open of 6 boxes.
-- [15 - Local Text LLM Execution Dry-Run Adapter](workpacks/15-local-text-llm-execution-dry-run-adapter.md): 6 open of 6 boxes.
-- [16 - Output Parser And Schema Validator](workpacks/16-output-parser-and-schema-validator.md): 6 open of 6 boxes.
-- [17 - Degraded Timeout Invalid-Output Handling](workpacks/17-degraded-timeout-invalid-output-handling.md): 6 open of 6 boxes.
-- [20 - Parent Explanation Read Model](workpacks/20-parent-explanation-read-model.md): 6 open of 6 boxes.
-- [23 - Evidence-Backed Semantic Memory](workpacks/23-evidence-backed-semantic-memory.md): 6 open of 6 boxes.
-- [25 - Minimal Graph Edges For Safety Context](workpacks/25-minimal-graph-edges-for-safety-context.md): 6 open of 6 boxes.
-- [33 - Browser URL Video AI Lane](workpacks/33-browser-url-video-ai-lane.md): 6 open of 6 boxes.
-- [35 - Browser Game Cloud Game AI Lane](workpacks/35-browser-game-cloud-game-ai-lane.md): 6 open of 6 boxes.
+Checkbox count is no longer used to choose the next code slice. The retained
+source audit is [CODE_AUDIT.md](CODE_AUDIT.md). Work in this order:
+
+1. WP03/WP04 contract ownership and parity.
+2. WP07 general durable AI work lifecycle.
+3. WP09 context builder and WP12 prompt registry.
+4. WP14-WP17 local text execution, parser, and degraded boundary.
+5. WP19 AI result journal/SQLite ingest, then WP18/WP20 integration.
+6. WP21-WP23/WP25 memory and graph closure.
+7. WP40-WP42 artifact/runtime governance.
+8. WP30/WP31/WP38 screen OCR/VLM execution.
+9. WP33-WP36 feature bridges, then WP43-WP47 product/security/performance.
+10. WP48 rollout only after all Phase 1 gaps are closed.
 
 ## PR readiness guard
 
