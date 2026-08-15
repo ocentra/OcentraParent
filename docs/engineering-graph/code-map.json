@@ -161,6 +161,29 @@
         "crates/storage-custody-core/tests/unit/encryption_key_custody.rs"
       ]
     },
+    "WP-data-custody-storage-plan-03-parent-owned-cloud-sync": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/parent_owned_sync_export.rs",
+        "crates/schema/src/parent_owned_sync_export",
+        "crates/schema/src/parent_owned_sync_export_ts.rs",
+        "crates/schema/src/bin/export_parent_owned_sync_export_contract_types.rs",
+        "crates/schema/tests/contract/parent_owned_sync_export.rs",
+        "crates/schema/tests/contract/parent_owned_sync_export_generated.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_proof.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate_destination.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate_refs.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_provider_validate_visibility.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_state.rs",
+        "crates/storage-custody-core/src/parent_owned_sync_export_tombstone.rs",
+        "crates/storage-custody-core/tests/unit/parent_owned_sync_export.rs",
+        "packages/schema-domain/src/generated-parent-owned-sync-export-contract-rules.ts",
+        "packages/schema-domain/src/generated-parent-owned-sync-export-contracts.ts"
+      ]
+    },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
       "roots": [
