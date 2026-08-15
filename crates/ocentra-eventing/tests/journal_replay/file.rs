@@ -2,19 +2,26 @@ use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{EventId, IdempotencyKey};
 use ocentra_eventing::journal::ndjson::{
-    NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions,
+    NdjsonEventJournal, NdjsonJournalEntry, NdjsonJournalOptions, NdjsonJournalRecord,
 };
-use ocentra_eventing::journal::EventJournal;
+use ocentra_eventing::journal::policy::JournalDispatchPhase;
+use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
+use ocentra_eventing::journal::{
+    EventJournal, JournalAppend, JournalAppendDurability, JournalHashVersion,
+};
 use std::sync::Arc;
 use tokio::sync::Barrier;
 
 use super::{
     super::fixtures::{test_event, test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_LABEL},
     support::{
-        cleanup, journal_path, read_lines, stored_event, tamper_first_journal_payload_label,
-        JournalPath,
+        cleanup, cleanup_idempotent_journal, journal_path, read_lines, stored_event,
+        tamper_first_journal_payload_label, JournalPath,
     },
 };
+
+#[cfg(not(target_os = "windows"))]
+use super::support::append_lock_path;
 
 #[tokio::test]
 async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
@@ -30,14 +37,56 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
     let second_append = journal.append(&second).await.expect_value("second append");
 
     let lines = read_lines(path.clone()).await;
-    let first_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[0]).expect_value("first line decodes");
-    let second_entry: NdjsonJournalEntry =
-        serde_json::from_str(&lines[1]).expect_value("second line decodes");
+    let entries = lines
+        .iter()
+        .enumerate()
+        .filter_map(|(index, line)| {
+            NdjsonJournalRecord::parse(line, index + 1)
+                .expect_value("journal record decodes")
+                .entry()
+        })
+        .collect::<Vec<_>>();
+    let first_entry = &entries[0];
+    let second_entry = &entries[1];
 
-    assert_eq!(lines.len(), 2);
+    assert_eq!(entries.len(), 2);
     assert_eq!(first_append.sequence, 1);
     assert_eq!(second_append.sequence, 2);
+    assert_eq!(first_append.hash_version, JournalHashVersion::V3);
+    assert_eq!(
+        first_append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(first_append.is_synchronized());
+    let mut forged_synchronization = first_append.clone();
+    forged_synchronization.synchronization_hash = None;
+    assert!(
+        !forged_synchronization.is_synchronized(),
+        "a V3 receipt cannot claim synchronized durability without its authenticated completion marker"
+    );
+    let mut mismatched_synchronization = first_append.clone();
+    mismatched_synchronization.synchronization_hash = first_append.current_hash.clone();
+    assert!(
+        !mismatched_synchronization.is_synchronized(),
+        "a V3 receipt cannot substitute its buffered entry hash for the authenticated completion marker"
+    );
+    assert_eq!(
+        first_entry.append.durability,
+        JournalAppendDurability::Buffered,
+        "the immutable data line cannot claim sync before it happened"
+    );
+    assert_eq!(
+        first_entry.append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(
+        first_entry.append.synchronization_hash.is_none(),
+        "the immutable pre-sync line must not contain a post-sync completion marker"
+    );
+    assert!(
+        !first_entry.append.is_synchronized(),
+        "the persisted buffered line remains ineligible as a durable receipt"
+    );
     assert!(first_append.previous_hash.is_none());
     assert_eq!(first_entry.append.current_hash, first_append.current_hash);
     assert_eq!(second_append.previous_hash, first_append.current_hash);
@@ -47,6 +96,57 @@ async fn ndjson_journal_appends_one_object_per_line_with_hash_chain() {
         first_entry.envelope.contract.schema_version,
         first.contract.schema_version
     );
+    cleanup(path).await;
+}
+
+#[tokio::test]
+async fn production_file_journal_synchronizes_a_bare_relative_path() {
+    let path = JournalPath(std::path::PathBuf::from(format!(
+        "ocentra-production-bare-relative-{}.journal",
+        EventId::generated().as_str()
+    )));
+    let journal = ProductionFileEventJournal::new(&path.0);
+    let event = stored_event(test_event(TestText("bare relative journal".to_owned())));
+
+    let append = journal
+        .append(&event)
+        .await
+        .expect_value("bare relative production journal append synchronizes");
+
+    assert!(append.is_synchronized());
+    assert_eq!(read_lines(path.clone()).await.len(), 1);
+    let mut lock_path = path.0.as_os_str().to_os_string();
+    lock_path.push(".append.lock");
+    cleanup(path).await;
+    let _cleanup_lock = tokio::fs::remove_file(std::path::PathBuf::from(lock_path)).await;
+}
+
+#[tokio::test]
+async fn production_file_journal_retains_authenticated_tail_between_appends() {
+    let path = journal_path(TestText("production-retained-tail".to_owned()));
+    let journal = ProductionFileEventJournal::new(&path.0);
+    let first = stored_event(test_event(TestText("production first".to_owned())));
+    let second = stored_event(test_event(TestText("production second".to_owned())));
+    let third = stored_event(test_event(TestText("production third".to_owned())));
+
+    let first_append = journal
+        .append(&first)
+        .await
+        .expect_value("first production append");
+    let second_append = journal
+        .append(&second)
+        .await
+        .expect_value("second production append");
+    let third_append = journal
+        .append(&third)
+        .await
+        .expect_value("third production append");
+
+    assert_eq!(first_append.sequence, 1);
+    assert_eq!(second_append.sequence, 2);
+    assert_eq!(third_append.sequence, 3);
+    assert_eq!(journal.recovery_count_for_debug(), 1);
+    assert_eq!(read_lines(path.clone()).await.len(), 3);
     cleanup(path).await;
 }
 
@@ -96,7 +196,15 @@ async fn ndjson_idempotent_append_survives_reopen_without_duplicate_lines() {
         .expect_value("repeated idempotent append");
     let lines = read_lines(path.clone()).await;
 
-    assert_eq!(repeated, first);
+    assert_eq!(repeated.sequence, first.sequence);
+    assert_eq!(repeated.current_hash, first.current_hash);
+    assert_eq!(repeated.durability, JournalAppendDurability::Synchronized);
+    assert_eq!(
+        repeated.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(repeated.is_synchronized());
+    assert!(repeated.has_verified_synchronization_proof());
     assert_eq!(lines.len(), 1);
     cleanup(path).await;
 }
@@ -229,7 +337,27 @@ async fn first_creation_directory_sync_failure_prevents_append_acknowledgement()
         .await
         .expect_value("retry syncs directory before acknowledgement");
     assert_eq!(append.sequence, 1);
+    assert_eq!(append.durability, JournalAppendDurability::Synchronized);
+    assert_eq!(
+        append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(append.is_synchronized());
+    assert!(append.has_verified_synchronization_proof());
     assert_eq!(read_lines(path.clone()).await.len(), 1);
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let recovered = restarted
+        .append_idempotent(&event)
+        .await
+        .expect_value("restart reports only persisted achieved durability");
+    assert_eq!(recovered.sequence, 1);
+    assert_eq!(recovered.durability, JournalAppendDurability::Synchronized);
+    assert_eq!(
+        recovered.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(recovered.is_synchronized());
+    assert!(recovered.has_verified_synchronization_proof());
     cleanup_idempotent_journal(path).await;
 }
 
@@ -259,11 +387,103 @@ async fn ordinary_append_refreshes_state_after_a_failed_durable_sync() {
         .collect::<Vec<_>>();
     assert_eq!(entries.len(), 2);
     assert_eq!(entries[0].append.sequence, 1);
+    assert_eq!(entries[0].append.hash_version, JournalHashVersion::V3);
+    assert_eq!(
+        entries[0].append.durability,
+        JournalAppendDurability::Buffered
+    );
+    assert_eq!(
+        entries[0].append.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
     assert_eq!(entries[1].append.sequence, 2);
     assert_eq!(
         entries[1].append.previous_hash,
         entries[0].append.current_hash
     );
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
+async fn replay_excludes_a_v3_entry_when_sync_fails_before_completion_marker() {
+    use ocentra_eventing::replay::ReplayFilter;
+
+    let path = journal_path(TestText("failed-sync-no-replay".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal.inject_next_sync_failure_for_debug();
+    let event = unique_stored_event("failed sync cannot replay", 58);
+    assert!(matches!(
+        journal.append(&event).await,
+        Err(EventingError::JournalIo { .. })
+    ));
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let replay = restarted
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("replay reads incomplete durable record");
+    assert!(
+        replay.records.is_empty(),
+        "a V3 record without a verified completion marker is not replayable"
+    );
+    cleanup_idempotent_journal(path).await;
+}
+
+#[tokio::test]
+async fn restart_replay_excludes_a_v3_entry_when_completion_marker_sync_fails() {
+    use ocentra_eventing::replay::ReplayFilter;
+
+    let path = journal_path(TestText("failed-completion-sync-no-replay".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal.inject_next_synchronization_completion_sync_failure_for_debug();
+    let event = unique_stored_event("failed completion sync cannot replay", 59);
+
+    assert!(matches!(
+        journal.append(&event).await,
+        Err(EventingError::JournalIo { .. })
+    ));
+    let raw_records = tokio::fs::read_to_string(&path.0)
+        .await
+        .expect_value("failed completion sync journal reads");
+    assert_eq!(raw_records.lines().count(), 2);
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let replay = restarted
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("restart replay reads rolled-back completion record");
+
+    assert!(replay.records.is_empty());
+    assert_eq!(replay.skipped_count, 1);
+    cleanup_idempotent_journal(path).await;
+
+    let path = journal_path(TestText("hashless-default-v3-no-replay".to_owned()));
+    let event = unique_stored_event("hashless default V3 cannot replay", 60);
+    let entry = NdjsonJournalEntry {
+        append: JournalAppend {
+            sequence: 1,
+            previous_hash: None,
+            current_hash: None,
+            hash_version: JournalHashVersion::V3,
+            durability: JournalAppendDurability::Buffered,
+            requested_durability: JournalAppendDurability::Synchronized,
+            synchronization_hash: None,
+        },
+        phase: JournalDispatchPhase::AfterDispatch,
+        envelope: event,
+    };
+    let line = serde_json::to_string(&NdjsonJournalRecord::Entry(Box::new(entry)))
+        .expect_value("hashless V3 record encodes");
+    tokio::fs::write(&path.0, format!("{line}\n"))
+        .await
+        .expect_value("hashless V3 journal writes");
+
+    let restarted = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    let replay = restarted
+        .replay_projection(ReplayFilter::all())
+        .await
+        .expect_value("restart replay reads hashless V3 record");
+
+    assert!(replay.records.is_empty());
+    assert_eq!(replay.skipped_count, 1);
     cleanup_idempotent_journal(path).await;
 }
 
@@ -346,7 +566,15 @@ async fn alternating_idempotent_journal_instances_refresh_the_hash_chain_tail() 
         .append_idempotent(&third)
         .await
         .expect_value("chain recovers after alternating instances");
-    assert_eq!(repeated, third_append);
+    assert_eq!(repeated.sequence, third_append.sequence);
+    assert_eq!(repeated.current_hash, third_append.current_hash);
+    assert_eq!(repeated.durability, JournalAppendDurability::Synchronized);
+    assert_eq!(
+        repeated.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(repeated.is_synchronized());
+    assert!(repeated.has_verified_synchronization_proof());
     assert_eq!(read_lines(path.clone()).await.len(), 3);
     cleanup_idempotent_journal(path).await;
 }
@@ -372,7 +600,15 @@ async fn idempotent_retry_finds_after_dispatch_past_the_before_dispatch_copy() {
         .await
         .expect_value("idempotent retry finds after-dispatch copy");
 
-    assert_eq!(repeated, after);
+    assert_eq!(repeated.sequence, after.sequence);
+    assert_eq!(repeated.current_hash, after.current_hash);
+    assert_eq!(repeated.durability, JournalAppendDurability::Synchronized);
+    assert_eq!(
+        repeated.requested_durability,
+        JournalAppendDurability::Synchronized
+    );
+    assert!(repeated.is_synchronized());
+    assert!(repeated.has_verified_synchronization_proof());
     assert_eq!(read_lines(path.clone()).await.len(), 2);
     cleanup_idempotent_journal(path).await;
 }
@@ -552,16 +788,37 @@ async fn live_journal_rejects_same_length_hash_chain_tampering_before_append() {
     cleanup(path).await;
 }
 
-async fn cleanup_idempotent_journal(path: JournalPath) {
-    let lock_path = append_lock_path(&path);
-    cleanup(path).await;
-    let _cleanup_lock = tokio::fs::remove_file(lock_path).await;
-}
+#[tokio::test]
+async fn hash_chain_rejects_tampered_append_durability() {
+    let path = journal_path(TestText("durability-hash-chain-tamper".to_owned()));
+    let journal = NdjsonEventJournal::with_options(&path, NdjsonJournalOptions::hash_chain());
+    journal
+        .append(&unique_stored_event("durable event", 56))
+        .await
+        .expect_value("synchronized append");
+    let original = tokio::fs::read_to_string(&path.0)
+        .await
+        .expect_value("journal reads");
+    let tampered = original.replace(
+        "\"requested_durability\":\"Synchronized\"",
+        "\"requested_durability\":\"Buffered\"",
+    );
+    assert_ne!(
+        tampered, original,
+        "fixture must alter the authenticated durability claim"
+    );
+    tokio::fs::write(&path.0, tampered)
+        .await
+        .expect_value("durability tamper writes");
 
-fn append_lock_path(path: &JournalPath) -> std::path::PathBuf {
-    let mut lock_path = path.0.as_os_str().to_os_string();
-    lock_path.push(".append.lock");
-    std::path::PathBuf::from(lock_path)
+    let result = journal
+        .append(&unique_stored_event("after durability tamper", 57))
+        .await;
+    assert!(matches!(
+        result,
+        Err(EventingError::JournalCorruptLine { line: 1, .. })
+    ));
+    cleanup(path).await;
 }
 
 fn unique_stored_event(

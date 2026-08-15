@@ -11,6 +11,8 @@ mod app_game_source_freshness_policy_consumption;
 mod app_game_timer_service_readiness;
 #[path = "app_risk_detection.rs"]
 mod app_risk_detection;
+#[path = "authenticated_delivery_grant.rs"]
+mod authenticated_delivery_grant;
 #[path = "billing_checkout_portal_boundary.rs"]
 mod billing_checkout_portal_boundary;
 #[path = "billing_checkout_portal_boundary_values.rs"]

@@ -2546,6 +2546,8 @@ dependencies = [
 name = "ocentra-family-identity-core"
 version = "0.1.1"
 dependencies = [
+ "chrono",
+ "ed25519-dalek",
  "getrandom 0.3.4",
  "ocentra-eventing",
  "ocentra-schema",
@@ -2609,6 +2611,7 @@ dependencies = [
  "ocentra-eventing",
  "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
  "ocentra-tracking-core",
  "roxmltree",
  "rusqlite",
@@ -2720,14 +2723,17 @@ dependencies = [
 name = "ocentra-policy-control-core"
 version = "0.1.1"
 dependencies = [
+ "chrono",
  "ed25519-dalek",
  "ocentra-eventing",
  "ocentra-evidence",
  "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
  "serde",
  "serde_json",
  "sha2",
+ "tokio",
 ]
 
 [[package]]
@@ -2759,6 +2765,7 @@ dependencies = [
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]

@@ -17,6 +17,7 @@ fs2 = "0.4.3"
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-network-evidence = { path = "../ocentra-network-evidence" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-schema = { path = "../schema" }
 ocentra-tracking-core = { path = "../tracking-core" }
 rusqlite = { version = "0.39.0", features = ["bundled"] }
 roxmltree = "0.20.0"

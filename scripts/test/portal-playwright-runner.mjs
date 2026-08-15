@@ -65,6 +65,7 @@ const logBridgePort = resolveParentDevPort(
 const parentBridgeUrl = createParentDevBridgeUrl(parentBridgePort);
 const logBridgeUrl = createHttpOrigin(ParentDevHost.Loopback, logBridgePort);
 const portalLogBridgeEnvKey = 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL';
+const activityCaptureStartupDisabledEnv = 'OCENTRA_PARENT_ACTIVITY_CAPTURE_STARTUP_DISABLED';
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
 const loopbackTestEnvironment = createLoopbackOnlyTestEnvironment();
 const managedBrowserStatusEnvironment = {
@@ -200,6 +201,7 @@ function spawnAgent() {
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
       [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
+      [activityCaptureStartupDisabledEnv]: 'true',
     },
     repoRoot
   );

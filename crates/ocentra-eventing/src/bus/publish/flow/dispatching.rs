@@ -1,10 +1,14 @@
 use std::sync::Arc;
 
 use crate::bus::dispatch::{dispatch_concurrent, dispatch_sequential};
+use crate::bus::publish::flow::{
+    receipt::validate_before_dispatch_receipt, BeforeDispatchReceiptValidator,
+};
 use crate::bus::publisher::EventPublisher;
 use crate::bus::reports::dead_letter::{DeadLetter, DeadLetterReason};
 use crate::bus::reports::empty_publish_report;
 use crate::bus::{DispatchMode, EventBus, SubscriberRecord};
+use crate::journal::policy::JournalDispatchPhase;
 use crate::queue::state::NoSubscriberQueueDecision;
 use crate::{EventingError, ExpectValue, PublishReport, QueueDisposition, StoredEventEnvelope};
 
@@ -14,20 +18,26 @@ pub(super) async fn publish_without_subscribers(
     bus: &EventBus,
     stored: StoredEventEnvelope,
     dispatch_mode: DispatchMode,
+    validator: Option<BeforeDispatchReceiptValidator>,
 ) -> Result<PublishReport, EventingError> {
     match bus
         .queue
         .enqueue_no_subscriber(stored.clone(), bus.clock.now())?
     {
         NoSubscriberQueueDecision::Dispatch(queue_report) => {
-            let journal_append = bus
-                .append_journal_phase(&stored, crate::JournalDispatchPhase::BeforeDispatch)
-                .await?;
+            let reservation = bus.queue.reserve_dispatch(&stored)?;
             bus.record_stored_snapshot(&stored).await;
             let mut report = empty_publish_report(&stored, dispatch_mode, queue_report, 0);
-            if let Some(append) = journal_append {
+            let append = bus
+                .append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+                .await?;
+            validate_before_dispatch_receipt(validator, append.as_ref())?;
+            if let Some(append) = append {
                 report.journal_appends.push(append);
             }
+            // No handler observed this event. An AfterDispatch record authorizes
+            // action replay, so it must only exist after an actual dispatch.
+            reservation.complete();
             Ok(report)
         }
         NoSubscriberQueueDecision::Queued(queue_report) => {
