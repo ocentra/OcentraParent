@@ -1822,6 +1822,452 @@
         "scripts/test/screen-ai-household-mesh-proof.mjs"
       ]
     },
+    "WP-screen-plan-01-source-index-and-doc-reconciliation": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-screen-plan-02-current-screen-snapshot-and-gap-map": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-screen-plan-03-contract-boundary-and-effect-schemas": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/src/screen_evidence",
+        "crates/agent-protocol/src/screen_settings.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "crates/agent-protocol/tests/contract/screen_settings_tests.rs",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/schema/tests/contract/parent_screen_settings_command_state.rs"
+      ]
+    },
+    "WP-screen-plan-04-parent-opt-in-settings-contract": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/screen_settings.rs",
+        "crates/agent-protocol/tests/contract/screen_settings_tests.rs",
+        "crates/agent-service/src/screen_settings_api.rs",
+        "crates/agent-service/src/screen_settings_api",
+        "crates/agent-service/src/screen_settings_runtime.rs",
+        "crates/agent-service/src/screen_settings_runtime",
+        "crates/agent-service/src/screen_settings_store.rs",
+        "crates/agent-service/tests/unit/screen_settings.rs",
+        "crates/agent-service/tests/unit/screen_settings_api_tests.rs",
+        "crates/agent-service/tests/unit/screen_settings_runtime_tests.rs",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "apps/portal/src/ScreenSettingsWritableControls.tsx",
+        "apps/portal/src/ScreenSettingsServiceCommandCard.tsx",
+        "apps/portal/src/ScreenSettingsRoutePanel.tsx",
+        "apps/portal/tests/screen/screen-settings-service-command-state.test.ts"
+      ]
+    },
+    "WP-screen-plan-05-capability-status-contract": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/activity_capture.rs",
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "crates/agent-service/src/activity_surface_read_models/screen.rs",
+        "crates/agent-service/tests/unit/screen_ai_service_event_bridge_tests.rs",
+        "apps/portal/src/ScreenOptionalVisibilityCapabilityStatusCard.tsx",
+        "apps/portal/src/ScreenSummaryRoutePanel.tsx",
+        "apps/portal/tests/screen/screen-summary-route-panel.test.ts"
+      ]
+    },
+    "WP-screen-plan-06-capture-scope-model": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/tests/unit/screen_capture.rs",
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "apps/portal/src/ScreenSummaryRoutePanel.tsx",
+        "apps/portal/tests/screen/screen-summary-route-panel.test.ts"
+      ]
+    },
+    "WP-screen-plan-07-capture-trigger-model": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-capture-adapter/src/trigger_scheduler.rs",
+        "crates/screen-capture-adapter/src/trigger_scheduler_labels.rs",
+        "crates/screen-capture-adapter/tests/unit/trigger_scheduler.rs",
+        "crates/agent-service/src/screen_ai_cadence_runtime.rs",
+        "crates/agent-service/src/screen_ai_cadence_runtime",
+        "crates/agent-service/src/screen_ai_foreground_runtime.rs",
+        "crates/agent-service/src/screen_ai_foreground_runtime",
+        "crates/agent-service/tests/unit/screen_ai_cadence_runtime_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_foreground_runtime_tests.rs"
+      ]
+    },
+    "WP-screen-plan-08-platform-adapter-abstraction": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-capture-adapter/src/lib.rs",
+        "crates/screen-capture-adapter/src/desktop_xcap.rs",
+        "crates/screen-capture-adapter/src/desktop_xcap_display.rs",
+        "crates/screen-capture-adapter/src/desktop_xcap_window.rs",
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/tests/unit/screen_capture.rs",
+        "crates/screen-capture-adapter/tests/security/window_title_query.rs",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AndroidMediaProjectionCaptureActivity.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AndroidMediaProjectionCaptureService.java"
+      ]
+    },
+    "WP-screen-plan-09-windows-capture-adapter-plan-proof": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-capture-adapter/src/desktop_xcap.rs",
+        "crates/screen-capture-adapter/src/desktop_xcap_display.rs",
+        "crates/screen-capture-adapter/src/desktop_xcap_window.rs",
+        "crates/screen-capture-adapter/tests/unit/screen_capture.rs",
+        "crates/screen-capture-adapter/tests/security/window_title_query.rs",
+        "crates/agent-service/src/screen_ai_cadence_runtime.rs",
+        "crates/agent-service/src/screen_ai_foreground_runtime.rs",
+        "crates/agent-service/tests/unit/screen_ai_cadence_runtime_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_foreground_runtime_tests.rs"
+      ]
+    },
+    "WP-screen-plan-10-macos-capture-adapter-plan-proof": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-capture-adapter/src/desktop_xcap.rs",
+        "crates/screen-capture-adapter/src/desktop_xcap_display.rs",
+        "crates/screen-capture-adapter/src/desktop_xcap_window.rs",
+        "crates/screen-capture-adapter/tests/unit/screen_capture.rs"
+      ]
+    },
+    "WP-screen-plan-11-linux-capture-adapter-plan-proof": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-capture-adapter/src/linux_x11.rs",
+        "crates/screen-capture-adapter/tests/unit/screen_capture.rs",
+        "crates/screen-capture-adapter/tests/security/window_title_query.rs"
+      ]
+    },
+    "WP-screen-plan-12-android-mediaprojection-adapter-plan-proof": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AndroidMediaProjectionCaptureActivity.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/AndroidMediaProjectionCaptureService.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ChildAndroidScreenCaptureProof.java",
+        "platforms/android/agent/app/src/main/java/ca/ocentra/parent/agent/ScreenCaptureProofStore.java"
+      ]
+    },
+    "WP-screen-plan-13-ios-replaykit-adapter-plan-proof": {
+      "planSlug": "screen-plan",
+      "roots": ["platforms/ios/OcentraParentAgent", "platforms/ios/OcentraParentAgentTests"]
+    },
+    "WP-screen-plan-14-protected-surface-detector": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_intelligence_router",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+        "crates/screen-capture-adapter/tests/security/window_title_query.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/adapter_redaction.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs"
+      ]
+    },
+    "WP-screen-plan-15-encrypted-temporary-image-queue": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "crates/agent-core/src/screen_evidence_queue.rs",
+        "crates/agent-core/src/screen_evidence_queue_leases.rs",
+        "crates/agent-core/src/screen_evidence_queue_outbox.rs",
+        "crates/agent-core/src/screen_evidence_queue_outbox_quarantine.rs",
+        "crates/agent-core/src/screen_evidence_queue_read.rs",
+        "crates/agent-core/src/screen_evidence_queue_record.rs",
+        "crates/agent-core/src/screen_evidence_queue_remove.rs",
+        "crates/agent-core/src/screen_evidence_queue_sweep.rs",
+        "crates/agent-core/tests/unit/screen_evidence_queue_tests.rs"
+      ]
+    },
+    "WP-screen-plan-16-queue-scheduler-and-debouncer": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-capture-adapter/src/trigger_scheduler.rs",
+        "crates/screen-capture-adapter/tests/unit/trigger_scheduler.rs",
+        "crates/agent-service/src/screen_ai_cadence_runtime.rs",
+        "crates/agent-service/src/screen_ai_cadence_runtime",
+        "crates/agent-service/src/screen_ai_analysis_runtime.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/config.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/queue.rs",
+        "crates/agent-service/tests/unit/screen_ai_cadence_runtime_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_tests.rs"
+      ]
+    },
+    "WP-screen-plan-17-local-ocr-vision-runtime-model": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime.rs",
+        "crates/agent-protocol/src/local_ai_runtime",
+        "crates/agent-protocol/tests/unit/local_ai_runtime_tests.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_tests.rs",
+        "crates/screen-ai-core/src/screen_intelligence_router",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic"
+      ]
+    },
+    "WP-screen-plan-18-screen-analysis-result-schema": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/event_record.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/event_record",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_event_record_tests.rs"
+      ]
+    },
+    "WP-screen-plan-19-sensitive-text-and-redaction-model": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/adapter_redaction.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/config.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_event_record_tests.rs",
+        "packages/portal-domain/src/screen-summary-panel.ts",
+        "packages/portal-domain/tests/unit/screen-summary-panel.test.ts",
+        "apps/portal/src/ScreenSummaryRoutePanel.tsx",
+        "apps/portal/tests/screen/screen-summary-route-panel.test.ts"
+      ]
+    },
+    "WP-screen-plan-20-result-validator-and-invalid-output-handling": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-service/src/screen_ai_analysis_runtime/adapter_parsing.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/event_record.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_event_record_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_tests.rs"
+      ]
+    },
+    "WP-screen-plan-21-journal-and-sqlite-ingest": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-core/src/activity_store_screen_evidence.rs",
+        "crates/agent-core/src/activity_store_screen_evidence",
+        "crates/agent-core/src/screen_event_runtime.rs",
+        "crates/agent-core/src/screen_event_runtime_input.rs",
+        "crates/agent-core/tests/unit/activity_store_screen_evidence_tests.rs",
+        "crates/agent-core/tests/unit/screen_event_runtime_tests.rs",
+        "crates/agent-service/src/screen_ai_service_event_bridge.rs",
+        "crates/agent-service/src/screen_ai_service_event_subscription.rs",
+        "crates/agent-service/tests/unit/screen_ai_service_event_bridge_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_service_event_subscription_tests.rs"
+      ]
+    },
+    "WP-screen-plan-22-deletion-and-retention-proof": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-core/src/screen_evidence_queue_remove.rs",
+        "crates/agent-core/src/screen_evidence_queue_sweep.rs",
+        "crates/agent-core/src/screen_evidence_queue_outbox.rs",
+        "crates/agent-core/src/screen_evidence_queue_outbox_quarantine.rs",
+        "crates/agent-core/tests/unit/screen_evidence_queue_tests.rs",
+        "crates/agent-service/src/screen_ai_retention_sweeper_runtime.rs",
+        "crates/agent-service/src/screen_ai_retention_sweeper_runtime",
+        "crates/agent-service/src/screen_ai_retention_sweeper_deletion_events.rs",
+        "crates/agent-service/src/screen_ai_retention_sweeper_deletion_events",
+        "crates/agent-service/src/screen_ai_retention_sweeper_failure_events.rs",
+        "crates/agent-service/tests/unit/screen_ai_retention_sweeper_runtime_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_retention_sweeper_deletion_events_tests.rs",
+        "crates/agent-core/src/activity_store_screen_evidence.rs",
+        "crates/agent-core/tests/unit/activity_store_screen_evidence_tests.rs",
+        "apps/portal/src/ScreenSummaryRoutePanel.tsx",
+        "apps/portal/tests/screen/screen-summary-route-panel.test.ts"
+      ]
+    },
+    "WP-screen-plan-23-policy-compiler-for-screen-derived-evidence": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_ai_enforcement_handoff_guard.rs",
+        "crates/screen-ai-core/tests/contract/screen_ai_enforcement_handoff_guard_contract.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/screen_ai.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/event_record/policy_refs.rs",
+        "crates/agent-service/tests/unit/screen_ai_policy_refs.rs"
+      ]
+    },
+    "WP-screen-plan-24-enforcement-handoff-guard": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_ai_enforcement_handoff_guard.rs",
+        "crates/screen-ai-core/tests/contract/screen_ai_enforcement_handoff_guard_contract.rs",
+        "crates/agent-core/src/screen_event_runtime_state_action.rs",
+        "crates/agent-core/src/screen_event_runtime_state_policy.rs",
+        "crates/agent-core/tests/unit/screen_event_runtime_tests.rs"
+      ]
+    },
+    "WP-screen-plan-25-parent-portal-summary-ui": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/schema/src/parent_ui_screen_bridge_typescript.template.txt",
+        "crates/agent-service/src/activity_surface_read_models/screen.rs",
+        "crates/agent-service/tests/unit/screen_ai_service_event_subscription_tests.rs",
+        "packages/portal-domain/src/screen-summary-panel.ts",
+        "packages/portal-domain/tests/unit/screen-summary-panel.test.ts",
+        "apps/portal/src/ScreenSummaryRoutePanel.tsx",
+        "apps/portal/src/ScreenSettingsRoutePanel.tsx",
+        "apps/portal/tests/screen/screen-summary-route-panel.test.ts",
+        "apps/portal/tests/e2e/screen-summary-ui-proof.spec.ts"
+      ]
+    },
+    "WP-screen-plan-26-child-disclosure-ux": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "apps/portal/src/ScreenChildDisclosureRoutePanel.tsx",
+        "apps/portal/tests/screen/screen-child-disclosure.test.ts"
+      ]
+    },
+    "WP-screen-plan-27-screenshot-retention-optional-mode": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/agent-protocol/src/screen_settings.rs",
+        "crates/agent-service/src/screen_settings_runtime.rs",
+        "crates/agent-service/src/screen_settings_runtime",
+        "crates/agent-service/tests/unit/screen_settings_runtime_tests.rs",
+        "apps/portal/src/ScreenSettingsWritableControls.tsx",
+        "apps/portal/src/ScreenOptionalVisibilityCapabilityStatusCard.tsx",
+        "apps/portal/tests/screen/screen-settings-service-command-state.test.ts"
+      ]
+    },
+    "WP-screen-plan-28-live-view-optional-mode": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-live-view-core/src/live_view_runtime.rs",
+        "crates/screen-live-view-core/src/live_view_worker.rs",
+        "crates/screen-live-view-core/tests/unit/live_view_runtime.rs",
+        "crates/screen-live-view-core/tests/security/live_view_worker.rs",
+        "crates/agent-service/src/screen_ai_service_event_subscription/live_view_service_runtime.rs",
+        "crates/agent-service/src/screen_ai_service_event_subscription/live_view_service_runtime",
+        "crates/agent-service/tests/unit/live_view_service_runtime_tests.rs",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "apps/portal/src/ScreenOptionalVisibilityCapabilityStatusCard.tsx"
+      ]
+    },
+    "WP-screen-plan-29-proof-tiers-and-proof-packs": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-screen-plan-30-test-suite-playwright-rollout-pr-gate": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "tests-only",
+      "roots": ["scripts/test/screen-plan-closure-audit.mjs", "scripts/test/screen-plan-external-gates-proof.mjs"]
+    },
+    "WP-screen-plan-31-screen-intelligence-router": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_intelligence_router",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+        "crates/screen-ai-core/tests/contract/generated_bridge_contracts.rs"
+      ]
+    },
+    "WP-screen-plan-32-browser-structured-extraction-before-screenshot": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_intelligence_router",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs"
+      ]
+    },
+    "WP-screen-plan-33-managed-browser-cdp-screenshot-capture-path": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "scripts/test/screen-managed-browser-cdp-capture-proof.mjs",
+        "packages/activity-domain/tests/screen-managed-browser-cdp-capture.test.ts"
+      ]
+    },
+    "WP-screen-plan-34-ocr-tesseract-baseline": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "tests-only",
+      "roots": ["scripts/test/screen-ocr-tesseract-baseline-proof.mjs"]
+    },
+    "WP-screen-plan-35-ocr-paddleocr-ppocr-evaluation": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "tests-only",
+      "roots": ["scripts/test/screen-ocr-paddleocr-evaluation-proof.mjs"]
+    },
+    "WP-screen-plan-36-small-vlm-guided-classifier-evaluation": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_ai_pipeline",
+        "crates/screen-ai-core/src/screen_ai_pipeline_logic.rs",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+        "crates/agent-protocol/src/local_ai_runtime.rs",
+        "crates/agent-protocol/src/local_ai_runtime",
+        "crates/agent-service/src/screen_ai_analysis_runtime.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
+        "scripts/test/screen-vlm-guided-classifier-readiness-proof.mjs"
+      ]
+    },
+    "WP-screen-plan-37-family-ai-hub-screen-analysis-queue": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_family_ai_hub_routing.rs",
+        "crates/screen-ai-core/src/screen_family_ai_hub_routing_logic",
+        "crates/agent-protocol/src/screen_evidence/screen_household_mesh_input.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime_impl.rs",
+        "crates/agent-core/tests/unit/screen_household_mesh_runtime_tests.rs"
+      ]
+    },
+    "WP-screen-plan-38-local-ai-resource-scheduler-priority-queue": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime/scheduler.rs",
+        "crates/agent-protocol/tests/unit/local_ai_provider_scheduler_tests.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler_queue.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler_state.rs",
+        "crates/agent-service/tests/unit/local_ai_provider_scheduler_tests.rs"
+      ]
+    },
+    "WP-screen-plan-39-redacted-summary-only-remote-boundary": {
+      "planSlug": "screen-plan",
+      "roots": [
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/src/screen_evidence/screen_household_mesh_input.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime.rs",
+        "crates/agent-core/tests/unit/screen_household_mesh_runtime_tests.rs",
+        "crates/screen-live-view-core/src/live_view_runtime.rs",
+        "crates/screen-live-view-core/tests/unit/live_view_runtime.rs",
+        "crates/schema/src/remote_capability_fabric.rs"
+      ]
+    },
+    "WP-screen-plan-40-detector-prompt-packs-and-schema-tests": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "tests-only",
+      "roots": ["scripts/test/screen-detector-prompt-pack-proof.mjs"]
+    },
+    "WP-screen-plan-screen-control-settings-inventory": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-screen-plan-screen-evidence-analysis-capability-guide": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-screen-plan-screen-evidence-analysis-schema-proposal": {
+      "planSlug": "screen-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
     "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants": {
       "planSlug": "tracking-plan",
       "roots": [
