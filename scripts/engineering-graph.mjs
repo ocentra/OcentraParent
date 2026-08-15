@@ -175,6 +175,15 @@ async function run(command, args) {
         `${plan.planId} [${plan.state}] implementation=${plan.implementationFiles} tests=${plan.testFiles} roots=${plan.roots.length}${missing}`
       );
     }
+    console.log('\nReviewed workpack code/test expectations:');
+    for (const workpack of inventory.workpacks) {
+      const missing = workpack.missingRoots.length ? ` missing=${workpack.missingRoots.join(',')}` : '';
+      console.log(
+        `${workpack.workpackId} [${workpack.state}] expectation=${workpack.codeExpectation} ` +
+          `satisfied=${workpack.codeExpectationSatisfied} implementation=${workpack.implementationFiles} ` +
+          `tests=${workpack.testFiles} roots=${workpack.roots.length}${missing}`
+      );
+    }
     console.log('\nCounts are live file topology only; they do not claim acceptance, proof, CI, or merge.');
     return;
   }
@@ -216,7 +225,9 @@ async function run(command, args) {
         const topology =
           typeof workpack.codeTestTopology === 'string'
             ? workpack.codeTestTopology
-            : `${workpack.codeTestTopology.state} ${workpack.codeTestTopology.implementationFiles}/${workpack.codeTestTopology.testFiles}`;
+            : `${workpack.codeTestTopology.state} ${workpack.codeTestTopology.implementationFiles}/${workpack.codeTestTopology.testFiles} ` +
+              `expected=${workpack.codeTestTopology.codeExpectation} ` +
+              `satisfied=${workpack.codeTestTopology.codeExpectationSatisfied}`;
         console.log(`  - ${workpack.id} [${workpack.state}] code=${topology}${gaps}`);
       }
       if (exceptions.length > 8) console.log(`  - ... ${exceptions.length - 8} more non-planned rows`);
@@ -267,7 +278,8 @@ async function run(command, args) {
       const topology =
         row.implementationFiles === null
           ? row.codeState
-          : `${row.codeState} ${row.implementationFiles}/${row.testFiles}`;
+          : `${row.codeState} ${row.implementationFiles}/${row.testFiles} ` +
+            `expected=${row.codeExpectation} satisfied=${row.codeExpectationSatisfied}`;
       const blockerText = row.blockers.map((blocker) => `${blocker.id}[${blocker.state}]`).join(',') || '-';
       console.log(
         `${row.planId} | ${row.workpackId} | ${row.state} | ${topology} | ${row.completionGapCount} | ` +
@@ -339,6 +351,8 @@ async function run(command, args) {
         const topology = inventory.workpacks.find((entry) => entry.workpackId === node.id);
         if (topology) {
           console.log(`Code/test topology: ${topology.state}`);
+          console.log(`  Expected topology: ${topology.codeExpectation}`);
+          console.log(`  Expectation satisfied: ${topology.codeExpectationSatisfied}`);
           console.log(`  Implementation files: ${topology.implementationFiles}`);
           console.log(`  Test files: ${topology.testFiles}`);
           console.log(`  Roots: ${topology.roots.join(', ')}`);

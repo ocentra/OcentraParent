@@ -4,7 +4,8 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Last broad source inventory: 2026-08-15, on `main` at `608ef84fb`. The dated
+Last broad source inventory: 2026-08-15, on the merged `main` organization
+baseline at `82123c16c`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -28,8 +29,10 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,911
-implementation files and 1,213 test files, but only **12 of 679 workpacks**
-(1.77%) have reviewed, exact code/test ownership maps. An unmapped workpack is
+implementation files and 1,213 test files, but only **23 of 679 workpacks**
+(3.39%) have reviewed, exact code/test ownership maps. All 13 Eventing
+workpacks are now reviewed, while 656 workpacks across the repository remain
+unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
 `npm run graph:matrix -- --json` is the complete 679-row table; the reviewed
@@ -47,7 +50,7 @@ strong enough for workpack-level decisions.
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 0 / 13 | Unattributed; source presence is not deployment/runtime completion. |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 1 / 9 | Partial; WP07 lifecycle boundary is mapped, aggregate closure is not. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
-| Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 2 / 13 | Partial; WP04 and WP06 are mapped, and only WP06 is graph-done. |
+| Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 693 / 470 | 0 / 10 | Unattributed at workpack level despite current crate tests and CI. |
 | Network | 8 | 7/0/0/0/1/0 | 942 / 520 | 1 / 8 | Partial; WP08 reference routing is mapped. |
@@ -67,6 +70,35 @@ map each workpack to exact implementation and test roots, classify code/test
 gaps, then rebuild the graph. Only after a plan's Phase 1 map is complete may
 its focused tests and Enforcer checks be used for Phase 2 scheduling. Proof is
 the later acceptance phase, not a substitute for missing code or tests.
+
+### Eventing plan Phase 1 code/test audit - 2026-08-15
+
+This is a source-and-test inspection, not a transcription of workpack status.
+`code expectation satisfied` means only that the reviewed expected topology is
+present; the Phase 1 column below additionally checks whether the workpack's
+named behavior and negative tests are actually represented. Tests are not
+claimed passing here unless a current run is explicitly named.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Source Boundary And Semantics Audit | Expected topology is `no-code-required`; the workpack is a decision and boundary audit. | **Complete for Phase 1** | No implementation is authorized by this workpack. Graph acceptance/proof remains a later gate. |
+| WP02 Crate Contract And Type Boundary | 4 implementation and 5 test files cover branded IDs, live/stored envelopes, registry conflicts, serde, and version skew. | **Incomplete** | The plan-named public surface still lacks `SubscriberName`, `HandlerName`, and a production `JournalPath`; no property/fuzz family was found. |
+| WP03 Dispatch Runtime And Lifecycle | 5 implementation and 4 test files cover aggregate ordering, cross-aggregate concurrency, nested/detached publish, panic isolation, retry, timeout, trace, and lifecycle disposal. | **Incomplete** | No exact multi-handler registration-order test, true parallel-handler timing/aggregation test, or explicit no-lock-held-await regression was found. |
+| WP04 Queue, Idempotency, Dead Letter | 12 implementation and 2 test files cover overflow, TTL, duplicates, rollback, drain preservation, and journal failure. | **Incomplete** | The named retry-storm/DoS guard test is absent. |
+| WP05 Request/Response Contracts | 4 implementation and 3 test files cover typed resolution, invalid/late/double response, timeout, abort, release, and durable result separation. | **Incomplete** | No compile-fail/static negative proves event payloads cannot carry deferred, socket, task, or completion handles. |
+| WP06 Journal Replay And Lineage | 27 implementation and 16 test files cover NDJSON/hash-chain durability, replay, idempotent recovery, topology, compatibility, and the enforcement audit handoff. | **Complete for Phase 1** | No code/test-writing gap found. Current focused rerun and Enforcer belong to Phase 2; retained acceptance is already graph-done. |
+| WP07 Parent Protocol Event Contracts | 8 implementation and 6 test files cover selected parent, child, network, enforcement, and household event contracts. | **Incomplete** | Several chain payloads are typed serde structs but not reusable `DomainEvent`s; no comprehensive namespace registry, publisher-authority negative, or cross-family version-skew suite exists. |
+| WP08 Parent Runtime Integration | 7 implementation and 5 test files cover selected tracking, policy, child-domain, and enforcement-journal flows. | **Incomplete** | No generic validated parent-controller intent route, portal-cannot-publish static negative, or one adapter-result-to-audit-to-read-model integration chain was found. |
+| WP09 Network Consumer Event Chain | 3 implementation and 2 test files cover observation/runtime event contracts and serialized downstream references. | **Incomplete** | The full classification/AI/policy/enforcement/audit/portal chain is not publishable through reusable Eventing; weak-evidence and AI-cannot-enforce negatives are absent. |
+| WP10 LAN Household Mesh Consumer | 2 implementation and 1 test file define transport/event types, fixtures, roundtrip, enum-wire, and a happy-path local-republish assertion. | **Incomplete** | There is no production import validator/republisher and no tests for unauthenticated/unauthorized, direct remote publish, replay/idempotency, stale, family/target mismatch, or provider policy/enforcement rejection. |
+| WP11 Type Safety And Ownership Hardening | 4 implementation and 4 test files cover live/stored types, associated responses, Rust fixture parsing, and the naked-domain-string guard. | **Incomplete** | The shared fixture has a Rust consumer but no TypeScript consumer was found; explicit payload-mutation and no-lock-held-await audit tests are not retained as test code. |
+| WP12 Rollout Proof And PR Gate | Expected topology is `tests-only`, but `scripts/test/eventing-rollout-proof.mjs` is missing. | **Incomplete** | All five named rollout reconciliation/negative checks lack their declared runner. Proof generation is Phase 3, but the expected test code itself is absent in Phase 1. |
+| WP13 Test Folder Layout Regression Audit | Expected topology is `tests-only`; 38 external test files exist under `crates/ocentra-eventing/tests`, and no `src/` test module/entrypoint was found. | **Complete for Phase 1** | The focused Cargo/architecture rerun and fresh generated proof are Phase 2/3 work, not a missing-test-code gap. |
+
+**Eventing Phase 1 result:** 13/13 workpacks inspected and mapped; 3/13
+complete for code/test-writing scope, 10/13 still need code or expected tests.
+The graph remains 1 planned, 11 validation, and 1 done because code topology
+does not override checklist, proof, dependency, or acceptance state.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
