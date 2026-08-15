@@ -124,6 +124,21 @@ code-and-expected-test-writing phase. WP01-WP03 and WP05-WP08 remain incomplete
 with concrete gaps recorded above. No Phase 2 passing-test or Phase 3 proof
 claim is inferred from this ownership audit.
 
+### Policy Control Plane Phase 1 code/test audit - 2026-08-15
+
+This table records reviewed implementation and expected test code. It does not
+promote a workpack from plan/checklist state or infer current passing tests and
+proof. The plan is being audited in dependency order and will use one plan PR
+after all eight workpacks are classified.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Policy Source Of Truth | Rust protocol/source modules, the generated-edge TypeScript policy contracts, one unit test file, and two version-skew test files define the complete 14-state lifecycle vocabulary, household/actor authority, versioned rules and schedules, custody metadata, compiled/enforcement/audit/rollback artifacts, duplicate/stale rejection, delivery-before-active, supersede/rollback, migration boundaries, and source-not-cache/UI/AI negatives. | **Incomplete** | `register_parent_policy_source_document*` has no production caller outside tests and there is no durable/query owner that makes the document the canonical household source or rejects wrong-household reads. The required `PolicyTemplate` entity is absent. The TypeScript `FamilyPolicySet` edge also has no direct TypeScript contract test. |
+
+**Policy Control Plane Phase 1 progress:** WP01 is inspected and mapped; 1/8
+workpacks classified, 0/8 complete for code/test-writing scope. WP02-WP08 still
+require live code/test inspection before any plan-wide result or PR.
+
 ## Consolidated branch code/test inventory - 2026-08-09
 
 This is the recorded **source and test-topology** pass from 2026-08-09 on the

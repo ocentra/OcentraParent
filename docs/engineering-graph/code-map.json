@@ -127,6 +127,19 @@
         "crates/schema/tests/contract/tracking_event_contracts.rs"
       ]
     },
+    "WP-policy-control-plane-plan-01-policy-source-of-truth": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/agent-protocol/src/policy_preview.rs",
+        "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_source",
+        "crates/policy-control-core/tests/unit/policy_source.rs",
+        "crates/policy-control-core/tests/version-skew/policy_source.rs",
+        "crates/policy-control-core/tests/version-skew/policy_source_migration.rs",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts"
+      ]
+    },
     "WP-policy-control-plane-plan-04-delivery-ack-audit": {
       "planSlug": "policy-control-plane-plan",
       "roots": [
