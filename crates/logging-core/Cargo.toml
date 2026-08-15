@@ -44,3 +44,8 @@ path = "tests/parent_log_runtime/mod.rs"
 [[test]]
 name = "stack_trace_runtime"
 path = "tests/stack_trace_runtime/mod.rs"
+
+[[test]]
+name = "ndjson_operation_compaction_cache"
+path = "tests/ndjson_operation_compaction_cache.rs"
+required-features = ["test-support"]

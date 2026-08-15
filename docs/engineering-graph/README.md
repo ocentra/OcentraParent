@@ -15,9 +15,10 @@ does not replace those artifacts or duplicate their detailed intent.
 - `AGENTS.md` and the routed agent documents own execution behavior and safety.
 - The user remains the authority for unresolved product or scope decisions.
 - `code-map.json` owns reviewed plan-to-runtime ownership roots. It may also
-  contain explicit `workpacks` entries for slices whose exact implementation
-  and test files have been reviewed. `graph:code` and `graph:report` scan those
-  roots live; file counts never promote a plan or workpack to accepted.
+  contain explicit `workpacks` entries for slices whose expected code/test
+  shape and exact roots have been reviewed. `graph:code` and `graph:report`
+  scan those roots live; file counts and expectation matches never promote a
+  plan or workpack to accepted.
 
 ## Commands
 
@@ -58,6 +59,16 @@ which reviewed runtime roots exist, how many implementation files are present,
 and how many test files are present. It is intentionally a topology audit, not
 a test runner or a completion certificate; focused test results, proof, CI,
 checklists, and merge state remain separate gates.
+
+Each reviewed workpack entry may declare `codeExpectation` as
+`code-and-tests`, `tests-only`, or `no-code-required`. The default is
+`code-and-tests`. A `no-code-required` entry must still be reviewed against the
+workpack contract, but may use an empty `roots` array; this is how planning,
+boundary-decision, and routing-only workpacks stop appearing as unknown code
+ownership. `tests-only` requires at least one reviewed root and is satisfied
+only when those roots contain tests and no implementation files. The report
+always includes both the expected and observed topology so a mismatch remains
+visible.
 
 `graph:report` is the canonical “where are we?” query. It joins every selected
 plan's derived workpack states/counts and completion-contract path gaps with its
@@ -140,9 +151,11 @@ row from silently becoming a completion claim.
 2. Keep detailed scope, expected tests, proof, and ADR requirements in the
    existing routed documents.
 3. Add only reviewed hard dependencies to `overrides.json` with evidence.
-4. If exact code/test ownership is known, add a `code-map.json.workpacks`
-   entry with the workpack ID and reviewed file/directory roots. Leave it
-   unmapped when ownership is uncertain.
+4. If the expected code/test shape is known, add a
+   `code-map.json.workpacks` entry with the workpack ID, `codeExpectation`, and
+   reviewed file/directory roots. Use `no-code-required` with empty roots only
+   after the workpack contract is reviewed. Leave it unmapped when ownership or
+   expected topology is uncertain.
 5. Run `npm run graph:bootstrap -- --write` and `npm run graph:validate`.
 6. Query `graph:inspect <workpack-id>` before assigning the workpack.
 
