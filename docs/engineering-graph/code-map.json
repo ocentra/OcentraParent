@@ -6272,22 +6272,14 @@
     "WP-app-game-plan-51-policy-evaluator-runtime-breadth": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/app-game-core/src/app_game_policy_target_compiler.rs",
-        "crates/app-game-core/src/app_game_policy_preview_handoff.rs",
-        "crates/app-game-core/src/app_game_source_freshness_preview_gate.rs",
-        "crates/app-game-core/src/app_game_source_gated_policy_preview.rs",
-        "crates/app-game-core/tests/contract/app_game_policy_target_compiler.rs",
-        "crates/app-game-core/tests/contract/app_game_policy_preview_handoff.rs",
-        "crates/app-game-core/tests/contract/app_game_source_freshness_preview_gate.rs",
-        "crates/app-game-core/tests/contract/app_game_source_gated_policy_preview.rs",
-        "crates/agent-protocol/src/app_game_policy_readiness.rs",
-        "crates/agent-protocol/tests/contract/app_game_policy_readiness_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_policy_readiness_sources",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
-        "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"
+        "crates/app-game-core/src/lib.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_budget.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_decision.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_preflight.rs",
+        "crates/app-game-core/src/app_game_policy_evaluator_runtime_types.rs",
+        "crates/app-game-core/tests/contract/mod.rs",
+        "crates/app-game-core/tests/contract/app_game_policy_evaluator_runtime.rs"
       ]
     },
     "WP-app-game-plan-52-policy-readiness-service-read-model": {

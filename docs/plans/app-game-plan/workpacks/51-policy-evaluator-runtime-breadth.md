@@ -41,17 +41,23 @@ blocking, or platform support.
   representation; no platform execution path is introduced.
 - Preserve timer refs only for dry-run time-limit decisions.
 
-## Current Status - Phase 1 Open
+## Current Status - Phase 1 and Phase 2 Complete; Phase 3 Open
 
-The 2026-08-15 code audit found preview/readiness projections but no current
-evaluator spanning stored time-budget policy, sessions, schedules, bonus time,
-timers, and audit refs. The former parent-domain implementation owner is
-removed. WP19 now supplies the Rust compiler and WP49 supplies category/risk
-routing, so this workpack is the next authorized Rust-owned Phase 1 slice.
+The Rust-owned evaluator landed at `ab610b6dc`. It gates evaluation on WP19
+compiler state, accounts counted/excluded sessions, rejects duration overflow,
+handles trusted/recovered/manual duration sources, schedule state, pending and
+approved bonus time, warning/budget thresholds, and preserves timer refs only
+for dry-run time-limit decisions. Adapter dispatch remains disabled.
 
-Phase 1 requires the evaluator code and checked-in breadth/negative tests.
-Phase 2 focused execution/Enforcer and Phase 3 retained proof remain later
-gates.
+Checked-in breadth and negative tests are green:
+
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`
+- `cargo test -p ocentra-app-game-core --test contract` (`57 passed`)
+- focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, and `no-naked-domain-strings`
+
+Phase 3 retained proof and plan-level precommit/CI remain open. Service,
+WebSocket, portal, child runtime, and adapter execution remain outside scope.
 
 ## Expected Focused Validation
 
