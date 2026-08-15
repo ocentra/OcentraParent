@@ -6,108 +6,113 @@
 > Plan: `tracking-plan`
 > Doc: `Tracking Plan State`
 > Kind: current state and open gaps.
-> Read when: Immediately after plan AGENTS.md; use for current state and no-claim boundaries.
-> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Read when: Immediately after plan AGENTS.md.
+> Proves: only the routed status below; not product readiness or workpack DONE.
 
 <!-- /agent-capsule -->
 
-Generated from the existing `tracking-plan` docs. This is the default resume/status file; large historical docs are linked, not embedded.
-
 ## Scope
 
-This folder is the single working plan location for location evidence, geofence rules, expected-place schedules, device status, nearby-place intelligence, AI safety analysis, parent acknowledgements, alerts, escalation, check-ins, temporary live tracking, missing-device mode, and tracking UI/UX requirements.
+Tracking owns location evidence, device/permission/capability state,
+geofence/expected-place/nearby-place semantics, child check-in, tracking policy
+inputs, live/missing-device modes, tracking alerts, tracking read models, and
+their no-claim boundaries. Adjacent crates retain generic eventing, policy,
+notification, AI-provider, custody, platform, and portal-shell authority.
 
-## Current ownership interpretation
+## Code-first Phase 1 audit (2026-08-15)
 
-```text
-tracking-plan: tracking semantics, local proof routing, read-model requirements, and no-claim boundaries.
-crates/schema: canonical cross-boundary tracking schemas and shared event/protocol/read-model/proof shapes.
-tracking-domain: helper/projection/proof adapter package; public exports are helpers, not automatic schema authority.
-tracking-core: Rust runtime/evaluator/projection helper crate; mirrors canonical contracts for runtime use.
-ocentra-eventing/eventing-plan: generic event envelope, idempotency, journal/replay, dead-letter, and topology mechanics.
-policy, notification, custody, AI, portal, platform, network/browser/app/LAN plans: sibling owners for their own authority/runtime/proof tiers.
-```
+- Authoritative audit: [CODE_AUDIT.md](CODE_AUDIT.md).
+- 42/42 graph-imported workpacks have reviewed code/test topology.
+- 24 workpacks have no bounded source/test-writing gap; 18 retain concrete
+  production-code or expected-test gaps.
+- Phase 2 focused tests/Enforcer and Phase 3 proof regeneration were not run.
+- Workpack checkboxes below remain document/proof state, not this code result.
 
-## Current snapshot source
-
-- Snapshot: [current-tracking-snapshot.md](current-tracking-snapshot.md)
-
-## What is already present / proved
-
-- Feature, expectation, capability, schema proposal, and settings inventory docs exist.
-- Real TypeScript tracking surfaces now mostly live in `packages/tracking-domain`.
-- Real Rust tracking runtime exists in `crates/tracking-core`.
-- Local/CI proof exists for many contract, fixture, hosted-route, service read-model, provider-preflight, retention-preflight, and rollout accounting slices.
-- Product-readiness closure proof exists as blocker accounting, not product-ready approval.
-
-## Open gaps / missing product runtime
+## Current owners
 
 ```text
-- Architecture gate still flags pre-existing bypass-guard issues in packages/tracking-domain/src/tracking-control-catalog-data.ts.
-- False-green workpacks remain reopened until their selected proof tiers are rerun or carried as blockers.
-- Physical mobile background/geofence proof remains manual-required.
-- Provider delivery/receipt runtime remains manual-required.
-- Production workers, durable outbox/history/storage, escalation runtime, and full runtime UI proof remain manual-required.
-- Event-driven tracking chains WP34-WP39 are active scope and must use centralized schemas.
+crates/schema:
+  canonical cross-family tracking event registry and generated bridge boundary.
+
+agent-protocol:
+  typed tracking identifiers, runtime/config events, read models, constants,
+  retention commands, and event identity.
+
+tracking-core:
+  tracking decisions, validation, local models, retention transforms, and
+  ActivityStore/SQLite query projection.
+
+parent-runtime-core / child-runtime:
+  parent config and child detection/check-in process-local event flows.
+
+policy-control-core / child-policy-core:
+  tracking policy compilation and child-local evaluation authority.
+
+child-ai-core / child-notification-core:
+  evidence-only AI validation and notification-intent conversion.
+
+agent-core / agent-service:
+  ActivityStore-backed tracking read model and service transport seams.
+
+portal-domain / apps/portal:
+  presentation of Rust-owned/generated tracking snapshots.
 ```
 
-## Centralized schema status
+`packages/tracking-domain` does not exist and is not an owner. The historical
+`scripts/test/tracking-*.mjs` proof suite is also absent.
 
-```text
-Cross-boundary tracking schemas must live in crates/schema or an approved neutral Rust protocol/event/evidence boundary.
-tracking-domain may expose helpers/proof adapters but must not silently become canonical schema owner.
-tracking-core Rust types must cite the canonical schema/protocol/event contract they mirror when they escape the crate.
-```
+## Implemented foundations
+
+- Typed tracking runtime/config event contracts and identifiers.
+- Location validation and status/capability evaluation.
+- Geofence, expected-place, acknowledgement, check-in, nearby-place, AI
+  evidence, tracking policy, alert, and notification-intent logic with focused
+  tests present.
+- Parent config and child detection event cascades over the shared EventBus.
+- SQLite/ActivityStore tracking read-model queries and portal presentation.
+
+## Open runtime gaps
+
+- WP07: production retention/custody execution.
+- WP08-WP13: real Android, iOS, and desktop adapters.
+- WP20: concrete Places/POI provider.
+- WP22: durable parent-defined place database.
+- WP24: selected AI provider routing/execution.
+- WP27/WP38: escalation plus durable notification delivery lifecycle.
+- WP28/WP29: durable live/missing-device runtime ownership.
+- WP30: complete parent/child product UI.
+- WP33: tracked executable aggregate verifier.
+- WP37: durable tracking journal replay and idempotent SQLite projection.
+- WP39: end-to-end event-to-portal restart chain.
+
+## Resume route
+
+1. Read this file.
+2. Read `NEXT_ACTIONS.md`.
+3. Select one row in `WORKPACK_INDEX.md`.
+4. Use [source-index.md](source-index.md) for current owners and
+   [CODE_AUDIT.md](CODE_AUDIT.md) for the last reviewed source/test result.
+5. Run focused tests/Enforcer before proof.
 
 ## Checklist summary
 
-- Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
-- Checkbox rows detected: 111 total, 79 checked, 32 unchecked.
-- Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
+- Full checklist: [implementation-checklist.md](implementation-checklist.md)
+  (not default context).
+- Checkbox rows detected before this audit: 111 total, 79 checked, 32 open.
+- Do not infer implementation completion from those values.
 
 ## Workpack summary
 
-- Workpacks on disk: 39.
-- Workpacks previously indexed by generated docs: 33.
-- Checkbox-closed workpacks requiring audit reopen: `WP25`, `WP27`, `WP28`, `WP29`, `WP33`.
-- On-disk workpacks omitted by the earlier generated index: `WP34`, `WP35`, `WP36`, `WP37`, `WP38`, `WP39`.
-
-## Audit-priority workpacks
-
-- [WP33 Proof Gates Fixtures Rollout And PR Gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md) - 65/65 checked, but proof rerun is blocked and the checked state is not trustworthy.
-- [WP25 Policy Compiler For Tracking Rules](workpacks/25-policy-compiler-for-tracking-rules.md) - 11/11 checked, but runtime compiler/evaluator completion is not yet proved.
-- [WP27 Escalation Engine](workpacks/27-escalation-engine.md) - 11/11 checked, but runtime escalation proof is incomplete.
-- [WP28 Temporary Live Tracking Mode](workpacks/28-temporary-live-tracking-mode.md) - 11/11 checked, but runtime/UI proof is incomplete.
-- [WP29 Missing-Device Mode](workpacks/29-missing-device-mode.md) - 11/11 checked, but runtime/device proof is incomplete.
-- [WP34-WP39](WORKPACK_INDEX.md) - event-contract and event-flow workpacks are on disk and active.
+- Graph-imported workpacks: 42.
+- Executable/coordination workpacks: WP01-WP39.
+- Imported reference packets: capability guide, schema proposal, and settings
+  inventory.
+- Source/test result: 24 bounded complete, 18 incomplete.
 
 ## Product-ready no-claim boundaries
 
-Do not claim product-ready tracking, physical-device proof, background platform behavior, provider delivery, notification receipt runtime, durable production worker execution, full product UI runtime, policy authority, custody execution, or event-runtime completion unless the selected workpack explicitly proves it.
-
-## Default no-read list
-
-- `README_FULL_ORIGINAL.md` unless you need historical full README context.
-- Full `implementation-checklist.md` unless `CHECKLIST_INDEX.md` names exact section/row.
-- All workpacks; use `WORKPACK_INDEX.md`.
-- `WORKPACK_FAMILIES.md` unless owner/proof family is unclear.
-- Source inventories and pasted-content audits unless source ownership is unclear.
-- Historical checkpoint/proof docs unless `PROOF_INDEX.md` or the assigned workpack names them.
-
-## Health / consistency
-
-- See `PLAN_HEALTH.md` before claiming the whole plan is complete or stale.
-
-## HID Execution Guard
-
-- Follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md), then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
-- Do not mark this plan complete from checklist deltas alone.
-- Before any checked update, attach a real test run log or explicit known blocker and a proof manifest under docs/proof/tracking-plan/.
-- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, rollback/teardown, stale/degraded states, schema authority, and no-claim proofs are present for the assigned slice.
-
-## HID execution blueprint
-
-Continue execution from: [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md). Update this plan only via the blueprint and matching workpack checklist.
+Do not claim product-ready tracking, physical-device background behavior,
+provider delivery/receipt, durable production workers, authority-enrolled hard
+control, full child UI, durable journal replay, or end-to-end portal projection
+until the selected workpack proves it from current source/tests and regenerated
+proof.

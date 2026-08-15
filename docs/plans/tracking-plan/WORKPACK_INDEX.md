@@ -18,6 +18,13 @@ Use this index to open exactly one assigned workpack. Do not read every file in 
 
 Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear.
 
+## Code-first audit overlay
+
+The status and box columns below are documentation/proof state, not source
+truth. [CODE_AUDIT.md](CODE_AUDIT.md) records the 2026-08-15 code/test review:
+all 42 imported workpacks are graph-mapped; 24 have no bounded Phase 1 writing
+gap and 18 retain concrete production-code or expected-test gaps.
+
 | Status  | Workpack                                                                                                                  |   Size | Boxes                              |
 | ------- | ------------------------------------------------------------------------------------------------------------------------- | -----: | ---------------------------------- |
 | open    | [WP25 Policy Compiler For Tracking Rules](workpacks/25-policy-compiler-for-tracking-rules.md)                           |  3,656 | 11/11 checked; audit reopen        |
@@ -25,8 +32,8 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | open    | [WP28 Temporary Live Tracking Mode](workpacks/28-temporary-live-tracking-mode.md)                                        |  4,048 | 11/11 checked; audit reopen        |
 | open    | [WP29 Missing-Device Mode](workpacks/29-missing-device-mode.md)                                                          |  3,631 | 11/11 checked; audit reopen        |
 | open    | [WP33 Proof Gates Fixtures Rollout And PR Gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md)               | 22,994 | 65/65 checked; proof rerun blocked |
-| open    | [WP01 Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md)                         |  3,032 | 0/11 checked; 11 open |
-| open    | [WP02 Current Tracking Snapshot And Gap Map](workpacks/02-current-tracking-snapshot-and-gap-map.md)                       |  2,902 | 0/10 checked; 10 open |
+| open    | [WP01 Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md)                         |  3,032 | 5/11 checked; 6 open  |
+| open    | [WP02 Current Tracking Snapshot And Gap Map](workpacks/02-current-tracking-snapshot-and-gap-map.md)                       |  2,902 | 4/10 checked; 6 open  |
 | open    | [WP03 Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md)                         |  3,476 | 6/11 checked; 5 open  |
 | open    | [WP04 Location Evidence Model](workpacks/04-location-evidence-model.md)                                                   |  3,498 | 6/10 checked; 4 open  |
 | open    | [WP05 Device Status Model](workpacks/05-device-status-model.md)                                                           |  3,236 | 6/10 checked; 4 open  |
@@ -65,6 +72,11 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | open | [Tracking Control Settings Inventory](workpacks/tracking-control-settings-inventory.md) | 326,337 | 0/0 checked; 0 open |
 
 Audit note: `WP25`, `WP27`, `WP28`, `WP29`, and `WP33` were reopened by the 2026-06-16 source/test/proof audit. `WP34-WP39` exist on disk and belong in the active index; earlier generated summaries omitted them.
+
+2026-08-15 code audit note: the old `packages/tracking-domain` and
+`scripts/test/tracking-*.mjs` paths are absent. WP34-WP36 now have real Rust
+contracts/process-local flows, while WP37-WP39 retain durability,
+notification/escalation, and end-to-end projection gaps.
 
 ## Selection rules
 

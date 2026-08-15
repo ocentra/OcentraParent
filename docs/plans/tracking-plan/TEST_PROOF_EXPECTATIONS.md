@@ -13,6 +13,13 @@
 
 # Tracking Plan Test Proof Expectations
 
+> **2026-08-15 executable-status correction:** the advertised
+> `scripts/test/tracking-*.mjs` suite and `packages/tracking-domain` package do
+> not exist in the current checkout. The command catalog below remains the
+> desired proof contract, not evidence that the commands ran or even exist.
+> WP33 owns restoration/replacement after the applicable Phase 1 code/test gaps
+> in `CODE_AUDIT.md` are closed.
+
 ## General rule
 
 Use the selected workpack's named proof artifacts first. If missing, derive:
