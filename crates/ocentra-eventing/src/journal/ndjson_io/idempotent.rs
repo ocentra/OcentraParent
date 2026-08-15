@@ -1,12 +1,13 @@
 use std::sync::Arc;
 
-use crate::journal::JournalAppend;
+use crate::journal::{JournalAppend, JournalHashVersion};
 use crate::{EventingError, ExpectValue, JournalDispatchPhase, StoredEventEnvelope};
 
 use super::idempotent_match::{
     is_legacy_idempotent_candidate, matching_append, matching_append_by_event_id,
 };
-use super::{NdjsonEventJournal, NdjsonJournalEntry};
+use super::idempotent_record::decode_entry;
+use super::NdjsonEventJournal;
 
 impl NdjsonEventJournal {
     pub async fn append_idempotent(
@@ -18,12 +19,11 @@ impl NdjsonEventJournal {
             .await
             .expect_value("journal append gate remains open");
         let _append_file_lock = self.acquire_append_file_lock().await?;
-        self.repair_incomplete_trailing_record().await?;
-        self.refresh_state_if_unrecovered().await?;
+        self.prepare_append_state().await?;
         match self.existing_append(envelope).await? {
             Some(append) => {
                 self.sync_existing_journal().await?;
-                Ok(append)
+                self.acknowledgement_after_sync(append).await
             }
             None => {
                 self.append_entry_with_gate(envelope, JournalDispatchPhase::AfterDispatch)
@@ -41,7 +41,7 @@ impl NdjsonEventJournal {
             .lines()
             .enumerate()
             .filter(|(_index, line)| !line.trim().is_empty())
-            .map(|(index, line)| decode_entry(line, index + 1))
+            .filter_map(|(index, line)| decode_entry(line, index + 1).transpose())
             .collect::<Result<Vec<_>, _>>()?
             .into_iter()
             .filter(|entry| is_legacy_idempotent_candidate(entry, envelope))
@@ -65,9 +65,26 @@ impl NdjsonEventJournal {
             .lines()
             .enumerate()
             .filter(|(_index, line)| !line.trim().is_empty())
-            .map(|(index, line)| decode_entry(line, index + 1))
+            .filter_map(|(index, line)| decode_entry(line, index + 1).transpose())
             .collect::<Result<Vec<_>, _>>()?;
         matching_append_by_event_id(entries, envelope, phase)
+    }
+}
+
+impl NdjsonEventJournal {
+    pub(super) async fn acknowledgement_after_sync(
+        &self,
+        append: JournalAppend,
+    ) -> Result<JournalAppend, EventingError> {
+        match append.hash_version {
+            JournalHashVersion::V3 => {
+                let acknowledgement = append.with_synchronization_proof()?;
+                self.write_synchronization_completion(&acknowledgement)
+                    .await?;
+                Ok(acknowledgement)
+            }
+            JournalHashVersion::LegacyV1 | JournalHashVersion::V2 => Ok(append),
+        }
     }
 }
 
@@ -77,11 +94,4 @@ async fn read_journal(journal: &NdjsonEventJournal) -> Result<String, EventingEr
         Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
         Err(error) => Err(EventingError::journal_io(journal.path_string(), &error)),
     }
-}
-
-fn decode_entry(line: &str, line_number: usize) -> Result<NdjsonJournalEntry, EventingError> {
-    serde_json::from_str(line).map_err(|error| EventingError::JournalCorruptLine {
-        line: line_number,
-        reason: error.to_string(),
-    })
 }

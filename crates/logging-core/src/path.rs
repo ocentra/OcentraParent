@@ -52,7 +52,14 @@ pub fn sanitize_segment(segment: &str) -> io::Result<String> {
 }
 
 pub fn path_string(path: &Path) -> String {
-    path.to_string_lossy().replace('\\', "/")
+    let normalized = path.to_string_lossy().replace('\\', "/");
+    if let Some(unc_path) = normalized.strip_prefix("//?/UNC/") {
+        return format!("//{unc_path}");
+    }
+    normalized
+        .strip_prefix("//?/")
+        .unwrap_or(&normalized)
+        .to_owned()
 }
 
 pub fn timestamp_now() -> String {

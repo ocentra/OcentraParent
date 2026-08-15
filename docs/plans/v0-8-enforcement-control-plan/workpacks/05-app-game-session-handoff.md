@@ -71,10 +71,14 @@ Proof root: `output/v0-8-enforcement-control-plan-proof/05-app-game-session-hand
 
 Focused validation should record:
 
-- `npm run test --workspace @ocentra-parent/enforcement-domain -- enforcement`
+- `cargo test -p ocentra-parent-agent-protocol --test contract app_game_timer_parent_surface`
 - `cargo test -p ocentra-parent-agent-core enforcement`
 - selected app/game session proof/read-model tests
 - selected portal tests only when this slice updates visible session-backed state
+
+The former `@ocentra-parent/enforcement-domain` workspace command is obsolete:
+that package is not present in the current workspace. The Rust protocol,
+core, and service tests above are the current owners for this handoff.
 
 ## AI Worker Checklist
 

@@ -2546,6 +2546,8 @@ dependencies = [
 name = "ocentra-family-identity-core"
 version = "0.1.1"
 dependencies = [
+ "chrono",
+ "ed25519-dalek",
  "getrandom 0.3.4",
  "ocentra-eventing",
  "ocentra-schema",
@@ -2607,8 +2609,10 @@ dependencies = [
  "ed25519-dalek",
  "fs2",
  "ocentra-eventing",
+ "ocentra-network-core",
  "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
  "ocentra-tracking-core",
  "roxmltree",
  "rusqlite",
@@ -2643,8 +2647,10 @@ version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
+ "ocentra-network-evidence",
  "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]
@@ -2665,6 +2671,7 @@ dependencies = [
  "ocentra-parent-runtime-core",
  "ocentra-parent-screen-capture-adapter",
  "ocentra-policy-control-core",
+ "ocentra-schema",
  "ocentra-screen-live-view-core",
  "serde",
  "serde_json",
@@ -2678,6 +2685,7 @@ name = "ocentra-parent-logging-core"
 version = "0.1.1"
 dependencies = [
  "chrono",
+ "getrandom 0.3.4",
  "ocentra-schema",
  "serde",
  "serde_json",
@@ -2720,14 +2728,17 @@ dependencies = [
 name = "ocentra-policy-control-core"
 version = "0.1.1"
 dependencies = [
+ "chrono",
  "ed25519-dalek",
  "ocentra-eventing",
  "ocentra-evidence",
  "ocentra-family-identity-core",
  "ocentra-parent-agent-protocol",
+ "ocentra-schema",
  "serde",
  "serde_json",
  "sha2",
+ "tokio",
 ]
 
 [[package]]
@@ -2759,6 +2770,7 @@ dependencies = [
  "ocentra-parent-agent-protocol",
  "serde",
  "serde_json",
+ "sha2",
 ]
 
 [[package]]

@@ -106,6 +106,11 @@ pub const REJECTION_REASON_CODE_REQUIRED: &str = "enforcement-reason-code-requir
 pub const REJECTION_ACTIVE_TIMER_STATE_REQUIRED: &str = "enforcement-active-timer-state-required";
 pub const REJECTION_ACTIVE_TIMER_STATE_MISMATCH: &str = "enforcement-active-timer-state-mismatch";
 pub const REJECTION_PARENT_ACTION_REQUIRED: &str = "enforcement-parent-action-required";
+pub const REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED: &str =
+    "enforcement-app-game-session-evidence-required";
+pub const REJECTION_APP_GAME_RUNTIME_EVIDENCE_MISMATCH: &str =
+    "enforcement-app-game-runtime-evidence-mismatch";
+pub const APP_GAME_RUNTIME_EVIDENCE_GENERATED_AT: &str = "";
 
 pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
 pub const EVENT_AUDIT_JOURNAL_RECORDED: &str = "enforcement.audit-journal.recorded";

@@ -5,6 +5,8 @@ use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
 
+#[path = "enforcement_timer_api/app_game_session_rejection.rs"]
+mod app_game_session_rejection;
 #[path = "enforcement_timer_api/command.rs"]
 mod command;
 #[path = "enforcement_timer_api/rejection.rs"]

@@ -51,3 +51,17 @@ jobs:
 
       - name: Core tests
         run: cargo test -p ocentra-parent-agent-core --all-targets
+
+  owned-process-adapter-windows:
+    name: 'Proof: Windows Owned Process Adapter'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Run owned-process time-limit proof
+        run: node scripts/test/v0-8-owned-process-time-limit-proof.mjs

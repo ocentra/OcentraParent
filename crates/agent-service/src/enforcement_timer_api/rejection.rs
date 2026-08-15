@@ -37,6 +37,9 @@ pub(super) fn timer_command_rejection_reason(
             constants::value::ACTIVITY_CAPTURE_STORE_ERROR
         }
         EnforcementTimerCommandError::AppTimeLimitTarget(rejection) => rejection.as_protocol_str(),
+        EnforcementTimerCommandError::AppGameSessionEvidence(rejection) => {
+            super::app_game_session_rejection::rejection_reason(*rejection).0
+        }
     };
     EnforcementTimerRejectionReason(value)
 }

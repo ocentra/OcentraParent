@@ -15,7 +15,12 @@ pub const INDICATOR_LABEL_VPN_PROXY_TUNNEL: &str = "VPN, proxy, or tunnel likely
 pub const LABEL_DESTINATION_UNKNOWN: &str = "Unknown destination";
 pub const LABEL_PROCESS_UNKNOWN: &str = "Unknown process";
 
+// Streamed network payloads remain compatible with the checked-in generated decoder.
 pub const EVENT_SCHEMA_VERSION: u16 = 1;
+// Runtime event payloads added required evidence-grade and policy-action fields in v2.
+pub const RUNTIME_EVENT_SCHEMA_VERSION: u16 = 2;
+// Review requests nest the v2 runtime payload and are not wire-compatible with v1.
+pub const REVIEW_EVENT_SCHEMA_VERSION: u16 = 2;
 pub const EVENT_NETWORK_FLOW_OBSERVED: &str = "network.flow.observed";
 pub const EVENT_NETWORK_FLOW_EVENTING_OBSERVED: &str = "network.flow.eventing.observed";
 pub const EVENT_NETWORK_DOMAIN_OBSERVED: &str = "network.domain.observed";

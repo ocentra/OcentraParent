@@ -1,7 +1,7 @@
 use std::{
     env,
-    fs::{create_dir_all, OpenOptions},
-    io::{self, Write},
+    fs::create_dir_all,
+    io,
     path::{Path, PathBuf},
 };
 
@@ -11,11 +11,12 @@ use crate::{
     event::{ParentLogEvent, LOG_SCHEMA_VERSION},
     field::LogFields,
     level::LogLevel,
-    ndjson_writer::NdjsonWriter,
+    ndjson_writer::{append_record, NdjsonWriter},
     path::{
         resolve_lane_id, resolve_log_root, resolve_log_run_id, resolve_log_scope, timestamp_now,
         DEV_LOG_DIR_ENV, LOG_ROOT_ENV,
     },
+    redaction::redact_fields,
     source::LogSource,
 };
 use ocentra_schema::logging_contracts::{LogEntryId, LogLaneId, LogRunId};
@@ -73,6 +74,7 @@ impl DevLogger {
     }
 
     pub fn log(&self, level: LogLevel, message: &str, fields: LogFields) -> io::Result<PathBuf> {
+        let fields = LogFields::from(fields.into_inner());
         let timestamp = timestamp_now();
         let event = ParentLogEvent {
             schema_version: LOG_SCHEMA_VERSION,
@@ -81,7 +83,7 @@ impl DevLogger {
             level,
             source: self.source.clone(),
             message: message.to_owned(),
-            fields,
+            fields: redact_fields(&fields),
             run_id: self.run_id.clone().and_then(LogRunId::parse),
             lane_id: self.lane_id.clone().and_then(LogLaneId::parse),
             command_id: None,
@@ -123,8 +125,13 @@ fn ensure_directory(directory: PathBuf) -> io::Result<PathBuf> {
 }
 
 fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> io::Result<LogEntryId> {
+    let nonce = random_nonce()?;
     let digest = Sha256::digest(
-        format!("{}:{}:{message}", source.compat_file_prefix(), timestamp).as_bytes(),
+        format!(
+            "{}:{timestamp}:{nonce}:{message}",
+            source.compat_file_prefix()
+        )
+        .as_bytes(),
     );
     LogEntryId::parse(format!(
         "parent-log-{}-{}",
@@ -132,17 +139,24 @@ fn create_log_id(timestamp: &str, source: &LogSource, message: &str) -> io::Resu
             .chars()
             .filter(char::is_ascii_alphanumeric)
             .collect::<String>(),
-        &format!("{digest:x}")[..8]
+        &format!("{digest:x}")[..12]
     ))
     .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidData, "generated log id is invalid"))
 }
 
+fn random_nonce() -> io::Result<String> {
+    let mut bytes = [0_u8; 16];
+    getrandom::fill(&mut bytes)
+        .map_err(|error| io::Error::other(format!("random nonce generation failed: {error}")))?;
+    Ok(bytes.iter().map(|byte| format!("{byte:02x}")).collect())
+}
+
 fn append_compat_event(directory: &Path, event: &ParentLogEvent) -> io::Result<PathBuf> {
     let path = compat_dev_log_path(directory.to_path_buf(), &event.source, &event.timestamp)?;
-    let mut file = OpenOptions::new().create(true).append(true).open(&path)?;
-    serde_json::to_writer(&mut file, event)
+    let mut record = serde_json::to_vec(event)
         .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?;
-    file.write_all(b"\n")?;
+    record.push(b'\n');
+    append_record(&path, &record)?;
     Ok(path)
 }
 

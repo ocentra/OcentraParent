@@ -86,7 +86,7 @@ pub struct PublishReport {
     pub handled_count: usize,
     pub dead_letter_count: usize,
     pub handler_reports: Vec<HandlerReport>,
-    /// Durable journal writes performed during this publication.
+    /// Successful durable journal writes performed for this publication.
     pub journal_appends: Vec<JournalAppend>,
 }
 

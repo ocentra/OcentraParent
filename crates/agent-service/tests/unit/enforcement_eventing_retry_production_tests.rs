@@ -4,7 +4,8 @@ use ocentra_eventing::{
     expect_value::ExpectValue,
     ids::EventId,
     journal::{
-        ndjson::NdjsonEventJournal, ndjson::NdjsonJournalOptions, policy::JournalDispatchPhase,
+        ndjson::{NdjsonEventJournal, NdjsonJournalOptions, NdjsonJournalRecord},
+        policy::JournalDispatchPhase,
     },
     replay::ReplayFilter,
 };
@@ -55,8 +56,11 @@ async fn production_command_retry_keeps_eventing_identity_and_command_correlatio
     let entries = raw
         .lines()
         .filter(|line| !line.trim().is_empty())
-        .map(|line| {
-            serde_json::from_str::<ocentra_eventing::journal::ndjson::NdjsonJournalEntry>(line)
+        .enumerate()
+        .map(|(index, line)| NdjsonJournalRecord::parse(line, index + 1))
+        .filter_map(|record| match record {
+            Ok(record) => record.entry().map(Ok),
+            Err(error) => Some(Err(error)),
         })
         .collect::<Result<Vec<_>, _>>()
         .expect_value("decode production eventing journal");

@@ -20,11 +20,11 @@ pub(super) async fn next_line(
 }
 
 pub(super) fn read_record(
-    mode: ReplayMode,
+    _mode: ReplayMode,
     line: &str,
     line_number: usize,
     expected_previous_hash: &Option<JournalHash>,
-    filter: &ReplayFilter,
+    _filter: &ReplayFilter,
 ) -> Result<Option<NdjsonJournalEntry>, EventingError> {
     if line.trim().is_empty() {
         return Ok(None);
@@ -36,9 +36,6 @@ pub(super) fn read_record(
             reason,
         }
     })?;
-    if should_skip_entry(mode, &entry, filter) {
-        return Ok(None);
-    }
     Ok(Some(entry))
 }
 
@@ -56,6 +53,9 @@ pub(super) fn process_record(
     };
     *expected_previous_hash = record.append.current_hash.clone();
     *last_sequence = (*last_sequence).max(record.append.sequence);
+    if should_skip_entry(mode, &record, filter) {
+        return Ok(false);
+    }
     records.push(ReplayRecord {
         sequence: record.append.sequence,
         envelope: record.envelope,

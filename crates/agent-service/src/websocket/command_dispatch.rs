@@ -89,7 +89,7 @@ pub(super) fn build_command_event(
             | AgentCommandName::AgentEnforcementPolicyDispatchGet
             | AgentCommandName::AgentEnforcementBroadAdapterProofGet
             | AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet => {
-                build_enforcement_command_report(command).await
+                Box::pin(build_enforcement_command_report(command)).await
             }
             command_name if is_lan_runtime_command(&command_name) => {
                 build_lan_command_report(&lan_pairing, command).await

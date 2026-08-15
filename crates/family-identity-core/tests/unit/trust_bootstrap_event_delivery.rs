@@ -5,7 +5,7 @@ use std::sync::{Arc, Barrier};
 use std::thread;
 
 use ocentra_eventing::ids::CorrelationId;
-use ocentra_eventing::journal::ndjson::NdjsonJournalEntry;
+use ocentra_eventing::journal::ndjson::{NdjsonJournalEntry, NdjsonJournalRecord};
 use ocentra_family_identity_core::household_authority::{
     HouseholdAuthorityAction, ParentStepUpAssertionSnapshot,
 };
@@ -446,9 +446,14 @@ fn journal_entries(
     let text = fs::read_to_string(path)
         .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)?;
     text.lines()
-        .map(|line| {
-            serde_json::from_str(line)
+        .enumerate()
+        .map(|(index, line)| {
+            NdjsonJournalRecord::parse(line, index + 1)
                 .map_err(|_error| ParentPresenceStorageFailureReason::CustodyUnavailable)
+        })
+        .filter_map(|record| match record {
+            Ok(record) => record.entry().map(Ok),
+            Err(error) => Some(Err(error)),
         })
         .collect()
 }

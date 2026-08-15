@@ -32,7 +32,7 @@ use crate::enforcement_payload::{
     parse_enforcement_command_payload, EnforcementCommandPayload, EnforcementText,
 };
 use crate::enforcement_pre_action_journal::journal_before_action_outcome;
-use crate::enforcement_timer_state_file::store_active_timer_state_for_outcome;
+use crate::enforcement_timer_state_file::store_active_timer_state_for_outcome_with_app_game_session;
 use crate::event_builder::build_event;
 use crate::fields::fields_from_pairs;
 use crate::test_text::TestText;
@@ -118,10 +118,11 @@ async fn execute_enforcement_command(
         .map_err(|error| TestText::from_display(error.as_protocol_str()))?;
     outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
     let status = record_enforcement_audit(&request, &outcome, &paths).await?;
-    let active_state = store_active_timer_state_for_outcome(
+    let active_state = store_active_timer_state_for_outcome_with_app_game_session(
         &outcome,
         &paths.timer_state_path,
         &completed_at.to_string(),
+        None,
     )
     .await
     .map_err(|error| TestText::from_display(format!("{error:?}")))?;

@@ -417,6 +417,7 @@ fn active_timer_state_serializes_action_result_audit_and_timer() {
         result,
         audit_event: audit,
         timer_event: timer,
+        app_game_session: None,
         stored_at: policy::TEST_EVALUATED_AT.to_string(),
     };
 

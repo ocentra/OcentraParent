@@ -1,6 +1,7 @@
 use std::path::PathBuf;
 
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::AppGameTimerSessionBinding;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
@@ -109,4 +110,17 @@ pub(crate) async fn build_enforcement_audit_report_with_paths(
     paths: EnforcementJournalPaths,
 ) -> AgentEventEnvelope {
     enforcement_command_execution::build_enforcement_audit_report_with_paths(command, paths).await
+}
+
+pub(crate) async fn build_enforcement_audit_report_with_app_game_session(
+    command: AgentCommandEnvelope,
+    paths: EnforcementJournalPaths,
+    app_game_session: AppGameTimerSessionBinding,
+) -> AgentEventEnvelope {
+    enforcement_command_execution::build_enforcement_audit_report_with_app_game_session(
+        command,
+        paths,
+        app_game_session,
+    )
+    .await
 }

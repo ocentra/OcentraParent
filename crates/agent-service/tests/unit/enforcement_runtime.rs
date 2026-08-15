@@ -15,6 +15,8 @@ mod activity_api {
 }
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
+#[path = "../../src/app_game_dispatch_evidence.rs"]
+mod app_game_dispatch_evidence;
 #[path = "../../src/dev_log.rs"]
 mod dev_log;
 #[path = "enforcement_broad_adapter_proof_read_model_tests.rs"]
@@ -136,10 +138,14 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
+    let _ = enforcement_api::build_enforcement_audit_report_with_app_game_session;
     let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::append_enforcement_audit_journal_event_phase;
     let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::EnforcementEventingJournalPath {
         path: std::path::PathBuf::new(),
     };
+    let _ = app_game_dispatch_evidence::AppGameDispatchEvidenceRejection::log_value;
+    let _ = app_game_dispatch_evidence::validate_app_game_dispatch_evidence;
+    let _ = app_game_dispatch_evidence::validate_app_game_timer_session;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
 }

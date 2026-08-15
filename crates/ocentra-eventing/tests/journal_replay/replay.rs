@@ -5,7 +5,6 @@ use ocentra_eventing::ids::CorrelationId;
 use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
 use ocentra_eventing::journal::EventJournal;
-use ocentra_eventing::queue::policy::EventQueuePolicy;
 use ocentra_eventing::replay::{ReplayCursor, ReplayFilter, ReplayMode};
 use std::sync::Arc;
 
@@ -156,46 +155,76 @@ async fn replay_rejects_tampered_hash_chain_payload() {
 }
 
 #[tokio::test]
-async fn action_replay_dispatches_queued_drain_event_once() {
+async fn action_replay_skips_two_before_dispatch_records_and_replays_later_actions() {
     let path = journal_path(TestText("queued-drain-action-replay".to_owned()));
     let journal = NdjsonEventJournal::new(&path);
-    let bus = EventBus::with_journal_and_queue_policy(
-        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+    let before_dispatch_bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::All),
         journal.clone().shared(),
-        EventQueuePolicy::no_subscriber_queue(2).expect_value("queue policy is valid"),
     );
-    bus.publish(
-        test_event_with_idempotency(
-            TestText(TEST_LABEL.to_owned()),
-            TestText("queued-drain-replay-key".to_owned()),
-        ),
-        metadata(TestText(TEST_TARGET.to_owned())),
-    )
-    .await
-    .expect_value("event queues without action journal record");
+    let first_publish = before_dispatch_bus
+        .publish(
+            test_event_with_idempotency(
+                TestText(TEST_LABEL.to_owned()),
+                TestText("queued-drain-replay-key".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await;
+    assert!(
+        first_publish.is_ok(),
+        "first publish failed: {first_publish:?}"
+    );
+    before_dispatch_bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("queued-drain-replay-second".to_owned()),
+                TestText("queued-drain-replay-key-second".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("second no-subscriber event records only before-dispatch evidence");
     let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
     let handled_clone = Arc::clone(&handled);
-    bus.subscribe::<TestEvent, _, _>(
-        subscriber(
-            TestText(TEST_SUBSCRIBER.to_owned()),
-            TestText(TEST_TARGET.to_owned()),
-        ),
-        move |_| {
-            let handled = Arc::clone(&handled_clone);
-            async move {
-                *handled.lock().await += 1;
-                Ok(())
-            }
-        },
-    )
-    .await
-    .expect_value("subscriber drains queued event");
+    let action_bus = EventBus::with_journal(
+        JournalPolicy::after_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+    );
+    action_bus
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |_| {
+                let handled = Arc::clone(&handled_clone);
+                async move {
+                    *handled.lock().await += 1;
+                    Ok(())
+                }
+            },
+        )
+        .await
+        .expect_value("subscriber registers after non-actionable journal entries");
+    action_bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("later-actionable-replay".to_owned()),
+                TestText("later-actionable-replay-key".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("later subscriber-backed event records actionable after-dispatch evidence");
     assert_eq!(*handled.lock().await, 1);
 
     let action = journal
         .replay_action_records(ReplayFilter::all())
         .await
-        .expect_value("action replay reads only after-dispatch records");
+        .expect_value(
+            "action replay verifies skipped before-dispatch records before reading actions",
+        );
     let projection = journal
         .replay_projection(ReplayFilter::all())
         .await
@@ -222,20 +251,91 @@ async fn action_replay_dispatches_queued_drain_event_once() {
     let reports = replay_bus
         .replay_to_handlers(action.records, action.mode, DispatchMode::Sequential)
         .await
-        .expect_value("action replay dispatches once");
+        .expect_value("action replay dispatches the later actionable record");
 
     assert_eq!(projection.records.len(), 3);
-    assert_eq!(
-        projection
-            .records
-            .iter()
-            .map(|record| record.sequence)
-            .collect::<Vec<_>>(),
-        vec![1, 2, 3]
-    );
-    assert_eq!(reports.len(), 1);
-    assert_eq!(reports[0].handled_count, 1);
+    let sequences = projection
+        .records
+        .iter()
+        .map(|record| record.sequence)
+        .collect::<Vec<_>>();
+    assert_eq!(sequences, vec![1, 2, 3]);
+    assert_eq!((reports.len(), reports[0].handled_count), (1, 1));
     assert_eq!(*replay_handled.lock().await, 1);
+    cleanup(path).await;
+}
+
+#[tokio::test]
+async fn dropped_no_subscriber_event_never_becomes_an_after_dispatch_replay_action() {
+    let path = journal_path(TestText("dropped-no-subscriber-action-replay".to_owned()));
+    let journal = NdjsonEventJournal::new(&path);
+    let dropped_bus = EventBus::with_journal(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+    );
+
+    let dropped = dropped_bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("dropped-no-subscriber".to_owned()),
+                TestText("dropped-no-subscriber-key".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("no-subscriber event completes without action evidence");
+
+    assert_eq!(dropped.subscriber_count, 0);
+    assert_eq!(dropped.journal_appends.len(), 1);
+    let dropped_actions = journal
+        .replay_action_records(ReplayFilter::all())
+        .await
+        .expect_value("dropped event never enters action replay");
+    assert!(dropped_actions.records.is_empty());
+
+    let handled = Arc::new(tokio::sync::Mutex::new(0_usize));
+    let handled_clone = Arc::clone(&handled);
+    let action_bus = EventBus::with_journal(
+        JournalPolicy::before_and_after_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+    );
+    action_bus
+        .subscribe::<TestEvent, _, _>(
+            subscriber(
+                TestText(TEST_SUBSCRIBER.to_owned()),
+                TestText(TEST_TARGET.to_owned()),
+            ),
+            move |_| {
+                let handled = Arc::clone(&handled_clone);
+                async move {
+                    *handled.lock().await += 1;
+                    Ok(())
+                }
+            },
+        )
+        .await
+        .expect_value("subscriber registers for real action");
+    action_bus
+        .publish(
+            test_event_with_idempotency(
+                TestText("handled-after-dispatch".to_owned()),
+                TestText("handled-after-dispatch-key".to_owned()),
+            ),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("subscriber-backed event creates action replay evidence");
+
+    let actions = journal
+        .replay_action_records(ReplayFilter::all())
+        .await
+        .expect_value("only handled event enters action replay");
+    assert_eq!(actions.records.len(), 1);
+    assert_eq!(
+        actions.records[0].envelope.contract.event_type.as_str(),
+        TEST_EVENT_TYPE
+    );
+    assert_eq!(*handled.lock().await, 1);
     cleanup(path).await;
 }
 

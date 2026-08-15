@@ -1,3 +1,5 @@
+use chrono::{DateTime, FixedOffset, Utc};
+
 use crate::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -70,9 +72,15 @@ pub(crate) fn parent_step_up_validation_failure_reason(
     input: &ParentStepUpValidationInput,
     assertion: &ParentStepUpAssertionSnapshot,
 ) -> Option<ParentStepUpValidationFailureReason> {
+    let (Some(assertion_expires_at), Some(observed_at)) = (
+        parse_rfc3339_utc(&assertion.expires_at),
+        parse_rfc3339_utc(&input.observed_at),
+    ) else {
+        return Some(ParentStepUpValidationFailureReason::Expired);
+    };
     [
         (
-            assertion.expires_at < input.observed_at,
+            assertion_expires_at <= observed_at,
             ParentStepUpValidationFailureReason::Expired,
         ),
         (
@@ -109,6 +117,12 @@ pub(crate) fn parent_step_up_validation_failure_reason(
     ]
     .into_iter()
     .find_map(|(failed, reason)| failed.then_some(reason))
+}
+
+fn parse_rfc3339_utc(value: &str) -> Option<DateTime<Utc>> {
+    DateTime::<FixedOffset>::parse_from_rfc3339(value)
+        .ok()
+        .map(|timestamp| timestamp.with_timezone(&Utc))
 }
 
 pub(crate) fn audit_requirement_state(action: HouseholdAuthorityAction) -> AuditRequirementState {

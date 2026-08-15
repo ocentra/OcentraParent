@@ -1,3 +1,5 @@
+use std::time::SystemTime;
+
 use crate::JournalHash;
 
 #[derive(Default, Debug)]
@@ -6,6 +8,7 @@ pub(crate) struct NdjsonJournalState {
     pub(super) previous_hash: Option<JournalHash>,
     pub(super) recovered: bool,
     pub(super) file_len: u64,
+    pub(super) file_modified: Option<SystemTime>,
 }
 
 impl NdjsonJournalState {
@@ -15,6 +18,7 @@ impl NdjsonJournalState {
             previous_hash: None,
             recovered: true,
             file_len: 0,
+            file_modified: None,
         }
     }
 }

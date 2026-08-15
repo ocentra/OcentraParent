@@ -66,7 +66,7 @@ fn malformed_receipt_is_rejected_before_provider_call() {
 fn noncanonical_timestamp_is_rejected_before_provider_call() {
     let mut verifier = UnavailableParentStepUpAuthorityVerifier;
     let mut malformed = receipt();
-    malformed.expires_at = "2026-08-05T23:05:00Z".to_owned();
+    malformed.expires_at = "2026-08-05T23:05:00+00:00".to_owned();
     assert_eq!(
         verify_parent_step_up_receipt(&mut verifier, &malformed, &request()),
         Err(ParentStepUpAuthorityFailure::TimestampInvalid)

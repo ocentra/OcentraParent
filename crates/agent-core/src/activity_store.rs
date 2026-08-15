@@ -31,6 +31,9 @@ use crate::{
     ActivityJournal, ActivityStoreError,
 };
 
+#[path = "activity_store_app_game_access.rs"]
+mod activity_store_app_game_access;
+
 mod internals;
 
 pub struct ActivityStore {
