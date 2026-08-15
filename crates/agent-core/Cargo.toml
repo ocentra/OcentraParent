@@ -16,6 +16,7 @@ ed25519-dalek = "2.2.0"
 fs2 = "0.4.3"
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-network-evidence = { path = "../ocentra-network-evidence" }
+ocentra-network-core = { path = "../network-core" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 ocentra-schema = { path = "../schema" }
 ocentra-tracking-core = { path = "../tracking-core" }

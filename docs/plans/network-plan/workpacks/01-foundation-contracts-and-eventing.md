@@ -15,7 +15,7 @@ Read next:
 
 ```text
 crates/schema or the owning Rust crate owns canonical shared network contracts and generated DTOs. `packages/schema-domain` is temporary generated-validation or edge-decoder surface only where migration is still incomplete.
-network-domain is metadata/proof-consumer unless explicit public exports exist.
+`crates/network-core`, `crates/agent-protocol`, and `crates/agent-core` are the selected Rust domain, protocol, and runtime owners for this workpack.
 ocentra-network-evidence owns Rust evidence/proof helper logic.
 agent-protocol, agent-core, and agent-service own protocol/runtime/service proof only when selected.
 eventing-plan owns reusable local event bus semantics only.
@@ -65,7 +65,7 @@ These are proof-routing fields, not implementation code prescriptions.
 - Do not claim exact content, exact URL, exact video, search text, or private message truth from network-only evidence.
 - Do not allow AI/network observations to publish enforcement commands.
 - Do not use the giant settings inventory as implementation proof.
-- Do not use `network-domain` package metadata as canonical schema ownership proof. Rust-owned schema proof is required for canonical network contract authority.
+- Do not introduce a TypeScript-owned network schema or a private network event bus. Rust-owned contract proof and `ocentra-eventing` integration are required.
 - Do not use schema proof as Rust parity, eventing, service runtime, or platform proof.
 
 ## Current slice note
@@ -79,3 +79,5 @@ These are proof-routing fields, not implementation code prescriptions.
 - `NetworkFlowObservedEvent` now consumes the reusable `ocentra-eventing` `DomainEvent` and `EventEnvelope` boundary directly under the distinct `network.flow.eventing.observed` contract. The existing `network.flow.observed` runtime stream remains reserved for `NetworkRuntimeEventPayload` subscribers. The focused proof records stored-envelope round trip, blank-device-reference rejection, canonical schema enforcement, and a length-prefixed device/flow idempotency key that cannot collapse when hyphenated component boundaries differ.
 - Proof routing: `docs/proof/network-plan/01-network-foundation-eventing-contract.md` records this WP01 sub-slice against source rows 1-10's reusable-eventing integration obligation, with `docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md` as the reusable-eventing handoff reference. The proof explicitly keeps all untouched WP01 obligations and skipped risk surfaces open.
 - This is only a foundation contract handoff. WP01 remains open: it does not prove the remaining schema parity, evidence-grade, policy-action, private-bus audit, service runtime, or platform rows.
+- The historical `./network-control-catalog` parent-domain contradiction is resolved: the unpublished compatibility surface and shim family were retired, while the selected `network-domain` subpaths remain canonical for that boundary.
+- This does not close the broader WP01 outcome: Rust contract/eventing validation and the workpack's capture, platform, and enforcement no-claim boundaries remain independently required.

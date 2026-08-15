@@ -37,12 +37,12 @@ pub fn execute_authenticated_owned_process_delivery(
     target: OwnedProcessTerminationTarget,
 ) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
     validate_authenticated_delivery_grant(grant, expected, trusted_issuer)
-        .map_err(|_| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
+        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
     if request.issuer_key_id != grant.issuer_key_id || request.nonce != grant.nonce {
         return Err(AuthenticatedDeliveryExecutionApiError::GrantRejected);
     }
     let mut store = AuthenticatedDeliveryExecutionStore::open(request.store_path)
-        .map_err(|_| AuthenticatedDeliveryExecutionApiError::StoreRejected)?;
+        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?;
     let receipt = AuthenticatedDeliveryExecutionReceipt {
         correlation_id: request.correlation_id,
         nonce_digest: redacted_delivery_nonce_digest(&grant.nonce),
@@ -52,7 +52,7 @@ pub fn execute_authenticated_owned_process_delivery(
     };
     if store
         .persist_intent(&grant.issuer_key_id, &grant.nonce, &receipt)
-        .map_err(|_| AuthenticatedDeliveryExecutionApiError::StoreRejected)?
+        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?
     {
         store
             .execute_owned_process(
@@ -61,10 +61,10 @@ pub fn execute_authenticated_owned_process_delivery(
                 target,
                 &request.completed_at,
             )
-            .map_err(|_| AuthenticatedDeliveryExecutionApiError::ExecutionRejected)
+            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ExecutionRejected)
     } else {
         store
             .recover_pending(&grant.issuer_key_id, &grant.nonce)
-            .map_err(|_| AuthenticatedDeliveryExecutionApiError::ReplayRejected)
+            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ReplayRejected)
     }
 }

@@ -2609,6 +2609,7 @@ dependencies = [
  "ed25519-dalek",
  "fs2",
  "ocentra-eventing",
+ "ocentra-network-core",
  "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",
  "ocentra-schema",
@@ -2646,8 +2647,10 @@ version = "0.1.1"
 dependencies = [
  "ocentra-eventing",
  "ocentra-evidence",
+ "ocentra-network-evidence",
  "serde",
  "serde_json",
+ "tokio",
 ]
 
 [[package]]

@@ -138,9 +138,11 @@ async fn app_game_adapter_dispatch_readback_excludes_rejected_enforcement_audits
 async fn app_game_adapter_dispatch_rejection_does_not_create_pre_action_execution_evidence() {
     let paths = temp_paths("pre-action-audit-provenance");
     cleanup_paths(&paths);
-    let execute_event = build_activity_app_game_adapter_dispatch_execute_report_with_paths(
-        dispatch_execute_command(),
-        paths.clone(),
+    let execute_event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(
+            dispatch_execute_command(),
+            paths.clone(),
+        ),
     )
     .await;
     let pre_action_evidence = ActivityStore::open(&paths.store_path).and_then(|store| {

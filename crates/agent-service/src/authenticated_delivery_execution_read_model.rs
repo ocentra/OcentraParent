@@ -17,8 +17,8 @@ pub fn authenticated_delivery_execution_read_model(
 ) -> Result<Option<AuthenticatedDeliveryExecutionReceipt>, AuthenticatedDeliveryExecutionReadError>
 {
     let store = AuthenticatedDeliveryExecutionStore::open(request.store_path)
-        .map_err(|_| AuthenticatedDeliveryExecutionReadError::StoreRejected)?;
+        .map_err(|_error| AuthenticatedDeliveryExecutionReadError::StoreRejected)?;
     store
         .read_receipt(&request.issuer_key_id, &request.nonce)
-        .map_err(|_| AuthenticatedDeliveryExecutionReadError::ReceiptRejected)
+        .map_err(|_error| AuthenticatedDeliveryExecutionReadError::ReceiptRejected)
 }

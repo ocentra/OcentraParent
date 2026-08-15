@@ -80,6 +80,8 @@ mod lan_pairing_provider_selection;
 mod network_android_vpn_service_gate_status_tests;
 #[path = "network_apple_network_extension_gate_status_tests.rs"]
 mod network_apple_network_extension_gate_status_tests;
+#[path = "network_eventing_contract.rs"]
+mod network_eventing_contract;
 #[path = "network_flow_tests.rs"]
 mod network_flow_tests;
 #[path = "network_linux_nftables_lab_status_tests.rs"]

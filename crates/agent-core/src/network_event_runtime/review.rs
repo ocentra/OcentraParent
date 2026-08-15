@@ -28,7 +28,7 @@ impl DomainEvent for NetworkRuntimeReviewRequest {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
             EventType::parse(constants::network_flow::EVENT_NETWORK_REVIEW_REQUESTED)?,
-            SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
+            SchemaVersion::new(constants::network_flow::REVIEW_EVENT_SCHEMA_VERSION)?,
         ))
     }
 
@@ -89,8 +89,13 @@ pub async fn request_network_runtime_review_for_observation(
     .await?;
 
     let phase = NetworkRuntimePhase::PolicyEvaluationRequested;
-    let payload =
-        super::network_runtime_event_payload_from_observation(phase, &observation, observed_at);
+    let decision = super::network_runtime_decision_from_observation(&observation);
+    let payload = super::network_runtime_event_payload_from_observation(
+        phase,
+        &observation,
+        observed_at,
+        decision,
+    );
     let request = NetworkRuntimeReviewRequest {
         request_id: RequestId::parse(network_review_request_id(&payload))?,
         payload,

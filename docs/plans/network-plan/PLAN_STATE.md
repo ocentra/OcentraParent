@@ -29,8 +29,8 @@ crates/schema or the owning Rust crate:
 schema-domain:
   Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 
-network-domain:
-  Package metadata and proof-consumer surface unless a selected public export explicitly exists. Current tests consume Rust-owned/generated network contracts.
+network-core, agent-protocol, and agent-core:
+  Rust-owned network domain decisions, canonical protocol contracts, and production runtime/eventing proof surfaces.
 
 ocentra-network-evidence:
   Rust network evidence/proof crate for packet, DNS, domain, flow, classifier, cascade, policy-handoff, platform-gate, adapter, risk, and AI-audit proof helpers.
@@ -51,7 +51,7 @@ Browser, screen, AI, policy, enforcement, LAN, data custody, device-trust, and n
 ## Current coupling risks
 
 ```text
-- `network-domain` is currently package metadata/proof-consumer surface, while canonical shared network contracts live in `crates/schema` or the owning Rust crate.
+- Canonical shared network contracts live in `crates/agent-protocol`; runtime ownership is `crates/network-core` and `crates/agent-core`.
 - Checklist count is not proof completion.
 - Shim-cleanup skeleton proof is not workpack completion.
 - Schema/unit tests are not live capture proof.
@@ -98,10 +98,10 @@ platform, CI, review, or main-merge claim is made by this slice.
 
 Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a` found:
 
-- the canonical network contract source is `crates/schema` or the owning Rust crate; `packages/network-domain` is a package metadata/proof-consumer surface unless selected public exports exist;
-- real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
+- the canonical network contract source is Rust-owned: `crates/agent-protocol`, with `crates/network-core` and `crates/agent-core` owning domain/runtime behavior;
+- real network code exists across `crates/network-core`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
 - the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
-- two bounded WP01 proof documents exist right now: `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` for the retired parent-domain frontage and `docs/proof/network-plan/01-network-foundation-eventing-contract.md` for the typed reusable-eventing handoff; broader plan proof bundles are still missing;
+- three bounded WP01 proof documents exist right now: `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` for the retired parent-domain frontage, `docs/proof/network-plan/01-network-foundation-eventing-contract.md` for the typed reusable-eventing handoff, and `docs/proof/network-plan/01-foundation-contracts-and-eventing.md` for the reviewed runtime-contract repair; `PLAN_PROOF_MANIFEST.md`, `PROOF_INDEX.md`, and `PLAN_HEALTH.md` route those receipts while broader plan proof bundles remain missing;
 - `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
 
 ## Current slice checkpoint
@@ -114,7 +114,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 
 ## What is already present in source
 
-- `packages/network-domain` is present as package metadata/proof-consumer surface and has unit tests that consume Rust-owned/generated network contracts.
+- `crates/network-core` owns network domain/runtime decisions; it does not create a second schema truth.
 - `crates/agent-protocol` owns real Rust network contracts, status payload shapes, constants, and protocol tests.
 - `crates/agent-core` owns real network capture, ActivityStore network rows, runtime chain, queue, replay, and remote-delivery proof logic with tests.
 - `crates/agent-service` owns real network payload, digest, runtime-delivery, product-path, remote-delivery, and platform-gate bridge code with tests.
@@ -126,7 +126,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 ### Real dependency blockers
 
 - Cross-plan rows that depend on browser exact-URL evidence, screen-summary fallback, AI runtime ownership, eventing semantics, LAN/family-hub delivery, or enforcement authority remain dependent on their owning plans.
-- No current proof manifest or committed proof bundle ties the scattered TS, Rust, script, and portal surfaces back to this plan's workpacks.
+- The current proof manifest ties the reviewed WP01 contract/runtime slice to its retained proof route; it does not prove broader plan completion, live capture, or platform readiness.
 
 ### External platform constraints
 
@@ -137,7 +137,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Windows proof is expected where a row needs it; current gaps are proof-generation and row-tracking gaps, not a host limitation.
 - Android tooling is present and an AVD exists, but no device is attached right now and the remembered Samsung Wi-Fi ADB endpoint did not answer during the audit refresh.
 - WSL is installed but stopped, and Docker Desktop's binary exists while the Linux engine is currently unavailable; Linux proof through WSL and/or Docker is therefore feasible but not currently active.
-- only `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` exist so far; all broader plan proof bundles still need to be generated before rows can close honestly.
+- The shim-cleanup proof and the WP01 foundation-contract manifest/receipt exist; all broader plan proof bundles still need to be generated before rows can close honestly.
 - Production live packet capture driver support and live raw artifact creation.
 - Router/log import implementation proof.
 - Local AI model execution or remote provider execution.

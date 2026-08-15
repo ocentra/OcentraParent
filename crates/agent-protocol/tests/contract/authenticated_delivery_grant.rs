@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrant, AuthenticatedDeliveryGrantCarrier,
     AuthenticatedDeliveryGrantValidationError, AUTHENTICATED_DELIVERY_GRANT_SCHEMA_VERSION,
@@ -30,8 +31,9 @@ fn grant() -> AuthenticatedDeliveryGrant {
 #[test]
 fn authenticated_delivery_grant_round_trips_and_binds_every_security_field() {
     let original = grant();
-    let encoded = serde_json::to_string(&original).expect("serialize test grant");
-    let decoded: AuthenticatedDeliveryGrant = serde_json::from_str(&encoded).expect("decode grant");
+    let encoded = serde_json::to_string(&original).expect_value("serialize test grant");
+    let decoded: AuthenticatedDeliveryGrant =
+        serde_json::from_str(&encoded).expect_value("decode grant");
     assert_eq!(decoded, original);
     assert_eq!(decoded.validate_shape(), Ok(()));
     let mut tampered = decoded.clone();
@@ -57,16 +59,16 @@ fn authenticated_delivery_grant_rejects_malformed_digest_and_time_window() {
 
 #[test]
 fn authenticated_delivery_grant_carrier_round_trips_without_verifier_material() {
-    let carrier = AuthenticatedDeliveryGrantCarrier::new(grant()).expect("create carrier");
-    let encoded = serde_json::to_value(&carrier).expect("serialize carrier");
+    let carrier = AuthenticatedDeliveryGrantCarrier::new(grant()).expect_value("create carrier");
+    let encoded = serde_json::to_value(&carrier).expect_value("serialize carrier");
     assert_eq!(encoded.as_object().map(|value| value.len()), Some(1));
     assert_eq!(
         encoded.get("grant"),
-        Some(&serde_json::to_value(grant()).expect("serialize expected grant"))
+        Some(&serde_json::to_value(grant()).expect_value("serialize expected grant"))
     );
     assert!(encoded.get("verifyingKey").is_none());
     let decoded: AuthenticatedDeliveryGrantCarrier =
-        serde_json::from_value(encoded).expect("decode carrier");
+        serde_json::from_value(encoded).expect_value("decode carrier");
     assert_eq!(decoded.grant(), &grant());
     assert_eq!(decoded.validate_shape(), Ok(()));
 }
