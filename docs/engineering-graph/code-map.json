@@ -101,10 +101,19 @@
     ],
     "portal-ux-household-surfaces-plan": ["apps/portal", "packages/portal-domain", "crates/agent-service"],
     "remote-access-plan": [
+      "crates/schema/src/remote_capability_fabric.rs",
+      "crates/schema/src/remote_capability_fabric",
+      "crates/schema/tests/contract/remote_capability_fabric.rs",
+      "crates/schema/tests/contract/remote_capability_fabric_authorization.rs",
       "crates/remote-access-core",
       "crates/screen-live-view-core",
-      "crates/lan-core",
-      "apps/portal"
+      "crates/child-runtime/src/runtime_gate.rs",
+      "crates/child-runtime/tests/unit/runtime_gate.rs",
+      "crates/agent-protocol/src/constants/screen_flow.rs",
+      "crates/agent-service/src/service_runtime.rs",
+      "crates/agent-service/src/screen_ai_service_event_subscription/live_view_service_runtime.rs",
+      "crates/agent-service/src/screen_ai_service_event_subscription/live_view_service_runtime",
+      "crates/agent-service/tests/unit/live_view_service_runtime_tests.rs"
     ],
     "screen-ai-pipeline-plan": [
       "crates/screen-core",
@@ -915,21 +924,72 @@
       "planSlug": "remote-access-plan",
       "roots": [
         "crates/schema/src/remote_capability_fabric.rs",
-        "crates/schema/tests/contract/remote_capability_fabric.rs"
+        "crates/schema/src/remote_capability_fabric",
+        "crates/schema/tests/contract/remote_capability_fabric.rs",
+        "crates/schema/tests/contract/remote_capability_fabric_authorization.rs"
+      ]
+    },
+    "WP-remote-access-plan-02-live-screen-relay": {
+      "planSlug": "remote-access-plan",
+      "roots": [
+        "crates/remote-access-core/src/remote_access_session.rs",
+        "crates/remote-access-core/tests/contract/remote_access_session_contracts.rs",
+        "crates/remote-access-core/tests/unit/session.rs",
+        "crates/remote-access-core/tests/unit/session_authorization.rs",
+        "crates/screen-live-view-core/src/live_view_runtime.rs",
+        "crates/screen-live-view-core/src/live_view_worker.rs",
+        "crates/screen-live-view-core/tests/unit/live_view_runtime.rs",
+        "crates/screen-live-view-core/tests/security/live_view_worker.rs",
+        "crates/child-runtime/src/runtime_gate.rs",
+        "crates/child-runtime/tests/unit/runtime_gate.rs",
+        "crates/agent-protocol/src/constants/screen_flow.rs",
+        "crates/agent-service/src/service_runtime.rs",
+        "crates/agent-service/src/screen_ai_service_event_subscription/live_view_service_runtime.rs",
+        "crates/agent-service/src/screen_ai_service_event_subscription/live_view_service_runtime",
+        "crates/agent-service/tests/unit/live_view_service_runtime_tests.rs"
+      ]
+    },
+    "WP-remote-access-plan-03-remote-input-control-authority": {
+      "planSlug": "remote-access-plan",
+      "codeExpectation": "no-code-required",
+      "roots": [
+        "crates/remote-access-core/src/remote_access_session.rs",
+        "crates/remote-access-core/tests/unit/session.rs",
+        "crates/remote-access-core/tests/unit/session_authorization.rs"
       ]
     },
     "WP-remote-access-plan-04-session-pairing-grants": {
       "planSlug": "remote-access-plan",
       "roots": [
         "crates/remote-access-core/src/remote_access_grant",
+        "crates/remote-access-core/tests/unit/grant_authority.rs",
+        "crates/remote-access-core/tests/unit/grant_persistence.rs",
         "crates/remote-access-core/tests/unit/grant.rs",
         "crates/remote-access-core/tests/unit/grant_replay.rs",
+        "crates/remote-access-core/tests/unit/grant_replay_capacity.rs",
         "crates/remote-access-core/tests/unit/grant_supersession.rs",
         "crates/schema/src/remote_capability_fabric.rs",
         "crates/schema/src/remote_capability_fabric/remote_capability_fabric_authorization.rs",
         "crates/schema/src/remote_capability_fabric/remote_capability_fabric_deserialization.rs",
         "crates/schema/tests/contract/remote_capability_fabric.rs"
       ]
+    },
+    "WP-remote-access-plan-05-relay-security-abuse-controls": {
+      "planSlug": "remote-access-plan",
+      "roots": [
+        "crates/remote-access-core/src/remote_access_session.rs",
+        "crates/remote-access-core/tests/unit/session.rs",
+        "crates/remote-access-core/tests/unit/session_authorization.rs",
+        "crates/screen-live-view-core/src/live_view_runtime.rs",
+        "crates/screen-live-view-core/src/live_view_worker.rs",
+        "crates/screen-live-view-core/tests/unit/live_view_runtime.rs",
+        "crates/screen-live-view-core/tests/security/live_view_worker.rs"
+      ]
+    },
+    "WP-remote-access-plan-06-rollout-proof-and-route-gate": {
+      "planSlug": "remote-access-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth": {
       "planSlug": "device-trust-bootstrap-plan",

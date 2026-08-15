@@ -4,8 +4,8 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `2eefb192e`. The dated
+Last broad source inventory: 2026-08-15, on the merged `develop` organization
+baseline at `156eb730a`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -29,12 +29,12 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,966
-implementation files and 1,215 test files, but only **119 of 679 workpacks**
-(17.53%) have reviewed, exact code/test ownership maps. Account Identity,
+implementation files and 1,215 test files, but only **123 of 679 workpacks**
+(18.11%) have reviewed, exact code/test ownership maps. Account Identity,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
-Payment/Subscription, Policy Control Plane, and Setup/Install/Provisioning are
-fully mapped; 560 workpacks across the repository
+Payment/Subscription, Policy Control Plane, Remote Access, and
+Setup/Install/Provisioning are fully mapped; 556 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -61,7 +61,7 @@ strong enough for workpack-level decisions.
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 13 / 13 | Fully code-mapped; WP00 is complete for Phase 1 code/expected-test writing, while twelve workpacks retain concrete code/test gaps. |
 | Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 8 / 8 | Fully code-mapped; WP03 is Phase 1 complete and seven workpacks retain concrete code/test gaps. |
 | Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 683 / 448 | 0 / 20 | Unattributed. |
-| Remote access | 6 | 4/0/0/0/2/0 | 371 / 137 | 2 / 6 | Partial; WP01 capability and WP04 pairing-grant roots are mapped. |
+| Remote access | 6 | 4/0/0/0/2/0 | 35 / 19 | 6 / 6 | Fully code-mapped; WP01 and proof-only WP06 have no Phase 1 writing gap, while WP02-WP05 retain concrete runtime, deferred-control, persistence, or relay-security gaps. |
 | Screen AI pipeline | 10 | 10/0/0/0/0/0 | 517 / 361 | 0 / 10 | Unattributed. |
 | Screen | 43 | 25/0/0/0/18/0 | 95 / 26 | 0 / 43 | Unattributed. |
 | Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 529 / 196 | 7 / 7 | Fully code-mapped; six workpacks have no Phase 1 writing gap, while WP07 remains a static unavailable-state panel rather than the required live first-run state machine. |
@@ -384,6 +384,33 @@ code-and-expected-test-writing phase. WP05-WP08 and WP10 retain concrete
 expected-test or instrumentation-enforcement gaps. The plan's source-present
 and partial-proof labels therefore do not establish Phase 1 completion, and no
 Phase 2 passing-test/Enforcer or Phase 3 proof/PR_READY claim is inferred.
+
+### Remote Access Phase 1 code/test audit - 2026-08-15
+
+This audit follows the live Rust capability, grant, session, child-runtime,
+screen-live-view, and agent-service paths. It also searches for production
+callers and relay/security behavior, so a type name, environment flag, or
+boolean execution record is not counted as a working relay. Historical proof
+roots and checklist marks were not used to decide whether implementation or
+expected test code exists. No mapped test is claimed passing until Phase 2.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Remote Capability Fabric | Three implementation files and two contract test files define a Rust-owned view-only capability grant with explicit household, parent/support actor, child device, route, pairing, grant, session, device-trust, audit, and diagnostic-redaction fields. Tests cover serialization/versioning plus wrong household, actor, device, route, pairing, trust, revoked/removed, missing audit, raw diagnostics, and deferred-control rejection. | **Complete for Phase 1** | No missing contract behavior or named negative-test family was found. Runtime pairing, relay, custody, and rendered disclosure belong to later workpacks; focused execution remains Phase 2. |
+| WP02 Live Screen Relay | Nine implementation and seven test files provide typed remote session authorization/effect decisions, child-runtime gating, live-view readiness/worker decisions, agent-service startup wiring, relay/LAN mode selection, bounded duration, replay rejection, no-raw-cache/no-recording/no-input guards, and prerequisite tests. | **Incomplete** | `start_screen_live_view_worker` only returns a `worker_started` record; no capture-to-transport/relay worker, protected-surface handling, degraded/reconnect state machine, child disclosure delivery, parent rendered state, or executable deletion/custody boundary exists. Relay readiness is supplied by environment proof booleans, not verified runtime behavior. |
+| WP03 Remote Input Control Authority | The workpack is explicitly deferred and expects no current-pass code. One implementation file and two test files nevertheless expose `InputAllowed` and produce `RemoteAccessInputBridgeState::Start` when the generic session gates pass; a test asserts that start path. | **Incomplete** | Current code contradicts the live-view-only no-code/no-claim boundary. It does not implement a real input bridge, but it models control as startable without the workpack's fresh confirmation, scoped input, blocked-surface, stop/escape, policy, platform-permission, replay-input, or privilege-escalation authority. This legacy surface must be removed or fail-closed until WP03 is explicitly opened. |
+| WP04 Session Pairing Grants | Twenty-four implementation and seven test files implement a detailed in-memory/serializable live-view grant lifecycle with parent confirmation, disclosure, paired/active/paused/stopped/reconnect/terminal states, current-authority and device-trust checks, support visibility, revocation/removal precedence, supersession, bounded replay identity, restart-recovery evidence, durable event-shaped audit milestones, and extensive negative/round-trip tests. | **Incomplete** | Production search finds grant construction and transitions only in this crate's tests. There is no persistence adapter/store, composition-root loading, live session/relay consumer, device-trust authority port, child/portal disclosure delivery, or durable audit-journal owner. JSON round trips and replay history are contract code, not a persistence-backed runtime. |
+| WP05 Relay Security Abuse Controls | Three implementation and four test files contain relay available/unavailable, request replay, relay-mode/cache prerequisite, transport selection, and unsafe-retention/control blocking states. | **Incomplete** | No authenticated capability-scoped relay token, expiry/replay store, rate limiting, backpressure, per-household/device connection limits, cross-household isolation, origin/host/redirect defense, stale-grant cache control, partial-outage/slow-dependency/reconnect-storm handling, redacted diagnostics, metrics, or abuse alert implementation/test matrix exists. Current relay claims are prerequisite booleans only. |
+| WP06 Rollout Proof And Route Gate | Expected topology is `no-code-required`; this packet aggregates the five current-pass workpacks and explicitly keeps WP03 deferred. | **Complete for Phase 1** | No product implementation is authorized by this proof-only packet. Its accepted/missing proof roots, route synchronization, manual gaps, and no-overclaim result remain Phase 3 and cannot close while WP02, WP04, and WP05 are incomplete. |
+
+**Remote Access Phase 1 result:** all 6/6 workpacks now have reviewed
+code/test ownership. WP01 and the proof-only WP06 have no Phase 1 writing gap.
+WP02-WP05 remain incomplete: the repository has strong capability and grant
+contracts, but no real relay/live-view data path, the deferred input surface is
+incorrectly startable in legacy effect-plan code, pairing grants are not owned
+by a persistence-backed production runtime, and relay abuse controls are
+largely absent. No Phase 2 passing-test/Enforcer or Phase 3 proof/PR_READY claim
+is inferred.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
