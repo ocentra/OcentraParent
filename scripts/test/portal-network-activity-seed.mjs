@@ -12,24 +12,26 @@ export const PortalNetworkActivitySeed = Object.freeze({
   JournalEvidenceId: NetworkEvidenceDrawerProofFixture.journalEvidenceId,
 });
 
-const SeedDatabaseOptions = Object.freeze({
-  busyTimeoutMs: 1_500,
-  maxLockAttempts: 3,
+const DatabaseLockRetry = Object.freeze({
+  BusyTimeoutMs: 1_500,
+  MaxAttempts: 8,
+  InitialDelayMs: 25,
 });
 
 export function seedPortalNetworkActivityStore(activityDbPath) {
   let lastLockError;
-  for (let attempt = 1; attempt <= SeedDatabaseOptions.maxLockAttempts; attempt += 1) {
+  for (let attempt = 1; attempt <= DatabaseLockRetry.MaxAttempts; attempt += 1) {
     const database = new DatabaseSync(activityDbPath);
     try {
-      database.exec(`PRAGMA busy_timeout = ${SeedDatabaseOptions.busyTimeoutMs};`);
+      database.exec(`PRAGMA busy_timeout = ${DatabaseLockRetry.BusyTimeoutMs};`);
       seedNetworkActivityStore(database);
       return;
     } catch (error) {
-      if (!isSqliteLockError(error) || attempt === SeedDatabaseOptions.maxLockAttempts) {
+      if (!isRetriableDatabaseLockError(error) || attempt === DatabaseLockRetry.MaxAttempts) {
         throw error;
       }
       lastLockError = error;
+      waitForDatabaseLockRetry(attempt);
     } finally {
       database.close();
     }
@@ -223,10 +225,6 @@ function seedEvidenceIds(value) {
   return parsed.map((entry) => entry?.evidenceId).filter((evidenceId) => typeof evidenceId === 'string');
 }
 
-function isSqliteLockError(error) {
-  return error instanceof Error && /SQLITE_(?:BUSY|LOCKED)|database is (?:locked|busy)/iu.test(error.message);
-}
-
 function screenActivityFields() {
   return {
     screenAnalysisResultId: 'screen-summary-parent-explanation-service-row',
@@ -265,4 +263,13 @@ function screenActivityEvidence() {
       uri: null,
     },
   ];
+}
+
+function isRetriableDatabaseLockError(error) {
+  return error instanceof Error && /SQLITE_(?:BUSY|LOCKED)|database is (?:locked|busy)/iu.test(error.message);
+}
+
+function waitForDatabaseLockRetry(attempt) {
+  const retryDelayMs = DatabaseLockRetry.InitialDelayMs * attempt;
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT)), 0, 0, retryDelayMs);
 }

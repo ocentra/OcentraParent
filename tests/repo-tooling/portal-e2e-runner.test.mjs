@@ -134,17 +134,20 @@ test('portal network activity seed commits while a concurrent reader holds the a
     const reader = holdDatabaseReadTransaction(activityDbPath, 150);
     seedPortalNetworkActivityStore(activityDbPath);
     await reader;
-    const database = new DatabaseSync(activityDbPath);
-    try {
-      const row = database
-        .prepare('SELECT evidence_json FROM activity_events WHERE event_id = ?;')
-        .get(PortalNetworkActivitySeed.EventId);
+    assertSeededNetworkEvidence(activityDbPath);
+  } finally {
+    await rm(runRoot, { recursive: true, force: true });
+  }
+});
 
-      assert.equal(typeof row.evidence_json, 'string');
-      assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId), true);
-    } finally {
-      database.close();
-    }
+test('portal network activity seed waits for a transient SQLite write lock before persisting evidence', async () => {
+  const runRoot = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-network-seed-lock-'));
+  const activityDbPath = path.join(runRoot, 'activity.sqlite');
+  const lock = holdDatabaseWriteLock(activityDbPath, 150);
+  try {
+    seedPortalNetworkActivityStore(activityDbPath);
+    await lock;
+    assertSeededNetworkEvidence(activityDbPath);
   } finally {
     await rm(runRoot, { recursive: true, force: true });
   }
@@ -184,6 +187,14 @@ test('network drawer proof ids stay single-sourced across scripts and portal tes
 });
 
 function holdDatabaseReadTransaction(activityDbPath, holdMs) {
+  return holdDatabaseTransaction(activityDbPath, holdMs, false);
+}
+
+function holdDatabaseWriteLock(activityDbPath, holdMs) {
+  return holdDatabaseTransaction(activityDbPath, holdMs, true);
+}
+
+function holdDatabaseTransaction(activityDbPath, holdMs, writeLock) {
   const state = new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT));
   const worker = new Worker(
     `
@@ -191,8 +202,10 @@ function holdDatabaseReadTransaction(activityDbPath, holdMs) {
       const { workerData } = require('node:worker_threads');
       const state = new Int32Array(workerData.state);
       const database = new DatabaseSync(workerData.activityDbPath);
-      database.exec('BEGIN;');
-      database.prepare('SELECT event_id FROM activity_events LIMIT 1;').get();
+      database.exec(workerData.writeLock ? 'BEGIN IMMEDIATE;' : 'BEGIN;');
+      if (!workerData.writeLock) {
+        database.prepare('SELECT event_id FROM activity_events LIMIT 1;').get();
+      }
       Atomics.store(state, 0, 1);
       Atomics.notify(state, 0);
       Atomics.wait(state, 0, 1, workerData.holdMs);
@@ -201,7 +214,7 @@ function holdDatabaseReadTransaction(activityDbPath, holdMs) {
     `,
     {
       eval: true,
-      workerData: { activityDbPath, holdMs, state: state.buffer },
+      workerData: { activityDbPath, holdMs, state: state.buffer, writeLock },
     }
   );
   const acquired = Atomics.wait(state, 0, 0, 5_000);
@@ -213,7 +226,22 @@ function holdDatabaseReadTransaction(activityDbPath, holdMs) {
         resolve();
         return;
       }
-      reject(new Error(`SQLite reader worker exited with code ${code}.`));
+      const workerKind = writeLock ? 'lock' : 'reader';
+      reject(new Error(`SQLite ${workerKind} worker exited with code ${code}.`));
     });
   });
+}
+
+function assertSeededNetworkEvidence(activityDbPath) {
+  const database = new DatabaseSync(activityDbPath);
+  try {
+    const row = database
+      .prepare('SELECT evidence_json FROM activity_events WHERE event_id = ?;')
+      .get(PortalNetworkActivitySeed.EventId);
+
+    assert.equal(typeof row.evidence_json, 'string');
+    assert.equal(row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId), true);
+  } finally {
+    database.close();
+  }
 }
