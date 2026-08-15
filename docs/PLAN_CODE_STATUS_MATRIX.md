@@ -20,10 +20,10 @@ There are no open pull requests. Remote branches are reduced to `main`,
 `develop`, `production`, and the protected
 `codex/archive/all-remote-tips-20260815`; the archive contains every deleted
 remote tip. The only registered OcentraParent worktree is `E:/OcentraParent`;
-the current local `codex/tracking-plan-code-audit` branch is the sole active
-audit branch and has no remote branch yet. AI's 48-workpack audit reached
-`main` through PRs `#700`, `#701`, and `#702`; the Tracking audit below is the
-next unpublished whole-plan slice.
+short-lived audit branch names are intentionally not status authority here.
+AI's 48-workpack audit reached `main` through PRs `#700`, `#701`, and `#702`;
+Tracking's 42-workpack audit reached `main` through PRs `#703`, `#704`, and
+`#705`.
 
 The executable graph validates at 703 nodes and 705 edges. It imports **23**
 actual plan rows and 679 workpacks. The earlier apparent count of 24 included
