@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `406df7e54`. The dated
+baseline at `70485bc4a`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -28,12 +28,13 @@ the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
 Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,917
-implementation files and 1,214 test files, but only **98 of 679 workpacks**
-(14.43%) have reviewed, exact code/test ownership maps. Account Identity,
-Cloudflare Control Plane, Data Custody, Device Trust, Eventing, Parent Client
-Runtime Distribution, Payment/Subscription, Policy Control Plane, and
-Setup/Install/Provisioning are fully mapped; 581 workpacks across the repository
+This is the key code-first limitation: live plan roots contain 2,951
+implementation files and 1,214 test files, but only **109 of 679 workpacks**
+(16.05%) have reviewed, exact code/test ownership maps. Account Identity,
+Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
+Device Trust, Eventing, Parent Client Runtime Distribution,
+Payment/Subscription, Policy Control Plane, and Setup/Install/Provisioning are
+fully mapped; 570 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -48,7 +49,7 @@ strong enough for workpack-level decisions.
 | App/game | 220 | 132/0/0/0/88/0 | 688 / 436 | 0 / 220 | Unattributed; the large validation set cannot be treated as implemented. |
 | App | 95 | 94/0/0/0/1/0 | 670 / 421 | 1 / 95 | Partial; WP01 contract/runtime-decision roots are mapped. |
 | Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
-| Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
+| Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 / 10 | 11 / 11 | Fully code-mapped; WP01, WP02, WP05, WP06, and WP09 are Phase 1 complete for their bounded scope, while six workpacks retain runtime, lifecycle-test, handoff, or release-gate gaps. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 13 / 13 | Fully code-mapped; WP00-WP02 and WP04 are Phase 1 complete, while nine workpacks retain concrete code/test gaps. |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 426 / 131 | 9 / 9 | Fully code-mapped; WP08 is complete for its research/test-only scope, while eight workpacks retain concrete code/test gaps. |
@@ -324,6 +325,38 @@ or expected-test gaps. The plan's seven document-claimed closures therefore do
 not establish product or release completion. No Phase 2 passing-test, signing,
 store, or Phase 3 proof/PR_READY claim is inferred.
 
+### Child Agent Runtime Distribution Phase 1 code/test audit - 2026-08-15
+
+This audit follows the actual Windows MSI/service harness, macOS launchd
+package, Linux systemd package, Android child application, iOS capability
+application, Rust-owned shared contracts, smoke scripts, and CI/release
+workflows. Enforcer-hosted legacy proof runners were inspected where repository
+commands route to them, but external Enforcer files are not counted as
+repository code roots. No mapped test is claimed passing until Phase 2.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Child Agent Scope And Route Boundary | Expected topology is `no-code-required`; this packet owns the child-versus-parent/setup/trust/runtime distribution boundary. | **Complete for Phase 1** | No product implementation is authorized by the routing packet. The remaining workpacks must still obey its package/install/runtime/respawn/uninstall separation. |
+| WP02 Child Windows Service Package | The WiX MSI, WinSW/service configuration, signed-update-manifest builder, installer, artifact verifier, elevated lifecycle harness, CI MSI install/uninstall smoke, and repository asset test are written. The lifecycle harness distinguishes install, start, stop, restart, service-manager recovery state, uninstall, and residual authority cleanup. | **Complete for Phase 1** | The existing CI smoke exercises install/start/uninstall only; the fuller harness still needs an elevated Phase 2 run. Crash-loop and reboot recovery remain explicitly unexercised/manual rather than missing core harness code. |
+| WP03 Child macOS Service Package | The launchd plist, `pkgbuild` script, pre/post-install launchctl hooks, checksum output, payload smoke, thin package-proof contract/test, and macOS CI package job are written. | **Incomplete** | The smoke only expands and inspects the package payload. No real-host install/bootstrap/health/kill-recovery/disable/uninstall/cleanup harness or corresponding negative tests exist; signing and notarization automation are also absent. |
+| WP04 Child Linux Service Package | The baseline-pinned `.deb` builder, systemd unit, package hooks, checksum/baseline test, contract test, CI job, and smoke code cover extraction health plus `dpkg` install/remove/purge. | **Incomplete** | Maintainer scripts ignore `systemctl` failures, and the smoke never asserts the installed service becomes active, survives a crash through `Restart=always`, or cleans runtime/data state after service-managed execution. Those expected lifecycle tests are not written. |
+| WP05 Child Android Agent Package | The Gradle child app, declared foreground service, debug-APK/checksum builder, lifecycle/device-proof contracts, CI contract jobs, and emulator install/launch/process/uninstall smoke are written for the explicit debug-sideload mode. | **Complete for Phase 1** | Device-owner, managed-profile, Play Store, reboot recovery, and physical-device authority remain intentionally manual/Phase 2-3 boundaries; this row does not infer them from emulator launch. |
+| WP06 Child iOS Capability Package | Rust owns the capability contract and generated TypeScript, with Rust contract tests, a current repository proof harness, the Xcode capability-only app, simulator ZIP builder, simulator install/launch/uninstall smoke, and dedicated CI jobs. | **Complete for Phase 1** | Physical-device provisioning/signing, supervision, store distribution, and background execution remain explicit manual or unsupported boundaries rather than hidden daemon claims. |
+| WP07 Child Managed Service Respawn | Windows, macOS, and Linux service-manager declarations plus Android/iOS limitation surfaces are present, with nearby platform contract tests. | **Incomplete** | No repository-owned managed-respawn contract/test exists. The Enforcer legacy runner still imports deleted `schema-domain` source/test files and proves configuration strings rather than executing kill, reboot, service-manager restart, and deliberate-stop behavior. Real host/emulator respawn test code is missing. |
+| WP08 Child Parent Authorized Uninstall | `child-enforcement-core` retains a Rust-owned generator for the uninstall/tamper status read model and one contract test; platform package smoke paths provide nearby removal mechanics. | **Incomplete** | No production parent authorization, one-shot/replay guard, trust revocation mutation, audit append, platform adapter dispatch, or teardown workflow consumes this contract. The legacy Enforcer runner targets deleted TypeScript schema/consumer tests, so it cannot establish current expected-test coverage. |
+| WP09 Child Signing Store Device Owner Matrix | Rust owns the five-platform matrix and generated TypeScript with a focused Rust contract test; release builders expose the actual unsigned/debug/simulator artifact states. | **Complete for Phase 1** | The legacy Enforcer proof command still expects removed TypeScript adapter/test files and must be rerouted during Phase 2. Actual signing, notarization, repository/store publication, and mobile enrollment artifacts remain later platform/release work, not missing matrix code. |
+| WP10 Setup Device Trust Handoff | Eight Rust contract modules and one contract test define branded request/response identities, platform/artifact state, manual-required state, replay-guard reference, route sync, and no-claim boundaries. | **Incomplete** | Repository-wide usage is limited to schema tests. No setup/trust producer constructs the request, no distribution consumer validates/acknowledges it, no durable replay/expiry owner exists, and no end-to-end wrong-household/device/package/replay test is written. |
+| WP11 Proof CI Release Gate | CI detects and builds all five child package targets; package-preview runs Windows/Linux/macOS/Android/iOS smoke code, while repository release/version/packaging tests cover the workflow surface. | **Incomplete** | The production release workflow publishes only the Windows child MSI. There is no executable child-plan aggregate gate over WP01-WP10, no signed/notarized/store promotion path for the other platforms, and no release decision that rejects missing lifecycle, respawn, uninstall, handoff, or platform-authority evidence. |
+
+**Child Agent Runtime Distribution Phase 1 result:** all 11/11 current
+workpacks now have reviewed code/test ownership. WP01, WP02, WP05, WP06, and
+WP09 are complete for code/expected-test writing within their bounded route,
+Windows-harness, debug-emulator, capability-only, and matrix scopes. WP03,
+WP04, WP07, WP08, WP10, and WP11 retain concrete lifecycle-test, runtime,
+handoff, or release-gate gaps. The plan's ten document-claimed closures
+therefore do not establish child runtime or release completion. No Phase 2
+passing-test or Enforcer claim and no Phase 3 proof/PR_READY claim is inferred.
+
 ## Consolidated branch code/test inventory - 2026-08-09
 
 This is the recorded **source and test-topology** pass from 2026-08-09 on the
@@ -365,7 +398,7 @@ than one plan; they are not completion percentages.
 | App/game | 220 | 132/0/0/0/88/0 | 667 | 434 |
 | App | 95 | 94/0/0/0/1/0 | 649 | 419 |
 | Browser | 30 | 30/0/0/0/0/0 | 610 | 452 |
-| Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 31 | 9 |
+| Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 | 10 |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 | 63 |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 636 | 406 |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 294 | 101 |
@@ -600,7 +633,7 @@ proof artifact, checklist row, and merge state agree.
 | `app-plan` | Foundation | `app-core`, `agent-service`, `schema` | `app-core` has 3 source / 5 test files; service owns wider integration. | App-only authority and runtime evidence are incomplete. | Make app identity/evidence flow a single Rust-owned service path. |
 | `app-game-plan` | Integration | `app-game-core`, `agent-service`, `schema` | 25 source / 20 test files; inventory, runtime, journal, and policy code exist. | Live platform metadata/crawling and portal product rows are incomplete. | Finish one live Windows app/game capture-to-read-model path. |
 | `browser-plan` | Integration | `browser-core`, `agent-service`, `portal` | 43 source / 20 test files; managed-browser and intervention paths exist. | Managed/unmanaged execution and policy rollback are not closed. | Prove browser policy command through service, adapter, and visible portal state. |
-| `child-agent-runtime-distribution-plan` | Integration | `child-runtime`, platform projects, release scripts | Child runtime, Android/iOS/Linux/macOS artifacts and proof surfaces exist. | Windows lifecycle/package proof is blocked; release proof is not whole-product readiness. | Resolve Windows service lifecycle and package smoke proof. |
+| `child-agent-runtime-distribution-plan` | Fully audited / Phase 1 incomplete | `child-runtime`, Rust schema/child-enforcement contracts, Android/iOS child apps, desktop package/service scripts, CI/release workflows | All 11 workpacks have reviewed code/test ownership. Windows lifecycle harness, Android emulator lifecycle, iOS capability package, platform matrix, and all five package builders are real. | Six workpacks still lack real-host lifecycle tests, executable respawn, parent-authorized uninstall runtime, a consumed setup/trust handoff, or a complete multi-platform release gate; several migrated Enforcer proof runners target deleted files. | Complete macOS/Linux lifecycle tests first, then respawn/uninstall and setup-handoff runtime paths, and close with the aggregate multi-platform release gate. |
 | `cloudflare-control-plane-plan` | Fully audited / Phase 1 incomplete | `infra/cloudflare`, account/billing contracts, portal consumer boundary | All 13 workpacks now have reviewed code/test ownership. WP00-WP02 and WP04 are complete for code/expected-test writing; the Worker, bindings, runner, local-dev, security, and contract source is real. | Nine workpacks still lack required runtime/authority/persistence/consumer/deployment or verifier code. The sharpest gaps are real auth/provider verification, durable DO state, account migration isolation, actual persisted local seeding, a true portal consumer smoke, and deployment/rollback automation. | Complete the nine Phase 1 rows before broad Cloudflare tests or proof regeneration; then run focused module families and Enforcer, followed by retained proof and the payment handoff gate. |
 | `data-custody-storage-plan` | Integration | `storage-custody-core`, `ocentra-evidence`, `ocentra-eventing` | Storage core has 63 source / 12 test files; custody/delete/export shapes exist. | Rollout/route-gate aggregation and cross-runtime custody proof remain open. | Prove one retention/delete/export flow through storage, eventing, and service. |
 | `device-trust-bootstrap-plan` | Fully audited / Phase 1 incomplete | `family-identity-core`, `storage-custody-core`, `parent-runtime-core`, `entitlement-core`, `child-enforcement-core`, `schema` | All 9 workpacks have reviewed code/test ownership. Durable lifecycle/parent-presence libraries, a Windows DPAPI custody slice, signed step-up proof contracts, entitlement/recovery contracts, and honest tamper-status rows are real; WP08 is complete for its research/test-only scope. | Eight workpacks still lack required production composition, cross-platform custody, live approval/QR authority, trusted entitlement verification, actual restore/re-pair mutation, child tamper/uninstall execution, or a route-gate verifier. | Complete WP01's live trust-owner composition first, then WP02/WP03 platform custody and authority; continue in dependency order through WP04-WP07 and close with WP09 after WP08's bounded research packet. |
@@ -635,7 +668,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `app-game-plan` | 88 | 54 | 34 | 0 | The remaining 34 are only `possibly done`; audit before implementation. |
 | `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
 | `browser-plan` | 24 | 0 | 24 | 0 | Substantial runtime exists, but every execution row remains open. |
-| `child-agent-runtime-distribution-plan` | 11 | 10 | 1 | 0 | Index claims ten complete while the generic checklist reports none. |
+| `child-agent-runtime-distribution-plan` | 11 | 10 | 1 | 0 | Fully mapped from live code/tests. Five workpacks are Phase 1 complete for bounded scope; six retain concrete lifecycle/runtime/handoff/release-gate gaps despite ten index-level completion labels. |
 | `cloudflare-control-plane-plan` | 13 | 0 | 13 | 0 | Fully mapped from live source/tests. WP00-WP02 and WP04 are Phase 1 complete for code/expected-test writing; no proof row is freshly reverified, and WP03 plus WP05-WP12 have concrete Phase 1 gaps. |
 | `data-custody-storage-plan` | 8 | 7 | 1 | 0 | Workpack index and checklist disagree in both directions on several rows. |
 | `device-trust-bootstrap-plan` | 9 | 0 | 9 | 0 | Fully mapped from live code/tests. WP08 is Phase 1 complete for its bounded research/test-only scope; WP01-WP07 and WP09 retain concrete production-integration or expected-test gaps, so no adapter-backed product closure is claimed. |
