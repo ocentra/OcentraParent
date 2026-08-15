@@ -14,7 +14,7 @@ function readCiWorkflow() {
 test('CI gate runs for documentation and expectation changes', () => {
   const workflow = readCiWorkflow();
 
-  assert.match(workflow, /pull_request:\s+branches:\s+- main\s+- production/u);
+  assert.match(workflow, /pull_request:\s+branches:\s+- main\s+- develop\s+- production/u);
   assert.match(workflow, /push:\s+branches:\s+- main/u);
   assert.equal(workflow.includes('paths-ignore'), false);
 });
