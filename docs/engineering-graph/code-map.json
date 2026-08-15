@@ -85,7 +85,32 @@
       "crates/child-enforcement-core"
     ],
     "eventing-plan": ["crates/ocentra-eventing", "crates/agent-protocol", "crates/agent-service"],
-    "lan-plan": ["crates/lan-core", "crates/agent-service", "crates/agent-core", "crates/schema", "apps/portal"],
+    "lan-plan": [
+      "crates/lan-core/src",
+      "crates/lan-core/tests",
+      "crates/agent-protocol/src/lan_pairing.rs",
+      "crates/agent-protocol/src/lan_pairing",
+      "crates/agent-protocol/src/lan_pairing_browser_add_device_state.rs",
+      "crates/agent-protocol/tests/contract/lan_pairing.rs",
+      "crates/agent-protocol/tests/contract/lan_pairing_contract_tests.rs",
+      "crates/agent-service/src/lan_pairing.rs",
+      "crates/agent-service/src/lan_pairing",
+      "crates/agent-service/src/lan_pairing_browser_add_device_state.rs",
+      "crates/agent-service/src/lan_pairing_browser_add_device_state",
+      "crates/agent-service/src/lan_pairing_runtime_state.rs",
+      "crates/agent-service/src/lan_pairing_runtime_state",
+      "crates/agent-service/tests/unit/lan_pairing.rs",
+      "crates/agent-service/tests/unit/lan_pairing",
+      "crates/agent-service/tests/unit/lan_pairing_browser_add_device_state.rs",
+      "crates/parent-runtime-core/src/agent_service_client/snapshots_lan.rs",
+      "crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs",
+      "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs",
+      "apps/parent-desktop/src-tauri/src/parent_route_subscription_delivery.rs",
+      "apps/parent-desktop/src-tauri/tests/unit/desktop_shell.rs",
+      "apps/portal/src/lan-replay-snapshot-binding.ts",
+      "apps/portal/tests/portal/portal-state-target.test.ts",
+      "apps/portal/tests/e2e/lan-source-matrix-visual-proof.spec.ts"
+    ],
     "logging-domain-parity": [
       "crates/logging-core",
       "packages/logging-domain",
@@ -3532,6 +3557,267 @@
       "planSlug": "eventing-plan",
       "codeExpectation": "tests-only",
       "roots": ["crates/ocentra-eventing/tests"]
+    },
+    "WP-lan-plan-01-contract-boundary-and-effect-schemas": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/agent-protocol/src/lan_pairing.rs",
+        "crates/agent-protocol/src/lan_pairing",
+        "crates/agent-protocol/src/lan_pairing_browser_add_device_state.rs",
+        "crates/agent-protocol/tests/contract/lan_pairing.rs",
+        "crates/agent-protocol/tests/contract/lan_pairing_contract_tests.rs",
+        "crates/agent-protocol/tests/contract/lan_pairing_browser_add_device_state.rs"
+      ]
+    },
+    "WP-lan-plan-02-evidence-model-and-device-record": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/read_model.rs",
+        "crates/lan-core/src/read_model",
+        "crates/lan-core/src/read_model_builder/read_model.rs",
+        "crates/lan-core/tests/unit/read_model.rs",
+        "crates/lan-core/tests/unit/read_model_source_matrix.rs",
+        "crates/agent-service/src/lan_pairing_browser_add_device_state/registry_projection.rs",
+        "crates/agent-service/tests/unit/lan_pairing_household_device_spine.rs"
+      ]
+    },
+    "WP-lan-plan-03-interface-detection": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory_hardware.rs",
+        "crates/lan-core/src/network_inventory_hardware",
+        "crates/lan-core/tests/unit/network_inventory_hardware.rs"
+      ]
+    },
+    "WP-lan-plan-04-neighbor-table-ingestion": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/windows_neighbors.rs",
+        "crates/lan-core/src/network_inventory/windows_neighbors",
+        "crates/lan-core/src/network_inventory/linux_neighbors.rs",
+        "crates/lan-core/src/network_inventory/linux_neighbors",
+        "crates/lan-core/src/network_inventory/macos_neighbors.rs",
+        "crates/lan-core/tests/unit/network_inventory_windows_neighbors.rs",
+        "crates/lan-core/tests/unit/network_inventory_linux_neighbors.rs",
+        "crates/lan-core/tests/unit/network_inventory_macos_neighbors.rs"
+      ]
+    },
+    "WP-lan-plan-05-targeted-arp-checks": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/active_refresh.rs",
+        "crates/lan-core/src/network_inventory/active_refresh",
+        "crates/lan-core/tests/unit/network_inventory_active_refresh_targeted.rs",
+        "crates/lan-core/tests/unit/network_inventory_active_refresh.rs"
+      ]
+    },
+    "WP-lan-plan-06-bounded-arp-sweep": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/active_refresh",
+        "crates/lan-core/src/network_inventory_command.rs",
+        "crates/lan-core/src/network_inventory_command",
+        "crates/lan-core/tests/unit/network_inventory_active_refresh.rs",
+        "crates/lan-core/tests/unit/network_inventory_command.rs",
+        "crates/agent-service/src/lan_pairing_browser_add_device_state/physical_lan_scan.rs",
+        "crates/agent-service/tests/unit/lan_pairing_browser_add_device_state_physical_lan_scan.rs"
+      ]
+    },
+    "WP-lan-plan-07-passive-discovery-listeners": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/passive_discovery.rs",
+        "crates/lan-core/src/network_inventory/passive_discovery",
+        "crates/lan-core/tests/unit/network_inventory_passive_discovery.rs",
+        "crates/lan-core/tests/unit/passive_discovery.rs",
+        "crates/lan-core/tests/unit/passive_discovery_protocols.rs",
+        "crates/agent-service/src/lan_pairing_runtime_state/passive_discovery.rs",
+        "crates/agent-service/tests/unit/lan_pairing_runtime_state/passive_discovery.rs"
+      ]
+    },
+    "WP-lan-plan-08-mdns-dns-sd-discovery": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/mdns_dns_sd.rs",
+        "crates/lan-core/src/network_inventory/mdns_dns_sd",
+        "crates/lan-core/tests/unit/network_inventory_mdns_dns_sd.rs"
+      ]
+    },
+    "WP-lan-plan-09-ssdp-upnp-discovery": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/ssdp_upnp.rs",
+        "crates/lan-core/src/network_inventory/ssdp_upnp",
+        "crates/lan-core/tests/unit/network_inventory_ssdp_upnp.rs"
+      ]
+    },
+    "WP-lan-plan-10-netbios-llmnr-reverse-dns": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/name_evidence.rs",
+        "crates/lan-core/src/network_inventory/name_evidence",
+        "crates/lan-core/src/network_inventory/passive_discovery/dns_like",
+        "crates/lan-core/tests/unit/network_inventory_name_evidence.rs",
+        "crates/lan-core/tests/unit/network_inventory_name_evidence_fixture_support.rs"
+      ]
+    },
+    "WP-lan-plan-11-light-service-probing": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/network_inventory/service_identity.rs",
+        "crates/lan-core/src/network_inventory/service_identity",
+        "crates/lan-core/tests/unit/service_identity.rs",
+        "crates/lan-core/tests/unit/service_identity_http.rs",
+        "crates/lan-core/tests/unit/service_identity_policy.rs",
+        "crates/lan-core/tests/unit/service_identity_runtime.rs",
+        "crates/lan-core/tests/unit/service_identity_snmp.rs"
+      ]
+    },
+    "WP-lan-plan-12-oui-vendor-lookup": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/mac_identity.rs",
+        "crates/lan-core/src/mac_identity",
+        "crates/lan-core/tests/unit/mac_identity.rs"
+      ]
+    },
+    "WP-lan-plan-13-merge-deduplication-engine": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/read_model_builder/canonical_household_device_spine.rs",
+        "crates/lan-core/src/read_model_builder/canonical_household_device_spine",
+        "crates/lan-core/tests/unit/canonical_household_merge.rs",
+        "crates/lan-core/tests/unit/canonical_household_merge_registry.rs",
+        "crates/lan-core/tests/property-based/lan_plan.rs"
+      ]
+    },
+    "WP-lan-plan-14-explainable-classification": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/read_model_builder/canonical_household_device_spine/assessment.rs",
+        "crates/lan-core/src/read_model_builder/canonical_household_device_spine/assessment_reasons.rs",
+        "crates/lan-core/src/read_model_builder/canonical_household_device_spine/classification_scores.rs",
+        "crates/lan-core/tests/unit/canonical_household_classification.rs",
+        "apps/portal/tests/e2e/lan-source-matrix-visual-proof.spec.ts"
+      ]
+    },
+    "WP-lan-plan-15-household-device-store": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/agent-service/src/lan_pairing_browser_add_device_state/scan_history.rs",
+        "crates/agent-service/src/lan_pairing_browser_add_device_state/registry_projection.rs",
+        "crates/agent-service/src/lan_pairing_browser_add_device_state/replay_projection.rs",
+        "crates/agent-service/tests/unit/lan_pairing_browser_add_device_state_scan_history.rs",
+        "crates/agent-service/tests/unit/lan_pairing/persistent_registry_restart.rs"
+      ]
+    },
+    "WP-lan-plan-16-read-models-and-lan-events": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/agent-service/src/lan_runtime_stream_api.rs",
+        "crates/agent-service/src/lan_runtime_stream_payload.rs",
+        "crates/agent-service/tests/unit/lan_runtime_stream.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_lan.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_lan_replay.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs",
+        "apps/parent-desktop/src-tauri/src/parent_route_subscription_delivery.rs",
+        "apps/parent-desktop/src-tauri/tests/unit/desktop_shell.rs",
+        "apps/portal/src/lan-replay-snapshot-binding.ts",
+        "apps/portal/tests/portal/portal-state-target.test.ts"
+      ]
+    },
+    "WP-lan-plan-17-parent-child-mdns-advertisements": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/lan_mdns_advertiser.rs",
+        "crates/lan-core/src/lan_mdns_advertiser",
+        "crates/lan-core/src/lan_pairing/mdns_lifecycle.rs",
+        "crates/lan-core/tests/unit/lan_mdns_advertiser.rs",
+        "crates/agent-service/src/lan_pairing_runtime_state/mdns_advertisement.rs",
+        "crates/agent-service/tests/unit/lan_pairing/mdns_advertisement.rs"
+      ]
+    },
+    "WP-lan-plan-18-signed-child-hello-heartbeat": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/lan-core/src/lan_pairing/signed_child_agent.rs",
+        "crates/lan-core/src/lan_pairing/signed_child_agent_metadata.rs",
+        "crates/lan-core/tests/unit/lan_flow_signed_child.rs",
+        "crates/agent-service/src/lan_pairing_runtime_state/signed_child_passive_observation.rs",
+        "crates/agent-service/src/lan_pairing_runtime_state/provider_heartbeat.rs",
+        "crates/agent-service/tests/unit/lan_pairing/signed_child_agent.rs"
+      ]
+    },
+    "WP-lan-plan-19-assignment-revocation-audit": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/agent-service/src/lan_pairing/runtime_commands",
+        "crates/agent-service/src/lan_pairing_audit.rs",
+        "crates/agent-service/src/lan_pairing_audit",
+        "crates/agent-service/tests/unit/lan_pairing/selected_route_restart.rs",
+        "crates/agent-service/tests/unit/lan_pairing/persistent_registry_restart.rs",
+        "apps/portal/tests/unit/transport-lan-target.test.ts",
+        "apps/portal/tests/e2e/lan-command-center-proof.spec.ts"
+      ]
+    },
+    "WP-lan-plan-20-proof-gates-fixtures-rollout": {
+      "planSlug": "lan-plan",
+      "codeExpectation": "tests-only",
+      "roots": [
+        "crates/lan-core/tests/fixtures/lan-plan",
+        "crates/lan-core/tests/property-based/lan_plan.rs",
+        "crates/lan-core/tests/performance/lan_plan.rs",
+        "apps/portal/tests/fixtures/lan-plan",
+        "apps/portal/tests/e2e/lan-source-matrix-visual-proof.spec.ts"
+      ]
+    },
+    "WP-lan-plan-21-contract-boundary-and-domain-schemas": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity",
+        "crates/family-identity-core/src/family_identity_setup_records.rs",
+        "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
+        "crates/family-identity-core/tests/unit/setup_lifecycle.rs"
+      ]
+    },
+    "WP-lan-plan-22-current-state-and-gap-map": {
+      "planSlug": "lan-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-lan-plan-23-pairing-and-route-proof": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/agent-protocol/src/lan_pairing_browser_runtime.rs",
+        "crates/agent-protocol/tests/contract/lan_pairing_browser_runtime.rs",
+        "crates/agent-service/src/lan_pairing_browser_runtime.rs",
+        "crates/agent-service/src/lan_pairing/runtime_commands",
+        "crates/agent-service/tests/unit/lan_pairing_browser_runtime.rs",
+        "crates/agent-service/tests/unit/lan_pairing/selected_route_restart.rs"
+      ]
+    },
+    "WP-lan-plan-24-portal-ux-and-first-run-handoff": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs",
+        "packages/portal-domain/src/live-activity-lan-add-device.ts",
+        "packages/portal-domain/src/live-activity-lan-add-device-device.ts",
+        "apps/portal/tests/e2e/lan-source-matrix-visual-proof.spec.ts",
+        "apps/portal/tests/e2e/lan-command-center-proof.spec.ts"
+      ]
+    },
+    "WP-lan-plan-25-rollout-checklist-and-pr-gate": {
+      "planSlug": "lan-plan",
+      "codeExpectation": "tests-only",
+      "roots": [
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/lan_replay_tests.rs",
+        "apps/parent-desktop/src-tauri/tests/unit/desktop_shell.rs",
+        "apps/portal/tests/portal/portal-state-target.test.ts",
+        "apps/portal/tests/e2e/lan-source-matrix-visual-proof.spec.ts"
+      ]
     },
     "WP-logging-domain-parity-01-current-state-and-reference-audit": {
       "planSlug": "logging-domain-parity",

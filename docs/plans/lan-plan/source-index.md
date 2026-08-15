@@ -48,11 +48,18 @@ proof, organized tests where applicable, and row truth.
 - `cargo check -p ocentra-lan-core --tests`
 - `cargo check -p ocentra-parent-agent-service --tests`
 - `cargo check -p ocentra-parent-runtime-core --tests`
-- `node scripts/test/v0-9-production-lan-household-proof.mjs`
-- `node scripts/test/v0-9-household-lan-proof-readiness.mjs`
-- `node scripts/test/v0-9-household-lan-product-proof.mjs`
-- `node scripts/test/v0-9-production-discovery-household-proof.mjs`
-- `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs`
+- missing as of the 2026-08-15 code-first audit; restore or replace:
+  `node scripts/test/v0-9-production-lan-household-proof.mjs`
+- missing as of the 2026-08-15 code-first audit; restore or replace:
+  `node scripts/test/v0-9-household-lan-proof-readiness.mjs`
+- missing as of the 2026-08-15 code-first audit; restore or replace:
+  `node scripts/test/v0-9-household-lan-product-proof.mjs`
+- missing as of the 2026-08-15 code-first audit; restore or replace:
+  `node scripts/test/v0-9-production-discovery-household-proof.mjs`
+- missing as of the 2026-08-15 code-first audit; restore or replace before use:
+  `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs`
+- missing as of the 2026-08-15 code-first audit; restore or replace before use:
+  `node scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs`
 
 ## Routing Rules
 

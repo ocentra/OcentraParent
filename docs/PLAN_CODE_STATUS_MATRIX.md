@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `develop` organization
-baseline at `9586b22e8` (tree-equal to `main` at `7f2125f10`). The dated
+baseline at `b22a85f93d` (tree-equal to `main` at `7054d158c1`). The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -20,7 +20,7 @@ There are no open pull requests. Remote branches are reduced to `main`,
 `develop`, `production`, and the protected
 `codex/archive/all-remote-tips-20260815`; the archive contains every deleted
 remote tip. The only registered OcentraParent worktree is `E:/OcentraParent`;
-the current local `codex/browser-plan-code-audit` branch is the sole active
+the current local `codex/lan-plan-code-audit` branch is the sole active
 audit branch and has no remote branch yet.
 
 The executable graph validates at 703 nodes and 705 edges. It imports **23**
@@ -29,14 +29,14 @@ the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
 Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,933
-implementation files and 1,196 test files, but only **251 of 679 workpacks**
-(36.97%) have reviewed, exact code/test ownership maps. Account Identity,
-Browser,
+This is the key code-first limitation: live plan roots contain 2,690
+implementation files and 1,109 test files, but only **276 of 679 workpacks**
+(40.65%) have reviewed, exact code/test ownership maps. Account Identity,
+Browser, LAN,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
 Payment/Subscription, Policy Control Plane, Portal UX/Household Surfaces,
-Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 428 workpacks across the repository
+Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 403 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -56,7 +56,7 @@ strong enough for workpack-level decisions.
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 426 / 131 | 9 / 9 | Fully code-mapped; WP08 is complete for its research/test-only scope, while eight workpacks retain concrete code/test gaps. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
-| LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
+| LAN | 25 | 0/0/0/0/25/0 | 308 / 60 | 25 / 25 | Fully code-mapped; 22 workpacks have bounded Phase 1 code/expected tests written, while WP16, WP20, and WP25 retain an integrated delivery-test or missing executable-verifier gap. |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 127 / 49 | 10 / 10 | Fully code-mapped; WP01-WP04 and WP09 are Phase 1 complete, while five workpacks retain concrete expected-test or instrumentation-enforcement gaps. |
 | Network | 8 | 7/0/0/0/1/0 | 378 / 99 | 8 / 8 | Fully code-mapped; WP05 and WP08 are Phase 1 complete for their bounded scopes, while WP01-WP04 and WP06-WP07 retain canonical-contract, live-runtime, production-wiring, or executable-harness gaps. |
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 / 181 | 11 / 11 | Fully code-mapped; WP01, WP04, WP05, and WP09 are Phase 1 complete for their bounded scope, while seven workpacks retain concrete runtime or expected-test gaps. |
@@ -122,6 +122,47 @@ WP05/WP06 platform and custody hardening, WP11 active-focus evidence, then
 WP17/WP19 trusted intervention execution. WP14, WP20-WP23 close the product
 surface, platform control, extension, health, and aggregate-test gaps before
 any whole-plan Phase 2 or proof claim.
+
+### LAN plan Phase 1 code/test audit - 2026-08-15
+
+This audit maps the current Rust/service/desktop/portal paths and their expected
+tests. Historical generated `output/` or `test-results/` files are not counted
+as source, and manual physical-device proof is deferred to Phase 3.
+
+| Workpack | Actual code/test evidence | Phase 1 | Remaining code or expected-test gap |
+| --- | --- | --- | --- |
+| WP01 Contract Boundary And Effect Schemas | Rust protocol pairing, source, route-snapshot, and add-device-state contracts have focused contract tests and fail-closed version handling. | **Complete for Phase 1** | Contract generation/proof reconciliation is later. |
+| WP02 Evidence Model And Device Record | Rust read models and service registry projection preserve source evidence and canonical household rows with unit tests. | **Complete for Phase 1** | Physical evidence quality is Phase 3. |
+| WP03 Interface Detection | Interface hardware/default-route discovery captures gateway, DNS, DHCP, broadcast, IPv6, and selection reasons with unit tests. | **Complete for Phase 1** | Real-host platform proof remains later. |
+| WP04 Neighbor Table Ingestion | Windows, Linux, and macOS parsers normalize IPv4/IPv6, malformed, incomplete, and duplicate rows under focused tests. | **Complete for Phase 1** | Live macOS validation is Phase 3, not missing parser code. |
+| WP05 Targeted ARP Checks | Bounded targeted refresh enforces interface/subnet/throttle rules and covers response/no-response packet-IO behavior. | **Complete for Phase 1** | Packet capture is Phase 3. |
+| WP06 Bounded ARP Sweep | Scan planning, bounded refresh, command handling, service physical-scan integration, and suppression behavior have Rust tests. | **Complete for Phase 1** | Real-router proof is Phase 3. |
+| WP07 Passive Discovery Listeners | Passive ARP, DHCP, mDNS, SSDP, WSD, LLMNR, NetBIOS, beacon, and allowed SNMP observations feed hint-only runtime state with tests. | **Complete for Phase 1** | Long-running listener and packet proof are Phase 3. |
+| WP08 mDNS And DNS-SD Discovery | PTR/SRV/TXT/A/AAAA parsing, service enumeration, hostile-name rejection, and hint-only handling have focused tests. | **Complete for Phase 1** | Broader packet/platform proof remains later. |
+| WP09 SSDP And UPnP Discovery | Bounded search, safe private descriptor fetch, parsing, unsupported-device handling, timeout, malformed, and oversize negatives are written. | **Complete for Phase 1** | Physical UPnP coverage is Phase 3. |
+| WP10 NetBIOS LLMNR Reverse DNS | Weak name evidence and DNS-like passive parsing reject unsafe/malformed values and avoid identity overclaim under tests. | **Complete for Phase 1** | No code gap found in the bounded name-evidence scope. |
+| WP11 Light Service Probing | Bounded HTTP/HTTPS/TLS, WSD, and SNMP identity probing plus interface/trusted-device suppression have focused tests. | **Complete for Phase 1** | Optional OS fingerprinting is manual-gated, not required production code. |
+| WP12 OUI Vendor Lookup | MAC normalization, private/randomized handling, and vendor lookup behavior have unit tests. | **Complete for Phase 1** | Dataset/provenance refresh is later acceptance work. |
+| WP13 Merge And Deduplication Engine | Canonical household merge, strong/weak identity scoring, registry continuity, explicit decisions/reasons, and property tests are written. | **Complete for Phase 1** | Physical collision proof is Phase 3. |
+| WP14 Explainable Classification | Weighted classification, explicit reasons/confidence, router/unsupported/unknown fencing, and portal label rendering have tests. | **Complete for Phase 1** | Manual installability proof is later. |
+| WP15 Household Device Store | Persistent registry, scan history, replay projection, restart continuity, and stale-address suppression have service tests. | **Complete for Phase 1** | Cross-session physical proof remains later. |
+| WP16 Read Models And LAN Events | Service event-chain stream, parent replay validation, desktop delivery decision, and portal replay/state seams each have focused tests. | **Incomplete** | No integrated backend -> real Tauri `AppHandle` emit -> portal listener test proves the complete delivery chain. |
+| WP17 Parent Child mDNS Advertisements | Advertisement encoding, opaque metadata, lifecycle evaluation, and service synchronization have focused tests. | **Complete for Phase 1** | Multicast/platform proof is Phase 3. |
+| WP18 Signed Child Hello And Heartbeat | Signature/capability/replay rejection, unpaired handling, heartbeat/offline/manual-required state, and service projection have tests. | **Complete for Phase 1** | Second-device and iOS proof are Phase 3. |
+| WP19 Assignment Revocation And Audit | Trusted route commands, rename, ignore/restore, select/revoke, audit, persistence/restart, and portal dispatch paths have tests. | **Complete for Phase 1** | Broader physical topology proof remains later. |
+| WP20 Proof Gates Fixtures And Rollout | Fixture, property, performance, and portal visual test families exist. | **Incomplete** | Six LAN aggregate verifier commands named by the current plan docs point to absent scripts; two of them are incorrectly checked complete in this workpack. |
+| WP21 Contract Boundary And Domain Schemas | Family identity contracts and setup lifecycle records needed by LAN pairing have contract/unit tests. | **Complete for Phase 1** | This is a bounded dependency contract packet. |
+| WP22 Current State And Gap Map | Documentation-only reconciliation packet; it owns no product code. | **Complete for Phase 1** | Status must follow this live audit. |
+| WP23 Pairing And Route Proof | Browser runtime pairing contract, service runtime command path, route selection, and restart behavior have focused tests. | **Complete for Phase 1** | Real two-device proof is Phase 3. |
+| WP24 Portal UX And First Run Handoff | Parent LAN route snapshots, portal-domain device rows, and Devices/command-center E2E surfaces have tests. | **Complete for Phase 1** | Physical first-run proof is later. |
+| WP25 Rollout Checklist And PR Gate | Parent replay, desktop host decision, portal state edge, and visual E2E tests exist. | **Incomplete** | The aggregate source-matrix verifier is absent and the integrated backend-to-AppHandle-to-listener regression is still missing. |
+
+**LAN Phase 1 result:** all 25 workpacks now have reviewed code/test ownership.
+Twenty-two have their bounded core code and expected tests written. WP16 needs
+one real cross-process delivery regression; WP20 needs the six named aggregate
+verifier programs restored or replaced; WP25 depends on both gaps.
+Manual household/router/platform artifacts remain Phase 3 and do not reopen the
+22 code-complete rows.
 
 ### Network plan Phase 1 code/test audit - 2026-08-15
 
@@ -933,7 +974,7 @@ proof artifact, checklist row, and merge state agree.
 | `data-custody-storage-plan` | Integration | `storage-custody-core`, `ocentra-evidence`, `ocentra-eventing` | Storage core has 63 source / 12 test files; custody/delete/export shapes exist. | Rollout/route-gate aggregation and cross-runtime custody proof remain open. | Prove one retention/delete/export flow through storage, eventing, and service. |
 | `device-trust-bootstrap-plan` | Fully audited / Phase 1 incomplete | `family-identity-core`, `storage-custody-core`, `parent-runtime-core`, `entitlement-core`, `child-enforcement-core`, `schema` | All 9 workpacks have reviewed code/test ownership. Durable lifecycle/parent-presence libraries, a Windows DPAPI custody slice, signed step-up proof contracts, entitlement/recovery contracts, and honest tamper-status rows are real; WP08 is complete for its research/test-only scope. | Eight workpacks still lack required production composition, cross-platform custody, live approval/QR authority, trusted entitlement verification, actual restore/re-pair mutation, child tamper/uninstall execution, or a route-gate verifier. | Complete WP01's live trust-owner composition first, then WP02/WP03 platform custody and authority; continue in dependency order through WP04-WP07 and close with WP09 after WP08's bounded research packet. |
 | `eventing-plan` | Integration | `ocentra-eventing`, `agent-protocol`, `agent-service` | 76 source / 34 test files; WP06 journal/replay, topology, version-skew, and typed handoff surfaces are retained and graph-mapped. | WP10 LAN consumer proof remains open; downstream Enforcement WP11 owns the enforcement-specific durable journal contract. | Select the WP10 consumer path and prove replay/idempotency end to end; then complete Enforcement WP11 before WP04. |
-| `lan-plan` | Integration | `lan-core`, `agent-service`, `agent-core`, `schema` | 241 source / 91 test files; pairing, discovery, heartbeat, revocation, inventory, and read models exist. | Physical/consumer product proof and open follow-on workpacks remain. | Close a paired-device lifecycle through service and portal on a real platform. |
+| `lan-plan` | Fully audited / Phase 1 incomplete | `lan-core`, `agent-protocol`, `agent-service`, `parent-runtime-core`, parent desktop, portal-domain, portal | All 25 workpacks have reviewed ownership. Twenty-two have bounded code/expected tests written across discovery, identity, merge/classification, persistence, pairing, routing, and portal surfaces. | WP16 lacks one integrated backend-to-Tauri-AppHandle-to-portal-listener regression. Six aggregate verifier commands named by current LAN docs point to absent scripts, including two incorrectly checked complete by WP20. WP25 depends on both gaps; physical/manual artifacts remain Phase 3. | Write the WP16 integrated delivery regression and restore or replace the six named executable verifiers; then WP25 can enter Phase 2 focused validation before physical proof. |
 | `logging-domain-parity` | Foundation | `logging-core`, `logging-domain`, `agent-service`, portal | Logger, local evidence, MCP/query, and portal paths exist. | Broad adoption and several proof-root closeouts remain. | Make logging/proof correlation mandatory for one high-value product chain. |
 | `network-plan` | Fully audited / Phase 1 incomplete | `network-core`, `ocentra-network-evidence`, `agent-protocol`, `agent-core`, `agent-service`, portal | All eight workpacks have reviewed code/test ownership. Deterministic capture parsing, classification/correlation, evidence bundles, platform proof gates, analyzer/AI/risk models, service read models, and the portal drawer are real; WP05 and WP08 have no bounded Phase 1 writing gap. | Six workpacks remain incomplete. Production captures only Windows connection metadata; parser/classifier/AI/policy/notification/adapter/custody owners are not composed into a live path, the product-path helper fabricates downstream proof rows, canonical contract truth is duplicated, and performance/security rollout lacks executable load/abuse/rollback harnesses. | Fix WP01 durable canonical contracts and WP02 live capture-to-parser composition first; then wire WP03/WP04/WP06 real owners and finish WP07's executable harnesses before any whole-plan Phase 2 or proof claim. |
 | `parent-client-runtime-distribution-plan` | Fully audited / Phase 1 incomplete | Tauri parent desktop, hosted portal, Android/iOS parent projects, `parent-runtime-core`, parent CI/package helpers | All 11 workpacks have reviewed code/test ownership. WP01 is a bounded no-code route packet; WP04/WP05 have real parent package projects plus dedicated CI smoke; WP09's cross-target smoke harness is written. | Seven workpacks still lack real hosted auth/cache, typed local-service transport, honest service-derived authority state, parent artifact signing/store matrix, updater/rollback runtime, setup-distribution handoff, or a parent-client aggregate release gate. | Fix WP02 hosted authority and WP06/WP03 service truth first, then WP10 setup handoff, WP07 signing matrix, WP08 updater/rollback, and WP11 aggregate gate. Run Phase 2 per target only after those writing gaps close. |
@@ -968,7 +1009,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `data-custody-storage-plan` | 8 | 7 | 1 | 0 | Workpack index and checklist disagree in both directions on several rows. |
 | `device-trust-bootstrap-plan` | 9 | 0 | 9 | 0 | Fully mapped from live code/tests. WP08 is Phase 1 complete for its bounded research/test-only scope; WP01-WP07 and WP09 retain concrete production-integration or expected-test gaps, so no adapter-backed product closure is claimed. |
 | `eventing-plan` | 5 | 3 | 2 | 0 | Five selectable workpacks: WP06 and WP10 are open; eight historical rows are excluded and must not be rescheduled. |
-| `lan-plan` | 25 | 13 | 12 | 0 | Remaining rows are mainly partial/manual physical proof, not twelve ordinary code packets. |
+| `lan-plan` | 25 | 13 | 12 | 0 | Fully mapped from live code/tests. Twenty-two workpacks have no bounded Phase 1 writing gap; WP16, WP20, and WP25 remain incomplete. The 13 document-claimed closures and manual-proof labels are tracked separately from code/test readiness. |
 | `logging-domain-parity` | 10 | 0 | 10 | 0 | Five partial-proof, four source-present, one audit-open. |
 | `network-plan` | 8 | 0 | 8 | 0 | Fully mapped from live source/tests. WP05 and WP08 are Phase 1 complete for bounded gate/reference scope; WP01-WP04 and WP06-WP07 retain concrete canonical-contract, production-composition, live-runtime, or executable-harness gaps. No proof row is freshly reverified. |
 | `parent-client-runtime-distribution-plan` | 11 | 7 | 4 | 0 | Fully mapped from live source/tests. WP01, WP04, WP05, and WP09 are Phase 1 complete for bounded route/package/smoke writing; WP02, WP03, WP06-WP08, WP10, and WP11 retain concrete gaps, so seven document-claimed closures are not product closure. |
