@@ -265,7 +265,8 @@
         "crates/child-runtime/src/runtime_gate_tombstone.rs",
         "crates/child-runtime/src/runtime_gate_tombstone_recovery.rs",
         "crates/child-runtime/src/child_runtime_tombstone_event_flow.rs",
-        "crates/child-runtime/tests/unit/runtime_gate.rs"
+        "crates/child-runtime/tests/unit/runtime_gate.rs",
+        "crates/child-runtime/tests/unit/runtime_gate_tombstone_recovery.rs"
       ]
     },
     "WP-data-custody-storage-plan-08-parent-storage-settings-apply-flow": {
