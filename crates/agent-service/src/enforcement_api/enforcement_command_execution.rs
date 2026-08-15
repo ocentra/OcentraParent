@@ -21,6 +21,7 @@ use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement::AppGameTimerSessionBinding;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::logging::LogLevel;
@@ -53,10 +54,26 @@ pub(crate) async fn build_enforcement_audit_report_with_paths(
     command: AgentCommandEnvelope,
     paths: EnforcementJournalPaths,
 ) -> AgentEventEnvelope {
+    build_enforcement_audit_report(command, paths, None).await
+}
+
+pub(super) async fn build_enforcement_audit_report_with_app_game_session(
+    command: AgentCommandEnvelope,
+    paths: EnforcementJournalPaths,
+    app_game_session: AppGameTimerSessionBinding,
+) -> AgentEventEnvelope {
+    build_enforcement_audit_report(command, paths, Some(app_game_session)).await
+}
+
+async fn build_enforcement_audit_report(
+    command: AgentCommandEnvelope,
+    paths: EnforcementJournalPaths,
+    app_game_session: Option<AppGameTimerSessionBinding>,
+) -> AgentEventEnvelope {
     let target = command.source.clone();
     let correlation_id = command.message_id.clone();
     let provenance = enforcement_audit_provenance(&command.command);
-    match execute_enforcement_command(command, paths, provenance).await {
+    match execute_enforcement_command(command, paths, provenance, app_game_session).await {
         Ok(payload) => build_event(
             constants::event_id::ENFORCEMENT_AUDIT_REPORTED,
             &correlation_id,
@@ -82,6 +99,7 @@ async fn execute_enforcement_command(
     command: AgentCommandEnvelope,
     paths: EnforcementJournalPaths,
     provenance: Option<EnforcementAuditProvenance>,
+    app_game_session: Option<AppGameTimerSessionBinding>,
 ) -> Result<LogFields, EnforcementCommandExecutionError> {
     let command_correlation_id = EnforcementText(command.message_id.clone());
     let command_sent_at = EnforcementText(command.sent_at.clone());
@@ -138,10 +156,11 @@ async fn execute_enforcement_command(
     .await?;
     outcome.audit_event.journal_sequence = Some(final_journal_append.sequence.to_string());
     let status = record_enforcement_audit(&request, &outcome, &paths, provenance).await?;
-    let active_state = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome(
+    let active_state = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome_with_app_game_session(
         &outcome,
         &paths.timer_state_path,
         completed_at.0.as_str(),
+        app_game_session,
     )
     .await
     .map_err(activity_capture_store_error)?;

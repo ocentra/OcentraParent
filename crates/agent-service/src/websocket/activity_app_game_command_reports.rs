@@ -27,7 +27,7 @@ pub(super) fn build_activity_app_game_command_report(
             AgentCommandName::AgentActivityAppGameAdapterDispatchExecute
             | AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet
             | AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest => {
-                build_activity_app_game_action_report(command).await
+                Box::pin(build_activity_app_game_action_report(command)).await
             }
             _ => build_log_snapshot_report(command),
         }

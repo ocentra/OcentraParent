@@ -18,6 +18,7 @@ mod activity_surface_report_store;
 mod activity_surface_request;
 mod activity_surface_store;
 mod app;
+mod app_game_dispatch_evidence;
 pub mod authenticated_delivery_execution_api;
 pub mod authenticated_delivery_execution_read_model;
 mod browser_evidence_payload;

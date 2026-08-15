@@ -599,6 +599,7 @@ pub const RETURNED: &str = "returned";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL: &str =
     "appGameAdapterDispatchResultReadModel";
 pub const APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT: &str = "appGameAdapterDispatchExecuteResult";
+pub const APP_GAME_RUNTIME_EVIDENCE_ID: &str = "appGameRuntimeEvidenceId";
 pub const SOURCE_DISPATCH_ROW_ID: &str = "sourceDispatchRowId";
 pub const SOURCE_PROOF_ENTRY_ID: &str = "sourceProofEntryId";
 pub const SOURCE_READ_MODEL_ID: &str = "sourceReadModelId";

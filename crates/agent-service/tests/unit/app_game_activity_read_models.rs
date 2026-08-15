@@ -120,6 +120,8 @@ mod app_game_boundary_read_model_payload;
 mod app_game_boundary_read_model_payload_rows;
 #[path = "../../src/activity_api/app_game_child_runtime_transport_receipt_payload.rs"]
 mod app_game_child_runtime_transport_receipt_payload;
+#[path = "../../src/app_game_dispatch_evidence.rs"]
+mod app_game_dispatch_evidence;
 #[path = "../../src/activity_api/app_game_notification_readiness_payload.rs"]
 mod app_game_notification_readiness_payload;
 #[path = "../../src/activity_api/app_game_platform_proof_status_payload.rs"]
