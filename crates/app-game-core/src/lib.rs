@@ -11,6 +11,16 @@ pub mod app_game_source_freshness_preview_gate;
 pub mod app_game_source_gated_policy_preview;
 pub mod app_game_source_gated_policy_preview_timer_chain;
 pub mod app_game_source_gated_policy_preview_timer_followthrough;
+pub mod app_game_unknown_approval;
+pub mod app_game_unknown_approval_event;
+mod app_game_unknown_approval_expiry;
+mod app_game_unknown_approval_projection;
+mod app_game_unknown_approval_reducer;
+mod app_game_unknown_approval_response;
+mod app_game_unknown_approval_response_validation;
+mod app_game_unknown_approval_status;
+pub mod app_game_unknown_approval_types;
+mod app_game_unknown_approval_validation;
 pub mod runtime_decision;
 
 use ocentra_parent_agent_protocol::child_domain_runtime::{

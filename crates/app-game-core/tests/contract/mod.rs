@@ -27,3 +27,6 @@ mod app_game_source_gated_policy_preview_timer_chain;
 
 #[path = "app_game_source_gated_policy_preview_timer_followthrough.rs"]
 mod app_game_source_gated_policy_preview_timer_followthrough;
+
+#[path = "app_game_unknown_approval.rs"]
+mod app_game_unknown_approval;
