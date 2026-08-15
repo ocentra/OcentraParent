@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `develop` organization
-baseline at `397bcff49` (tree-equal to `main` at `0048bcc22`). The dated
+baseline at `9586b22e8` (tree-equal to `main` at `7f2125f10`). The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -19,8 +19,9 @@ conversation-resolution, no-force-push, and no-delete protections as `main`.
 There are no open pull requests. Remote branches are reduced to `main`,
 `develop`, `production`, and the protected
 `codex/archive/all-remote-tips-20260815`; the archive contains every deleted
-remote tip. Locally, only `main` and `develop` remain, and the only registered
-OcentraParent worktree is `E:/OcentraParent`.
+remote tip. The only registered OcentraParent worktree is `E:/OcentraParent`;
+the current local `codex/browser-plan-code-audit` branch is the sole active
+audit branch and has no remote branch yet.
 
 The executable graph validates at 703 nodes and 705 edges. It imports **23**
 actual plan rows and 679 workpacks. The earlier apparent count of 24 included
@@ -28,13 +29,14 @@ the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
 Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,966
-implementation files and 1,216 test files, but only **221 of 679 workpacks**
-(32.55%) have reviewed, exact code/test ownership maps. Account Identity,
+This is the key code-first limitation: live plan roots contain 2,933
+implementation files and 1,196 test files, but only **251 of 679 workpacks**
+(36.97%) have reviewed, exact code/test ownership maps. Account Identity,
+Browser,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
 Payment/Subscription, Policy Control Plane, Portal UX/Household Surfaces,
-Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 458 workpacks across the repository
+Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 428 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -48,7 +50,7 @@ strong enough for workpack-level decisions.
 | AI | 48 | 47/0/0/0/1/0 | 690 / 421 | 0 / 48 | Unattributed; foundation code exists, workpack ownership is unaudited. |
 | App/game | 220 | 132/0/0/0/88/0 | 688 / 436 | 0 / 220 | Unattributed; the large validation set cannot be treated as implemented. |
 | App | 95 | 94/0/0/0/1/0 | 670 / 421 | 1 / 95 | Partial; WP01 contract/runtime-decision roots are mapped. |
-| Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
+| Browser | 30 | 30/0/0/0/0/0 | 72 / 13 | 30 / 30 | Fully code-mapped; 14 executable workpacks are Phase 1 complete for bounded scope, 10 retain concrete code/test gaps, and six imported packets are reference-only. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 / 10 | 11 / 11 | Fully code-mapped; WP01, WP02, WP05, WP06, and WP09 are Phase 1 complete for their bounded scope, while six workpacks retain runtime, lifecycle-test, handoff, or release-gate gaps. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 13 / 13 | Fully code-mapped; WP00-WP02 and WP04 are Phase 1 complete, while nine workpacks retain concrete code/test gaps. |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
@@ -73,6 +75,53 @@ map each workpack to exact implementation and test roots, classify code/test
 gaps, then rebuild the graph. Only after a plan's Phase 1 map is complete may
 its focused tests and Enforcer checks be used for Phase 2 scheduling. Proof is
 the later acceptance phase, not a substitute for missing code or tests.
+
+### Browser plan Phase 1 code/test audit - 2026-08-15
+
+This audit maps the current Rust/service/portal implementation and expected
+tests. It does not use historical `output/` proof as implementation evidence
+and does not claim that the focused test families have been rerun in Phase 2.
+
+| Workpack | Actual code/test evidence | Phase 1 | Remaining code or expected-test gap |
+| --- | --- | --- | --- |
+| WP01 Contract Boundary And Effect Schemas | Rust protocol inventory, managed-session, policy, intervention, and read-model contracts have contract/unit tests, including dishonest exact-URL and typed rejection cases. | **Complete for Phase 1** | Generated-edge/proof reconciliation is later; no missing bounded contract family was found. |
+| WP02 Source Index And Doc Reconciliation | Coordination-only packet; it owns no product code. | **Complete for Phase 1** | Current source paths still need Phase 3 documentation reconciliation, but no implementation belongs here. |
+| WP03 Browser Inventory Model | Typed inventory/read-model contracts and service row conversion have managed/unmanaged and dishonest-claim tests. | **Complete for Phase 1** | Live platform collection belongs to WP04/WP05. |
+| WP04 Windows Browser Inventory Adapter | Registry, shortcut, package, known-path, and process inventory code plus service conversion is covered by focused fixture/source tests. | **Complete for Phase 1** | Real-host proof is Phase 3; the bounded Windows adapter and expected tests are written. |
+| WP05 Cross-Platform Inventory Matrix | Windows inventory and an Android owned-shell implementation exist. | **Incomplete** | No current macOS/iOS inventory adapter or focused platform-matrix implementation/test family exists; Linux/Android visibility is not represented by one runtime-owned matrix. |
+| WP06 Managed Profile Store | Owned-path store code covers create/reload/delete/repair, redacted metadata, and default/unowned path rejection. | **Incomplete** | Corrupt/truncated metadata, atomic-write crash behavior, and concurrent-writer negatives are absent. |
+| WP07 Managed Chromium Launcher | Launch planning, executable identity, owned-profile enforcement, loopback port reservation, failed-spawn behavior, and service status tests are written. | **Complete for Phase 1** | Real browser execution is Phase 2/3 validation, not a missing code family here. |
+| WP08 Bridge Custody And Security | Loopback HTTP/CDP polling enforces port, process, profile, session, browser identity, timeout/size, and debugger-URL redaction boundaries with negatives. | **Complete for Phase 1** | Runtime proof remains later. |
+| WP09 CDP Version And Target Adapter | Version/target parsing rejects malformed JSON, wrong shapes, missing identifiers/URLs, oversized responses, and timeouts. | **Complete for Phase 1** | No active-focus claim is made; that belongs to WP11. |
+| WP10 Tab Evidence Mapper | Target observations map stable custody/tab/window/origin fields, strip credentials, normalize URLs, and reject invalid URLs/empty target IDs. | **Complete for Phase 1** | The mapper intentionally produces target-list evidence, not active-tab proof. |
+| WP11 Active-Tab Proof Model | Typed active-state/capability/proof-source fields and no-overclaim tests exist. | **Incomplete** | No focus/activation observer feeds the model; `/json/list` remains target-list evidence and cannot establish the active tab. |
+| WP12 Journal And SQLite Browser Ingest | Ordered event runtime, encrypted journal replay, SQLite projection, restart recovery, duplicate replay, stale/degraded reconstruction, and empty-state tests are written. | **Complete for Phase 1** | Focused execution remains Phase 2. |
+| WP13 Browser Read Models And Service Events | Service inventory and runtime stream APIs project event chains, pending candidates, policy previews, unavailable/stale states, and WebSocket command reports with tests. | **Complete for Phase 1** | Product action execution belongs to WP17/WP19, not this read-model packet. |
+| WP14 Portal Browser Status Surfaces | Portal status/intervention renderers consume Rust-owned snapshots and retain explicit empty states. | **Incomplete** | Current tests mainly inspect source shape/intervention separation; dedicated rendered status cases for missing, unmanaged, managed-ready, running, disconnected, stale, and unsupported states are missing. |
+| WP15 Browser Policy Authoring Manifest | Generated manifest identifiers feed schema-domain and service patch/store runtime tests, including dishonest update rejection. | **Complete for Phase 1** | Parent-facing authoring UX is outside this bounded manifest packet. |
+| WP16 Policy Target Compiler | Compiler code/tests label target requirements, preserve parent authority, keep observe/dry-run non-executing, require adapter proof, and expose manual-required policy-writer state. | **Complete for Phase 1** | Trusted adapter execution is an Enforcement dependency. |
+| WP17 Managed Intervention And Block Page | Typed intervention events, a served child page, a portal-domain renderer, and SQLite read-model tests exist. | **Incomplete** | No production policy-decision-to-managed-navigation/block-page delivery owner or receipt/rollback integration test exists. |
+| WP18 Unmanaged Browser Detection | Process-only discovery classifies supported, unsupported, and unknown browser-like processes; contracts forbid exact URL claims. | **Complete for Phase 1** | Enforcement/action behavior belongs to WP19. |
+| WP19 Unmanaged Fallback UX And Actions | Read-model fallback derivation and portal rendering distinguish warn/terminate/relaunch/manual states without URL overclaim. | **Incomplete** | No trusted terminate/warn/relaunch dispatch owner, durable execution receipt, denial, or rollback test closes the action path. |
+| WP20 Windows AppLocker And App Control Proof | Enforcement exposes typed app-control proof states and a tested read model. | **Incomplete** | No AppLocker/WDAC policy application, event capture, rollback, or real-host harness code exists. |
+| WP21 Extension And Native Host Boundary | Native-host frame validation covers managed-profile binding, trusted origin, length/schema drift, default/missing binding, and stale heartbeat. | **Incomplete** | A browser extension/runtime connector, installation/registration path, handshake lifecycle, and integration tests are absent. |
+| WP22 Performance And Service Health | A browser-core performance-budget model/test and service status serialization tests exist. | **Incomplete** | No executable load/latency/memory/long-run bridge-health harness or recovery-under-load test exists. |
+| WP23 E2E And Manual Proof Artifacts | One Playwright browser-AI explanation scenario and failure helper are present. | **Incomplete** | The advertised aggregate browser E2E/manual-artifact verifier is absent; managed launch, custody loss, intervention, unmanaged fallback, and service restart are not covered by one executable suite. |
+| WP24 Rollout, Checklist, And PR Gate | Coordination-only final gate; it owns no product implementation. | **Complete for Phase 1** | It remains operationally open until Phase 2/3 inputs are green and merged. |
+| Browser Control 1057 Settings Inventory | Imported design/reference packet; no executable code ownership. | **Reference only** | Route implementation through WP15/WP16. |
+| Browser Control Coverage Matrix | Imported coverage/reference packet; no executable code ownership. | **Reference only** | Reconcile against the executable workpacks; do not schedule as a product slice. |
+| Browser Control Schema Proposal | Imported schema proposal; current schema authority is WP01/WP15. | **Reference only** | Do not restore a parallel contract owner. |
+| Browser Policy Questionnaire Forest V1 | Imported authoring reference; generated schema tests exist under WP15 ownership. | **Reference only** | Treat changes as WP15 authoring-manifest work. |
+| Browser Policy Settings Catalog | Imported settings reference; current catalog/manifest implementation is WP15. | **Reference only** | Do not count it as another execution packet. |
+| Managed Unmanaged Browser | Imported product-boundary reference; executable work is split across WP03-WP21. | **Reference only** | Keep managed exact-URL evidence separate from unmanaged process-only control. |
+
+**Browser Phase 1 result:** all 30 imported packets now have reviewed ownership.
+Fourteen of the 24 executable workpacks have their bounded core code and
+expected tests written; ten remain incomplete. The first dependency chain is
+WP05/WP06 platform and custody hardening, WP11 active-focus evidence, then
+WP17/WP19 trusted intervention execution. WP14, WP20-WP23 close the product
+surface, platform control, extension, health, and aggregate-test gaps before
+any whole-plan Phase 2 or proof claim.
 
 ### Network plan Phase 1 code/test audit - 2026-08-15
 
@@ -644,7 +693,7 @@ than one plan; they are not completion percentages.
 | AI | 48 | 47/0/0/0/1/0 | 669 | 419 |
 | App/game | 220 | 132/0/0/0/88/0 | 667 | 434 |
 | App | 95 | 94/0/0/0/1/0 | 649 | 419 |
-| Browser | 30 | 30/0/0/0/0/0 | 610 | 452 |
+| Browser | 30 | 30/0/0/0/0/0 | 72 | 13 |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 | 10 |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 | 63 |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 636 | 406 |
@@ -665,9 +714,10 @@ than one plan; they are not completion percentages.
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 864 | 485 |
 
 The graph validates at 703 nodes and 705 edges, with 34 migration/dependency
-review items. The live map now covers 130 of 679 workpacks. Network contributes
-eight reviewed maps: two are Phase 1 complete for bounded scope and six retain
-concrete production-code or expected-test gaps. Graph states remain separate
+review items. The live map now covers 251 of 679 workpacks. Browser contributes
+30 reviewed maps: 14 executable workpacks are Phase 1 complete for bounded
+scope, 10 retain concrete production-code or expected-test gaps, and six are
+reference-only. Graph states remain separate
 from that code-first classification. Historical
 source/test rows are now classified as `validation` instead of being counted
 as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
@@ -877,7 +927,7 @@ proof artifact, checklist row, and merge state agree.
 | `ai-plan` | Foundation | `child-ai-core`, `screen-ai-core`, `agent-service`, `schema` | AI runtime and service seams exist. | Safety/output invariants and consumer proof remain fragmented. | Close one typed AI-result-to-policy handoff with safety and negative-path proof. |
 | `app-plan` | Foundation | `app-core`, `agent-service`, `schema` | `app-core` has 3 source / 5 test files; service owns wider integration. | App-only authority and runtime evidence are incomplete. | Make app identity/evidence flow a single Rust-owned service path. |
 | `app-game-plan` | Integration | `app-game-core`, `agent-service`, `schema` | 25 source / 20 test files; inventory, runtime, journal, and policy code exist. | Live platform metadata/crawling and portal product rows are incomplete. | Finish one live Windows app/game capture-to-read-model path. |
-| `browser-plan` | Integration | `browser-core`, `agent-service`, `portal` | 43 source / 20 test files; managed-browser and intervention paths exist. | Managed/unmanaged execution and policy rollback are not closed. | Prove browser policy command through service, adapter, and visible portal state. |
+| `browser-plan` | Fully audited / Phase 1 incomplete | `agent-protocol`, `agent-core`, `agent-service`, `browser-core`, schema-domain, portal-domain, portal, Android owned shell | All 30 imported packets have reviewed ownership. Fourteen executable workpacks have bounded code/expected tests written; contracts, Windows inventory, managed launch, custody/CDP mapping, durable ingest/read models, policy manifest/compiler, and unmanaged detection are real. | Ten workpacks still lack cross-platform inventory, corrupt/concurrent profile-store negatives, active-focus evidence, complete portal status tests, trusted managed/unmanaged action execution, live AppLocker control, extension integration, health/load harnesses, or aggregate E2E. | Complete WP05/WP06 and WP11 first, then WP17/WP19; finish WP14 and WP20-WP23 before Phase 2 focused execution and Phase 3 proof. |
 | `child-agent-runtime-distribution-plan` | Fully audited / Phase 1 incomplete | `child-runtime`, Rust schema/child-enforcement contracts, Android/iOS child apps, desktop package/service scripts, CI/release workflows | All 11 workpacks have reviewed code/test ownership. Windows lifecycle harness, Android emulator lifecycle, iOS capability package, platform matrix, and all five package builders are real. | Six workpacks still lack real-host lifecycle tests, executable respawn, parent-authorized uninstall runtime, a consumed setup/trust handoff, or a complete multi-platform release gate; several migrated Enforcer proof runners target deleted files. | Complete macOS/Linux lifecycle tests first, then respawn/uninstall and setup-handoff runtime paths, and close with the aggregate multi-platform release gate. |
 | `cloudflare-control-plane-plan` | Fully audited / Phase 1 incomplete | `infra/cloudflare`, account/billing contracts, portal consumer boundary | All 13 workpacks now have reviewed code/test ownership. WP00-WP02 and WP04 are complete for code/expected-test writing; the Worker, bindings, runner, local-dev, security, and contract source is real. | Nine workpacks still lack required runtime/authority/persistence/consumer/deployment or verifier code. The sharpest gaps are real auth/provider verification, durable DO state, account migration isolation, actual persisted local seeding, a true portal consumer smoke, and deployment/rollback automation. | Complete the nine Phase 1 rows before broad Cloudflare tests or proof regeneration; then run focused module families and Enforcer, followed by retained proof and the payment handoff gate. |
 | `data-custody-storage-plan` | Integration | `storage-custody-core`, `ocentra-evidence`, `ocentra-eventing` | Storage core has 63 source / 12 test files; custody/delete/export shapes exist. | Rollout/route-gate aggregation and cross-runtime custody proof remain open. | Prove one retention/delete/export flow through storage, eventing, and service. |
@@ -912,7 +962,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `ai-plan` | 48 | 1 | 47 | 0 | Generic reset checklist does not reflect workpack state. |
 | `app-game-plan` | 88 | 54 | 34 | 0 | The remaining 34 are only `possibly done`; audit before implementation. |
 | `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
-| `browser-plan` | 24 | 0 | 24 | 0 | Substantial runtime exists, but every execution row remains open. |
+| `browser-plan` | 24 | 0 | 24 | 0 | Fully mapped from live code/tests. Fourteen executable workpacks are Phase 1 complete for bounded scope; ten retain concrete product-code or expected-test gaps. Six additional imported packets are reference-only and excluded from the 24 execution rows. |
 | `child-agent-runtime-distribution-plan` | 11 | 10 | 1 | 0 | Fully mapped from live code/tests. Five workpacks are Phase 1 complete for bounded scope; six retain concrete lifecycle/runtime/handoff/release-gate gaps despite ten index-level completion labels. |
 | `cloudflare-control-plane-plan` | 13 | 0 | 13 | 0 | Fully mapped from live source/tests. WP00-WP02 and WP04 are Phase 1 complete for code/expected-test writing; no proof row is freshly reverified, and WP03 plus WP05-WP12 have concrete Phase 1 gaps. |
 | `data-custody-storage-plan` | 8 | 7 | 1 | 0 | Workpack index and checklist disagree in both directions on several rows. |
