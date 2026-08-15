@@ -134,10 +134,12 @@ after all eight workpacks are classified.
 | Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
 | --- | --- | --- | --- |
 | WP01 Policy Source Of Truth | Rust protocol/source modules, the generated-edge TypeScript policy contracts, one unit test file, and two version-skew test files define the complete 14-state lifecycle vocabulary, household/actor authority, versioned rules and schedules, custody metadata, compiled/enforcement/audit/rollback artifacts, duplicate/stale rejection, delivery-before-active, supersede/rollback, migration boundaries, and source-not-cache/UI/AI negatives. | **Incomplete** | `register_parent_policy_source_document*` has no production caller outside tests and there is no durable/query owner that makes the document the canonical household source or rejects wrong-household reads. The required `PolicyTemplate` entity is absent. The TypeScript `FamilyPolicySet` edge also has no direct TypeScript contract test. |
+| WP07 Schedule Time Budget Conflict Model | Rust source-time validation, schedule-contract validators, conflict detection, request/override models, generated TypeScript helpers, and five unit-test files cover reset/carryover shape, expiry ordering, explicit DST gap/overlap, clock-source/manual-required classification, deterministic priority conflicts, equal-priority manual review, request expiry, and bonus-time grant shape. | **Incomplete** | There is no runtime schedule evaluator computing window/DST/budget state from a trusted clock; validators accept caller-built boundary/status snapshots. No durable offline timer recovery exists, and `PolicyOverrideState::Expired` has no policy-request transition. Tests classify prepared DST boundaries but do not prove spring-forward cannot overgrant, fall-back cannot double-grant, clock-skew enforcement, restart recovery, or automatic bonus/override expiry. |
 
-**Policy Control Plane Phase 1 progress:** WP01 is inspected and mapped; 1/8
-workpacks classified, 0/8 complete for code/test-writing scope. WP02-WP08 still
-require live code/test inspection before any plan-wide result or PR.
+**Policy Control Plane Phase 1 progress:** WP01 and WP07 are inspected and
+mapped; 2/8 workpacks classified, 0/8 complete for code/test-writing scope.
+WP02-WP06 and WP08 still require live code/test inspection before any
+plan-wide result or PR.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 

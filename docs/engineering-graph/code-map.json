@@ -140,6 +140,28 @@
         "packages/schema-domain/src/policy.ts"
       ]
     },
+    "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_source.rs",
+        "crates/policy-control-core/src/policy_source/validation/time",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule.rs",
+        "crates/policy-control-core/src/policy_contract_helpers/schedule",
+        "crates/policy-control-core/src/policy_conflict.rs",
+        "crates/policy-control-core/src/policy_conflict",
+        "crates/policy-control-core/src/policy_request.rs",
+        "crates/policy-control-core/src/policy_request",
+        "crates/policy-control-core/tests/unit/policy_source.rs",
+        "crates/policy-control-core/tests/unit/policy_contract_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_conflict.rs",
+        "crates/policy-control-core/tests/unit/policy_conflict_helpers.rs",
+        "crates/policy-control-core/tests/unit/policy_request.rs",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts",
+        "packages/schema-domain/src/generated-policy-control-helpers-contracts.ts",
+        "packages/schema-domain/src/generated-policy-control-helpers.ts"
+      ]
+    },
     "WP-policy-control-plane-plan-04-delivery-ack-audit": {
       "planSlug": "policy-control-plane-plan",
       "roots": [
