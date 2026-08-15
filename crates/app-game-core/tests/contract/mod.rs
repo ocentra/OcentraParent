@@ -1,6 +1,9 @@
 #[path = "app_game_notification_parent_surface_intent.rs"]
 mod app_game_notification_parent_surface_intent;
 
+#[path = "app_game_category_risk_policy_routing.rs"]
+mod app_game_category_risk_policy_routing;
+
 #[path = "app_game_policy_preview_handoff.rs"]
 mod app_game_policy_preview_handoff;
 #[path = "app_game_policy_preview_handoff_generated.rs"]

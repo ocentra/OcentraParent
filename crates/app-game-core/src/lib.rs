@@ -1,5 +1,6 @@
 #![forbid(unsafe_code)]
 
+pub mod app_game_category_risk_policy_routing;
 pub mod app_game_notification_parent_surface_intent;
 pub mod app_game_policy_preview_handoff;
 pub mod app_game_policy_preview_handoff_generated_ts;
