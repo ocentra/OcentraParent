@@ -85,6 +85,8 @@ mod parent_ui_bridge_ts;
 mod policy_enforcement;
 #[path = "remote_capability_fabric.rs"]
 mod remote_capability_fabric;
+#[path = "remote_capability_fabric_authorization.rs"]
+mod remote_capability_fabric_authorization;
 #[path = "report_query_custody.rs"]
 mod report_query_custody;
 #[path = "retention_delete_tombstone.rs"]

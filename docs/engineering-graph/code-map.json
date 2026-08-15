@@ -99,6 +99,19 @@
         "crates/schema/tests/contract/remote_capability_fabric.rs"
       ]
     },
+    "WP-remote-access-plan-04-session-pairing-grants": {
+      "planSlug": "remote-access-plan",
+      "roots": [
+        "crates/remote-access-core/src/remote_access_grant",
+        "crates/remote-access-core/tests/unit/grant.rs",
+        "crates/remote-access-core/tests/unit/grant_replay.rs",
+        "crates/remote-access-core/tests/unit/grant_supersession.rs",
+        "crates/schema/src/remote_capability_fabric.rs",
+        "crates/schema/src/remote_capability_fabric/remote_capability_fabric_authorization.rs",
+        "crates/schema/src/remote_capability_fabric/remote_capability_fabric_deserialization.rs",
+        "crates/schema/tests/contract/remote_capability_fabric.rs"
+      ]
+    },
     "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption": {
       "planSlug": "device-trust-bootstrap-plan",
       "roots": ["tests/device-trust-bootstrap-plan/contract/dependency-adoption.test.mjs"]
@@ -121,6 +134,25 @@
         "crates/policy-control-core/tests/unit/policy_delivery_receipt_helpers.rs",
         "crates/child-policy-core/src/policy_control_delivery_handoff.rs",
         "crates/child-policy-core/tests/replay/policy_control_delivery_handoff.rs"
+      ]
+    },
+    "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/storage-custody-core/src/retention_delete_tombstone_store.rs",
+        "crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs",
+        "crates/child-runtime/src/runtime_gate_tombstone.rs",
+        "crates/child-runtime/src/runtime_gate_tombstone_recovery.rs",
+        "crates/child-runtime/src/child_runtime_tombstone_event_flow.rs",
+        "crates/child-runtime/tests/unit/runtime_gate.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-11-audit-journal-events": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-service/src/enforcement_audit_history.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs",
+        "crates/agent-service/tests/enforcement_eventing_journal.rs"
       ]
     },
     "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit": {

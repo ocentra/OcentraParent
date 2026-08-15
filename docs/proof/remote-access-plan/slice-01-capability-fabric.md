@@ -16,7 +16,7 @@ and rollout proof remain open.
 
 | Command | Result |
 | --- | --- |
-| `cargo test -p ocentra-schema --test contract remote_capability -- --nocapture` | 3 passed, 0 failed (102 filtered) |
+| `cargo test -p ocentra-schema --test contract remote_capability_fabric -- --nocapture` | 7 passed, 0 failed (103 filtered) |
 | `cargo fmt --all -- --check` | passed |
 | `npm run lint:architecture -- --files crates/schema/src/remote_capability_fabric.rs crates/schema/tests/contract/remote_capability_fabric.rs docs/plans/remote-access-plan` | passed |
 | `npm run hub:guard` | passed; no findings/conflicts |
@@ -24,9 +24,10 @@ and rollout proof remain open.
 ## Negative coverage
 
 The focused contract rejects deferred remote control, wrong household,
-support/admin actor role, unpaired access, missing device trust, revoked
-grants, and removed devices. Serialization asserts the Rust-owned camel-case
-wire shape and schema version.
+support/admin actor role without a parent grant, unpaired access, route
+mismatch, missing device trust, revoked grants, and removed devices.
+Serialization asserts the Rust-owned camel-case wire shape, route and parent
+grant fields, schema v2, and the explicit v1 migration/default rejection path.
 
 ## No-claim boundary
 

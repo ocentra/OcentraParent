@@ -6,7 +6,10 @@
 
 use serde::{Deserialize, Serialize};
 
-pub const REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION: &str = "remote-capability-fabric-v1";
+mod remote_capability_fabric_authorization;
+mod remote_capability_fabric_deserialization;
+
+pub const REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION: &str = "remote-capability-fabric-v2";
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -15,6 +18,21 @@ pub enum RemoteCapabilityType {
     ScreenshotRequest,
     Diagnostic,
     RemoteControlDeferred,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RemoteRoute {
+    Localhost,
+    LocalNetwork,
+    CloudRelay,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RemoteParentGrantState {
+    NotGranted,
+    Granted,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -63,12 +81,20 @@ pub enum RemoteSessionState {
     Failed,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum RemoteDeviceTrustState {
     Trusted,
     Missing,
     Expired,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum RemoteDiagnosticRedactionState {
+    Redacted,
+    Raw,
+    Unknown,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -79,24 +105,31 @@ pub enum RemoteCapabilityAuthorizationError {
     WrongHousehold,
     WrongActorRole,
     WrongParentActor,
+    MissingSupportActor,
+    WrongSupportActor,
     PairingRequired,
     GrantNotActive,
     Revoked,
     DeviceRemoved,
     WrongChildDevice,
+    WrongRoute,
     DeviceTrustRequired,
     MissingAuditRef,
+    DiagnosticRedactionRequired,
     SessionNotLiveViewEligible,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteCapabilityGrant {
     pub schema_version: String,
     pub grant_ref: String,
     pub household_ref: String,
     pub child_device_ref: String,
+    pub route: RemoteRoute,
     pub parent_actor_ref: String,
+    pub support_actor_ref: Option<String>,
+    pub parent_grant: RemoteParentGrantState,
     pub capability_type: RemoteCapabilityType,
     pub actor_role: RemoteActorRole,
     pub pairing_state: RemotePairingState,
@@ -104,7 +137,7 @@ pub struct RemoteCapabilityGrant {
     pub session_state: RemoteSessionState,
     pub device_trust_state: RemoteDeviceTrustState,
     pub audit_ref: String,
-    pub diagnostic_redaction_state: String,
+    pub diagnostic_redaction_state: RemoteDiagnosticRedactionState,
     pub no_claim: String,
 }
 
@@ -114,6 +147,7 @@ impl RemoteCapabilityGrant {
         expected_household_ref: &str,
         requesting_parent_actor_ref: &str,
         requested_child_device_ref: &str,
+        expected_route: RemoteRoute,
     ) -> Result<(), RemoteCapabilityAuthorizationError> {
         if self.schema_version != REMOTE_CAPABILITY_FABRIC_SCHEMA_VERSION {
             return Err(RemoteCapabilityAuthorizationError::UnsupportedSchemaVersion);
@@ -124,21 +158,23 @@ impl RemoteCapabilityGrant {
         if self.household_ref != expected_household_ref {
             return Err(RemoteCapabilityAuthorizationError::WrongHousehold);
         }
-        if !matches!(
-            self.actor_role,
-            RemoteActorRole::ParentOwner | RemoteActorRole::CoParent
-        ) {
-            return Err(RemoteCapabilityAuthorizationError::WrongActorRole);
-        }
-        if let Some(error) = (self.parent_actor_ref != requesting_parent_actor_ref)
-            .then_some(RemoteCapabilityAuthorizationError::WrongParentActor)
-            .or_else(|| {
-                (self.child_device_ref != requested_child_device_ref)
-                    .then_some(RemoteCapabilityAuthorizationError::WrongChildDevice)
-            })
-        {
-            return Err(error);
-        }
+        remote_capability_fabric_authorization::require_actor(
+            &self.actor_role,
+            self.parent_grant,
+            self.support_actor_ref.as_deref(),
+            &self.parent_actor_ref,
+            requesting_parent_actor_ref,
+        )?;
+        remote_capability_fabric_authorization::require_safe_support_redaction(
+            &self.actor_role,
+            self.diagnostic_redaction_state,
+        )?;
+        remote_capability_fabric_authorization::require_target(
+            &self.child_device_ref,
+            requested_child_device_ref,
+            self.route,
+            expected_route,
+        )?;
         if self.pairing_state != RemotePairingState::Paired {
             return Err(RemoteCapabilityAuthorizationError::PairingRequired);
         }

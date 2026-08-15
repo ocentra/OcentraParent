@@ -65,7 +65,7 @@ Runtime rows remain open until selected code, tests, negative cases, redacted di
 
 Open gaps:
 
-- No remote pairing/access lifecycle with standing authority, revoke, removal, and audit.
+- No persistence-backed remote pairing/access runtime with adapter ownership, crash recovery, or durable audit custody.
 - No relay availability/fallback state machine.
 - No proof matrix for live view and standing access.
 - No retention/delete/export boundary for remote artifacts.
@@ -83,6 +83,36 @@ This is a validation slice only. It does not close the plan or claim pairing,
 standing access, relay/session runtime, device-trust integration,
 revoke/remove behavior, custody, portal disclosure, abuse controls, remote
 control, CI, review, or main merge.
+
+## Latest selected slice (2026-08-10)
+
+WP04 now has a Rust-owned pairing and standing-access lifecycle boundary in
+`crates/remote-access-core/src/remote_access_grant/`. The focused tests cover
+parent confirmation, child disclosure, paired/active/paused/stopped/reconnect
+states, route binding, current parent-authority rechecks, wrong
+actor/household/device/route rejection, explicitly parent-approved support
+access, support/admin hidden-access rejection, authorized household-actor
+revoke/remove, cross-actor non-terminal rejection, terminal reconnect denial,
+reconnect-pending bypass rejection, canonical parent-granted support
+authorization, typed device-trust handoff, explicit Denied/Failed terminal
+states, accepted-attempt replay across restore, redacted accepted/denied audit
+milestones, unique per-attempt audit keys, and validated serialization
+round-trips for early and late terminal states.
+
+The first PR CI run passed all product/build/security/E2E jobs but the
+mergeability gate held six review threads. The follow-up code repair consumes
+the canonical schema `RemoteActorRole`, encapsulates lifecycle mutation,
+validates deserialized state, and records the review findings in the durable
+proof manifest. This remains `validation`; follow-up CI, resolved review,
+persistence/adapter ownership, relay/session integration, device-trust
+handoff, child/portal disclosure, audit custody, and generated proof remain
+open.
+
+This is still `validation`, not `done`. Persistence adapters, relay/session
+integration, device-trust handoff, child/portal rendered disclosure, durable
+audit storage, generated proof output, CI, review, and main merge remain open.
+The durable local record is
+`docs/proof/remote-access-plan/slice-04-session-pairing-grants.md`.
 
 ## HID Execution Guard
 

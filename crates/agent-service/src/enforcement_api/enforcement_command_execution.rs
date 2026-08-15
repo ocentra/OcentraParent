@@ -1,11 +1,12 @@
 #[path = "enforcement_command_execution/adapter_outcome.rs"]
 mod adapter_outcome;
+#[path = "enforcement_command_execution/eventing_audit.rs"]
+mod eventing_audit;
 #[path = "enforcement_command_execution/provenance.rs"]
 mod provenance;
 #[path = "enforcement_command_execution/rejected_audit.rs"]
 mod rejected_audit;
 
-use ocentra_eventing::ids::CorrelationId;
 use ocentra_eventing::journal::policy::JournalDispatchPhase;
 use ocentra_parent_agent_core::enforcement_boundary::{
     authorize_enforcement_boundary, evaluate_enforcement_boundary, EnforcementBoundaryOutcome,
@@ -20,7 +21,6 @@ use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
 use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
 use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::logging::LogLevel;
@@ -38,16 +38,12 @@ use crate::{
 };
 
 use self::adapter_outcome::{adapter_outcome_for_request, final_input};
+use self::eventing_audit::record_eventing_enforcement_audit;
 use self::provenance::{
     enforcement_audit_provenance, record_audit_provenance, EnforcementAuditProvenance,
 };
 use self::rejected_audit::record_rejected_enforcement_audit;
-use super::enforcement_pre_action_journal::{
-    eventing_journal::{
-        append_enforcement_audit_journal_event_phase, EnforcementEventingJournalPath,
-    },
-    journal_before_action_outcome,
-};
+use super::enforcement_pre_action_journal::journal_before_action_outcome;
 use super::enforcement_report_payload::{
     build_enforcement_report_payload, enforcement_journal_fields,
 };
@@ -154,45 +150,6 @@ async fn execute_enforcement_command(
         .map_err(EnforcementCommandExecutionError::Journal)?;
     record_audit_provenance(&mut payload, provenance);
     Ok(payload)
-}
-
-async fn record_eventing_enforcement_audit(
-    command_correlation_id: &EnforcementText,
-    command_sent_at: &EnforcementText,
-    request: &EnforcementCommandPayload,
-    outcome: &EnforcementBoundaryOutcome,
-    paths: &EnforcementJournalPaths,
-    phase: JournalDispatchPhase,
-) -> Result<ocentra_eventing::journal::JournalAppend, EnforcementJournalBuildError> {
-    let mut eventing_journal_path = paths.journal_path.clone();
-    eventing_journal_path.set_extension(constants::enforcement::EVENTING_JOURNAL_EXTENSION);
-    append_enforcement_audit_journal_event_phase(
-        EnforcementEventingJournalPath {
-            path: eventing_journal_path,
-        },
-        eventing_audit_event(request, outcome, command_sent_at),
-        CorrelationId::parse(command_correlation_id.0.clone()).map_err(eventing_journal_error)?,
-        phase,
-    )
-    .await
-    .map_err(eventing_journal_error)
-}
-
-fn eventing_journal_error(_: impl std::fmt::Debug) -> EnforcementJournalBuildError {
-    EnforcementJournalBuildError::Store
-}
-
-fn eventing_audit_event(
-    request: &EnforcementCommandPayload,
-    outcome: &EnforcementBoundaryOutcome,
-    command_sent_at: &EnforcementText,
-) -> EnforcementAuditJournalEvent {
-    let mut event = EnforcementAuditJournalEvent::from(&outcome.audit_event);
-    event.device_id = Some(request.device_id.0.clone());
-    event.source_peer_id = Some(request.source_peer_id.0.clone());
-    event.target_route = Some(request.target_route.0.clone());
-    event.observed_at = command_sent_at.0.clone();
-    event
 }
 
 async fn record_enforcement_audit(

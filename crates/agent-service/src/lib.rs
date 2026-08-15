@@ -40,6 +40,7 @@ mod browser_runtime_stream_payload;
 mod browser_runtime_stream_request;
 pub mod dev_log;
 mod enforcement_api;
+pub mod enforcement_audit_history;
 mod enforcement_browser_domain_adapter_app_control_proof_states;
 mod enforcement_browser_domain_adapter_proof_read_model;
 mod enforcement_capability;

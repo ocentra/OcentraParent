@@ -33,7 +33,7 @@ WP01 capability fabric -> WP04 pairing/standing grants -> WP02 live-screen relay
 
 ## Actioned completion tracker
 
-- [ ] Define pairing-based remote capability grants and standing-access lifecycle.
+- [x] Define the Rust-owned pairing/standing-grant lifecycle boundary and focused negative tests; persistence and runtime integration remain open.
 - [ ] Separate live screen view from deferred remote input/control.
 - [ ] Define relay fallback, unavailable, and degraded states.
 - [ ] Define pairing/disclosure and child-visible state expectations.
@@ -48,3 +48,20 @@ WP01's narrow Rust contract is locally validated and recorded in
 the runtime-owned gaps in the ordered queue: pairing/standing grants (WP04),
 live relay/session behavior (WP02), relay abuse controls (WP05), then rollout
 proof (WP06). Keep remote input/control deferred.
+
+## Latest code/test checkpoint (2026-08-10)
+
+WP04's narrow lifecycle slice is locally validated in
+`crates/remote-access-core/src/remote_access_grant/` with its focused unit
+tests. The follow-up repair also covers current authority at pair,
+activation, and reconnect time; explicit support parent-grant visibility;
+canonical actor and route typing; immutable lifecycle fields with validated
+deserialization; early-terminal round trips; authorized household-actor
+terminal transitions with non-terminal actor rejection; canonical
+parent-granted support authorization; reconnect-pending gate enforcement;
+per-attempt audit idempotency and replay across restore; typed device-trust
+handoff; explicit Denied/Failed terminal outcomes; and redacted
+accepted/denied audit milestones. Continue with fresh follow-up CI/review,
+persistence/adapter ownership, relay/session integration, device-trust
+handoff, child/portal disclosure, audit custody, and generated proof before
+treating the workpack as complete.

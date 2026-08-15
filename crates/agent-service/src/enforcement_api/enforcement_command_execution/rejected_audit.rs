@@ -92,6 +92,7 @@ fn rejected_eventing_audit_event(
         adapter_kind: capability.adapter_kind,
         platform: capability.platform,
         audit_event_kind: EnforcementAuditEventKind::Failed,
+        provenance: ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalProvenance::RejectedIntent,
         result_status: EnforcementResultStatus::Failed,
         adapter_result_code: EnforcementAdapterResultCode::NoOp,
         capability_state: capability.capability_state,

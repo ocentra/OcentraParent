@@ -28,6 +28,9 @@ use crate::{
     fields::fields_from_pairs,
 };
 
+#[path = "enforcement_timer_report/provenance.rs"]
+mod provenance;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct TimerFieldName(&'static str);
 
@@ -77,6 +80,7 @@ pub(crate) async fn record_timer_eventing_audit_phase(
     let mut event = ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent::from(
         &outcome.audit_event,
     );
+    event.provenance = provenance::for_phase(phase);
     event.observed_at = request.command_sent_at.0.clone();
     event.device_id = Some(request.device_id.0.clone());
     event.source_peer_id = Some(request.source_peer_id.0.clone());

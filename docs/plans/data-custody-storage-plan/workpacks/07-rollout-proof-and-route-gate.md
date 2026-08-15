@@ -24,8 +24,10 @@ WP07 cannot convert blockers, manual-required rows, or one proof family into bro
 - This packet now proves one real retention lifecycle: a Rust-owned expired
   custody action is journaled idempotently, persisted through the child-runtime
   durable tombstone outbox, survives reopen, and remains pending until explicit
-  acknowledgement. A typed non-delete action is rejected before it can create a
-  tombstone intent.
+  acknowledgement. The child-runtime event-flow now exposes a startup recovery
+  entry point that replays pending typed outbox rows through the same idempotent
+  journal; terminal acknowledgement remains owned by the delivery path. A typed
+  non-delete action is rejected before it can create a tombstone intent.
 - The lifecycle proof is deliberately narrower than the rollout gate. It does
   not establish WP01/WP02/WP03/WP05/WP06/WP08 aggregate acceptance, provider
   execution, portal application, or plan-wide readiness.
@@ -65,7 +67,7 @@ WP07 cannot convert blockers, manual-required rows, or one proof family into bro
 storage-custody action event
   -> child runtime durable tombstone intent (atomic outbox write)
   -> idempotent NDJSON event journal append
-  -> process reopen recovery
+  -> process reopen recovery through ChildRuntimeTombstoneEventFlow::recover_pending
   -> explicit terminal acknowledgement compacts the row to a minimal
      terminal idempotency marker (the marker is retained for replay protection)
 ```
@@ -74,6 +76,9 @@ Focused test owners:
 
 - `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`
 - `crates/child-runtime/tests/unit/runtime_gate.rs`
+
+The startup-recovery entry point is a service-owned integration seam, not proof
+that a concrete child-service startup currently invokes it.
 
 ## Validation expectations for this packet
 

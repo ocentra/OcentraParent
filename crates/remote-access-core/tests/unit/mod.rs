@@ -8,6 +8,12 @@ use ocentra_remote_access_core::remote_access_session::{
     RemoteAccessSessionRequestedEvent,
 };
 
+mod grant;
+mod grant_authority;
+mod grant_persistence;
+mod grant_replay;
+mod grant_replay_capacity;
+mod grant_supersession;
 mod session;
 mod session_authorization;
 

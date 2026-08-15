@@ -5,7 +5,7 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 | Workpack | Purpose | Status |
 | ------------------------------------------------------------------------------- | --------------------------------------------- | ------- |
 | [01-policy-source-of-truth](workpacks/01-policy-source-of-truth.md) | Typed policy source truth, versioning, ownership. | Checked |
-| [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Open / partial reviewed slice on PR [#615](https://github.com/ocentra/OcentraParent/pull/615); CI-active and not closure |
+| [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Open / partial reviewed slice; PR [#615](https://github.com/ocentra/OcentraParent/pull/615) merged, but the workpack is not closed |
 | [03-domain-policy-compilers](workpacks/03-domain-policy-compilers.md) | Domain compiler contracts and handoffs. | Checked |
 | [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Contract checked / runtime blocked; request/artifact/target identity binding is enforced through the child-runtime facade and focused-tested |
 | [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md) | Ask-parent, bonus time, overrides, approvals. | Open — parent-resolution contract/service/UI plus approved-request delivery binding and child-runtime enforcement now exist; transport wiring, notification, trusted adapter, and proof remain open |
