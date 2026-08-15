@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `10a924fb7`. The dated
+baseline at `30f407f0e`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -29,10 +29,11 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,911
-implementation files and 1,214 test files, but only **59 of 679 workpacks**
-(8.69%) have reviewed, exact code/test ownership maps. Account Identity,
-Cloudflare Control Plane, Data Custody, Eventing, and Policy Control Plane are
-fully mapped; 620 workpacks across the repository remain unmapped. An unmapped workpack is
+implementation files and 1,214 test files, but only **72 of 679 workpacks**
+(10.60%) have reviewed, exact code/test ownership maps. Account Identity,
+Cloudflare Control Plane, Data Custody, Eventing, Payment/Subscription, and
+Policy Control Plane are fully mapped; 607 workpacks across the repository
+remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
 `npm run graph:matrix -- --json` is the complete 679-row table; the reviewed
@@ -55,7 +56,7 @@ strong enough for workpack-level decisions.
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 693 / 470 | 0 / 10 | Unattributed at workpack level despite current crate tests and CI. |
 | Network | 8 | 7/0/0/0/1/0 | 942 / 520 | 1 / 8 | Partial; WP08 reference routing is mapped. |
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 107 / 21 | 0 / 11 | Unattributed. |
-| Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 0 / 13 | Unattributed; two workpacks are dependency-blocked. |
+| Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 13 / 13 | Fully code-mapped; WP00 is complete for Phase 1 code/expected-test writing, while twelve workpacks retain concrete code/test gaps. |
 | Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 8 / 8 | Fully code-mapped; WP03 is Phase 1 complete and seven workpacks retain concrete code/test gaps. |
 | Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 683 / 448 | 0 / 20 | Unattributed. |
 | Remote access | 6 | 4/0/0/0/2/0 | 371 / 137 | 2 / 6 | Partial; WP01 capability and WP04 pairing-grant roots are mapped. |
@@ -203,6 +204,38 @@ the code-and-expected-test-writing phase. WP03 and WP05-WP12 retain concrete
 runtime, authority, persistence, local-dev, runner, consumer, security,
 deployment, or gate-verifier gaps. No current test-pass, deploy, proof, or
 payment-unblock claim is inferred from this audit.
+
+### Payment Subscription Phase 1 code/test audit - 2026-08-15
+
+This table is based on the current Rust billing and entitlement crates,
+Rust-owned/generated billing schemas, Cloudflare Worker implementation, and
+portal source/tests. A generated contract, fixture, or passing historical proof
+claim is not counted as a live provider, durable ledger, or parent product path.
+No mapped test is claimed passing until Phase 2 reruns it.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP00 Cloudflare Control Plane Handoff | This is an upstream dependency/handoff packet with an explicit no-product-code boundary. The Cloudflare plan and tracked handoff state can describe whether payment work is blocked without duplicating Worker implementation here. | **Complete for Phase 1** | No Payment-owned implementation or expected test code is authorized by this workpack. Its blocked/accepted handoff and retained proof remain dependency and Phase 3 concerns. |
+| WP01 Product Pricing Entitlement | Seven mapped schema/generated-edge implementation files and two Rust contract tests define entitlement value shapes and validate proof-witness honesty. | **Incomplete** | The named pricing-matrix and entitlement-proof read-model modules and `packages/billing-domain` tests do not exist. No executable product/seat/referral pricing calculation, proration, or pricing-matrix negative suite was found; generated schemas and witness validation do not implement pricing authority. |
+| WP02 Checkout Billing Portal | Eight mapped schema/Worker implementation files and seven contract/integration/property/security tests cover typed requests, auth states, hosted-URL allowlists, idempotency, audit rows, and secret-free responses. | **Incomplete** | The named schema wrapper and `packages/billing-domain` tests/proof runners are absent. Worker handlers synthesize Stripe-looking checkout/portal URLs locally instead of creating provider sessions, and account/device authority remains fixture/manual-required, so the tests do not prove real hosted checkout or billing-portal execution. |
+| WP03 Subscription Webhook Lifecycle | Billing-core classifiers, projection/review modules, Cloudflare verifier/handler code, and five mapped tests cover provider enums, semantic decisions, duplicates, replay, out-of-order delivery, retry/dead-letter labels, lifecycle projection, and Worker rejection cases. | **Incomplete** | Billing core trusts a caller-supplied signature-state enum and has no cryptographic verifier. Its event constructors have no production caller outside the crate, no app-owned durable journal append, and no retry/reconciliation queue owner. Cloudflare tests do not close that Rust lifecycle-to-ledger path. |
+| WP04 Entitlement Delivery Gates | Entitlement access/snapshot modules, Rust runtime-proof contracts, generated TypeScript edge code, and four mapped tests cover capability decisions, signed-snapshot shapes, limits, expiry/freshness states, and denial reasons. | **Incomplete** | Snapshot derivation copies caller-supplied signature/key text and trusts a caller-supplied verification enum; it does not sign, verify, parse trusted time, or persist snapshots. No production consumer was found outside the crate, and effective device-limit addition is unchecked for overflow. A signed-shape test is not trusted entitlement delivery. |
+| WP05 Invoice Tax Refund Dispute | Nine mapped schema/billing/Worker implementation files and six tests cover generated invoice/refund/dispute shapes, fixture-backed read models, admin route responses, reconciliation boundaries, and selected lifecycle projection states. | **Incomplete** | The named billing-domain implementation/tests are absent. Current behavior is generated-contract plus synthetic fixture state, not provider-backed invoice/tax/refund/dispute authority or an app-owned durable ledger. Partial-refund failure, chargeback, cancellation, tax/legal region rules, and complete transition negatives are not implemented as one runtime model. |
+| WP06 Security Privacy Observability | Billing review modules plus Worker auth/redaction code and ten mapped security/property/fuzz/unit tests cover secret non-disclosure, CORS/CSRF/framing rejection, idempotency examples, malformed payloads, and redacted boundaries. | **Incomplete** | The dedicated billing security/privacy/observability owner and its expected test are absent. The Worker has no production structured correlated logger, raw caught `Error.message` values can reach responses, and retry/dead-letter/provider-mode state is not durably observable. Fixed examples do not establish the required abuse/rate-limit/property/fuzz matrix. |
+| WP08 Provider Adapter Portability | Billing provider enums/classifiers, Cloudflare verifier/dispatch code, and three mapped tests exercise Stripe plus fixture paths for Razorpay, PayPal, Google, Apple, and manual invoice. | **Incomplete** | Only Stripe has an HMAC-shaped verification path. Other providers use invented local HMAC or bearer-equality fixtures rather than official protocols, and there is no normalized adapter interface, server-owned provider selection/configuration policy, store verification, or missing-config fail-closed matrix. |
+| WP09 Regional Payment Rollout | Worker fixtures/read model plus three integration tests expose public pricing, payment routes, and booted-worker behavior. | **Incomplete** | Runtime behavior is hard-coded to USD and treats Pakistan/manual invoice as a fixture string. There is no region/provider/currency/tax eligibility matrix, fallback policy, rollout gate, or negative test proving an unsupported or misconfigured region cannot charge. |
+| WP10 Referral Growth Entitlement | Entitlement snapshot code, referral seed/fixture/Worker/read-model code, and four mapped tests cover referral-count input, invite responses, idempotency examples, and billing API shapes. | **Incomplete** | Referral abuse rejection is driven by sentinel substrings such as `same-household` and `same-device`. No durable qualification/grant/revoke lifecycle, active-paying-parent check, household/device authority, grace/recalculation engine, or history/audit test exists. Entitlement merely consumes a caller-supplied active-credit count. |
+| WP11 Parent Website Billing Dashboard | Rust-owned/generated parent-visible summary contracts plus generic portal manage-route projection/rendering code and four mapped tests prove the route scaffold and summary shape exist. | **Incomplete** | The named parent-domain billing dashboard source/tests are absent. The portal exposes only a generic subscription route scaffold; there is no live billing transport/read model, plan/seat/referral/invoice state, checkout/portal action, manual-required handling, or billing-dashboard interaction/accessibility test. |
+| WP12 Support Admin Billing Ops | Support/admin schema values, Worker route/auth/read-model implementation, and five mapped tests cover route shape, auth rejection, synthetic refunds/disputes/reconciliation, and redacted responses. | **Incomplete** | The named parent-domain operations source/tests are absent. Support/admin identity remains fixture/caller-header or manual-required, provider history and mutation authority are not backed by a real ledger/provider adapter, and no trusted portal/admin UI exercises these operations. |
+| WP07 Rollout Proof And Route Gate | This is a final aggregation packet with no product-code ownership. Its expected role is to validate the preceding workpack outputs and routing without inventing implementation. | **Incomplete** | `output/payment-subscription-plan-proof/` is absent and the existing generic real-evidence script contains no payment assertions. No payment-specific executable verifier checks accepted/missing roots, assertion IDs, negative/rollback coverage, or no-overclaim behavior; that missing expected test code prevents Phase 1 closure even though proof generation itself belongs to Phase 3. |
+
+**Payment Subscription Phase 1 result:** all 13/13 workpacks now have reviewed
+code/test ownership. WP00 is complete for the code-and-expected-test-writing
+phase because it legitimately owns only an upstream handoff. WP01-WP12,
+including the final WP07 gate, retain concrete runtime or expected-test gaps.
+The workpack index's `done` labels for WP01, WP03, and WP04 are contradicted by
+the live implementation boundaries above and must not drive scheduling or
+release claims. No Phase 2 passing-test or Phase 3 proof claim is inferred.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
@@ -489,7 +522,7 @@ proof artifact, checklist row, and merge state agree.
 | `logging-domain-parity` | Foundation | `logging-core`, `logging-domain`, `agent-service`, portal | Logger, local evidence, MCP/query, and portal paths exist. | Broad adoption and several proof-root closeouts remain. | Make logging/proof correlation mandatory for one high-value product chain. |
 | `network-plan` | Foundation | `network-core`, `ocentra-network-evidence`, `agent-protocol`, `agent-service` | Merged #617 added the bounded WP01 typed-eventing handoff: `NetworkFlowObservedEvent` maps directly to reusable `DomainEvent`/`EventEnvelope` under the distinct `network.flow.eventing.observed` contract. The retained [contract proof](proof/network-plan/01-network-foundation-eventing-contract.md) covers stored-envelope round trip, blank-device rejection, canonical schema enforcement, and collision-safe length-prefixed idempotency keys. | WP01 remains open: schema parity, evidence grade, policy action/handoff, no-private-bus audit, service-runtime, and platform proof are still incomplete; broader parser and policy bundles also remain open. | Complete the remaining WP01 contract obligations before escalating to parser-to-policy runtime proof. |
 | `parent-client-runtime-distribution-plan` | Integration | Tauri parent desktop, Android/iOS parent projects, `parent-runtime-core` | Tauri shell and Android/iOS roots exist; focused package proof paths exist. | Whole release/signing/rollback readiness is unproven. | Produce one signed desktop package plus launch/rollback smoke. |
-| `payment-subscription-plan` | Foundation / dependency-gated | `billing-core`, `entitlement-core`, Cloudflare worker | Billing core has 17 source / 4 test files; webhook and entitlement code exist. | Current Cloudflare/billing focused gates are not freshly green, and provider, account-authority, device-trust, and deployment proof remain open. | Refresh Cloudflare plus billing-core gates, then run one checkout/webhook-to-entitlement path without restoring obsolete TS contract ownership. |
+| `payment-subscription-plan` | Fully audited / Phase 1 incomplete | `billing-core`, `entitlement-core`, Rust billing schemas, Cloudflare worker, portal consumer boundary | All 13 workpacks have reviewed code/test ownership. Real schema, webhook classification, entitlement gates, Worker routes, and focused tests exist, but only WP00 has no Phase 1 writing gap. | Twelve workpacks still lack required pricing authority, provider execution/verification, durable ledger/retry state, trusted entitlement signatures, regional/referral lifecycle, parent/admin UI, or the payment-specific rollout verifier. The plan's `done` labels for WP01/WP03/WP04 overstate live runtime closure. | Complete WP01 pricing authority first, then WP02-WP04 checkout/webhook/entitlement runtime foundations; continue in dependency order through WP05/WP06/WP08-WP12 and finish with WP07. Run focused tests/Enforcer only after each Phase 1 slice is written; proof remains last. |
 | `policy-control-plane-plan` | Integration | `policy-control-core`, `agent-service`, `schema`, eventing | 126 source / 25 test files; compiler, preview, delivery, conflict, and authority code exist. | Policy-to-enforcement command/rollback product proof is incomplete. | Prove typed policy compile, delivery, execution receipt, and rollback. |
 | `portal-ux-household-surfaces-plan` | Integration | `apps/portal`, `portal-domain`, HostBridge/service read models | Portal has 113 source / 87 test files and real route/panel code. | Several screens remain proof/presentation surfaces without completed backend actions. | Choose a service-backed household flow and prove the full click-through. |
 | `remote-access-plan` | Scaffold | `remote-access-core`, `screen-live-view-core`, LAN, portal | Remote core has 2 source / 5 test files; adjacent live-view pieces exist. | Session grants, relay, revocation, and safety proof are not implemented as a product path. | Build view-only session grant/revoke state before any control feature. |
@@ -524,7 +557,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `logging-domain-parity` | 10 | 0 | 10 | 0 | Five partial-proof, four source-present, one audit-open. |
 | `network-plan` | 8 | 0 | 8 | 0 | Merged #617 proves one bounded WP01 typed-eventing contract handoff; WP01 and its seven sibling workpacks remain open, so this is not a workpack closure. |
 | `parent-client-runtime-distribution-plan` | 11 | 7 | 4 | 0 | Routed through `parent-desktop-runtime-package-plan`; state/index and checklist disagree on WP03/WP04. |
-| `payment-subscription-plan` | 13 | 3 | 10 | 0 | Engineering specification is not runtime closure; Cloudflare/trust dependencies remain. |
+| `payment-subscription-plan` | 13 | 3 | 10 | 0 | Fully mapped from live code/tests. WP00 is Phase 1 complete as a no-code handoff; WP01-WP12 retain concrete code or expected-test gaps, and the three doc-claimed closures do not match runtime truth. |
 | `policy-control-plane-plan` | 8 | 6 | 2 | 0 | Six checked workpacks are not reflected by the generic checklist status. |
 | `portal-ux-household-surfaces-plan` | 20 | 5 | 15 | 0 | Checklist is stale relative to the workpack index. |
 | `remote-access-plan` | 6 | 0 | 6 | 0 | Five planned rows and one deferred control row. |
