@@ -1,5 +1,10 @@
 # Repo Organization Movement Map
 
+> **Historical checkpoint:** the branch heads and movement state below are not
+> current repository truth. The 2026-08-15 code-first reconciliation is in
+> `source-index.md`, `current-tracking-snapshot.md`, `CODE_AUDIT.md`, and the
+> reviewed Tracking entries in `docs/engineering-graph/code-map.json`.
+
 This map is the required pre-code inventory for the repo organization pass.
 It covers whole-repo feature/domain/crate/test ownership and then identifies the
 tracking-first implementation slice. Tracking is the first slice, not the final

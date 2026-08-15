@@ -1,5 +1,13 @@
 # Tracking Plan
 
+> **2026-08-15 code-audit authority:** use `PLAN_STATE.md`,
+> `source-index.md`, `CODE_AUDIT.md`, and `WORKPACK_INDEX.md` for current
+> implementation ownership and Phase 1 status. Older sections below preserve
+> historical proof/checkpoint context; `packages/tracking-domain`, the
+> `codex/tracking-plan-full-continuation-a` branch, and the named
+> `scripts/test/tracking-*.mjs` commands are not present current execution
+> routes.
+
 This folder is the single working plan location for location evidence,
 geofence rules, expected-place schedules, device status, nearby-place
 intelligence, AI safety analysis, parent acknowledgements, alerts, escalation,
