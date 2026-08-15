@@ -30,31 +30,41 @@ where proof is missing.
 
 ## Tests And Proof
 
-- [ ] New inventory app creates candidate.
-- [ ] Unknown process/new app approval request carries evidence and child
+- [x] New inventory app creates candidate.
+- [x] Unknown process/new app approval request carries evidence and child
       status refs.
-- [ ] Unknown game-like executable stays unknown/possible game through safe
+- [x] Unknown game-like executable stays unknown/possible game through safe
       observe-only/manual-required fallback.
-- [ ] Parent approval includes evidence refs.
-- [ ] Block remains manual-required without adapter proof.
-- [ ] Approval survives restart where storage exists through replayable/replayed
+- [x] Parent approval includes evidence refs.
+- [x] Block remains manual-required without adapter proof.
+- [x] Approval survives restart where storage exists through replayable/replayed
       persistence state plus audit refs.
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1 and Phase 2 Complete; Phase 3 Open
 
-The 2026-08-15 code audit found that the historical TypeScript contract owner
-named below was removed. Current Rust protocol code retains string-shaped
-approval request/decision DTOs and serialization tests, but it does not yet
-produce unknown candidates or own a durable approval lifecycle with expiry,
-idempotent replay, and fail-closed transition tests.
+The Rust-owned lifecycle landed at `fd536480b`. It produces typed unknown app,
+process, portable, installer, launcher-game, and game-like candidates; validates
+evidence, device, local-user, category, child-status, actor, audit, expiry, and
+override refs; and persists request, parent-response, and expiry transitions in
+the synchronized Eventing NDJSON journal.
 
-This workpack is therefore active for a bounded Rust-owned implementation in
-`ocentra-app-game-core`. The slice must add typed candidate production and a
-durable journal/replay state machine covering allow, deny, ask-child,
-report-only, unsupported-block/manual-required, expiry, override, stale or
-mismatched evidence, and duplicate/replayed transitions. It does not claim a
-service command, portal or child UI, notification delivery, or platform adapter
-execution.
+Focused validation is green:
+
+- `cargo test -p ocentra-app-game-core --test contract` (`63 passed`)
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`
+- focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, `no-naked-domain-strings`, `validation-bypass`, and
+  `reexports`
+
+The six WP17 tests cover candidate evidence and weak-game classification,
+restart/replay and exact idempotency, conflicting transition rejection,
+unsupported-block/manual-required behavior, expiry and late response rejection,
+ask-child follow-up refs, category refs, and override refs. Adapter dispatch is
+always `not-dispatched` in this owner.
+
+Phase 3 retained proof and plan-level precommit/CI remain open. A service
+composition owner, portal/child UI, notification delivery, and platform adapter
+execution remain outside this bounded workpack slice.
 
 ## Historical Contract Slice - 2026-06-03
 

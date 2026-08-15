@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **154** have current production source plus expected checked-in tests for their
+- **155** have current production source plus expected checked-in tests for their
   bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **47** retain a concrete production-code or expected-test gap.
+  packets; **46** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -105,7 +105,7 @@ Phase 1 authority where they conflict with `CODE_AUDIT.md`.
 - Rust protocol parity now mirrors the WP01 evidence claim, AI digest reference/classification digest, WP04 identity/identity-merge shapes, the app/game control authority/action-result schemas, the platform authority matrix, and the WP24 parent-domain classifier boundary. WP31 adds staged journal/SQLite storage and read-model projection for evidence claim, identity, authority, action-result, platform authority matrix, and classifier result rows. WP38 carries those staged row refs through existing app-use/games service read-model evidence vectors. Live source subscriptions, classifier execution, dedicated classifier service events, policy runtime, portal authority/classifier rows, and adapter execution remain incomplete.
 - Journal and SQLite ingest now covers staged app/game inventory, runtime, foreground, launcher, daily rollup, evidence-claim, identity, approval authority, approval action-result, platform authority matrix, and AI classifier result rows. The service still maps only the established app-use and games activity-surface rows, but those rows now retain staged authority/classifier storage refs in their evidence vectors. The new authority/classifier rows are not yet wired to live source subscriptions, dedicated service events, policy consumers, or portal dashboard rows.
 - Portal App/Game Sessions dashboard rows now consume the app-use and games activity-surface DTOs through a shared dashboard intent, but approval, policy, game-budget, live source, and platform-authority surfaces remain incomplete.
-- Unknown approval flow now has parent-domain contract proof for weak app/game candidates, child refs, response scopes, expiry, replay state, and manual-required blocks, but live candidate production, notification delivery, service read models, and parent/child approval UI remain incomplete.
+- Unknown approval flow now has a Rust-owned typed candidate producer and durable synchronized Eventing lifecycle for request, parent response, expiry, restart replay, idempotency, and manual-required unsupported blocks. Service composition, notification delivery, service read models, parent/child UI, and adapter execution remain incomplete.
 - Native game budget policy now has parent-domain contract proof for game budget targets, known-game inclusion, launcher-only exclusion, parent-approved launcher-game candidate inclusion, advisory rating/UGC, multiplayer, and purchase signals, and dry-run-only outcomes. It does not yet provide policy compiler integration, service persistence, portal budget authoring/preview UI, bonus-time integration, notifications, or adapter execution.
 - App/game policy target compiler now has parent-domain contract proof for app/game targets, identity/unknown/category/schedule/capability/authority proof, device/local-user/freshness rejection, dry-run-only decisions, and manual-required unproved block-launch. It does not yet provide Rust/service parity, runtime evaluator execution, portal rule authoring/preview UI, timer integration, notifications, rollback, or adapter execution.
 - App/game time-budget policy now has parent-domain contract proof for stored app/game session refs, running versus foreground duration modes, schedule evidence, bonus-time approval/audit refs, ask-parent/manual-required dry-run states, effective budget math, and restart-recovered timer refs. It does not yet provide Rust/service parity, runtime evaluator execution, service persistence, portal budget authoring/preview UI, notification delivery, child request UX, adapter execution, or platform timer/rollback execution.
@@ -154,7 +154,7 @@ Checked generated handoff rows do not override the selected workpack proof root 
 - The six app/game capability, schema, and settings guides are reviewed
   no-code reference/control-routing packets. They do not claim product
   implementation or proof completion.
-- Forty-seven implementation/test-writing gaps remain; select them through
+- Forty-six implementation/test-writing gaps remain; select them through
   `CODE_AUDIT.md` and `WORKPACK_INDEX.md`.
 
 ## Default no-read list

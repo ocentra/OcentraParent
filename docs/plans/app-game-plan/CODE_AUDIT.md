@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 151/220 have current production source plus the expected checked-in tests
+- 155/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 170/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 50/220 retain a concrete production-code or expected-test gap.
+- 174/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 46/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -57,7 +57,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP14 Journal And SQLite Ingest | Rust protocol + ActivityStore/source/service tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP15 Read Models And Service Events | Rust protocol + ActivityStore/source/service tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP16 Parent Portal App/Game Dashboard Surfaces | Current Rust/service/portal boundary; legacy TS owner removed | **Incomplete** | No cohesive parent surface and focused UI matrix covers installed, running, foreground, sessions, rollups, unknown/risk, drill-in, and hostile/long metadata states. |
-| WP17 Unknown App/Game Approval Flow | Current Rust/service/portal boundary; legacy TS owner removed | **Incomplete** | No production candidate producer, durable approval lifecycle, expiry/replay owner, parent/child UX, or integrated tests. |
+| WP17 Unknown App/Game Approval Flow | Rust-owned candidate and durable lifecycle in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | Typed candidate/request/response/expiry events, synchronized journal restart/replay, idempotency, and fail-closed response tests landed at `fd536480b`; Phase 3 proof and service/UI/notification/adapter consumers remain open. |
 | WP18 Native Game Budgets And Launcher Policy | Current Rust/service/portal boundary; legacy TS owner removed | **Incomplete** | Game-budget DTOs exist, but no native-game budget/launcher policy composition, persistence, runtime evaluation, or focused integration tests. |
 | WP19 Policy Target Compiler For App/Game Rules | Rust-owned compiler in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | All 25 target kinds and fail-closed identity/category/schedule/evidence/capability/authority paths are implemented and tested at `bf81b400d`; retained Phase 3 proof and downstream service consumption remain open. |
 | WP20 Time Budget, Schedule, And Bonus-Time Integration | Current Rust/service/portal boundary; legacy TS owner removed | **Incomplete** | Generic schedule/bonus and scoped timer pieces exist, but no app/game composition spans authoritative sessions, restart, bonus/allow-once, and expected tests. |
@@ -264,8 +264,9 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP17-WP20, WP49, WP51, and WP177: create one Rust-owned durable review/risk
-   producer and policy compiler/evaluator path for native apps and native games.
+1. WP18-WP20 and WP177: finish the remaining native-game budget, time-budget,
+   child-UX, and approval/risk integration gaps. WP17, WP19, WP49, and WP51 have
+   completed bounded Phase 1/2 and await Phase 3 plan proof.
 2. WP21 and WP121-WP126: implement the actual child warning/request UX plus its
    durable outbox, scheduler, provider/preference preflight, and status producers.
 3. WP58-WP65: implement the notification outbox, scheduler, ordered history,
@@ -290,6 +291,6 @@ helpers. It is not release-ready. The central unfinished chain is:
 `live evidence -> durable review/risk -> compiler/evaluator -> child UX/delivery
 -> notification delivery/history -> cross-platform runtime + tests -> complete parent UI`
 
-Phase 2 should run focused tests and Enforcer only after the 50 writing gaps are
+Phase 2 should run focused tests and Enforcer only after the 46 writing gaps are
 closed or explicitly retired. Phase 3 should then regenerate clean-checkout proof;
 historical ignored output is not a substitute.

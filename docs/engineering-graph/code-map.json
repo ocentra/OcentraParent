@@ -5966,15 +5966,17 @@
     "WP-app-game-plan-17-unknown-app-game-approval-flow": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game.rs",
-        "crates/agent-protocol/src/app_game_authority_classifier.rs",
-        "crates/agent-protocol/tests/unit/app_game_tests.rs",
-        "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
-        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
-        "crates/agent-core/src/activity_store_app_game",
-        "crates/agent-core/tests/unit/activity_store_app_game",
-        "crates/agent-service/src/activity_capture/app_game.rs",
-        "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
+        "crates/app-game-core/src/app_game_unknown_approval.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_event.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_expiry.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_projection.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_reducer.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_response.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_response_validation.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_status.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_types.rs",
+        "crates/app-game-core/src/app_game_unknown_approval_validation.rs",
+        "crates/app-game-core/tests/contract/app_game_unknown_approval.rs"
       ]
     },
     "WP-app-game-plan-18-native-game-budgets-and-launcher-policy": {
