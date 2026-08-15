@@ -10401,15 +10401,23 @@
       "path": "docs/plans/app-plan/workpacks/02-source-index-and-doc-reconciliation.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/02-source-index-and-doc-reconciliation; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/02-source-index-and-doc-reconciliation",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, docs-only"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10437,15 +10445,23 @@
       "path": "docs/plans/app-plan/workpacks/03-current-app-snapshot-and-gap-map.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/03-current-app-snapshot-and-gap-map; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/03-current-app-snapshot-and-gap-map",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, docs-only"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10471,15 +10487,23 @@
       "path": "docs/plans/app-plan/workpacks/04-app-identity-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/04-app-identity-model; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/04-app-identity-model",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10505,15 +10529,23 @@
       "path": "docs/plans/app-plan/workpacks/05-installed-app-inventory-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/05-installed-app-inventory-model; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/05-installed-app-inventory-model",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10539,15 +10571,23 @@
       "path": "docs/plans/app-plan/workpacks/06-windows-installed-app-inventory-adapter.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/06-windows-installed-app-inventory-adapter; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/06-windows-installed-app-inventory-adapter",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10575,15 +10615,23 @@
       "path": "docs/plans/app-plan/workpacks/07-windows-store-uwp-appx-inventory-adapter.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10611,15 +10659,23 @@
       "path": "docs/plans/app-plan/workpacks/08-windows-process-runtime-evidence-adapter.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/08-windows-process-runtime-evidence-adapter; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/08-windows-process-runtime-evidence-adapter",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10647,15 +10703,23 @@
       "path": "docs/plans/app-plan/workpacks/09-windows-foreground-app-evidence-adapter.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/09-windows-foreground-app-evidence-adapter; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/09-windows-foreground-app-evidence-adapter",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -10677,341 +10741,29 @@
       }
     },
     {
-      "id": "WP-app-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
-      "kind": "workpack",
-      "title": "100 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model handoff",
-      "path": "docs/plans/app-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": [
-            "output/app-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff"
-          ]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
-      "kind": "workpack",
-      "title": "101 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model",
-      "path": "docs/plans/app-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": [
-            "output/app-plan-proof/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model"
-          ]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
-      "kind": "workpack",
-      "title": "102 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model service handoff",
-      "path": "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": [
-            "output/app-plan-proof/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff"
-          ]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-103-timer-service-read-model-handoff",
-      "kind": "workpack",
-      "title": "103 timer service read model handoff",
-      "path": "docs/plans/app-plan/workpacks/103-timer-service-read-model-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/103-timer-service-read-model-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": [
-            "output/app-plan-proof/103-timer-service-read-model-handoff"
-          ]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-104-timer-service-event-handoff",
-      "kind": "workpack",
-      "title": "104 timer service event handoff",
-      "path": "docs/plans/app-plan/workpacks/104-timer-service-event-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/104-timer-service-event-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": ["output/app-plan-proof/104-timer-service-event-handoff"]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-105-timer-service-read-api-handoff",
-      "kind": "workpack",
-      "title": "105 timer service read api handoff",
-      "path": "docs/plans/app-plan/workpacks/105-timer-service-read-api-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/105-timer-service-read-api-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": ["output/app-plan-proof/105-timer-service-read-api-handoff"]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-106-timer-service-read-api-response-handoff",
-      "kind": "workpack",
-      "title": "106 timer service read api response handoff",
-      "path": "docs/plans/app-plan/workpacks/106-timer-service-read-api-response-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/106-timer-service-read-api-response-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": [
-            "output/app-plan-proof/106-timer-service-read-api-response-handoff"
-          ]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-107-timer-service-read-api-response-consumer-handoff",
-      "kind": "workpack",
-      "title": "107 timer service read api response consumer handoff",
-      "path": "docs/plans/app-plan/workpacks/107-timer-service-read-api-response-consumer-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/107-timer-service-read-api-response-consumer-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": [
-            "output/app-plan-proof/107-timer-service-read-api-response-consumer-handoff"
-          ]
-        }
-      }
-    },
-    {
-      "id": "WP-app-plan-108-timer-service-read-api-response-consumer-parent-surface-handoff",
-      "kind": "workpack",
-      "title": "108 timer service read api response consumer parent surface handoff",
-      "path": "docs/plans/app-plan/workpacks/108-timer-service-read-api-response-consumer-parent-surface-handoff.md",
-      "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
-      "metadata": {
-        "planSlug": "app-plan",
-        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
-        "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
-      },
-      "completion": {
-        "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
-        "references": {
-          "implementation": [
-            "docs/plans/app-plan/workpacks/108-timer-service-read-api-response-consumer-parent-surface-handoff.md"
-          ],
-          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
-          "proof": [],
-          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
-          "adr": []
-        },
-        "expected": {
-          "proof": [
-            "output/app-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff"
-          ]
-        }
-      }
-    },
-    {
       "id": "WP-app-plan-10-cross-platform-authority-matrix",
       "kind": "workpack",
       "title": "10 cross platform authority matrix",
       "path": "docs/plans/app-plan/workpacks/10-cross-platform-authority-matrix.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/10-cross-platform-authority-matrix; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/10-cross-platform-authority-matrix",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11037,15 +10789,23 @@
       "path": "docs/plans/app-plan/workpacks/11-app-category-and-risk-taxonomy.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/11-app-category-and-risk-taxonomy; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/11-app-category-and-risk-taxonomy",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11071,15 +10831,23 @@
       "path": "docs/plans/app-plan/workpacks/12-app-sessionization-and-duration-engine.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/12-app-sessionization-and-duration-engine; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/12-app-sessionization-and-duration-engine",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11107,15 +10875,23 @@
       "path": "docs/plans/app-plan/workpacks/13-journal-and-sqlite-app-ingest.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/13-journal-and-sqlite-app-ingest; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/13-journal-and-sqlite-app-ingest",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11141,15 +10917,23 @@
       "path": "docs/plans/app-plan/workpacks/14-app-read-models-and-service-events.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/14-app-read-models-and-service-events; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/14-app-read-models-and-service-events",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11182,7 +10966,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11218,7 +11002,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11254,7 +11038,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11288,7 +11072,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11324,7 +11108,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11360,7 +11144,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11391,15 +11175,23 @@
       "path": "docs/plans/app-plan/workpacks/21-windows-owned-process-terminate-time-limit-proof.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11427,15 +11219,23 @@
       "path": "docs/plans/app-plan/workpacks/22-broad-blocking-proof-gates.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/22-broad-blocking-proof-gates; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/22-broad-blocking-proof-gates",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, coordination-only"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11461,15 +11261,23 @@
       "path": "docs/plans/app-plan/workpacks/23-app-ai-classifier-digest-boundary.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/23-app-ai-classifier-digest-boundary; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/23-app-ai-classifier-digest-boundary",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11497,15 +11305,23 @@
       "path": "docs/plans/app-plan/workpacks/24-platform-extension-checklist-and-proof-routing.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/24-platform-extension-checklist-and-proof-routing; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/24-platform-extension-checklist-and-proof-routing",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, coordination-only"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11533,15 +11349,23 @@
       "path": "docs/plans/app-plan/workpacks/25-install-and-uninstall-approval-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/25-install-and-uninstall-approval-handoff; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/25-install-and-uninstall-approval-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded handoff"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11574,7 +11398,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11603,15 +11427,23 @@
       "path": "docs/plans/app-plan/workpacks/27-e2e-and-manual-proof-artifacts.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/27-e2e-and-manual-proof-artifacts; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/27-e2e-and-manual-proof-artifacts",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, proof-routing only"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11637,15 +11469,23 @@
       "path": "docs/plans/app-plan/workpacks/28-rollout-checklist-and-pr-gate.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/28-rollout-checklist-and-pr-gate; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/28-rollout-checklist-and-pr-gate",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, coordination-only"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11671,15 +11511,23 @@
       "path": "docs/plans/app-plan/workpacks/29-rust-protocol-evidence-identity-parity.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/29-rust-protocol-evidence-identity-parity; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/29-rust-protocol-evidence-identity-parity",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11707,15 +11555,23 @@
       "path": "docs/plans/app-plan/workpacks/30-rust-protocol-authority-classifier-parity.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/30-rust-protocol-authority-classifier-parity; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/30-rust-protocol-authority-classifier-parity",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11743,15 +11599,23 @@
       "path": "docs/plans/app-plan/workpacks/31-journal-sqlite-authority-classifier-storage.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/31-journal-sqlite-authority-classifier-storage; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/31-journal-sqlite-authority-classifier-storage",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11779,15 +11643,23 @@
       "path": "docs/plans/app-plan/workpacks/32-live-process-snapshot-source.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/32-live-process-snapshot-source; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/32-live-process-snapshot-source",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11813,15 +11685,23 @@
       "path": "docs/plans/app-plan/workpacks/33-live-process-journal-sqlite-bridge.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/33-live-process-journal-sqlite-bridge; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/33-live-process-journal-sqlite-bridge",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11849,15 +11729,23 @@
       "path": "docs/plans/app-plan/workpacks/34-service-capture-app-game-live-process-bridge.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/34-service-capture-app-game-live-process-bridge; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/34-service-capture-app-game-live-process-bridge",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11885,15 +11773,23 @@
       "path": "docs/plans/app-plan/workpacks/35-service-app-game-recurring-freshness.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/35-service-app-game-recurring-freshness; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/35-service-app-game-recurring-freshness",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11921,15 +11817,23 @@
       "path": "docs/plans/app-plan/workpacks/36-live-foreground-window-source.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/36-live-foreground-window-source; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/36-live-foreground-window-source",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11955,15 +11859,23 @@
       "path": "docs/plans/app-plan/workpacks/37-service-foreground-capture-bridge.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/37-service-foreground-capture-bridge; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/37-service-foreground-capture-bridge",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -11991,15 +11903,23 @@
       "path": "docs/plans/app-plan/workpacks/38-service-authority-classifier-surface-evidence.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/38-service-authority-classifier-surface-evidence; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/38-service-authority-classifier-surface-evidence",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12027,15 +11947,23 @@
       "path": "docs/plans/app-plan/workpacks/39-authority-classifier-read-model-counts.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/39-authority-classifier-read-model-counts; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/39-authority-classifier-read-model-counts",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12063,15 +11991,23 @@
       "path": "docs/plans/app-plan/workpacks/40-app-game-boundary-read-model-event.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/40-app-game-boundary-read-model-event; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/40-app-game-boundary-read-model-event",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12099,15 +12035,23 @@
       "path": "docs/plans/app-plan/workpacks/41-live-windows-inventory-source.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/41-live-windows-inventory-source; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/41-live-windows-inventory-source",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12133,15 +12077,23 @@
       "path": "docs/plans/app-plan/workpacks/42-service-windows-inventory-capture-bridge.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/42-service-windows-inventory-capture-bridge; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/42-service-windows-inventory-capture-bridge",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12169,15 +12121,23 @@
       "path": "docs/plans/app-plan/workpacks/43-live-windows-store-package-source.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/43-live-windows-store-package-source; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/43-live-windows-store-package-source",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12205,15 +12165,23 @@
       "path": "docs/plans/app-plan/workpacks/44-service-windows-store-package-capture-bridge.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/44-service-windows-store-package-capture-bridge; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/44-service-windows-store-package-capture-bridge",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12241,15 +12209,23 @@
       "path": "docs/plans/app-plan/workpacks/45-live-windows-registry-inventory-source.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/45-live-windows-registry-inventory-source; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/45-live-windows-registry-inventory-source",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12277,15 +12253,23 @@
       "path": "docs/plans/app-plan/workpacks/46-service-windows-registry-capture-bridge.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/46-service-windows-registry-capture-bridge; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/46-service-windows-registry-capture-bridge",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12313,15 +12297,23 @@
       "path": "docs/plans/app-plan/workpacks/47-backend-source-freshness-read-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/47-backend-source-freshness-read-model; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/47-backend-source-freshness-read-model",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12354,7 +12346,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12388,7 +12380,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12417,15 +12409,23 @@
       "path": "docs/plans/app-plan/workpacks/53-notification-intent-contract.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/53-notification-intent-contract; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/53-notification-intent-contract",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12451,15 +12451,23 @@
       "path": "docs/plans/app-plan/workpacks/54-policy-readiness-portal-renderer.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/54-policy-readiness-portal-renderer; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/54-policy-readiness-portal-renderer",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12485,15 +12493,23 @@
       "path": "docs/plans/app-plan/workpacks/56-notification-service-read-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/56-notification-service-read-model; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/56-notification-service-read-model",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12524,7 +12540,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12558,7 +12574,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12592,7 +12608,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12628,7 +12644,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12662,7 +12678,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12698,7 +12714,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12734,7 +12750,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12770,7 +12786,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12801,15 +12817,23 @@
       "path": "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/66-notification-parent-surface-intent; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/66-notification-parent-surface-intent",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12837,15 +12861,23 @@
       "path": "docs/plans/app-plan/workpacks/67-notification-parent-surface-renderer.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/67-notification-parent-surface-renderer; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/67-notification-parent-surface-renderer",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12873,15 +12905,23 @@
       "path": "docs/plans/app-plan/workpacks/74-source-freshness-policy-consumption.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/74-source-freshness-policy-consumption; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/74-source-freshness-policy-consumption",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded contract"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12909,15 +12949,23 @@
       "path": "docs/plans/app-plan/workpacks/75-source-freshness-preview-gate.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/75-source-freshness-preview-gate; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/75-source-freshness-preview-gate",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12943,15 +12991,22 @@
       "path": "docs/plans/app-plan/workpacks/76-source-gated-policy-preview-read-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12979,15 +13034,22 @@
       "path": "docs/plans/app-plan/workpacks/78-source-gated-policy-preview-timer-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13015,15 +13077,22 @@
       "path": "docs/plans/app-plan/workpacks/79-source-gated-policy-preview-timer-status.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13051,15 +13120,22 @@
       "path": "docs/plans/app-plan/workpacks/81-source-gated-policy-preview-timer-runtime-readiness.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13087,15 +13163,22 @@
       "path": "docs/plans/app-plan/workpacks/82-source-gated-policy-preview-timer-scheduler-persistence.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13123,15 +13206,22 @@
       "path": "docs/plans/app-plan/workpacks/83-source-gated-policy-preview-timer-audit-rollback-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13159,15 +13249,22 @@
       "path": "docs/plans/app-plan/workpacks/84-source-gated-policy-preview-timer-audit-rollback-read-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13195,15 +13292,22 @@
       "path": "docs/plans/app-plan/workpacks/85-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13231,15 +13335,22 @@
       "path": "docs/plans/app-plan/workpacks/86-source-gated-policy-preview-timer-service-readiness-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13267,15 +13378,22 @@
       "path": "docs/plans/app-plan/workpacks/87-source-gated-policy-preview-timer-service-readiness-read-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13303,15 +13421,22 @@
       "path": "docs/plans/app-plan/workpacks/88-source-gated-policy-preview-timer-service-readiness-protocol-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13339,15 +13464,22 @@
       "path": "docs/plans/app-plan/workpacks/89-source-gated-policy-preview-timer-service-readiness-protocol-read-model.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13375,15 +13507,22 @@
       "path": "docs/plans/app-plan/workpacks/90-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13411,15 +13550,22 @@
       "path": "docs/plans/app-plan/workpacks/91-source-gated-policy-preview-timer-service-readiness-service-handler-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13447,15 +13593,22 @@
       "path": "docs/plans/app-plan/workpacks/92-source-gated-policy-preview-timer-service-readiness-read-api-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13483,15 +13636,22 @@
       "path": "docs/plans/app-plan/workpacks/93-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13519,15 +13679,22 @@
       "path": "docs/plans/app-plan/workpacks/94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13555,15 +13722,22 @@
       "path": "docs/plans/app-plan/workpacks/95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13591,15 +13765,22 @@
       "path": "docs/plans/app-plan/workpacks/96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13627,15 +13808,22 @@
       "path": "docs/plans/app-plan/workpacks/97-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13663,15 +13851,22 @@
       "path": "docs/plans/app-plan/workpacks/98-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13699,15 +13894,22 @@
       "path": "docs/plans/app-plan/workpacks/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Open/unknown",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -13724,6 +13926,389 @@
         "expected": {
           "proof": [
             "output/app-plan-proof/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff"
+          ]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+      "kind": "workpack",
+      "title": "100 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model handoff",
+      "path": "docs/plans/app-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": [
+            "output/app-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff"
+          ]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "kind": "workpack",
+      "title": "101 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model",
+      "path": "docs/plans/app-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete, bounded projection"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": [
+            "output/app-plan-proof/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model"
+          ]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "kind": "workpack",
+      "title": "102 source gated policy preview timer service readiness response consumer parent surface status read model parent surface read model service handoff",
+      "path": "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "planned",
+      "lifecycleState": "planned",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "**Incomplete**",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": true
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": [
+            "output/app-plan-proof/102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff"
+          ]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-103-timer-service-read-model-handoff",
+      "kind": "workpack",
+      "title": "103 timer service read model handoff",
+      "path": "docs/plans/app-plan/workpacks/103-timer-service-read-model-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/103-timer-service-read-model-handoff; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/103-timer-service-read-model-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/103-timer-service-read-model-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": [
+            "output/app-plan-proof/103-timer-service-read-model-handoff"
+          ]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-104-timer-service-event-handoff",
+      "kind": "workpack",
+      "title": "104 timer service event handoff",
+      "path": "docs/plans/app-plan/workpacks/104-timer-service-event-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/104-timer-service-event-handoff; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/104-timer-service-event-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/104-timer-service-event-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": ["output/app-plan-proof/104-timer-service-event-handoff"]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-105-timer-service-read-api-handoff",
+      "kind": "workpack",
+      "title": "105 timer service read api handoff",
+      "path": "docs/plans/app-plan/workpacks/105-timer-service-read-api-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/105-timer-service-read-api-handoff; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/105-timer-service-read-api-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/105-timer-service-read-api-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": ["output/app-plan-proof/105-timer-service-read-api-handoff"]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-106-timer-service-read-api-response-handoff",
+      "kind": "workpack",
+      "title": "106 timer service read api response handoff",
+      "path": "docs/plans/app-plan/workpacks/106-timer-service-read-api-response-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/106-timer-service-read-api-response-handoff; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/106-timer-service-read-api-response-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/106-timer-service-read-api-response-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": [
+            "output/app-plan-proof/106-timer-service-read-api-response-handoff"
+          ]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-107-timer-service-read-api-response-consumer-handoff",
+      "kind": "workpack",
+      "title": "107 timer service read api response consumer handoff",
+      "path": "docs/plans/app-plan/workpacks/107-timer-service-read-api-response-consumer-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/107-timer-service-read-api-response-consumer-handoff; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/107-timer-service-read-api-response-consumer-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/107-timer-service-read-api-response-consumer-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": [
+            "output/app-plan-proof/107-timer-service-read-api-response-consumer-handoff"
+          ]
+        }
+      }
+    },
+    {
+      "id": "WP-app-plan-108-timer-service-read-api-response-consumer-parent-surface-handoff",
+      "kind": "workpack",
+      "title": "108 timer service read api response consumer parent surface handoff",
+      "path": "docs/plans/app-plan/workpacks/108-timer-service-read-api-response-consumer-parent-surface-handoff.md",
+      "parent": "PLAN-app-plan",
+      "dependsOn": [],
+      "state": "validation",
+      "lifecycleState": "validation",
+      "metadata": {
+        "planSlug": "app-plan",
+        "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff; checklist: reviewed evidence is not recorded",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "unreviewed",
+        "needsReview": false,
+        "completionGaps": [
+          "implementation: reviewed evidence is not recorded",
+          "tests: reviewed evidence is not recorded",
+          "proof: reviewed evidence is not recorded",
+          "proof: missing expected artifact output/app-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff",
+          "checklist: reviewed evidence is not recorded"
+        ],
+        "sourceStatusText": "Complete"
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/app-plan/workpacks/108-timer-service-read-api-response-consumer-parent-surface-handoff.md"
+          ],
+          "tests": ["docs/plans/app-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/app-plan/implementation-checklist.md"],
+          "adr": []
+        },
+        "expected": {
+          "proof": [
+            "output/app-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff"
           ]
         }
       }
@@ -26968,60 +27553,6 @@
     },
     {
       "from": "PLAN-app-plan",
-      "to": "WP-app-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-103-timer-service-read-model-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-104-timer-service-event-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-105-timer-service-read-api-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-106-timer-service-read-api-response-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-107-timer-service-read-api-response-consumer-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
-      "to": "WP-app-plan-108-timer-service-read-api-response-consumer-parent-surface-handoff",
-      "kind": "contains",
-      "confidence": "structural"
-    },
-    {
-      "from": "PLAN-app-plan",
       "to": "WP-app-plan-10-cross-platform-authority-matrix",
       "kind": "contains",
       "confidence": "structural"
@@ -27479,6 +28010,60 @@
     {
       "from": "PLAN-app-plan",
       "to": "WP-app-plan-99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-102-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-service-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-103-timer-service-read-model-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-104-timer-service-event-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-105-timer-service-read-api-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-106-timer-service-read-api-response-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-107-timer-service-read-api-response-consumer-handoff",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-app-plan",
+      "to": "WP-app-plan-108-timer-service-read-api-response-consumer-parent-surface-handoff",
       "kind": "contains",
       "confidence": "structural"
     },

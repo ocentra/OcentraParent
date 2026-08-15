@@ -1,5 +1,23 @@
 # Native Apps Implementation Checklist
 
+## Current code-first audit override - 2026-08-15
+
+The checkbox history below predates the current tracked-source audit and must
+not be used by itself to answer implementation status. The authoritative Phase
+1 result is [CODE_AUDIT.md](CODE_AUDIT.md): **95/95 workpacks mapped, 77 with
+no bounded source/test-writing gap, 18 incomplete**. The incomplete workpacks
+are WP15, WP16, WP17, WP18, WP19, WP20, WP26, WP48, WP49, WP58, WP59, WP60,
+WP61, WP62, WP63, WP64, WP65, and WP102.
+
+- Checked historical proof rows do not override a missing current source path.
+- Missing ignored proof does not reopen otherwise-written Phase 1 code; it is a
+  Phase 3 gap.
+- `packages/activity-domain`, `packages/parent-domain`,
+  `packages/agent-protocol-domain`, `packages/text-domain`, and the documented
+  `scripts/test/app-game-*` runners are absent from the tracked checkout.
+- Use [WORKPACK_INDEX.md](WORKPACK_INDEX.md) for the per-workpack Phase 1 state
+  and the engineering graph for current code/test roots.
+
 This is the fill-in checklist for native app implementation work. Future AI
 workers must update this file and the matching workpack checklist before
 reporting `DONE` or PR-ready.

@@ -597,9 +597,11 @@ test('progress report joins derived workpack state with reviewed plan topology',
   assert.equal(blocked.state, 'blocked');
 });
 
-test('reviewed workpack code maps stay exact while unmapped rows remain unknown', async () => {
+test('reviewed app workpack code maps stay exact after the full plan audit', async () => {
   const report = await buildProgressReport({ root: repoRoot });
   const app = report.plans.find((plan) => plan.id === 'PLAN-app-plan');
+  assert.equal(app.workpacks.rows.length, 95);
+  assert.ok(app.workpacks.rows.every((workpack) => workpack.codeTestTopology.scope === 'reviewed-workpack-roots'));
   const mapped = app.workpacks.rows.find(
     (workpack) => workpack.id === 'WP-app-plan-01-contract-boundary-and-effect-schemas'
   );
@@ -607,10 +609,16 @@ test('reviewed workpack code maps stay exact while unmapped rows remain unknown'
   assert.ok(mapped.codeTestTopology.implementationFiles > 0);
   assert.ok(mapped.codeTestTopology.testFiles > 0);
   assert.ok(mapped.codeTestTopology.implementationPaths.some((file) => file.endsWith('runtime_decision.rs')));
-  const unmapped = app.workpacks.rows.find(
+  const ownedProcessLimit = app.workpacks.rows.find(
     (workpack) => workpack.id === 'WP-app-plan-21-windows-owned-process-terminate-time-limit-proof'
   );
-  assert.equal(unmapped.codeTestTopology, 'unknown-workpack-ownership');
+  assert.equal(ownedProcessLimit.codeTestTopology.scope, 'reviewed-workpack-roots');
+  assert.ok(
+    ownedProcessLimit.codeTestTopology.implementationPaths.some((file) =>
+      file.endsWith('enforcement_app_time_limit.rs')
+    )
+  );
+  assert.ok(ownedProcessLimit.codeTestTopology.testFiles > 0);
 });
 
 test('root goal scope includes the full reviewed code map', async () => {
