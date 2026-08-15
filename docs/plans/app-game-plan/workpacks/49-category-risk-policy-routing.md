@@ -17,11 +17,11 @@
 
 ## Scope
 
-Route category, risk, and game-context candidates into the existing app/game
+Route category, risk, and game-context candidates into the Rust-owned app/game
 policy target compiler boundary without treating those candidates as source
 truth or enforcement authority.
 
-This workpack proves parent-domain category/risk routing can carry active
+This workpack proves Rust-owned category/risk routing can carry active
 category proof, confidence, candidate source, target kind, policy action, and
 supporting evidence refs into soft/manual compiler inputs.
 
@@ -31,7 +31,7 @@ broad blocking, or platform support.
 
 ## Implementation
 
-- Add a parent-domain category/risk policy-routing contract.
+- Add a Rust-owned category/risk policy-routing contract in `ocentra-app-game-core`.
 - Map native app categories, risk candidates, native game categories, and game
   context signals to matching app/game policy target kinds.
 - Require active category proof and supporting evidence refs before a route is
@@ -41,13 +41,23 @@ broad blocking, or platform support.
 - Preserve the no-adapter boundary with `adapterDispatchState:
 not-dispatched`.
 
-## Proof
+## Current Status - Phase 1 Open
 
-- `cmd /c npm run build --workspace @ocentra-parent/parent-domain`
-- `cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-category-risk-policy-routing`
-- `node scripts/test/app-game-category-risk-policy-routing-proof.mjs`
-- `cmd /c npm run lanes:guard`
-- `cmd /c npm run hub:guard`
+The 2026-08-15 code audit found no current category/risk/AI route compiler.
+The former parent-domain implementation owner is removed, and the current
+source-freshness schema rows do not perform this routing. WP19 now supplies the
+Rust-owned compiler boundary at `bf81b400d`, so this workpack is the next
+authorized implementation slice.
+
+Phase 1 requires the routing code and checked-in negative tests. Phase 2
+focused execution/Enforcer and Phase 3 retained proof remain later gates.
+
+## Expected Focused Validation
+
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`
+- `cargo test -p ocentra-app-game-core --test contract category_risk_policy_routing`
+- focused Enforcer routing for the exact Rust source and contract test files
+- `npm run hub:guard`
 
 Proof artifacts live in:
 
@@ -66,9 +76,8 @@ output/app-game-plan-proof/49-category-risk-policy-routing
 
 ## Product Doc Decision
 
-`docs/product-capability-checklist.md` is intentionally unchanged because
-primary owns central checklist edits during the merge wave. WP49 moves category
-quality and policy-routing proof forward at the parent-domain contract layer,
-but product status should not move until runtime service policy consumption,
+`docs/product-capability-checklist.md` remains unchanged. WP49 moves category
+quality and policy-routing proof forward at the Rust compiler boundary, but
+product status should not move until runtime service policy consumption,
 portal category/risk UI, live classifier/provider execution, notification/child
 request UX, adapter execution, and platform proof are complete.

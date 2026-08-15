@@ -567,7 +567,7 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
   assert.deepEqual(
     globalSummary.ready.map((node) => node.id),
-    []
+    ['WP-app-game-plan-49-category-risk-policy-routing']
   );
   assert.ok(globalSummary.blocked.length > 0);
 });
