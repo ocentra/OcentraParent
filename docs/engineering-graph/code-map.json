@@ -149,6 +149,18 @@
         "packages/schema-domain/src/generated-data-custody-source-of-truth-contracts.ts"
       ]
     },
+    "WP-data-custody-storage-plan-02-encryption-key-custody": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/encryption_key_custody.rs",
+        "crates/schema/tests/contract/encryption_key_custody.rs",
+        "crates/storage-custody-core/src/encryption_key_custody.rs",
+        "crates/storage-custody-core/src/encryption_key_custody_attempts.rs",
+        "crates/storage-custody-core/src/encryption_key_custody_platform.rs",
+        "crates/storage-custody-core/src/encryption_key_custody_proof.rs",
+        "crates/storage-custody-core/tests/unit/encryption_key_custody.rs"
+      ]
+    },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
       "roots": [
