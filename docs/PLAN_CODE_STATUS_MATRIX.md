@@ -48,7 +48,7 @@ strong enough for workpack-level decisions.
 | Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 0 / 13 | Unattributed; source presence is not deployment/runtime completion. |
-| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 8 / 9 | Partial; WP01-WP08 are mapped. WP04 is Phase 1 complete; WP01-WP03, WP05-WP06, and WP08 remain incomplete. |
+| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
@@ -116,12 +116,13 @@ run is named.
 | WP06 Report Query Custody | Rust schema/generator, generated TypeScript contracts, storage-custody derivation/proof modules, and three Rust test files cover all seven required states, stable page ordering, duplicate cursors, disallowed source classes, tombstone-required deletion, conflict metadata, cursor expiry, rate limiting, and generated-contract drift. | **Incomplete** | Runtime derivation trusts request-owned authority and citation fields: it does not reject an unauthorized/non-parent request, raw-child-evidence request, wrong household/child ownership, or unauthorized citation reference. The workpack-named TypeScript adapter/rules modules and TypeScript negative contract test do not exist. |
 | WP07 Rollout Proof And Route Gate | Storage-custody durable typed tombstone outbox plus child-runtime event-flow/recovery modules and three test files cover atomic persistence, reopen, concurrent writes, legacy migration, corruption, typed-delete-only enforcement, incoherent action rejection, unknown acknowledgement, journal failure/retry, idempotent restart replay, identity tampering, false-terminal rejection, and explicit terminal acknowledgement. | **Incomplete** | `ChildRuntimeTombstoneEventFlow::recover_pending` is used only inside child-runtime and its tests. No concrete child-service startup owner constructs or invokes it, and no service-owned restart test proves recovery before traffic. The child-runtime crate is library-only, so the existing seam is not live service integration. |
 | WP08 Parent Storage Settings Apply Flow | Rust schema/generator, generated TypeScript contracts, storage-custody card/preview/apply/action/proof modules, and two Rust test files cover explicit storage modes, visible manual-required state, restore preview, wrong-household and partial-restore negatives, separate disconnect/delete actions, delete-kind coverage, and generated-contract drift. | **Incomplete** | The apply input has no confirmation receipt or confirmed flag. Every preview sets `confirmation_required = true`, so runtime derivation rejects `Applied` and `Partial` unconditionally and cannot model a completed confirmed apply. The claimed TypeScript adapter/rules modules, TypeScript contract test, and focused proof runner do not exist. |
+| Migrated Data And AI UI Plan | The packet is a product/UI reference with proposed pre-contract read-model and intent names. Its explicit non-goals forbid UI implementation, route changes, provider/runtime work, model execution, and behavior changes in this slice. | **Complete for Phase 1** | No implementation or test code is required by this reference packet. Future production Data/AI UI work must be promoted into owning plan workpacks and typed contracts rather than attributed here. |
 
-**Data Custody Phase 1 result so far:** 8/9 workpacks inspected and newly
-mapped in this audit; WP04 is complete for code/test-writing scope, while
-WP01-WP03, WP05-WP06, and WP08 still need code or expected tests. WP07 is next
-still missing its concrete service-startup integration. The migrated source-only
-UI planning packet is the final row to classify.
+**Data Custody Phase 1 result:** all 9/9 workpacks now have reviewed code/test
+ownership. WP04 and the source-only migrated UI reference are complete for the
+code-and-expected-test-writing phase. WP01-WP03 and WP05-WP08 remain incomplete
+with concrete gaps recorded above. No Phase 2 passing-test or Phase 3 proof
+claim is inferred from this ownership audit.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 

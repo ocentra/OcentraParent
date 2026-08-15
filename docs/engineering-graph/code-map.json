@@ -297,6 +297,11 @@
         "packages/schema-domain/src/generated-parent-storage-settings-apply-flow-contract-rules.ts"
       ]
     },
+    "WP-data-custody-storage-plan-data-and-ai-ui-plan": {
+      "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
     "WP-v0-8-enforcement-control-plan-11-audit-journal-events": {
       "planSlug": "v0-8-enforcement-control-plan",
       "roots": [
