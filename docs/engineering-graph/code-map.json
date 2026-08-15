@@ -165,12 +165,61 @@
         "crates/agent-service/tests/unit/enforcement_timer_tests.rs"
       ]
     },
+    "WP-eventing-plan-01-source-boundary-and-semantics-audit": {
+      "planSlug": "eventing-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-eventing-plan-02-crate-contract-and-type-boundary": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/ocentra-eventing/src/ids.rs",
+        "crates/ocentra-eventing/src/ids/validation.rs",
+        "crates/ocentra-eventing/src/envelope.rs",
+        "crates/ocentra-eventing/src/contract_registry.rs",
+        "crates/ocentra-eventing/tests/unit/ids.rs",
+        "crates/ocentra-eventing/tests/unit/envelope.rs",
+        "crates/ocentra-eventing/tests/version-skew/roundtrip.rs",
+        "crates/ocentra-eventing/tests/contract/contract_registry.rs",
+        "crates/ocentra-eventing/tests/contract/typed_boundary.rs"
+      ]
+    },
+    "WP-eventing-plan-03-dispatch-runtime-and-lifecycle": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/ocentra-eventing/src/bus.rs",
+        "crates/ocentra-eventing/src/bus/dispatch.rs",
+        "crates/ocentra-eventing/src/bus/aggregate_gate.rs",
+        "crates/ocentra-eventing/src/registrar.rs",
+        "crates/ocentra-eventing/src/execution.rs",
+        "crates/ocentra-eventing/tests/unit/lifecycle.rs",
+        "crates/ocentra-eventing/tests/unit/handler_policy.rs",
+        "crates/ocentra-eventing/tests/unit/clock_manual.rs",
+        "crates/ocentra-eventing/tests/unit/metrics.rs"
+      ]
+    },
     "WP-eventing-plan-04-queue-idempotency-dead-letter": {
       "planSlug": "eventing-plan",
       "roots": [
         "crates/ocentra-eventing/src/queue",
         "crates/ocentra-eventing/src/bus/publish/flow/dispatching.rs",
-        "crates/ocentra-eventing/tests/unit/queue.rs"
+        "crates/ocentra-eventing/src/bus/publish/flow/queued.rs",
+        "crates/ocentra-eventing/src/bus/queue_drain.rs",
+        "crates/ocentra-eventing/src/bus/reports/dead_letter.rs",
+        "crates/ocentra-eventing/tests/unit/queue.rs",
+        "crates/ocentra-eventing/tests/unit/queue/no_subscriber_journal.rs"
+      ]
+    },
+    "WP-eventing-plan-05-request-response-contracts": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/ocentra-eventing/src/request.rs",
+        "crates/ocentra-eventing/src/request/request_helpers.rs",
+        "crates/ocentra-eventing/src/bus/publish/request.rs",
+        "crates/ocentra-eventing/src/bus/publish/request/request_steps.rs",
+        "crates/ocentra-eventing/tests/unit/request_response.rs",
+        "crates/ocentra-eventing/tests/unit/request_response_support.rs",
+        "crates/ocentra-eventing/tests/integration/event_flow_contract.rs"
       ]
     },
     "WP-eventing-plan-06-journal-replay-and-lineage": {
@@ -192,6 +241,84 @@
         "crates/agent-service/tests/enforcement_eventing_journal.rs",
         "crates/agent-service/tests/unit/enforcement_runtime.rs"
       ]
+    },
+    "WP-eventing-plan-07-parent-protocol-event-contracts": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/agent-protocol/src/parent_controller_events.rs",
+        "crates/agent-protocol/src/child_agent_events.rs",
+        "crates/agent-protocol/src/child_domain_runtime.rs",
+        "crates/agent-protocol/src/child_domain_runtime/event_flow.rs",
+        "crates/agent-protocol/src/network_flow.rs",
+        "crates/agent-protocol/src/network_flow_eventing.rs",
+        "crates/agent-protocol/src/enforcement.rs",
+        "crates/agent-protocol/src/household_mesh.rs",
+        "crates/agent-protocol/tests/contract/parent_controller_event_tests.rs",
+        "crates/agent-protocol/tests/contract/child_agent_event_tests.rs",
+        "crates/agent-protocol/tests/contract/child_domain_runtime_events.rs",
+        "crates/agent-protocol/tests/contract/network_flow_tests.rs",
+        "crates/agent-protocol/tests/contract/network_eventing_contract.rs",
+        "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs"
+      ]
+    },
+    "WP-eventing-plan-08-parent-runtime-integration": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/parent-runtime-core/src/tracking_child_check_in_request_flow.rs",
+        "crates/parent-runtime-core/src/tracking_config_update_flow.rs",
+        "crates/parent-runtime-core/src/policy_control_update_flow.rs",
+        "crates/parent-runtime-core/tests/unit/tracking_child_check_in_request_flow.rs",
+        "crates/parent-runtime-core/tests/unit/policy_control_update_flow.rs",
+        "crates/child-runtime/src/child_domain_runtime_flow.rs",
+        "crates/child-runtime/src/tracking_config_update_flow.rs",
+        "crates/child-runtime/src/tracking_runtime_flow.rs",
+        "crates/child-runtime/tests/integration/child_domain_runtime_flow_intent.rs",
+        "crates/child-runtime/tests/integration/tracking_runtime_flow_intent.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs",
+        "crates/agent-service/tests/enforcement_eventing_journal.rs"
+      ]
+    },
+    "WP-eventing-plan-09-network-consumer-event-chain": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/agent-protocol/src/network_flow.rs",
+        "crates/agent-protocol/src/network_flow/runtime_semantics.rs",
+        "crates/agent-protocol/src/network_flow_eventing.rs",
+        "crates/agent-protocol/tests/contract/network_flow_tests.rs",
+        "crates/agent-protocol/tests/contract/network_eventing_contract.rs"
+      ]
+    },
+    "WP-eventing-plan-10-lan-household-mesh-consumer": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/agent-protocol/src/household_mesh.rs",
+        "crates/agent-protocol/src/household_mesh/household_mesh_bridge_input.rs",
+        "crates/agent-protocol/tests/contract/household_mesh.rs"
+      ]
+    },
+    "WP-eventing-plan-11-type-safety-and-ownership-hardening": {
+      "planSlug": "eventing-plan",
+      "roots": [
+        "crates/ocentra-eventing/src/ids.rs",
+        "crates/ocentra-eventing/src/envelope.rs",
+        "crates/ocentra-eventing/src/request.rs",
+        "crates/ocentra-eventing/src/bus/dispatch.rs",
+        "crates/ocentra-eventing/fixtures/branded_scalar_parity.json",
+        "crates/ocentra-eventing/tests/contract/typed_boundary.rs",
+        "crates/ocentra-eventing/tests/contract/fixture_parity.rs",
+        "crates/ocentra-eventing/tests/unit/request_response.rs",
+        "tests/repo-tooling/no-naked-domain-strings.test.mjs"
+      ]
+    },
+    "WP-eventing-plan-12-rollout-proof-and-pr-gate": {
+      "planSlug": "eventing-plan",
+      "codeExpectation": "tests-only",
+      "roots": ["scripts/test/eventing-rollout-proof.mjs"]
+    },
+    "WP-eventing-plan-13-test-folder-layout-regression-audit": {
+      "planSlug": "eventing-plan",
+      "codeExpectation": "tests-only",
+      "roots": ["crates/ocentra-eventing/tests"]
     }
   }
 }
