@@ -20,6 +20,17 @@ Generated from the existing `ai-plan` docs. This is the default resume/status fi
 
 This folder is the single working plan location for local AI safety contracts, local model runtime, evidence context building, provider routing, AI job queues, memory and knowledge graph, TabAgent reuse, screen OCR/VLM routing, policy handoff, parent explanations, and later parent-approved remote assistant boundaries.
 
+## Code-first Phase 1 audit (2026-08-15)
+
+- Authoritative audit: [CODE_AUDIT.md](CODE_AUDIT.md).
+- All 48 workpacks now have reviewed code/test topology in the engineering graph.
+- 11 workpacks are Phase 1 complete for their bounded source/test scope: 01, 02,
+  05, 06, 08, 10, 11, 24, 26, 32, and 37.
+- 37 workpacks retain a production-code or expected-test gap. The workpack
+  checkbox summary below is plan-document state, not this implementation result.
+- Phase 2 focused test/Enforcer execution and Phase 3 proof regeneration were
+  not run as part of this audit.
+
 ## Current ownership interpretation
 
 ```text
@@ -27,10 +38,10 @@ crates/schema or the owning Rust crate:
   Canonical shared AI contracts when AI shapes cross package, crate, app, or plan boundaries.
 
 schema-domain:
-  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
+  Narrow generated-validation/edge-decoder compatibility surface only. It does not currently own the general AI contract family.
 
-ai-domain:
-  Helper/projection and focused validation surface. It consumes Rust-owned/generated AI contracts and must not re-own shared AI contracts.
+packages/ai-domain:
+  Does not exist. Do not route work to this historical/aspirational owner.
 
 child-ai-core:
   Child-local AI runtime/evaluator boundary for context validation, provider result validation, degraded states, and accepted AI output.
@@ -54,7 +65,7 @@ Policy and enforcement plans:
 ## Current coupling risks
 
 ```text
-- `ai-domain` dependencies on family-domain, lan-domain, and policy-domain are transition-sensitive. Keep only explicit public helper/contract consumption; shared shapes should move through `crates/schema` or another neutral Rust-owned boundary.
+- Historical `ai-domain` ownership text is stale because `packages/ai-domain` does not exist. Shared shapes must remain Rust-owned/generated through the selected canonical boundary.
 - `child-ai-core` currently depends on tracking-core. Treat it as migration debt unless the selected workpack records a temporary compatibility reason and a replacement event/read-model route.
 - Bridge work for browser, screen, tracking, network, or app/game must use evidence/read-model/request results instead of direct runtime calls.
 ```
@@ -71,6 +82,7 @@ Policy and enforcement plans:
 ## Current snapshot source
 
 - Snapshot: [current-ai-snapshot.md](current-ai-snapshot.md)
+- Code/test audit: [CODE_AUDIT.md](CODE_AUDIT.md)
 
 ## What is already present / proved
 
@@ -122,8 +134,8 @@ An AI result is not a policy/enforcement decision until deterministic policy con
 ## Workpack summary
 
 - Workpacks indexed: 48.
-- Workpacks with open checkboxes: 47.
-- Workpacks with all detected boxes checked: 1.
+- Workpacks with open checkboxes: 46.
+- Workpacks with all detected boxes checked: 2.
 - Workpacks with no checkbox status: 0.
 
 ### Active/open workpacks
@@ -152,7 +164,6 @@ An AI result is not a policy/enforcement decision until deterministic policy con
 - [37 - Tracking Location Safety Analysis Lane](workpacks/37-tracking-location-safety-analysis-lane.md) - 0/6 checked, 6 open.
 - [41 - Llama GGUF Runtime Packaging Lane](workpacks/41-llama-gguf-runtime-packaging-lane.md) - 0/6 checked, 6 open.
 - [43 - AI Activity Portal Surface Lane](workpacks/43-ai-activity-portal-surface-lane.md) - 0/6 checked, 6 open.
-- [02 - Current AI Snapshot And Gap Map](workpacks/02-current-ai-snapshot-and-gap-map.md) - 0/5 checked, 5 open.
 
 ## Default no-read list
 

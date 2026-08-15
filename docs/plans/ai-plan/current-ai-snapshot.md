@@ -21,6 +21,12 @@ Ocentra Parent has a meaningful AI foundation, but it is spread across feature
 docs, architecture docs, domain contracts, service modules, proof scripts, and
 portal fragments.
 
+The 2026-08-15 source-first audit is retained in [CODE_AUDIT.md](CODE_AUDIT.md):
+11 of 48 workpacks have their bounded Phase 1 production code and expected test
+code written, while 37 remain partial or missing. All 48 now have reviewed graph
+topology. This count does not claim that tests, Enforcer, proof, CI, or the whole
+workpack are complete.
+
 Already present:
 
 - AI expectation doc and local-first custody boundary.
@@ -45,6 +51,12 @@ Already present:
   authority, or physical household LAN execution.
 - Activity memory graph contracts and read-model proof pieces.
 - Policy dry-run evaluator and enforcement policy dispatch proof pieces.
+- A real configured `llama.cpp` process execution boundary, typed timeout and
+  unavailable states, and a singleton per-device scheduler.
+- Household LAN AI claim/lease/idempotency/requeue/dead-letter paths with
+  child-owned validation and raw-screen-transfer rejection tests.
+- A live portal AI runtime surface for latest runtime, LAN job, memory graph,
+  remote-boundary, and degraded/unavailable projections.
 
 ## Current Gaps
 
@@ -54,6 +66,8 @@ Still missing or incomplete:
 - Verified local model artifact download, integrity, cache, and retention flow.
 - Product-grade local inference execution path for safety decisions.
 - Cross-slice AI job queue and resource scheduler.
+- A neutral durable general AI work-item lifecycle; the implemented scheduler
+  and LAN lease state are narrower precursors.
 - Household AI provider mesh contracts and runtime proof. Existing local
   provider scheduler proof does not prove cross-device provider discovery,
   claim/lease, idempotency, result validation, two-device LAN execution, no raw
@@ -62,6 +76,8 @@ Still missing or incomplete:
 - OCR execution path.
 - Guided local VLM execution path.
 - Evidence-backed memory/graph minimal product implementation.
+- Semantic memory, expiry/invalidation, and the policy/result/action graph edge
+  families; the current graph is an Activity SQLite projection.
 - Full TabAgent code reuse audit and extraction plan.
 - Parent explanation UI that cites evidence, rules, model/runtime refs, and
   degraded states.
@@ -70,6 +86,10 @@ Still missing or incomplete:
 - Enforcement handoff proof that consumes policy decisions only.
 - Negative security tests proving AI cannot scan directly, enforce directly, or
   upload sensitive data by default.
+- A canonical AI-result journal with SQLite ingest/replay and a unified parent
+  decision-explanation read model.
+- A verified model download/extract/checksum/license/corruption/resume pipeline;
+  current code selects assets and paths but does not install or verify them.
 
 ## Current Product Risk
 

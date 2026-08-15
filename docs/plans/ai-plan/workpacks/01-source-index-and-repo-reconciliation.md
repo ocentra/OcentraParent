@@ -27,12 +27,19 @@ portal surfaces, proof scripts, and local TabAgent references.
 
 ## Checklist
 
-- [ ] Refresh `source-index.md` against current repo.
-- [ ] Refresh `tabagent-source-index.md` before reuse work.
-- [ ] Reconcile browser, screen, app/game, tracking, LAN, and activity plan
+- [x] Refresh `source-index.md` against current repo.
+- [x] Refresh `tabagent-source-index.md` before reuse work.
+- [x] Reconcile browser, screen, app/game, tracking, LAN, and activity plan
       links.
-- [ ] Mark stale docs or duplicate claims.
-- [ ] Name exact owner docs that need product status updates.
+- [x] Mark stale docs or duplicate claims.
+- [x] Name exact owner docs that need product status updates.
+
+## 2026-08-15 closeout
+
+The source-first audit is retained in `../CODE_AUDIT.md`; current owners and
+verified missing families are retained in `../source-index.md`. The local
+TabAgent reference list was rechecked at `E:\Desktop\TabAgent` and all 15 listed
+candidate files remain present. No TabAgent code was copied.
 
 ## Current Reconciliation
 

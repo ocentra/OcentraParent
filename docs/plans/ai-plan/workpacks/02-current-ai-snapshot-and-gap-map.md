@@ -27,11 +27,18 @@ quality, execution, OCR/VLM, and enforcement handoff are incomplete.
 
 ## Checklist
 
-- [ ] Update `current-ai-snapshot.md` after each AI milestone.
-- [ ] Name implemented, proof-only, planning-only, and unsupported states.
-- [ ] Keep model execution and remote assistant claims separate.
-- [ ] Keep memory/graph source-citation gaps explicit.
-- [ ] Update owning feature docs when status changes.
+- [x] Update `current-ai-snapshot.md` after each AI milestone.
+- [x] Name implemented, proof-only, planning-only, and unsupported states.
+- [x] Keep model execution and remote assistant claims separate.
+- [x] Keep memory/graph source-citation gaps explicit.
+- [x] Update owning feature docs when status changes.
+
+## 2026-08-15 closeout
+
+`../CODE_AUDIT.md` records all 48 workpacks against current source and tests.
+`../current-ai-snapshot.md`, `../PLAN_STATE.md`, `../NEXT_ACTIONS.md`, the master
+plan matrix, and the engineering graph now consume that implementation truth.
+No Phase 2 test/Enforcer or Phase 3 proof claim is included.
 
 ## Proof
 

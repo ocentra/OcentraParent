@@ -9,7 +9,99 @@
       "crates/entitlement-core",
       "infra/cloudflare"
     ],
-    "ai-plan": ["crates/child-ai-core", "crates/screen-ai-core", "crates/agent-service", "crates/schema"],
+    "ai-plan": [
+      "crates/agent-protocol/src/local_ai.rs",
+      "crates/agent-protocol/src/local_ai_runtime.rs",
+      "crates/agent-protocol/src/local_ai_runtime",
+      "crates/agent-protocol/src/local_ai_runtime_boundary.rs",
+      "crates/agent-protocol/src/local_ai_runtime_provider_proof.rs",
+      "crates/agent-protocol/src/schema_domain_ai_wire.rs",
+      "crates/agent-protocol/src/parent_assistant.rs",
+      "crates/agent-protocol/src/parent_assistant",
+      "crates/agent-protocol/src/activity_memory_graph.rs",
+      "crates/agent-protocol/src/child_domain_runtime.rs",
+      "crates/agent-protocol/src/child_domain_runtime",
+      "crates/agent-protocol/tests/unit/local_ai_runtime_tests.rs",
+      "crates/agent-protocol/tests/unit/local_provider_adapter_readiness_tests.rs",
+      "crates/agent-protocol/tests/unit/local_ai_runtime_provider_proof_tests.rs",
+      "crates/agent-protocol/tests/unit/parent_assistant_tests.rs",
+      "crates/agent-protocol/tests/unit/policy_tests.rs",
+      "crates/agent-protocol/tests/contract/schema_domain_ai_wire.rs",
+      "crates/agent-protocol/tests/contract/activity_memory_graph_tests.rs",
+      "crates/child-ai-core",
+      "crates/screen-ai-core",
+      "crates/agent-core/src/policy_dry_run_evaluator.rs",
+      "crates/agent-core/src/policy_dry_run_evaluator",
+      "crates/agent-core/src/activity_store_memory_graph.rs",
+      "crates/agent-core/src/activity_store_memory_graph_builder.rs",
+      "crates/agent-core/src/activity_store_memory_graph_index.rs",
+      "crates/agent-core/src/activity_store_memory_graph_index_query.rs",
+      "crates/agent-core/src/activity_store_memory_graph_nodes.rs",
+      "crates/agent-core/src/activity_store_memory_graph_rows.rs",
+      "crates/agent-core/src/activity_store_parent_rule_context.rs",
+      "crates/agent-core/src/household_ai_provider_route.rs",
+      "crates/agent-core/src/screen_household_mesh_runtime.rs",
+      "crates/agent-core/src/screen_household_mesh_runtime_impl.rs",
+      "crates/agent-core/tests/unit/policy_dry_run_evaluator_edge_tests.rs",
+      "crates/agent-core/tests/unit/policy_dry_run_evaluator_rule_tests.rs",
+      "crates/agent-core/tests/unit/activity_store_memory_graph_tests.rs",
+      "crates/agent-core/tests/unit/activity_store_memory_graph_index_tests.rs",
+      "crates/agent-core/tests/unit/activity_store_policy_preview_parent_rule_tests.rs",
+      "crates/agent-core/tests/unit/household_ai_provider_route_tests.rs",
+      "crates/agent-core/tests/unit/screen_household_mesh_runtime_tests.rs",
+      "crates/agent-service/src/local_ai_runtime_status.rs",
+      "crates/agent-service/src/local_ai_runtime_config.rs",
+      "crates/agent-service/src/local_ai_runtime_config_values",
+      "crates/agent-service/src/local_ai_runtime_distribution.rs",
+      "crates/agent-service/src/local_ai_runtime_distribution_assets.rs",
+      "crates/agent-service/src/local_ai_runtime_install_plan.rs",
+      "crates/agent-service/src/local_ai_model_registry.rs",
+      "crates/agent-service/src/local_ai_provider_scheduler.rs",
+      "crates/agent-service/src/local_ai_provider_scheduler_queue.rs",
+      "crates/agent-service/src/local_ai_provider_scheduler_state.rs",
+      "crates/agent-service/src/local_ai_chat_generation.rs",
+      "crates/agent-service/src/local_ai_chat_generation_request.rs",
+      "crates/agent-service/src/local_ai_chat_generation_request",
+      "crates/agent-service/src/local_ai_chat_generation_runner.rs",
+      "crates/agent-service/src/parent_assistant_api.rs",
+      "crates/agent-service/src/parent_assistant_api",
+      "crates/agent-service/src/parent_assistant_runtime.rs",
+      "crates/agent-service/src/parent_assistant_runtime",
+      "crates/agent-service/src/parent_assistant_evidence_context.rs",
+      "crates/agent-service/src/parent_assistant_evidence_context",
+      "crates/agent-service/src/lan_ai_job_submit_transition.rs",
+      "crates/agent-service/src/lan_pairing/lan_ai_job.rs",
+      "crates/agent-service/src/lan_pairing/lan_ai_job_flow",
+      "crates/agent-service/src/lan_pairing/lan_ai_job_lease_events.rs",
+      "crates/agent-service/src/lan_pairing/lan_ai_route_metadata.rs",
+      "crates/agent-service/src/screen_ai_analysis_runtime.rs",
+      "crates/agent-service/src/screen_ai_analysis_runtime",
+      "crates/agent-service/tests/unit/local_ai_runtime.rs",
+      "crates/agent-service/tests/unit/local_ai_provider_scheduler_tests.rs",
+      "crates/agent-service/tests/unit/local_ai_model_registry_tests.rs",
+      "crates/agent-service/tests/unit/local_ai_chat_generation_tests.rs",
+      "crates/agent-service/tests/unit/local_ai_chat_generation_request_tests.rs",
+      "crates/agent-service/tests/unit/parent_assistant.rs",
+      "crates/agent-service/tests/unit/parent_assistant_api_tests.rs",
+      "crates/agent-service/tests/unit/parent_assistant_runtime_tests.rs",
+      "crates/agent-service/tests/unit/parent_assistant_runtime_tests",
+      "crates/agent-service/tests/unit/lan_pairing/lan_ai_job.rs",
+      "crates/agent-service/tests/unit/lan_pairing/lan_ai_job_lease.rs",
+      "crates/agent-service/tests/unit/lan_pairing/lan_ai_provider_heartbeat.rs",
+      "crates/agent-service/tests/unit/lan_pairing/lan_ai_route_metadata.rs",
+      "crates/agent-service/tests/unit/screen_ai_analysis_runtime_tests.rs",
+      "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
+      "crates/tracking-core/src/ai_boundary.rs",
+      "crates/tracking-core/tests/ai-boundary/ai_result_boundary.rs",
+      "packages/portal-domain/src/local-ai-runtime-panel.ts",
+      "packages/portal-domain/src/activity-memory-graph.ts",
+      "packages/portal-domain/src/parent-assistant-chat.ts",
+      "packages/portal-domain/src/parent-assistant-chat-impl.ts",
+      "packages/portal-domain/tests/unit/local-ai-runtime-panel.test.ts",
+      "apps/portal/src/AiRuntimeRoutePanel.tsx",
+      "apps/portal/tests/local-ai/ai-runtime-route-panel.test.ts",
+      "apps/portal/tests/e2e/assistant-chat-ui-proof.spec.ts"
+    ],
     "app-game-plan": ["crates/app-game-core", "crates/agent-service", "crates/schema"],
     "app-plan": ["crates/app-core", "crates/agent-service", "crates/schema"],
     "browser-plan": [
@@ -528,6 +620,485 @@
         "crates/family-identity-core/tests/unit/setup_lifecycle.rs",
         "crates/family-identity-core/tests/unit/session_lifecycle.rs"
       ]
+    },
+    "WP-ai-plan-01-source-index-and-repo-reconciliation": {
+      "planSlug": "ai-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-ai-plan-02-current-ai-snapshot-and-gap-map": {
+      "planSlug": "ai-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-ai-plan-03-contract-boundary-and-effect-schemas": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/schema_domain_ai_wire.rs",
+        "crates/agent-protocol/src/schema_domain_mirrors.rs",
+        "crates/agent-protocol/tests/contract/schema_domain_ai_wire.rs"
+      ]
+    },
+    "WP-ai-plan-04-rust-protocol-parity-for-ai-contracts": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai.rs",
+        "crates/agent-protocol/src/local_ai_runtime.rs",
+        "crates/agent-protocol/src/local_ai_runtime",
+        "crates/agent-protocol/src/parent_assistant.rs",
+        "crates/agent-protocol/src/parent_assistant",
+        "crates/agent-protocol/tests/unit/local_ai_runtime_tests.rs",
+        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs"
+      ]
+    },
+    "WP-ai-plan-05-local-model-runtime-status-hardening": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime/status.rs",
+        "crates/agent-protocol/src/local_ai_runtime/lifecycle.rs",
+        "crates/agent-protocol/tests/unit/local_ai_runtime_tests.rs",
+        "crates/agent-service/src/local_ai_runtime_status.rs",
+        "crates/agent-service/src/local_ai_runtime_status_unavailable.rs",
+        "crates/agent-service/src/local_ai_runtime_payload.rs",
+        "crates/agent-service/tests/unit/local_ai_runtime_status_tests.rs",
+        "crates/agent-service/tests/unit/local_ai_runtime_payload_tests.rs",
+        "packages/portal-domain/src/local-ai-runtime-panel.ts",
+        "packages/portal-domain/tests/unit/local-ai-runtime-panel.test.ts",
+        "apps/portal/src/AiRuntimeRoutePanel.tsx",
+        "apps/portal/tests/local-ai/ai-runtime-route-panel.test.ts"
+      ]
+    },
+    "WP-ai-plan-06-local-provider-capability-hardening": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime/status.rs",
+        "crates/agent-protocol/src/local_ai_runtime/scheduler.rs",
+        "crates/agent-protocol/tests/unit/local_ai_runtime_tests.rs",
+        "crates/agent-core/src/household_ai_provider_route.rs",
+        "crates/agent-core/tests/unit/household_ai_provider_route_tests.rs",
+        "crates/agent-service/src/local_ai_runtime_provider_proof_read_model.rs",
+        "crates/agent-service/tests/unit/local_ai_runtime_provider_proof_read_model_tests.rs"
+      ]
+    },
+    "WP-ai-plan-07-ai-job-queue-contract": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime/scheduler.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler_queue.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler_state.rs",
+        "crates/agent-service/src/lan_ai_job_submit_transition.rs",
+        "crates/agent-service/src/lan_pairing/lan_ai_job_lease_events.rs",
+        "crates/agent-service/src/lan_pairing_runtime_state/job_leases.rs",
+        "crates/agent-service/tests/unit/local_ai_provider_scheduler_tests.rs",
+        "crates/agent-service/tests/unit/lan_pairing/lan_ai_job_lease.rs"
+      ]
+    },
+    "WP-ai-plan-08-ai-provider-routing-contract": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-core/src/household_ai_provider_route.rs",
+        "crates/agent-core/tests/unit/household_ai_provider_route_tests.rs",
+        "crates/agent-service/src/lan_pairing/lan_ai_job_flow",
+        "crates/agent-service/src/lan_pairing/lan_ai_route_metadata.rs",
+        "crates/agent-service/tests/unit/lan_pairing/lan_ai_job.rs",
+        "crates/agent-service/tests/unit/lan_pairing/lan_ai_provider_heartbeat.rs",
+        "crates/agent-service/tests/unit/lan_pairing/lan_ai_route_metadata.rs"
+      ]
+    },
+    "WP-ai-plan-09-local-evidence-context-builder-v1": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/schema_domain_ai_wire.rs",
+        "crates/agent-protocol/tests/contract/schema_domain_ai_wire.rs",
+        "crates/agent-service/src/parent_assistant_evidence_context.rs",
+        "crates/agent-service/src/parent_assistant_evidence_context",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests.rs",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests/activity_history_context_tests.rs"
+      ]
+    },
+    "WP-ai-plan-10-evidence-reference-normalization": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/schema_domain_ai_wire.rs",
+        "crates/agent-protocol/tests/contract/schema_domain_ai_wire.rs",
+        "crates/agent-protocol/src/activity_memory_graph.rs",
+        "crates/agent-protocol/tests/contract/activity_memory_graph_tests.rs"
+      ]
+    },
+    "WP-ai-plan-11-parent-rule-context-builder": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-core/src/activity_store_parent_rule_context.rs",
+        "crates/agent-core/src/activity_store_policy_preview_parent_rules.rs",
+        "crates/agent-core/tests/unit/activity_store_policy_preview_parent_rule_tests.rs"
+      ]
+    },
+    "WP-ai-plan-12-prompt-template-version-registry": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/constants/parent_assistant.rs",
+        "crates/agent-service/src/parent_assistant_runtime.rs",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests.rs"
+      ]
+    },
+    "WP-ai-plan-13-deterministic-no-model-classifier-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/app_game_authority_classifier.rs",
+        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
+        "crates/child-ai-core/src/tracking_boundary.rs",
+        "crates/child-ai-core/tests/security/tracking_boundary.rs",
+        "crates/browser-core/src/browser_url_intelligence.rs",
+        "crates/browser-core/src/browser_game_url_shape_evaluator.rs",
+        "crates/browser-core/tests/contract/generated_bridge_contracts.rs"
+      ]
+    },
+    "WP-ai-plan-14-local-text-llm-adapter-boundary": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_chat_generation_request.rs",
+        "crates/agent-service/src/local_ai_chat_generation_request",
+        "crates/agent-service/src/local_ai_chat_generation_runner.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_request_tests.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_tests.rs"
+      ]
+    },
+    "WP-ai-plan-15-local-text-llm-execution-dry-run-adapter": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_chat_generation.rs",
+        "crates/agent-service/src/local_ai_chat_generation_runner.rs",
+        "crates/agent-service/src/local_ai_generation_payload.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_tests.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_request_tests.rs"
+      ]
+    },
+    "WP-ai-plan-16-output-parser-and-schema-validator": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/screen_ai_analysis_runtime/adapter_parsing.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/adapter_redaction.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_event_record_tests.rs"
+      ]
+    },
+    "WP-ai-plan-17-degraded-timeout-invalid-output-handling": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_chat_generation_runner.rs",
+        "crates/agent-service/src/local_ai_chat_generation_result.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_tests.rs",
+        "crates/agent-service/tests/unit/local_ai_provider_scheduler_tests.rs"
+      ]
+    },
+    "WP-ai-plan-18-deterministic-policy-evaluator-integration": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-core/src/policy_dry_run_evaluator.rs",
+        "crates/agent-core/src/policy_dry_run_evaluator",
+        "crates/agent-core/tests/unit/policy_dry_run_evaluator_edge_tests.rs",
+        "crates/agent-core/tests/unit/policy_dry_run_evaluator_rule_tests.rs"
+      ]
+    },
+    "WP-ai-plan-19-ai-result-journal-sqlite-ingest": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_generation_payload.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/event_record.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_event_record_tests.rs"
+      ]
+    },
+    "WP-ai-plan-20-parent-explanation-read-model": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/parent_assistant.rs",
+        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs",
+        "crates/agent-service/src/parent_assistant_runtime.rs",
+        "crates/agent-service/src/parent_assistant_runtime",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests.rs",
+        "packages/portal-domain/src/local-ai-runtime-panel.ts",
+        "packages/portal-domain/tests/unit/local-ai-runtime-panel.test.ts",
+        "apps/portal/src/AiRuntimeRoutePanel.tsx",
+        "apps/portal/tests/local-ai/ai-runtime-route-panel.test.ts"
+      ]
+    },
+    "WP-ai-plan-21-memory-reference-contract": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai.rs",
+        "crates/agent-protocol/src/schema_domain_ai_wire.rs",
+        "crates/agent-protocol/tests/unit/policy_tests.rs",
+        "crates/agent-protocol/tests/contract/schema_domain_ai_wire.rs"
+      ]
+    },
+    "WP-ai-plan-22-short-window-recent-activity-memory": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/parent_assistant_evidence_context/activity_summary.rs",
+        "crates/agent-service/src/parent_assistant_report_history.rs",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests/activity_history_context_tests.rs",
+        "crates/agent-core/src/activity_store_memory_graph.rs",
+        "crates/agent-core/tests/unit/activity_store_memory_graph_tests.rs"
+      ]
+    },
+    "WP-ai-plan-23-evidence-backed-semantic-memory": {
+      "planSlug": "ai-plan",
+      "roots": ["crates/agent-protocol/src/local_ai.rs", "crates/agent-protocol/tests/unit/policy_tests.rs"]
+    },
+    "WP-ai-plan-24-knowledge-graph-reference-contract": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/activity_memory_graph.rs",
+        "crates/agent-protocol/tests/contract/activity_memory_graph_tests.rs"
+      ]
+    },
+    "WP-ai-plan-25-minimal-graph-edges-for-safety-context": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-core/src/activity_store_memory_graph.rs",
+        "crates/agent-core/src/activity_store_memory_graph_builder.rs",
+        "crates/agent-core/src/activity_store_memory_graph_index.rs",
+        "crates/agent-core/src/activity_store_memory_graph_index_query.rs",
+        "crates/agent-core/src/activity_store_memory_graph_nodes.rs",
+        "crates/agent-core/tests/unit/activity_store_memory_graph_tests.rs",
+        "crates/agent-core/tests/unit/activity_store_memory_graph_index_tests.rs"
+      ]
+    },
+    "WP-ai-plan-26-tabagent-code-audit-and-reuse-map": {
+      "planSlug": "ai-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-ai-plan-27-tabagent-native-bridge-reuse-candidate": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime_boundary.rs",
+        "crates/agent-protocol/tests/unit/local_provider_adapter_readiness_tests.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler.rs",
+        "crates/agent-service/tests/unit/local_ai_provider_scheduler_tests.rs"
+      ]
+    },
+    "WP-ai-plan-28-tabagent-model-lifecycle-cache-reuse-candidate": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime/cache.rs",
+        "crates/agent-protocol/src/local_ai_runtime/cache_reasons.rs",
+        "crates/agent-service/src/local_ai_model_registry.rs",
+        "crates/agent-service/src/local_ai_runtime_install_plan.rs",
+        "crates/agent-service/tests/unit/local_ai_model_registry_tests.rs",
+        "crates/agent-service/tests/unit/local_ai_runtime_install_plan_tests.rs"
+      ]
+    },
+    "WP-ai-plan-29-tabagent-memory-graph-reuse-candidate": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-core/src/activity_store_memory_graph_index.rs",
+        "crates/agent-core/src/activity_store_memory_graph_index_query.rs",
+        "crates/agent-core/tests/unit/activity_store_memory_graph_index_tests.rs"
+      ]
+    },
+    "WP-ai-plan-30-ocr-worker-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/screen_evidence.rs",
+        "crates/agent-protocol/tests/contract/screen_evidence_tests.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_tests.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs"
+      ]
+    },
+    "WP-ai-plan-31-guided-vlm-worker-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_intelligence_router",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs"
+      ]
+    },
+    "WP-ai-plan-32-family-ai-hub-and-remote-assistant-boundary": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-core/src/household_ai_provider_route.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime_impl.rs",
+        "crates/agent-core/tests/unit/household_ai_provider_route_tests.rs",
+        "crates/agent-core/tests/unit/screen_household_mesh_runtime_tests.rs",
+        "crates/agent-service/src/lan_pairing/lan_ai_job_flow",
+        "crates/agent-service/src/lan_pairing/lan_ai_job_lease_events.rs",
+        "crates/agent-service/tests/unit/lan_pairing/lan_ai_job.rs",
+        "crates/agent-service/tests/unit/lan_pairing/lan_ai_job_lease.rs",
+        "crates/agent-protocol/src/parent_assistant.rs",
+        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs"
+      ]
+    },
+    "WP-ai-plan-33-browser-url-video-ai-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/browser-core/src/browser_url_intelligence.rs",
+        "crates/browser-core/src/browser_url_intelligence_social_video.rs",
+        "crates/browser-core/src/social_video_ai_signal_aggregate.rs",
+        "crates/browser-core/tests/contract/social_video_ai_signal_aggregate_contract.rs",
+        "crates/browser-core/tests/contract/generated_bridge_contracts.rs"
+      ]
+    },
+    "WP-ai-plan-34-browser-social-feed-signup-ai-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/browser-core/src/browser_url_intelligence_social_platforms.rs",
+        "crates/browser-core/src/browser_generated_social_ts.rs",
+        "crates/browser-core/src/social_video_source_privacy.rs",
+        "crates/browser-core/tests/contract/browser_generated_social.rs",
+        "crates/browser-core/tests/contract/social_video_source_privacy_contract.rs"
+      ]
+    },
+    "WP-ai-plan-35-browser-game-cloud-game-ai-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/browser-core/src/browser_game_url_shape_evaluator.rs",
+        "crates/browser-core/src/browser_game_policy_candidate_compiler.rs",
+        "crates/browser-core/tests/contract/generated_bridge_contracts.rs",
+        "packages/schema-domain/src/browser-game-policy-compiler.ts"
+      ]
+    },
+    "WP-ai-plan-36-app-game-unknown-classifier-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/app_game_authority_classifier.rs",
+        "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_classification.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_inventory_state_classification.rs",
+        "crates/agent-core/src/activity_store_app_game/app_game_windows_launcher_classification.rs",
+        "crates/agent-core/tests/unit/activity_store_app_game_tests.rs"
+      ]
+    },
+    "WP-ai-plan-37-tracking-location-safety-analysis-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/child-ai-core/src/tracking_boundary.rs",
+        "crates/child-ai-core/tests/security/tracking_boundary.rs",
+        "crates/tracking-core/src/ai_boundary.rs",
+        "crates/tracking-core/tests/ai-boundary/ai_result_boundary.rs"
+      ]
+    },
+    "WP-ai-plan-38-screen-ocr-vlm-router-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/screen-ai-core/src/screen_intelligence_router",
+        "crates/screen-ai-core/src/screen_intelligence_router_logic",
+        "crates/screen-ai-core/tests/unit/pipeline_decision.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_tests.rs"
+      ]
+    },
+    "WP-ai-plan-39-device-hardware-model-fit-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_runtime_acceleration_config.rs",
+        "crates/agent-service/src/local_ai_runtime_distribution.rs",
+        "crates/agent-service/tests/unit/local_ai_runtime_acceleration_tests.rs",
+        "crates/agent-core/src/household_ai_provider_route.rs",
+        "crates/agent-core/tests/unit/household_ai_provider_route_tests.rs"
+      ]
+    },
+    "WP-ai-plan-40-model-catalog-artifact-integrity-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/local_ai_runtime/cache.rs",
+        "crates/agent-protocol/src/local_ai_runtime/cache_reasons.rs",
+        "crates/agent-service/src/local_ai_model_registry.rs",
+        "crates/agent-service/tests/unit/local_ai_model_registry_tests.rs"
+      ]
+    },
+    "WP-ai-plan-41-llama-gguf-runtime-packaging-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_runtime_distribution.rs",
+        "crates/agent-service/src/local_ai_runtime_distribution_assets.rs",
+        "crates/agent-service/src/local_ai_runtime_install_plan.rs",
+        "crates/agent-service/src/local_ai_chat_generation_runner.rs",
+        "crates/agent-service/tests/unit/local_ai_runtime_distribution_tests.rs",
+        "crates/agent-service/tests/unit/local_ai_runtime_install_plan_tests.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_tests.rs"
+      ]
+    },
+    "WP-ai-plan-42-inference-settings-template-governance-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_runtime_config.rs",
+        "crates/agent-service/src/local_ai_chat_generation_request.rs",
+        "crates/agent-service/src/parent_assistant_runtime.rs",
+        "crates/agent-service/tests/unit/local_ai_chat_generation_request_tests.rs",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests.rs"
+      ]
+    },
+    "WP-ai-plan-43-ai-activity-portal-surface-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "packages/portal-domain/src/local-ai-runtime-panel.ts",
+        "packages/portal-domain/src/activity-memory-graph.ts",
+        "packages/portal-domain/src/parent-assistant-chat.ts",
+        "packages/portal-domain/src/parent-assistant-chat-impl.ts",
+        "packages/portal-domain/tests/unit/local-ai-runtime-panel.test.ts",
+        "apps/portal/src/AiRuntimeRoutePanel.tsx",
+        "apps/portal/tests/local-ai/ai-runtime-route-panel.test.ts",
+        "apps/portal/tests/e2e/assistant-chat-ui-proof.spec.ts"
+      ]
+    },
+    "WP-ai-plan-44-provider-api-authorization-custody-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-protocol/src/parent_assistant.rs",
+        "crates/agent-protocol/src/parent_assistant/provider_route.rs",
+        "crates/agent-protocol/tests/unit/parent_assistant_tests.rs",
+        "crates/agent-service/src/parent_assistant_api/api_boundary.rs",
+        "crates/agent-service/src/parent_assistant_api/api_boundary_route.rs",
+        "crates/agent-service/tests/unit/parent_assistant_api_tests.rs"
+      ]
+    },
+    "WP-ai-plan-45-remote-redacted-report-assistant-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/parent_assistant_evidence_context.rs",
+        "crates/agent-service/src/parent_assistant_evidence_context",
+        "crates/agent-service/src/parent_assistant_runtime.rs",
+        "crates/agent-service/src/parent_assistant_api/api_boundary.rs",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests.rs",
+        "crates/agent-service/tests/unit/parent_assistant_api_tests.rs"
+      ]
+    },
+    "WP-ai-plan-46-security-privacy-negative-gates-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/child-ai-core/src/tracking_boundary.rs",
+        "crates/child-ai-core/tests/security/tracking_boundary.rs",
+        "crates/agent-core/src/screen_household_mesh_runtime.rs",
+        "crates/agent-core/tests/unit/screen_household_mesh_runtime_tests.rs",
+        "crates/agent-service/src/parent_assistant_api/api_boundary.rs",
+        "crates/agent-service/tests/unit/parent_assistant_api_tests.rs",
+        "crates/agent-service/src/screen_ai_analysis_runtime/adapter_redaction.rs",
+        "crates/agent-service/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs"
+      ]
+    },
+    "WP-ai-plan-47-performance-resource-battery-proof-lane": {
+      "planSlug": "ai-plan",
+      "roots": [
+        "crates/agent-service/src/local_ai_provider_scheduler.rs",
+        "crates/agent-service/src/local_ai_provider_scheduler_queue.rs",
+        "crates/agent-service/tests/unit/local_ai_provider_scheduler_tests.rs",
+        "crates/agent-core/src/household_ai_provider_route.rs",
+        "crates/agent-core/tests/unit/household_ai_provider_route_tests.rs",
+        "packages/portal-domain/src/local-ai-runtime-panel.ts",
+        "packages/portal-domain/tests/unit/local-ai-runtime-panel.test.ts"
+      ]
+    },
+    "WP-ai-plan-48-rollout-checklist-and-pr-gate": {
+      "planSlug": "ai-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-browser-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "browser-plan",
