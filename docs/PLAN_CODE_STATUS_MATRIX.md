@@ -29,12 +29,12 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,966
-implementation files and 1,215 test files, but only **123 of 679 workpacks**
-(18.11%) have reviewed, exact code/test ownership maps. Account Identity,
+implementation files and 1,216 test files, but only **130 of 679 workpacks**
+(19.15%) have reviewed, exact code/test ownership maps. Account Identity,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
-Payment/Subscription, Policy Control Plane, Remote Access, and
-Setup/Install/Provisioning are fully mapped; 556 workpacks across the repository
+Payment/Subscription, Policy Control Plane, Remote Access, Network, and
+Setup/Install/Provisioning are fully mapped; 549 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -56,7 +56,7 @@ strong enough for workpack-level decisions.
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 127 / 49 | 10 / 10 | Fully code-mapped; WP01-WP04 and WP09 are Phase 1 complete, while five workpacks retain concrete expected-test or instrumentation-enforcement gaps. |
-| Network | 8 | 7/0/0/0/1/0 | 942 / 520 | 1 / 8 | Partial; WP08 reference routing is mapped. |
+| Network | 8 | 7/0/0/0/1/0 | 378 / 99 | 8 / 8 | Fully code-mapped; WP05 and WP08 are Phase 1 complete for their bounded scopes, while WP01-WP04 and WP06-WP07 retain canonical-contract, live-runtime, production-wiring, or executable-harness gaps. |
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 / 181 | 11 / 11 | Fully code-mapped; WP01, WP04, WP05, and WP09 are Phase 1 complete for their bounded scope, while seven workpacks retain concrete runtime or expected-test gaps. |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 13 / 13 | Fully code-mapped; WP00 is complete for Phase 1 code/expected-test writing, while twelve workpacks retain concrete code/test gaps. |
 | Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 8 / 8 | Fully code-mapped; WP03 is Phase 1 complete and seven workpacks retain concrete code/test gaps. |
@@ -73,6 +73,29 @@ map each workpack to exact implementation and test roots, classify code/test
 gaps, then rebuild the graph. Only after a plan's Phase 1 map is complete may
 its focused tests and Enforcer checks be used for Phase 2 scheduling. Proof is
 the later acceptance phase, not a substitute for missing code or tests.
+
+### Network plan Phase 1 code/test audit - 2026-08-15
+
+This is a source-and-test inspection of the production call paths and their
+focused tests. Graph topology satisfaction means the mapped files exist; it
+does not mean a fixture/proof builder is a live product path or that tests have
+been rerun in Phase 2.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Foundation Contracts And Eventing | 60 implementation and 11 test files cover typed network observations, reusable event envelopes, runtime phase records, delivery, queueing, and stream serialization. | **Incomplete** | Canonical evidence/domain truth is duplicated between `agent-protocol` and `ocentra-network-evidence`; the runtime creates an in-memory bus/journal per observation and synthesizes downstream phase records instead of consuming durable owners. Contract parity, durable composition, and publisher-authority negatives remain unwritten. |
+| WP02 Passive Capture And Parsing | 71 implementation and 9 test files cover deterministic PCAP/Ethernet/IP/TCP/UDP/DNS/TLS/HTTP parsing, encrypted-visibility limits, flow sessionization, raw-capture custody, Windows `netstat -ano` metadata capture, and service readiness bridges. | **Incomplete** | The parser stack is not fed by the production capture path. Windows production captures connection metadata only; no Npcap/libpcap driver or live packet-to-parser integration exists, and no real live-capture parser test covers that path. |
+| WP03 Classification And Correlation | 19 implementation and 11 test files cover normalized domains, categories, classification, tunnel/transfer signals, process, managed/unmanaged browser, app/game, and screen-summary correlation. | **Incomplete** | Production service code does not invoke this classifier/correlation composition; it derives a source kind from whether a process name exists and assigns fixed evidence grades. A live parser-to-correlation-to-read-model path and its negative tests are absent. |
+| WP04 Cross-Slice Cascade And Parent Surface | 31 implementation and 13 test files cover cascade/bundle construction, local-AI queue models, policy/notification models, the service read model, and a portal evidence drawer. | **Incomplete** | The service read path calls a proof helper that fabricates AI, policy, adapter, retention, and notification references. No real queued AI job, policy request, provider notification, adapter result, or custody lifecycle is composed into the product path. |
+| WP05 Intervention Adapter Proof Gates | 84 implementation and 26 test files cover DNS, Windows Firewall/WFP, Android VPN, Apple Network Extension, Linux nftables, rollback/unavailable/no-overclaim states, protocol status contracts, and service status bridges. | **Complete for Phase 1** | No missing bounded gate code or expected negative-test family was found. Actual OS mutation and physical-platform acceptance remain Phase 2/3 and owning-platform work. |
+| WP06 Analyzer, AI Audit, And Risk Budget | 48 implementation and 12 test files cover Zeek/signature ingestion, deterministic AI evaluation/audit models, thresholds, and risk-budget decisions. | **Incomplete** | No live analyzer/model runtime feeds production. The service proof builder compares a hard-coded `VpnProxyTunnel` expectation to the same hard-coded prediction and supplies fixed risk inputs, so drift/precision monitoring and a real analyzer-to-policy handoff are unwritten. |
+| WP07 Performance, Security, And Rollout | 20 implementation and 5 test files cover deterministic performance/readiness rows, local platform probes, and adapter-capability status validation. | **Incomplete** | There is no executable concurrency/spike/soak/load harness, live metrics or alert observation, abuse/rate-limit/DoS runner, or rollout/rollback automation. These are missing expected test/harness code, not merely missing proof. |
+| WP08 Control Catalog Reference Routing | 16 implementation and 3 test files cover the Rust-owned generated control catalog, generated-drift contract, and exact reference-routing/no-runtime-claim boundary. | **Complete for Phase 1** | No code/test-writing gap exists inside this reference-only workpack. Runtime control authority is explicitly outside its scope. |
+
+**Network Phase 1 result:** 8/8 workpacks inspected and mapped; 2/8 are
+complete for code/test-writing scope and 6/8 still require production code or
+expected tests. No Network test pass, Enforcer acceptance, proof, or whole-plan
+completion is claimed by this Phase 1 audit.
 
 ### Eventing plan Phase 1 code/test audit - 2026-08-15
 
@@ -460,7 +483,7 @@ than one plan; they are not completion percentages.
 | Eventing | 13 | 1/0/0/0/11/1 | 759 | 487 |
 | LAN | 25 | 0/0/0/0/25/0 | 1,335 | 627 |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 652 | 463 |
-| Network | 8 | 7/0/0/0/1/0 | 931 | 519 |
+| Network | 8 | 7/0/0/0/1/0 | 378 | 99 |
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 | 181 |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 | 39 |
 | Policy control plane | 8 | 0/2/0/0/6/0 | 881 | 472 |
@@ -473,12 +496,10 @@ than one plan; they are not completion percentages.
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 864 | 485 |
 
 The graph validates at 703 nodes and 705 edges, with 34 migration/dependency
-review items. Twelve workpacks now have explicit reviewed code/test maps;
-WP07 is mapped to its storage-custody and child-runtime lifecycle files while
-remaining `active` until its aggregate proof contract is satisfied. WP04 is
-mapped to its remote-access/schema lifecycle code and focused tests while
-remaining `validation` until runtime integration and its expected proof root
-exist. Historical
+review items. The live map now covers 130 of 679 workpacks. Network contributes
+eight reviewed maps: two are Phase 1 complete for bounded scope and six retain
+concrete production-code or expected-test gaps. Graph states remain separate
+from that code-first classification. Historical
 source/test rows are now classified as `validation` instead of being counted
 as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
 `graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
@@ -695,7 +716,7 @@ proof artifact, checklist row, and merge state agree.
 | `eventing-plan` | Integration | `ocentra-eventing`, `agent-protocol`, `agent-service` | 76 source / 34 test files; WP06 journal/replay, topology, version-skew, and typed handoff surfaces are retained and graph-mapped. | WP10 LAN consumer proof remains open; downstream Enforcement WP11 owns the enforcement-specific durable journal contract. | Select the WP10 consumer path and prove replay/idempotency end to end; then complete Enforcement WP11 before WP04. |
 | `lan-plan` | Integration | `lan-core`, `agent-service`, `agent-core`, `schema` | 241 source / 91 test files; pairing, discovery, heartbeat, revocation, inventory, and read models exist. | Physical/consumer product proof and open follow-on workpacks remain. | Close a paired-device lifecycle through service and portal on a real platform. |
 | `logging-domain-parity` | Foundation | `logging-core`, `logging-domain`, `agent-service`, portal | Logger, local evidence, MCP/query, and portal paths exist. | Broad adoption and several proof-root closeouts remain. | Make logging/proof correlation mandatory for one high-value product chain. |
-| `network-plan` | Foundation | `network-core`, `ocentra-network-evidence`, `agent-protocol`, `agent-service` | Merged #617 added the bounded WP01 typed-eventing handoff: `NetworkFlowObservedEvent` maps directly to reusable `DomainEvent`/`EventEnvelope` under the distinct `network.flow.eventing.observed` contract. The retained [contract proof](proof/network-plan/01-network-foundation-eventing-contract.md) covers stored-envelope round trip, blank-device rejection, canonical schema enforcement, and collision-safe length-prefixed idempotency keys. | WP01 remains open: schema parity, evidence grade, policy action/handoff, no-private-bus audit, service-runtime, and platform proof are still incomplete; broader parser and policy bundles also remain open. | Complete the remaining WP01 contract obligations before escalating to parser-to-policy runtime proof. |
+| `network-plan` | Fully audited / Phase 1 incomplete | `network-core`, `ocentra-network-evidence`, `agent-protocol`, `agent-core`, `agent-service`, portal | All eight workpacks have reviewed code/test ownership. Deterministic capture parsing, classification/correlation, evidence bundles, platform proof gates, analyzer/AI/risk models, service read models, and the portal drawer are real; WP05 and WP08 have no bounded Phase 1 writing gap. | Six workpacks remain incomplete. Production captures only Windows connection metadata; parser/classifier/AI/policy/notification/adapter/custody owners are not composed into a live path, the product-path helper fabricates downstream proof rows, canonical contract truth is duplicated, and performance/security rollout lacks executable load/abuse/rollback harnesses. | Fix WP01 durable canonical contracts and WP02 live capture-to-parser composition first; then wire WP03/WP04/WP06 real owners and finish WP07's executable harnesses before any whole-plan Phase 2 or proof claim. |
 | `parent-client-runtime-distribution-plan` | Fully audited / Phase 1 incomplete | Tauri parent desktop, hosted portal, Android/iOS parent projects, `parent-runtime-core`, parent CI/package helpers | All 11 workpacks have reviewed code/test ownership. WP01 is a bounded no-code route packet; WP04/WP05 have real parent package projects plus dedicated CI smoke; WP09's cross-target smoke harness is written. | Seven workpacks still lack real hosted auth/cache, typed local-service transport, honest service-derived authority state, parent artifact signing/store matrix, updater/rollback runtime, setup-distribution handoff, or a parent-client aggregate release gate. | Fix WP02 hosted authority and WP06/WP03 service truth first, then WP10 setup handoff, WP07 signing matrix, WP08 updater/rollback, and WP11 aggregate gate. Run Phase 2 per target only after those writing gaps close. |
 | `payment-subscription-plan` | Fully audited / Phase 1 incomplete | `billing-core`, `entitlement-core`, Rust billing schemas, Cloudflare worker, portal consumer boundary | All 13 workpacks have reviewed code/test ownership. Real schema, webhook classification, entitlement gates, Worker routes, and focused tests exist, but only WP00 has no Phase 1 writing gap. | Twelve workpacks still lack required pricing authority, provider execution/verification, durable ledger/retry state, trusted entitlement signatures, regional/referral lifecycle, parent/admin UI, or the payment-specific rollout verifier. The plan's `done` labels for WP01/WP03/WP04 overstate live runtime closure. | Complete WP01 pricing authority first, then WP02-WP04 checkout/webhook/entitlement runtime foundations; continue in dependency order through WP05/WP06/WP08-WP12 and finish with WP07. Run focused tests/Enforcer only after each Phase 1 slice is written; proof remains last. |
 | `policy-control-plane-plan` | Integration | `policy-control-core`, `agent-service`, `schema`, eventing | 126 source / 25 test files; compiler, preview, delivery, conflict, and authority code exist. | Policy-to-enforcement command/rollback product proof is incomplete. | Prove typed policy compile, delivery, execution receipt, and rollback. |
@@ -730,7 +751,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `eventing-plan` | 5 | 3 | 2 | 0 | Five selectable workpacks: WP06 and WP10 are open; eight historical rows are excluded and must not be rescheduled. |
 | `lan-plan` | 25 | 13 | 12 | 0 | Remaining rows are mainly partial/manual physical proof, not twelve ordinary code packets. |
 | `logging-domain-parity` | 10 | 0 | 10 | 0 | Five partial-proof, four source-present, one audit-open. |
-| `network-plan` | 8 | 0 | 8 | 0 | Merged #617 proves one bounded WP01 typed-eventing contract handoff; WP01 and its seven sibling workpacks remain open, so this is not a workpack closure. |
+| `network-plan` | 8 | 0 | 8 | 0 | Fully mapped from live source/tests. WP05 and WP08 are Phase 1 complete for bounded gate/reference scope; WP01-WP04 and WP06-WP07 retain concrete canonical-contract, production-composition, live-runtime, or executable-harness gaps. No proof row is freshly reverified. |
 | `parent-client-runtime-distribution-plan` | 11 | 7 | 4 | 0 | Fully mapped from live source/tests. WP01, WP04, WP05, and WP09 are Phase 1 complete for bounded route/package/smoke writing; WP02, WP03, WP06-WP08, WP10, and WP11 retain concrete gaps, so seven document-claimed closures are not product closure. |
 | `payment-subscription-plan` | 13 | 3 | 10 | 0 | Fully mapped from live code/tests. WP00 is Phase 1 complete as a no-code handoff; WP01-WP12 retain concrete code or expected-test gaps, and the three doc-claimed closures do not match runtime truth. |
 | `policy-control-plane-plan` | 8 | 6 | 2 | 0 | Six checked workpacks are not reflected by the generic checklist status. |
