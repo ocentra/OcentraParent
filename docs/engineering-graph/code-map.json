@@ -2589,23 +2589,260 @@
       "codeExpectation": "no-code-required",
       "roots": []
     },
+    "WP-v0-8-enforcement-control-plan-01-contract-boundary-and-effect-schemas": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/schema/src/policy_enforcement_ts.rs",
+        "crates/schema/tests/contract/policy_enforcement.rs",
+        "packages/schema-domain/src/enforcement.ts",
+        "packages/schema-domain/src/generated-enforcement.ts",
+        "packages/schema-domain/tests/unit/enforcement.test.ts",
+        "crates/agent-protocol/src/enforcement.rs",
+        "crates/agent-protocol/tests/unit/enforcement_tests.rs",
+        "crates/agent-protocol/tests/unit/enforcement_unavailable_tests.rs",
+        "crates/agent-protocol/tests/unit/enforcement_permission_dependency_tests.rs",
+        "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-02-policy-decision-evidence-references": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/constants/v08_enforcement_policy_dispatch.rs",
+        "crates/agent-protocol/src/enforcement_policy_dispatch.rs",
+        "crates/agent-protocol/tests/unit/enforcement_policy_dispatch_tests.rs",
+        "crates/agent-core/src/enforcement_policy_dispatch.rs",
+        "crates/agent-core/src/enforcement_policy_dispatch_identity.rs",
+        "crates/agent-core/src/enforcement_policy_dispatch_matrix.rs",
+        "crates/agent-core/tests/unit/enforcement_policy_dispatch_tests.rs",
+        "crates/agent-service/src/enforcement_policy_dispatch_read_model.rs",
+        "crates/agent-service/tests/unit/enforcement_policy_dispatch_read_model_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-03-adapter-capability-matrix": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof.rs",
+        "crates/agent-protocol/src/enforcement_cross_platform_capability_proof.rs",
+        "crates/agent-protocol/src/enforcement_broad_adapter_proof.rs",
+        "crates/agent-protocol/tests/contract/enforcement_supported_adapter_runtime_proof_tests.rs",
+        "crates/agent-protocol/tests/contract/enforcement_cross_platform_capability_proof_tests.rs",
+        "crates/agent-protocol/tests/contract/enforcement_broad_adapter_proof_tests.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_supported_adapter_runtime_proof_read_model.rs",
+        "crates/agent-service/src/enforcement_cross_platform_capability_proof_read_model.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_broad_adapter_proof_read_model.rs",
+        "crates/agent-service/tests/unit/enforcement_supported_adapter_runtime_proof_read_model_tests.rs",
+        "crates/agent-service/tests/unit/enforcement_cross_platform_capability_proof_read_model_tests.rs",
+        "crates/agent-service/tests/unit/enforcement_broad_adapter_proof_read_model_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-05-app-game-session-handoff": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
+        "crates/agent-protocol/tests/contract/app_game_timer_parent_surface_read_model_tests.rs",
+        "crates/app-game-core/src/app_game_source_gated_policy_preview_timer_chain.rs",
+        "crates/app-game-core/tests/contract/app_game_source_gated_policy_preview_timer_chain.rs",
+        "crates/agent-service/src/enforcement_timer_api/app_game_session_rejection.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs",
+        "crates/agent-service/tests/unit/enforcement_timer_tests.rs",
+        "crates/agent-service/tests/unit/app_game_timer_parent_surface_service_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-06-managed-browser-session-control": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-core/src/browser_managed_session.rs",
+        "crates/agent-core/src/browser_bridge_poll.rs",
+        "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
+        "crates/agent-core/tests/unit/browser_bridge_poll_security_tests.rs",
+        "crates/agent-service/src/browser_runtime_impl.rs",
+        "crates/agent-service/src/browser_runtime_delivery.rs",
+        "crates/agent-service/src/browser_runtime_status.rs",
+        "crates/agent-service/tests/unit/browser_runtime_tests.rs",
+        "crates/agent-service/tests/unit/browser_runtime_status.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-07-unmanaged-browser-fallback": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/browser_unmanaged_enforcement.rs",
+        "crates/agent-protocol/src/browser_intervention.rs",
+        "crates/agent-protocol/tests/unit/browser_intervention_tests.rs",
+        "crates/agent-core/src/activity_store_browser_intervention.rs",
+        "crates/agent-core/src/activity_store_browser_intervention_fallback_enforcement.rs",
+        "crates/agent-core/tests/unit/activity_store_browser_intervention_tests.rs",
+        "crates/agent-service/src/activity_api/browser_intervention_payload.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-08-network-domain-report-only-boundary": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/enforcement_product_control_spine.rs",
+        "crates/agent-protocol/tests/unit/enforcement_product_control_spine_tests.rs",
+        "crates/agent-core/src/enforcement_readiness.rs",
+        "crates/agent-core/tests/unit/enforcement_readiness_tests.rs",
+        "crates/ocentra-network-evidence/src/process.rs",
+        "crates/ocentra-network-evidence/src/domain.rs",
+        "crates/ocentra-network-evidence/src/tunnel.rs",
+        "crates/ocentra-network-evidence/tests/unit/process.rs",
+        "crates/ocentra-network-evidence/tests/unit/domain.rs",
+        "crates/ocentra-network-evidence/tests/unit/tunnel.rs",
+        "crates/agent-service/src/enforcement_policy_dispatch_read_model.rs",
+        "crates/agent-service/tests/unit/enforcement_policy_dispatch_read_model_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-09-timer-recovery-and-rollback": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-core/src/enforcement_timer_state.rs",
+        "crates/agent-core/src/enforcement_app_time_limit.rs",
+        "crates/agent-core/tests/unit/enforcement_timer_state_tests.rs",
+        "crates/agent-core/tests/unit/enforcement_app_time_limit_tests.rs",
+        "crates/agent-service/src/enforcement_timer_api.rs",
+        "crates/agent-service/src/enforcement_timer_state_file.rs",
+        "crates/agent-service/src/enforcement_timer_report.rs",
+        "crates/agent-service/tests/unit/enforcement_timer_expiry_tests.rs",
+        "crates/agent-service/tests/unit/enforcement_timer_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-10-parent-approval-override": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_request/approval.rs",
+        "crates/policy-control-core/src/policy_request/resolution.rs",
+        "crates/policy-control-core/tests/unit/policy_request.rs",
+        "crates/child-runtime/src/policy_control_runtime_flow.rs",
+        "crates/child-runtime/tests/integration/policy_control_runtime_flow_intent.rs",
+        "crates/agent-service/src/websocket/policy_request_resolution.rs",
+        "crates/agent-service/src/websocket/policy_request_confirm.rs",
+        "crates/agent-service/tests/unit/policy_request_confirm_tests.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_parent_resolution_requested.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/policy_request_resolution_tests.rs"
+      ]
+    },
     "WP-v0-8-enforcement-control-plan-11-audit-journal-events": {
       "planSlug": "v0-8-enforcement-control-plan",
       "roots": [
         "crates/agent-service/src/enforcement_audit_history.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_command_execution.rs",
         "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs",
-        "crates/agent-service/tests/enforcement_eventing_journal.rs"
+        "crates/agent-service/tests/enforcement_eventing_journal.rs",
+        "crates/agent-service/tests/unit/enforcement_rejection_journal_tests.rs",
+        "crates/agent-service/tests/unit/enforcement_eventing_retry_production_tests.rs",
+        "crates/agent-core/src/activity_store_enforcement_audit.rs",
+        "crates/agent-core/tests/unit/activity_store_enforcement_audit_tests.rs"
       ]
     },
     "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit": {
       "planSlug": "v0-8-enforcement-control-plan",
       "roots": [
+        "crates/agent-core/src/enforcement_adapter.rs",
+        "crates/agent-core/src/enforcement_app_time_limit.rs",
         "crates/agent-core/src/enforcement_timer_state.rs",
+        "crates/agent-core/tests/unit/enforcement_tests.rs",
+        "crates/agent-core/tests/unit/enforcement_app_time_limit_tests.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_command_execution.rs",
         "crates/agent-service/src/enforcement_timer_api",
         "crates/agent-service/src/enforcement_timer_report.rs",
+        "crates/agent-service/tests/unit/enforcement_runtime.rs",
         "crates/agent-service/tests/unit/enforcement_timer_expiry_tests.rs",
-        "crates/agent-service/tests/unit/enforcement_timer_tests.rs"
+        "crates/agent-service/tests/unit/enforcement_timer_tests.rs",
+        "scripts/test/v0-8-owned-process-time-limit-proof.mjs"
       ]
+    },
+    "WP-v0-8-enforcement-control-plan-12-child-facing-status-and-reasons": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/enforcement.rs",
+        "crates/agent-protocol/src/constants/enforcement.rs",
+        "crates/agent-protocol/tests/unit/enforcement_tests.rs",
+        "crates/agent-protocol/tests/unit/enforcement_unavailable_tests.rs",
+        "crates/child-enforcement-core/src/enforcement_action.rs",
+        "crates/child-enforcement-core/src/enforcement_action_support.rs",
+        "crates/child-enforcement-core/tests/security/action_decision.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-13-service-read-models-and-api": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/enforcement_policy_dispatch.rs",
+        "crates/agent-protocol/src/enforcement_supported_adapter_runtime_proof.rs",
+        "crates/agent-service/src/enforcement_policy_dispatch_read_model.rs",
+        "crates/agent-service/src/enforcement_audit_history.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_supported_adapter_runtime_proof_report.rs",
+        "crates/agent-service/src/websocket/enforcement_command_reports.rs",
+        "crates/agent-service/tests/unit/enforcement_policy_dispatch_read_model_tests.rs",
+        "crates/agent-service/tests/unit/enforcement_supported_adapter_runtime_proof_read_model_tests.rs",
+        "crates/agent-service/tests/enforcement_eventing_journal.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-14-portal-control-state-consumption": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
+        "apps/portal/src/browser-intervention-panel.ts",
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/src/PolicyPreviewRoutePanel.tsx",
+        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
+        "apps/portal/tests/browser/browser-intervention-panel.test.ts",
+        "apps/portal/tests/network/network-evidence-drawer-route-panel.test.ts",
+        "apps/portal/tests/policy/policy-preview-route-panel.test.ts"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-15-integrity-heartbeat-permission-loss": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/enforcement_integrity_runtime_audit.rs",
+        "crates/agent-protocol/tests/contract/enforcement_integrity_runtime_audit_tests.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_integrity_runtime_audit_read_model.rs",
+        "crates/agent-service/src/enforcement_api/integrity_alert_status_bridge_read_model.rs",
+        "crates/agent-service/tests/unit/enforcement_integrity_runtime_audit_read_model_tests.rs",
+        "crates/agent-service/tests/unit/integrity_alert_status_bridge_read_model_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-16-tamper-uninstall-non-claim-design": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.rs",
+        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status.ts.txt",
+        "crates/child-enforcement-core/src/tamper_uninstall_artifact_status_support.ts.txt",
+        "crates/child-enforcement-core/tests/contract/tamper_uninstall_artifact_status.rs",
+        "tests/device-trust-bootstrap-plan/contract/child-tamper-uninstall.test.mjs",
+        "tests/device-trust-bootstrap-plan/security/child-tamper-uninstall.test.mjs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-17-cross-platform-unavailable-states": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-protocol/src/enforcement_cross_platform_capability_proof.rs",
+        "crates/agent-protocol/tests/contract/enforcement_cross_platform_capability_proof_tests.rs",
+        "crates/agent-service/src/enforcement_cross_platform_capability_proof_read_model.rs",
+        "crates/agent-service/tests/unit/enforcement_cross_platform_capability_proof_read_model_tests.rs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-18-proof-command-and-matrix": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "crates/agent-service/src/enforcement_api/enforcement_supported_adapter_runtime_proof_report.rs",
+        "crates/agent-service/tests/unit/enforcement_integrity_runtime_audit_proof.rs",
+        "scripts/test/v0-8-owned-process-time-limit-proof.mjs"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-19-playwright-ui-proof": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "roots": [
+        "apps/portal/src/AppGamePlatformProofStatusRoutePanel.tsx",
+        "apps/portal/src/browser-intervention-panel.ts",
+        "apps/portal/src/NetworkEvidenceDrawerRoutePanel.tsx",
+        "apps/portal/tests/unit/app-game-platform-proof-status-route-panel.test.ts",
+        "apps/portal/tests/browser/browser-intervention-panel.test.ts",
+        "apps/portal/tests/e2e/network-evidence-drawer-proof.spec.ts"
+      ]
+    },
+    "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate": {
+      "planSlug": "v0-8-enforcement-control-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
     },
     "WP-eventing-plan-01-source-boundary-and-semantics-audit": {
       "planSlug": "eventing-plan",
