@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `5314ce3ff`. The dated
+baseline at `ea1a12b17`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -29,10 +29,10 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,911
-implementation files and 1,214 test files, but only **80 of 679 workpacks**
-(11.78%) have reviewed, exact code/test ownership maps. Account Identity,
+implementation files and 1,214 test files, but only **87 of 679 workpacks**
+(12.81%) have reviewed, exact code/test ownership maps. Account Identity,
 Cloudflare Control Plane, Data Custody, Device Trust, Eventing,
-Payment/Subscription, and Policy Control Plane are fully mapped; 599 workpacks across the repository
+Payment/Subscription, Policy Control Plane, and Setup/Install/Provisioning are fully mapped; 592 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -62,7 +62,7 @@ strong enough for workpack-level decisions.
 | Remote access | 6 | 4/0/0/0/2/0 | 371 / 137 | 2 / 6 | Partial; WP01 capability and WP04 pairing-grant roots are mapped. |
 | Screen AI pipeline | 10 | 10/0/0/0/0/0 | 517 / 361 | 0 / 10 | Unattributed. |
 | Screen | 43 | 25/0/0/0/18/0 | 95 / 26 | 0 / 43 | Unattributed. |
-| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 271 / 105 | 0 / 7 | Unattributed; rollout gate is dependency-blocked. |
+| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 529 / 196 | 7 / 7 | Fully code-mapped; six workpacks have no Phase 1 writing gap, while WP07 remains a static unavailable-state panel rather than the required live first-run state machine. |
 | Tracking | 42 | 42/0/0/0/0/0 | 1,034 / 555 | 1 / 42 | Partial; WP34 event contracts are mapped. |
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 901 / 498 | 2 / 20 | Partial; WP04 and WP11 roots are mapped, with WP04 blocked on WP11. |
 
@@ -263,6 +263,33 @@ real Windows custody, lifecycle, step-up-proof, entitlement, recovery-contract,
 and tamper-status libraries materially reduce the remaining work, but none is a
 live end-to-end trusted-device product path. No Phase 2 passing-test, platform,
 or Phase 3 proof claim is inferred.
+
+### Setup Install Provisioning Phase 1 code/test audit - 2026-08-15
+
+This audit separates setup-owned journey contracts from sibling-owned account,
+package, runtime, LAN, trust, custody, policy, payment, and portal completion.
+Historical workpack completion text is not treated as code evidence: several
+named `setup-domain`, `production-domain`, and `parent-domain` source/test files
+are absent from the current repository. No mapped test is claimed passing until
+Phase 2.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Family Web Info Site | Expected topology is `no-code-required`; this workpack owns the public route/data-boundary decision and deployment blocker, not a site implementation. | **Complete for Phase 1** | No setup-owned product code or expected test code is authorized. A deployable family-site package, browser accessibility, preview, and custom-domain proof remain future implementation/adjacent-owner work, not evidence supplied by this packet. |
+| WP02 Registration Login Entry | Expected topology is `no-code-required`; the workpack defines route labels and an account-identity handoff while explicitly excluding provider, session, household, invite, and recovery implementation. | **Complete for Phase 1** | No setup-owned implementation is authorized. The historical fill section names `setup-domain` and `production-domain` files that do not exist on current `main`; that stale proof wording must be reconciled in Phase 3 and cannot establish account readiness. |
+| WP03 Parent Install Journey | Expected topology is `no-code-required`; the workpack owns visible install/platform/version/integrity labels and a runtime-distribution handoff, not package mechanics. | **Complete for Phase 1** | No setup-owned package code is authorized. The historical fill section names removed/nonexistent setup, production, and parent-domain files, so it cannot prove a live parent install journey; signed package/update/rollback execution remains with the distribution plan. |
+| WP04 Child Install Permission Journey | Expected topology is `no-code-required`; the workpack owns the journey vocabulary and sibling-owner handoff, not child runtime, platform permission, package, trust, LAN, or policy code. | **Complete for Phase 1** | No setup-owned implementation is authorized. The old proof narrative references workspace packages no longer present; real installed/running/permissioned/paired/trusted/policy-ready inputs remain sibling-owned and must not be inferred from those claims. |
+| WP05 Pairing Readiness Recovery | Nine mapped implementation files and five tests cover typed account/parent/child/permission/pairing/policy/custody/network/recovery states, readiness and action decisions, Eventing contracts, wrong-household/device/anonymous/replay/stale/revoked/offline/permission negatives, redacted audit events, and a child-runtime preflight consumer. | **Complete for Phase 1** | No missing setup-owned code or expected test family was found. The crate/runtime APIs have no concrete service composition caller, but physical LAN, trusted-device authority, and product service startup are explicitly sibling-owner/Phase 2 integration boundaries rather than missing WP05 state-model code. |
+| WP07 First Run Setup UI And State Machine | Eight mapped implementation files and five tests cover a Rust-owned Start-route snapshot, generated bridge, portal-domain projection, rendered panel, null-state behavior, and one Playwright route proof. | **Incomplete** | The Rust snapshot hard-codes `not wired`/`unavailable` account, trust, and custody rows. It is a truthful boundary-status panel, not the required first-run state machine or screen map, and it has no live `provisioning-core` input, readiness-matrix-driven completion guard, guided actions, or executable blocked/degraded/manual transition suite. |
+| WP06 Rollout Proof And Route Gate | Expected topology is `no-code-required`; this final packet aggregates proof and blockers without owning product implementation. | **Complete for Phase 1** | No product code is authorized. Its ignored/local proof roots, stale package references, route reconciliation, and sibling blocker acceptance remain Phase 3 work and cannot produce PR_READY from the current workpack labels alone. |
+
+**Setup Install Provisioning Phase 1 result:** all 7/7 workpacks now have
+reviewed code/test ownership. WP01-WP06 have no remaining Phase 1 writing gap
+within their bounded ownership, including the real WP05 readiness model; WP07
+still needs the live first-run state machine and expected transition tests.
+Thus 6/7 are complete for code/expected-test writing, while the whole product
+journey remains blocked by WP07 plus explicitly sibling-owned runtime proof.
+No Phase 2 passing-test or Phase 3 proof/PR_READY claim is inferred.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
@@ -555,7 +582,7 @@ proof artifact, checklist row, and merge state agree.
 | `remote-access-plan` | Scaffold | `remote-access-core`, `screen-live-view-core`, LAN, portal | Remote core has 2 source / 5 test files; adjacent live-view pieces exist. | Session grants, relay, revocation, and safety proof are not implemented as a product path. | Build view-only session grant/revoke state before any control feature. |
 | `screen-ai-pipeline-plan` | Foundation | `screen-core`, `screen-ai-core`, capture adapter, `agent-service` | Capture/AI/service source and tests exist. | Trigger-to-capture-to-AI-to-policy operational proof remains open. | Close a redacted selected-window capture to typed AI-result proof. |
 | `screen-plan` | Foundation | `screen-core`, `screen-capture-adapter`, `screen-live-view-core` | Capture adapters and platform paths exist; screen core has 3 source / 3 test files. | Cross-platform custody and live-view closure are incomplete. | Prove custody/delete behavior for one supported OS capture path. |
-| `setup-install-provisioning-plan` | Integration | `provisioning-core`, setup/identity schemas, platform installers | Provisioning and setup readiness code exists. | Depends on identity, device trust, and child/parent installation truth. | Close a parent setup-to-child trust/install handoff after device trust exists. |
+| `setup-install-provisioning-plan` | Fully audited / Phase 1 incomplete | `provisioning-core`, `child-runtime`, `parent-runtime-core`, `schema`, `portal-domain`, portal | All 7 workpacks have reviewed code/test ownership. WP01-WP04 and WP06 are bounded no-code handoff/aggregation packets; WP05's Rust readiness model and negative tests are real; WP07 has a Rust-owned portal boundary-status panel. | WP07 still hard-codes sibling states as unavailable and does not implement the required first-run state machine, screen flow, actions, or readiness-driven completion guard. Historical proof text also cites removed packages and requires Phase 3 reconciliation. | Implement WP07 against typed `provisioning-core` readiness, with blocked/degraded/manual transition tests; then run focused Phase 2 gates before reconciling proof and sibling handoffs in WP06. |
 | `tracking-plan` | Integration | `tracking-core`, `agent-service`, `schema` | 70 source / 41 test files; location/geofence/device-status runtime exists. | Real device/provider/retention product proof remains incomplete. | Run a provider-to-read-model-to-portal tracking path with retention proof. |
 | `v0-8-enforcement-control-plan` | Foundation | `child-enforcement-core`, `policy-control-core`, `agent-core`, `agent-service`, schema | Contract/action-state surfaces and a managed-browser profile/launch boundary exist. PR #606 is closed without merge because its policy slice was unsafe/no-op and is not implementation evidence. | Eventing WP06 generic journal/replay handoff is complete, but WP11 enforcement-specific durable journal and WP04 trusted dispatch remain open. Browser policy targets are manual-required; managed-browser proof/read models do not establish an adapter-backed action receipt, rollback, audit trace, or parent-visible result. | Complete WP11's durable journal/query contract, then schedule WP04 trusted dispatch and one bounded managed-session adapter slice with receipt, rollback, journal, and visible status; keep exact URL and unmanaged browsers out of scope. |
 
@@ -590,7 +617,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `remote-access-plan` | 6 | 0 | 6 | 0 | Five planned rows and one deferred control row. |
 | `screen-ai-pipeline-plan` | 10 | 0 | 10 | 0 | Proof manifest/root is absent; rows correctly remain open. |
 | `screen-plan` | 40 | 18 | 22 | 0 | Eighteen checked workpacks are not reflected by the generic checklist. |
-| `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | WP06 is done as a blocker/aggregation packet but remains open for whole-plan scheduling; 93/93 checklist is not product completion. |
+| `setup-install-provisioning-plan` | 7 | 6 | 1 | 0 | Fully mapped from live code/tests. Six workpacks have no Phase 1 writing gap within their bounded ownership; WP07 remains incomplete because the current portal panel reports unavailable static state instead of implementing the live first-run state machine. The 93/93 checklist is not product completion. |
 | `tracking-plan` | 39 | 0 | 39 | 0 | Internally checked rows were intentionally reopened for audit/proof reruns. |
 | `v0-8-enforcement-control-plan` | 20 | 6 | 14 | 0 | #606 closed unmerged as unsafe/no-op. Eventing WP06 Journal Replay And Lineage is now graph-complete with reviewed code/test/proof evidence; WP11 remains open and WP04 remains unscheduled/manual-required. Six checked workpacks are not reflected by the generic checklist. |
 | **Total** | **526** | **143** | **383** | **0** | Plus 145 reference/source-only rows and 8 historical rows excluded from execution scheduling. |
