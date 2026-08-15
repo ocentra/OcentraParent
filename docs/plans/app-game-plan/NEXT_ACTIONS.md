@@ -25,12 +25,27 @@ This file is the short resume list for the next worker. It is derived from open 
 5. Open that workpack and exact checklist rows only.
 6. Do not claim `DONE` unless the assigned workpack's acceptance/proof rows are updated and validation is listed.
 
-## Highest-open workpacks by route dependency
+## Highest-open Phase 1 work by dependency impact
 
-1. Use `WORKPACK_INDEX.md` to pick the exact assigned app/game control row.
-2. If the task names app control capability/schema/settings, open only that app reference workpack.
-3. If the task names game control capability/schema/settings, open only that game reference workpack.
-4. If the task is implementation or proof, route from the selected reference row into the owning implementation workpack/checklist row before making claims.
+The 2026-08-15 code audit maps all 220 workpacks and leaves 50 source/test
+writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
+
+1. WP17-WP20, WP49, WP51, WP177: durable review/risk production and one
+   Rust-owned policy compiler/evaluator path.
+2. WP21 and WP121-WP126: live child warning/request UX plus durable outbox,
+   scheduler, provider/preference preflight, and status production.
+3. WP58-WP65: notification outbox, scheduler, history, provider/preference
+   owners, and receipt-backed status.
+4. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
+   metadata tests.
+5. WP188-WP202, WP204: Android replay/test closure and Linux foreground
+   acquisition.
+6. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,
+   notification, action, and focused test closure.
+7. WP27 load/performance harnesses; WP102 implement-or-retire decision.
+
+Do not schedule a no-code/proof packet as implementation work, and do not
+recreate the removed legacy TypeScript owners named in old workpacks.
 
 ## PR readiness guard
 

@@ -16,6 +16,12 @@
 
 Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
 
+Code-first overlay (2026-08-15): this index contains 220 imported workpacks.
+All 220 have reviewed current ownership in the executable graph; 50 retain a
+production-code or expected-test gap. Historical `checked` labels below are
+document checkbox state, not implementation truth. Use
+[CODE_AUDIT.md](CODE_AUDIT.md) before selecting work.
+
 | Status             | Workpack                                                                                                                                                                                                                                                                                                                      |  Size | Boxes                 |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----: | --------------------- |
 | checked            | [10 Launcher Evidence And Game Candidate Model](workpacks/10-launcher-evidence-and-game-candidate-model.md)                                                                                                                                                                                                                   | 3,263 | 9/9 checked; 0 open   |

@@ -621,6 +621,31 @@ test('reviewed app workpack code maps stay exact after the full plan audit', asy
   assert.ok(ownedProcessLimit.codeTestTopology.testFiles > 0);
 });
 
+test('reviewed app game workpack maps cover the full imported plan', async () => {
+  const report = await buildProgressReport({ root: repoRoot });
+  const appGame = report.plans.find((plan) => plan.id === 'PLAN-app-game-plan');
+  assert.equal(appGame.workpacks.rows.length, 220);
+  assert.ok(appGame.workpacks.rows.every((workpack) => workpack.codeTestTopology.scope === 'reviewed-workpack-roots'));
+
+  const windowsInventory = appGame.workpacks.rows.find(
+    (workpack) => workpack.id === 'WP-app-game-plan-06-windows-installed-inventory-adapter'
+  );
+  assert.ok(windowsInventory.codeTestTopology.implementationFiles > 0);
+  assert.ok(windowsInventory.codeTestTopology.testFiles > 0);
+  assert.ok(
+    windowsInventory.codeTestTopology.implementationPaths.some((file) =>
+      file.endsWith('app_game_windows_inventory_source.rs')
+    )
+  );
+
+  const physicalProof = appGame.workpacks.rows.find(
+    (workpack) => workpack.id === 'WP-app-game-plan-181-app-game-android-physical-device-proof'
+  );
+  assert.equal(physicalProof.codeTestTopology.codeExpectation, 'no-code-required');
+  assert.equal(physicalProof.codeTestTopology.implementationFiles, 0);
+  assert.equal(physicalProof.codeTestTopology.testFiles, 0);
+});
+
 test('root goal scope includes the full reviewed code map', async () => {
   const unscoped = await buildCodeInventory({ root: repoRoot });
   const rootScoped = await buildCodeInventory({ root: repoRoot, scope: 'GOAL-ocentra-parent' });

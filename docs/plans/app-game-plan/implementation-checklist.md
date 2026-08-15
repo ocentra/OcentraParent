@@ -18,6 +18,16 @@
 Use `[ ]` for not started, `[ ]` for in progress, and `[ ]` only after the
 required proof pack exists.
 
+## Code-first status overlay - 2026-08-15
+
+Checkboxes below retain historical proof/workpack state and are not Phase 1
+implementation authority. The tracked-source audit in
+[CODE_AUDIT.md](CODE_AUDIT.md) maps all 220 workpacks: 151 have current
+production source plus expected tests, 19 are reviewed no-code packets, and 50
+retain concrete source/test-writing gaps. Do not check a proof row merely
+because its bounded code exists; do not treat a checked historical row as code
+complete when the audit records a gap.
+
 ## Fill Rules
 
 - Every workpack must name owner/lane, branch/PR/commit, evidence or proof, and

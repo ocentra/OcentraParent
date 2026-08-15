@@ -10,14 +10,15 @@ Imported workpacks: 679
 Graph valid: 703 nodes, 705 edges
 Review items: 34
 Unindexed workpack files requiring review: 40
-PLANNED: 453
+PLANNED: 376
 READY: 0
 ACTIVE: 1
 BLOCKED: 9
-VALIDATION: 215
+VALIDATION: 292
 DONE: 1
-Implementation files: 2831
-Test files: 1182
+Implementation files: 2764
+Test files: 1133
+Reviewed workpack maps: 679
 ```
 
 The joined report is the canonical operator view:
@@ -42,10 +43,9 @@ evidence handoff, not authorization to bypass the READY gate.
 
 It reports all 23 plans and 679 workpack rows, with graph-derived workpack
 state alongside live implementation/test topology under reviewed plan roots.
-Twelve focused workpacks now also have explicit reviewed code/test maps; those
-rows expose exact paths, while every unmapped row remains
-`unknown-workpack-ownership`. Neither topology mode is an acceptance/CI/merge
-certificate.
+All 679 workpacks now have reviewed code/test ownership maps. Rows expose exact
+reviewed roots (or an explicit reviewed no-code requirement); that topology is
+not an acceptance, test-run, proof, CI, or merge certificate.
 
 The policy-control slice is a useful dependency example:
 
@@ -58,8 +58,8 @@ graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
   WP-policy-control-plane-plan-04-delivery-ack-audit is blocked
 ```
 
-The graph currently exposes no READY workpack: 453 remain planned pending
-readiness/dependency review, 215 are in validation, and 9 are blocked. Remote
+The graph currently exposes no READY workpack: 376 remain planned pending
+readiness/dependency review, 292 are in validation, and 9 are blocked. Remote
 WP01, device-trust WP08, and network WP08 are in `validation` after focused
 slices were replayed; all retain explicit runtime/no-claim boundaries. The
 graph therefore refuses to authorize unreviewed `Open` rows while keeping

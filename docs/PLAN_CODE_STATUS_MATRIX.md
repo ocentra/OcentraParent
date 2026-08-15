@@ -35,18 +35,15 @@ the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
 Current derived state is 376 planned, 9 blocked, 0 ready, 1 active, 292 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,764
-implementation files and 1,133 test files, but only **459 of 679 workpacks**
-(67.60%) have reviewed, exact code/test ownership maps. Account Identity, AI,
-App, Browser, LAN,
+All **679 of 679 workpacks** now have reviewed code/test ownership maps. Account Identity, AI,
+App/Game, App, Browser, LAN,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
 Payment/Subscription, Policy Control Plane, Portal UX/Household Surfaces,
 Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, Tracking,
-and V0.8 Enforcement are fully mapped; 220 workpacks across the repository
-remain unmapped. An unmapped workpack is
-therefore **unattributed**, not proven absent and not proven implemented. Do not
-turn the graph state or a checklist mark into a code-completion percentage.
+and V0.8 Enforcement are fully mapped. A reviewed map establishes current
+ownership/topology, not acceptance. Do not turn the graph state or a checklist
+mark into a code-completion percentage.
 `npm run graph:matrix -- --json` is the complete 679-row table; the reviewed
 coverage below states how much of that table currently has source/test evidence
 strong enough for workpack-level decisions.
@@ -55,7 +52,7 @@ strong enough for workpack-level decisions.
 | --- | ---: | ---: | ---: | ---: | --- |
 | Account identity/family | 8 | 1/0/0/0/7/0 | 159 / 82 | 8 / 8 | Fully code-mapped; all eight remain incomplete for Phase 1 code/expected-test writing. |
 | AI | 48 | 46/0/0/0/2/0 | 118 / 39 | 48 / 48 | Fully code-mapped; 11 workpacks are Phase 1 complete for bounded scope and 37 retain concrete production-code or expected-test gaps. |
-| App/game | 220 | 132/0/0/0/88/0 | 688 / 436 | 0 / 220 | Unattributed; the large validation set cannot be treated as implemented. |
+| App/game | 220 | 132/0/0/0/88/0 | 491 / 49 | 220 / 220 | Fully code-mapped; 151 bounded packets have current code plus expected tests, 19 are reviewed no-code packets, and 50 retain concrete production-code or expected-test gaps. |
 | App | 95 | 18/0/0/0/77/0 | 114 / 55 | 95 / 95 | Fully code-mapped; 77 bounded workpacks have no Phase 1 source/expected-test writing gap and 18 retain concrete compiler, durability, runtime, UI, notification, performance, or followthrough gaps. |
 | Browser | 30 | 30/0/0/0/0/0 | 72 / 13 | 30 / 30 | Fully code-mapped; 14 executable workpacks are Phase 1 complete for bounded scope, 10 retain concrete code/test gaps, and six imported packets are reference-only. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 / 10 | 11 / 11 | Fully code-mapped; WP01, WP02, WP05, WP06, and WP09 are Phase 1 complete for their bounded scope, while six workpacks retain runtime, lifecycle-test, handoff, or release-gate gaps. |
@@ -77,11 +74,10 @@ strong enough for workpack-level decisions.
 | Tracking | 42 | 42/0/0/0/0/0 | 94 / 65 | 42 / 42 | Fully code-mapped; 24 bounded packets are Phase 1 complete and 18 retain concrete production-code or expected-test gaps. |
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 901 / 498 | 20 / 20 | Fully code-mapped; 7 workpacks have no Phase 1 writing gap in their bounded scope, while 13 retain concrete runtime, surface, lifecycle-test, or executable-harness gaps. |
 
-The next organization phase is not feature coding. Audit one plan at a time,
-map each workpack to exact implementation and test roots, classify code/test
-gaps, then rebuild the graph. Only after a plan's Phase 1 map is complete may
-its focused tests and Enforcer checks be used for Phase 2 scheduling. Proof is
-the later acceptance phase, not a substitute for missing code or tests.
+The repository-wide ownership-mapping phase is complete. Work now proceeds one
+whole plan at a time from the code-first gap matrices: write missing production
+code and expected tests, then run focused tests and Enforcer for Phase 2, then
+regenerate proof in Phase 3. Proof is not a substitute for missing code/tests.
 
 ### Browser plan Phase 1 code/test audit - 2026-08-15
 
@@ -761,7 +757,7 @@ than one plan; they are not completion percentages.
 | --- | ---: | ---: | ---: | ---: |
 | Account identity/family | 8 | 1/0/0/0/7/0 | 159 | 82 |
 | AI | 48 | 46/0/0/0/2/0 | 118 | 39 |
-| App/game | 220 | 132/0/0/0/88/0 | 688 | 436 |
+| App/game | 220 | 132/0/0/0/88/0 | 491 | 49 |
 | App | 95 | 18/0/0/0/77/0 | 114 | 55 |
 | Browser | 30 | 30/0/0/0/0/0 | 72 | 13 |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 | 10 |
@@ -784,11 +780,11 @@ than one plan; they are not completion percentages.
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 901 | 498 |
 
 The graph validates at 703 nodes and 705 edges, with 34 migration/dependency
-review items. The live map now covers 459 of 679 workpacks. App contributes 95
-reviewed maps: 77 bounded packets have no Phase 1 source/expected-test writing
-gap and 18 retain concrete gaps. Tracking contributes 42 reviewed maps: 24
-bounded packets are Phase 1 complete and 18 retain concrete production-code or
-expected-test gaps. Graph states remain separate
+review items. The live map now covers all 679 workpacks. App/Game contributes
+220 reviewed maps: 151 code+test packets and 19 no-code packets have no bounded
+Phase 1 writing gap, while 50 retain concrete gaps. App contributes 95 reviewed
+maps (77 bounded complete, 18 gaps), and Tracking contributes 42 reviewed maps
+(24 bounded complete, 18 gaps). Graph states remain separate
 from that code-first classification. Historical
 source/test rows are now classified as `validation` instead of being counted
 as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
@@ -797,12 +793,12 @@ checklist prose. A graph `DONE` state requires the referenced implementation,
 test, proof, checklist, and any detected ADR paths to exist; it does not claim
 that CI or a product path has been merged.
 
-There are **23 plan folders** and **526 scheduled workpack rows** in this
+There are **23 plan folders** and **679 imported workpack rows** in this
 checkout (not 24 plans). The consolidated code train is merged to current
 `main` and contains the LAN target repair, enforcement-journal sequence
 repairs, parent policy-resolution/delivery binding, remote/tracking contracts,
-and app runtime-decision contracts. The live reviewed-root topology is 2,831
-implementation files and 1,182 test files. Scoped Enforcer, architecture,
+and app runtime-decision contracts. The live reviewed-root topology is 2,764
+implementation files and 1,133 test files. Scoped Enforcer, architecture,
 generated-artifact, Rust, TypeScript, portal, and pre-commit validation pass.
 Required CI run `31366692141` passed and PR #643 merged this train to `main` as
 `47a2ac717`; proof custody and product-workpack acceptance remain separate
@@ -812,7 +808,7 @@ gates.
 | --- | --- | --- |
 | Account identity/family | `family-identity-core` 43/23, `provisioning-core` 9/7, `storage-custody-core` 78/16 source/test files. | Core authority/custody exists; Cloudflare binding/migration and real provider/runtime routes remain separate work. |
 | AI | `child-ai-core` 3/2 and `screen-ai-core` 20/3, joined through the shared agent/eventing stack. | Foundation only; next is one typed AI-result-to-policy consumer with negative safety coverage. |
-| App/game | `app-game-core` 21/15 plus service adapters/read models. | Integration source exists; choose one live Windows capture-to-read-model path before treating any customer control path as ready. |
+| App/game | 220/220 reviewed maps; 151 code+test packets, 19 no-code packets, 50 writing gaps. | Close review/risk/compiler, child UX/outbox, notification delivery/history, Android/Linux runtime tests, and dashboard/security gaps before Phase 2. |
 | App | `app-core`, `app-game-core`, `agent-protocol`, `agent-core`, `agent-service`, schema/generated contracts, parent runtime, and portal now have 95 exact reviewed workpack maps. | Seventy-seven bounded workpacks have their Phase 1 source and expected tests written. Eighteen remain incomplete: WP15-WP20, WP26, WP48-WP49, WP58-WP65, and WP102. See `docs/plans/app-plan/CODE_AUDIT.md`; Phase 2 tests, Enforcer, proof, and release acceptance remain separate. |
 | Browser | `browser-core` 33/20 plus service policy/adapter surfaces. | Integration source exists; managed command, adapter result, rollback, and parent-visible state are not a closed product path. |
 | Child runtime distribution | `child-runtime` 31/9 plus service/protocol sources. | Runtime source exists; Windows service lifecycle/package smoke remains the next physical blocker. |

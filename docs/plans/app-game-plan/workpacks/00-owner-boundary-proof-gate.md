@@ -19,14 +19,16 @@ This file applies to every app-game workpack. It is the workpack-level overlay f
 ## Owner path
 
 ```text
-schema-domain:
-  canonical shared app/game contracts that cross package, crate, app, or plan boundaries.
-app-game-domain:
-  helper/projection/focused validation surface only.
+agent-protocol/agent-core:
+  canonical contracts, Windows observation, sessionization, storage, evidence, and read models.
 app-game-core:
-  child-local app/game observation, sessionization, evidence event, AI-request event, policy-request event, and source-readiness runtime boundary.
-agent-protocol/agent-service:
-  wire/service/read-model only when selected.
+  Rust source-readiness, policy-preview, timer-handoff, notification-intent, and runtime-decision models.
+agent-service/parent-runtime-core/apps/portal:
+  service composition, parent bridge, and rendered surfaces only when selected.
+schema-domain:
+  generated validation/decoder edge only.
+platforms/android/agent:
+  Android runtime source only; executable work requires focused tracked tests.
 AI, policy, enforcement, notification, portal, child-runtime:
   sibling owners or handoff consumers only.
 platform adapters:
@@ -38,10 +40,10 @@ platform adapters:
 Allowed direct imports:
 
 ```text
-schema-domain app/game/evidence/policy-reference/protocol/capability/logging shapes
+Rust-owned app/game/evidence/policy-reference/protocol/capability/logging shapes
 neutral event/evidence/logging/protocol primitives
-approved public app-game-domain helpers when selected
 app-game-core when Rust observation/event proof is selected
+generated schema-domain decoders at TypeScript edges
 pure common helpers without feature behavior
 ```
 
@@ -50,7 +52,8 @@ Forbidden direct imports:
 ```text
 AI/policy/enforcement/notification/portal/child-runtime runtime behavior
 private files from sibling plan owners
-peer contracts that should live in schema-domain or another neutral boundary
+peer contracts that should live in the owning Rust or neutral boundary
+removed app-game-domain/activity-domain/parent-domain/agent-protocol-domain/text-domain owners
 portal/policy/AI/notification code that scans app/game source state
 adapter execution without source readiness, authority, and adapter-readiness proof
 ```

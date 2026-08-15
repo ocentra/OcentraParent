@@ -20,7 +20,7 @@ This plan is large and contains many historical/generated workpacks. Do not read
 Use this loop:
 
 ```text
-AGENTS.md -> PLAN_STATE.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one selected workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
+AGENTS.md -> PLAN_STATE.md -> CODE_AUDIT.md -> NEXT_ACTIONS.md -> WORKPACK_INDEX.md -> one selected workpack -> TEST_PROOF_EXPECTATIONS.md -> PROOF_INDEX.md
 ```
 
 ## Active-workpack rule
@@ -40,12 +40,12 @@ output/app-game-plan-proof/<workpack-file-stem>/
 ## Focused commands
 
 ```bash
-npm run build --workspace @ocentra-parent/app-game-domain
-npm run test --workspace @ocentra-parent/app-game-domain
+cargo test -p ocentra-app-game-core app_game
+cargo test -p ocentra-parent-agent-core app_game
 cargo test -p ocentra-parent-agent-protocol app_game
 cargo test -p ocentra-parent-agent-service app_game
 npm run test --workspace @ocentra-parent/portal -- app
-npm run lint:architecture -- --files packages/app-game-domain packages/agent-protocol-domain crates/agent-protocol crates/agent-service apps/portal docs/plans/app-game-plan
+npm run lint:architecture -- --files packages/schema-domain crates/app-game-core crates/agent-protocol crates/agent-core crates/agent-service crates/parent-runtime-core apps/portal platforms/android/agent docs/plans/app-game-plan
 ```
 
 If a command/test path does not exist, record the blocker and keep rows open.

@@ -16,6 +16,19 @@
 
 Generated from the existing `app-game-plan` docs. This is the default resume/status file; large historical docs are linked, not embedded.
 
+## Code-first audit baseline - 2026-08-15
+
+- The executable graph imports **220** App + Game workpacks, not 214.
+- All **220/220** now have reviewed current code/test ownership.
+- **151** have current production source plus expected checked-in tests for their
+  bounded scope; **19** are reviewed no-code coordination/proof/reference
+  packets; **50** retain a concrete production-code or expected-test gap.
+- The authoritative row-by-row source/test result is
+  [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
+  removed-package, and ignored-proof wording for Phase 1 status.
+- This audit changes ownership/status routing only. It does not claim Phase 2
+  focused tests/Enforcer, Phase 3 proof, or release readiness.
+
 ## Scope
 
 This folder is the shared native app and native game control plan. It exists because apps and games share the low-level evidence spine, but they do not share product meaning.
@@ -23,38 +36,34 @@ This folder is the shared native app and native game control plan. It exists bec
 ## Current ownership interpretation
 
 ```text
-crates/schema or the owning Rust crate:
-  Canonical shared app/game contracts when app/game shapes cross package, crate, app, or plan boundaries.
-
-schema-domain:
-  Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
-
-app-game-domain:
-  TypeScript helper/projection and focused validation surface. It consumes Rust-owned/generated contracts and must not become a broad aggregator for policy, enforcement, notification, portal, or production runtime behavior.
+agent-protocol + agent-core:
+  Canonical app/game contracts, Windows acquisition, journal/SQLite projection,
+  sessionization, and parent-safe evidence/read-model boundaries.
 
 app-game-core:
-  Child-local Rust app/game observation, sessionization, evidence-event, AI-request, policy-request, and source-readiness runtime boundary.
+  Rust-owned source freshness, policy-preview, timer-handoff, notification-intent,
+  and runtime-decision models. Generated TypeScript is an edge, not authority.
 
-agent-protocol and agent-service:
-  Wire/service transport and read-model boundaries when selected. They are not default owners for every app/game contract.
+agent-service + parent-runtime-core + apps/portal:
+  Service composition, parent bridge, and parent-visible projections/actions.
+  Projection/readiness rows do not prove the missing runtime named by a no-claim flag.
 
-portal-domain and apps/portal:
-  Parent-visible app/game status, dashboard, action-result, and source-readiness projections. They do not observe OS state, classify apps, run timers, or enforce.
+platforms/android/agent:
+  Tracked Android UsageEvents, Accessibility, delivery, receipt, and notification
+  sources. Focused tracked App/Game Java tests are still missing where CODE_AUDIT says so.
 
-AI plan:
-  Consumes stored app/game evidence or structured digest refs. AI does not scan the machine or decide enforcement.
-
-Policy/enforcement plans:
-  Consume source-ready app/game evidence and parent rules. They own deterministic decisions/actions; app/game owns source truth and handoff readiness.
-
-Notification, child-runtime, LAN, remote, account, data-custody, and setup plans:
-  Handoff consumers or adjacent owners only. They must not re-own app/game evidence, source freshness, or adapter authority.
+packages/schema-domain:
+  Generated validation/decoder edges only. The removed activity-domain,
+  parent-domain, agent-protocol-domain, text-domain, and app-game-domain paths
+  are not current implementation owners.
 ```
 
 ## Current coupling risks
 
 ```text
-- `app-game-domain` currently depends on several sibling domains. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through `crates/schema` or another neutral Rust-owned boundary.
+- Historical workpacks still name removed TypeScript owners and missing
+  `scripts/test/app-game-*` runners. Use `CODE_AUDIT.md` and the engineering
+  graph for current ownership; do not recreate those deleted packages.
 - Generated handoff workpacks are not implementation scope by themselves. A selected workpack must identify the owner path and proof family before source edits.
 - Portal rows, policy preview rows, notification rows, and child UX rows do not prove live app/game source readiness unless service/protocol/runtime proof exists.
 - AI classifier digest rows prove only digest/result handoff unless they include stored app/game evidence refs and validated AI output. They do not prove AI runtime or OS scanning.
@@ -75,9 +84,19 @@ Notification, child-runtime, LAN, remote, account, data-custody, and setup plans
 
 ## What is already present / proved
 
-- No concise existing/proved bullet section was detected in the current snapshot.
+- Real Windows inventory, process, foreground, launcher, sessionization,
+  encrypted journal/SQLite projection, recurring service capture, and bounded
+  read-model tests are present.
+- Scoped owned-process time-limit dispatch, parent preference request
+  persistence/outbox, adapter readiness/dispatch, platform status, receipt,
+  parent-runtime, and portal surfaces are present with bounded tests.
+- These do not erase the 50 Phase 1 gaps or claim cross-platform/provider/child
+  delivery and physical proof.
 
-## Open gaps / missing product runtime
+## Historical gap narrative
+
+The detailed bullets below preserve older packet history. They are not current
+Phase 1 authority where they conflict with `CODE_AUDIT.md`.
 
 - App/game identity contracts are present, but runtime identity merge behavior and adapter-fed identity refs are not implemented yet.
 - Inventory evidence row contracts and Rust inventory-row parity are present, Windows installed-record plus Store/UWP package parser proof exists, staged journal/SQLite replay proof now projects inventory rows, and service activity-surface read models now expose typed inventory state, but live platform crawling and dedicated portal dashboard rows are not implemented yet.
@@ -125,16 +144,18 @@ Checked generated handoff rows do not override the selected workpack proof root 
 
 ## Workpack summary
 
-- Workpacks indexed: 214.
+- Workpacks indexed: 220.
 - Workpacks with open checkboxes: 0.
 - Workpacks with all detected boxes checked: 54.
 - Workpacks with no checkbox status: 160.
 
 ### Active/open workpacks
 
-- App control capability guide, schema proposal, and settings inventory are open reference/control-routing workpacks.
-- Game control capability guide, schema proposal, and settings inventory are open reference/control-routing workpacks.
-- These open rows are not implementation completion claims. Use `WORKPACK_INDEX.md` to choose the exact assigned row and avoid reading the large inventories by default.
+- The six app/game capability, schema, and settings guides are reviewed
+  no-code reference/control-routing packets. They do not claim product
+  implementation or proof completion.
+- Fifty implementation/test-writing gaps remain; select them through
+  `CODE_AUDIT.md` and `WORKPACK_INDEX.md`.
 
 ## Default no-read list
 

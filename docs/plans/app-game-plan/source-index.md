@@ -14,6 +14,18 @@
 
 <!-- /agent-capsule -->
 
+## Current source correction - 2026-08-15
+
+The older TypeScript inventory below is historical. The tracked tree contains
+no files under the former `packages/activity-domain`, `packages/parent-domain`,
+`packages/agent-protocol-domain`, or `packages/text-domain` App/Game owners, and
+no tracked `scripts/test/app-game-*` runners. Current ownership is recorded
+workpack-by-workpack in [CODE_AUDIT.md](CODE_AUDIT.md) and
+`docs/engineering-graph/code-map.json`: Rust protocol/core/service/parent
+runtime, portal/generated schema edges, and Android Java runtime sources.
+
+Do not recreate removed packages to satisfy historical workpack prose.
+
 This index records source truth for native app and native game work. It should
 be updated when implementation changes ownership, proof, or routing.
 
