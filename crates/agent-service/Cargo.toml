@@ -88,6 +88,10 @@ name = "enforcement_runtime"
 path = "tests/unit/enforcement_runtime.rs"
 
 [[test]]
+name = "dev_log"
+path = "tests/unit/dev_log.rs"
+
+[[test]]
 name = "lan_runtime"
 path = "tests/unit/lan_runtime.rs"
 
