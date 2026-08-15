@@ -270,6 +270,11 @@
         "apps/portal/tests/policy/policy-preview-route-panel.test.ts"
       ]
     },
+    "WP-policy-control-plane-plan-06-rollout-proof-and-route-gate": {
+      "planSlug": "policy-control-plane-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
     "WP-data-custody-storage-plan-01-custody-source-of-truth": {
       "planSlug": "data-custody-storage-plan",
       "roots": [
