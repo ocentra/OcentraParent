@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `82123c16c`. The dated
+baseline at `10a924fb7`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -29,10 +29,10 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,911
-implementation files and 1,213 test files, but only **23 of 679 workpacks**
-(3.39%) have reviewed, exact code/test ownership maps. All 13 Eventing
-workpacks are now reviewed, while 656 workpacks across the repository remain
-unmapped. An unmapped workpack is
+implementation files and 1,214 test files, but only **59 of 679 workpacks**
+(8.69%) have reviewed, exact code/test ownership maps. Account Identity,
+Cloudflare Control Plane, Data Custody, Eventing, and Policy Control Plane are
+fully mapped; 620 workpacks across the repository remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
 `npm run graph:matrix -- --json` is the complete 679-row table; the reviewed
@@ -41,13 +41,13 @@ strong enough for workpack-level decisions.
 
 | Plan | Workpacks | P/B/R/A/V/D | Live implementation/test files | Reviewed workpack maps | Code-first audit state |
 | --- | ---: | ---: | ---: | ---: | --- |
-| Account identity/family | 8 | 1/0/0/0/7/0 | 159 / 82 | 0 / 8 | Unattributed; plan roots exist, but no exact workpack map is reviewed. |
+| Account identity/family | 8 | 1/0/0/0/7/0 | 159 / 82 | 8 / 8 | Fully code-mapped; all eight remain incomplete for Phase 1 code/expected-test writing. |
 | AI | 48 | 47/0/0/0/1/0 | 690 / 421 | 0 / 48 | Unattributed; foundation code exists, workpack ownership is unaudited. |
 | App/game | 220 | 132/0/0/0/88/0 | 688 / 436 | 0 / 220 | Unattributed; the large validation set cannot be treated as implemented. |
 | App | 95 | 94/0/0/0/1/0 | 670 / 421 | 1 / 95 | Partial; WP01 contract/runtime-decision roots are mapped. |
 | Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
-| Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 0 / 13 | Unattributed; source presence is not deployment/runtime completion. |
+| Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 13 / 13 | Fully code-mapped; WP00-WP02 and WP04 are Phase 1 complete, while nine workpacks retain concrete code/test gaps. |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
@@ -56,7 +56,7 @@ strong enough for workpack-level decisions.
 | Network | 8 | 7/0/0/0/1/0 | 942 / 520 | 1 / 8 | Partial; WP08 reference routing is mapped. |
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 107 / 21 | 0 / 11 | Unattributed. |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 0 / 13 | Unattributed; two workpacks are dependency-blocked. |
-| Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 1 / 8 | Partial; WP04 delivery/receipt roots are mapped but still blocked. |
+| Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 8 / 8 | Fully code-mapped; WP03 is Phase 1 complete and seven workpacks retain concrete code/test gaps. |
 | Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 683 / 448 | 0 / 20 | Unattributed. |
 | Remote access | 6 | 4/0/0/0/2/0 | 371 / 137 | 2 / 6 | Partial; WP01 capability and WP04 pairing-grant roots are mapped. |
 | Screen AI pipeline | 10 | 10/0/0/0/0/0 | 517 / 361 | 0 / 10 | Unattributed. |
@@ -173,6 +173,36 @@ WP08 each have concrete production or test gaps, while the no-product-code
 WP06 gate lacks an executable, dependency-enforced clean-checkout aggregation
 route. No Phase 2 passing-test or Phase 3 proof claim is inferred from this
 audit.
+
+### Cloudflare Control Plane Phase 1 code/test audit - 2026-08-15
+
+This table is based on the current Worker, binding, script, and test source. It
+does not inherit the plan's historical dependency blockers or ignored proof
+roots as present-day code truth, and it does not claim that any mapped test is
+currently passing.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP00 Games Infra Parity Extraction | This is a Parent-only keep/adapt/strip decision packet with an explicit no-code boundary; the parity and source-surface documents reject game economy, Solana, matchmaking, social, AI proxy, and asset-storage expansion. | **Complete for Phase 1** | No product implementation or test code is authorized by this workpack. Current docs validation and retained proof are later acceptance gates. |
+| WP01 Cloudflare Module Scaffold | Three mapped implementation files and four focused tests sit inside a real separate `infra/cloudflare` package with explicit scripts, dev/prod Wrangler files, generated billing contracts, runner/seed scripts, all seven test-family directories, and honest README-only placeholder subdirectories. | **Complete for Phase 1** | No missing scaffold/package-script test code was found. Placeholder runtime subdirectories remain deliberately non-claims and belong to their functional workpacks. |
+| WP02 Wrangler Env Bindings | `env.ts`, separate dev/prod Wrangler configs, `.dev.vars.example`, and the binding test define exact D1/DO/KV/Queue/R2/analytics names, ownership/privacy states, placeholder-only secrets, explicit production origin, optional bindings, and unknown-key rejection. | **Complete for Phase 1** | Real resource IDs, secret custody, and deployed environment verification are Phase 2/3 or manual environment work, not missing config/test code for this boundary. |
+| WP03 Worker Entrypoint Runtime Guards | The Worker entrypoint, env/redaction helpers, three unit tests, three security tests, and Worker boot/health tests cover env failure, CORS, content-length framing, request-size limits, kill switch, redacted headers, and dispatch ordering. | **Incomplete** | `scheduled()` is empty and has no reconciliation test. The core Worker has no production structured logger, and both dispatch catch paths return raw `Error.message`; no injected secret/path exception test proves those messages are support-safe. |
+| WP04 Route Manifest And Domain Contracts | `routes.ts`, auth-route validation, generated billing contracts, exact-manifest unit tests, fixed-manifest property checks, and the API contract suite define all 25 route rows with method, auth, handler, request/response model, audit event/rule, and proof family. | **Complete for Phase 1** | No missing route-manifest or expected contract-test code was found. Provider semantics, real auth authority, and consumer runtime remain separately owned. |
+| WP05 Auth Admin Support Boundary | Auth model/verifier, Worker handlers, unit/integration/security tests cover all seven auth states, no downgrade, parent/trusted-device/admin/support/queue rejection, manual-required adapter modes, Stripe HMAC, role separation, and redacted failures. | **Incomplete** | `local-safe-fixture` accepts arbitrary bearer text plus caller-controlled role/trusted-device headers and production remains manual-required, so no real account/device authority adapter exists. PayPal, Apple, and Google verification use locally invented HMAC or bearer-equality fixtures rather than the providers' authenticated webhook protocols; tests currently enshrine those fixtures instead of a manual-required/real-provider boundary. |
+| WP06 Storage DO D1 KV R2 Queue Bindings | Env/config ownership, billing D1/KV/R2 read-model code, the narrow account D1 store, Worker DO/queue paths, and five tests cover binding names, privacy constraints, seed/read behavior, idempotent writes, enqueue failure, and dead-letter capture. | **Incomplete** | Only `ACCOUNT_IDENTITY_D1` exists; the required account DO/KV, isolated `migrations_dir`, migration SQL, canonical Account-WP08 adapter, and real migration integration test are absent. `BillingControlDO`/`ReferralControlDO` keep idempotency in an in-memory `Map` rather than `DurableObjectState.storage`, so restart durability is not implemented or tested. |
+| WP07 Local Dev Seeding And Fixtures | Eight scripts/source files and four tests define start/dependency probes, generated fixture families, redacted correlated proof milestones, teardown ownership, Worker boot, webhook fixtures, and replay fixtures. | **Incomplete** | The seed commands only serialize fixture objects to stdout; they do not populate local D1, KV, R2, Queue, or Durable Object state. The workflow can label the seed path runnable without verifying persisted state through a booted Worker, and it probes Wrangler availability rather than launching and smoking the declared local command itself. |
+| WP08 Testing Runner And Test Pyramid | The module runner enumerates all seven test families and the complete 30-file test tree; it rejects missing required files and emits family, proof-ID, and assertion-ID manifests. | **Incomplete** | The runner blindly reports declared assertion IDs but does not bind them to executed test cases or verify matrix coverage. The required account-identity migration/adapter integration test is absent, so the storage-facing handoff cannot be represented by the integration family. |
+| WP09 Portal To Worker E2E Smoke | The Worker harness and one four-case test exercise `/auth/billing/status` for unauthenticated, active, grace, and manual-review responses with portal-safe fields. | **Incomplete** | This is a direct in-process Worker test, not portal-to-worker E2E: no portal component, portal transport, HostBridge/dev transport, or portal test imports or consumes the billing-status route. The repository search found no billing-status consumer under portal source. |
+| WP10 Security Fuzz Property Observability | Worker/auth/redaction source plus 13 security, property, fuzz, and carried integration files cover secret non-disclosure, CORS/CSRF/framing rejection, fixed route invariants, idempotency matrices, malformed webhook bodies, and redacted response boundaries. | **Incomplete** | The “property” tests iterate fixed examples and the “fuzz” test is a deterministic ten-payload smoke rather than generated property/fuzz coverage. The core Worker still lacks correlated structured observability, raw exception messages remain exposed, and the request-smuggling family does not exercise its declared header-injection/newline cases. |
+| WP11 Deployment And Environment Promotion | Package deploy commands and separate dev/prod Wrangler configs exist with placeholder IDs and explicit origins. | **Incomplete** | There is no deployment/promotion implementation, CI environment gate, post-deploy smoke runner, version capture, rollback command, or automated rollback test. Both commands still pass `--env` names that have no matching `[env.*]` sections, while all resource IDs and auth authority remain placeholders. |
+| WP12 Payment Plan Handoff Gate | This is an aggregation/handoff workpack with no product-code requirement. A tracked blocked-state receipt exists and the payment plan consumes the upstream route as blocked. | **Incomplete** | No executable validator checks the required handoff fields, current accepted/missing roots, downstream acknowledgment, and no-overclaim rules. The workpack still describes ignored `output/` roots as accepted while the tracked receipt says none are accepted, and payment-side wording carries a different missing-root set. |
+
+**Cloudflare Control Plane Phase 1 result:** all 13/13 workpacks are now
+mapped from live code and expected tests. WP00-WP02 and WP04 are complete for
+the code-and-expected-test-writing phase. WP03 and WP05-WP12 retain concrete
+runtime, authority, persistence, local-dev, runner, consumer, security,
+deployment, or gate-verifier gaps. No current test-pass, deploy, proof, or
+payment-unblock claim is inferred from this audit.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
@@ -451,7 +481,7 @@ proof artifact, checklist row, and merge state agree.
 | `app-game-plan` | Integration | `app-game-core`, `agent-service`, `schema` | 25 source / 20 test files; inventory, runtime, journal, and policy code exist. | Live platform metadata/crawling and portal product rows are incomplete. | Finish one live Windows app/game capture-to-read-model path. |
 | `browser-plan` | Integration | `browser-core`, `agent-service`, `portal` | 43 source / 20 test files; managed-browser and intervention paths exist. | Managed/unmanaged execution and policy rollback are not closed. | Prove browser policy command through service, adapter, and visible portal state. |
 | `child-agent-runtime-distribution-plan` | Integration | `child-runtime`, platform projects, release scripts | Child runtime, Android/iOS/Linux/macOS artifacts and proof surfaces exist. | Windows lifecycle/package proof is blocked; release proof is not whole-product readiness. | Resolve Windows service lifecycle and package smoke proof. |
-| `cloudflare-control-plane-plan` | Integration / validation-open | `infra/cloudflare`, `billing-core`, account/billing contracts | Worker has 19 source / 28 test files, real route handlers, generated billing contracts, and the merged #608 local dev/seed/proof hardening. Fresh #608 full CI passed product, security, and platform jobs. PR #604 is closed without merge; its overlapping branch/evidence are preserved but superseded/conflicting. | #608 validates only a local WP07 boundary; no tracked workpack proof bundle exists, payment/runtime/deployment authority remains open, and WP01 dependency resolution still gates WP07. Account storage additionally needs Account WP08 contract -> Cloudflare WP06 binding/migration -> Cloudflare WP08 runner proof. | Retain the local-only no-claim boundary. After dependency resolution, run the proof-only WP07 successor from current source; separately execute Cloudflare WP06 then WP08 from the Account WP08 handoff and retain their exact proof or blockers before Account WP06 aggregation. |
+| `cloudflare-control-plane-plan` | Fully audited / Phase 1 incomplete | `infra/cloudflare`, account/billing contracts, portal consumer boundary | All 13 workpacks now have reviewed code/test ownership. WP00-WP02 and WP04 are complete for code/expected-test writing; the Worker, bindings, runner, local-dev, security, and contract source is real. | Nine workpacks still lack required runtime/authority/persistence/consumer/deployment or verifier code. The sharpest gaps are real auth/provider verification, durable DO state, account migration isolation, actual persisted local seeding, a true portal consumer smoke, and deployment/rollback automation. | Complete the nine Phase 1 rows before broad Cloudflare tests or proof regeneration; then run focused module families and Enforcer, followed by retained proof and the payment handoff gate. |
 | `data-custody-storage-plan` | Integration | `storage-custody-core`, `ocentra-evidence`, `ocentra-eventing` | Storage core has 63 source / 12 test files; custody/delete/export shapes exist. | Rollout/route-gate aggregation and cross-runtime custody proof remain open. | Prove one retention/delete/export flow through storage, eventing, and service. |
 | `device-trust-bootstrap-plan` | Foundation / blocked | `schema`, `family-identity-core`, platform secure stores | Parent step-up validation, handoff schemas, trust helpers, and focused tests exist. PR #605 merged with fresh 60-job CI, but it is narrow unissued-parent-challenge test evidence only. | Concrete platform key-sealing adapters and the complete trusted-device product chain remain open; the plan stays partial/open. | Freeze the minimal parent-presence plus platform-sealed trust interface inside the owning core before shared-service integration. |
 | `eventing-plan` | Integration | `ocentra-eventing`, `agent-protocol`, `agent-service` | 76 source / 34 test files; WP06 journal/replay, topology, version-skew, and typed handoff surfaces are retained and graph-mapped. | WP10 LAN consumer proof remains open; downstream Enforcement WP11 owns the enforcement-specific durable journal contract. | Select the WP10 consumer path and prove replay/idempotency end to end; then complete Enforcement WP11 before WP04. |
@@ -486,7 +516,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
 | `browser-plan` | 24 | 0 | 24 | 0 | Substantial runtime exists, but every execution row remains open. |
 | `child-agent-runtime-distribution-plan` | 11 | 10 | 1 | 0 | Index claims ten complete while the generic checklist reports none. |
-| `cloudflare-control-plane-plan` | 13 | 0 | 13 | 0 | #608 is merged with fresh full CI and local WP07 evidence, but no workpack is closed. #604 closed unmerged as superseded/conflicting; retain its branch/evidence and schedule a proof-only WP07 successor only after dependency resolution. |
+| `cloudflare-control-plane-plan` | 13 | 0 | 13 | 0 | Fully mapped from live source/tests. WP00-WP02 and WP04 are Phase 1 complete for code/expected-test writing; no proof row is freshly reverified, and WP03 plus WP05-WP12 have concrete Phase 1 gaps. |
 | `data-custody-storage-plan` | 8 | 7 | 1 | 0 | Workpack index and checklist disagree in both directions on several rows. |
 | `device-trust-bootstrap-plan` | 9 | 0 | 9 | 0 | #605 merged with fresh 60-job CI, but it is narrow test evidence only. Five partial, three blocked, one docs-only; adapter-backed runtime closure is missing. |
 | `eventing-plan` | 5 | 3 | 2 | 0 | Five selectable workpacks: WP06 and WP10 are open; eight historical rows are excluded and must not be rescheduled. |
