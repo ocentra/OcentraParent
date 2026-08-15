@@ -229,6 +229,23 @@ Expected evidence for `B2`:
   confirmation or the live default-gateway path is now required before
   suppression.
 
+## Code-First Audit Correction - 2026-08-15
+
+All 25 LAN workpacks now have reviewed implementation/test ownership in the
+engineering graph. Twenty-two have their bounded Phase 1 production code and
+expected tests written. Three remain incomplete before focused Phase 2 runs:
+
+- `16`: no integrated backend replay -> real Tauri `AppHandle` emit -> portal
+  listener regression;
+- `20`: all six LAN aggregate verifier commands named by current plan docs
+  point to absent scripts; the signed-relay and source-matrix runners are also
+  incorrectly checked complete in the workpack;
+- `25`: depends on both gaps above before its rollout gate can be code/test
+  complete.
+
+Manual household/router/platform artifacts remain Phase 3 and do not turn the
+other 22 rows into missing-code work.
+
 ## Open Execution Buckets
 
 - Local Rust implementation complete; manual/packet proof remains: `04`, `07`,
@@ -236,8 +253,9 @@ Expected evidence for `B2`:
 - Partial implemented slices still needing local proof/gap closure: none after
   the accepted 2026-06-28 LAN packet waves; the remaining open work is now
   integration/runtime parity or explicit manual/packet proof
-- Mixed local plus physical/manual final gates: `16`, `18`, `19`, `20`, `23`,
-  `25`
+- Phase 1 code/expected-test gaps: `16`, `20`, `25`
+- Physical/manual final gates after Phase 1: `04`, `07`, `08`, `09`, `11`,
+  `16`, `17`, `18`, `19`, `20`, `23`, `25`
 - Locally closed rows and truth-synced summaries: `01`, `02`, `03`, `05`,
   `06`, `10`, `12`, `13`, `14`, `15`, `21`, `22`, `24`
 
@@ -264,20 +282,20 @@ Expected evidence for `B2`:
 - additional downstream consumer proof artifacts beyond the current Rust-backed
   `/devices`, policy-target, and Start-route first-run portal snapshots
 - Android/mobile-controller proof where the plan still keeps those claims
-- broader `build:contracts` and source-matrix wrapper gates are green in this
-  lane on 2026-06-28:
-  `cmd /c npm run build:contracts` and
-  `node scripts/test/v0-9-lan-source-matrix-plan-completion.mjs`
+- historical `build:contracts` results remain context, but the two declared
+  aggregate source-matrix/signed-relay runner files are absent from the current
+  repository and must be restored or replaced before those wrapper gates can
+  be called green again
 
 Household/setup/account first-run UX is no longer a broad unvalidated LAN gap.
-The remaining open truth is now concentrated in route/runtime integration
-(`16`, `19`), signed-child/manual proof (`18`, `23`), the proof-gate wrapper
-(`20`, `25`), and the explicit packet/manual proof tails for locally
-code-complete workpacks (`04`, `07`, `08`, `09`, `11`, `17`).
+The remaining Phase 1 truth is concentrated in the integrated route/runtime
+test (`16`) and executable aggregate verifiers (`20`, `25`). Signed-child,
+paired-device, router/firewall, packet, and platform evidence remains Phase 3
+for the locally code-complete rows.
 
 ## Next Slice
 
-With the accepted 2026-06-28 packet waves landed locally, the next exact slice
-is the main-lane integration and truth-sync pass across `16`, `19`, and the
-top-level `lan-plan` summary/checklist surfaces.
-`lan-c1-protocol-service-truth-repair`.
+The next exact Phase 1 slice is the integrated WP16 backend replay -> Tauri
+`AppHandle` -> portal listener regression, followed by restoration or
+replacement of the six named aggregate verifier programs. WP25 can then enter
+focused Phase 2 validation; physical/manual proof remains last.

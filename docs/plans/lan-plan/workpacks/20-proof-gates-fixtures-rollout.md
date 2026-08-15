@@ -86,17 +86,17 @@ These are proof-routing fields, not implementation code prescriptions.
 
 ## Requirement Checklist
 
-- [x] `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs` proves the signed-discovery relay spine remains coherent for the local `B1` proof-regeneration slice. Latest local evidence is `output/lan-plan-proof/01-lan-b1-proof-regeneration/02-lan-signed-discovery-relay-spine-proof.json`.
-- [x] `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs` proves the authoritative `01-25` source-matrix/read-model contract remains coherent for the local Rust slice. Latest local evidence is `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`, with fresh runtime/visual confirmation in `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`.
+- [ ] Restore or replace `scripts/test/v0-9-lan-signed-discovery-relay-spine.mjs`. The workpack previously marked this runner complete, but it is absent from the current repository; historical generated output is not executable verifier source.
+- [ ] Restore or replace `scripts/test/v0-9-lan-source-matrix-plan-completion.mjs`. The workpack previously marked this runner complete, but it is absent from the current repository; historical `output/` and `test-results/` files cannot close the code/test gap.
 - [x] Feature docs updated by this branch keep real physical household proof, relay/cache, mobile parity, signing, and store readiness as remaining gaps.
 - [x] Portal tests cover LAN UI-intent consumption and live activity parser preservation of signed-proof, route-custody, relay/cache unavailable, manual-proof, and parent-decision fields. Current live coverage exists in `apps/portal/tests/unit/activity-ui-intent.test.ts`, `apps/portal/tests/live-activity/`, `apps/portal/e2e/portal-ui.spec.ts`, and `apps/portal/e2e/lan-source-matrix-visual-proof.spec.ts`.
 - [x] Keep test layout explicit: unit, integration, contract, e2e, fixtures, Playwright, security, persistence, performance, and CI validation gates. Current LAN-owned coverage now lives in explicit test roots such as `crates/lan-core/tests/{fixtures,property-based,unit}`, `crates/agent-service/tests/unit`, `apps/portal/tests/{browser,fixtures,live-activity,unit}`, and `apps/portal/e2e/`.
 - [x] Add fixture names for ARP, mDNS, SSDP, child-agent, API/SQLite, and UI states. Current LAN fixture families exist under `crates/lan-core/tests/fixtures/lan-plan/` and `apps/portal/tests/fixtures/`.
-- [x] Add property tests for merge scoring, evidence update, parser robustness, event ordering, and online/offline state. Latest local evidence: `cargo test -p ocentra-lan-core lan_plan_property -- --nocapture` and `output/lan-plan-proof/20-proof-gates-fixtures-rollout/01-property-test-breadth.md`.
-- [x] Add proof matrix rows for ARP table, ARP sweep, mDNS, SSDP, IP-only merge avoidance, IP change, child confirmation, spoof rejection, offline, manual assignment, confidence explanation, and malformed packets. Latest local evidence: `output/lan-plan-proof/20-proof-gates-fixtures-rollout/02-proof-matrix-breadth.md`.
+- [x] Add property tests for merge scoring, evidence update, parser robustness, event ordering, and online/offline state. The organized property test source exists; the previously named generated `output/lan-plan-proof/20-proof-gates-fixtures-rollout/01-property-test-breadth.md` artifact is absent and must be regenerated in Phase 3.
+- [ ] Regenerate proof matrix rows for ARP table, ARP sweep, mDNS, SSDP, IP-only merge avoidance, IP change, child confirmation, spoof rejection, offline, manual assignment, confidence explanation, and malformed packets. The previously named generated `output/lan-plan-proof/20-proof-gates-fixtures-rollout/02-proof-matrix-breadth.md` artifact is absent from the current checkout.
 - [x] Add a source-matrix proof row family for all 25 workpacks and discovery sources. The matrix is intentionally status-based: weak/manual sources are visible but cannot confirm child-agent identity or assign a child profile.
-- [x] Add visual snapshot proof for Devices/LAN, Activity/Network diagnostics, policy network targeting, and the current pairing/assignment/trust/ignore action surface. Current proof is present on this branch/worktree under `test-results/v0-9-lan-source-matrix-plan-completion/proof.json` and `output/playwright/lan-source-matrix-plan-completion/`.
-- [ ] Keep manual validation artifacts for Windows, macOS, Linux, router, Windows laptop, MacBook, Linux machine, iPhone, Android phone, TV, printer, Chromecast/Google TV, console where available, and child agent. Current Windows evidence is recorded in `output/lan-plan-proof/20-proof-gates-fixtures-rollout/03-windows-validation.md`; current Linux WSL evidence and Android tooling truth are recorded in `output/lan-plan-proof/20-proof-gates-fixtures-rollout/04-linux-wsl-validation.md`; physical non-Windows devices, router topology, and attached Android phone artifacts remain open.
+- [ ] Regenerate visual snapshot proof for Devices/LAN, Activity/Network diagnostics, policy network targeting, and the current pairing/assignment/trust/ignore action surface. The previously named `test-results/v0-9-lan-source-matrix-plan-completion/` and `output/playwright/lan-source-matrix-plan-completion/` roots are absent from the current clean checkout.
+- [ ] Keep manual validation artifacts for Windows, macOS, Linux, router, Windows laptop, MacBook, Linux machine, iPhone, Android phone, TV, printer, Chromecast/Google TV, console where available, and child agent. The previously named generated Windows and Linux/WSL paths are absent from the current checkout; all current manual artifacts must be regenerated and reviewed in Phase 3.
 
 ## Required Fixture Families
 
@@ -114,6 +114,12 @@ These are proof-routing fields, not implementation code prescriptions.
 - Coverage targets: core model, merge, classifier, and security logic at 90 percent or better; protocol parsers at 80 percent or better; critical UI flows covered by Playwright.
 - Performance gates cover neighbor read under 100 ms, `/24` ARP packet build under 50 ms, merge/classify 256 devices under 100 ms each, load 1000 stored devices under 500 ms, and UI render of 100 devices without freezing.
 - Runtime truth, read models, proof truth, and contract ownership remain Rust-owned throughout WP20. TS/UI proof only consumes those Rust-backed snapshots.
+
+The 2026-08-15 code-first audit therefore classifies WP20 as Phase 1
+incomplete. Existing fixture/property/performance/visual tests are retained,
+but all six aggregate verifier commands named by the current LAN docs point to
+absent scripts. Those programs must be restored or replaced before Phase 2 or
+proof regeneration.
 
 ## Failure conditions
 
