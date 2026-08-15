@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `main` organization
-baseline at `70485bc4a`. The dated
+baseline at `2eefb192e`. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -28,13 +28,13 @@ the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
 Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,951
-implementation files and 1,214 test files, but only **109 of 679 workpacks**
-(16.05%) have reviewed, exact code/test ownership maps. Account Identity,
+This is the key code-first limitation: live plan roots contain 2,966
+implementation files and 1,215 test files, but only **119 of 679 workpacks**
+(17.53%) have reviewed, exact code/test ownership maps. Account Identity,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
-Device Trust, Eventing, Parent Client Runtime Distribution,
+Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
 Payment/Subscription, Policy Control Plane, and Setup/Install/Provisioning are
-fully mapped; 570 workpacks across the repository
+fully mapped; 560 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -55,7 +55,7 @@ strong enough for workpack-level decisions.
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 426 / 131 | 9 / 9 | Fully code-mapped; WP08 is complete for its research/test-only scope, while eight workpacks retain concrete code/test gaps. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
-| Logging domain parity | 10 | 5/0/0/0/5/0 | 693 / 470 | 0 / 10 | Unattributed at workpack level despite current crate tests and CI. |
+| Logging domain parity | 10 | 5/0/0/0/5/0 | 127 / 49 | 10 / 10 | Fully code-mapped; WP01-WP04 and WP09 are Phase 1 complete, while five workpacks retain concrete expected-test or instrumentation-enforcement gaps. |
 | Network | 8 | 7/0/0/0/1/0 | 942 / 520 | 1 / 8 | Partial; WP08 reference routing is mapped. |
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 / 181 | 11 / 11 | Fully code-mapped; WP01, WP04, WP05, and WP09 are Phase 1 complete for their bounded scope, while seven workpacks retain concrete runtime or expected-test gaps. |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 13 / 13 | Fully code-mapped; WP00 is complete for Phase 1 code/expected-test writing, while twelve workpacks retain concrete code/test gaps. |
@@ -356,6 +356,34 @@ WP04, WP07, WP08, WP10, and WP11 retain concrete lifecycle-test, runtime,
 handoff, or release-gate gaps. The plan's ten document-claimed closures
 therefore do not establish child runtime or release completion. No Phase 2
 passing-test or Enforcer claim and no Phase 3 proof/PR_READY claim is inferred.
+
+### Logging Domain Parity Phase 1 code/test audit - 2026-08-15
+
+This audit follows the live TypeScript logging package, Rust logging core,
+portal and agent-service routing, deterministic evidence wrappers, MCP query
+server, lifecycle controls, and proof-trace test code. Historical proof roots
+and checklist marks were not used to decide whether implementation or expected
+tests exist. No mapped test is claimed passing until the Phase 2 rerun.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Current State And Reference Audit | Expected topology is `no-code-required`; the packet owns the reference/current-state inventory and routes implementation to the remaining workpacks. | **Complete for Phase 1** | No product implementation or test code is authorized by this audit-only packet. Its missing retained proof is Phase 3 work. |
+| WP02 TypeScript Logging Package Parity | Thirty-eight implementation files and twelve tests cover explicit parent scopes, core logger/config, bridge transport/server, NDJSON writers, DuckDB ingest/query, app logs, wipe/retention helpers, package exports, scripts, invalid payloads, fixture parity, and database/query behavior. | **Complete for Phase 1** | No missing package-parity code or expected test family was found. Focused execution remains Phase 2; the absent proof root remains Phase 3. |
+| WP03 Parent Logging Architecture And Routing | Seven implementation and four test files implement the portal-domain bridge-first logger with compatibility fallback, thin portal wrapper, live bridge receiver, logging-core-backed agent-service writer, structured startup diagnostics, and portal/Rust route tests. | **Complete for Phase 1** | The workpack prose is stale: the Rust-side mapping it calls open is present and test-mounted. A stale compatibility comment in `dev_log.rs` is documentation debt, not a missing runtime path. |
+| WP04 Rust Logging Core Crate | Fifty-two Rust/fixture implementation files and seventeen tests cover typed events/levels/sources/fields, NDJSON durability and recovery, artifacts, redaction, path safety, diagnostics/run records, snapshots, concurrency, subprocess recovery, TypeScript fixture parity, and the agent-service consumer. | **Complete for Phase 1** | No missing core implementation or expected test family was found. Cargo, clippy, consumer, and fixture reruns remain Phase 2. |
+| WP05 Local Validation Evidence | Eight implementation files and two tests provide `agent:run`, `agent:query`, `codex:evidence`, artifact/NDJSON/DuckDB storage, compact summaries, and parsers for rustc, clippy, Cargo tests, TypeScript, ESLint, npm, architecture, and no-reexport diagnostics. | **Incomplete** | The parser families have no direct fixture-driven unit matrix. Current tests prove run/command identity and a generic controlled failure, but do not exercise each required diagnostic grammar, duplicate aggregation, or malformed-line fallback. |
+| WP06 Validation And Enforcement | Four validator scripts and five nearby tests/smokes check package layout, exports, wrapper guidance, portal/service routing, local evidence, and invalid bridge payload handling. The current route checker recognizes the implemented portal-domain bridge-first path and logging-core delegation. | **Incomplete** | No fixture-based negative test invokes the validators against a missing bridge, an unimplemented endpoint, or missing exports/wrappers. Invalid payload rejection is tested, but the required validator failure matrix itself is unwritten. |
+| WP07 MCP Query Interface | Four implementation files and one integration suite expose all thirteen current tools, including errors, recent/source/context/query/stats, latest failures, run diagnostics, bounded artifact slices, proof inventory, and proof traces through a shared query service. | **Incomplete** | Integration tests exercise listing, latest failures, proof trace, artifact path/limit safety, and proof inventory, but do not call and assert the general errors/recent/source/context/query/stats/run-diagnostics tool families or the NDJSON fallback when DuckDB is absent/stale. |
+| WP08 Logger Instrumentation And Adoption | Twelve implementation and six test files cover registered TypeScript source/context/file metadata, the portal shared logger path, Rust logging-core delegation, structured agent-service startup fields, evidence run/command identities, storage/query preservation, and selected CLI/MCP visibility. | **Incomplete** | No checker or negative test prevents new raw console logging or ad hoc JSON log writers on touched production surfaces, and health/runtime diagnostic adoption remains narrower than the workpack's startup/health/dev target. The bounded instrumentation is real, but the expected enforcement code/tests are missing. |
+| WP09 Log Control Retention And Bridge Lifecycle | Ten implementation and seven tests cover separate console/storage decisions, always-stored warning/error levels, source/file/run debug selection, local/tunnel/disabled modes, scoped wipe, configurable retention, bridge health, run-start metadata, stale-run rejection, invalid payload rejection, and script behavior. | **Complete for Phase 1** | No missing lifecycle/control implementation or expected test family was found. Focused test execution and retained proof remain Phase 2/3. |
+| WP10 Proof Trace Pipeline | Six implementation and five test files provide proof/correlation fields, bridge run-start and stale wipe, ordered portal trace emission, flush, DuckDB ingest, CLI/MCP queries, missing-step reporting, and cleanup of proof-mode globals. | **Incomplete** | The query service computes `outOfOrderSteps`, but no test creates an out-of-order trace and asserts that failure. The happy path only proves the empty result, leaving one explicit negative behavior untested. |
+
+**Logging Domain Parity Phase 1 result:** all 10/10 workpacks now have
+reviewed code/test ownership. WP01-WP04 and WP09 are complete for the
+code-and-expected-test-writing phase. WP05-WP08 and WP10 retain concrete
+expected-test or instrumentation-enforcement gaps. The plan's source-present
+and partial-proof labels therefore do not establish Phase 1 completion, and no
+Phase 2 passing-test/Enforcer or Phase 3 proof/PR_READY claim is inferred.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 

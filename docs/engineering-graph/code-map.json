@@ -48,7 +48,30 @@
     ],
     "eventing-plan": ["crates/ocentra-eventing", "crates/agent-protocol", "crates/agent-service"],
     "lan-plan": ["crates/lan-core", "crates/agent-service", "crates/agent-core", "crates/schema", "apps/portal"],
-    "logging-domain-parity": ["crates/logging-core", "packages/logging-domain", "crates/agent-service", "apps/portal"],
+    "logging-domain-parity": [
+      "crates/logging-core",
+      "packages/logging-domain",
+      "scripts/dev/agent-run.mjs",
+      "scripts/dev/agent-query.mjs",
+      "scripts/dev/codex-evidence.mjs",
+      "scripts/dev/mcp-logging-server.mjs",
+      "scripts/dev/logging-proof-trace-smoke.mjs",
+      "scripts/dev/lib",
+      "scripts/check-logging-domain-parity.mjs",
+      "scripts/check-local-evidence-wrapper.mjs",
+      "scripts/check-dev-log-routing.mjs",
+      "scripts/check-logging-exports.mjs",
+      "scripts/test/logging-local-evidence-smoke.mjs",
+      "packages/portal-domain/src/dev-logger.ts",
+      "packages/portal-domain/src/dev-logger-impl.ts",
+      "apps/portal/src/dev-logger.ts",
+      "apps/portal/tests/logging",
+      "crates/agent-service/src/dev_log.rs",
+      "crates/agent-service/src/dev_log",
+      "crates/agent-service/src/service_runtime.rs",
+      "crates/agent-service/tests/unit/dev_log.rs",
+      "crates/agent-service/tests/unit/service_runtime.rs"
+    ],
     "network-plan": [
       "crates/network-core",
       "crates/ocentra-network-evidence",
@@ -1613,6 +1636,170 @@
       "planSlug": "eventing-plan",
       "codeExpectation": "tests-only",
       "roots": ["crates/ocentra-eventing/tests"]
+    },
+    "WP-logging-domain-parity-01-current-state-and-reference-audit": {
+      "planSlug": "logging-domain-parity",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-logging-domain-parity-02-typescript-logging-package-parity": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "packages/logging-domain/src/core",
+        "packages/logging-domain/src/test-log",
+        "packages/logging-domain/src/transport",
+        "packages/logging-domain/src/app-log",
+        "packages/logging-domain/src/parent-log-runtime.ts",
+        "packages/logging-domain/src/parent-log-runtime-bridge.ts",
+        "packages/logging-domain/src/parent-log-runtime-config.ts",
+        "packages/logging-domain/src/parent-log-runtime-level.ts",
+        "packages/logging-domain/src/parent-log-runtime-parsing.ts",
+        "packages/logging-domain/src/parent-log-runtime-policy.ts",
+        "packages/logging-domain/src/parent-log-runtime-route.ts",
+        "packages/logging-domain/src/parent-log-runtime-selection.ts",
+        "packages/logging-domain/src/parent-log-runtime-state.ts",
+        "packages/logging-domain/scripts",
+        "packages/logging-domain/tests/unit/bridge-convert.test.ts",
+        "packages/logging-domain/tests/unit/bridge-transport.test.ts",
+        "packages/logging-domain/tests/unit/dev-log-fixture.test.ts",
+        "packages/logging-domain/tests/unit/ensure-db-script.test.ts",
+        "packages/logging-domain/tests/unit/logs-tree.test.ts",
+        "packages/logging-domain/tests/unit/ndjson-brands.test.ts",
+        "packages/logging-domain/tests/unit/ndjson-log-file-writer.test.ts",
+        "packages/logging-domain/tests/unit/ndjson-writer.test.ts",
+        "packages/logging-domain/tests/unit/package-exports.test.ts",
+        "packages/logging-domain/tests/unit/query-test-logs-script.test.ts",
+        "packages/logging-domain/tests/unit/rebuild-db-script.test.ts",
+        "packages/logging-domain/tests/unit/test-log-duckdb.test.ts"
+      ]
+    },
+    "WP-logging-domain-parity-03-parent-logging-architecture-and-routing": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "packages/portal-domain/src/dev-logger.ts",
+        "packages/portal-domain/src/dev-logger-impl.ts",
+        "apps/portal/src/dev-logger.ts",
+        "packages/logging-domain/src/transport/bridgeServer.ts",
+        "crates/agent-service/src/dev_log.rs",
+        "crates/agent-service/src/dev_log",
+        "crates/agent-service/src/service_runtime.rs",
+        "apps/portal/tests/logging/portal-dev-log-route.test.ts",
+        "apps/portal/tests/logging/portal-dev-log-route.test.helpers.ts",
+        "crates/agent-service/tests/unit/dev_log.rs",
+        "crates/agent-service/tests/unit/service_runtime.rs"
+      ]
+    },
+    "WP-logging-domain-parity-04-rust-logging-core-crate": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "crates/logging-core",
+        "crates/agent-service/src/dev_log.rs",
+        "crates/agent-service/src/dev_log",
+        "crates/agent-service/tests/unit/dev_log.rs",
+        "packages/logging-domain/fixtures/dev-log-entry.json",
+        "packages/logging-domain/tests/unit/dev-log-fixture.test.ts"
+      ]
+    },
+    "WP-logging-domain-parity-05-local-validation-evidence": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "scripts/dev/agent-run.mjs",
+        "scripts/dev/agent-query.mjs",
+        "scripts/dev/codex-evidence.mjs",
+        "scripts/dev/lib/agent-artifacts.mjs",
+        "scripts/dev/lib/agent-diagnostic-parsers.mjs",
+        "scripts/dev/lib/agent-evidence-db.mjs",
+        "scripts/dev/lib/agent-log-paths.mjs",
+        "scripts/dev/lib/agent-summary-format.mjs",
+        "scripts/test/logging-local-evidence-smoke.mjs",
+        "packages/logging-domain/tests/unit/agent-evidence-scripts.test.ts"
+      ]
+    },
+    "WP-logging-domain-parity-06-validation-and-enforcement": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "scripts/check-logging-domain-parity.mjs",
+        "scripts/check-local-evidence-wrapper.mjs",
+        "scripts/check-dev-log-routing.mjs",
+        "scripts/check-logging-exports.mjs",
+        "scripts/test/logging-local-evidence-smoke.mjs",
+        "packages/logging-domain/tests/unit/agent-evidence-scripts.test.ts",
+        "packages/logging-domain/tests/unit/bridge-transport.test.ts",
+        "packages/logging-domain/tests/unit/logging-scripts.test.ts",
+        "apps/portal/tests/logging/portal-dev-log-route.test.ts"
+      ]
+    },
+    "WP-logging-domain-parity-07-mcp-query-interface": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "scripts/dev/mcp-logging-server.mjs",
+        "scripts/dev/agent-query.mjs",
+        "scripts/dev/codex-evidence.mjs",
+        "scripts/dev/lib/log-query-service.mjs",
+        "scripts/dev/lib/log-query-service.d.mts",
+        "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
+      ]
+    },
+    "WP-logging-domain-parity-08-logger-instrumentation-and-adoption": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "packages/logging-domain/src/core/logger.ts",
+        "packages/logging-domain/src/core/stackTrace.ts",
+        "packages/logging-domain/src/core/stackTraceParser.ts",
+        "packages/portal-domain/src/dev-logger.ts",
+        "packages/portal-domain/src/dev-logger-impl.ts",
+        "apps/portal/src/dev-logger.ts",
+        "crates/agent-service/src/dev_log.rs",
+        "crates/agent-service/src/dev_log",
+        "crates/agent-service/src/service_runtime.rs",
+        "scripts/dev/agent-run.mjs",
+        "scripts/dev/agent-query.mjs",
+        "scripts/dev/codex-evidence.mjs",
+        "packages/logging-domain/tests/unit/logger.test.ts",
+        "packages/logging-domain/tests/unit/stack-trace-parser.test.ts",
+        "apps/portal/tests/logging/portal-dev-log-route.test.ts",
+        "apps/portal/tests/logging/portal-dev-log-route.test.helpers.ts",
+        "crates/agent-service/tests/unit/dev_log.rs",
+        "crates/agent-service/tests/unit/service_runtime.rs"
+      ]
+    },
+    "WP-logging-domain-parity-09-log-control-retention-bridge-lifecycle": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "packages/logging-domain/src/core/logConfig.ts",
+        "packages/logging-domain/src/core/logDecisionProvider.ts",
+        "packages/logging-domain/src/test-log/wipeNdjsonScope.ts",
+        "packages/logging-domain/src/test-log/testLogRetention.ts",
+        "packages/logging-domain/src/app-log/appNdjsonWriter.ts",
+        "packages/logging-domain/src/transport/bridgeServer.ts",
+        "packages/logging-domain/src/transport/bridgeTransport.ts",
+        "packages/logging-domain/scripts/log-bridge.ts",
+        "packages/logging-domain/scripts/wipe-logs.ts",
+        "packages/logging-domain/scripts/retention-logs.ts",
+        "packages/logging-domain/tests/unit/log-decision-provider.test.ts",
+        "packages/logging-domain/tests/unit/wipe-ndjson-scope.test.ts",
+        "packages/logging-domain/tests/unit/wipe-logs-script.test.ts",
+        "packages/logging-domain/tests/unit/retention-cleanup.test.ts",
+        "packages/logging-domain/tests/unit/retention-logs-script.test.ts",
+        "packages/logging-domain/tests/unit/bridge-run-lifecycle.test.ts",
+        "packages/logging-domain/tests/unit/bridge-transport.test.ts"
+      ]
+    },
+    "WP-logging-domain-parity-10-proof-trace-pipeline": {
+      "planSlug": "logging-domain-parity",
+      "roots": [
+        "packages/portal-domain/src/dev-logger.ts",
+        "packages/portal-domain/src/dev-logger-impl.ts",
+        "apps/portal/src/dev-logger.ts",
+        "scripts/dev/lib/log-query-service.mjs",
+        "scripts/dev/mcp-logging-server.mjs",
+        "scripts/dev/logging-proof-trace-smoke.mjs",
+        "apps/portal/tests/logging/portal-proof-trace.test.ts",
+        "apps/portal/tests/logging/portal-proof-trace-pipeline.test.ts",
+        "apps/portal/tests/logging/portal-proof-trace-pipeline.test.helpers.ts",
+        "apps/portal/tests/logging/portal-proof-trace-pipeline.query.helpers.ts",
+        "packages/logging-domain/tests/integration/mcp-query-interface.test.ts"
+      ]
     }
   }
 }
