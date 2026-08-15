@@ -163,6 +163,21 @@
         "packages/schema-domain/src/policy.ts"
       ]
     },
+    "WP-policy-control-plane-plan-03-domain-policy-compilers": {
+      "planSlug": "policy-control-plane-plan",
+      "roots": [
+        "crates/policy-control-core/src/policy_compiler.rs",
+        "crates/policy-control-core/src/policy_contract_helpers_ts.rs",
+        "crates/policy-control-core/src/policy_contract_helpers_ts.contracts.txt",
+        "crates/policy-control-core/tests/unit/policy_compiler.rs",
+        "crates/policy-control-core/tests/unit/policy_contract_helpers.rs",
+        "crates/policy-control-core/tests/version-skew/policy_compiler.rs",
+        "packages/schema-domain/src/generated-policy-control-helpers-contracts.ts",
+        "packages/schema-domain/src/generated-policy-control-helpers.ts",
+        "packages/schema-domain/src/policy-contracts.ts",
+        "packages/schema-domain/src/policy.ts"
+      ]
+    },
     "WP-policy-control-plane-plan-07-schedule-time-budget-conflict-model": {
       "planSlug": "policy-control-plane-plan",
       "roots": [
