@@ -90,6 +90,38 @@
         "infra/cloudflare/tests/unit/env-bindings.test.ts"
       ]
     },
+    "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration": {
+      "planSlug": "account-identity-family-plan",
+      "roots": [
+        "crates/schema/src/family_reference_primitives_ts.rs",
+        "crates/schema/src/family_reference_primitives.template.txt",
+        "crates/schema/src/family_references_ts.rs",
+        "crates/schema/src/family_references.template.txt",
+        "crates/schema/tests/contract/family_reference_primitives.rs",
+        "crates/schema/tests/contract/family_references.rs",
+        "packages/schema-domain/src/generated-family-reference-primitives.ts",
+        "packages/schema-domain/src/generated-family-references.ts",
+        "crates/family-identity-core/src/family_identity.rs",
+        "crates/family-identity-core/src/family_identity",
+        "crates/family-identity-core/src/family_identity_text_ids.rs",
+        "crates/family-identity-core/src/family_identity_contract_text.rs",
+        "crates/family-identity-core/src/family_identity_helpers.rs",
+        "crates/family-identity-core/src/family_identity_profiles.rs",
+        "crates/family-identity-core/src/family_identity_profiles_validation.rs",
+        "crates/family-identity-core/src/family_identity_setup_records.rs",
+        "crates/family-identity-core/src/household_authority.rs",
+        "crates/family-identity-core/src/household_authority_validation.rs",
+        "crates/family-identity-core/src/household_authority_proof.rs",
+        "crates/family-identity-core/src/setup_lifecycle.rs",
+        "crates/family-identity-core/src/setup_lifecycle_validation.rs",
+        "crates/family-identity-core/src/session_lifecycle.rs",
+        "crates/family-identity-core/tests/contract/family_identity_contracts.rs",
+        "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
+        "crates/family-identity-core/tests/unit/household_authority.rs",
+        "crates/family-identity-core/tests/unit/setup_lifecycle.rs",
+        "crates/family-identity-core/tests/unit/session_lifecycle.rs"
+      ]
+    },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
       "roots": [
