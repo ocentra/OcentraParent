@@ -214,6 +214,23 @@
         "crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs"
       ]
     },
+    "WP-data-custody-storage-plan-05-export-import-backup-recovery": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/export_import_backup_recovery.rs",
+        "crates/schema/src/export_import_backup_recovery",
+        "crates/schema/tests/contract/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_build.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_logic.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_rejection.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_response.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_import_sections.rs",
+        "crates/storage-custody-core/src/export_import_backup_recovery_restore.rs",
+        "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs"
+      ]
+    },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
       "roots": [

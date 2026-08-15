@@ -48,7 +48,7 @@ strong enough for workpack-level decisions.
 | Browser | 30 | 30/0/0/0/0/0 | 620 / 452 | 0 / 30 | Unattributed. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 33 / 10 | 0 / 11 | Unattributed; Windows service/package remains graph-blocked. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 0 / 13 | Unattributed; source presence is not deployment/runtime completion. |
-| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 5 / 9 | Partial; WP01-WP04 and WP07 are mapped. WP04 is Phase 1 complete; WP01-WP03 remain incomplete. |
+| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 / 410 | 6 / 9 | Partial; WP01-WP05 and WP07 are mapped. WP04 is Phase 1 complete; WP01-WP03/WP05 remain incomplete. |
 | Device trust bootstrap | 9 | 1/2/0/0/6/0 | 307 / 104 | 1 / 9 | Partial; WP08 dependency review is mapped, runtime lifecycle remains open. |
 | Eventing | 13 | 1/0/0/0/11/1 | 777 / 492 | 13 / 13 | Fully code-mapped; Phase 1 is complete for 3 workpacks and incomplete for 10. Only WP06 is graph-done. |
 | LAN | 25 | 0/0/0/0/25/0 | 1,370 / 638 | 0 / 25 | Unattributed; validation labels do not prove paired-device completion. |
@@ -112,11 +112,12 @@ run is named.
 | WP02 Encryption Key Custody | Five Rust implementation/contract files and two test files cover platform rows, household/device mismatch, revoked/lost keys, hosted portal, universal-key rejection, mobile proof, and recovery states. | **Incomplete** | The decrypt decision carries `requested_scope` but never checks it against the selected platform row's `decrypt_authority`; a child-service row can therefore authorize a parent-owned-bundle request when caller-supplied match flags are true. No cross-scope authority negative test exists. |
 | WP03 Parent Owned Cloud Sync | Rust schema/generator and storage-custody derivation modules plus three Rust test files cover provider modes, ready/revoked refs, manifest integrity, conflict/retry state, tombstone separation, and no-default-Ocentra claims. | **Incomplete** | The claimed TypeScript contract/validation modules, TypeScript contract test, and manifest proof runner do not exist on `main`. Rust tests do not directly cover the declared wrong-account, folder-unavailable, partial-upload, provider-disconnect, and provider-delete visibility matrix. |
 | WP04 Retention Delete Tombstone | Rust schema, state-machine, proof-builder, durable typed outbox, and three test files cover all nine required states, wrong-role/expiry negatives, ordering/duplicates, redaction-before-propagation, replay/restore blocking, minimal audit, hard delete, durable reopen/concurrency/migration, corrupt metadata, incoherent actions, and unknown acknowledgement. | **Complete for Phase 1** | No missing shared-boundary code/test-writing gap found. Concrete child-service startup composition remains a WP07 integration gap; provider/device propagation stays an adjacent-owner runtime boundary. |
+| WP05 Export Import Backup Recovery | Rust schema, bundle builder, import preflight, restore/apply derivation, and two test files cover encrypted sections, integrity, redacted summaries, non-mutating/partial preview, wrong household/key/corrupt/expired/duplicate/migration negatives, confirmation, tombstone preservation, idempotency, and no support decrypt. | **Incomplete** | The in-scope backup cadence/manual-backup contract is absent. Supported migration is only a preflight label; no migration execution/rollback state machine or named migration-rollback test exists. Actual restore mutation remains outside this derivation-only surface. |
 
-**Data Custody Phase 1 result so far:** 4/9 workpacks inspected and newly
+**Data Custody Phase 1 result so far:** 5/9 workpacks inspected and newly
 mapped in this audit; WP04 is complete for code/test-writing scope, while
-WP01-WP03 still need code or expected tests. WP05 is next in the plan's
-declared dependency order.
+WP01-WP03 and WP05 still need code or expected tests. WP06 is next in the
+plan's declared dependency order.
 
 ## Consolidated branch code/test inventory - 2026-08-09
 
