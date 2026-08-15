@@ -231,6 +231,32 @@
         "crates/storage-custody-core/tests/unit/export_import_backup_recovery.rs"
       ]
     },
+    "WP-data-custody-storage-plan-06-report-query-custody": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/report_query_custody.rs",
+        "crates/schema/src/report_query_custody",
+        "crates/schema/src/report_query_custody_ts.rs",
+        "crates/schema/src/report_query_custody_contracts.template.txt",
+        "crates/schema/src/report_query_custody_contract_rules.request.template.txt",
+        "crates/schema/src/report_query_custody_contract_rules.state.template.txt",
+        "crates/schema/src/report_query_custody_contract_rules.proof.template.txt",
+        "crates/schema/src/bin/export_report_query_custody_contract_types.rs",
+        "crates/schema/tests/contract/report_query_custody.rs",
+        "crates/schema/tests/contract/report_query_custody_generated.rs",
+        "crates/storage-custody-core/src/report_query_custody.rs",
+        "crates/storage-custody-core/src/report_query_custody_proof.rs",
+        "crates/storage-custody-core/src/report_query_custody_row.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state_required.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state_shared.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_state_terminal.rs",
+        "crates/storage-custody-core/src/report_query_custody_row_validate.rs",
+        "crates/storage-custody-core/tests/unit/report_query_custody.rs",
+        "packages/schema-domain/src/generated-report-query-custody-contracts.ts",
+        "packages/schema-domain/src/generated-report-query-custody-contract-rules.ts"
+      ]
+    },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
       "roots": [
