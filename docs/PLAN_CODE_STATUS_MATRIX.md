@@ -23,23 +23,25 @@ remote tip. The only registered OcentraParent worktree is `E:/OcentraParent`;
 short-lived audit branch names are intentionally not status authority here.
 AI's 48-workpack audit reached `main` through PRs `#700`, `#701`, and `#702`;
 Tracking's 42-workpack audit reached `main` through PRs `#703`, `#704`, and
-`#705`.
+`#705`. App's 95-workpack audit is the current integration candidate: every
+workpack now has reviewed code/test ownership and a code-backed Phase 1
+classification in `docs/plans/app-plan/CODE_AUDIT.md`.
 
 The executable graph validates at 703 nodes and 705 edges. It imports **23**
 actual plan rows and 679 workpacks. The earlier apparent count of 24 included
 the Markdown table header in `PLAN_INDEX.md`; no plan directory is missing.
-Current derived state is 452 planned, 9 blocked, 0 ready, 1 active, 216 in
+Current derived state is 376 planned, 9 blocked, 0 ready, 1 active, 292 in
 validation, and 1 done.
 
-This is the key code-first limitation: live plan roots contain 2,704
-implementation files and 1,118 test files, but only **365 of 679 workpacks**
-(53.76%) have reviewed, exact code/test ownership maps. Account Identity, AI,
-Browser, LAN,
+This is the key code-first limitation: live plan roots contain 2,764
+implementation files and 1,133 test files, but only **459 of 679 workpacks**
+(67.60%) have reviewed, exact code/test ownership maps. Account Identity, AI,
+App, Browser, LAN,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
 Payment/Subscription, Policy Control Plane, Portal UX/Household Surfaces,
 Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, Tracking,
-and V0.8 Enforcement are fully mapped; 314 workpacks across the repository
+and V0.8 Enforcement are fully mapped; 220 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -52,7 +54,7 @@ strong enough for workpack-level decisions.
 | Account identity/family | 8 | 1/0/0/0/7/0 | 159 / 82 | 8 / 8 | Fully code-mapped; all eight remain incomplete for Phase 1 code/expected-test writing. |
 | AI | 48 | 46/0/0/0/2/0 | 118 / 39 | 48 / 48 | Fully code-mapped; 11 workpacks are Phase 1 complete for bounded scope and 37 retain concrete production-code or expected-test gaps. |
 | App/game | 220 | 132/0/0/0/88/0 | 688 / 436 | 0 / 220 | Unattributed; the large validation set cannot be treated as implemented. |
-| App | 95 | 94/0/0/0/1/0 | 670 / 421 | 1 / 95 | Partial; WP01 contract/runtime-decision roots are mapped. |
+| App | 95 | 18/0/0/0/77/0 | 114 / 55 | 95 / 95 | Fully code-mapped; 77 bounded workpacks have no Phase 1 source/expected-test writing gap and 18 retain concrete compiler, durability, runtime, UI, notification, performance, or followthrough gaps. |
 | Browser | 30 | 30/0/0/0/0/0 | 72 / 13 | 30 / 30 | Fully code-mapped; 14 executable workpacks are Phase 1 complete for bounded scope, 10 retain concrete code/test gaps, and six imported packets are reference-only. |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 / 10 | 11 / 11 | Fully code-mapped; WP01, WP02, WP05, WP06, and WP09 are Phase 1 complete for their bounded scope, while six workpacks retain runtime, lifecycle-test, handoff, or release-gate gaps. |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 / 63 | 13 / 13 | Fully code-mapped; WP00-WP02 and WP04 are Phase 1 complete, while nine workpacks retain concrete code/test gaps. |
@@ -743,7 +745,7 @@ derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 452 | 9 | 0 | 1 | 216 | 1 |
+| 376 | 9 | 0 | 1 | 292 | 1 |
 
 ### Graph-derived plan/workpack matrix
 
@@ -758,7 +760,7 @@ than one plan; they are not completion percentages.
 | Account identity/family | 8 | 1/0/0/0/7/0 | 159 | 82 |
 | AI | 48 | 46/0/0/0/2/0 | 118 | 39 |
 | App/game | 220 | 132/0/0/0/88/0 | 688 | 436 |
-| App | 95 | 94/0/0/0/1/0 | 670 | 421 |
+| App | 95 | 18/0/0/0/77/0 | 114 | 55 |
 | Browser | 30 | 30/0/0/0/0/0 | 72 | 13 |
 | Child-agent runtime distribution | 11 | 0/1/0/0/10/0 | 88 | 10 |
 | Cloudflare control plane | 13 | 13/0/0/0/0/0 | 183 | 63 |
@@ -780,9 +782,11 @@ than one plan; they are not completion percentages.
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 901 | 498 |
 
 The graph validates at 703 nodes and 705 edges, with 34 migration/dependency
-review items. The live map now covers 365 of 679 workpacks. Tracking contributes
-42 reviewed maps: 24 bounded packets are Phase 1 complete and 18 retain concrete
-production-code or expected-test gaps. Graph states remain separate
+review items. The live map now covers 459 of 679 workpacks. App contributes 95
+reviewed maps: 77 bounded packets have no Phase 1 source/expected-test writing
+gap and 18 retain concrete gaps. Tracking contributes 42 reviewed maps: 24
+bounded packets are Phase 1 complete and 18 retain concrete production-code or
+expected-test gaps. Graph states remain separate
 from that code-first classification. Historical
 source/test rows are now classified as `validation` instead of being counted
 as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
@@ -807,7 +811,7 @@ gates.
 | Account identity/family | `family-identity-core` 43/23, `provisioning-core` 9/7, `storage-custody-core` 78/16 source/test files. | Core authority/custody exists; Cloudflare binding/migration and real provider/runtime routes remain separate work. |
 | AI | `child-ai-core` 3/2 and `screen-ai-core` 20/3, joined through the shared agent/eventing stack. | Foundation only; next is one typed AI-result-to-policy consumer with negative safety coverage. |
 | App/game | `app-game-core` 21/15 plus service adapters/read models. | Integration source exists; choose one live Windows capture-to-read-model path before treating any customer control path as ready. |
-| App | `app-core` 3/5 plus shared agent-service integration and the versioned runtime-decision contract slice. | WP01 runtime-decision envelope/tuple sub-slice is code/test/proof/CI/main-merge verified; the broader workpack and app identity/evidence/session/service path remain open. |
+| App | `app-core`, `app-game-core`, `agent-protocol`, `agent-core`, `agent-service`, schema/generated contracts, parent runtime, and portal now have 95 exact reviewed workpack maps. | Seventy-seven bounded workpacks have their Phase 1 source and expected tests written. Eighteen remain incomplete: WP15-WP20, WP26, WP48-WP49, WP58-WP65, and WP102. See `docs/plans/app-plan/CODE_AUDIT.md`; Phase 2 tests, Enforcer, proof, and release acceptance remain separate. |
 | Browser | `browser-core` 33/20 plus service policy/adapter surfaces. | Integration source exists; managed command, adapter result, rollback, and parent-visible state are not a closed product path. |
 | Child runtime distribution | `child-runtime` 31/9 plus service/protocol sources. | Runtime source exists; Windows service lifecycle/package smoke remains the next physical blocker. |
 | Cloudflare control plane | `infra/cloudflare` 20/29 worker source/test files. | Local worker/contract source exists; deployment, account binding/migration, and payment runtime are not proven. |
@@ -990,7 +994,7 @@ proof artifact, checklist row, and merge state agree.
 | --- | --- | --- | --- | --- | --- |
 | `account-identity-family-plan` | Foundation | `family-identity-core`, `provisioning-core`, `entitlement-core`, `schema`, narrow `infra/cloudflare` D1 adapter | Family identity has 13 source / 7 test files; setup and signed-entitlement paths exist. Merged [#632](https://github.com/ocentra/OcentraParent/pull/632) adds only a retained, optional/manual-required provider-subject mapping adapter with D1-shaped tests; the old #607 TypeScript test-double remains closed-unmerged and is not authority evidence. | Account WP08 Rust schema/account-authority proof is merged, but Cloudflare WP06 D1/DO/KV binding/migration proof, Cloudflare WP08 runner proof, external provider verification, and account runtime routes remain absent; Account WP06 is reopened to aggregate the required handoffs. | Keep #632's narrow custody boundary fail-closed; execute Cloudflare WP06 then WP08 from the Account WP08 handoff, prove deployment/migration and runtime routes, then rerun Account WP06 only after all required inputs are green. Any missing input remains a payment/policy/remote/device-trust scheduling block. |
 | `ai-plan` | Fully audited / Phase 1 incomplete | `agent-protocol`, `agent-core`, `agent-service`, `child-ai-core`, `screen-ai-core`, browser/app-game/tracking evidence owners, portal-domain, portal | All 48 workpacks now have reviewed topology: 118 implementation and 39 test files in the narrowed plan roots. Eleven workpacks have bounded Phase 1 code/expected tests written. Real foundations include configured local `llama.cpp` execution, singleton scheduling, household LAN claim/lease/idempotency, Activity memory graph, tracking AI validation, Parent Assistant boundaries, and portal AI runtime cards. | Thirty-seven workpacks retain code/test gaps. Highest-impact missing systems are the canonical general AI contract family, durable general work lifecycle, SQLite-backed context/result journal, semantic memory, verified model artifact installer, owned OCR/VLM workers, unified explanation surface, trusted remote authorization/adapter, and complete security/performance tests. | Finish WP03/WP04, WP07, WP09/WP12, and WP14-WP19 in dependency order before memory/model/screen/feature closeout; run Phase 2 and Phase 3 only after the corresponding Phase 1 rows are complete. |
-| `app-plan` | Foundation | `app-core`, `agent-service`, `schema` | `app-core` has 3 source / 5 test files; service owns wider integration. | App-only authority and runtime evidence are incomplete. | Make app identity/evidence flow a single Rust-owned service path. |
+| `app-plan` | Fully audited / Phase 1 incomplete | `app-core`, `app-game-core`, `agent-protocol`, `agent-core`, `agent-service`, schema/generated contracts, `parent-runtime-core`, portal-domain, portal | All 95 workpacks have reviewed ownership. Seventy-seven bounded workpacks have source and expected tests written across Windows inventory/process/foreground capture, journal/SQLite/sessionization, freshness/read models, policy/timer models, runtime capture, enforcement, and parent-facing projections. | Eighteen workpacks remain incomplete: portal inventory/session rendering; durable unknown-app review and risk lifecycles; a real policy compiler/routing owner; integrated child warning/budget flows; notification durability/delivery/preferences; performance harnesses; and the missing WP102 parent-domain followthrough step. | Implement WP18/WP49 first, then WP16/WP17, WP19/WP20, WP58-WP65, UI/performance gaps, and WP102. Run Phase 2 only after each writing gap closes; proof is Phase 3. |
 | `app-game-plan` | Integration | `app-game-core`, `agent-service`, `schema` | 25 source / 20 test files; inventory, runtime, journal, and policy code exist. | Live platform metadata/crawling and portal product rows are incomplete. | Finish one live Windows app/game capture-to-read-model path. |
 | `browser-plan` | Fully audited / Phase 1 incomplete | `agent-protocol`, `agent-core`, `agent-service`, `browser-core`, schema-domain, portal-domain, portal, Android owned shell | All 30 imported packets have reviewed ownership. Fourteen executable workpacks have bounded code/expected tests written; contracts, Windows inventory, managed launch, custody/CDP mapping, durable ingest/read models, policy manifest/compiler, and unmanaged detection are real. | Ten workpacks still lack cross-platform inventory, corrupt/concurrent profile-store negatives, active-focus evidence, complete portal status tests, trusted managed/unmanaged action execution, live AppLocker control, extension integration, health/load harnesses, or aggregate E2E. | Complete WP05/WP06 and WP11 first, then WP17/WP19; finish WP14 and WP20-WP23 before Phase 2 focused execution and Phase 3 proof. |
 | `child-agent-runtime-distribution-plan` | Fully audited / Phase 1 incomplete | `child-runtime`, Rust schema/child-enforcement contracts, Android/iOS child apps, desktop package/service scripts, CI/release workflows | All 11 workpacks have reviewed code/test ownership. Windows lifecycle harness, Android emulator lifecycle, iOS capability package, platform matrix, and all five package builders are real. | Six workpacks still lack real-host lifecycle tests, executable respawn, parent-authorized uninstall runtime, a consumed setup/trust handoff, or a complete multi-platform release gate; several migrated Enforcer proof runners target deleted files. | Complete macOS/Linux lifecycle tests first, then respawn/uninstall and setup-handoff runtime paths, and close with the aggregate multi-platform release gate. |
@@ -1026,7 +1030,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `account-identity-family-plan` | 8 | 5 | 3 | 0 | Checklist now has 90/103 checked: WP01 remains partial. Merged #632 adds retained D1 storage-adapter proof, but no checklist row changes because token verification, runtime routes, authority, deployment/migration, and WP01 acceptance remain open. Account WP08 is 0/9 open for Rust-schema/account-authority proof, and WP06 is reopened at 14/18 to aggregate Account WP08 plus Cloudflare WP06/WP08 evidence. PR #607's TS adapter/D1-test-double is not a workpack closure. |
 | `ai-plan` | 48 | 2 | 46 | 0 | Fully mapped from live source/tests. Eleven workpacks are Phase 1 complete for bounded code/test scope; 37 retain concrete production-code or expected-test gaps. WP01/WP02 now close the source-reconciliation/snapshot documentation work; the remaining checkbox split still does not describe implementation maturity. |
 | `app-game-plan` | 88 | 54 | 34 | 0 | The remaining 34 are only `possibly done`; audit before implementation. |
-| `app-plan` | 95 | 0 | 95 | 0 | Reconciliation rows overlap app/game heavily; deduplicate before delegation. |
+| `app-plan` | 95 | 0 | 95 | 0 | Fully mapped from live code/tests. Seventy-seven bounded workpacks have no Phase 1 source/expected-test writing gap; WP15-WP20, WP26, WP48-WP49, WP58-WP65, and WP102 remain incomplete. This is code/test maturity, not proof or product acceptance. |
 | `browser-plan` | 24 | 0 | 24 | 0 | Fully mapped from live code/tests. Fourteen executable workpacks are Phase 1 complete for bounded scope; ten retain concrete product-code or expected-test gaps. Six additional imported packets are reference-only and excluded from the 24 execution rows. |
 | `child-agent-runtime-distribution-plan` | 11 | 10 | 1 | 0 | Fully mapped from live code/tests. Five workpacks are Phase 1 complete for bounded scope; six retain concrete lifecycle/runtime/handoff/release-gate gaps despite ten index-level completion labels. |
 | `cloudflare-control-plane-plan` | 13 | 0 | 13 | 0 | Fully mapped from live source/tests. WP00-WP02 and WP04 are Phase 1 complete for code/expected-test writing; no proof row is freshly reverified, and WP03 plus WP05-WP12 have concrete Phase 1 gaps. |

@@ -16,14 +16,20 @@
 
 This is the short, token-efficient entry point for native app identity, installed inventory, process/runtime, foreground app evidence, app-only policy targets, app catalog/settings, and legacy app-plan reconciliation.
 
+Current code-first authority: [CODE_AUDIT.md](CODE_AUDIT.md), audited
+2026-08-15. All 95 workpacks are mapped; 77 have no bounded Phase 1
+source/test-writing gap and 18 remain incomplete. Historical checkboxes and
+legacy package/script paths do not override that audit.
+
 ## Default Agent Path
 
 1. Read [AGENTS.md](AGENTS.md).
 2. Read [PLAN_STATE.md](PLAN_STATE.md).
-3. Read [NEXT_ACTIONS.md](NEXT_ACTIONS.md) when starting or resuming.
-4. Read [WORKPACK_INDEX.md](WORKPACK_INDEX.md) and select one workpack.
-5. Read [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) after the workpack is known.
-6. Use [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) and [PROOF_INDEX.md](PROOF_INDEX.md) only for named rows/artifacts.
+3. Read [CODE_AUDIT.md](CODE_AUDIT.md) for actual source/test state.
+4. Read [NEXT_ACTIONS.md](NEXT_ACTIONS.md) when starting or resuming.
+5. Read [WORKPACK_INDEX.md](WORKPACK_INDEX.md) and select one workpack.
+6. Read [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) after the workpack is known.
+7. Use [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) and [PROOF_INDEX.md](PROOF_INDEX.md) only for named rows/artifacts.
 
 ## Default No-Read Boundary
 
