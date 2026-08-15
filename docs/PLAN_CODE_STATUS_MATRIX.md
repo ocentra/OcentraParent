@@ -5,7 +5,7 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 checklists.
 
 Last broad source inventory: 2026-08-15, on the merged `develop` organization
-baseline at `259bb9ec6` (tree-equal to `main` at `8dcc20214`). The dated
+baseline at `397bcff49` (tree-equal to `main` at `0048bcc22`). The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -29,12 +29,12 @@ Current derived state is 453 planned, 9 blocked, 0 ready, 1 active, 215 in
 validation, and 1 done.
 
 This is the key code-first limitation: live plan roots contain 2,966
-implementation files and 1,216 test files, but only **201 of 679 workpacks**
-(29.60%) have reviewed, exact code/test ownership maps. Account Identity,
+implementation files and 1,216 test files, but only **221 of 679 workpacks**
+(32.55%) have reviewed, exact code/test ownership maps. Account Identity,
 Child Agent Runtime Distribution, Cloudflare Control Plane, Data Custody,
 Device Trust, Eventing, Logging Domain Parity, Parent Client Runtime Distribution,
-Payment/Subscription, Policy Control Plane, Remote Access, Network, Screen AI,
-Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 478 workpacks across the repository
+Payment/Subscription, Policy Control Plane, Portal UX/Household Surfaces,
+Remote Access, Network, Screen AI, Screen, Setup/Install/Provisioning, and V0.8 Enforcement are fully mapped; 458 workpacks across the repository
 remain unmapped. An unmapped workpack is
 therefore **unattributed**, not proven absent and not proven implemented. Do not
 turn the graph state or a checklist mark into a code-completion percentage.
@@ -60,7 +60,7 @@ strong enough for workpack-level decisions.
 | Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 497 / 181 | 11 / 11 | Fully code-mapped; WP01, WP04, WP05, and WP09 are Phase 1 complete for their bounded scope, while seven workpacks retain concrete runtime or expected-test gaps. |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 / 39 | 13 / 13 | Fully code-mapped; WP00 is complete for Phase 1 code/expected-test writing, while twelve workpacks retain concrete code/test gaps. |
 | Policy control plane | 8 | 0/2/0/0/6/0 | 911 / 481 | 8 / 8 | Fully code-mapped; WP03 is Phase 1 complete and seven workpacks retain concrete code/test gaps. |
-| Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 683 / 448 | 0 / 20 | Unattributed. |
+| Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 974 / 531 | 20 / 20 | Fully code-mapped; 9 workpacks have no Phase 1 writing gap in their bounded scope, while 11 retain concrete product-code or expected-test gaps. |
 | Remote access | 6 | 4/0/0/0/2/0 | 35 / 19 | 6 / 6 | Fully code-mapped; WP01 and proof-only WP06 have no Phase 1 writing gap, while WP02-WP05 retain concrete runtime, deferred-control, persistence, or relay-security gaps. |
 | Screen AI pipeline | 10 | 10/0/0/0/0/0 | 124 / 33 | 10 / 10 | Fully code-mapped; prerequisite routing is the only bounded Phase 1 row without a writing gap. WP02-WP10 retain production-composition, authority, durability, custody-negative, performance-test, or missing executable-harness gaps. |
 | Screen | 43 | 25/0/0/0/18/0 | 95 / 26 | 43 / 43 | Fully code-mapped; 9 of 40 executable workpacks are complete for bounded Phase 1 code/expected-test writing, 31 retain concrete gaps, and three imported reference packets own no executable code. |
@@ -224,6 +224,47 @@ production code or expected tests. The first dependency chain is WP11 durable
 transition-family completion -> WP04 trusted dispatch authority -> WP05/WP06
 action handoffs -> WP13 aggregate service state -> WP14/WP19 product surfaces.
 Proof regeneration remains Phase 3 and cannot close those code gaps.
+
+### Portal UX / Household Surfaces Phase 1 code/test audit - 2026-08-15
+
+This audit follows the current portal, portal-domain, parent-runtime bridge,
+mobile shell, package, workflow, and focused test source. It does not treat a
+rendered proof panel, fixture, screenshot helper, or checked workpack row as a
+finished product path. Graph topology satisfaction means the reviewed roots
+exist; the Phase 1 decision also checks whether the workpack's named product
+behavior and expected negative-test families are written. No Phase 2 test-pass,
+Enforcer, Phase 3 proof, CI, or whole-plan completion claim is made here.
+
+| Workpack | Reviewed live code/test evidence | Phase 1 | Concrete code/test gap |
+| --- | --- | --- | --- |
+| WP01 Service-Backed Shell And Navigation | Portal shell, HostBridge, Rust-owned route/status snapshots, service-state decoding, and focused bridge/state tests are real. | **Incomplete** | The shell has no focused unauthenticated and no-household tests and derives access from LAN controller authority; it can fall back to proof-missing instead of owning the required authenticated household boundary. |
+| WP02 Household First-Run And Profiles | A Rust-backed setup status panel, route snapshot, portal renderer, unit tests, and a screenshot E2E exist. | **Incomplete** | The Rust builder explicitly reports account/provider/trust/custody as not wired. There is no live first-run state machine, profile creation/selection, or transition/action test family. |
+| WP03 Device Inventory And Source States | LAN/service read models feed portal device inventory and evidence/source states; focused Rust, portal, fixture, and E2E tests cover real snapshots and degraded inputs. | **Complete for Phase 1** | No missing bounded inventory/source-state writing gap was found. Runtime execution is Phase 2. |
+| WP04 Selected Device Context | Normalized device selection persists through session storage without inventing stable IDs; unit and E2E tests cover persistence and wrong-target behavior. | **Complete for Phase 1** | No missing bounded selection-context or expected negative-test family was found. |
+| WP05 Policy Authoring Control Center | Policy preview projection, precedence rules, generated cards, parent snapshot loading, and focused Rust/portal tests exist. | **Incomplete** | The portal only refreshes previews. Template/manual-rule authoring, save/confirm/cancel UX, and a trusted one-shot write boundary with replay/tamper/role/cancel tests are missing. |
+| WP06 Schedules, Time Budgets, And Templates | Route metadata and narrow app/game schedule/session rows exist in the portal domain and scaffold tests. | **Incomplete** | There is no real schedule/time-budget/template authoring surface, typed save path, state matrix, or focused responsive/negative test family. |
+| WP07 Parent Requests And Approvals | Narrow policy-resolution and app/game timer panels/actions have typed Rust and portal tests. | **Incomplete** | There is no general request inbox/detail/history surface covering approve, deny, bonus time, expiry, duplicate, stale, and unauthorized outcomes as one service-backed lifecycle. |
+| WP08 Activity, Evidence, And Diagnostics | The network evidence drawer and diagnostics export render references, confidence, custody, degraded states, and live read models with focused tests. | **Incomplete** | Export copies broad live read models without an explicit sanitizer/redaction contract or secret/private-path negative tests, and evidence/custody behavior is not closed across the plan's activity surfaces. |
+| WP09 Browser, App, And Network Surfaces | Browser intervention/explanation, app-game session duration, and network evidence panels are backed by stored typed data; tests cover managed/unmanaged, exact-URL boundaries, metadata-only network state, and degraded inputs. | **Complete for Phase 1** | No missing bounded surface/negative-test writing gap was found. |
+| WP10 LAN Pairing State Consumption | LAN replay binding/provenance, device/source/diagnostic read models, generated command contracts, Rust projection, portal unit tests, and E2E fixtures exist. | **Incomplete** | The portal mainly displays state; first-class add, route, rename, trust, ignore, and revoke controls do not consume the generated command boundary with result/error tests. |
+| WP11 Assistant Action Preview Flow | Assistant chat models, quick actions, scaffold/screenshot coverage, and a narrow policy-preview confirmation overlay exist. | **Incomplete** | No production assistant route consumes service events/citations/provider state and drives typed preview confirmation with authorization, cancellation, replay, stale, and safety tests. |
+| WP12 Reports, Notifications, And Custody | App/game notification, social report, tracking export/retention, and custody-oriented proof panels plus focused render tests exist. | **Incomplete** | The surfaces explicitly avoid product-ready export/mutation/delivery claims; no cohesive service-backed report, notification, retention, delivery, and failure lifecycle is written. |
+| WP13 Degraded, Empty, Stale, And Error States | Service-state decoding and multiple setup/network/screen/app-game panels have explicit missing, unavailable, degraded, empty, refresh, and retry tests. | **Complete for Phase 1** | No missing bounded honest-state writing gap was found. |
+| WP14 Audit History And Copy Debug | Diagnostics panels expose event metadata and copy success/failure UI; export code and a focused export test exist. | **Incomplete** | Copy success/failure/reset has no focused UI test, redaction lacks a secret/private-path matrix, and there is no general ordered audit timeline across the touched routes. |
+| WP15 Accessibility, Responsive, Keyboard UX | Responsive styles and selected mobile, keyboard, and accessibility E2E helpers/specs are present. | **Incomplete** | Coverage is limited to a few proof routes; the plan-wide key-flow, focus, long-label, error-overlap, and representative desktop/mobile route matrix is unwritten. |
+| WP16 No-Fake-Data Contract Adapter | Strict bridge decoders, generated contracts, host failure behavior, labelled fixture/proof panels, and invalid/missing-boundary tests prevent silent fake-green fallback. | **Complete for Phase 1** | No missing bounded adapter/no-fake-data writing gap was found. |
+| WP17 Playwright Screenshot Proof | Browser failure collection and several desktop/mobile screenshot specs cover console/page errors and named routes. | **Complete for Phase 1** | The executable harness is written; retained screenshots and DONE links belong to Phase 3. |
+| WP18 Parent Mobile Shell Readiness | Real Android and iOS parent projects, dedicated package scripts/workflow smoke, portal responsive styles, and mobile E2E coverage exist. | **Complete for Phase 1** | No missing bounded mobile-shell/package-smoke writing gap was found; store/signing/runtime-authority closure belongs to owning distribution workpacks. |
+| WP19 Product Docs And Checklist Sync | Expected topology is `no-code-required`; this packet reconciles product docs and checklist truth after implementation. | **Complete for Phase 1** | No product/test code belongs here. The packet remains operationally open until the other Phase 1 gaps and later validation/proof state are reconciled. |
+| WP20 Manual User Review Gate | Expected topology is `no-code-required`; this is the final user-observation gate. | **Complete for Phase 1** | No product/test code belongs here. It remains open until the product paths are complete and the user performs Phase 3 review. |
+
+**Portal UX Phase 1 result:** all 20 workpacks now have reviewed code/test
+ownership. Nine workpacks (WP03, WP04, WP09, WP13, WP16-WP20) have no remaining
+Phase 1 writing gap in their bounded scope; 11 need production code or expected
+tests. The first dependency chain is WP01/WP02 household authority and first-run
+state -> WP05-WP07 authoring/request actions -> WP10/WP11 typed command
+consumption -> WP08/WP12/WP14/WP15 cross-surface safety and UX closure. Proof
+regeneration remains Phase 3 and cannot close those code gaps.
 
 ### Eventing plan Phase 1 code/test audit - 2026-08-15
 
@@ -848,7 +889,7 @@ proof artifact, checklist row, and merge state agree.
 | `parent-client-runtime-distribution-plan` | Fully audited / Phase 1 incomplete | Tauri parent desktop, hosted portal, Android/iOS parent projects, `parent-runtime-core`, parent CI/package helpers | All 11 workpacks have reviewed code/test ownership. WP01 is a bounded no-code route packet; WP04/WP05 have real parent package projects plus dedicated CI smoke; WP09's cross-target smoke harness is written. | Seven workpacks still lack real hosted auth/cache, typed local-service transport, honest service-derived authority state, parent artifact signing/store matrix, updater/rollback runtime, setup-distribution handoff, or a parent-client aggregate release gate. | Fix WP02 hosted authority and WP06/WP03 service truth first, then WP10 setup handoff, WP07 signing matrix, WP08 updater/rollback, and WP11 aggregate gate. Run Phase 2 per target only after those writing gaps close. |
 | `payment-subscription-plan` | Fully audited / Phase 1 incomplete | `billing-core`, `entitlement-core`, Rust billing schemas, Cloudflare worker, portal consumer boundary | All 13 workpacks have reviewed code/test ownership. Real schema, webhook classification, entitlement gates, Worker routes, and focused tests exist, but only WP00 has no Phase 1 writing gap. | Twelve workpacks still lack required pricing authority, provider execution/verification, durable ledger/retry state, trusted entitlement signatures, regional/referral lifecycle, parent/admin UI, or the payment-specific rollout verifier. The plan's `done` labels for WP01/WP03/WP04 overstate live runtime closure. | Complete WP01 pricing authority first, then WP02-WP04 checkout/webhook/entitlement runtime foundations; continue in dependency order through WP05/WP06/WP08-WP12 and finish with WP07. Run focused tests/Enforcer only after each Phase 1 slice is written; proof remains last. |
 | `policy-control-plane-plan` | Integration | `policy-control-core`, `agent-service`, `schema`, eventing | 126 source / 25 test files; compiler, preview, delivery, conflict, and authority code exist. | Policy-to-enforcement command/rollback product proof is incomplete. | Prove typed policy compile, delivery, execution receipt, and rollback. |
-| `portal-ux-household-surfaces-plan` | Integration | `apps/portal`, `portal-domain`, HostBridge/service read models | Portal has 113 source / 87 test files and real route/panel code. | Several screens remain proof/presentation surfaces without completed backend actions. | Choose a service-backed household flow and prove the full click-through. |
+| `portal-ux-household-surfaces-plan` | Fully audited / Phase 1 incomplete | Portal, `portal-domain`, `parent-runtime-core`, service read models, Android/iOS parent shells, package/CI helpers | All 20 workpacks have reviewed code/test ownership. Nine bounded workpacks have their core code/expected tests written; real shell, device targeting, browser/app/network state, honest degraded handling, no-fake-data contracts, screenshot harnesses, and mobile shells exist. | Eleven workpacks still lack household authority/first-run state, authoring/request actions, LAN/assistant command consumption, diagnostics redaction/history, cohesive report/notification custody, or plan-wide accessibility tests. | Complete WP01/WP02 first, then WP05-WP07 and WP10/WP11; finish WP08/WP12/WP14/WP15 before Phase 2 focused tests and Phase 3 proof. |
 | `remote-access-plan` | Scaffold | `remote-access-core`, `screen-live-view-core`, LAN, portal | Remote core has 2 source / 5 test files; adjacent live-view pieces exist. | Session grants, relay, revocation, and safety proof are not implemented as a product path. | Build view-only session grant/revoke state before any control feature. |
 | `screen-ai-pipeline-plan` | Fully audited / Phase 1 incomplete | `screen-ai-core`, capture adapter, `agent-protocol`, `agent-core`, `agent-service`, portal | All 10 workpacks have reviewed code/test ownership. Real capture, encrypted queueing, local adapter execution, deletion, read models, and portal rendering exist; only WP01 has no bounded Phase 1 writing gap. | Nine workpacks remain incomplete: trigger ownership and parent settings are disconnected, canonical AI routing is not production-wired, policy/action authority is fabricated or absent, the normal event chain is not durably replayable, custody negatives are missing, and live/performance/final harnesses are unwritten. | Wire WP02 parent settings and real trigger owners first, then WP03 canonical AI routing and WP04 trusted policy handoff; complete action, journal, custody, performance, and operator/final gates in dependency order before Phase 2. |
 | `screen-plan` | Fully audited / Phase 1 incomplete | `screen-capture-adapter`, `agent-protocol`, `agent-core`, `agent-service`, `screen-ai-core`, `screen-live-view-core`, schema, Android agent, portal | All 43 imported packets have reviewed ownership: 40 executable workpacks plus three reference-only packets. Real parent settings, desktop/Linux capture, Android MediaProjection code, encrypted queueing, redaction, deletion, read models, portal UI, route guards, live-view gates, and local-AI scheduling exist. | Thirty-one executable workpacks retain code/test gaps. The sharpest are stale source/snapshot routing, missing iOS/Android/macOS/Linux platform tests, no protected-surface detector, no durable full-chain replay, fabricated policy refs, gate-only live view, no child disclosure, and missing CDP/OCR/VLM/detector/rollout harnesses. | Reconcile WP01/WP02 first, then close contracts/scope/platform safety (WP03/WP05-WP14) and queue/runtime composition (WP16-WP21) before policy/live/AI/rollout packets. Do not regenerate proof until those Phase 1 gaps close. |
@@ -883,7 +924,7 @@ focused acceptance gate. Gitignored or absent historical `output/` and
 | `parent-client-runtime-distribution-plan` | 11 | 7 | 4 | 0 | Fully mapped from live source/tests. WP01, WP04, WP05, and WP09 are Phase 1 complete for bounded route/package/smoke writing; WP02, WP03, WP06-WP08, WP10, and WP11 retain concrete gaps, so seven document-claimed closures are not product closure. |
 | `payment-subscription-plan` | 13 | 3 | 10 | 0 | Fully mapped from live code/tests. WP00 is Phase 1 complete as a no-code handoff; WP01-WP12 retain concrete code or expected-test gaps, and the three doc-claimed closures do not match runtime truth. |
 | `policy-control-plane-plan` | 8 | 6 | 2 | 0 | Six checked workpacks are not reflected by the generic checklist status. |
-| `portal-ux-household-surfaces-plan` | 20 | 5 | 15 | 0 | Checklist is stale relative to the workpack index. |
+| `portal-ux-household-surfaces-plan` | 20 | 5 | 15 | 0 | Fully mapped from live code/tests. Nine workpacks have no Phase 1 writing gap in their bounded scope; eleven retain concrete product-code or expected-test gaps. The five doc-claimed closures are not used as implementation truth. |
 | `remote-access-plan` | 6 | 0 | 6 | 0 | Five planned rows and one deferred control row. |
 | `screen-ai-pipeline-plan` | 10 | 0 | 10 | 0 | Fully mapped from live code/tests. WP01 is complete for its no-code prerequisite scope; WP02-WP10 retain concrete production-composition, authority, durability, custody-negative, performance-test, or missing executable-harness gaps. Proof remains deferred until those Phase 1 gaps close. |
 | `screen-plan` | 40 | 18 | 22 | 0 | Fully mapped from live code/tests: 9/40 executable workpacks are Phase 1 complete, 31 retain concrete code/test gaps, and three additional imported packets are reference-only. The 100/100 legacy checklist and 18 checked workpack labels overstate current runtime truth. |
