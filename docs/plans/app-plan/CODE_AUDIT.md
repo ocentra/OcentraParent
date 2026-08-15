@@ -1,7 +1,9 @@
 # Native Apps Plan Code/Test Audit
 
 Date: 2026-08-15
-Branch baseline: `codex/app-plan-code-audit` at `2b79285f0`
+Audited branch baseline: `codex/app-plan-code-audit` at `2b79285f0`
+Integrated baseline: `main` at `eb4e66a79`; tree-equal `develop` back-sync at
+`4ece51528` through PRs `#706`, `#707`, and `#708`.
 
 ## Authority
 

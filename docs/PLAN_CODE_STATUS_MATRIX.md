@@ -4,8 +4,9 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Last broad source inventory: 2026-08-15, on the merged `develop` organization
-baseline at `bd27c29498` (tree-equal to `main` at `6728a1d441`). The dated
+Last broad source inventory: 2026-08-15, now integrated to `main` at
+`eb4e66a79` and back-synced to `develop` at `4ece51528` with tree-equal
+contents. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
@@ -23,9 +24,10 @@ remote tip. The only registered OcentraParent worktree is `E:/OcentraParent`;
 short-lived audit branch names are intentionally not status authority here.
 AI's 48-workpack audit reached `main` through PRs `#700`, `#701`, and `#702`;
 Tracking's 42-workpack audit reached `main` through PRs `#703`, `#704`, and
-`#705`. App's 95-workpack audit is the current integration candidate: every
-workpack now has reviewed code/test ownership and a code-backed Phase 1
-classification in `docs/plans/app-plan/CODE_AUDIT.md`.
+`#705`. App's 95-workpack audit reached `main` through PRs `#706` and `#707`,
+then back-synced through `#708`: every workpack has reviewed code/test ownership
+and a code-backed Phase 1 classification in
+`docs/plans/app-plan/CODE_AUDIT.md`.
 
 The executable graph validates at 703 nodes and 705 edges. It imports **23**
 actual plan rows and 679 workpacks. The earlier apparent count of 24 included
