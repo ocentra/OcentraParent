@@ -40,12 +40,19 @@ and classifier context.
 
 ## Validation
 
-- `cmd /c npm run build --workspace @ocentra-parent/agent-protocol-domain`
-- `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- app-game-policy-readiness`
-- `cmd /c npm run test --workspace @ocentra-parent/portal-domain -- app-game-policy-readiness-panel`
-- `cargo test -p ocentra-parent-agent-protocol app_game_policy_readiness`
-- `cargo test -p ocentra-parent-agent-service app_game_policy_readiness`
-- `node scripts/test/app-game-category-unknown-policy-readiness-service-consumption-proof.mjs`
+- `cargo test -p ocentra-parent-agent-protocol app_game_policy_readiness`:
+  1 passed.
+- `cargo test -p ocentra-parent-agent-service app_game_policy_readiness`:
+  2 passed.
+- `cargo test -p ocentra-parent-runtime-core --test integration
+  app_game_sessions_route_load_attaches_rust_owned_app_game_panels`: 1 passed.
+- Portal workspace run containing
+  `tests/unit/app-game-policy-readiness-panel.test.ts`: 37 files and 154 tests
+  passed.
+- Focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, `no-naked-domain-strings`, `validation-bypass`, and
+  `reexports`: passed across the mapped protocol, service, parent-runtime, and
+  portal source/test paths.
 
 ## No-Claim Boundaries
 
@@ -58,3 +65,19 @@ and classifier context.
 - Does not change the shared product checklist because another lane owns that
   file.
 - Does not edit the shared SVG renderer.
+
+## Current Status - Phase 1/2 Complete; Phase 3 Open
+
+The 2026-08-15 code-first audit verified that this bounded readiness/status
+path is already implemented. Rust protocol carries the category/unknown fields
+and row kinds; agent-service derives category candidates and unknown-review
+rows from the live service read model; parent-runtime turns them into
+parent-safe panel details; and the portal renders those rows and counts. The
+focused validations above are green, and `adapterDispatchClaimed` remains an
+explicit separate field instead of being inferred from readiness.
+
+The previous audit incorrectly treated missing live compiler/evaluator
+consumption as a WP177 Phase 1 failure. That consumption is still a real
+whole-plan gap, but it is outside this workpack's explicit readiness-only scope
+and no-claim boundaries. Retained proof and the whole-plan Phase 3 gates remain
+open, so this workpack is not marked broadly DONE.

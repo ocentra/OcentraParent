@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 157/220 have current production source plus the expected checked-in tests
+- 158/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 176/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 44/220 retain a concrete production-code or expected-test gap.
+- 177/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 43/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -209,7 +209,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP174 App/Game Scoped Adapter Dispatch Executed Parent Surface | Rust adapter readiness/preflight/dispatch + service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP175 App/Game Scoped Adapter Dispatch Parent Action Surface | Rust adapter readiness/preflight/dispatch + service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP176 App/Game Blocking Time-Limit Done Gate | Docs/proof/reference route (no product source required) | **Complete for bounded Phase 1 (no code required)** | Phase 2/3 validation or proof may remain; no product source/test-writing gap belongs to this packet. |
-| WP177 App/Game Category Unknown Policy Readiness Service Consumption | Rust adapter readiness/preflight/dispatch + service/portal tests | **Incomplete** | Category/unknown readiness is projected, but no live candidate/compiler consumption path closes WP17/WP18/WP19. |
+| WP177 App/Game Category Unknown Policy Readiness Service Consumption | Rust protocol/service/parent-runtime readiness path + portal renderer/tests | **Complete for bounded Phase 1; Phase 2 green** | Category/unknown counts and rows are derived from live service read-model inputs and rendered parent-safely with no adapter inference. Protocol 1/1, service 2/2, parent-runtime 1/1, portal 154/154, and focused Enforcer passed on `7888141f6`; live compiler/evaluator consumption remains a separate whole-plan gap, with retained proof and Phase 3 open. |
 | WP178 App/Game Adapter Host Capability State | Rust adapter readiness/preflight/dispatch + service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP179 App/Game Platform Manual Artifact Host Probe Refs | Rust adapter readiness/preflight/dispatch + service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP180 App/Game Host Capability Summary Counts | Rust adapter readiness/preflight/dispatch + service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
@@ -264,22 +264,19 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP177: finish the remaining live approval/risk service-consumption gap.
-   WP17-WP20, WP49, and WP51 have completed bounded Phase 1/2 and await Phase 3
-   plan proof.
-2. WP21 and WP121-WP126: implement the actual child warning/request UX plus its
+1. WP21 and WP121-WP126: implement the actual child warning/request UX plus its
    durable outbox, scheduler, provider/preference preflight, and status producers.
-3. WP58-WP65: implement the notification outbox, scheduler, ordered history,
+2. WP58-WP65: implement the notification outbox, scheduler, ordered history,
    provider/preference owners, and receipt-backed status producers.
-4. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
+3. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
    and hostile/oversized metadata tests.
-5. WP188-WP202 and WP204: finish Android replay/test coverage and Linux foreground
+4. WP188-WP202 and WP204: finish Android replay/test coverage and Linux foreground
    acquisition instead of relying on readiness/status rows.
-6. WP207 and WP211-WP222: add tracked Android child-runtime persistence, replay,
+5. WP207 and WP211-WP222: add tracked Android child-runtime persistence, replay,
    receipt, delivery, notification, and action tests; keep physical-only packets in
    Phase 3.
-7. WP27: add the specified performance/load harnesses.
-8. WP102: implement or explicitly retire the stale redundant service-handoff packet.
+6. WP27: add the specified performance/load harnesses.
+7. WP102: implement or explicitly retire the stale redundant service-handoff packet.
 
 ## Release interpretation
 

@@ -7891,23 +7891,20 @@
     "WP-app-game-plan-177-app-game-category-unknown-policy-readiness-service-consumption": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_adapter_execution_readiness.rs",
-        "crates/agent-protocol/src/app_game_adapter_dispatch_preflight.rs",
-        "crates/agent-protocol/src/app_game_adapter_dispatch_result.rs",
-        "crates/agent-protocol/tests/contract/app_game_adapter_execution_readiness.rs",
-        "crates/agent-protocol/tests/contract/app_game_adapter_dispatch_preflight.rs",
-        "crates/agent-protocol/tests/contract/app_game_adapter_dispatch_result.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_execution_readiness_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_dispatch_preflight_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_dispatch_execute_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_adapter_dispatch_result_payload.rs",
-        "crates/agent-service/src/app_game_dispatch_evidence.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_execution_readiness_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_preflight_service_tests.rs",
-        "crates/agent-service/tests/unit/app_game_adapter_dispatch_result_service_tests.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_adapter_dispatch.rs",
-        "apps/portal/src/AppGameAdapterDispatchRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-adapter-dispatch-route-panel.test.tsx"
+        "crates/agent-protocol/src/app_game_policy_readiness.rs",
+        "crates/agent-protocol/tests/contract/app_game_policy_readiness_tests.rs",
+        "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_policy_readiness_sources.rs",
+        "crates/agent-service/src/activity_api/app_game_policy_readiness_sources/classification_refs.rs",
+        "crates/agent-service/tests/unit/app_game_policy_readiness_payload_tests.rs",
+        "crates/agent-service/tests/unit/app_game_policy_readiness_service_tests.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_app_game.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_policy.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_readiness_labels.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/app_game.rs",
+        "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs",
+        "apps/portal/src/AppGamePolicyReadinessRoutePanel.tsx",
+        "apps/portal/tests/unit/app-game-policy-readiness-panel.test.ts"
       ]
     },
     "WP-app-game-plan-178-app-game-adapter-host-capability-state": {

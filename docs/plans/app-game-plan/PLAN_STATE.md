@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **157** have current production source plus expected checked-in tests for their
+- **158** have current production source plus expected checked-in tests for their
   bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **44** retain a concrete production-code or expected-test gap.
+  packets; **43** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -90,7 +90,7 @@ packages/schema-domain:
 - Scoped owned-process time-limit dispatch, parent preference request
   persistence/outbox, adapter readiness/dispatch, platform status, receipt,
   parent-runtime, and portal surfaces are present with bounded tests.
-- These do not erase the 44 Phase 1 gaps or claim cross-platform/provider/child
+- These do not erase the 43 Phase 1 gaps or claim cross-platform/provider/child
   delivery and physical proof.
 
 ## Historical gap narrative
@@ -106,6 +106,7 @@ Phase 1 authority where they conflict with `CODE_AUDIT.md`.
 - Journal and SQLite ingest now covers staged app/game inventory, runtime, foreground, launcher, daily rollup, evidence-claim, identity, approval authority, approval action-result, platform authority matrix, and AI classifier result rows. The service still maps only the established app-use and games activity-surface rows, but those rows now retain staged authority/classifier storage refs in their evidence vectors. The new authority/classifier rows are not yet wired to live source subscriptions, dedicated service events, policy consumers, or portal dashboard rows.
 - Portal App/Game Sessions dashboard rows now consume the app-use and games activity-surface DTOs through a shared dashboard intent, but approval, policy, game-budget, live source, and platform-authority surfaces remain incomplete.
 - Unknown approval flow now has a Rust-owned typed candidate producer and durable synchronized Eventing lifecycle for request, parent response, expiry, restart replay, idempotency, and manual-required unsupported blocks. Service composition, notification delivery, service read models, parent/child UI, and adapter execution remain incomplete.
+- Category/unknown policy-readiness consumption is implemented across Rust protocol, the live service read-model projection, parent-runtime panel intent, and the portal route. It exposes candidate/review rows and counts without inferring adapter dispatch. This closes WP177's readiness-only Phase 1/2 scope; live compiler/evaluator consumption and retained proof remain separate open plan gaps.
 - Native game budget policy now has a Rust-owned `ocentra-app-game-core` composition over the WP19 compiler and WP51 evaluator. It counts known games and parent-approved launcher-game candidates, excludes launcher-only/unapproved candidates, rejects incoherent/duplicate/bypass inputs, preserves advisory rating/UGC/multiplayer/purchase signals, and stays dry-run with no adapter dispatch. Service persistence, portal authoring/preview UI, bonus-time integration, notifications, retained proof, and adapter execution remain open.
 - App/game policy target compiler now has parent-domain contract proof for app/game targets, identity/unknown/category/schedule/capability/authority proof, device/local-user/freshness rejection, dry-run-only decisions, and manual-required unproved block-launch. It does not yet provide Rust/service parity, runtime evaluator execution, portal rule authoring/preview UI, timer integration, notifications, rollback, or adapter execution.
 - App/game time-budget policy now has a Rust-owned `ocentra-app-game-core` composition from stored session summaries into the WP51 evaluator. It preserves daily/weekly scope, running versus foreground duration, bound schedule evidence, pending/approved bonus audit refs, effective budget math, and active/recovered timer refs while remaining dry-run. Service persistence, portal/child UX, notification delivery, timer scheduling/rollback, retained proof, and adapter execution remain open.
