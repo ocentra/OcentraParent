@@ -2,6 +2,7 @@
 
 pub mod app_game_category_risk_policy_routing;
 pub mod app_game_notification_parent_surface_intent;
+pub mod app_game_policy_evaluator_runtime;
 pub mod app_game_policy_preview_handoff;
 pub mod app_game_policy_preview_handoff_generated_ts;
 pub mod app_game_policy_target_compiler;
