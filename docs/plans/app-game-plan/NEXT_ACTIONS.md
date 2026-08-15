@@ -27,12 +27,12 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open Phase 1 work by dependency impact
 
-The 2026-08-15 code audit maps all 220 workpacks and leaves 46 source/test
+The 2026-08-15 code audit maps all 220 workpacks and leaves 45 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP18-WP20 and WP177: durable review/risk production plus the remaining
-   app/game policy integration gaps. WP17, WP19, WP49, and WP51 have completed
-   bounded Phase 1/2 and await Phase 3 plan proof.
+1. WP20 and WP177: durable review/risk production plus the remaining app/game
+   policy integration gaps. WP17-WP19, WP49, and WP51 have completed bounded
+   Phase 1/2 and await Phase 3 plan proof.
 2. WP21 and WP121-WP126: live child warning/request UX plus durable outbox,
    scheduler, provider/preference preflight, and status production.
 3. WP58-WP65: notification outbox, scheduler, history, provider/preference

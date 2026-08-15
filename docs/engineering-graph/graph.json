@@ -4825,12 +4825,12 @@
       "path": "docs/plans/app-game-plan/workpacks/18-native-game-budgets-and-launcher-policy.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "active",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

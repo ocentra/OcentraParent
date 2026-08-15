@@ -29,10 +29,10 @@ explicit launcher-game candidates without counting launcher-only rows as play.
 
 ## Tests And Proof
 
-- Known game session counts toward game budget.
-- Launcher-only session does not count by default.
-- Launcher-game candidate counts only when parent policy allows candidate state.
-- Rating/UGC/multiplayer/purchase signals do not enforce directly.
+- [x] Known game session counts toward game budget.
+- [x] Launcher-only session does not count by default.
+- [x] Launcher-game candidate counts only when parent policy allows candidate state.
+- [x] Rating/UGC/multiplayer/purchase signals do not enforce directly.
 
 ## Done Signal
 
@@ -40,18 +40,36 @@ Game budgets are useful and honest without treating every launcher row as play.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1/2 Complete; Phase 3 Open
 
-The 2026-08-15 code audit found the historical TypeScript contract owner below
-was removed. Current Rust code has a generic compiler/evaluator and launcher
-evidence rows, but no native-game budget composition that classifies known-game,
-launcher-only, and parent-approved launcher-game-candidate sessions before
-runtime evaluation.
+Commit `0ee4525d8` adds the current Rust-owned native-game budget composition in
+`ocentra-app-game-core`. It validates coherent game session kinds, counts known
+games and parent-approved launcher-game candidates, excludes launcher-only and
+unapproved candidate rows, rejects duplicate session refs and caller-supplied
+generic evaluator sessions, and passes the composed sessions into the existing
+WP51 runtime evaluator. Rating, UGC, multiplayer, and purchase signals remain
+advisory and the resulting adapter state remains `NotDispatched`.
 
-This workpack is active for a bounded `ocentra-app-game-core` composition and
-focused tests. Rating, UGC, multiplayer, and purchase signals must remain
-advisory; the result must stay dry-run and must not add persistence, service,
-portal, notification, or adapter-execution claims.
+Current source/test owners:
+
+- `crates/app-game-core/src/app_game_native_game_budget.rs`
+- `crates/app-game-core/src/app_game_native_game_budget_types.rs`
+- `crates/app-game-core/src/app_game_native_game_budget_accounting.rs`
+- `crates/app-game-core/tests/contract/app_game_native_game_budget.rs`
+
+Verified on 2026-08-15:
+
+- `cargo test -p ocentra-app-game-core --test contract`: 68 passed.
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`: passed.
+- Focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, `no-naked-domain-strings`, `validation-bypass`, and
+  `reexports`: passed for the six touched source/test files.
+- The repository pre-commit hook reran crate tests, focused architecture,
+  generated-artifact, contract/source-shape, and Rust-format gates: passed.
+
+Phase 3 remains open. This slice does not claim budget persistence, service
+composition, portal authoring/preview, notifications, bonus-time integration,
+platform adapter execution, retained proof, or whole-plan readiness.
 
 ## Historical Contract Slice - 2026-06-03
 
