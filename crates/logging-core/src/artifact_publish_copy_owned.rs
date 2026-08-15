@@ -1,18 +1,12 @@
 use std::{
-    fs::{remove_file, rename},
+    fs::{hard_link, remove_file},
     io,
     path::{Path, PathBuf},
 };
 
 pub(crate) fn publish_owned_temporary(owned_temporary: &Path, path: &Path) -> io::Result<()> {
-    if path.exists() {
-        return remove_failed_destination(
-            owned_temporary,
-            io::Error::new(io::ErrorKind::AlreadyExists, "artifact path already exists"),
-        );
-    }
-    match rename(owned_temporary, path) {
-        Ok(()) => Ok(()),
+    match hard_link(owned_temporary, path) {
+        Ok(()) => remove_owned_temporary(owned_temporary),
         Err(error) => remove_failed_destination(owned_temporary, error),
     }
 }
