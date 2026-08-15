@@ -184,6 +184,36 @@
         "packages/schema-domain/src/generated-parent-owned-sync-export-contracts.ts"
       ]
     },
+    "WP-data-custody-storage-plan-04-retention-delete-tombstone": {
+      "planSlug": "data-custody-storage-plan",
+      "roots": [
+        "crates/schema/src/retention_delete_tombstone.rs",
+        "crates/schema/src/retention_delete_tombstone",
+        "crates/schema/tests/contract/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_finalize.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_logic.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_rank.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_rows.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_proof_signal.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_logic.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_request.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_class.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_requirements.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_signal.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate_audit.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate_propagation.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_row_state_validate_tombstone.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_store.rs",
+        "crates/storage-custody-core/src/retention_delete_tombstone_store",
+        "crates/storage-custody-core/tests/unit/retention_delete_tombstone.rs",
+        "crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs"
+      ]
+    },
     "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate": {
       "planSlug": "data-custody-storage-plan",
       "roots": [
