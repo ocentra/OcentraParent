@@ -1,6 +1,9 @@
 #[path = "app_game_notification_parent_surface_intent.rs"]
 mod app_game_notification_parent_surface_intent;
 
+#[path = "app_game_native_game_budget.rs"]
+mod app_game_native_game_budget;
+
 #[path = "app_game_category_risk_policy_routing.rs"]
 mod app_game_category_risk_policy_routing;
 

@@ -1,6 +1,9 @@
 #![forbid(unsafe_code)]
 
 pub mod app_game_category_risk_policy_routing;
+pub mod app_game_native_game_budget;
+mod app_game_native_game_budget_accounting;
+pub mod app_game_native_game_budget_types;
 pub mod app_game_notification_parent_surface_intent;
 pub mod app_game_policy_evaluator_runtime;
 pub mod app_game_policy_preview_handoff;
