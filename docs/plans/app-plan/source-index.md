@@ -1,365 +1,82 @@
 # Native App Source Index
 
-This index keeps the native app plan tied to existing source documents and code.
-It is not a replacement for feature, expectation, roadmap, checklist, package,
-or crate ownership docs.
+Current code-first authority: [CODE_AUDIT.md](CODE_AUDIT.md), audited
+2026-08-15. Historical workpack paths and proof roots are routing evidence,
+not current implementation truth.
 
-## Product Source Docs
+## Product routes
 
 - Owning feature: [App and game control](../../features/app-game-control.md)
 - Main expectation: [App and game evidence](../../expectations/app-game-evidence.md)
-- Milestone expectation:
-  [V0.5.2 app/game evidence sessions](../../roadmaps/roadmap-v0-5-2-app-game-evidence-sessions.md)
-- Main architecture:
-  [App and game evidence sessions](../../architecture/app-game-evidence-sessions.md)
-- App capability guide: [App control capability guide](../app-game-plan/workpacks/app-control-capability-guide.md)
-- App schema proposal: [App control schema proposal](../app-game-plan/workpacks/app-control-schema-proposal.md)
-- Raw app catalog: [App control settings inventory](../app-game-plan/workpacks/app-control-settings-inventory.md)
-- Implementation tracking:
-  [Native Apps Implementation Checklist](implementation-checklist.md)
-- Pasted-content reconciliation:
-  [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
-- Platform authority plan:
-  [V0.5 Native Apps Platform Deep Dive](v0-5-native-apps-platform-deep-dive.md)
-- Test and proof blueprint:
-  [V0.5 Native Apps Test Blueprint](v0-5-native-apps-test-blueprint.md)
-- Adjacent expectation: [Policy](../../expectations/policy.md)
-- Adjacent expectation: [Enforcement](../../expectations/enforcement.md)
-- Adjacent expectation: [Platforms](../../expectations/platforms.md)
-- Adjacent expectation:
-  [App install and purchase approval](../../expectations/app-install-purchase-approval.md)
-- Adjacent expectation: [Evidence storage](../../expectations/evidence-storage.md)
-- Adjacent expectation: [AI](../../expectations/ai.md)
+- Architecture: [App and game evidence sessions](../../architecture/app-game-evidence-sessions.md)
+- Policy handoff: [Policy schedules and approvals](../../features/policy-schedules-approvals.md)
+- Enforcement handoff: [Enforcement integrity and tamper](../../features/enforcement-integrity-tamper.md)
+- Install/purchase handoff: [App install and purchase approval](../../expectations/app-install-purchase-approval.md)
+- Workpack chooser: [WORKPACK_INDEX.md](WORKPACK_INDEX.md)
 
-## Routing: Move Here Or Point Here
+## Current implementation owners
 
-Native app implementation planning belongs in this folder when it is about:
+| Boundary | Current tracked owners | What they actually own |
+| --- | --- | --- |
+| App-only runtime boundary | `crates/app-core` | Native-app observation, evidence, AI/policy request, runtime decision, typed IDs, and tests. |
+| Shared app/game contracts and projections | `crates/app-game-core` | Source-freshness, preview, timer-readiness, notification parent-intent, and long handoff projection chains plus contract/generated tests. Most are pure models, not service runtime. |
+| Wire contracts | `crates/agent-protocol/src/app_game*.rs` | Evidence/identity/session/inventory, authority, adapter, policy/notification/timer and parent-surface DTOs plus protocol tests. |
+| Windows acquisition and local projection | `crates/agent-core/src/activity_store_app_game.rs`, `crates/agent-core/src/activity_store_app_game/` | Real Start Menu, Store manifest, registry, process and foreground sources; journal/SQLite projection; sessionization; source-status rows. |
+| Scoped Windows time limit | `crates/agent-core/src/enforcement_app_time_limit.rs`, `crates/agent-service/src/enforcement_timer_api/` | Owned-process timer validation, execution, recovery/cancel, state and focused tests. Not broad installed-app blocking. |
+| Service capture/read models | `crates/agent-service/src/activity_capture.rs`, `crates/agent-service/src/activity_capture/`, `crates/agent-service/src/activity_api/app_game*.rs` | Recurring Windows capture, persisted activity rows, policy/notification/platform/timer/adapter read models and events. |
+| Canonical generated bridge contracts | `crates/schema/src/app_game*.rs`, `packages/schema-domain/src/*app-game*` | Generated TypeScript schemas and Rust generators for source freshness, policy preview/targets, timer readiness and bridge shapes. |
+| Parent runtime projection | `crates/parent-runtime-core/src/parent_ui_bridge/*app_game*`, `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/app_game.rs` | Converts service read models into parent UI snapshots without re-owning source truth. |
+| Portal rendering | `apps/portal/src/AppGame*`, `apps/portal/src/portal-proof-panels-app-game-renderers.tsx` | Policy, notification, platform, adapter, child-receipt and timer status panels. It does not scan the OS, read SQLite, classify apps, schedule timers or enforce. |
 
-- non-browser installed app inventory;
-- app identity and merge confidence;
-- process/package/runtime evidence;
-- foreground app evidence;
-- app sessionization and duration;
-- native app category and risk taxonomy;
-- app policy targets and compiler inputs;
-- new app and unknown app approval;
-- app-specific warn, ask, time-limit, terminate, hide, suspend, shield,
-  block-launch, allowlist, and manual-required states;
-- platform authority tiers for app control;
-- app proof gates and UI/UX acceptance.
+## Removed/stale owners
 
-Shared source docs stay where they are and are pointed to from this folder:
+The following directories have no tracked files in the audited checkout and
+must not be presented as live owners:
 
-- feature docs stay under `docs/features`;
-- expectation docs stay under `docs/expectations`;
-- architecture docs stay under `docs/architecture`;
-- product checklist and roadmap stay at the docs root;
-- package/crate/app ownership docs stay next to their source;
-- raw generated inventories stay at the docs root.
+- `packages/activity-domain`
+- `packages/parent-domain`
+- `packages/agent-protocol-domain`
+- `packages/text-domain`
 
-Do not move generated catalog inventories into this plan folder. Link them here
-and update them only when their acceptance contract or generated data changes.
+The prior `scripts/test/app-game-*`, `scripts/test/app-risk*`, and related
+native-app proof runners are also absent. Workpacks that still cite those paths
+must use their mapped current Rust/test roots from the engineering graph and
+[CODE_AUDIT.md](CODE_AUDIT.md). Missing proof runners are a Phase 3 harness
+issue unless the workpack's expected test itself is absent, as recorded in the
+audit.
 
-## Feature Routing
-
-| Feature doc                          | App-plan relationship                                                                                                                                                                  |
-| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `app-game-control.md`                | Owning feature. Native app plan work derives from this file and feeds status/proof updates back to it.                                                                                 |
-| `app-install-purchase-approval.md`   | Adjacent install/purchase feature. New app detection may request approval, but store purchase/install product flows stay here.                                                         |
-| `browser-web-control.md`             | Adjacent browser feature. Browser games, web apps, browser social/video, and exact URL/tab evidence stay in browser-plan.                                                              |
-| `enforcement-integrity-tamper.md`    | Shared enforcement boundary. App hard controls must remain capability-gated here.                                                                                                      |
-| `evidence-store-query.md`            | Shared storage boundary. App evidence must journal/replay through shared evidence stores.                                                                                              |
-| `local-ai-safety-evaluator.md`       | Adjacent AI feature. App AI/classifier output is evidence and must not directly enforce.                                                                                               |
-| `policy-schedules-approvals.md`      | Shared approval/evaluator feature. App rules, bonus time, and ask parent flows must use typed approval contracts.                                                                      |
-| `remote-lan-mobile-platforms.md`     | Platform routing. Android/iOS/mobile states remain platform-specific/manual-required until proof exists.                                                                               |
-| `production-distribution-support.md` | Release/support boundary. Support bundles must redact private paths, command lines, child activity, journals, SQLite, screenshots, tokens, and platform proof artifacts as configured. |
-| `social-video-control.md`            | Adjacent product feature. Native social/video apps can be detected as apps, but message/content/feed understanding remains social/video scope.                                         |
-
-## Adjacent Plan Docs
-
-- Browser plan: [Browser plan README](../browser-plan/README.md)
-- LAN plan: [LAN plan README](../lan-plan/README.md)
-- V0.8 enforcement plan:
-  [Enforcement control plan](../v0-8-enforcement-control-plan/)
-- Portal UX workpack:
-  [Browser, app, and network surfaces](../portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md)
-
-## TypeScript Ownership
-
-- `packages/activity-domain/src/app-game.ts`
-- `packages/activity-domain/src/app-game-category-risk-primitives.ts`
-- `packages/activity-domain/src/app-game-category-risk.ts`
-- `packages/activity-domain/src/app-game-primitives.ts`
-- `packages/activity-domain/src/app-game-session-primitives.ts`
-- `packages/activity-domain/src/app-game-foreground.ts`
-- `packages/activity-domain/src/activity-surface.ts`
-- `packages/activity-domain/tests/app-game-foreground.test.ts`
-- `packages/activity-domain/tests/app-game.test.ts`
-- `packages/activity-domain/tests/activity-surface.test.ts`
-- `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
-- `packages/parent-domain/src/app-control-catalog.ts`
-- `packages/parent-domain/src/app-control-catalog-schema.ts`
-- `packages/parent-domain/src/app-control-catalog-data.ts`
-- `packages/parent-domain/src/app-control-guide-catalog-data.ts`
-- `packages/parent-domain/src/enforcement-policy-dispatch.ts`
-- `packages/parent-domain/src/app-game-child-facing-ux.ts`
-- `packages/parent-domain/src/app-game-child-facing-ux-rules.ts`
-- `packages/parent-domain/src/app-game-control-authority.ts`
-- `packages/parent-domain/src/app-game-control-authority-rules.ts`
-- `packages/parent-domain/src/app-game-control-approval-flow.ts`
-- `packages/parent-domain/src/app-game-control-platform-authority.ts`
-- `packages/parent-domain/src/app-game-control-platform-authority-rules.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing-rules.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing-data.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing-data-support.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing-macos-data.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing-ios-data.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing-android-data.ts`
-- `packages/parent-domain/src/app-game-platform-extension-routing-linux-data.ts`
-- `packages/parent-domain/src/app-game-performance-health.ts`
-- `packages/parent-domain/src/app-game-performance-health-rules.ts`
-- `packages/parent-domain/src/app-game-performance-health-proof.ts`
-- `packages/parent-domain/src/app-game-policy-target-compiler.ts`
-- `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
-- `packages/parent-domain/src/app-riskdetection.ts`
-- `packages/parent-domain/src/app-riskdetection-rules.ts`
-- `packages/parent-domain/src/app-riskdetection-data.ts`
-- `packages/parent-domain/src/app-game-ai-classifier-boundary.ts`
-- `packages/parent-domain/src/app-game-ai-classifier-boundary-values.ts`
-- `packages/parent-domain/src/app-game-ai-classifier-boundary-data.ts`
-- `packages/parent-domain/src/app-game-time-budget-policy.ts`
-- `packages/parent-domain/src/app-game-time-budget-policy-rules.ts`
-- `packages/parent-domain/src/policy.ts`
-- `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
-- `packages/parent-domain/tests/app-game-child-facing-ux.test.ts`
-- `packages/parent-domain/tests/app-game-control-authority.test.ts`
-- `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
-- `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
-- `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
-- `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
-- `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
-- `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
-- `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
-- `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
-
-TypeScript rule: enhance these existing app/app-game paths first. Do not create
-a parallel app domain package unless an ownership boundary genuinely changes.
-If the implementation splits app-only contracts from app/game contracts, the
-split must be schema-backed, test-backed, and reconciled in this source index.
-
-Current child-facing app/game copy tokens live in:
-
-- `packages/text-domain/src/app-game-child-ux-text.ts`
-- `packages/text-domain/tests/app-game-child-ux-text.test.ts`
-
-## Rust Ownership
-
-- `crates/agent-protocol/src/app_game.rs`
-- `crates/agent-protocol/src/app_game_tests.rs`
-- `crates/agent-core/src/activity_store/internals.rs`
-- `crates/agent-core/src/activity_store_app_game.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_sessionization.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_session_rollups.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_session_time.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest/read_model.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_windows_foreground_tests.rs`
-- `crates/agent-core/src/activity_store_app_game_observation.rs`
-- `crates/agent-core/src/activity_store_app_game_rows.rs`
-- `crates/agent-core/src/activity_store_app_game_tests.rs`
-- `crates/agent-core/src/enforcement_app_time_limit.rs`
-- `crates/agent-core/src/enforcement_app_time_limit_tests.rs`
-- `crates/agent-service/src/app.rs`
-- `crates/agent-service/src/activity_surface_adapter.rs`
-- `crates/agent-service/src/activity_surface_read_models.rs`
-- `crates/agent-service/src/activity_surface_read_models/app_use.rs`
-- `crates/agent-service/src/activity_surface_read_models/app_use/source.rs`
-- `crates/agent-service/src/activity_surface_read_models/games.rs`
-- `crates/agent-service/src/activity_surface_read_models/shared.rs`
-- `crates/agent-service/src/activity_surface_store.rs`
-
-Rust rule: TypeScript contracts come first, Rust protocol parity second,
-`agent-core` runtime/storage helpers third, and `agent-service` command/read-model
-wiring fourth.
-
-## Portal Ownership
-
-- `apps/portal/src/live-activity-state.ts`
-- `apps/portal/src/live-activity-panel.ts`
-- `apps/portal/src/activity-timeline.ts`
-- `apps/portal/src/policy-preview-panel.ts`
-- `apps/portal/src/policy-preview-read-model.ts`
-- `apps/portal/src/policy-preview-details.ts`
-- `apps/portal/src/portal-capability-guidance.ts`
-- `apps/portal/src/portal-device-rule-scope.ts`
-- `apps/portal/src/PortalAppLayoutSurfacePanel.tsx`
-- `apps/portal/src/PortalAppLayoutContentPanel.tsx`
-- `apps/portal/public/parent-nav-app.svg`
-- `apps/portal/public/parent-nav-games.svg`
-- `packages/portal-domain/src/parent-portal-data.ts`
-- `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts`
-- `vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts`
-
-Portal rule: render service-backed state and typed manifests. Portal must not
-scan app inventory, inspect processes, read SQLite/journals directly, run AI
-classification, run timers, or enforce.
-
-## Proof Scripts
-
-- `node scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs`
-- `node scripts/test/v0-8-enforcement-policy-dispatch-proof.mjs`
-- `node scripts/test/v0-8-enforcement-product-control-spine.mjs`
-- `node scripts/test/v0-8-enforcement-integrity-runtime-audit.mjs`
-- `node scripts/test/v0-8-cross-platform-enforcement-capability-proof.mjs`
-- `node scripts/test/v0-8-enforcement-timer-recovery-mvp.mjs`
-- `node scripts/test/app-game-broad-blocking-proof-gates.mjs`
-- `node scripts/test/app-riskdetection-proof.mjs`
-- `node scripts/test/app-game-ai-classifier-boundary-proof.mjs`
-- `node scripts/test/app-game-platform-extension-routing-proof.mjs`
-- `node scripts/test/app-game-install-store-handoff-proof.mjs`
-- `node scripts/test/app-game-performance-health-proof.mjs`
-- `node scripts/test/app-game-plan-rollout-pr-gate.mjs`
-
-Future app-specific proof scripts should use:
+## Current source-to-product chain
 
 ```text
-output/app-plan-proof/<workpack-id>/
+Windows sources
+  -> agent-core typed journal events
+  -> encrypted journal + ActivityStore SQLite projection
+  -> agent-service app-use/game read models and source-status rows
+  -> parent-runtime snapshots
+  -> portal status panels
 ```
 
-## Shared App/Game Proof Bridge
+The first three hops are real for Windows inventory/process/foreground. The
+parent product remains incomplete where [CODE_AUDIT.md](CODE_AUDIT.md) records
+missing approval/risk/compiler/child-notification/UI composition.
 
-The native app plan uses the shared app/game evidence spine through the early
-evidence workpacks instead of creating parallel app-only truth. App-plan proof
-packs mirror the app/game proof roots and record product-doc decisions.
+## Ownership rules
 
-| App-plan workpack                     | App-plan proof root                                                             | Shared app/game proof root                                                       | Boundary                               |
-| ------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | -------------------------------------- |
-| WP01 contract boundary                | `output/app-plan-proof/01-contract-boundary-and-effect-schemas`                 | `output/app-game-plan-proof/01-contract-boundary-and-effect-schemas`             | Contract/proof reconciliation only     |
-| WP02 source reconciliation            | `output/app-plan-proof/02-source-index-and-doc-reconciliation`                  | `output/app-game-plan-proof/02-source-index-and-doc-reconciliation`              | Routing/docs only                      |
-| WP03 snapshot/gap map                 | `output/app-plan-proof/03-current-app-snapshot-and-gap-map`                     | `output/app-game-plan-proof/03-current-app-game-snapshot-and-gap-map`            | Snapshot/gap proof only                |
-| WP04 app identity                     | `output/app-plan-proof/04-app-identity-model`                                   | `output/app-game-plan-proof/04-app-game-identity-model`                          | Contract proof only                    |
-| WP05 installed inventory model        | `output/app-plan-proof/05-installed-app-inventory-model`                        | `output/app-game-plan-proof/05-inventory-evidence-model`                         | Contract proof only                    |
-| WP06 Windows installed inventory      | `output/app-plan-proof/06-windows-installed-app-inventory-adapter`              | `output/app-game-plan-proof/06-windows-installed-inventory-adapter`              | Parser proof only                      |
-| WP07 Windows Store/UWP/AppX inventory | `output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter`             | `output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter`         | Parser proof only                      |
-| WP08 Windows process runtime          | `output/app-plan-proof/08-windows-process-runtime-evidence-adapter`             | `output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter`         | Runtime parser proof only              |
-| WP09 Windows foreground evidence      | `output/app-plan-proof/09-windows-foreground-app-evidence-adapter`              | `output/app-game-plan-proof/09-windows-foreground-evidence-adapter`              | Foreground parser proof only           |
-| WP10 cross-platform authority matrix  | `output/app-plan-proof/10-cross-platform-authority-matrix`                      | `output/app-game-plan-proof/11-cross-platform-authority-matrix`                  | Authority contract proof only          |
-| WP11 app category/risk taxonomy       | `output/app-plan-proof/11-app-category-and-risk-taxonomy`                       | `output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy`              | Category/risk contract proof only      |
-| WP12 app sessionization/duration      | `output/app-plan-proof/12-app-sessionization-and-duration-engine`               | `output/app-game-plan-proof/13-sessionization-and-duration-engine`               | SQLite-row session reducer proof       |
-| WP13 journal/SQLite app ingest        | `output/app-plan-proof/13-journal-and-sqlite-app-ingest`                        | `output/app-game-plan-proof/14-journal-and-sqlite-ingest`                        | Encrypted journal replay proof         |
-| WP14 app read models/service events   | `output/app-plan-proof/14-app-read-models-and-service-events`                   | `output/app-game-plan-proof/15-read-models-and-service-events`                   | Service read-model DTO proof           |
-| WP15 portal app inventory surfaces    | `output/app-plan-proof/15-parent-portal-app-inventory-running-session-surfaces` | `output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces`        | Portal dashboard surface proof         |
-| WP16 new/unknown app approval         | `output/app-plan-proof/16-new-app-and-unknown-app-approval-flow`                | `output/app-game-plan-proof/17-unknown-app-game-approval-flow`                   | Approval contract proof only           |
-| WP17 risk app detection               | `output/app-plan-proof/17-riskapp-detection`                                    | N/A app-only cross-record                                                        | Risk candidate contract proof only     |
-| WP18 app policy target compiler       | `output/app-plan-proof/18-policy-target-compiler-for-app-rules`                 | `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules`        | Compiler contract proof only           |
-| WP19 app time budget integration      | `output/app-plan-proof/19-time-budget-schedule-bonus-time-integration`          | `output/app-game-plan-proof/20-time-budget-schedule-bonus-time-integration`      | Time-budget contract proof only        |
-| WP20 child app warning/request UX     | `output/app-plan-proof/20-child-facing-app-warning-block-request-ux`            | `output/app-game-plan-proof/21-child-facing-warning-and-request-ux`              | Child UX contract/text proof only      |
-| WP21 owned-process time-limit proof   | `output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof`     | `output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof` | Scoped real-service process proof only |
-| WP22 broad blocking proof gates       | `output/app-plan-proof/22-broad-blocking-proof-gates`                           | `output/app-game-plan-proof/23-broad-blocking-proof-gates`                       | No-claim/manual-required gate proof    |
-| WP23 app AI classifier digest         | `output/app-plan-proof/23-app-ai-classifier-digest-boundary`                    | `output/app-game-plan-proof/24-ai-classifier-digest-boundary`                    | Classifier boundary contract proof     |
-| WP24 platform extension proof routing | `output/app-plan-proof/24-platform-extension-checklist-and-proof-routing`       | `output/app-game-plan-proof/25-platform-extension-checklist-and-proof-routing`   | Extension routing contract proof       |
-| WP25 install/uninstall handoff        | `output/app-plan-proof/25-install-and-uninstall-approval-handoff`               | `output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs`        | Install/store handoff contract proof   |
-| WP26 performance and service health   | `output/app-plan-proof/26-performance-and-service-health`                       | `output/app-game-plan-proof/27-performance-and-service-health`                   | Generated-scale performance proof      |
-| WP27 E2E/manual proof artifacts       | `output/app-plan-proof/27-e2e-and-manual-proof-artifacts`                       | `output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate`                 | Final evidence/manual proof gate       |
-| WP28 rollout checklist and PR gate    | `output/app-plan-proof/28-rollout-checklist-and-pr-gate`                        | `output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate`                 | Final rollout and PR-ready proof gate  |
+- Do not create a replacement `packages/app-domain` or resurrect legacy
+  packages without an explicit workpack/architecture decision.
+- Cross-boundary schema authority stays Rust-owned/generated; presentation code
+  consumes generated shapes.
+- App-only meaning stays in this plan. Shared app/game evidence and generic
+  handoff models stay in `app-game-plan`/`app-game-core`.
+- Inventory is not runtime; runtime is not foreground; foreground is not
+  content; AI evidence is not enforcement authority.
+- Platform hard-control claims remain manual-required until the owning platform
+  and enforcement plans supply real execution, rollback, and proof.
 
-These completed rows do not add live OS crawling, content knowledge, policy
-execution, install control, parent/child approval UI, notification delivery,
-broad blocking support, or runtime cross-platform parity.
-Those claims remain assigned to later app-plan/app-game workpacks.
+## Validation routes
 
-The WP12/WP13/WP14/WP15/WP16/WP18 sessionization, read-model, portal-surface,
-approval-contract, compiler-contract, and WP19 time-budget-contract proof
-narrows the storage/UI/control gap in stages:
-deterministic replay from stored SQLite observation rows is covered for process
-and foreground session summaries plus daily rollups, and staged encrypted
-journal-file replay is now covered for typed inventory, runtime, foreground,
-launcher, running-now, foreground-now, and daily rollup rows. Service app-use
-activity-surface read-model rows now consume those projected rows. The parent
-portal now has a dedicated App/Game Sessions dashboard surface that consumes the
-service read-model rows. New/unknown app approval requests are now modeled as
-contract-valid candidate, child-status, response-scope, expiry, persistence,
-and manual-required states. App policy target compiler proof now validates
-dry-run target decisions without runtime execution. App time-budget proof now
-requires stored session refs, schedule evidence, bonus approval/audit refs,
-dry-run/manual-required handoff, and timer recovery refs before native app
-budget decisions can be represented. App child-facing UX proof now requires
-safe copy tokens, evidence refs, child reason/status refs, and no diagnostic or
-adapter-action overclaim before warning/request/manual/unavailable states can
-be represented. Native app risk detection proof now requires risk candidates to
-carry evidence refs, source refs, confidence/source disclosure, local AI digest
-refs when AI contributes, no-content claims, and no-direct-enforcement guards
-before policy routing can treat them as app risk candidates. Broad-blocking gate
-proof now requires setup, authority-tier, rollback, audit, and
-platform-specific proof before block-launch/hide/suspend/shield support claims
-can dispatch adapters. App AI classifier boundary proof now requires stored
-evidence refs, confidence bounds, model/runtime/prompt refs, fallback state, and
-evidence-only policy handoff while rejecting direct action, duration, and raw
-scan fields before policy can consume classifier output.
-Platform-extension routing proof now maps every MAC, IOS, ANDROID, and LINUX
-extension row to authority-tier, setup-state, manual tag, proof-pack, and
-cross-plan handoff requirements while keeping all current rows manual-required
-or not-claimed until real platform proof is attached.
-Install/uninstall approval handoff proof now cross-records the shared app/game
-WP26 handoff matrix for new inventory, installer/updater, store package install,
-game purchase signal, uninstall, and tamper candidate rows. Store and purchase
-signals remain context-only, approval refs must cite evidence, uninstall/tamper
-rows route to enforcement-integrity/tamper docs, and adapter execution plus
-policy decisions remain not-claimed.
-Performance and service-health proof now cross-records the shared app/game WP27
-matrix for generated inventory, runtime, foreground, journal, replay, policy
-compile, existing dashboard intent, and degraded adapter-health budgets. It is
-generated-scale and existing-intent proof only; live OS throughput, encrypted
-journal disk/corruption, browser DOM/Playwright rendering, live adapters,
-approval/store behavior, and broad blocking remain gaps.
-The final rollout/evidence gate now cross-records app-plan WP27 and WP28 from
-shared app/game WP28. It validates the existing proof roots, records E2E/manual
-scenario routing, writes no-claim and manual-platform proof, and captures PR
-body requirements without adding runtime behavior or moving product status.
-Dedicated approval UI, notification delivery, service persistence/read models,
-policy runtime, game-budget, live source, live source subscriptions, journal
-corruption/recovery, runtime platform adapters, and portal capability matrix UI
-remain later work.
-
-## Current Test Files
-
-- `packages/activity-domain/tests/app-game.test.ts`
-- `packages/activity-domain/tests/app-game-category-risk.test.ts`
-- `packages/activity-domain/tests/activity-surface.test.ts`
-- `packages/agent-protocol-domain/tests/activity-surface-adapter.test.ts`
-- `packages/parent-domain/tests/app-control-policy-catalog.test.ts`
-- `packages/parent-domain/tests/app-game-child-facing-ux.test.ts`
-- `packages/parent-domain/tests/app-game-control-authority.test.ts`
-- `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
-- `packages/parent-domain/tests/app-game-control-platform-authority.test.ts`
-- `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
-- `packages/parent-domain/tests/app-game-time-budget-policy.test.ts`
-- `packages/parent-domain/tests/app-game-time-budget-policy-recovery.test.ts`
-- `packages/parent-domain/tests/app-game-broad-blocking-proof-gates.test.ts`
-- `packages/parent-domain/tests/app-riskdetection.test.ts`
-- `packages/parent-domain/tests/app-game-ai-classifier-boundary.test.ts`
-- `packages/parent-domain/tests/app-game-platform-extension-routing.test.ts`
-- `packages/parent-domain/tests/app-game-install-store-handoff.test.ts`
-- `packages/parent-domain/tests/app-game-performance-health.test.ts`
-- `packages/parent-domain/tests/enforcement-approval-audit.test.ts`
-- `crates/agent-protocol/src/app_game_tests.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_sessionization_tests.rs`
-- `crates/agent-core/src/activity_store_app_game/app_game_journal_sqlite_ingest_tests.rs`
-- `crates/agent-core/src/activity_store_app_game_tests.rs`
-- `crates/agent-core/src/enforcement_app_time_limit_tests.rs`
-- `apps/portal/tests/live-activity-state.test.ts`
-- `apps/portal/tests/live-activity-surface-adapter.test.ts`
-- `apps/portal/tests/policy-preview-live-activity-state.test.ts`
-- `apps/portal/tests/activity-ui-intent.test.ts`
-- `packages/text-domain/tests/app-game-child-ux-text.test.ts`
-
-## Source Truth Rule
-
-When an app workpack changes product state, update the owning feature doc,
-matching expectation docs, product capability checklist row, and touched module
-README. If the work only adds planning detail inside this folder, no product
-status update is required.
+Phase 1 uses the exact workpack mappings in
+`docs/engineering-graph/code-map.json`. Phase 2 selects focused commands from
+[TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) after a workpack is
+chosen. Phase 3 writes clean-checkout proof under the current durable proof
+policy; ignored `output/` artifacts are never status authority.
