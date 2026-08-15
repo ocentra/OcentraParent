@@ -41,16 +41,24 @@ broad blocking, or platform support.
 - Preserve the no-adapter boundary with `adapterDispatchState:
 not-dispatched`.
 
-## Current Status - Phase 1 Open
+## Current Status - Phase 1 and Phase 2 Complete; Phase 3 Open
 
-The 2026-08-15 code audit found no current category/risk/AI route compiler.
-The former parent-domain implementation owner is removed, and the current
-source-freshness schema rows do not perform this routing. WP19 now supplies the
-Rust-owned compiler boundary at `bf81b400d`, so this workpack is the next
-authorized implementation slice.
+The Rust-owned routing implementation landed at `14ef6fbf4`. It maps seven
+category/risk/game-context candidate families to WP19 compiler target kinds,
+requires active category proof and supporting evidence, binds local-AI digest
+refs, rejects invalid confidence and stale/missing proof, and converts hard
+actions into manual compiler inputs while preserving `not-dispatched`.
 
-Phase 1 requires the routing code and checked-in negative tests. Phase 2
-focused execution/Enforcer and Phase 3 retained proof remain later gates.
+Checked-in contract tests cover the complete mapping matrix and all named
+negative/no-claim boundaries. Focused validation is green:
+
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`
+- `cargo test -p ocentra-app-game-core --test contract` (`52 passed`)
+- focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, and `no-naked-domain-strings`
+
+Phase 3 retained proof and plan-level precommit/CI remain open. Runtime/service
+consumption remains outside this workpack.
 
 ## Expected Focused Validation
 

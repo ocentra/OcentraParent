@@ -6260,9 +6260,13 @@
     "WP-app-game-plan-49-category-risk-policy-routing": {
       "planSlug": "app-game-plan",
       "roots": [
-        "packages/schema-domain/src/app-game-policy-target-compiler.ts",
-        "crates/schema/src/app_game_source_freshness_policy_consumption.rs",
-        "crates/schema/tests/contract/app_game_source_freshness_policy_consumption.rs"
+        "crates/app-game-core/src/lib.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing_manual.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing_types.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing_validation.rs",
+        "crates/app-game-core/tests/contract/mod.rs",
+        "crates/app-game-core/tests/contract/app_game_category_risk_policy_routing.rs"
       ]
     },
     "WP-app-game-plan-51-policy-evaluator-runtime-breadth": {

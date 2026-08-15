@@ -9891,12 +9891,12 @@
       "path": "docs/plans/app-game-plan/workpacks/49-category-risk-policy-routing.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "ready",
-      "lifecycleState": "ready",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "ready",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -9927,15 +9927,15 @@
       "path": "docs/plans/app-game-plan/workpacks/51-policy-evaluator-runtime-breadth.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "ready",
+      "lifecycleState": "ready",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "ready",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
