@@ -360,6 +360,190 @@
       "codeExpectation": "no-code-required",
       "roots": []
     },
+    "WP-payment-subscription-plan-00-cloudflare-control-plane-handoff": {
+      "planSlug": "payment-subscription-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
+    "WP-payment-subscription-plan-01-product-pricing-entitlement": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/schema/src/billing_entitlement_proof.rs",
+        "crates/schema/src/billing_entitlement_values_ts.rs",
+        "crates/schema/tests/contract/billing_entitlement_proof.rs",
+        "crates/schema/tests/contract/billing_entitlement_values.rs",
+        "packages/schema-domain/src/billing-entitlement.ts",
+        "packages/schema-domain/src/billing-entitlement-values.ts",
+        "packages/schema-domain/src/generated-billing-entitlement.ts",
+        "packages/schema-domain/src/generated-billing-entitlement-values.ts",
+        "packages/schema-domain/src/generated-billing-entitlement-proof.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-02-checkout-billing-portal": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/schema/src/billing_checkout_portal_boundary_ts.rs",
+        "crates/schema/src/billing_checkout_portal_boundary_values_ts.rs",
+        "crates/schema/tests/contract/billing_checkout_portal_boundary.rs",
+        "crates/schema/tests/contract/billing_checkout_portal_boundary_values.rs",
+        "packages/schema-domain/src/billing-checkout-portal-boundary-values.ts",
+        "packages/schema-domain/src/generated-billing-checkout-portal-boundary.ts",
+        "packages/schema-domain/src/generated-billing-checkout-portal-boundary-values.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/src/generated/billing-contracts.ts",
+        "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+        "infra/cloudflare/tests/integration/checkout-portal-hosted.test.ts",
+        "infra/cloudflare/tests/integration/worker-runtime-real.test.ts",
+        "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
+        "infra/cloudflare/tests/security/interactive-billing-boundary.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-03-subscription-webhook-lifecycle": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/billing-core/src/billing_subscription.rs",
+        "crates/billing-core/src/billing_subscription_webhook.rs",
+        "crates/billing-core/src/billing_subscription_projection.rs",
+        "crates/billing-core/src/billing_subscription_review.rs",
+        "crates/billing-core/src/billing_subscription_review",
+        "crates/billing-core/tests/unit/provider_webhook.rs",
+        "crates/billing-core/tests/unit/subscription_lifecycle.rs",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/tests/integration/provider-webhooks.test.ts",
+        "infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts",
+        "infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-04-entitlement-delivery-gates": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/entitlement-core/src/entitlement_access.rs",
+        "crates/entitlement-core/src/entitlement_access_reasons.rs",
+        "crates/entitlement-core/src/entitlement_access_reasons_policy.rs",
+        "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/src/entitlement_snapshot_values.rs",
+        "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
+        "crates/entitlement-core/tests/unit/capability_access.rs",
+        "crates/entitlement-core/tests/unit/capability_gate.rs",
+        "crates/schema/src/billing_entitlement_runtime_proof.rs",
+        "crates/schema/tests/contract/billing_entitlement_runtime_proof.rs",
+        "packages/schema-domain/src/billing-entitlement-runtime-proof.ts",
+        "packages/schema-domain/src/generated-billing-entitlement-runtime-proof.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-05-invoice-tax-refund-dispute": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/schema/src/billing_invoice_tax_refund_dispute_ts.rs",
+        "crates/schema/src/billing_invoice_tax_refund_dispute_values_ts.rs",
+        "crates/schema/tests/contract/billing_invoice_tax_refund_dispute.rs",
+        "crates/schema/tests/contract/billing_invoice_tax_refund_dispute_values.rs",
+        "packages/schema-domain/src/billing-invoice-tax-refund-dispute-values.ts",
+        "packages/schema-domain/src/generated-billing-invoice-tax-refund-dispute.ts",
+        "packages/schema-domain/src/generated-billing-invoice-tax-refund-dispute-values.ts",
+        "crates/billing-core/src/billing_subscription_projection.rs",
+        "crates/billing-core/tests/unit/subscription_lifecycle.rs",
+        "infra/cloudflare/src/fixtures.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+        "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
+        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-06-security-privacy-observability": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/billing-core/src/billing_subscription_review.rs",
+        "crates/billing-core/src/billing_subscription_review",
+        "crates/billing-core/tests/unit/provider_webhook.rs",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/auth/model.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/security/redaction.ts",
+        "infra/cloudflare/tests/security",
+        "infra/cloudflare/tests/property/billing-idempotency.property.test.ts",
+        "infra/cloudflare/tests/fuzz/provider-webhook-payload.fuzz.test.ts",
+        "infra/cloudflare/tests/unit/redaction.test.ts",
+        "infra/cloudflare/tests/unit/request-limits.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-08-provider-adapter-portability": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/billing-core/src/billing_subscription.rs",
+        "crates/billing-core/src/billing_subscription_webhook.rs",
+        "crates/billing-core/tests/unit/provider_webhook.rs",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/tests/integration/provider-webhooks.test.ts",
+        "infra/cloudflare/tests/integration/webhook-signature-rejection.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-09-regional-payment-rollout": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "infra/cloudflare/src/fixtures.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
+        "infra/cloudflare/tests/integration/pricing-public.test.ts",
+        "infra/cloudflare/tests/integration/worker-runtime-real.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-10-referral-growth-entitlement": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
+        "infra/cloudflare/scripts/seed-referrals-local.ts",
+        "infra/cloudflare/src/fixtures.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+        "infra/cloudflare/tests/integration/payment-routes-real.test.ts",
+        "infra/cloudflare/tests/property/billing-idempotency.property.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-11-parent-website-billing-dashboard": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/schema/src/billing_parent_visible_summary.rs",
+        "crates/schema/src/billing_parent_visible_summary_ts.rs",
+        "crates/schema/tests/contract/billing_parent_visible_summary.rs",
+        "packages/schema-domain/src/generated-billing-parent-visible-summary.ts",
+        "packages/schema-domain/tests/unit/billing-parent-visible-summary.test.ts",
+        "packages/portal-domain/src/parent-portal-manage-data.ts",
+        "packages/portal-domain/src/portal-route-state.generated.ts",
+        "packages/portal-domain/tests/unit/parent-portal-service-state.test.ts",
+        "apps/portal/src/portal-route-content.tsx",
+        "apps/portal/tests/e2e/portal-route-scaffold-assertions.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-12-support-admin-billing-ops": {
+      "planSlug": "payment-subscription-plan",
+      "roots": [
+        "crates/schema/src/billing_support_admin_common_values_ts.rs",
+        "crates/schema/tests/contract/billing_support_admin_common_values.rs",
+        "packages/schema-domain/src/generated-billing-support-admin-common-values.ts",
+        "infra/cloudflare/src/routes.ts",
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/auth/model.ts",
+        "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/billing-binding-read-model.ts",
+        "infra/cloudflare/tests/contract/billing-api-contract.test.ts",
+        "infra/cloudflare/tests/integration/admin-auth-rejection.test.ts",
+        "infra/cloudflare/tests/integration/reconciliation-auth-boundary.test.ts",
+        "infra/cloudflare/tests/integration/payment-routes-real.test.ts"
+      ]
+    },
+    "WP-payment-subscription-plan-07-rollout-proof-and-route-gate": {
+      "planSlug": "payment-subscription-plan",
+      "codeExpectation": "no-code-required",
+      "roots": []
+    },
     "WP-app-plan-01-contract-boundary-and-effect-schemas": {
       "planSlug": "app-plan",
       "roots": [
