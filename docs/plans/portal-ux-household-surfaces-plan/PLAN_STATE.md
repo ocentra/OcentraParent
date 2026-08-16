@@ -85,7 +85,7 @@ Portal projection proof is not domain runtime proof.
 - `portal-domain` is a real public contract package with many route, panel, presentation, and proof exports.
 - `apps/portal` is the actual React/Tauri portal runtime surface and consumes domain packages as projection inputs.
 - Checked workpacks currently cover selected shell/navigation, first-run/profiles, device inventory/source states, selected-device context, and LAN pairing consumption slices.
-- WP05 has substantial policy preview/read-model/current-seam proof recorded, but remains open because parent-triggered confirm action wiring, request-envelope projection, co-parent authZ, rollback execution, and unsupported target handling remain open.
+- WP05 has substantial policy preview/read-model/current-seam proof recorded. The portal now has a bounded typed staged-draft/parent-confirmation relay through the Rust facade; downstream policy mutation, request-envelope projection into a complete domain writer, co-parent authZ, rollback execution, unsupported target handling, delivery, and enforcement remain open.
 
 ## Production reachability audit (2026-08-16)
 
@@ -94,8 +94,9 @@ This audit is against consolidated root `1988a85cd`. The shipped portal path is
 `host-bridge` route snapshot/action calls. A surface counts only when that path
 reaches a real Rust/service read model or action; static cards, proof/status
 panels, fixtures, generic JSON, and route existence do not count as product
-truth. No new production slice was accepted because the next gaps are sibling
-domain/runtime owners or deferred proof, not missing portal-only code.
+truth. This pass corrected one stale shipped authority message; it did not add
+new domain/runtime authority because the remaining gaps belong to named sibling
+owners or deferred validation/proof, not a missing portal-only substitute.
 
 | WP | Actual portal/backend reachability | Remaining production gap |
 | --- | --- | --- |
