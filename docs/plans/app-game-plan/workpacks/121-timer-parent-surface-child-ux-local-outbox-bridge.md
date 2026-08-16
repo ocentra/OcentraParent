@@ -55,3 +55,19 @@ local outbox records.
 - Focused parent-domain test for the child UX local outbox bridge.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1 Active
+
+The 2026-08-15 live-code audit invalidated the historical parent-domain
+completion claim. Current Rust can project timer action results into
+`AppGameTimerParentSurfaceChildUxLocalArtifactRecord` rows, and WP21 now owns a
+controlled-token child UX contract, but no current owner converts those records
+to `NotificationLocalOutboxRecord`, persists them durably, or proves restart and
+idempotent replay.
+
+This workpack is active for a bounded Rust bridge and durable local store using
+the existing agent-protocol notification-outbox contract. The first slice must
+fail closed for manual-required/unavailable or unsafe inputs, queue only
+deliverable controlled-token records, preserve reference-only metadata, and
+prove reopen/idempotency behavior. Scheduler, provider, receipt, notification
+UI, child-device delivery, and adapter execution remain later workpacks.
