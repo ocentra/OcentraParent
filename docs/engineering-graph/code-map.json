@@ -6921,7 +6921,8 @@
         "crates/app-game-core/src/app_game_child_ux_preference_preflight.rs",
         "crates/app-game-core/src/app_game_child_ux_preference_preflight_types.rs",
         "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
-        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs",
+        "crates/app-game-core/tests/contract/app_game_child_ux_preference_status.rs"
       ]
     },
     "WP-app-game-plan-127-timer-parent-surface-child-ux-local-outbox-parent-surface-intent": {

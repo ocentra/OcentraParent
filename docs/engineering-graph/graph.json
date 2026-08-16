@@ -6195,12 +6195,12 @@
       "path": "docs/plans/app-game-plan/workpacks/126-timer-parent-surface-child-ux-local-outbox-preference-status-handoff.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "active",
+        "statusText": "validation",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

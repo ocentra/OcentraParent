@@ -27,20 +27,18 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open Phase 1 work by dependency impact
 
-The 2026-08-15 code audit maps all 220 workpacks and leaves 37 source/test
+The 2026-08-15 code audit maps all 220 workpacks and leaves 36 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP126: carry the verified WP125 preference preflight into an honest
-   preference-status producer. WP124-WP125 are complete for bounded Phase 1/2.
-2. WP58-WP65: notification outbox, scheduler, history, provider/preference
+1. WP58-WP65: notification outbox, scheduler, history, provider/preference
    owners, and receipt-backed status.
-3. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
+2. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
    metadata tests.
-4. WP188-WP202, WP204: Android replay/test closure and Linux foreground
+3. WP188-WP202, WP204: Android replay/test closure and Linux foreground
    acquisition.
-5. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,
+4. WP207 and WP211-WP222: Android child-runtime durability, receipt, delivery,
    notification, action, and focused test closure.
-6. WP27 load/performance harnesses; WP102 implement-or-retire decision.
+5. WP27 load/performance harnesses; WP102 implement-or-retire decision.
 
 Do not schedule a no-code/proof packet as implementation work, and do not
 recreate the removed legacy TypeScript owners named in old workpacks.

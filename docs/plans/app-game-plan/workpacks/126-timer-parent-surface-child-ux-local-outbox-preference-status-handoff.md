@@ -59,22 +59,22 @@ delivery.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1/2 Complete; Phase 3 Open
 
-The 2026-08-15 live-code audit invalidated the historical `parent-domain`
-completion claim. That package is absent, and the broad timer service/portal
-files previously mapped by the graph contain only fixture/read-model consumers,
-not a producer from WP125. The current Rust owner is `ocentra-app-game-core`,
-where WP125 now supplies typed preference-preflight rows and the existing
-App/Game parent-surface contract supplies the downstream preference-status
-shape.
+Commit `64fe263e5` adds the Rust-owned preference-status handoff in
+`ocentra-app-game-core` and corrects WP125 to retain safe provider channel,
+reason, and severity enums on blocked rows. Parent-preference-required and
+manual-required rows become manual setup/manual-required status entries;
+unavailable rows become channel-disabled/not-sent entries. All rows preserve
+their scheduler identity, safe provider context, preference/quiet-hours/rule/
+intent/retry/escalation refs, evidence, policy, audit, and manual-proof refs.
 
-This workpack is active for a bounded Rust handoff. Parent-preference-required
-and manual-required rows must map to manual setup status; unavailable rows must
-map to disabled/not-sent status. The producer must preserve source scheduler,
-outbox, provider channel, reason, preference, quiet-hours, evidence, audit, and
-manual-proof refs and reject unsafe claims or malformed source shapes. The audit
-also found that WP125 must retain safe provider-channel/reason/severity enums on
-blocked rows so this handoff does not invent them. Preference mutation,
-quiet-hours/retry execution, delivery, receipts, credentials, cloud routing,
-parent UI, child delivery, adapter dispatch, and enforcement remain unclaimed.
+The handoff embeds the existing App/Game parent-surface preference-status row,
+keeps provider receipts absent, and leaves preference mutation, frequency UI,
+quiet-hours/retry execution, provider delivery/receipts/credentials, cloud
+routing, parent UI, child delivery, adapter dispatch, and enforcement false.
+Two focused contract tests cover manual/unavailable mappings and claimed,
+malformed, or duplicate-context rejection. The complete App/Game contract suite
+(96 tests), unit suite (10 tests), crate Clippy, seven focused Enforcer checks,
+formatting, diff hygiene, hub guard, and pre-commit passed. Retained Phase 3
+proof and whole-plan gates remain open.

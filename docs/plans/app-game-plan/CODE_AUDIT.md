@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 164/220 have current production source plus the expected checked-in tests
+- 165/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 183/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 37/220 retain a concrete production-code or expected-test gap.
+- 184/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 36/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -158,7 +158,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP123 Timer Parent-Surface Child UX Local Outbox Provider Preflight | Rust provider-preflight contract + projection | **Complete for bounded Phase 1; Phase 2 green** | Persisted/bound `due-local` rows become provider-adapter-required with adapter, credential, smoke-proof, scheduler, outbox, evidence, policy, and audit refs; manual/dead-letter rows stay blocked and unsafe/mismatched inputs fail closed at `3f81b0200`. Three focused, 89 contract, 10 unit, Clippy, focused Enforcer, and pre-commit passed. Provider runtime, credentials, receipts, UI/child delivery, and Phase 3 remain open. |
 | WP124 Timer Parent-Surface Child UX Local Outbox Provider Status Handoff | Rust WP123 preflight → canonical V0.8 provider-status handoff | **Complete for bounded Phase 1; Phase 2 green** | Rust maps honest provider-required/manual and unavailable preflight rows into identity-bound V0.8 status entries, preserves source/proof/audit/preference refs, keeps all delivery/runtime claims false, and rejects claimed or incomplete inputs at `dc99eb608`. Three focused cases, 92 contract, 10 unit, Clippy, focused Enforcer, and pre-commit passed. Provider execution/receipts/credentials/retry/quiet-hours/UI/child delivery and Phase 3 remain open. |
 | WP125 Timer Parent-Surface Child UX Local Outbox Preference Preflight | Rust WP122 scheduler → preference-preflight projection | **Complete for bounded Phase 1; Phase 2 green** | Honest persisted due-local rows become parent-preference-required with distinct preference/frequency/quiet-hours requirements; manual/dead-letter rows stay blocked and unpersisted, mismatched, claimed, or duplicate inputs fail closed at `e550e55c2`. Two focused cases, 94 contract, 10 unit, Clippy, seven focused Enforcer checks, and pre-commit passed. Preference mutation, quiet-hours execution, provider delivery/receipts, UI/child delivery, and Phase 3 remain open. |
-| WP126 Timer Parent-Surface Child UX Local Outbox Preference Status Handoff | WP125 Rust preflight + App/Game preference-status contract | **Incomplete; active** | Removed parent-domain and broad timer/portal files contain no producer. A bounded Rust handoff must map manual/unavailable states into V3-compatible status rows, preserve safe source refs, reject unsafe claims, and correct WP125 blocked-row metadata preservation without inventing provider context. |
+| WP126 Timer Parent-Surface Child UX Local Outbox Preference Status Handoff | Rust WP125 preflight → V3-compatible App/Game preference-status handoff | **Complete for bounded Phase 1; Phase 2 green** | Manual/preference-required rows become manual-setup/manual-required status; unavailable becomes channel-disabled/not-sent. Safe scheduler/provider/reason/preference/quiet-hours/rule/retry/evidence/audit refs are preserved, unsafe/malformed inputs fail closed, and WP125 blocked rows retain source enums at `64fe263e5`. Two focused cases, 96 contract, 10 unit, Clippy, seven focused Enforcer checks, and pre-commit passed. Preference/runtime delivery/UI/child delivery and Phase 3 remain open. |
 | WP127 Timer Parent-Surface Child UX Local Outbox Parent Surface Intent | Rust timer service/read model + parent-runtime/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP128 Timer Parent-Surface Child UX Local Outbox Parent Surface Live Visibility | Rust timer service/read model + parent-runtime/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP129 Timer Parent-Surface Child UX Local Outbox Parent Surface Live Records | Rust timer service/read model + parent-runtime/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
@@ -264,19 +264,17 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP126: carry the verified WP125 preference preflight into an honest
-   preference-status producer; WP124-WP125 are complete for bounded Phase 1/2.
-2. WP58-WP65: implement the notification outbox, scheduler, ordered history,
+1. WP58-WP65: implement the notification outbox, scheduler, ordered history,
    provider/preference owners, and receipt-backed status producers.
-3. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
+2. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
    and hostile/oversized metadata tests.
-4. WP188-WP202 and WP204: finish Android replay/test coverage and Linux foreground
+3. WP188-WP202 and WP204: finish Android replay/test coverage and Linux foreground
    acquisition instead of relying on readiness/status rows.
-5. WP207 and WP211-WP222: add tracked Android child-runtime persistence, replay,
+4. WP207 and WP211-WP222: add tracked Android child-runtime persistence, replay,
    receipt, delivery, notification, and action tests; keep physical-only packets in
    Phase 3.
-6. WP27: add the specified performance/load harnesses.
-7. WP102: implement or explicitly retire the stale redundant service-handoff packet.
+5. WP27: add the specified performance/load harnesses.
+6. WP102: implement or explicitly retire the stale redundant service-handoff packet.
 
 ## Release interpretation
 
