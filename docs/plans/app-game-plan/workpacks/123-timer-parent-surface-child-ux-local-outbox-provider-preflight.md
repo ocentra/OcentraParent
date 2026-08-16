@@ -52,7 +52,27 @@ that state exactly what setup is still required before delivery can be claimed.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX local outbox provider preflight.
+- Rust App/Game crate build and Clippy.
+- Focused Rust tests for WP122 due-local conversion, provider setup requirements,
+  and manual/unsafe input rejection.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1 Active
+
+The 2026-08-15 live-code audit invalidated the historical `parent-domain`
+completion claim because that package and its child-UX provider-preflight bridge
+are absent from the tracked tree. WP122 now supplies real Rust scheduler records,
+and the checked-in social-alert generated surface demonstrates the intended
+provider-adapter/credential/smoke-proof requirement pattern, but no current Rust
+owner projects an App/Game child-UX scheduler record into that fail-closed
+preflight boundary.
+
+This workpack is active for a bounded Rust provider-preflight contract and
+projection in `ocentra-app-game-core`. Only a valid `due-local` row may become
+`provider-adapter-required`; it must preserve scheduler/outbox/decision/channel,
+reason, evidence, policy, and audit refs while generating explicit adapter,
+credential, and physical smoke-proof requirements. Non-due and unsafe rows stay
+blocked. Provider execution, credential storage, receipts, retry/quiet-hours
+runtime, cloud routing, UI, child delivery, and adapter dispatch remain later
+workpacks.

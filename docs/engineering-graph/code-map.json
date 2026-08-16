@@ -6887,17 +6887,10 @@
     "WP-app-game-plan-123-timer-parent-surface-child-ux-local-outbox-provider-preflight": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
-        "crates/agent-protocol/tests/contract/app_game_timer_parent_surface_read_model_tests.rs",
-        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_payload.rs",
-        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_action_results.rs",
-        "crates/agent-service/src/activity_api/app_game_timer_parent_surface_action_results_projection.rs",
-        "crates/agent-service/tests/unit/app_game_timer_parent_surface_payload_tests.rs",
-        "crates/agent-service/tests/unit/app_game_timer_parent_surface_service_tests.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_timer.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_timer",
-        "apps/portal/src/AppGameTimerParentSurfaceRoutePanel.tsx",
-        "apps/portal/tests/unit/app-game-timer-parent-surface-panel.test.ts"
+        "crates/app-game-core/src/app_game_child_ux_scheduler.rs",
+        "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs",
+        "packages/schema-domain/src/generated-social-alert-report-provider-preflight-proof.ts"
       ]
     },
     "WP-app-game-plan-124-timer-parent-surface-child-ux-local-outbox-provider-status-handoff": {
