@@ -11,7 +11,6 @@ use crate::{
     browser_payload::browser_inventory_read_model_payload,
     browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
-    network_product_path_bridge::prove_network_product_path_for_read_model,
     network_runtime_delivery::deliver_network_runtime_for_read_model,
     network_runtime_stream_payload::{
         network_runtime_event_chain_stream_payload,
@@ -178,7 +177,6 @@ pub async fn build_network_flow_read_model_report(
     match load_network_flow_read_model().await {
         Some(read_model) => {
             let delivery = deliver_network_runtime_for_read_model(&read_model).await;
-            let product_path = prove_network_product_path_for_read_model(&read_model);
             build_event(
                 constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
                 &command.message_id,
@@ -188,7 +186,7 @@ pub async fn build_network_flow_read_model_report(
                 network_flow_read_model_payload_with_runtime_delivery(
                     &read_model,
                     Some(&delivery),
-                    Some(&product_path),
+                    None,
                 ),
                 None,
             )
