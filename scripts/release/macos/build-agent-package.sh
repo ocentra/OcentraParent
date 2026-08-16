@@ -2,7 +2,11 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-version="${OCENTRA_PARENT_VERSION:-$(cd "$repo_root" && node scripts/release/validate-version.mjs --print-version)}"
+if [[ -n "${OCENTRA_PARENT_VERSION:-}" ]]; then
+  echo 'Refusing legacy parent-scoped macOS child package version input. Use OCENTRA_CHILD_MACOS_VERSION.' >&2
+  exit 1
+fi
+version="${OCENTRA_CHILD_MACOS_VERSION:-$(cd "$repo_root" && node scripts/release/validate-version.mjs --print-version)}"
 package_root="$repo_root/target/release-packages/macos"
 payload_root="$package_root/payload"
 scripts_root="$package_root/scripts"
