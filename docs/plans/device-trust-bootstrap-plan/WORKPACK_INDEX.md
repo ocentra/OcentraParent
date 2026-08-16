@@ -32,6 +32,26 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 The previous `12/12`, `10/10`, and `complete` labels were not backed by real proof roots or runtime validation and have been reset by audit.
 
+## Production reachability audit (2026-08-16)
+
+The current source map was checked against the dependency order above. WP01,
+WP02, WP03, WP04, WP05, WP06, and WP07 have bounded production contracts or
+fail-closed local state, but none has a complete shipped cryptographic/device
+authority path for the missing behavior. WP08 and WP09 remain research/route
+work only. In particular, `ParentDeviceTrustCommandFacade` and the Windows
+custody implementation have no registered external production caller; the
+entitlement verifier and restore executor are unavailable-by-default ports;
+the QR and step-up paths have no ceremony issuer/nonce consumer; and child
+removal still stops at durable evidence/manual-required platform cleanup.
+
+This audit records source reachability only. It does not treat tests, proof,
+static status, synthetic challenges/receipts, generic JSON, or public DTOs as
+authority and does not change any workpack to complete. No production edit was
+legal without a real owner and caller; the next owner is the platform/passkey
+ceremony composition required before WP02/WP03 can advance. The graph validator
+also reports checked-in graph/source drift, so graph JSON was not regenerated
+in this lane.
+
 ## Default execution order
 
 ```text

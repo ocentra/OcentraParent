@@ -61,6 +61,37 @@ Current direction from research and the pasted plan set:
 - A narrow Rust parent-presence custody slice is present in `crates/family-identity-core` and is exercised by visible crate tests. Generated command logs may be written below `output/device-trust-bootstrap-plan-proof/` for a local run, but no generated proof file is committed as product truth.
 - The current plan-local tests are mostly doc-shape and route-alignment checks, not runtime trust-bootstrap proof.
 
+## Production-code reachability audit (2026-08-16)
+
+This source audit is against consolidated root `0a7e8c689`. It does not
+promote tests, proof artifacts, graph topology, or typed DTOs into runtime
+authority. No new production slice was accepted because no missing slice has a
+shipped caller that owns the required cryptographic/device authority.
+
+| Workpack | Reachable production code | Missing production authority / caller |
+| --- | --- | --- |
+| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar, and durable local event journal. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped ceremony issuer or complete trust-state owner. |
+| WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch custody; `crates/parent-runtime-core` has an opaque staged-handle facade. | No registered desktop/native command caller or trusted ceremony issuer reaches the facade; non-Windows custody and end-to-end sealing remain unavailable/manual-required. |
+| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. | No passkey/OS-native signature verifier, one-time nonce authority, or shipped parent-presence caller; policy proof consumption is not ceremony authority. |
+| WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
+| WP05 | `crates/entitlement-core` validates snapshot bindings and `child-runtime` evaluates the resulting input. | Signature/revocation authority is unavailable by default; no device-trust-bound capability unlock caller. |
+| WP06 | `crates/storage-custody-core` provides restore preflight and a parent-authority gate plus an unavailable executor port. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
+| WP07 | `crates/child-runtime` durably records tamper evidence and identity-bound parent revocation; service readiness blocks ingress. | Package/device-owner removal, attestation, parent transport, and platform handoff are absent; state remains manual-required. |
+| WP08 | Research/dependency review only. | No runtime dependency adoption owner or trust-root caller. |
+| WP09 | Route aggregation/documentation only. | No runtime trust behavior; completion remains downstream of WP01-WP08 evidence and authority. |
+
+The smallest honest result is therefore a durable gap map, not a synthetic
+issuer, test bridge, proof adapter, or dead DTO caller. The first production
+unblock is a real platform/passkey ceremony issuer and registered runtime
+composition for WP02/WP03; subsequent WP04-WP07 work remains dependent on its
+authority and platform owners.
+
+The repository graph is stale relative to plan/workpack sources:
+`npm run graph:validate` reported checked-in graph/source drift with the same
+703-node count but differing source-derived content. This audit did not
+bootstrap or edit graph JSON; graph completion state remains non-authoritative
+until the owning coordinator performs the permitted graph refresh.
+
 ## Current ownership interpretation
 
 ```text

@@ -41,3 +41,25 @@ verified-parent re-pair gate plus an unavailable-by-default restore executor;
 only a coherent execution receipt can project applied/partial state.
 Encrypted bundle/key custody, revocation preservation, and runtime proof
 remain open.
+
+## Production-code audit boundary (2026-08-16)
+
+The consolidated source audit found no legal production-code slice to add:
+
+- WP01/WP02 require a shipped ceremony issuer, platform custody provider, and
+  registered parent-runtime/desktop composition. The current source remains
+  fail-closed/manual-required where those owners are absent.
+- WP03/WP04 require real passkey/OS or phone ceremony signature verification,
+  one-time nonce consumption, and transport callers; typed receipts and QR
+  contracts are not authority.
+- WP05 requires a real entitlement signature/revocation provider; WP06 requires
+  encrypted recovery/key custody and a real restore executor; WP07 requires
+  platform removal/attestation and parent transport. None may be invented in
+  this plan as a test, proof, fixture, generic JSON, or DTO-only bridge.
+- WP08 and WP09 have no production behavior to implement in this pass.
+
+The next legal implementation must begin at the owner of a real platform or
+passkey ceremony and wire it through the existing WP02/WP03 boundaries. Until
+that owner is assigned and reachable from a shipped entrypoint, preserve the
+manual-required outcomes and do not claim trust bootstrap, device sealing,
+recovery, entitlement unlock, or child uninstall.
