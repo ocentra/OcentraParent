@@ -78,10 +78,15 @@ pub struct RestoreApplyRequest {
     pub confirmed: bool,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RestoreExecutorOutcome {
-    Applied,
-    Partial,
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RestoreExecutorReceipt {
+    pub execution_ref: String,
+    pub state: contracts::ExportImportRestoreApplyState,
+    pub applied_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub idempotent: bool,
+    pub tombstones_preserved: bool,
+    pub duplicates_created: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -94,7 +99,7 @@ pub trait RestoreExecutor {
         &mut self,
         preflight: &contracts::ExportImportImportPreflight,
         request: &RestoreApplyRequest,
-    ) -> Result<RestoreExecutorOutcome, RestoreExecutorFailure>;
+    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure>;
 }
 
 #[derive(Debug, Default)]
@@ -105,7 +110,7 @@ impl RestoreExecutor for UnavailableRestoreExecutor {
         &mut self,
         _preflight: &contracts::ExportImportImportPreflight,
         _request: &RestoreApplyRequest,
-    ) -> Result<RestoreExecutorOutcome, RestoreExecutorFailure> {
+    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure> {
         Err(RestoreExecutorFailure::Unavailable)
     }
 }
@@ -170,8 +175,13 @@ pub fn apply_restore_with_parent_authority_and_executor(
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     }
 
-    let Ok(outcome) = executor.execute_restore(preflight, request) else {
+    let Ok(receipt) = executor.execute_restore(preflight, request) else {
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     };
-    export_import_backup_recovery_restore::apply_restore_after_execution(preflight, outcome)
+    let Some(result) =
+        export_import_backup_recovery_restore::apply_restore_after_execution(preflight, receipt)
+    else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    result
 }

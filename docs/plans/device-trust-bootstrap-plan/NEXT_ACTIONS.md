@@ -38,6 +38,6 @@ unavailable default keeps capability unlock manual-required.
 
 WP06 now blocks the untrusted confirmation-only restore path and exposes a
 verified-parent re-pair gate plus an unavailable-by-default restore executor;
-authority confirmation cannot claim applied/partial state until a real
-executor exists. Encrypted bundle/key custody, revocation preservation, and
-runtime proof remain open.
+only a coherent execution receipt can project applied/partial state.
+Encrypted bundle/key custody, revocation preservation, and runtime proof
+remain open.

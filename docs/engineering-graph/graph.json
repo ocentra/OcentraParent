@@ -16922,7 +16922,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / confirmation-only restore blocked; verified parent and executor gates drafted; encryption, revocation, and proof remain open",
+        "statusText": "partial / confirmation-only restore blocked; verified parent and execution-receipt gates drafted; encryption, revocation, and proof remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
