@@ -824,8 +824,15 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     if (new Set(requestedDependencies).size !== requestedDependencies.length) {
       rejectionReasons.push('hardDependencies must not contain duplicate IDs');
     }
-    if (requestedDependencies.some((dependency) => typeof dependency !== 'string' || !nodeById.has(dependency))) {
-      rejectionReasons.push('hardDependencies must reference existing graph node IDs');
+    for (const dependency of requestedDependencies) {
+      const dependencyNode = typeof dependency === 'string' ? nodeById.get(dependency) : null;
+      if (!dependencyNode) {
+        rejectionReasons.push(`hardDependencies references unknown graph node ${String(dependency)}`);
+      } else if (dependency === workpackId) {
+        rejectionReasons.push('hardDependencies must not contain a self-dependency');
+      } else if (dependencyNode.kind !== 'workpack') {
+        rejectionReasons.push(`hardDependencies target ${dependency} must be a workpack node`);
+      }
     }
     const evidence = Array.isArray(review?.evidence) ? review.evidence : [];
     if (evidence.length === 0) rejectionReasons.push('evidence must contain existing plan/workpack review paths');
