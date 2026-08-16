@@ -22,8 +22,8 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 The status and box columns below are documentation/proof state, not source
 truth. [CODE_AUDIT.md](CODE_AUDIT.md) records the 2026-08-15 code/test review:
-all 42 imported workpacks are graph-mapped; 24 have no bounded Phase 1 writing
-gap and 18 retain concrete production-code or expected-test gaps.
+all 43 imported workpacks are graph-mapped; 24 have no bounded Phase 1 writing
+gap and 19 retain concrete production-code or expected-test gaps.
 
 | Status  | Workpack                                                                                                                  |   Size | Boxes                              |
 | ------- | ------------------------------------------------------------------------------------------------------------------------- | -----: | ---------------------------------- |
@@ -66,6 +66,7 @@ gap and 18 retain concrete production-code or expected-test gaps.
 | open    | [WP37 Tracking Event Journal Replay And Projection](workpacks/37-tracking-event-journal-replay-and-projection.md)        |  2,550 | 0/0 checked; on-disk audit open    |
 | open    | [WP38 Tracking Notification And Escalation Event Flow](workpacks/38-tracking-notification-and-escalation-event-flow.md)   |  2,980 | 0/0 checked; on-disk audit open    |
 | open    | [WP39 Tracking Portal Event Read-Model Proof](workpacks/39-tracking-portal-event-read-model-proof.md)                     |  2,908 | 0/0 checked; on-disk audit open    |
+| open    | [WP40 Trusted Tracking Runtime Ingress And Journal Composition](workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md) | new | routing owner required; implementation not started |
 
 | open | [Device Location Tracking Capability Guide](workpacks/device-location-tracking-capability-guide.md) | 33,263 | 0/0 checked; 0 open |
 | open | [Device Location Tracking Schema Proposal](workpacks/device-location-tracking-schema-proposal.md) | 46,695 | 0/0 checked; 0 open |
@@ -76,14 +77,17 @@ Audit note: `WP25`, `WP27`, `WP28`, `WP29`, and `WP33` were reopened by the 2026
 2026-08-15 code audit note: the old `packages/tracking-domain` and
 `scripts/test/tracking-*.mjs` paths are absent. WP34-WP36 now have real Rust
 contracts/process-local flows, while WP37-WP39 retain durability,
-notification/escalation, and end-to-end projection gaps.
+ notification/escalation, and end-to-end projection gaps. WP40 is the newly
+ routed owner for the missing trusted runtime/journal composition; it is not
+ implemented.
 
 2026-08-16 production reachability note: all workpack rows remain `open` for
 this production-code phase. WP03-WP06, WP14-WP19, WP21, WP23, WP25-WP26, and
 WP34-WP36 describe real typed/model or process-local code, not shipped
-capture, durability, provider delivery, or product completion. WP37 is blocked
-because no shipped owner composes `TrackingRuntimeEventFlow` with a durable
-tracking journal and `ActivityStore` projection; WP38 and WP39 therefore remain
+ capture, durability, provider delivery, or product completion. WP37 is blocked
+ behind the new WP40 composition route because no shipped owner composes
+ `TrackingRuntimeEventFlow` with a durable tracking journal and `ActivityStore`
+ projection; WP38 and WP39 therefore remain
 downstream blocked. See [CODE_AUDIT.md](CODE_AUDIT.md) for the per-workpack
 caller/effect/gap map. Historical checked boxes and proof packets remain
 non-authoritative.
@@ -93,6 +97,6 @@ non-authoritative.
 - Choose exactly one workpack.
 - If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`; do not scan every family.
 - Do not use checked boxes as proof when a workpack is audit-reopened.
-- Do not omit WP34-WP39 from scope.
+- Do not omit WP34-WP40 from scope.
 - Cross-boundary schemas must cite `schema-domain` or a neutral protocol/event/evidence owner.
 - Tracking-local schemas are private helpers only.

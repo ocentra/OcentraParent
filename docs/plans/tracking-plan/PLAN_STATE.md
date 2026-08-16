@@ -22,8 +22,8 @@ notification, AI-provider, custody, platform, and portal-shell authority.
 ## Code-first Phase 1 audit (2026-08-15)
 
 - Authoritative audit: [CODE_AUDIT.md](CODE_AUDIT.md).
-- 42/42 graph-imported workpacks have reviewed code/test topology.
-- 24 workpacks have no bounded source/test-writing gap; 18 retain concrete
+- 43/43 graph-imported workpacks have reviewed code/test topology.
+- 24 workpacks have no bounded source/test-writing gap; 19 retain concrete
   production-code or expected-test gaps.
 - Phase 2 focused tests/Enforcer and Phase 3 proof regeneration were not run.
 - Workpack checkboxes below remain document/proof state, not this code result.
@@ -38,7 +38,8 @@ notification, AI-provider, custody, platform, and portal-shell authority.
   in-memory `EventBus`, while `ActivityStore::ingest_journal` consumes a
   separate `ActivityEvent` journal path. No shipped owner currently maps the
   tracking domain cascade into that journal, configures its durable key/path,
-  replays it on startup, and projects it idempotently.
+  replays it on startup, and projects it idempotently. New WP40 now explicitly
+  owns that missing composition route; WP37 remains blocked behind WP40.
 - WP34-WP36 are real typed/process-local Rust flows, not durable runtime
   completion. WP38 remains notification intent only; WP39 remains a read-only
   ActivityStore/portal surface that is not fed by the live tracking cascade.
@@ -73,6 +74,11 @@ child-ai-core / child-notification-core:
 agent-core / agent-service:
   ActivityStore-backed tracking read model and service transport seams.
 
+WP40 composition owner:
+  the future child/service runtime owner for trusted tracking ingress, durable
+  journal configuration, startup replay, and idempotent ActivityStore projection.
+  This owner is routed but not implemented in the current checkout.
+
 portal-domain / apps/portal:
   presentation of Rust-owned/generated tracking snapshots.
 ```
@@ -101,6 +107,7 @@ portal-domain / apps/portal:
 - WP28/WP29: durable live/missing-device runtime ownership.
 - WP30: complete parent/child product UI.
 - WP33: tracked executable aggregate verifier.
+- WP40: trusted tracking runtime ingress and journal composition owner.
 - WP37: durable tracking journal replay and idempotent SQLite projection.
 - WP39: end-to-end event-to-portal restart chain.
 
@@ -122,11 +129,11 @@ portal-domain / apps/portal:
 
 ## Workpack summary
 
-- Graph-imported workpacks: 42.
-- Executable/coordination workpacks: WP01-WP39.
+- Graph-imported workpacks: 43.
+- Executable/coordination workpacks: WP01-WP40.
 - Imported reference packets: capability guide, schema proposal, and settings
   inventory.
-- Source/test result: 24 bounded complete, 18 incomplete.
+- Source/test result: 24 bounded complete, 19 incomplete.
 
 ## Product-ready no-claim boundaries
 

@@ -20,7 +20,8 @@ This pass followed the shipped agent/child/parent entrypoints rather than
 counting mapped files as runtime completion. No production slice was accepted:
 the smallest honest WP37 change requires an existing composition owner for the
 tracking journal, event-to-`ActivityEvent` mapping, durable key/path
-configuration, startup replay, and idempotent projection. That owner is absent.
+configuration, startup replay, and idempotent projection. That owner was
+absent; WP40 now records the required route without claiming implementation.
 
 | Workpacks | Reachable production path | Effect and remaining gap |
 | --- | --- | --- |
@@ -37,9 +38,10 @@ configuration, startup replay, and idempotent projection. That owner is absent.
 | WP27-WP29 | Alerting, escalation/live-mode/missing-device decision functions | No durable timer/session/lifecycle owner or authority-controlled platform action. |
 | WP30-WP33 | Rust snapshots, portal presentation, coordination/proof routing | Presentation and proof routing do not create runtime capture, mutation, or delivery. |
 | WP34-WP36 | `parent-runtime-core`/`child-runtime` config and detection flows; `TrackingRuntimeEventFlow::new` creates `EventBus::new` | Typed process-local cascades and receipts exist; no durable tracking journal or store projection. |
-| WP37 | `child-runtime::tracking_runtime_flow` -> `tracking-core::read_model`; separate `agent-core::ActivityStore::ingest_journal` capture path | Blocked: no tracking-event serializer, configured journal owner, startup replay, or idempotent cascade-to-SQLite composition. |
+| WP37 | `child-runtime::tracking_runtime_flow` -> `tracking-core::read_model`; separate `agent-core::ActivityStore::ingest_journal` capture path | Blocked behind WP40: no tracking-event serializer, configured journal owner, startup replay, or idempotent cascade-to-SQLite composition. |
 | WP38 | `child-runtime::tracking_runtime_flow::subscriptions` emits notification intent into in-memory state | Blocked: no durable outbox, provider receipt, quiet-hours/escalation timer, retry, dead-letter, or acknowledgement lifecycle. |
 | WP39 | `agent-service::build_activity_tracking_read_model_report` reads `ActivityStore`; portal renders the Rust-owned snapshot | Blocked: the live tracking cascade never feeds that store, so restart-safe event-to-portal reachability is absent. |
+| WP40 | No shipped owner; required child/service runtime composition is absent | **Incomplete / route only** | New dependency owner required for trusted tracking ingress, durable journal configuration, startup replay, and idempotent projection. No code, tests, proof, or product claim exists. |
 
 The existing matrix below remains the detailed Phase 1 model/test audit. Its
 “Complete for Phase 1” rows must not be read as shipped capture, durability,
@@ -47,12 +49,12 @@ provider delivery, or product readiness.
 
 ## Result
 
-- 42/42 workpacks have exact reviewed code/test topology in the engineering
+- 43/43 workpacks have exact reviewed code/test topology in the engineering
   graph.
-- 24/42 have no Phase 1 source/test-writing gap in their bounded scope. Three of
+- 24/43 have no Phase 1 source/test-writing gap in their bounded scope. Three of
   those are imported reference packets and four are coordination/proof-routing
   packets with no product-code owner.
-- 18/42 retain a concrete production-code or expected-test gap.
+- 19/43 retain a concrete production-code or expected-test gap.
 - The live Tracking implementation is Rust-first. The former
   `packages/tracking-domain` owner and the advertised
   `scripts/test/tracking-*.mjs` suite do not exist in this checkout.
@@ -97,25 +99,28 @@ provider delivery, or product readiness.
 | WP34 Event contracts/constants | Canonical Rust tracking event registry, runtime event contracts, identifiers, constants, schema negatives, and contract tests are written. | **Complete for Phase 1** | Runtime durability belongs to WP37. |
 | WP35 Parent config command flow | Parent approval/rejection chain, typed events, child apply/persist response, audit/read-model hops, and focused parent/child tests are written. | **Complete for Phase 1** | Physical child service delivery remains later proof. |
 | WP36 Detection cascade | Child event-bus cascade covers location validation, evidence, geofence, expected place, AI, policy, alert, notification, and check-in branches with integration tests. | **Complete for Phase 1** | The flow is process-local; persistence belongs to WP37 and delivery/escalation to WP38. |
-| WP37 Journal replay/projection | Process-local EventBus journal snapshots and separate SQLite read-model querying exist. | **Incomplete** | `TrackingRuntimeEventFlow` uses a fresh in-memory bus; no durable append/restart replay/idempotent projection chain connects runtime events to SQLite. |
+| WP37 Journal replay/projection | Process-local EventBus journal snapshots and separate SQLite read-model querying exist. | **Incomplete** | `TrackingRuntimeEventFlow` uses a fresh in-memory bus; no durable append/restart replay/idempotent projection chain connects runtime events to SQLite. WP40 is the reviewed composition dependency. |
 | WP38 Notification/escalation event flow | Notification intent is emitted from the in-memory detection cascade and tracking event schemas reserve notification/escalation families. | **Incomplete** | No durable outbox/provider receipt/quiet-hours/escalation timer/retry/dead-letter/ack lifecycle or integrated tests exist. |
 | WP39 Portal event read-model proof | Portal renders Rust-owned tracking snapshots and ActivityStore-backed rows with focused presentation/service tests. | **Incomplete** | The live tracking cascade is not durably projected into that read model, and no end-to-end event-to-portal restart test closes the chain. |
+| WP40 Trusted runtime ingress/journal composition | No production owner exists; this packet records the missing boundary and required outcome only. | **Incomplete** | Must be implemented in the real child/service lifecycle before WP37 can be legally selected. |
 | Device location tracking capability guide | Imported reference packet; no product code belongs to it. | **Complete for bounded Phase 1** | It remains design/reference input. |
 | Device location tracking schema proposal | Imported reference packet; Rust owners supersede its historical TypeScript-like proposal shapes. | **Complete for bounded Phase 1** | It remains design/reference input. |
 | Tracking control settings inventory | Imported settings inventory; no product runtime belongs in the document. | **Complete for bounded Phase 1** | Individual controls still require their owning workpacks. |
 
 ## Highest-impact implementation order after Phase 1
 
-1. WP37: durable tracking journal replay and idempotent SQLite projection. This
-   turns the already-written WP35/WP36 event flows into restart-safe product
-   state and unblocks an honest WP39 portal chain.
-2. WP38 and WP27: durable notification outbox/receipt plus escalation timer and
+1. WP40: trusted tracking runtime ingress and durable journal composition. This
+   is the missing production owner required before WP37.
+2. WP37: durable tracking journal replay and idempotent SQLite projection. This
+   consumes WP40 and turns the already-written WP35/WP36 event flows into
+   restart-safe product state.
+3. WP38 and WP27: durable notification outbox/receipt plus escalation timer and
    acknowledgement lifecycle.
-3. WP22 and WP07: durable parent-defined places and evidence retention/custody
+4. WP22 and WP07: durable parent-defined places and evidence retention/custody
    execution.
-4. WP08-WP12: real platform acquisition adapters and lifecycle tests.
-5. WP20/WP24: real POI and AI provider routing boundaries.
-6. WP28-WP30/WP39: live/missing-device runtime composition and complete
+5. WP08-WP12: real platform acquisition adapters and lifecycle tests.
+6. WP20/WP24: real POI and AI provider routing boundaries.
+7. WP28-WP30/WP39: live/missing-device runtime composition and complete
    parent/child product surfaces.
 
 ## Phase boundary
