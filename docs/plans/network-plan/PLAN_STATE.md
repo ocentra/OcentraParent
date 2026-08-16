@@ -117,11 +117,25 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - `crates/network-core` owns network domain/runtime decisions; it does not create a second schema truth.
 - `crates/agent-protocol` owns real Rust network contracts, status payload shapes, constants, and protocol tests.
 - `crates/agent-core` owns real network capture, ActivityStore network rows, runtime chain, queue, replay, and remote-delivery proof logic with tests.
-- `crates/agent-service` owns real network payload, digest, runtime-delivery, product-path, remote-delivery, and platform-gate bridge code with tests.
+- `crates/agent-service` owns real network payload, digest, runtime-delivery, remote-delivery, and platform-gate bridge code with tests. The former product-path proof builder is disconnected from the shipped read API because it fabricated downstream refs rather than loading authoritative records.
 - `crates/ocentra-network-evidence` owns real packet, DNS, domain, classifier, cascade, adapter-gate, performance, and platform-claim proof logic with tests.
 - `apps/portal` owns real service-backed network read-model parsing, drawer projection, refresh routing, and e2e proof fixtures.
 
 ## Open gaps / truth boundaries
+
+### 2026-08-16 WP04 synthetic product-path safety cut — code incomplete
+
+- Commit `3971ad5da` removes the production read API call to
+  `prove_network_product_path_for_read_model` and passes `None` through the
+  existing optional product-path payload boundary.
+- Real stored network observations and real runtime-delivery/journal reporting
+  remain reachable. AI, policy, adapter, retention, deletion, export, and portal
+  refs/counters are now absent instead of being derived from one observation ID.
+- The disconnected builder modules and tests that assert their fabricated
+  references remain scheduled for deletion/rewrite in the code/test phases.
+- This is a fail-honest safety cut only. It does not complete WP04 or establish
+  a live analyzer, AI queue, policy decision, notification delivery, adapter
+  action, custody lifecycle, or parent-surface product path.
 
 ### Current code-drafted WP01 runtime slice — tests deferred
 
