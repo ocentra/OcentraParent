@@ -1,11 +1,8 @@
 use super::*;
 use ocentra_parent_agent_protocol::activity_surface::ActivityBrowserReadModel;
-use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionReadModel;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryReadModel;
-use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
-use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
 
 use super::payload_fields::serialized_enum_label;
+use super::snapshots_network::response_json_payload_field;
 use super::transport::rejection_message;
 
 pub(crate) fn browser_managed_status_snapshot_from_result(

@@ -1,15 +1,14 @@
 mod generic_command;
 mod network_flow;
+mod policy_authoring;
 mod rust_owned_command;
 mod state;
 
 use self::generic_command::dispatch_parent_ui_action_agent_command;
 use self::network_flow::dispatch_parent_ui_action_network_flow_refresh;
+use self::policy_authoring::dispatch_parent_ui_action_policy_authoring;
 use self::rust_owned_command::dispatch_parent_ui_action_rust_owned_command;
 use self::state::ActionDispatchState;
-use super::policy_preview::authoring;
-use super::policy_preview::resolution;
-use super::presentation::parent_access_state_for_lan_read_model;
 use super::*;
 
 pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentUiActionResult {
@@ -59,132 +58,6 @@ pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentU
         snapshot: Some(snapshot),
         events: state.events,
     }
-}
-
-fn dispatch_parent_ui_action_policy_authoring(
-    action: &ParentUiAction,
-    lan_route_query: &LanRouteQuery,
-    state: &mut ActionDispatchState,
-) -> bool {
-    let is_policy_authoring_action = matches!(
-        action.action,
-        ParentUiActionKind::PolicyPreviewAuthoringDraftStaged
-            | ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled
-            | ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested
-            | ParentUiActionKind::PolicyRequestParentResolutionRequested
-    );
-    if !is_policy_authoring_action {
-        return false;
-    }
-    if !matches!(action.route, ParentRouteId::PolicyNetwork) {
-        state.reject("policy preview authoring action is bound to the policy route");
-        return true;
-    }
-    let Some(read_model) = load_policy_preview_read_model_snapshot(None).ok() else {
-        state.reject("policy preview authoring requires a current policy preview");
-        return true;
-    };
-    let Some(preview_id) = read_model.preview_id.as_ref() else {
-        state.reject("policy preview authoring requires a preview identifier");
-        return true;
-    };
-    let parent_access_state = parent_access_state_for_lan_read_model(lan_route_query.read_model());
-    match action.action {
-        ParentUiActionKind::PolicyPreviewAuthoringDraftStaged => {
-            match authoring::stage(&action.payload, &read_model, &parent_access_state) {
-                Ok(_) => {
-                    state.accepted = true;
-                    state.message =
-                        "parent Rust facade staged a bounded policy preview draft".to_string();
-                }
-                Err(error) => state.reject(error),
-            }
-        }
-        ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled => {
-            match authoring::cancel(&action.payload, preview_id, &parent_access_state) {
-                Ok(()) => {
-                    state.accepted = true;
-                    state.message =
-                        "parent Rust facade invalidated the policy preview draft".to_string();
-                }
-                Err(error) => state.reject(error),
-            }
-        }
-        ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
-            match authoring::consume(&action.payload, preview_id, &parent_access_state) {
-                Ok(draft) => match authoring::typed_confirm_payload(&draft) {
-                    Ok(payload) => {
-                        let relay_action = ParentUiAction {
-                            payload,
-                            ..action.clone()
-                        };
-                        dispatch_parent_ui_action_rust_owned_command(&relay_action, true, state);
-                        if state.accepted {
-                            if let Err(error) =
-                                authoring::commit(&draft, preview_id, &parent_access_state)
-                            {
-                                let _ =
-                                    authoring::release(&draft, preview_id, &parent_access_state);
-                                state.reject(error);
-                            } else {
-                                state.message =
-                                    "parent Rust facade relayed the typed policy preview confirmation"
-                                        .to_string();
-                            }
-                        } else {
-                            let _ = authoring::release(&draft, preview_id, &parent_access_state);
-                        }
-                    }
-                    Err(error) => {
-                        let _ = authoring::release(&draft, preview_id, &parent_access_state);
-                        state.reject(error);
-                    }
-                },
-                Err(error) => state.reject(error),
-            }
-        }
-        ParentUiActionKind::PolicyRequestParentResolutionRequested => {
-            let Some(lan_read_model) = lan_route_query.read_model() else {
-                state.reject("parent resolution requires local controller authority");
-                return true;
-            };
-            match resolution::begin(
-                &action.payload,
-                &read_model,
-                &parent_access_state,
-                Some(lan_read_model),
-            ) {
-                Ok(staged) => match resolution::request_payload(&staged) {
-                    Ok(payload) => {
-                        let relay_action = ParentUiAction {
-                            payload,
-                            ..action.clone()
-                        };
-                        dispatch_parent_ui_action_rust_owned_command(&relay_action, true, state);
-                        if state.accepted {
-                            if let Err(error) = resolution::commit(&staged) {
-                                let _ = resolution::restore(&staged);
-                                state.reject(error);
-                            } else {
-                                state.message =
-                                    "parent Rust facade relayed the typed parent resolution"
-                                        .to_string();
-                            }
-                        } else if let Err(error) = resolution::restore(&staged) {
-                            state.reject(error);
-                        }
-                    }
-                    Err(error) => {
-                        let _ = resolution::restore(&staged);
-                        state.reject(error);
-                    }
-                },
-                Err(error) => state.reject(error),
-            }
-        }
-        _ => {}
-    }
-    true
 }
 
 fn dispatch_parent_ui_action_message(

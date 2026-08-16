@@ -237,6 +237,7 @@ fn read_model_with_network_mapping() -> PolicyPreviewReadModel {
                 adapter_action_authorized: false,
                 enforcement_command_authorized: false,
             }),
+            confirmation_context: None,
         }],
     }
 }

@@ -370,7 +370,7 @@ pub fn agent_service_connects(agent_address: &ParentDesktopAgentAddress) -> bool
                 &address,
                 Duration::from_millis(LEGACY_SOCKET_CONNECT_TIMEOUT_MS),
             )
-                .ok()
+            .ok()
         })
         .is_some()
 }

@@ -29,6 +29,7 @@ use ocentra_parent_agent_protocol::app_game_policy_readiness::{
     APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT,
     APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT,
     APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE,
+    APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING,
     APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY,
     APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE, APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW,
     APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED, APP_GAME_POLICY_READINESS_STATE_READY,
@@ -105,7 +106,7 @@ fn app_game_policy_readiness_payload_reports_service_counts_with_source_dispatch
         constants::error::AGENT_EVENT_SERIALIZES,
     );
 
-    assert_eq!(decoded.returned, 7);
+    assert_eq!(decoded.returned, 8);
     assert_eq!(
         decoded.capability_status,
         APP_GAME_POLICY_READINESS_STATUS_READY
@@ -187,6 +188,33 @@ fn assert_category_and_unknown_rows(decoded: &AppGamePolicyReadinessReadModel) {
         vec![
             constants::value::APP_GAME_TEST_POLICY_READINESS_CATEGORY_EVIDENCE_ID,
             APP_GAME_TEST_CATALOG_REF
+        ]
+    );
+    assert_eq!(
+        readiness_row(
+            &decoded.rows,
+            APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING
+        )
+        .readiness_state,
+        APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED
+    );
+    assert_eq!(
+        readiness_row(
+            &decoded.rows,
+            APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING
+        )
+        .row_count,
+        1
+    );
+    assert_eq!(
+        readiness_row(
+            &decoded.rows,
+            APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING
+        )
+        .evidence_reference_ids,
+        vec![
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_EVIDENCE_ID,
+            constants::value::APP_GAME_TEST_POLICY_READINESS_UNKNOWN_INVENTORY_ENTRY_ID
         ]
     );
     assert_eq!(

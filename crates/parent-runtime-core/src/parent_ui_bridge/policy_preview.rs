@@ -5,7 +5,7 @@ mod access_summary;
 #[path = "policy_preview/access_write.rs"]
 mod access_write;
 #[path = "policy_preview/authoring.rs"]
-pub(super) mod authoring;
+pub(crate) mod authoring;
 #[path = "policy_preview/cards.rs"]
 mod cards;
 #[path = "policy_preview/details.rs"]
@@ -15,7 +15,7 @@ mod helpers;
 #[path = "policy_preview/panel.rs"]
 mod panel;
 #[path = "policy_preview/resolution.rs"]
-pub(super) mod resolution;
+pub(crate) mod resolution;
 #[path = "policy_preview/summary.rs"]
 mod summary;
 

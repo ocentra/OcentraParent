@@ -1819,7 +1819,8 @@ export interface ParentNetworkRuntimeEventChainStreamSnapshot {
   readonly invalidEventCount: number;
 }
 
-export interface ParentPolicyPreviewConfirmationContext {  readonly requestId?: string | null;
+export interface ParentPolicyPreviewConfirmationContext {
+  readonly requestId?: string | null;
   readonly submissionKey?: string | null;
   readonly householdId?: string | null;
   readonly childProfileId?: string | null;

@@ -1,5 +1,9 @@
 use super::*;
 
+use crate::agent_service_client::types::{
+    AppUseReadModelAgentServiceSnapshot, GamesReadModelAgentServiceSnapshot,
+};
+
 pub(super) fn apply_tracking_and_screen_live_activity_impl(
     tracking_read_model_snapshot: Option<&TrackingReadModelAgentServiceSnapshot>,
     screen_read_model_snapshot: Option<&ScreenReadModelAgentServiceSnapshot>,

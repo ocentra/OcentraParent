@@ -3,6 +3,12 @@ use ocentra_schema::parent_ui_bridge::{
     ParentPortalShellStatusSnapshot, ParentRouteLiveActivitySnapshot,
 };
 
+use crate::agent_service_client::types::{
+    AppUseReadModelAgentServiceSnapshot, BrowserActivityReadModelAgentServiceSnapshot,
+    BrowserEvidenceReadModelAgentServiceSnapshot, BrowserInventoryReadModelAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot,
+};
+
 #[path = "dependencies/load.rs"]
 mod load;
 

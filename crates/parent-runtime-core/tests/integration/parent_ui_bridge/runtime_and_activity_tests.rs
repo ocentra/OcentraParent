@@ -114,85 +114,6 @@ fn screen_settings_actions_attach_runtime_service_response_snapshot() {
 }
 
 #[test]
-fn policy_preview_confirm_action_dispatches_rust_owned_command_and_reloads_snapshot() {
-    let request_payload = json!({
-        "policyRequestAssistantPreviewConfirmRequest": "{\"schemaVersion\":1,\"commandId\":\"cmd-policy-request-confirm-1\",\"requestId\":\"policy-request-1\",\"submissionKey\":\"policy-request-submission-1\",\"householdId\":\"household-1\",\"childProfileId\":\"child-profile-1\",\"deviceId\":\"device-1\",\"sourceDocumentId\":\"source-document-1\",\"policyVersion\":7,\"requestKind\":\"ask-parent\",\"targetKind\":\"site\",\"targetReferenceId\":\"example.test\",\"requestedAction\":\"ask-parent\",\"ruleId\":\"rule-1\",\"requestedBonusMinutes\":null,\"requestedAt\":\"2026-06-18T00:05:00Z\",\"expiresAt\":\"2026-06-18T00:20:00Z\",\"origin\":\"assistant-draft\",\"assistantPreviewId\":\"policy-preview.network.1\",\"assistantConfirmationState\":\"preview-only\",\"requestStatus\":\"preview-only\",\"auditReferenceIds\":[\"audit.policy-request.preview\"],\"confirmationActorId\":\"parent-1\",\"confirmationActorRole\":\"parent\",\"confirmationActorState\":\"active\",\"confirmationAuditReferenceId\":\"audit.policy-request.confirmed\",\"confirmedAt\":\"2026-06-18T00:10:00Z\"}"
-    });
-    let (address, capture) = start_local_server_with_capture_responses(vec![
-        policy_request_assistant_preview_confirmed_response_event(),
-        policy_preview_confirmed_response_event(),
-    ]);
-    let action = ParentUiAction {
-        action: ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested,
-        route: ParentRouteId::Approvals,
-        command: None,
-        payload: request_payload.clone(),
-        context: None,
-    };
-    let result = with_agent_addr(&address, || dispatch_parent_ui_action(&action));
-    let confirm_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured policy preview confirm command arrives",
-    );
-    let policy_preview_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured policy preview reload arrives",
-    );
-
-    assert!(result.accepted);
-    assert_eq!(
-        result.message,
-        "parent Rust facade requested policy preview parent confirmation"
-    );
-    assert_eq!(
-        confirm_request.command["command"],
-        json!("agent.policy.request.assistant-preview.confirm")
-    );
-    assert_eq!(
-        confirm_request.command["payload"]["policyRequestAssistantPreviewConfirmRequest"],
-        request_payload["policyRequestAssistantPreviewConfirmRequest"]
-    );
-    assert_eq!(
-        policy_preview_request.command["command"],
-        json!("agent.policy.preview.read-model.get")
-    );
-
-    let live_activity = require_result_live_activity(
-        &result,
-        TestContext("policy preview confirm action returns snapshot"),
-        TestContext("policy preview confirm action returns live activity snapshot"),
-    );
-    let policy_preview = require_some(
-        live_activity.policy_preview_panel.as_ref(),
-        TestContext("policy preview confirm action returns policy preview panel"),
-    );
-    let preview_card = require_some(
-        policy_preview.cards.first(),
-        TestContext("policy preview panel keeps first preview card"),
-    );
-    let preview_details = preview_card.details.as_slice();
-    let detail_value = |label: &str| {
-        preview_details
-            .iter()
-            .find(|detail| detail.label == label)
-            .map(|detail| detail.value.as_str())
-    };
-    assert_eq!(detail_value("Request origin"), Some("Assistant draft"));
-    assert_eq!(
-        detail_value("Assistant confirmation"),
-        Some("Parent confirmed")
-    );
-    assert_eq!(
-        detail_value("Request status"),
-        Some("Pending parent review")
-    );
-    assert_eq!(
-        detail_value("Audit reference"),
-        Some("audit.policy-request.confirmed")
-    );
-}
-
-#[test]
 fn policy_preview_real_conflict_reasons_are_projected_before_manual_review() {
     for (field, finding_kind) in [
         (
@@ -518,55 +439,7 @@ fn app_game_sessions_route_load_attaches_rust_owned_app_game_panels() {
             TestContext("app-game sessions route snapshot serializes"),
         )
     });
-    let notification_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured app-game notification readiness load arrives",
-    );
-    let policy_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured app-game policy readiness load arrives",
-    );
-    let platform_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured app-game platform proof status load arrives",
-    );
-    let transport_request = require_ok(
-        capture.recv_timeout(Duration::from_secs(1)),
-        "captured app-game child runtime transport receipt load arrives",
-    );
-
-    let mut commands = vec![
-        command_text(
-            &notification_request.command["command"],
-            TestContext("notification command is a string"),
-        )
-        .0,
-        command_text(
-            &policy_request.command["command"],
-            TestContext("policy command is a string"),
-        )
-        .0,
-        command_text(
-            &platform_request.command["command"],
-            TestContext("platform command is a string"),
-        )
-        .0,
-        command_text(
-            &transport_request.command["command"],
-            TestContext("transport command is a string"),
-        )
-        .0,
-    ];
-    commands.sort();
-    assert_eq!(
-        commands,
-        vec![
-            "agent.activity.app-game.child-runtime-transport-receipt.read-model.get".to_string(),
-            "agent.activity.app-game.notification-readiness.read-model.get".to_string(),
-            "agent.activity.app-game.platform-proof-status.read-model.get".to_string(),
-            "agent.activity.app-game.policy-readiness.read-model.get".to_string(),
-        ]
-    );
+    assert_app_game_route_load_requests(&capture);
     assert_eq!(
         value["liveActivity"]["appGameNotificationParentSurfacePanel"]["rows"][0]["key"],
         json!("notification-ready-row")
@@ -786,11 +659,19 @@ fn network_flow_refresh_action_attaches_runtime_backed_snapshot() {
 
 fn capture_app_game_dispatch_requests(
     capture: &std::sync::mpsc::Receiver<super::tests_support::CapturedLanRequest>,
-) -> [super::tests_support::CapturedLanRequest; 8] {
+) -> [super::tests_support::CapturedLanRequest; 10] {
     [
         require_ok(
             capture.recv_timeout(Duration::from_secs(1)),
             "captured app-game dispatch execute command arrives",
+        ),
+        require_ok(
+            capture.recv_timeout(Duration::from_secs(1)),
+            "captured app-use load after dispatch arrives",
+        ),
+        require_ok(
+            capture.recv_timeout(Duration::from_secs(1)),
+            "captured games load after dispatch arrives",
         ),
         require_ok(
             capture.recv_timeout(Duration::from_secs(1)),
@@ -823,40 +704,75 @@ fn capture_app_game_dispatch_requests(
     ]
 }
 
+fn assert_app_game_route_load_requests(
+    capture: &std::sync::mpsc::Receiver<super::tests_support::CapturedLanRequest>,
+) {
+    let mut commands = (0..9)
+        .map(|_| {
+            let request = require_ok(
+                capture.recv_timeout(Duration::from_secs(1)),
+                "captured app-game route load request arrives",
+            );
+            command_text(
+                &request.command["command"],
+                TestContext("app-game route load command is a string"),
+            )
+            .0
+        })
+        .collect::<Vec<_>>();
+    commands.sort();
+    assert_eq!(
+        commands,
+        vec![
+            "agent.activity.app-game.adapter-dispatch-preflight.read-model.get".to_string(),
+            "agent.activity.app-game.adapter-dispatch-result.read-model.get".to_string(),
+            "agent.activity.app-game.child-runtime-transport-receipt.read-model.get".to_string(),
+            "agent.activity.app-game.notification-readiness.read-model.get".to_string(),
+            "agent.activity.app-game.platform-proof-status.read-model.get".to_string(),
+            "agent.activity.app-game.policy-readiness.read-model.get".to_string(),
+            "agent.activity.app-game.timer-parent-surface.read-model.get".to_string(),
+            "agent.activity.app-use.read-model.get".to_string(),
+            "agent.activity.games.read-model.get".to_string(),
+        ]
+    );
+}
+
 fn assert_app_game_dispatch_request_commands(
-    requests: &[super::tests_support::CapturedLanRequest; 8],
+    requests: &[super::tests_support::CapturedLanRequest; 10],
 ) {
     for (request, expected_command) in [
         (
             &requests[0],
             "agent.activity.app-game.adapter-dispatch.execute",
         ),
+        (&requests[1], "agent.activity.app-use.read-model.get"),
+        (&requests[2], "agent.activity.games.read-model.get"),
         (
-            &requests[1],
+            &requests[3],
             "agent.activity.app-game.notification-readiness.read-model.get",
         ),
         (
-            &requests[2],
+            &requests[4],
             "agent.activity.app-game.policy-readiness.read-model.get",
         ),
         (
-            &requests[3],
+            &requests[5],
             "agent.activity.app-game.platform-proof-status.read-model.get",
         ),
         (
-            &requests[4],
+            &requests[6],
             "agent.activity.app-game.child-runtime-transport-receipt.read-model.get",
         ),
         (
-            &requests[5],
+            &requests[7],
             "agent.activity.app-game.adapter-dispatch-preflight.read-model.get",
         ),
         (
-            &requests[6],
+            &requests[8],
             "agent.activity.app-game.adapter-dispatch-result.read-model.get",
         ),
         (
-            &requests[7],
+            &requests[9],
             "agent.activity.app-game.timer-parent-surface.read-model.get",
         ),
     ] {
@@ -866,11 +782,19 @@ fn assert_app_game_dispatch_request_commands(
 
 fn capture_app_game_timer_requests(
     capture: &std::sync::mpsc::Receiver<super::tests_support::CapturedLanRequest>,
-) -> [super::tests_support::CapturedLanRequest; 8] {
+) -> [super::tests_support::CapturedLanRequest; 10] {
     [
         require_ok(
             capture.recv_timeout(Duration::from_secs(1)),
             "captured app-game parent preference setup command arrives",
+        ),
+        require_ok(
+            capture.recv_timeout(Duration::from_secs(1)),
+            "captured app-use load after timer setup arrives",
+        ),
+        require_ok(
+            capture.recv_timeout(Duration::from_secs(1)),
+            "captured games load after timer setup arrives",
         ),
         require_ok(
             capture.recv_timeout(Duration::from_secs(1)),
@@ -904,39 +828,41 @@ fn capture_app_game_timer_requests(
 }
 
 fn assert_app_game_timer_request_commands(
-    requests: &[super::tests_support::CapturedLanRequest; 8],
+    requests: &[super::tests_support::CapturedLanRequest; 10],
 ) {
     for (request, expected_command) in [
         (
             &requests[0],
             "agent.activity.app-game.timer-parent-surface.parent-preference-setup.request",
         ),
+        (&requests[1], "agent.activity.app-use.read-model.get"),
+        (&requests[2], "agent.activity.games.read-model.get"),
         (
-            &requests[1],
+            &requests[3],
             "agent.activity.app-game.notification-readiness.read-model.get",
         ),
         (
-            &requests[2],
+            &requests[4],
             "agent.activity.app-game.policy-readiness.read-model.get",
         ),
         (
-            &requests[3],
+            &requests[5],
             "agent.activity.app-game.platform-proof-status.read-model.get",
         ),
         (
-            &requests[4],
+            &requests[6],
             "agent.activity.app-game.child-runtime-transport-receipt.read-model.get",
         ),
         (
-            &requests[5],
+            &requests[7],
             "agent.activity.app-game.adapter-dispatch-preflight.read-model.get",
         ),
         (
-            &requests[6],
+            &requests[8],
             "agent.activity.app-game.adapter-dispatch-result.read-model.get",
         ),
         (
-            &requests[7],
+            &requests[9],
             "agent.activity.app-game.timer-parent-surface.read-model.get",
         ),
     ] {

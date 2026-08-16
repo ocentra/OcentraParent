@@ -1,6 +1,7 @@
 use ocentra_parent_agent_core::network_event_runtime::{
     remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
     remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
+    NetworkRuntimeJournalState,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -46,35 +47,7 @@ pub struct NetworkRuntimeServiceDeliveryReportForTest {
     pub dead_letters: usize,
     pub manual_required_rows: usize,
     pub enforcement_command_events: usize,
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq)]
-pub struct NetworkProductPathServiceProofReportForTest {
-    pub observed_rows: usize,
-    pub proved_rows: usize,
-    pub skipped_rows: usize,
-    pub failed_rows: usize,
-    pub manual_required_rows: usize,
-    pub unavailable_rows: usize,
-    pub policy_decision_count: usize,
-    pub action_result_count: usize,
-    pub retention_record_count: usize,
-    pub delete_record_count: usize,
-    pub export_record_count: usize,
-    pub portal_read_model_count: usize,
-    pub enforcement_command_events: usize,
-    pub adapter_action_executed_count: usize,
-    pub ai_advisory_rows: usize,
-    pub weak_or_unavailable_blocked_rows: usize,
-    pub analyzer_alert_refs: Vec<TestString>,
-    pub ai_detection_refs: Vec<TestString>,
-    pub risk_budget_refs: Vec<TestString>,
-    pub policy_decision_refs: Vec<TestString>,
-    pub action_result_refs: Vec<TestString>,
-    pub retention_refs: Vec<TestString>,
-    pub deletion_refs: Vec<TestString>,
-    pub export_refs: Vec<TestString>,
-    pub portal_read_model_refs: Vec<TestString>,
+    pub journal_state: NetworkRuntimeJournalState,
 }
 
 #[derive(Clone, Debug, Default, PartialEq)]
@@ -176,23 +149,13 @@ pub async fn deliver_network_runtime_for_read_model_for_test(
     delivery_report_for_test(&report)
 }
 
-pub fn prove_network_product_path_for_read_model_for_test(
-    read_model: &ActivityNetworkFlowReadModel,
-) -> NetworkProductPathServiceProofReportForTest {
-    product_path_report_for_test(
-        crate::network_product_path_bridge::prove_network_product_path_for_read_model(read_model),
-    )
-}
-
 pub fn network_flow_read_model_payload_with_runtime_delivery_for_test(
     read_model: &ActivityNetworkFlowReadModel,
     delivery: Option<&NetworkRuntimeServiceDeliveryReportForTest>,
-    product_path: Option<&NetworkProductPathServiceProofReportForTest>,
 ) -> LogFields {
     crate::activity_network_flow_payload::network_flow_read_model_payload_with_runtime_delivery(
         read_model,
         delivery.map(delivery_report_from_test).as_ref(),
-        product_path.map(product_path_report_from_test).as_ref(),
     )
 }
 
@@ -295,6 +258,7 @@ fn delivery_report_for_test(
         dead_letters: report.dead_letters,
         manual_required_rows: report.manual_required_rows,
         enforcement_command_events: report.enforcement_command_events,
+        journal_state: report.journal_state,
     }
 }
 
@@ -310,70 +274,7 @@ fn delivery_report_from_test(
         dead_letters: report.dead_letters,
         manual_required_rows: report.manual_required_rows,
         enforcement_command_events: report.enforcement_command_events,
-    }
-}
-
-fn product_path_report_for_test(
-    report: crate::network_product_path_bridge::NetworkProductPathServiceProofReport,
-) -> NetworkProductPathServiceProofReportForTest {
-    NetworkProductPathServiceProofReportForTest {
-        observed_rows: report.observed_rows,
-        proved_rows: report.proved_rows,
-        skipped_rows: report.skipped_rows,
-        failed_rows: report.failed_rows,
-        manual_required_rows: report.manual_required_rows,
-        unavailable_rows: report.unavailable_rows,
-        policy_decision_count: report.policy_decision_count,
-        action_result_count: report.action_result_count,
-        retention_record_count: report.retention_record_count,
-        delete_record_count: report.delete_record_count,
-        export_record_count: report.export_record_count,
-        portal_read_model_count: report.portal_read_model_count,
-        enforcement_command_events: report.enforcement_command_events,
-        adapter_action_executed_count: report.adapter_action_executed_count,
-        ai_advisory_rows: report.ai_advisory_rows,
-        weak_or_unavailable_blocked_rows: report.weak_or_unavailable_blocked_rows,
-        analyzer_alert_refs: report.analyzer_alert_refs,
-        ai_detection_refs: report.ai_detection_refs,
-        risk_budget_refs: report.risk_budget_refs,
-        policy_decision_refs: report.policy_decision_refs,
-        action_result_refs: report.action_result_refs,
-        retention_refs: report.retention_refs,
-        deletion_refs: report.deletion_refs,
-        export_refs: report.export_refs,
-        portal_read_model_refs: report.portal_read_model_refs,
-    }
-}
-
-fn product_path_report_from_test(
-    report: &NetworkProductPathServiceProofReportForTest,
-) -> crate::network_product_path_bridge::NetworkProductPathServiceProofReport {
-    crate::network_product_path_bridge::NetworkProductPathServiceProofReport {
-        observed_rows: report.observed_rows,
-        proved_rows: report.proved_rows,
-        skipped_rows: report.skipped_rows,
-        failed_rows: report.failed_rows,
-        manual_required_rows: report.manual_required_rows,
-        unavailable_rows: report.unavailable_rows,
-        policy_decision_count: report.policy_decision_count,
-        action_result_count: report.action_result_count,
-        retention_record_count: report.retention_record_count,
-        delete_record_count: report.delete_record_count,
-        export_record_count: report.export_record_count,
-        portal_read_model_count: report.portal_read_model_count,
-        enforcement_command_events: report.enforcement_command_events,
-        adapter_action_executed_count: report.adapter_action_executed_count,
-        ai_advisory_rows: report.ai_advisory_rows,
-        weak_or_unavailable_blocked_rows: report.weak_or_unavailable_blocked_rows,
-        analyzer_alert_refs: report.analyzer_alert_refs.clone(),
-        ai_detection_refs: report.ai_detection_refs.clone(),
-        risk_budget_refs: report.risk_budget_refs.clone(),
-        policy_decision_refs: report.policy_decision_refs.clone(),
-        action_result_refs: report.action_result_refs.clone(),
-        retention_refs: report.retention_refs.clone(),
-        deletion_refs: report.deletion_refs.clone(),
-        export_refs: report.export_refs.clone(),
-        portal_read_model_refs: report.portal_read_model_refs.clone(),
+        journal_state: report.journal_state,
     }
 }
 

@@ -183,10 +183,7 @@ pub async fn build_network_flow_read_model_report(
                 command.source,
                 AgentEventName::AgentNetworkFlowReadModelReported,
                 LogLevel::Info,
-                network_flow_read_model_payload_with_runtime_delivery(
-                    &read_model,
-                    Some(&delivery),
-                ),
+                network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery)),
                 None,
             )
         }

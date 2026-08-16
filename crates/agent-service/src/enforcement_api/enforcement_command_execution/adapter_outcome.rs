@@ -1,10 +1,12 @@
 use ocentra_parent_agent_core::enforcement_adapter::{
-    unavailable_adapter_outcome, EnforcementAdapterOutcome, EnforcementUnavailableReason,
+    unavailable_adapter_outcome, EnforcementAdapterOutcome,
 };
 use ocentra_parent_agent_core::enforcement_boundary::{
     EnforcementAdapterRequest, EnforcementBoundaryInput,
 };
-use ocentra_parent_agent_protocol::enforcement::{EnforcementAdapterKind, EnforcementMode};
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementMode, EnforcementUnavailableReason,
+};
 
 use crate::enforcement_payload::{
     EnforcementCommandPayload, EnforcementPayloadError, EnforcementText,

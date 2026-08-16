@@ -7,6 +7,10 @@ use ocentra_policy_control_core::policy_source::{
     ParentPolicyDocumentId, PolicyAuditReferenceId, PolicyHouseholdId, PolicyVersion,
 };
 
+pub const AUTHENTICATED_ADAPTER_STATUS: &str = "ActuallyEnforced";
+pub const AUTHENTICATED_ADAPTER_RESULT: &str = "ProcessTerminated";
+pub const AUTHENTICATED_ROLLBACK_STATE: &str = "RolledBack";
+
 #[derive(Clone, PartialEq, Eq)]
 pub struct AuthenticatedPolicyReceiptContext {
     pub delivery_id: PolicyDeliveryId,
@@ -33,22 +37,24 @@ pub fn policy_receipt_from_authenticated_trace(
     trace: &AuthenticatedAdapterExecutionTrace,
     context: AuthenticatedPolicyReceiptContext,
 ) -> Result<PolicyDeliveryExecutionReceipt, AuthenticatedPolicyReceiptError> {
+    let policy_version = context.policy_version.value().to_string();
     if trace.household_id() != context.household_id.as_str()
-        || trace.policy_version() != context.policy_version.as_str()
+        || trace.policy_version() != policy_version.as_str()
         || trace.child_profile_id() != context.target.child_profile_id.as_str()
         || trace.target_device_id() != context.target.device_id.as_str()
     {
         return Err(AuthenticatedPolicyReceiptError::TraceContextMismatch);
     }
-    let (state, rollback_reference_state) = if trace.adapter_status() == "ActuallyEnforced"
-        && trace.adapter_result() == "ProcessTerminated"
+    let (state, rollback_reference_state) = if trace.adapter_status()
+        == AUTHENTICATED_ADAPTER_STATUS
+        && trace.adapter_result() == AUTHENTICATED_ADAPTER_RESULT
         && trace.observed_process_id() == Some(trace.process_id())
         && trace.observed_process_name() == Some(trace.expected_process_name())
         && trace.observed_executable_path() == Some(trace.expected_executable_path())
         && trace.observed_process_start_time() == Some(trace.process_start_time())
     {
         (PolicyDeliveryState::Applied, None)
-    } else if trace.rollback_state() == "RolledBack" {
+    } else if trace.rollback_state() == AUTHENTICATED_ROLLBACK_STATE {
         (
             PolicyDeliveryState::RolledBack,
             Some(PolicyDeliveryState::Applied),

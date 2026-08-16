@@ -20,10 +20,7 @@ export const NetworkEvidenceDrawerRoutePanelFixture = {
     networkFlowReadModel: degradedNetworkFlowReadModel,
   }),
   networkEvidenceSummary: {
-    analyzerAlertRef: 'analyzer-alert-1',
-    detectionResultRef: 'detection-result-1',
     aiAuditRef: 'ai-audit-1',
-    riskBudgetRef: 'risk-budget-1',
     policyDecisionRef: 'policy-decision-1',
     networkEvidenceGrade: 'gold',
     interventionResultRef: 'intervention-result-1',

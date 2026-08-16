@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAiAuditState;
 use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimeEventPayload;
 use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPABILITY_READY;
@@ -327,7 +328,7 @@ fn screen_deletion_journal_path(suffix: &str) -> std::path::PathBuf {
 }
 
 #[tokio::test]
-async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
+async fn screen_service_event_bridge_publishes_degraded_non_ai_event_path() {
     let report = publish_screen_degraded_event_chain(
         degraded_service_screen_row(),
         ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
@@ -358,8 +359,6 @@ async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
         vec![
             ScreenRuntimePhase::CaptureObserved,
             ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
             ScreenRuntimePhase::DeletionCommitted,
             ScreenRuntimePhase::PortalReadModelUpdated,
         ]
@@ -369,6 +368,9 @@ async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
             && payload.policy_action.is_none()
             && payload.parent_rule_ref.is_none()
             && payload.action_ref.is_none()
+            && payload.ai_request_ref.is_none()
+            && payload.ai_result_ref.is_none()
+            && payload.ai_audit_state == ScreenAiAuditState::NotRequested
     }));
     assert_eq!(
         payloads

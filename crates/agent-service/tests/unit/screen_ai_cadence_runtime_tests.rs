@@ -31,6 +31,12 @@ static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 #[test]
 fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    if root.exists() {
+        require_ok(
+            fs::remove_dir_all(&root),
+            constants::error::ACTIVITY_STORE_INGESTS,
+        );
+    }
     let config = ScreenAiCadenceRuntimeConfig {
         screen_analysis_enabled: true,
         cadence_capture_enabled: true,

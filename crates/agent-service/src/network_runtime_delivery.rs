@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
+use ocentra_eventing::error::EventingError;
 use serde::de::DeserializeOwned;
 use serde_json::Value;
 use tokio::sync::OnceCell;
-use ocentra_eventing::error::EventingError;
 
 use ocentra_parent_agent_core::{
     network_capture::NetworkObservation,
@@ -85,14 +85,13 @@ impl NetworkRuntimeServiceDeliveryReport {
     }
 }
 
-pub(crate) async fn initialize_network_runtime_spine(
-) -> Result<(), EventingError> {
+pub(crate) async fn initialize_network_runtime_spine() -> Result<(), EventingError> {
     let _ = shared_network_runtime_spine().await?;
     Ok(())
 }
 
-pub(crate) async fn shared_network_runtime_spine(
-) -> Result<Arc<NetworkRuntimeSpine>, EventingError> {
+pub(crate) async fn shared_network_runtime_spine() -> Result<Arc<NetworkRuntimeSpine>, EventingError>
+{
     if let Some(spine) = NETWORK_RUNTIME_SPINE.get() {
         return Ok(Arc::clone(spine));
     }

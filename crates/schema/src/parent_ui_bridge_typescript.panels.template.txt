@@ -51,8 +51,13 @@ export interface ParentRouteLiveActivitySnapshot {
   readonly ingestStatus?: ParentUnknownRecord | null;
   readonly activityScreenReadModel?: ParentUnknownRecord | null;
   readonly activityAppUseReadModel?: ParentUnknownRecord | null;
+  readonly activityBrowserReadModel?: ParentUnknownRecord | null;
   readonly activityGamesReadModel?: ParentUnknownRecord | null;
   readonly screenSummaryPanel?: ParentScreenSummaryPanelSnapshot | null;
+  readonly browserInventoryEvent?: ParentRouteEventSnapshot | null;
+  readonly browserInventoryReadModel?: ParentUnknownRecord | null;
+  readonly browserEvidenceEvent?: ParentRouteEventSnapshot | null;
+  readonly browserEvidenceReadModel?: ParentUnknownRecord | null;
   readonly browserManagedEvent?: ParentRouteEventSnapshot | null;
   readonly browserManagedStatus?: ParentUnknownRecord | null;
   readonly localAiRuntimeStatusEvent?: ParentRouteEventSnapshot | null;

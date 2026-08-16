@@ -3,6 +3,9 @@ use super::details::policy_preview_summary_details_impl;
 use super::helpers::{policy_preview_product_claim, policy_preview_unavailable_summary};
 use super::summary::policy_preview_summary_impl;
 use super::*;
+use ocentra_schema::parent_ui_bridge::{
+    ParentPolicyPreviewActionSnapshot, ParentPolicyPreviewAuthoringSnapshot,
+};
 
 pub(super) fn policy_preview_panel_snapshot_impl(
     event: Option<&ParentRouteEventSnapshot>,
