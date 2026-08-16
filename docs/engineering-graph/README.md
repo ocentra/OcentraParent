@@ -103,7 +103,16 @@ existing numeric-ID table format when a matching `workpacks/<id>-*.md` file is
 present. It records ambiguous or unknown imports in
 `graph.json.migration.ambiguities`; it does not invent hard dependencies from
 prose. Reviewed dependency edges live in `overrides.json` and must carry
-evidence. A reviewed `stateOverrides` entry may record a current validation
+evidence. A `workpackReviews` entry is the per-workpack migration gate for
+dependency readiness: it must name an exact workpack node, provide an explicit
+`hardDependencies` array (including `[]`), existing plan/workpack evidence, and
+a reason. Its dependency IDs must exactly equal the existing valid reviewed
+`depends_on` edges for that workpack. A valid review only sets
+`dependencyConfidence=reviewed` and clears that workpack's `needsReview`; it
+does not mark code, tests, proof, or completion done. Invalid or incomplete
+reviews remain migration-blocked and are emitted as precise review items.
+
+A reviewed `stateOverrides` entry may record a current validation
 slice (never an unverified `done` claim) and must point to its proof manifest
 and command evidence. A reviewed `proofOverrides` entry may point a completed
 workpack at a durable plan-level manifest when that manifest explicitly covers
@@ -151,13 +160,17 @@ row from silently becoming a completion claim.
 2. Keep detailed scope, expected tests, proof, and ADR requirements in the
    existing routed documents.
 3. Add only reviewed hard dependencies to `overrides.json` with evidence.
-4. If the expected code/test shape is known, add a
+4. Add a `workpackReviews` entry only after reviewing the exact workpack's
+   dependency context; use an explicit empty `hardDependencies` array when the
+   next source-code slice has no hard code-writing prerequisite. Do not use this
+   entry to suppress unrelated plan/workpack ambiguities.
+5. If the expected code/test shape is known, add a
    `code-map.json.workpacks` entry with the workpack ID, `codeExpectation`, and
    reviewed file/directory roots. Use `no-code-required` with empty roots only
    after the workpack contract is reviewed. Leave it unmapped when ownership or
    expected topology is uncertain.
-5. Run `npm run graph:bootstrap -- --write` and `npm run graph:validate`.
-6. Query `graph:inspect <workpack-id>` before assigning the workpack.
+6. Run `npm run graph:bootstrap -- --write` and `npm run graph:validate`.
+7. Query `graph:inspect <workpack-id>` before assigning the workpack.
 
 The graph is intentionally conservative: an ambiguous imported workpack stays
 `planned` until its dependency/readiness context is reviewed.

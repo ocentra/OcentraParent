@@ -712,6 +712,7 @@ async function readOverrides(root, overridesPath) {
   if (!text) {
     return {
       edges: [],
+      workpackReviews: [],
       ambiguities: [],
       stateOverrides: [],
       proofOverrides: [],
@@ -721,6 +722,7 @@ async function readOverrides(root, overridesPath) {
   const parsed = JSON.parse(text);
   return {
     edges: Array.isArray(parsed.edges) ? parsed.edges : [],
+    workpackReviews: Array.isArray(parsed.workpackReviews) ? parsed.workpackReviews : [],
     ambiguities: Array.isArray(parsed.ambiguities) ? parsed.ambiguities : [],
     stateOverrides: Array.isArray(parsed.stateOverrides) ? parsed.stateOverrides : [],
     proofOverrides: Array.isArray(parsed.proofOverrides) ? parsed.proofOverrides : [],
@@ -803,6 +805,85 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   }
 
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  // A workpack review is deliberately narrower than a completion override.
+  // It authorizes dependency/readiness derivation for one exact workpack only;
+  // it never promotes code, tests, proof, or a stale DONE label.
+  const reviewedWorkpackIds = new Set();
+  for (const review of overrides.workpackReviews) {
+    const workpackId = typeof review?.id === 'string' ? review.id : null;
+    const node = workpackId ? nodeById.get(workpackId) : null;
+    const rejectionReasons = [];
+    if (!node) rejectionReasons.push(`unknown workpack ${workpackId ?? '<missing id>'}`);
+    else if (node.kind !== 'workpack') rejectionReasons.push(`${workpackId} is not a workpack node`);
+    if (workpackId && reviewedWorkpackIds.has(workpackId)) rejectionReasons.push('duplicate workpack review entry');
+    if (workpackId) reviewedWorkpackIds.add(workpackId);
+    if (!Array.isArray(review?.hardDependencies)) {
+      rejectionReasons.push('hardDependencies must be an explicit array, including [] when there are none');
+    }
+    const requestedDependencies = Array.isArray(review?.hardDependencies) ? review.hardDependencies : [];
+    if (new Set(requestedDependencies).size !== requestedDependencies.length) {
+      rejectionReasons.push('hardDependencies must not contain duplicate IDs');
+    }
+    if (requestedDependencies.some((dependency) => typeof dependency !== 'string' || !nodeById.has(dependency))) {
+      rejectionReasons.push('hardDependencies must reference existing graph node IDs');
+    }
+    const evidence = Array.isArray(review?.evidence) ? review.evidence : [];
+    if (evidence.length === 0) rejectionReasons.push('evidence must contain existing plan/workpack review paths');
+    const missingEvidence = evidence.filter((reference) => !pathExistsSync(repoRoot, reference));
+    rejectionReasons.push(...missingEvidence.map((reference) => `missing evidence ${reference}`));
+    if (typeof review?.reason !== 'string' || review.reason.trim().length === 0) {
+      rejectionReasons.push('reason is required');
+    }
+
+    const actualReviewedDependencies = overrides.edges
+      .filter(
+        (edge) =>
+          edge?.kind === 'depends_on' &&
+          edge.from === workpackId &&
+          edge.confidence === 'reviewed' &&
+          Array.isArray(edge.evidence) &&
+          edge.evidence.length > 0 &&
+          edge.evidence.every((reference) => pathExistsSync(repoRoot, reference))
+      )
+      .map((edge) => edge.to)
+      .sort();
+    const requestedSorted = [...requestedDependencies].sort();
+    if (JSON.stringify(actualReviewedDependencies) !== JSON.stringify(requestedSorted)) {
+      rejectionReasons.push(
+        `hardDependencies ${JSON.stringify(requestedSorted)} do not match reviewed depends_on edges ${JSON.stringify(actualReviewedDependencies)}`
+      );
+    }
+
+    if (rejectionReasons.length > 0) {
+      if (node?.kind === 'workpack') {
+        node.metadata = {
+          ...node.metadata,
+          dependencyConfidence: 'unreviewed',
+          needsReview: true,
+          dependencyReviewRejected: rejectionReasons,
+        };
+      }
+      ambiguities.push({
+        scope: `workpack-review:${workpackId ?? '<missing-id>'}`,
+        reason: 'Workpack dependency review was rejected; readiness remains migration-blocked.',
+        workpackId,
+        rejectionReasons,
+        evidence,
+      });
+      continue;
+    }
+
+    node.metadata = {
+      ...node.metadata,
+      dependencyConfidence: 'reviewed',
+      needsReview: false,
+      dependencyReview: {
+        hardDependencies: requestedSorted,
+        evidence,
+        reason: review.reason,
+      },
+    };
+  }
   for (const override of overrides.stateOverrides) {
     const node = nodeById.get(override.id);
     if (!node || !STATES.has(override.state)) continue;
@@ -828,7 +909,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     node.metadata = {
       ...node.metadata,
       ...(override.statusText ? { statusText: override.statusText } : {}),
-      needsReview: false,
+      needsReview: node.metadata?.dependencyReviewRejected ? true : false,
     };
   }
   for (const override of overrides.proofOverrides) {
@@ -882,7 +963,9 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       completionGaps: gaps,
       sourceStatusText: node.metadata.statusText,
       statusText: `Validation — completion contract gaps: ${gaps.join('; ')}`,
-      needsReview: false,
+      // A rejected workpack dependency review remains a migration blocker;
+      // completion-contract demotion must not accidentally clear it.
+      needsReview: node.metadata?.dependencyReviewRejected ? true : false,
     };
   }
 
