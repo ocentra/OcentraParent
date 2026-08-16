@@ -6,6 +6,12 @@ use ocentra_app_game_core::app_game_child_ux_outbox_store::AppGameChildUxLocalOu
 use ocentra_app_game_core::app_game_child_ux_outbox_types::{
     AppGameChildUxOutboxInput, AppGameChildUxOutboxPersistResult, AppGameChildUxOutboxRoute,
 };
+use ocentra_app_game_core::app_game_child_ux_scheduler::build_app_game_child_ux_scheduler_route;
+use ocentra_app_game_core::app_game_child_ux_scheduler_store::AppGameChildUxSchedulerProofStore;
+use ocentra_app_game_core::app_game_child_ux_scheduler_types::{
+    AppGameChildUxSchedulerInput, AppGameChildUxSchedulerPersistResult,
+    AppGameChildUxSchedulerRoute,
+};
 use ocentra_app_game_core::app_game_child_ux_types::{
     AppGameChildReasonRef, AppGameChildStatusRef, AppGameChildUxCapabilityState,
     AppGameChildUxInput, AppGameChildUxNoticeState, AppGameChildUxRequestState,
@@ -26,7 +32,9 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::family::{
     FamilyReference, ParentDevicePlatform, ParentDeviceReference,
 };
 use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::{
-    NotificationLocalOutboxSeverity, NotificationLocalOutboxState, V3NotificationProviderChannel,
+    NotificationLocalOutboxDeliveryClaimState, NotificationLocalOutboxRecord,
+    NotificationLocalOutboxSchedulerState, NotificationLocalOutboxSeverity,
+    NotificationLocalOutboxState, V3NotificationProviderChannel,
 };
 
 #[test]
@@ -134,6 +142,146 @@ fn claimed_delivery_and_mismatched_artifact_refs_are_rejected() {
             value: "artifact-1".to_string(),
         })
     );
+}
+
+#[test]
+fn reopened_outbox_record_persists_as_due_local_scheduler_proof(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = test_directory("scheduler-reopen");
+    let AppGameChildUxOutboxRoute::Queued(source) =
+        build_app_game_child_ux_outbox_route(outbox_input())?
+    else {
+        return Err(std::io::Error::other("deliverable notice must queue").into());
+    };
+    let outbox_store = AppGameChildUxLocalOutboxStore::open(directory.join("outbox"))?;
+    assert_eq!(
+        outbox_store.persist((*source).clone())?,
+        AppGameChildUxOutboxPersistResult::Inserted
+    );
+    let reopened_source = AppGameChildUxLocalOutboxStore::open(directory.join("outbox"))?
+        .records()?
+        .into_iter()
+        .next()
+        .ok_or_else(|| std::io::Error::other("reopened outbox record missing"))?;
+    let AppGameChildUxSchedulerRoute::DueLocal(scheduled) =
+        build_app_game_child_ux_scheduler_route(scheduler_input(reopened_source))?
+    else {
+        return Err(std::io::Error::other("queued record must schedule").into());
+    };
+    assert_eq!(
+        scheduled.scheduler_state,
+        NotificationLocalOutboxSchedulerState::DueLocal
+    );
+    assert_eq!(scheduled.source_entry_id.as_str(), "entry-1");
+    assert_eq!(
+        scheduled
+            .next_attempt_at
+            .as_ref()
+            .map(|value| value.as_str()),
+        Some("2026-08-15T00:01:00Z")
+    );
+    assert!(!scheduled.parent_owned_artifact_written);
+    assert!(!scheduled.provider_delivery_attempted);
+    assert!(!scheduled.production_durable_outbox_storage_claimed);
+
+    let scheduler_store = AppGameChildUxSchedulerProofStore::open(directory.join("scheduler"))?;
+    assert_eq!(
+        scheduler_store.persist((*scheduled).clone())?,
+        AppGameChildUxSchedulerPersistResult::Inserted
+    );
+    let persisted =
+        AppGameChildUxSchedulerProofStore::open(directory.join("scheduler"))?.records()?;
+    assert_eq!(persisted.len(), 1);
+    assert!(persisted[0].parent_owned_artifact_written);
+    assert_eq!(
+        persisted[0].scheduler_entry_id,
+        scheduled.scheduler_entry_id
+    );
+    fs::remove_dir_all(directory)?;
+    Ok(())
+}
+
+#[test]
+fn scheduler_exact_replay_is_idempotent_and_conflict_fails_closed(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let directory = test_directory("scheduler-idempotency");
+    let AppGameChildUxOutboxRoute::Queued(source) =
+        build_app_game_child_ux_outbox_route(outbox_input())?
+    else {
+        return Err(std::io::Error::other("deliverable notice must queue").into());
+    };
+    let AppGameChildUxSchedulerRoute::DueLocal(scheduled) =
+        build_app_game_child_ux_scheduler_route(scheduler_input(*source))?
+    else {
+        return Err(std::io::Error::other("queued record must schedule").into());
+    };
+    let store = AppGameChildUxSchedulerProofStore::open(&directory)?;
+    assert_eq!(
+        store.persist((*scheduled).clone())?,
+        AppGameChildUxSchedulerPersistResult::Inserted
+    );
+    assert_eq!(
+        store.persist((*scheduled).clone())?,
+        AppGameChildUxSchedulerPersistResult::AlreadyPresent
+    );
+    let mut conflicting = *scheduled;
+    conflicting.next_attempt_at = Some("2026-08-15T00:02:00Z".into());
+    let error = match store.persist(conflicting) {
+        Err(error) => error,
+        Ok(result) => {
+            return Err(std::io::Error::other(format!(
+                "conflicting scheduler entry unexpectedly persisted as {result:?}"
+            ))
+            .into());
+        }
+    };
+    assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+    assert_eq!(store.records()?.len(), 1);
+    fs::remove_dir_all(directory)?;
+    Ok(())
+}
+
+#[test]
+fn scheduler_blocks_manual_state_and_rejects_unsafe_delivery_claim(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let AppGameChildUxOutboxRoute::Queued(source) =
+        build_app_game_child_ux_outbox_route(outbox_input())?
+    else {
+        return Err(std::io::Error::other("deliverable notice must queue").into());
+    };
+    let mut manual = (*source).clone();
+    manual.state = NotificationLocalOutboxState::ManualRequired;
+    manual.delivery_claim_state = NotificationLocalOutboxDeliveryClaimState::ManualRequired;
+    manual.manual_action_required = true;
+    assert_eq!(
+        build_app_game_child_ux_scheduler_route(scheduler_input(manual)),
+        Ok(AppGameChildUxSchedulerRoute::Blocked {
+            source_entry_id: "entry-1".into(),
+            source_state: NotificationLocalOutboxState::ManualRequired,
+        })
+    );
+
+    let mut unsafe_source = *source;
+    unsafe_source.provider_delivery_attempted = true;
+    assert_eq!(
+        build_app_game_child_ux_scheduler_route(scheduler_input(unsafe_source)),
+        Err(ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.child_ux_scheduler.source_record",
+            value: "entry-1".to_string(),
+        })
+    );
+    Ok(())
+}
+
+fn scheduler_input(source_record: NotificationLocalOutboxRecord) -> AppGameChildUxSchedulerInput {
+    AppGameChildUxSchedulerInput {
+        source_record,
+        scheduler_entry_id: "scheduler-entry-1".into(),
+        scheduler_decision_ref: "scheduler-decision-1".into(),
+        scheduler_artifact_ref: "scheduler-artifact-1".into(),
+        scheduler_now_at: "2026-08-15T00:01:00Z".into(),
+        scheduler_payload_preview: "family-rule-new-app-approval".into(),
+    }
 }
 
 fn outbox_input() -> AppGameChildUxOutboxInput {

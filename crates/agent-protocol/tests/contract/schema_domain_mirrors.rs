@@ -9,6 +9,7 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::{
         NotificationLocalOutboxAdapterProof, NotificationLocalOutboxAdapterProofSchemaVersion,
         NotificationLocalOutboxDeliveryClaimState, NotificationLocalOutboxMinimalAlertEnvelope,
         NotificationLocalOutboxNonClaim, NotificationLocalOutboxRecord,
+        NotificationLocalOutboxSchedulerRecord, NotificationLocalOutboxSchedulerState,
         NotificationLocalOutboxSeverity, NotificationLocalOutboxState,
         V3NotificationProviderChannel, V3NotificationRuleReasonCode,
     },
@@ -123,6 +124,56 @@ fn schema_domain_mirrors_notification_outbox_proof_uses_current_typescript_liter
             "no-sensitive-provider-metadata",
         ])
     );
+}
+
+#[test]
+fn schema_domain_mirrors_notification_scheduler_record_uses_shared_shape() {
+    let source = notification_outbox_record_fixture();
+    let value = to_json(NotificationLocalOutboxSchedulerRecord {
+        scheduler_entry_id: "scheduler-entry-1".into(),
+        source_entry_id: source.entry_id,
+        source_state: source.state,
+        scheduler_state: NotificationLocalOutboxSchedulerState::DueLocal,
+        reason_code: source.envelope.reason_code,
+        provider_channel: source.envelope.provider_channel,
+        severity: source.envelope.severity,
+        scheduler_decision_ref: "scheduler-decision-1".into(),
+        scheduler_artifact_ref: "scheduler-artifact-1".into(),
+        source_outbox_file_ref: source.outbox_file_ref,
+        local_data_path_ref: source.local_data_path_ref,
+        scheduler_now_at: "2026-08-15T00:01:00Z".into(),
+        next_attempt_at: Some("2026-08-15T00:01:00Z".into()),
+        quiet_hours_window: None,
+        retry_window: None,
+        dead_letter_review_ref: None,
+        provider_receipt_ref: None,
+        manual_proof_requirements: Vec::new(),
+        manual_action_required: false,
+        parent_owned_artifact_written: false,
+        raw_child_evidence_included: false,
+        raw_url_or_title_included: false,
+        raw_message_text_included: false,
+        screenshot_or_report_included: false,
+        provider_delivery_attempted: false,
+        provider_delivery_observed: false,
+        provider_receipt_ingested: false,
+        provider_credentials_stored: false,
+        cloud_routing_claimed: false,
+        parent_notification_ui_claimed: false,
+        production_durable_outbox_storage_claimed: false,
+        sensitive_provider_metadata_stored: false,
+        scheduler_payload_preview: "controlled scheduler preview".into(),
+    });
+
+    assert_eq!(value["schedulerEntryId"], "scheduler-entry-1");
+    assert_eq!(value["sourceState"], "queued-local");
+    assert_eq!(value["schedulerState"], "due-local");
+    assert_eq!(value["reasonCode"], "policy-violation");
+    assert_eq!(value["providerChannel"], "push");
+    assert_eq!(value["nextAttemptAt"], "2026-08-15T00:01:00Z");
+    assert_eq!(value["parentOwnedArtifactWritten"], false);
+    assert_eq!(value["providerDeliveryAttempted"], false);
+    assert_eq!(value["productionDurableOutboxStorageClaimed"], false);
 }
 
 fn notification_outbox_adapter_proof_fixture() -> NotificationLocalOutboxAdapterProof {
