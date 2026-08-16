@@ -89,7 +89,7 @@ fn dispatch_parent_ui_action_policy_authoring(
     let parent_access_state = parent_access_state_for_lan_read_model(lan_route_query.read_model());
     match action.action {
         ParentUiActionKind::PolicyPreviewAuthoringDraftStaged => {
-            match authoring::stage(&action.payload, preview_id, &parent_access_state) {
+            match authoring::stage(&action.payload, &read_model, &parent_access_state) {
                 Ok(_) => {
                     state.accepted = true;
                     state.message =
@@ -110,9 +110,34 @@ fn dispatch_parent_ui_action_policy_authoring(
         }
         ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
             match authoring::consume(&action.payload, preview_id, &parent_access_state) {
-                Ok(_) => state.reject(
-                    "policy preview handle consumed; confirmed-request relay remains deferred",
-                ),
+                Ok(draft) => match authoring::typed_confirm_payload(&draft) {
+                    Ok(payload) => {
+                        let relay_action = ParentUiAction {
+                            payload,
+                            ..action.clone()
+                        };
+                        dispatch_parent_ui_action_rust_owned_command(&relay_action, true, state);
+                        if state.accepted {
+                            if let Err(error) =
+                                authoring::commit(&draft, preview_id, &parent_access_state)
+                            {
+                                let _ =
+                                    authoring::release(&draft, preview_id, &parent_access_state);
+                                state.reject(error);
+                            } else {
+                                state.message =
+                                    "parent Rust facade relayed the typed policy preview confirmation"
+                                        .to_string();
+                            }
+                        } else {
+                            let _ = authoring::release(&draft, preview_id, &parent_access_state);
+                        }
+                    }
+                    Err(error) => {
+                        let _ = authoring::release(&draft, preview_id, &parent_access_state);
+                        state.reject(error);
+                    }
+                },
                 Err(error) => state.reject(error),
             }
         }

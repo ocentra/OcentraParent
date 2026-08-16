@@ -43,6 +43,7 @@
   readonly networkPolicyMappingMode?: string | null;
   readonly networkAdapterActionAuthorized?: boolean | null;
   readonly networkEnforcementCommandAuthorized?: boolean | null;
+  readonly confirmationContext?: ParentPolicyPreviewConfirmationContext | null;
 }
 
 export interface ParentRouteLiveActivitySnapshot {

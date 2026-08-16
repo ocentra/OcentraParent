@@ -1822,6 +1822,25 @@ export interface ParentNetworkRuntimeEventChainStreamSnapshot {
   readonly invalidEventCount: number;
 }
 
+export interface ParentPolicyPreviewConfirmationContext {  readonly requestId?: string | null;
+  readonly submissionKey?: string | null;
+  readonly householdId?: string | null;
+  readonly childProfileId?: string | null;
+  readonly deviceId?: string | null;
+  readonly sourceDocumentId?: string | null;
+  readonly policyVersion?: number | null;
+  readonly targetReferenceId?: string | null;
+  readonly ruleId?: string | null;
+  readonly requestedAt?: string | null;
+  readonly expiresAt?: string | null;
+  readonly assistantPreviewId?: string | null;
+  readonly auditReferenceIds?: string | null;
+  readonly actorId?: string | null;
+  readonly actorRole?: string | null;
+  readonly actorState?: string | null;
+  readonly confirmationAuditReferenceId?: string | null;
+}
+
 export interface ParentPolicyPreviewReadModelSnapshot {  readonly schemaVersion?: string | null;
   readonly generatedAt?: string | null;
   readonly custody?: string | null;
@@ -1867,6 +1886,7 @@ export interface ParentPolicyPreviewReadModelSnapshot {  readonly schemaVersion?
   readonly networkPolicyMappingMode?: string | null;
   readonly networkAdapterActionAuthorized?: boolean | null;
   readonly networkEnforcementCommandAuthorized?: boolean | null;
+  readonly confirmationContext?: ParentPolicyPreviewConfirmationContext | null;
 }
 
 export interface ParentRouteLiveActivitySnapshot {

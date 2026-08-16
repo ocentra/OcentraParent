@@ -214,6 +214,7 @@ pub const POLICY_PREVIEW_MANUAL_REVIEW_STATE: &str = "policyPreviewManualReviewS
 pub const POLICY_PREVIEW_TARGET_STATE: &str = "policyPreviewTargetState";
 pub const POLICY_PREVIEW_TARGET_EXPLANATION_CODE: &str = "policyPreviewTargetExplanationCode";
 pub const POLICY_PREVIEW_FINDING_KINDS: &str = "policyPreviewFindingKinds";
+pub const POLICY_PREVIEW_CONFIRMATION_CONTEXT: &str = "policyPreviewConfirmationContext";
 pub const POLICY_SOURCE_STATUS: &str = "policySourceStatus";
 pub const POLICY_SOURCE_SURFACE: &str = "policySourceSurface";
 pub const POLICY_REQUEST_ORIGIN: &str = "policyRequestOrigin";

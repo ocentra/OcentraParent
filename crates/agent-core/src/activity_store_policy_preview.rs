@@ -14,6 +14,7 @@ use ocentra_parent_agent_protocol::activity::policy::POLICY_DRY_RUN_SCHEMA_VERSI
 use ocentra_parent_agent_protocol::activity::policy_context::LocalAiParentRuleContextRef;
 use ocentra_parent_agent_protocol::activity::policy_preview::policy_preview_finding_kinds_csv;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyAssistantConfirmationState;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewConfirmationContext;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewFindingKind;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewNetworkEvidenceMapping;
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
@@ -291,7 +292,148 @@ fn preview_row(
         policy_reviewed_at: policy_lifecycle.policy_reviewed_at,
         policy_audit_reference_id: policy_lifecycle.policy_audit_reference_id,
         network_evidence_mapping,
+        confirmation_context: confirmation_context_projection(&row),
     })
+}
+
+fn confirmation_context_projection(
+    row: &PolicyPreviewStoreRow,
+) -> Option<PolicyPreviewConfirmationContext> {
+    let request_id = string_field(
+        &row.fields,
+        constants::policy_control::request::FIELD_REQUEST_ID,
+    );
+    let submission_key = string_field(
+        &row.fields,
+        constants::policy_control::request::FIELD_SUBMISSION_KEY,
+    );
+    let household_id = string_field(
+        &row.fields,
+        constants::policy_control::request::FIELD_HOUSEHOLD_ID,
+    )
+    .or_else(|| {
+        string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_HOUSEHOLD_ID,
+        )
+    });
+    let policy_version = number_field(
+        &row.fields,
+        constants::policy_control::request::FIELD_POLICY_VERSION,
+    )
+    .or_else(|| {
+        number_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_POLICY_VERSION,
+        )
+    });
+    let audit_reference_ids = string_field(
+        &row.fields,
+        constants::policy_control::request::FIELD_AUDIT_REFERENCE_IDS,
+    )
+    .or_else(|| {
+        string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_AUDIT_REFERENCE_IDS,
+        )
+    });
+    let actor_role = string_field(
+        &row.fields,
+        constants::policy_control::request::FIELD_ACTOR_ROLE,
+    )
+    .or_else(|| {
+        string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_ACTOR_ROLE,
+        )
+    });
+    let actor_state = string_field(
+        &row.fields,
+        constants::policy_control::request::FIELD_ACTOR_STATE,
+    )
+    .or_else(|| {
+        string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_ACTOR_STATE,
+        )
+    });
+
+    let context = PolicyPreviewConfirmationContext {
+        request_id,
+        submission_key,
+        household_id,
+        child_profile_id: string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_CHILD_PROFILE_ID,
+        ),
+        device_id: string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_DEVICE_ID,
+        ),
+        source_document_id: string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_DOCUMENT_ID,
+        ),
+        policy_version,
+        target_reference_id: string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_TARGET_REFERENCE_ID,
+        ),
+        rule_id: string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_RULE_ID,
+        ),
+        requested_at: string_field(&row.fields, constants::field::REQUESTED_AT).or_else(|| {
+            string_field(
+                &row.fields,
+                constants::policy_control::request::FIELD_TIMESTAMP,
+            )
+        }),
+        expires_at: string_field(&row.fields, constants::field::EXPIRES_AT),
+        assistant_preview_id: string_field(
+            &row.fields,
+            constants::policy_control::request::FIELD_ASSISTANT_PREVIEW_ID,
+        ),
+        audit_reference_ids,
+        actor_id: string_field(
+            &row.fields,
+            constants::policy_control::source::FIELD_ACTOR_ID,
+        ),
+        actor_role,
+        actor_state,
+        confirmation_audit_reference_id: string_field(
+            &row.fields,
+            constants::field::POLICY_AUDIT_REFERENCE_ID,
+        )
+        .or_else(|| {
+            string_field(
+                &row.fields,
+                constants::policy_control::source::FIELD_AUDIT_REFERENCE_ID,
+            )
+        }),
+    };
+
+    context_has_any_value(&context).then_some(context)
+}
+
+fn context_has_any_value(context: &PolicyPreviewConfirmationContext) -> bool {
+    context.request_id.is_some()
+        || context.submission_key.is_some()
+        || context.household_id.is_some()
+        || context.child_profile_id.is_some()
+        || context.device_id.is_some()
+        || context.source_document_id.is_some()
+        || context.policy_version.is_some()
+        || context.target_reference_id.is_some()
+        || context.rule_id.is_some()
+        || context.requested_at.is_some()
+        || context.expires_at.is_some()
+        || context.assistant_preview_id.is_some()
+        || context.audit_reference_ids.is_some()
+        || context.actor_id.is_some()
+        || context.actor_role.is_some()
+        || context.actor_state.is_some()
+        || context.confirmation_audit_reference_id.is_some()
 }
 
 struct PolicyLifecycleProjection {
@@ -600,6 +742,16 @@ fn prefixed_id(prefix: &str, source_id: &str) -> String {
 fn string_field(fields: &LogFields, key: &str) -> Option<String> {
     match fields.get(key) {
         Some(LogFieldValue::String(value)) => Some(value.clone()),
+        _ => None,
+    }
+}
+
+fn number_field(fields: &LogFields, key: &str) -> Option<u64> {
+    match fields.get(key) {
+        Some(LogFieldValue::Number(value)) if value.is_finite() && *value >= 0.0 => {
+            (*value as u64 == *value).then_some(*value as u64)
+        }
+        Some(LogFieldValue::String(value)) => value.parse::<u64>().ok(),
         _ => None,
     }
 }

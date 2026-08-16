@@ -132,12 +132,16 @@ mobile, and opaque confirmed-request relay proof.
 ## Production code pass status
 
 The Rust-owned parent UI bridge now validates and stages the untrusted draft,
-issues a bounded one-shot opaque handle, and exposes typed stage, confirm, and
-cancel actions. The portal preview route submits draft input only to staging;
-confirmation submits only the Rust-issued handle, while cancel invalidates it.
-This is code drafted only: validation and tests are intentionally deferred,
-and the downstream confirmed-request relay still requires validation before
-runtime claims.
+issues a bounded one-shot opaque handle, constructs the typed confirmed-request
+command, and dispatches it through the existing Rust agent boundary. The portal
+preview route submits draft input only to staging; confirmation submits only
+the Rust-issued handle, while cancel invalidates it. Rust projects exact
+household, child/profile, policy/source, actor, timestamp, and audit context
+from the trusted preview row; missing context fails closed for manual review.
+The handle is marked in flight before dispatch, restored on rejected/deferred
+dispatch, and consumed only after accepted relay. This is code drafted only:
+validation and tests are intentionally deferred, so no runtime completion claim
+is made.
 
 ## Failure
 
