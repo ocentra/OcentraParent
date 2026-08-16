@@ -17,6 +17,10 @@ notification plan owns notification delivery handoff.
 domain/enforcement plans own runtime apply behavior after confirmed policy handoff.
 ```
 
+## Production-code audit — 2026-08-16
+
+The Rust command path exists, but the portal/provider handoff is incomplete. `apps/portal/src/portal-actions.ts` and `apps/portal/src/portal-runtime-controller-actions.ts` expose `requestPolicyRequestParentResolution`, while `apps/portal/src/PolicyPreviewRoutePanel.tsx` only renders draft staging and assistant confirmation; no rendered parent-resolution surface invokes the callback. `crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/command.rs` maps the action to the Rust command, but the parent-resolution payload is still caller-supplied rather than projected from a Rust-owned parent actor/provider context. The agent-service resolution modules validate the canonical confirmed request and delivery binding, but the account/identity-owned actor context and notification-provider dispatch composition are not present at this boundary. The smallest next production slice is a Rust-owned typed parent-resolution staging/preview handoff once the account/identity provider supplies exact actor identity/role/state; until then the portal must fail closed/manual-required and must not mint approval or contract JSON.
+
 ## Required lifecycle
 
 ```text

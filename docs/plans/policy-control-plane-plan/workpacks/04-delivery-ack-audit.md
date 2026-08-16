@@ -16,6 +16,10 @@ Handoff: eventing and enforcement plans own runtime mechanics; this workpack def
 
 Status: contract checked; runtime blocked on the domain/enforcement handoff. The current public policy surface fails closed and cannot advance receipt-required acknowledged, applied, or rolled-back state.
 
+## Production-code audit — 2026-08-16
+
+The exact missing composition point is `crates/child-policy-core/src/policy_control_delivery_handoff.rs::apply_trusted_adapter_delivery_handoff`: it accepts a public `PolicyDeliveryExecutionReceipt`, but no domain- or enforcement-owned capability issues that receipt or supplies an inspectable execution trace. `crates/agent-core/src/enforcement_adapter.rs` currently returns an enforcement outcome and optional rollback token; no production bridge connects that outcome to policy delivery authority, execution identity, or rollback trace. The smallest legal implementation slice belongs to the v0-8 enforcement-control/domain adapter owner, followed by the child-policy handoff. This workpack remains runtime-blocked here; caller receipts remain evidence only.
+
 ## Ownership boundary
 
 ```text
