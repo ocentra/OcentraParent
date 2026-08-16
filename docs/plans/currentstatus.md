@@ -578,7 +578,7 @@ This file currently covers these **19** plans:
 - Partial crate-level/downstream coverage exists, but not enough to call the network plan closed.
 - `crates/network-core/tests/unit/network_flow.rs` and `crates/network-core/tests/unit/runtime_flow.rs` now cover the protocol-owned event chain seam, degraded-input downgrade behavior, and wrapper-helper parity with the full network runtime chain.
 - Tests that imported or asserted the deleted network product-path bridge/payload/pipeline are invalidated debt. They must be deleted or rewritten against shipped authoritative owners in the test phase and do not count as coverage now.
-- `packages/agent-protocol-domain/tests/unit/contracts.test.ts` now asserts the TS protocol mirror exposes the three new network product-path ref field constants.
+- Any Rust/TS contract test that requires the orphaned network product-path field constants is invalidated with the removed producer and must be deleted or rewritten with the dead contract cleanup.
 - Portal tests may retain real observation/runtime-delivery projection assertions, but any case that injects product-path refs without a shipped authoritative producer must be rewritten; static refs and fallback precedence are not product-path proof.
 - `crates/agent-protocol/src/network_android_vpn_service_gate_status_tests.rs`, `crates/agent-protocol/src/network_apple_network_extension_gate_status_tests.rs`, and `crates/agent-protocol/src/tests.rs` now cover the new Rust protocol status shapes plus Android/Apple command/event serialization.
 - `crates/agent-service/src/network_android_vpn_service_gate_status_bridge_tests.rs` and `crates/agent-service/src/network_apple_network_extension_gate_status_bridge_tests.rs` now cover the service payload builders and websocket routing for the Android/Apple proof-gate status commands.
@@ -590,7 +590,7 @@ This file currently covers these **19** plans:
 - Classification/correlation tests.
 - Broader parent surface/read-model tests beyond the landed drawer summary and route-panel seam.
 - Intervention adapter tests.
-- Broader AI audit/risk-budget coverage once the upstream owner path carries more than the landed product-path citation seam.
+- AI audit/risk-budget coverage only after a shipped authoritative owner produces those records; the deleted citation seam is not a baseline.
 - Performance/security/rollout tests.
 
 **Reason / Blocker / Deferred**
@@ -1167,8 +1167,8 @@ This file currently covers these **19** plans:
   - `docs/plans/currentstatus.md`
 - current result:
   - `packages/child-runtime-domain/src/child-runtime-gates.ts` now mirrors the setup owner seam with nested `provisioningDecision` install/service/overall/blocker semantics, while `packages/child-runtime-domain/tests/unit/child-runtime-gates.test.ts` covers ready, installed-not-started, offline/degraded, reinstall-required, and mismatch rejection paths
-  - the network service/protocol seam now carries `networkProductPathAnalyzerAlertRefs`, `networkProductPathAiDetectionRefs`, and `networkProductPathRiskBudgetRefs` from the product-path bridge through payload serialization and TS protocol defaults instead of dropping them before the portal boundary
-  - the portal drawer now reads those same protocol-owned payload refs from raw live activity context, renders them under honest analyzer/detection/risk-budget labels, and keeps the runtime/policy-preview fallback behavior explicit when the refs are absent
+  - superseded on 2026-08-16: the network product-path producer/payload/pipeline was synthetic and has been deleted; orphaned protocol fields and parser branches are scheduled for production-contract cleanup
+  - the portal drawer keeps only real observation/runtime-delivery projection; analyzer/detection/risk-budget/policy/action/custody facets remain unavailable until authoritative shipped owners exist
 
 - current focus: `tracking-plan` residual `WP16` broader schedule-matrix and tolerance-boundary closure
 - current strategy:
