@@ -27,11 +27,11 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open Phase 1 work by dependency impact
 
-The 2026-08-15 code audit maps all 220 workpacks and leaves 40 source/test
+The 2026-08-15 code audit maps all 220 workpacks and leaves 39 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP123-WP126: carry the verified WP122 child warning/request scheduler rows
-   through provider/preference preflight and status production.
+1. WP124-WP126: carry the verified WP123 child warning/request provider
+   preflight through provider status, preference preflight, and status production.
 2. WP58-WP65: notification outbox, scheduler, history, provider/preference
    owners, and receipt-backed status.
 3. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
