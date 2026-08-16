@@ -1,5 +1,55 @@
 # Payment Subscription Plan State
 
+## Production reachability audit - 2026-08-16
+
+The payment workpacks were checked against non-test callers and owned runtime
+boundaries. No payment-owned production slice is authorized from this pass.
+
+- **WP00:** no implementation source; the Cloudflare handoff remains an
+  upstream blocked dependency, not payment runtime.
+- **WP01:** Rust schema and generated/edge TypeScript surfaces exist, but no
+  billing production caller consumes the pricing/seat model. The package
+  surfaces remain proof/contract boundaries, not shipped entitlement runtime.
+- **WP02:** checkout and portal contracts exist, while the actual Worker path
+  is owned by `cloudflare-control-plane-plan`. Its reachable handlers call
+  `infra/cloudflare/src/billing-binding-read-model.ts`, which currently
+  auto-seeds and falls back to fixture-built billing data when durable rows are
+  absent. Hardening that seam is a Cloudflare-owned production task, not a
+  legal Payment-plan edit.
+- **WP03:** `crates/billing-core` contains the lifecycle classifier and
+  idempotency helpers, but no non-test caller outside the crate was found. The
+  Cloudflare webhook route parses/queues generic payload data and does not
+  invoke the Rust lifecycle owner or write the app ledger.
+- **WP04:** `crates/entitlement-core` owns a fail-closed derivation contract,
+  but no non-test downstream consumer was found in the payment/runtime
+  surfaces. Device-trust binding remains adjacent-plan owned.
+- **WP05:** invoice/tax/refund/dispute semantics exist as contract/model code,
+  but the reachable Cloudflare mutation path still uses fixture builders and
+  lacks provider-owned ledger authority. No production slice is legal here.
+- **WP06:** billing security/privacy contracts exist; shared Worker auth,
+  binding, redaction, and observability remain Cloudflare-owned. No payment
+  runtime caller or provider-secret authority was found.
+- **WP07:** rollout/route gate is proof-only and has no production source.
+- **WP08/WP09:** provider portability and regional routing are strategy and
+  contract surfaces; no live provider adapter, credential owner, or verified
+  regional runtime input is present.
+- **WP10:** referral/entitlement model code and local seed fixtures exist, but
+  no non-test production qualification/credit caller was found.
+- **WP11:** the graph maps a parent dashboard to `packages/parent-domain`,
+  which is absent in this checkout; actual portal source has no billing summary
+  consumer. This is stale topology plus a missing portal owner, not a legal
+  payment edit.
+- **WP12:** support/admin contracts and Worker route handlers exist, but their
+  read model can fall back to fixtures and provider/account role authority is
+  unresolved. Runtime support authority remains unproven.
+
+The rejected candidate was a fail-closed production guard around the Worker
+read-model fallback. It has a real caller, but its owning files are under
+`cloudflare-control-plane-plan`; no cross-plan code change was retained. The
+next legal production owners are Cloudflare for fixture-seed/fallback removal,
+an actual runtime consumer for `billing-core`, and an actual portal consumer
+for WP11. No tests, builds, proof, CI, or graph edits were run.
+
 Status: engineering-grade monetization spec is complete, WP00 now has a real `blocked / proof-present` handoff bundle, WP01 now has a real `done / proof-present` pricing bundle, WP02 now has a real `blocked / proof-present` checkout and billing-portal bundle, WP03 now has a real Rust-owned `done` webhook lifecycle bundle, WP04 now has a real Rust-owned `done / proof-present` entitlement-delivery bundle, and broader runtime execution remains blocked behind the exact upstream Cloudflare blocker set plus the current broader-workspace validation blockers carried by WP02.
 
 Research status: aligned against the current Parent codebase, billing-domain and parent-domain surfaces, the reusable games Cloudflare deep dive summarized in `docs/plans/cloudflare-control-plane-plan/GAMES_INFRA_PARITY_MAP.md`, and the new `cloudflare-control-plane-plan` that now owns the shared Worker/module scaffold. This plan remains the single monetization owner; the shared Cloudflare module itself is not owned here.
