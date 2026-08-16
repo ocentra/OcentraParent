@@ -25,6 +25,12 @@ Code-pass note (2026-08-16): WP05 has a production-code draft on
 `codex/browser-code-pass`. It is unvalidated and test/proof/checklist-deferred;
 the graph must not treat it as complete.
 
+Code-pass note (2026-08-16): WP17 now has a production-code draft for
+action-intent reference ownership and the child-delivery boundary. References
+are derived from the action intent; a handoff without trusted parent context
+remains unavailable/manual-required and does not mint child acceptance. This
+slice is unvalidated and tests/proof/checklist-deferred; WP17 remains open.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.

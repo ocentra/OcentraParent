@@ -1387,6 +1387,9 @@
     "WP-browser-plan-17-managed-intervention-and-block-page": {
       "planSlug": "browser-plan",
       "roots": [
+        "crates/agent-protocol/src/constants/browser.rs",
+        "crates/agent-core/src/browser_event_runtime/action_handoff.rs",
+        "crates/agent-service/src/browser_runtime_stream_api.rs",
         "crates/agent-core/src/browser_intervention_event.rs",
         "crates/agent-core/tests/unit/activity_store_browser_intervention_tests.rs",
         "crates/agent-service/src/browser_intervention_page.rs",

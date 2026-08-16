@@ -152,6 +152,8 @@ pub const TEST_BROWSER_RUNTIME_POLICY_DECISION_REF: &str = "browser-policy-decis
 pub const TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID: &str = "browser-policy-preview-test";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_ID: &str = "browser-action-intent-test";
 pub const ACTION_INTENT_ID_PREFIX: &str = "browser-action-intent-";
+pub const ACTION_INTENT_OUTBOX_REF_PREFIX: &str = "browser-action-intent-outbox-";
+pub const ACTION_INTENT_HANDOFF_REF_PREFIX: &str = "browser-action-intent-handoff-";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF: &str = "browser-action-intent-outbox-test";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF: &str =
     "browser-action-intent-handoff-test";

@@ -220,9 +220,24 @@ fn candidate_refs_from_payload(
         policy_preview_id: payload.policy_preview_id.clone()?,
         action_intent_id: payload.action_intent_id.clone()?,
         source_event_ref: browser_event_ref(payload),
-        outbox_ref: constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF.to_string(),
-        handoff_ref: constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF.to_string(),
+        outbox_ref: action_intent_ref(
+            constants::browser::ACTION_INTENT_OUTBOX_REF_PREFIX,
+            payload.action_intent_id.as_deref()?,
+        ),
+        handoff_ref: action_intent_ref(
+            constants::browser::ACTION_INTENT_HANDOFF_REF_PREFIX,
+            payload.action_intent_id.as_deref()?,
+        ),
     })
+}
+
+fn action_intent_ref(prefix: &str, action_intent_id: &str) -> String {
+    let suffix = action_intent_id
+        .strip_prefix(constants::browser::ACTION_INTENT_ID_PREFIX)
+        .unwrap_or(action_intent_id);
+    let mut value = String::from(prefix);
+    value.push_str(suffix);
+    value
 }
 
 fn browser_event_ref(payload: &BrowserRuntimeEventPayload) -> String {
