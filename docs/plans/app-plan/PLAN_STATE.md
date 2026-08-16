@@ -28,7 +28,8 @@ and WP16 now derives unknown candidates from Rust inventory evidence. WP17 now
 promotes explicit inventory risk categories and unknown-process rows into
 advisory Rust candidates on `codex/app-plan-code-pass`. These slices are
 unvalidated with tests/proof/checklist closure deferred; no product completion
-claim is made.
+claim is made. WP17 detection-to-route/compiler consumption is also drafted;
+runtime service wiring and validation remain deferred.
 
 The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
 WP26, WP48, WP49, WP62, WP63, WP64, WP65, and

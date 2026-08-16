@@ -45,7 +45,9 @@ AI/chatbot, messaging/social/video, and unknown risk without directly enforcing.
 The detector recognizes only explicit upstream category labels and emits
 `AppRisk` candidates with `AskParent`; unknown/no-proof rows remain candidates
 for review and are rejected by policy routing until category evidence exists.
-It never asserts content knowledge or dispatches enforcement.
+The production composition can pass a detected candidate through the existing
+category/risk route and Rust policy compiler. It never asserts content
+knowledge or dispatches enforcement.
 
 ## Tests And Proof
 
