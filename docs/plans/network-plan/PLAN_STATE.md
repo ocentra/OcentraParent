@@ -141,6 +141,19 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Required tests, benchmarks, proof, rollout evidence, and graph completion
   remain open.
 
+### WP08 production audit boundary — reference validation only
+
+- Graph inspection at root `5253707fe` reports WP08 as `validation`, not
+  `done`. Its route-boundary validation and catalog references do not claim
+  network runtime, policy, enforcement, portal, platform, or deployment
+  behavior.
+- `crates/network-core/src/network_control_catalog*` and
+  `crates/network-core/src/generated_bridge.rs` are catalog/reference routing
+  surfaces. No reachable production intervention or network-service behavior
+  is owned by WP08, so no production edit is legal from this route.
+- The production audit therefore ends at WP08; runtime implementation gaps
+  remain in WP02-WP07 and must be selected through their owning boundaries.
+
 ### Real dependency blockers
 
 - Cross-plan rows that depend on browser exact-URL evidence, screen-summary fallback, AI runtime ownership, eventing semantics, LAN/family-hub delivery, or enforcement authority remain dependent on their owning plans.
@@ -177,7 +190,8 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Workpacks indexed: 8 route workpacks.
 - Workpack source: `03-network-implementation-checklist-and-workpacks.md` rows split into focused files under `workpacks/`.
 - Workpacks with implementation proof complete: 0.
-- Workpacks open: 8.
+- Workpacks requiring production implementation: 7 (WP01-WP07).
+- WP08 state: validation/reference routing only; no production implementation claim.
 - Current meaning: the plan is routeable, but live capture, adapter intervention, mobile authority, and production rollout remain unproved unless a selected workpack provides proof.
 
 ### Active/open workpacks
@@ -189,7 +203,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - WP05 intervention adapter proof gates.
 - WP06 analyzer, AI audit, and risk budget.
 - WP07 performance, security, and rollout.
-- WP08 control catalog reference routing.
+- WP08 control catalog reference routing (validation/reference-only; not runtime).
 
 ## Default no-read list
 
