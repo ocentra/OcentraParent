@@ -43,6 +43,8 @@ pub fn build_app_game_notification_local_outbox_bridge(
         generated_at: options.generated_at,
         family: options.family,
         outbox_root_ref: options.outbox_root_ref,
+        policy_refs: options.policy_refs,
+        audit_refs: options.audit_refs,
         rows,
         linked_record_count,
         manual_required_count,

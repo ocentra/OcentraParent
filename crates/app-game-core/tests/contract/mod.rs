@@ -4,6 +4,9 @@ mod app_game_notification_parent_surface_intent;
 #[path = "app_game_notification_local_outbox_bridge.rs"]
 mod app_game_notification_local_outbox_bridge;
 
+#[path = "app_game_notification_audit_history_bridge.rs"]
+mod app_game_notification_audit_history_bridge;
+
 #[path = "app_game_notification_scheduler_bridge.rs"]
 mod app_game_notification_scheduler_bridge;
 

@@ -49,6 +49,8 @@ pub struct AppGameNotificationLocalOutboxBridgeReadModel {
     pub generated_at: ParentTimestamp,
     pub family: FamilyReference,
     pub outbox_root_ref: NotificationLocalOutboxReference,
+    pub policy_refs: Vec<NotificationLocalOutboxReference>,
+    pub audit_refs: Vec<NotificationLocalOutboxReference>,
     pub rows: Vec<AppGameNotificationLocalOutboxBridgeRow>,
     pub linked_record_count: u64,
     pub manual_required_count: u64,

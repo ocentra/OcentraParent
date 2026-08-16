@@ -78,6 +78,8 @@ fn eligible_rows_link_while_manual_and_unavailable_rows_stay_out_of_outbox(
     assert_eq!(model.linked_record_count, 2);
     assert_eq!(model.manual_required_count, 1);
     assert_eq!(model.unavailable_count, 1);
+    assert_eq!(model.policy_refs, vec!["policy-58".into()]);
+    assert_eq!(model.audit_refs, vec!["audit-58".into()]);
     assert!(!model.provider_delivery_runtime_claimed);
     assert!(!model.provider_receipt_ingestion_claimed);
     assert!(!model.scheduler_runtime_claimed);

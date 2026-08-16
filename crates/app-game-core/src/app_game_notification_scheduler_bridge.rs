@@ -1,4 +1,4 @@
-use std::{collections::HashSet, io};
+use std::io;
 
 use ocentra_eventing::error::EventingError;
 use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::{
@@ -12,6 +12,7 @@ use crate::app_game_child_ux_scheduler_types::{
     AppGameChildUxSchedulerInput, AppGameChildUxSchedulerPersistResult,
     AppGameChildUxSchedulerRoute,
 };
+use crate::app_game_notification_local_outbox_bridge_read_model_validation::validate_app_game_notification_local_outbox_bridge_read_model;
 use crate::app_game_notification_local_outbox_bridge_types::{
     AppGameNotificationLocalOutboxBridgeReadModel, AppGameNotificationLocalOutboxBridgeRow,
     AppGameNotificationLocalOutboxBridgeStatus,
@@ -32,7 +33,7 @@ pub fn build_app_game_notification_scheduler_bridge(
     source: AppGameNotificationLocalOutboxBridgeReadModel,
 ) -> Result<AppGameNotificationSchedulerBridgeReadModel, EventingError> {
     validate_options(&options)?;
-    validate_source(&source)?;
+    validate_app_game_notification_local_outbox_bridge_read_model(&source, INVALID_SOURCE_FIELD)?;
     let rows = source
         .rows
         .iter()
@@ -188,71 +189,9 @@ fn validate_options(
     Ok(())
 }
 
-fn validate_source(
-    source: &AppGameNotificationLocalOutboxBridgeReadModel,
-) -> Result<(), EventingError> {
-    let honest_counts = source.linked_record_count
-        == count_source_rows(
-            &source.rows,
-            AppGameNotificationLocalOutboxBridgeStatus::Linked,
-        )
-        && source.manual_required_count
-            == count_source_rows(
-                &source.rows,
-                AppGameNotificationLocalOutboxBridgeStatus::ManualRequired,
-            )
-        && source.unavailable_count
-            == count_source_rows(
-                &source.rows,
-                AppGameNotificationLocalOutboxBridgeStatus::Unavailable,
-            );
-    let unsafe_claim = source.provider_delivery_runtime_claimed
-        || source.provider_receipt_ingestion_claimed
-        || source.scheduler_runtime_claimed
-        || source.cloud_routing_claimed
-        || source.parent_notification_ui_claimed
-        || source.child_delivery_claimed
-        || source.adapter_dispatch_claimed;
-    let dishonest_row = source.rows.iter().any(|row| !source_row_is_honest(row));
-    let mut identities = HashSet::new();
-    let duplicate_identity = source
-        .rows
-        .iter()
-        .any(|row| !identities.insert(row.bridge_record_id.as_str()));
-    if source.schema_version == 0
-        || source.bridge_id.trim().is_empty()
-        || !honest_counts
-        || unsafe_claim
-        || dishonest_row
-        || duplicate_identity
-    {
-        return Err(invalid(INVALID_SOURCE_FIELD, &source.bridge_id));
-    }
-    Ok(())
-}
-
-fn source_row_is_honest(row: &AppGameNotificationLocalOutboxBridgeRow) -> bool {
-    match row.status {
-        AppGameNotificationLocalOutboxBridgeStatus::Linked => {
-            row.outbox_record.is_some() && row.blocked_reason_refs.is_empty()
-        }
-        AppGameNotificationLocalOutboxBridgeStatus::ManualRequired
-        | AppGameNotificationLocalOutboxBridgeStatus::Unavailable => {
-            row.outbox_record.is_none() && !row.blocked_reason_refs.is_empty()
-        }
-    }
-}
-
 fn count_rows(
     rows: &[AppGameNotificationSchedulerBridgeRow],
     status: AppGameNotificationSchedulerBridgeStatus,
-) -> u64 {
-    rows.iter().filter(|row| row.status == status).count() as u64
-}
-
-fn count_source_rows(
-    rows: &[AppGameNotificationLocalOutboxBridgeRow],
-    status: AppGameNotificationLocalOutboxBridgeStatus,
 ) -> u64 {
     rows.iter().filter(|row| row.status == status).count() as u64
 }
