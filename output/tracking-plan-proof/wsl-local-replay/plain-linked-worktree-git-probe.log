@@ -1,9 +1,0 @@
-id=plain-linked-worktree-git-probe
-command=wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && git rev-parse --show-toplevel && git rev-parse HEAD
-exit=128
-
-[stdout]
-(empty)
-
-[stderr]
-fatal: not a git repository: /mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent/E:/OcentraParent/.git/worktrees/OcentraParent

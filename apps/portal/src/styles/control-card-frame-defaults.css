@@ -1,0 +1,43 @@
+.control-deck.control-carousel-frame {
+  --portal-carousel-card-min-width: 292px;
+  --portal-carousel-card-width-percent: 31%;
+  --portal-carousel-frame-height-adjust: 0px;
+  --portal-carousel-frame-inset-x: 0px;
+  --portal-carousel-frame-inset-y: 0px;
+  --portal-carousel-frame-offset-x: 0px;
+  --portal-carousel-frame-offset-y: 0px;
+  --portal-carousel-frame-opacity: 1;
+  --portal-carousel-frame-width-adjust: 0px;
+  --portal-carousel-min-height: 270px;
+  --portal-carousel-padding-bottom: 28px;
+  --portal-carousel-padding-left: 48px;
+  --portal-carousel-padding-right: 48px;
+  --portal-carousel-padding-top: 42px;
+  --portal-carousel-rail-gap: 16px;
+  --portal-carousel-rail-padding-bottom: 20px;
+  --portal-carousel-rail-padding-left: 3px;
+  --portal-carousel-rail-padding-right: 3px;
+  --portal-carousel-rail-padding-top: 18px;
+  --portal-carousel-title-left: 0px;
+  --portal-carousel-title-right: 0px;
+  --portal-carousel-title-top: 0px;
+}
+
+.control-card {
+  --portal-golden-card-content-bounds-opacity: 0;
+  --portal-golden-card-content-inset-x: 20px;
+  --portal-golden-card-content-inset-y: 24px;
+  --portal-golden-card-content-offset-x: 0px;
+  --portal-golden-card-content-offset-y: 0px;
+  --portal-golden-card-content-opacity: 1;
+  --portal-golden-card-frame-bounds-opacity: 0;
+  --portal-golden-card-frame-glow-blur: 7px;
+  --portal-golden-card-frame-glow-opacity: 0.22;
+  --portal-golden-card-frame-height-adjust: 0px;
+  --portal-golden-card-frame-inset: 0px;
+  --portal-golden-card-frame-offset-x: 0px;
+  --portal-golden-card-frame-offset-y: 0px;
+  --portal-golden-card-frame-opacity: 0.9;
+  --portal-golden-card-frame-width-adjust: 0px;
+  --portal-golden-card-height: 190px;
+}

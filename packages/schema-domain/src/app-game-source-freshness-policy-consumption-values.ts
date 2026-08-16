@@ -1,0 +1,42 @@
+/* thin adapter over Rust-generated app-game preview/source-freshness values */
+
+import {
+  AppGameSourceFreshnessAdapterDispatchStateGenerated,
+  AppGameSourceFreshnessCapabilityStatusGenerated,
+  AppGameSourceFreshnessPolicyConsumptionMatrixIdGenerated,
+  AppGameSourceFreshnessPolicyReadinessStateGenerated,
+  AppGameSourceFreshnessPolicyTargetKindGenerated,
+  AppGameSourceFreshnessReadModelStateGenerated,
+  AppGameSourceFreshnessReasonCodeGenerated,
+  AppGameSourceFreshnessRequirementKindGenerated,
+  AppGameSourceFreshnessRequirementSourceKindsGenerated,
+  AppGameSourceFreshnessRequirementStateGenerated,
+  AppGameSourceFreshnessSourceKindGenerated,
+} from './generated-app-game-preview-source-freshness-values';
+
+export const AppGameSourceFreshnessPolicyConsumptionMatrixId = AppGameSourceFreshnessPolicyConsumptionMatrixIdGenerated;
+export const AppGameSourceFreshnessPolicyTargetKind = AppGameSourceFreshnessPolicyTargetKindGenerated;
+export const AppGameSourceFreshnessRequirementKind = AppGameSourceFreshnessRequirementKindGenerated;
+export const AppGameSourceFreshnessSourceKind = AppGameSourceFreshnessSourceKindGenerated;
+export const AppGameSourceFreshnessReadModelState = AppGameSourceFreshnessReadModelStateGenerated;
+export const AppGameSourceFreshnessCapabilityStatus = AppGameSourceFreshnessCapabilityStatusGenerated;
+export const AppGameSourceFreshnessRequirementState = AppGameSourceFreshnessRequirementStateGenerated;
+export const AppGameSourceFreshnessPolicyReadinessState = AppGameSourceFreshnessPolicyReadinessStateGenerated;
+export const AppGameSourceFreshnessAdapterDispatchState = AppGameSourceFreshnessAdapterDispatchStateGenerated;
+export const AppGameSourceFreshnessReasonCode = AppGameSourceFreshnessReasonCodeGenerated;
+export const AppGameSourceFreshnessRequirementSourceKinds = AppGameSourceFreshnessRequirementSourceKindsGenerated;
+
+export type AppGameSourceFreshnessPolicyTargetKind =
+  (typeof AppGameSourceFreshnessPolicyTargetKind)[keyof typeof AppGameSourceFreshnessPolicyTargetKind];
+export type AppGameSourceFreshnessRequirementKind =
+  (typeof AppGameSourceFreshnessRequirementKind)[keyof typeof AppGameSourceFreshnessRequirementKind];
+export type AppGameSourceFreshnessSourceKind =
+  (typeof AppGameSourceFreshnessSourceKind)[keyof typeof AppGameSourceFreshnessSourceKind];
+export type AppGameSourceFreshnessCapabilityStatus =
+  (typeof AppGameSourceFreshnessCapabilityStatus)[keyof typeof AppGameSourceFreshnessCapabilityStatus];
+export type AppGameSourceFreshnessReadModelState =
+  (typeof AppGameSourceFreshnessReadModelState)[keyof typeof AppGameSourceFreshnessReadModelState];
+export type AppGameSourceFreshnessRequirementState =
+  (typeof AppGameSourceFreshnessRequirementState)[keyof typeof AppGameSourceFreshnessRequirementState];
+export type AppGameSourceFreshnessReasonCode =
+  (typeof AppGameSourceFreshnessReasonCode)[keyof typeof AppGameSourceFreshnessReasonCode];

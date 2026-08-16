@@ -1,0 +1,370 @@
+{
+  "schemaVersion": 2,
+  "profileName": "ocentra-parent",
+  "boundaryOwnerNote": "The Android JNI module is the reviewed Java ABI and path-conversion boundary; no product authority is accepted there.",
+  "languages": ["rust", "typescript", "python", "common"],
+  "failOn": ["error"],
+  "rawTypeBoundaryGlobs": [
+    "src/bin/**",
+    "src/main.rs",
+    "src/**/boundary/**",
+    "src/**/boundaries/**",
+    "src/**/adapter/**",
+    "src/**/adapters/**",
+    "src/**/ffi/**",
+    "src/**/serde/**",
+    "src/**/transport/**",
+    "crates/**/src/bin/**",
+    "crates/**/src/main.rs",
+    "crates/**/src/**/boundary/**",
+    "crates/**/src/**/boundaries/**",
+    "crates/**/src/**/adapter/**",
+    "crates/**/src/**/adapters/**",
+    "crates/**/src/**/ffi/**",
+    "crates/**/src/**/serde/**",
+    "crates/**/src/**/transport/**",
+    "crates/child-runtime-android-bridge/src/ffi/**"
+  ],
+  "runtimeStringOwnerGlobs": [
+    "crates/agent-protocol/src/**",
+    "crates/ocentra-eventing/src/**",
+    "crates/ocentra-evidence/src/**",
+    "crates/ocentra-network-evidence/src/**",
+    "crates/agent-updater/src/**",
+    "crates/logging-core/src/**",
+    "crates/schema/src/**",
+    "crates/*-core/src/**",
+    "crates/*-adapter/src/**",
+    "crates/*-runtime/src/**",
+    "crates/child-runtime-android-bridge/src/ffi/jni_exports.rs"
+  ],
+  "ignoreDirs": [
+    ".git",
+    ".agents",
+    ".codebase-memory",
+    ".codeql-local",
+    ".codex",
+    ".codex-artifacts",
+    ".codex-logs",
+    ".codex-tmp",
+    ".logs",
+    ".tmp",
+    ".hub",
+    ".turbo",
+    ".wrangler",
+    ".wix",
+    ".enforce",
+    "target",
+    "target-lan-verify",
+    "target-parent-domain-logger-fixture",
+    "node_modules",
+    ".next",
+    "dist",
+    "build",
+    "coverage",
+    "output",
+    "test-results",
+    "tmp",
+    "playwright-report"
+  ],
+  "ignoreFileGlobs": [
+    "**/target-*/**",
+    "apps/portal/generated/**",
+    "crates/app-game-core/tests/generated/**",
+    "infra/cloudflare/src/generated/**",
+    "ocentra-enforcer/**",
+    "tests/repo-tooling/cross-platform-script-commands.test.mjs",
+    "tests/repo-tooling/no-test-doubles-policy.test.mjs",
+    "infra/cloudflare/tests/property/billing-idempotency.property.test.ts"
+  ],
+  "generatedArtifactsMode": "tracked",
+  "generatedArtifactsAllowlist": [
+    "apps/portal/generated/parent-ui-bridge.ts",
+    "apps/portal/generated/parent-ui-screen-bridge.ts",
+    "crates/app-game-core/tests/generated/app-game-notification-parent-surface-intent.ts",
+    "crates/app-game-core/tests/generated/app-game-source-freshness-preview-gate.ts",
+    "crates/app-game-core/tests/generated/app-game-source-gated-policy-preview-timer-chain.ts",
+    "crates/app-game-core/tests/generated/app-game-source-gated-policy-preview-timer-followthrough.ts",
+    "crates/app-game-core/tests/generated/app-game-source-gated-policy-preview.ts",
+    "infra/cloudflare/src/generated/billing-contracts.ts"
+  ],
+  "sourceShapePolicies": [
+    {
+      "roots": ["src", "apps"],
+      "extensions": [".ts", ".tsx"],
+      "kind": "typescript",
+      "maxClasses": 1,
+      "maxExports": 35,
+      "maxFunctionLines": 80,
+      "maxLines": 1000
+    },
+    {
+      "roots": ["packages"],
+      "extensions": [".ts", ".tsx"],
+      "kind": "typescript",
+      "maxClasses": 1,
+      "maxExports": 45,
+      "maxFunctionLines": 80,
+      "maxLines": 1000
+    },
+    {
+      "roots": ["src", "crates"],
+      "extensions": [".rs"],
+      "kind": "rust",
+      "maxFunctionLines": 80,
+      "maxFunctions": 18,
+      "maxLines": 1000,
+      "maxTypes": 24
+    },
+    {
+      "roots": ["src", "apps", "packages", "tools"],
+      "extensions": [".py"],
+      "kind": "python",
+      "maxClasses": 4,
+      "maxFunctionLines": 80,
+      "maxFunctions": 30,
+      "maxLines": 800
+    }
+  ],
+  "sourceShapeOverrides": [
+    {
+      "globs": ["packages/schema-domain/src/*.ts", "packages/schema-domain/src/**/*.ts"],
+      "maxExports": 140,
+      "maxLines": 1500,
+      "note": "Central schema ownership carries a wider public contract surface."
+    },
+    {
+      "globs": [
+        "packages/schema-domain/src/generated-*.ts",
+        "packages/schema-domain/src/generated/*.ts",
+        "packages/schema-domain/src/generated/**/*.ts"
+      ],
+      "maxExports": 220,
+      "maxLines": 3000,
+      "maxFunctionLines": 180,
+      "maxBranches": 140,
+      "note": "Generated schema-domain helpers mirror contract breadth."
+    },
+    {
+      "glob": "packages/schema-domain/src/*catalog-data*.ts",
+      "maxExports": 140,
+      "maxLines": 10000,
+      "note": "Generated catalog slabs are data-only."
+    },
+    {
+      "globs": [
+        "crates/schema/src/*_ts.rs",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "crates/tracking-core/src/generated_bridge.rs"
+      ],
+      "maxFunctions": 120,
+      "maxLines": 3000,
+      "maxTypes": 120,
+      "maxFunctionLines": 800,
+      "note": "Rust-generated bridge outputs intentionally fan out a mirrored surface."
+    },
+    {
+      "globs": ["crates/**/*_test.rs", "crates/**/*_tests.rs", "crates/**/tests/**/*.rs"],
+      "maxFunctionLines": 110,
+      "maxFunctions": 24,
+      "note": "Rust test surfaces carry scenario coverage and longer assertions."
+    },
+    {
+      "glob": "crates/agent-protocol/**/*.rs",
+      "maxFunctions": 120,
+      "maxLines": 2000,
+      "maxTypes": 60,
+      "note": "Central protocol crate mirrors large contract surfaces."
+    },
+    {
+      "globs": [
+        "crates/agent-protocol/src/*_tests.rs",
+        "crates/agent-protocol/src/tests.rs",
+        "crates/agent-protocol/tests/contract/**/*.rs"
+      ],
+      "maxFunctions": 32,
+      "maxFunctionLines": 140
+    },
+    {
+      "path": "apps/portal/generated/parent-ui-bridge.ts",
+      "maxExports": 320,
+      "maxLines": 2500,
+      "maxBranches": 220,
+      "note": "Rust-generated parent bridge mirrors the protocol and activity contract surface; schema contract tests enforce generator freshness."
+    },
+    {
+      "path": "packages/portal-domain/src/generated-portal-contracts.ts",
+      "maxExports": 220,
+      "maxLines": 3000,
+      "maxFunctionLines": 180,
+      "maxBranches": 140,
+      "note": "Rust-generated portal contract mirrors intentionally fan out a wide adapter surface."
+    },
+    {
+      "path": "apps/portal/e2e/tracking-hosted-ui-proof.spec.ts",
+      "maxLines": 1100
+    },
+    {
+      "path": "crates/agent-service/src/activity_api/app_game_timer_parent_preference_setup_request.rs",
+      "maxFunctions": 22
+    },
+    {
+      "path": "crates/agent-service/src/browser_runtime_stream_payload.rs",
+      "maxFunctions": 20
+    },
+    {
+      "path": "crates/agent-service/src/enforcement_api.rs",
+      "maxFunctions": 22
+    },
+    {
+      "path": "crates/tracking-core/src/runtime_flow.rs",
+      "maxFunctions": 60
+    },
+    {
+      "path": "crates/agent-service/src/websocket/tracking_retention_settings_write.rs",
+      "maxFunctionLines": 100
+    },
+    {
+      "path": "crates/agent-core/src/activity_store_policy_preview.rs",
+      "maxFunctions": 24
+    },
+    {
+      "path": "crates/agent-core/src/activity_store_policy_preview_tests.rs",
+      "maxFunctionLines": 130
+    },
+    {
+      "path": "crates/agent-core/src/browser_event_runtime.rs",
+      "maxFunctions": 24
+    },
+    {
+      "path": "crates/billing-core/src/billing_subscription.rs",
+      "maxFunctions": 40,
+      "maxTypes": 32
+    },
+    {
+      "path": "crates/billing-core/tests/unit/subscription_lifecycle.rs",
+      "maxFunctionLines": 120
+    },
+    {
+      "path": "crates/family-identity-core/src/household_authority.rs",
+      "maxFunctionLines": 90
+    },
+    {
+      "path": "crates/parent-runtime-core/src/tracking_config_update_flow.rs",
+      "maxFunctions": 50,
+      "maxFunctionLines": 160
+    },
+    {
+      "path": "crates/parent-runtime-core/src/tracking_dispatch.rs",
+      "maxFunctions": 20
+    },
+    {
+      "path": "crates/policy-control-core/src/policy_compiler.rs",
+      "maxFunctions": 36,
+      "maxFunctionLines": 220
+    },
+    {
+      "path": "crates/policy-control-core/src/policy_conflict.rs",
+      "maxFunctionLines": 150
+    },
+    {
+      "path": "crates/policy-control-core/src/policy_delivery.rs",
+      "maxFunctions": 36,
+      "maxFunctionLines": 180
+    },
+    {
+      "path": "crates/policy-control-core/src/policy_event.rs",
+      "maxFunctions": 36,
+      "maxFunctionLines": 100
+    },
+    {
+      "path": "crates/policy-control-core/src/policy_preview.rs",
+      "maxFunctions": 32
+    },
+    {
+      "path": "crates/policy-control-core/src/policy_request.rs",
+      "maxFunctions": 32,
+      "maxFunctionLines": 90
+    },
+    {
+      "path": "crates/policy-control-core/src/policy_source.rs",
+      "maxFunctions": 50,
+      "maxLines": 1300,
+      "maxTypes": 30
+    },
+    {
+      "path": "crates/policy-control-core/tests/unit/policy_compiler.rs",
+      "maxFunctions": 24,
+      "maxFunctionLines": 200,
+      "maxLines": 1300
+    },
+    {
+      "path": "crates/policy-control-core/tests/unit/policy_conflict.rs",
+      "maxFunctionLines": 130
+    },
+    {
+      "path": "crates/policy-control-core/tests/unit/policy_event.rs",
+      "maxFunctionLines": 115
+    },
+    {
+      "path": "crates/policy-control-core/tests/unit/policy_source.rs",
+      "maxFunctionLines": 90,
+      "maxFunctions": 30
+    },
+    {
+      "path": "crates/policy-control-core/tests/version-skew/policy_compiler.rs",
+      "maxFunctionLines": 200
+    },
+    {
+      "path": "crates/policy-control-core/tests/version-skew/policy_event.rs",
+      "maxFunctionLines": 150
+    },
+    {
+      "path": "crates/provisioning-core/src/provisioning_install.rs",
+      "maxFunctions": 34,
+      "maxFunctionLines": 180,
+      "maxLines": 1300,
+      "maxTypes": 28
+    },
+    {
+      "path": "crates/screen-capture-adapter/examples/screen_capture_real_proof_support/mod.rs",
+      "maxFunctionLines": 90
+    },
+    {
+      "path": "crates/tracking-core/src/status.rs",
+      "maxFunctionLines": 90
+    }
+  ],
+  "architecturePolicyChecks": [
+    "reexports",
+    "validation-bypass",
+    "placeholder-implementation",
+    "skipped-focused-tests",
+    "weak-assertions",
+    "rust-string-boundaries",
+    "no-zod-source",
+    "no-naked-domain-strings",
+    "no-test-doubles",
+    "cross-platform-script-commands",
+    "generated-artifacts",
+    "source-shape",
+    "required-tests",
+    "single-source-contracts",
+    "ai-rule-index"
+  ],
+  "rules": {
+    "DOC-1.1": {
+      "severity": "warning"
+    }
+  },
+  "tools": {},
+  "harness": {
+    "storageDir": ".enforce",
+    "store": "ndjson-duckdb",
+    "maxArtifactBytes": 8000,
+    "maxRuns": 50,
+    "maxRunsPerTool": 20,
+    "maxFailedRuns": 20,
+    "pruneAfterDays": 14
+  }
+}

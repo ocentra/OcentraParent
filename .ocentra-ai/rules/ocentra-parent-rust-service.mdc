@@ -4,11 +4,15 @@ globs: crates/**/*.rs, Cargo.toml, crates/**/Cargo.toml
 alwaysApply: false
 ---
 
-# Ocentra Parent Rust Service Rules
+# Ocentra Parent Rust Runtime Rules
 
-The Rust agent is a service runtime, not a UI app.
+Rust is the product runtime and contract owner. Product parent UI is TSX
+presentation that talks to Rust through HostBridge; dev web may use
+DevWebHostBridge/local transport for Codex/HMR.
 
-The Rust agent must remain headless. Any visible local surface belongs in the web portal.
+The child/runtime agent remains headless. Visible product parent surfaces belong
+in packaged Tauri desktop plus Android/iOS parent shells; the portal is a dev
+surface, not product runtime truth.
 
 ## Runtime
 
@@ -20,18 +24,25 @@ The Rust agent must remain headless. Any visible local surface belongs in the we
 
 ## Platform Boundaries
 
-Current implementation focus is Windows desktop. The architecture must still leave room for:
+Product implementation targets Tauri desktop plus Android and iOS parent shells.
+The architecture must still leave room for:
 
 - macOS desktop
 - Linux desktop
 - Android
 - iOS
 
-Put platform-neutral domain contracts in shared crates. Put platform-specific collection/enforcement code behind modules or traits.
+Put cross-boundary product DTOs in `crates/schema` and domain behavior/read
+models in the owning Rust runtime crate. Put platform-specific
+collection/enforcement code behind modules or traits.
 
 ## Service Boundary
 
-The service may expose local health, log snapshot, and WebSocket dev endpoints during scaffold work. Loopback is the default. LAN exposure must go through the explicit network policy module and origin allowlist.
+The service may expose local health, log snapshot, and dev endpoints during
+scaffold work. Loopback is the default. Product parent UI must use HostBridge;
+WebSocket is allowed only for dev transport or Rust-owned LAN/runtime transport.
+LAN exposure must go through the explicit network policy module and origin
+allowlist.
 
 Do not add these without an explicit plan:
 
@@ -45,4 +56,7 @@ Do not add these without an explicit plan:
 
 ## Rust String Boundary
 
-Do not add inline runtime strings in `agent-service` or `agent-core`. Promote command names, event names, field names, stable messages, and mode labels into `agent-protocol`.
+Do not add inline runtime strings in `agent-service` or `agent-core`. Promote
+cross-boundary DTO fields, action names, route snapshots, stable messages, and
+mode labels into `crates/schema` or the owning Rust domain/runtime crate.
+Transport-only command/event constants may live in Rust protocol crates.

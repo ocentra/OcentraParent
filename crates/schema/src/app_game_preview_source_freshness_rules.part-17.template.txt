@@ -1,0 +1,30 @@
+    AppGameSourceFreshnessPreviewGateStateGenerated.SourceManualRequired
+  ),
+  compilerManualRequiredCount: countAppGameSourceFreshnessPreviewGateStatesGenerated(
+    rows,
+    AppGameSourceFreshnessPreviewGateStateGenerated.CompilerManualRequired
+  ),
+});
+
+export const appGameSourceFreshnessPreviewGateReadModelCountsMatchRowsGenerated = (
+  readModel: SourceFreshnessPreviewGateReadModelLike
+) =>
+  readModel.nativeAppRowCount ===
+    countAppGameSourceFreshnessPreviewGateRowsGenerated(
+      readModel.rows,
+      AppGamePolicyPreviewTargetDomainGenerated.NativeApp
+    ) &&
+  readModel.nativeGameRowCount ===
+    countAppGameSourceFreshnessPreviewGateRowsGenerated(
+      readModel.rows,
+      AppGamePolicyPreviewTargetDomainGenerated.NativeGame
+    ) &&
+  readModel.previewReadyCount ===
+    countAppGameSourceFreshnessPreviewGateStatusesGenerated(
+      readModel.rows,
+      AppGameSourceFreshnessPreviewGateStatusGenerated.PreviewReady
+    ) &&
+  readModel.manualRequiredCount ===
+    countAppGameSourceFreshnessPreviewGateStatusesGenerated(
+      readModel.rows,
+      AppGameSourceFreshnessPreviewGateStatusGenerated.ManualRequired

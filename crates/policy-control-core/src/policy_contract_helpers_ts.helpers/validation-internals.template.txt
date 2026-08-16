@@ -1,0 +1,53 @@
+function generatedPolicyPreviewBoundaryNeedsManualResolution(
+  boundary: GeneratedPolicyScheduleBoundaryLike
+): boolean {
+  return [
+    boundary.state === 'clock-skew',
+    (boundary.state === 'dst-gap' || boundary.state === 'dst-overlap') &&
+      boundary.dstBoundary?.resolution === 'manual-required',
+    boundary.timeBudget?.clockSource === 'manual-required',
+    boundary.timeBudget?.offlineRecovery.state === 'manual-required',
+  ].some(Boolean);
+}
+
+function generatedPolicyPreviewBoundaryBonusTimeState(
+  boundary: GeneratedPolicyScheduleBoundaryLike
+): GeneratedPolicyPreviewBudgetBoundaryState | null {
+  if (boundary.timeBudget?.bonusTimeMinutes === null || boundary.timeBudget?.bonusTimeMinutes === undefined) {
+    return null;
+  }
+
+  const bonusTimeRemainingMinutes =
+    boundary.timeBudget.bonusTimeRemainingMinutes ?? boundary.timeBudget.bonusTimeMinutes;
+  return bonusTimeRemainingMinutes < boundary.timeBudget.bonusTimeMinutes
+    ? 'bonus-time-expiring'
+    : 'bonus-time-active';
+}
+
+function assertGeneratedPolicyContract(condition: unknown, message: string): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
+}
+
+function parseGeneratedTimestampMillis(timestamp: string, fieldName: string): number {
+  const millis = Date.parse(timestamp);
+  assertGeneratedPolicyContract(!Number.isNaN(millis), `${fieldName} must be an ISO-8601 timestamp`);
+  return millis;
+}
+
+function parseGeneratedLocalTimeMinutes(localTime: string, fieldName: string): number {
+  const match = /^(?<hour>[01]\d|2[0-3]):(?<minute>[0-5]\d)$/.exec(localTime);
+  assertGeneratedPolicyContract(match !== null, `${fieldName} must use HH:MM 24-hour local time`);
+  const hour = Number(match.groups?.['hour'] ?? '0');
+  const minute = Number(match.groups?.['minute'] ?? '0');
+  return hour * 60 + minute;
+}
+
+function assertGeneratedNonNegativeNumber(value: number, fieldName: string): void {
+  assertGeneratedPolicyContract(Number.isFinite(value) && value >= 0, `${fieldName} must be a non-negative number`);
+}
+
+function assertGeneratedPositiveNumber(value: number, fieldName: string): void {
+  assertGeneratedPolicyContract(Number.isFinite(value) && value > 0, `${fieldName} must be a positive number`);
+}

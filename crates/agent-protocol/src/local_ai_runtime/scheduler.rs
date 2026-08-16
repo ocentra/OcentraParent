@@ -2,9 +2,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-use super::{LocalAiDegradedState, LocalAiResourceClass};
+use super::lifecycle::{LocalAiDegradedState, LocalAiResourceClass};
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiProviderSingletonScope {
     #[serde(rename = "physical-device")]
     PhysicalDevice,
@@ -16,7 +17,8 @@ impl LocalAiProviderSingletonScope {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiProviderSchedulerLifecycle {
     #[serde(rename = "idle")]
     Idle,
@@ -31,18 +33,21 @@ pub enum LocalAiProviderSchedulerLifecycle {
 }
 
 impl LocalAiProviderSchedulerLifecycle {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::local_ai_runtime::SCHEDULER_LIFECYCLE_IDLE,
+        constants::local_ai_runtime::SCHEDULER_LIFECYCLE_RUNNING,
+        constants::local_ai_runtime::SCHEDULER_LIFECYCLE_QUEUED,
+        constants::local_ai_runtime::SCHEDULER_LIFECYCLE_DEGRADED,
+        constants::local_ai_runtime::SCHEDULER_LIFECYCLE_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Idle => constants::local_ai_runtime::SCHEDULER_LIFECYCLE_IDLE,
-            Self::Running => constants::local_ai_runtime::SCHEDULER_LIFECYCLE_RUNNING,
-            Self::Queued => constants::local_ai_runtime::SCHEDULER_LIFECYCLE_QUEUED,
-            Self::Degraded => constants::local_ai_runtime::SCHEDULER_LIFECYCLE_DEGRADED,
-            Self::Unavailable => constants::local_ai_runtime::SCHEDULER_LIFECYCLE_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiProviderSchedulerJobClass {
     #[serde(rename = "child-safety")]
     ChildSafety,
@@ -53,16 +58,19 @@ pub enum LocalAiProviderSchedulerJobClass {
 }
 
 impl LocalAiProviderSchedulerJobClass {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY,
+        constants::local_ai_runtime::SCHEDULER_JOB_PARENT_ASSISTANT,
+        constants::local_ai_runtime::SCHEDULER_JOB_PARENT_REPORT,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ChildSafety => constants::local_ai_runtime::SCHEDULER_JOB_CHILD_SAFETY,
-            Self::ParentAssistant => constants::local_ai_runtime::SCHEDULER_JOB_PARENT_ASSISTANT,
-            Self::ParentReport => constants::local_ai_runtime::SCHEDULER_JOB_PARENT_REPORT,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiProviderSchedulerJobStatus {
     #[serde(rename = "accepted")]
     Accepted,
@@ -79,15 +87,17 @@ pub enum LocalAiProviderSchedulerJobStatus {
 }
 
 impl LocalAiProviderSchedulerJobStatus {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        constants::local_ai_runtime::SCHEDULER_JOB_STATUS_ACCEPTED,
+        constants::local_ai_runtime::SCHEDULER_JOB_STATUS_RUNNING,
+        constants::local_ai_runtime::SCHEDULER_JOB_STATUS_QUEUED,
+        constants::local_ai_runtime::SCHEDULER_JOB_STATUS_DEGRADED,
+        constants::local_ai_runtime::SCHEDULER_JOB_STATUS_UNAVAILABLE,
+        constants::local_ai_runtime::SCHEDULER_JOB_STATUS_COMPLETE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Accepted => constants::local_ai_runtime::SCHEDULER_JOB_STATUS_ACCEPTED,
-            Self::Running => constants::local_ai_runtime::SCHEDULER_JOB_STATUS_RUNNING,
-            Self::Queued => constants::local_ai_runtime::SCHEDULER_JOB_STATUS_QUEUED,
-            Self::Degraded => constants::local_ai_runtime::SCHEDULER_JOB_STATUS_DEGRADED,
-            Self::Unavailable => constants::local_ai_runtime::SCHEDULER_JOB_STATUS_UNAVAILABLE,
-            Self::Complete => constants::local_ai_runtime::SCHEDULER_JOB_STATUS_COMPLETE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 

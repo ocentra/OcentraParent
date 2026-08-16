@@ -1,4 +1,0 @@
-No native-app TypeScript contract files changed in WP34.
-
-The workpack reuses the shared app/game runtime evidence and service read-model
-contracts.

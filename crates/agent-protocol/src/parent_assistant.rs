@@ -6,12 +6,9 @@ use crate::{
     ParentDeviceReference, ParentEvidenceReference,
 };
 
-mod provider_route;
+pub mod provider_route;
 
-pub use provider_route::{
-    ParentAssistantProviderRoute, ParentAssistantProviderRoutingState,
-    ParentAssistantProviderSelection,
-};
+use provider_route::ParentAssistantProviderRoute;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentAssistantProviderState {

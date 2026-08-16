@@ -4,7 +4,7 @@ use crate::{
     constants, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
 };
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserManagedState {
     #[serde(rename = "not-installed")]
     NotInstalled,
@@ -31,24 +31,26 @@ pub enum BrowserManagedState {
 }
 
 impl BrowserManagedState {
+    const PROTOCOL_STRINGS: [&'static str; 11] = [
+        constants::browser::MANAGED_STATE_NOT_INSTALLED,
+        constants::browser::MANAGED_STATE_INSTALLED_UNSUPPORTED,
+        constants::browser::MANAGED_STATE_INSTALLED_SUPPORTED,
+        constants::browser::MANAGED_STATE_MANAGED_PROFILE_READY,
+        constants::browser::MANAGED_STATE_LAUNCH_PENDING,
+        constants::browser::MANAGED_STATE_RUNNING_MANAGED,
+        constants::browser::MANAGED_STATE_BRIDGE_CONNECTED,
+        constants::browser::MANAGED_STATE_BRIDGE_DISCONNECTED,
+        constants::browser::MANAGED_STATE_PERMISSION_REQUIRED,
+        constants::browser::MANAGED_STATE_STOPPED,
+        constants::browser::MANAGED_STATE_ERROR,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotInstalled => constants::browser::MANAGED_STATE_NOT_INSTALLED,
-            Self::InstalledUnsupported => constants::browser::MANAGED_STATE_INSTALLED_UNSUPPORTED,
-            Self::InstalledSupported => constants::browser::MANAGED_STATE_INSTALLED_SUPPORTED,
-            Self::ManagedProfileReady => constants::browser::MANAGED_STATE_MANAGED_PROFILE_READY,
-            Self::LaunchPending => constants::browser::MANAGED_STATE_LAUNCH_PENDING,
-            Self::RunningManaged => constants::browser::MANAGED_STATE_RUNNING_MANAGED,
-            Self::BridgeConnected => constants::browser::MANAGED_STATE_BRIDGE_CONNECTED,
-            Self::BridgeDisconnected => constants::browser::MANAGED_STATE_BRIDGE_DISCONNECTED,
-            Self::PermissionRequired => constants::browser::MANAGED_STATE_PERMISSION_REQUIRED,
-            Self::Stopped => constants::browser::MANAGED_STATE_STOPPED,
-            Self::Error => constants::browser::MANAGED_STATE_ERROR,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserBridgeKind {
     #[serde(rename = "chromium-devtools-protocol")]
     ChromiumDevtoolsProtocol,
@@ -56,15 +58,11 @@ pub enum BrowserBridgeKind {
 
 impl BrowserBridgeKind {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ChromiumDevtoolsProtocol => {
-                constants::browser::BRIDGE_KIND_CHROMIUM_DEVTOOLS_PROTOCOL
-            }
-        }
+        constants::browser::BRIDGE_KIND_CHROMIUM_DEVTOOLS_PROTOCOL
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserQueryVisibilityLabel {
     #[serde(rename = "live-local")]
     LiveLocal,
@@ -79,18 +77,20 @@ pub enum BrowserQueryVisibilityLabel {
 }
 
 impl BrowserQueryVisibilityLabel {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
+        constants::browser::QUERY_VISIBILITY_LIVE_LAN,
+        constants::browser::QUERY_VISIBILITY_PARENT_CACHE,
+        constants::browser::QUERY_VISIBILITY_PARENT_OWNED_EXPORT,
+        constants::browser::QUERY_VISIBILITY_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::LiveLocal => constants::browser::QUERY_VISIBILITY_LIVE_LOCAL,
-            Self::LiveLan => constants::browser::QUERY_VISIBILITY_LIVE_LAN,
-            Self::ParentCache => constants::browser::QUERY_VISIBILITY_PARENT_CACHE,
-            Self::ParentOwnedExport => constants::browser::QUERY_VISIBILITY_PARENT_OWNED_EXPORT,
-            Self::Unavailable => constants::browser::QUERY_VISIBILITY_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserManagedProfileLifecycleState {
     #[serde(rename = "ready")]
     Ready,
@@ -109,22 +109,22 @@ pub enum BrowserManagedProfileLifecycleState {
 }
 
 impl BrowserManagedProfileLifecycleState {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        constants::browser::PROFILE_STORE_LIFECYCLE_READY,
+        constants::browser::PROFILE_STORE_LIFECYCLE_MISSING,
+        constants::browser::PROFILE_STORE_LIFECYCLE_REPAIR_REQUIRED,
+        constants::browser::PROFILE_STORE_LIFECYCLE_DELETED,
+        constants::browser::PROFILE_STORE_LIFECYCLE_UNSAFE_DEFAULT_PROFILE,
+        constants::browser::PROFILE_STORE_LIFECYCLE_UNOWNED_PROFILE,
+        constants::browser::PROFILE_STORE_LIFECYCLE_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Ready => constants::browser::PROFILE_STORE_LIFECYCLE_READY,
-            Self::Missing => constants::browser::PROFILE_STORE_LIFECYCLE_MISSING,
-            Self::RepairRequired => constants::browser::PROFILE_STORE_LIFECYCLE_REPAIR_REQUIRED,
-            Self::Deleted => constants::browser::PROFILE_STORE_LIFECYCLE_DELETED,
-            Self::UnsafeDefaultProfile => {
-                constants::browser::PROFILE_STORE_LIFECYCLE_UNSAFE_DEFAULT_PROFILE
-            }
-            Self::UnownedProfile => constants::browser::PROFILE_STORE_LIFECYCLE_UNOWNED_PROFILE,
-            Self::Unavailable => constants::browser::PROFILE_STORE_LIFECYCLE_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserUnmanagedDetectionConfidence {
     #[serde(rename = "high")]
     High,
@@ -135,16 +135,18 @@ pub enum BrowserUnmanagedDetectionConfidence {
 }
 
 impl BrowserUnmanagedDetectionConfidence {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::browser::UNMANAGED_DETECTION_CONFIDENCE_HIGH,
+        constants::browser::UNMANAGED_DETECTION_CONFIDENCE_MEDIUM,
+        constants::browser::UNMANAGED_DETECTION_CONFIDENCE_LOW,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::High => constants::browser::UNMANAGED_DETECTION_CONFIDENCE_HIGH,
-            Self::Medium => constants::browser::UNMANAGED_DETECTION_CONFIDENCE_MEDIUM,
-            Self::Low => constants::browser::UNMANAGED_DETECTION_CONFIDENCE_LOW,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserUnmanagedProcessKind {
     #[serde(rename = "supported-browser")]
     SupportedBrowser,
@@ -169,37 +171,25 @@ pub enum BrowserUnmanagedProcessKind {
 }
 
 impl BrowserUnmanagedProcessKind {
+    const PROTOCOL_STRINGS: [&'static str; 10] = [
+        constants::browser::UNMANAGED_PROCESS_KIND_SUPPORTED_BROWSER,
+        constants::browser::UNMANAGED_PROCESS_KIND_UNSUPPORTED_BROWSER,
+        constants::browser::UNMANAGED_PROCESS_KIND_PORTABLE_BROWSER,
+        constants::browser::UNMANAGED_PROCESS_KIND_TOR_PRIVACY_BROWSER,
+        constants::browser::UNMANAGED_PROCESS_KIND_PACKAGED_BROWSER,
+        constants::browser::UNMANAGED_PROCESS_KIND_EMBEDDED_BROWSER_LIKE,
+        constants::browser::UNMANAGED_PROCESS_KIND_UNKNOWN_BROWSER_LIKE,
+        constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_SOCIAL_BYPASS,
+        constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_BROWSER_GAME_BYPASS,
+        constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_CLOUD_GAMING_BYPASS,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::SupportedBrowser => constants::browser::UNMANAGED_PROCESS_KIND_SUPPORTED_BROWSER,
-            Self::UnsupportedBrowser => {
-                constants::browser::UNMANAGED_PROCESS_KIND_UNSUPPORTED_BROWSER
-            }
-            Self::PortableBrowser => constants::browser::UNMANAGED_PROCESS_KIND_PORTABLE_BROWSER,
-            Self::TorPrivacyBrowser => {
-                constants::browser::UNMANAGED_PROCESS_KIND_TOR_PRIVACY_BROWSER
-            }
-            Self::PackagedBrowser => constants::browser::UNMANAGED_PROCESS_KIND_PACKAGED_BROWSER,
-            Self::EmbeddedBrowserLike => {
-                constants::browser::UNMANAGED_PROCESS_KIND_EMBEDDED_BROWSER_LIKE
-            }
-            Self::UnknownBrowserLike => {
-                constants::browser::UNMANAGED_PROCESS_KIND_UNKNOWN_BROWSER_LIKE
-            }
-            Self::PossibleSocialBypass => {
-                constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_SOCIAL_BYPASS
-            }
-            Self::PossibleBrowserGameBypass => {
-                constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_BROWSER_GAME_BYPASS
-            }
-            Self::PossibleCloudGamingBypass => {
-                constants::browser::UNMANAGED_PROCESS_KIND_POSSIBLE_CLOUD_GAMING_BYPASS
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserUnmanagedDetectionReason {
     #[serde(rename = "supported-browser-outside-managed-session")]
     SupportedBrowserOutsideManagedSession,
@@ -222,36 +212,20 @@ pub enum BrowserUnmanagedDetectionReason {
 }
 
 impl BrowserUnmanagedDetectionReason {
+    const PROTOCOL_STRINGS: [&'static str; 9] = [
+        constants::browser::UNMANAGED_DETECTION_REASON_SUPPORTED_BROWSER_OUTSIDE_MANAGED_SESSION,
+        constants::browser::UNMANAGED_DETECTION_REASON_UNSUPPORTED_BROWSER_PROCESS,
+        constants::browser::UNMANAGED_DETECTION_REASON_PORTABLE_BROWSER_PROCESS,
+        constants::browser::UNMANAGED_DETECTION_REASON_TOR_PRIVACY_BROWSER_PROCESS,
+        constants::browser::UNMANAGED_DETECTION_REASON_PACKAGED_BROWSER_PROCESS,
+        constants::browser::UNMANAGED_DETECTION_REASON_BROWSER_LIKE_PROCESS,
+        constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_SOCIAL_BYPASS,
+        constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_BROWSER_GAME_BYPASS,
+        constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_CLOUD_GAMING_BYPASS,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::SupportedBrowserOutsideManagedSession => {
-                constants::browser::UNMANAGED_DETECTION_REASON_SUPPORTED_BROWSER_OUTSIDE_MANAGED_SESSION
-            }
-            Self::UnsupportedBrowserProcess => {
-                constants::browser::UNMANAGED_DETECTION_REASON_UNSUPPORTED_BROWSER_PROCESS
-            }
-            Self::PortableBrowserProcess => {
-                constants::browser::UNMANAGED_DETECTION_REASON_PORTABLE_BROWSER_PROCESS
-            }
-            Self::TorPrivacyBrowserProcess => {
-                constants::browser::UNMANAGED_DETECTION_REASON_TOR_PRIVACY_BROWSER_PROCESS
-            }
-            Self::PackagedBrowserProcess => {
-                constants::browser::UNMANAGED_DETECTION_REASON_PACKAGED_BROWSER_PROCESS
-            }
-            Self::BrowserLikeProcess => {
-                constants::browser::UNMANAGED_DETECTION_REASON_BROWSER_LIKE_PROCESS
-            }
-            Self::PossibleSocialBypass => {
-                constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_SOCIAL_BYPASS
-            }
-            Self::PossibleBrowserGameBypass => {
-                constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_BROWSER_GAME_BYPASS
-            }
-            Self::PossibleCloudGamingBypass => {
-                constants::browser::UNMANAGED_DETECTION_REASON_POSSIBLE_CLOUD_GAMING_BYPASS
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 

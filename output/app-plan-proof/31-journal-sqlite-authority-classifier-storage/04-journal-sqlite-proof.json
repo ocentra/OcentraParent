@@ -1,6 +1,0 @@
-{
-  "status": "cross-recorded-shared-app-game-proof",
-  "command": "cargo test -p ocentra-parent-agent-core app_game_journal_sqlite",
-  "testsPassed": 5,
-  "sharedProofRoot": "output/app-game-plan-proof/31-journal-sqlite-authority-classifier-storage"
-}

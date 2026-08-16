@@ -1,0 +1,108 @@
+
+export type ChildRuntimeDomain = Infer<typeof ChildRuntimeDomainSchema>;
+export type ChildDomainRuntimeEventType = Infer<typeof ChildDomainRuntimeEventTypeSchema>;
+export type ChildDomainRuntimeEventEnvelope = Infer<typeof ChildDomainRuntimeEventEnvelopeSchema>;
+export type ChildDomainAiAnalysisRequirement = Infer<typeof ChildDomainAiAnalysisRequirementSchema>;
+export type ChildDomainPolicyEvaluationRequirement = Infer<typeof ChildDomainPolicyEvaluationRequirementSchema>;
+export type ChildDomainPrivatePayloadState = Infer<typeof ChildDomainPrivatePayloadStateSchema>;
+export type ChildDomainObservedEvent = Infer<typeof ChildDomainObservedEventSchema>;
+export type ChildDomainEvidenceRecordedEvent = Infer<typeof ChildDomainEvidenceRecordedEventSchema>;
+export type ChildDomainAiAnalysisRequestedEvent = Infer<typeof ChildDomainAiAnalysisRequestedEventSchema>;
+export type ChildDomainAiAnalysisCompletedEvent = Infer<typeof ChildDomainAiAnalysisCompletedEventSchema>;
+export type ChildDomainPolicyEvaluationRequestedEvent = Infer<typeof ChildDomainPolicyEvaluationRequestedEventSchema>;
+export type ChildDomainPolicyViolationDetectedEvent = Infer<typeof ChildDomainPolicyViolationDetectedEventSchema>;
+export type ChildDomainNotificationRequestedEvent = Infer<typeof ChildDomainNotificationRequestedEventSchema>;
+
+export const ChildDomainRuntimeEventType = {
+  AppObserved: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.AppObserved),
+  AppEvidenceRecorded: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.AppEvidenceRecorded),
+  AppAiAnalysisRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.AppAiAnalysisRequested
+  ),
+  AppPolicyEvaluationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.AppPolicyEvaluationRequested
+  ),
+  AppGameObserved: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.AppGameObserved),
+  AppGameEvidenceRecorded: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.AppGameEvidenceRecorded
+  ),
+  AppGameAiAnalysisRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.AppGameAiAnalysisRequested
+  ),
+  AppGamePolicyEvaluationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.AppGamePolicyEvaluationRequested
+  ),
+  BrowserObserved: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.BrowserObserved),
+  BrowserEvidenceRecorded: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.BrowserEvidenceRecorded
+  ),
+  BrowserAiAnalysisRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.BrowserAiAnalysisRequested
+  ),
+  BrowserPolicyEvaluationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.BrowserPolicyEvaluationRequested
+  ),
+  LanObserved: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.LanObserved),
+  LanEvidenceRecorded: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.LanEvidenceRecorded),
+  LanAiAnalysisRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.LanAiAnalysisRequested
+  ),
+  LanPolicyEvaluationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.LanPolicyEvaluationRequested
+  ),
+  NetworkObserved: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.NetworkObserved),
+  NetworkEvidenceRecorded: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.NetworkEvidenceRecorded
+  ),
+  NetworkAiAnalysisRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.NetworkAiAnalysisRequested
+  ),
+  NetworkPolicyEvaluationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.NetworkPolicyEvaluationRequested
+  ),
+  ScreenObserved: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.ScreenObserved),
+  ScreenEvidenceRecorded: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.ScreenEvidenceRecorded
+  ),
+  ScreenAiAnalysisRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.ScreenAiAnalysisRequested
+  ),
+  ScreenPolicyEvaluationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.ScreenPolicyEvaluationRequested
+  ),
+  ScreenLiveViewObserved: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewObserved
+  ),
+  ScreenLiveViewEvidenceRecorded: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewEvidenceRecorded
+  ),
+  ScreenLiveViewAiAnalysisRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewAiAnalysisRequested
+  ),
+  ScreenLiveViewPolicyEvaluationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewPolicyEvaluationRequested
+  ),
+  AiAnalysisCompleted: ChildDomainRuntimeEventTypeSchema.parse(ChildDomainRuntimeEventTypeLiteral.AiAnalysisCompleted),
+  PolicyViolationDetected: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.PolicyViolationDetected
+  ),
+  NotificationRequested: ChildDomainRuntimeEventTypeSchema.parse(
+    ChildDomainRuntimeEventTypeLiteral.NotificationRequested
+  ),
+} as const;
+
+export const ChildDomainAiAnalysisRequirement = {
+  Required: ChildDomainAiAnalysisRequirementSchema.parse(ChildDomainAiAnalysisRequirementLiteral.Required),
+  NotRequired: ChildDomainAiAnalysisRequirementSchema.parse(ChildDomainAiAnalysisRequirementLiteral.NotRequired),
+} as const;
+
+export const ChildDomainPolicyEvaluationRequirement = {
+  Required: ChildDomainPolicyEvaluationRequirementSchema.parse(ChildDomainPolicyEvaluationRequirementLiteral.Required),
+  NotRequired: ChildDomainPolicyEvaluationRequirementSchema.parse(
+    ChildDomainPolicyEvaluationRequirementLiteral.NotRequired
+  ),
+} as const;
+
+export const ChildDomainPrivatePayloadState = {
+  Excluded: ChildDomainPrivatePayloadStateSchema.parse(ChildDomainPrivatePayloadStateLiteral.Excluded),
+} as const;

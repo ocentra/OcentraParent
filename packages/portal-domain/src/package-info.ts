@@ -1,4 +1,4 @@
 export const PortalDomainPackage = {
   Name: '@ocentra-parent/portal-domain',
-  Boundary: 'portal-route-dom-contracts',
+  Boundary: 'portal-presentation-helpers',
 } as const;

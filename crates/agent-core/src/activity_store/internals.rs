@@ -1,4 +1,5 @@
-use ocentra_parent_agent_protocol::{constants, ActivityEvent};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::constants;
 use rusqlite::{params, Connection};
 
 use crate::ActivityStoreError;

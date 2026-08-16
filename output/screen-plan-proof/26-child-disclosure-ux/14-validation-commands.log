@@ -1,5 +1,0 @@
-cmd /c npm exec --workspace @ocentra-parent/activity-domain -- vitest run tests/screen-child-disclosure-ux.test.ts
-cmd /c npm exec --workspace @ocentra-parent/text-domain -- vitest run tests/screen-child-disclosure-ux-text.test.ts
-cmd /c npm run build --workspace @ocentra-parent/activity-domain
-cmd /c npm run build --workspace @ocentra-parent/text-domain
-cmd /c npm run type-check --workspace @ocentra-parent/portal

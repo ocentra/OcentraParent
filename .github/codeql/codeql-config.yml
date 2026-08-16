@@ -1,0 +1,23 @@
+name: Ocentra Parent CodeQL
+
+paths-ignore:
+  - '.codeql-local/**'
+  - '.codex-temp/**'
+  - '.hub/**'
+  - '.turbo/**'
+  - '.wix/**'
+  - 'coverage/**'
+  - 'dist/**'
+  - 'node_modules/**'
+  - 'output/**'
+  - 'playwright-report/**'
+  - 'target/**'
+  - 'test-results/**'
+  - 'apps/*/dist/**'
+  - 'apps/*/src-tauri/.generated/**'
+  - 'apps/*/src-tauri/gen/**'
+  - 'apps/*/src-tauri/target-*-dev/**'
+  - 'platforms/android/**/.gradle/**'
+  - 'platforms/android/**/.kotlin/**'
+  - 'platforms/android/**/build/**'
+  - 'platforms/ios/**/DerivedData/**'

@@ -1,5 +1,19 @@
 # 53. Notification Intent Contract
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `53. Notification Intent Contract`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Owner And Branch
 
 - Owner/lane: `codex-c`
@@ -44,13 +58,13 @@ platform support.
 
 ## DONE Checklist
 
-- [x] Hub lock covers the exact implementation, docs, proof, and validation
+- [ ] Hub lock covers the exact implementation, docs, proof, and validation
       paths.
-- [x] App/game child-facing UX, time-budget policy, notification provider, and
+- [ ] App/game child-facing UX, time-budget policy, notification provider, and
       local outbox contract patterns inspected.
-- [x] TypeScript contract/parser rejects wrong reason/copy tokens, missing
+- [ ] TypeScript contract/parser rejects wrong reason/copy tokens, missing
       kind-specific refs, raw detail leakage, provider delivery/receipt claims,
       false local-outbox claims, and adapter action claims.
-- [x] Proof pack records no Rust/service protocol, no UI, no product checklist
+- [ ] Proof pack records no Rust/service protocol, no UI, no product checklist
       change, no policy execution, no provider delivery, no adapter dispatch,
       and no platform support claim.

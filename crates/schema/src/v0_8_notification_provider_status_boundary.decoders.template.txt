@@ -1,0 +1,21 @@
+  return V08NotificationProviderStatusBoundaryEntrySchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    notificationIntentRef: 'notification-intent-provider-status-boundary-ref',
+    auditRefs: ['notification-provider-status-audit-ref'],
+    preferenceRefs: ['notification-parent-preferences-ref'],
+    providerDeliveryImplemented: false,
+    providerDeliveryObserved: false,
+    deliveredNotificationClaimed: false,
+    sensitiveProviderPayloadClaimed: false,
+    providerStoresChildEvidenceClaimed: false,
+    lastCheckedAt: generatedAt,
+    ...input,
+  });
+}
+
+export const decodeV08NotificationProviderStatusBoundaryEntry = Schema.decodeUnknownSync(
+  V08NotificationProviderStatusBoundaryEntrySchema
+);
+export const decodeV08NotificationProviderStatusBoundaryReadModel = Schema.decodeUnknownSync(
+  V08NotificationProviderStatusBoundaryReadModelSchema
+);

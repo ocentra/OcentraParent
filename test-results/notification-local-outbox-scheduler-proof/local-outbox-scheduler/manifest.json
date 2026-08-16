@@ -1,8 +1,0 @@
-{
-  "proofMode": "notification-local-outbox-scheduler-proof",
-  "schedulerFile": "test-results/notification-local-outbox-scheduler-proof/local-outbox-scheduler/scheduler.jsonl",
-  "recordCount": 6,
-  "schedulerArtifactRef": "parent-owned-local-notification-outbox-scheduler-jsonl-ref",
-  "localDataPathRef": "parent-owned-local-notification-outbox-data-path-ref",
-  "generatedAt": "2026-06-04T04:59:41.115Z"
-}

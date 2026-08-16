@@ -1,5 +1,19 @@
 # WP20 Google Places And POI Provider Adapter
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `WP20 Google Places And POI Provider Adapter`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Purpose
 
 Keep Google Places and other POI provider integration separate from the generic
@@ -25,6 +39,7 @@ Proof root: `output/tracking-plan-proof/20-google-places-and-poi-provider-adapte
 
 - `01-contract-proof.log`
 - `07-nearby-place-proof.json`
+- `08-provider-parity-readiness-proof.json`
 - `13-security-negative-proof.log`
 - `16-validation-commands.log`
 
@@ -40,7 +55,19 @@ Proof root: `output/tracking-plan-proof/20-google-places-and-poi-provider-adapte
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+This workpack now has focused P1 provider-adapter contract proof from
+`codex/tracking-google-poi-provider-proof`. The proof builds a bounded Google
+Places Nearby Search request with a production-safe field mask, maps
+real-shaped provider response rows into nearby-place category, distance,
+confidence, and ambiguity evidence, and records provider unavailable
+degradation. The current continuation branch also records provider parity
+readiness rows in
+`output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/08-provider-parity-readiness-proof.json`:
+Google is request-mapped from the existing contract proof, while Apple MapKit
+and OpenStreetMap/Nominatim remain manual-required until provider terms,
+runtime, and authorization proof exist. Live Google/Apple/OSM provider
+execution, credentials, exact-place claims, physical-device proof, UI, and
+production persistence remain unclaimed.
 
 ## Where We Want To Be
 
@@ -67,9 +94,26 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [ ] Workpack id and branch: WP20,
+      `codex/tracking-google-poi-provider-proof`.
+- [ ] Touched files: `packages/parent-domain/src/tracking-poi-provider-adapter.ts`,
+      `packages/parent-domain/tests/tracking-poi-provider-adapter.test.ts`,
+      `scripts/test/tracking-poi-provider-adapter-proof.mjs`, this workpack,
+      the location/geofence feature doc, implementation checklist, and proof
+      outputs.
+- [ ] Validation commands and results:
+      `node scripts/test/tracking-poi-provider-adapter-proof.mjs` passed
+      parent-domain build plus Vitest tracking POI provider and tracking policy
+      tests.
+- [ ] Proof artifacts under
+      `output/tracking-plan-proof/20-google-places-and-poi-provider-adapter/`.
+- [ ] Provider parity readiness rows preserve Google request-mapped status and
+      Apple MapKit/OpenStreetMap manual-required status without claiming live
+      execution.
+- [ ] Product doc/checklist updates: owning feature doc and implementation
+      checklist updated. Product capability checklist update is queued because
+      another lane currently owns that file lock.
+- [ ] Known gaps/manual-required states: live provider execution, credentials,
+      provider terms/runtime auth, exact-place claims, physical-device proof,
+      UI, production persistence, and Apple/OSM provider parity remain
+      unclaimed.

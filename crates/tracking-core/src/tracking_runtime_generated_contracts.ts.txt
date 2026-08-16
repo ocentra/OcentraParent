@@ -1,0 +1,136 @@
+import { ActivityEvidenceKind } from '@ocentra-parent/schema-domain/evidence-kinds';
+
+type TrackingCapabilityStatus =
+  | 'live'
+  | 'recent'
+  | 'stale'
+  | 'last-known'
+  | 'foreground-only'
+  | 'background-ready'
+  | 'approximate-only'
+  | 'permission-required'
+  | 'offline-last-known-only'
+  | 'background-permission-required'
+  | 'platform-unsupported'
+  | 'permission-denied'
+  | 'service-disabled'
+  | 'battery-throttled'
+  | 'unavailable'
+  | 'manual-required'
+  | 'adapter-error'
+  | 'disabled-by-parent';
+type TrackingGeofenceTransitionKind = 'enter' | 'exit' | 'dwell' | 'missed-arrival' | 'stale-at-place' | 'ambiguous';
+type TrackingExpectedPlaceExceptionState = 'active' | 'resolved' | 'suppressed';
+type TrackingReasonCode =
+  | 'expected-place-ambiguous'
+  | 'expected-place-exception-active'
+  | 'expected-place-exception-resolved'
+  | 'expected-place-exception-suppressed'
+  | 'expected-place-schedule-disabled'
+  | 'exited-expected-place-window'
+  | 'fresh-location-required'
+  | 'geofence-rule-disabled'
+  | 'inside-expected-place-window'
+  | 'inside-geofence-with-accuracy'
+  | 'location-accuracy-below-rule-threshold'
+  | 'missed-expected-place-arrival'
+  | 'outside-expected-place-window'
+  | 'outside-geofence-with-accuracy'
+  | 'precise-location-required';
+
+type TrackingEvidenceRef = {
+  readonly evidenceId: string;
+  readonly kind: ActivityEvidenceKind;
+  readonly digest: string | null;
+  readonly uri: string | null;
+};
+
+interface TrackingCoordinate {
+  readonly latitude: number;
+  readonly longitude: number;
+}
+
+interface TrackingLocationEvidence {
+  readonly evidenceId: string;
+  readonly capabilityStatus: TrackingCapabilityStatus;
+  readonly coordinate: TrackingCoordinate | null;
+  readonly accuracyMeters: number | null;
+  readonly evidence: readonly TrackingEvidenceRef[];
+}
+
+interface TrackingGeofenceRule {
+  readonly schemaVersion: number;
+  readonly ruleId: string;
+  readonly geofenceId: string;
+  readonly enabled: boolean;
+  readonly minAccuracyMeters: number;
+  readonly center: TrackingCoordinate;
+  readonly shape: {
+    readonly kind: string;
+    readonly radiusMeters: number | null;
+  };
+}
+
+interface TrackingGeofenceTransition {
+  readonly transitionId: string;
+  readonly observedAt: string;
+  readonly transition: TrackingGeofenceTransitionKind;
+  readonly evidence: readonly TrackingEvidenceRef[];
+}
+
+interface TrackingTimeWindow {
+  readonly startsAt: string;
+  readonly endsAt: string;
+}
+
+interface TrackingExpectedPlaceSchedule {
+  readonly schemaVersion: number;
+  readonly scheduleId: string;
+  readonly enabled: boolean;
+  readonly windows: readonly TrackingTimeWindow[];
+  readonly activeException: {
+    readonly state: TrackingExpectedPlaceExceptionState;
+    readonly auditRef: string;
+  } | null;
+}
+
+interface TrackingExpectedPlaceDecision {
+  readonly decisionId: string;
+  readonly observedAt: string;
+}
+
+export interface TrackingGeofenceEvaluationInput {
+  readonly transitionId: TrackingGeofenceTransition['transitionId'];
+  readonly observedAt: TrackingGeofenceTransition['observedAt'];
+  readonly rule: TrackingGeofenceRule;
+  readonly location: TrackingLocationEvidence;
+  readonly wasInside: boolean;
+}
+
+export interface TrackingExpectedPlaceEvaluationInput {
+  readonly decisionId: TrackingExpectedPlaceDecision['decisionId'];
+  readonly observedAt: TrackingExpectedPlaceDecision['observedAt'];
+  readonly schedule: TrackingExpectedPlaceSchedule;
+  readonly location: TrackingLocationEvidence;
+  readonly transition: TrackingGeofenceTransition;
+}
+
+const EarthRadiusMeters = 6_371_008.8;
+const HalfCircleDegrees = 180;
+const RadiansPerDegree = Math.PI / HalfCircleDegrees;
+const ManualReviewCapabilityStatuses: ReadonlySet<TrackingLocationEvidence['capabilityStatus']> = new Set([
+  'stale',
+  'last-known',
+  'offline-last-known-only',
+  'permission-required',
+  'background-permission-required',
+  'approximate-only',
+  'manual-required',
+  'unavailable',
+  'adapter-error',
+  'disabled-by-parent',
+] as const);
+
+function reasonCode(value: TrackingReasonCode) {
+  return value;
+}

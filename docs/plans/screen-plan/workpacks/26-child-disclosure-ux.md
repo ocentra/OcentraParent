@@ -1,43 +1,44 @@
 # 26 Child Disclosure UX
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `26 Child Disclosure UX`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 Child-visible/local disclosure, parent-enabled status, calm wording, and no hidden capture are implemented.
 
 ## Current State
 
-`ScreenChildDisclosureUxProofSchema` defines local child-visible disclosure
-states for disabled, paused, ready, capture-active, and protected-surface
-conditions. Shared text-domain copy renders in the parent Settings route proof
-panel, and `scripts/test/screen-child-disclosure-ux-proof.mjs` runs the real
-Rust agent plus Vite portal on the B-lane ports to prove the visible copy,
-custody labels, local-only status, audit references, and deleted-image
-non-retention states.
-
-This is local dev portal proof. It does not claim a production child app, OS
-notification, tray integration, foreground overlay, service-persisted child
-disclosure state, raw retention enablement, live view, or remote screenshot
-upload.
+Disclosure requirement exists in expectations. `screen-child-disclosure-proof`
+now defines the child-visible status/copy contract, renders a child-visible
+disclosure page for desktop/mobile screenshot inspection, and proves no hidden
+capture or raw screenshot display can be represented. Child-agent runtime
+deployment/delivery remains open and unclaimed.
 
 ## Checklist
 
-- [x] Define child-visible status.
-- [x] Define local disclosure copy.
-- [x] Define paused/disabled states.
-- [x] Define capture-active state where platform permits.
-- [x] Avoid hidden capture.
-- [x] Add screenshots/proof.
+- [ ] Define child-visible status.
+- [ ] Define local disclosure copy.
+- [ ] Define paused/disabled states.
+- [ ] Define capture-active state where platform permits.
+- [ ] Avoid hidden capture.
+- [ ] Add screenshots/proof.
 
 ## Proof
 
-- Contract/tests:
-  `packages/activity-domain/tests/screen-child-disclosure-ux.test.ts` and
-  `packages/text-domain/tests/screen-child-disclosure-ux-text.test.ts`.
-- Executable proof:
-  `scripts/test/screen-child-disclosure-ux-proof.mjs`.
-- Proof summary:
-  `output/screen-plan-proof/26-child-disclosure-ux/proof-summary.json`.
-- UI screenshots:
-  `output/screen-plan-proof/26-child-disclosure-ux/10-ui-snapshots/screen-child-disclosure-active-card.png`
-  and
-  `output/screen-plan-proof/26-child-disclosure-ux/10-ui-snapshots/screen-child-disclosure-settings-route.png`.
+- `output/screen-plan-proof/screen-child-disclosure/proof-summary.json`.
+- `output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-desktop.png`.
+- `output/screen-plan-proof/screen-child-disclosure/screenshots/screen-child-disclosure-mobile.png`.
+- Child-agent runtime deployment/delivery remains open.
+- Product text reviewed.

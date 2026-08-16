@@ -1,0 +1,53 @@
+[package]
+name = "ocentra-schema"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = { version = "1.0.145", features = ["raw_value"] }
+sha2 = "0.10.9"
+
+[[test]]
+name = "contract"
+path = "tests/contract/main.rs"
+
+[[test]]
+name = "billing_entitlement_proof"
+path = "tests/contract/billing_entitlement_proof.rs"
+
+[[test]]
+name = "parent_control_capability_data"
+path = "tests/contract/parent_control_capability_data.rs"
+
+[[test]]
+name = "parent_control_capabilities"
+path = "tests/contract/parent_control_capabilities.rs"
+
+[[test]]
+name = "eventing_contracts"
+path = "tests/contract/eventing_contracts.rs"
+
+[[test]]
+name = "browser_generated_values"
+path = "tests/contract/browser_generated_values.rs"
+
+[[test]]
+name = "child_android_proof_contracts"
+path = "tests/contract/child_android_proof_contracts.rs"
+
+[[test]]
+name = "child_service_package_proof_contracts"
+path = "tests/contract/child_service_package_proof_contracts.rs"
+
+[[test]]
+name = "child_domain_runtime_events"
+path = "tests/contract/child_domain_runtime_events.rs"

@@ -1,0 +1,27 @@
+/* thin adapter over Rust-owned generated social alert report provider receipt boundary proof contracts */
+
+import * as Generated from './generated-social-alert-report-provider-receipt-boundary-proof';
+
+export const RequiredSocialAlertReportProviderReceiptBoundaryNonClaims =
+  Generated.RequiredSocialAlertReportProviderReceiptBoundaryNonClaims;
+export const SocialAlertReportProviderReceiptBoundaryNonClaimSchema =
+  Generated.SocialAlertReportProviderReceiptBoundaryNonClaimSchema;
+export const SocialAlertReportProviderReceiptBoundaryIdSchema =
+  Generated.SocialAlertReportProviderReceiptBoundaryIdSchema;
+export const SocialAlertReportProviderReceiptBoundaryReferenceSchema =
+  Generated.SocialAlertReportProviderReceiptBoundaryReferenceSchema;
+export const SocialAlertReportProviderReceiptBoundaryStateSchema =
+  Generated.SocialAlertReportProviderReceiptBoundaryStateSchema;
+export const SocialAlertReportProviderReceiptBoundaryRowSchema =
+  Generated.SocialAlertReportProviderReceiptBoundaryRowSchema;
+export const SocialAlertReportProviderReceiptBoundaryReadModelSchema =
+  Generated.SocialAlertReportProviderReceiptBoundaryReadModelSchema;
+export type SocialAlertReportProviderReceiptBoundaryState = Generated.SocialAlertReportProviderReceiptBoundaryState;
+export type SocialAlertReportProviderReceiptBoundaryRow = Generated.SocialAlertReportProviderReceiptBoundaryRow;
+export type SocialAlertReportProviderReceiptBoundaryReadModel =
+  Generated.SocialAlertReportProviderReceiptBoundaryReadModel;
+export type SocialAlertReportProviderReceiptBoundaryOptions = Generated.SocialAlertReportProviderReceiptBoundaryOptions;
+export const buildSocialAlertReportProviderReceiptBoundaryReadModel =
+  Generated.buildSocialAlertReportProviderReceiptBoundaryReadModel;
+export const summarizeSocialAlertReportProviderReceiptBoundary =
+  Generated.summarizeSocialAlertReportProviderReceiptBoundary;

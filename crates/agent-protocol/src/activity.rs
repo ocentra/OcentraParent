@@ -1,24 +1,22 @@
 use serde::{Deserialize, Serialize};
 
 #[path = "policy.rs"]
-mod policy;
-pub use policy::*;
+pub mod policy;
 
 #[path = "policy_context.rs"]
-mod policy_context;
-pub use policy_context::*;
+pub mod policy_context;
 
 #[path = "policy_preview.rs"]
-mod policy_preview;
-pub use policy_preview::*;
+pub mod policy_preview;
 
 #[path = "local_ai.rs"]
-mod local_ai;
-pub use local_ai::*;
+pub mod local_ai;
 
 use crate::LogFields;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub const ACTIVITY_SCHEMA_VERSION: u16 = crate::ACTIVITY_SCHEMA_VERSION;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityObserver {
     #[serde(rename = "agent-service")]
     AgentService,
@@ -40,7 +38,7 @@ pub enum ActivityObserver {
     AndroidLocation,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivityEventKind {
     #[serde(rename = "activity.process.observed")]
     ProcessObserved,
@@ -62,17 +60,23 @@ pub enum ActivityEventKind {
     ScreenAnalysisSummarized,
     #[serde(rename = "activity.location.observed")]
     LocationObserved,
+    #[serde(rename = "activity.tracking.alert.evaluated")]
+    TrackingAlertEvaluated,
     #[serde(rename = "activity.tracking.geofence-transition.evaluated")]
     TrackingGeofenceTransitionEvaluated,
     #[serde(rename = "activity.tracking.expected-place.evaluated")]
     TrackingExpectedPlaceEvaluated,
     #[serde(rename = "activity.tracking.child-check-in.responded")]
     TrackingChildCheckInResponded,
+    #[serde(rename = "activity.tracking.parent-notification.requested")]
+    TrackingParentNotificationRequested,
     #[serde(rename = "activity.tracking.retention.deleted")]
     TrackingRetentionDeleted,
+    #[serde(rename = "activity.network.retention.deleted")]
+    NetworkRetentionDeleted,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySubjectKind {
     #[serde(rename = "process")]
     Process,
@@ -148,7 +152,3 @@ pub struct ActivityEvent {
     pub fields: LogFields,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
-
-#[cfg(test)]
-#[path = "policy_tests.rs"]
-mod policy_tests;

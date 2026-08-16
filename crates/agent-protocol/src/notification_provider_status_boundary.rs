@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub const V08_NOTIFICATION_PROVIDER_STATUS_BOUNDARY_SCHEMA_VERSION: &str = "v0.8";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08NotificationProviderStatus {
     #[serde(rename = "queued")]
     Queued,
@@ -28,7 +30,7 @@ pub enum V08NotificationProviderStatusProofState {
     ManualActionRequired,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08NotificationQuietHoursReadiness {
     #[serde(rename = "ready")]
     Ready,
@@ -40,7 +42,7 @@ pub enum V08NotificationQuietHoursReadiness {
     Unavailable,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08NotificationEscalationReadiness {
     #[serde(rename = "ready")]
     Ready,

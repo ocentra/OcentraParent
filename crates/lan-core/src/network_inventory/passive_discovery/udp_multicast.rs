@@ -1,0 +1,93 @@
+use std::net::UdpSocket;
+use std::time::Duration;
+
+use super::{
+    LanPassiveDiscoveryListenerState, LanPassiveDiscoveryPacketIngestOutcome,
+    LanPassiveDiscoverySource, LanPassiveDiscoveryUdpMulticastCaptureOutcome,
+    LanPassiveDiscoveryUdpMulticastSupport,
+};
+
+mod ingest;
+mod socket;
+mod support;
+
+pub fn udp_multicast_support(
+    source: LanPassiveDiscoverySource,
+) -> LanPassiveDiscoveryUdpMulticastSupport {
+    support::udp_multicast_support(source)
+}
+
+pub fn collect_udp_multicast_passive_packets(
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: LanPassiveDiscoverySource,
+    max_datagram_count: usize,
+    read_timeout: Duration,
+) -> LanPassiveDiscoveryUdpMulticastCaptureOutcome {
+    socket::collect_udp_multicast_passive_packets(state, source, max_datagram_count, read_timeout)
+}
+
+pub fn collect_allowed_snmp_response_packets(
+    socket: &UdpSocket,
+    state: &mut LanPassiveDiscoveryListenerState,
+    max_datagram_count: usize,
+) -> usize {
+    ingest::drain_udp_socket_packets(
+        socket,
+        state,
+        LanPassiveDiscoverySource::AllowedSnmpResponse,
+        max_datagram_count,
+    )
+}
+
+pub fn ingest_allowed_snmp_response_packet(
+    state: &mut LanPassiveDiscoveryListenerState,
+    payload: &[u8],
+) -> LanPassiveDiscoveryPacketIngestOutcome {
+    ingest::ingest_passive_datagram(
+        state,
+        &LanPassiveDiscoverySource::AllowedSnmpResponse,
+        payload,
+    )
+}
+
+pub fn drain_udp_socket_packets(
+    socket: &UdpSocket,
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: LanPassiveDiscoverySource,
+    max_datagram_count: usize,
+) -> usize {
+    ingest::drain_udp_socket_packets(socket, state, source, max_datagram_count)
+}
+
+pub fn drain_udp_socket_packets_with_observed_at(
+    socket: &UdpSocket,
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: LanPassiveDiscoverySource,
+    max_datagram_count: usize,
+    observed_at: &mut dyn FnMut() -> String,
+) -> usize {
+    ingest::drain_udp_socket_packets_with_observed_at(
+        socket,
+        state,
+        source,
+        max_datagram_count,
+        observed_at,
+    )
+}
+
+pub fn ingest_passive_datagram(
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: &LanPassiveDiscoverySource,
+    payload: &[u8],
+) -> LanPassiveDiscoveryPacketIngestOutcome {
+    ingest::ingest_passive_datagram(state, source, payload)
+}
+
+pub fn ingest_passive_datagram_with_observed_at(
+    state: &mut LanPassiveDiscoveryListenerState,
+    source: &LanPassiveDiscoverySource,
+    payload: &[u8],
+    observed_at: &str,
+) -> LanPassiveDiscoveryPacketIngestOutcome {
+    ingest::ingest_passive_datagram_with_observed_at(state, source, payload, observed_at)
+}

@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 mod desktop_xcap;
@@ -11,6 +11,37 @@ pub enum ScreenCaptureScope {
     ActiveWindow,
     SelectedWindow,
     PrimaryDisplay,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct ScreenCaptureWindowTitleQuery {
+    value: String,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum ScreenCaptureWindowTitleQueryError {
+    Empty,
+}
+
+impl ScreenCaptureWindowTitleQuery {
+    pub fn as_str(&self) -> &str {
+        &self.value
+    }
+}
+
+impl TryFrom<String> for ScreenCaptureWindowTitleQuery {
+    type Error = ScreenCaptureWindowTitleQueryError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        let trimmed = value.trim();
+        if trimmed.is_empty() {
+            return Err(ScreenCaptureWindowTitleQueryError::Empty);
+        }
+
+        Ok(Self {
+            value: trimmed.to_owned(),
+        })
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -42,8 +73,8 @@ pub enum ScreenCaptureAttempt {
 impl ScreenCaptureAttempt {
     pub fn status(&self) -> ActivityCaptureCapabilityStatus {
         match self {
-            Self::Captured(image) => image.metadata.status.clone(),
-            Self::Degraded(metadata) => metadata.status.clone(),
+            Self::Captured(image) => image.metadata.status,
+            Self::Degraded(metadata) => metadata.status,
         }
     }
 }
@@ -52,8 +83,10 @@ pub fn capture_active_window_png() -> ScreenCaptureAttempt {
     platform_capture_active_window_png()
 }
 
-pub fn capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    platform_capture_window_title_contains_png(title_contains)
+pub fn capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    platform_capture_window_title_contains_png(title_query)
 }
 
 pub fn capture_primary_display_png() -> ScreenCaptureAttempt {
@@ -91,8 +124,10 @@ fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
-fn platform_capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    desktop_xcap::capture_window_title_contains_png(title_contains)
+fn platform_capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    desktop_xcap::capture_window_title_contains_png(title_query)
 }
 
 #[cfg(any(target_os = "windows", target_os = "macos"))]
@@ -117,7 +152,9 @@ fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
     target_os = "macos",
     all(target_os = "linux", not(target_env = "ohos"))
 )))]
-fn platform_capture_window_title_contains_png(_title_contains: &str) -> ScreenCaptureAttempt {
+fn platform_capture_window_title_contains_png(
+    _title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
     degraded_selected_window(ActivityCaptureCapabilityStatus::Unavailable)
 }
 
@@ -139,57 +176,13 @@ fn platform_capture_active_window_png() -> ScreenCaptureAttempt {
 }
 
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
-fn platform_capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    linux_x11::capture_window_title_contains_png(title_contains)
+fn platform_capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    linux_x11::capture_window_title_contains_png(title_query)
 }
 
 #[cfg(all(target_os = "linux", not(target_env = "ohos")))]
 fn platform_capture_primary_display_png() -> ScreenCaptureAttempt {
     linux_x11::capture_primary_display_png()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn degraded_attempt_reports_status_and_active_window_scope() {
-        let attempt = degraded_capture(
-            ActivityCaptureCapabilityStatus::AccessDenied,
-            ScreenCaptureScope::ActiveWindow,
-        );
-
-        assert_eq!(
-            attempt.status(),
-            ActivityCaptureCapabilityStatus::AccessDenied
-        );
-        assert!(matches!(
-            attempt,
-            ScreenCaptureAttempt::Degraded(ScreenCaptureMetadata {
-                scope: ScreenCaptureScope::ActiveWindow,
-                ..
-            })
-        ));
-    }
-
-    #[test]
-    fn captured_attempt_reports_available_status() {
-        let attempt = ScreenCaptureAttempt::Captured(CapturedScreenImage {
-            metadata: ScreenCaptureMetadata {
-                status: ActivityCaptureCapabilityStatus::Available,
-                scope: ScreenCaptureScope::ActiveWindow,
-                pid: None,
-                app_name: None,
-                title: None,
-                window_id: None,
-                monitor_id: None,
-                monitor_name: None,
-            },
-            width: 1,
-            height: 1,
-            png_bytes: vec![1],
-        });
-
-        assert_eq!(attempt.status(), ActivityCaptureCapabilityStatus::Available);
-    }
 }

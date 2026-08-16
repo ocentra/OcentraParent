@@ -1,0 +1,29 @@
+
+export function networkControlCatalogSettings(catalog = BaselineNetworkControlCatalog) {
+  return catalog.tabs.flatMap((tab) =>
+    tab.sections.flatMap((section) => section.groups.flatMap((group) => group.settings))
+  );
+}
+
+export function networkControlCatalogSettingCount(catalog = BaselineNetworkControlCatalog) {
+  return networkControlCatalogSettings(catalog).length;
+}
+
+export function networkControlCatalogSectionCount(catalog = BaselineNetworkControlCatalog) {
+  return catalog.tabs.reduce((count, tab) => count + tab.sections.length, 0);
+}
+
+export function networkControlCatalogGroupCount(catalog = BaselineNetworkControlCatalog) {
+  return catalog.tabs.reduce(
+    (count, tab) => count + tab.sections.reduce((sectionCount, section) => sectionCount + section.groups.length, 0),
+    0
+  );
+}
+
+export function networkControlCatalogAcceptedOptionCount(catalog = BaselineNetworkControlCatalog) {
+  return networkControlCatalogSettings(catalog).reduce((count, setting) => count + setting.acceptedOptions.length, 0);
+}
+
+export function networkControlCatalogSourceOptionCount() {
+  return NetworkControlSourceOptionCount;
+}

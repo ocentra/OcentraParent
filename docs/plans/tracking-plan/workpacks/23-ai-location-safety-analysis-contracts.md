@@ -1,5 +1,19 @@
 # WP23 AI Location Safety Analysis Contracts
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `WP23 AI Location Safety Analysis Contracts`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Purpose
 
 Schema-back AI input/output for expected-place, nearby-place risk, route
@@ -30,6 +44,16 @@ Proof root: `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts
 - [ ] Reject missing evidence/source refs.
 - [ ] Enforce confidence `0..1`.
 - [ ] Reject final action fields in AI output.
+
+## AI Boundary Ownership
+
+Tracking owns only location-specific AI request/result contracts and evidence
+handoff tests. Provider selection, provider mesh, work lease/claim internals,
+model quality, prompt tuning, prompt-injection model behavior, temperature
+behavior, and summarizer accuracy belong to the AI lane. Tracking tests must
+prove accepted AI output is evidence-only and cannot publish policy,
+enforcement, notification, live-mode, or escalation events.
+
 - [ ] Reject accusation/emergency-confirmed copy.
 - [ ] Keep remote AI disabled by default.
 
@@ -62,9 +86,9 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [x] Workpack id and branch: `codex/tracking-plan-full-scope`.
-- [x] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
-- [x] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
-- [x] Proof artifacts under `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`.
-- [x] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
-- [x] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.
+- [ ] Workpack id and branch: `codex/tracking-plan-full-scope`.
+- [ ] Touched files: tracking contract files, proof script, product docs, checklist, and this workpack doc.
+- [ ] Validation commands and results: `node scripts/test/tracking-plan-contract-proof.mjs` passed.
+- [ ] Proof artifacts under `output/tracking-plan-proof/23-ai-location-safety-analysis-contracts/`.
+- [ ] Product doc/checklist updates: owning feature doc, feature list, capability checklist, implementation checklist, tracking snapshot, and package READMEs updated.
+- [ ] Known gaps/manual-required states: Android/iOS, precise desktop, provider delivery, runtime engines, retention/delete/export, Rust journal/SQLite, notifications, and UI remain proof-gated as applicable.

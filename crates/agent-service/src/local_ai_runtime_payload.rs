@@ -1,208 +1,279 @@
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiModelCacheStatus, LocalModelRuntimeStatus, LocalProviderAdapterProbe,
-    LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalAiModelCacheStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalProviderAdapterProbe;
+use ocentra_parent_agent_protocol::local_ai_runtime_provider_proof::LocalAiRuntimeProviderProofReadModel;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 
 use crate::fields::fields_from_pairs;
+
+#[derive(Clone, Copy, Debug)]
+struct LocalAiLogFieldKey(&'static str);
+
+#[derive(Clone, Debug)]
+struct LocalAiLogText(String);
+
+#[derive(Clone, Copy, Debug)]
+struct LocalAiLogStaticText(&'static str);
+
+#[derive(Clone, Copy, Debug)]
+struct LocalAiLogBool(bool);
+
+#[derive(Clone, Copy, Debug)]
+struct LocalAiLogNumber(u64);
+
+#[derive(Clone, Debug)]
+struct LocalAiLogField {
+    key: LocalAiLogFieldKey,
+    value: LogFieldValue,
+}
 
 pub fn local_ai_runtime_status_payload(
     status: &LocalModelRuntimeStatus,
     probe: &LocalProviderAdapterProbe,
     cache: &LocalAiModelCacheStatus,
+    provider_proof: &LocalAiRuntimeProviderProofReadModel,
 ) -> LogFields {
-    let mut pairs = runtime_status_fields(status);
-    pairs.extend(adapter_probe_fields(probe));
-    pairs.extend(model_cache_status_fields(cache));
+    let mut pairs = runtime_status_fields(status)
+        .into_iter()
+        .map(|field| (field.key.0, field.value))
+        .collect::<Vec<_>>();
+    pairs.extend(
+        adapter_probe_fields(probe)
+            .into_iter()
+            .map(|field| (field.key.0, field.value)),
+    );
+    pairs.extend(
+        model_cache_status_fields(cache)
+            .into_iter()
+            .map(|field| (field.key.0, field.value)),
+    );
+    pairs.push((
+        constants::field::LOCAL_AI_RUNTIME_PROVIDER_PROOF_READ_MODEL,
+        LogFieldValue::String(serde_json::to_string(provider_proof).unwrap_or_default()),
+    ));
     fields_from_pairs(pairs)
 }
 
-fn runtime_status_fields(status: &LocalModelRuntimeStatus) -> Vec<(&'static str, LogFieldValue)> {
+fn runtime_status_fields(status: &LocalModelRuntimeStatus) -> Vec<LocalAiLogField> {
     vec![
         string_field(
-            constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID,
-            status.runtime_reference_id.clone(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_RUNTIME_REFERENCE_ID),
+            LocalAiLogText(status.runtime_reference_id.clone()),
         ),
         string_field(
-            constants::field::LOCAL_AI_PROVIDER_ID,
-            status.provider_id.clone(),
-        ),
-        string_field(constants::field::LOCAL_AI_MODEL_ID, status.model_id.clone()),
-        string_field(
-            constants::field::LOCAL_AI_MODEL_REFERENCE,
-            status.model_reference.clone(),
-        ),
-        protocol_field(
-            constants::field::LOCAL_AI_PRIVACY_MODE,
-            status.privacy_mode.as_protocol_str(),
-        ),
-        protocol_field(
-            constants::field::LOCAL_AI_ADAPTER_BOUNDARY,
-            status.adapter_boundary.as_protocol_str(),
-        ),
-        protocol_field(
-            constants::field::LOCAL_AI_EXECUTION_STATE,
-            status.execution_state.as_protocol_str(),
-        ),
-        protocol_field(
-            constants::field::LOCAL_AI_PROVIDER_SOURCE,
-            status.provider_source.as_protocol_str(),
-        ),
-        protocol_field(
-            constants::field::LOAD_STATE,
-            status.load_state.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_PROVIDER_ID),
+            LocalAiLogText(status.provider_id.clone()),
         ),
         string_field(
-            constants::field::LOCAL_AI_CAPABILITY_FLAGS,
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_ID),
+            LocalAiLogText(status.model_id.clone()),
+        ),
+        string_field(
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_REFERENCE),
+            LocalAiLogText(status.model_reference.clone()),
+        ),
+        protocol_field(
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_PRIVACY_MODE),
+            LocalAiLogStaticText(status.privacy_mode.as_protocol_str()),
+        ),
+        protocol_field(
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_ADAPTER_BOUNDARY),
+            LocalAiLogStaticText(status.adapter_boundary.as_protocol_str()),
+        ),
+        protocol_field(
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_EXECUTION_STATE),
+            LocalAiLogStaticText(status.execution_state.as_protocol_str()),
+        ),
+        protocol_field(
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_PROVIDER_SOURCE),
+            LocalAiLogStaticText(status.provider_source.as_protocol_str()),
+        ),
+        protocol_field(
+            LocalAiLogFieldKey(constants::field::LOAD_STATE),
+            LocalAiLogStaticText(status.load_state.as_protocol_str()),
+        ),
+        string_field(
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_CAPABILITY_FLAGS),
             capability_flags(status),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_RESOURCE_CLASS,
-            status.resource_class.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_RESOURCE_CLASS),
+            LocalAiLogStaticText(status.resource_class.as_protocol_str()),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_DEGRADED_STATE,
-            status.degraded_state.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_DEGRADED_STATE),
+            LocalAiLogStaticText(status.degraded_state.as_protocol_str()),
         ),
-        string_field(constants::field::CHECKED_AT, status.last_checked_at.clone()),
-        (
-            constants::field::LOCAL_AI_UNAVAILABLE_REASON,
-            optional_string(&status.unavailable_reason),
+        string_field(
+            LocalAiLogFieldKey(constants::field::CHECKED_AT),
+            LocalAiLogText(status.last_checked_at.clone()),
         ),
+        LocalAiLogField {
+            key: LocalAiLogFieldKey(constants::field::LOCAL_AI_UNAVAILABLE_REASON),
+            value: optional_text(
+                status
+                    .unavailable_reason
+                    .as_ref()
+                    .map(|value| LocalAiLogText(value.clone())),
+            ),
+        },
     ]
 }
 
-fn adapter_probe_fields(probe: &LocalProviderAdapterProbe) -> Vec<(&'static str, LogFieldValue)> {
+fn adapter_probe_fields(probe: &LocalProviderAdapterProbe) -> Vec<LocalAiLogField> {
     vec![
         protocol_field(
-            constants::field::LOCAL_AI_ADAPTER_PROBE_STATE,
-            probe.probe_state.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_ADAPTER_PROBE_STATE),
+            LocalAiLogStaticText(probe.probe_state.as_protocol_str()),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_PROVIDER_CONFIGURATION_STATE,
-            probe.configuration_state.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_PROVIDER_CONFIGURATION_STATE),
+            LocalAiLogStaticText(probe.configuration_state.as_protocol_str()),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_ADAPTER_READINESS_STATE,
-            probe.readiness_state.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_ADAPTER_READINESS_STATE),
+            LocalAiLogStaticText(probe.readiness_state.as_protocol_str()),
         ),
         bool_field(
-            constants::field::LOCAL_AI_EXECUTION_ALLOWED,
-            probe.execution_allowed,
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_EXECUTION_ALLOWED),
+            LocalAiLogBool(probe.execution_allowed),
         ),
     ]
 }
 
-fn model_cache_status_fields(
-    cache: &LocalAiModelCacheStatus,
-) -> Vec<(&'static str, LogFieldValue)> {
+fn model_cache_status_fields(cache: &LocalAiModelCacheStatus) -> Vec<LocalAiLogField> {
     vec![
         string_field(
-            constants::field::LOCAL_AI_MODEL_ARTIFACT_REF,
-            cache.artifact_ref.clone(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_ARTIFACT_REF),
+            LocalAiLogText(cache.artifact_ref.clone()),
         ),
-        (
-            constants::field::LOCAL_AI_MODEL_MANIFEST_REF,
-            optional_string(&cache.manifest_ref),
+        LocalAiLogField {
+            key: LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_MANIFEST_REF),
+            value: optional_text(
+                cache
+                    .manifest_ref
+                    .as_ref()
+                    .map(|value| LocalAiLogText(value.clone())),
+            ),
+        },
+        protocol_field(
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_SOURCE_POLICY),
+            LocalAiLogStaticText(cache.source_policy.as_protocol_str()),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_MODEL_SOURCE_POLICY,
-            cache.source_policy.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_CACHE_STATE),
+            LocalAiLogStaticText(cache.cache_state.as_protocol_str()),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_MODEL_CACHE_STATE,
-            cache.cache_state.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_CACHE_HEALTH),
+            LocalAiLogStaticText(cache.cache_health.as_protocol_str()),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_MODEL_CACHE_HEALTH,
-            cache.cache_health.as_protocol_str(),
-        ),
-        protocol_field(
-            constants::field::LOCAL_AI_MODEL_MANIFEST_INTEGRITY,
-            cache.manifest_integrity.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_MANIFEST_INTEGRITY),
+            LocalAiLogStaticText(cache.manifest_integrity.as_protocol_str()),
         ),
         bool_field(
-            constants::field::LOCAL_AI_MODEL_DOWNLOAD_ENABLED,
-            cache.download_enabled,
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_DOWNLOAD_ENABLED),
+            LocalAiLogBool(cache.download_enabled),
         ),
         protocol_field(
-            constants::field::LOCAL_AI_MODEL_DOWNLOAD_STATUS,
-            cache.download_status.as_protocol_str(),
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_DOWNLOAD_STATUS),
+            LocalAiLogStaticText(cache.download_status.as_protocol_str()),
         ),
         number_field(
-            constants::field::LOCAL_AI_MODEL_CACHE_BYTE_SIZE,
-            cache.cache_byte_size,
+            LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_CACHE_BYTE_SIZE),
+            LocalAiLogNumber(cache.cache_byte_size),
         ),
-        string_field(constants::field::CHECKED_AT, cache.checked_at.clone()),
-        (
-            constants::field::LOCAL_AI_MODEL_CACHE_UNAVAILABLE_REASON,
-            optional_protocol(
+        string_field(
+            LocalAiLogFieldKey(constants::field::CHECKED_AT),
+            LocalAiLogText(cache.checked_at.clone()),
+        ),
+        LocalAiLogField {
+            key: LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_CACHE_UNAVAILABLE_REASON),
+            value: optional_protocol(
                 cache
                     .unavailable_reason
                     .as_ref()
-                    .map(|value| value.as_protocol_str()),
+                    .map(|value| LocalAiLogStaticText(value.as_protocol_str())),
             ),
-        ),
-        (
-            constants::field::LOCAL_AI_MODEL_CACHE_STORAGE_ERROR,
-            optional_protocol(
+        },
+        LocalAiLogField {
+            key: LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_CACHE_STORAGE_ERROR),
+            value: optional_protocol(
                 cache
                     .storage_error
                     .as_ref()
-                    .map(|value| value.as_protocol_str()),
+                    .map(|value| LocalAiLogStaticText(value.as_protocol_str())),
             ),
-        ),
-        (
-            constants::field::LOCAL_AI_MODEL_CACHE_CORRUPTION_REASON,
-            optional_protocol(
+        },
+        LocalAiLogField {
+            key: LocalAiLogFieldKey(constants::field::LOCAL_AI_MODEL_CACHE_CORRUPTION_REASON),
+            value: optional_protocol(
                 cache
                     .corruption_reason
                     .as_ref()
-                    .map(|value| value.as_protocol_str()),
+                    .map(|value| LocalAiLogStaticText(value.as_protocol_str())),
             ),
-        ),
+        },
     ]
 }
 
-fn string_field(key: &'static str, value: String) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::String(value))
+fn string_field(key: LocalAiLogFieldKey, value: LocalAiLogText) -> LocalAiLogField {
+    LocalAiLogField {
+        key,
+        value: LogFieldValue::String(value.0),
+    }
 }
 
-fn protocol_field(key: &'static str, value: &'static str) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::String(value.to_string()))
+fn protocol_field(key: LocalAiLogFieldKey, value: LocalAiLogStaticText) -> LocalAiLogField {
+    LocalAiLogField {
+        key,
+        value: LogFieldValue::String(value.0.to_string()),
+    }
 }
 
-fn bool_field(key: &'static str, value: bool) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Boolean(value))
+fn bool_field(key: LocalAiLogFieldKey, value: LocalAiLogBool) -> LocalAiLogField {
+    LocalAiLogField {
+        key,
+        value: LogFieldValue::Boolean(value.0),
+    }
 }
 
-fn number_field(key: &'static str, value: u64) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Number(value as f64))
+fn number_field(key: LocalAiLogFieldKey, value: LocalAiLogNumber) -> LocalAiLogField {
+    LocalAiLogField {
+        key,
+        value: LogFieldValue::Number(value.0 as f64),
+    }
 }
 
-fn capability_flags(status: &LocalModelRuntimeStatus) -> String {
+fn capability_flags(status: &LocalModelRuntimeStatus) -> LocalAiLogText {
     if status.capability_flags.is_empty() {
-        return constants::local_ai_runtime::CAPABILITY_FLAGS_NONE.to_string();
+        return LocalAiLogText(constants::local_ai_runtime::CAPABILITY_FLAGS_NONE.to_string());
     }
 
     let separator = constants::delimiter::LIST.to_string();
-    status
-        .capability_flags
-        .iter()
-        .map(|flag| flag.as_protocol_str())
-        .collect::<Vec<_>>()
-        .join(&separator)
+    LocalAiLogText(
+        status
+            .capability_flags
+            .iter()
+            .map(|flag| flag.as_protocol_str())
+            .collect::<Vec<_>>()
+            .join(&separator),
+    )
 }
 
-fn optional_string(value: &Option<String>) -> LogFieldValue {
+fn optional_text(value: Option<LocalAiLogText>) -> LogFieldValue {
     match value {
-        Some(text) => LogFieldValue::String(text.clone()),
+        Some(text) => LogFieldValue::String(text.0),
         None => LogFieldValue::Null(()),
     }
 }
 
-fn optional_protocol(value: Option<&'static str>) -> LogFieldValue {
+fn optional_protocol(value: Option<LocalAiLogStaticText>) -> LogFieldValue {
     match value {
-        Some(text) => LogFieldValue::String(text.to_string()),
+        Some(text) => LogFieldValue::String(text.0.to_string()),
         None => LogFieldValue::Null(()),
     }
 }

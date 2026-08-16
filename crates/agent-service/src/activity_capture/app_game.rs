@@ -1,168 +1,120 @@
-#[cfg(test)]
-use std::path::PathBuf;
-
 #[cfg(windows)]
-use ocentra_parent_agent_core::{
+use ocentra_parent_agent_core::activity_store_app_game::{
     live_windows_foreground_window_journal_event, live_windows_inventory_journal_events_with_limit,
     live_windows_process_snapshot_journal_events_with_limit,
     live_windows_registry_inventory_journal_events_with_limit,
     live_windows_store_package_journal_events_with_limit,
 };
-#[cfg(test)]
-use ocentra_parent_agent_core::{
-    live_windows_inventory_journal_events_from_roots,
-    live_windows_registry_inventory_journal_events_from_roots,
-    live_windows_store_package_journal_events_from_roots,
-};
-#[cfg(any(windows, test))]
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+#[cfg(windows)]
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::ActivityEvent;
 
 use super::ActivityCaptureError;
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct ObservedAtText<'a>(pub(crate) &'a str);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(super) struct CaptureLimit(pub(crate) usize);
+
 #[cfg(windows)]
 pub(super) fn live_process_events(
-    observed_at: &str,
-    limit: usize,
+    observed_at: ObservedAtText<'_>,
+    limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(live_windows_process_snapshot_journal_events_with_limit(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at,
-        limit,
+        observed_at.0,
+        limit.0,
     )?)
 }
 
 #[cfg(not(windows))]
 pub(super) fn live_process_events(
-    _observed_at: &str,
-    _limit: usize,
+    _observed_at: ObservedAtText<'_>,
+    _limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(Vec::new())
 }
 
 #[cfg(windows)]
 pub(super) fn live_foreground_event(
-    observed_at: &str,
+    observed_at: ObservedAtText<'_>,
 ) -> Result<Option<ActivityEvent>, ActivityCaptureError> {
     Ok(live_windows_foreground_window_journal_event(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at,
+        observed_at.0,
     )?)
 }
 
 #[cfg(not(windows))]
 pub(super) fn live_foreground_event(
-    _observed_at: &str,
+    _observed_at: ObservedAtText<'_>,
 ) -> Result<Option<ActivityEvent>, ActivityCaptureError> {
     Ok(None)
 }
 
 #[cfg(windows)]
 pub(super) fn live_inventory_events(
-    observed_at: &str,
-    limit: usize,
+    observed_at: ObservedAtText<'_>,
+    limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(live_windows_inventory_journal_events_with_limit(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at,
-        limit,
+        observed_at.0,
+        limit.0,
     )?)
 }
 
 #[cfg(not(windows))]
 pub(super) fn live_inventory_events(
-    _observed_at: &str,
-    _limit: usize,
+    _observed_at: ObservedAtText<'_>,
+    _limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(Vec::new())
 }
 
 #[cfg(windows)]
 pub(super) fn live_store_package_events(
-    observed_at: &str,
-    limit: usize,
+    observed_at: ObservedAtText<'_>,
+    limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(live_windows_store_package_journal_events_with_limit(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at,
-        limit,
+        observed_at.0,
+        limit.0,
     )?)
 }
 
 #[cfg(not(windows))]
 pub(super) fn live_store_package_events(
-    _observed_at: &str,
-    _limit: usize,
+    _observed_at: ObservedAtText<'_>,
+    _limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(Vec::new())
 }
 
 #[cfg(windows)]
 pub(super) fn live_registry_inventory_events(
-    observed_at: &str,
-    limit: usize,
+    observed_at: ObservedAtText<'_>,
+    limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(live_windows_registry_inventory_journal_events_with_limit(
         constants::activity_surface::DEFAULT_DEVICE_ID,
         std::env::consts::OS,
-        observed_at,
-        limit,
+        observed_at.0,
+        limit.0,
     )?)
 }
 
 #[cfg(not(windows))]
 pub(super) fn live_registry_inventory_events(
-    _observed_at: &str,
-    _limit: usize,
+    _observed_at: ObservedAtText<'_>,
+    _limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
     Ok(Vec::new())
-}
-
-#[cfg(test)]
-pub(super) fn live_inventory_events_from_roots(
-    observed_at: &str,
-    roots: &[PathBuf],
-    limit: usize,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_inventory_journal_events_from_roots(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at,
-        roots,
-        limit,
-    )?)
-}
-
-#[cfg(test)]
-pub(super) fn live_registry_inventory_events_from_roots(
-    observed_at: &str,
-    roots: &[PathBuf],
-    limit: usize,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_registry_inventory_journal_events_from_roots(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at,
-        roots,
-        limit,
-    )?)
-}
-
-#[cfg(test)]
-pub(super) fn live_store_package_events_from_roots(
-    observed_at: &str,
-    roots: &[PathBuf],
-    limit: usize,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_store_package_journal_events_from_roots(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at,
-        roots,
-        limit,
-    )?)
 }

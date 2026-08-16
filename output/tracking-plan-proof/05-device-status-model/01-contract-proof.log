@@ -1,6 +1,0 @@
-workpack=05-device-status-model
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Device status evidence carries heartbeat, battery, connectivity, pending upload, stale, and degraded state.

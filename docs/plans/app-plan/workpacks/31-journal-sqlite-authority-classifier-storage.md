@@ -34,11 +34,11 @@ blocking.
 
 ## AI Worker Checklist
 
-- [x] Native app plan read and reconciled with shared app/game plan.
-- [x] No duplicate native-app-only storage or protocol shape was created.
-- [x] Shared app/game evidence, identity, authority/action-result, platform
+- [ ] Native app plan read and reconciled with shared app/game plan.
+- [ ] No duplicate native-app-only storage or protocol shape was created.
+- [ ] Shared app/game evidence, identity, authority/action-result, platform
       authority, and classifier result rows can be journaled, replayed, and
       projected through the existing `ActivityStore`.
-- [x] App-specific live classifier, service-event, portal, policy, and platform
+- [ ] App-specific live classifier, service-event, portal, policy, and platform
       gaps remain explicitly documented.
-- [x] Product checklist was not edited; no product status moved.
+- [ ] Product checklist was not edited; no product status moved.

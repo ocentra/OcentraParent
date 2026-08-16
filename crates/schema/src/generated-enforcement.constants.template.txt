@@ -1,0 +1,153 @@
+    left.schemaVersion === right.schemaVersion &&
+    left.platform === right.platform &&
+    left.adapterKind === right.adapterKind &&
+    left.capabilityState === right.capabilityState &&
+    left.permissionState === right.permissionState &&
+    left.dependencyState === right.dependencyState &&
+    left.degradedReason === right.degradedReason &&
+    left.lastCheckedAt === right.lastCheckedAt &&
+    left.supportedActions.length === right.supportedActions.length &&
+    left.supportedActions.every((action, index) => action === right.supportedActions[index])
+  );
+}
+
+export function enforcementUnavailableStatusesMatch(
+  left: GeneratedEnforcementUnavailableStatusLike | null,
+  right: GeneratedEnforcementUnavailableStatusLike | null
+): boolean {
+  if (left === null || right === null) {
+    return left === right;
+  }
+
+  return (
+    left.schemaVersion === right.schemaVersion &&
+    left.unavailableReason === right.unavailableReason &&
+    left.retryable === right.retryable &&
+    left.checkedAt === right.checkedAt &&
+    enforcementCapabilityStatusesMatch(left.capability, right.capability)
+  );
+}
+
+export function enforcementAuditEventBoundaryIsConsistent(auditEvent: GeneratedEnforcementAuditEventLike): boolean {
+  if (!enforcementCapabilityStatusesMatch(auditEvent.capability, auditEvent.result.capability)) {
+    return false;
+  }
+
+  if (!enforcementUnavailableStatusesMatch(auditEvent.unavailableStatus, auditEvent.result.unavailableStatus)) {
+    return false;
+  }
+
+  if (auditEvent.result.status === 'unavailable') {
+    return auditEvent.auditEventKind === 'unavailable' && auditEvent.unavailableStatus !== null;
+  }
+
+  return auditEvent.auditEventKind !== 'unavailable' && auditEvent.unavailableStatus === null;
+}
+
+export function enforcementTimerUnavailableReasonIsConsistent(timerEvent: GeneratedEnforcementTimerEventLike): boolean {
+  if (timerEvent.timerEventKind === 'unavailable' || timerEvent.timerEventKind === 'recovery-needed') {
+    return timerEvent.unavailableReason !== null;
+  }
+
+  return timerEvent.unavailableReason === null;
+}
+
+export function enforcementActiveTimerStateIsConsistent(state: GeneratedEnforcementActiveTimerStateLike): boolean {
+  return (
+    state.action.actionId === state.result.actionId &&
+    state.action.actionId === state.auditEvent.action.actionId &&
+    state.action.actionId === state.timerEvent.actionId &&
+    state.action.policyDecisionId === state.timerEvent.policyDecisionId
+  );
+}
+
+export const EnforcementAdapterKind = {
+  ProcessControl: EnforcementAdapterKindSchema.parse('process-control'),
+  NetworkControl: EnforcementAdapterKindSchema.parse('network-control'),
+  ManagedBrowserControl: EnforcementAdapterKindSchema.parse('managed-browser-control'),
+  TimerControl: EnforcementAdapterKindSchema.parse('timer-control'),
+} as const;
+
+export const EnforcementMode = {
+  TerminateProcess: EnforcementModeSchema.parse('terminate-process'),
+  BlockProcess: EnforcementModeSchema.parse('block-process'),
+  TemporaryBlock: EnforcementModeSchema.parse('temporary-block'),
+  TimeLimit: EnforcementModeSchema.parse('time-limit'),
+  AskParent: EnforcementModeSchema.parse('ask-parent'),
+  ObserveOnly: EnforcementModeSchema.parse('observe-only'),
+} as const;
+
+export const EnforcementCapabilityState = {
+  Supported: EnforcementCapabilityStateSchema.parse('supported'),
+  Unavailable: EnforcementCapabilityStateSchema.parse('unavailable'),
+  Degraded: EnforcementCapabilityStateSchema.parse('degraded'),
+  DryRun: EnforcementCapabilityStateSchema.parse('dry-run'),
+  ObserveOnly: EnforcementCapabilityStateSchema.parse('observe-only'),
+  ManualRequired: EnforcementCapabilityStateSchema.parse('manual-required'),
+} as const;
+
+export const EnforcementUnavailableReason = {
+  UnsupportedPlatform: EnforcementUnavailableReasonSchema.parse('unsupported-platform'),
+  UnsupportedAction: EnforcementUnavailableReasonSchema.parse('unsupported-action'),
+  MissingPermission: EnforcementUnavailableReasonSchema.parse('missing-permission'),
+  MissingDependency: EnforcementUnavailableReasonSchema.parse('missing-dependency'),
+  AdapterUnavailable: EnforcementUnavailableReasonSchema.parse('adapter-unavailable'),
+  AdapterError: EnforcementUnavailableReasonSchema.parse('adapter-error'),
+  ManualRequired: EnforcementUnavailableReasonSchema.parse('manual-required'),
+} as const;
+
+export const EnforcementResultStatus = {
+  WouldEnforce: EnforcementResultStatusSchema.parse('would-enforce'),
+  ActuallyEnforced: EnforcementResultStatusSchema.parse('actually-enforced'),
+  Unavailable: EnforcementResultStatusSchema.parse('unavailable'),
+  Failed: EnforcementResultStatusSchema.parse('failed'),
+  Expired: EnforcementResultStatusSchema.parse('expired'),
+  RolledBack: EnforcementResultStatusSchema.parse('rolled-back'),
+  Superseded: EnforcementResultStatusSchema.parse('superseded'),
+  NoOp: EnforcementResultStatusSchema.parse('no-op'),
+} as const;
+
+export const EnforcementRollbackState = {
+  NotRequired: EnforcementRollbackStateSchema.parse('not-required'),
+  Available: EnforcementRollbackStateSchema.parse('available'),
+  Requested: EnforcementRollbackStateSchema.parse('requested'),
+  Completed: EnforcementRollbackStateSchema.parse('completed'),
+  Unavailable: EnforcementRollbackStateSchema.parse('unavailable'),
+  Failed: EnforcementRollbackStateSchema.parse('failed'),
+} as const;
+
+export const EnforcementAdapterResultCode = {
+  ProcessTerminated: EnforcementAdapterResultCodeSchema.parse('process-terminated'),
+  ProcessAlreadyExited: EnforcementAdapterResultCodeSchema.parse('process-already-exited'),
+  LeftRunningObserveOnly: EnforcementAdapterResultCodeSchema.parse('left-running-observe-only'),
+  DryRunNoAction: EnforcementAdapterResultCodeSchema.parse('dry-run-no-action'),
+  UnsupportedPlatform: EnforcementAdapterResultCodeSchema.parse('unsupported-platform'),
+  AdapterUnavailable: EnforcementAdapterResultCodeSchema.parse('adapter-unavailable'),
+  AdapterFailed: EnforcementAdapterResultCodeSchema.parse('adapter-failed'),
+  TimerExpired: EnforcementAdapterResultCodeSchema.parse('timer-expired'),
+  RollbackCompleted: EnforcementAdapterResultCodeSchema.parse('rollback-completed'),
+  NoOp: EnforcementAdapterResultCodeSchema.parse('no-op'),
+} as const;
+
+export const EnforcementTimerEventKind = {
+  Created: EnforcementTimerEventKindSchema.parse('created'),
+  Extended: EnforcementTimerEventKindSchema.parse('extended'),
+  Expired: EnforcementTimerEventKindSchema.parse('expired'),
+  Cancelled: EnforcementTimerEventKindSchema.parse('cancelled'),
+  RestartRecovered: EnforcementTimerEventKindSchema.parse('restart-recovered'),
+  RollbackRequested: EnforcementTimerEventKindSchema.parse('rollback-requested'),
+  RollbackCompleted: EnforcementTimerEventKindSchema.parse('rollback-completed'),
+  RecoveryNeeded: EnforcementTimerEventKindSchema.parse('recovery-needed'),
+  Unavailable: EnforcementTimerEventKindSchema.parse('unavailable'),
+} as const;
+
+export const EnforcementAuditEventKind = {
+  Attempted: EnforcementAuditEventKindSchema.parse('attempted'),
+  Succeeded: EnforcementAuditEventKindSchema.parse('succeeded'),
+  Failed: EnforcementAuditEventKindSchema.parse('failed'),
+  RollbackRequested: EnforcementAuditEventKindSchema.parse('rollback-requested'),
+  RollbackCompleted: EnforcementAuditEventKindSchema.parse('rollback-completed'),
+  Expired: EnforcementAuditEventKindSchema.parse('expired'),
+  Unavailable: EnforcementAuditEventKindSchema.parse('unavailable'),
+  Cancelled: EnforcementAuditEventKindSchema.parse('cancelled'),
+} as const;

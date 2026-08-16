@@ -1,255 +1,97 @@
 # LAN Plan Implementation Checklist
 
-This is the fill-in checklist for V0.9 LAN discovery, household inventory,
-pairing, route custody, and LAN UI/UX work. Future AI workers must update this
-file and the matching workpack checklist before reporting `DONE` or PR-ready.
+<!-- agent-capsule -->
 
-This checklist tracks LAN-plan execution only. It does not replace
-`docs/product-capability-checklist.md`, and workers must not edit that product
-checklist unless a feature row status, proof, or gap actually changes and the
-worker holds the correct hub lock.
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `LAN Plan Implementation Checklist`
+> Kind: workpack truth table.
+> Read when: after `PLAN_STATE.md` and `WORKPACK_INDEX.md`, or when a worker must record exact row truth.
+> Stop rule: do not treat historical checkbox math as authoritative progress.
+> Proves: current row truth, current slice evidence, and remaining gates only.
+> Does not prove: final completion of open workpacks or physical household readiness.
+> Proof rule: rows may move only when code, tests, and proof artifacts exist or when an explicit open/manual-required note is recorded.
 
-## Fill Rules
+<!-- /agent-capsule -->
 
-- Keep unchecked items unchecked until code, docs, tests, UI proof, and proof
-  artifacts are present.
-- Use `[~]` for partial service-backed or contract-backed proof where the whole
-  workpack is not complete.
-- Record the lane, branch, PR, commit, or proof path in the notes column when an
-  item moves.
-- If an item is intentionally deferred, leave it unchecked and write the
-  manual-required reason.
-- Do not use this file to claim production household LAN readiness without real
-  physical proof artifacts.
-- Fill the matching `## AI Worker Checklist` inside the workpack file before
-  reporting `DONE`.
-- Report product-doc updates, or explicitly state why no product-doc update was
-  needed.
+## Checklist Interpretation
 
-## Required Proof Pack
+- This file is truth-synced on 2026-06-28.
+- Historical checkbox counts and historical `[~]` progress markers are not
+  authoritative.
+- `01-25` are the live execution rows for the active LAN plan scope.
+- `21-25` are active follow-on rows with mixed current state. Rows `21`, `22`,
+  and `24` are locally complete with their own proof; rows `23` and `25`
+  remain partial/manual. No row counts as PR-ready without its own current
+  Rust-first ownership, organized tests where applicable, and proof.
+- Rust-owned schema/protocol/service/runtime crates are authoritative for
+  contracts, business logic, read models, and route snapshots. TS is
+  presentation-only.
+- Legacy `packages/lan-domain` evidence is historical reconciliation input
+  only; it does not re-own current LAN truth and must not be used as a forward
+  execution target.
+- Placeholder test folders and `.gitkeep` files never count as coverage; use
+  real crate/package test groups.
+- Forward LAN closure requires organized Rust crate `tests/` groups for logic
+  and proof, with TS test ownership limited to real UI/presentation surfaces.
 
-Every implementation workpack needs a proof pack before the main workpack row
-can be marked complete. Use this root unless the assignment names a stricter
-location:
+## Slice A Evidence
 
-```text
-output/lan-plan-proof/<workpack-id>/
-```
+`Slice A` is green for the assigned reconciliation scope.
 
-The proof pack must contain or explicitly mark N/A for each applicable item:
+- Proof root: `output/lan-plan-proof/00-plan-model-reconciliation/`
+- Source snapshot: `output/lan-plan-proof/00-plan-model-reconciliation/00-source-snapshot.md`
+- Validation log: `output/lan-plan-proof/00-plan-model-reconciliation/01-lan-domain-validation.log` (legacy package validation; not current ownership authority)
+- Truth-sync notes: `output/lan-plan-proof/00-plan-model-reconciliation/02-plan-truth-sync.md`
+- Missing proof inventory: `output/lan-plan-proof/00-plan-model-reconciliation/03-missing-proof-inventory.md`
 
-- [ ] `00-source-snapshot.md`: git branch, commit, `git status --short`,
-      existing source paths inspected, existing behavior, and the before-state
-      gap.
-- [ ] `01-contract-proof.log`: TypeScript contract tests, decode failures, and
-      schema-boundary/source-shape checks for new or changed contracts.
-- [ ] `02-rust-protocol-proof.log`: Rust protocol parity, serialization, and
-      invalid-state tests when protocol/service shapes change.
-- [ ] `03-runtime-service-evidence.json`: LAN adapter/read-model/service
-      evidence, scan summary, source matrix rows, route state, registry state,
-      and selected-device state.
-- [ ] `04-registry-restart-proof.json`: durable household registry, parent
-      decisions, route selection, stale/offline state, revocation, restart
-      recovery, or explicit safe-unpaired state.
-- [ ] `05-route-custody-security-proof.json`: pairing proof, origin route,
-      wrong-device rejection, anonymous rejection, revoked route rejection, relay
-      or cache custody label, and no Ocentra child-data custody claim.
-- [ ] `06-ui-snapshots/`: Devices/LAN, Activity/Network, policy target, setup
-      and degraded-state screenshots for every UI-visible state touched by the
-      workpack.
-- [ ] `07-playwright-ui-proof.log`: Playwright/browser proof for changed portal
-      surfaces, including malicious/long text escaping and responsive state
-      where applicable.
-- [ ] `08-security-negative-proof.log`: negative tests proving weak sources do
-      not confirm child identity, unsupported rows are visible-only, anonymous
-      LAN control is rejected, wrong-origin/wrong-device proofs are rejected,
-      and stale/revoked routes cannot receive commands.
-- [ ] `09-manual-physical-lan-proof.md`: parent host, child host, router or
-      firewall reachability, signed hello/heartbeat artifacts, service logs,
-      screenshots, generated proof JSON, and manual-required labels for real
-      household claims.
-- [ ] `10-validation-commands.log`: focused validation plus any requested
-      `npm run validate`/`ci:local`/manual command output.
+## B1 Evidence
 
-## UI Snapshot Gates
+`B1` is green for the assigned local proof-regeneration scope only.
 
-When a workpack touches portal, policy target selection, route custody, source
-matrix, setup flow, or diagnostic surfaces, workers must capture screenshots
-before marking the workpack complete.
+- Proof root: `output/lan-plan-proof/01-lan-b1-proof-regeneration/`
+- Source matrix proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/01-lan-source-matrix-plan-completion-proof.json`
+- Signed relay proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/02-lan-signed-discovery-relay-spine-proof.json`
+- Production discovery proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/03-production-discovery-household-proof.json`
+- Readiness decision proof: `output/lan-plan-proof/01-lan-b1-proof-regeneration/04-household-lan-proof-readiness.json`
 
-- [ ] Devices/LAN snapshot for the normal service-backed LAN view.
-- [ ] Devices/LAN snapshot for stale, offline, ignored, revoked, unsupported, or
-      manual-required state.
-- [ ] Activity/Network snapshot for route, source, evidence, signed proof,
-      parent decision, and audit diagnostics.
-- [ ] Policy Network target snapshot when LAN device selection affects policy
-      target binding.
-- [ ] First-run setup or pairing snapshot when assignment, trust, rename, or
-      direct-address entry is in scope.
-- [ ] Responsive/narrow viewport snapshot when the touched UI is expected to be
-      usable on small screens.
-- [ ] Malicious/long text snapshot when hostnames, device names, vendor labels,
-      IP strings, MAC strings, or proof labels are rendered.
-- [ ] Explicit `ui-not-applicable.md` when the workpack has no UI surface.
+## Authoritative Workpack Truth
 
-## Evidence Quality Gates
+| Workpack | Current state | Closability after Slice A | Evidence now | Remaining gate |
+| --- | --- | --- | --- | --- |
+| `01` | complete | local proof | Rust-owned LAN contract families, fail-closed schema-version guards, explicit signed-child and mDNS contract surfaces, discovery-evidence and route-snapshot payload coverage, and focused protocol contract drift validation are locally green without reintroducing TS-owned contract truth. | no remaining local Rust/test blocker in the owned W01 slice |
+| `02` | complete | local proof | service-backed LAN add-device read model, canonical known-device persistence, merged evidence timing, distinct source-backed evidence rows, and paired-child/router scan-truth enrichment reran green on 2026-06-28 across focused `agent-core`, `agent-service`, and scoped architecture validation | no remaining local Rust/test blocker in the owned W02 slice |
+| `03` | complete | local proof | shared Rust local-identity selection now captures gateway/DNS/DHCP/broadcast/IPv6-prefix fields, manual interface choice, ignored-interface reasons, and selected-interface attribution through scan-plan and history serialization under focused proof | no local code gap; later work owns broader household/manual proof |
+| `04` | partial/manual | local proof plus platform/manual proof | Windows/Linux/macOS neighbor normalization is now locally code-complete with IPv4/IPv6 parsing, malformed/incomplete/duplicate handling, and downstream `observed_at` propagation under green 2026-06-28 reruns | live macOS/manual platform proof |
+| `05` | complete | local proof | targeted ARP refresh is locally complete as bounded Rust host-refresh with selected-interface/local-subnet scoping, persisted scan metadata, throttling proof, and packet-IO reply handling | no local code gap; later work owns broader household/manual proof |
+| `06` | complete | local proof | bounded active IPv4 stimulation is locally complete with gateway/router suppression, durable active-refresh and service-probe suppression truth reuse, scan-plan metadata persistence, and duplicate-reply proof | no local code gap; later work owns broader household/manual proof |
+| `07` | partial/manual | local proof plus packet/manual proof | passive ARP/DHCP/mDNS/SSDP/WS-Discovery/LLMNR/NetBIOS/SNMP-response hint evidence now surfaces through Rust read models and passive history, and the local code path reran green on 2026-06-28 | long-running DHCP listener proof plus broader packet/platform/manual artifacts |
+| `08` | partial/manual | local implementation plus packet proof | Rust-owned mDNS/DNS-SD discovery is locally complete with bounded service enumeration, PTR/SRV/TXT/A/AAAA parsing, hostile-name sanitization, and hint-only agent handling covered by focused tests | broader packet/manual proof |
+| `09` | partial/manual | local implementation plus packet proof | Rust-owned SSDP/UPnP discovery is locally complete with bounded `M-SEARCH`, private-only descriptor fetch rules, router-visible/non-enrollable handling, and malformed/timeout/oversize rejection | broader packet/manual proof |
+| `10` | complete | local proof | NetBIOS/LLMNR/reverse-DNS name recovery is locally proven as weak name-only evidence, does not upgrade child identity, and now has a real scoped source-matrix validation target again under green 2026-06-28 reruns | no remaining local weak-name Rust/test blocker in the owned W10 slice |
+| `11` | partial/manual | local proof plus manual gate | bounded HTTP/HTTPS identity probing, TLS subject capture, bounded WSD/SNMP identity queries, and passive-history bridging for allowed SNMP replies exist in Rust and reran green on 2026-06-28 across the owned Rust/protocol surfaces | optional/manual-gated OS-fingerprint proof plus broader live household/manual proof |
+| `12` | complete | local proof | Rust MAC parsing, OUI/vendor evidence, randomized/private warnings, multicast/malformed rejection, and weak-only confidence downgrade are locally green | no local code gap; later classifier work owns richer cross-source closure |
+| `13` | complete | local proof | household-device spine/source merge now carries install-id and pairing-id as strong evidence through protocol, service, inventory, and canonical merge paths, and the current merge path already emits explicit `dedupe-decision`, `score`, and `reasons` outputs under green 2026-06-28 reruns | no remaining local Rust/test blocker in the owned W13 slice |
+| `14` | complete | local proof | weighted Rust classification, explicit reasons/confidence, router/unsupported/unknown states, non-child boundaries, focused portal labels, and refreshed `/devices` Rust-snapshot proof are locally green | broader installability or physical/manual claims remain later work |
+| `15` | complete | local proof | durable device-store/read-model behavior is locally green with trusted-registry persistence, continuity and scan-suppression truth reuse, stale/offline restart recovery, router visibility without enrollability, and scan-plan sidecar metadata persistence | no local code gap; real household/manual proof remains later work |
+| `16` | partial/code-test gap | integrated delivery test then physical/manual proof | Backend stream, parent replay validation, desktop host delivery decision, and portal listener/state seams are separately implemented and tested | add one backend replay -> real Tauri `AppHandle` emit -> portal listener integration regression; richer network-flow and physical/manual proof follows later |
+| `17` | partial/manual | local proof plus packet/manual proof | parent/child mDNS advertisement contracts, packet encoding, lifecycle evaluation, goodbye handling, and agent-service sync tests are locally complete and green as hint-only discovery | signed-child confirmation plus broader Android/iOS/macOS manual multicast/background proof |
+| `18` | partial/manual | physical/manual-bound for final closure | local Rust/core signed hello and heartbeat verification is green across fail-closed drift, replay/expiry/wrong-family rejection, manual-required projections, focused portal rendering, and green 2026-06-28 reruns across `lan-core`, `agent-service`, `agent-protocol`, and scoped architecture validation | explicit iOS/manual platform evidence plus second-device artifacts |
+| `19` | partial/manual | local proof plus physical/manual proof | assignment/revoke/audit behavior is locally green across route trust, rename, ignore/restore, restart recovery, restart readback of the live child canonical id, route select, revoke evidence, selected-route LAN command dispatch, and the current `/devices` Playwright path | broader physical/manual topology artifacts |
+| `20` | partial/code-test gap | executable verifier repair then physical/manual proof | fixture/property/performance/visual test families exist, but historical generated roots are not verifier source | restore or replace all six absent aggregate runner programs named by current LAN docs, then continue to physical/manual artifacts |
 
-- [ ] Raw fixture/evidence is stored with redacted sensitive values, not just a
-      prose summary.
-- [ ] Every visible device has source evidence, first seen, last seen,
-      confidence/status, and no guessed owner or child profile.
-- [ ] Weak LAN evidence never confirms a child-agent identity, assigns a child
-      profile, or enables control.
-- [ ] Signed child-agent hello/heartbeat cannot be marked implemented without
-      signed artifacts and physical or equivalent manual proof.
-- [ ] Routers, infrastructure, phones, printers, TVs, and unsupported devices
-      remain visible but non-enrollable unless a supported child-agent route
-      exists.
-- [ ] Every stale, offline, ignored, revoked, unsupported, unavailable, and
-      manual-required state is represented in contracts, service/read model, and
-      UI where applicable.
-- [ ] Every unsupported platform claim is represented as unsupported,
-      manual-required, unavailable, or not-implemented until real platform proof
-      exists.
-- [ ] Every workpack and source row appears in the LAN source matrix with an
-      implemented, partial, manual-required, or not-implemented status.
-- [ ] Every failed, skipped, manual, or deferred test has a reason and follow-up
-      owner recorded.
+## Active Follow-On Rows
 
-## Main Execution Gates
+| Workpack | State | Reason |
+| --- | --- | --- |
+| `21` | complete | Rust-first LAN contract boundary truth is synced to the current family/schema owner and focused validation |
+| `22` | complete | LAN state/gap map is synced to current Rust/runtime/UI truth instead of stale TS-first assumptions |
+| `23` | partial/manual | current pairing/route proof truth is locally green across Rust/service/read-model tests; physical/manual topology artifacts remain open |
+| `24` | complete | household/setup/account handoff truth is green on the current Windows portal/runtime proof path; TS remains presentation-only |
+| `25` | partial/code-test gap | Rust-owned backend replay validation, bridge projection, redacted rejection diagnostics, host delivery decision, and portal-state seams exist separately. Phase 1 remains open on the integrated `AppHandle`-to-listener regression and WP20's absent aggregate verifiers; tracked proof and physical/manual topology remain later gates. |
 
-- [ ] Source docs read: folder README, source index, current snapshot, 20-step
-      plan, test blueprint, UI/UX guide, coverage audit, implementation
-      checklist, and the assigned workpack.
-- [ ] Feature docs checked for overlap: family setup/device roles,
-      remote/LAN/mobile platforms, network/domain control, policy schedules and
-      approvals, activity/reporting, and platform support.
-- [ ] Hub lock covers the workpack file and exact implementation/docs paths.
-- [ ] Existing source layout inspected before editing; no parallel LAN truth
-      created.
-- [ ] TypeScript Effect Schema contracts land before Rust/service/portal
-      consumers.
-- [ ] Rust protocol parity exists for new protocol-facing contracts.
-- [ ] Service/read-model/storage behavior exists before portal or policy claims
-      depend on it.
-- [ ] Portal UI renders capability, degraded, stale, unsupported, unavailable,
-      revoked, and manual-required states honestly.
-- [ ] Parent decisions are durable, auditable, and not overwritten by weak
-      evidence.
-- [ ] LAN scan discovers, child agent confirms, parent assigns.
-- [ ] Required proof pack exists with logs, JSON, screenshots, or explicit N/A
-      reasons for every applicable gate.
-- [ ] Feature docs, expectation docs, module READMEs, and product capability
-      checklist decisions are recorded.
-- [ ] `DONE` report includes workpack, touched paths, validation, proof, known
-      gaps, screenshots, and documentation changes.
-
-## Base Workpack Checklist
-
-Use `[ ]` for not started, `[~]` for in progress, and `[x]` only after the
-required proof pack exists. The `Evidence Or Proof` cell must name concrete
-artifact paths, command logs, screenshots, PR checks, or an explicit
-manual-required/N/A file.
-
-| Step | Workpack                                                                                     | Status | Owner/Lane | Branch/PR/Commit                               | Evidence Or Proof                                                                                                                                                                                       | Doc/Checklist Decision                                                                                                                     |
-| ---- | -------------------------------------------------------------------------------------------- | ------ | ---------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| 01   | [Contract boundary and Effect schemas](workpacks/01-contract-boundary-and-effect-schemas.md) | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | `packages/parent-domain/src/lan-discovery-source-matrix.ts`, `packages/agent-protocol-domain/src/lan-discovery-source-matrix.ts`, focused source-matrix proof JSON                                      | Partial: source matrix contracts exist; broader discovery/pairing contracts remain governed by later workpack proof.                       |
-| 02   | [Evidence model and device record](workpacks/02-evidence-model-and-device-record.md)         | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Service-backed add-device read model, source matrix rows, and Devices/LAN screenshots                                                                                                                   | Partial: evidence is visible; canonical all-source device evidence store is not fully complete.                                            |
-| 03   | [Interface detection](workpacks/03-interface-detection.md)                                   | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks selected-interface requirements and Windows neighbor-table path                                                                                                                     | Partial: interface requirements are represented; full safe adapter/interface selector proof remains open.                                  |
-| 04   | [Neighbor table ingestion](workpacks/04-neighbor-table-ingestion.md)                         | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Windows neighbor-table row implemented in Rust service source matrix; Linux/macOS rows remain manual-required                                                                                           | Partial: Windows proof exists; Linux/macOS normalization remains manual/platform-gated.                                                    |
-| 05   | [Targeted ARP checks](workpacks/05-targeted-arp-checks.md)                                   | [ ]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks `targeted-arp-refresh` not implemented                                                                                                                                              | Open: no targeted ARP refresh implementation.                                                                                              |
-| 06   | [Bounded ARP sweep](workpacks/06-bounded-arp-sweep.md)                                       | [ ]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks `bounded-arp-sweep` not implemented                                                                                                                                                 | Open: no bounded sweep implementation.                                                                                                     |
-| 07   | [Passive discovery listeners](workpacks/07-passive-discovery-listeners.md)                   | [ ]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks passive ARP, mDNS, SSDP, LLMNR, and NetBIOS listeners not implemented                                                                                                               | Open/manual-required: packet listener adapters and packet fixtures are not present.                                                        |
-| 08   | [mDNS and DNS-SD discovery](workpacks/08-mdns-dns-sd-discovery.md)                           | [ ]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks mDNS/DNS-SD query manual-required and child/parent mDNS advertisements not implemented                                                                                              | Open/manual-required: mDNS query and advertisement artifacts are missing.                                                                  |
-| 09   | [SSDP and UPnP discovery](workpacks/09-ssdp-upnp-discovery.md)                               | [ ]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks SSDP/UPnP query manual-required and passive SSDP listener not implemented                                                                                                           | Open/manual-required: SSDP/UPnP adapter and fixtures are missing.                                                                          |
-| 10   | [NetBIOS, LLMNR, and reverse DNS](workpacks/10-netbios-llmnr-reverse-dns.md)                 | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix rows fence NetBIOS, LLMNR, and reverse DNS as weak name-only sources                                                                                                                      | Partial: name evidence is modeled honestly; real query adapters remain manual-required.                                                    |
-| 11   | [Light service probing](workpacks/11-light-service-probing.md)                               | [ ]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks service identity probe manual-required                                                                                                                                              | Open: no bounded service probing adapter.                                                                                                  |
-| 12   | [OUI and vendor lookup](workpacks/12-oui-vendor-lookup.md)                                   | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix rows fence OUI/vendor lookup as weak/manual-required source                                                                                                                               | Partial: vendor signal is represented; real vendor DB/proof and randomized-MAC handling remain open.                                       |
-| 13   | [Merge and de-duplication engine](workpacks/13-merge-deduplication-engine.md)                | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Household device spine/read model merges local child agent and passive LAN evidence; weak source fence proof exists                                                                                     | Partial: route/read-model merge proof exists; full all-source dedupe engine proof remains open.                                            |
-| 14   | [Explainable classification](workpacks/14-explainable-classification.md)                     | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix and UI diagnostics expose evidence labels, authority, proof state, and non-claims                                                                                                         | Partial: classification/status explanation exists; complete device-type classifier proof remains open.                                     |
-| 15   | [Household device store](workpacks/15-household-device-store.md)                             | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Trusted registry, parent decisions, route custody, stale/offline selected-device rows, command-backed controls, and `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md` | Partial: service-backed rename/type persistence proof exists; full durable store/restart proof across all decisions remains open.          |
-| 16   | [Read models and LAN events](workpacks/16-read-models-and-lan-events.md)                     | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`, Devices/LAN and Activity/Network screenshots                                                                                          | Partial: source matrix/read model and diagnostics exist; full event stream/replay coverage remains open.                                   |
-| 17   | [Parent and child mDNS advertisements](workpacks/17-parent-child-mdns-advertisements.md)     | [ ]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Source matrix marks parent and child mDNS advertisements not implemented                                                                                                                                | Open/manual-required: no advertisement implementation or packet proof.                                                                     |
-| 18   | [Signed child hello and heartbeat](workpacks/18-signed-child-hello-heartbeat.md)             | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Signed hello/heartbeat rows are strong-identity but manual-required; rejection rows and route-custody labels exist                                                                                      | Partial/manual-required: artifact-gated signed child proof exists as contract/read-model rows; real signed artifacts missing.              |
-| 19   | [Assignment, revocation, and audit](workpacks/19-assignment-revocation-audit.md)             | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Devices/LAN command controls for add, route select, rename, trust, ignore, restore, revoke; canonical household decisions route over local-network; Activity/Network audit diagnostics                  | Partial: command surfaces, identity persistence, and audit/read-model rows exist; full recovery/restart/negative route proof remains open. |
-| 20   | [Proof gates, fixtures, and rollout](workpacks/20-proof-gates-fixtures-rollout.md)           | [~]    | codex-b    | `codex/v0-9-lan-source-matrix-plan-completion` | Focused proof script, proof JSON, Playwright browser proof, screenshot artifacts, and full `npm run validate` proof from the LAN source-matrix branch                                                   | Partial: current proof pack exists; physical second-device, packet adapter, performance, and manual rollout proof remain open.             |
-
-## Current LAN Source Matrix Reconciliation - 2026-06-02
-
-Checked items below are concrete proof in current `main` or the B-lane LAN
-source-matrix branch. They do not mark a whole workpack complete unless every
-requirement in that workpack is complete.
-
-- [x] The LAN read model carries all 20 plan workpacks as typed status rows.
-- [x] The source matrix carries implemented, partial, manual-required, and
-      not-implemented rows instead of hiding gaps in prose.
-- [x] Weak LAN evidence sources are visible but cannot confirm child-agent
-      identity or assign a child profile.
-- [x] Signed child-agent hello and heartbeat remain artifact-gated instead of
-      being silently marked implemented.
-- [x] Devices/LAN and Activity/Network can render the matrix through the
-      service-backed add-device read model.
-- [x] Devices/LAN household rename/type decisions for LAN-discovered neighbors
-      route through the Rust LAN service and survive refresh without a
-      portal-only second truth; proof is recorded in
-      `output/lan-plan-proof/15-household-device-store/devices-identity-routing-proof.md`.
-- [x] Live B-lane browser screenshots exist for Devices/LAN,
-      Activity/Network, and Network policy target binding under
-      `output/playwright/lan-source-matrix-plan-completion/`.
-- [x] Focused proof JSON exists at
-      `test-results/v0-9-lan-source-matrix-plan-completion/proof.json`.
-- [ ] Packet-mode adapters remain manual-required or not implemented.
-- [ ] Physical household proof still needs a second child-agent device.
-- [ ] Real signed child hello/heartbeat artifacts are missing.
-- [ ] Parent/child mDNS advertisements are not implemented.
-- [ ] Optional relay/cache and parent-owned storage routes remain unavailable
-      or manual-required until separately implemented and proved.
-- [ ] Android/iOS child-agent parity, store signing, and mobile entitlement
-      claims remain manual-required until separate platform proof exists.
-
-## Physical/Manual Proof Checklist
-
-These items must be filled before any report can claim production household LAN
-readiness:
-
-- [ ] Parent host identity, OS version, network interface, and firewall state.
-- [ ] Second child-agent host identity, OS version, agent version, and route
-      address.
-- [ ] Router/firewall reachability proof between parent and child hosts.
-- [ ] Signed child hello artifact with timestamp, device id, parent route id,
-      signature state, and rejection proof for malformed/replayed/wrong-device
-      variants.
-- [ ] Signed child heartbeat artifact with freshness, stale/offline transition,
-      and restart recovery proof.
-- [ ] Router/infrastructure rows visible but not controllable.
-- [ ] Unsupported LAN devices visible but not assignable as child-agent targets.
-- [ ] Parent assignment, rename, trust, ignore, restore, route select, revoke,
-      and recovery proof after service restart.
-- [ ] Devices/LAN, Activity/Network, and Policy Network screenshots from the
-      physical run.
-- [ ] Generated proof JSON and validation command log stored under the workpack
-      proof pack.
-
-## Worker Report Template
-
-Use this shape in the hub report or PR-ready note:
-
-```text
-DONE LAN workpack <number/name>
-Owner/lane:
-Branch/commit/PR:
-Touched paths:
-Checklist updates:
-Source snapshot:
-Validation commands and logs:
-Proof pack root:
-Raw evidence artifacts:
-UI snapshots:
-Security negative proof:
-Manual/physical LAN proof:
-Feature docs updated:
-Expectation docs updated:
-Product capability checklist:
-Known gaps/manual-required:
-No-claim boundaries preserved:
-```
+Rows `21-25` remain active scope. `23` is manual-proof open; `25` has a Phase 1
+code/test gap plus later manual proof.
+Keep all follow-on rows aligned to the current Rust-first ownership and
+organized-test model before using them for implementation, completion, or PR
+gates.

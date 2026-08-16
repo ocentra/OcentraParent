@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   useCallback,
   useEffect,
@@ -70,32 +69,43 @@ import type {
   ParentPortalAppGameDashboardRow,
   ParentPortalAppGameDashboardTone,
 } from './app-game-dashboard-intent';
+import type { ParentPortalAppGameSourcePanelSection } from './app-game-source-panel-intent';
 import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
-import { defaultChatBubbleConfig as defaultRulesBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
+import {
+  PortalAgentCommand as AgentCommand,
+  type PortalAgentCommandName as AgentCommandName,
+  PortalAgentLanHouseholdActionDeviceKindField,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentLanIntentKind,
+  PortalAgentLanParentAuthority,
+  PortalAgentPeerDefaults,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
+  PortalLanPairingScan,
+  type PortalRouteEventId as AgentEventId,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  type ParentAssistantPortalQuickActionId,
+} from '@ocentra-parent/portal-domain/parent-assistant-chat';
+import {
   PARENT_PORTAL_GUIDE_QUERY,
   PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
   PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
-  type ParentAssistantPortalQuickActionId,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/parent-portal-guide-controls';
+import { parentPortalManageLaneForRoute } from '@ocentra-parent/portal-domain/parent-portal-data';
 import {
-  BrowserPolicyDefaultAnswers,
-  browserPolicyQuestionState,
-  browserPolicyVisibleQuestions,
-  type BrowserPolicyAnswerMap,
-} from '@ocentra-parent/parent-domain/browser-control-manifest';
-import {
-  LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
-  LAN_HOUSEHOLD_DEVICE_KIND_VALUES,
-} from '@ocentra-parent/parent-domain/lan-pairing';
-import {
-  AgentCommand,
-  AgentProtocolDefaults,
-  type AgentCommandName,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+  defaultManageTargetSelection,
+  readStoredManageTargetSelection,
+  withManageTargetSelectionDevice,
+  writeStoredManageTargetSelection,
+  type ManageTargetSelection,
+} from '@ocentra-parent/portal-domain/manage-target-selection';
+import { portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
+import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
   AccountProfileIcon,
@@ -132,7 +142,7 @@ import {
   UpdatesSyncDocumentIcon,
   WebGlobeIcon,
   parentNavIconAssetUrls,
-} from '../../Common/NavSvgIcons';
+} from '../../Common/NavSvgIcons/ParentNavSvgIcons';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
 import { BrowserRulesQuestionnaire, type BrowserRulesQuestion } from './BrowserRulesQuestionnaire';
 import './ParentPortalSvgSurface.css';
@@ -225,6 +235,7 @@ type ParentPortalSvgSurfaceProps = {
   assistantRoutePath?: string;
   assistantReturnRoutePath?: string;
   activityState?: ParentPortalActivityState | null;
+  lanPairingAutoScanSequence?: number;
   onRefreshParentPortal: (controlCode: number) => void;
   onMatchmaking: () => void;
   onNavigate?: (routePath: string) => void;
@@ -247,6 +258,7 @@ type ParentPortalActivityState = {
   activityMemoryGraphReadModel?: Record<string, unknown> | null;
   browserInterventionReadModel?: Record<string, unknown> | null;
   networkFlowReadModel?: Record<string, unknown> | null;
+  lanPairingBrowserDiscoveryEvent?: { eventId?: AgentEventId } | null;
   lanAddDeviceReadModel?: Record<string, unknown> | null;
   screenEvidenceRecentSummary?: Record<string, unknown> | null;
   appGameSessionReport?: Record<string, unknown> | null;
@@ -350,6 +362,12 @@ type AssistantQuickChoice = {
   readonly followUps: readonly string[];
 };
 
+type AssistantQuestionnaireOption = {
+  readonly label: string;
+  readonly prompt: string;
+  readonly choice?: AssistantQuickChoice;
+};
+
 type AssistantQuickAction = {
   readonly id: AssistantQuickActionId;
   readonly label: string;
@@ -363,6 +381,13 @@ type AssistantQuickAction = {
   readonly tone: Tone;
   readonly iconAssetUrl: AssistantQuickActionIconAssetUrl;
 };
+
+type AssistantPanelTab = 'history' | 'quickAction';
+
+const ASSISTANT_PANEL_TAB = {
+  History: 'history',
+  QuickAction: 'quickAction',
+} as const satisfies Record<string, AssistantPanelTab>;
 
 type AssistantTranscriptMessage = {
   readonly id: string;
@@ -405,35 +430,39 @@ const ASSISTANT_QUICK_ACTIONS: readonly AssistantQuickAction[] = PARENT_ASSISTAN
 );
 
 function assistantToneForQuickAction(id: AssistantQuickActionId): Tone {
-  if (id === 'report' || id === 'support-api') return 'cyan';
-  if (id === 'browser-state' || id === 'drives') return 'gold';
-  if (id === 'rules') return 'red';
+  if (id === 'overview' || id === 'start' || id === 'report' || id === 'support-api' || id === 'devices') return 'cyan';
+  if (id === 'browser-state' || id === 'drives' || id === 'alerts') return 'gold';
+  if (id === 'rules' || id === 'private') return 'red';
   return 'purple';
 }
 
 function assistantIconForQuickAction(id: AssistantQuickActionId): AssistantQuickActionIconAssetUrl {
+  if (id === 'overview' || id === 'start' || id === 'report' || id === 'memory') {
+    return parentPortalTodayReportQuickActionIconUrl;
+  }
   if (id === 'browser-state') return parentPortalBrowserStateQuickActionIconUrl;
   if (id === 'rules') return parentPortalRulesQuickActionIconUrl;
   if (id === 'ai-setup') return parentPortalAiSetupQuickActionIconUrl;
-  if (id === 'drives') return parentPortalDrivesQuickActionIconUrl;
+  if (id === 'drives' || id === 'private' || id === 'devices' || id === 'alerts')
+    return parentPortalDrivesQuickActionIconUrl;
   if (id === 'support-api') return parentPortalSupportApiQuickActionIconUrl;
   return parentPortalTodayReportQuickActionIconUrl;
 }
 
 function assistantThreadCreatePayload(): Record<string, string> {
   return {
-    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: 'freeform',
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+    [PortalAgentProtocolField.ParentAssistantStarterCategory]: 'freeform',
+    [PortalAgentProtocolField.ParentAssistantInputSource]: 'quick-action',
   };
 }
 
 function assistantQuickActionCommandPayload(action: AssistantQuickAction): Record<string, string> {
   return {
-    [AgentProtocolDefaults.Field.ParentAssistantQuickActionId]: action.id,
-    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: action.id,
-    [AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId]: action.starterPromptTemplateId,
-    [AgentProtocolDefaults.Field.ParentAssistantInputText]: action.prompt,
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+    [PortalAgentProtocolField.ParentAssistantQuickActionId]: action.id,
+    [PortalAgentProtocolField.ParentAssistantStarterCategory]: action.id,
+    [PortalAgentProtocolField.ParentAssistantPromptTemplateId]: action.starterPromptTemplateId,
+    [PortalAgentProtocolField.ParentAssistantInputText]: action.prompt,
+    [PortalAgentProtocolField.ParentAssistantInputSource]: 'quick-action',
   };
 }
 
@@ -444,13 +473,13 @@ function assistantMessageCommandPayload(
   inputSource: 'typed' | 'choice'
 ): Record<string, string> {
   const payload: Record<string, string> = {
-    [AgentProtocolDefaults.Field.ParentAssistantInputText]: prompt,
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: inputSource,
+    [PortalAgentProtocolField.ParentAssistantInputText]: prompt,
+    [PortalAgentProtocolField.ParentAssistantInputSource]: inputSource,
   };
   if (action) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantQuickActionId] = action.id;
-    payload[AgentProtocolDefaults.Field.ParentAssistantStarterCategory] = action.id;
-    payload[AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId] =
+    payload[PortalAgentProtocolField.ParentAssistantQuickActionId] = action.id;
+    payload[PortalAgentProtocolField.ParentAssistantStarterCategory] = action.id;
+    payload[PortalAgentProtocolField.ParentAssistantPromptTemplateId] =
       choice?.promptTemplateId ?? action.starterPromptTemplateId;
   }
   return payload;
@@ -460,11 +489,138 @@ function assistantQuickActionById(id: AssistantQuickActionId | null): AssistantQ
   return ASSISTANT_QUICK_ACTIONS.find((action) => action.id === id) ?? null;
 }
 
+function assistantQuestionForQuickAction(action: AssistantQuickAction): string {
+  if (action.id === 'overview') return 'Overview: what should MIA summarize first?';
+  if (action.id === 'start') return 'Start: what setup path should MIA guide?';
+  if (action.id === 'report') return 'Report: what kind of report do you need?';
+  if (action.id === 'browser-state') return 'Browser: what should MIA inspect first?';
+  if (action.id === 'rules') return 'Rules: what do you want to adjust or understand?';
+  if (action.id === 'memory') return 'Memory: what context boundary should MIA explain?';
+  if (action.id === 'ai-setup') return 'AI setup: what should MIA help configure?';
+  if (action.id === 'private') return 'Private: what privacy or custody question matters?';
+  if (action.id === 'devices') return 'Devices: what device state should MIA inspect?';
+  if (action.id === 'alerts') return 'Alerts: what notification path should MIA shape?';
+  if (action.id === 'drives') return 'Data: what should MIA prepare or export?';
+  if (action.id === 'support-api') return 'Support: what should MIA check first?';
+  return `${action.label}: what should MIA help with?`;
+}
+
+function assistantQuestionnaireState(
+  action: AssistantQuickAction | null,
+  choice: AssistantQuickChoice | null
+): { question: string; options: readonly AssistantQuestionnaireOption[] } {
+  if (!action) {
+    return {
+      question: 'Ask:',
+      options: ASSISTANT_DEFAULT_FOLLOW_UPS.map((prompt) => ({ label: prompt, prompt })),
+    };
+  }
+
+  if (choice?.followUps.length) {
+    return {
+      question: `${choice.label}: what detail should MIA narrow next?`,
+      options: choice.followUps.map((prompt) => ({ label: prompt, prompt })),
+    };
+  }
+
+  return {
+    question: assistantQuestionForQuickAction(action),
+    options: action.choices.map((quickChoice) => ({
+      label: quickChoice.label,
+      prompt: quickChoice.prompt,
+      choice: quickChoice,
+    })),
+  };
+}
+
+const ASSISTANT_NAV_ROUTE_PREFIX = 'assistant-action:';
+
+const ASSISTANT_NAV_GROUP_ACTION_IDS = {
+  quickGlance: ['overview'],
+  guide: ['start', 'rules', 'memory', 'ai-setup', 'report', 'private'],
+  manage: ['browser-state', 'devices', 'alerts', 'drives', 'support-api'],
+} as const;
+
+const ASSISTANT_NEW_CHAT_NAV_ITEM = {
+  label: 'NEW CHAT',
+  detail: 'Start fresh with MIA',
+  icon: AiGuideIdeaIcon,
+  imageUrl: '',
+  tabId: 'aiStatus',
+  groupId: 'quickGlance',
+  tone: 'cyan',
+  routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}new-chat`,
+};
+
+function assistantHistoryNavItem(action: AssistantQuickAction): NavItem {
+  return {
+    ...assistantQuickActionNavItem(action, ASSISTANT_PANEL_TAB.History),
+    label: `${action.label.toUpperCase()} HISTORY`,
+    detail: `Review previous ${action.label.toLowerCase()} assistant prompts.`,
+  };
+}
+
+function assistantQuickActionNavGroups(navGroups: NavGroup[]): NavGroup[] {
+  return navGroups
+    .map((group) => {
+      const actionIds = ASSISTANT_NAV_GROUP_ACTION_IDS[group.id as keyof typeof ASSISTANT_NAV_GROUP_ACTION_IDS];
+      if (!actionIds) return null;
+      return {
+        ...group,
+        items: actionIds
+          .map((actionId) => assistantQuickActionById(actionId))
+          .filter(Boolean)
+          .map((action) => assistantQuickActionNavItem(action as AssistantQuickAction, group.id)),
+      };
+    })
+    .filter((group) => group && group.items.length > 0);
+}
+
+function assistantQuickActionNavItem(action: AssistantQuickAction, groupId: string): NavItem {
+  return {
+    label: action.label.toUpperCase(),
+    detail: action.detail,
+    icon: assistantIconComponentForQuickAction(action.id),
+    imageUrl: action.iconAssetUrl,
+    tabId: 'aiStatus',
+    groupId,
+    tone: action.tone,
+    routePath: `${ASSISTANT_NAV_ROUTE_PREFIX}${action.id}`,
+  };
+}
+
+function assistantActionIdForNavItem(item: NavItem): AssistantQuickActionId | null {
+  const routePath = item.routePath ?? '';
+  if (!routePath.startsWith(ASSISTANT_NAV_ROUTE_PREFIX)) return null;
+  const actionId = routePath.slice(ASSISTANT_NAV_ROUTE_PREFIX.length);
+  return ASSISTANT_QUICK_ACTIONS.some((action) => action.id === actionId) ? (actionId as AssistantQuickActionId) : null;
+}
+
+function assistantIconComponentForQuickAction(id: AssistantQuickActionId): IconComponent {
+  if (id === 'overview') return OverviewListIcon;
+  if (id === 'start') return StartDataAnalysisIcon;
+  if (id === 'report') return ReportDocumentIcon;
+  if (id === 'browser-state') return BrowserStackIcon;
+  if (id === 'rules') return RulesGavelDocumentIcon;
+  if (id === 'memory') return AiMemoryCircuitIcon;
+  if (id === 'ai-setup') return AiMemorySetBrainIcon;
+  if (id === 'private') return DataPrivacyServerShieldIcon;
+  if (id === 'devices') return DevicesMultiScreenIcon;
+  if (id === 'alerts') return AlertNotificationBellIcon;
+  if (id === 'drives') return DrivesCloudIcon;
+  if (id === 'support-api') return AccountProfileIcon;
+  return AiGuideIdeaIcon;
+}
+
 const ASSISTANT_INCOMING_CHAT_BUBBLE_CONFIG = {
   body: {
     clampOnLeft: true,
     minHeight: 50,
     maxHeight: 150,
+  },
+  colors: {
+    aiBodyTop: '#c8f8d6',
+    aiBodyBottom: '#a9ecc1',
   },
   text: {
     fontSize: 12,
@@ -478,11 +634,32 @@ const ASSISTANT_OUTGOING_CHAT_BUBBLE_CONFIG = {
     minHeight: 42,
     maxHeight: 118,
   },
+  colors: {
+    userBodyTop: '#e5f6ff',
+    userBodyBottom: '#acdfff',
+  },
   text: {
     fontSize: 12,
     lineHeight: 1.42,
   },
 };
+
+const ASSISTANT_CHAT_SURFACE_FILL = 'rgba(2, 12, 20, 0.52)';
+const ASSISTANT_QUESTIONNAIRE_SURFACE_FILL = ASSISTANT_CHAT_SURFACE_FILL;
+const ASSISTANT_QUESTIONNAIRE_BODY_FILL = 'rgba(7, 26, 42, 0.34)';
+const PARENT_PORTAL_TAB_SURFACE_FILL = {
+  active: 'rgba(2, 12, 22, 0.74)',
+  hover: 'rgba(2, 12, 22, 0.52)',
+  idle: 'rgba(2, 12, 22, 0.38)',
+  lanActive: 'rgba(2, 12, 22, 0.78)',
+  lanIdle: 'rgba(2, 12, 22, 0.48)',
+  lanMuted: 'rgba(2, 12, 22, 0.34)',
+} as const;
+const ASSISTANT_FOLLOW_UP_PAD_X = 24;
+const ASSISTANT_FOLLOW_UP_PAD_Y = 6;
+const ASSISTANT_FOLLOW_UP_HEADER_H = 24;
+const ASSISTANT_FOLLOW_UP_ROW_H = 32;
+const ASSISTANT_FOLLOW_UP_GAP = 10;
 
 const ASSISTANT_SIDE_PANEL_ICON_CONFIG = {
   colors: {
@@ -552,33 +729,6 @@ function truncateTextForWidth(text: string, width: number, fontSize: number, fac
   if (text.length <= maxChars) return text;
   if (maxChars <= 3) return text.slice(0, maxChars);
   return `${text.slice(0, maxChars - 3).trimEnd()}...`;
-}
-
-function wrapSvgTextLines(text: string, width: number, fontSize: number, maxLines: number, factor = 0.56): string[] {
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [''];
-  const maxChars = Math.max(8, Math.floor(width / Math.max(1, fontSize * factor)));
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const next = current ? `${current} ${word}` : word;
-    if (next.length <= maxChars) {
-      current = next;
-      continue;
-    }
-    if (current) {
-      lines.push(current);
-    }
-    current = word;
-    if (lines.length === maxLines - 1) break;
-  }
-  if (current && lines.length < maxLines) {
-    lines.push(current);
-  }
-  if (lines.length > 0 && lines.join(' ').length < text.length) {
-    lines[lines.length - 1] = truncateTextForWidth(lines[lines.length - 1], width, fontSize, factor);
-  }
-  return lines.slice(0, maxLines);
 }
 
 function compactControlStatLabel(value: string): string {
@@ -709,6 +859,30 @@ function toneColor(tone: Tone, cfg: ParentPortalSvgControls): string {
 function colorAlpha(color: string, alphaHex: string): string {
   return color.startsWith('#') ? `${color}${alphaHex}` : color;
 }
+
+const PARENT_PORTAL_GLASS = {
+  panelFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillSoft: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillStrong: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  panelFillDeep: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  cardFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  cardFillStrong: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  controlFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFill: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFillStrongTop: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogFillStrongBottom: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFill,
+  dialogScrim: PortalUnifiedChrome.CssVarRefs.FrameScrimFill,
+} as const;
+
+const PARENT_PORTAL_FRAME_MATERIAL = {
+  bodyFill: PortalUnifiedChrome.CssVarRefs.FrameBodyFill,
+  bodyStrokeOpacity: PortalUnifiedChrome.CssVarRefs.FrameBodyStrokeOpacity,
+  disabledFillOpacity: PortalUnifiedChrome.CssVarRefs.FrameSurfaceDisabledFillOpacity,
+  fillOpacity: PortalUnifiedChrome.CssVarRefs.FrameSurfaceFillOpacity,
+  footerLineOpacity: PortalUnifiedChrome.CssVarRefs.FrameFooterLineOpacity,
+  headerLineOpacity: PortalUnifiedChrome.CssVarRefs.FrameHeaderLineOpacity,
+  transparentFill: PortalUnifiedChrome.CssVarRefs.FrameTransparentFill,
+} as const;
 
 function assetKey(value?: string): string {
   return (value ?? '')
@@ -1073,6 +1247,13 @@ function initialNavItemForContext(
   return navItems.find((item) => item.label === initialNavLabel);
 }
 
+const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
+  'lan-pairing',
+  'capability-status',
+  'platforms-install',
+  'install-updates',
+]);
+
 function deviceOpsNavItemForRoute(navItems: NavItem[], routePath: string): NavItem | undefined {
   if (!MANAGE_DEVICE_OPS_ROUTE_KEYS.has(assetKey(routePath))) return undefined;
   return navItems.find((item) => item.routePath === '#/devices');
@@ -1260,7 +1441,7 @@ function productShellRouteKeywords(routeKey: string): readonly string[] {
   if (routeKey.includes('network')) return ['network-activity', 'network-tracking', 'enforcement-readiness'];
   if (routeKey.includes('tracking')) return ['tracking-policy', 'remote-access', 'manual-required'];
   if (routeKey.includes('device') || routeKey.includes('lan') || routeKey.includes('capability')) {
-    return ['device-pairing', 'lan-discovery', 'household-setup', 'capability-status'];
+    return ['lan-discovery', 'household-setup', 'capability-status'];
   }
   if (routeKey.includes('remote')) return ['remote-access', 'remote-screen-policy', 'backend-not-connected'];
   if (routeKey.includes('report') || routeKey.includes('activity')) {
@@ -1526,7 +1707,9 @@ function SurfacePanel({
   const color = accentColor ?? toneColor(tone, cfg);
   const interactive = Boolean(onClick) && !disabled;
   const active = selected || hovered;
-  const fill = selected ? cfg.colors.selectedFill : hovered ? `${color}20` : cfg.colors.panelFill;
+  const frameFillOpacity = disabled
+    ? PARENT_PORTAL_FRAME_MATERIAL.disabledFillOpacity
+    : PARENT_PORTAL_FRAME_MATERIAL.fillOpacity;
   const handleClick = (event: MouseEvent<SVGGElement>) => {
     if (!interactive) return;
     event.stopPropagation();
@@ -1552,7 +1735,6 @@ function SurfacePanel({
     >
       {frame === 'deckSide' ? (
         <>
-          <path d={cutRectPath(x + 5, y + 5, w - 10, h - 10, 18)} fill="#020b14" stroke="none" pointerEvents="none" />
           <ParentPortalPanelFrame
             x={x}
             y={y}
@@ -1560,6 +1742,8 @@ function SurfacePanel({
             h={h}
             color={color}
             active={active}
+            fill={PARENT_PORTAL_GLASS.panelFill}
+            fillOpacity={frameFillOpacity}
             cornerThicknessScale={frameCornerThicknessScale}
             outerTabWidth={frameOuterTabWidth ?? cfg.chrome.frameOuterBulgeWidth}
             innerTabWidth={frameInnerTabWidth ?? cfg.chrome.frameInnerBulgeWidth}
@@ -1567,52 +1751,19 @@ function SurfacePanel({
         </>
       ) : (
         <>
-          {hovered && !selected ? (
-            <path
-              d={cutRectPath(
-                x - cfg.chrome.hoverPad,
-                y - cfg.chrome.hoverPad,
-                w + cfg.chrome.hoverPad * 2,
-                h + cfg.chrome.hoverPad * 2,
-                cfg.chrome.panelCut
-              )}
-              fill="none"
-              stroke={color}
-              strokeWidth={2.2}
-              opacity={cfg.chrome.glowOpacity}
-              filter="url(#parentPortalGlow)"
-            />
-          ) : null}
-          <path
-            d={cutRectPath(x, y, w, h, active ? cfg.chrome.panelCut + 2 : cfg.chrome.panelCut)}
-            fill={fill}
-            stroke={color}
-            strokeWidth={active ? cfg.chrome.panelStrokeWidth + 0.5 : cfg.chrome.panelStrokeWidth}
-            opacity={disabled ? 0.48 : 0.97}
+          <ParentPortalPanelFrame
+            x={x}
+            y={y}
+            w={w}
+            h={h}
+            color={color}
+            active={active}
+            fill={PARENT_PORTAL_GLASS.panelFill}
+            fillOpacity={frameFillOpacity}
+            cornerThicknessScale={frameCornerThicknessScale}
+            outerTabWidth={frameOuterTabWidth ?? cfg.chrome.frameOuterBulgeWidth}
+            innerTabWidth={frameInnerTabWidth ?? cfg.chrome.frameInnerBulgeWidth}
           />
-          <path
-            d={cutRectPath(
-              x + cfg.chrome.panelInnerInset,
-              y + cfg.chrome.panelInnerInset,
-              w - cfg.chrome.panelInnerInset * 2,
-              h - cfg.chrome.panelInnerInset * 2,
-              Math.max(4, cfg.chrome.panelCut - 4)
-            )}
-            fill="none"
-            stroke={color}
-            strokeWidth={0.7}
-            opacity={active ? 0.52 : 0.25}
-          />
-          {selected ? (
-            <path
-              d={cutRectPath(x, y, w, h, cfg.chrome.panelCut + 2)}
-              fill="none"
-              stroke={color}
-              strokeWidth={5}
-              opacity={0.16}
-              filter="url(#parentPortalGlow)"
-            />
-          ) : null}
         </>
       )}
       {children}
@@ -1859,7 +2010,7 @@ function ParentPortalHeaderAction({
         width={w}
         height={h}
         rx={3}
-        fill={lit ? `${color}24` : 'rgba(4, 18, 31, 0.88)'}
+        fill={lit ? `${color}24` : PARENT_PORTAL_GLASS.panelFill}
         stroke={color}
         strokeWidth={lit ? 1.35 : 0.9}
         strokeOpacity={lit ? 0.95 : 0.64}
@@ -1984,9 +2135,9 @@ function ParentPortalSectionFrame({
   bodyInset,
   fullHeaderLine = false,
   innerStrokeOpacity = 0.6,
-  bodyStrokeOpacity = 0.72,
-  bodyFill = 'rgba(7, 30, 48, 0.38)',
-  footerLineOpacity = 0.42,
+  bodyStrokeOpacity = PARENT_PORTAL_FRAME_MATERIAL.bodyStrokeOpacity,
+  bodyFill = PARENT_PORTAL_FRAME_MATERIAL.bodyFill,
+  footerLineOpacity = PARENT_PORTAL_FRAME_MATERIAL.footerLineOpacity,
   showSideHandles = false,
   sideDisabled = false,
   onPrevious,
@@ -2017,9 +2168,9 @@ function ParentPortalSectionFrame({
   bodyInset?: number;
   fullHeaderLine?: boolean;
   innerStrokeOpacity?: number;
-  bodyStrokeOpacity?: number;
+  bodyStrokeOpacity?: number | string;
   bodyFill?: string;
-  footerLineOpacity?: number;
+  footerLineOpacity?: number | string;
   showSideHandles?: boolean;
   sideDisabled?: boolean;
   onPrevious?: () => void;
@@ -2038,7 +2189,6 @@ function ParentPortalSectionFrame({
     footer: footerRect,
     headerH: resolvedHeaderH,
   } = parentPortalFrameRects(x, y, w, h, footerH, headerH, bodyInset);
-  const cut = Math.max(6, Math.min(cfg.chrome.panelCut, 12));
   const interactive = Boolean(onSelect);
   const active = selected || hovered;
   const headerInset = Math.max(48, Math.min(76, w * 0.045));
@@ -2098,6 +2248,7 @@ function ParentPortalSectionFrame({
   const sideHandleY = body.y + Math.max(12, (body.h - sideHandleH) / 2);
   const leftHandleX = x - sideHandleW + PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
   const rightHandleX = x + w - PARENT_PORTAL_SIDE_HANDLE_OVERLAP;
+  const showFooterLine = footerLineOpacity !== 0 && footerLineOpacity !== '0';
   const handleSelect = (event: MouseEvent<SVGGElement>) => {
     if (!interactive) return;
     event.stopPropagation();
@@ -2133,16 +2284,10 @@ function ParentPortalSectionFrame({
         color={color}
         active={active}
         fill="url(#parentPortalFrameFill)"
-        fillOpacity={selected ? 0.98 : 0.92}
+        fillOpacity={PARENT_PORTAL_FRAME_MATERIAL.fillOpacity}
         cornerThicknessScale={0.86}
         outerTabWidth={cfg.chrome.frameOuterBulgeWidth}
         innerTabWidth={cfg.chrome.frameInnerBulgeWidth}
-      />
-      <path
-        d={cutRectPath(x + 8, y + 8, w - 16, Math.min(62, resolvedHeaderH + 10), Math.max(4, cut - 5))}
-        fill="url(#parentPortalFrameShine)"
-        opacity={active ? 0.56 : 0.42}
-        pointerEvents="none"
       />
       {headerSlot ? (
         headerSlot
@@ -2179,7 +2324,7 @@ function ParentPortalSectionFrame({
             y2={headerLineY}
             stroke={color}
             strokeWidth={1.1}
-            opacity={0.5}
+            opacity={PARENT_PORTAL_FRAME_MATERIAL.headerLineOpacity}
           />
           {headerInfoLabel && onHeaderInfoClick ? (
             <ParentPortalInfoButton
@@ -2208,7 +2353,7 @@ function ParentPortalSectionFrame({
         strokeOpacity={bodyStrokeOpacity}
       />
       {children(body)}
-      {footerLineOpacity > 0 ? (
+      {showFooterLine ? (
         <line
           x1={footerRect.x + 12}
           y1={footerRect.y + 3}
@@ -2285,7 +2430,7 @@ function ArtworkSlot({
   const primaryText = compact ? 'MISS' : 'MISSING';
   const primaryFontSize = compact ? Math.min(7, Math.max(4.5, w * 0.24)) : Math.min(11, Math.max(7.5, w * 0.09));
   const secondaryFontSize = Math.min(8.5, Math.max(6.5, w * 0.06));
-  const fill = imageUrl ? 'rgba(3, 13, 24, 0.82)' : 'rgba(48, 12, 23, 0.72)';
+  const fill = imageUrl ? PARENT_PORTAL_GLASS.panelFillDeep : 'rgba(48, 12, 23, 0.72)';
   const renderShape = (shapeFill: string, shapeStroke: string, dash = '') => {
     if (shape === 'circle') {
       return (
@@ -2409,6 +2554,7 @@ function NavRow({
   iconSize,
   nested = false,
   branchColor,
+  ariaLabel,
   onSelect,
   cfg,
 }: {
@@ -2421,6 +2567,7 @@ function NavRow({
   iconSize: number;
   nested?: boolean;
   branchColor?: string;
+  ariaLabel?: string;
   onSelect: () => void;
   cfg: ParentPortalSvgControls;
 }) {
@@ -2460,7 +2607,7 @@ function NavRow({
       }}
       role="button"
       tabIndex={0}
-      aria-label={`Open ${item.label}`}
+      aria-label={ariaLabel ?? `Open ${item.label}`}
     >
       <rect x={rowX - 6} y={y - 4} width={rowW + 28} height={rowH + 8} fill="transparent" pointerEvents="all" />
       {nested ? (
@@ -3124,12 +3271,13 @@ function NavPanel({
   };
   if (assistantOpen) {
     return (
-      <g>
+      <g className="parent-portal-study-side-pane">
         <AssistantQuickActionPanel
           x={outerPad}
           y={sideTopY}
           w={leftW}
           h={assistantPanelH}
+          navGroups={navGroups}
           selectedActionId={selectedAssistantActionId}
           onNewChat={onAssistantNewChat}
           onActionSelect={onAssistantActionSelect}
@@ -3140,7 +3288,7 @@ function NavPanel({
   }
   let cursorY = rowTop;
   return (
-    <g>
+    <g className="parent-portal-study-side-pane">
       <SurfacePanel x={outerPad} y={sideTopY} w={leftW} h={navH} tone="cyan" frame="deckSide" cfg={cfg}>
         <defs>
           <clipPath id={navClipId}>
@@ -3390,6 +3538,7 @@ function AssistantQuickActionPanel({
   y,
   w,
   h,
+  navGroups,
   selectedActionId,
   onNewChat,
   onActionSelect,
@@ -3399,92 +3548,233 @@ function AssistantQuickActionPanel({
   y: number;
   w: number;
   h: number;
+  navGroups: NavGroup[];
   selectedActionId: AssistantQuickActionId | null;
   onNewChat: () => void;
   onActionSelect: (actionId: AssistantQuickActionId) => void;
   cfg: ParentPortalSvgControls;
 }) {
-  const [activePanelTab, setActivePanelTab] = useState<'quick' | 'history'>('quick');
-  const tabY = y + 30;
-  const rowTop = y + 72;
-  const rowH = 56;
-  const rowGap = 7;
-  const tabGap = 8;
-  const tabW = (w - 44 - tabGap) / 2;
-  return (
-    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
-      <AssistantSidePanelTab
-        x={x + 22}
+  const assistantGroups = assistantQuickActionNavGroups(navGroups);
+  const [activePanelTab, setActivePanelTab] = useState<AssistantPanelTab>(ASSISTANT_PANEL_TAB.QuickAction);
+  const [openActionGroupIds, setOpenActionGroupIds] = useState(() =>
+    Object.fromEntries(assistantGroups.map((group) => [group.id, true]))
+  );
+  const tabY = y + 24;
+  const tabH = 30;
+  const tabGap = 6;
+  const tabW = (w - 24 - tabGap) / 2;
+  const rowTop = y + 66;
+  const rowH = 38;
+  const rowStep = 40;
+  const iconSize = 34;
+  const groupH = 46;
+  const groupGap = 7;
+  const panelBottom = y + h - 18;
+  const panelRows: ReactNode[] = [];
+  let cursorY = rowTop;
+
+  const toggleActionGroup = (groupId: string) => {
+    setOpenActionGroupIds((current) => ({
+      ...current,
+      [groupId]: !(current[groupId] ?? true),
+    }));
+  };
+
+  panelRows.push(
+    <g key="assistant:panel-tabs" role="tablist" aria-label="Assistant side panel">
+      <AssistantPanelTabButton
+        x={x + 12}
         y={tabY}
         w={tabW}
-        h={28}
-        label="Quick Action"
-        selected={activePanelTab === 'quick'}
-        onSelect={() => setActivePanelTab('quick')}
-        cfg={cfg}
-      />
-      <AssistantSidePanelTab
-        x={x + 22 + tabW + tabGap}
-        y={tabY}
-        w={tabW}
-        h={28}
+        h={tabH}
         label="History"
-        selected={activePanelTab === 'history'}
-        onSelect={() => setActivePanelTab('history')}
+        active={activePanelTab === ASSISTANT_PANEL_TAB.History}
+        onSelect={() => setActivePanelTab(ASSISTANT_PANEL_TAB.History)}
         cfg={cfg}
       />
-      <path
-        d={`M ${x + 18} ${rowTop - 14} H ${x + w - 18}`}
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.8}
-        opacity={0.72}
+      <AssistantPanelTabButton
+        x={x + 12 + tabW + tabGap}
+        y={tabY}
+        w={tabW}
+        h={tabH}
+        label="Quick Action"
+        active={activePanelTab === ASSISTANT_PANEL_TAB.QuickAction}
+        onSelect={() => setActivePanelTab(ASSISTANT_PANEL_TAB.QuickAction)}
+        cfg={cfg}
       />
-      {activePanelTab === 'quick' ? (
-        <>
-          <AssistantNewChatRow x={x + 14} y={rowTop} w={w - 28} h={rowH} onSelect={onNewChat} cfg={cfg} />
-          {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
-            const rowY = rowTop + (index + 1) * (rowH + rowGap);
-            if (rowY + rowH > y + h - 18) return null;
-            const selected = action.id === selectedActionId;
-            return (
-              <AssistantQuickActionRow
-                key={action.id}
-                action={action}
-                selected={selected}
-                x={x + 14}
-                y={rowY}
-                w={w - 28}
-                h={rowH}
-                onSelect={() => onActionSelect(action.id)}
-                cfg={cfg}
-              />
-            );
-          })}
-        </>
-      ) : (
-        <AssistantHistoryPanelContent
-          x={x + 14}
-          y={rowTop}
-          w={w - 28}
-          h={Math.max(120, y + h - rowTop - 18)}
-          selectedActionId={selectedActionId}
+    </g>
+  );
+
+  if (cursorY + rowH <= panelBottom) {
+    panelRows.push(
+      <NavRow
+        key="assistant:new-chat"
+        item={ASSISTANT_NEW_CHAT_NAV_ITEM}
+        active={false}
+        x={x + 8}
+        w={w - 8}
+        y={cursorY}
+        rowH={rowH}
+        iconSize={iconSize}
+        branchColor={cfg.colors.cyan}
+        ariaLabel="Start new MIA chat"
+        onSelect={onNewChat}
+        cfg={cfg}
+      />
+    );
+    cursorY += rowStep + groupGap;
+  }
+
+  if (activePanelTab === ASSISTANT_PANEL_TAB.History) {
+    ASSISTANT_QUICK_ACTIONS.forEach((action) => {
+      if (cursorY + rowH > panelBottom) return;
+      const itemY = cursorY;
+      cursorY += rowStep;
+      panelRows.push(
+        <NavRow
+          key={`assistant:history:${action.id}`}
+          item={assistantHistoryNavItem(action)}
+          active={false}
+          x={x + 8}
+          w={w - 8}
+          y={itemY}
+          rowH={rowH}
+          iconSize={iconSize}
+          branchColor={toneColor(action.tone, cfg)}
+          ariaLabel={`${action.label} history`}
+          onSelect={() => onActionSelect(action.id)}
           cfg={cfg}
         />
-      )}
+      );
+    });
+    return (
+      <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
+        {panelRows}
+      </SurfacePanel>
+    );
+  }
+
+  assistantGroups.forEach((group) => {
+    if (cursorY + groupH > panelBottom) return;
+    const groupY = cursorY;
+    const open = openActionGroupIds[group.id] ?? true;
+    const groupAccent = navGroupThemeColor(group.id, cfg);
+    cursorY += groupH;
+
+    const itemRows: ReactNode[] = [];
+    const childStartY = cursorY;
+    if (open) {
+      for (const item of group.items) {
+        const itemY = cursorY;
+        if (itemY + rowH > panelBottom) break;
+        cursorY += rowStep;
+        const actionId = assistantActionIdForNavItem(item);
+        const actionLabel = actionId ? assistantQuickActionById(actionId)?.label : null;
+        itemRows.push(
+          <NavRow
+            key={navItemKey(item)}
+            item={item}
+            active={actionId === selectedActionId}
+            x={x + 8}
+            w={w - 8}
+            y={itemY}
+            rowH={rowH}
+            iconSize={iconSize}
+            branchColor={groupAccent}
+            ariaLabel={`Ask MIA about ${actionLabel ?? item.label}`}
+            onSelect={() => {
+              if (actionId) onActionSelect(actionId);
+            }}
+            cfg={cfg}
+          />
+        );
+      }
+    }
+
+    const childEndY = cursorY;
+    const childRailH = Math.max(0, childEndY - childStartY - 2);
+    cursorY += groupGap;
+
+    panelRows.push(
+      <g key={group.id}>
+        {open && childRailH > 0 ? (
+          <g pointerEvents="none">
+            <path
+              d={cutRectPath(x + 22, childStartY + 3, w - 35, childRailH, 9)}
+              fill="rgba(2, 12, 20, 0.34)"
+              stroke={groupAccent}
+              strokeWidth={0.85}
+              strokeOpacity={0.38}
+            />
+            <path
+              d={`M ${x + 28} ${childStartY + 9} V ${childStartY + childRailH - 6}`}
+              stroke={groupAccent}
+              strokeWidth={1.45}
+              strokeLinecap="round"
+              opacity={0.58}
+            />
+          </g>
+        ) : null}
+        {itemRows}
+        <NavGroupHeader
+          group={group}
+          open={open}
+          x={x}
+          w={w}
+          y={groupY}
+          h={groupH}
+          onToggle={() => toggleActionGroup(group.id)}
+          cfg={cfg}
+        />
+      </g>
+    );
+  });
+
+  return (
+    <SurfacePanel x={x} y={y} w={w} h={h} tone="cyan" frame="deckSide" selected cfg={cfg}>
+      {panelRows}
     </SurfacePanel>
   );
 }
 
-function AssistantSidePanelTab({ x, y, w, h, label, selected, onSelect, cfg }) {
+function AssistantPanelTabButton({
+  x,
+  y,
+  w,
+  h,
+  label,
+  active,
+  onSelect,
+  cfg,
+}: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  active: boolean;
+  onSelect: () => void;
+  cfg: ParentPortalSvgControls;
+}) {
   const [hovered, setHovered] = useState(false);
+  const fill = active
+    ? PARENT_PORTAL_TAB_SURFACE_FILL.active
+    : hovered
+      ? PARENT_PORTAL_TAB_SURFACE_FILL.hover
+      : PARENT_PORTAL_TAB_SURFACE_FILL.idle;
   return (
     <g
       className="parent-portal-svg-clickable"
       role="tab"
       tabIndex={0}
-      aria-selected={selected}
       aria-label={label}
+      aria-selected={active}
       onClick={onSelect}
+      onKeyDown={(event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        onSelect();
+      }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onFocus={() => setHovered(true)}
@@ -3496,185 +3786,35 @@ function AssistantSidePanelTab({ x, y, w, h, label, selected, onSelect, cfg }) {
         y={y}
         width={w}
         height={h}
-        rx={8}
-        fill={
-          selected
-            ? colorAlpha(cfg.colors.cyan, '32')
-            : hovered
-              ? colorAlpha(cfg.colors.cyan, '22')
-              : 'rgba(4, 18, 31, 0.72)'
-        }
-        stroke={selected || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
-        strokeWidth={selected ? 1.15 : 0.9}
+        rx={0}
+        fill={fill}
+        stroke={active || hovered ? cfg.colors.cyan : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.15 : 0.82}
+        opacity={active ? 1 : 0.82}
+      />
+      <path
+        d={`M ${x + 8} ${y + 1.5} H ${x + w - 8}`}
+        stroke={active ? cfg.colors.cyan : cfg.colors.panelStroke}
+        strokeWidth={active ? 1.65 : 0.9}
+        strokeLinecap="round"
+        opacity={active ? 0.95 : hovered ? 0.52 : 0.28}
+      />
+      <path
+        d={`M ${x + 10} ${y + h - 3} H ${x + w - 10}`}
+        stroke={cfg.colors.cyan}
+        strokeWidth={active ? 2.05 : 1.1}
+        strokeLinecap="round"
+        opacity={active ? 0.92 : hovered ? 0.46 : 0.24}
       />
       <text
         x={x + w / 2}
-        y={y + 18}
+        y={y + h / 2 + 4}
         textAnchor="middle"
-        fontSize={10.5}
-        fontWeight={920}
-        fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
+        fontSize={10.8}
+        fontWeight={960}
+        fill={cfg.colors.bodyText}
       >
-        {truncateTextForWidth(label.toUpperCase(), w - 12, 10.5, 0.58)}
-      </text>
-    </g>
-  );
-}
-
-function AssistantNewChatRow({ x, y, w, h, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = cfg.colors.cyan;
-  const iconCx = x + 26;
-  const iconCy = y + h / 2;
-  const lit = hovered;
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label="Start new MIA chat"
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>Start new MIA chat</title>
-      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
-      <path
-        d={cutRectPath(x, y, w, h, 8)}
-        fill={hovered ? colorAlpha(color, '2a') : colorAlpha(color, '18')}
-        stroke={lit ? color : 'transparent'}
-        strokeWidth={lit ? 1.15 : 0}
-        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <path
-        d={`M ${iconCx} ${iconCy - 11} V ${iconCy + 11} M ${iconCx - 11} ${iconCy} H ${iconCx + 11}`}
-        stroke={color}
-        strokeWidth={2}
-        strokeLinecap="round"
-        filter={hovered ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
-        NEW CHAT
-      </text>
-    </g>
-  );
-}
-
-function AssistantQuickActionRow({ action, selected, x, y, w, h, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = toneColor(action.tone, cfg);
-  const lit = selected || hovered;
-  const iconSize = 28;
-  const iconX = x + 14;
-  const iconY = y + (h - iconSize) / 2;
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`Ask MIA about ${action.label}`}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{`${action.label}: ${action.detail}`}</title>
-      <rect x={x - 4} y={y - 3} width={w + 8} height={h + 6} fill="transparent" pointerEvents="all" />
-      <path
-        d={cutRectPath(x, y, w, h, 8)}
-        fill={selected ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.58)'}
-        stroke={lit ? color : 'transparent'}
-        strokeWidth={selected ? 1.25 : hovered ? 1.05 : 0}
-        filter={lit ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <image
-        href={action.iconAssetUrl}
-        x={iconX}
-        y={iconY}
-        width={iconSize}
-        height={iconSize}
-        preserveAspectRatio="xMidYMid meet"
-        pointerEvents="none"
-        filter={lit ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <text x={x + 56} y={y + h / 2 + 5} fontSize={13.4} fontWeight={950} fill={cfg.colors.bodyText}>
-        {truncateTextForWidth(action.label.toUpperCase(), w - 70, 13.4, 0.58)}
-      </text>
-    </g>
-  );
-}
-
-function AssistantHistoryPanelContent({ x, y, w, h, selectedActionId, cfg }) {
-  const rowGap = 8;
-  const rowH = 66;
-  return (
-    <g role="group" aria-label="Assistant chat history">
-      {ASSISTANT_QUICK_ACTIONS.map((action, index) => {
-        const rowY = y + index * (rowH + rowGap);
-        if (rowY + rowH > y + h) return null;
-        return (
-          <AssistantHistoryFolder
-            key={action.id}
-            x={x}
-            y={rowY}
-            w={w}
-            h={rowH}
-            action={action}
-            active={action.id === selectedActionId}
-            cfg={cfg}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-function AssistantHistoryFolder({ x, y, w, h, action, active, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  const color = toneColor(action.tone, cfg);
-  const threadLabel = active ? 'Current chat' : 'No saved thread yet';
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`${action.label} history`}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{`${action.label} history`}</title>
-      <rect
-        x={x}
-        y={y}
-        width={w}
-        height={h}
-        rx={8}
-        fill={active ? colorAlpha(color, '34') : hovered ? colorAlpha(color, '1f') : 'rgba(2, 12, 20, 0.68)'}
-        stroke={active || hovered ? color : cfg.colors.panelStroke}
-        strokeWidth={active ? 1.15 : 0.9}
-      />
-      <path
-        d={`M ${x + 14} ${y + 22} H ${x + 25} L ${x + 31} ${y + 16} H ${x + 48} Q ${x + 53} ${y + 16} ${x + 53} ${y + 21} V ${y + 45} Q ${x + 53} ${y + 50} ${x + 48} ${y + 50} H ${x + 14} Q ${x + 9} ${y + 50} ${x + 9} ${y + 45} V ${y + 27} Q ${x + 9} ${y + 22} ${x + 14} ${y + 22} Z`}
-        fill={colorAlpha(color, active ? '34' : '18')}
-        stroke={active || hovered ? color : cfg.colors.panelStroke}
-        strokeWidth={0.85}
-      />
-      <text x={x + 66} y={y + 27} fontSize={13} fontWeight={940} fill={cfg.colors.bodyText}>
-        {truncateTextForWidth(action.label.toUpperCase(), w - 82, 13, 0.58)}
-      </text>
-      <text
-        x={x + 66}
-        y={y + 48}
-        fontSize={10.5}
-        fontWeight={760}
-        fill={active ? cfg.colors.bodyText : cfg.colors.mutedText}
-      >
-        {truncateTextForWidth(threadLabel, w - 82, 10.5, 0.58)}
+        {truncateTextForWidth(label.toUpperCase(), w - 16, 10.8, 0.58)}
       </text>
     </g>
   );
@@ -3703,13 +3843,7 @@ type ManageControlSpec = {
 };
 
 type ManageLaneId = 'portal' | 'childPolicy' | 'deviceOps';
-type ManageScopeId = 'global' | 'perDevice';
-
-type ManageTargetSelection = {
-  readonly scope: ManageScopeId;
-  readonly device: string;
-  readonly browser: string;
-};
+type ManageScopeId = ManageTargetSelection['scope'];
 
 type ManageTargetChoice = {
   readonly label: string;
@@ -3753,78 +3887,11 @@ const MANAGE_LANES: readonly {
   { id: 'deviceOps', label: 'DEVICE', detail: '', tone: 'purple' },
 ];
 
-const MANAGE_ROUTE_KEYS = new Set([
-  'activity',
-  'browser-settings',
-  'policy-apps',
-  'policy-games',
-  'policy-screen',
-  'policy-network',
-  'policy-tracking',
-  'policy-remote-screen',
-  'rule-management',
-  'schedules',
-  'approvals',
-  'enforcement',
-  'screen-analysis',
-  'app-game-sessions',
-  'network-activity',
-  'memory-settings',
-  'ai-runtime',
-  'api-providers',
-  'remote-access',
-  'subscription',
-  'platforms-install',
-  'devices',
-  'lan-pairing',
-  'capability-status',
-  'notifications',
-  'notification-channels',
-  'drive-connections',
-  'export-retention',
-  'report-compiler',
-  'audit-history',
-  'entitlements',
-  'install-updates',
-  'diagnostics',
-  'settings-rules',
-]);
-
-const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
-  'devices',
-  'lan-pairing',
-  'capability-status',
-  'remote-access',
-  'platforms-install',
-  'install-updates',
-]);
-
-const MANAGE_CHILD_POLICY_ROUTE_KEYS = new Set([
-  'activity',
-  'browser-settings',
-  'policy-apps',
-  'policy-games',
-  'policy-screen',
-  'policy-network',
-  'policy-tracking',
-  'policy-remote-screen',
-  'rule-management',
-  'schedules',
-  'approvals',
-  'enforcement',
-  'screen-analysis',
-  'app-game-sessions',
-  'network-activity',
-  'report-compiler',
-  'ai-runtime',
-  'memory-settings',
-]);
-
-function manageLaneForRouteKey(routeKey: string): ManageLaneId | null {
-  if (MANAGE_DEVICE_OPS_ROUTE_KEYS.has(routeKey)) return 'deviceOps';
-  if (MANAGE_CHILD_POLICY_ROUTE_KEYS.has(routeKey)) return 'childPolicy';
-  if (MANAGE_ROUTE_KEYS.has(routeKey)) return 'portal';
-  return null;
+function manageLaneForRoutePath(routePath: string | undefined): ManageLaneId | null {
+  if (typeof routePath !== 'string') return null;
+  const route = portalRouteFromHashPath(routePath);
+  if (route === null) return null;
+  return parentPortalManageLaneForRoute(route);
 }
 
 function guideRoutePathForManageKey(activeNavLabel: string, selectedControlName: string): string {
@@ -3949,7 +4016,6 @@ function manageLaneForKey(activeNavLabel: string, selectedControlName: string): 
     key.includes('platform') ||
     key.includes('update') ||
     key.includes('install') ||
-    key.includes('device-pairing') ||
     key.includes('devices')
   ) {
     return 'deviceOps';
@@ -3958,7 +4024,7 @@ function manageLaneForKey(activeNavLabel: string, selectedControlName: string): 
 }
 
 function manageLaneForControl(control: ControlArea | QuickControl): ManageLaneId {
-  const routeLane = manageLaneForRouteKey(assetKey(control.routePath));
+  const routeLane = manageLaneForRoutePath(control.routePath);
   if (routeLane) return routeLane;
   return manageLaneForKey(
     control.name,
@@ -4044,7 +4110,9 @@ function uniqueManageDeviceChoices(choices: readonly string[]): readonly string[
 }
 
 function manageDefaultDeviceSelection(spec: ManageControlSpec, runtimeSlots: readonly DeviceSlot[] = []): string {
-  return manageDeviceChoices(spec.devices, runtimeSlots)[0] ?? '';
+  void spec;
+  void runtimeSlots;
+  return '';
 }
 
 function manageInitialScopeForSpec(
@@ -4093,12 +4161,67 @@ function reportPlanSeatSlots(planSeatLimit: number): DeviceSlot[] {
   return slots;
 }
 
-function reportSelectedSlotValue(slots: readonly DeviceSlot[], device: string): string | undefined {
-  return slots.find((slot) => slot.label === device || slot.device?.name === device)?.value;
+function reportSelectedSlot(slots: readonly DeviceSlot[], selection: ManageTargetSelection): DeviceSlot | undefined {
+  return slots.find((slot) => slotMatchesManageTargetSelection(slot, selection));
 }
 
-function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], device: string): boolean {
-  return Boolean(reportSelectedSlotValue(slots, device));
+function selectedDeviceIdentity(slot: DeviceSlot | null | undefined): string {
+  return slot?.device?.name ?? slot?.label ?? '';
+}
+
+function reportSelectedSlotValue(slots: readonly DeviceSlot[], selection: ManageTargetSelection): string | undefined {
+  return reportSelectedSlot(slots, selection)?.value;
+}
+
+function storedManageTargetSelectionSlot(
+  slots: readonly DeviceSlot[],
+  selection: ManageTargetSelection
+): DeviceSlot | null {
+  if (selection.scope !== 'perDevice' || reportSelectedSlot(slots, selection)) return null;
+  const deviceId = selection.deviceId.trim();
+  const deviceLabel = selection.device.trim();
+  if (deviceId.length === 0 && deviceLabel.length === 0) return null;
+  const slotValue =
+    deviceId.length > 0 ? deviceId : `stored-manage-target-${assetKey(deviceLabel) || slots.length + 1}`;
+  const deviceName = deviceLabel.length > 0 ? deviceLabel : deviceId;
+  return {
+    value: slotValue,
+    label: deviceName,
+    status: 'offline',
+    slotIndex: slots.length,
+    device: {
+      id: slotValue,
+      name: deviceName,
+      status: 'offline',
+      portalEligible: true,
+    },
+  };
+}
+
+function withStoredManageTargetSelectionSlot(
+  slots: readonly DeviceSlot[],
+  selection: ManageTargetSelection
+): readonly DeviceSlot[] {
+  const storedSlot = storedManageTargetSelectionSlot(slots, selection);
+  return storedSlot ? [...slots, storedSlot] : slots;
+}
+
+function slotMatchesManageTargetSelection(slot: DeviceSlot, selection: ManageTargetSelection): boolean {
+  return (
+    (selection.deviceId.length > 0 && slot.value === selection.deviceId) ||
+    (selection.device.length > 0 && (slot.label === selection.device || slot.device?.name === selection.device))
+  );
+}
+
+function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], selection: ManageTargetSelection): boolean {
+  return Boolean(reportSelectedSlot(slots, selection));
+}
+
+function selectedManageTargetSelectionForSlot(
+  selection: ManageTargetSelection,
+  slot: DeviceSlot | null | undefined
+): ManageTargetSelection {
+  return withManageTargetSelectionDevice(selection, slot?.value ?? '', selectedDeviceIdentity(slot));
 }
 
 type ManageDeviceGridConfigOverride = NonNullable<DeviceChoiceGridProps['config']>;
@@ -4205,8 +4328,6 @@ const ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS = Math.max(1, LAN_PAIRING_BASIC_P
 const ACTIVITY_REPORT_MAX_CHILD_DEVICE_SEATS = 10;
 const ACTIVITY_REPORT_SELECTOR_BASE_H = 146;
 const ACTIVITY_REPORT_SELECTOR_ROW_H = MANAGE_DEVICE_GRID_CELL_H + MANAGE_DEVICE_GRID_GAP_Y;
-const LAN_PAIRING_SCAN_ICON_HREF = '/images/scan.png';
-const LAN_PAIRING_HEADER_TITLE = 'Local Area Network';
 
 type LanPairingDetailTabId = 'info' | 'pair' | 'update' | 'capability';
 
@@ -4360,10 +4481,14 @@ function lanPairingDeviceSource(slot: DeviceSlot): string {
 
 function lanPairingDeviceControlState(slot: DeviceSlot): string {
   const state = slot.device?.sourceState || slot.badge || slot.status;
-  if (lanPairingDeviceIsInfrastructure(slot) || slot.status === 'unsupported') return 'Visible only';
+  if (lanPairingDeviceIsInfrastructure(slot)) return 'Visible only';
+  if (state === 'ignored') return 'Ignored';
+  if (state === 'revoked') return 'Revoked';
   if (state === 'manual-required') return 'Manual required';
+  if (state === 'stale') return 'Stale';
   if (state === 'unavailable' || state === 'degraded') return lanPairingHumanLabel(state);
-  if (slot.status === 'offline') return 'Offline';
+  if (slot.status === 'offline' || state === 'offline') return 'Offline';
+  if (slot.status === 'unsupported') return 'Visible only';
   if (slot.status === 'connected' && lanPairingDeviceHasAgent(slot)) return 'Policy target';
   if (lanPairingDeviceHasAgent(slot)) return 'Setup needed';
   return 'Visible only';
@@ -4570,7 +4695,7 @@ function LanPairingDeviceEditDialog({
   const fieldStyle: CSSProperties = {
     width: '100%',
     boxSizing: 'border-box',
-    background: 'rgba(3, 20, 33, 0.96)',
+    background: PARENT_PORTAL_GLASS.dialogFill,
     border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
     borderRadius: 6,
     color: cfg.colors.bodyText,
@@ -4588,7 +4713,7 @@ function LanPairingDeviceEditDialog({
         y={overlayY}
         width={overlayW}
         height={overlayH}
-        fill="rgba(0, 6, 12, 0.48)"
+        fill={PARENT_PORTAL_GLASS.dialogScrim}
         rx={12}
         onClick={(event) => {
           event.stopPropagation();
@@ -4604,14 +4729,16 @@ function LanPairingDeviceEditDialog({
             width: '100%',
             height: '100%',
             boxSizing: 'border-box',
-            background: 'linear-gradient(180deg, rgba(4, 26, 44, 0.98), rgba(2, 13, 25, 0.98))',
+            background: `linear-gradient(180deg, ${PARENT_PORTAL_GLASS.dialogFillStrongTop}, ${PARENT_PORTAL_GLASS.dialogFillStrongBottom})`,
             border: `1px solid ${borderColor}`,
             borderRadius: 8,
-            boxShadow: `0 0 22px ${colorAlpha(borderColor, '66')}`,
+            boxShadow: `0 16px 42px rgba(0, 0, 0, 0.42), 0 0 22px ${colorAlpha(borderColor, '44')}`,
             color: cfg.colors.bodyText,
             fontFamily: dialogFontFamily,
             padding: '14px 16px 16px',
             position: 'relative',
+            WebkitBackdropFilter: 'blur(10px)',
+            backdropFilter: 'blur(10px)',
           }}
         >
           <button
@@ -4626,7 +4753,7 @@ function LanPairingDeviceEditDialog({
               height: 24,
               border: `1px solid ${colorAlpha(borderColor, 'AA')}`,
               borderRadius: 6,
-              background: 'rgba(2, 12, 22, 0.9)',
+              background: PARENT_PORTAL_GLASS.panelFillStrong,
               color: cfg.colors.bodyText,
               cursor: 'pointer',
               fontFamily: dialogFontFamily,
@@ -4679,7 +4806,7 @@ function LanPairingDeviceEditDialog({
               onChange={(event) => onDeviceKindChange(event.currentTarget.value as DeviceKind)}
               style={fieldStyle}
             >
-              {LAN_HOUSEHOLD_DEVICE_KIND_VALUES.map((kind) => (
+              {PortalAgentLanHouseholdDeviceKindValues.map((kind) => (
                 <option key={`lan-device-kind:${kind}`} value={kind}>
                   {lanPairingDeviceKindOptionLabel(kind)}
                 </option>
@@ -4691,7 +4818,7 @@ function LanPairingDeviceEditDialog({
               type="button"
               onClick={onClose}
               style={{
-                background: 'rgba(2, 12, 22, 0.9)',
+                background: PARENT_PORTAL_GLASS.panelFillStrong,
                 border: `1px solid ${colorAlpha(cfg.colors.panelStroke, 'AA')}`,
                 borderRadius: 6,
                 color: cfg.colors.mutedText,
@@ -4742,21 +4869,21 @@ function lanPairingActionButtonsFor(slot: DeviceSlot | null): readonly LanPairin
       'Trust',
       'cyan',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Trust)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Trust)
     ),
     lanPairingActionButton(
       'ignore',
       'Ignore',
       'gold',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Ignore)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Ignore)
     ),
     lanPairingActionButton(
       'restore',
       'Restore',
       'purple',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Restore)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Restore)
     ),
     lanPairingActionButton(
       'revoke',
@@ -4802,12 +4929,12 @@ function lanPairingAddDeviceCommandPayload(slot: DeviceSlot | null): Record<stri
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   const origin = typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin;
   return {
-    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
-    [AgentProtocolDefaults.Field.LanParentDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
-    [AgentProtocolDefaults.Field.Origin]: origin,
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.StaleAt]: expiresAt,
+    [PortalAgentProtocolField.LanChildDeviceId]: childDeviceId,
+    [PortalAgentProtocolField.LanParentDeviceId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanRouteId]: routeId,
+    [PortalAgentProtocolField.Origin]: origin,
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.StaleAt]: expiresAt,
   };
 }
 
@@ -4826,27 +4953,27 @@ function lanPairingHouseholdActionCommandPayload(
   const canonicalDeviceId = slot.device?.id || slot.value;
   if (override.requiresRoute !== false && !basePayload) return null;
   if (!canonicalDeviceId) return null;
-  const issuedAt = basePayload?.[AgentProtocolDefaults.Field.StartedAt] ?? new Date().toISOString();
+  const issuedAt = basePayload?.[PortalAgentProtocolField.StartedAt] ?? new Date().toISOString();
   const payload: Record<string, string> = {
     ...(basePayload ?? {}),
-    [AgentProtocolDefaults.Field.Origin]:
-      basePayload?.[AgentProtocolDefaults.Field.Origin] ??
+    [PortalAgentProtocolField.Origin]:
+      basePayload?.[PortalAgentProtocolField.Origin] ??
       (typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin),
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanHouseholdActionKind]: actionKind,
-    [AgentProtocolDefaults.Field.LanCanonicalDeviceId]: canonicalDeviceId,
-    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
+    [PortalAgentProtocolField.LanHouseholdActionKind]: actionKind,
+    [PortalAgentProtocolField.LanCanonicalDeviceId]: canonicalDeviceId,
+    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
   };
   if (slot.device?.childProfileId) {
-    payload[AgentProtocolDefaults.Field.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
+    payload[PortalAgentProtocolField.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
   }
   if (override.deviceKind) {
-    payload[LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD] = override.deviceKind;
+    payload[PortalAgentLanHouseholdActionDeviceKindField] = override.deviceKind;
   }
-  if (actionKind === AgentProtocolDefaults.LanHouseholdActionKind.Ignore) {
-    payload[AgentProtocolDefaults.Field.LanHouseholdActionRevokedAt] = issuedAt;
+  if (actionKind === PortalAgentLanHouseholdActionKind.Ignore) {
+    payload[PortalAgentProtocolField.LanHouseholdActionRevokedAt] = issuedAt;
   }
   return payload;
 }
@@ -4862,21 +4989,21 @@ function lanPairingRouteIntentCommandPayload(slot: DeviceSlot | null): Record<st
   const staleAt = slot.device?.expiresAt || new Date(Date.now() + 5 * 60 * 1000).toISOString();
   const leaseExpiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   return {
-    [AgentProtocolDefaults.Field.LanIntentId]: `lan-ui-intent-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanIntentKind]: AgentProtocolDefaults.LanIntentKind.ConfigurationUpdate,
-    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
-    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
-    [AgentProtocolDefaults.Field.LanPairingId]: pairingId,
-    [AgentProtocolDefaults.Field.LanProofDigest]: proofDigest,
-    [AgentProtocolDefaults.Field.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.StaleAt]: staleAt,
-    [AgentProtocolDefaults.Field.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanControllerDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanParentAuthority]: AgentProtocolDefaults.LanParentAuthority.ActiveController,
-    [AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]: leaseExpiresAt,
+    [PortalAgentProtocolField.LanIntentId]: `lan-ui-intent-${Date.now()}`,
+    [PortalAgentProtocolField.LanIntentKind]: PortalAgentLanIntentKind.ConfigurationUpdate,
+    [PortalAgentProtocolField.LanChildDeviceId]: childDeviceId,
+    [PortalAgentProtocolField.LanRouteId]: routeId,
+    [PortalAgentProtocolField.LanPairingId]: pairingId,
+    [PortalAgentProtocolField.LanProofDigest]: proofDigest,
+    [PortalAgentProtocolField.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.StaleAt]: staleAt,
+    [PortalAgentProtocolField.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
+    [PortalAgentProtocolField.LanControllerDeviceId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanParentAuthority]: PortalAgentLanParentAuthority.ActiveController,
+    [PortalAgentProtocolField.LanControllerLeaseIssuedAt]: issuedAt,
+    [PortalAgentProtocolField.LanControllerLeaseExpiresAt]: leaseExpiresAt,
   };
 }
 
@@ -5764,7 +5891,6 @@ function ParentPortalAppGameDashboardPanel({
   const compact = w < 860;
   const headerH = 72;
   const bodyY = y + headerH;
-  const bodyH = Math.max(1, h - headerH);
   const metricColumns = w > 1220 ? 5 : w > 900 ? 4 : 2;
   const metricRows = Math.ceil(Math.min(dashboard.metrics.length, compact ? 6 : 10) / metricColumns);
   const metricGap = 8;
@@ -5783,7 +5909,7 @@ function ParentPortalAppGameDashboardPanel({
   const visibleRowCount = Math.max(1, Math.floor(Math.max(1, lowerH - 32) / (rowCardH + rowGap)) * rowsColumns);
   const visibleRows = dashboard.rows.slice(0, visibleRowCount);
   const sideX = x + rowsW + 14;
-  const sidePanelH = compact ? 0 : (lowerH - 10) / 2;
+  const sidePanelH = compact ? 0 : (lowerH - 20) / 3;
   const summaryLines = wrapCardText(dashboard.summary, w - 24, 12, 2);
 
   return (
@@ -5864,6 +5990,15 @@ function ParentPortalAppGameDashboardPanel({
             y={lowerY + sidePanelH + 10}
             w={sideW}
             h={sidePanelH}
+            title="SOURCE FRESHNESS"
+            rows={appGameSourcePanelMetrics(dashboard.sourcePanelSections)}
+            cfg={cfg}
+          />
+          <ParentPortalAppGameDashboardMetricList
+            x={sideX}
+            y={lowerY + (sidePanelH + 10) * 2}
+            w={sideW}
+            h={sidePanelH}
             title="EVIDENCE DRAWER"
             rows={dashboard.evidenceRows}
             cfg={cfg}
@@ -5872,6 +6007,23 @@ function ParentPortalAppGameDashboardPanel({
       )}
     </g>
   );
+}
+
+function appGameSourcePanelMetrics(
+  sections: readonly ParentPortalAppGameSourcePanelSection[]
+): readonly ParentPortalAppGameDashboardMetric[] {
+  return sections.flatMap((section) => [
+    {
+      label: section.title,
+      value: section.subtitle,
+      tone: section.tone,
+    },
+    {
+      label: `${section.title} evidence`,
+      value: `${section.evidenceCount} refs; ${section.manualRequiredCount} manual-required`,
+      tone: section.evidenceCount > 0 ? 'cyan' : 'gold',
+    },
+  ]);
 }
 
 function ParentPortalAppGameDashboardMetricCard({
@@ -6326,40 +6478,6 @@ function manageControlSpecFor(activeNavLabel: string, selectedControlName: strin
         { label: 'Start pairing', detail: 'Begin a trusted local pairing challenge.', tone: 'gold' },
         { label: 'Select child', detail: 'Make this device the active control target.', tone: 'cyan' },
         { label: 'Revoke trust', detail: 'Stop accepting control intents from this device.', tone: 'red' },
-      ],
-      status: baseStatus,
-    };
-  }
-
-  if (key.includes('device')) {
-    return {
-      title: 'Devices',
-      devices,
-      modes: [
-        { label: 'Selected', detail: 'Use this device as the active target.', tone: 'cyan' },
-        { label: 'Pair', detail: 'Add a child device.', tone: 'gold' },
-        { label: 'Suspend', detail: 'Stop sending commands to this device.', tone: 'red' },
-      ],
-      options: [
-        { label: 'Show offline', detail: 'Keep stale devices visible but marked.', enabled: true, tone: 'cyan' },
-        {
-          label: 'Per-device overrides',
-          detail: 'Allow this child to differ from family defaults.',
-          enabled: true,
-          tone: 'gold',
-        },
-        {
-          label: 'Require parent session',
-          detail: 'Protect device changes behind parent login.',
-          enabled: true,
-          tone: 'red',
-        },
-        { label: 'Capability badges', detail: 'Show supported, degraded, unavailable.', enabled: true, tone: 'purple' },
-      ],
-      actions: [
-        { label: 'Pair device', detail: 'Start local pairing.', tone: 'gold' },
-        { label: 'Set active', detail: 'Use selected child for controls.', tone: 'cyan' },
-        { label: 'Open capability', detail: 'Review what this device supports.', tone: 'purple' },
       ],
       status: baseStatus,
     };
@@ -7101,6 +7219,12 @@ function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: strin
 }
 
 function manageWorkspaceTargetOptions(kind: ManageWorkspaceKind): readonly ManageWorkspaceTargetOption[] {
+  if (kind === 'account') {
+    return [
+      { id: 'family', label: 'Family', detail: 'Family plan, support, and gate defaults.', tone: 'cyan' },
+      { id: 'perDevice', label: 'Per Device', detail: 'Child seat, entitlement, and support scope.', tone: 'gold' },
+    ];
+  }
   if (kind === 'policy') {
     return [
       { id: 'family', label: 'Family', detail: 'Family default policy.', tone: 'cyan' },
@@ -7129,6 +7253,17 @@ function manageWorkspaceTargetLabel(target: ManageWorkspaceTarget): string {
   return 'Family';
 }
 
+function sharedWorkspaceTargetForOptions(
+  targetOptions: readonly ManageWorkspaceTargetOption[],
+  sharedTargetSelection: ManageTargetSelection
+): ManageWorkspaceTarget {
+  const defaultTarget = targetOptions[0]?.id ?? 'family';
+  if (!targetOptions.some((option) => option.id === 'perDevice')) {
+    return defaultTarget;
+  }
+  return sharedTargetSelection.scope === 'perDevice' ? 'perDevice' : defaultTarget;
+}
+
 function manageWorkspaceSummary(
   kind: ManageWorkspaceKind,
   activeTab: string,
@@ -7144,9 +7279,10 @@ function manageWorkspaceSummary(
     return 'Parent profile defaults, privacy posture, login protection, and console preferences.';
   }
   if (kind === 'account') {
-    if (activeTab === 'access') return 'Entitlements, grace mode, seat limits, and feature gates.';
-    if (activeTab === 'support') return 'Send a parent-authored support message from this screen.';
-    return 'Trial, plan cards, device seats, external AI credits, and upgrade/downgrade intent.';
+    const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
+    if (activeTab === 'access') return `Review ${target} entitlements, grace mode, seat limits, and feature gates.`;
+    if (activeTab === 'support') return `Send a parent-authored support message for the ${target} account scope.`;
+    return `Review ${target} trial posture, plan cards, device seats, external AI credits, and upgrade intent.`;
   }
   if (kind === 'data') {
     const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
@@ -7820,7 +7956,7 @@ function manageWorkspaceCards(
       {
         label: 'Scope',
         value: 'View only',
-        body: 'Remote input/control remains a separate later capability, not part of the live-view stub.',
+        body: 'Remote input/control remains a separate later capability, not part of the live-view display boundary.',
         tone: 'purple',
       },
     ];
@@ -7912,7 +8048,7 @@ function manageWorkspaceCards(
       {
         label: 'Fallback',
         value: 'Explain',
-        body: 'Unsupported enforcement should become visible advice, not fake success.',
+        body: 'Unsupported enforcement should become visible advice, not an unverified success claim.',
         tone: 'purple',
       },
     ];
@@ -8795,7 +8931,7 @@ function managePolicySettingRows(
       },
       {
         label: 'Unavailable adapter',
-        value: 'No fake success',
+        value: 'No adapter success claim',
         body: 'Adapter-unavailable states remain visible and cannot be hidden by portal UI.',
         tone: 'red',
       },
@@ -8911,7 +9047,7 @@ function ManageSupportContactForm({
     <g>
       <path
         d={cutRectPath(x, y, w, h, 10)}
-        fill="rgba(3, 17, 31, 0.9)"
+        fill="rgba(3, 17, 31, 0.72)"
         stroke={color}
         strokeWidth={1.05}
         opacity={0.98}
@@ -8946,7 +9082,7 @@ function ManageSupportContactForm({
 
       <path
         d={cutRectPath(x + pad, composerY, w - pad * 2, composerH, 8)}
-        fill="rgba(4, 20, 35, 0.86)"
+        fill={PARENT_PORTAL_GLASS.controlFill}
         stroke={cyan}
         strokeWidth={0.86}
         opacity={0.94}
@@ -8984,7 +9120,7 @@ function ManageSupportContactForm({
         width={w - pad * 2}
         height={messageH}
         rx={5}
-        fill="rgba(2, 13, 24, 0.82)"
+        fill="rgba(2, 13, 24, 0.66)"
         stroke={color}
         strokeWidth={0.78}
         opacity={0.95}
@@ -9019,7 +9155,7 @@ function ManageSupportContactForm({
         width={actionW}
         height={28}
         rx={4}
-        fill="rgba(3, 18, 32, 0.9)"
+        fill="rgba(3, 18, 32, 0.72)"
         stroke={gold}
         strokeWidth={0.9}
       />
@@ -9084,6 +9220,14 @@ const POLICY_FIRST_PASS_COMMON_OPTIONS = {
 } as const;
 
 const POLICY_FIRST_PASS_AREA_TARGETS = {
+  Browser: [
+    { value: 'site-domain', label: 'Site domain' },
+    { value: 'page-title', label: 'Page title' },
+    { value: 'navigation-route', label: 'Navigation route' },
+    { value: 'tab-session', label: 'Tab/session' },
+    { value: 'download-target', label: 'Download target' },
+    { value: 'unknown-site', label: 'Unknown site' },
+  ],
   Apps: [
     { value: 'installed-apps', label: 'Installed apps' },
     { value: 'running-processes', label: 'Running processes' },
@@ -9135,6 +9279,13 @@ const POLICY_FIRST_PASS_AREA_TARGETS = {
 } as const satisfies Record<string, readonly BrowserRulesChoiceOption[]>;
 
 const POLICY_FIRST_PASS_AREA_PROOF = {
+  Browser: [
+    { value: 'url-title', label: 'URL/title' },
+    { value: 'history-row', label: 'History row' },
+    { value: 'page-snapshot', label: 'Page snapshot' },
+    { value: 'network-trace', label: 'Network trace' },
+    { value: 'block-signal', label: 'Block signal' },
+  ],
   Apps: [
     { value: 'process-window', label: 'Process + window' },
     { value: 'install-records', label: 'Install records' },
@@ -9386,71 +9537,67 @@ function BrowserRulesGridGuide({
   onEnforcementChange: (value: string) => void;
   onInfoClick?: () => void;
 }) {
+  const questionDefinitions = useMemo(() => policyFirstPassRuleQuestions('Browser'), []);
   const [collapsedBubbleIds, setCollapsedBubbleIds] = useState<readonly string[]>([]);
   const [bubbleEnforcementChoices, setBubbleEnforcementChoices] = useState<Record<string, string>>({});
-  const [draftSingleChoices, setDraftSingleChoices] = useState<Record<string, string>>({});
-  const [draftMultiSelections, setDraftMultiSelections] = useState<Record<string, readonly string[]>>({});
-  const answers: BrowserPolicyAnswerMap = useMemo(() => {
-    const merged: Record<string, readonly string[]> = { ...BrowserPolicyDefaultAnswers };
+  const [singleChoices, setSingleChoices] = useState<Record<string, string>>({ 1: 'on', 5: 'ask-parent' });
+  const [multiSelections, setMultiSelections] = useState<Record<string, readonly string[]>>({
+    2: ['observe', 'ask-parent', 'limit', 'block'],
+    3: questionDefinitions[2]?.options.slice(0, 3).map((option) => option.value) ?? [],
+    4: questionDefinitions[3]?.options.slice(0, 2).map((option) => option.value) ?? [],
+  });
 
-    Object.entries(draftSingleChoices).forEach(([questionId, value]) => {
-      if (value.length > 0) merged[questionId] = [value];
+  useEffect(() => {
+    setCollapsedBubbleIds([]);
+    setBubbleEnforcementChoices({});
+    setSingleChoices({ 1: 'on', 5: 'ask-parent' });
+    setMultiSelections({
+      2: ['observe', 'ask-parent', 'limit', 'block'],
+      3: questionDefinitions[2]?.options.slice(0, 3).map((option) => option.value) ?? [],
+      4: questionDefinitions[3]?.options.slice(0, 2).map((option) => option.value) ?? [],
     });
-    Object.entries(draftMultiSelections).forEach(([questionId, selected]) => {
-      if (selected.length > 0) merged[questionId] = selected;
-    });
+  }, [questionDefinitions]);
 
-    return merged as BrowserPolicyAnswerMap;
-  }, [draftMultiSelections, draftSingleChoices]);
-  const visibleQuestions = browserPolicyVisibleQuestions(answers, 'rules');
-  const toggleCollapsedBubble = (id: string, collapsed: boolean) => {
-    setCollapsedBubbleIds((current) => {
-      const hasId = current.includes(id);
-      if (collapsed && !hasId) return [...current, id];
-      if (!collapsed && hasId) return current.filter((currentId) => currentId !== id);
-      return current;
-    });
-  };
-  const setQuestionEnforcementChoice = (id: string, nextValue: string) => {
-    setBubbleEnforcementChoices((current) => ({ ...current, [id]: nextValue }));
-    onEnforcementChange(nextValue);
-  };
-  const setQuestionAnswer = (id: string, multiSelect: boolean, selected: readonly string[]) => {
-    if (multiSelect) {
-      setDraftMultiSelections((current) => ({ ...current, [id]: selected }));
-      return;
-    }
-
-    setDraftSingleChoices((current) => ({ ...current, [id]: selected[0] ?? '' }));
-    if (id === '1.1') {
-      setCollapsedBubbleIds([]);
-    }
-  };
-  const questions: readonly BrowserRulesQuestion[] = visibleQuestions.map((question) => {
-    const state = browserPolicyQuestionState(question, answers);
-    const selected = answers[question.id] ?? [];
+  const policyOff = singleChoices[1] === 'off';
+  const questions: readonly BrowserRulesQuestion[] = questionDefinitions.map((question) => {
     const multiSelect = question.selectionMode === 'multi';
-    const questionDisabled = disabled === true || state.disabled || state.readonly;
-    const rootOff = answers['1.1']?.[0] === 'off';
+    const selected = multiSelect ? (multiSelections[question.id] ?? []) : [singleChoices[question.id] ?? ''];
+    const questionDisabled = disabled === true || (policyOff && question.id !== '1');
     return {
       id: question.id,
       header: `${question.id}. ${question.title}`,
       title: question.id,
       kind: 'multi',
       disabled: questionDisabled,
-      enforcementDisabled: question.id === '1.1' ? rootOff : questionDisabled,
+      enforcementDisabled: question.id === '1' ? policyOff : questionDisabled,
       multiSelect,
       selected,
-      options: question.options.map((option) => ({
-        value: option.id,
-        label: option.label,
-      })),
+      options: question.options,
       collapsed: collapsedBubbleIds.includes(question.id),
-      onCollapsedChange: (nextCollapsed) => toggleCollapsedBubble(question.id, nextCollapsed),
-      onMultiChange: (nextSelected) => setQuestionAnswer(question.id, multiSelect, nextSelected),
+      onCollapsedChange: (nextCollapsed) => {
+        setCollapsedBubbleIds((current) => {
+          const hasId = current.includes(question.id);
+          if (nextCollapsed && !hasId) return [...current, question.id];
+          if (!nextCollapsed && hasId) return current.filter((currentId) => currentId !== question.id);
+          return current;
+        });
+      },
+      onMultiChange: (nextSelected) => {
+        if (multiSelect) {
+          setMultiSelections((current) => ({ ...current, [question.id]: nextSelected }));
+          return;
+        }
+        setSingleChoices((current) => ({ ...current, [question.id]: nextSelected[0] ?? '' }));
+        if (question.id === '1') {
+          setCollapsedBubbleIds([]);
+        }
+      },
       enforcementValue:
-        question.id === '1.1' && rootOff ? 'observe' : (bubbleEnforcementChoices[question.id] ?? enforcementChoice),
-      onEnforcementChange: (nextValue) => setQuestionEnforcementChoice(question.id, nextValue),
+        question.id === '1' && policyOff ? 'observe' : (bubbleEnforcementChoices[question.id] ?? enforcementChoice),
+      onEnforcementChange: (nextValue) => {
+        setBubbleEnforcementChoices((current) => ({ ...current, [question.id]: nextValue }));
+        onEnforcementChange(nextValue);
+      },
     };
   });
 
@@ -9468,47 +9615,6 @@ function BrowserRulesGridGuide({
   );
 }
 
-const BROWSER_POLICY_SCHEDULE_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-const BROWSER_POLICY_SCHEDULE_HOURS = [
-  '00',
-  '01',
-  '02',
-  '03',
-  '04',
-  '05',
-  '06',
-  '07',
-  '08',
-  '09',
-  '10',
-  '11',
-  '12',
-  '13',
-  '14',
-  '15',
-  '16',
-  '17',
-  '18',
-  '19',
-  '20',
-  '21',
-  '22',
-  '23',
-] as const;
-const BROWSER_POLICY_SCHEDULE_LAYOUT = {
-  boardInset: 8,
-  boardPad: 8,
-  legendHeight: 32,
-  dayLabelWidth: 60,
-  minCellSize: 44,
-  maxFitCellSize: 72,
-  maxZoomedCellSize: 92,
-  scrollBarSize: 16,
-  zoomMin: 0.72,
-  zoomMax: 1.72,
-  zoomStep: 0.16,
-} as const;
-const BROWSER_POLICY_SCHEDULE_MODES = ['Default rules', 'Allow exception', 'Ask parent', 'Limit', 'Block'] as const;
 const BROWSER_POLICY_APPROVAL_ROWS = [
   ['Unknown site', 'Ask', 'Yes', 'Deny', 'Once', 'Full'],
   ['Blocked site', 'Ask', 'Yes', 'Wait', 'Session', 'Full'],
@@ -9604,14 +9710,6 @@ const POLICY_BUDGET_ROWS_BY_AREA = {
   ],
 } as const;
 const BROWSER_POLICY_BUDGET_COLUMNS = ['Budget', 'What counts', 'Cap', 'Schedule link', 'Override'] as const;
-const BROWSER_POLICY_AUDIT_ROWS = [
-  ['Effective policy', 'Family + override', 'Before apply', 'Pass / conflict'],
-  ['Rule vs schedule', 'Action windows', 'Before apply', 'No overlap'],
-  ['Budget proof', 'Cap + evidence path', 'Before apply', 'Timer ready'],
-  ['Approval expiry', 'Ask result fallback', 'On request', 'Typed outcome'],
-  ['Capability state', 'Adapter support', 'Before enforce', 'Ready / unavailable'],
-  ['Audit custody', 'Event refs only', 'After apply', 'Retained'],
-] as const;
 const BROWSER_POLICY_AUDIT_COLUMNS = ['Check', 'Verifies', 'When', 'Result'] as const;
 const BROWSER_POLICY_MATRIX_COLORS = {
   defaultRules: '#37d7ff',
@@ -9739,7 +9837,7 @@ function BrowserPolicyMatrixShell({
         width={w}
         height={h}
         rx={5}
-        fill="rgba(2, 19, 35, 0.88)"
+        fill="rgba(2, 19, 35, 0.72)"
         stroke={cfg.colors.gold}
         strokeWidth={0.9}
       />
@@ -9809,7 +9907,13 @@ function BrowserPolicyBudgetMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         <g transform={`translate(8, ${guideY - 18})`}>
           {[
             ['Family default', 'applies first', cfg.colors.cyan],
@@ -9824,7 +9928,7 @@ function BrowserPolicyBudgetMatrix({
                   width={pillW}
                   height={26}
                   rx={4}
-                  fill="rgba(5, 27, 46, 0.86)"
+                  fill="rgba(5, 27, 46, 0.64)"
                   stroke={item[2]}
                   strokeWidth={0.72}
                   opacity={0.95}
@@ -9920,528 +10024,6 @@ function BrowserPolicyBudgetMatrix({
   );
 }
 
-function BrowserPolicyScheduleMatrix({
-  policyAreaLabel,
-  x,
-  y,
-  w,
-  h,
-  disabled,
-  cfg,
-}: {
-  policyAreaLabel: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  disabled?: boolean;
-  cfg: ParentPortalSvgControls;
-}) {
-  void policyAreaLabel;
-  const [scheduleScrollX, setScheduleScrollX] = useState(0);
-  const [scheduleScrollY, setScheduleScrollY] = useState(0);
-  const [scheduleZoom, setScheduleZoom] = useState(1);
-  const [schedulePanDrag, setSchedulePanDrag] = useState<{
-    readonly clientX: number;
-    readonly clientY: number;
-    readonly scrollX: number;
-    readonly scrollY: number;
-  } | null>(null);
-  const boardX = x + BROWSER_POLICY_SCHEDULE_LAYOUT.boardInset;
-  const boardY = y + 10;
-  const availableBoardW = Math.max(1, w - BROWSER_POLICY_SCHEDULE_LAYOUT.boardInset * 2);
-  const availableBoardH = Math.max(1, h - 20);
-  const boardPad = BROWSER_POLICY_SCHEDULE_LAYOUT.boardPad;
-  const legendH = BROWSER_POLICY_SCHEDULE_LAYOUT.legendHeight;
-  const labelW = BROWSER_POLICY_SCHEDULE_LAYOUT.dayLabelWidth;
-  const scrollBarSize = BROWSER_POLICY_SCHEDULE_LAYOUT.scrollBarSize;
-  const availableBodyW = Math.max(1, availableBoardW - labelW - scrollBarSize - boardPad * 2);
-  const availableBodyH = Math.max(1, availableBoardH - legendH - scrollBarSize - boardPad * 2);
-  const fitCellSize = clampValue(
-    Math.min(
-      availableBodyW / BROWSER_POLICY_SCHEDULE_HOURS.length,
-      availableBodyH / (BROWSER_POLICY_SCHEDULE_DAYS.length + 1)
-    ),
-    BROWSER_POLICY_SCHEDULE_LAYOUT.minCellSize,
-    BROWSER_POLICY_SCHEDULE_LAYOUT.maxFitCellSize
-  );
-  const cellSize = Math.round(
-    clampValue(
-      fitCellSize * scheduleZoom,
-      BROWSER_POLICY_SCHEDULE_LAYOUT.minCellSize,
-      BROWSER_POLICY_SCHEDULE_LAYOUT.maxZoomedCellSize
-    )
-  );
-  const hourContentW = BROWSER_POLICY_SCHEDULE_HOURS.length * cellSize;
-  const dayContentH = BROWSER_POLICY_SCHEDULE_DAYS.length * cellSize;
-  const maxBodyViewportW = Math.max(1, availableBoardW - labelW - scrollBarSize - boardPad * 2);
-  const maxBodyViewportH = Math.max(1, availableBoardH - legendH - cellSize - scrollBarSize - boardPad * 2);
-  const bodyViewportW = Math.min(hourContentW, maxBodyViewportW);
-  const bodyViewportH = Math.min(dayContentH, maxBodyViewportH);
-  const needsScheduleScrollX = hourContentW > bodyViewportW;
-  const needsScheduleScrollY = dayContentH > bodyViewportH;
-  const boardW = Math.min(
-    availableBoardW,
-    labelW + bodyViewportW + (needsScheduleScrollY ? scrollBarSize : 0) + boardPad * 2
-  );
-  const boardH = Math.min(
-    availableBoardH,
-    legendH + cellSize + bodyViewportH + (needsScheduleScrollX ? scrollBarSize : 0) + boardPad * 2
-  );
-  const labelX = boardX + boardPad;
-  const bodyX = labelX + labelW;
-  const headerY = boardY + boardPad + legendH;
-  const bodyY = headerY + cellSize;
-  const scrollTrackY = bodyY + bodyViewportH + 5;
-  const verticalTrackX = bodyX + bodyViewportW + 5;
-  const maxScheduleScrollX = Math.max(0, hourContentW - bodyViewportW);
-  const maxScheduleScrollY = Math.max(0, dayContentH - bodyViewportH);
-  const effectiveScheduleScrollX = clampValue(scheduleScrollX, 0, maxScheduleScrollX);
-  const effectiveScheduleScrollY = clampValue(scheduleScrollY, 0, maxScheduleScrollY);
-  const scrollStep = cellSize * 4;
-  const verticalScrollStep = cellSize * 3;
-  const zoomControlsW = 92;
-  const showZoomControls = boardW >= 520;
-  const legendWidth = boardW - boardPad * 2 - (showZoomControls ? zoomControlsW + 10 : 0);
-  const updateScheduleScrollX = (nextValue: number) => {
-    setScheduleScrollX(clampValue(nextValue, 0, maxScheduleScrollX));
-  };
-  const updateScheduleScrollY = (nextValue: number) => {
-    setScheduleScrollY(clampValue(nextValue, 0, maxScheduleScrollY));
-  };
-  const updateScheduleZoom = (nextValue: number) => {
-    setScheduleZoom(
-      clampValue(nextValue, BROWSER_POLICY_SCHEDULE_LAYOUT.zoomMin, BROWSER_POLICY_SCHEDULE_LAYOUT.zoomMax)
-    );
-  };
-  const scrollThumbW =
-    maxScheduleScrollX > 0 ? Math.max(32, (bodyViewportW / hourContentW) * bodyViewportW) : bodyViewportW;
-  const scrollThumbX =
-    maxScheduleScrollX > 0
-      ? bodyX + (effectiveScheduleScrollX / maxScheduleScrollX) * Math.max(1, bodyViewportW - scrollThumbW)
-      : bodyX;
-  const scrollThumbH =
-    maxScheduleScrollY > 0 ? Math.max(32, (bodyViewportH / dayContentH) * bodyViewportH) : bodyViewportH;
-  const scrollThumbY =
-    maxScheduleScrollY > 0
-      ? bodyY + (effectiveScheduleScrollY / maxScheduleScrollY) * Math.max(1, bodyViewportH - scrollThumbH)
-      : bodyY;
-  const modeColor = (mode: string) =>
-    mode === 'Default rules'
-      ? BROWSER_POLICY_MATRIX_COLORS.defaultRules
-      : mode === 'Allow exception'
-        ? BROWSER_POLICY_MATRIX_COLORS.allow
-        : mode === 'Limit'
-          ? BROWSER_POLICY_MATRIX_COLORS.limit
-          : mode === 'Ask parent'
-            ? BROWSER_POLICY_MATRIX_COLORS.ask
-            : mode === 'Block'
-              ? BROWSER_POLICY_MATRIX_COLORS.block
-              : cfg.colors.mutedText;
-  const modeForCell = (dayIndex: number, timeIndex: number) => {
-    void dayIndex;
-    void timeIndex;
-    return 'Default rules';
-  };
-
-  return (
-    <g
-      opacity={disabled ? 0.46 : 1}
-      onWheel={(event) => {
-        event.preventDefault();
-        if (event.ctrlKey) {
-          updateScheduleZoom(
-            scheduleZoom +
-              (event.deltaY > 0 ? -BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep : BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep)
-          );
-          return;
-        }
-        updateScheduleScrollX(effectiveScheduleScrollX + event.deltaX);
-        updateScheduleScrollY(effectiveScheduleScrollY + event.deltaY);
-      }}
-    >
-      <rect
-        x={boardX}
-        y={boardY}
-        width={boardW}
-        height={boardH}
-        rx={5}
-        fill="rgba(4, 20, 37, 0.9)"
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.9}
-      />
-      <g transform={`translate(${boardX + boardPad}, ${boardY + 6})`}>
-        {BROWSER_POLICY_SCHEDULE_MODES.map((mode, index) => {
-          const color = modeColor(mode);
-          const slotW = Math.max(88, legendWidth / BROWSER_POLICY_SCHEDULE_MODES.length);
-          const square = 10;
-          const textMaxW = Math.max(46, slotW - square - 14);
-          const isDefaultMode = mode === 'Default rules';
-          return (
-            <g key={`browser-policy-schedule-mode:${mode}`} transform={`translate(${index * slotW}, 0)`}>
-              <rect
-                x={2}
-                y={6}
-                width={square}
-                height={square}
-                rx={2}
-                fill={isDefaultMode ? 'rgba(5, 20, 36, 0.62)' : colorAlpha(color, '58')}
-                stroke={isDefaultMode ? cfg.colors.panelStroke : color}
-                strokeWidth={0.85}
-              />
-              <text
-                x={square + 7}
-                y={14.5}
-                fontSize={fitSingleLineTextSize(mode, textMaxW, 7.2, 9.6, 0.55)}
-                fontWeight={840}
-                fill={cfg.colors.bodyText}
-              >
-                {truncateTextForWidth(mode, textMaxW, 9.6, 0.55)}
-              </text>
-            </g>
-          );
-        })}
-      </g>
-      {showZoomControls ? (
-        <g transform={`translate(${boardX + boardW - boardPad - zoomControlsW}, ${boardY + 5})`}>
-          {[
-            [
-              '-',
-              () => updateScheduleZoom(scheduleZoom - BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep),
-              'Zoom schedule out',
-            ],
-            [
-              'FIT',
-              () => {
-                updateScheduleZoom(1);
-                updateScheduleScrollX(0);
-                updateScheduleScrollY(0);
-              },
-              'Fit schedule grid',
-            ],
-            ['+', () => updateScheduleZoom(scheduleZoom + BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep), 'Zoom schedule in'],
-          ].map(([label, onClick, ariaLabel], index) => (
-            <g
-              key={`browser-policy-schedule-zoom:${label}`}
-              role="button"
-              aria-label={ariaLabel}
-              tabIndex={0}
-              onClick={(event) => {
-                event.stopPropagation();
-                onClick();
-              }}
-              onKeyDown={(event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                event.preventDefault();
-                event.stopPropagation();
-                onClick();
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              <rect
-                x={index * 30}
-                y={0}
-                width={index === 1 ? 32 : 24}
-                height={20}
-                rx={5}
-                fill="rgba(5, 21, 38, 0.96)"
-                stroke={cfg.colors.cyan}
-                strokeWidth={0.8}
-              />
-              <text
-                x={index * 30 + (index === 1 ? 16 : 12)}
-                y={13.5}
-                textAnchor="middle"
-                fontSize={index === 1 ? 8.4 : 12}
-                fontWeight={920}
-                fill={cfg.colors.bodyText}
-              >
-                {label}
-              </text>
-            </g>
-          ))}
-        </g>
-      ) : null}
-      <rect
-        x={bodyX}
-        y={headerY}
-        width={bodyViewportW}
-        height={cellSize}
-        fill="rgba(5, 22, 39, 0.94)"
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.7}
-      />
-      <rect
-        x={labelX}
-        y={bodyY}
-        width={labelW}
-        height={bodyViewportH}
-        fill="rgba(5, 22, 39, 0.94)"
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.7}
-      />
-      <rect
-        x={bodyX}
-        y={bodyY}
-        width={bodyViewportW}
-        height={bodyViewportH}
-        fill="rgba(2, 16, 30, 0.86)"
-        stroke={cfg.colors.cyan}
-        strokeWidth={0.75}
-      />
-      <svg x={bodyX} y={headerY} width={bodyViewportW} height={cellSize} overflow="hidden">
-        <g transform={`translate(${-effectiveScheduleScrollX}, 0)`}>
-          {BROWSER_POLICY_SCHEDULE_HOURS.map((hour, index) => (
-            <g key={`browser-policy-schedule-header-cell:${hour}`}>
-              <rect
-                x={index * cellSize + 1}
-                y={1}
-                width={cellSize - 2}
-                height={cellSize - 2}
-                rx={5}
-                fill="rgba(8, 26, 47, 0.9)"
-                stroke={cfg.colors.panelStroke}
-                strokeWidth={0.72}
-              />
-              <text
-                key={`browser-policy-schedule-time:${hour}`}
-                x={index * cellSize + cellSize / 2}
-                y={cellSize / 2 + 4}
-                textAnchor="middle"
-                fontSize={11.5}
-                fontWeight={860}
-                fill={cfg.colors.bodyText}
-              >
-                {hour}
-              </text>
-            </g>
-          ))}
-        </g>
-      </svg>
-      <svg x={labelX} y={bodyY} width={labelW} height={bodyViewportH} overflow="hidden">
-        <g transform={`translate(0, ${-effectiveScheduleScrollY})`}>
-          {BROWSER_POLICY_SCHEDULE_DAYS.map((day, dayIndex) => (
-            <g key={`browser-policy-schedule-day-label:${day}`}>
-              <rect
-                x={2}
-                y={dayIndex * cellSize + 1}
-                width={labelW - 4}
-                height={cellSize - 2}
-                rx={5}
-                fill="rgba(8, 26, 47, 0.82)"
-                stroke={cfg.colors.panelStroke}
-                strokeWidth={0.68}
-              />
-              <text
-                x={labelW / 2}
-                y={dayIndex * cellSize + cellSize / 2 + 4}
-                textAnchor="middle"
-                fontSize={12.2}
-                fontWeight={900}
-                fill={cfg.colors.mutedText}
-              >
-                {day}
-              </text>
-            </g>
-          ))}
-        </g>
-      </svg>
-      <svg x={bodyX} y={bodyY} width={bodyViewportW} height={bodyViewportH} overflow="hidden">
-        <g transform={`translate(${-effectiveScheduleScrollX}, ${-effectiveScheduleScrollY})`}>
-          {BROWSER_POLICY_SCHEDULE_DAYS.map((day, dayIndex) => (
-            <g key={`browser-policy-schedule-day:${day}`}>
-              {BROWSER_POLICY_SCHEDULE_HOURS.map((hour, timeIndex) => {
-                const mode = modeForCell(dayIndex, timeIndex);
-                const color = modeColor(mode);
-                const isDefaultMode = mode === 'Default rules';
-                return (
-                  <g key={`browser-policy-schedule-cell:${day}:${hour}`}>
-                    <rect
-                      x={timeIndex * cellSize + 1}
-                      y={dayIndex * cellSize + 1}
-                      width={cellSize - 2}
-                      height={cellSize - 2}
-                      rx={5}
-                      fill={isDefaultMode ? 'rgba(4, 18, 32, 0.32)' : colorAlpha(color, mode === 'Block' ? '36' : '45')}
-                      stroke={isDefaultMode ? cfg.colors.panelStroke : color}
-                      strokeWidth={isDefaultMode ? 0.7 : 0.76}
-                    />
-                  </g>
-                );
-              })}
-            </g>
-          ))}
-        </g>
-      </svg>
-      <rect
-        x={bodyX}
-        y={bodyY}
-        width={bodyViewportW}
-        height={bodyViewportH}
-        fill="transparent"
-        onPointerDown={(event) => {
-          event.preventDefault();
-          event.currentTarget.setPointerCapture?.(event.pointerId);
-          setSchedulePanDrag({
-            clientX: event.clientX,
-            clientY: event.clientY,
-            scrollX: effectiveScheduleScrollX,
-            scrollY: effectiveScheduleScrollY,
-          });
-        }}
-        onPointerMove={(event) => {
-          if (!schedulePanDrag) return;
-          event.preventDefault();
-          updateScheduleScrollX(schedulePanDrag.scrollX - (event.clientX - schedulePanDrag.clientX));
-          updateScheduleScrollY(schedulePanDrag.scrollY - (event.clientY - schedulePanDrag.clientY));
-        }}
-        onPointerUp={(event) => {
-          event.currentTarget.releasePointerCapture?.(event.pointerId);
-          setSchedulePanDrag(null);
-        }}
-        onPointerLeave={() => setSchedulePanDrag(null)}
-        style={{ cursor: schedulePanDrag ? 'grabbing' : 'grab' }}
-      />
-      {maxScheduleScrollX > 0 ? (
-        <g transform={`translate(0, ${scrollTrackY})`}>
-          <rect
-            x={bodyX}
-            y={0}
-            width={bodyViewportW}
-            height={7}
-            rx={3.5}
-            fill="rgba(8, 24, 42, 0.94)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.7}
-          />
-          <rect
-            x={scrollThumbX}
-            y={1}
-            width={scrollThumbW}
-            height={5}
-            rx={2.5}
-            fill={colorAlpha(cfg.colors.cyan, '70')}
-            stroke={cfg.colors.cyan}
-            strokeWidth={0.6}
-          />
-          <g
-            role="button"
-            aria-label="Scroll schedule left"
-            onClick={() => updateScheduleScrollX(effectiveScheduleScrollX - scrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={boardX + 4}
-              y={-4}
-              width={22}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${boardX + 17} 0 L ${boardX + 11} 3.5 L ${boardX + 17} 7`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-          <g
-            role="button"
-            aria-label="Scroll schedule right"
-            onClick={() => updateScheduleScrollX(effectiveScheduleScrollX + scrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={boardX + boardW - 26}
-              y={-4}
-              width={22}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${boardX + boardW - 17} 0 L ${boardX + boardW - 11} 3.5 L ${boardX + boardW - 17} 7`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-        </g>
-      ) : null}
-      {maxScheduleScrollY > 0 ? (
-        <g>
-          <rect
-            x={verticalTrackX}
-            y={bodyY}
-            width={7}
-            height={bodyViewportH}
-            rx={3.5}
-            fill="rgba(8, 24, 42, 0.94)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.7}
-          />
-          <rect
-            x={verticalTrackX + 1}
-            y={scrollThumbY}
-            width={5}
-            height={scrollThumbH}
-            rx={2.5}
-            fill={colorAlpha(cfg.colors.cyan, '70')}
-            stroke={cfg.colors.cyan}
-            strokeWidth={0.6}
-          />
-          <g
-            role="button"
-            aria-label="Scroll schedule up"
-            onClick={() => updateScheduleScrollY(effectiveScheduleScrollY - verticalScrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={verticalTrackX - 6}
-              y={bodyY - 18}
-              width={15}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${verticalTrackX - 1.5} ${bodyY - 8} L ${verticalTrackX + 1.5} ${bodyY - 13} L ${verticalTrackX + 4.5} ${bodyY - 8}`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-          <g
-            role="button"
-            aria-label="Scroll schedule down"
-            onClick={() => updateScheduleScrollY(effectiveScheduleScrollY + verticalScrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={verticalTrackX - 6}
-              y={boardY + boardH - 18}
-              width={15}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.96)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${verticalTrackX - 1.5} ${boardY + boardH - 13} L ${verticalTrackX + 1.5} ${boardY + boardH - 8} L ${verticalTrackX + 4.5} ${boardY + boardH - 13}`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-        </g>
-      ) : null}
-    </g>
-  );
-}
-
 function BrowserPolicyApprovalsMatrix({
   policyAreaLabel,
   x,
@@ -10481,7 +10063,13 @@ function BrowserPolicyApprovalsMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         {visibleColumns.map((column, index) => (
           <text
             key={`browser-policy-approval-column:${column}`}
@@ -10577,7 +10165,13 @@ function BrowserPolicyAuditMatrix({
       cfg={cfg}
     >
       <g transform={`translate(${tableX}, ${tableY})`}>
-        <rect width={tableW} height={tableH} rx={5} fill="rgba(4, 20, 37, 0.92)" stroke={cfg.colors.panelStroke} />
+        <rect
+          width={tableW}
+          height={tableH}
+          rx={5}
+          fill={PARENT_PORTAL_GLASS.panelFill}
+          stroke={cfg.colors.panelStroke}
+        />
         {visibleColumns.map((column, index) => (
           <text
             key={`browser-policy-audit-column:${column}`}
@@ -10635,670 +10229,6 @@ function BrowserPolicyAuditMatrix({
   );
 }
 
-type BrowserPolicyForestNodeId = 'g0' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8' | 'c9' | 'c10' | 'c11';
-
-type BrowserPolicyForestNode = {
-  readonly id: BrowserPolicyForestNodeId;
-  readonly title: string;
-  readonly subtitle: string;
-  readonly status: string;
-  readonly x: number;
-  readonly y: number;
-  readonly w: number;
-  readonly h: number;
-  readonly parentId?: BrowserPolicyForestNodeId;
-};
-
-const BROWSER_POLICY_FOREST_COPY = {
-  title: 'Browser Policy Forest',
-  rootTitle: 'G0 Master Gate',
-  rootSubtitle: 'Control, default action, enforcement',
-  disabledTitle: 'Browser control is off',
-  disabledBody: 'Policy cards stay quiet. Reports and history remain available for review.',
-  selected: 'Selected card',
-  guide: 'i',
-  details: 'Choices',
-} as const;
-
-const BROWSER_POLICY_FOREST_BASE_NODES = [
-  ['c1', 'C1 Browser Path', 'How should the child browse?'],
-  ['c2', 'C2 Coverage', 'Which browsers and platforms count?'],
-  ['c3', 'C3 Web Rules', 'Targets, actions, and conflicts'],
-  ['c10', 'C10 Privacy / Reports', 'Parent detail, retention, custody'],
-] as const;
-
-const BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT = {
-  minBodyHeight: 220,
-  bodyPadX: 14,
-  subtitleY: 24,
-  detailsY: 46,
-  controlStartY: 60,
-  controlGapY: 64,
-  staticStartY: 64,
-} as const;
-
-function BrowserPolicyDecisionForestPrototype({
-  x,
-  y,
-  w,
-  h,
-  disabled,
-  enforcementChoice,
-  onEnforcementChange,
-  onInfoClick,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  disabled?: boolean;
-  enforcementChoice: string;
-  onEnforcementChange: (value: string) => void;
-  onInfoClick?: () => void;
-}) {
-  const [controlEnabled, setControlEnabled] = useState(true);
-  const [defaultAction, setDefaultAction] = useState<'warn' | 'ask' | 'limit' | 'block'>('warn');
-  const [browserPath, setBrowserPath] = useState<'any' | 'prefer-managed' | 'managed-exact' | 'managed-all'>('any');
-  const [targets, setTargets] = useState<readonly string[]>(['domain', 'category']);
-  const [selectedNodeId, setSelectedNodeId] = useState<BrowserPolicyForestNodeId>('g0');
-  const localEnforcementChoice = enforcementChoice === 'enforce' ? 'enforce' : 'observe';
-  const rootStatus = controlEnabled
-    ? `${browserForestTitleize(defaultAction)} / ${browserForestTitleize(localEnforcementChoice)}`
-    : 'Off';
-  const detailW = Math.min(380, Math.max(310, w * 0.3));
-  const detailGap = 14;
-  const mapX = x + 8;
-  const mapY = y + 8;
-  const mapW = Math.max(1, w - detailW - detailGap - 18);
-  const panelX = mapX + mapW + detailGap;
-  const panelY = mapY;
-  const panelH = Math.max(1, h - 16);
-  const nodeH = 62;
-  const gap = 10;
-  const baseW = Math.max(118, (mapW - gap * 3) / 4);
-  const rootW = Math.min(340, Math.max(260, mapW * 0.36));
-  const rootX = mapX + mapW / 2 - rootW / 2;
-  const rootY = mapY + 18;
-  const row1Y = rootY + 108;
-  const row2Y = row1Y + 112;
-  const row3Y = row2Y + 96;
-  const baseNodes: BrowserPolicyForestNode[] = controlEnabled
-    ? BROWSER_POLICY_FOREST_BASE_NODES.map(([id, title, subtitle], index) => ({
-        id,
-        title,
-        subtitle,
-        status: browserForestNodeStatus(id, defaultAction, browserPath, targets),
-        x: mapX + index * (baseW + gap),
-        y: row1Y,
-        w: baseW,
-        h: nodeH,
-        parentId: 'g0',
-      }))
-    : [];
-  const dependentDefinitions = controlEnabled
-    ? [
-        ...(targets.includes('search') || targets.includes('video')
-          ? [['c4', 'C4 Search / Video', 'Safe search, channels, platforms', 'c3'] as const]
-          : []),
-        ...(targets.includes('downloads') ? [['c5', 'C5 Downloads', 'Risk, type, quarantine', 'c3'] as const] : []),
-        ...(defaultAction === 'limit' ? [['c6', 'C6 Time / Schedule', 'Budgets and end behavior', 'g0'] as const] : []),
-        ...(defaultAction === 'ask' ? [['c7', 'C7 Approval', 'Requests, timeout, scope', 'g0'] as const] : []),
-        ...(targets.includes('exact') ||
-        targets.includes('search') ||
-        targets.includes('video') ||
-        targets.includes('downloads')
-          ? [['c9', 'C9 Evidence / Proof', 'Fresh URL, source, weak proof', 'c3'] as const]
-          : []),
-        ...(browserPath === 'managed-exact' || browserPath === 'managed-all'
-          ? [
-              ['c8', 'C8 Bypass', 'Unmanaged and private browsers', 'c1'] as const,
-              ['c11', 'C11 Fallback', 'Missing capability behavior', 'c1'] as const,
-            ]
-          : []),
-      ]
-    : [];
-  const dependentW = Math.max(126, Math.min(184, (mapW - gap * 3) / 4));
-  const dependentNodes: BrowserPolicyForestNode[] = dependentDefinitions.map(
-    ([id, title, subtitle, parentId], index) => ({
-      id,
-      title,
-      subtitle,
-      status: browserForestNodeStatus(id, defaultAction, browserPath, targets),
-      x: mapX + (index % 4) * (dependentW + gap),
-      y: row2Y + Math.floor(index / 4) * (nodeH + gap),
-      w: dependentW,
-      h: nodeH,
-      parentId,
-    })
-  );
-  const rootNode: BrowserPolicyForestNode = {
-    id: 'g0',
-    title: BROWSER_POLICY_FOREST_COPY.rootTitle,
-    subtitle: BROWSER_POLICY_FOREST_COPY.rootSubtitle,
-    status: rootStatus,
-    x: rootX,
-    y: rootY,
-    w: rootW,
-    h: 72,
-  };
-  const nodes = [rootNode, ...baseNodes, ...dependentNodes];
-  const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? rootNode;
-  const clickable = !disabled;
-  const setTarget = (target: string) => {
-    setTargets((current) =>
-      current.includes(target) ? current.filter((value) => value !== target) : [...current, target]
-    );
-  };
-
-  return (
-    <g>
-      <rect x={x} y={y} width={w} height={h} rx={7} fill="rgba(1, 10, 20, 0.72)" stroke="#29e6ff" strokeWidth={0.8} />
-      <rect
-        x={mapX}
-        y={mapY}
-        width={mapW}
-        height={panelH}
-        rx={7}
-        fill="rgba(2, 20, 36, 0.48)"
-        stroke="#1fbdd7"
-        strokeWidth={0.7}
-        opacity={0.76}
-      />
-      <text x={mapX + 12} y={mapY + 22} fontSize={13} fontWeight={950} fill="#c8f4ff">
-        {BROWSER_POLICY_FOREST_COPY.title}
-      </text>
-      {onInfoClick ? (
-        <g role="button" tabIndex={0} onClick={onInfoClick} style={{ cursor: 'pointer' }}>
-          <circle
-            cx={mapX + mapW - 18}
-            cy={mapY + 18}
-            r={9}
-            fill="rgba(51, 211, 255, 0.16)"
-            stroke="#9bf3ff"
-            strokeWidth={1}
-          />
-          <text x={mapX + mapW - 18} y={mapY + 22} textAnchor="middle" fontSize={12} fontWeight={950} fill="#dffbff">
-            {BROWSER_POLICY_FOREST_COPY.guide}
-          </text>
-        </g>
-      ) : null}
-      {nodes
-        .filter((node) => node.parentId !== undefined)
-        .map((node) => {
-          const parent = nodes.find((candidate) => candidate.id === node.parentId);
-          if (parent === undefined) return null;
-          return (
-            <BrowserPolicyForestConnector
-              key={`${parent.id}-${node.id}`}
-              fromX={parent.x + parent.w / 2}
-              fromY={parent.y + parent.h}
-              toX={node.x + node.w / 2}
-              toY={node.y}
-            />
-          );
-        })}
-      {nodes.map((node) => (
-        <BrowserPolicyForestNodeCard
-          key={node.id}
-          node={node}
-          active={node.id === selectedNode.id}
-          disabled={!controlEnabled && node.id !== 'g0'}
-          onClick={() => {
-            if (!clickable) return;
-            setSelectedNodeId(node.id);
-          }}
-        />
-      ))}
-      {!controlEnabled ? (
-        <g>
-          <rect
-            x={mapX + 28}
-            y={row1Y + 18}
-            width={mapW - 56}
-            height={74}
-            rx={7}
-            fill="rgba(2, 8, 16, 0.84)"
-            stroke="#ffd36a"
-            strokeWidth={0.9}
-          />
-          <text x={mapX + mapW / 2} y={row1Y + 46} textAnchor="middle" fontSize={15} fontWeight={950} fill="#ffd36a">
-            {BROWSER_POLICY_FOREST_COPY.disabledTitle}
-          </text>
-          <text x={mapX + mapW / 2} y={row1Y + 70} textAnchor="middle" fontSize={12} fontWeight={760} fill="#b7dff1">
-            {BROWSER_POLICY_FOREST_COPY.disabledBody}
-          </text>
-        </g>
-      ) : null}
-      <BrowserPolicyForestDetailPanel
-        x={panelX}
-        y={panelY}
-        w={detailW}
-        h={panelH}
-        node={selectedNode}
-        controlEnabled={controlEnabled}
-        defaultAction={defaultAction}
-        enforcementChoice={localEnforcementChoice}
-        browserPath={browserPath}
-        targets={targets}
-        disabled={disabled}
-        onControlEnabledChange={setControlEnabled}
-        onDefaultActionChange={setDefaultAction}
-        onEnforcementChange={onEnforcementChange}
-        onBrowserPathChange={setBrowserPath}
-        onTargetToggle={setTarget}
-        onInfoClick={onInfoClick}
-      />
-    </g>
-  );
-}
-
-function BrowserPolicyForestConnector({
-  fromX,
-  fromY,
-  toX,
-  toY,
-}: {
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
-}) {
-  const midY = fromY + Math.max(12, (toY - fromY) * 0.45);
-  return (
-    <path
-      d={`M ${fromX} ${fromY} V ${midY} H ${toX} V ${toY}`}
-      fill="none"
-      stroke="#caa94d"
-      strokeWidth={1.1}
-      strokeLinecap="round"
-      opacity={0.86}
-      filter="url(#parentPortalGlow)"
-    />
-  );
-}
-
-function BrowserPolicyForestNodeCard({
-  node,
-  active,
-  disabled,
-  onClick,
-}: {
-  node: BrowserPolicyForestNode;
-  active: boolean;
-  disabled: boolean;
-  onClick: () => void;
-}) {
-  const stroke = active ? '#ffd36a' : disabled ? '#35616c' : '#29e6ff';
-  const fill = active ? 'rgba(14, 54, 48, 0.88)' : disabled ? 'rgba(4, 17, 28, 0.44)' : 'rgba(4, 23, 39, 0.82)';
-  const text = disabled ? '#6f91a0' : '#e7fbff';
-  const status = disabled ? 'Disabled' : node.status;
-  return (
-    <g
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      onClick={disabled ? undefined : onClick}
-      style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
-      opacity={disabled ? 0.72 : 1}
-    >
-      <rect
-        x={node.x}
-        y={node.y}
-        width={node.w}
-        height={node.h}
-        rx={8}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={active ? 1.25 : 0.82}
-        filter={active ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <path
-        d={`M ${node.x + 10} ${node.y + 12} H ${node.x + node.w - 10}`}
-        stroke="#86f6ff"
-        strokeWidth={0.8}
-        opacity={active ? 0.58 : 0.28}
-      />
-      <text x={node.x + 12} y={node.y + 25} fontSize={11.8} fontWeight={950} fill={text}>
-        {truncateTextForWidth(node.title, node.w - 24, 11.8, 0.56)}
-      </text>
-      <text x={node.x + 12} y={node.y + 43} fontSize={9.7} fontWeight={720} fill={disabled ? '#5f7f8c' : '#aee6f4'}>
-        {truncateTextForWidth(node.subtitle, node.w - 24, 9.7, 0.55)}
-      </text>
-      <text
-        x={node.x + 12}
-        y={node.y + node.h - 9}
-        fontSize={9.4}
-        fontWeight={900}
-        fill={active ? '#ffd36a' : '#70dfff'}
-      >
-        {truncateTextForWidth(status, node.w - 24, 9.4, 0.56)}
-      </text>
-    </g>
-  );
-}
-
-function BrowserPolicyForestDetailPanel({
-  x,
-  y,
-  w,
-  h,
-  node,
-  controlEnabled,
-  defaultAction,
-  enforcementChoice,
-  browserPath,
-  targets,
-  disabled,
-  onControlEnabledChange,
-  onDefaultActionChange,
-  onEnforcementChange,
-  onBrowserPathChange,
-  onTargetToggle,
-  onInfoClick,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  node: BrowserPolicyForestNode;
-  controlEnabled: boolean;
-  defaultAction: 'warn' | 'ask' | 'limit' | 'block';
-  enforcementChoice: string;
-  browserPath: 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all';
-  targets: readonly string[];
-  disabled?: boolean;
-  onControlEnabledChange: (enabled: boolean) => void;
-  onDefaultActionChange: (value: 'warn' | 'ask' | 'limit' | 'block') => void;
-  onEnforcementChange: (value: string) => void;
-  onBrowserPathChange: (value: 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all') => void;
-  onTargetToggle: (value: string) => void;
-  onInfoClick?: () => void;
-}) {
-  const panelPad = BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.bodyPadX;
-  const bodyHeight = Math.max(
-    BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.minBodyHeight,
-    h - defaultRulesBubbleConfig.header.height
-  );
-  return (
-    <RulesBubbleSvgFrame
-      x={x}
-      y={y}
-      width={w}
-      bodyHeight={bodyHeight}
-      variant="incoming"
-      headerLabel={node.title}
-      showInfo={onInfoClick !== undefined}
-      infoLabel={BROWSER_POLICY_FOREST_COPY.selected}
-      disabled={disabled}
-      onInfoClick={onInfoClick}
-    >
-      {(slot) => {
-        const contentX = slot.bodyContentX + panelPad;
-        const contentW = Math.max(1, slot.bodyContentW - panelPad * 2);
-        const contentTopY = slot.bodyContentY;
-        const startY = contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlStartY;
-        return (
-          <g>
-            <text
-              x={contentX}
-              y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.subtitleY}
-              fontSize={11}
-              fontWeight={760}
-              fill="#aee6f4"
-            >
-              {truncateTextForWidth(node.subtitle, contentW, 11, 0.55)}
-            </text>
-            <text
-              x={contentX}
-              y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.detailsY}
-              fontSize={10.2}
-              fontWeight={950}
-              fill="#70dfff"
-            >
-              {BROWSER_POLICY_FOREST_COPY.details}
-            </text>
-            {node.id === 'g0' ? (
-              <>
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY}
-                  w={contentW}
-                  label="Browser control"
-                  options={[
-                    ['off', 'Off'],
-                    ['on', 'On'],
-                  ]}
-                  selected={controlEnabled ? 'on' : 'off'}
-                  disabled={disabled}
-                  onSelect={(value) => onControlEnabledChange(value === 'on')}
-                />
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlGapY}
-                  w={contentW}
-                  label="Default action"
-                  options={[
-                    ['warn', 'Warn'],
-                    ['ask', 'Ask parent'],
-                    ['limit', 'Limit'],
-                    ['block', 'Block'],
-                  ]}
-                  selected={defaultAction}
-                  disabled={disabled || !controlEnabled}
-                  onSelect={(value) => onDefaultActionChange(value as 'warn' | 'ask' | 'limit' | 'block')}
-                />
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlGapY * 2}
-                  w={contentW}
-                  label="Enforcement"
-                  options={[
-                    ['observe', 'Observe / dry-run'],
-                    ['enforce', 'Enforce'],
-                  ]}
-                  selected={enforcementChoice}
-                  disabled={disabled || !controlEnabled}
-                  onSelect={onEnforcementChange}
-                />
-              </>
-            ) : node.id === 'c1' ? (
-              <BrowserPolicyForestChipRow
-                x={contentX}
-                y={startY}
-                w={contentW}
-                label="Browse path"
-                options={[
-                  ['any', 'Any browser'],
-                  ['prefer-managed', 'Prefer managed'],
-                  ['managed-exact', 'Managed for exact URL'],
-                  ['managed-all', 'Managed only'],
-                ]}
-                selected={browserPath}
-                disabled={disabled || !controlEnabled}
-                onSelect={(value) =>
-                  onBrowserPathChange(value as 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all')
-                }
-              />
-            ) : node.id === 'c3' ? (
-              <BrowserPolicyForestChipRow
-                x={contentX}
-                y={startY}
-                w={contentW}
-                label="Rule targets"
-                options={[
-                  ['domain', 'Domain/site'],
-                  ['category', 'Category'],
-                  ['exact', 'Exact URL'],
-                  ['search', 'Search'],
-                  ['video', 'Video/channel'],
-                  ['downloads', 'Downloads'],
-                ]}
-                selected={targets.join(',')}
-                multiSelected={targets}
-                disabled={disabled || !controlEnabled}
-                onSelect={onTargetToggle}
-              />
-            ) : (
-              <BrowserPolicyForestStaticChoices
-                x={contentX}
-                y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.staticStartY}
-                w={contentW}
-                nodeId={node.id}
-              />
-            )}
-          </g>
-        );
-      }}
-    </RulesBubbleSvgFrame>
-  );
-}
-
-function BrowserPolicyForestChipRow({
-  x,
-  y,
-  w,
-  label,
-  options,
-  selected,
-  multiSelected,
-  disabled,
-  onSelect,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  label: string;
-  options: readonly (readonly [string, string])[];
-  selected: string;
-  multiSelected?: readonly string[];
-  disabled?: boolean;
-  onSelect: (value: string) => void;
-}) {
-  const chipGap = 6;
-  const chipH = 30;
-  const chipW = Math.max(72, Math.min(146, (w - chipGap * 1) / 2));
-  return (
-    <g opacity={disabled ? 0.48 : 1}>
-      <text x={x} y={y} fontSize={10.3} fontWeight={950} fill="#9befff">
-        {label}
-      </text>
-      {options.map(([value, optionLabel], index) => {
-        const col = index % 2;
-        const row = Math.floor(index / 2);
-        const chipX = x + col * (chipW + chipGap);
-        const chipY = y + 10 + row * (chipH + chipGap);
-        const active = multiSelected === undefined ? selected === value : multiSelected.includes(value);
-        return (
-          <g
-            key={value}
-            role="button"
-            tabIndex={disabled ? -1 : 0}
-            onClick={disabled ? undefined : () => onSelect(value)}
-            style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
-          >
-            <rect
-              x={chipX}
-              y={chipY}
-              width={chipW}
-              height={chipH}
-              rx={6}
-              fill={active ? '#8fe7ff' : 'rgba(8, 23, 40, 0.92)'}
-              stroke={active ? '#f5fdff' : '#5c7b96'}
-              strokeWidth={active ? 1.2 : 0.78}
-              filter={active ? 'url(#parentPortalGlow)' : undefined}
-            />
-            <text
-              x={chipX + chipW / 2}
-              y={chipY + 19}
-              textAnchor="middle"
-              fontSize={10.4}
-              fontWeight={950}
-              fill={active ? '#06131e' : '#d8f7ff'}
-            >
-              {truncateTextForWidth(optionLabel, chipW - 12, 10.4, 0.56)}
-            </text>
-          </g>
-        );
-      })}
-    </g>
-  );
-}
-
-function BrowserPolicyForestStaticChoices({
-  x,
-  y,
-  w,
-  nodeId,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  nodeId: BrowserPolicyForestNodeId;
-}) {
-  const rows = browserForestStaticChoices(nodeId);
-  return (
-    <g>
-      {rows.map((row, index) => (
-        <g key={row}>
-          <rect
-            x={x}
-            y={y + index * 34}
-            width={w}
-            height={26}
-            rx={5}
-            fill="rgba(5, 23, 39, 0.82)"
-            stroke="#426f87"
-            strokeWidth={0.75}
-          />
-          <text x={x + 10} y={y + index * 34 + 17} fontSize={10.6} fontWeight={820} fill="#d8f7ff">
-            {truncateTextForWidth(row, w - 20, 10.6, 0.56)}
-          </text>
-        </g>
-      ))}
-    </g>
-  );
-}
-
-function browserForestNodeStatus(
-  id: BrowserPolicyForestNodeId,
-  defaultAction: string,
-  browserPath: string,
-  targets: readonly string[]
-) {
-  if (id === 'c1') return browserForestTitleize(browserPath);
-  if (id === 'c2') return 'Mainstream + risky';
-  if (id === 'c3') return `${targets.length} targets`;
-  if (id === 'c4') return 'Search/video active';
-  if (id === 'c5') return 'Download active';
-  if (id === 'c6') return 'Limit path';
-  if (id === 'c7') return 'Ask path';
-  if (id === 'c8') return 'Bypass visible';
-  if (id === 'c9') return 'Proof required';
-  if (id === 'c10') return 'Domain summary';
-  if (id === 'c11') return 'Fallback required';
-  return browserForestTitleize(defaultAction);
-}
-
-function browserForestStaticChoices(id: BrowserPolicyForestNodeId) {
-  if (id === 'c2') return ['Desktop mainstream', 'Alternate browsers', 'Mobile/browser-like', 'Risky or unknown'];
-  if (id === 'c4') return ['Safe search', 'Search terms', 'Video category', 'Channel / video URL'];
-  if (id === 'c5') return ['Observe downloads', 'Ask risky downloads', 'Block risky downloads', 'Quarantine/delete'];
-  if (id === 'c6') return ['Schedule', 'Budget type', 'When budget ends', 'What time counts'];
-  if (id === 'c7') return ['Ask triggers', 'If no answer', 'Approve scope', 'Override expiry'];
-  if (id === 'c8') return ['Bypass types', 'Bypass action', 'Escalation', 'Safe close'];
-  if (id === 'c9') return ['Proof source', 'Freshness', 'If proof missing', 'Never network-only exact URL'];
-  if (id === 'c10') return ['Parent report detail', 'Redaction', 'Retention', 'Audit / custody'];
-  if (id === 'c11') return ['Failure case', 'Fallback action', 'Manual unavailable', 'Rollback'];
-  return ['Choose a node to configure.'];
-}
-
-function browserForestTitleize(value: string) {
-  return value
-    .split(/[-\s]+/u)
-    .filter((part) => part.length > 0)
-    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
-    .join(' ');
-}
-
 function ManageWorkspacePanel({
   x,
   y,
@@ -11312,6 +10242,9 @@ function ManageWorkspacePanel({
   activeNavLabel,
   selectedControlName,
   runtimeDeviceSlots,
+  sharedTargetSelection,
+  onSharedTargetChange,
+  activityState,
   cfg,
 }: {
   x: number;
@@ -11326,6 +10259,9 @@ function ManageWorkspacePanel({
   activeNavLabel: string;
   selectedControlName: string;
   runtimeDeviceSlots: readonly DeviceSlot[];
+  sharedTargetSelection: ManageTargetSelection;
+  onSharedTargetChange?: (selection: ManageTargetSelection) => void;
+  activityState?: ParentPortalActivityState | null;
   cfg: ParentPortalSvgControls;
 }) {
   const tabs = manageWorkspaceTabs(kind);
@@ -11333,12 +10269,20 @@ function ManageWorkspacePanel({
   const workspaceScopeValues = targetOptions.some((option) => option.id === 'portal')
     ? FAMILY_DEVICE_SCOPE_VALUES
     : undefined;
-  const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() => targetOptions[0]?.id ?? 'family');
-  const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>();
+  const workspaceSelectionSlots = useMemo(
+    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, sharedTargetSelection),
+    [runtimeDeviceSlots, sharedTargetSelection]
+  );
+  const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() =>
+    sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection)
+  );
+  const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>(() =>
+    reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection)
+  );
   useEffect(() => {
-    setWorkspaceTarget(targetOptions[0]?.id ?? 'family');
-    setWorkspaceSelectedDeviceValue(undefined);
-  }, [targetOptions]);
+    setWorkspaceTarget(sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection));
+    setWorkspaceSelectedDeviceValue(reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection));
+  }, [activeNavLabel, kind, selectedControlName, sharedTargetSelection, targetOptions, workspaceSelectionSlots]);
   const activeTab =
     tabs.find((tab) => tab.id === activeTabId) ?? tabs.find((tab) => tab.id === defaultTabId) ?? tabs[0];
   const activeTabKey = activeTab?.id ?? defaultTabId;
@@ -11346,7 +10290,6 @@ function ManageWorkspacePanel({
   const activeTarget = targetOptions.find((option) => option.id === workspaceTarget) ?? targetOptions[0] ?? null;
   const workspaceTargetKey = activeTarget?.id ?? 'family';
   const targetColor = toneColor(activeTarget?.tone ?? activeTab?.tone ?? 'cyan', cfg);
-  const hasTargetSelector = targetOptions.length > 0;
   const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
   const policyAreaActive = kind === 'policy';
   const policyRulesChoiceMode = policyAreaActive && activeTabKey === 'rules';
@@ -11363,21 +10306,18 @@ function ManageWorkspacePanel({
   const [policySecondaryChoice, setPolicySecondaryChoice] = useState(policySecondaryOptions[0]?.value ?? '');
   const [browserRulesEnforcementChoice, setBrowserRulesEnforcementChoice] = useState('observe');
   useEffect(() => {
-    setWorkspaceSelectedDeviceValue(undefined);
-  }, [kind, activeNavLabel, selectedControlName]);
-  useEffect(() => {
     setPolicyPrimaryChoice(policyPrimaryOptions[0]?.value ?? '');
   }, [policyPrimaryOptions]);
   useEffect(() => {
     setPolicySecondaryChoice(policySecondaryOptions[0]?.value ?? '');
   }, [policySecondaryOptions]);
-  const targetSurfaceEnabled = hasTargetSelector;
+  const targetSurfaceEnabled = targetOptions.length > 0;
   const workspaceSlots = useMemo(
     () =>
-      runtimeDeviceSlots.length > 0
-        ? runtimeDeviceSlots
+      workspaceSelectionSlots.length > 0
+        ? workspaceSelectionSlots
         : reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS),
-    [runtimeDeviceSlots]
+    [workspaceSelectionSlots]
   );
   const workspacePortalIds = useMemo(
     () => workspaceSlots.filter((slot) => slot.device).map((slot) => slot.value),
@@ -11416,11 +10356,7 @@ function ManageWorkspacePanel({
     width: workspaceAvailableW,
     height: workspaceSelectorH,
   };
-  const firstWorkspaceSelectableSlot = workspaceSlots.find((slot) => slot.device && slot.status !== 'empty');
-  const workspaceSelectedValue =
-    workspaceTargetKey === 'perDevice'
-      ? (workspaceSelectedDeviceValue ?? firstWorkspaceSelectableSlot?.value)
-      : undefined;
+  const workspaceSelectedValue = workspaceTargetKey === 'perDevice' ? (workspaceSelectedDeviceValue ?? '') : '';
   const workspaceSelectedSlot = workspaceSlots.find((slot) => slot.value === workspaceSelectedValue) ?? null;
   const workspaceSelectedLabel = workspaceSelectedSlot?.label ?? null;
   const tabColumns = compact ? Math.min(3, tabs.length) : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
@@ -11433,24 +10369,13 @@ function ManageWorkspacePanel({
   const tabsY = targetSurfaceEnabled ? workspaceDividerY + 16 : y;
   const bodyY = tabsY + tabAreaH - 1;
   const bodyH = Math.max(1, y + h - bodyY - 8);
-  const targetSelectorY = bodyY + (compact ? 46 : 48);
-  const targetSelectorH = compact ? 30 : 34;
-  const targetSelectorX = workspaceBodyX + (compact ? 22 : 96);
-  const targetSelectorMaxW = Math.max(1, workspaceBodyX + workspaceBodyW - targetSelectorX - 22);
-  const targetSelectorW = hasTargetSelector
-    ? Math.min(targetSelectorMaxW, targetOptions.length * (compact ? 142 : 178))
-    : 0;
-  const targetOptionW = targetSelectorW / Math.max(1, targetOptions.length);
   const summaryBaseY = targetSurfaceEnabled
     ? kind === 'policy'
       ? bodyY + (compact ? 92 : 88)
       : bodyY + 24
-    : hasTargetSelector
-      ? targetSelectorY + targetSelectorH + (compact ? 16 : 18)
-      : bodyY + 24;
+    : bodyY + 24;
   const summary = manageWorkspaceSummary(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
   const summaryLines = policyCustomSurfaceMode ? [] : wrapCardText(summary, workspaceBodyW - 42, 12.2, compact ? 2 : 1);
-  const hasInlineTargetSelector = hasTargetSelector && !targetSurfaceEnabled;
   const bodyHeaderH = targetSurfaceEnabled
     ? kind === 'policy'
       ? policyCustomSurfaceMode
@@ -11463,13 +10388,9 @@ function ManageWorkspacePanel({
       : compact
         ? 68
         : 58
-    : hasInlineTargetSelector
-      ? compact
-        ? 124
-        : 122
-      : compact
-        ? 76
-        : 64;
+    : compact
+      ? 76
+      : 64;
   const cards = manageWorkspaceCards(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
   const supportContactFormEnabled = kind === 'account' && activeTabKey === 'support';
   const policyRows =
@@ -11494,8 +10415,10 @@ function ManageWorkspacePanel({
     : workspaceBodyX + 22 + policyChoiceW + policyChoiceGap;
   const policySecondaryY = policyChoicesStacked ? policyChoiceBarY + 58 : policyChoiceBarY;
   const policyChoiceDisabled = workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot;
-  const browserRulesChoiceTop = bodyY + 16;
-  const policyRowsTop = bodyY + bodyHeaderH + 10;
+  const policyContentTop = bodyY + bodyHeaderH + 10;
+  const policySurfaceTop = policyContentTop;
+  const browserRulesChoiceTop = policySurfaceTop;
+  const policyRowsTop = policySurfaceTop;
   const policyRowGap = 10;
   const policyRowColumns = workspaceBodyW > 1060 ? 2 : 1;
   const policyRowW = Math.max(1, (workspaceBodyW - 28 * 2 - policyRowGap * (policyRowColumns - 1)) / policyRowColumns);
@@ -11530,13 +10453,18 @@ function ManageWorkspacePanel({
                   const nextTarget =
                     nextScopeValue === 'parent' ? 'perDevice' : nextScopeValue === 'portal' ? 'portal' : 'family';
                   setWorkspaceTarget(nextTarget);
-                  if (nextTarget !== 'perDevice') {
-                    setWorkspaceSelectedDeviceValue(undefined);
-                  }
+                  const nextSelection = workspaceSelectedSlot
+                    ? selectedManageTargetSelectionForSlot(sharedTargetSelection, workspaceSelectedSlot)
+                    : sharedTargetSelection;
+                  onSharedTargetChange?.({
+                    ...nextSelection,
+                    scope: nextTarget === 'perDevice' ? 'perDevice' : 'global',
+                  });
                 }}
                 onChange={(choice) => {
                   setWorkspaceTarget('perDevice');
                   setWorkspaceSelectedDeviceValue(choice.value);
+                  onSharedTargetChange?.(selectedManageTargetSelectionForSlot(sharedTargetSelection, choice));
                 }}
                 config={manageDeviceGridConfig(workspaceAvailableW, workspaceSelectorH, {
                   statusOrder: {
@@ -11584,9 +10512,8 @@ function ManageWorkspacePanel({
           const column = index % tabColumns;
           const row = Math.floor(index / tabColumns);
           const tabX = workspaceBodyX + tabInsetX + column * (tabW + tabGap);
-          const tabY = tabsY + row * tabH + (selected ? 0 : 7);
-          const currentTabH = selected ? tabH + 1 : tabH - 7;
-          const tabRadius = selected ? 11 : 9;
+          const tabY = tabsY + row * tabH + (selected ? 0 : 5);
+          const currentTabH = selected ? tabH + 3 : tabH - 5;
           const tabIconSize = Math.max(14, Math.min(21, currentTabH - 12));
           const tabTextSize = compact ? 10.4 : 12.4;
           const showTabGuideInfo = kind === 'policy' && Boolean(onNavigate);
@@ -11603,6 +10530,8 @@ function ManageWorkspacePanel({
           const tabGuideRoutePath = showTabGuideInfo
             ? guideRoutePathForManageTab(activeNavLabel, selectedControlName, tab.id)
             : '';
+          const tabFill = selected ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+          const tabStrokeOpacity = selected ? 0.94 : 0.54;
           return (
             <g
               key={`manage-workspace-tab:${kind}:${tab.id}`}
@@ -11624,33 +10553,55 @@ function ManageWorkspacePanel({
             >
               <rect x={tabX} y={tabsY + row * tabH - 4} width={tabW} height={tabH + 8} fill="transparent" />
               {selected ? (
-                <path
-                  d={topRoundedRectPath(tabX - 2, tabY - 2, tabW + 4, currentTabH + 3, tabRadius + 2)}
+                <rect
+                  x={tabX + 1}
+                  y={tabY - 2}
+                  width={tabW - 2}
+                  height={currentTabH + 5}
+                  rx={0}
                   fill="none"
                   stroke={tabColor}
-                  strokeWidth={3}
-                  opacity={0.18}
+                  strokeWidth={2.3}
+                  opacity={0.14}
                   filter="url(#parentPortalGlow)"
                 />
               ) : null}
-              <path
-                d={topRoundedRectPath(tabX, tabY, tabW, currentTabH, tabRadius)}
-                fill={selected ? colorAlpha(tabColor, '26') : 'rgba(2, 12, 22, 0.74)'}
-                stroke={selected ? tabColor : cfg.colors.panelStroke}
-                strokeWidth={selected ? 1.2 : 0.75}
+              <rect
+                x={tabX}
+                y={tabY}
+                width={tabW}
+                height={currentTabH}
+                rx={0}
+                fill={tabFill}
                 opacity={selected ? 1 : 0.82}
               />
               <path
-                d={topRoundedRectPath(tabX + 5, tabY + 4, tabW - 10, Math.max(9, currentTabH * 0.36), 5)}
-                fill={cfg.colors.bodyText}
-                opacity={selected ? 0.13 : 0.055}
+                d={`M ${tabX} ${tabY} H ${tabX + tabW}`}
+                stroke={selected ? tabColor : cfg.colors.panelStroke}
+                strokeWidth={selected ? 2.2 : 1}
+                strokeLinecap="round"
+                opacity={selected ? 0.95 : 0.34}
               />
               <path
-                d={`M ${tabX + 16} ${tabY + currentTabH - 6} H ${tabX + tabW - 16}`}
-                stroke={tabColor}
-                strokeWidth={selected ? 1.8 : 1}
+                d={`M ${tabX} ${tabY} V ${tabY + currentTabH}`}
+                stroke={cfg.colors.panelStroke}
+                strokeWidth={0.8}
                 strokeLinecap="round"
-                opacity={selected ? 0.95 : 0.38}
+                opacity={column === 0 ? tabStrokeOpacity : 0.22}
+              />
+              <path
+                d={`M ${tabX + tabW} ${tabY} V ${tabY + currentTabH}`}
+                stroke={cfg.colors.panelStroke}
+                strokeWidth={0.8}
+                strokeLinecap="round"
+                opacity={tabStrokeOpacity}
+              />
+              <path
+                d={`M ${tabX + 12} ${tabY + currentTabH - 3} H ${tabX + tabW - 12}`}
+                stroke={tabColor}
+                strokeWidth={selected ? 2.25 : 1.15}
+                strokeLinecap="round"
+                opacity={selected ? 0.95 : 0.34}
               />
               <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
               <text
@@ -11685,7 +10636,7 @@ function ManageWorkspacePanel({
                     cx={tabInfoCx}
                     cy={tabInfoCy}
                     r={tabInfoR}
-                    fill={selected ? colorAlpha(tabColor, '36') : 'rgba(2, 12, 22, 0.86)'}
+                    fill={selected ? colorAlpha(tabColor, '36') : PARENT_PORTAL_GLASS.panelFillStrong}
                     stroke={selected ? cfg.colors.bodyText : tabColor}
                     strokeWidth={selected ? 1.1 : 0.85}
                     opacity={selected ? 0.95 : 0.76}
@@ -11709,10 +10660,10 @@ function ManageWorkspacePanel({
       </g>
       <path
         d={topRoundedRectPath(workspaceBodyX, bodyY, workspaceBodyW, bodyH, 10)}
-        fill={cfg.colors.panelFill}
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={activeColor}
         strokeWidth={1.12}
-        opacity={0.97}
+        opacity={0.78}
       />
       <path
         d={`M ${workspaceBodyX + 10} ${bodyY} H ${workspaceBodyX + workspaceBodyW - 10}`}
@@ -11746,127 +10697,6 @@ function ManageWorkspacePanel({
               />
             </div>
           </foreignObject>
-        </g>
-      ) : null}
-      {hasInlineTargetSelector ? (
-        <g role="radiogroup" aria-label={`${manageWorkspaceTitle(kind)} target selector`}>
-          {!compact ? (
-            <text x={workspaceBodyX + 22} y={targetSelectorY + 22} fontSize={11.4} fontWeight={950} fill={activeColor}>
-              SCOPE
-            </text>
-          ) : null}
-          <rect
-            x={targetSelectorX - 3}
-            y={targetSelectorY - 3}
-            width={targetSelectorW + 6}
-            height={targetSelectorH + 6}
-            rx={9}
-            fill="rgba(2, 12, 22, 0.7)"
-            stroke={targetColor}
-            strokeWidth={0.9}
-            opacity={0.88}
-          />
-          <rect
-            x={targetSelectorX}
-            y={targetSelectorY}
-            width={targetSelectorW}
-            height={targetSelectorH}
-            rx={7}
-            fill="rgba(6, 24, 37, 0.9)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.72}
-            opacity={0.96}
-          />
-          {targetOptions.map((option, index) => {
-            const selected = option.id === workspaceTargetKey;
-            const optionColor = toneColor(option.tone, cfg);
-            const optionX = targetSelectorX + index * targetOptionW;
-            const labelSize = compact ? 10.8 : 12.3;
-            const detailSize = compact ? 7.8 : 8.9;
-            return (
-              <g
-                key={`manage-workspace-target:${kind}:${option.id}`}
-                className="parent-portal-svg-clickable"
-                role="radio"
-                tabIndex={0}
-                aria-label={`Use ${option.label}`}
-                aria-checked={selected}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setWorkspaceTarget(option.id);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key !== 'Enter' && event.key !== ' ') return;
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setWorkspaceTarget(option.id);
-                }}
-              >
-                <rect
-                  x={optionX}
-                  y={targetSelectorY - 2}
-                  width={targetOptionW}
-                  height={targetSelectorH + 4}
-                  fill="transparent"
-                />
-                {index > 0 ? (
-                  <path
-                    d={`M ${optionX} ${targetSelectorY + 5} V ${targetSelectorY + targetSelectorH - 5}`}
-                    stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.8}
-                    opacity={0.55}
-                  />
-                ) : null}
-                {selected ? (
-                  <>
-                    <rect
-                      x={optionX + 4}
-                      y={targetSelectorY + 4}
-                      width={targetOptionW - 8}
-                      height={targetSelectorH - 8}
-                      rx={5}
-                      fill={colorAlpha(optionColor, '44')}
-                      stroke={optionColor}
-                      strokeWidth={1.05}
-                      filter="url(#parentPortalGlow)"
-                    />
-                    <path
-                      d={`M ${optionX + 15} ${targetSelectorY + 9} H ${optionX + targetOptionW - 15}`}
-                      stroke={cfg.colors.bodyText}
-                      strokeWidth={0.9}
-                      strokeLinecap="round"
-                      opacity={0.24}
-                    />
-                  </>
-                ) : null}
-                <text
-                  x={optionX + targetOptionW / 2}
-                  y={targetSelectorY + (compact ? 16 : 17)}
-                  textAnchor="middle"
-                  fontSize={labelSize}
-                  fontWeight={950}
-                  fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
-                  pointerEvents="none"
-                >
-                  {truncateTextForWidth(option.label, targetOptionW - 16, labelSize, 0.58)}
-                </text>
-                {!compact ? (
-                  <text
-                    x={optionX + targetOptionW / 2}
-                    y={targetSelectorY + 28}
-                    textAnchor="middle"
-                    fontSize={detailSize}
-                    fontWeight={760}
-                    fill={selected ? optionColor : cfg.colors.mutedText}
-                    opacity={selected ? 0.9 : 0.58}
-                    pointerEvents="none"
-                  >
-                    {truncateTextForWidth(option.detail, targetOptionW - 18, detailSize, 0.54)}
-                  </text>
-                ) : null}
-              </g>
-            );
-          })}
         </g>
       ) : null}
       {summaryLines.map((line, index) => (
@@ -11939,7 +10769,7 @@ function ManageWorkspacePanel({
                 width={policyRowW}
                 height={policyRowH}
                 rx={4}
-                fill="rgba(3, 18, 32, 0.86)"
+                fill="rgba(3, 18, 32, 0.68)"
                 stroke={rowColor}
                 strokeWidth={0.82}
                 opacity={0.95}
@@ -11990,7 +10820,7 @@ function ManageWorkspacePanel({
           const valueSize = fitSingleLineTextSize(card.value, cardW - 30, 12, 16, 0.58);
           const bodyLines = wrapCardText(card.body, cardW - 30, 10.2, cardH > 86 ? 2 : 1);
           return (
-            <g key={`manage-workspace-card:${kind}:${activeTabKey}:${workspaceTargetKey}:${card.label}`}>
+            <g key={`manage-workspace-card:${kind}:${activeTabKey}:${workspaceTargetKey}:${index}:${card.label}`}>
               <rect
                 x={cardX}
                 y={cardY}
@@ -12110,7 +10940,7 @@ function ManageTargetPanel({
         width={scopeTrackW}
         height={scopeTrackH}
         rx={15}
-        fill="rgba(2, 12, 22, 0.88)"
+        fill="rgba(2, 12, 22, 0.68)"
         stroke={color}
         strokeWidth={0.9}
         strokeOpacity={0.72}
@@ -12136,15 +10966,16 @@ function ManageTargetPanel({
           aria-pressed={targetSelection.scope === option.scope}
           onClick={(event) => {
             event.stopPropagation();
+            const selectedSlot = runtimeDeviceSlots
+              ? reportSelectedSlot(runtimeDeviceSlots, targetSelection)
+              : undefined;
+            const nextSelection =
+              option.scope === 'perDevice' && selectedSlot
+                ? selectedManageTargetSelectionForSlot(targetSelection, selectedSlot)
+                : targetSelection;
             onTargetChange({
-              ...targetSelection,
+              ...nextSelection,
               scope: option.scope,
-              device:
-                option.scope === 'perDevice'
-                  ? (deviceChoices.find((device) => device === targetSelection.device) ??
-                    deviceChoices[0] ??
-                    targetSelection.device)
-                  : targetSelection.device,
             });
           }}
           onKeyDown={(event) => {
@@ -12209,7 +11040,16 @@ function ManageTargetPanel({
                 selected={targetSelection.device === choice}
                 tone={index === 1 ? 'gold' : index === 2 ? 'purple' : 'cyan'}
                 themeColor={themeColor}
-                onSelect={() => onTargetChange({ ...targetSelection, device: choice, scope: 'perDevice' })}
+                onSelect={() => {
+                  const selectedSlot = runtimeDeviceSlots?.find(
+                    (slot) => slot.label === choice || slot.device?.name === choice
+                  );
+                  onTargetChange(
+                    selectedSlot
+                      ? selectedManageTargetSelectionForSlot(targetSelection, selectedSlot)
+                      : { ...targetSelection, scope: 'perDevice', device: choice, deviceId: '' }
+                  );
+                }}
                 cfg={cfg}
               />
             );
@@ -12380,18 +11220,30 @@ function ManageControlPanel({
   );
   const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
   const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.status !== 'empty') ?? null;
+  const preferredLanPairingSelectedSlot = useMemo(
+    () => reportSelectedSlot(lanPairingSlots, targetSelection) ?? firstLanPairingSelectableSlot,
+    [firstLanPairingSelectableSlot, lanPairingSlots, targetSelection]
+  );
   useEffect(() => {
-    if (!isLanPairingPanel || !firstLanPairingSelectableSlot) return;
+    if (!isLanPairingPanel || !preferredLanPairingSelectedSlot) return;
     if (lanPairingSelectedSlot && lanPairingSlots.some((slot) => slot.value === lanPairingSelectedSlot.value)) return;
-    setLanPairingSelectedSlot(firstLanPairingSelectableSlot);
-  }, [firstLanPairingSelectableSlot, isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots]);
+    setLanPairingSelectedSlot(preferredLanPairingSelectedSlot);
+  }, [isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots, preferredLanPairingSelectedSlot]);
+  useEffect(() => {
+    if (!isLanPairingPanel || !lanPairingSelectedSlot) return;
+    const selectedDeviceId = lanPairingSelectedSlot.value;
+    const selectedDevice = selectedDeviceIdentity(lanPairingSelectedSlot);
+    if (!selectedDevice) return;
+    if (targetSelection.scope === 'perDevice' && targetSelection.deviceId === selectedDeviceId) return;
+    onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, lanPairingSelectedSlot));
+  }, [isLanPairingPanel, lanPairingSelectedSlot, onTargetChange, targetSelection]);
   const openLanPairingDeviceEditDialog = useCallback(
     (choice: DeviceSlot) => {
       setLanPairingSelectedSlot(choice);
       setLanPairingEditSlot(choice);
       setLanPairingHouseholdNameDraft(lanPairingHouseholdNameDraftFor(choice));
       setLanPairingDeviceKindDraft(lanPairingDeviceKindDraftFor(choice));
-      onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+      onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
       setLastAction(`${choice.label} edit`);
       setSyncStatus('Editing device identity');
     },
@@ -12402,7 +11254,7 @@ function ManageControlPanel({
     const nextName = lanPairingHouseholdNameDraft.trim() || lanPairingDeviceName(lanPairingEditSlot);
     const payload = lanPairingHouseholdActionCommandPayload(
       lanPairingEditSlot,
-      AgentProtocolDefaults.LanHouseholdActionKind.Rename,
+      PortalAgentLanHouseholdActionKind.Rename,
       {
         displayName: nextName,
         deviceKind: lanPairingDeviceKindDraft,
@@ -12542,17 +11394,21 @@ function ManageControlPanel({
   );
   const reportScopeValue = targetSelection.scope === 'perDevice' ? 'device' : 'family';
   const reportFamilyScope = reportScopeValue !== 'device';
-  const reportSlots = runtimeDeviceSlots;
+  const reportSelectionSlots = useMemo(
+    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, targetSelection),
+    [runtimeDeviceSlots, targetSelection]
+  );
+  const reportSlots = useMemo(
+    () => (reportSelectionSlots.length > 0 ? reportSelectionSlots : reportPlanSeatSlots(reportPlanSeatLimit)),
+    [reportPlanSeatLimit, reportSelectionSlots]
+  );
   const reportPortalIds = useMemo(
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
   );
-  const firstReportSelectableSlot = reportSlots.find((slot) => slot.device && slot.status !== 'empty');
   const reportSelectedValue =
-    reportScopeValue === 'device'
-      ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? firstReportSelectableSlot?.value)
-      : undefined;
-  const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
+    reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection) ?? '') : '';
+  const reportSelectedDeviceSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
   const activityReportFiles = activityUiIntent.reportFiles;
   const activityReportSelectedFile =
     activityReportFiles.find((file) => file.id === activityReportSelectedFileId) ?? activityReportFiles[0] ?? null;
@@ -12683,7 +11539,7 @@ function ManageControlPanel({
   );
   const activityReportViewerTarget =
     activityReportViewerReport?.targetLabel ??
-    (reportFamilyScope ? 'Family' : (reportSelectedSlot?.label ?? 'Select a device'));
+    (reportFamilyScope ? 'Family' : (reportSelectedDeviceSlot?.label ?? 'Select a device'));
   const activityReportViewerState = activityReportViewerReport?.saved
     ? `Saved JSON: ${activityReportViewerReport.fileName}`
     : activityReportViewerReport
@@ -12705,7 +11561,7 @@ function ManageControlPanel({
   const activityMonitorRows = activityRowsFromReadModels(
     effectiveActivityManageTabId,
     reportScopeValue,
-    reportSelectedSlot,
+    reportSelectedDeviceSlot,
     activityReportFrequencyLabel,
     activityReportOverrideLabel,
     syncStatus,
@@ -12741,18 +11597,20 @@ function ManageControlPanel({
                 onChange={(choice) => {
                   setLanPairingSelectedSlot(choice);
                   if (choice.status === 'unsupported') {
-                    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                    onTargetChange?.({
+                      ...selectedManageTargetSelectionForSlot(targetSelection, choice),
+                    });
                     setLastAction(`${choice.label} cannot run the child agent`);
                     setSyncStatus('Unsupported LAN device');
                     return;
                   }
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   setLastAction(`${choice.label} selected`);
                   setSyncStatus('Draft changed');
                 }}
                 onAddToPortal={(choice) => {
                   setLanPairingSelectedSlot(choice);
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   const payload = lanPairingAddDeviceCommandPayload(choice);
                   if (!payload) {
                     setLastAction(`${choice.label} has no controllable LAN route`);
@@ -12812,10 +11670,10 @@ function ManageControlPanel({
             />
             <path
               d={topRoundedRectPath(lanPairingBodyX, lanPairingBodyY, lanPairingBodyW, lanPairingBodyH, 12)}
-              fill={cfg.colors.panelFill}
+              fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={lanPairingDetailColor}
               strokeWidth={1.15}
-              opacity={0.97}
+              opacity={0.78}
             />
             <path
               d={topRoundedRectPath(
@@ -13006,9 +11864,9 @@ function ManageControlPanel({
               const muted = Boolean(unavailableReason) && !selected;
               const tabColor = toneColor(tab.tone, cfg);
               const tabX = lanPairingTabsX + index * (lanPairingTabW + lanPairingTabGap);
-              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 7;
-              const tabH = selected ? lanPairingTabH + 1 : lanPairingTabH - 8;
-              const tabRadius = selected ? 10 : 8;
+              const tabY = selected ? lanPairingDetailY : lanPairingDetailY + 5;
+              const tabH = selected ? lanPairingTabH + 3 : lanPairingTabH - 5;
+              const tabRadius = 0;
               const tabIconSize = Math.max(17, Math.min(22, tabH - 12));
               const tabTextSize = selected ? 13.8 : 12.8;
               const tabText = truncateTextForWidth(tab.label, lanPairingTabW - tabIconSize - 28, tabTextSize, 0.58);
@@ -13016,8 +11874,13 @@ function ManageControlPanel({
               const tabGroupW = tabIconSize + 7 + tabTextW;
               const tabIconX = tabX + (lanPairingTabW - tabGroupW) / 2;
               const tabIconY = tabY + (tabH - tabIconSize) / 2;
-              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
               const TabIcon = tab.icon;
+              const tabFill = selected
+                ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive
+                : muted
+                  ? PARENT_PORTAL_TAB_SURFACE_FILL.lanMuted
+                  : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+              const tabStrokeOpacity = selected ? 0.94 : muted ? 0.26 : 0.54;
               return (
                 <g
                   key={`lan-pairing-tab:${tab.id}`}
@@ -13054,72 +11917,55 @@ function ManageControlPanel({
                     fill="transparent"
                   />
                   {selected ? (
-                    <path
-                      d={topRoundedRectPath(tabX - 2, tabY - 2, lanPairingTabW + 4, tabH + 3, tabRadius + 2)}
+                    <rect
+                      x={tabX + 1}
+                      y={tabY - 2}
+                      width={lanPairingTabW - 2}
+                      height={tabH + 5}
+                      rx={0}
                       fill="none"
                       stroke={tabColor}
-                      strokeWidth={3}
-                      opacity={0.18}
+                      strokeWidth={2.3}
+                      opacity={0.14}
                       filter="url(#parentPortalGlow)"
                     />
                   ) : null}
-                  <path
-                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
-                    fill={selected ? colorAlpha(tabColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                  <rect
+                    x={tabX}
+                    y={tabY}
+                    width={lanPairingTabW}
+                    height={tabH}
+                    rx={tabRadius}
+                    fill={tabFill}
                     opacity={selected ? 1 : muted ? 0.42 : 0.78}
                   />
                   <path
-                    d={topRoundedRectPath(
-                      tabX + 5,
-                      tabY + 4,
-                      lanPairingTabW - 10,
-                      tabGlossH,
-                      Math.max(4, tabRadius - 4)
-                    )}
-                    fill={cfg.colors.bodyText}
-                    opacity={selected ? 0.13 : 0.055}
-                  />
-                  <path
-                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + lanPairingTabW - tabRadius - 4}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.85}
+                    d={`M ${tabX} ${tabY} H ${tabX + lanPairingTabW}`}
+                    stroke={selected ? tabColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 2.2 : 1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.5 : 0.22}
+                    opacity={selected ? 0.95 : muted ? 0.18 : 0.34}
                   />
                   <path
-                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.65}
-                    strokeLinecap="round"
-                    opacity={selected ? 0.22 : 0.1}
-                  />
-                  <path
-                    d={`M ${tabX + lanPairingTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    d={`M ${tabX} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
                     strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.56 : 0.32}
+                    opacity={index === 0 ? tabStrokeOpacity : 0.22}
                   />
                   <path
-                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + lanPairingTabW - 5}`}
+                    d={`M ${tabX + lanPairingTabW} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.9}
+                    strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.58 : 0.36}
+                    opacity={tabStrokeOpacity}
                   />
                   <path
-                    d={topRoundedRectPath(tabX, tabY, lanPairingTabW, tabH, tabRadius)}
-                    fill="none"
-                    stroke={selected ? tabColor : cfg.colors.panelStroke}
-                    strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={selected ? 0.98 : muted ? 0.3 : 0.55}
-                  />
-                  <path
-                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + lanPairingTabW - 16}`}
+                    d={`M ${tabX + 10} ${tabY + tabH - 3} H ${tabX + lanPairingTabW - 10}`}
                     stroke={tabColor}
-                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeWidth={selected ? 2.4 : 1.2}
                     strokeLinecap="round"
-                    opacity={selected ? 0.95 : muted ? 0.2 : 0.42}
+                    opacity={selected ? 0.95 : muted ? 0.14 : 0.34}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
@@ -13188,16 +12034,12 @@ function ManageControlPanel({
                 scopeIcons={FAMILY_DEVICE_SCOPE_ICONS}
                 onScopeChange={(nextScopeValue) => {
                   const nextScope = nextScopeValue === 'parent' ? 'perDevice' : 'global';
-                  onTargetChange?.({
-                    ...targetSelection,
-                    scope: nextScope,
-                    device: targetSelection.device,
-                  });
+                  onTargetChange?.({ ...targetSelection, scope: nextScope });
                   setLastAction(nextScope === 'perDevice' ? 'Per-device reports selected' : 'Family reports selected');
                   setSyncStatus('Report scope changed');
                 }}
                 onChange={(choice) => {
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   setLastAction(`${choice.label} report target`);
                   setSyncStatus('Report target changed');
                 }}
@@ -13242,10 +12084,10 @@ function ManageControlPanel({
             />
             <path
               d={topRoundedRectPath(activityBodyPanelX, activityBodyPanelY, activityBodyPanelW, activityBodyPanelH, 12)}
-              fill={cfg.colors.panelFill}
+              fill={PARENT_PORTAL_GLASS.panelFill}
               stroke={activityManageTabColor}
               strokeWidth={1.15}
-              opacity={0.97}
+              opacity={0.78}
             />
             <path
               d={topRoundedRectPath(
@@ -13718,9 +12560,8 @@ function ManageControlPanel({
               const tabRow = Math.floor(index / activityTabColumns);
               const tabBaseY = activityBodyY + tabRow * activityTabH;
               const tabX = activityTabsX + tabColumn * (activityTabW + activityTabGap);
-              const tabY = selected ? tabBaseY : tabBaseY + (activityTabsCompact ? 4 : 7);
-              const tabH = selected ? activityTabH + 1 : activityTabH - (activityTabsCompact ? 5 : 8);
-              const tabRadius = selected ? 10 : 8;
+              const tabY = selected ? tabBaseY : tabBaseY + (activityTabsCompact ? 3 : 5);
+              const tabH = selected ? activityTabH + 3 : activityTabH - (activityTabsCompact ? 3 : 5);
               const tabIconSize = activityTabsCompact
                 ? Math.max(12, Math.min(16, tabH - 10))
                 : Math.max(17, Math.min(22, tabH - 12));
@@ -13732,8 +12573,13 @@ function ManageControlPanel({
               const tabGroupW = tabIconSize + tabIconGap + tabTextW;
               const tabIconX = tabX + (activityTabW - tabGroupW) / 2;
               const tabIconY = tabY + (tabH - tabIconSize) / 2;
-              const tabGlossH = Math.max(9, Math.min(15, Math.round(tabH * 0.38)));
               const TabIcon = tab.icon;
+              const tabFill = selected
+                ? PARENT_PORTAL_TAB_SURFACE_FILL.lanActive
+                : disabledTab
+                  ? PARENT_PORTAL_TAB_SURFACE_FILL.lanMuted
+                  : PARENT_PORTAL_TAB_SURFACE_FILL.lanIdle;
+              const tabStrokeOpacity = selected ? 0.94 : disabledTab ? 0.26 : 0.54;
               return (
                 <g
                   key={`activity-tab:${tab.id}`}
@@ -13768,66 +12614,55 @@ function ManageControlPanel({
                 >
                   <rect x={tabX} y={tabBaseY - 4} width={activityTabW} height={activityTabH + 8} fill="transparent" />
                   {selected ? (
-                    <path
-                      d={topRoundedRectPath(tabX - 2, tabY - 2, activityTabW + 4, tabH + 3, tabRadius + 2)}
+                    <rect
+                      x={tabX + 1}
+                      y={tabY - 2}
+                      width={activityTabW - 2}
+                      height={tabH + 5}
+                      rx={0}
                       fill="none"
                       stroke={tabPaintColor}
-                      strokeWidth={3}
-                      opacity={0.18}
+                      strokeWidth={2.3}
+                      opacity={0.14}
                       filter="url(#parentPortalGlow)"
                     />
                   ) : null}
-                  <path
-                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
-                    fill={selected ? colorAlpha(tabPaintColor, '24') : 'rgba(2, 12, 22, 0.72)'}
+                  <rect
+                    x={tabX}
+                    y={tabY}
+                    width={activityTabW}
+                    height={tabH}
+                    rx={0}
+                    fill={tabFill}
                     opacity={disabledTab ? 0.42 : selected ? 1 : 0.78}
                   />
                   <path
-                    d={topRoundedRectPath(tabX + 5, tabY + 4, activityTabW - 10, tabGlossH, Math.max(4, tabRadius - 4))}
-                    fill={cfg.colors.bodyText}
-                    opacity={selected ? 0.13 : 0.055}
-                  />
-                  <path
-                    d={`M ${tabX + tabRadius + 4} ${tabY + 2.5} H ${tabX + activityTabW - tabRadius - 4}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.85}
+                    d={`M ${tabX} ${tabY} H ${tabX + activityTabW}`}
+                    stroke={selected ? tabPaintColor : cfg.colors.panelStroke}
+                    strokeWidth={selected ? 2.2 : 1}
                     strokeLinecap="round"
-                    opacity={selected ? 0.5 : 0.22}
+                    opacity={selected ? 0.95 : disabledTab ? 0.18 : 0.34}
                   />
                   <path
-                    d={`M ${tabX + 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
-                    stroke={cfg.colors.bodyText}
-                    strokeWidth={0.65}
-                    strokeLinecap="round"
-                    opacity={selected ? 0.22 : 0.1}
-                  />
-                  <path
-                    d={`M ${tabX + activityTabW - 2.5} ${tabY + tabRadius} V ${tabY + tabH - 3}`}
+                    d={`M ${tabX} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
                     strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.56 : 0.32}
+                    opacity={tabColumn === 0 ? tabStrokeOpacity : 0.22}
                   />
                   <path
-                    d={`M ${tabX + 5} ${tabY + tabH - 1.5} H ${tabX + activityTabW - 5}`}
+                    d={`M ${tabX + activityTabW} ${tabY} V ${tabY + tabH}`}
                     stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.9}
+                    strokeWidth={0.8}
                     strokeLinecap="round"
-                    opacity={selected ? 0.58 : 0.36}
+                    opacity={tabStrokeOpacity}
                   />
                   <path
-                    d={topRoundedRectPath(tabX, tabY, activityTabW, tabH, tabRadius)}
-                    fill="none"
-                    stroke={selected ? tabPaintColor : cfg.colors.panelStroke}
-                    strokeWidth={selected ? 1.25 : 0.8}
-                    opacity={disabledTab ? 0.3 : selected ? 0.98 : 0.55}
-                  />
-                  <path
-                    d={`M ${tabX + 16} ${tabY + tabH - 6} H ${tabX + activityTabW - 16}`}
+                    d={`M ${tabX + 10} ${tabY + tabH - 3} H ${tabX + activityTabW - 10}`}
                     stroke={tabPaintColor}
-                    strokeWidth={selected ? 1.8 : 1.1}
+                    strokeWidth={selected ? 2.4 : 1.2}
                     strokeLinecap="round"
-                    opacity={disabledTab ? 0.22 : selected ? 0.95 : 0.42}
+                    opacity={disabledTab ? 0.14 : selected ? 0.95 : 0.34}
                   />
                   <TabIcon x={tabIconX} y={tabIconY} width={tabIconSize} height={tabIconSize} />
                   <text
@@ -13865,6 +12700,9 @@ function ManageControlPanel({
           activeNavLabel={activeNavLabel}
           selectedControlName={selectedControlName}
           runtimeDeviceSlots={runtimeDeviceSlots}
+          sharedTargetSelection={targetSelection}
+          onSharedTargetChange={onTargetChange}
+          activityState={activityState}
           cfg={cfg}
         />
       ) : (
@@ -13936,8 +12774,8 @@ function ManageControlPanel({
                 <text x={x + 18} y={scheduleY} fontSize={10} fontWeight={950} fill={color}>
                   WHEN THIS APPLIES
                 </text>
-                {schedules.slice(0, compact ? 3 : 6).map((item, index) => {
-                  const chipW = compact ? (leftW - 48) / 3 : (leftW - 68) / 6;
+                {schedules.slice(0, 6).map((item, index) => {
+                  const chipW = (leftW - 68) / 6;
                   return (
                     <ManagePill
                       key={`${spec.title}:schedule:${item.label}`}
@@ -14110,7 +12948,9 @@ function AssistantModeBoard({
   const [currentAction, setCurrentAction] = useState<AssistantQuickAction | null>(null);
   const [currentChoice, setCurrentChoice] = useState<AssistantQuickChoice | null>(null);
   const [composerSplitOffset, setComposerSplitOffset] = useState(0);
+  const [questionnaireSplitOffset, setQuestionnaireSplitOffset] = useState(0);
   const [resizingComposer, setResizingComposer] = useState(false);
+  const [resizingQuestionnaire, setResizingQuestionnaire] = useState(false);
   const messageSequenceRef = useRef(1);
   const handledActionSequenceRef = useRef(selectedActionSequence);
   const chatClipId = useId().replace(/[^a-zA-Z0-9_-]/g, '');
@@ -14133,6 +12973,7 @@ function AssistantModeBoard({
     setCurrentChoice(null);
     setDraftPrompt('');
     setCollapsedMessages({});
+    setQuestionnaireSplitOffset(0);
   }, [createReadyMessage, threadSequence]);
 
   useEffect(() => {
@@ -14140,42 +12981,28 @@ function AssistantModeBoard({
     handledActionSequenceRef.current = selectedActionSequence;
     setCurrentAction(selectedAction);
     setCurrentChoice(null);
-    setMessages((current) => [
-      ...current,
-      {
-        id: nextMessageId('you-action'),
-        sender: 'user',
-        text: selectedAction.label,
-        action: selectedAction,
-      },
-      {
-        id: nextMessageId('mia-action'),
-        sender: 'assistant',
-        text: `${selectedAction.label}. Choose an option below, or type your own question and I will pass it to AI with this context.`,
-        action: selectedAction,
-        choices: selectedAction.choices,
-        choiceActionLabel: selectedAction.label,
-      },
-    ]);
-  }, [nextMessageId, selectedAction, selectedActionSequence]);
+    setQuestionnaireSplitOffset(0);
+  }, [selectedAction, selectedActionSequence]);
 
   const headerH = 62;
   const pad = 18;
-  const composerH = 52;
+  const composerMinH = 52;
   const composerBottomInset = 8;
+  const composerDividerGap = 8;
   const chatX = x + pad;
   const chatY = y + headerH + 12;
   const chatW = w - pad * 2;
   const composerSideInset = clampNumber(chatW * 0.018, 24, 38);
   const composerX = chatX + composerSideInset;
   const composerW = chatW - composerSideInset * 2;
-  const composerY = y + h - composerH - composerBottomInset;
-  const defaultBottomReserve = composerH + composerBottomInset + 20;
-  const minBottomReserve = composerH + composerBottomInset + 18;
+  const defaultBottomReserve = composerMinH + composerBottomInset + composerDividerGap;
+  const minBottomReserve = composerMinH + composerBottomInset + 18;
   const maxBottomReserve = Math.max(minBottomReserve, Math.min(260, h - headerH - 190));
   const bottomReserve = clampNumber(defaultBottomReserve + composerSplitOffset, minBottomReserve, maxBottomReserve);
   const splitterY = y + h - bottomReserve;
-  const chatH = Math.max(180, splitterY - chatY - 8);
+  const composerH = Math.max(composerMinH, bottomReserve - composerBottomInset - composerDividerGap);
+  const composerY = y + h - composerH - composerBottomInset;
+  const chatH = Math.max(180, splitterY - chatY);
   const headerCenterY = y + 34;
   const headerDividerY = y + headerH - 2;
   const sideToggleSize = 36;
@@ -14194,14 +13021,24 @@ function AssistantModeBoard({
   const titleTextX = titleIconX + 42;
   const titleUnderlineX = titleIconX - 2;
   const titleUnderlineW = titleGroupW + 4;
-  const followUps = currentChoice?.followUps ?? (currentAction ? [] : ASSISTANT_DEFAULT_FOLLOW_UPS);
-  const followUpPanelH = followUps.length > 0 ? assistantFollowUpPanelHeight(chatW, followUps.length) : 0;
-  const chatStarted = messages.some((message) => message.sender === 'user');
-  const followUpLabel = chatStarted ? 'Follow Up:' : 'Ask:';
+  const questionnaire = assistantQuestionnaireState(currentAction, currentChoice);
+  const followUpPanelW = chatW;
+  const questionnaireMaxH = clampNumber(chatH * 0.3, 104, Math.max(104, chatH - 90));
+  const questionnaireBaseH =
+    questionnaire.options.length > 0
+      ? assistantFollowUpPanelHeight(followUpPanelW, questionnaire.options, questionnaireMaxH)
+      : 0;
+  const questionnaireMinH = questionnaire.options.length > 0 ? Math.min(questionnaireBaseH, 92) : 0;
+  const followUpPanelH =
+    questionnaire.options.length > 0
+      ? clampNumber(questionnaireBaseH + questionnaireSplitOffset, questionnaireMinH, questionnaireMaxH)
+      : 0;
   const followUpY = chatY + chatH - followUpPanelH;
   const firstBubbleY = chatY + 20;
   const messageGap = 16;
   const messageAvailableH = Math.max(90, followUpY - firstBubbleY - 18);
+  const messageScrollRailEndY = Math.max(chatY + 54, followUpPanelH > 0 ? followUpY - 20 : chatY + chatH - 22);
+  const messageScrollThumbEndY = Math.min(messageScrollRailEndY, chatY + 118);
   const messageLayouts = messages.map((message) => {
     const variant = message.sender === 'user' ? 'outgoing' : 'incoming';
     const config =
@@ -14222,6 +13059,7 @@ function AssistantModeBoard({
     (total, layout, index) => total + layout.bubbleH + (index === 0 ? 0 : messageGap),
     0
   );
+  const showMessageScrollRail = messageTotalH > messageAvailableH + 4;
   const messageOffsetY = Math.min(0, messageAvailableH - messageTotalH);
   let nextMessageY = firstBubbleY + messageOffsetY;
   const messagePositions = messageLayouts.map((layout) => {
@@ -14236,6 +13074,14 @@ function AssistantModeBoard({
     const svgY = (event.clientY - rect.top) * (cfg.canvas.height / rect.height);
     const nextBottomReserve = y + h - svgY;
     setComposerSplitOffset(clampNumber(nextBottomReserve, minBottomReserve, maxBottomReserve) - defaultBottomReserve);
+  };
+  const updateQuestionnaireSplitFromPointer = (event) => {
+    const svg = event.currentTarget.ownerSVGElement;
+    const rect = svg?.getBoundingClientRect();
+    if (!rect || rect.height <= 0 || questionnaire.options.length === 0) return;
+    const svgY = (event.clientY - rect.top) * (cfg.canvas.height / rect.height);
+    const nextPanelH = chatY + chatH - svgY;
+    setQuestionnaireSplitOffset(clampNumber(nextPanelH, questionnaireMinH, questionnaireMaxH) - questionnaireBaseH);
   };
   const toggleCollapsed = (messageId: string) => {
     setCollapsedMessages((current) => ({ ...current, [messageId]: !current[messageId] }));
@@ -14254,30 +13100,32 @@ function AssistantModeBoard({
     if (!cleanedPrompt) return;
     onAssistantMessage(assistantMessageCommandPayload(cleanedPrompt, action, choice, inputSource));
   };
-  const selectFollowUp = (prompt: string) => {
-    const cleanedPrompt = prompt.trim();
+  const selectFollowUp = (option: AssistantQuestionnaireOption) => {
+    const cleanedPrompt = option.prompt.trim();
     if (!cleanedPrompt) return;
+    if (option.choice) {
+      setCurrentChoice(option.choice);
+      setQuestionnaireSplitOffset(0);
+      onChoiceSelect(option.choice);
+    }
     setMessages((current) => [
       ...current,
       {
         id: nextMessageId('you-followup'),
         sender: 'user',
-        text: cleanedPrompt,
-        action: currentAction,
-      },
-      {
-        id: nextMessageId('mia-followup'),
-        sender: 'assistant',
-        text: 'I will pass this follow-up to MIA with the current chat context. The live AI runtime will fill the answer when connected.',
+        text: option.label,
         action: currentAction,
       },
     ]);
-    emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+    if (!option.choice) {
+      emitAssistantMessage(cleanedPrompt, 'typed', currentChoice, currentAction);
+    }
   };
   const selectMainChoice = (choice: AssistantQuickChoice, action: AssistantQuickAction | null = currentAction) => {
     const actionForChoice = action ?? currentAction;
     setCurrentAction(actionForChoice);
     setCurrentChoice(choice);
+    setQuestionnaireSplitOffset(0);
     onChoiceSelect(choice);
     setMessages((current) => [
       ...current,
@@ -14351,7 +13199,7 @@ function AssistantModeBoard({
           width={chatW}
           height={chatH}
           rx={14}
-          fill="rgba(2, 12, 20, 0.52)"
+          fill={ASSISTANT_CHAT_SURFACE_FILL}
           stroke={cfg.colors.panelStroke}
           strokeWidth={0.85}
         />
@@ -14382,37 +13230,70 @@ function AssistantModeBoard({
             />
           ))}
         </g>
-        <path
-          d={`M ${chatX + chatW - 13} ${chatY + 22} V ${chatY + chatH - 22}`}
-          stroke={cfg.colors.cyan}
-          strokeWidth={1.2}
-          strokeLinecap="round"
-          opacity={0.32}
-        />
-        <path
-          d={`M ${chatX + chatW - 13} ${chatY + 40} V ${chatY + 118}`}
-          stroke={cfg.colors.cyan}
-          strokeWidth={3.2}
-          strokeLinecap="round"
-          opacity={0.82}
-          filter="url(#parentPortalGlow)"
-        />
-        {followUps.length > 0 ? (
-          <AssistantFollowUpPanel
-            x={chatX + 14}
-            y={followUpY}
-            w={chatW - 28}
-            label={followUpLabel}
-            questions={followUps}
-            onSelect={selectFollowUp}
-            cfg={cfg}
-          />
+        {showMessageScrollRail ? (
+          <>
+            <path
+              d={`M ${chatX + chatW - 13} ${chatY + 22} V ${messageScrollRailEndY}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={1.2}
+              strokeLinecap="round"
+              opacity={0.32}
+            />
+            <path
+              d={`M ${chatX + chatW - 13} ${chatY + 40} V ${messageScrollThumbEndY}`}
+              stroke={cfg.colors.cyan}
+              strokeWidth={3.2}
+              strokeLinecap="round"
+              opacity={0.82}
+              filter="url(#parentPortalGlow)"
+            />
+          </>
+        ) : null}
+        {questionnaire.options.length > 0 ? (
+          <>
+            <g clipPath={`url(#${chatClipId}-assistantChat)`}>
+              <AssistantFollowUpPanel
+                x={chatX}
+                y={followUpY}
+                w={followUpPanelW}
+                h={followUpPanelH}
+                question={questionnaire.question}
+                options={questionnaire.options}
+                onSelect={selectFollowUp}
+                cfg={cfg}
+              />
+            </g>
+            <AssistantComposerSplitter
+              x={chatX + 6}
+              y={followUpY}
+              w={chatW - 12}
+              dragging={resizingQuestionnaire}
+              ariaLabel="Resize assistant questionnaire"
+              onPointerDown={(event) => {
+                event.preventDefault();
+                setResizingQuestionnaire(true);
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+                updateQuestionnaireSplitFromPointer(event);
+              }}
+              onPointerMove={(event) => {
+                if (!resizingQuestionnaire) return;
+                updateQuestionnaireSplitFromPointer(event);
+              }}
+              onPointerUp={(event) => {
+                setResizingQuestionnaire(false);
+                event.currentTarget.releasePointerCapture?.(event.pointerId);
+              }}
+              onPointerCancel={() => setResizingQuestionnaire(false)}
+              cfg={cfg}
+            />
+          </>
         ) : null}
         <AssistantComposerSplitter
           x={composerX}
           y={splitterY}
           w={composerW}
           dragging={resizingComposer}
+          ariaLabel="Resize assistant chat composer"
           onPointerDown={(event) => {
             event.preventDefault();
             setResizingComposer(true);
@@ -14449,7 +13330,15 @@ function AssistantChatFrame({ x, y, w, h, underlineX, underlineW, children, cfg 
   const headerH = 62;
   return (
     <g>
-      <ParentPortalPanelFrame x={x} y={y} w={w} h={h} color={cfg.colors.cyan} active fill="rgba(5, 20, 34, 0.94)" />
+      <ParentPortalPanelFrame
+        x={x}
+        y={y}
+        w={w}
+        h={h}
+        color={cfg.colors.cyan}
+        active
+        fill={ASSISTANT_CHAT_SURFACE_FILL}
+      />
       <AssistantHeaderDivider
         x={x}
         y={y + headerH - 2}
@@ -14657,9 +13546,9 @@ function AssistantChatBubbleBody({ text, choices, choiceColumnCount, choiceActio
             gap: 7,
           }}
         >
-          {choices.map((choice) => (
+          {choices.map((choice, index) => (
             <button
-              key={choice.label}
+              key={`${choice.label}:${index}`}
               type="button"
               aria-label={`Ask MIA about ${choiceActionLabel}: ${choice.label}`}
               onClick={(event) => {
@@ -14702,104 +13591,140 @@ function assistantBubbleChoiceBodyHeight(w: number, choiceCount: number): number
   return 12 + rowCount * 36;
 }
 
-function assistantFollowUpColumnCount(w: number): number {
-  if (w < 960) return 1;
-  if (w < 1100) return 2;
-  return 4;
+function assistantFollowUpQuestionWidth(option: AssistantQuestionnaireOption): number {
+  return clampNumber(option.label.length * 7.4 + 32, 132, 270);
 }
 
-function assistantFollowUpPanelHeight(w: number, questionCount = 4): number {
-  const visibleQuestionCount = Math.max(1, Math.min(4, questionCount));
-  const rowCount = Math.ceil(visibleQuestionCount / assistantFollowUpColumnCount(w));
-  return 42 + rowCount * 40;
+function assistantFollowUpLayout(w: number, options: readonly AssistantQuestionnaireOption[]) {
+  const usableW = Math.max(160, w);
+  const visibleOptions = options;
+  const items: Array<{
+    option: AssistantQuestionnaireOption;
+    x: number;
+    y: number;
+    w: number;
+    showLeftDivider: boolean;
+  }> = [];
+  let cursorX = 0;
+  let cursorY = 0;
+  let rowW = 0;
+  let maxRowW = 0;
+
+  visibleOptions.forEach((option) => {
+    const itemW = Math.min(assistantFollowUpQuestionWidth(option), usableW);
+    if (cursorX > 0 && cursorX + itemW > usableW) {
+      maxRowW = Math.max(maxRowW, rowW);
+      cursorX = 0;
+      cursorY += ASSISTANT_FOLLOW_UP_ROW_H;
+      rowW = 0;
+    }
+    items.push({
+      option,
+      x: cursorX,
+      y: cursorY,
+      w: itemW,
+      showLeftDivider: cursorX > 0,
+    });
+    rowW = cursorX + itemW;
+    cursorX = rowW + ASSISTANT_FOLLOW_UP_GAP;
+  });
+
+  maxRowW = Math.max(maxRowW, rowW);
+  const rowCount = items.length > 0 ? Math.floor(cursorY / ASSISTANT_FOLLOW_UP_ROW_H) + 1 : 0;
+  return { items, rowCount, contentW: maxRowW };
 }
 
-function AssistantFollowUpPanel({ x, y, w, label, questions, onSelect, cfg }) {
-  const visibleQuestions = questions.slice(0, 4);
-  const columnCount = Math.min(assistantFollowUpColumnCount(w), Math.max(1, visibleQuestions.length));
-  const rowCount = Math.max(1, Math.ceil(visibleQuestions.length / columnCount));
-  const labelY = y + 23;
-  const listY = y + 38;
-  const rowH = 40;
-  const h = 42 + rowCount * rowH;
-  const gap = 10;
-  const itemW = (w - gap * (columnCount - 1)) / columnCount;
-  const labelW = label.length * 8.9 + 20;
+function assistantFollowUpPanelHeight(
+  w: number,
+  options: readonly AssistantQuestionnaireOption[],
+  maxHeight: number
+): number {
+  const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
+  const contentHeight =
+    ASSISTANT_FOLLOW_UP_PAD_Y * 2 +
+    ASSISTANT_FOLLOW_UP_HEADER_H +
+    Math.max(1, layout.rowCount) * ASSISTANT_FOLLOW_UP_ROW_H;
+  return Math.min(maxHeight, contentHeight);
+}
+
+function AssistantFollowUpPanel({ x, y, w, h, question, options, onSelect, cfg }) {
+  const layout = assistantFollowUpLayout(w - ASSISTANT_FOLLOW_UP_PAD_X * 2, options);
+  const labelY = y + ASSISTANT_FOLLOW_UP_PAD_Y + 20;
+  const listY = y + ASSISTANT_FOLLOW_UP_PAD_Y + ASSISTANT_FOLLOW_UP_HEADER_H;
+  const bodyH = Math.max(ASSISTANT_FOLLOW_UP_ROW_H, h - ASSISTANT_FOLLOW_UP_PAD_Y * 2 - ASSISTANT_FOLLOW_UP_HEADER_H);
+  const listX = x + ASSISTANT_FOLLOW_UP_PAD_X;
+  const bodyW = w - ASSISTANT_FOLLOW_UP_PAD_X * 2;
+  const questionX = x + ASSISTANT_FOLLOW_UP_PAD_X;
   return (
-    <g role="group" aria-label="Follow-up questions">
-      <rect x={x} y={y} width={w} height={h} rx={10} fill="rgba(4, 18, 31, 0.18)" opacity={0.78} />
-      <path d={`M ${x + 8} ${labelY - 4} H ${x + 34}`} stroke={cfg.colors.bodyText} strokeWidth={0.8} opacity={0.76} />
-      <text x={x + 44} y={labelY} fontSize={15.2} fontWeight={970} fill={cfg.colors.bodyText}>
-        {label}
+    <g role="group" aria-label="Questionnaire suggestions">
+      <rect x={x} y={y} width={w} height={h} rx={0} fill={ASSISTANT_QUESTIONNAIRE_SURFACE_FILL} pointerEvents="none" />
+      <path d={`M ${x} ${y + 1} H ${x + w}`} stroke={cfg.colors.panelStroke} strokeWidth={0.8} opacity={0.78} />
+      <text x={questionX} y={labelY} fontSize={14.6} fontWeight={970} fill={cfg.colors.bodyText}>
+        {truncateTextForWidth(question, w - ASSISTANT_FOLLOW_UP_PAD_X * 2 - 80, 14.6, 0.56)}
       </text>
-      <path
-        d={`M ${x + 44 + labelW} ${labelY - 4} H ${x + w - 10}`}
-        stroke={cfg.colors.bodyText}
-        strokeWidth={0.8}
-        opacity={0.48}
-      />
-      {visibleQuestions.map((question, index) => {
-        const col = index % columnCount;
-        const row = Math.floor(index / columnCount);
-        return (
-          <AssistantFollowUpQuestion
-            key={question}
-            x={x + col * (itemW + gap)}
-            y={listY + row * rowH}
-            w={itemW}
-            h={rowH}
-            label={question}
-            showLeftDivider={col > 0}
-            onSelect={() => onSelect(question)}
-            cfg={cfg}
-          />
-        );
-      })}
-    </g>
-  );
-}
-
-function AssistantFollowUpQuestion({ x, y, w, h, label, showLeftDivider, onSelect, cfg }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <g
-      className="parent-portal-svg-clickable"
-      role="button"
-      tabIndex={0}
-      aria-label={`Ask MIA: ${label}`}
-      onClick={onSelect}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onFocus={() => setHovered(true)}
-      onBlur={() => setHovered(false)}
-    >
-      <title>{label}</title>
-      {showLeftDivider ? (
-        <path
-          d={`M ${x - 5} ${y + 5} V ${y + h - 5}`}
-          stroke={cfg.colors.panelStroke}
-          strokeWidth={0.65}
-          opacity={0.54}
-        />
-      ) : null}
       <rect
         x={x}
-        y={y + 2}
+        y={listY - 4}
         width={w}
-        height={h - 4}
-        rx={6}
-        fill={hovered ? colorAlpha(cfg.colors.cyan, '1d') : 'transparent'}
-        stroke="transparent"
+        height={bodyH + 8}
+        rx={0}
+        fill={ASSISTANT_QUESTIONNAIRE_BODY_FILL}
+        pointerEvents="none"
       />
+      <path d={`M ${x} ${listY - 4} H ${x + w}`} stroke={cfg.colors.panelStroke} strokeWidth={0.7} opacity={0.58} />
       <path
-        d={`M ${x + 2} ${y + h - 2} H ${x + w - 2}`}
+        d={`M ${x + 0.5} ${y + 0.5} H ${x + w - 0.5} V ${y + h - 0.5} H ${x + 0.5} Z`}
+        fill="none"
         stroke={cfg.colors.panelStroke}
-        strokeWidth={0.5}
-        opacity={0.34}
+        strokeWidth={0.65}
+        opacity={0.46}
+        pointerEvents="none"
       />
-      <text x={x + 10} y={y + 26} fontSize={14.2} fontWeight={940} fill={hovered ? '#ffffff' : cfg.colors.bodyText}>
-        {truncateTextForWidth(label, w - 20, 14.2, 0.56)}
-      </text>
+      <foreignObject x={listX} y={listY} width={bodyW} height={bodyH}>
+        <div
+          xmlns="http://www.w3.org/1999/xhtml"
+          style={{
+            alignContent: 'flex-start',
+            boxSizing: 'border-box',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: `${ASSISTANT_FOLLOW_UP_GAP}px`,
+            height: '100%',
+            overflowY: 'auto',
+            padding: '0 2px 4px',
+            scrollbarColor: `${colorAlpha(cfg.colors.cyan, '88')} transparent`,
+            scrollbarWidth: 'thin',
+            width: '100%',
+          }}
+        >
+          {layout.items.map((item) => (
+            <button
+              key={item.option.label}
+              type="button"
+              aria-label={`Ask MIA: ${item.option.label}`}
+              onClick={() => onSelect(item.option)}
+              style={{
+                background: colorAlpha(cfg.colors.cyan, '14'),
+                border: `1px solid ${colorAlpha(cfg.colors.panelStroke, '66')}`,
+                borderRadius: 6,
+                color: cfg.colors.bodyText,
+                cursor: 'pointer',
+                flex: `0 0 ${item.w}px`,
+                font: 'inherit',
+                fontSize: 13,
+                fontWeight: 930,
+                minHeight: 28,
+                padding: '5px 9px',
+                textAlign: 'left',
+                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                whiteSpace: 'normal',
+              }}
+            >
+              {item.option.label}
+            </button>
+          ))}
+        </div>
+      </foreignObject>
     </g>
   );
 }
@@ -14809,6 +13734,7 @@ function AssistantComposerSplitter({
   y,
   w,
   dragging,
+  ariaLabel,
   onPointerDown,
   onPointerMove,
   onPointerUp,
@@ -14825,7 +13751,7 @@ function AssistantComposerSplitter({
   return (
     <g
       role="separator"
-      aria-label="Resize assistant chat composer"
+      aria-label={ariaLabel}
       aria-orientation="horizontal"
       tabIndex={0}
       className="parent-portal-svg-clickable"
@@ -14868,7 +13794,7 @@ function AssistantComposerSplitter({
   );
 }
 
-function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
+function AssistantComposer({ x, y, w, h, prompt, onPromptChange, onSend, cfg }) {
   const displayPrompt = prompt || 'Ask MIA about activity, rules, reports, setup...';
   const attachSize = 30;
   const sendW = 58;
@@ -14885,7 +13811,7 @@ function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
     <g>
       <path
         d={topRoundedRectPath(x, y, w, h, 14)}
-        fill="rgba(2, 12, 20, 0.82)"
+        fill="rgba(2, 12, 20, 0.66)"
         stroke={cfg.colors.cyan}
         strokeWidth={0.95}
       />
@@ -14908,15 +13834,41 @@ function AssistantComposer({ x, y, w, h, prompt, onSend, cfg }) {
           strokeLinecap="round"
         />
       </g>
-      <text
-        x={inputX}
-        y={y + 30}
-        fontSize={12.5}
-        fontWeight={780}
-        fill={prompt ? cfg.colors.bodyText : cfg.colors.mutedText}
-      >
-        {truncateTextForWidth(displayPrompt, inputW, 12.5, 0.56)}
-      </text>
+      <foreignObject x={inputX} y={y + 9} width={inputW} height={Math.max(32, h - 18)}>
+        <textarea
+          xmlns="http://www.w3.org/1999/xhtml"
+          aria-label="Message MIA"
+          value={prompt}
+          placeholder={displayPrompt}
+          onChange={(event) => onPromptChange?.(event.currentTarget.value)}
+          onKeyDown={(event) => {
+            if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
+              event.preventDefault();
+              onSend?.();
+            }
+          }}
+          style={{
+            background: 'transparent',
+            border: 0,
+            boxSizing: 'border-box',
+            color: prompt ? cfg.colors.bodyText : cfg.colors.mutedText,
+            font: 'inherit',
+            fontSize: 12.5,
+            fontWeight: 780,
+            height: '100%',
+            lineHeight: 1.45,
+            margin: 0,
+            outline: 'none',
+            overflowY: 'auto',
+            padding: '3px 0',
+            resize: 'none',
+            scrollbarColor: `${colorAlpha(cfg.colors.cyan, '88')} transparent`,
+            scrollbarWidth: 'thin',
+            textShadow: '0 1px 2px rgba(0,0,0,0.44)',
+            width: '100%',
+          }}
+        />
+      </foreignObject>
       <g role="button" tabIndex={0} aria-label="Use voice input for MIA" className="parent-portal-svg-clickable">
         <title>Use voice input for MIA</title>
         <rect
@@ -15188,7 +14140,7 @@ function ProductShellRouteReadinessStrip({
     <g aria-label="Route readiness product shell status" pointerEvents="none">
       <path
         d={cutRectPath(x, y, w, h, 9)}
-        fill={colorAlpha(cfg.colors.panelFill, 'f2')}
+        fill={PARENT_PORTAL_GLASS.panelFill}
         stroke={color}
         strokeWidth={1}
         strokeOpacity={0.58}
@@ -15443,7 +14395,12 @@ function ParentPortalDetailPanel({
       <text x={x} y={y + 24} fontSize={titleSize} fontWeight={950} fill={cfg.colors.bodyText}>
         {title}
       </text>
-      <path d={`M ${x} ${y + 39} H ${x + w}`} stroke={color} strokeWidth={1.1} opacity={0.5} />
+      <path
+        d={`M ${x} ${y + 39} H ${x + w}`}
+        stroke={color}
+        strokeWidth={1.1}
+        opacity={PARENT_PORTAL_FRAME_MATERIAL.headerLineOpacity}
+      />
       {bodyLines.map((line, index) => (
         <text
           key={`${line}:${index}`}
@@ -15549,7 +14506,7 @@ function GuideQuickTab({
       <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={active} hovered={hovered} arrow={false} />
       <path
         d={cutRectPath(x, y, w, h, 7)}
-        fill={lit ? colorAlpha(color, active ? '42' : '24') : 'rgba(5, 19, 32, 0.86)'}
+        fill={lit ? colorAlpha(color, active ? '42' : '24') : PARENT_PORTAL_GLASS.cardFillStrong}
         stroke={lit ? color : cfg.colors.panelStroke}
         strokeWidth={active ? 1.25 : 0.85}
       />
@@ -15822,7 +14779,7 @@ function GuideTopicDetailPanel({
                 >
                   <path
                     d={cutRectPath(pillX, y + mainH - 30, pillW, 18, 5)}
-                    fill={selected ? colorAlpha(color, '44') : 'rgba(3, 12, 22, 0.82)'}
+                    fill={selected ? colorAlpha(color, '44') : PARENT_PORTAL_GLASS.panelFillSoft}
                     stroke={color}
                     strokeWidth={selected ? 1.2 : 0.75}
                   />
@@ -16058,7 +15015,7 @@ function GuideOverviewDashboard({
             />
             <path
               d={cutRectPath(cardX, cardY, cardW, cardH, 10)}
-              fill={selected ? colorAlpha(color, '2e') : 'rgba(5, 18, 31, 0.86)'}
+              fill={selected ? colorAlpha(color, '2e') : PARENT_PORTAL_GLASS.cardFillStrong}
               stroke={color}
               strokeWidth={selected ? 1.7 : 0.95}
               strokeOpacity={selected ? 0.92 : 0.62}
@@ -16388,7 +15345,7 @@ function ParentPortalTopCarouselCard({
         <>
           <path
             d={cutRectPath(x, y, w, h, 12)}
-            fill={active ? colorAlpha(color, selected ? '2e' : '20') : 'rgba(5, 17, 30, 0.88)'}
+            fill={active ? colorAlpha(color, selected ? '2e' : '20') : PARENT_PORTAL_GLASS.cardFillStrong}
             stroke={color}
             strokeWidth={selected ? 2 : hovered ? 1.55 : 1.05}
             strokeOpacity={selected ? 0.92 : hovered ? 0.8 : 0.56}
@@ -16480,7 +15437,7 @@ function ParentPortalTopCarouselCard({
             <>
               <path
                 d={cutRectPath(controlX, controlY, controlW, controlH, 8)}
-                fill={selected ? colorAlpha(color, '30') : 'rgba(4, 16, 28, 0.82)'}
+                fill={selected ? colorAlpha(color, '30') : PARENT_PORTAL_GLASS.controlFill}
                 stroke={color}
                 strokeWidth={selected ? 1.65 : 0.95}
                 strokeOpacity={selected ? 0.96 : 0.7}
@@ -16562,7 +15519,7 @@ function ParentPortalTopCarouselCard({
               ) : null}
               <path
                 d={cutRectPath(controlX, controlY, controlW, controlH, 15)}
-                fill={active ? colorAlpha(color, selected ? '24' : '18') : 'rgba(6, 18, 31, 0.95)'}
+                fill={active ? colorAlpha(color, selected ? '24' : '18') : PARENT_PORTAL_GLASS.controlFill}
                 stroke={active ? color : cfg.colors.panelStroke}
                 strokeWidth={selected ? 2 : hovered ? 1.65 : 1.05}
                 strokeOpacity={active ? 0.94 : 0.68}
@@ -16643,7 +15600,7 @@ function ParentPortalTopCarouselCard({
                   20,
                   6
                 )}
-                fill="rgba(4, 11, 24, 0.72)"
+                fill={PARENT_PORTAL_GLASS.panelFillDeep}
                 stroke="rgba(255,255,255,0.16)"
                 strokeWidth={0.7}
                 pointerEvents="none"
@@ -16812,7 +15769,9 @@ function ControlCategoryCard({
       <ClickableCardHoverChrome x={x} y={y} w={w} h={h} color={color} active={selected} hovered={hovered} />
       <path
         d={cutRectPath(x, y, w, h, 8)}
-        fill={selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : 'rgba(4, 16, 28, 0.78)'}
+        fill={
+          selected ? colorAlpha(color, '30') : hovered ? colorAlpha(color, '22') : PARENT_PORTAL_GLASS.cardFillStrong
+        }
         stroke={color}
         strokeWidth={selected ? 1.65 : hovered ? 1.35 : 0.95}
         strokeOpacity={active ? 0.96 : 0.68}
@@ -16997,7 +15956,7 @@ function ControlSubcategoryGrid({
           const color = themeColor ?? toneColor(subcategory.tone, cfg);
           const style = {
             '--parent-portal-subcategory-color': color,
-            '--parent-portal-subcategory-fill': selected ? colorAlpha(color, '30') : 'rgba(5, 19, 32, 0.9)',
+            '--parent-portal-subcategory-fill': selected ? colorAlpha(color, '30') : PARENT_PORTAL_GLASS.cardFill,
             '--parent-portal-subcategory-border': color,
           } as CSSProperties;
           return (
@@ -17098,6 +16057,7 @@ function MainBoard({
   onAgentCommand,
   onSelectNavLabel,
   activityState,
+  lanPairingAutoScanSequence,
   cfg,
   mainX,
   mainW,
@@ -17132,15 +16092,14 @@ function MainBoard({
   onAgentCommand?: (command: AgentCommandName, payload: Record<string, string>) => void;
   onSelectNavLabel: (navLabel: string) => void;
   activityState?: ParentPortalActivityState | null;
+  lanPairingAutoScanSequence: number;
   cfg: ParentPortalSvgControls;
   mainX: number;
   mainW: number;
   mainY: number;
   mainH: number;
 }) {
-  const activeTabConfig = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const detail = detailForNav(activeNavLabel, tabDetails[activeTab]);
-  const rankingTitle = activeTab === 'overall' ? 'PARENT CONTROL SNAPSHOT' : activeTabConfig.title;
   const activeNavKey = assetKey(activeNavLabel);
   const guideOverviewMode = activeNavKey.includes('start-here');
   const guideEligible = activeNavGroupId === 'guide';
@@ -17242,6 +16201,8 @@ function MainBoard({
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
   const [hoveredTopControlKey, setHoveredControlAreaKey] = useState<string | null>(null);
   const [lanPairingScanRequestedAtMs, setLanPairingScanRequestedAtMs] = useState<number | null>(null);
+  const lanPairingScanStartedAfterEventIdRef = useRef<AgentEventId | null>(null);
+  const latestLanPairingScanEventIdRef = useRef<AgentEventId | null>(null);
   const manageLane = selectedQuickControl ? manageLaneForControl(selectedQuickControl) : 'childPolicy';
   const selectedControlCategoryId =
     selectedCategoryIdOverride ??
@@ -17290,6 +16251,12 @@ function MainBoard({
   const activeFrameTitle =
     manageWorkspaceKind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : activeFrameRawTitle;
   const manageWorkspaceFullFrameMode = Boolean(manageWorkspaceKind);
+  const manageWorkspaceSupportsPerDevice = useMemo(
+    () =>
+      manageWorkspaceKind !== null &&
+      manageWorkspaceTargetOptions(manageWorkspaceKind).some((option) => option.id === 'perDevice'),
+    [manageWorkspaceKind]
+  );
   const manageWorkspaceHeaderIcon =
     manageWorkspaceKind === 'portal'
       ? PortalGatewayIcon
@@ -17312,45 +16279,77 @@ function MainBoard({
     () => manageBrowserTargetsForKey(activeNavLabel, selectedControlName),
     [activeNavLabel, selectedControlName]
   );
-  const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(() => ({
-    scope: 'perDevice',
-    device: '',
-    browser: 'Chrome',
-  }));
+  const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(
+    () => readStoredManageTargetSelection() ?? defaultManageTargetSelection()
+  );
+  useEffect(() => {
+    writeStoredManageTargetSelection(manageTargetSelection);
+  }, [manageTargetSelection]);
   const manageTargetContextKey = `${manageMode ? 'manage' : 'browse'}:${activeNavLabel}:${selectedControlName}:${
     manageCurrentSpec?.title ?? ''
   }:${manageLane}`;
-  const previousManageTargetContextKeyRef = useRef('');
+  const previousManageTargetContextKeyRef = useRef<string | null>(null);
   useEffect(() => {
     if (!manageMode || !manageCurrentSpec) return;
     const contextChanged = previousManageTargetContextKeyRef.current !== manageTargetContextKey;
     previousManageTargetContextKeyRef.current = manageTargetContextKey;
-    const defaultScope = isReportsManageTitle(manageCurrentSpec.title)
-      ? 'global'
-      : manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
+    const defaultScope = manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
     const defaultDevice = isLanPairingManageTitle(manageCurrentSpec.title)
       ? ''
       : manageDefaultDeviceSelection(manageCurrentSpec, manageRuntimeDeviceSlots);
+    const defaultDeviceId = defaultDevice;
     const defaultBrowser = manageBrowserTargets[0]?.label ?? 'All targets';
     setManageTargetSelection((current) => {
-      const nextScope = contextChanged ? defaultScope : current.scope;
-      const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current.device);
+      const preservePerDeviceReportScope =
+        isReportsManageTitle(manageCurrentSpec.title) &&
+        current.scope === 'perDevice' &&
+        (current.deviceId.length > 0 || current.device.length > 0);
+      const preservePerDeviceWorkspaceScope =
+        manageWorkspaceSupportsPerDevice &&
+        current.scope === 'perDevice' &&
+        (current.deviceId.length > 0 || current.device.length > 0);
+      const nextScope =
+        contextChanged && (preservePerDeviceReportScope || preservePerDeviceWorkspaceScope)
+          ? 'perDevice'
+          : contextChanged
+            ? defaultScope
+            : current.scope;
+      const deviceChoicesAvailable =
+        manageDeviceChoices(manageCurrentSpec.devices, manageRuntimeDeviceSlots).length > 0;
+      const currentSelectedSlot = reportSelectedSlot(manageRuntimeDeviceSlots, current);
+      const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current);
       const nextDevice =
-        isLanPairingManageTitle(manageCurrentSpec.title) || nextScope !== 'perDevice'
+        nextScope !== 'perDevice'
           ? defaultDevice
-          : currentDeviceAvailable
-            ? current.device
-            : defaultDevice;
+          : currentSelectedSlot
+            ? selectedDeviceIdentity(currentSelectedSlot)
+            : currentDeviceAvailable || (current.device.length > 0 && !deviceChoicesAvailable)
+              ? current.device
+              : defaultDevice;
+      const nextDeviceId =
+        nextScope !== 'perDevice'
+          ? defaultDeviceId
+          : currentSelectedSlot
+            ? currentSelectedSlot.value
+            : currentDeviceAvailable || (current.deviceId.length > 0 && !deviceChoicesAvailable)
+              ? current.deviceId
+              : defaultDevice;
       const nextBrowser =
         !contextChanged && manageBrowserTargets.some((target) => target.label === current.browser)
           ? current.browser
           : defaultBrowser;
-      if (current.scope === nextScope && current.device === nextDevice && current.browser === nextBrowser) {
+      if (
+        current.scope === nextScope &&
+        current.device === nextDevice &&
+        current.deviceId === nextDeviceId &&
+        current.browser === nextBrowser
+      ) {
         return current;
       }
       return {
         scope: nextScope,
         device: nextDevice,
+        deviceId: nextDeviceId,
         browser: nextBrowser,
       };
     });
@@ -17361,6 +16360,7 @@ function MainBoard({
     manageMode,
     manageRuntimeDeviceSlots,
     manageTargetContextKey,
+    manageWorkspaceSupportsPerDevice,
   ]);
   const controlBrowserMode = !guideMode && !manageMode && (tableVariant === 'controls' || aiBrowserMode);
   const expandedControlCategory =
@@ -17397,21 +16397,36 @@ function MainBoard({
       : controlBrowserMode
         ? `control:${normalizeSelectionId(selectedControlId)}`
         : `row:${selectedRowId}`;
-  const managePortalSection =
-    manageMode && (assetKey(activeNavItem?.sectionLabel) === 'portal' || manageWorkspaceFullFrameMode);
+  const managePortalSection = manageMode && (manageLane === 'portal' || manageWorkspaceFullFrameMode);
   const lanPairingDeviceGridMode =
     manageMode && manageCurrentSpec ? isLanPairingManageTitle(manageCurrentSpec.title) : false;
   const activityManageGridMode =
     manageMode && manageCurrentSpec ? isReportsManageTitle(manageCurrentSpec.title) : false;
   const manageDeviceGridMode = lanPairingDeviceGridMode || activityManageGridMode;
-  const latestLanPairingEventId = activityState?.lanPairingStatusEvent?.eventId ?? '';
+  const latestLanPairingScanEventId = activityState?.lanPairingBrowserDiscoveryEvent?.eventId ?? null;
   useEffect(() => {
-    if (!latestLanPairingEventId) return;
+    latestLanPairingScanEventIdRef.current = latestLanPairingScanEventId;
+  }, [latestLanPairingScanEventId]);
+  useEffect(() => {
+    if (!lanPairingDeviceGridMode || lanPairingAutoScanSequence <= 0) return;
+    lanPairingScanStartedAfterEventIdRef.current = latestLanPairingScanEventIdRef.current;
+    setLanPairingScanRequestedAtMs(Date.now());
+  }, [lanPairingAutoScanSequence, lanPairingDeviceGridMode]);
+  useEffect(() => {
+    if (
+      latestLanPairingScanEventId === null ||
+      latestLanPairingScanEventId === lanPairingScanStartedAfterEventIdRef.current
+    ) {
+      return;
+    }
     setLanPairingScanRequestedAtMs(null);
-  }, [latestLanPairingEventId]);
+  }, [latestLanPairingScanEventId]);
   useEffect(() => {
     if (lanPairingScanRequestedAtMs === null) return;
-    const timeoutId = window.setTimeout(() => setLanPairingScanRequestedAtMs(null), 8000);
+    const timeoutId = window.setTimeout(
+      () => setLanPairingScanRequestedAtMs(null),
+      PortalLanPairingScan.PendingIndicatorMs
+    );
     return () => window.clearTimeout(timeoutId);
   }, [lanPairingScanRequestedAtMs]);
   const manageSharedWorkspaceFrameMode = manageDeviceGridMode || manageWorkspaceFullFrameMode;
@@ -17614,11 +16629,11 @@ function MainBoard({
       accentColor={activeGroupThemeColor}
       active
       label={
-        lanPairingDeviceGridMode && (lanPairingScanRequestedAtMs !== null || !activityState?.lanAddDeviceReadModel)
-          ? 'SCANNING'
-          : 'SCAN'
+        lanPairingDeviceGridMode && lanPairingScanRequestedAtMs !== null
+          ? PortalLanPairingScan.Text.Scanning
+          : PortalLanPairingScan.Text.Scan
       }
-      iconHref={LAN_PAIRING_SCAN_ICON_HREF}
+      iconHref={PortalAssets.LanPairingScanIcon}
       onClick={() => {
         if (lanPairingDeviceGridMode) {
           setLanPairingScanRequestedAtMs(Date.now());
@@ -17626,18 +16641,18 @@ function MainBoard({
         onAgentCommand?.(
           lanPairingDeviceGridMode ? AgentCommand.LanPairingBrowserDiscoveryScan : AgentCommand.LanPairingStatusGet,
           {
-            [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+            [PortalAgentProtocolField.LanRouteId]: PortalAgentTargetDefaults.LocalNetworkWindowsAgent.route,
           }
         );
       }}
-      ariaLabel="Scan Local Area Network"
+      ariaLabel={PortalLanPairingScan.Text.ScanLocalAreaNetwork}
       cfg={cfg}
     />
   ) : null;
   const manageHeaderInfoLabel =
     manageMode && manageCurrentSpec && manageGuideRoutePath
       ? lanPairingDeviceGridMode
-        ? 'Open Local Area Network guide'
+        ? PortalLanPairingScan.Text.OpenLocalAreaNetworkGuide
         : `Open ${manageControlDisplayTitle(manageCurrentSpec.title)} guide`
       : undefined;
   const tableHeaderAction =
@@ -17685,7 +16700,7 @@ function MainBoard({
       />
     ) : null;
   return (
-    <g>
+    <g className="parent-portal-study-main-board">
       {showTopSection ? (
         <ParentPortalSectionFrame
           x={selectorX}
@@ -17709,7 +16724,7 @@ function MainBoard({
           footerH={topFrameFooterH}
           innerStrokeOpacity={manageMode ? 0.34 : controlBrowserMode ? 0.24 : undefined}
           bodyStrokeOpacity={manageMode || controlBrowserMode ? 0 : undefined}
-          bodyFill={manageMode || controlBrowserMode ? 'transparent' : undefined}
+          bodyFill={manageMode || controlBrowserMode ? PARENT_PORTAL_FRAME_MATERIAL.transparentFill : undefined}
           footerLineOpacity={topFramePaged && !controlBrowserMode ? undefined : 0}
           headerRight={null}
           showSideHandles={topFramePaged && !controlBrowserMode}
@@ -17898,7 +16913,7 @@ function MainBoard({
           h={bottomPanelH}
           title={
             lanPairingDeviceGridMode
-              ? LAN_PAIRING_HEADER_TITLE
+              ? PortalLanPairingScan.Text.HeaderTitle
               : manageSharedWorkspaceFrameMode
                 ? manageWorkspaceHeaderTitle.toUpperCase()
                 : manageWorkspaceHeaderTitle
@@ -17916,7 +16931,7 @@ function MainBoard({
           bodyInset={manageSharedWorkspaceFrameMode ? 0 : undefined}
           fullHeaderLine={manageSharedWorkspaceFrameMode}
           bodyStrokeOpacity={0}
-          bodyFill="transparent"
+          bodyFill={PARENT_PORTAL_FRAME_MATERIAL.transparentFill}
           footerLineOpacity={manageSharedWorkspaceFrameMode ? 0 : undefined}
           selected={detailPanelCanFocus ? tableFocused : false}
           onSelect={detailPanelCanFocus ? () => setFocusedSection('table') : undefined}
@@ -18055,14 +17070,14 @@ function DetailOverlay({
     <g role="dialog" aria-label={title}>
       <path
         d={cutRectPath(x - 8, y - 8, w + 16, h + 16, 18)}
-        fill="rgba(1, 5, 12, 0.72)"
+        fill="rgba(1, 5, 12, 0.58)"
         stroke={color}
         strokeWidth={1.2}
         opacity={0.98}
       />
       <path
         d={cutRectPath(x, y, w, h, 16)}
-        fill="rgba(5, 17, 30, 0.97)"
+        fill="rgba(5, 17, 30, 0.76)"
         stroke={color}
         strokeWidth={1.4}
         filter="url(#parentPortalGlow)"
@@ -18157,20 +17172,29 @@ function Defs() {
         <stop offset="70%" stopColor="rgb(0, 50, 100)" />
         <stop offset="100%" stopColor="rgb(0, 5, 15)" />
       </radialGradient>
-      <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#08243a" stopOpacity="0.94" />
-        <stop offset="48%" stopColor="#041624" stopOpacity="0.96" />
-        <stop offset="100%" stopColor="#061d31" stopOpacity="0.92" />
+      <linearGradient id="parentPortalFrameFill" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop
+          offset="0%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameSurfaceColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameSurfaceOpacity}
+        />
+        <stop
+          offset="100%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameSurfaceColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameSurfaceOpacity}
+        />
       </linearGradient>
-      <linearGradient id="parentPortalFrameGlass" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stopColor="#123f59" stopOpacity="0.32" />
-        <stop offset="52%" stopColor="#061525" stopOpacity="0.24" />
-        <stop offset="100%" stopColor="#0b2445" stopOpacity="0.28" />
-      </linearGradient>
-      <linearGradient id="parentPortalFrameShine" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.14" />
-        <stop offset="42%" stopColor="#42e8ff" stopOpacity="0.07" />
-        <stop offset="100%" stopColor="#42e8ff" stopOpacity="0" />
+      <linearGradient id="parentPortalFrameGlass" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop
+          offset="0%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameGlassColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameGlassOpacity}
+        />
+        <stop
+          offset="100%"
+          stopColor={PortalUnifiedChrome.CssVarRefs.FrameGlassColor}
+          stopOpacity={PortalUnifiedChrome.CssVarRefs.FrameGlassOpacity}
+        />
       </linearGradient>
       <linearGradient id="parentPortalCardBannerShade" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%" stopColor="#07111f" stopOpacity="0.16" />
@@ -18210,6 +17234,7 @@ export function ParentPortalSvgSurface({
   assistantRoutePath = '#/assistant',
   assistantReturnRoutePath = '#/overview',
   activityState = null,
+  lanPairingAutoScanSequence = 0,
   onRefreshParentPortal,
   onNavigate,
   onAssistantCommand,
@@ -18336,7 +17361,7 @@ export function ParentPortalSvgSurface({
   const [assistantMode, setAssistantMode] = useState(assistantRouteActive);
   const [assistantActionsVisible, setAssistantActionsVisible] = useState(() => cfg.canvas.width >= 1000);
   const [selectedAssistantActionId, setSelectedAssistantActionId] = useState<AssistantQuickActionId | null>(null);
-  const [selectedAssistantChoice, setSelectedAssistantChoice] = useState<AssistantQuickChoice | null>(null);
+  const [, setSelectedAssistantChoice] = useState<AssistantQuickChoice | null>(null);
   const [assistantThreadSequence, setAssistantThreadSequence] = useState(0);
   const [assistantActionSequence, setAssistantActionSequence] = useState(0);
   const [assistantRouteTransition, setAssistantRouteTransition] = useState<'opening' | 'closing' | null>(null);
@@ -18702,6 +17727,7 @@ export function ParentPortalSvgSurface({
               activateNavLabel(navLabel);
             }}
             activityState={activityState}
+            lanPairingAutoScanSequence={lanPairingAutoScanSequence}
             cfg={cfg}
             mainX={mainX}
             mainW={mainW}
@@ -18717,8 +17743,8 @@ export function ParentPortalSvgSurface({
               width={mainW - 56}
               height={82}
               rx={6}
-              fill="rgba(3, 7, 18, 0.82)"
-              stroke={error ? cfg.colors.red : cfg.colors.cyan}
+              fill="rgba(3, 7, 18, 0.66)"
+              stroke={cfg.colors.red}
               strokeWidth={1.2}
             />
             <text

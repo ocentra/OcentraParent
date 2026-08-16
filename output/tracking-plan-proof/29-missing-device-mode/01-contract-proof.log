@@ -1,6 +1,0 @@
-workpack=29-missing-device-mode
-proofState=contract-proof-partial
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Missing-device state contract exists; UI prominence and device-locate runtime proof remain pending.

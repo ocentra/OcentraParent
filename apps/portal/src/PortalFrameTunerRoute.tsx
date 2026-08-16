@@ -1,11 +1,11 @@
 import { useState, type ReactElement } from 'react';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
-  PortalDom,
-  PortalFrameTuner,
   type PortalAppLayoutSurfaceContentDraft,
   type PortalAppLayoutSurfaceKey,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/app-layout';
 import { TunerActionButton, TunerTabButton } from './PortalFrameTunerControls';
 import { PortalAppLayoutSurfacePanel } from './PortalAppLayoutSurfacePanel';
 import {
@@ -13,8 +13,8 @@ import {
   resetPortalParentPortalContent,
   resetPortalParentPortalSurface,
   setPortalFrameLayoutValue,
-  type PortalFrameLayout,
-} from './portal-frame-layout';
+} from './portal-frame-layout-state';
+import type { PortalFrameLayout } from './portal-frame-layout-types';
 import type { ParentPortalSvgControls } from '../../../vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurfaceControls';
 
 type PortalFrameTunerRouteProps = {

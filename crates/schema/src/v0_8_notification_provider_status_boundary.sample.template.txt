@@ -1,0 +1,94 @@
+const generatedAt = '2026-06-02T15:18:13.000Z';
+
+const SourceReadModelIds = {
+  ReportsNotificationsSync: 'reports-notifications-sync-provider-status',
+  IntegrityAlertStatusBridge: 'v0-8-integrity-alert-status-bridge',
+  DataCustody: 'data-custody-provider-boundary',
+} as const;
+
+export const V08NotificationProviderStatusBoundaryReadModel =
+  V08NotificationProviderStatusBoundaryReadModelSchema.parse({
+    schemaVersion: ParentContractSchemaVersion.V0_6,
+    readModelId: 'v0-8-notification-provider-status-boundary',
+    generatedAt,
+    sourceReadModelIds: Object.values(SourceReadModelIds),
+    entries: [
+      entry({
+        statusEntryId: 'notification-provider-queued-contract',
+        providerStatus: 'queued',
+        statusProofState: 'queued-contract-only',
+        quietHoursReadiness: 'ready',
+        escalationReadiness: 'ready',
+        deliveryClaimState: 'not-implemented',
+        notificationStatusRef: 'notification-status-queued-ref',
+        providerAttemptRef: 'provider-attempt-queued-ref',
+        readinessRefs: ['quiet-hours-ready-ref', 'escalation-ready-ref'],
+        providerReceiptRefs: [],
+        manualProofRequirements: [],
+        minimalPayloadBoundary:
+          'Queued means a typed provider attempt can be represented; no provider adapter sends or delivers the alert in this proof.',
+      }),
+      entry({
+        statusEntryId: 'notification-provider-delivered-receipt-required',
+        providerStatus: 'delivered',
+        statusProofState: 'delivery-receipt-required',
+        quietHoursReadiness: 'defer-noncritical',
+        escalationReadiness: 'waiting-window',
+        deliveryClaimState: 'receipt-required',
+        notificationStatusRef: 'notification-status-delivered-contract-ref',
+        providerAttemptRef: 'provider-attempt-delivered-contract-ref',
+        readinessRefs: ['quiet-hours-defer-noncritical-ref', 'escalation-waiting-window-ref'],
+        providerReceiptRefs: ['provider-delivery-receipt-required-ref'],
+        manualProofRequirements: ['real provider receipt artifact before delivery can be claimed'],
+        minimalPayloadBoundary:
+          'Delivered is a contract state for future provider receipts; this read model records no observed delivered notification.',
+      }),
+      entry({
+        statusEntryId: 'notification-provider-failed-contract',
+        providerStatus: 'failed',
+        statusProofState: 'failure-contract-only',
+        quietHoursReadiness: 'ready',
+        escalationReadiness: 'manual-required',
+        deliveryClaimState: 'not-observed',
+        notificationStatusRef: 'notification-status-failed-ref',
+        providerAttemptRef: 'provider-attempt-failed-ref',
+        readinessRefs: ['quiet-hours-ready-ref', 'escalation-manual-required-ref'],
+        providerReceiptRefs: [],
+        manualProofRequirements: ['provider error artifact before retry behavior is claimed'],
+        minimalPayloadBoundary:
+          'Failed status is visible and auditable as a contract state; retry behavior and provider error ingestion remain unimplemented.',
+      }),
+      entry({
+        statusEntryId: 'notification-provider-unavailable-contract',
+        providerStatus: 'unavailable',
+        statusProofState: 'provider-unavailable-contract',
+        quietHoursReadiness: 'unavailable',
+        escalationReadiness: 'unavailable',
+        deliveryClaimState: 'not-implemented',
+        notificationStatusRef: 'notification-status-provider-unavailable-ref',
+        providerAttemptRef: 'provider-attempt-unavailable-ref',
+        readinessRefs: ['quiet-hours-unavailable-ref', 'escalation-unavailable-ref'],
+        providerReceiptRefs: [],
+        manualProofRequirements: ['provider configuration or credential review'],
+        minimalPayloadBoundary:
+          'Unavailable status keeps child safety local and records that no provider adapter is configured or reachable.',
+      }),
+      entry({
+        statusEntryId: 'notification-provider-manual-required-contract',
+        providerStatus: 'manual-required',
+        statusProofState: 'manual-action-required',
+        quietHoursReadiness: 'manual-required',
+        escalationReadiness: 'manual-required',
+        deliveryClaimState: 'not-observed',
+        notificationStatusRef: 'notification-status-manual-required-ref',
+        providerAttemptRef: 'provider-attempt-manual-required-ref',
+        readinessRefs: ['quiet-hours-manual-required-ref', 'escalation-manual-required-ref'],
+        providerReceiptRefs: [],
+        manualProofRequirements: ['parent/provider preference setup', 'security review before provider enablement'],
+        minimalPayloadBoundary:
+          'Manual-required status covers provider setup, quiet-hours, and escalation readiness gaps without sending third-party payloads.',
+      }),
+    ],
+  });
+
+function entry(input: V08NotificationProviderStatusBoundaryEntryInput): V08NotificationProviderStatusBoundaryEntry {

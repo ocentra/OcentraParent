@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Current Workstream Ownership And Docs Plan
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Current Workstream Ownership And Docs Plan
 
 Date: 2026-06-01
@@ -170,7 +183,7 @@ Read before coding:
 - `docs/expectations/app-game-evidence.md`
 - `docs/expectations/network-flow-evidence.md`
 - `docs/expectations/policy.md`
-- `docs/expectations/roadmap-v0-8-enforcement-adapters.md`
+- `docs/roadmaps/roadmap-v0-8-enforcement-adapters.md`
 - `docs/product-capability-checklist.md`
 - `docs/product-roadmap.md`, V0.8 and Current Next Actions
 
@@ -222,7 +235,7 @@ Read before coding:
 - `docs/expectations/platforms.md`
 - `docs/expectations/real-evidence-proof.md`
 - `docs/expectations/data-custody.md`
-- `docs/expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md`
+- `docs/roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md`
 - `docs/product-capability-checklist.md`
 - `docs/product-roadmap.md`, V0.9 and Current Next Actions
 - `docs/full-platform-portal-ai-execution-plan.md`, Roles Not Separate Products
@@ -350,8 +363,8 @@ Read before coding:
 - `docs/expectations/cloud.md`
 - `docs/expectations/release-installer.md`
 - `docs/expectations/sync-export.md`
-- `docs/expectations/roadmap-v6-mobile-agents.md`
-- `docs/expectations/roadmap-v8-production-hardening.md`
+- `docs/roadmaps/roadmap-v6-mobile-agents.md`
+- `docs/roadmaps/roadmap-v8-production-hardening.md`
 - `docs/product-roadmap.md`, V6, V8, and Current Next Actions
 - `docs/full-platform-portal-ai-execution-plan.md`, Platform Plan
 

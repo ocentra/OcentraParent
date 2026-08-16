@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-platform-extension-routing: PASS
-- Matrix rows: 52
-- Platforms: macOS 12, iOS 12, Android 14, Linux 14

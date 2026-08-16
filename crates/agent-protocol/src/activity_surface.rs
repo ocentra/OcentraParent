@@ -3,8 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::ActivityEvidenceRef;
 
 #[path = "activity_surface/source_status.rs"]
-mod source_status;
-pub use source_status::ActivityAppGameSourceStatusRow;
+pub mod source_status;
+
+use source_status::ActivityAppGameSourceStatusRow;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySurfaceScopeKind {
@@ -289,14 +290,35 @@ pub struct ActivityScreenReadModelRow {
     pub capability_status: String,
     pub queue_job_id: String,
     pub model_runtime_ref: String,
+    pub model_id: String,
     pub provider_kind: String,
+    pub prompt_or_template_version: String,
     pub primary_category: Option<String>,
     pub confidence: f64,
     pub image_deletion_state: String,
+    pub raw_image_retained: bool,
     pub policy_eligible: bool,
     pub image_digest: String,
     pub custody_state: String,
     pub evidence: Vec<ActivityEvidenceRef>,
+    pub policy_decision_ref: Option<String>,
+    pub policy_action: Option<String>,
+    #[serde(default)]
+    pub policy_reason_codes: Vec<String>,
+    #[serde(default)]
+    pub parent_rule_refs: Vec<String>,
+    #[serde(default)]
+    pub local_model_runtime_refs: Vec<String>,
+    #[serde(default)]
+    pub parent_explanation_refs: Vec<String>,
+    #[serde(default)]
+    pub explanation_reasons: Vec<String>,
+    #[serde(default)]
+    pub deletion_reasons: Vec<String>,
+    #[serde(default)]
+    pub ocr_text_snippets: Vec<String>,
+    #[serde(default)]
+    pub redaction_notes: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

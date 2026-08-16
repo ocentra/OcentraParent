@@ -2,7 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{constants::v08_cross_platform_enforcement_capability_proof as proof, ParentPlatform};
 
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08CrossPlatformEnforcementCapabilitySurface {
     #[serde(rename = "windows-owned-process-terminate")]
     WindowsOwnedProcessTerminate,
@@ -38,29 +46,31 @@ pub enum V08CrossPlatformEnforcementCapabilitySurface {
 
 impl V08CrossPlatformEnforcementCapabilitySurface {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::WindowsOwnedProcessTerminate => proof::SURFACE_WINDOWS_OWNED_PROCESS,
-            Self::WindowsAppTimeLimitLifecycle => proof::SURFACE_WINDOWS_APP_TIME_LIMIT,
-            Self::WindowsManagedBrowserBoundary => proof::SURFACE_WINDOWS_MANAGED_BROWSER,
-            Self::WindowsUnmanagedBrowserProcessBoundary => {
-                proof::SURFACE_WINDOWS_UNMANAGED_BROWSER
-            }
-            Self::WindowsBroadInstalledAppBlocking => proof::SURFACE_WINDOWS_BROAD_APP,
-            Self::WindowsNetworkDomainBlocking => proof::SURFACE_WINDOWS_NETWORK_DOMAIN,
-            Self::LinuxEnforcementAdapterScaffold => proof::SURFACE_LINUX_ADAPTER_SCAFFOLD,
-            Self::MacosEnforcementAdapterScaffold => proof::SURFACE_MACOS_ADAPTER_SCAFFOLD,
-            Self::AndroidDeviceOwnerPolicy => proof::SURFACE_ANDROID_DEVICE_OWNER,
-            Self::AndroidPackageLifecycle => proof::SURFACE_ANDROID_PACKAGE_LIFECYCLE,
-            Self::AndroidStoreDistribution => proof::SURFACE_ANDROID_STORE,
-            Self::IosFamilyControls => proof::SURFACE_IOS_FAMILY_CONTROLS,
-            Self::IosSigningEntitlements => proof::SURFACE_IOS_SIGNING,
-            Self::IosTestflightDistribution => proof::SURFACE_IOS_TESTFLIGHT,
-            Self::IosStoreDistribution => proof::SURFACE_IOS_STORE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::SURFACE_WINDOWS_OWNED_PROCESS,
+                proof::SURFACE_WINDOWS_APP_TIME_LIMIT,
+                proof::SURFACE_WINDOWS_MANAGED_BROWSER,
+                proof::SURFACE_WINDOWS_UNMANAGED_BROWSER,
+                proof::SURFACE_WINDOWS_BROAD_APP,
+                proof::SURFACE_WINDOWS_NETWORK_DOMAIN,
+                proof::SURFACE_LINUX_ADAPTER_SCAFFOLD,
+                proof::SURFACE_MACOS_ADAPTER_SCAFFOLD,
+                proof::SURFACE_ANDROID_DEVICE_OWNER,
+                proof::SURFACE_ANDROID_PACKAGE_LIFECYCLE,
+                proof::SURFACE_ANDROID_STORE,
+                proof::SURFACE_IOS_FAMILY_CONTROLS,
+                proof::SURFACE_IOS_SIGNING,
+                proof::SURFACE_IOS_TESTFLIGHT,
+                proof::SURFACE_IOS_STORE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08CrossPlatformEnforcementCapabilityName {
     #[serde(rename = "headless-agent-service")]
     HeadlessAgentService,
@@ -92,25 +102,29 @@ pub enum V08CrossPlatformEnforcementCapabilityName {
 
 impl V08CrossPlatformEnforcementCapabilityName {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::HeadlessAgentService => proof::CAPABILITY_HEADLESS_AGENT_SERVICE,
-            Self::OwnedProcessTerminate => proof::CAPABILITY_OWNED_PROCESS_TERMINATE,
-            Self::AppTimeLimit => proof::CAPABILITY_APP_TIME_LIMIT,
-            Self::AppBlocking => proof::CAPABILITY_APP_BLOCKING,
-            Self::NetworkDomainBlocking => proof::CAPABILITY_NETWORK_DOMAIN_BLOCKING,
-            Self::ManagedBrowserControl => proof::CAPABILITY_MANAGED_BROWSER_CONTROL,
-            Self::UnmanagedBrowserDetection => proof::CAPABILITY_UNMANAGED_BROWSER_DETECTION,
-            Self::DeviceOwnerPolicy => proof::CAPABILITY_DEVICE_OWNER_POLICY,
-            Self::PackageLifecycle => proof::CAPABILITY_PACKAGE_LIFECYCLE,
-            Self::FamilyControlsEntitlement => proof::CAPABILITY_FAMILY_CONTROLS,
-            Self::SigningEntitlements => proof::CAPABILITY_SIGNING_ENTITLEMENTS,
-            Self::TestflightDistribution => proof::CAPABILITY_TESTFLIGHT_DISTRIBUTION,
-            Self::StoreDistribution => proof::CAPABILITY_STORE_DISTRIBUTION,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::CAPABILITY_HEADLESS_AGENT_SERVICE,
+                proof::CAPABILITY_OWNED_PROCESS_TERMINATE,
+                proof::CAPABILITY_APP_TIME_LIMIT,
+                proof::CAPABILITY_APP_BLOCKING,
+                proof::CAPABILITY_NETWORK_DOMAIN_BLOCKING,
+                proof::CAPABILITY_MANAGED_BROWSER_CONTROL,
+                proof::CAPABILITY_UNMANAGED_BROWSER_DETECTION,
+                proof::CAPABILITY_DEVICE_OWNER_POLICY,
+                proof::CAPABILITY_PACKAGE_LIFECYCLE,
+                proof::CAPABILITY_FAMILY_CONTROLS,
+                proof::CAPABILITY_SIGNING_ENTITLEMENTS,
+                proof::CAPABILITY_TESTFLIGHT_DISTRIBUTION,
+                proof::CAPABILITY_STORE_DISTRIBUTION,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08CrossPlatformCapabilityStatus {
     #[serde(rename = "supported")]
     Supported,
@@ -132,20 +146,24 @@ pub enum V08CrossPlatformCapabilityStatus {
 
 impl V08CrossPlatformCapabilityStatus {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Supported => proof::STATUS_SUPPORTED,
-            Self::Implemented => proof::STATUS_IMPLEMENTED,
-            Self::PreviewScaffold => proof::STATUS_PREVIEW_SCAFFOLD,
-            Self::Scaffold => proof::STATUS_SCAFFOLD,
-            Self::ManualRequired => proof::STATUS_MANUAL_REQUIRED,
-            Self::Unavailable => proof::STATUS_UNAVAILABLE,
-            Self::Planned => proof::STATUS_PLANNED,
-            Self::NotImplemented => proof::STATUS_NOT_IMPLEMENTED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::STATUS_SUPPORTED,
+                proof::STATUS_IMPLEMENTED,
+                proof::STATUS_PREVIEW_SCAFFOLD,
+                proof::STATUS_SCAFFOLD,
+                proof::STATUS_MANUAL_REQUIRED,
+                proof::STATUS_UNAVAILABLE,
+                proof::STATUS_PLANNED,
+                proof::STATUS_NOT_IMPLEMENTED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08CrossPlatformEnforcementCapabilityClaimState {
     #[serde(rename = "implemented-boundary")]
     ImplementedBoundary,
@@ -163,18 +181,22 @@ pub enum V08CrossPlatformEnforcementCapabilityClaimState {
 
 impl V08CrossPlatformEnforcementCapabilityClaimState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ImplementedBoundary => proof::CLAIM_IMPLEMENTED_BOUNDARY,
-            Self::ManualRequired => proof::CLAIM_MANUAL_REQUIRED,
-            Self::Scaffold => proof::CLAIM_SCAFFOLD,
-            Self::Unavailable => proof::CLAIM_UNAVAILABLE,
-            Self::Planned => proof::CLAIM_PLANNED,
-            Self::NotClaimed => proof::CLAIM_NOT_CLAIMED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::CLAIM_IMPLEMENTED_BOUNDARY,
+                proof::CLAIM_MANUAL_REQUIRED,
+                proof::CLAIM_SCAFFOLD,
+                proof::CLAIM_UNAVAILABLE,
+                proof::CLAIM_PLANNED,
+                proof::CLAIM_NOT_CLAIMED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08CrossPlatformAdapterExecutionState {
     #[serde(rename = "executes-real-service")]
     ExecutesRealService,
@@ -190,13 +212,16 @@ pub enum V08CrossPlatformAdapterExecutionState {
 
 impl V08CrossPlatformAdapterExecutionState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ExecutesRealService => proof::EXECUTES_REAL_SERVICE,
-            Self::ReturnsManualRequired => proof::RETURNS_MANUAL_REQUIRED,
-            Self::ReturnsUnavailable => proof::RETURNS_UNAVAILABLE,
-            Self::ScaffoldOnly => proof::SCAFFOLD_ONLY,
-            Self::NotInvoked => proof::NOT_INVOKED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::EXECUTES_REAL_SERVICE,
+                proof::RETURNS_MANUAL_REQUIRED,
+                proof::RETURNS_UNAVAILABLE,
+                proof::SCAFFOLD_ONLY,
+                proof::NOT_INVOKED,
+            ]
+        )
     }
 }
 

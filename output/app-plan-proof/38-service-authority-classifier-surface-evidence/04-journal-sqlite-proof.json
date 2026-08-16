@@ -1,7 +1,0 @@
-{
-  "workpack": "WP38",
-  "nativeAppCrossRecord": true,
-  "journalOrSqliteSchemaChanged": false,
-  "existingProjectionConsumed": true,
-  "storageClaim": "Native app proof reuses shared app/game staged projection rows and adds no new persistence claim."
-}

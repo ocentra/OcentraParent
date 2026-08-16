@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Notification Feature Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Notification Feature Expectations
 
 Notification features should reduce parent anxiety, not create noise. They also
@@ -188,6 +201,51 @@ cloud routing, parent notification UI/history/preferences, child delivery,
 production retry workers, production quiet-hours timers, durable production
 outbox storage, adapter dispatch, broad blocking, or platform support.
 
+`scripts/test/app-game-notification-preference-status-handoff-proof.mjs`
+validates a parent-domain app/game preference-status handoff proof that maps
+preference preflight rows into V3 notification preference and quiet-hours status
+entries for manual-required and disabled/unavailable states. It preserves
+scheduler, outbox, provider-channel, reason, parent preference, quiet-hours, and
+manual proof refs. This is a handoff boundary proof only: it does not claim
+parent preference UI, frequency controls, parent notification UI/history/
+preferences, provider delivery, receipt ingestion, credentials, cloud routing,
+child delivery, production retry workers, production quiet-hours timers, durable
+production outbox storage, adapter dispatch, broad blocking, or platform
+support.
+
+`scripts/test/social-alert-report-preference-status-handoff-proof.mjs` validates
+a parent-domain social alert/report preference-status handoff proof that maps
+social preference preflight rows into V3 notification preference and quiet-hours
+status entries for manual-required and disabled/unavailable states. It preserves
+scheduler, outbox, provider-channel, reason, parent preference, quiet-hours,
+scheduler-decision, and manual proof refs. This is a handoff boundary proof
+only: it does not claim parent notification preference UI, notification history
+UI, frequency controls, parent notification UI, provider delivery, receipt
+ingestion, credentials, cloud routing, child delivery, production retry workers,
+production quiet-hours timers, durable production outbox storage, adapter
+dispatch, report delivery execution, broad blocking, or platform support.
+
+`scripts/test/app-game-notification-parent-surface-intent-proof.mjs` validates a
+parent-domain app/game parent-surface intent proof that combines provider-status
+and preference-status handoff rows into redacted future history/preference
+intent rows with drill-in, audit, scheduler/outbox, provider, preference,
+quiet-hours, and manual-proof refs. This is a parent-surface intent boundary
+proof only: it does not claim rendered parent notification UI, parent preference
+UI, frequency controls, parent preference mutation, provider delivery, receipt
+ingestion, credentials, cloud routing, child delivery, production retry workers,
+production quiet-hours timers, durable production outbox/history storage,
+adapter dispatch, broad blocking, or platform support.
+
+`apps/portal/tests/app-game-notification-parent-surface-panel.test.ts` validates
+an App/Game Sessions route renderer for schema-backed app/game parent-surface
+intent rows. It proves the portal can display status, drill-in refs, source
+scheduler/outbox refs, manual proof requirements, and explicit no-runtime
+claims when a parsed parent-domain read model is supplied, and that absent
+service input stays empty instead of inventing rows. It does not claim a live
+service event, parent preference mutation, provider delivery, receipt ingestion,
+credentials, child delivery, production runtime, adapter dispatch, broad
+blocking, mobile UI, or platform support.
+
 ## Validation Gates
 
 - Contract tests for alert rules, reason codes, delivery status, retry state, quiet hours, and preferences.
@@ -214,6 +272,26 @@ outbox storage, adapter dispatch, broad blocking, or platform support.
   app/game local outbox records becoming deterministic scheduler JSONL rows,
   with manual/unavailable rows kept unscheduled and no production runtime,
   provider/UI/child/adapter claims.
+- Parent-domain social alert/report scheduler bridge proof for linked social
+  alert/report local outbox rows becoming deterministic scheduler JSONL rows,
+  with manual/unavailable rows kept unscheduled and no provider delivery,
+  receipt ingestion, quiet-hours timer execution, retry worker execution,
+  parent/child UI delivery, report delivery execution, final policy execution,
+  connector/native runtime, adapter dispatch, or enforcement claims.
+- Parent-domain social alert/report preference preflight proof for scheduled
+  social alert/report rows becoming parent-preference-required rows that require
+  parent notification preference, frequency-control, and quiet-hours policy
+  proof before delivery claims, with manual/unavailable rows kept blocked and no
+  preference UI, notification history UI, provider delivery, child delivery,
+  report delivery execution, final policy execution, connector/native runtime,
+  adapter dispatch, or enforcement claims.
+- Logging-domain social alert/report audit-history bridge proof for linked
+  social alert/report local outbox rows becoming queued audit-history handoff
+  entries, with manual/unavailable rows kept blocked/manual and no provider
+  delivery, receipt ingestion, credentials, parent notification history UI,
+  child delivery, retry or quiet-hours runtime execution, report delivery
+  execution, final policy execution, connector/native runtime, adapter dispatch,
+  or enforcement claims.
 - Logging-domain app/game notification audit-history bridge proof for linked
   app/game local outbox rows becoming metadata-only audit-history entries, with
   manual/unavailable rows kept blocked/manual and no production runtime,
@@ -231,6 +309,21 @@ outbox storage, adapter dispatch, broad blocking, or platform support.
   manual-required/unavailable rows, with no delivery, receipt, credential, UI,
   child, production runtime, adapter-dispatch, broad-blocking, or platform
   claims.
+- Parent-domain app/game notification preference-status handoff proof for
+  preference preflight rows becoming V3 notification preference/quiet-hours
+  status entries, with no parent preference UI, notification UI, delivery,
+  receipt, credential, child, production runtime, adapter-dispatch,
+  broad-blocking, or platform claims.
+- Parent-domain app/game notification parent-surface intent proof for provider
+  and preference status rows becoming redacted parent history/preference intent
+  rows, with no rendered UI, parent preference mutation, provider delivery,
+  receipt, credential, child, production runtime, adapter-dispatch,
+  broad-blocking, or platform claims.
+- Portal App/Game Sessions parent-surface renderer proof for schema-backed
+  parent-surface intent rows, with absent service input rendered as no-data and
+  no parent preference mutation, provider delivery, receipt, credential, child,
+  production runtime, adapter-dispatch, broad-blocking, mobile UI, or platform
+  claim.
 - Adapter boundary tests for success, retryable failure, permanent failure, webhook receipt, and disabled provider.
 - Integration tests proving notification intents reference stored evidence or policy decisions.
 - Parent-surface coverage for notification history, preference changes, quiet hours, and sensitive-detail drill-in behind authentication.

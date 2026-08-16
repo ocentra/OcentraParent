@@ -1,7 +1,0 @@
-{
-    "sharedAppGameProof":  "output/app-game-plan-proof/01-contract-boundary-and-effect-schemas",
-    "workpack":  "01-contract-boundary-and-effect-schemas",
-    "journalSqliteChanged":  false,
-    "status":  "not-applicable-for-reconciliation",
-    "reason":  "No new journal, SQLite, replay, or read-model persistence behavior was added by this reconciliation."
-}

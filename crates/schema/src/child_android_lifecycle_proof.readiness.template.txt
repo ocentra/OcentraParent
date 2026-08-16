@@ -1,0 +1,75 @@
+function childAndroidLifecycleReadModelIsHonest(readModel: ChildAndroidLifecycleReadModelCandidate): boolean {
+  return (
+    packageProofIsHonest(readModel.packageProof) &&
+    protocolBridgeProofIsHonest(readModel.protocolBridgeProof, readModel.packageProof.nativeBridgeClass) &&
+    capabilityProofsAreHonest(readModel.capabilityProofs) &&
+    lifecycleAssertionsAreHonest(readModel.packageLifecycleAssertions) &&
+    permissionProofsAreHonest(readModel.permissionProofs) &&
+    installAuthorityProofIsHonest(readModel.installAuthorityProof)
+  );
+}
+
+function packageProofIsHonest(packageProof: ChildAndroidPackageProof): boolean {
+  return (
+    packageProof.packageId === 'ca.ocentra.parent.agent' &&
+    packageProof.applicationId === packageProof.packageId &&
+    packageProof.launchActivity === 'ca.ocentra.parent.agent/.MainActivity' &&
+    packageProof.foregroundService === 'ca.ocentra.parent.agent/.OcentraParentAgentService' &&
+    packageProof.nativeBridgeClass === 'ca.ocentra.parent.agent.ChildAndroidLifecycleProof' &&
+    packageProof.minSdk >= 26 &&
+    packageProof.targetSdk >= 35 &&
+    packageProof.debugApkPath.endsWith('.apk') &&
+    packageProof.latestApkPath.endsWith('.apk') &&
+    packageProof.checksumState === 'ci-mechanical-proof' &&
+    packageProof.releaseCommand === 'cmd /c npm run release:package:android'
+  );
+}
+
+function protocolBridgeProofIsHonest(
+  bridgeProof: ChildAndroidProtocolBridgeProof,
+  nativeBridgeClass: ChildAndroidPackageProof['nativeBridgeClass']
+): boolean {
+  return (
+    bridgeProof.bridgeState === 'package-local-scaffold' &&
+    bridgeProof.externalTransportState === 'not-implemented' &&
+    bridgeProof.nativeBridgeClass === nativeBridgeClass &&
+    bridgeProof.runtimeOwner === 'android-native-wrapper' &&
+    requiredValuesArePresent(bridgeProof.commands, RequiredCommands) &&
+    requiredValuesArePresent(bridgeProof.events, RequiredEvents)
+  );
+}
+
+function capabilityProofsAreHonest(proofs: ReadonlyArray<ChildAndroidCapabilityProof>): boolean {
+  const byCapability = new Map(proofs.map((entry) => [entry.capability, entry] as const));
+  if (byCapability.size !== proofs.length || byCapability.size !== RequiredCapabilities.length) {
+    return false;
+  }
+
+  return RequiredCapabilities.every((capability) => {
+    const proof = byCapability.get(capability);
+    if (!proof || proof.parentCapability !== capability) {
+      return false;
+    }
+    return capabilityProofStateIsHonest(proof);
+  });
+}
+
+function capabilityProofStateIsHonest(proof: ChildAndroidCapabilityProof): boolean {
+  if (proof.capability === 'foreground-mobile-service' || proof.capability === 'package-lifecycle') {
+    return proof.parentCapabilityStatus === 'manual-required' && proof.proofState === 'ci-mechanical-proof';
+  }
+
+  if (proof.capability === 'typed-protocol-bridge') {
+    return proof.parentCapabilityStatus === 'scaffold' && proof.proofState === 'ci-mechanical-proof';
+  }
+
+  if (proof.capability === 'local-storage') {
+    return proof.parentCapabilityStatus === 'scaffold' && proof.proofState === 'scaffold';
+  }
+
+  if (proof.capability === 'store-distribution') {
+    return proof.parentCapabilityStatus === 'planned' && proof.proofState === 'planned';
+  }
+
+  return proof.parentCapabilityStatus === 'manual-required' && proof.proofState === 'manual-required';
+}

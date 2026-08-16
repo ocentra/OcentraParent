@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Policy Feature Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Policy Feature Expectations
 
 Policy features define what parents want the local child-device AI evaluator to allow, limit, warn about, block, or send back for parent approval.
@@ -100,6 +113,9 @@ The evaluator must define and test conflict resolution before enforcement is pos
 - Invalid rules fail schema validation and are not activated.
 - Rule-set version mismatch returns a typed rejection.
 - Missing evidence returns unknown, parent-review, or no-op according to explicit parent rules; it must not invent content claims.
+- App/game policy previews must preserve source freshness readiness. Stale,
+  missing, manual-required, unavailable, and not-claimed app/game source rows
+  stay manual-required before policy preview output can be accepted.
 - Local AI unavailable falls back to deterministic rule behavior, unknown, parent-review, or warn.
 - Timer state loss must be recoverable from journaled decision and timer events where the feature has enabled timers.
 - Portal or cloud unavailability does not stop local evaluation of already validated local rules.
@@ -295,6 +311,9 @@ The evaluator must define and test conflict resolution before enforcement is pos
 - Integration tests use real stored evidence and real policy contracts, not mocks or fake provider output.
 - Dry-run tests prove preview and enforcement modes return consistent decisions with different enforcement handoff state.
 - Portal tests, when UI exists, prove rule authoring sends typed intents and does not run evaluation in the browser.
+- Source-gated policy preview read-model tests prove source-manual-required
+  rows remain visible without preview decision refs, compiler-manual-required
+  rows stay distinct, and service/runtime/UI/adapter claims remain false.
 
 ## Non-Goals
 

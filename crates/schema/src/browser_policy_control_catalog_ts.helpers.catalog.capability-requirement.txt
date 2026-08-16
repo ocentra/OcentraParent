@@ -1,0 +1,19 @@
+export function capabilityRequirementForGenerated(sectionTitle: string, sourceText: string): string {
+  const searchable = `${sectionTitle} ${sourceText}`;
+  if (/Exact URL|active tab|page title|download source/iu.test(searchable)) {
+    return 'managed-browser-or-explicit-browser-integration';
+  }
+  if (/Network/iu.test(searchable)) {
+    return 'network-metadata-observation-only';
+  }
+  if (/Private|Tor|permission/iu.test(searchable)) {
+    return 'explicit-permission-and-platform-proof';
+  }
+  if (/AI/iu.test(searchable)) {
+    return 'local-ai-runtime-with-parent-enabled-analysis';
+  }
+  if (/Audit|Retention|Custody|Never-Collect/iu.test(searchable)) {
+    return 'parent-owned-local-storage-and-redaction';
+  }
+  return 'browser-control-capability-registry';
+}

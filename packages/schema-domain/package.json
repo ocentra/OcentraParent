@@ -3,21 +3,356 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Shared Effect Schema validation helpers.",
+  "description": "Generated/thin validation and edge-decoder helpers over Rust-owned contracts.",
   "exports": {
+    "./account-identity-authority": {
+      "import": "./dist/account-identity-authority.js",
+      "types": "./dist/account-identity-authority.d.ts"
+    },
+    "./app-runtime-decision": {
+      "import": "./dist/app-runtime-decision.js",
+      "types": "./dist/app-runtime-decision.d.ts"
+    },
+    "./app-game-policy-preview-handoff": {
+      "import": "./dist/app-game-policy-preview-handoff.js",
+      "types": "./dist/app-game-policy-preview-handoff.d.ts"
+    },
+    "./app-game-policy-preview-handoff-rules": {
+      "import": "./dist/app-game-policy-preview-handoff-rules.js",
+      "types": "./dist/app-game-policy-preview-handoff-rules.d.ts"
+    },
+    "./app-game-policy-target-compiler": {
+      "import": "./dist/app-game-policy-target-compiler.js",
+      "types": "./dist/app-game-policy-target-compiler.d.ts"
+    },
+    "./app-game-policy-target-compiler-rules": {
+      "import": "./dist/app-game-policy-target-compiler-rules.js",
+      "types": "./dist/app-game-policy-target-compiler-rules.d.ts"
+    },
+    "./app-game-source-freshness-policy-consumption": {
+      "import": "./dist/app-game-source-freshness-policy-consumption.js",
+      "types": "./dist/app-game-source-freshness-policy-consumption.d.ts"
+    },
+    "./app-game-source-freshness-policy-consumption-rules": {
+      "import": "./dist/app-game-source-freshness-policy-consumption-rules.js",
+      "types": "./dist/app-game-source-freshness-policy-consumption-rules.d.ts"
+    },
+    "./app-game-source-freshness-policy-consumption-values": {
+      "import": "./dist/app-game-source-freshness-policy-consumption-values.js",
+      "types": "./dist/app-game-source-freshness-policy-consumption-values.d.ts"
+    },
+    "./app-game-source-freshness-preview-gate-rules": {
+      "import": "./dist/app-game-source-freshness-preview-gate-rules.js",
+      "types": "./dist/app-game-source-freshness-preview-gate-rules.d.ts"
+    },
+    "./app-game-source-gated-policy-preview-read-model-rules": {
+      "import": "./dist/app-game-source-gated-policy-preview-read-model-rules.js",
+      "types": "./dist/app-game-source-gated-policy-preview-read-model-rules.d.ts"
+    },
+    "./billing-checkout-portal-boundary-values": {
+      "import": "./dist/billing-checkout-portal-boundary-values.js",
+      "types": "./dist/billing-checkout-portal-boundary-values.d.ts"
+    },
+    "./billing-entitlement": {
+      "import": "./dist/billing-entitlement.js",
+      "types": "./dist/billing-entitlement.d.ts"
+    },
+    "./billing-entitlement-runtime-proof": {
+      "import": "./dist/billing-entitlement-runtime-proof.js",
+      "types": "./dist/billing-entitlement-runtime-proof.d.ts"
+    },
+    "./billing-entitlement-runtime-proof-values": {
+      "import": "./dist/billing-entitlement-runtime-proof-values.js",
+      "types": "./dist/billing-entitlement-runtime-proof-values.d.ts"
+    },
+    "./billing-entitlement-values": {
+      "import": "./dist/billing-entitlement-values.js",
+      "types": "./dist/billing-entitlement-values.d.ts"
+    },
+    "./billing-invoice-tax-refund-dispute-values": {
+      "import": "./dist/billing-invoice-tax-refund-dispute-values.js",
+      "types": "./dist/billing-invoice-tax-refund-dispute-values.d.ts"
+    },
+    "./browser-control-identifiers": {
+      "import": "./dist/browser-control-identifiers.js",
+      "types": "./dist/browser-control-identifiers.d.ts"
+    },
+    "./browser-control-manifest": {
+      "import": "./dist/browser-control-manifest.js",
+      "types": "./dist/browser-control-manifest.d.ts"
+    },
+    "./browser-control-values": {
+      "import": "./dist/browser-control-values.js",
+      "types": "./dist/browser-control-values.d.ts"
+    },
+    "./browser-game-policy-compiler": {
+      "import": "./dist/browser-game-policy-compiler.js",
+      "types": "./dist/browser-game-policy-compiler.d.ts"
+    },
+    "./browser-game-policy-compiler-values": {
+      "import": "./dist/browser-game-policy-compiler-values.js",
+      "types": "./dist/browser-game-policy-compiler-values.d.ts"
+    },
+    "./browser-policy-questionnaire-forest-contract": {
+      "import": "./dist/browser-policy-questionnaire-forest-contract.js",
+      "types": "./dist/browser-policy-questionnaire-forest-contract.d.ts"
+    },
+    "./browser-schemas": {
+      "import": "./dist/browser-schemas.js",
+      "types": "./dist/browser-schemas.d.ts"
+    },
+    "./browser-social-feed-video-route-gate": {
+      "import": "./dist/browser-social-feed-video-route-gate.js",
+      "types": "./dist/browser-social-feed-video-route-gate.d.ts"
+    },
+    "./browser-target-schemas": {
+      "import": "./dist/browser-target-schemas.js",
+      "types": "./dist/browser-target-schemas.d.ts"
+    },
+    "./browser-unmanaged-process-schemas": {
+      "import": "./dist/browser-unmanaged-process-schemas.js",
+      "types": "./dist/browser-unmanaged-process-schemas.d.ts"
+    },
+    "./browser-url-intelligence-schemas": {
+      "import": "./dist/browser-url-intelligence-schemas.js",
+      "types": "./dist/browser-url-intelligence-schemas.d.ts"
+    },
+    "./capabilities": {
+      "import": "./dist/capabilities.js",
+      "types": "./dist/capabilities.d.ts"
+    },
+    "./child-android-device-proof-artifact-gate": {
+      "import": "./dist/child-android-device-proof-artifact-gate.js",
+      "types": "./dist/child-android-device-proof-artifact-gate.d.ts"
+    },
+    "./child-android-lifecycle-proof": {
+      "import": "./dist/child-android-lifecycle-proof.js",
+      "types": "./dist/child-android-lifecycle-proof.d.ts"
+    },
+    "./child-android-permission-capability-proof": {
+      "import": "./dist/child-android-permission-capability-proof.js",
+      "types": "./dist/child-android-permission-capability-proof.d.ts"
+    },
+    "./child-android-privileged-capability-proof": {
+      "import": "./dist/child-android-privileged-capability-proof.js",
+      "types": "./dist/child-android-privileged-capability-proof.d.ts"
+    },
+    "./child-android-service-protocol-proof": {
+      "import": "./dist/child-android-service-protocol-proof.js",
+      "types": "./dist/child-android-service-protocol-proof.d.ts"
+    },
+    "./child-android-storage-protocol-proof": {
+      "import": "./dist/child-android-storage-protocol-proof.js",
+      "types": "./dist/child-android-storage-protocol-proof.d.ts"
+    },
+    "./child-domain-runtime-events": {
+      "import": "./dist/child-domain-runtime-events.js",
+      "types": "./dist/child-domain-runtime-events.d.ts"
+    },
+    "./child-linux-service-package-proof": {
+      "import": "./dist/child-linux-service-package-proof.js",
+      "types": "./dist/child-linux-service-package-proof.d.ts"
+    },
+    "./child-macos-service-package-proof": {
+      "import": "./dist/child-macos-service-package-proof.js",
+      "types": "./dist/child-macos-service-package-proof.d.ts"
+    },
     "./effect": {
       "import": "./dist/effect.js",
       "types": "./dist/effect.d.ts"
+    },
+    "./event-primitives": {
+      "import": "./dist/event-primitives.js",
+      "types": "./dist/event-primitives.d.ts"
+    },
+    "./eventing": {
+      "import": "./dist/eventing.js",
+      "types": "./dist/eventing.d.ts"
+    },
+    "./evidence-kinds": {
+      "import": "./dist/evidence-kinds.js",
+      "types": "./dist/evidence-kinds.d.ts"
+    },
+    "./evidence-primitives": {
+      "import": "./dist/evidence-primitives.js",
+      "types": "./dist/evidence-primitives.d.ts"
+    },
+    "./family-reference-primitives": {
+      "import": "./dist/family-reference-primitives.js",
+      "types": "./dist/family-reference-primitives.d.ts"
+    },
+    "./family-references": {
+      "import": "./dist/family-references.js",
+      "types": "./dist/family-references.d.ts"
+    },
+    "./generated/app-game-preview-source-freshness-data": {
+      "import": "./dist/generated-app-game-preview-source-freshness-data.js",
+      "types": "./dist/generated-app-game-preview-source-freshness-data.d.ts"
+    },
+    "./generated/app-game-preview-source-freshness-rules": {
+      "import": "./dist/generated-app-game-preview-source-freshness-rules.js",
+      "types": "./dist/generated-app-game-preview-source-freshness-rules.d.ts"
+    },
+    "./generated/app-game-preview-source-freshness-values": {
+      "import": "./dist/generated-app-game-preview-source-freshness-values.js",
+      "types": "./dist/generated-app-game-preview-source-freshness-values.d.ts"
+    },
+    "./generated/app-game-timer-service-readiness-rules": {
+      "import": "./dist/generated-app-game-timer-service-readiness-rules.js",
+      "types": "./dist/generated-app-game-timer-service-readiness-rules.d.ts"
+    },
+    "./generated/app-game-timer-service-readiness-values": {
+      "import": "./dist/generated-app-game-timer-service-readiness-values.js",
+      "types": "./dist/generated-app-game-timer-service-readiness-values.d.ts"
+    },
+    "./generated/app-riskdetection-contract-rules": {
+      "import": "./dist/generated-app-riskdetection-contract-rules.js",
+      "types": "./dist/generated-app-riskdetection-contract-rules.d.ts"
+    },
+    "./generated/app-riskdetection-contracts": {
+      "import": "./dist/generated-app-riskdetection-contracts.js",
+      "types": "./dist/generated-app-riskdetection-contracts.d.ts"
+    },
+    "./generated/browser-policy-control-catalog-contracts": {
+      "import": "./dist/generated-browser-policy-control-catalog-contracts.js",
+      "types": "./dist/generated-browser-policy-control-catalog-contracts.d.ts"
+    },
+    "./generated/browser-policy-control-catalog-helpers": {
+      "import": "./dist/generated-browser-policy-control-catalog-helpers.js",
+      "types": "./dist/generated-browser-policy-control-catalog-helpers.d.ts"
+    },
+    "./generated/child-ios-entitlement-capability-proof-contracts": {
+      "import": "./dist/generated-child-ios-entitlement-capability-proof-contracts.js",
+      "types": "./dist/generated-child-ios-entitlement-capability-proof-contracts.d.ts"
+    },
+    "./generated/child-signing-store-device-owner-matrix-contracts": {
+      "import": "./dist/generated-child-signing-store-device-owner-matrix-contracts.js",
+      "types": "./dist/generated-child-signing-store-device-owner-matrix-contracts.d.ts"
+    },
+    "./generated/data-custody-source-of-truth-contracts": {
+      "import": "./dist/generated-data-custody-source-of-truth-contracts.js",
+      "types": "./dist/generated-data-custody-source-of-truth-contracts.d.ts"
+    },
+    "./generated/logging-contracts": {
+      "import": "./dist/generated-logging-contracts.js",
+      "types": "./dist/generated-logging-contracts.d.ts"
+    },
+    "./generated/parent-owned-sync-export-contract-rules": {
+      "import": "./dist/generated-parent-owned-sync-export-contract-rules.js",
+      "types": "./dist/generated-parent-owned-sync-export-contract-rules.d.ts"
+    },
+    "./generated/parent-owned-sync-export-contracts": {
+      "import": "./dist/generated-parent-owned-sync-export-contracts.js",
+      "types": "./dist/generated-parent-owned-sync-export-contracts.d.ts"
+    },
+    "./generated/parent-storage-settings-apply-flow-contract-rules": {
+      "import": "./dist/generated-parent-storage-settings-apply-flow-contract-rules.js",
+      "types": "./dist/generated-parent-storage-settings-apply-flow-contract-rules.d.ts"
+    },
+    "./generated/parent-storage-settings-apply-flow-contracts": {
+      "import": "./dist/generated-parent-storage-settings-apply-flow-contracts.js",
+      "types": "./dist/generated-parent-storage-settings-apply-flow-contracts.d.ts"
+    },
+    "./generated/policy-control-helpers": {
+      "import": "./dist/generated-policy-control-helpers.js",
+      "types": "./dist/generated-policy-control-helpers.d.ts"
+    },
+    "./generated/policy-control-helpers-contracts": {
+      "import": "./dist/generated-policy-control-helpers-contracts.js",
+      "types": "./dist/generated-policy-control-helpers-contracts.d.ts"
+    },
+    "./generated/report-query-custody-contract-rules": {
+      "import": "./dist/generated-report-query-custody-contract-rules.js",
+      "types": "./dist/generated-report-query-custody-contract-rules.d.ts"
+    },
+    "./generated/report-query-custody-contracts": {
+      "import": "./dist/generated-report-query-custody-contracts.js",
+      "types": "./dist/generated-report-query-custody-contracts.d.ts"
+    },
+    "./literal-contracts": {
+      "import": "./dist/literal-contracts.js",
+      "types": "./dist/literal-contracts.d.ts"
+    },
+    "./network-control-catalog": {
+      "import": "./dist/network-control-catalog.js",
+      "types": "./dist/network-control-catalog.d.ts"
+    },
+    "./notification-local-outbox": {
+      "import": "./dist/notification-local-outbox.js",
+      "types": "./dist/notification-local-outbox.d.ts"
+    },
+    "./notification-v3-provider-retry": {
+      "import": "./dist/notification-v3-provider-retry.js",
+      "types": "./dist/notification-v3-provider-retry.d.ts"
+    },
+    "./policy-contracts": {
+      "import": "./dist/policy-contracts.js",
+      "types": "./dist/policy-contracts.d.ts"
+    },
+    "./policy-compiler": {
+      "import": "./dist/policy-compiler.js",
+      "types": "./dist/policy-compiler.d.ts"
+    },
+    "./social-alert-report-intent": {
+      "import": "./dist/social-alert-report-intent.js",
+      "types": "./dist/social-alert-report-intent.d.ts"
+    },
+    "./social-alert-report-intent-values": {
+      "import": "./dist/social-alert-report-intent-values.js",
+      "types": "./dist/social-alert-report-intent-values.d.ts"
+    },
+    "./social-alert-report-provider-preflight-proof": {
+      "import": "./dist/social-alert-report-provider-preflight-proof.js",
+      "types": "./dist/social-alert-report-provider-preflight-proof.d.ts"
+    },
+    "./social-alert-report-provider-receipt-boundary-proof": {
+      "import": "./dist/social-alert-report-provider-receipt-boundary-proof.js",
+      "types": "./dist/social-alert-report-provider-receipt-boundary-proof.d.ts"
+    },
+    "./social-alert-report-provider-status-handoff-proof": {
+      "import": "./dist/social-alert-report-provider-status-handoff-proof.js",
+      "types": "./dist/social-alert-report-provider-status-handoff-proof.d.ts"
+    },
+    "./social-policy-compiler-values": {
+      "import": "./dist/social-policy-compiler-values.js",
+      "types": "./dist/social-policy-compiler-values.d.ts"
+    },
+    "./text-contracts": {
+      "import": "./dist/text-contracts.js",
+      "types": "./dist/text-contracts.d.ts"
+    },
+    "./tracking-control-catalog": {
+      "import": "./dist/tracking-control-catalog.js",
+      "types": "./dist/tracking-control-catalog.d.ts"
+    },
+    "./tracking-control-catalog-data": {
+      "import": "./dist/tracking-control-catalog-data.js",
+      "types": "./dist/tracking-control-catalog-data.d.ts"
+    },
+    "./tracking-control-catalog-metadata": {
+      "import": "./dist/tracking-control-catalog-metadata.js",
+      "types": "./dist/tracking-control-catalog-metadata.d.ts"
+    },
+    "./tracking-control-catalog-schema": {
+      "import": "./dist/tracking-control-catalog-schema.js",
+      "types": "./dist/tracking-control-catalog-schema.d.ts"
+    },
+    "./v0-8-notification-provider-status-boundary": {
+      "import": "./dist/v0-8-notification-provider-status-boundary.js",
+      "types": "./dist/v0-8-notification-provider-status-boundary.d.ts"
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "generate:app-runtime-decision-contract": "node ../../scripts/generate-app-runtime-decision-contract-data.mjs",
+    "check:app-runtime-decision-contract": "node ../../scripts/generate-app-runtime-decision-contract-data.mjs --check",
+    "build": "npm run check:app-runtime-decision-contract && tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
     "type-check": "tsc -p tsconfig.json --noEmit",
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/schema-domain",
     "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "npm run check:app-runtime-decision-contract && vitest run"
   },
   "dependencies": {
+    "@ocentra-parent/logging-domain": "file:../logging-domain",
     "effect": "^3.21.2"
   }
 }

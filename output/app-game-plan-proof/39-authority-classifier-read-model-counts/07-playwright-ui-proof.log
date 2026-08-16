@@ -1,4 +1,0 @@
-Playwright UI proof not run for WP39.
-
-Reason: no portal UI source was changed. Existing service app-use/games event
-payloads were extended with count metadata only.

@@ -1,0 +1,65 @@
+
+function browserUrlParts(
+  value: string
+): { readonly url: string; readonly origin: string; readonly domain: string } | null {
+  const separatorIndex = value.indexOf('://');
+  if (separatorIndex <= 0) {
+    return null;
+  }
+  const scheme = value.slice(0, separatorIndex).toLowerCase();
+  const remainder = value.slice(separatorIndex + 3);
+  const authority = remainder.split('/')[0] ?? '';
+  if (authority.length === 0) {
+    return null;
+  }
+  const authorityParts = authority.split('@');
+  const authorityWithoutCredentials = authorityParts[authorityParts.length - 1] ?? '';
+  const normalized = normalizedAuthority(authorityWithoutCredentials);
+  if (normalized === null) {
+    return null;
+  }
+  const suffix = remainder.slice(authority.length);
+  const origin = `${scheme}://${normalized.authority}`;
+  return {
+    url: `${origin}${suffix}`,
+    origin,
+    domain: normalized.domain,
+  };
+}
+
+function normalizedAuthority(value: string): { readonly authority: string; readonly domain: string } | null {
+  const [host, port] = splitHostAndPort(value);
+  const domain = normalizedHost(host);
+  if (domain === null) {
+    return null;
+  }
+  return {
+    authority: port === null ? domain : `${domain}:${port}`,
+    domain,
+  };
+}
+
+function splitHostAndPort(value: string): readonly [string, string | null] {
+  const separatorCount = value.split(':').length - 1;
+  if (separatorCount === 1) {
+    const separatorIndex = value.lastIndexOf(':');
+    const host = value.slice(0, separatorIndex);
+    const port = value.slice(separatorIndex + 1);
+    if (host.length > 0 && /^[0-9]+$/.test(port)) {
+      return [host, port];
+    }
+  }
+  return [value, null];
+}
+
+function normalizedHost(value: string): string | null {
+  const normalized = value.replace(/\.+$/, '').toLowerCase();
+  if (normalized.length === 0 || normalized.includes('/')) {
+    return null;
+  }
+  return normalized;
+}
+
+function browserRedactedRefIsSafe(value: string): boolean {
+  return !value.includes('/') && !value.includes('\\') && !value.includes(':');
+}

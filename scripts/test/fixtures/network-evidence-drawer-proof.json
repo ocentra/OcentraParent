@@ -1,0 +1,34 @@
+{
+  "eventId": "network-ui-flow-1",
+  "evidenceId": "network-ui-evidence-1",
+  "journalEvidenceId": "network-ui-journal-1",
+  "evidenceDigest": "sha256:network-ui-evidence-1",
+  "journalEvidenceDigest": "sha256:network-ui-journal-1",
+  "deviceId": "child-device-network-ui",
+  "platform": "windows",
+  "observer": "windows-network",
+  "kind": "activity.domain.observed",
+  "subjectKind": "domain",
+  "subjectId": "example-network.test",
+  "subjectDisplayName": "example-network.test",
+  "observedAtFutureOffsetMs": 300000,
+  "fields": {
+    "capabilityStatus": "available",
+    "adapterId": "windows-network-snapshot",
+    "networkProtocol": "tcp",
+    "tcpState": "established",
+    "localIp": "127.0.0.1",
+    "localPort": 4242,
+    "destinationIp": "203.0.113.10",
+    "destinationPort": 443,
+    "destinationDomain": "example-network.test",
+    "domainAttributionStatus": "domain-observed",
+    "processAttributionStatus": "process-attributed",
+    "pid": 4242,
+    "processName": "notepad.exe"
+  },
+  "expected": {
+    "domainEvidenceRef": "example-network.test | domain-observed",
+    "processRef": "notepad.exe | 4242 | process-attributed"
+  }
+}

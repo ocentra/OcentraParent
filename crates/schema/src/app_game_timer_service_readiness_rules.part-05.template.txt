@@ -1,0 +1,30 @@
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+type TimerSchedulerPersistenceProofRefsLike = {
+  readonly serviceTimerRuntimeProofRef: string;
+  readonly schedulerPersistenceProofRef: string;
+  readonly schedulerStateStoreProofRef: string;
+  readonly auditProofRef: string;
+  readonly rollbackProofRef: string;
+};
+
+type TimerServiceReadinessReadModelRowLike = {
+  readonly serviceReadinessReadModelState: TimerServiceReadinessReadModelStateValue;
+  readonly serviceReadinessProofRequired: boolean;
+  readonly serviceReadApiProofRequired: boolean;
+  readonly serviceReadApiImplemented: boolean;
+  readonly timerScheduled: boolean;
+  readonly adapterDispatchClaimed: boolean;
+};
+
+type TimerServiceReadinessReadModelLike = {
+  readonly serviceReadModelProofRequiredCount: number;
+  readonly blockedBySourceFreshnessCount: number;
+  readonly blockedByCompilerDecisionCount: number;
+  readonly rows: readonly TimerServiceReadinessReadModelRowLike[];
+  readonly serviceRuntimeEventClaimed: boolean;
+  readonly serviceReadApiImplemented: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;

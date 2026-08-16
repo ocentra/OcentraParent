@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  <URLBase>http://192.168.1.1:8080/</URLBase>
+  <device>
+    <deviceType>urn:schemas-upnp-org:device:InternetGatewayDevice:1</deviceType>
+    <friendlyName>Home Router</friendlyName>
+    <manufacturer>Ocentra Networks</manufacturer>
+    <manufacturerURL>https://example.invalid/networks</manufacturerURL>
+    <modelDescription>Residential gateway advertising WAN and LAN services</modelDescription>
+    <modelName>OC-AX1800</modelName>
+    <modelNumber>1.4.2</modelNumber>
+    <UDN>uuid:2d3f7a20-8a8e-4c0e-b6eb-5cd5ec0e1001</UDN>
+    <serialNumber>RTR-2026-0101</serialNumber>
+  </device>
+</root>
+

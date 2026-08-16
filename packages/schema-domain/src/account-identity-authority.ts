@@ -1,0 +1,31 @@
+/* thin adapter over Rust-owned generated account identity authority contracts */
+
+import * as Generated from './generated-account-identity-authority';
+
+export const AccountIdentityProviderSchema = Generated.AccountIdentityProviderSchema;
+export const AccountIdentityMappingStatusSchema = Generated.AccountIdentityMappingStatusSchema;
+export const AccountIdentityAccountStateSchema = Generated.AccountIdentityAccountStateSchema;
+export const AccountIdentityMembershipStateSchema = Generated.AccountIdentityMembershipStateSchema;
+export const AccountIdentityRoleSchema = Generated.AccountIdentityRoleSchema;
+export const AccountIdentityDeviceTrustStateSchema = Generated.AccountIdentityDeviceTrustStateSchema;
+export const AccountIdentitySessionFreshnessStateSchema = Generated.AccountIdentitySessionFreshnessStateSchema;
+export const AccountIdentityProviderSubjectSchema = Generated.AccountIdentityProviderSubjectSchema;
+export const AccountIdentityMemberIdSchema = Generated.AccountIdentityMemberIdSchema;
+export const AccountIdentitySessionIdSchema = Generated.AccountIdentitySessionIdSchema;
+export const AccountIdentityProviderSubjectMappingSchema = Generated.AccountIdentityProviderSubjectMappingSchema;
+export const AccountIdentityAuthoritySnapshotSchema = Generated.AccountIdentityAuthoritySnapshotSchema;
+export const AccountIdentityAuthorityHandoffSchema = Generated.AccountIdentityAuthorityHandoffSchema;
+
+export type AccountIdentityProvider = Generated.AccountIdentityProvider;
+export type AccountIdentityMappingStatus = Generated.AccountIdentityMappingStatus;
+export type AccountIdentityAccountState = Generated.AccountIdentityAccountState;
+export type AccountIdentityMembershipState = Generated.AccountIdentityMembershipState;
+export type AccountIdentityRole = Generated.AccountIdentityRole;
+export type AccountIdentityDeviceTrustState = Generated.AccountIdentityDeviceTrustState;
+export type AccountIdentitySessionFreshnessState = Generated.AccountIdentitySessionFreshnessState;
+export type AccountIdentityProviderSubject = Generated.AccountIdentityProviderSubject;
+export type AccountIdentityMemberId = Generated.AccountIdentityMemberId;
+export type AccountIdentitySessionId = Generated.AccountIdentitySessionId;
+export type AccountIdentityProviderSubjectMapping = Generated.AccountIdentityProviderSubjectMapping;
+export type AccountIdentityAuthoritySnapshot = Generated.AccountIdentityAuthoritySnapshot;
+export type AccountIdentityAuthorityHandoff = Generated.AccountIdentityAuthorityHandoff;

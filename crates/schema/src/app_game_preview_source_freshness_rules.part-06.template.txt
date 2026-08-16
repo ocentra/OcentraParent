@@ -1,0 +1,29 @@
+  maxSourceAgeMs: number
+) =>
+  SourceFreshnessRequirementFailureChecksGenerated.reduce<SourceFreshnessRequirementFailure | null>(
+    (failure, check) => failure ?? check(row, evaluatedAt, maxSourceAgeMs),
+    null
+  );
+
+const SourceFreshnessRequirementFailureChecksGenerated = [
+  sourceRowEmptyFailureGenerated,
+  sourceRowMissingObservedAtFailureGenerated,
+  sourceRowStaleFailureGenerated,
+  sourceRowPermissionLimitedFailureGenerated,
+  sourceRowUnavailableFailureGenerated,
+  sourceRowAdapterErrorFailureGenerated,
+  sourceRowManualRequiredFailureGenerated,
+  sourceRowNotClaimedFailureGenerated,
+  sourceRowMissingEvidenceFailureGenerated,
+] satisfies readonly SourceFreshnessRequirementFailureCheck[];
+
+function sourceRowEmptyFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
+  if (row.rowCount === 0 || row.state === AppGameSourceFreshnessReadModelStateGenerated.Empty) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.Empty,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.EmptySourceStatusRow,
+    } as const;
+  }
+
+  return null;
+}

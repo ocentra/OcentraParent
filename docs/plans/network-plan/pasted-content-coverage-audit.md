@@ -1,5 +1,20 @@
 # Pasted Content Coverage Audit
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `network-plan`
+> Doc: `Pasted Content Coverage Audit`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This audit records consolidation of the 2026-06-03 pasted Network guidance. The
 paste is kept as source context, not copied verbatim as unmanaged notes.
 
@@ -49,7 +64,7 @@ E:\Download\doc3_network_checklist_workpacks_v2.docx
 | PCAP fixture families, performance metrics, and proof dossiers                                     | [test blueprint](02-network-tests-proof-and-validation-blueprint.md), [implementation checklist](03-network-implementation-checklist-and-workpacks.md), [workpacks](workpacks/README.md)                                                                             | Safe, suspicious, edge, throughput, latency, and resource evidence are explicit.                                      |
 | Location/device-status as optional cross-slice confirmation                                        | [full-scope plan](01-network-evidence-and-intervention-full-scope-plan.md)                                                                                                                                                                                           | Optional refs only; network must not infer location from traffic.                                                     |
 | Child-facing notifications and educational guidance                                                | [UI guide](ui-ux-requirements-guide.md), [implementation checklist](implementation-checklist.md)                                                                                                                                                                     | Child states are evidence-minimal, policy-backed, and cannot expose raw packets/private content/parent AI narratives. |
-| Broker delivery semantics and duplicate safety                                                     | [test blueprint](02-network-tests-proof-and-validation-blueprint.md), [implementation checklist](implementation-checklist.md), [workpacks](workpacks/README.md)                                                                                                      | At-least-once, at-most-once, or effectively-once-through-idempotency only unless exact broker proof exists.           |
+| Broker delivery semantics and duplicate safety                                                     | [test blueprint](02-network-tests-proof-and-validation-blueprint.md), [implementation checklist](implementation-checklist.md), [workpacks](workpacks/README.md)                                                                                                      | Local idempotency/queue duplicate-safety only unless exact live broker proof establishes stronger semantics.          |
 | Live raw-capture artifact custody                                                                  | [implementation checklist](implementation-checklist.md), [implementation workpacks](03-network-implementation-checklist-and-workpacks.md)                                                                                                                            | Raw PCAP/live capture requires encryption-at-rest, quota rotation, retention/delete/export, and custody proof.        |
 | Hardening, compliance, deployment, support, and staged rollout                                     | [current snapshot](current-network-snapshot.md), [implementation checklist](03-network-implementation-checklist-and-workpacks.md), [workpacks](workpacks/README.md), [README](README.md)                                                                             | These are production-readiness proof gates, not current runtime claims.                                               |
 

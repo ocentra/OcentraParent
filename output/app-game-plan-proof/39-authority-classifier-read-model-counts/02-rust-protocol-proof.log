@@ -1,7 +1,0 @@
-Rust protocol proof:
-
-- `ActivityAppUseReadModelRow` serializes staged boundary count fields as camelCase payload fields.
-- `ActivityGamesReadModelRow` serializes staged boundary count fields as camelCase payload fields.
-- Focused protocol tests assert `approvalAuthorityRowCount`, `platformAuthorityRowCount`, and `aiClassifierResultRowCount`.
-
-This is additive read-model payload metadata only.

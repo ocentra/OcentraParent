@@ -1,9 +1,0 @@
-Rust protocol proof:
-
-- Native app inventory capture uses the shared app/game inventory row contract.
-- The capture limit is protocol-owned.
-- No new action or adapter protocol is added.
-
-Validation:
-
-- cargo test -p ocentra-parent-agent-protocol app_game

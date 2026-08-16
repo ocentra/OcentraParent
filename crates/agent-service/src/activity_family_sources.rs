@@ -1,8 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportSourceLabel,
-    ActivityReportSourceReachabilityState, ActivityReportSourceState, AgentCommandEnvelope,
-    LogFieldValue,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityReadModelState, ActivityReportCustodyLabel, ActivityReportSourceLabel,
+    ActivityReportSourceReachabilityState, ActivityReportSourceState,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
 pub(crate) fn family_sources_from_command(
     command: &AgentCommandEnvelope,

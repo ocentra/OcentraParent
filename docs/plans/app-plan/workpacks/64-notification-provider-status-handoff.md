@@ -26,6 +26,17 @@ provider-status manual-required or unavailable rows without claiming delivery.
 - Policy evaluator execution, broad app blocking, adapter dispatch, or platform
   support.
 
+## Code-pass status
+
+The agent-service notification-readiness report now emits a typed provider
+status-boundary read model derived from the existing app/game readiness rows.
+parent-runtime-core consumes that payload and the existing portal notification
+panel renders the provider status, proof state, delivery claim, and manual-proof
+requirements. The app-game-core preflight/handoff builders remain the upstream
+typed ownership; this service projection does not claim their native runtime
+execution. Provider delivery remains manual-required or unavailable, and the
+workpack stays unvalidated with tests/proof/checklist deferred.
+
 ## Proof
 
 - Shared source:
@@ -39,10 +50,10 @@ provider-status manual-required or unavailable rows without claiming delivery.
 
 ## Validation
 
-- [x] Cross-recorded from shared app/game WP64 proof.
-- [x] Native app rows map provider preflight status into existing V0.8
+- [ ] Cross-recorded from shared app/game WP64 proof.
+- [ ] Native app rows map provider preflight status into existing V0.8
       provider-status manual-required/unavailable rows.
-- [x] Delivery/provider credential/runtime/UI/history/child/adapter/platform
+- [ ] Delivery/provider credential/runtime/UI/history/child/adapter/platform
       claims remain false.
-- [x] Product checklist unchanged because this handoff does not move feature
+- [ ] Product checklist unchanged because this handoff does not move feature
       status and provider/runtime/UI/platform gaps remain.

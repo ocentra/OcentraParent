@@ -1,6 +1,0 @@
-Security negative proof:
-
-- No adapter execution was added.
-- No policy execution was added.
-- No browser or portal code was changed.
-- The new event carries staged row counts and local citation refs only.

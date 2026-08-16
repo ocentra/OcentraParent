@@ -1,5 +1,20 @@
 # V0.5 Browser Games Cloud Gaming And Game Portal Gating Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `V0.5 Browser Games Cloud Gaming And Game Portal Gating Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This document defines Ocentra's browser-game control plan. It belongs in the
 browser plan when the source is a managed browser URL/page/runtime signal,
 browser game portal, cloud-gaming web session, unmanaged browser bypass, or
@@ -1188,13 +1203,31 @@ worker messages before code changes. Do not mix all 24 into one PR.
   and status. They reject raw domains, raw URLs, raw paths, raw page bodies,
   live URL parser claims, runtime detection claims, AI classification claims,
   policy decisions, native game control, cloud-frame analysis, and enforcement.
+  The live route proof fetches real public CrazyGames, Poki, Coolmath Games,
+  Xbox Cloud Gaming, itch.io HTML5 catalog, and Chess.com play surfaces, stores
+  only response metadata plus hashed origin/path/body refs, parses six route
+  contracts plus a reviewed catalog, and rejects raw-data/runtime/parser/AI/
+  policy/native/cloud-frame/enforcement overclaims. Package subpath exports are
+  present; no live URL parser, runtime detector, AI classifier, UI, product
+  checklist update, release claim, cloud-frame analysis, native game control,
+  final policy, or enforcement is made.
 - GAME-03 now adds parent-domain browser-game portal pattern library contracts.
   Entries model known-game, educational, UGC, indie, classic archive, school,
   and unknown portal families through route kinds, signal kinds, pattern
   fingerprints, evidence refs, confidence, and review states. They reject raw
   domains, raw URLs, raw page titles, raw page bodies, runtime detection
   claims, AI classification claims, policy authority, cloud-gaming ownership,
-  and enforcement.
+  and enforcement. GAME-03 also now includes live public-surface proof in
+  `output/browser-plan-proof/game-03-known-game-portal-pattern-library/05-live-pattern-library-proof.json`
+  and
+  `test-results/browser-game-portal-pattern-library-live-evidence-proof/proof.json`.
+  That proof fetches real CrazyGames, Poki, Coolmath Games, itch.io HTML5,
+  Internet Archive MS-DOS games, and Chess.com play surfaces; stores only
+  response metadata plus hashed origin/path/body refs; parses six reviewed
+  portal pattern rows plus a reviewed library; and rejects 17 overclaims. No
+  runtime portal detector, URL parser, AI classifier, final policy, UI, product
+  checklist update, release claim, cloud-frame analysis, native game control,
+  or enforcement is made.
 - GAME-04 now adds parent-domain cloud-gaming pattern library contracts.
   Entries model cloud-gaming platforms, cloud PC platforms, mobile cloud-game
   portals, browser-embedded cloud-game surfaces, native launcher prompt
@@ -1203,14 +1236,30 @@ worker messages before code changes. Do not mix all 24 into one PR.
   states. They reject raw cloud domains, raw cloud URLs, raw cloud titles, raw
   stream frames, runtime detection claims, cloud-streamed frame analysis,
   per-game cloud-title certainty, native launcher/game control, final policy
-  decisions, and enforcement.
+  decisions, and enforcement. GAME-04 also now includes live public-surface
+  proof in
+  `output/browser-plan-proof/game-04-cloud-gaming-pattern-library/06-live-cloud-pattern-proof.json`
+  and
+  `test-results/browser-game-cloud-pattern-library-live-evidence-proof/proof.json`.
+  That proof fetches real Xbox Cloud Gaming, NVIDIA GeForce Now, Amazon Luna,
+  Boosteroid, PlayStation Plus games catalog, Shadow cloud PC, and now.gg
+  surfaces; stores only response metadata plus hashed origin/path/body refs;
+  parses seven reviewed cloud pattern rows plus a reviewed library; and rejects
+  20 overclaims. No runtime detector, cloud-frame analyzer, native launcher
+  controller, final policy, UI, product checklist update, release claim, native
+  game control, or enforcement is made.
 - GAME-05 now adds a parent-domain redacted URL-shape parser. It accepts
   unknown input, uses the platform URL parser only transiently, and emits
   protocol/host/path-depth shape, route surface kind, route hint booleans,
   query/fragment shape booleans, reason codes, confidence, and a route-shape
   fingerprint. It rejects raw URL, domain, path, and query storage; browser
   navigation, runtime detection, AI classification, final policy decisions,
-  cloud-frame analysis, native game control, and enforcement.
+  cloud-frame analysis, native game control, and enforcement. The live proof
+  fetches real public CrazyGames, Poki, Coolmath Games, Chess.com play, Xbox
+  Cloud Gaming play/cloud, and NVIDIA GeForce Now route surfaces; stores only
+  response metadata plus hashed origin/path/body refs; parses seven
+  URL-shape rows; and rejects 16 raw-storage/runtime/AI/policy/native/cloud-frame
+  and enforcement overclaims.
 - GAME-06 now adds parent-domain runtime signal detector contracts. Signal rows
   model canvas, WebGL, Gamepad API, fullscreen, pointer-lock, audio context,
   animation-loop, iframe game surface, cloud-streaming, and
@@ -1218,7 +1267,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   source kinds, confidence, status, and reason codes. They reject raw DOM,
   canvas frame, stream frame, audio, and gamepad input storage; browser
   instrumentation, runtime detection execution, AI classification, final policy
-  decisions, cloud-frame analysis, native game control, and enforcement.
+  decisions, cloud-frame analysis, native game control, and enforcement. The
+  live Playwright proof opens real public Poki, Coolmath Games, Chess.com play,
+  and Xbox Cloud Gaming pages in Chromium; stores only response metadata, hashed
+  origin/path refs, shape booleans, and fingerprints; parses 12 runtime signal
+  rows plus a detection bundle; and rejects 27 raw-runtime-data/instrumentation,
+  AI, policy, native, cloud-frame, and enforcement overclaims.
 - GAME-07 now adds parent-domain metadata extractor contracts. Field rows model
   title, description, genre, age-rating, publisher, thumbnail, educational
   subject, cloud platform title, and unknown/manual-required metadata shapes
@@ -1226,41 +1280,54 @@ worker messages before code changes. Do not mix all 24 into one PR.
   reason codes. They reject raw title, description, page body, image, and
   structured-data storage; runtime DOM extraction, platform API calls, AI
   classification, final policy decisions, cloud-frame analysis, native game
-  control, and enforcement.
-- GAME-08 now adds parent-domain hidden analysis profile safety contracts.
-  Profile and loader rows model Ocentra-owned isolated profiles, bounded
-  retention, proof-backed metadata-only/analysis-ready states, disabled-policy,
-  proof-missing, manual-required, and unavailable states through evidence refs,
-  profile fingerprints, reason codes, confidence, and loader proof refs. They
-  reject child cookie/session reuse, shared child storage, raw URL/page/game/frame
-  storage or capture, browser instrumentation, hidden native control, AI
-  classification, final policy decisions, UI rendering, cloud-frame analysis,
-  native game control, and enforcement.
-- GAME-09 now adds parent-domain browser-game educational classifier contracts.
-  The classifier models evidence rows for domain reputation, school-provided
-  URLs, teacher/parent allowlists, page/subject metadata, AI classification
-  refs, past parent approval, homework context, school platforms, platform
-  self-labels, and manual-required states. Results classify educational,
-  entertainment, misleading educational claim, unknown, manual-required, or
-  unavailable candidates, and recommend allow-during-homework,
-  allow-with-time-limit, parent-review, block-portal, manual-review, or unknown
-  gate inputs. They reject raw page/game/model payloads, account/purchase
-  execution, platform labels as authority, final policy authority, runtime
-  gate execution, UI rendering, native game control, cloud-frame analysis, and
-  enforcement.
-- GAME-10 now adds parent-domain browser-game AI analysis input/result
-  contracts. Inputs consume typed evidence refs only for browser evidence, URL
-  shape, runtime signals, metadata, screen summaries, parent rules, recent
-  activity, memory, task, and custody labels. Results model game
-  classification, educational check, risk classification, cloud-gaming
-  detection, UGC risk, purchase risk, and policy-support outputs as
+  control, and enforcement. The live proof fetches real public Poki, Coolmath
+  Games, Chess.com play, PlayStation Plus games catalog, and Xbox Cloud Gaming
+  pages; stores only response metadata, hashed origin/path/body refs, metadata
+  shape booleans, length buckets, and value hashes; parses 15 metadata field rows
+  plus an extraction bundle; and rejects 27 raw-metadata, DOM/API, AI, policy,
+  native, cloud-frame, and enforcement overclaims.
+- GAME-08 now adds parent-domain hidden analysis profile safety contracts and a
+  live public safety-shape proof. Profile and loader rows model Ocentra-owned
+  isolated profiles, bounded retention, proof-backed metadata-only/analysis-ready
+  states, disabled-policy, proof-missing, manual-required, and unavailable states
+  through evidence refs, profile fingerprints, reason codes, confidence, and
+  loader proof refs. The live proof fetches real public Poki, Coolmath Games,
+  Chess.com play, PlayStation Plus games catalog, and Xbox Cloud Gaming pages;
+  stores only response metadata, hashed origin/path/body refs, profile
+  fingerprints, loader proof refs, and no-capture safety flags; validates 10
+  profile rows plus 10 planned/proof-backed loader results; and rejects 40 child
+  profile reuse, raw capture, hidden/browser/native, AI, policy, UI, cloud-frame,
+  and enforcement overclaims.
+- GAME-09 now adds parent-domain browser-game educational classifier contracts
+  and a live public candidate-shape proof. The classifier models evidence rows
+  for domain reputation, school-provided URLs, teacher/parent allowlists,
+  page/subject metadata, AI classification refs, past parent approval, homework
+  context, school platforms, platform self-labels, and manual-required states.
+  The live proof fetches real public Code.org Minecraft, Chess.com play,
+  Coolmath Run 3, Poki Subway Surfers, and Xbox Cloud Gaming pages; stores only
+  response metadata, hashed origin/path/body refs, evidence refs, classifier
+  candidate rows, and no-authority flags; validates 9 evidence rows plus 5
+  educational, entertainment, misleading-claim, and manual-required candidate
+  results; and rejects 23 raw content, model text, platform-authority,
+  account/purchase, policy, runtime, UI, native, cloud-frame, and enforcement
+  overclaims.
+- GAME-10 now adds parent-domain browser-game AI analysis input/result contracts
+  and a live public AI-analysis shape proof. Inputs consume typed evidence refs
+  only for browser evidence, URL shape, runtime signals, metadata, screen
+  summaries, parent rules, recent activity, memory, task, and custody labels.
+  Results model game classification, educational check, risk classification,
+  cloud-gaming detection, UGC risk, purchase risk, and policy-support outputs as
   candidate-only benefit/risk signals, surface kind, modifiers, recommended
   policy input, confidence, uncertainty, summary refs, model runtime refs,
-  prompt template version, expiry, and degraded/manual states. They reject raw
-  URLs, raw page body, raw game payloads, raw screen frames, raw model text,
-  account/purchase execution, native game control, cloud-frame analysis, final
-  policy authority, runtime gate execution, rendered UI, and enforcement.
-- GAME-11 now adds parent-domain browser-game risk/benefit signal contracts.
+  prompt template version, expiry, and degraded/manual states. The live proof
+  fetches real public Poki Subway Surfers, Code.org Minecraft, Chess.com play,
+  Xbox Cloud Gaming, and Roblox discover pages; stores only response metadata,
+  hashed origin/path/body refs, typed evidence refs, candidate policy inputs, and
+  no-authority flags; validates 5 inputs plus 5 candidate-only results; and
+  rejects 28 raw URL/page/game/frame/model text, account/purchase, native,
+  cloud-frame, policy, runtime, UI, and enforcement overclaims.
+- GAME-11 now adds parent-domain browser-game risk/benefit signal contracts
+  and a live public risk/benefit signal shape proof.
   The signal set models evidence-backed risk rows for violence, horror, adult
   themes, addictive loops, multiplayer/contact, chat, purchase, loot box/random
   item, UGC, privacy, unblocked-bypass, and unknown risk; and benefit rows for
@@ -1269,9 +1336,17 @@ worker messages before code changes. Do not mix all 24 into one PR.
   candidate recommended policy inputs only and rejects raw game payloads, chat
   content, page body, raw model text, account/purchase execution,
   cloud-frame analysis, native game control, final policy authority, runtime
-  gate execution, and enforcement.
-- GAME-12 now adds parent-domain browser-game memory/cache contracts. The cache
-  uses schema-backed ref/hash key kinds for canonical URL refs, platform game
+  gate execution, and enforcement. The live proof fetches real public Poki
+  Subway Surfers, Code.org Minecraft, Chess.com play, Xbox Cloud Gaming, and
+  Roblox Discover pages; stores only response metadata, hashed origin/path/body
+  refs, typed evidence refs, candidate risk/benefit signal rows, and
+  no-authority flags; validates 5 signal sets with 7 risk signals and 8 benefit
+  signals; and rejects 30 raw content, model text, platform-authority,
+  account/purchase, policy, runtime, UI, native, cloud-frame, and enforcement
+  overclaims.
+- GAME-12 now adds parent-domain browser-game memory/cache contracts and a live
+  public memory/cache shape proof. The cache uses schema-backed ref/hash key
+  kinds for canonical URL refs, platform game
   refs, domain path hashes, cloud game title refs, parent decision refs, game
   category refs, policy versions, child profiles, parent rule sets, and
   evidence refs. Entries model bounded fresh-hit, stale-hit, miss, and
@@ -1282,26 +1357,44 @@ worker messages before code changes. Do not mix all 24 into one PR.
   drive policy input. The contracts reject raw canonical URLs, raw platform
   game IDs, raw cloud game titles, raw game payloads, raw model text, runtime
   cache-store claims, AI cache claims, UI delivery, native game control,
-  cloud-frame analysis, final policy authority, and enforcement.
+  cloud-frame analysis, final policy authority, and enforcement. The live proof
+  fetches real public Poki Subway Surfers, Code.org Minecraft, Chess.com play,
+  Xbox Cloud Gaming, and Roblox Discover pages; stores only response metadata,
+  hashed origin/path/body refs, cache-key refs, evidence refs, snapshots, and
+  no-authority flags; validates 5 snapshots with 15 bounded entries; and
+  rejects 20 raw URL/title/game/model, runtime cache, AI-cache, policy, UI,
+  native, cloud-frame, and enforcement overclaims.
 - GAME-13 now adds parent-domain browser-game account/signup/purchase gate
-  contracts. The contracts model account creation, login, secondary account,
-  purchase, subscription, loot box/random item, virtual currency,
-  download/install, wallet/gambling-like payment, cloud-gaming start, and
+  contracts and a live public account/purchase route proof. The contracts model
+  account creation, login, secondary account, purchase, subscription, loot
+  box/random item, virtual currency, download/install, wallet/gambling-like
+  payment, cloud-gaming start, and
   unknown-game start approval states as evidence-backed candidate requests and
   decisions only. They reject raw URLs/titles/account identifiers, credentials,
   form submission, account creation, purchase/payment execution, downloads,
   notifications, UI, runtime gate execution, native game control,
-  cloud-frame analysis, final policy authority, and enforcement.
-- GAME-14 now adds parent-domain browser-game cloud-gaming gate contracts. The
-  contracts model known cloud domains, streaming session routes,
-  gamepad/fullscreen/high-bandwidth/low-latency signal refs, optional platform
-  title/rating metadata refs, unknown cloud-game approval, mature cloud-game
-  block candidates, school-night blocks, time-budget candidates,
-  manual-required content-frame gaps, and unavailable platform proof states.
-  They reject raw cloud titles, raw stream frames, cloud-streamed frame
-  analysis, per-game cloud title claims, native game/launcher control, game
-  chat content, account/purchase flows, notifications, UI, final policy
-  authority, runtime gate execution, and enforcement.
+  cloud-frame analysis, final policy authority, and enforcement. The live proof
+  fetches real public Roblox login, Roblox subscription, Steam app purchase,
+  Xbox Cloud Gaming, Code.org sign-in, and PlayStation store pages; stores only
+  response metadata, hashed origin/path/body refs, evidence refs, request and
+  decision refs, and no-authority flags; validates 6 approval requests plus 6
+  candidate decisions; and rejects 38 raw URL/title/account/credential,
+  submission, purchase/payment, notification/UI, policy/runtime, native,
+  cloud-frame, and enforcement overclaims.
+- GAME-14 now adds parent-domain browser-game cloud-gaming gate contracts
+  plus a live public cloud-gaming route proof. The contracts model known cloud
+  domains, streaming session routes, gamepad/fullscreen/high-bandwidth/
+  low-latency signal refs, optional platform title/rating metadata refs,
+  unknown cloud-game approval, mature cloud-game block candidates,
+  school-night blocks, time-budget candidates, manual-required content-frame
+  gaps, and unavailable platform proof states. The proof fetches real Xbox
+  Cloud Gaming, GeForce Now, Amazon Luna, Boosteroid, PlayStation Plus,
+  Shadow cloud PC, and now.gg surfaces while persisting only response hashes,
+  evidence refs, request/decision refs, and no-authority flags. It rejects raw
+  URLs/titles/stream frames, cloud-streamed frame analysis, per-game cloud
+  title claims, native game/launcher control, game chat content,
+  account/purchase flows, notifications, UI, final policy authority, runtime
+  gate execution, and enforcement.
 - GAME-15 now adds parent-domain browser-game unblocked-site detection
   contracts. The detection models managed browser routes/pages, search intent,
   portal indexes, iframe embeds, proxy/mirror routes, hidden game origins,
@@ -1314,81 +1407,130 @@ worker messages before code changes. Do not mix all 24 into one PR.
   flows, rendered UI, final policy authority, runtime gate execution, and
   enforcement.
 - GAME-16 now adds parent-domain browser-game UGC/multiplayer/chat risk
-  contracts. The assessment models UGC game pages, experience pages,
-  multiplayer lobbies, profile/friends/message routes, launch prompts,
-  web-to-app launch surfaces, manual-required states, and unavailable states.
-  Risk rows cover unknown player contact, chat/voice contact, UGC worlds,
-  unsafe user-created experiences, off-platform contact, virtual currency,
-  in-game purchase, missing age rating, web-to-app launch risk,
-  manual-required, and unknown risk. Recommended controls remain candidates
-  only: approved-experience-only, parent-review, block-chat, time-limit, purchase
-  approval, block unknown UGC, manual review, or unknown. The contracts reject
-  raw chat content, profile content, experience identifiers, account
-  identifiers, raw game payloads, web-to-app launch execution, purchase
-  execution, native game control, final policy decisions, runtime gate
+  contracts and a live public risk-shape proof. The assessment models UGC game
+  pages, experience pages, multiplayer lobbies, profile/friends/message routes,
+  launch prompts, web-to-app launch surfaces, manual-required states, and
+  unavailable states. Risk rows cover unknown player contact, chat/voice
+  contact, UGC worlds, unsafe user-created experiences, off-platform contact,
+  virtual currency, in-game purchase, missing age rating, web-to-app launch
+  risk, manual-required, and unknown risk. Recommended controls remain
+  candidates only: approved-experience-only, parent-review, block-chat,
+  time-limit, purchase approval, block unknown UGC, manual review, or unknown.
+  The live proof fetches real Roblox Discover, Scratch Games Explore, Minecraft
+  Marketplace, Chess.com online play, Steam Community chat, Rec Room, and Xbox
+  Cloud Gaming surfaces while persisting only response hashes, evidence refs,
+  risk row refs, and no-authority flags. It rejects raw chat/profile/account/
+  experience identifiers, raw game payloads, web-to-app launch execution,
+  purchase execution, native game control, final policy decisions, runtime gate
   execution, UI rendering, and enforcement.
-- GAME-17 now adds parent-domain browser-game policy compiler contracts. The
-  compiler consumes parent-owned evidence, analysis, mobile capability, rule,
-  and schedule refs, and returns candidate-only decisions without claiming final
-  policy authority, runtime gate execution, UI delivery, native game control,
-  cloud-frame analysis, or enforcement.
+- GAME-17 now adds parent-domain browser-game policy compiler contracts and a
+  live public compiler-shape proof. The compiler consumes parent-owned evidence,
+  analysis, mobile capability, rule, and schedule refs, and returns
+  candidate-only decisions without claiming final policy authority, runtime gate
+  execution, UI delivery, native game control, cloud-frame analysis, or
+  enforcement. The live proof fetches real Code.org Minecraft, Poki Subway
+  Surfers, Roblox Discover, Coolmath Run, Hooda unblocked games, Rec Room, and
+  Internet Archive MS-DOS game surfaces while persisting only response hashes,
+  evidence refs, compiler input refs, candidate decision refs, and
+  no-authority flags.
 - GAME-18 now adds parent-domain managed browser-game hold/block adapter
-  contracts. Plans link policy candidate refs, child UX refs, managed
-  intervention adapter proof refs, and audit refs for hold, approval, block,
-  and warn paths while candidate-only allow/time-limit, manual-required cloud,
-  and unavailable native/unmanaged rows remain non-executing. The contracts
-  reject raw URL/page/game payloads, child cookie/session reuse, unmanaged exact
-  URL claims, browser mutation, rendered child pages, notification delivery,
-  final policy decisions, applied time limits, cloud-frame analysis, native game
-  control, and enforcement.
-- GAME-19 now adds parent-domain browser-game child checking/block UX contracts.
-  The snapshot models checking unknown games, parent approval, blocked game
-  candidates, educational-game allowed copy state, time-limit candidates,
-  cloud-gaming manual-required state, and native game control unavailable state.
-  It uses schema-known child text-token refs while rejecting raw child copy,
-  rendered child UI, notification delivery, runtime browser blocking,
-  block-page rendering, applied time limits, final policy decisions,
+  contracts and a live public hold/block adapter proof. The proof fetches real
+  Scratch games, Roblox Discover, Hooda unblocked games, Poki Subway Surfers,
+  Code.org Minecraft, Coolmath Run, Xbox Cloud Gaming, and Steam Store
+  surfaces, persists only response hashes, evidence refs, adapter plan refs, and
+  no-authority flags, and parses managed hold, approval, block, warning,
+  candidate-only allow/time-limit, manual-required cloud, and unavailable native
+  rows. It rejects raw URL/page/game payloads, child cookie/session reuse,
+  unmanaged exact URL claims, browser mutation, rendered child pages,
+  notification delivery, final policy decisions, applied time limits,
+  cloud-frame analysis, native game control, and enforcement.
+- GAME-19 now adds parent-domain browser-game child checking/block UX contracts
+  and a live public child UX surface proof. The proof fetches real Scratch
+  games, Roblox Discover, Hooda unblocked games, Code.org Minecraft, Coolmath
+  Run, Xbox Cloud Gaming, and Steam Store surfaces, persists only response
+  hashes, evidence refs, child UX surface refs, and no-authority flags, and
+  parses checking, approval, blocked, educational allowed, time-limit,
+  cloud-gaming manual-required, and native unavailable rows. It rejects raw child
+  copy, rendered child UI, notification delivery, runtime browser blocking,
+  block-page rendering, applied time limits, final policy decisions, cloud-frame
+  analysis, native game control, and enforcement claims.
+- GAME-20 now adds parent-domain parent browser-game dashboard UX contracts and
+  a live public dashboard panel proof. The proof fetches real Scratch games,
+  Roblox Discover, Xbox Cloud Gaming, Code.org Minecraft, Coolmath Run, Steam
+  Store, and Rec Room surfaces, persists only response hashes, evidence refs,
+  dashboard panel refs, and no-authority flags, and parses detected-game,
+  approval queue, cloud approval, educational allowlist, time-budget,
+  mobile/native gap, and manual-required gap panels. It rejects rendered portal
+  UI, notification delivery, runtime data fetch, final policy decisions,
   cloud-frame analysis, native game control, and enforcement claims.
-- GAME-20 now adds parent-domain parent browser-game dashboard UX contracts.
-  The dashboard snapshot models detected game review, unknown-game approval
-  queue, cloud-gaming approval, educational-game allowlist, game time-budget
-  candidates, mobile/native capability gaps, and manual-required gaps while
-  rejecting rendered portal UI, notification delivery, runtime data fetch,
-  final policy decisions, cloud-frame analysis, native game control, and
-  enforcement claims.
 - GAME-21 now adds parent-domain browser-game journal/SQLite read-model
-  contracts. The snapshot indexes managed browser evidence journal replay,
+  contracts plus a live public evidence-backed read-model shape proof. The
+  snapshot indexes managed browser evidence journal replay,
   app-game session report proof, managed browser-game adapter audit refs,
   manual-required cloud rows, and unavailable native/unmanaged rows. Proof rows
   require journal entry refs, SQLite row refs, source read-model refs, proof
   refs, positive event/row counts, and matching reason codes while rejecting raw
   URL/page/game/title/account/purchase storage, child session reuse, cloud title
   certainty, browser mutation, rendered UI, final policy decisions, and
-  enforcement.
-- GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs`, a proof
-  artifact gate that verifies GAME-01 through GAME-21 checklist ownership,
-  proof directory references, required proof files, browser-game workpack README
-  references, feature coverage, and expectation boundary text. It emits
-  `test-results/browser-game-proof-artifacts/proof.json` and
-  `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/01-browser-game-proof-artifact-manifest.md`.
-  The manifest records one scaffold-proof row and 20 partial/manual-required
-  rows. Playwright stays manual-required because no rendered browser-game UI
-  exists in this slice. No screenshot, runtime browser-game detection,
-  cloud-streamed frame analysis, native game control, final policy execution,
-  enforcement, or product checklist claim is made.
+  enforcement. The live proof persists only response hashes, origin/path hashes,
+  source refs, and no-claim flags; it does not claim a runtime SQLite query,
+  rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
+  release readiness.
+- GAME-22 now adds `scripts/test/browser-game-proof-artifacts.mjs` and
+  `scripts/test/browser-game-child-intervention-page-proof.mjs`. The artifact
+  gate verifies GAME-01 through GAME-23 checklist ownership, proof directory
+  references, required proof files, browser-game workpack README references,
+  feature coverage, and expectation boundary text. The rendered proof opens real
+  public Roblox, Coolmath Games, Scratch, Xbox Cloud Gaming, and Steam Store
+  surfaces through Playwright, captures live backdrops, renders the shared
+  `BrowserChildInterventionPage`, serves it through the Rust child-agent
+  `/api/browser/intervention/page` endpoint, and stores screenshots plus
+  hash-only proof JSON at
+  `test-results/browser-game-child-intervention-page-proof/proof.json` and
+  `output/browser-plan-proof/game-22-tests-fixtures-playwright-manual-proof/02-rendered-browser-game-child-intervention-proof.json`.
+  The manifest records 23 complete/proof rows and zero partial/manual-required
+  rows. No final policy decision, product runtime browser-game detection,
+  notification or approval delivery, cloud-streamed frame analysis, native game
+  control, enforcement, or product checklist claim is made.
 - GAME-23 now adds parent-domain Android/iOS browser-game capability matrix
-  contracts. The matrix keeps Android browser shells, WebView, Custom Tabs,
-  installed-browser, cloud-gaming, device-owner, iOS Family Controls, Safari
-  web-domain token, application-token, managed-browser, cloud-gaming, and Web
-  Clip/PWA surfaces manual-required, token-limited, entitlement-required,
-  app-level, or domain-level until real device/platform proof exists.
+  contracts plus a real Android host/emulator proof. The proof builds the
+  Android agent APK, boots or reuses an Android 15 emulator, installs and
+  launches the package, observes the running agent status through UIAutomator
+  tree evidence, hashes UI/package/device evidence, and queries known browser package targets
+  without storing a raw package list. The matrix keeps Android browser shells,
+  WebView, Custom Tabs, installed-browser, cloud-gaming, device-owner, iOS
+  Family Controls, Safari web-domain token, application-token, managed-browser,
+  cloud-gaming, and Web Clip/PWA surfaces manual-required, token-limited,
+  entitlement-required, app-level, or domain-level until owned-browser-shell,
+  iOS entitlement, and device-owner proof exists.
 - GAME-24 now adds the browser-game rollout/manual-required gate. GAME rollout
   state: partial/manual-required. The gate labels GAME-01 as
-  scaffold-proof-present, GAME-02 through GAME-24 as partial/manual-required,
-  and no browser-game rows as open/manual-required. Product checklist upgrade
-  is not claimed, and route contracts, runtime signals, metadata, AI, memory,
-  child/parent UI, cloud-streamed frame analysis, native game control, and
-  enforcement remain open or manual-required until separate proof exists.
+  scaffold-proof-present, GAME-02 as live-route-proof-present, GAME-03 as
+  live-portal-pattern-proof-present, GAME-04 as live-cloud-pattern-proof-present,
+  GAME-05 as live-url-shape-proof-present, GAME-06 as
+  live-runtime-signal-shape-proof-present, GAME-07 as
+  live-metadata-shape-proof-present, GAME-08 as
+  live-hidden-analysis-profile-safety-proof-present, GAME-09 as
+  live-educational-classifier-proof-present, GAME-10 as
+  live-ai-analysis-proof-present, GAME-11 as
+  live-riskbenefit-signal-proof-present, GAME-12 as
+  live-memory-cache-proof-present, GAME-13 as
+  live-account-purchase-gate-proof-present, GAME-14 as
+  live-cloud-gaming-gate-proof-present, GAME-15 as
+  live-unblocked-site-detection-proof-present, GAME-16 as
+  live-ugc-multiplayer-chat-risk-proof-present, GAME-17 as
+  live-policy-compiler-proof-present, GAME-18 as
+  live-hold-block-adapter-proof-present, GAME-19 as
+  live-child-checking-block-ux-proof-present, GAME-20 as
+  live-parent-dashboard-ux-proof-present, GAME-21 as
+  live-journal-sqlite-read-model-proof-present, GAME-22 as
+  live-rendered-child-intervention-proof-present, GAME-23 as
+  live-android-ios-host-proof-present, GAME-24 as
+  rollout-label-proof-present, and no browser-game rows as open/manual-required.
+  Product checklist upgrade is not claimed, and final policy decisions,
+  notification or approval delivery, parent dashboard runtime UI,
+  cloud-streamed frame analysis, native game control, and enforcement remain
+  open or manual-required until separate proof exists.
 
 ## 21. Must-Not-Claim List
 

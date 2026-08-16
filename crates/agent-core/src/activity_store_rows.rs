@@ -1,7 +1,8 @@
-use ocentra_parent_agent_protocol::{
-    ActivityEventKind, ActivityObserver, ActivityRecentSummary, ActivityStoreRow,
-    ActivitySubjectKind, ACTIVITY_QUERY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_query::ACTIVITY_QUERY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity_query::{ActivityRecentSummary, ActivityStoreRow};
 use rusqlite::Row;
 
 pub fn row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<ActivityStoreRow> {

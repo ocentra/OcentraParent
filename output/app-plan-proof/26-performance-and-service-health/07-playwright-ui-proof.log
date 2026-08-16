@@ -1,1 +1,0 @@
-Playwright/browser proof not run: no UI source changed and apps/portal is locked by codex-d. Existing dashboard intent was exercised through generated tsx scale smoke with 500 rows.

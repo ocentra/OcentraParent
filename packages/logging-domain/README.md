@@ -1,15 +1,16 @@
 # @ocentra-parent/logging-domain
 
-Structured operational logging and redaction contracts.
+Parent-local logging helpers, redaction-safe proof coverage, and bridge/query adapters over Rust-owned logging contracts.
 
-## Owns
+## Role
 
-- Log event schemas.
-- Redaction-safe operational fields.
-- Shared logging contracts used by TypeScript and Rust-facing protocol paths.
+- Consume Rust-owned logging contracts.
+- Provide local development observability helpers and bridge/query adapters.
+- Keep TypeScript limited to thin edge validation, local fixtures, and redaction-safe wrappers.
 
 ## Must Not Own
 
+- Canonical logging contract authority.
 - Raw child evidence.
 - Parent report content.
 - Sensitive screenshots, browser history, or message content.
@@ -25,73 +26,54 @@ flowchart LR
   Runtime --> LogSchema --> Redacted
 ```
 
+## Architecture Split
+
+This package now serves two distinct parent logging modes plus one explicit infra scope.
+
+### Local Dev Observability
+
+Local-only developer and test logging uses:
+
+- bridge-compatible NDJSON rows
+- local DuckDB query helpers
+- parent-local scopes such as `parent-portal`, `parent-agent`, `parent-codex`, and `parent-test`
+- MCP-first query access through `npm run mcp:logging` for Codex and local agents
+- CLI fallback through `npm run agent:query` and `npm run codex:evidence` when MCP wiring is unavailable
+
+These artifacts are workspace-owned local evidence. They are not uploaded to Ocentra services by default. They are not production support bundles and they are not child-data custody claims.
+
+### Product / Runtime Safe Logging
+
+The existing proof/read-model exports remain the product-safe consumption surface:
+
+- redaction-safe
+- explicit custody boundaries
+- no raw child activity by default
+- Rust remains the contract authority
+
+### Cloudflare Infra Logging
+
+Cloudflare stays separate as explicit `parent-cloudflare` scope. Parent-local generic logging must not default to Cloudflare.
+
+## Parent Routing Notes
+
+- Portal dev logs should prefer the local bridge transport when available.
+- `/api/dev/log-snapshot` is a snapshot/status endpoint for the Rust agent service. It is not the primary local log store.
+- The Rust agent service still has a compatibility local NDJSON writer until WP04 moves that path into `crates/logging-core`.
+
 ## Connected Docs
 
 - [Notification expectations](../../docs/expectations/notifications.md)
 - [Data custody expectations](../../docs/expectations/data-custody.md)
 - [Static analysis and security expectations](../../docs/expectations/static-analysis-security.md)
 
-## Notification Audit History Contract
+## Contract Detail
 
-`src/notification-audit-history.ts` owns the logging-domain proof for
-notification audit/history rows. It records provider status, retry lifecycle,
-receipt/manual-required refs, quiet-hours/escalation refs, redaction-safe
-payload fields, and child-data non-custody flags.
-
-`src/notification-audit-history-handoff.ts` owns the metadata-only handoff from
-local source rows into those audit/history rows. The current app/game proof uses
-it to map linked local outbox rows to queued audit entries and
-manual/unavailable rows to blocked audit entries while preserving source audit,
-evidence, and policy refs.
-
-This contract is metadata-only. It does not claim provider adapters, send/retry
-execution, webhook receipt ingestion, credentials, notification history UI, raw
-child data, raw evidence payloads, or Ocentra-hosted child evidence custody.
-
-## Tamper Integrity Audit Contract
-
-`src/tamper-integrity-audit.ts` owns the logging-domain proof for
-tamper/integrity audit rows. It records stale/offline heartbeat, permission
-loss, stopped service, removed agent, uninstall detection,
-tamper/manual-required, and admin-removal flow states with redaction-safe
-operational refs.
-
-This contract is metadata-only. It does not claim stealth behavior, privilege
-escalation, hidden persistence, notification provider delivery, admin-removal
-blocking, raw child data, raw evidence payloads, raw URLs, screenshots, command
-lines, private paths, or message contents.
-
-## Support Bundle Redaction Contract
-
-`src/support-bundle-redaction.ts` owns the logging-domain schema proof for
-production-support bundle redaction and incident handoff rows, while
-`src/support-bundle-redaction-read-model.ts` owns the current fixture rows. They
-record parent consent, release/package/runtime support metadata, support-safe
-diagnostic references, billing escalation manual-required state, account lookup
-manual-required state, and backend-upload/manual support boundaries.
-
-This contract is metadata-only. It does not claim support backend upload,
-billing provider contact, account lookup execution, remote support sessions,
-production SLA, provider secrets, tokens, child activity, raw URLs, screenshots,
-journals, SQLite snapshots, private paths, command lines, keystrokes, clipboard
-data, or message contents.
-
-## Support Incident Workflow Contract
-
-`src/support-incident-workflow.ts` owns the logging-domain schema proof for the
-production support incident privacy/legal workflow, while
-`src/support-incident-workflow-read-model.ts` owns the current fixture rows.
-They record parent consent gating, privacy/legal disclosure before export,
-redaction and custody audit refs, support-safe incident workflow state, backend
-upload manual-required state, billing escalation manual-required state, and
-account lookup manual-required state.
-
-This contract is metadata-only. It does not claim support backend upload,
-billing provider contact, account lookup execution, remote support sessions,
-production SLA, public privacy policy publication, provider secrets, tokens,
-child activity, raw URLs, screenshots, journals, SQLite snapshots, private
-paths, command lines, keystrokes, clipboard data, message contents, or
-Ocentra-hosted child activity custody.
+- [Notification and tamper integrity](docs/contracts/notification-and-tamper-integrity.md)
+- [Support bundle and upload workflow](docs/contracts/support-bundle-and-upload-workflow.md)
+- [Support backend custody and readiness](docs/contracts/support-backend-custody-and-readiness.md)
+- [Provider secret and privacy disclosure](docs/contracts/provider-secrets-and-privacy.md)
+- [Status payload, export, and deletion](docs/contracts/status-payload-export-and-deletion.md)
 
 ## Gaps To Fill
 

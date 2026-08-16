@@ -1,0 +1,113 @@
+use super::*;
+
+macro_rules! parent_owned_sync_identifier {
+    ($function_name:ident, $type_name:ty, $expect_message:ident) => {
+        pub(super) fn $function_name(value: impl Into<String>) -> $type_name {
+            crate::schema_option_or_unreachable(<$type_name>::parse(value), $expect_message)
+        }
+    };
+}
+
+parent_owned_sync_identifier!(
+    contract_version,
+    ParentContractSchemaVersion,
+    CONTRACT_VERSION_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(family_id, FamilyId, FAMILY_ID_EXPECT_MESSAGE);
+parent_owned_sync_identifier!(
+    child_profile_id,
+    ChildProfileId,
+    CHILD_PROFILE_ID_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    parent_device_id,
+    ParentDeviceId,
+    PARENT_DEVICE_ID_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    parent_device_label,
+    ParentDeviceLabel,
+    PARENT_DEVICE_LABEL_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    parent_actor_id,
+    ParentActorId,
+    PARENT_ACTOR_ID_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    parent_policy_version,
+    ParentPolicyVersion,
+    PARENT_POLICY_VERSION_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    parent_action_id,
+    ParentActionReferenceId,
+    PARENT_ACTION_ID_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    parent_timestamp,
+    ParentTimestamp,
+    PARENT_TIMESTAMP_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    manifest_id,
+    ParentOwnedSyncManifestId,
+    MANIFEST_ID_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(item_id, ParentOwnedSyncItemId, ITEM_ID_EXPECT_MESSAGE);
+parent_owned_sync_identifier!(
+    version_label,
+    ParentOwnedSyncVersionLabel,
+    VERSION_LABEL_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    policy_ref,
+    ParentOwnedSyncPolicyRef,
+    POLICY_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    provider_id,
+    ParentOwnedSyncProviderId,
+    PROVIDER_ID_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    provider_ref,
+    ParentOwnedSyncProviderRef,
+    PROVIDER_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    status_ref,
+    ParentOwnedSyncStatusRef,
+    STATUS_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    cursor_ref,
+    ParentOwnedSyncCursorRef,
+    CURSOR_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(batch_ref, ParentOwnedSyncBatchRef, BATCH_REF_EXPECT_MESSAGE);
+parent_owned_sync_identifier!(
+    conflict_ref,
+    ParentOwnedSyncConflictRef,
+    CONFLICT_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    checksum_ref,
+    ParentOwnedSyncChecksumRef,
+    CHECKSUM_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    signature_ref,
+    ParentOwnedSyncSignatureRef,
+    SIGNATURE_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    tombstone_ref,
+    ParentOwnedSyncTombstoneRef,
+    TOMBSTONE_REF_EXPECT_MESSAGE
+);
+parent_owned_sync_identifier!(
+    delete_request_ref,
+    ParentOwnedSyncDeleteRequestRef,
+    DELETE_REQUEST_REF_EXPECT_MESSAGE
+);

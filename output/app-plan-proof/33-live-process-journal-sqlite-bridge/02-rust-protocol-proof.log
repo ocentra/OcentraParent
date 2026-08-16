@@ -1,7 +1,0 @@
-Cross-recorded from shared app/game WP33.
-
-Focused validation:
-
-`cargo test -p ocentra-parent-agent-core app_game_windows_process`
-
-Result: PASS, 10 tests.

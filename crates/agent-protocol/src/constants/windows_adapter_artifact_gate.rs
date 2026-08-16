@@ -24,18 +24,13 @@ pub const DECISION_REFUSED_MISSING_ARTIFACTS: &str = "refused-missing-artifacts"
 pub const DECISION_REFUSED_UNSUPPORTED_SURFACE: &str = "refused-unsupported-surface";
 pub const DECISION_READY_FOR_MANUAL_REVIEW: &str = "ready-for-manual-review";
 
-pub const CLAIM_BOUNDARY_APP_TARGET: &str =
-    "App target claims cannot upgrade until same-identity app evidence, apply, rollback, and audit custody artifacts are present.";
-pub const CLAIM_BOUNDARY_DOMAIN_NETWORK_TARGET: &str =
-    "Domain and network claims cannot upgrade until filter apply, filter rollback, and audit custody artifacts are present.";
-pub const CLAIM_BOUNDARY_MANAGED_BROWSER_TARGET: &str =
-    "Managed browser exact URL claims cannot upgrade until exact URL evidence and audit custody artifacts are present.";
-pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_TARGET: &str =
-    "Unmanaged browser capability remains process-only and cannot upgrade into exact URL control from capability rows.";
+pub const CLAIM_BOUNDARY_APP_TARGET: &str = "App target claims cannot upgrade until same-identity app evidence, apply, rollback, and audit custody artifacts are present.";
+pub const CLAIM_BOUNDARY_DOMAIN_NETWORK_TARGET: &str = "Domain and network claims cannot upgrade until filter apply, filter rollback, and audit custody artifacts are present.";
+pub const CLAIM_BOUNDARY_MANAGED_BROWSER_TARGET: &str = "Managed browser exact URL claims cannot upgrade until exact URL evidence and audit custody artifacts are present.";
+pub const CLAIM_BOUNDARY_UNMANAGED_BROWSER_TARGET: &str = "Unmanaged browser capability remains process-only and cannot upgrade into exact URL control from capability rows.";
 pub const CLAIM_BOUNDARY_UNSUPPORTED_OS_TARGET: &str =
     "Unsupported OS targets cannot borrow Windows adapter artifacts or upgrade claims.";
-pub const CLAIM_BOUNDARY_ROLLBACK_AUDIT_TARGET: &str =
-    "Rollback and audit claims require same-identity apply, rollback, and custody artifacts before manual review.";
+pub const CLAIM_BOUNDARY_ROLLBACK_AUDIT_TARGET: &str = "Rollback and audit claims require same-identity apply, rollback, and custody artifacts before manual review.";
 
 pub const REFUSAL_MISSING_APP_ARTIFACTS: &str =
     "missing same-identity app evidence, apply result, rollback result, or audit custody event";

@@ -1,66 +1,141 @@
 import { useMemo, useState, type ReactElement, type ReactNode } from 'react';
+import { parentScreenEvidenceSettingsWritableUiProof as screenEvidenceSettingsWritableUiProof } from '../generated/parent-ui-screen-bridge';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { PortalFormatting } from '@ocentra-parent/portal-domain/formatting';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
+import type { PortalRenderActions } from './portal-actions';
 import {
-  screenEvidenceSettingsWritableUiProof,
-  type ScreenEvidenceSettingsUiIntent,
-  type ScreenEvidenceSettingsUiIntentKey,
-} from '@ocentra-parent/activity-domain/screen-evidence';
-import {
-  PortalDetails,
-  PortalDom,
-  PortalFormatting,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
+  createScreenSettingsGetCommandDraft,
+  createScreenSettingsReplaceCommandDraft,
+  decodeScreenSettingsServiceResponseSnapshot,
+  matchingScreenSettingsServiceResponse,
+  screenSettingsBaseVersionForReplace,
+  type ScreenSettingsServiceRequestId,
+  screenSettingsServiceStatusText,
+} from './screen-settings-service-command-state';
+import { ScreenSettingsServiceCommandCard } from './ScreenSettingsServiceCommandCard';
 
 type ScreenSettingsWritableDetailValue = ReactNode;
+type ScreenEvidenceSettingsWritableProof = ReturnType<typeof screenEvidenceSettingsWritableUiProof>;
+type ScreenEvidenceSettingsUiIntent = ScreenEvidenceSettingsWritableProof['intents'][number];
+type ScreenEvidenceSettingsUiIntentKey = ScreenEvidenceSettingsWritableProof['defaultIntentKey'];
 
-export function ScreenSettingsWritableControls(): ReactElement {
+export function ScreenSettingsWritableControls({
+  actions,
+  commandEnabled,
+  serviceResponseSnapshot,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly serviceResponseSnapshot: unknown | null;
+}): ReactElement {
   const proof = useMemo(() => screenEvidenceSettingsWritableUiProof(), []);
   const [selectedIntentKey, setSelectedIntentKey] = useState(proof.defaultIntentKey);
+  const [requestSequence, setRequestSequence] = useState(1);
+  const [pendingRequestId, setPendingRequestId] = useState<ScreenSettingsServiceRequestId | null>(null);
   const selectedIntent = screenSettingsIntentByKey(proof.intents, selectedIntentKey);
+  const serviceResponse = matchingScreenSettingsServiceResponse(
+    decodeScreenSettingsServiceResponseSnapshot(serviceResponseSnapshot),
+    pendingRequestId
+  );
+  const serviceStatus = screenSettingsServiceStatusText({
+    commandEnabled,
+    pendingRequestId,
+    proof,
+    response: serviceResponse,
+  });
+  const submitDraft = (draft: ReturnType<typeof createScreenSettingsReplaceCommandDraft>): void => {
+    setPendingRequestId(draft.requestId);
+    setRequestSequence(requestSequence + 1);
+    if (draft.action === 'screen-settings-get-requested') {
+      void actions.requestScreenSettingsGet?.(draft.payload);
+      return;
+    }
+    void actions.requestScreenSettingsReplace?.(draft.payload);
+  };
+  const sendReplace = (): void => {
+    submitDraft(
+      createScreenSettingsReplaceCommandDraft({
+        baseSettingVersion: screenSettingsBaseVersionForReplace(serviceResponse),
+        sequence: requestSequence,
+        setting: selectedIntent.setting,
+      })
+    );
+  };
+  const sendRefresh = (): void => {
+    const draft = createScreenSettingsGetCommandDraft(requestSequence);
+    submitDraft(draft);
+  };
 
   return (
     <>
-      <article aria-label={proof.title} className={screenSettingsWritableCardClassName()}>
-        <h2>{proof.title}</h2>
-        <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-          <ScreenSettingsWritableDetail label={PortalDetails.Status} value={proof.validationStatusValue} />
-          <ScreenSettingsWritableDetail label={PortalDetails.Reason} value={proof.note} />
-        </dl>
-      </article>
-      <article className={screenSettingsWritableCardClassName()}>
-        <h2>{proof.intentLegend}</h2>
-        <div>
-          <div className={PortalDom.Classes.RouteTabs}>
-            {proof.intents.map((intent) => (
-              <button
-                key={intent.intentKey}
-                aria-pressed={intent.intentKey === selectedIntent.intentKey}
-                className={screenSettingsIntentClassName(intent.intentKey, selectedIntent.intentKey)}
-                onClick={() => {
-                  setSelectedIntentKey(intent.intentKey);
-                }}
-              >
-                {intent.label}
-              </button>
-            ))}
-          </div>
-          <p>{selectedIntent.detail}</p>
-        </div>
-      </article>
+      <ScreenSettingsProofCard proof={proof} />
+      <ScreenSettingsIntentPickerCard
+        proof={proof}
+        selectedIntent={selectedIntent}
+        onSelectIntent={setSelectedIntentKey}
+      />
       <ScreenSettingsDraftCard
         proofHeading={proof.draftHeading}
         triggerHeading={proof.draftTriggerHeading}
         selectedIntent={selectedIntent}
       />
       <ScreenSettingsRetentionCard proofHeading={proof.retentionHeading} selectedIntent={selectedIntent} />
-      <article className={screenSettingsWritableCardClassName()}>
-        <h2>{proof.validationStatusLabel}</h2>
-        <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
-          <ScreenSettingsWritableDetail label={PortalDetails.Status} value={proof.validationStatusValue} />
-          <ScreenSettingsWritableDetail label={PortalDetails.Reason} value={selectedIntent.setting.reason} />
-        </dl>
-      </article>
+      <ScreenSettingsServiceCommandCard
+        commandEnabled={commandEnabled}
+        onRefresh={sendRefresh}
+        onSave={sendReplace}
+        pendingRequestId={pendingRequestId}
+        proof={proof}
+        response={serviceResponse}
+        serviceStatus={serviceStatus}
+      />
+      <ScreenSettingsValidationCard proof={proof} selectedIntent={selectedIntent} />
     </>
+  );
+}
+
+function ScreenSettingsProofCard({ proof }: { readonly proof: ScreenEvidenceSettingsWritableProof }): ReactElement {
+  return (
+    <article aria-label={proof.title} className={screenSettingsWritableCardClassName()}>
+      <h2>{proof.title}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <ScreenSettingsWritableDetail label={PortalDetails.Status} value={proof.validationStatusValue} />
+        <ScreenSettingsWritableDetail label={PortalDetails.Reason} value={proof.note} />
+      </dl>
+    </article>
+  );
+}
+
+function ScreenSettingsIntentPickerCard({
+  proof,
+  selectedIntent,
+  onSelectIntent,
+}: {
+  readonly proof: ScreenEvidenceSettingsWritableProof;
+  readonly selectedIntent: ScreenEvidenceSettingsUiIntent;
+  readonly onSelectIntent: (intentKey: ScreenEvidenceSettingsUiIntentKey) => void;
+}): ReactElement {
+  return (
+    <article className={screenSettingsWritableCardClassName()}>
+      <h2>{proof.intentLegend}</h2>
+      <div>
+        <div className={PortalDom.Classes.RouteTabs}>
+          {proof.intents.map((intent) => (
+            <button
+              key={intent.intentKey}
+              aria-pressed={intent.intentKey === selectedIntent.intentKey}
+              className={screenSettingsIntentClassName(intent.intentKey, selectedIntent.intentKey)}
+              onClick={() => onSelectIntent(intent.intentKey)}
+            >
+              {intent.label}
+            </button>
+          ))}
+        </div>
+        <p>{selectedIntent.detail}</p>
+      </div>
+    </article>
   );
 }
 
@@ -137,6 +212,24 @@ function ScreenSettingsRetentionCard({
           label={PortalDetails.Custody}
           value={boundary.remoteSummaryDestinationCustodyState}
         />
+      </dl>
+    </article>
+  );
+}
+
+function ScreenSettingsValidationCard({
+  proof,
+  selectedIntent,
+}: {
+  readonly proof: ScreenEvidenceSettingsWritableProof;
+  readonly selectedIntent: ScreenEvidenceSettingsUiIntent;
+}): ReactElement {
+  return (
+    <article className={screenSettingsWritableCardClassName()}>
+      <h2>{proof.validationStatusLabel}</h2>
+      <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
+        <ScreenSettingsWritableDetail label={PortalDetails.Status} value={proof.validationStatusValue} />
+        <ScreenSettingsWritableDetail label={PortalDetails.Reason} value={selectedIntent.setting.reason} />
       </dl>
     </article>
   );

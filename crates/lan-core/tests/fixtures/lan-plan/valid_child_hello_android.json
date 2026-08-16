@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "claim": {
+    "schemaVersion": 1,
+    "messageKind": "hello",
+    "childDeviceId": "child-device-2",
+    "parentDeviceId": "parent-device-1",
+    "installId": "child-install-2",
+    "familyHash": "sha256:family-1",
+    "childProfileHash": "sha256:child-profile-2",
+    "platform": "android",
+    "hostname": "GAMEMOBILE",
+    "agentVersion": "1.2.3",
+    "localIps": ["192.168.2.43"],
+    "macAddresses": ["a2-27-1e-97-c3-32"],
+    "capabilities": ["child-agent-pairing-route", "future-safe-local-capability"],
+    "routeId": "lan-route-local-network",
+    "nonce": "nonce-hello-2",
+    "sequence": 1,
+    "issuedAt": "2026-05-23T14:40:00.000Z",
+    "expiresAt": "2099-05-23T14:45:00.000Z"
+  },
+  "publicKeyBase64": "6kpsY+KcUgq+9VB7Ey7F+ZVHdq6+vnuSQh7qaRRG0iw=",
+  "publicKeyId": "fe812c12f3ab4ce6ac5db69ac352f906",
+  "signatureBase64": "73FhcMcdaoNB4R0ZOs+C9aVY7j2jiJFWfpa9ZB287xk2l+EoiZFjGyT4qihJG4SjpUrR2tD46WzPhHVVq2JuDA==",
+  "signatureAlgorithm": "ed25519"
+}

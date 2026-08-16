@@ -2,6 +2,12 @@ name: Dependency Policy
 
 on:
   workflow_call:
+    inputs:
+      docs_hub_only:
+        description: Skip dependency/SBOM work for docs/hub-only changes while preserving the required check.
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -14,20 +20,32 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
+        with:
+          install-tauri-system-dependencies: 'false'
 
       - name: Install cargo-audit
+        if: ${{ !inputs.docs_hub_only }}
         run: cargo install cargo-audit --locked
 
       - name: Dependency and license policy
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run security:deps
 
       - name: Write SBOM metadata
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run security:sbom
 
       - name: Upload SBOM metadata
+        if: ${{ !inputs.docs_hub_only }}
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-security-sbom
           path: target/security/*.json
+
+      - name: Docs/hub-only dependency policy skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Dependency policy skipped for docs/hub-only change."

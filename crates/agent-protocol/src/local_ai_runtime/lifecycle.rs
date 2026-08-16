@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelLoadState {
     #[serde(rename = "unavailable")]
     Unavailable,
@@ -17,18 +18,21 @@ pub enum LocalAiModelLoadState {
 }
 
 impl LocalAiModelLoadState {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::local_ai_runtime::LOAD_STATE_UNAVAILABLE,
+        constants::local_ai_runtime::LOAD_STATE_LOADING,
+        constants::local_ai_runtime::LOAD_STATE_LOADED,
+        constants::local_ai_runtime::LOAD_STATE_DEGRADED,
+        constants::local_ai_runtime::LOAD_STATE_FAILED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Unavailable => constants::local_ai_runtime::LOAD_STATE_UNAVAILABLE,
-            Self::Loading => constants::local_ai_runtime::LOAD_STATE_LOADING,
-            Self::Loaded => constants::local_ai_runtime::LOAD_STATE_LOADED,
-            Self::Degraded => constants::local_ai_runtime::LOAD_STATE_DEGRADED,
-            Self::Failed => constants::local_ai_runtime::LOAD_STATE_FAILED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiCapabilityFlag {
     #[serde(rename = "classification")]
     Classification,
@@ -43,18 +47,21 @@ pub enum LocalAiCapabilityFlag {
 }
 
 impl LocalAiCapabilityFlag {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::local_ai_runtime::CAPABILITY_CLASSIFICATION,
+        constants::local_ai_runtime::CAPABILITY_SUMMARIZATION,
+        constants::local_ai_runtime::CAPABILITY_EMBEDDING,
+        constants::local_ai_runtime::CAPABILITY_SAFETY_DECISION,
+        constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Classification => constants::local_ai_runtime::CAPABILITY_CLASSIFICATION,
-            Self::Summarization => constants::local_ai_runtime::CAPABILITY_SUMMARIZATION,
-            Self::Embedding => constants::local_ai_runtime::CAPABILITY_EMBEDDING,
-            Self::SafetyDecision => constants::local_ai_runtime::CAPABILITY_SAFETY_DECISION,
-            Self::ChatCompletion => constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiGenerationState {
     #[serde(rename = "unavailable")]
     Unavailable,
@@ -69,18 +76,21 @@ pub enum LocalAiGenerationState {
 }
 
 impl LocalAiGenerationState {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE,
+        constants::local_ai_runtime::GENERATION_STATE_RUNNING,
+        constants::local_ai_runtime::GENERATION_STATE_COMPLETE,
+        constants::local_ai_runtime::GENERATION_STATE_FAILED,
+        constants::local_ai_runtime::GENERATION_STATE_TIMED_OUT,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Unavailable => constants::local_ai_runtime::GENERATION_STATE_UNAVAILABLE,
-            Self::Running => constants::local_ai_runtime::GENERATION_STATE_RUNNING,
-            Self::Complete => constants::local_ai_runtime::GENERATION_STATE_COMPLETE,
-            Self::Failed => constants::local_ai_runtime::GENERATION_STATE_FAILED,
-            Self::TimedOut => constants::local_ai_runtime::GENERATION_STATE_TIMED_OUT,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiResourceClass {
     #[serde(rename = "cpu")]
     Cpu,
@@ -93,17 +103,20 @@ pub enum LocalAiResourceClass {
 }
 
 impl LocalAiResourceClass {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        constants::local_ai_runtime::RESOURCE_CPU,
+        constants::local_ai_runtime::RESOURCE_GPU,
+        constants::local_ai_runtime::RESOURCE_NPU,
+        constants::local_ai_runtime::RESOURCE_REMOTE_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Cpu => constants::local_ai_runtime::RESOURCE_CPU,
-            Self::Gpu => constants::local_ai_runtime::RESOURCE_GPU,
-            Self::Npu => constants::local_ai_runtime::RESOURCE_NPU,
-            Self::RemoteUnavailable => constants::local_ai_runtime::RESOURCE_REMOTE_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiDegradedState {
     #[serde(rename = "none")]
     None,
@@ -118,13 +131,15 @@ pub enum LocalAiDegradedState {
 }
 
 impl LocalAiDegradedState {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::local_ai_runtime::DEGRADED_NONE,
+        constants::local_ai_runtime::DEGRADED_PROVIDER_UNAVAILABLE,
+        constants::local_ai_runtime::DEGRADED_MODEL_LOAD_FAILED,
+        constants::local_ai_runtime::DEGRADED_OVERLOADED,
+        constants::local_ai_runtime::DEGRADED_INVALID_OUTPUT,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::None => constants::local_ai_runtime::DEGRADED_NONE,
-            Self::ProviderUnavailable => constants::local_ai_runtime::DEGRADED_PROVIDER_UNAVAILABLE,
-            Self::ModelLoadFailed => constants::local_ai_runtime::DEGRADED_MODEL_LOAD_FAILED,
-            Self::Overloaded => constants::local_ai_runtime::DEGRADED_OVERLOADED,
-            Self::InvalidOutput => constants::local_ai_runtime::DEGRADED_INVALID_OUTPUT,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }

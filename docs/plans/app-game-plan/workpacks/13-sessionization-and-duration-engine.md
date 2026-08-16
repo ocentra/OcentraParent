@@ -1,5 +1,20 @@
 # 13 Sessionization And Duration Engine
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `13 Sessionization And Duration Engine`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 Running and foreground durations are derived from stored evidence and replayable
@@ -66,25 +81,25 @@ Use the standard checklist in [workpacks README](README.md).
 
 ## AI Worker Checklist
 
-- [x] Source docs read: feature doc, expectation routing, architecture session
+- [ ] Source docs read: feature doc, expectation routing, architecture session
       doc, app-plan bridge, source index, current snapshot, implementation
       checklist, and this workpack.
-- [x] Hub lock covered exact implementation, docs, and proof paths before edits.
-- [x] Existing source layout inspected; reducer extends current
+- [ ] Hub lock covered exact implementation, docs, and proof paths before edits.
+- [ ] Existing source layout inspected; reducer extends current
       `agent-core` app/game store paths instead of creating parallel truth.
-- [x] TypeScript Effect Schema contracts updated before Rust parity and core
+- [ ] TypeScript Effect Schema contracts updated before Rust parity and core
       reducer behavior.
-- [x] Rust protocol parity updated for new session summary fields and daily
+- [ ] Rust protocol parity updated for new session summary fields and daily
       rollup payloads.
-- [x] Stored-row runtime evidence proof recorded in
+- [ ] Stored-row runtime evidence proof recorded in
       `03-runtime-evidence.json` and `04-journal-sqlite-proof.json`.
-- [x] Policy/action and UI items recorded as N/A with explicit no-claim files
+- [ ] Policy/action and UI items recorded as N/A with explicit no-claim files
       because this slice is read-model only.
-- [x] Security negative proof records inventory-is-not-use,
+- [ ] Security negative proof records inventory-is-not-use,
       running-is-not-foreground, foreground-is-not-content, launcher-is-not-game,
       AI-cannot-enforce, manual-required-cannot-execute, and private path
       non-surfacing boundaries.
-- [x] Validation commands are recorded in the proof pack.
-- [x] Feature doc and product capability checklist proof text were updated
+- [ ] Validation commands are recorded in the proof pack.
+- [ ] Feature doc and product capability checklist proof text were updated
       without moving product status to complete.
-- [x] Known gaps are recorded above and in the proof pack.
+- [ ] Known gaps are recorded above and in the proof pack.

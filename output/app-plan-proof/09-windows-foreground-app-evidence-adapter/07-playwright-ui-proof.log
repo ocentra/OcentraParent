@@ -1,5 +1,0 @@
-Playwright/UI status:
-Not applicable. No portal or child UX changed in app-plan WP09.
-
-Future app UI proof must show foreground as active focus only, not content
-knowledge, and must include omitted-title and permission-limited states.

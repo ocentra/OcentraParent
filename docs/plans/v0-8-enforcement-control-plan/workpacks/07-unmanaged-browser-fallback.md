@@ -1,5 +1,19 @@
 # 07 Unmanaged Browser Fallback
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `v0-8-enforcement-control-plan`
+> Doc: `07 Unmanaged Browser Fallback`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 Sources: [20-step plan](../v0-8-enforcement-control-20-step-plan.md),
 [test blueprint](../v0-8-enforcement-control-test-blueprint.md), and
 [folder README](../README.md).
@@ -29,13 +43,20 @@ perform scoped process action where proved.
 ## Acceptance And Proof
 
 Unmanaged browser tests fail if exact URL action is inferred from process or
-network metadata. Current proof lives in
-`packages/parent-domain/tests/v0-8-browser-enforcement-timer-recovery-proof.test.ts`
+network metadata. Current proof runs:
+`npm run test --workspace @ocentra-parent/enforcement-domain -- v0-8-browser-enforcement-timer-recovery-proof`
+and `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`.
+Supporting proof surfaces live in
+`packages/enforcement-domain/tests/unit/v0-8-browser-enforcement-timer-recovery-proof.test.ts`
+and `scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`.
+Current artifacts live under
+`test-results/windows-managed-unmanaged-browser-enforcement-proof/`,
+`output/v0-8-enforcement-control-plan-proof/07-unmanaged-browser-fallback/`,
 and
-`scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`; latest
-evidence rows include report-only, parent-review, terminate-process,
-relaunch-managed manual-required, degraded, unavailable, and exact
-URL/tab/title/content not-claimed states.
+`docs/proof/v0-8-enforcement-control-plan/slice-01-unmanaged-browser-fallback.md`.
+Latest evidence rows include process-identity-required rejection, report-only,
+warn-child, parent-review, terminate-process, relaunch-managed manual-required,
+degraded, unavailable, and exact URL/tab/title/content not-claimed states.
 
 ## Parallel Ownership Notes
 

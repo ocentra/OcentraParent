@@ -1,8 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkEndpoint, ActivityNetworkFlowCounters,
-    ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel, LogFieldValue, LogFields,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::network_flow::{
+    ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
+    ActivityNetworkFlowReadModel, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
 };
+use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 use rusqlite::Connection;
 
 use crate::{
@@ -15,9 +18,21 @@ pub(crate) fn network_flow_read_model(
     limit: u64,
     generated_at: &str,
 ) -> Result<ActivityNetworkFlowReadModel, ActivityStoreError> {
-    let rows = network_flow_rows(connection, limit)?;
-    let observations: Vec<ActivityNetworkFlowObservation> =
-        rows.into_iter().map(observation_from_row).collect();
+    let store_rows = network_flow_rows(connection, limit)?;
+    let latest = store_rows.first();
+    let latest_tombstone = store_rows.iter().find(|row| is_tombstone(row));
+    let latest_event_id = latest.map(|row| row.event_id.clone());
+    let latest_observed_at = latest.map(|row| row.observed_at.clone());
+    let latest_tombstone_event_id = latest_tombstone.map(|row| row.event_id.clone());
+    let latest_tombstone_observed_at = latest_tombstone.map(|row| row.observed_at.clone());
+    let tombstone_rows = store_rows.iter().filter(|row| is_tombstone(row)).count() as u64;
+    let deleted_evidence_reference_ids = deleted_evidence_reference_ids(&store_rows);
+    let observations: Vec<ActivityNetworkFlowObservation> = store_rows
+        .into_iter()
+        .filter(is_flow_observation)
+        .filter(|row| !row_deleted(row, &deleted_evidence_reference_ids))
+        .map(observation_from_row)
+        .collect();
     let capability_status = read_model_capability_status(&observations);
 
     Ok(ActivityNetworkFlowReadModel {
@@ -26,9 +41,67 @@ pub(crate) fn network_flow_read_model(
         custody: NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE.to_string(),
         limit,
         returned: observations.len() as u64,
+        active_rows: observations.len() as u64,
+        tombstone_rows,
+        exportable_rows: observations.len() as u64,
         capability_status,
+        latest_event_id,
+        latest_observed_at,
+        latest_tombstone_event_id,
+        latest_tombstone_observed_at,
+        deleted_evidence_reference_ids,
         rows: observations,
     })
+}
+
+fn is_flow_observation(row: &NetworkFlowStoreRow) -> bool {
+    row.kind == constants::activity_event_kind::DOMAIN_OBSERVED
+}
+
+fn is_tombstone(row: &NetworkFlowStoreRow) -> bool {
+    row.kind == constants::activity_event_kind::NETWORK_RETENTION_DELETED
+}
+
+fn row_deleted(row: &NetworkFlowStoreRow, deleted_ids: &[String]) -> bool {
+    deleted_ids.iter().any(|id| id == &row.event_id)
+        || row
+            .evidence
+            .iter()
+            .any(|reference| deleted_ids.iter().any(|id| id == &reference.evidence_id))
+}
+
+fn deleted_evidence_reference_ids(rows: &[NetworkFlowStoreRow]) -> Vec<String> {
+    let mut ids = Vec::new();
+    for row in rows.iter().filter(|row| is_tombstone(row)) {
+        for id in evidence_reference_ids(&row.fields, &row.evidence) {
+            if !ids.iter().any(|existing| existing == &id) {
+                ids.push(id);
+            }
+        }
+    }
+    ids
+}
+
+fn evidence_reference_ids(fields: &LogFields, evidence: &[ActivityEvidenceRef]) -> Vec<String> {
+    let mut ids = string_field(fields, constants::field::EVIDENCE_REFERENCE_IDS)
+        .map(|value| split_evidence_reference_ids(&value))
+        .unwrap_or_default();
+
+    for reference in evidence {
+        if !ids.iter().any(|id| id == &reference.evidence_id) {
+            ids.push(reference.evidence_id.clone());
+        }
+    }
+    ids
+}
+
+fn split_evidence_reference_ids(value: &str) -> Vec<String> {
+    value
+        .split(constants::delimiter::LIST)
+        .map(str::trim)
+        .filter(|id| !id.is_empty())
+        .map(ToOwned::to_owned)
+        .collect()
 }
 
 fn observation_from_row(row: NetworkFlowStoreRow) -> ActivityNetworkFlowObservation {

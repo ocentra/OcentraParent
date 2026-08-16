@@ -47,3 +47,6 @@ network filtering, location, notification delivery, or store readiness.
   and unavailable LAN AI, and observer/request-first boundaries explicit, but
   real mobile UX, controller authority, signing, stores, and child mobile agent
   runtime support remain unclaimed.
+- Parent mobile now has separate Android and iOS scaffold apps under
+  `platforms/android/parent` and `platforms/ios/OcentraParentMobile`, with
+  package-preview CI kept separate from child-agent package previews.

@@ -1,0 +1,30 @@
+
+  if (firstRow === undefined) {
+    throw new Error('Expected app/game source freshness rows after empty-row guard');
+  }
+
+  const firstFailure = appGameSourceFreshnessRequirementFailureGenerated(
+    firstRow,
+    evaluatedAt,
+    request.maxSourceAgeMs
+  ) ?? {
+    requirementState: AppGameSourceFreshnessRequirementStateGenerated.MissingEvidence,
+    reasonCode: AppGameSourceFreshnessReasonCodeGenerated.MissingSourceEvidence,
+  };
+
+  return {
+    requirementKind,
+    requirementState: firstFailure.requirementState,
+    reasonCode: firstFailure.reasonCode,
+    matchedSourceKinds: rows.map((row) => row.sourceKind),
+    sourceEvidenceRefs: rows.flatMap((row) => row.evidence),
+    lastObservedAt: firstRow.lastObservedAt,
+  };
+}
+
+export function evaluateAppGameSourceFreshnessPolicyReadinessGenerated(
+  request: SourceFreshnessRequestLike,
+  readinessId: string,
+  evaluatedAt: string
+) {
+  const requirementResults = request.requiredSources.map((requirementKind) =>

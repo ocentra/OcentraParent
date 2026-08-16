@@ -1,11 +1,20 @@
+use crate::policy_constants;
 use serde::{Deserialize, Serialize};
-
-#[path = "constants/policy.rs"]
-pub mod policy_constants;
 
 pub const POLICY_DRY_RUN_SCHEMA_VERSION: &str = policy_constants::CONTRACT_SCHEMA_VERSION_V0_6;
 
+fn protocol_lookup<T: Copy, const N: usize>(
+    value: impl AsRef<str>,
+    variants: [(&'static str, T); N],
+) -> Option<T> {
+    let value = value.as_ref();
+    variants
+        .into_iter()
+        .find_map(|(protocol, variant)| (value == protocol).then_some(variant))
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ParentActorRole {
     #[serde(rename = "parent")]
     Parent,
@@ -16,12 +25,14 @@ pub enum ParentActorRole {
 }
 
 impl ParentActorRole {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        policy_constants::ACTOR_ROLE_PARENT,
+        policy_constants::ACTOR_ROLE_GUARDIAN,
+        policy_constants::ACTOR_ROLE_SYSTEM,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Parent => policy_constants::ACTOR_ROLE_PARENT,
-            Self::Guardian => policy_constants::ACTOR_ROLE_GUARDIAN,
-            Self::System => policy_constants::ACTOR_ROLE_SYSTEM,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -33,6 +44,7 @@ pub struct ParentActorReference {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ParentEvidenceReferenceKind {
     #[serde(rename = "journal-event")]
     JournalEvent,
@@ -47,14 +59,16 @@ pub enum ParentEvidenceReferenceKind {
 }
 
 impl ParentEvidenceReferenceKind {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        policy_constants::EVIDENCE_KIND_JOURNAL_EVENT,
+        policy_constants::EVIDENCE_KIND_QUERY_STORE_SUMMARY,
+        policy_constants::EVIDENCE_KIND_ACTIVITY_EVENT,
+        policy_constants::EVIDENCE_KIND_POLICY_DECISION,
+        policy_constants::EVIDENCE_KIND_LOCAL_AI_RESULT,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::JournalEvent => policy_constants::EVIDENCE_KIND_JOURNAL_EVENT,
-            Self::QueryStoreSummary => policy_constants::EVIDENCE_KIND_QUERY_STORE_SUMMARY,
-            Self::ActivityEvent => policy_constants::EVIDENCE_KIND_ACTIVITY_EVENT,
-            Self::PolicyDecision => policy_constants::EVIDENCE_KIND_POLICY_DECISION,
-            Self::LocalAiResult => policy_constants::EVIDENCE_KIND_LOCAL_AI_RESULT,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
@@ -67,6 +81,7 @@ pub struct ParentEvidenceReference {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum PolicyAction {
     #[serde(rename = "allow")]
     Allow,
@@ -83,19 +98,22 @@ pub enum PolicyAction {
 }
 
 impl PolicyAction {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        policy_constants::ACTION_ALLOW,
+        policy_constants::ACTION_WARN,
+        policy_constants::ACTION_BLOCK,
+        policy_constants::ACTION_TIME_LIMIT,
+        policy_constants::ACTION_ASK_PARENT,
+        policy_constants::ACTION_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Allow => policy_constants::ACTION_ALLOW,
-            Self::Warn => policy_constants::ACTION_WARN,
-            Self::Block => policy_constants::ACTION_BLOCK,
-            Self::TimeLimit => policy_constants::ACTION_TIME_LIMIT,
-            Self::AskParent => policy_constants::ACTION_ASK_PARENT,
-            Self::Unknown => policy_constants::ACTION_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum PolicyTargetType {
     #[serde(rename = "app")]
     App,
@@ -120,19 +138,42 @@ pub enum PolicyTargetType {
 }
 
 impl PolicyTargetType {
+    const PROTOCOL_STRINGS: [&'static str; 10] = [
+        policy_constants::TARGET_TYPE_APP,
+        policy_constants::TARGET_TYPE_PROCESS,
+        policy_constants::TARGET_TYPE_WINDOW,
+        policy_constants::TARGET_TYPE_DOMAIN,
+        policy_constants::TARGET_TYPE_SITE,
+        policy_constants::TARGET_TYPE_CATEGORY,
+        policy_constants::TARGET_TYPE_VIDEO,
+        policy_constants::TARGET_TYPE_CHANNEL,
+        policy_constants::TARGET_TYPE_ACTIVITY_TYPE,
+        policy_constants::TARGET_TYPE_DEVICE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::App => policy_constants::TARGET_TYPE_APP,
-            Self::Process => policy_constants::TARGET_TYPE_PROCESS,
-            Self::Window => policy_constants::TARGET_TYPE_WINDOW,
-            Self::Domain => policy_constants::TARGET_TYPE_DOMAIN,
-            Self::Site => policy_constants::TARGET_TYPE_SITE,
-            Self::Category => policy_constants::TARGET_TYPE_CATEGORY,
-            Self::Video => policy_constants::TARGET_TYPE_VIDEO,
-            Self::Channel => policy_constants::TARGET_TYPE_CHANNEL,
-            Self::ActivityType => policy_constants::TARGET_TYPE_ACTIVITY_TYPE,
-            Self::Device => policy_constants::TARGET_TYPE_DEVICE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
+    }
+
+    pub fn from_protocol_str(value: &str) -> Option<Self> {
+        protocol_lookup(
+            value,
+            [
+                (policy_constants::TARGET_TYPE_APP, Self::App),
+                (policy_constants::TARGET_TYPE_PROCESS, Self::Process),
+                (policy_constants::TARGET_TYPE_WINDOW, Self::Window),
+                (policy_constants::TARGET_TYPE_DOMAIN, Self::Domain),
+                (policy_constants::TARGET_TYPE_SITE, Self::Site),
+                (policy_constants::TARGET_TYPE_CATEGORY, Self::Category),
+                (policy_constants::TARGET_TYPE_VIDEO, Self::Video),
+                (policy_constants::TARGET_TYPE_CHANNEL, Self::Channel),
+                (
+                    policy_constants::TARGET_TYPE_ACTIVITY_TYPE,
+                    Self::ActivityType,
+                ),
+                (policy_constants::TARGET_TYPE_DEVICE, Self::Device),
+            ],
+        )
     }
 }
 
@@ -160,6 +201,7 @@ pub struct PolicyRule {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum PolicyDecisionHandoffState {
     #[serde(rename = "not-requested")]
     NotRequested,
@@ -172,13 +214,15 @@ pub enum PolicyDecisionHandoffState {
 }
 
 impl PolicyDecisionHandoffState {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        policy_constants::HANDOFF_NOT_REQUESTED,
+        policy_constants::HANDOFF_DISABLED,
+        policy_constants::HANDOFF_PENDING,
+        policy_constants::HANDOFF_HANDED_OFF,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotRequested => policy_constants::HANDOFF_NOT_REQUESTED,
-            Self::Disabled => policy_constants::HANDOFF_DISABLED,
-            Self::Pending => policy_constants::HANDOFF_PENDING,
-            Self::HandedOff => policy_constants::HANDOFF_HANDED_OFF,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 

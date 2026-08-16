@@ -1,252 +1,273 @@
-# Worktree Lanes
+<!-- agent-capsule -->
 
-Ocentra Parent uses milestone branches for finished product slices. A feature branch may be pushed for backup, but PR CI is the integration gate when the milestone is ready to merge to `main`.
+> Agent Capsule
+> Doc: Ocentra Ledger Worktree Coordination
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
 
-The lane hub keeps local parallel work explicit. It stores machine-local lane state in:
+<!-- /agent-capsule -->
+
+# Ocentra Ledger Worktree Coordination
+
+Ocentra Parent no longer owns live hub/ledger implementation. The product repo
+owns product code, product docs, config, and thin Enforcer consumer aliases.
+
+Live coordination implementation belongs in Ocentra Enforcer:
 
 ```text
-C:\Users\<you>\.codex\ocentra-parent-worktrees.json
+E:\ocentra-enforcer
 ```
 
-This file is not committed because it records local paths, active tasks, owner/thread hints, and temporary branch ownership.
+The actual event streams, identity files, runtime PID files, peer aliases, and
+generated views live under the Enforcer ledger root, not this checkout.
 
-Cross-chat hub messages, lane reports, and file ownership locks are stored in:
+## State Root
+
+Set `LEDGER_ROOT` when a machine needs an explicit state location:
+
+```powershell
+$env:LEDGER_ROOT="E:\OcentraLedger\ocentra-parent"
+npm run ledger:ensure
+```
+
+Without `LEDGER_ROOT`, this repo's Enforcer wrapper uses:
 
 ```text
-C:\Users\<you>\.codex\ocentra-parent-hub
+E:\ocentra-enforcer\.ledger\ocentra-parent
 ```
 
-That hub folder is also machine-local. It is the coordination layer between Codex chats opened in different worktree folders.
+The state root is disposable/rebuildable except for append-only event streams
+and identity. Do not commit it to this repo.
 
 ## Lanes
 
-- `primary`: the user's main checkout. Do not repurpose without explicit direction.
+Stable lane identities are explicit:
+
+- `primary`: the user's main checkout and coordinator.
 - `codex-a`: reusable Codex worktree lane.
 - `codex-b`: reusable Codex worktree lane.
 - `codex-c`: reusable Codex worktree lane.
+- `codex-d` and `E-*`: additional reusable lanes when assigned.
 
-Do not create branches for every future roadmap milestone at once. Claim a lane when a milestone is ready to start, because branch bases drift and stacked work should be intentional.
+Set `LEDGER_LANE` or `OCENTRA_PARENT_LEDGER_LANE` in worker shells when the
+checkout path does not make the lane obvious. Enforcer coordination aliases
+infer common `codex-a`/`codex-b`/`E-A` path names, but explicit lane identity
+wins.
 
 ## Commands
 
-Show lane state and live Git status:
+Verify the Enforcer coordination root:
 
 ```powershell
-npm run lanes:status
+npm run ledger:root
 ```
 
-Guard the current checkout before coding or committing:
+Start the local browser/API daemon:
 
 ```powershell
-npm run lanes:guard
+npm run ledger:ensure
 ```
 
-The pre-commit hook runs this guard automatically. If a chat is in the wrong worktree, on the wrong branch, or using an unclaimed lane, the commit fails before validation.
+Then open:
 
-Show cross-chat hub state:
+```text
+http://127.0.0.1:8787/
+```
+
+Check the current state:
 
 ```powershell
-npm run hub:status
+npm run ledger:root
+npm run ledger:doctor
+npm run ledger:workers
+npm run ledger:tasks
 ```
 
-Read the current lane inbox:
+Send work to a lane:
+
+```powershell
+npm run hub:message -- --lane codex-b --subject "V1 slice" --body "Do the assigned work and report DONE with validation."
+```
+
+Read and acknowledge mail:
 
 ```powershell
 npm run hub:inbox
-```
-
-Watch the current lane inbox for new hub instructions:
-
-```powershell
-npm run hub:watch
-```
-
-Use `npm run hub:watch -- --interval-ms 5000` to choose a polling interval. Add `--ack` only when the worker is intentionally treating displayed messages as read; otherwise acknowledge manually after reading with `npm run hub:ack`.
-
-Worker minute heartbeats are standing mailbox checks, not disposable task reminders. A worker should not delete, pause, or replace its per-minute heartbeat just because there is no unread hub mail or active assignment. Routine liveness belongs in the heartbeat log, not in semantic hub reports:
-
-```powershell
-npm run hub:heartbeat -- --state alive --note "minute wake"
-```
-
-If the lane is idle or parked, use:
-
-```powershell
-npm run hub:heartbeat -- --state idle --note "waiting for instruction"
-```
-
-Do not overwrite `STARTED`, `BLOCKED`, or `DONE` reports with idle/waiting text. If a lane has an active assignment, the heartbeat should append liveness and the worker should continue useful assigned work, report real progress/`BLOCKED`/`DONE`, or stay quiet.
-
-The primary coordinator can inspect worker liveness without losing report state:
-
-```powershell
-npm run hub:heartbeats
-```
-
-The underlying local-only files are:
-
-```text
-C:\Users\<you>\.codex\ocentra-parent-hub\worker-heartbeats.ndjson
-C:\Users\<you>\.codex\ocentra-parent-hub\lanes\<lane>\heartbeat.ndjson
-```
-
-Watch worker reports from the primary hub checkout:
-
-```powershell
-npm run hub:watch -- --reports --interval-ms 5000
-```
-
-Codex lifecycle hooks are configured in `.codex/hooks.json` and execute `npm run --silent hub:hook`, which routes to `scripts/dev/codex-hub-hook.mjs`:
-
-- `SessionStart` and `UserPromptSubmit` add current lane, inbox, lock, report state, and the worker start/idle/reporting protocol to the agent context.
-- `SessionStart` and `UserPromptSubmit` record Codex's current `session_id` as the lane's active session, while preserving the human `thread` label.
-- `PostToolUse` reminds worker lanes to lock paths when edits create dirty files without hub ownership.
-- `Stop` continues worker turns when unread hub messages still need acknowledgement or dirty worker changes need lock/report handling.
-
-Hooks are not a background daemon and do not wake an idle chat on file changes. They make the next turn hub-aware without opening separate watcher consoles. If the primary or a worker chat gets too long, open a new chat in the same worktree. The startup hook will register the new Codex session, show the current lane, latest message, last acknowledged message, locks, and latest report, and explicitly tells the chat not to rerun already acknowledged hub messages. Review/trust project hooks in Codex settings if the app lists them as pending.
-
-Send a hub message to a lane:
-
-```powershell
-npm run hub:message -- --lane codex-a --subject "V0.3 scope" --body "Stay inside process/window capture and report touched files."
-```
-
-Acknowledge the latest hub message in the current lane:
-
-```powershell
 npm run hub:ack
 ```
 
-Lock files or package roots before editing:
+Claim and release edit paths:
 
 ```powershell
-npm run hub:lock -- --paths "crates/agent-service,packages/activity-domain" --reason "V0.3 capture implementation"
+npm run hub:lock -- --paths "packages/activity-domain" --reason "activity status slice"
+npm run hub:unlock -- --paths "packages/activity-domain"
 ```
 
-Report progress from a worker lane:
+Report work state:
 
 ```powershell
-npm run hub:report -- --summary "Capture adapter mapped" --details "Touched crates/agent-service. Focused Rust tests pass."
+npm run hub:report -- --summary "STARTED activity status slice"
+npm run hub:heartbeat -- --state alive --note "minute wake"
 ```
 
-Before starting or resuming assigned work, report a short `STARTED` status so the primary coordinator can see that the instruction was accepted. When work is done, verify it, run the lint/tests requested by the hub mail, make a local commit on the worker branch, push that branch when ready for review, and report `DONE` with exact commands, commit state, touched packages/files, known gaps/risks, and detailed scope of what changed. If the user or primary asks the worker to create a PR, the worker may open the PR and include the same detailed scope in the PR body. Workers must not merge PRs or push directly to `main` unless the user explicitly asks for that exact action. Keep routine reports short unless the hub mail asks for detail; `DONE` and PR-ready handoffs are expected to include enough scope for review.
+The old `hub:*` and `lanes:*` names are compatibility aliases that call Ledger.
+They do not write `.hub` files.
 
-Do not use `hub:report` for per-minute "I am alive" chatter. Use `hub:heartbeat` for that local-only liveness stream so a `DONE` or `BLOCKED` report remains visible until a real work-state report replaces it.
+## Session Leases
 
-Guard the current lane mailbox and file locks:
+Ledger records Codex session leases as thread wake records for a lane, not as
+exclusive lane ownership. Repo hooks use the Codex hook `session_id` to record
+or refresh the current thread identity for wake routing. Several chats may be
+active for the same lane at once, and exact-file claims are the write gate that
+prevents collisions.
+
+One thread may opt into manual-only hook behavior:
 
 ```powershell
-npm run hub:guard
+npm run hub:thread:upgrade
 ```
 
-The pre-commit hook runs the hub guard automatically. It fails when the lane has an unread hub message or when changed files are outside the lane's hub lock. `primary` may coordinate without a lock, but worker lanes should always lock their intended paths before editing.
-
-## Primary Coordinator Lifecycle
-
-The primary coordinator is responsible for assignment, review, PR/CI watching, merge timing, and post-merge sync. Before assigning or integrating roadmap work, read:
-
-- `AGENTS.md`
-- `.ocentra-ai/rules/ocentra-parent-rules.mdc`
-- `docs/architecture/worktree-lanes.md`
-- `docs/architecture/primary-coordinator-reminder.md`
-- `docs/product-roadmap.md`
-- any feature-specific architecture or expectation doc named in the hub assignment
-
-On every coordination pass:
-
-1. Run `npm run hub:status`.
-2. Run `npm run lanes:status`.
-3. Check `git status --short --branch` in primary and relevant worker worktrees.
-4. Check open PRs and CI/check state when branches are pushed.
-5. Check latest worker reports before sending new instructions.
-
-When assigning work, tell the worker to fetch/pull or rebase latest `main` first, acknowledge hub mail, report `STARTED`, lock intended paths, and keep routine reports short. The hub message should name the branch, task, relevant docs, validation expectation, that local commits and branch pushes are expected when the scope is ready for review, whether the worker should open a PR, and that `DONE` or PR-ready handoffs need detailed scope.
-
-When a worker reports `DONE`, review the branch before creating or merging anything:
-
-1. Inspect the diff against the intended base.
-2. Confirm file locks and touched paths match the assignment.
-3. Confirm validation commands and results are credible.
-4. Confirm the worker provided detailed scope: what changed, touched packages/files, validation, known gaps/risks, and roadmap slice.
-5. Ask the worker for fixes if the diff, tests, docs, or scope are not acceptable.
-6. Create or update a PR only after local validation is acceptable and the branch is pushed.
-
-After a PR is open, the primary coordinator watches CI. The PR body must clearly state the detailed scope, validation, known gaps/risks, and roadmap slice completed. If CI fails, route the failure back to the owning worker unless the fix is clearly an integration-only coordinator change. Merge only after CI is green and the reviewed diff is acceptable.
-
-After merging, pull latest `main` in primary, update roadmap/lane/hub state, free or retarget the completed lane, and tell active workers to fetch/rebase latest `main` before continuing. The post-merge hub report must include detailed scope, validation, PR/merge state, known gaps/risks, and the next roadmap action. Do not assign new stacked work from a stale base unless that stacking is intentional and recorded in the hub message.
-
-Merge conflicts should be resolved in the branch that owns the work. A worker resolves conflicts after fetching/rebasing latest `main` in its own worktree and reports the resolution plus validation. Primary resolves conflicts only when it owns the integration branch or the conflict is purely in coordinator-maintained files, and it must keep the worker informed.
-
-Initialize the lane ledger if it does not exist:
+Inspect the current lane/session view without changing anything:
 
 ```powershell
-npm run lanes:init
+npm run hub:thread-mode
 ```
 
-Claim a lane without creating the worktree yet:
+That command may only be run from the thread that most recently received a real
+`UserPromptSubmit` for the lane. It does not accept a target `--session-id`, so
+one thread cannot silently retarget another. Codex hooks currently expose
+`session_id`, so manual-only mode treats that active session as the thread
+identity available to the hook. In manual-only mode, auto hooks such as
+`SessionStart`, `PostToolUse`, and `Stop` do not claim or refresh the lane
+lease for that session; only a real `UserPromptSubmit` in the same thread may
+do that. Restore the default behavior with:
 
 ```powershell
-npm run lanes:claim -- --lane codex-a --branch "V0.3 Windows Process And Window Activity Capture" --task "V0.3 Windows process/window capture" --owner "codex" --thread "thread-or-chat-label"
+npm run hub:thread:default
 ```
 
-Claim a lane and create the worktree from `origin/main`:
+`hub:thread-mode` is read-only. It reports the lane's active hook session, the
+most recent real user-prompt session, and any explicit write-grant sessions so
+duplicate-thread confusion stays visible without weakening the upgrade guard.
+
+Explicit user prompts now create writable grants instead of lane takeovers.
+When a real `UserPromptSubmit` arrives from another thread on the same lane,
+the compatibility layer keeps the existing lease owner but records writable
+authority for the prompted session. That means multiple user-directed threads
+may write on the same lane at the same time, while auto hooks still keep
+single-owner lease semantics.
+
+A prompted coordinator thread may also delegate writable access to spawned
+subagent sessions:
 
 ```powershell
-npm run lanes:claim -- --lane codex-a --branch "V0.3 Windows Process And Window Activity Capture" --task "V0.3 Windows process/window capture" --owner "codex" --thread "thread-or-chat-label" --create-worktree
+npm run hub:delegate:grant -- --session-id 019ec463-0620-7a03-a937-8af8e89dc04a --reason "policy-control test worker"
+npm run hub:delegate:revoke -- --session-id 019ec463-0620-7a03-a937-8af8e89dc04a
 ```
 
-Free a lane after merge, park, or handoff:
+Those grant commands may only be run from the thread that most recently
+received a real user prompt for the lane. They do not transfer coordination
+ownership or the active lease; they only authorize additional writable
+sessions. Treat the human user as the super-user: the single-owner rule is for
+AI auto hooks and background Codex behavior, not for explicit user-directed
+threads or coordinator-delegated workers. Manual-only still changes future
+auto-hook behavior for that session only.
+
+Idle liveness should stay outside Codex chat. A watcher or daemon may write
+Ledger heartbeat events, but idle workers should not spend chat turns reporting
+that nothing changed.
+
+## Targeted Codex Wakeups
+
+Codex hooks are not timers; they only run when a Codex thread is already active.
+Codex automations are timers; they can wake a thread, but an always-on
+five-minute loop spends tokens even when no Ledger work exists. The coordination
+default is therefore event-shaped:
+
+1. The sender writes Ledger mail or a semantic handoff report.
+2. The sender creates or resumes one targeted Codex automation for the intended
+   recipient thread.
+3. The recipient automation runs the lane notifier prefilter first.
+4. If there is no wake-worthy Ledger work, the automation deletes or pauses
+   itself without doing product or coordination work.
+5. If work exists, the recipient reads and acks the Ledger mail, does the
+   assignment or review, reports `DONE`, `BLOCKED`, or `PR_READY`, then creates
+   or resumes a targeted primary wakeup.
+6. Primary wakes, acts on the worker report, and deletes or pauses the primary
+   wakeup after the report is handled.
+
+Keep paused per-lane automations available as templates, but do not leave worker
+minute automations running while lanes are parked. A slow primary safety-net
+automation may remain active only until targeted wakeups are proven reliable on
+every active PC.
+
+```mermaid
+sequenceDiagram
+  participant P as Primary lane
+  participant L as Ocentra Ledger
+  participant A as Codex automation
+  participant W as Worker lane
+
+  P->>L: Send Ledger mail to worker
+  P->>A: Create or resume one worker wakeup
+  A->>W: Wake worker thread
+  W->>L: Run hub:notify for own lane
+  alt No unread mail
+    W->>A: Delete or pause worker wakeup
+  else Mail exists
+    W->>L: Read and ack mail
+    W->>L: Report STARTED / progress
+    W->>L: Report DONE / BLOCKED / PR_READY
+    W->>A: Delete or pause worker wakeup
+    W->>A: Create or resume primary wakeup
+    A->>P: Wake primary thread
+    P->>L: Run hub:notify for primary
+    P->>L: Review worker report and act
+    P->>A: Delete or pause primary wakeup
+  end
+```
+
+The cheap prefilter command is:
 
 ```powershell
-npm run lanes:free -- --lane codex-a --next-action "Reusable after fresh status check."
+npm run hub:notify -- --lane primary --exit-code
+npm run hub:notify -- --lane codex-b --exit-code
 ```
 
-## Branch Naming
+For workers, the notifier wakes only for unread inbox mail. For `primary`, it
+also wakes for worker report summaries beginning with `PR_READY`, `DONE`, or
+`BLOCKED`. Routine `STARTED`, progress, and heartbeat events should not wake a
+Codex thread.
 
-Human milestone names are normalized into valid Git refs:
+## Guard
 
-```text
-V0.3 Windows Process And Window Activity Capture
--> codex/v0.3-windows-process-and-window-activity-capture
+The pre-commit hook calls:
+
+```powershell
+npm run ledger:guard
 ```
 
-## Parallel Work Rule
+The guard checks unread Ledger messages, ownership conflicts, and changed files
+outside active claims. `primary` may coordinate without claims; worker lanes
+should claim intended paths before editing.
 
-Parallel lanes should be independent. Good parallel slices are documentation, workflow tooling, policy contracts, and platform research. Dependent product slices should wait for their base PR to merge or should be created as deliberate stacked branches with a clear base.
+Use the bypass environment variables only for deliberate emergency commits:
 
-Before editing in a claimed lane:
+```powershell
+$env:OCENTRA_PARENT_SKIP_LANE_GUARD="1"
+$env:OCENTRA_PARENT_SKIP_HUB_GUARD="1"
+```
 
-1. Run `git status --short --branch` in that lane.
-2. Confirm the lane ledger says the lane is yours.
-3. Confirm the branch base is the intended branch, usually `origin/main`.
-4. Run `npm run lanes:guard` from that worktree.
-5. Run `npm run hub:inbox` and acknowledge current instructions with `npm run hub:ack`.
-6. Report `STARTED` before doing the assigned work.
-7. Leave `npm run hub:watch -- --interval-ms 5000` running when the primary hub should be able to send follow-up instructions without a manual prompt.
-8. Claim file ownership with `npm run hub:lock`.
-9. Run focused local validation while coding.
-10. Report progress with `npm run hub:report`.
-11. When done, verify, run requested lint/tests, make a local commit on the worker branch, push the branch when ready for review, and report `DONE` with validation and commit state. Open a PR only when the user or primary asks for one.
-12. Run the full PR gate only when the branch is ready to integrate.
+## Enforcer Ownership Policy
 
-## Owner And Thread Fields
+Do not reintroduce `tools/ocentra-ledger` or a Parent-owned ledger submodule.
+Coordination code changes belong in `E:\ocentra-enforcer`; this product repo
+keeps only the Enforcer config and thin npm aliases.
 
-Every active lane should record:
-
-- `owner`: the person or agent responsible for the lane.
-- `thread`: a short chat/thread label so parallel Codex chats can identify their own lane.
-- `activeSessionId`: the actual current Codex session id, updated automatically by hooks when a chat starts or submits a prompt in that worktree.
-- `task`: the product or workflow slice being implemented.
-- `nextAction`: the next concrete step for anyone who resumes the lane.
-
-When handing work to another chat in the same lane, open the new chat in that worktree and let the hook register its `session_id`. The primary hub can send a lane message asking a worker to rotate to a fresh chat, but the user still opens the new Codex chat in that worktree; the hook handles identity and already-done message state after the new chat starts. When changing lane ownership, branch, or task scope, update the lane with `npm run lanes:claim -- --force ...` instead of relying on chat history.
-
-## Hub Mailbox Files
-
-Each lane gets:
-
-- `inbox.md`: human-readable hub messages for that lane.
-- `status.md`: latest lane report and current file locks.
-- `ownership.json`: machine-readable ack, report, and lock state used by `npm run hub:guard`.
-
-Do not hand-edit `ownership.json` unless the mailbox script is broken. Prefer the `npm run hub:*` commands so the Markdown and guard state stay in sync.
+Generated coordination files belong under the Enforcer ledger root, not under
+this product repo.

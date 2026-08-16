@@ -1,8 +1,8 @@
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
-  PortalFrameTuner,
   defaultPortalAppLayoutContentDraft,
   type PortalAppLayoutContentDraft,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/app-layout';
 import {
   normalizePictureViewerFrameControls,
   type PictureViewerFrameSurfaceControls,

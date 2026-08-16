@@ -1,0 +1,30 @@
+export const appGameSourceFreshnessPreviewGateRowMatchesPreviewStateGenerated = (
+  row: SourceFreshnessPreviewGateRowLike
+) => {
+  if (row.previewRow === null) {
+    return row.gateState === AppGameSourceFreshnessPreviewGateStateGenerated.SourceManualRequired;
+  }
+
+  if (row.previewRow.previewStatus === AppGamePolicyPreviewStatusGenerated.PreviewReady) {
+    return (
+      row.previewStatus === AppGameSourceFreshnessPreviewGateStatusGenerated.PreviewReady &&
+      row.gateState === AppGameSourceFreshnessPreviewGateStateGenerated.SourceFresh
+    );
+  }
+
+  if (row.previewRow.previewStatus === AppGamePolicyPreviewStatusGenerated.ManualRequired) {
+    return (
+      row.previewStatus === AppGameSourceFreshnessPreviewGateStatusGenerated.ManualRequired &&
+      row.gateState === AppGameSourceFreshnessPreviewGateStateGenerated.CompilerManualRequired
+    );
+  }
+
+  return false;
+};
+
+export const countAppGameSourceFreshnessPreviewGateRowsGenerated = (
+  rows: readonly SourceFreshnessPreviewGateRowLike[],
+  targetDomain: AppGamePolicyPreviewTargetDomainValue
+) => rows.filter((row) => row.targetDomain === targetDomain).length;
+
+export const countAppGameSourceFreshnessPreviewGateStatusesGenerated = (

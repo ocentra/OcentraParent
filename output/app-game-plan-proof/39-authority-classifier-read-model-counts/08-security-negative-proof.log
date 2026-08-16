@@ -1,8 +1,0 @@
-Security and no-claim proof:
-
-- No raw executable path, window title, content, or scan payload was added.
-- Count fields are non-negative integers only.
-- Count fields do not grant approval authority.
-- Count fields do not mark classifier output as executable.
-- Count fields do not dispatch policy or adapter actions.
-- Count fields do not claim platform support.

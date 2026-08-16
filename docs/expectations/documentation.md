@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Documentation Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Documentation Expectations
 
 Docs must change when the product claim changes.
@@ -33,6 +46,75 @@ replace the constitution, roadmap, or capability checklist.
   status for public privacy, retention, export/delete, support, incident, and
   legal docs, but docs must not claim public publication until a public route,
   legal review, and publication proof exist.
+- `production-release-public-surface-publication-proof` may prove a composed
+  publication/readiness summary for `family.ocentra.ca` public status, runtime
+  handoff, and public docs rows, but docs must still label public runtime,
+  account backend, billing provider runtime, signing/store proof, updater
+  execution, support upload, production SLA, legal execution, and child-activity
+  custody as gaps until real evidence exists.
+- `public-support-contact-status-proof` may prove public support contact/status
+  source-contract rows, but docs must still label public runtime execution,
+  support backend upload execution, account lookup execution, billing provider
+  contact, remote support sessions, production SLA, legal disclosure execution,
+  provider secrets, and child-activity custody as gaps until real evidence
+  exists.
+- `production-support-publication-status-freshness-proof` may prove source
+  contract freshness for support runbook, incident status, public support
+  contact, support backend upload publication, privacy/legal publication, and
+  account/billing support publication rows, but docs must still label public
+  runtime execution, support publication execution, support backend upload
+  execution, account lookup execution, billing provider contact, remote support
+  sessions, production SLA, legal disclosure execution, provider secrets, and
+  child-activity custody as gaps until real evidence exists.
+- `production-support-legal-provider-readiness-proof` may prove
+  privacy/legal-review, export/delete runtime, provider-secret custody,
+  billing-provider contact, remote-support legal/session, and production SLA
+  legal-boundary readiness rows, but docs must still label real legal
+  disclosure execution, export/delete runtime execution, provider secret
+  custody, billing provider contact execution, account lookup execution, remote
+  support sessions, production SLA commitments, support backend upload
+  execution, public runtime execution, and child-activity custody as gaps until
+  real evidence exists.
+- `production-support-data-export-delete-lifecycle-proof` may prove
+  requested, authorized, queued, running, succeeded, failed, and
+  manual-required export/delete lifecycle status rows for parent-authorized
+  local runtime proof, but docs must still label real backend upload
+  execution, public runtime execution, provider execution, production SLA,
+  remote support sessions, default Ocentra-hosted family data, child-activity
+  custody, durable production queues, and delete executor proof as gaps until
+  real evidence exists.
+- `production-support-backend-upload-status-proof` may prove support upload
+  status/read-model rows, redaction/audit refs, retry/abandon refs, and manual
+  proof requirements, but docs must still label raw child activity custody,
+  provider secrets, remote support transcripts, real backend upload execution,
+  account lookup execution, billing provider execution, default Ocentra-hosted
+  family data, and production SLA as gaps until real evidence exists.
+- `production-support-publication-runtime-readiness-proof` may prove
+  source-backed publication/runtime readiness rows for public runtime, support
+  runbook publication runner, incident status publication runner, support upload
+  publication runtime, privacy/legal publication runtime, and public support
+  contact runtime handoffs, but docs must still label real public runtime
+  execution, publication runner execution, support backend upload execution,
+  account lookup execution, billing provider contact execution, remote support
+  sessions, legal disclosure execution, provider secrets, raw child activity
+  custody, default Ocentra-hosted family data, and production SLA as gaps until
+  real evidence exists.
+- `production-support-process-runtime-status-proof` may prove support process
+  requested, parent-consent authorized, privacy/legal queued, redaction review
+  running, backend-upload failed, case-resolution succeeded, and
+  manual-required runtime status rows, but docs must still label real backend
+  upload execution, public runtime execution, provider execution, production
+  SLA, remote support sessions, provider secrets, child activity custody, and
+  default Ocentra-hosted family data as gaps until real evidence exists.
+- `production-support-publication-execution-status-proof` may prove status
+  contract rows for support/publication execution targets across requested,
+  queued, running, succeeded, failed, and manual-required states, but docs must
+  still label real public runtime execution, publication runner execution,
+  status backend execution, support backend upload execution, account lookup
+  execution, billing provider contact execution, remote support sessions, legal
+  disclosure execution, provider secrets, raw child activity custody, default
+  Ocentra-hosted family data, and production SLA as gaps until real evidence
+  exists.
 
 ## Required Structure
 

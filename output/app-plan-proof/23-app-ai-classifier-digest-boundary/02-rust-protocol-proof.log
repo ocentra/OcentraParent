@@ -1,5 +1,0 @@
-Rust protocol proof is not applicable for this slice.
-
-This is a TypeScript parent-domain policy-facing proof. It does not add Rust
-service payloads, WebSocket events, journal rows, or protocol shapes. Runtime
-service parity remains a gap before live app classifier events can be claimed.

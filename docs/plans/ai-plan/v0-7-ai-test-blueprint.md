@@ -1,5 +1,19 @@
 # V0.7 AI Test Blueprint
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `ai-plan`
+> Doc: `V0.7 AI Test Blueprint`
+> Kind: test blueprint reference; read only when local expectations route here.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 ## Unit Test Targets
 
 Expected folders:
@@ -10,6 +24,15 @@ Expected folders:
 - `tests/ai/unit/provider_capability_contract.test.ts`
 - `tests/ai/unit/ai_job_queue_contract.test.ts`
 - `tests/ai/unit/provider_route_contract.test.ts`
+- `tests/ai/unit/ai_work_item_contract.test.ts`
+- `tests/ai/unit/ai_work_claim_contract.test.ts`
+- `tests/ai/unit/ai_work_lease_contract.test.ts`
+- `tests/ai/unit/ai_work_result_contract.test.ts`
+- `tests/ai/unit/ai_result_validation_contract.test.ts`
+- `tests/ai/unit/ai_provider_advertisement_contract.test.ts`
+- `tests/ai/unit/ai_provider_capability_contract.test.ts`
+- `tests/ai/unit/ai_provider_mobile_dormant_policy.test.ts`
+- `tests/ai/unit/mesh_transport_message_contract.test.ts`
 - `tests/ai/unit/prompt_template_version.test.ts`
 - `tests/ai/unit/memory_reference_contract.test.ts`
 - `tests/ai/unit/graph_reference_contract.test.ts`
@@ -27,6 +50,14 @@ Expected folders:
 - `tests/ai/integration/memory_reference_source_guard.test.ts`
 - `tests/ai/integration/graph_reference_source_guard.test.ts`
 - `tests/ai/integration/tabagent_reuse_adapter_boundary.test.ts`
+- `tests/ai/integration/child_agent_queues_ai_work_from_screen_summary.test.ts`
+- `tests/ai/integration/trusted_desktop_provider_claims_once.test.ts`
+- `tests/ai/integration/competing_provider_claim_rejected.test.ts`
+- `tests/ai/integration/lease_expiry_requeues_job.test.ts`
+- `tests/ai/integration/provider_result_accepted_then_policy_requested.test.ts`
+- `tests/ai/integration/invalid_provider_result_rejected.test.ts`
+- `tests/ai/integration/mobile_provider_dormant_when_desktop_available.test.ts`
+- `tests/ai/integration/no_raw_screenshot_transfer_by_default.test.ts`
 
 ## Security Test Targets
 
@@ -38,6 +69,12 @@ Expected folders:
 - `tests/ai/security/graph_without_source_rejected.test.ts`
 - `tests/ai/security/prompt_minimization.test.ts`
 - `tests/ai/security/custody_label_guard.test.ts`
+- `tests/ai/security/provider_cannot_publish_policy.test.ts`
+- `tests/ai/security/provider_cannot_publish_enforcement.test.ts`
+- `tests/ai/security/remote_peer_cannot_direct_publish_local_bus.test.ts`
+- `tests/ai/security/wrong_provider_result_rejected.test.ts`
+- `tests/ai/security/expired_lease_result_rejected.test.ts`
+- `tests/ai/security/raw_screen_payload_rejected_by_default.test.ts`
 
 ## E2E Test Targets
 
@@ -105,3 +142,14 @@ are merged or explicitly stacked.
 - Journal stores AI result with refs.
 - Portal explanation cites evidence and rules.
 - Real capture proof is linked when AI analyzes a screen-derived result.
+- AI work is event-driven; no direct capture-to-worker coupling exists.
+- Household Mesh Bridge is the only cross-device event transport path.
+- Incoming LAN messages validate before local republish.
+- Remote peers cannot directly publish into another runtime's bus.
+- AI provider cannot publish policy decision.
+- AI provider cannot publish enforcement command.
+- Child agent validates provider result before policy sees it.
+- Duplicate work `dedupeKey` does not execute twice.
+- Expired lease cannot submit accepted result.
+- Wrong provider cannot complete another provider's lease.
+- Mobile provider remains dormant unless fallback policy allows it.

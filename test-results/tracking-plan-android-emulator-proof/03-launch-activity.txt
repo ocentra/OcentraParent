@@ -1,1 +1,0 @@
-Starting: Intent { cmp=ca.ocentra.parent.agent/.MainActivity }

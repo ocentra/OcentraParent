@@ -3,43 +3,91 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Operational logging contract boundary placeholder.",
+  "description": "Parent-local logging helpers and focused proof coverage over Rust-owned contracts.",
   "exports": {
-    "./contracts": {
-      "import": "./dist/contracts.js",
-      "types": "./dist/contracts.d.ts"
+    "./generated/logging-contracts": {
+      "import": "./src/generated-logging-contracts.ts",
+      "types": "./src/generated-logging-contracts.ts"
     },
-    "./notification-audit-history": {
-      "import": "./dist/notification-audit-history.js",
-      "types": "./dist/notification-audit-history.d.ts"
+    "./logging-contracts": {
+      "import": "./dist/logging-contracts.js",
+      "types": "./dist/logging-contracts.d.ts"
     },
-    "./notification-audit-history-handoff": {
-      "import": "./dist/notification-audit-history-handoff.js",
-      "types": "./dist/notification-audit-history-handoff.d.ts"
+    "./core/logConfig": {
+      "import": "./dist/core/logConfig.js",
+      "types": "./dist/core/logConfig.d.ts"
     },
-    "./support-bundle-redaction": {
-      "import": "./dist/support-bundle-redaction.js",
-      "types": "./dist/support-bundle-redaction.d.ts"
+    "./core/logDecisionProvider": {
+      "import": "./dist/core/logDecisionProvider.js",
+      "types": "./dist/core/logDecisionProvider.d.ts"
     },
-    "./support-bundle-redaction-read-model": {
-      "import": "./dist/support-bundle-redaction-read-model.js",
-      "types": "./dist/support-bundle-redaction-read-model.d.ts"
+    "./core/logger": {
+      "import": "./dist/core/logger.js",
+      "types": "./dist/core/logger.d.ts"
     },
-    "./support-incident-workflow": {
-      "import": "./dist/support-incident-workflow.js",
-      "types": "./dist/support-incident-workflow.d.ts"
+    "./core/stackTrace": {
+      "import": "./dist/core/stackTrace.js",
+      "types": "./dist/core/stackTrace.d.ts"
     },
-    "./support-incident-workflow-read-model": {
-      "import": "./dist/support-incident-workflow-read-model.js",
-      "types": "./dist/support-incident-workflow-read-model.d.ts"
+    "./test-log/bridgeConvert": {
+      "import": "./dist/test-log/bridgeConvert.js",
+      "types": "./dist/test-log/bridgeConvert.d.ts"
     },
-    "./tamper-integrity-audit": {
-      "import": "./dist/tamper-integrity-audit.js",
-      "types": "./dist/tamper-integrity-audit.d.ts"
+    "./test-log/ndjsonPaths": {
+      "import": "./dist/test-log/ndjsonPaths.js",
+      "types": "./dist/test-log/ndjsonPaths.d.ts"
     },
-    "./tamper-integrity-audit-read-model": {
-      "import": "./dist/tamper-integrity-audit-read-model.js",
-      "types": "./dist/tamper-integrity-audit-read-model.d.ts"
+    "./test-log/ndjsonLogFileWriter": {
+      "import": "./dist/test-log/ndjsonLogFileWriter.js",
+      "types": "./dist/test-log/ndjsonLogFileWriter.d.ts"
+    },
+    "./test-log/ndjsonWriter": {
+      "import": "./dist/test-log/ndjsonWriter.js",
+      "types": "./dist/test-log/ndjsonWriter.d.ts"
+    },
+    "./test-log/logsTree": {
+      "import": "./dist/test-log/logsTree.js",
+      "types": "./dist/test-log/logsTree.d.ts"
+    },
+    "./test-log/wipeNdjsonScope": {
+      "import": "./dist/test-log/wipeNdjsonScope.js",
+      "types": "./dist/test-log/wipeNdjsonScope.d.ts"
+    },
+    "./test-log/testLogRetention": {
+      "import": "./dist/test-log/testLogRetention.js",
+      "types": "./dist/test-log/testLogRetention.d.ts"
+    },
+    "./test-log/ingestManifest": {
+      "import": "./dist/test-log/ingestManifest.js",
+      "types": "./dist/test-log/ingestManifest.d.ts"
+    },
+    "./test-log/testLogDuckDb": {
+      "import": "./dist/test-log/testLogDuckDb.js",
+      "types": "./dist/test-log/testLogDuckDb.d.ts"
+    },
+    "./transport/bridgeTransport": {
+      "import": "./dist/transport/bridgeTransport.js",
+      "types": "./dist/transport/bridgeTransport.d.ts"
+    },
+    "./transport/bridgeServer": {
+      "import": "./dist/transport/bridgeServer.js",
+      "types": "./dist/transport/bridgeServer.d.ts"
+    },
+    "./app-log/appNdjsonWriter": {
+      "import": "./dist/app-log/appNdjsonWriter.js",
+      "types": "./dist/app-log/appNdjsonWriter.d.ts"
+    },
+    "./app-log/types": {
+      "import": "./dist/app-log/types.js",
+      "types": "./dist/app-log/types.d.ts"
+    },
+    "./test-log/types": {
+      "import": "./dist/test-log/types.js",
+      "types": "./dist/test-log/types.d.ts"
+    },
+    "./test-log/ndjsonBrands": {
+      "import": "./dist/test-log/ndjsonBrands.js",
+      "types": "./dist/test-log/ndjsonBrands.d.ts"
     },
     "./package-info": {
       "import": "./dist/package-info.js",
@@ -47,13 +95,27 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node ../../scripts/fix-esm-imports.mjs dist",
+    "build": "tsc --build tsconfig.json --force && node ../../scripts/fix-esm-imports.mjs dist",
+    "bridge": "tsx scripts/log-bridge.ts",
+    "db:ensure": "tsx scripts/ensure-db.ts",
+    "db:rebuild": "tsx scripts/rebuild-db-from-ndjson.ts",
+    "db:ingest": "tsx scripts/rebuild-db-from-ndjson.ts --no-delete",
+    "logs:wipe": "tsx scripts/wipe-logs.ts",
+    "logs:retention": "tsx scripts/retention-logs.ts",
+    "logs:prepare": "tsx scripts/prepare-ndjson-logs.ts",
+    "test:query": "tsx scripts/query-test-logs.ts",
     "type-check": "tsc -p tsconfig.json --noEmit",
+    "view:ndjson": "tsx scripts/view-ndjson.ts",
     "lint": "npx turbo run lint:exec --filter=@ocentra-parent/logging-domain",
-    "lint:exec": "eslint --cache src tests && tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "lint:exec": "eslint --cache src scripts tests && tsc -p tsconfig.json --noEmit",
+    "test": "vitest run --config vitest.config.ts"
   },
   "dependencies": {
-    "@ocentra-parent/schema-domain": "file:../schema-domain"
+    "@duckdb/node-api": "^1.5.4-r.1",
+    "effect": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.6.0",
+    "typescript": "^6.0.2"
   }
 }

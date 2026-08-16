@@ -1,6 +1,0 @@
-{
-  "schemaVersion": 1,
-  "policyEvaluationReady": "true only when required service rows for policy evidence, approval authority, and platform authority are present",
-  "manualReviewRequired": "true when optional action history or classifier context is missing, and when required rows are missing",
-  "adapterDispatchClaimed": false
-}

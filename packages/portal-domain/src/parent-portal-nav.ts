@@ -1,12 +1,19 @@
 import type { ParentPortalIconName, ParentPortalTabId, ParentPortalTone } from './parent-portal-data';
-import type { PortalRoute as PortalRouteValue } from './routes';
+import { PortalRoute } from './portal-contract-adapter';
+import {
+  portalRouteHashPath,
+  portalRouteHashPathWithQuery,
+  type PortalRouteHashPath,
+  type PortalRouteHashQueryPath,
+} from './routes';
 
-export type ParentPortalNavGroupId = 'quickGlance' | 'guide' | 'manage';
+export type ParentPortalNavGroupId = 'quickGlance' | 'guide' | 'manage' | 'devTools';
 
 export const PARENT_PORTAL_NAV_LABELS = {
   QuickGlance: 'QUICK GLANCE',
   Guide: 'GUIDE',
   Manage: 'MANAGE',
+  DevTools: 'DEV TOOLS',
   Policies: 'POLICY',
   Activity: 'ACTIVITY',
   Devices: 'DEVICES',
@@ -52,10 +59,17 @@ export const PARENT_PORTAL_NAV_LABELS = {
   Platforms: 'PLATFORMS',
   Updates: 'UPDATES',
   Support: 'SUPPORT',
+  Diagnostics: 'DIAGNOSTICS',
+  ProofPanels: 'PROOF PANELS',
   Settings: 'SETTINGS',
+  Commands: 'COMMANDS',
+  Events: 'EVENTS',
+  Logs: 'LOGS',
+  AppLayout: 'APP LAYOUT',
+  Background: 'BG',
 } as const;
 
-export type ParentPortalHashRoutePath = `#/${PortalRouteValue}` | `#/${PortalRouteValue}?${string}`;
+export type ParentPortalHashRoutePath = PortalRouteHashPath | PortalRouteHashQueryPath;
 export type ParentPortalNavLabel = (typeof PARENT_PORTAL_NAV_LABELS)[keyof typeof PARENT_PORTAL_NAV_LABELS];
 export type ParentPortalNavSectionLabel =
   | typeof PARENT_PORTAL_NAV_LABELS.Portal
@@ -91,6 +105,11 @@ export const PARENT_PORTAL_NAV_GROUPS: readonly ParentPortalNavGroup[] = [
     label: PARENT_PORTAL_NAV_LABELS.Manage,
     detail: 'Portal, device, activity, policy, data, AI, account',
   },
+  {
+    id: 'devTools',
+    label: PARENT_PORTAL_NAV_LABELS.DevTools,
+    detail: 'Diagnostics, proof panels, commands, events, logs, app layout, background',
+  },
 ] as const;
 
 export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
@@ -101,7 +120,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'overall',
     groupId: 'guide',
     tone: 'cyan',
-    routePath: '#/start',
+    routePath: portalRouteHashPath(PortalRoute.Start),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Overview,
@@ -110,7 +129,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'overall',
     groupId: 'quickGlance',
     tone: 'cyan',
-    routePath: '#/overview',
+    routePath: portalRouteHashPath(PortalRoute.Overview),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Web,
@@ -119,7 +138,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'controls',
     groupId: 'quickGlance',
     tone: 'cyan',
-    routePath: '#/browser',
+    routePath: portalRouteHashPath(PortalRoute.Browser),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.RulesGuide,
@@ -128,7 +147,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'controls',
     groupId: 'guide',
     tone: 'gold',
-    routePath: '#/policy',
+    routePath: portalRouteHashPath(PortalRoute.Policy),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.MemoryGuide,
@@ -137,7 +156,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'aiStatus',
     groupId: 'guide',
     tone: 'purple',
-    routePath: '#/memory',
+    routePath: portalRouteHashPath(PortalRoute.Memory),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Ai,
@@ -146,7 +165,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'aiStatus',
     groupId: 'guide',
     tone: 'cyan',
-    routePath: '#/ai-guide',
+    routePath: portalRouteHashPath(PortalRoute.AiGuide),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.ReportsGuide,
@@ -155,7 +174,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'aiStatus',
     groupId: 'guide',
     tone: 'purple',
-    routePath: '#/reports-guide',
+    routePath: portalRouteHashPath(PortalRoute.ReportsGuide),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Private,
@@ -164,7 +183,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'aiStatus',
     groupId: 'guide',
     tone: 'gold',
-    routePath: '#/privacy-design',
+    routePath: portalRouteHashPath(PortalRoute.PrivacyDesign),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Portal,
@@ -173,7 +192,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'routines',
     groupId: 'manage',
     tone: 'cyan',
-    routePath: '#/settings-rules',
+    routePath: portalRouteHashPath(PortalRoute.SettingsRules),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Devices,
@@ -182,7 +201,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'routines',
     groupId: 'manage',
     tone: 'cyan',
-    routePath: '#/devices',
+    routePath: portalRouteHashPath(PortalRoute.Devices),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Activity,
@@ -191,7 +210,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'controls',
     groupId: 'manage',
     tone: 'purple',
-    routePath: '#/activity',
+    routePath: portalRouteHashPath(PortalRoute.Activity),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Browser,
@@ -201,7 +220,47 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'gold',
-    routePath: '#/browser-settings',
+    routePath: portalRouteHashPath(PortalRoute.BrowserSettings),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.RuleSet,
+    detail: 'Family and device rules',
+    icon: 'rules',
+    tabId: 'controls',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
+    tone: 'gold',
+    routePath: portalRouteHashPath(PortalRoute.RuleManagement),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Schedules,
+    detail: 'Schedules and time budgets',
+    icon: 'schedule',
+    tabId: 'controls',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
+    tone: 'purple',
+    routePath: portalRouteHashPath(PortalRoute.Schedules),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Approvals,
+    detail: 'Ask-parent requests and overrides',
+    icon: 'alerts',
+    tabId: 'controls',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
+    tone: 'cyan',
+    routePath: portalRouteHashPath(PortalRoute.Approvals),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Enforce,
+    detail: 'Enforcement readiness and rollback',
+    icon: 'enforcement',
+    tabId: 'controls',
+    groupId: 'manage',
+    sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
+    tone: 'red',
+    routePath: portalRouteHashPath(PortalRoute.Enforcement),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Apps,
@@ -211,7 +270,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'gold',
-    routePath: '#/policy-apps',
+    routePath: portalRouteHashPath(PortalRoute.PolicyApps),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Games,
@@ -221,7 +280,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'purple',
-    routePath: '#/policy-games',
+    routePath: portalRouteHashPath(PortalRoute.PolicyGames),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Screen,
@@ -231,7 +290,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'cyan',
-    routePath: '#/policy-screen',
+    routePath: portalRouteHashPath(PortalRoute.PolicyScreen),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Network,
@@ -241,7 +300,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'cyan',
-    routePath: '#/policy-network',
+    routePath: portalRouteHashPath(PortalRoute.PolicyNetwork),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Tracking,
@@ -251,7 +310,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'cyan',
-    routePath: '#/policy-tracking',
+    routePath: portalRouteHashPath(PortalRoute.PolicyTracking),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.RemoteScreen,
@@ -261,7 +320,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     groupId: 'manage',
     sectionLabel: PARENT_PORTAL_NAV_LABELS.Policies,
     tone: 'purple',
-    routePath: '#/policy-remote-screen',
+    routePath: portalRouteHashPath(PortalRoute.PolicyRemoteScreen),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
@@ -270,7 +329,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'controls',
     groupId: 'manage',
     tone: 'gold',
-    routePath: '#/drive-connections',
+    routePath: portalRouteHashPath(PortalRoute.DriveConnections),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.AiMemory,
@@ -279,7 +338,7 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'aiStatus',
     groupId: 'manage',
     tone: 'purple',
-    routePath: '#/ai-runtime',
+    routePath: portalRouteHashPath(PortalRoute.AiRuntime),
   },
   {
     label: PARENT_PORTAL_NAV_LABELS.Account,
@@ -288,6 +347,69 @@ export const PARENT_PORTAL_NAV_ITEMS: readonly ParentPortalNavItem[] = [
     tabId: 'controls',
     groupId: 'manage',
     tone: 'gold',
-    routePath: '#/subscription',
+    routePath: portalRouteHashPath(PortalRoute.Subscription),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Diagnostics,
+    detail: 'Copy redacted support diagnostics',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: portalRouteHashPath(PortalRoute.Diagnostics),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.ProofPanels,
+    detail: 'Inspect tracking, network, and policy proof panels',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'purple',
+    routePath: portalRouteHashPath(PortalRoute.ProofPanels),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Commands,
+    detail: 'Send real service commands',
+    icon: 'portal',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: portalRouteHashPath(PortalRoute.Commands),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Events,
+    detail: 'Inspect agent event stream',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'purple',
+    routePath: portalRouteHashPath(PortalRoute.Events),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Logs,
+    detail: 'Inspect service logs',
+    icon: 'audit',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'gold',
+    routePath: portalRouteHashPath(PortalRoute.Logs),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.AppLayout,
+    detail: 'Tune portal layout',
+    icon: 'manage',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: portalRouteHashPath(PortalRoute.FrameTuner),
+  },
+  {
+    label: PARENT_PORTAL_NAV_LABELS.Background,
+    detail: 'Tune SVG background',
+    icon: 'overview',
+    tabId: 'support',
+    groupId: 'devTools',
+    tone: 'cyan',
+    routePath: portalRouteHashPathWithQuery(PortalRoute.FrameTuner, 'bg-only=1'),
   },
 ] as const;

@@ -1,6 +1,0 @@
-workpack=21-place-category-taxonomy-and-ambiguity-model
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Place-risk categories and ambiguity states are schema-backed and tested.

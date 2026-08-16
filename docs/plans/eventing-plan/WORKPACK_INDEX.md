@@ -1,0 +1,49 @@
+# Reusable Rust Eventing Plan Workpack Index
+
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Reusable Rust Eventing Plan Workpack Index`
+> Kind: workpack selector; use before opening any workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Choose one row, then open only that workpack plus the exact checklist/proof/test rows it names.
+> Proves: local eventing workpack routing only.
+> Does not prove: implementation correctness, product integration, cross-device delivery, PR readiness, or broad DONE.
+> Proof rule: If this index changes status, update `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `PLAN_HEALTH.md`, and any affected checklist/proof rows.
+
+<!-- /agent-capsule -->
+
+Use this file to select exactly one eventing slice. Do not read all eventing plan docs, the full checklist, or all workpacks.
+
+Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is unclear. Do not use it as permission to scan multiple workpacks.
+
+Source truth for detailed historical scope is [05-implementation-workpacks.md](05-implementation-workpacks.md). The files below are token-efficient execution routes split from that source; they do not replace proof.
+
+Status key: `done` means this checkout contains focused local proof for the slice. `historical` means source/tests are present but the cited proof bundle is absent in this checkout. `open` means current route work still remains.
+
+| Status | Workpack                                                                                      | Source rows  | Expected proof tier            | Open condition                                                                                      |
+| ------ | --------------------------------------------------------------------------------------------- | ------------ | ------------------------------ | --------------------------------------------------------------------------------------------------- |
+| historical | [01 Source Boundary And Semantics Audit](workpacks/01-source-boundary-and-semantics-audit.md) | 1-5          | P0_DOCS_PLAN                   | Historical docs-only slice; source semantics are documented, but current closure still depends on the missing route proof bundle.             |
+| historical | [02 Crate Contract And Type Boundary](workpacks/02-crate-contract-and-type-boundary.md)       | 6-10         | P1_GENERIC_CRATE_CONTRACT      | The reusable crate exists in source, but the historical proof bundle cited by this plan is absent in this checkout.                          |
+| historical | [03 Dispatch Runtime And Lifecycle](workpacks/03-dispatch-runtime-and-lifecycle.md)           | 11-24        | P2_GENERIC_CRATE_RUNTIME       | Dispatch/runtime source and focused tests exist, but the route proof pack is absent in this checkout.                                       |
+| historical | [04 Queue Idempotency Dead Letter](workpacks/04-queue-idempotency-dead-letter.md)             | 25-30        | P2_GENERIC_CRATE_RUNTIME       | Queue/dead-letter behaviors are exercised by focused crate tests, but the cited proof artifacts are absent in this checkout.                |
+| historical | [05 Request Response Contracts](workpacks/05-request-response-contracts.md)                   | 31-35        | P2_GENERIC_CRATE_RUNTIME       | Request/response behavior is exercised in focused crate tests, but the cited proof artifacts are absent in this checkout.                   |
+| done | [06 Journal Replay And Lineage](workpacks/06-journal-replay-and-lineage.md)                         | 36-41, 69-78 | P3_GENERIC_JOURNAL_REPLAY      | Proof complete: the hand-authored WP06 manifest under `docs/proof/eventing-plan/` retains the typed WP11 handoff, journal/replay proof, topology/lineage proof, and compact validation log. This proves generic local mechanics only; enforcement action/authority and WP10 remain outside the row. |
+| historical | [07 Parent Protocol Event Contracts](workpacks/07-parent-protocol-event-contracts.md)         | 42-50        | P4_PARENT_PROTOCOL_INTEGRATION | Focused Rust/TS protocol contract tests pass, but the cited parent/network protocol proof bundle is absent in this checkout.                |
+| historical | [08 Parent Runtime Integration](workpacks/08-parent-runtime-integration.md)                   | 51-56        | P5_PARENT_RUNTIME_INTEGRATION  | Runtime integration surfaces exist downstream, but this checkout does not contain the cited route proof bundle.                             |
+| ready — code boundary routed; implementation/acceptance/proof deferred | [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md) | 57-62 | P6_NETWORK_CONSUMER_READY | Single legal production packet for agent-core/agent-service ingestion-time capture publish, deterministic identity, durable network journal, startup replay, and read-side-effect removal. Nested fixture/prove/TEST runtime files are not shipped behavior; downstream AI/policy/enforcement/audit/portal remain blocked/fail-closed. No unmet hard dependency is recorded; tests, proof, CI, review, and merge remain later gates. |
+| open — code drafted; tests/validation/proof deferred | [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)                 | 79-87        | P6_NETWORK_CONSUMER_READY      | Runtime authorization is fail-closed and unavailable pending LAN/account/device composition; checklist and LAN/remote-access handoff remain open. |
+| done   | [11 Type Safety And Ownership Hardening](workpacks/11-type-safety-and-ownership-hardening.md) | 63-68        | P2/P3 hardening                | Proof complete: the scoped WP11 proof roots exist locally under `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`, while package-wide `@ocentra-parent/agent-protocol-domain` type-check, focused `policy-control-audit-redaction.test.ts` / `policy-control-delivery-read-model.test.ts` / `contracts.test.ts`, and the touched-file `lint:architecture` gate all pass. |
+| done   | [12 Rollout Proof And PR Gate](workpacks/12-rollout-proof-and-pr-gate.md)                     | Main gates   | route gate                     | Proof complete: `docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md`, `output/eventing-plan-proof/rollout-proof/proof-summary.json`, `test-results/eventing-rollout-proof/proof.json`, and `output/eventing-plan-proof/rollout-proof/pr-done-report.md` reconcile the route docs to the current open-state truth. |
+| done   | [13 Test Folder Layout Regression Audit](workpacks/13-test-folder-layout-regression-audit.md) | fresh audit  | P2_GENERIC_CRATE_RUNTIME       | Proof complete: `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json` plus `test-results/eventing-test-folder-layout-regression-audit/proof.json`; no local `src/tests` path or `src/lib.rs` test shim remains. |
+
+## Selection Rules
+
+- If the task names a numbered row from `05-implementation-workpacks.md`, choose the workpack whose source-row range contains it.
+- If the task is consumer-specific, choose the consumer eventing workpack only long enough to identify eventing obligations, then route to the owning consumer plan for product behavior.
+- If the selected workpack owner/proof family is unclear, classify it through `WORKPACK_FAMILIES.md`; do not scan every family.
+- If no workpack owns the task, update this index before implementation claims.
+- If a selected workpack expects a crate/test folder that does not exist, record the missing location and keep the workpack open.
+- Do not use crate-local proof to claim consumer transport or product behavior.
+- Do not use WP12 or WP13 proof to close WP10.
