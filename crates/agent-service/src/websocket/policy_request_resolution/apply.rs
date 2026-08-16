@@ -43,7 +43,7 @@ async fn resolve_inner(
         domain::validate_delivery_binding(&resolution.request, binding)?;
     }
     policy_control_request_resolution_handoff(resolution.clone())?;
-    let notification_claim_state = PolicyRequestAssistantPreviewConfirmClaimState::Claimed;
+    let notification_claim_state = PolicyRequestAssistantPreviewConfirmClaimState::Unclaimed;
     let result = result::resolved(
         request,
         &resolution,
