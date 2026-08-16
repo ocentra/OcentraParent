@@ -10,6 +10,14 @@ contents. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
+The current consolidated source head is `360441362` on
+`codex/app-game-plan-code-audit`. It is pushed, has no open pull request, and is
+199 commits ahead of `main` and 196 commits ahead of `develop` without branch
+divergence. It is deliberately **not** described as merged or PR-ready: the
+production-code, expected-test, focused-validation, proof, and pre-commit phases
+below are not complete. Current branch, worktree, archive, stash, and promotion
+custody is recorded in `docs/REPOSITORY_CUSTODY_STATUS.md`.
+
 ## Authoritative production reachability dashboard - 2026-08-16
 
 This section supersedes every older Phase-1 count, checkbox summary, graph
@@ -62,7 +70,7 @@ bounded runtime foundations or a real presentation surface while its trusted
 authority, durability, provider, child-delivery, native-adapter, or rollback
 chain remains absent.
 
-## Current merged repository and code/test audit baseline - 2026-08-15
+## Historical merged repository and code/test audit baseline - 2026-08-15
 
 Repository organization is complete for this audit baseline. Consolidation PR
 `#646` merged normally to `main` as `608ef84fb` after CI run `31862487297`
@@ -793,14 +801,12 @@ the matrix remains the human-readable code/test audit. `graph.json` imports 23
 plan directories and 680 workpack rows (the older 526-row figure above is the
 matrix's narrower scheduled-row view). Run `npm run graph:report` for the
 joined state/topology view or `npm run graph:report -- --json` for machine
-consumption. This snapshot was refreshed from the single E: checkout on
-2026-08-10 after the WP07 code/test ownership map and WP04 review-repair slice
-were reviewed. Current
-derived workpack state is:
+consumption. This snapshot was refreshed from consolidated head `360441362` on
+2026-08-16. Current derived workpack state is:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 370 | 15 | 1 | 2 | 291 | 1 |
+| 368 | 18 | 1 | 2 | 290 | 1 |
 
 ### Graph-derived plan/workpack matrix
 
@@ -814,36 +820,33 @@ than one plan; they are not completion percentages.
 | --- | ---: | ---: | ---: | ---: |
 | Account identity/family | 8 | 2/0/0/0/6/0 | 160 | 82 |
 | AI | 48 | 46/0/0/0/2/0 | 118 | 39 |
-| App/game | 220 | 126/2/0/1/91/0 | 567 | 61 |
+| App/game | 220 | 126/2/0/1/91/0 | 605 | 61 |
 | App | 95 | 13/0/0/0/82/0 | 184 | 67 |
 | Browser | 30 | 30/0/0/0/0/0 | 72 | 13 |
-| Child-agent runtime distribution | 11 | 8/0/0/0/3/0 | 94 | 10 |
+| Child-agent runtime distribution | 11 | 8/0/0/0/3/0 | 104 | 10 |
 | Cloudflare control plane | 13 | 11/2/0/0/0/0 | 185 | 63 |
-| Data custody/storage | 9 | 1/0/0/1/7/0 | 653 | 410 |
-| Device trust bootstrap | 9 | 0/2/0/0/7/0 | 435 | 131 |
-| Eventing | 13 | 0/0/0/0/12/1 | 779 | 492 |
+| Data custody/storage | 9 | 1/0/0/1/7/0 | 670 | 408 |
+| Device trust bootstrap | 9 | 0/2/0/0/7/0 | 456 | 132 |
+| Eventing | 13 | 0/0/1/0/11/1 | 801 | 490 |
 | LAN | 25 | 0/0/0/0/25/0 | 308 | 60 |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 127 | 49 |
-| Network | 8 | 6/0/1/0/1/0 | 372 | 99 |
-| Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 505 | 181 |
+| Network | 8 | 6/1/0/0/1/0 | 372 | 97 |
+| Parent desktop/runtime package | 11 | 4/0/0/0/7/0 | 526 | 182 |
 | Payment/subscription | 13 | 8/2/0/0/3/0 | 44 | 39 |
-| Policy control plane | 8 | 3/2/0/0/3/0 | 919 | 481 |
-| Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 982 | 531 |
+| Policy control plane | 8 | 1/4/0/0/3/0 | 957 | 480 |
+| Portal UX/household surfaces | 20 | 15/0/0/0/5/0 | 1020 | 530 |
 | Remote access | 6 | 4/0/0/0/2/0 | 35 | 19 |
 | Screen AI pipeline | 10 | 9/1/0/0/0/0 | 124 | 33 |
 | Screen | 43 | 25/0/0/0/18/0 | 95 | 26 |
-| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 540 | 196 |
+| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 571 | 197 |
 | Tracking | 43 | 41/2/0/0/0/0 | 94 | 65 |
-| V0.8 enforcement | 20 | 13/1/0/0/6/0 | 905 | 498 |
+| V0.8 enforcement | 20 | 13/1/0/0/6/0 | 922 | 496 |
 
-The graph validates at 704 nodes and 720 edges, with 34 migration/dependency
+The graph validates at 704 nodes and 733 edges, with 34 migration/dependency
 review items. The live map covers 679 of 680 workpacks; Tracking WP40 is the
 intentional unmapped owner-selection packet. App/Game contributes
-220 reviewed maps: 169 code+test packets and 19 no-code packets have no bounded
-Phase 1 writing gap, while 32 retain concrete gaps. App contributes 95 reviewed
-maps (81 bounded complete, 14 gaps), and Tracking contributes 42 reviewed maps
-plus unmapped WP40 (24 bounded complete, 19 gaps). Graph states remain separate
-from that code-first classification. Historical
+220 reviewed rows, while Tracking contributes 42 reviewed rows plus unmapped
+WP40. Graph states remain separate from code-first classification. Historical
 source/test rows are now classified as `validation` instead of being counted
 as unreviewed planned work. Use `npm run graph:status`, `graph:ready`, `graph:blocked`,
 `graph:inspect <id>`, and `graph:why <id>` instead of inferring readiness from
@@ -852,15 +855,18 @@ test, proof, checklist, and any detected ADR paths to exist; it does not claim
 that CI or a product path has been merged.
 
 There are **23 plan folders** and **680 imported workpack rows** in this
-checkout (not 24 plans). The consolidated code train is merged to current
-`main` and contains the LAN target repair, enforcement-journal sequence
-repairs, parent policy-resolution/delivery binding, remote/tracking contracts,
-and app runtime-decision contracts. The live reviewed-root topology is 2,764
-implementation files and 1,133 test files. Scoped Enforcer, architecture,
-generated-artifact, Rust, TypeScript, portal, and pre-commit validation pass.
-Required CI run `31366692141` passed and PR #643 merged this train to `main` as
-`47a2ac717`; proof custody and product-workpack acceptance remain separate
-gates.
+checkout (not 24 plans). The live reviewed-root topology is 2,902
+implementation files and 1,144 test files. Those are ownership/topology counts,
+not proof that the files are production-reachable or that tests pass. The
+current consolidated head has not run final product CI and has not merged to
+`develop` or `main`; older CI/PR records below apply only to their historical
+heads.
+
+### Historical 2026-08-10 topology narrative
+
+The detailed table below is retained as dated routing context. The 2026-08-16
+production-reachability dashboard and executable graph counts above supersede
+its completion wording and source/test totals.
 
 | Plan | Live code/test topology observed | Code-first state and next executable dependency |
 | --- | --- | --- |
