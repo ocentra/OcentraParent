@@ -11035,12 +11035,12 @@
       "path": "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12342,13 +12342,13 @@
       "title": "49 category risk policy routing",
       "path": "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": ["WP-app-plan-18-policy-target-compiler-for-app-rules"],
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -29947,6 +29947,17 @@
         "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
       ],
       "reason": "Trusted owned-process dispatch must consume the enforcement-specific durable journal and authority boundary first."
+    },
+    {
+      "from": "WP-app-plan-49-category-risk-policy-routing",
+      "to": "WP-app-plan-18-policy-target-compiler-for-app-rules",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
+        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md"
+      ],
+      "reason": "Category/risk candidates must pass through the Rust policy-target compiler before any downstream policy handoff."
     }
   ],
   "migration": {
