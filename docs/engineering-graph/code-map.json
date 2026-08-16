@@ -1777,7 +1777,6 @@
         "infra/cloudflare/src/index.ts",
         "infra/cloudflare/src/billing-binding-read-model.ts",
         "infra/cloudflare/src/storage/account-identity-store.ts",
-        "infra/cloudflare/src/account-identity-d1-adapter.ts",
         "infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql",
         "infra/cloudflare/package.json",
         "infra/cloudflare/tests/unit/env-bindings.test.ts",

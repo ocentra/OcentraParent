@@ -47,7 +47,7 @@ Cloudflare WP06 and WP08 handoffs remain open.
 ```text
 WP01 blocks runtime provider/session implementation.
 WP08 owns only the Rust-owned account/family contract authority and account-authority parity. It is not WP01 provider-decision work and it does not own any Cloudflare binding, adapter, migration, or worker test runner.
-Cloudflare WP06 owns the D1/DO/KV binding, persistence adapter, migration execution, and storage-proof packet after the WP08 contract handoff. Cloudflare WP08 owns the Cloudflare runner/pyramid proof after Cloudflare WP06. Neither packet redefines account/family authority.
+Cloudflare WP06 owns the D1/DO/KV binding, persistence surface, migration execution, and storage-proof packet after the WP08 contract handoff. Cloudflare WP08 owns the Cloudflare runner/pyramid proof after Cloudflare WP06. Neither packet redefines account/family authority.
 WP02 blocks most authorization, UI, policy, payment, and remote-access handoffs.
 WP03 blocks secure-login/session claims and must be read with workpacks/03-current-boundary-addendum.md.
 WP04 may run after WP02 but must not implement data-custody side effects itself.

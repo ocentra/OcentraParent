@@ -1,13 +1,9 @@
 import type { D1Database } from '@cloudflare/workers-types';
-import type {
-  AccountIdentityMappingStatus,
-  AccountIdentityProvider as SchemaAccountIdentityProvider,
-} from '@ocentra-parent/schema-domain/account-identity-authority';
 
 /** External identity providers supported by the narrow account mapping boundary. */
-export type AccountIdentityProvider = SchemaAccountIdentityProvider;
+export type AccountIdentityProvider = 'authjs' | 'firebase';
 /** Lifecycle state for a provider-subject mapping. */
-export type AccountIdentityStatus = AccountIdentityMappingStatus;
+export type AccountIdentityStatus = 'active' | 'revoked';
 
 /** Minimal account identity data retained by Cloudflare custody. */
 export interface AccountIdentityRecord {
@@ -152,7 +148,7 @@ function validateLookupInput(provider: string, providerSubject: string): Account
   return null;
 }
 
-/** Create an adapter that fails closed when the optional D1 binding is absent. */
+/** Create a store that fails closed when the optional D1 binding is absent. */
 export function createAccountIdentityStore(database: D1Database | undefined): AccountIdentityStore {
   async function read(
     database: D1Database,

@@ -5,14 +5,12 @@
 - Account-identity D1 is now declared in `infra/cloudflare/src/env.ts`,
   `wrangler.toml`, and `wrangler.production.toml`, with the binding-specific
   `migrations/account-identity/0001_account_identity_authority.sql` migration.
-- `src/account-identity-d1-adapter.ts` consumes the generated Account WP08
-  handoff and validates schema version plus mapping/authority account identity;
-  it accepts only an opaque runtime-owned verified-provider boundary and never
-  persists the optional authority snapshot. No public route reaches this write.
 - `src/storage/account-identity-store.ts` consumes the migrated table and no
   longer creates production schema inline. An unapplied table returns typed
   `manual-required`; other D1 failures remain fail-closed. Account DO/KV are
-  absent by design in this slice.
+  absent by design in this slice. The store has no production route caller;
+  provider verification and the runtime-owned persistence handoff remain
+  manual-required.
 - This is code drafted only. Migration execution, tests, validation, proof,
   provider verification/login routes, public account routes, and runtime or
   deployment readiness remain deferred.

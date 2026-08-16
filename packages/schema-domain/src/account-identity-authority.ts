@@ -1,7 +1,6 @@
 /* thin adapter over Rust-owned generated account identity authority contracts */
 
 import * as Generated from './generated-account-identity-authority';
-import { ParentContractSchemaVersion } from './generated-family-reference-primitives';
 
 export const AccountIdentityProviderSchema = Generated.AccountIdentityProviderSchema;
 export const AccountIdentityMappingStatusSchema = Generated.AccountIdentityMappingStatusSchema;
@@ -16,7 +15,6 @@ export const AccountIdentitySessionIdSchema = Generated.AccountIdentitySessionId
 export const AccountIdentityProviderSubjectMappingSchema = Generated.AccountIdentityProviderSubjectMappingSchema;
 export const AccountIdentityAuthoritySnapshotSchema = Generated.AccountIdentityAuthoritySnapshotSchema;
 export const AccountIdentityAuthorityHandoffSchema = Generated.AccountIdentityAuthorityHandoffSchema;
-export const AccountIdentityAuthoritySchemaVersion = ParentContractSchemaVersion;
 
 export type AccountIdentityProvider = Generated.AccountIdentityProvider;
 export type AccountIdentityMappingStatus = Generated.AccountIdentityMappingStatus;

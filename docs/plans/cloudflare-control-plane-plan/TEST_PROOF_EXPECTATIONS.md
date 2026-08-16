@@ -122,11 +122,11 @@ if the wrapper is unavailable, write wrapper: unavailable and keep the same comp
 WP06 consumes, but does not define, Account WP08's Rust-owned contract. Its
 proof must name `infra/cloudflare/wrangler.toml`, `src/env.ts`, the selected
 account-identity D1/DO/KV declarations, binding-specific account migration
-directory (or equivalent mapping), adapter, migration, and
+directory (or equivalent mapping), store, migration, and
 `tests/integration/account-identity-d1-migration.test.ts`; retain the migration
 result from `cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"`, the module integration result from
 `npm --prefix infra/cloudflare run test:integration`, and the focused
-architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/account-identity-d1-adapter.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
+architecture result from `npm run lint:architecture -- --files infra/cloudflare/src/env.ts infra/cloudflare/src/storage/account-identity-store.ts infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`.
 Current source declares only billing storage bindings and no binding-specific
 account migration mapping, so this migration command is blocked and must never
 be run against `BILLING_D1` as a substitute.

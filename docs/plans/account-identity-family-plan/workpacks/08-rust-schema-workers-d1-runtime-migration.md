@@ -54,7 +54,7 @@ crates/family-identity-core:
   Rust account/family runtime semantics and parity against the canonical schema.
 
 cloudflare-control-plane-plan WP06:
-  real Workers-D1/DO/KV binding, persistence adapter, migration execution
+  real Workers-D1/DO/KV binding, persistence surface, migration execution
   surface, and storage proof; it consumes this packet's canonical contract.
 
 cloudflare-control-plane-plan WP08:
@@ -76,18 +76,16 @@ The snapshot uses only the existing family-identity authority vocabulary:
 account state, household/member references, membership, role, child profile,
 device trust, and session freshness. The handoff carries an opaque provider
 subject and mapping status but does not verify a provider, mint a session, or
-authorize a household action. Cloudflare WP06 now consumes the public schema
-adapter through `infra/cloudflare/src/account-identity-d1-adapter.ts`. That
-consumer validates the handoff and persists only the narrow provider-subject
-mapping; it does not verify a provider, persist the optional authority
-snapshot, or expose a route. Provider verification and Cloudflare runner proof
-remain downstream work.
+authorize a household action. Cloudflare WP06 retains the public schema
+handoff as a downstream contract input, but no production consumer or
+provider-subject persistence route exists. Provider verification, the runtime
+store caller, and Cloudflare runner proof remain downstream work.
 
 This is code-drafted only. Focused Rust/TypeScript generation checks, tests,
 and retained proof are deferred; the prior durable manifest must not be read
 as validating this new handoff until those checks are rerun.
 
-PR #607's TypeScript Cloudflare adapter/D1-test-double work is historical
+PR #607's TypeScript Cloudflare persistence/D1-test-double work is historical
 branch evidence only. It is not an implementation starting point or proof of
 this workpack.
 

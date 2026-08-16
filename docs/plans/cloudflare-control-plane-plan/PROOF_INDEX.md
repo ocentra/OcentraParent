@@ -56,7 +56,7 @@ blocked; it is not a substitute for the graph proof.
 
 ## WP08 account-storage runner proof
 
-After Cloudflare WP06 retains its account-D1 binding, adapter, migration, and
+After Cloudflare WP06 retains its account-D1 binding, store, migration, and
 integration proof, WP08 retains the selected module-runner result under
 `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
 and maps it to the Account WP06 aggregation handoff. The current module route
