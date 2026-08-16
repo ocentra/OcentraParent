@@ -18,7 +18,21 @@ Status: contract checked; runtime blocked on the domain/enforcement handoff. The
 
 ## Production-code audit — 2026-08-16
 
-The exact missing composition point is `crates/child-policy-core/src/policy_control_delivery_handoff.rs::apply_trusted_adapter_delivery_handoff`: it accepts a public `PolicyDeliveryExecutionReceipt`, but no domain- or enforcement-owned capability issues that receipt or supplies an inspectable execution trace. `crates/agent-core/src/enforcement_adapter.rs` currently returns an enforcement outcome and optional rollback token; no production bridge connects that outcome to policy delivery authority, execution identity, or rollback trace. The smallest legal implementation slice belongs to the v0-8 enforcement-control/domain adapter owner, followed by the child-policy handoff. This workpack remains runtime-blocked here; caller receipts remain evidence only.
+The owner-backed production slice is drafted in the v0-8 enforcement adapter:
+`crates/schema/src/authenticated_delivery_managed_process.rs` carries only a
+signed managed-process identity, `crates/agent-core/src/enforcement_adapter.rs`
+resolves it through local launcher/session evidence and re-verifies executable
+identity/start time, and
+`crates/agent-core/src/authenticated_delivery_execution.rs` persists the
+adapter-owned trace. `crates/child-policy-core/src/policy_control_delivery_handoff.rs::apply_trusted_adapter_delivery_handoff`
+still accepts a public receipt for compatibility. The new
+`crates/agent-service/src/authenticated_delivery_policy_receipt.rs` builds a
+policy receipt only from the private adapter-owned trace and binds its
+household, policy version, child, device, observed process identity, and result
+to the typed receipt context. Callers must use that trace-backed service bridge
+for trusted advancement; public receipts remain evidence only. The production
+slice is code-drafted and unvalidated; tests, WP11 journal handoff, proof, and
+runtime integration are deferred.
 
 ## Ownership boundary
 

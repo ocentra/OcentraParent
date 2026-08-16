@@ -25,7 +25,7 @@ Use this index to open exactly one assigned workpack. Do not read every file in
 | checked | [07 Unmanaged Browser Fallback](workpacks/07-unmanaged-browser-fallback.md)                       | 1,781 | 5/5 checked; 0 open |
 | checked | [09 Timer Recovery And Rollback](workpacks/09-timer-recovery-and-rollback.md)                     | 1,667 | 5/5 checked; 0 open |
 | checked | [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md)                           | 1,592 | 5/5 checked; 0 open |
-| blocked | [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md)                        | 1,096 | 0/5 checked; 5 open; Eventing WP06 generic journal handoff has a durable manifest, but WP04 remains unscheduled/manual-required until WP11 durable-journal proof is present; a recorded blocker does not satisfy scheduling |
+| blocked | [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md)                        | 1,096 | 0/5 checked; production trusted-target/adapter-trace slice code-drafted and unvalidated; 5 open; WP11 durable-journal handoff, tests, proof, and runtime scheduling remain manual-required |
 | open    | [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md)                       | 1,126 | 0/5 checked; 5 open |
 | open    | [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md)             | 1,127 | 0/5 checked; 5 open |
 | open    | [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md)     | 1,190 | 0/5 checked; 5 open |

@@ -30,6 +30,7 @@ pub mod app_game_timer_service_readiness_ts;
 pub mod app_risk_detection;
 pub mod app_risk_detection_ts;
 pub mod authenticated_delivery_grant;
+pub mod authenticated_delivery_managed_process;
 pub mod billing_checkout_portal_boundary_values_ts;
 pub mod billing_contracts_ts;
 pub mod billing_entitlement_proof;

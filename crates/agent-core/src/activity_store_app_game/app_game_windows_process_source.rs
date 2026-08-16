@@ -165,7 +165,8 @@ fn observed_at_suffix(observed_at: &str) -> String {
 
 fn executable_path_ref(path: Option<&Path>) -> Option<String> {
     path.map(|path| {
-        let digest = Sha256::digest(path.to_string_lossy().as_bytes());
+        let canonical_path = std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+        let digest = Sha256::digest(canonical_path.to_string_lossy().as_bytes());
         let mut path_ref = String::from(APP_GAME_EXECUTABLE_PATH_REF_PREFIX);
         path_ref.push_str(&BASE64_URL_SAFE_NO_PAD.encode(digest));
         path_ref

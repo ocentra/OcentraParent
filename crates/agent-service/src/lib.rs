@@ -21,6 +21,7 @@ mod app;
 mod app_game_dispatch_evidence;
 pub mod authenticated_delivery_execution_api;
 pub mod authenticated_delivery_execution_read_model;
+pub mod authenticated_delivery_policy_receipt;
 mod browser_evidence_payload;
 mod browser_intervention_page;
 mod browser_inventory_read_model;
