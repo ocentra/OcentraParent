@@ -4,9 +4,9 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 
 | Workpack | Purpose | Status |
 | ------------------------------------------------------------------------------- | --------------------------------------------- | ------- |
-| [01-policy-source-of-truth](workpacks/01-policy-source-of-truth.md) | Typed policy source truth, versioning, ownership. | Checked |
+| [01-policy-source-of-truth](workpacks/01-policy-source-of-truth.md) | Typed policy source truth, versioning, ownership. | Open — contract code exists; trusted identity-backed durable source owner and production caller are missing |
 | [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Code drafted / unvalidated / tests deferred; open |
-| [03-domain-policy-compilers](workpacks/03-domain-policy-compilers.md) | Domain compiler contracts and handoffs. | Checked |
+| [03-domain-policy-compilers](workpacks/03-domain-policy-compilers.md) | Domain compiler contracts and handoffs. | Open — deterministic compiler library exists; no shipped authoritative-source-to-domain compiler caller |
 | [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Contract and trace-backed receipt bridge code drafted but unvalidated; child handoff/runtime integration, tests, and proof remain blocked; caller receipts remain evidence |
 | [05-ask-parent-overrides](workpacks/05-ask-parent-overrides.md) | Ask-parent, bonus time, overrides, approvals. | Code drafted / unvalidated / tests deferred — Rust-owned typed decision staging/relay is mapped to `action_dispatch.rs`, `policy_preview.rs`, and `policy_preview/resolution.rs`; notification handoff remains explicitly unclaimed until provider dispatch exists; portal, account/identity, WP11 durability, runtime, tests, and proof remain open |
 | [06-rollout-proof-and-route-gate](workpacks/06-rollout-proof-and-route-gate.md) | Proof pack, route sync, and no-overclaim gate. | Checked |

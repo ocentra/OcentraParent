@@ -10,7 +10,7 @@ Canonical proof root:
 docs/proof/policy-control-plane-plan/
 ```
 
-This manifest records current proof presence and route-status wording only. It does not create fresh runtime proof or reopen source validation; it only reflects workpack state that is backed by the current proof files and scoped validation already run in this checkout.
+This manifest records proof-file presence and route wording only. It does not establish production reachability, source authority, compiler invocation, delivery authority, or runtime completion.
 
 ## Universal route and guardrail files
 
@@ -27,9 +27,9 @@ This manifest records current proof presence and route-status wording only. It d
 
 | Workpack | State | Evidence |
 | --- | --- | --- |
-| WP01 source of truth | Present | `01-source-of-truth-matrix-proof.md`, `01-schema-negative-proof.md`, `01-version-skew-proof.md`, `01-duplicate-truth-negative-proof.md`, `01-ai-preview-not-write-proof.md`, `01-authz-negative-proof.md` |
+| WP01 source of truth | Contract proof present / production open | The listed artifacts cover types and negatives; no trusted identity-backed durable source owner or shipped registration/query caller exists. |
 | WP02 parent authoring/preview | Partial / open | `02-conflict-visible-proof.md` proves a Rust-owned, portal-rendered conflict/manual-required/unsupported attention slice, and `02-assistant-draft-preview-only-proof.md` proves the assistant-draft confirmation boundary and no-typed-write parent-surface projection. Parent template/manual-rule authoring, preview-to-save confirmation UX, and opaque confirmed-request relay remain open. `02-no-claim-boundary.md` is universal only. |
-| WP03 domain policy compilers | Present | `03-domain-compiler-matrix-proof.md`, `03-domain-fixture-proof.md`, `03-unsupported-manual-required-proof.md`, `03-version-compat-proof.md`, `03-deterministic-output-proof.md` |
+| WP03 domain policy compilers | Contract proof present / production open | The listed artifacts cover deterministic compiler contracts; no shipped caller loads an authoritative active source and compiles/persists/delivers a Screen/AI or other domain artifact. |
 | WP04 delivery/ack/audit | Partial / dependency-blocked | `04-delivery-state-machine-proof.md`, `04-delivery-replay-and-ordering-proof.md`, `04-delivery-degraded-and-parent-visible-proof.md`, `04-delivery-audit-rollback-proof.md`; contract evidence is current, but trusted adapter authority, inspectable execution trace, and real enforcement execution proof are absent |
 | WP05 ask-parent/overrides | Open | no `05-*.md` closeout bundle under the canonical root |
 | WP06 rollout proof/route gate | Present | `00-scope-summary.md`, `06-rollout-proof-pack.md`, `06-route-sync-proof.md`, `06-no-overclaim-proof.md`, `06-manual-required-gap-register.md`, `16-validation-commands.log` |
@@ -38,6 +38,8 @@ This manifest records current proof presence and route-status wording only. It d
 
 ## Remaining open workpacks named exactly
 
+- WP01 trusted durable policy source authority and production caller
 - WP02 parent authoring/preview
+- WP03 production compiler composition
 - WP04 trusted delivery adapter authority, inspectable execution trace, and enforcement execution proof
 - WP05 ask-parent/overrides

@@ -10,9 +10,9 @@
 ## Current focus
 
 - The WP06 route/proof truth repair points the plan docs at one canonical proof root and records that state in `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md`.
-- `workpacks/03-domain-policy-compilers.md` has an owner-surface closeout bundle built from the current `@ocentra-parent/policy-domain` and `ocentra-policy-control-core` validation slice.
-- `workpacks/04-delivery-ack-audit.md` has an owner-surface closeout bundle built from the current delivery/source/event validation slice in `packages/policy-domain` and `crates/policy-control-core`.
-- `workpacks/01-policy-source-of-truth.md`, `workpacks/03-domain-policy-compilers.md`, `workpacks/06-rollout-proof-and-route-gate.md`, `workpacks/07-schedule-time-budget-conflict-model.md`, and `workpacks/08-policy-event-model.md` have closeout artifacts; WP04 has contract coverage but remains runtime-blocked on owner-backed adapter identity/trace, and the plan-local targets that remain open are WP02 and WP05.
+- `workpacks/03-domain-policy-compilers.md` has deterministic Rust contract code and retained contract proof. The formerly cited `@ocentra-parent/policy-domain` package is absent, and no shipped caller loads an authoritative source and invokes a domain compiler.
+- `workpacks/04-delivery-ack-audit.md` has contract/receipt evidence in the Rust owners, but no trusted execution authority or active delivery composition.
+- WP01 and WP03 are production-open despite their contract artifacts. WP02/WP04/WP05 are also open; WP06/WP07/WP08 retain routed proof bundles without upgrading those production gaps.
 - WP02 still depends on rendered parent authoring/preview/conflict/approval surfaces outside this owner slice.
 - WP02 code pass checkpoint: Rust-owned draft validation/staging, trusted preview-row authority projection, typed confirmed-request relay, and bounded handle mark-before-dispatch/restore-on-failure/commit-on-success now back the portal draft/confirm/cancel surface; missing authority context fails closed for manual review, validation and tests remain deferred, and no runtime completion claim is made.
 - WP05 production-code checkpoint: the Rust resolution command/service and delivery-binding validation exist, and a drafted typed decision staging/relay slice now maps `action_dispatch.rs`, `policy_preview.rs`, and `policy_preview/resolution.rs`. It projects `Modify` from trusted preview context only, binds actor identity to the local active-controller record, and fails closed for missing or ambiguous account/identity context. The rendered portal callback, account/identity provider composition, notification-provider dispatch, WP11 durability, runtime integration, validation/tests, and proof remain open; no completion claim is made.
@@ -20,11 +20,11 @@
 
 ## Ordered workpacks
 
-- [x] Close `workpacks/01-policy-source-of-truth.md` with typed source-of-truth and versioning proof.
+- [ ] Complete `workpacks/01-policy-source-of-truth.md` with trusted identity-backed durable source persistence and a shipped registration/query caller; existing type/proof coverage is contract-only.
 - [x] Close `workpacks/07-schedule-time-budget-conflict-model.md` with timezone/DST and conflict precedence proof.
 - [ ] Close `workpacks/02-parent-authoring-preview.md` with preview, conflict, and mobile/accessibility proof.
-- [x] Close `workpacks/03-domain-policy-compilers.md` with deterministic compiler contracts and handoffs.
-- [x] Close `workpacks/04-delivery-ack-audit.md` with per-device/domain delivery and audit proof.
+- [ ] Complete `workpacks/03-domain-policy-compilers.md` with a shipped active-source-to-domain compiler/persist-or-deliver composition; deterministic library tests are insufficient.
+- [ ] Complete `workpacks/04-delivery-ack-audit.md` with trusted per-device/domain delivery authority and an inspectable execution trace; caller-built receipts are evidence only.
 - [x] Close `workpacks/08-policy-event-model.md` with event family, idempotency, and replay proof.
 - [ ] Close `workpacks/05-ask-parent-overrides.md` with approval, expiry, replay, and assistant-preview proof.
 - [x] Close `workpacks/06-rollout-proof-and-route-gate.md` with route sync and no-overclaim proof.
@@ -42,8 +42,8 @@
 
 - Canonical proof root: `docs/proof/policy-control-plane-plan/`.
 - Required proof links live in `PROOF_INDEX.md`, `PROOF_AND_TEST_INVENTORY.md`, and the workpack proof artifact lists.
-- The root contains universal guardrail files, `PLAN_PROOF_MANIFEST.md`, checked closeout bundles for WP01, WP03, WP06, WP07, and WP08, and open/runtime-blocked gaps for WP02/WP04/WP05.
-- Current state stays open until WP02/WP05 each have matching closeout artifacts and scoped validation or explicit dependency blockers.
+- The root contains universal guardrail files, `PLAN_PROOF_MANIFEST.md`, contract bundles for WP01/WP03, routed bundles for WP06/WP07/WP08, and open/runtime-blocked gaps for WP01-WP05.
+- Current state stays open until the production caller/authority gaps in WP01-WP05 close honestly; proof presence alone does not close them.
 
 ## Blocker classification
 
@@ -53,4 +53,4 @@
 
 ## State
 
-- This plan is execution-grade architecture with real contract coverage; WP01, WP03, WP06, WP07, and WP08 are checked, WP04 is runtime-blocked, and overall implementation/proof closure remains open until WP02/WP04/WP05 close honestly.
+- This plan has real contract architecture but is not execution-grade: WP01/WP03 lack production source/compiler composition, WP02/WP04/WP05 remain open, and WP06/WP07/WP08 route evidence without curing those gaps.

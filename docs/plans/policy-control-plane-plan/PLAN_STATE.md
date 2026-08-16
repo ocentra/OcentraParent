@@ -50,21 +50,18 @@ domain plans:
 - This plan owns the cross-domain policy control contract: source of truth, lifecycle, schedule/time budget, conflict precedence, domain compiler boundaries, delivery/ack/audit, ask-parent overrides, and policy event model.
 - Existing domain plans own runtime effects; this plan owns the parent policy control plane contract and proof route.
 - Parent-facing UI is specified here and in the portal plan, but no plan should treat UI state as policy truth.
-- Verified implementation exists in `packages/policy-domain`, `crates/policy-control-core`, the policy-preview/delivery/audit/assistant seams in `packages/agent-protocol-domain`, and the focused portal policy-preview surface.
-- Verified focused validation in this checkout includes:
-  - `npm run test --workspace @ocentra-parent/policy-domain`
-  - `cargo test -p ocentra-policy-control-core`
-  - `cargo test -p ocentra-parent-agent-protocol policy`
-  - `npm run test --workspace @ocentra-parent/agent-protocol-domain -- tests/unit/policy-preview-contracts.test.ts tests/unit/policy-control-delivery-read-model.test.ts tests/unit/policy-control-audit-redaction.test.ts tests/unit/parent-assistant-adapter.test.ts`
-  - `cd apps/portal && npx vitest run tests/policy-preview-route-panel.test.ts tests/policy-preview-live-activity-state.test.ts`
-- Verified owner-slice architecture validation in this checkout now also includes:
-  - `npm run lint:architecture -- --files packages/policy-domain`
-  - `cargo lint-architecture crates/policy-control-core`
-- The shared architecture gate for the selected validation slice is not green because `packages/agent-protocol-domain` still contains banned re-exports.
+- Real Rust contract implementation exists in `crates/policy-control-core`, with policy-preview/delivery/audit/assistant seams in the runtime/protocol crates and a focused portal projection. `packages/policy-domain` is absent in this checkout and must not be cited as implementation evidence.
+- Historical proof logs name focused validation commands, but the 2026-08-16
+  production audit did not rerun them. Commands targeting the absent
+  `@ocentra-parent/policy-domain`/`packages/policy-domain` and the empty
+  `packages/agent-protocol-domain` package are stale and cannot be treated as
+  current validation evidence. Focused Rust/portal tests will be selected and
+  rerun only after the production code phase.
 - Feature-owned parent authoring and assistant approval surfaces remain incomplete and cannot be claimed done from contract tests alone.
 - WP02 production-code pass is drafted but unvalidated: Rust validates/stages the portal draft, projects exact household/child/profile/policy/source/actor context from the trusted preview row, builds and dispatches the typed confirmed-request command from the bounded handle, consumes only after accepted relay, and restores failed pending drafts; absent context fails closed for manual review, and tests/runtime validation remain deferred.
+- WP03 is contract-drafted but production-open: deterministic Rust compilers and validators exist, but non-test callers do not register an identity-backed durable parent policy source, load an active version, invoke the Screen/AI compilers, or persist/deliver their artifacts. The production confirmation route records an audit event; it does not establish active policy source truth.
 - The canonical proof root for this plan is `docs/proof/policy-control-plane-plan/`, and the touched route docs in this slice now agree on that single root.
-- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` records current file presence and route status: checked closeout bundles for WP01, WP03, WP06, WP07, and WP08; WP04 has a checked policy contract but remains runtime-blocked on owner-backed adapter identity/trace; WP02/WP05 remain open.
+- `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` records current file presence and route status. WP01/WP03 have contract proof only and remain production-open; WP04 has contract proof but remains runtime-blocked on owner-backed adapter identity/trace; WP02/WP05 also remain open.
 
 ## Current coupling risks
 
@@ -86,7 +83,7 @@ domain plans:
 ```text
 docs/proof/policy-control-plane-plan/ is the canonical proof root.
 PLAN_PROOF_MANIFEST.md records file presence and workpack proof status only.
-WP01, WP03, WP06, WP07, and WP08 have closeout bundles recorded in current route docs.
+WP01 and WP03 have contract bundles recorded, not production closeout; WP06, WP07, and WP08 retain their routed bundles.
 WP04 has current contract, negative, receipt-validation, compatibility, audit, and parent-visible proof, but no trusted adapter authority, inspectable execution trace, or real enforcement side-effect proof; its enforcement outcome/rollback token is not a policy authority bridge, so it is dependency-blocked rather than complete.
 WP02 and WP05 remain open until targeted authoring/preview and ask-parent/override proof bundles exist or explicit dependency blockers are carried.
 Universal guardrail files supplement workpack closeouts; they do not replace them.

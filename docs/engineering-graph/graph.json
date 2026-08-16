@@ -20052,15 +20052,15 @@
       "path": "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
       "parent": "PLAN-policy-control-plane-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Checked",
+        "statusText": "Open — contract code exists; trusted identity-backed durable source owner and production caller are missing",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20122,15 +20122,15 @@
       "path": "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md",
       "parent": "PLAN-policy-control-plane-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Checked",
+        "statusText": "Open — deterministic compiler library exists; no shipped authoritative-source-to-domain compiler caller",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

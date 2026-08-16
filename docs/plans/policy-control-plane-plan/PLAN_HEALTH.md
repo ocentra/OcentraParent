@@ -11,8 +11,8 @@ Known risks: duplicate policy truth, ad hoc domain compilers, assistant writes w
 
 ## State
 
-- Current state: route and contract docs exist, the canonical proof root is `docs/proof/policy-control-plane-plan/`, `PLAN_PROOF_MANIFEST.md` records present route and closeout bundles, checked closeout bundles exist for WP01, WP03, WP04, WP06, WP07, and WP08, and feature dependencies still keep WP02/WP05 open.
-- Current action: keep this file and `PLAN_STATE.md` aligned before any DONE/PR_READY claim and treat WP02/WP05 as the remaining open workpacks.
+- Current state: route/contract docs and retained proof exist, but WP01/WP03 are contract-only with no trusted durable source owner or shipped compiler caller; WP02/WP04/WP05 also remain open. WP06/WP07/WP08 route evidence without establishing those production paths.
+- Current action: implement WP01 source authority before WP03 compiler composition, then consume that output in WP04/Screen-AI; keep all production-open workpacks out of DONE/PR_READY.
 
 ## Required hygiene before PR_READY
 
@@ -51,6 +51,9 @@ Do not collapse those boundaries.
 
 ```text
 WP02 parent authoring/preview/conflict/approval rendered surfaces
+WP01 trusted identity-backed durable policy source registration/query owner
+WP03 shipped active-source-to-domain compiler and artifact persistence/delivery
+WP04 trusted delivery authority and inspectable execution trace
 WP05 ask-parent/override parent confirmation/assistant/portal/chat integration
 child-agent validation handoff for ask-parent path
 device-trust high-risk parent presence handoff
@@ -68,11 +71,11 @@ broader architecture gate failure in agent-protocol-domain re-export debt
 ## Proof mapping
 
 - Required proof before READY: explicit artifact files under `docs/proof/policy-control-plane-plan/`, matching focused validation logs, and cross-plan handoff notes in AGENTS/NEXT_ACTIONS.
-- The current checkout has a proof artifact directory at that root with universal guardrail files, `PLAN_PROOF_MANIFEST.md`, checked closeout bundles for WP01/WP03/WP04/WP06/WP07/WP08, and open WP02/WP05 gaps.
+- The current checkout has proof files for WP01/WP03/WP04/WP06/WP07/WP08, but WP01/WP03 are contract proof and WP04 is dependency-blocked; production gaps remain open in WP01-WP05.
 - At minimum, align the following docs before READY: `AGENTS.md`, `PLAN_STATE.md`, `NEXT_ACTIONS.md`, `WORKPACK_INDEX.md`, `PROOF_INDEX.md`, `TEST_PROOF_EXPECTATIONS.md`, and the assigned workpack.
 
 ## PR-ready rule
 
-The whole plan is PR-ready only when WP02 and WP05 are closed with proof artifacts or explicit carried blockers and WP06 consumes the final status.
+The whole plan is PR-ready only when WP01-WP05 have real production callers/authority, required tests, and proof (or an explicitly non-product scope decision), and WP06 consumes the final status.
 
 A partial PR may be ready only when one selected workpack is closed with proof artifacts, command logs, negative cases, no-claim language, and remaining open workpacks listed.
