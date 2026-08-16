@@ -2,6 +2,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::{fields::fields_from_pairs, network::NetworkPolicy};
+use crate::activity_store_path::network_runtime_journal_path;
 
 const STARTUP_LOG_CONTEXT_FIELD: &str = "context";
 const STARTUP_LOG_CONTEXT_VALUE: &str = "startup";
@@ -30,7 +31,11 @@ pub async fn run_agent_service() {
     crate::screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
     crate::screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
     crate::screen_ai_service_event_subscription::live_view_service_runtime::spawn_screen_live_view_worker_runtime();
-    if let Err(error) = crate::network_runtime_delivery::initialize_network_runtime_spine().await {
+    if let Err(error) = crate::network_runtime_delivery::initialize_network_runtime_spine(
+        network_runtime_journal_path().as_ref(),
+    )
+    .await
+    {
         let _ = crate::dev_log::write_agent_error(
             constants::error::AGENT_SERVICE_RUNS,
             startup_error_log_fields(&network, StartupErrorReason(error.to_string())),

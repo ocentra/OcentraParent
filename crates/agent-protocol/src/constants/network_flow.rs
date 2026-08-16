@@ -497,6 +497,7 @@ pub const RUNTIME_INSTANCE_LOCAL_CHILD_AGENT: &str = "local-child-agent";
 pub const AGGREGATE_NETWORK_FLOW_PREFIX: &str = "network-flow-";
 pub const CORRELATION_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-correlation-";
 pub const IDEMPOTENCY_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-idempotency-";
+pub const NETWORK_RUNTIME_EVENT_ID_PREFIX: &str = "network-runtime-event-sha256-";
 pub const IDEMPOTENCY_NETWORK_REVIEW_PREFIX: &str = "network-review-idempotency-";
 pub const REQUEST_NETWORK_REVIEW_PREFIX: &str = "network-review-request-";
 pub const REQUEST_NETWORK_REVIEW_TIMEOUT_MS: u64 = 50;

@@ -17,6 +17,7 @@ use super::ndjson::{
 };
 use super::{EventJournal, JournalAppendFuture, SharedEventJournal};
 use crate::StoredEventEnvelope;
+use crate::replay::{ReplayFilter, ReplayReadReport};
 
 #[derive(Clone, Debug)]
 pub struct ProductionFileEventJournal {
@@ -44,6 +45,20 @@ impl ProductionFileEventJournal {
 
     pub fn shared(self) -> SharedEventJournal {
         std::sync::Arc::new(self)
+    }
+
+    /// Validate the existing network journal before the owning service reports
+    /// readiness. This is intentionally explicit at the production boundary;
+    /// constructing a journal object alone does not establish recovery.
+    pub async fn recover(&self) -> Result<(), crate::EventingError> {
+        self.inner.recover().await
+    }
+
+    pub async fn replay_projection(
+        &self,
+        filter: ReplayFilter,
+    ) -> Result<ReplayReadReport, crate::EventingError> {
+        self.inner.replay_projection(filter).await
     }
 
     #[cfg(debug_assertions)]
@@ -115,6 +130,20 @@ impl EventJournal for ProductionFileEventJournal {
             #[cfg(debug_assertions)]
             self.inject_configured_sync_failure_for_debug();
             self.inner.append_phase(envelope, phase).await
+        })
+    }
+
+    fn append_phase_idempotent<'a>(
+        &'a self,
+        envelope: &'a StoredEventEnvelope,
+        phase: super::policy::JournalDispatchPhase,
+    ) -> JournalAppendFuture<'a> {
+        Box::pin(async move {
+            #[cfg(debug_assertions)]
+            self.inject_configured_sync_failure_for_debug();
+            self.inner
+                .append_phase_idempotent_for_event(envelope, phase)
+                .await
         })
     }
 }

@@ -3,6 +3,8 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
     NetworkInterventionState, NetworkRiskBudgetState, NetworkRuntimePhase,
 };
+use ocentra_eventing::ids::EventId;
+use sha2::{Digest, Sha256};
 
 use crate::NetworkObservation;
 
@@ -50,6 +52,42 @@ pub(super) fn network_correlation_id(
         append_destination_less_identity(&mut value, observation);
     }
     value
+}
+
+pub(super) fn network_event_id(
+    phase: NetworkRuntimePhase,
+    observation: &NetworkObservation,
+    observed_at: &str,
+) -> Result<EventId, ocentra_eventing::error::EventingError> {
+    let mut identity = String::new();
+    identity.push_str(phase.event_type());
+    identity.push('|');
+    identity.push_str(observed_at);
+    identity.push('|');
+    identity.push_str(observation.status.as_protocol_str());
+    for value in [
+        observation.protocol.map(|value| value.as_protocol_str().to_owned()),
+        observation.local_ip.clone(),
+        observation.local_port.map(|value| value.to_string()),
+        observation.destination_ip.clone(),
+        observation.destination_port.map(|value| value.to_string()),
+        observation.destination_domain.clone(),
+        observation.tcp_state.map(|value| value.as_protocol_str().to_owned()),
+        observation.pid.map(|value| value.to_string()),
+        observation.process_name.clone(),
+        Some(observation.associated_pid_count.to_string()),
+    ] {
+        identity.push('|');
+        if let Some(value) = value {
+            identity.push_str(&value);
+        }
+    }
+    let digest = Sha256::digest(identity.as_bytes());
+    EventId::parse(format!(
+        "{}{:x}",
+        constants::network_flow::NETWORK_RUNTIME_EVENT_ID_PREFIX,
+        digest
+    ))
 }
 
 fn append_destination_less_identity(value: &mut String, observation: &NetworkObservation) {

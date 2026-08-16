@@ -30,6 +30,20 @@ pub trait EventJournal: Send + Sync {
     ) -> JournalAppendFuture<'a> {
         self.append(envelope)
     }
+
+    /// Append a phase record only once for a given event id.
+    ///
+    /// Durable consumers use this at the ingestion boundary so a retry of an
+    /// already persisted observation cannot mint a second journal record. The
+    /// default preserves the historical behaviour for journals that do not
+    /// provide an idempotent filesystem implementation.
+    fn append_phase_idempotent<'a>(
+        &'a self,
+        envelope: &'a StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> JournalAppendFuture<'a> {
+        self.append_phase(envelope, phase)
+    }
 }
 
 pub type SharedEventJournal = Arc<dyn EventJournal>;

@@ -33,4 +33,13 @@ impl NdjsonEventJournal {
             None => self.append_entry_with_gate(envelope, phase).await,
         }
     }
+
+    pub(crate) async fn append_phase_idempotent_for_event(
+        &self,
+        envelope: &StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> Result<JournalAppend, EventingError> {
+        self.append_phase_idempotent_by_event_id(envelope, phase)
+            .await
+    }
 }

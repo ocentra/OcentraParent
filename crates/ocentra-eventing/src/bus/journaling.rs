@@ -40,7 +40,10 @@ impl EventBus {
             return Ok(None);
         }
         if let Some(journal) = &self.event_journal {
-            return journal.append_phase(stored, phase).await.map(Some);
+            return journal
+                .append_phase_idempotent(stored, phase)
+                .await
+                .map(Some);
         }
         Ok(None)
     }

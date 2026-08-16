@@ -12,6 +12,8 @@ use ocentra_eventing::{
     envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventId, ids::EventType,
     ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent, ids::SourceService,
     ids::SubscriberId, ids::TargetHandler,
+    journal::{policy::JournalPolicy, policy::JournalSelector, production_file::ProductionFileEventJournal},
+    replay::ReplayFilter,
 };
 use ocentra_network_core::network_runtime::{
     evaluate_network_runtime, NetworkAdapterState, NetworkAiHandoffState,
@@ -24,6 +26,7 @@ use ocentra_parent_agent_protocol::network_flow::{
     NetworkRuntimeEventPayload as ProtocolNetworkRuntimeEventPayload, NetworkRuntimePhase,
 };
 use std::collections::BTreeSet;
+use std::path::Path;
 use std::sync::Arc;
 use tokio::sync::Mutex as AsyncMutex;
 
@@ -239,6 +242,25 @@ impl NetworkRuntimeSpine {
         })
     }
 
+    /// Construct the network-owned production chain and recover its durable
+    /// journal before any capture caller can publish an observation.
+    pub async fn with_durable_handlers(path: impl AsRef<Path>) -> Result<Self, EventingError> {
+        let journal = Arc::new(ProductionFileEventJournal::new(path.as_ref().to_path_buf()));
+        journal.recover().await?;
+        let _ = journal.replay_projection(ReplayFilter::all()).await?;
+        let bus = EventBus::with_journal(
+            JournalPolicy::after_dispatch(JournalSelector::All),
+            journal.clone().shared(),
+        );
+        for phase in NetworkRuntimePhase::ordered_chain() {
+            subscribe_default_handler(&bus, *phase).await?;
+        }
+        Ok(Self {
+            bus,
+            chain_lock: Arc::new(AsyncMutex::new(())),
+        })
+    }
+
     pub async fn publish_observation_chain(
         &self,
         observation: NetworkObservation,
@@ -352,7 +374,7 @@ fn network_event_metadata(
     target_handler: &str,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
-        EventId::generated(),
+        helpers::network_event_id(phase, observation, observed_at)?,
         CorrelationId::parse(helpers::network_correlation_id(observation, observed_at))?,
         network_event_source(phase, observation)?,
         RecordedAt::parse(observed_at)?,
