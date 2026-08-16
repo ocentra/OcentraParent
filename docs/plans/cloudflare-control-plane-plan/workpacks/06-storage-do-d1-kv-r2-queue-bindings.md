@@ -8,11 +8,11 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## First-touch surfaces
 
-- `infra/cloudflare/src/env.ts` for the required account-identity D1/DO/KV declarations and ownership boundary (currently absent)
-- `infra/cloudflare/wrangler.toml` for the selected account-identity D1 binding and binding-specific migration-directory configuration (currently absent)
-- `infra/cloudflare/src/account-identity-d1-adapter.ts` for the Cloudflare-owned adapter that consumes, but does not define, the Account WP08 contract
-- `infra/cloudflare/migrations/0001_account_identity_authority.sql` for the selected account-identity D1 schema/migration
-- `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` for the migration/adapter integration surface
+- `infra/cloudflare/src/env.ts` for the optional account-identity D1 declaration and ownership boundary; account DO/KV remain absent and manual-required
+- `infra/cloudflare/wrangler.toml` and `wrangler.production.toml` for the selected account-identity D1 binding and binding-specific migration-directory configuration
+- `infra/cloudflare/src/storage/account-identity-store.ts` for the narrow migrated-schema consumer; no Account WP08 DTO adapter is introduced here
+- `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql` for the isolated account-identity D1 schema/migration
+- `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` remains the deferred migration/adapter integration surface
 
 ## Read inputs
 
@@ -24,9 +24,10 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 - `infra/cloudflare/src/env.ts`
 - `infra/cloudflare/wrangler.toml`
-- `infra/cloudflare/src/account-identity-d1-adapter.ts`
-- `infra/cloudflare/migrations/0001_account_identity_authority.sql`
-- `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
+- `infra/cloudflare/wrangler.production.toml`
+- `infra/cloudflare/src/storage/account-identity-store.ts`
+- `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
+- `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts` (deferred)
 - [STORAGE_BINDING_MODEL.md](../STORAGE_BINDING_MODEL.md)
 - `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 
@@ -35,8 +36,8 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Each binding has one owner and one purpose.
 - No child-data storage drift is allowed.
 - Queue and dead-letter ownership is explicit.
-- Account-identity D1/DO/KV bindings, adapter, and migration consume Account WP08's canonical Rust contract without redefining family authority.
-- The account D1 migration directory is binding-specific (or has an equivalent proven mapping), so account migration application cannot target `BILLING_D1`.
+- The account-identity D1 binding and isolated migration consume the Account WP08 handoff boundary without redefining family authority; account DO/KV are not declared in this slice and remain manual-required.
+- The account D1 migration directory is binding-specific, so account migration application cannot target `BILLING_D1`.
 - The retained storage result or exact blocker is linked for Cloudflare WP08 runner proof and Account WP06 aggregation.
 
 ## Proof IDs
@@ -69,11 +70,11 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Completion
 
-- Status: blocked / no current account-storage proof; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
+- Status: production code drafted / validation and retained proof deferred; no Cloudflare runtime-ready, deployment-ready, or payment-ready claim is made.
 - Proof root: `output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/`
 - Runtime/source owner: `infra/cloudflare/src/env.ts`
-- Required Account D1/DO/KV and isolated account-migration configuration: `infra/cloudflare/wrangler.toml` plus `src/env.ts` (currently absent; no `BILLING_D1` substitution)
-- Owned adapter/migration surfaces: `infra/cloudflare/src/account-identity-d1-adapter.ts`; `infra/cloudflare/migrations/0001_account_identity_authority.sql`
+- Account D1 and isolated migration configuration: `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, and `src/env.ts`; account DO/KV declarations remain absent and no `BILLING_D1` substitution is allowed
+- Owned migrated-schema consumer/migration surfaces: `infra/cloudflare/src/storage/account-identity-store.ts`; `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
 - Owned test surfaces: `infra/cloudflare/tests/unit/env-bindings.test.ts`; `infra/cloudflare/tests/integration/account-identity-d1-migration.test.ts`
 
 ## What is actually proved
@@ -84,13 +85,14 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - Queue ownership is explicit for `BILLING_RECONCILIATION_QUEUE` and `BILLING_DEAD_LETTER_QUEUE`, including paired dead-letter responsibility.
 - Optional `BILLING_AUDIT_R2` stays `manual-required` and is explicitly rejected as a telemetry dump or general-purpose child-data store.
 - Placeholder Wrangler binding names and IDs are treated as non-proof and non-runtime-ready.
-- No account-identity D1/DO/KV binding or account migration directory is currently proved; this packet does not claim that billing bindings can serve that role.
+- Account-identity D1 is now declared with an isolated migration directory in both Wrangler configs, but no migration command or proof has run; account DO/KV remain absent and manual-required, and billing bindings cannot serve that role.
 
 ## Blocked truth
 
 - `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently exits nonzero with an empty module dependency tree. WP01 owns restoring that dependency environment before WP06 invokes module test scripts.
 - Account WP08's Rust contract and the selected WP06 D1 binding, adapter, migration, and direct integration-test artifacts are not yet retained. Until they exist, this packet cannot produce a storage handoff for Cloudflare WP08 or Account WP06.
-- `infra/cloudflare/wrangler.toml` and `src/env.ts` currently declare only billing storage bindings: no account D1/DO/KV declaration or binding-specific account `migrations_dir`/equivalent mapping exists. WP06 must not run the account migration command against `BILLING_D1`.
+- `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, and `src/env.ts` declare the optional account D1 binding with a binding-specific `migrations_dir`; account DO/KV are intentionally not declared. WP06 must not run the account migration command against `BILLING_D1`.
+- The store no longer creates the account table opportunistically. If the isolated migration has not been applied, reads and writes return `manual-required` for the missing account schema; other D1 errors remain fail-closed errors.
 - `infra/cloudflare/src/index.ts` imports `./generated/billing-contracts.js`, backed by the checked-in module-local generated artifact. Obsolete `packages/billing-domain/src/*` imports are not WP06 blockers and must not be revived.
 
 ## Proof artifacts
@@ -114,4 +116,4 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 - No claim is made that the Cloudflare worker boots successfully in this worktree.
 - No claim is made that queue retries, dead-letter replay, D1 writes, KV writes, or R2 writes executed live.
 - No claim is made that Account WP08 or this packet alone completes account authority; Cloudflare WP08 runner proof and Account WP06 aggregation remain separate required handoffs.
-- The account-identity adapter, migration, focused integration test, and Wrangler D1 binding configuration are required first-touch/output surfaces for this WP06 packet; listing them does not claim they exist or have run in this checkout.
+- The account-identity DTO adapter, focused integration test, migration command, and proof remain deferred; this slice only supplies the isolated D1 migration/configuration and migrated-schema consumer.
