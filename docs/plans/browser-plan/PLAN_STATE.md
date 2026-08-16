@@ -21,6 +21,10 @@ Audit note (2026-06-16): earlier generated summaries in this file overstated
 checked checklist/workpack state. Use the selected workpack,
 `implementation-checklist.md`, and the current proof roots as truth.
 
+Code-pass note (2026-08-16): WP05 has a production-code draft on
+`codex/browser-code-pass`. It is unvalidated and test/proof/checklist-deferred;
+the graph must not treat it as complete.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.
@@ -31,11 +35,8 @@ This folder is the single working plan location for managed browser evidence, br
 crates/schema:
   Canonical shared browser/evidence/read-model/intervention contracts when browser shapes cross package, crate, app, or plan boundaries.
 
-browser-domain:
-  TypeScript helper/projection and focused validation surface. It is presentation-only and generated/thin at the edge; it must not become a policy, notification, family, AI, portal, or enforcement runtime aggregator.
-
 browser-core:
-  Child-local Rust browser observation, evidence-event, AI-request, policy-request, and source-readiness boundary.
+  Child-local Rust browser observation, evidence-event, AI-request, policy-request, and source-readiness boundary in `crates/browser-core` and its generated/runtime companions.
 
 agent-protocol and agent-service:
   Wire/service/read-model boundaries when selected. They are not default owners for every browser contract.
@@ -56,8 +57,6 @@ Network, screen, app-game, tracking, LAN, remote, account, data-custody, and set
 ## Current coupling risks
 
 ```text
-- `browser-domain` currently depends on family-domain, notification-domain, and policy-domain. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through schema-domain.
-- `browser-domain` currently depends on family-domain, notification-domain, and policy-domain. Treat those dependencies as migration-sensitive unless they are only approved public helper/contract consumption. Shared shapes should move through `crates/schema`.
 - Older plan-local source ownership notes still reference legacy `packages/activity-domain/src/browser*.ts` paths that do not exist in this checkout.
 - Network/process/window evidence must not be promoted into exact URL, active tab, page title, or browser-game proof without selected browser-source proof.
 - Managed intervention harness proof does not prove product-level warning/block readiness unless policy decision refs, action refs, audit refs, child delivery state, and portal proof exist.
@@ -105,9 +104,9 @@ Reference/settings inventories are not runtime implementation proof.
 - authoring manifest shapes;
 - browser policy value/update contracts;
 
-Current implementation is concentrated in `packages/browser-domain`,
-`packages/agent-protocol-domain`, `crates/agent-protocol`,
-`crates/agent-core`, `crates/agent-service`, `apps/portal`, and
+Current implementation is concentrated in `crates/schema`,
+`crates/browser-core`, `crates/agent-protocol`, `crates/agent-core`,
+`crates/agent-service`, `packages/portal-domain`, `apps/portal`, and
 `scripts/test`.
 
 ## Open gaps / missing product runtime

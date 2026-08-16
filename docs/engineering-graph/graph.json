@@ -14462,12 +14462,12 @@
       "path": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "partial",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
