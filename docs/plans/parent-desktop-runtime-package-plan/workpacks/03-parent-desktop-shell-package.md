@@ -84,7 +84,8 @@ These are proof-routing fields, not implementation code prescriptions.
 - Real Windows package artifacts now exist as both MSI and NSIS outputs.
 - Real launch anchors exist for both `dev:desktop` and `dev:desktop:lan`; in this lane the plain dry-run legitimately inherited the lane's LAN-mode default and still resolved to an allowed desktop stack command.
 - Service bridge production truth is fail-closed:
-  - ready only after the Rust service returns the typed health response
+  - ready only after the Rust service returns the correlated, schema/peer-validated typed health response with `online=true` and websocket transport
+  - the reported probe timeout comes from the same parent-runtime-core health-command timeout; the legacy raw TCP helper is compatibility/test support only
   - degraded when the handshake fails, is rejected, or the service is unavailable
   - not upgraded from a raw socket listener or stale fallback claim
 - A local artifact hash is recorded in `test-results/parent-desktop-shell-package-proof/proof.json`.

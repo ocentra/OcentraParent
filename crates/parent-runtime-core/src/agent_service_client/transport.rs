@@ -23,6 +23,10 @@ mod timeouts;
 use self::timeouts::agent_command_timeout_for;
 use self::{connection::*, envelope::*, read::read_agent_event, read_impl::map_websocket_error};
 
+pub(super) fn agent_health_check_timeout_ms() -> u64 {
+    timeouts::agent_health_check_timeout_ms()
+}
+
 use super::parent_route_event_snapshot;
 use super::payload_fields::{resolve_command_origin, serialized_enum_label};
 use super::types::AgentServiceCommandResult;
