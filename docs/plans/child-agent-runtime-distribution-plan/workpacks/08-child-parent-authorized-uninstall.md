@@ -11,7 +11,7 @@
 
 Purpose: define parent-authorized uninstall, revocation, and removal proof for the child agent.
 
-Status: complete. WP08 now has canonical contract, thin consumer read-model wiring, real tests, focused validation, and a proof pack under `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/`.
+Status: production code drafted / test-deferred. The child service now owns a durable parent-authorized revocation boundary and preserves removal audit state; platform uninstall/device-owner cleanup remains manual-required. Contract tests, validation, and proof are deferred to the later global phase.
 
 ## Owns
 
@@ -19,6 +19,16 @@ Status: complete. WP08 now has canonical contract, thin consumer read-model wiri
 - revocation and removal state
 - no-child-self-authorize removal rule
 - uninstall cleanup and audit trail
+
+## Production code boundary
+
+- `ocentra-child-runtime` persists `removal-state.json` under the service-owned durable root.
+- Revocation and reauthorization require `VerifiedParentRemovalAuthorization`, which can only be constructed from the existing verified household-authority contract; its reference is retained as evidence and is not authority by itself.
+- The service must be configured with the matching household, child-profile, and target-device identity; unbound proofs and proofs for another child are rejected before state mutation.
+- Revocation changes typed service readiness to `Revoked`, closes observed-event ingress, and retains the audit trail across restart.
+- Windows/Linux/macOS package managers own service stop/remove hooks; Android package/device-owner removal remains manual-required. No platform uninstall proof is claimed.
+- Windows MSI removes the child service/files while retaining the service-owned ProgramData custody root so `removal-state.json` and its audit history are not silently discarded; Linux and macOS package hooks likewise do not claim to delete durable custody.
+- The deferred Windows lifecycle harness still expects ProgramData absence and uses legacy parent service/path labels; that proof-only mismatch must be reconciled before validation.
 
 ## Must prove
 
@@ -34,12 +44,12 @@ Status: complete. WP08 now has canonical contract, thin consumer read-model wiri
 - revoked trust remains active
 - removal proof is kept only in the plan folder
 
-## Proof Root
+## Deferred proof root
 
 - `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/`
 - runtime evidence: `test-results/tamper-uninstall-artifact-status-proof/proof.json`
 
-## Proved States
+## Contract/proof states to validate later
 
 - `child-self-authorize-forbidden`
 - `required-where-platform-allows`
@@ -59,24 +69,20 @@ Status: complete. WP08 now has canonical contract, thin consumer read-model wiri
 - no parent-client parity claim
 - no uninstall-control parity claim where the platform still remains manual-required or device-proof-required
 
-## Validations
+## Deferred validations (not run in this production pass)
 
 - `cmd /c npm exec --workspace @ocentra-parent/schema-domain -- vitest run tests/proof/tamper-uninstall-artifact-status.test.ts`
 - `cmd /c npm exec --workspace @ocentra-parent/enforcement-domain -- vitest run tests/unit/tamper-uninstall-artifact-status.test.ts`
 - `cmd /c node scripts/test/tamper-uninstall-artifact-status-proof.mjs`
 - `cmd /c npm run lint:architecture -- --files packages/schema-domain/src/tamper-uninstall-artifact-status.ts packages/schema-domain/tests/proof/tamper-uninstall-artifact-status.test.ts packages/enforcement-domain/src/tamper-uninstall-artifact-status-read-model.ts packages/enforcement-domain/tests/unit/tamper-uninstall-artifact-status.test.ts packages/enforcement-domain/vitest.config.ts scripts/test/tamper-uninstall-artifact-status-proof.mjs`
 
-## Completion Checklist
+## Production-pass checklist
 
-- [x] parent-authorized uninstall flow is represented in the canonical contract
-- [x] revocation state is explicit and leaves trust inactive until parent reauthorization
-- [x] no-child-self-authorize removal rule is explicit
-- [x] uninstall cleanup remains visible until cleanup proof exists
-- [x] teardown proof ends child authority cleanly
-- [x] thin `enforcement-domain` consumer reflects the contract without becoming the owner
-- [x] real schema-domain proof test exists in `tests/proof`
-- [x] real enforcement-domain unit test exists in `tests/unit`
-- [x] focused proof runner emits proof JSON and proof labels
-- [x] proof artifacts exist under the declared output root
-- [x] no-claim boundaries stay explicit and honest
-- [x] focused architecture validation passed for the touched files
+- [x] child service owns durable parent-authorized revocation and reauthorization state
+- [x] revoked trust is represented as typed service readiness and blocks runtime ingress
+- [x] revocation audit entries remain durable until a parent reauthorization decision
+- [x] platform package/device removal remains explicit manual-required state
+- [ ] platform uninstall and device-owner cleanup artifacts are validated
+- [ ] contract tests and focused runtime tests are run
+- [ ] proof artifacts are refreshed under the declared output root
+- [ ] focused architecture validation is run for the touched Rust files

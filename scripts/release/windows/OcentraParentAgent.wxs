@@ -142,7 +142,7 @@
   <Fragment>
     <Component Id="AgentProgramDataDirectory" Directory="AGENTDATAFOLDER" Guid="413DF832-1B07-4E61-81BD-2AC01856ECEB">
       <CreateFolder />
-      <RemoveFolder Id="RemoveAgentProgramDataDirectory" On="uninstall" />
+      <!-- Keep service-owned removal-state.json and audit custody for parent/admin review. -->
       <RegistryValue
         Root="HKLM"
         Key="Software\Ocentra\Ocentra Child Agent"

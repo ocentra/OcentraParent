@@ -17,6 +17,10 @@ use tokio::sync::{mpsc, oneshot};
 use crate::{
     child_domain_runtime::ChildDomainRuntimeEventFlow,
     child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow,
+    removal::{
+        ChildAgentRemovalBoundary, ChildAgentRemovalStatus, ChildAgentServiceIdentity,
+        ChildAgentTrustState, VerifiedParentRemovalAuthorization,
+    },
 };
 
 pub const CHILD_AGENT_DATA_DIR_ENV: &str = "OCENTRA_CHILD_AGENT_DATA_DIR";
@@ -36,6 +40,8 @@ pub struct ChildAgentServicePaths {
     root: PathBuf,
     journal: PathBuf,
     tombstones: PathBuf,
+    removal: PathBuf,
+    identity: Option<ChildAgentServiceIdentity>,
 }
 
 impl ChildAgentServicePaths {
@@ -44,6 +50,8 @@ impl ChildAgentServicePaths {
         Self {
             journal: root.join("child-runtime.ndjson"),
             tombstones: root.join("tombstones"),
+            removal: root.join("removal-state.json"),
+            identity: None,
             root,
         }
     }
@@ -69,6 +77,19 @@ impl ChildAgentServicePaths {
         &self.tombstones
     }
 
+    pub fn removal(&self) -> &Path {
+        &self.removal
+    }
+
+    pub fn identity(&self) -> Option<&ChildAgentServiceIdentity> {
+        self.identity.as_ref()
+    }
+
+    pub fn with_identity(mut self, identity: ChildAgentServiceIdentity) -> Self {
+        self.identity = Some(identity);
+        self
+    }
+
     fn prepare(&self) -> Result<(), ChildAgentServiceError> {
         fs::create_dir_all(&self.root).map_err(ChildAgentServiceError::Storage)?;
         if fs::symlink_metadata(&self.root)
@@ -90,6 +111,7 @@ impl ChildAgentServicePaths {
 pub enum ChildAgentReadiness {
     Ready,
     RecoveryPending { correlation_ids: Vec<CorrelationId> },
+    Revoked { audit_ref: Option<String> },
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -97,6 +119,7 @@ pub struct ChildAgentHealth {
     pub readiness: ChildAgentReadiness,
     pub domain_flow_count: usize,
     pub durable_root: PathBuf,
+    pub removal: ChildAgentRemovalStatus,
 }
 
 #[derive(Debug)]
@@ -106,6 +129,7 @@ pub enum ChildAgentServiceError {
     Storage(std::io::Error),
     Shutdown(std::io::Error),
     RecoveryPending(Box<ChildAgentReadiness>),
+    TrustRevoked { audit_ref: Option<String> },
     UnknownDomain(ChildRuntimeDomain),
 }
 
@@ -124,6 +148,9 @@ impl fmt::Display for ChildAgentServiceError {
             }
             Self::RecoveryPending(readiness) => {
                 write!(formatter, "child service is not ready: {readiness:?}")
+            }
+            Self::TrustRevoked { audit_ref } => {
+                write!(formatter, "child service trust is revoked: {audit_ref:?}")
             }
             Self::UnknownDomain(domain) => {
                 write!(
@@ -215,7 +242,9 @@ pub struct ChildAgentService {
     paths: ChildAgentServicePaths,
     domain_flows: Vec<ChildDomainRuntimeEventFlow>,
     tombstone_flow: ChildRuntimeTombstoneEventFlow,
+    removal: ChildAgentRemovalBoundary,
     readiness: ChildAgentReadiness,
+    recovery_pending: Option<Vec<CorrelationId>>,
     ingress: ChildAgentIngress,
     commands: mpsc::Receiver<QueuedCommand>,
 }
@@ -233,18 +262,33 @@ impl ChildAgentService {
             NdjsonEventJournal::with_options(paths.journal(), NdjsonJournalOptions::hash_chain());
         let store = RetentionDeleteTombstoneStore::open(paths.tombstones())
             .map_err(ChildAgentServiceError::Storage)?;
+        let removal = ChildAgentRemovalBoundary::open_with_identity(
+            paths.removal(),
+            paths.identity().cloned(),
+        )
+        .map_err(ChildAgentServiceError::Storage)?;
         let tombstone_flow = ChildRuntimeTombstoneEventFlow::new(journal.clone(), store);
         journal.recover().await?;
         let recovery = tombstone_flow
             .recover_pending()
             .await
             .map_err(ChildAgentServiceError::Storage)?;
-        let readiness = if recovery.pending_journal_retry.is_empty() {
-            ChildAgentReadiness::Ready
+        let recovery_pending = if recovery.pending_journal_retry.is_empty() {
+            None
         } else {
+            Some(recovery.pending_journal_retry)
+        };
+        let removal_status = removal.status().map_err(ChildAgentServiceError::Storage)?;
+        let readiness = if let Some(pending) = recovery_pending.as_ref() {
             ChildAgentReadiness::RecoveryPending {
-                correlation_ids: recovery.pending_journal_retry,
+                correlation_ids: pending.clone(),
             }
+        } else if removal_status.trust_state == ChildAgentTrustState::Revoked {
+            ChildAgentReadiness::Revoked {
+                audit_ref: removal_status.latest_audit_ref,
+            }
+        } else {
+            ChildAgentReadiness::Ready
         };
 
         let mut domain_flows = Vec::with_capacity(CHILD_RUNTIME_DOMAINS.len());
@@ -257,18 +301,24 @@ impl ChildAgentService {
             paths,
             domain_flows,
             tombstone_flow,
+            removal,
             readiness,
+            recovery_pending,
             ingress: ChildAgentIngress { sender },
             commands,
         })
     }
 
-    pub fn health(&self) -> ChildAgentHealth {
-        ChildAgentHealth {
+    pub fn health(&self) -> Result<ChildAgentHealth, ChildAgentServiceError> {
+        Ok(ChildAgentHealth {
             readiness: self.readiness.clone(),
             domain_flow_count: self.domain_flows.len(),
             durable_root: self.paths.root().to_owned(),
-        }
+            removal: self
+                .removal
+                .status()
+                .map_err(ChildAgentServiceError::Storage)?,
+        })
     }
 
     pub fn readiness(&self) -> &ChildAgentReadiness {
@@ -281,6 +331,43 @@ impl ChildAgentService {
 
     pub fn domain_flow_count(&self) -> usize {
         self.domain_flows.len()
+    }
+
+    pub fn removal(&self) -> &ChildAgentRemovalBoundary {
+        &self.removal
+    }
+
+    pub fn revoke_with_parent_authorization(
+        &mut self,
+        authorization: &VerifiedParentRemovalAuthorization,
+    ) -> Result<ChildAgentRemovalStatus, ChildAgentServiceError> {
+        let status = self
+            .removal
+            .revoke_with_parent_authorization(authorization)
+            .map_err(ChildAgentServiceError::Storage)?;
+        self.readiness = ChildAgentReadiness::Revoked {
+            audit_ref: status.latest_audit_ref.clone(),
+        };
+        Ok(status)
+    }
+
+    pub fn reauthorize_with_parent_authorization(
+        &mut self,
+        authorization: &VerifiedParentRemovalAuthorization,
+    ) -> Result<ChildAgentRemovalStatus, ChildAgentServiceError> {
+        let status = self
+            .removal
+            .reauthorize_with_parent_authorization(authorization)
+            .map_err(ChildAgentServiceError::Storage)?;
+        self.readiness =
+            self.recovery_pending
+                .as_ref()
+                .map_or(ChildAgentReadiness::Ready, |correlation_ids| {
+                    ChildAgentReadiness::RecoveryPending {
+                        correlation_ids: correlation_ids.clone(),
+                    }
+                });
+        Ok(status)
     }
 
     pub async fn run_until_shutdown(mut self) -> Result<(), ChildAgentServiceError> {
@@ -308,10 +395,18 @@ impl ChildAgentService {
         command: ChildAgentCommand,
     ) -> Result<crate::child_domain_runtime::ChildDomainRuntimeFlowReport, ChildAgentServiceError>
     {
-        if self.readiness != ChildAgentReadiness::Ready {
-            return Err(ChildAgentServiceError::RecoveryPending(Box::new(
-                self.readiness.clone(),
-            )));
+        match &self.readiness {
+            ChildAgentReadiness::Ready => {}
+            ChildAgentReadiness::RecoveryPending { .. } => {
+                return Err(ChildAgentServiceError::RecoveryPending(Box::new(
+                    self.readiness.clone(),
+                )))
+            }
+            ChildAgentReadiness::Revoked { audit_ref } => {
+                return Err(ChildAgentServiceError::TrustRevoked {
+                    audit_ref: audit_ref.clone(),
+                })
+            }
         }
         match command {
             ChildAgentCommand::Observe(event) => {
