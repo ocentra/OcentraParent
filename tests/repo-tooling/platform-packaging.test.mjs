@@ -154,10 +154,10 @@ test('Linux and macOS packages install real service managers', () => {
   const linuxUnit = readRepoFile('scripts/release/linux/ocentra-parent-agent.service');
   const macLaunchd = readRepoFile('scripts/release/macos/ca.ocentra.parent.agent.plist');
 
-  assert.match(linuxUnit, /ExecStart=\/opt\/ocentra\/ocentra-parent-agent\/bin\/ocentra-parent-agent-service/u);
+  assert.match(linuxUnit, /ExecStart=\/opt\/ocentra\/ocentra-child-agent\/bin\/ocentra-child-agent-service/u);
   assert.match(linuxUnit, /WantedBy=multi-user\.target/u);
-  assert.match(macLaunchd, /ca\.ocentra\.parent\.agent/u);
-  assert.match(macLaunchd, /\/Library\/Ocentra\/Ocentra Parent Agent\/bin\/ocentra-parent-agent-service/u);
+  assert.match(macLaunchd, /ca\.ocentra\.child\.agent/u);
+  assert.match(macLaunchd, /\/Library\/Ocentra\/Ocentra Child Agent\/bin\/ocentra-child-agent-service/u);
 });
 
 test('mobile platform projects define real installable app targets', () => {
