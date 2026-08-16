@@ -78,6 +78,16 @@ Audit note: `WP25`, `WP27`, `WP28`, `WP29`, and `WP33` were reopened by the 2026
 contracts/process-local flows, while WP37-WP39 retain durability,
 notification/escalation, and end-to-end projection gaps.
 
+2026-08-16 production reachability note: all workpack rows remain `open` for
+this production-code phase. WP03-WP06, WP14-WP19, WP21, WP23, WP25-WP26, and
+WP34-WP36 describe real typed/model or process-local code, not shipped
+capture, durability, provider delivery, or product completion. WP37 is blocked
+because no shipped owner composes `TrackingRuntimeEventFlow` with a durable
+tracking journal and `ActivityStore` projection; WP38 and WP39 therefore remain
+downstream blocked. See [CODE_AUDIT.md](CODE_AUDIT.md) for the per-workpack
+caller/effect/gap map. Historical checked boxes and proof packets remain
+non-authoritative.
+
 ## Selection rules
 
 - Choose exactly one workpack.

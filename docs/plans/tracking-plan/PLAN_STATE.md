@@ -28,6 +28,25 @@ notification, AI-provider, custody, platform, and portal-shell authority.
 - Phase 2 focused tests/Enforcer and Phase 3 proof regeneration were not run.
 - Workpack checkboxes below remain document/proof state, not this code result.
 
+## Production reachability pass (2026-08-16)
+
+- Branch: `codex/tracking-plan-code-pass` from the consolidated app/game-plan
+  audit baseline.
+- No production slice was accepted. The highest-unblock WP37 path is not
+  legally implementable in this lane because
+  `TrackingRuntimeEventFlow::new` and the parent check-in flow construct an
+  in-memory `EventBus`, while `ActivityStore::ingest_journal` consumes a
+  separate `ActivityEvent` journal path. No shipped owner currently maps the
+  tracking domain cascade into that journal, configures its durable key/path,
+  replays it on startup, and projects it idempotently.
+- WP34-WP36 are real typed/process-local Rust flows, not durable runtime
+  completion. WP38 remains notification intent only; WP39 remains a read-only
+  ActivityStore/portal surface that is not fed by the live tracking cascade.
+- The per-workpack reachability and caller/effect boundary is recorded in
+  [CODE_AUDIT.md](CODE_AUDIT.md). Historical checklist/proof state remains
+  non-authoritative; tests, proof, platform execution, provider delivery, and
+  runtime composition are deferred or manual-required as listed there.
+
 ## Current owners
 
 ```text

@@ -17,7 +17,12 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
 
 1. **WP37 durable journal replay/projection**: connect the existing WP35/WP36
    tracking event flows to durable append, restart replay, and idempotent SQLite
-   projection. This is the highest unblocker for honest runtime state and WP39.
+   projection. This remains the highest unblocker, but is currently blocked at
+   composition: `TrackingRuntimeEventFlow::new`/the parent check-in flow use an
+   in-memory `EventBus`, and `ActivityStore::ingest_journal` accepts separate
+   `ActivityEvent` journal lines. A future owner must provide the trusted
+   event mapping, durable journal key/path configuration, startup replay, and
+   projection wiring; do not add a dead constructor or synthetic adapter here.
 2. **WP38 then WP27 notification/escalation**: add the durable notification
    outbox/receipt boundary and escalation/quiet-hours/ack timer lifecycle.
 3. **WP22 then WP07 persistence/custody**: replace the in-memory place store and
@@ -36,7 +41,12 @@ Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test result and
 
 - `TrackingRuntimeEventFlow` owns a fresh in-memory `EventBus`; it does not
   append/replay a durable tracking journal.
-- The SQLite tracking read model is not fed by that live cascade.
+- The SQLite tracking read model is not fed by that live cascade; the existing
+  `agent-service` tracking report only reads the independently populated
+  `ActivityStore`.
+- No shipped tracking-event-to-`ActivityEvent` mapping or durable journal
+  composition owner exists, so WP37 is a dependency blocker rather than a
+  legal code-only slice in this pass.
 - No production Android/iOS tracking adapter exists.
 - No durable notification/escalation lifecycle exists.
 - No concrete POI or tracking AI provider execution route exists.

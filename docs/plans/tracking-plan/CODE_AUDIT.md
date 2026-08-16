@@ -14,6 +14,37 @@ Focused tests, Enforcer acceptance, physical-device proof, generated proof, CI,
 and merge state are later phases. Historical `output/` artifacts and checked
 Markdown boxes were not used as implementation evidence.
 
+## Production reachability pass (2026-08-16)
+
+This pass followed the shipped agent/child/parent entrypoints rather than
+counting mapped files as runtime completion. No production slice was accepted:
+the smallest honest WP37 change requires an existing composition owner for the
+tracking journal, event-to-`ActivityEvent` mapping, durable key/path
+configuration, startup replay, and idempotent projection. That owner is absent.
+
+| Workpacks | Reachable production path | Effect and remaining gap |
+| --- | --- | --- |
+| WP01-WP02 | Plan/source reconciliation only | Documentation scope; no product entrypoint or runtime effect. |
+| WP03-WP06 | `agent-protocol` contracts and `tracking-core` validation/status decisions | Typed inputs and fail-closed model decisions exist; no platform capture caller. |
+| WP07 | `agent-service` retention-settings write plus `tracking-core` transforms | Settings/value transformations only; no production cleanup/export worker or end-to-end custody path. |
+| WP08-WP13 | Neutral `tracking-core` location/status/geofence logic and portal manual/unsupported states | No Android/iOS/desktop acquisition or lifecycle caller; platform claims remain manual-required. |
+| WP14-WP19 | `tracking-core` geofence, schedule, acknowledgement, check-in, and provider-abstraction functions | Process-local decisions only; no durable runtime/provider owner. |
+| WP20 | `tracking-core` nearby-place abstraction/generated placeholder | No concrete POI/HTTP provider, credential boundary, or delivery caller. |
+| WP21 | `tracking-core` local taxonomy/ambiguity model | Value classification only; no provider-backed product effect. |
+| WP22 | `tracking-core::local_place_store::Store` | In-memory store; no durable parent-defined-place owner or reopen path. |
+| WP23-WP24 | `child-ai-core`/`tracking-core` evidence boundary and deterministic helper | Evidence/decision contracts only; no selected provider execution, retry, or receipt owner. |
+| WP25-WP26 | Policy compiler/evaluation and notification-intent conversion | Compile/evaluate/intent effects only; no delivery or enforcement authority. |
+| WP27-WP29 | Alerting, escalation/live-mode/missing-device decision functions | No durable timer/session/lifecycle owner or authority-controlled platform action. |
+| WP30-WP33 | Rust snapshots, portal presentation, coordination/proof routing | Presentation and proof routing do not create runtime capture, mutation, or delivery. |
+| WP34-WP36 | `parent-runtime-core`/`child-runtime` config and detection flows; `TrackingRuntimeEventFlow::new` creates `EventBus::new` | Typed process-local cascades and receipts exist; no durable tracking journal or store projection. |
+| WP37 | `child-runtime::tracking_runtime_flow` -> `tracking-core::read_model`; separate `agent-core::ActivityStore::ingest_journal` capture path | Blocked: no tracking-event serializer, configured journal owner, startup replay, or idempotent cascade-to-SQLite composition. |
+| WP38 | `child-runtime::tracking_runtime_flow::subscriptions` emits notification intent into in-memory state | Blocked: no durable outbox, provider receipt, quiet-hours/escalation timer, retry, dead-letter, or acknowledgement lifecycle. |
+| WP39 | `agent-service::build_activity_tracking_read_model_report` reads `ActivityStore`; portal renders the Rust-owned snapshot | Blocked: the live tracking cascade never feeds that store, so restart-safe event-to-portal reachability is absent. |
+
+The existing matrix below remains the detailed Phase 1 model/test audit. Its
+“Complete for Phase 1” rows must not be read as shipped capture, durability,
+provider delivery, or product readiness.
+
 ## Result
 
 - 42/42 workpacks have exact reviewed code/test topology in the engineering
