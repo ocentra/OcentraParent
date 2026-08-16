@@ -15429,7 +15429,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Production code drafted; expected tests, validation, and proof deferred",
+        "statusText": "Service composition and package code drafted; expected tests, validation, proof, and transport deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -15469,7 +15469,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Production code drafted; expected tests, validation, and proof deferred",
+        "statusText": "Composition/package code drafted; expected tests, validation, proof, and transport deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15480,7 +15480,7 @@
           "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package",
           "checklist: reviewed evidence is not recorded"
         ],
-        "sourceStatusText": "complete"
+        "sourceStatusText": "code drafted / test-deferred"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15517,7 +15517,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Production code drafted; expected tests, validation, and proof deferred",
+        "statusText": "Composition/package code drafted; expected tests, validation, proof, and transport deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15528,7 +15528,7 @@
           "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package",
           "checklist: reviewed evidence is not recorded"
         ],
-        "sourceStatusText": "complete"
+        "sourceStatusText": "code drafted / test-deferred"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15672,7 +15672,7 @@
           "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn",
           "checklist: reviewed evidence is not recorded"
         ],
-        "sourceStatusText": "complete"
+        "sourceStatusText": "code drafted / test-deferred"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

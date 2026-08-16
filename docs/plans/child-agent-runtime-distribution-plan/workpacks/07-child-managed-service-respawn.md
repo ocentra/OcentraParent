@@ -13,7 +13,7 @@ Purpose: define managed respawn and restart-survival behavior for the supported 
 
 Status: production manager configuration drafted; tests, validation, and proof deferred.
 
-The Windows, macOS, and Linux manager declarations now target the child-agent package identity. This pass does not claim managed respawn until the later platform lifecycle validation phase.
+The Windows, macOS, and Linux manager declarations now target the child composition package identity. This pass does not claim managed respawn or live-agent readiness until the later platform lifecycle validation and transport phases.
 
 Deferred proof boundary:
 

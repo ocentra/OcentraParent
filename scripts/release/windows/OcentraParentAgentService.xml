@@ -4,6 +4,7 @@
   <description>Headless local child agent for Ocentra Parent.</description>
   <workingdirectory>%BASE%</workingdirectory>
   <executable>%BASE%\ocentra-child-agent-service.exe</executable>
+  <env name="OCENTRA_CHILD_AGENT_DATA_DIR" value="%ProgramData%\Ocentra\Ocentra Child Agent" />
   <env name="OCENTRA_PARENT_AGENT_ADDR" value="127.0.0.1:4477" />
   <env name="OCENTRA_PARENT_AGENT_ALLOWED_ORIGINS" value="http://127.0.0.1:4478,http://localhost:4478" />
   <startmode>Automatic</startmode>

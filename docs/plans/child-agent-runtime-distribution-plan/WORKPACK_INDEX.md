@@ -19,7 +19,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
 | complete | [WP01 Child Agent Scope And Route Boundary](workpacks/01-child-agent-scope-and-route-boundary.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/` |
-| code drafted / test-deferred | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | production code drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` |
+| code drafted / test-deferred | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | service composition/package code drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` |
 | code drafted / test-deferred | [WP03 Child macOS Service Package](workpacks/03-child-macos-service-package.md) | production code drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` |
 | code drafted / test-deferred | [WP04 Child Linux Service Package](workpacks/04-child-linux-service-package.md) | production code drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/` |
 | complete | [WP05 Child Android Agent Package](workpacks/05-child-android-agent-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/` |

@@ -9,7 +9,7 @@ use std::sync::atomic::AtomicU64;
 use serde::{Deserialize, Serialize};
 use tokio::sync::Semaphore;
 
-use crate::{JournalDispatchPhase, JournalHash, StoredEventEnvelope};
+use crate::{ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{JournalAppend, SharedEventJournal};
 
@@ -95,6 +95,18 @@ impl NdjsonEventJournal {
 
     pub fn shared(self) -> SharedEventJournal {
         Arc::new(self)
+    }
+
+    /// Validates and loads the durable journal state before a service reports
+    /// readiness. Corrupt or non-retryable journal state is returned to the
+    /// owning service instead of being hidden behind a later append.
+    pub async fn recover(&self) -> Result<(), crate::EventingError> {
+        let _append_permit = Arc::clone(&self.append_gate)
+            .acquire_owned()
+            .await
+            .expect_value("journal append gate remains open");
+        let _append_file_lock = self.acquire_append_file_lock().await?;
+        self.prepare_append_state().await
     }
 
     #[cfg(debug_assertions)]

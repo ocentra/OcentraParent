@@ -10,6 +10,7 @@ Restart=always
 RestartSec=10
 User=root
 WorkingDirectory=/var/lib/ocentra/ocentra-child-agent
+Environment=OCENTRA_CHILD_AGENT_DATA_DIR=/var/lib/ocentra/ocentra-child-agent
 Environment=OCENTRA_PARENT_AGENT_ADDR=127.0.0.1:4477
 
 [Install]

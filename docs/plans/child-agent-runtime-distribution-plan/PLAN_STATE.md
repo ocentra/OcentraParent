@@ -1,6 +1,6 @@
 # Child Agent Runtime Distribution Plan State
 
-Status: production code drafted for the child executable boundary and WP02/WP03/WP04 desktop package retargeting; tests, validation, and proof are intentionally deferred to the later global phase. WP05 remains a separate Android runtime gap, WP06 remains capability-only, WP08 remains contract-only, WP09 remains matrix/release alignment, WP10 remains a typed handoff, and WP11 remains proof-gate work.
+Status: production code drafted for the child service composition boundary, durable startup recovery, typed readiness, bounded observed-event ingress, and WP02/WP03/WP04 desktop package retargeting; tests, validation, and proof are intentionally deferred to the later global phase. Transport remains an explicit downstream gap. WP05 remains a separate Android runtime gap, WP06 remains capability-only, WP08 remains contract-only, WP09 remains matrix/release alignment, WP10 remains a typed handoff, and WP11 remains proof-gate work.
 
 Global phase boundary: this pass changes production/core code only. No tests, proof artifacts, Enforcer validation scans/checks, precommit, CI, or PR claims are made from this lane.
 
@@ -72,9 +72,10 @@ Evidence from the repo:
 
 Current child direction:
 
-- Windows production package code now targets the child executable and child service identity; MSI lifecycle, elevated-host execution, and respawn proof remain deferred.
-- macOS production package code now targets the child executable and child launchd identity; signing, install/runtime, and restart proof remain deferred.
-- Linux production package code now targets the child executable, child `.deb` identity, and child systemd paths; package lifecycle, distro, service-health, and crash-recovery proof remain deferred.
+- The child runtime now owns a durable composition service with explicit journal/tombstone paths, startup recovery, typed readiness, and a bounded observed-event ingress API; network transport is not implemented here.
+- Windows production package code now targets the child composition executable and child service identity; MSI lifecycle, elevated-host execution, and respawn proof remain deferred.
+- macOS production package code now targets the child composition executable and child launchd identity; signing, install/runtime, and restart proof remain deferred.
+- Linux production package code now targets the child composition executable, child `.deb` identity, and child systemd paths; package lifecycle, distro, service-health, and crash-recovery proof remain deferred.
 - Android rows now prove package state, explicit `debug-apk-sideload` mode, and manual-required install/launch/removal plus device-owner/managed-profile gaps honestly; real device/runtime/store artifacts remain open.
 - WP09 now has a real Rust-owned shared contract under `crates/schema/src/child_signing_store_device_owner_matrix.rs`, a checked-in generated TS contract under `packages/schema-domain/src/generated/child-signing-store-device-owner-matrix-contracts.ts`, and a thin schema-domain adapter/proof pack under `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/`.
 - WP06 now has a real Rust-owned shared contract under `crates/schema/src/child_ios_entitlement_capability_proof.rs`, a checked-in generated TS contract under `packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts`, a thin schema-domain adapter at `packages/schema-domain/src/child-ios-entitlement-capability-proof.ts`, and a real proof pack under `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/`; its focused Rust contract/build/proof/runner/architecture/type-check validations are now green while keeping capability-only, provisioning-limit, supervision-limit, and no-daemon/no-parity boundaries explicit.

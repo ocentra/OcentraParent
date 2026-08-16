@@ -37,7 +37,7 @@ Purpose: define the child macOS package, launchd lifecycle, notarization, and un
 
 Rust/shared owner truth remains upstream. This packet uses `schema-domain` only as a temporary thin/generated edge proof contract surface for the child macOS package boundary.
 
-Production code is drafted in this pass: the macOS package builder and launchd manifest now target the child-agent executable and child package identity. Tests, validation, and proof are deferred; the proof-root and proof-runner references do not establish completion in this phase.
+Production code is drafted in this pass: the macOS package builder and launchd manifest now target the child composition executable and child package identity. The executable exposes a service composition/ingress API, not a network transport. Tests, validation, and proof are deferred; the proof-root and proof-runner references do not establish completion in this phase.
 
 ## Intended source states (unvalidated)
 

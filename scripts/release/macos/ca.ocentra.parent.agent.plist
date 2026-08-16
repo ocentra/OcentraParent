@@ -18,6 +18,8 @@
     <string>/Library/Logs/OcentraChildAgent.err.log</string>
     <key>EnvironmentVariables</key>
     <dict>
+      <key>OCENTRA_CHILD_AGENT_DATA_DIR</key>
+      <string>/Library/Application Support/Ocentra/Ocentra Child Agent</string>
       <key>OCENTRA_PARENT_AGENT_ADDRESS</key>
       <string>127.0.0.1:4477</string>
     </dict>
