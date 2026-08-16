@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **162** have current production source plus expected checked-in tests for their
+- **163** have current production source plus expected checked-in tests for their
   bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **39** retain a concrete production-code or expected-test gap.
+  packets; **38** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -90,7 +90,7 @@ packages/schema-domain:
 - Scoped owned-process time-limit dispatch, parent preference request
   persistence/outbox, adapter readiness/dispatch, platform status, receipt,
   parent-runtime, and portal surfaces are present with bounded tests.
-- These do not erase the 39 Phase 1 gaps or claim cross-platform/provider/child
+- These do not erase the 38 Phase 1 gaps or claim cross-platform/provider/child
   delivery and physical proof.
 
 ## Historical gap narrative
@@ -114,6 +114,7 @@ Phase 1 authority where they conflict with `CODE_AUDIT.md`.
 - The child UX local-outbox bridge now validates those controlled-token notices against timer child-UX artifact refs, converts deliverable states to the canonical notification-outbox record, blocks manual/unavailable states, and persists atomically with restart/idempotency/conflict tests. Service composition, scheduler/provider/receipt delivery, child rendering, and parent notification UI remain open.
 - The child UX scheduler bridge now maps reopened honest local-outbox rows into the shared Rust `due-local` record, preserves source/scheduler/evidence refs, blocks non-queued states, fails closed on unsafe claims, and persists conservative proof rows atomically with restart/idempotency/conflict tests. Production scheduling, retry/quiet-hours execution, provider/preference preflight, receipts, service composition, and UI remain open.
 - The child UX provider preflight now accepts only persisted identity-bound `due-local` scheduler rows, preserves scheduler/outbox/evidence/policy/audit refs, generates distinct adapter/credential/smoke-proof requirements, and keeps manual/dead-letter or unsafe rows blocked. Provider execution, credential custody, receipts, retry/quiet-hours runtime, cloud routing, service composition, and UI remain open.
+- The child UX provider-status handoff now maps those honest preflight rows into canonical identity-bound V0.8 manual-required or unavailable entries, preserves readiness/manual-proof/preference/audit refs, and rejects claimed or incomplete inputs. It does not claim provider execution, receipts, credentials, retry/quiet-hours runtime, cloud routing, parent UI, or child delivery.
 
 ## Current proof interpretation
 
@@ -158,7 +159,7 @@ Checked generated handoff rows do not override the selected workpack proof root 
 - The six app/game capability, schema, and settings guides are reviewed
   no-code reference/control-routing packets. They do not claim product
   implementation or proof completion.
-- Thirty-nine implementation/test-writing gaps remain; select them through
+- Thirty-eight implementation/test-writing gaps remain; select them through
   `CODE_AUDIT.md` and `WORKPACK_INDEX.md`.
 
 ## Default no-read list

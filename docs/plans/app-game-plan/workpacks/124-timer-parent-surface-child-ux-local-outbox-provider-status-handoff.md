@@ -22,8 +22,8 @@ boundary rows without claiming delivery.
 
 ## Scope
 
-- Add a parent-domain bridge from WP123 child UX provider-preflight rows to the
-  existing V0.8 notification provider-status boundary.
+- Add a Rust-owned App/Game bridge from WP123 child UX provider-preflight rows
+  to the existing V0.8 notification provider-status boundary.
 - Convert provider-adapter-required and manual-required preflight rows into
   manual-required provider-status entries.
 - Convert unavailable preflight rows into unavailable provider-status entries.
@@ -56,18 +56,19 @@ boundary rows without claiming delivery.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1/2 Complete; Phase 3 Open
 
-The 2026-08-15 live-code audit invalidated the historical `parent-domain`
-completion claim. The tracked Rust tree contains the canonical V0.8 notification
-provider-status boundary and WP123 now owns App/Game child-UX provider-preflight
-rows, but no current Rust bridge binds those two contracts. The existing
-App/Game parent-surface status types are fixture/read-model inputs, not a producer
-from WP123.
+Commit `dc99eb608` adds the Rust-owned provider-status handoff in
+`ocentra-app-game-core`. It maps honest WP123 provider-adapter-required rows to
+identity-bound V0.8 manual-required entries and unavailable rows to V0.8
+unavailable entries. The handoff preserves scheduler, outbox, provider-channel,
+readiness, manual-proof, preference, policy, evidence, and audit references while
+keeping provider receipts empty and every delivery/runtime/credential/UI/child/
+adapter/enforcement claim false.
 
-This workpack is active for a bounded Rust handoff in `ocentra-app-game-core`.
-Provider-adapter-required and manual-required preflight rows must become honest
-V0.8 manual-required entries; unavailable rows must become unavailable entries.
-The bridge must preserve scheduler/outbox/channel/readiness/manual-proof/audit
-refs and keep provider delivery, receipts, credentials, sensitive payloads,
-cloud routing, UI, child delivery, adapter dispatch, and enforcement unclaimed.
+Three contract cases cover manual-required mapping, unavailable mapping, and
+fail-closed claimed/missing-context inputs. The complete App/Game contract suite
+(92 tests), unit suite (10 tests), crate Clippy, focused Enforcer checks,
+formatting, diff hygiene, hub guard, and pre-commit passed. Provider execution,
+receipts, credentials, production retry and quiet-hours workers, parent UI,
+child delivery, retained Phase 3 proof, and whole-plan gates remain open.

@@ -6895,6 +6895,8 @@
     "WP-app-game-plan-124-timer-parent-surface-child-ux-local-outbox-provider-status-handoff": {
       "planSlug": "app-game-plan",
       "roots": [
+        "crates/app-game-core/src/app_game_child_ux_provider_status.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_status_types.rs",
         "crates/app-game-core/src/app_game_child_ux_provider_preflight.rs",
         "crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs",
         "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs",
