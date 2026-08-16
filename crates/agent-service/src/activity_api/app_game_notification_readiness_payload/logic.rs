@@ -2,8 +2,9 @@ use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
 use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_CONTROL_ACTION_STATUS_ENFORCED;
 use ocentra_parent_agent_protocol::app_game_notification_parent_surface_intent::{
-    AppGameNotificationFamilyReference, AppGameNotificationParentSurfaceIntentReadModel,
-    AppGameNotificationParentSurfaceIntentRow, AppGameNotificationPreferenceStatusHandoffReadModel,
+    AppGameNotificationFamilyReference, AppGameNotificationParentSurfaceIntentOptions,
+    AppGameNotificationParentSurfaceIntentReadModel,
+    AppGameNotificationPreferenceStatusHandoffReadModel,
     AppGameNotificationPreferenceStatusHandoffRow,
     AppGameNotificationProviderStatusBoundaryEntry as ParentSurfaceProviderStatusEntry,
     AppGameNotificationProviderStatusHandoffReadModel, AppGameNotificationProviderStatusHandoffRow,
@@ -176,7 +177,7 @@ fn notification_parent_surface_intent_read_model(
             })
             .collect(),
     };
-    let preference_handoff = AppGameNotificationPreferenceStatusHandoffReadModel {
+    let mut preference_handoff = AppGameNotificationPreferenceStatusHandoffReadModel {
         handoff_id: preference_read_model.read_model_id.clone(),
         family,
         rows: preference_read_model
@@ -195,7 +196,8 @@ fn notification_parent_surface_intent_read_model(
     {
         return None;
     }
-    let mut rows = Vec::with_capacity(provider_handoff.rows.len());
+    let mut readiness_refs = HashSet::with_capacity(provider_handoff.rows.len());
+    let mut ordered_preference_rows = Vec::with_capacity(provider_handoff.rows.len());
     for provider_row in &provider_handoff.rows {
         let Some(readiness_ref) = provider_read_model
             .entries
@@ -205,131 +207,32 @@ fn notification_parent_surface_intent_read_model(
         else {
             return None;
         };
+        if !readiness_refs.insert(readiness_ref.clone()) {
+            return None;
+        }
         let Some(preference_row) = preference_handoff.rows.iter().find(|row| {
             row.handoff_row_id == format!("app-game-preference-status-entry:{readiness_ref}")
         }) else {
             return None;
         };
-        rows.push(notification_parent_surface_intent_row(
-            provider_row,
-            preference_row,
-        ));
+        ordered_preference_rows.push(preference_row.clone());
     }
-    let manual_action_required_count = count_parent_surface_rows(&rows, "manual-action-required");
-    let unavailable_visible_count = count_parent_surface_rows(&rows, "unavailable-visible");
-    let preference_setup_required_count =
-        count_parent_surface_rows(&rows, "preference-setup-required");
-    Some(AppGameNotificationParentSurfaceIntentReadModel {
-        schema_version: "v0.6".to_string(),
-        intent_id: format!("app-game-parent-surface:{generated_at}"),
+    preference_handoff.rows = ordered_preference_rows;
+    let options = AppGameNotificationParentSurfaceIntentOptions {
         generated_at: generated_at.to_string(),
-        family: provider_handoff.family.clone(),
-        source_provider_status_handoff_id: provider_handoff.handoff_id.clone(),
-        source_preference_status_handoff_id: preference_handoff.handoff_id.clone(),
+        intent_id: format!("app-game-parent-surface:{generated_at}"),
         source_contract_refs: vec![
             provider_read_model.read_model_id.clone(),
             preference_read_model.read_model_id.clone(),
         ],
-        history_visible_count: rows.len(),
-        rows,
-        manual_action_required_count,
-        unavailable_visible_count,
-        preference_setup_required_count,
-        parent_surface_non_claims: vec![
-            "no-parent-notification-preference-mutation".to_string(),
-            "no-provider-delivery-execution".to_string(),
-            "no-provider-receipt-ingestion".to_string(),
-            "no-provider-credentials".to_string(),
-            "no-cloud-routing".to_string(),
-            "no-child-delivery".to_string(),
-            "no-production-runtime".to_string(),
-            "no-production-durable-outbox-storage".to_string(),
-            "no-adapter-dispatch".to_string(),
-        ],
-        parent_notification_ui_rendered: false,
-        parent_preference_ui_rendered: false,
-        parent_frequency_control_ui_rendered: false,
-        provider_delivery_runtime_claimed: false,
-        provider_receipt_ingestion_claimed: false,
-        provider_credentials_claimed: false,
-        cloud_routing_claimed: false,
-        child_delivery_claimed: false,
-        production_runtime_claimed: false,
-        production_durable_outbox_storage_claimed: false,
-        adapter_dispatch_claimed: false,
-    })
-}
-
-fn notification_parent_surface_intent_row(
-    provider_row: &AppGameNotificationProviderStatusHandoffRow,
-    preference_row: &AppGameNotificationPreferenceStatusHandoffRow,
-) -> AppGameNotificationParentSurfaceIntentRow {
-    let provider_entry = &provider_row.provider_status_boundary_entry;
-    let preference_entry = &preference_row.notification_preference_status_entry;
-    let unavailable = provider_entry.provider_status == "unavailable";
-    let mut audit_refs = provider_entry.audit_refs.clone();
-    audit_refs.extend(preference_entry.audit_refs.iter().cloned());
-    let mut manual_proof_requirements = provider_entry.manual_proof_requirements.clone();
-    manual_proof_requirements.extend(preference_entry.manual_proof_requirements.iter().cloned());
-    AppGameNotificationParentSurfaceIntentRow {
-        surface_row_id: format!(
-            "app-game-notification-parent-surface:{}",
-            provider_row.handoff_row_id
-        ),
-        source_provider_handoff_row_id: provider_row.handoff_row_id.clone(),
-        source_preference_handoff_row_id: preference_row.handoff_row_id.clone(),
-        source_scheduler_entry_ref: provider_row
-            .source_scheduler_entry_ref
-            .clone()
-            .or_else(|| preference_row.source_scheduler_entry_ref.clone()),
-        source_outbox_record_ref: provider_row
-            .source_outbox_record_ref
-            .clone()
-            .or_else(|| preference_row.source_outbox_record_ref.clone()),
-        provider_status: provider_entry.provider_status.clone(),
-        delivery_result_state: preference_entry.delivery_result_state.clone(),
-        parent_preference_state: preference_entry.parent_preference_state.clone(),
-        quiet_hours_decision: preference_entry.quiet_hours_decision.clone(),
-        provider_channel: preference_entry.provider_channel.clone(),
-        parent_surface_status: if unavailable {
-            "unavailable-visible".to_string()
-        } else {
-            "manual-action-required".to_string()
-        },
-        history_visibility: if unavailable {
-            "unavailable-row-visible".to_string()
-        } else {
-            "manual-review-only".to_string()
-        },
-        preference_visibility: if unavailable {
-            "preference-unavailable-visible".to_string()
-        } else {
-            "preference-setup-required".to_string()
-        },
-        drill_in_refs: vec![
-            provider_entry.notification_status_ref.clone(),
-            preference_entry.delivery_result_ref.clone(),
-        ],
-        audit_refs,
-        manual_proof_requirements,
-        minimal_surface_payload_boundary:
-            "Parent surface intent contains status refs and setup requirements only; sensitive app/game evidence stays behind authenticated drill-in."
-                .to_string(),
-        sensitive_detail_included: false,
-        provider_delivery_claimed: false,
-        provider_receipt_claimed: false,
-        parent_preference_mutation_claimed: false,
-        child_delivery_claimed: false,
-    }
-}
-
-fn count_parent_surface_rows(
-    rows: &[AppGameNotificationParentSurfaceIntentRow],
-    status: &str,
-) -> usize {
-    rows.iter()
-        .filter(|row| row.parent_surface_status == status || row.preference_visibility == status)
-        .count()
+    };
+    ocentra_app_game_core::app_game_notification_parent_surface_intent::
+        build_app_game_notification_parent_surface_intent_read_model(
+            &options,
+            &provider_handoff,
+            &preference_handoff,
+        )
+        .ok()
 }
 
 fn provider_status_label(status: V08NotificationProviderStatus) -> String {
