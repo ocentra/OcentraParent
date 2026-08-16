@@ -29,7 +29,6 @@ pub mod packet;
 pub mod parser_policy;
 pub mod pcap;
 pub mod performance;
-pub mod pipeline;
 pub mod platform_claims;
 pub mod policy;
 pub mod process;

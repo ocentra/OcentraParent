@@ -108,7 +108,6 @@ mod network_flow_digest_rollups;
 mod network_linux_nftables_lab_status_bridge;
 mod network_live_capture_execution_bridge;
 mod network_live_capture_readiness_bridge;
-mod network_product_path_bridge;
 mod network_remote_delivery_status_cross_process;
 mod network_remote_delivery_status_payload;
 mod network_runtime_delivery;
