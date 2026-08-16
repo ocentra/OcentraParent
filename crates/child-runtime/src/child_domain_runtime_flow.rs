@@ -48,22 +48,22 @@ pub struct ChildDomainRuntimeEventFlow {
 }
 
 impl ChildDomainRuntimeEventFlow {
-    pub async fn for_event(event: &ChildDomainObservedEvent) -> Result<Self, EventingError> {
+    pub async fn for_domain(domain: ChildRuntimeDomain) -> Result<Self, EventingError> {
         let bus = EventBus::new();
         let state = ChildDomainRuntimeFlowState::default();
         let observer_subscription_report =
-            subscribe_child_domain_observer(&bus, event, state.clone()).await?;
-        let ai_subscription_report = subscribe_child_domain_ai(&bus, event, state.clone()).await?;
+            subscribe_child_domain_observer(&bus, domain, state.clone()).await?;
+        let ai_subscription_report = subscribe_child_domain_ai(&bus, domain, state.clone()).await?;
         let ai_policy_subscription_report =
             subscribe_child_domain_ai_policy_bridge(&bus, state.clone()).await?;
         let policy_subscription_report =
-            subscribe_child_domain_policy(&bus, event, state.clone()).await?;
+            subscribe_child_domain_policy(&bus, domain, state.clone()).await?;
         let notification_subscription_report =
             subscribe_child_domain_notification(&bus, state.clone()).await?;
 
         Ok(Self {
             bus,
-            domain: event.domain,
+            domain,
             observer_subscription_report,
             ai_subscription_report,
             ai_policy_subscription_report,
@@ -71,6 +71,14 @@ impl ChildDomainRuntimeEventFlow {
             notification_subscription_report,
             state,
         })
+    }
+
+    pub async fn for_event(event: &ChildDomainObservedEvent) -> Result<Self, EventingError> {
+        Self::for_domain(event.domain).await
+    }
+
+    pub fn domain(&self) -> ChildRuntimeDomain {
+        self.domain
     }
 
     pub async fn publish_observed(

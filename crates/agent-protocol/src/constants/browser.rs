@@ -152,6 +152,8 @@ pub const TEST_BROWSER_RUNTIME_POLICY_DECISION_REF: &str = "browser-policy-decis
 pub const TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID: &str = "browser-policy-preview-test";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_ID: &str = "browser-action-intent-test";
 pub const ACTION_INTENT_ID_PREFIX: &str = "browser-action-intent-";
+pub const ACTION_INTENT_OUTBOX_REF_PREFIX: &str = "browser-action-intent-outbox-";
+pub const ACTION_INTENT_HANDOFF_REF_PREFIX: &str = "browser-action-intent-handoff-";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF: &str = "browser-action-intent-outbox-test";
 pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF: &str =
     "browser-action-intent-handoff-test";
@@ -321,6 +323,8 @@ pub const INVENTORY_RUNNING_STATE_RUNNING_UNKNOWN: &str = "running-unknown";
 pub const INVENTORY_RUNNING_STATE_UNKNOWN: &str = "unknown";
 pub const INVENTORY_REASON_MANAGED_TARGET_LIST_ACTIVE_TAB_UNPROVED: &str =
     "managed-target-list-active-tab-unproved";
+pub const INVENTORY_REASON_CROSS_PLATFORM_MANUAL_REQUIRED: &str =
+    "cross-platform-browser-manual-required";
 pub const INVENTORY_REASON_UNMANAGED_BROWSER_PROCESS_ONLY: &str = "unmanaged-browser-process-only";
 pub const INVENTORY_REASON_WINDOWS_BROWSER_PROCESS_UNSUPPORTED: &str =
     "windows-browser-process-unsupported";
@@ -335,6 +339,7 @@ pub const INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER: &str =
 pub const INVENTORY_ROW_ID_EDGE_STABLE: &str = "browser-inventory-edge-stable";
 pub const INVENTORY_ROW_ID_MANAGED_CHROME: &str = "browser-inventory-chrome-managed";
 pub const INVENTORY_ROW_ID_PREFIX_WINDOWS: &str = "browser-inventory-windows";
+pub const INVENTORY_ROW_ID_PREFIX_PLATFORM: &str = "browser-inventory-platform";
 pub const INVENTORY_ROW_ID_UNKNOWN_BROWSER: &str = "browser-inventory-unknown-browser";
 pub const INVENTORY_ROW_ID_UNMANAGED_CHROME: &str = "browser-inventory-chrome-unmanaged";
 pub const MANAGEMENT_TIER_MANAGED: &str = "managed";
@@ -412,6 +417,7 @@ pub const PRODUCT_NAME_MICROSOFT_EDGE: &str = "Microsoft Edge";
 pub const PRODUCT_NAME_MOZILLA_FIREFOX: &str = "Mozilla Firefox";
 pub const PRODUCT_NAME_OPERA_BROWSER: &str = "Opera Browser";
 pub const PRODUCT_NAME_OPERA_GX_BROWSER: &str = "Opera GX Browser";
+pub const PRODUCT_NAME_SAFARI_BROWSER: &str = "Safari";
 pub const PRODUCT_NAME_TOR_BROWSER: &str = "Tor Browser";
 pub const PRODUCT_NAME_VIVALDI_BROWSER: &str = "Vivaldi Browser";
 pub const PROFILE_ID_DEV: &str = "managed-browser-profile-dev";
@@ -612,6 +618,8 @@ pub const EXECUTABLE_TOR_WINDOWS: &str = "tor.exe";
 pub const EXECUTABLE_VIVALDI_WINDOWS: &str = "vivaldi.exe";
 pub const INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED: &str =
     "windows-browser-executable-redacted";
+pub const INVENTORY_EXECUTABLE_PATH_REF_PLATFORM_REDACTED: &str =
+    "platform-browser-executable-redacted";
 pub const INVENTORY_FILE_HASH_REF_WINDOWS_REDACTED: &str = "windows-browser-file-hash-redacted";
 pub const INVENTORY_PUBLISHER_SIGNATURE_REF_WINDOWS_REDACTED: &str =
     "windows-browser-publisher-signature-redacted";

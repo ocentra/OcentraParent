@@ -17,6 +17,7 @@ pub enum ActivityCaptureError {
     Io,
     InvalidKeyLength,
     AppGameRuntime,
+    ScreenAiEventRuntime,
 }
 
 impl ActivityCaptureError {
@@ -41,6 +42,10 @@ impl ActivityCaptureError {
             (
                 ActivityCaptureError::AppGameRuntime,
                 constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
+            ),
+            (
+                ActivityCaptureError::ScreenAiEventRuntime,
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS,
             ),
         ];
 

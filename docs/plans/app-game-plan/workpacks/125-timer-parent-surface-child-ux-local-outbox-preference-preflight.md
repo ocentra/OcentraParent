@@ -22,8 +22,8 @@ preference and quiet-hours preflight rows without claiming UI or delivery.
 
 ## Scope
 
-- Add a parent-domain bridge from WP122 child UX local outbox scheduler rows to
-  child UX parent preference preflight rows.
+- Add a Rust-owned App/Game bridge from WP122 child UX local outbox scheduler
+  rows to child UX parent preference preflight rows.
 - Convert scheduled child UX rows into parent-preference-required rows with
   parent preference, notification frequency, and quiet-hours setup refs.
 - Keep manual-required and unavailable scheduler rows blocked before preference
@@ -52,7 +52,27 @@ preference and quiet-hours preflight rows without claiming UI or delivery.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX preference preflight.
+- Rust App/Game crate build and Clippy.
+- Focused Rust tests for ready, blocked, and malformed child UX preference
+  preflight rows.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1/2 Complete; Phase 3 Open
+
+Commit `e550e55c2` adds the Rust-owned preference-preflight projection in
+`ocentra-app-game-core`. Honest persisted `due-local` scheduler rows become
+parent-preference-required rows with distinct parent preference, notification
+frequency, and quiet-hours requirements. Manual and dead-letter scheduler rows
+remain explicitly manual-required or unavailable without exposing provider or
+outbox identity as ready input.
+
+The projection preserves scheduler, outbox, provider-channel, reason, severity,
+evidence, policy, and audit references and keeps preference mutation,
+frequency-control UI, quiet-hours runtime, provider delivery/receipts/
+credentials, cloud routing, parent UI, child delivery, adapter dispatch, and
+enforcement unclaimed. Two focused contract tests cover ready/manual/unavailable
+routing plus unpersisted, mismatched, claimed, and duplicate-requirement failures.
+The complete App/Game contract suite (94 tests), unit suite (10 tests), crate
+Clippy, seven focused Enforcer checks, formatting, diff hygiene, hub guard, and
+pre-commit passed. Retained Phase 3 proof and whole-plan gates remain open.

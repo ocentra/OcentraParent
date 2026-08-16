@@ -568,6 +568,7 @@ pub mod notification {
 
     text_identifier!(NotificationLocalOutboxReadModelId);
     text_identifier!(NotificationLocalOutboxEntryId);
+    text_identifier!(NotificationLocalOutboxSchedulerEntryId);
     text_identifier!(NotificationLocalOutboxReference);
     text_identifier!(NotificationLocalOutboxPayloadPreview);
 
@@ -683,6 +684,74 @@ pub mod notification {
         pub cloud_routing_claimed: bool,
         pub parent_notification_ui_claimed: bool,
         pub sensitive_provider_metadata_stored: bool,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+    #[serde(rename_all = "kebab-case")]
+    pub enum NotificationLocalOutboxSchedulerState {
+        DueLocal,
+        HeldQuietHours,
+        RetryWindowScheduled,
+        DeadLetterReview,
+        ReceiptRequired,
+        ManualRequired,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NotificationLocalOutboxQuietHoursWindow {
+        pub quiet_hours_window_ref: NotificationLocalOutboxReference,
+        pub starts_at: ParentTimestamp,
+        pub ends_at: ParentTimestamp,
+        pub hold_reason_ref: NotificationLocalOutboxReference,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NotificationLocalOutboxRetryWindow {
+        pub retry_window_ref: NotificationLocalOutboxReference,
+        pub opens_at: ParentTimestamp,
+        pub closes_at: ParentTimestamp,
+        pub attempt_number: u64,
+        pub max_attempts: u64,
+    }
+
+    #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    pub struct NotificationLocalOutboxSchedulerRecord {
+        pub scheduler_entry_id: NotificationLocalOutboxSchedulerEntryId,
+        pub source_entry_id: NotificationLocalOutboxEntryId,
+        pub source_state: NotificationLocalOutboxState,
+        pub scheduler_state: NotificationLocalOutboxSchedulerState,
+        pub reason_code: V3NotificationRuleReasonCode,
+        pub provider_channel: V3NotificationProviderChannel,
+        pub severity: NotificationLocalOutboxSeverity,
+        pub scheduler_decision_ref: NotificationLocalOutboxReference,
+        pub scheduler_artifact_ref: NotificationLocalOutboxReference,
+        pub source_outbox_file_ref: NotificationLocalOutboxReference,
+        pub local_data_path_ref: NotificationLocalOutboxReference,
+        pub scheduler_now_at: ParentTimestamp,
+        pub next_attempt_at: Option<ParentTimestamp>,
+        pub quiet_hours_window: Option<NotificationLocalOutboxQuietHoursWindow>,
+        pub retry_window: Option<NotificationLocalOutboxRetryWindow>,
+        pub dead_letter_review_ref: Option<NotificationLocalOutboxReference>,
+        pub provider_receipt_ref: Option<NotificationLocalOutboxReference>,
+        pub manual_proof_requirements: Vec<NotificationLocalOutboxReference>,
+        pub manual_action_required: bool,
+        pub parent_owned_artifact_written: bool,
+        pub raw_child_evidence_included: bool,
+        pub raw_url_or_title_included: bool,
+        pub raw_message_text_included: bool,
+        pub screenshot_or_report_included: bool,
+        pub provider_delivery_attempted: bool,
+        pub provider_delivery_observed: bool,
+        pub provider_receipt_ingested: bool,
+        pub provider_credentials_stored: bool,
+        pub cloud_routing_claimed: bool,
+        pub parent_notification_ui_claimed: bool,
+        pub production_durable_outbox_storage_claimed: bool,
+        pub sensitive_provider_metadata_stored: bool,
+        pub scheduler_payload_preview: NotificationLocalOutboxPayloadPreview,
     }
 
     #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -74,6 +74,7 @@ Evidence from the repo:
 - The hosted parent web portal route now has real build, route, auth, cache, and preview/staging/production separation proof under `output/parent-client-runtime-distribution-plan-proof/02-parent-web-portal-distribution/` without upgrading preview/build presence into production readiness.
 - The parent local-service route bridge now has Rust-owned contract and runtime proof under `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/`, including canonical `ParentRouteSnapshot` shape checks plus explicit unavailable/timeout/local-target boundary coverage for Devices-route local-service state.
 - The parent launch smoke matrix now has focused proof under `output/parent-client-runtime-distribution-plan-proof/09-parent-client-launch-smoke-matrix/`, with web blocked, desktop manual-required, and Android/iOS blocked rows recorded as smoke-only state instead of readiness.
+- The desktop production health path now uses the configured local agent's typed `AgentHealthCheck` / `AgentHealthReported` WebSocket response. Readiness requires the command correlation, protocol schema, expected service/portal peers, `online=true`, and `transport=websocket`; the reported timeout is sourced from the same core health-command timeout. Raw TCP listener acceptance is no longer treated as runtime readiness. This phase does not rerun or promote validation/proof.
 
 Current parent direction:
 
@@ -86,6 +87,25 @@ Current parent direction:
 - Parent iOS package remains manual-required until simulator/device and store proof exists.
 - Parent client route bridge contracts must be separate from setup journey and child runtime claims.
 - Child agent runtime/package distribution belongs to `child-agent-runtime-distribution-plan`; this plan may only reference its handoff boundary.
+
+## Production-code reachability audit (2026-08-16)
+
+This table records source reachability and ownership only. It does not promote
+graph, proof, test, CI, package, store, or release status.
+
+| Workpack | Shipped production path | Code state and exact blocker | Slice decision |
+| --- | --- | --- | --- |
+| WP01 scope/route | Documentation route only; no runtime entrypoint | No production code is required. Scope separation remains the blocker for adjacent owners, not a missing desktop caller. | No code; audit recorded here. |
+| WP02 web portal | `apps/portal/src/main.ts` -> hosted portal distribution surface | Web distribution/projection code is reachable in the web target. Publishing, account backend/runtime, setup, and child authority are outside this plan. | No code; external ownership. |
+| WP03 desktop shell | `apps/parent-desktop/src-tauri/src/main.rs` -> `lib::run` -> Tauri commands | Shell is reachable. Service readiness now requires the correlated, schema/peer-validated typed health response and reports the canonical core probe timeout; the legacy raw TCP helper is compatibility/test support only. Signing, production update/rollback, setup, and child authority remain open. | Accepted WP03/WP06 health correction. |
+| WP04 Android parent | `platforms/android/parent/.../MainActivity.java` | Reachable APK scaffold only; no Rust/HostBridge/service caller or live parent read-model input. Device/install/store authority is external/manual-required. | No code; platform bridge blocked. |
+| WP05 iOS parent | `platforms/ios/OcentraParentMobile/AppDelegate.swift` -> `ParentMobileStatusViewController` | Reachable iOS scaffold only; controller renders static status and has no Rust bridge/service caller. Provisioning/device/store authority is external/manual-required. | No code; platform bridge blocked. |
+| WP06 local-service bridge | Tauri route commands -> `parent-runtime-core::load_parent_route_snapshot` / action dispatch -> typed agent-service WebSocket loaders | Real service-owned read-model and command paths exist. Health is now checked with `AgentHealthCheck` / `AgentHealthReported`; setup and child runtime remain separate owners. | Accepted health correction. |
+| WP07 signing/store matrix | `scripts/release/parent-desktop-release-support-proof.mjs` and status fields in `apps/parent-desktop/src-tauri/src/lib.rs` | These are release/status surfaces, not signer, notarizer, or store authority. Certificates, provisioning, notarization, and store submission remain external. | No code; external release ownership. |
+| WP08 update/rollback | Desktop proof/status fields plus release-support scripts | No shipped parent updater/rollback executor is reachable from the Tauri runtime; current states remain scaffold/manual-required. SBOM and signed-channel authority remain open. | No code; external release/runtime owner. |
+| WP09 launch smoke | `scripts/dev/dev-parent-desktop.mjs`, platform smoke scripts, and Tauri launch anchors | Launch scripts and package smoke are reachable validation paths only; they do not add product runtime behavior or readiness authority. | No code; validation-only. |
+| WP10 setup handoff | `parent-runtime-core` Start-route panel projection and `apps/portal/src/SetupFirstRunRoutePanel.tsx` | The surface explicitly reports setup runtime unavailable; no setup producer or install-state handoff caller is present in this plan. Setup journey owner remains external. | No code; setup owner blocked. |
+| WP11 proof/CI gate | CI workflows and release-support proof scripts | Aggregates evidence only; no product runtime caller or authority. CI/proof work is deferred by phase. | No code; proof/CI-only. |
 
 Open gaps:
 

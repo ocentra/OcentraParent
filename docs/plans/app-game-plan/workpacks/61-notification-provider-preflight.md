@@ -44,22 +44,44 @@ before any delivery can be claimed.
 - Child-device delivery, policy evaluator execution, adapter dispatch, broad
   app/game blocking, or platform support.
 
+## Current Code and Test State (2026-08-15)
+
+- `app_game_child_ux_provider_preflight` validates one canonical scheduler row
+  against its persisted local-outbox record, rejects identity/evidence/unsafe
+  claim mismatches, and maps due/manual/unavailable states without delivery.
+- Existing contract tests cover provider-adapter-required, manual,
+  unavailable, unpersisted, mismatched, claimed, and missing-requirement cases.
+- `app_game_notification_provider_preflight_bridge` now consumes and validates
+  the complete WP59 read model, requires each scheduled row to match the actual
+  durable scheduler store, and generates deterministic adapter, credential,
+  and smoke-proof requirement refs.
+- Manual-required and unavailable WP59 rows remain present and blocked. Focused
+  tests reject unpersisted, tampered, duplicate, claimed, and mismatched input.
+- The advertised `packages/parent-domain` source/test owner and proof harness
+  are absent. Current ownership is Rust `app-game-core` plus the canonical
+  agent-protocol scheduler schema.
+
 ## Proof
 
-- `packages/parent-domain/src/app-game-notification-provider-preflight.ts`
-- `packages/parent-domain/tests/app-game-notification-provider-preflight.test.ts`
-- `scripts/test/app-game-notification-provider-preflight-proof.mjs`
+- `crates/app-game-core/src/app_game_child_ux_provider_preflight.rs`
+- `crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs`
+- `crates/app-game-core/src/app_game_notification_provider_preflight_bridge.rs`
+- `crates/app-game-core/src/app_game_notification_provider_preflight_bridge_types.rs`
+- `crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs`
+- `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
+- `crates/app-game-core/tests/contract/app_game_notification_provider_preflight_bridge.rs`
+- Historical `packages/parent-domain/...` and script harness routes are absent.
 - `test-results/app-game-notification-provider-preflight-proof/proof.json`
 - `output/app-game-plan-proof/61-notification-provider-preflight/`
 - `output/app-plan-proof/61-notification-provider-preflight/`
 
 ## Validation
 
-- [ ] Provider preflight parses the WP59 app/game scheduler bridge read model
+- [x] Provider preflight parses the WP59 app/game scheduler bridge read model
       before mapping rows.
-- [ ] Scheduled local rows become provider-adapter-required preflight rows with
+- [x] Scheduled local rows become provider-adapter-required preflight rows with
       source scheduler/outbox/decision/provider/reason refs.
-- [ ] Manual-required and unavailable rows remain blocked before provider
+- [x] Manual-required and unavailable rows remain blocked before provider
       preflight.
 - [ ] Proof pack records no provider delivery, no receipt ingestion, no
       credentials, no retry-worker/quiet-hours timer runtime, no parent UI, no

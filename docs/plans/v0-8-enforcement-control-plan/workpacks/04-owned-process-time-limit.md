@@ -110,6 +110,28 @@ Focused validation should record:
 Owned-process terminate/time-limit proof exists in narrow form. It must remain
 clearly separate from broad app blocking.
 
+### 2026-08-16 trusted-adapter production slice (code drafted; validation deferred)
+
+The production boundary now has a private branded target path rooted in
+authenticated grant consumption. The signed managed-process contract carries
+only a managed-process identity; the verifier resolves PID/name, canonical
+executable-path reference, and process-start identity from the local
+ActivityStore launcher/session read model, then the Windows adapter re-checks
+those values before effect. It persists an adapter-owned execution trace with
+result and rollback state. Raw `OwnedProcessTerminationTarget` remains
+evidence-only. This is code drafted and unvalidated: focused tests, durable
+WP11 journal handoff, retained proof, and runtime receipt integration remain
+deferred; WP11 pre-action/post-action durable journal composition and concrete
+runtime composition are unfinished; missing local launcher/session authority
+fails closed/manual-required.
+
+The reachable service path is now explicitly fail-closed: `enforcement_command_execution/adapter_outcome.rs`
+returns `ManualRequired` for process termination instead of passing caller-shaped
+PID/name fields to raw `terminate_owned_process`. The authenticated executor in
+`crates/agent-core/src/authenticated_delivery_execution.rs` is not yet composed
+because the service payload lacks a canonical persisted grant, managed-target
+binding, trusted issuer, and WP11 durable-dispatch handoff.
+
 ### Active pre-dispatch contract packet
 
 `codex/v08-wp04-grant-handoff-contract` establishes only a typed authenticated

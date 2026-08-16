@@ -30,7 +30,6 @@ pub(super) fn apply_network_live_activity_impl(
         ));
     }
     snapshot.network_evidence_summary = network_evidence_summary_snapshot(
-        snapshot.network_flow_event.as_ref(),
         snapshot.network_runtime_event_chain_stream.as_ref(),
         policy_preview_snapshot
             .as_ref()

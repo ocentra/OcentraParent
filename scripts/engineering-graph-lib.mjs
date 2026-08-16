@@ -6,6 +6,7 @@ export const GRAPH_SCHEMA_VERSION = 1;
 export const GRAPH_PATH = 'docs/engineering-graph/graph.json';
 export const OVERRIDES_PATH = 'docs/engineering-graph/overrides.json';
 export const CODE_MAP_PATH = 'docs/engineering-graph/code-map.json';
+const WORKPACK_CODE_EXPECTATIONS = new Set(['code-and-tests', 'tests-only', 'no-code-required']);
 
 const CODE_EXTENSIONS = new Set([
   '.c',
@@ -91,8 +92,22 @@ export async function loadCodeMap(root, codeMapPath = CODE_MAP_PATH) {
     throw new Error(`${codeMapPath} workpacks must be an object when present`);
   }
   for (const [workpackId, entry] of Object.entries(map.workpacks ?? {})) {
-    if (!entry || typeof entry !== 'object' || !Array.isArray(entry.roots) || entry.roots.length === 0) {
-      throw new Error(`${codeMapPath} workpack ${workpackId} must declare a non-empty roots array`);
+    if (!entry || typeof entry !== 'object') {
+      throw new Error(`${codeMapPath} workpack ${workpackId} must be an object`);
+    }
+    const codeExpectation = entry.codeExpectation ?? 'code-and-tests';
+    if (!WORKPACK_CODE_EXPECTATIONS.has(codeExpectation)) {
+      throw new Error(
+        `${codeMapPath} workpack ${workpackId} codeExpectation must be code-and-tests, tests-only, or no-code-required`
+      );
+    }
+    if (!Array.isArray(entry.roots)) {
+      throw new Error(`${codeMapPath} workpack ${workpackId} must declare a roots array`);
+    }
+    if (codeExpectation !== 'no-code-required' && entry.roots.length === 0) {
+      throw new Error(
+        `${codeMapPath} workpack ${workpackId} must declare non-empty roots unless codeExpectation is no-code-required`
+      );
     }
   }
   return map;
@@ -106,6 +121,23 @@ function isTestPath(relativePath) {
     /(?:\.test|\.spec|_test)(?:\.[^.]+)+$/.test(basename) ||
     /^(?:test[-_]|spec[-_])/.test(basename)
   );
+}
+
+function workpackCodeExpectationSatisfied(codeExpectation, implementationFiles, testFiles) {
+  if (codeExpectation === 'no-code-required') {
+    return implementationFiles.length === 0 && testFiles.length === 0;
+  }
+  if (codeExpectation === 'tests-only') {
+    return implementationFiles.length === 0 && testFiles.length > 0;
+  }
+  return implementationFiles.length > 0 && testFiles.length > 0;
+}
+
+function codeTopologyState(implementationFiles, testFiles) {
+  if (implementationFiles.length === 0 && testFiles.length === 0) return 'no-source';
+  if (implementationFiles.length === 0) return 'tests-only';
+  if (testFiles.length === 0) return 'source-only';
+  return 'code-and-tests';
 }
 
 async function walkCodeFiles(root, relativeDirectory) {
@@ -162,8 +194,7 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     for (const file of uniqueFiles) allCodeFiles.add(file);
     for (const file of implementationFiles) allImplementationFiles.add(file);
     for (const file of testFiles) allTestFiles.add(file);
-    const state =
-      implementationFiles.length === 0 ? 'no-source' : testFiles.length === 0 ? 'source-only' : 'code-and-tests';
+    const state = codeTopologyState(implementationFiles, testFiles);
     plans.push({
       planId: planId(planSlug),
       planSlug,
@@ -180,6 +211,7 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
   const workpacks = [];
   for (const [workpackId, entry] of Object.entries(codeMap.workpacks ?? {})) {
     const planSlug = entry.planSlug ?? null;
+    const codeExpectation = entry.codeExpectation ?? 'code-and-tests';
     if (!rootScope && planSlug && planId(planSlug) !== scope && planSlug !== scope) continue;
     if (!rootScope && !planSlug && !workpackId.startsWith(`WP-${String(scope).replace(/^PLAN-/u, '')}-`)) continue;
     const uniqueRoots = [...new Set(entry.roots.map(normalizeRepoPath))];
@@ -194,9 +226,11 @@ export async function buildCodeInventory({ root = process.cwd(), codeMapPath = C
     workpacks.push({
       workpackId,
       planSlug,
+      codeExpectation,
+      codeExpectationSatisfied: workpackCodeExpectationSatisfied(codeExpectation, implementationFiles, testFiles),
       roots: uniqueRoots,
       missingRoots,
-      state: implementationFiles.length === 0 ? 'no-source' : testFiles.length === 0 ? 'source-only' : 'code-and-tests',
+      state: codeTopologyState(implementationFiles, testFiles),
       codeFiles: uniqueFiles.length,
       implementationFiles: implementationFiles.length,
       testFiles: testFiles.length,
@@ -283,6 +317,8 @@ export async function buildProgressReport({ root = process.cwd(), scope } = {}) 
             ? {
                 scope: 'reviewed-workpack-roots',
                 state: workpackInventory.state,
+                codeExpectation: workpackInventory.codeExpectation,
+                codeExpectationSatisfied: workpackInventory.codeExpectationSatisfied,
                 roots: workpackInventory.roots,
                 missingRoots: workpackInventory.missingRoots,
                 implementationFiles: workpackInventory.implementationFiles,
@@ -367,6 +403,8 @@ export function flattenProgressReport(report) {
         state: workpack.state,
         storedState: workpack.storedState,
         codeState: typeof topology === 'string' ? topology : topology.state,
+        codeExpectation: typeof topology === 'string' ? null : topology.codeExpectation,
+        codeExpectationSatisfied: typeof topology === 'string' ? null : topology.codeExpectationSatisfied,
         implementationFiles: typeof topology === 'string' ? null : topology.implementationFiles,
         testFiles: typeof topology === 'string' ? null : topology.testFiles,
         dependsOn: workpack.dependsOn,
@@ -674,6 +712,7 @@ async function readOverrides(root, overridesPath) {
   if (!text) {
     return {
       edges: [],
+      workpackReviews: [],
       ambiguities: [],
       stateOverrides: [],
       proofOverrides: [],
@@ -683,6 +722,7 @@ async function readOverrides(root, overridesPath) {
   const parsed = JSON.parse(text);
   return {
     edges: Array.isArray(parsed.edges) ? parsed.edges : [],
+    workpackReviews: Array.isArray(parsed.workpackReviews) ? parsed.workpackReviews : [],
     ambiguities: Array.isArray(parsed.ambiguities) ? parsed.ambiguities : [],
     stateOverrides: Array.isArray(parsed.stateOverrides) ? parsed.stateOverrides : [],
     proofOverrides: Array.isArray(parsed.proofOverrides) ? parsed.proofOverrides : [],
@@ -765,6 +805,98 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   }
 
   const nodeById = new Map(nodes.map((node) => [node.id, node]));
+  // A workpack review is deliberately narrower than a completion override.
+  // It authorizes dependency/readiness derivation for one exact workpack only;
+  // it never promotes code, tests, proof, or a stale DONE label.
+  const reviewedWorkpackIds = new Set();
+  for (const review of overrides.workpackReviews) {
+    const workpackId = typeof review?.id === 'string' ? review.id : null;
+    const node = workpackId ? nodeById.get(workpackId) : null;
+    const rejectionReasons = [];
+    if (!node) rejectionReasons.push(`unknown workpack ${workpackId ?? '<missing id>'}`);
+    else if (node.kind !== 'workpack') rejectionReasons.push(`${workpackId} is not a workpack node`);
+    if (workpackId && reviewedWorkpackIds.has(workpackId)) rejectionReasons.push('duplicate workpack review entry');
+    if (workpackId) reviewedWorkpackIds.add(workpackId);
+    if (!Array.isArray(review?.hardDependencies)) {
+      rejectionReasons.push('hardDependencies must be an explicit array, including [] when there are none');
+    }
+    const requestedDependencies = Array.isArray(review?.hardDependencies) ? review.hardDependencies : [];
+    if (new Set(requestedDependencies).size !== requestedDependencies.length) {
+      rejectionReasons.push('hardDependencies must not contain duplicate IDs');
+    }
+    for (const dependency of requestedDependencies) {
+      const dependencyNode = typeof dependency === 'string' ? nodeById.get(dependency) : null;
+      if (!dependencyNode) {
+        rejectionReasons.push(`hardDependencies references unknown graph node ${String(dependency)}`);
+      } else if (dependency === workpackId) {
+        rejectionReasons.push('hardDependencies must not contain a self-dependency');
+      } else if (dependencyNode.kind !== 'workpack') {
+        rejectionReasons.push(`hardDependencies target ${dependency} must be a workpack node`);
+      }
+    }
+    const evidence = Array.isArray(review?.evidence) ? review.evidence : [];
+    if (evidence.length === 0) rejectionReasons.push('evidence must contain existing plan/workpack review paths');
+    const malformedEvidence = evidence.filter(
+      (reference) => typeof reference !== 'string' || reference.trim().length === 0
+    );
+    rejectionReasons.push(...malformedEvidence.map(() => 'evidence entries must be non-empty strings'));
+    const missingEvidence = evidence
+      .filter((reference) => typeof reference === 'string' && reference.trim().length > 0)
+      .filter((reference) => !pathExistsSync(repoRoot, reference));
+    rejectionReasons.push(...missingEvidence.map((reference) => `missing evidence ${reference}`));
+    if (typeof review?.reason !== 'string' || review.reason.trim().length === 0) {
+      rejectionReasons.push('reason is required');
+    }
+
+    const actualReviewedDependencies = overrides.edges
+      .filter(
+        (edge) =>
+          edge?.kind === 'depends_on' &&
+          edge.from === workpackId &&
+          edge.confidence === 'reviewed' &&
+          Array.isArray(edge.evidence) &&
+          edge.evidence.length > 0 &&
+          edge.evidence.every((reference) => pathExistsSync(repoRoot, reference))
+      )
+      .map((edge) => edge.to)
+      .sort();
+    const requestedSorted = [...requestedDependencies].sort();
+    if (JSON.stringify(actualReviewedDependencies) !== JSON.stringify(requestedSorted)) {
+      rejectionReasons.push(
+        `hardDependencies ${JSON.stringify(requestedSorted)} do not match reviewed depends_on edges ${JSON.stringify(actualReviewedDependencies)}`
+      );
+    }
+
+    if (rejectionReasons.length > 0) {
+      if (node?.kind === 'workpack') {
+        node.metadata = {
+          ...node.metadata,
+          dependencyConfidence: 'unreviewed',
+          needsReview: true,
+          dependencyReviewRejected: rejectionReasons,
+        };
+      }
+      ambiguities.push({
+        scope: `workpack-review:${workpackId ?? '<missing-id>'}`,
+        reason: 'Workpack dependency review was rejected; readiness remains migration-blocked.',
+        workpackId,
+        rejectionReasons,
+        evidence,
+      });
+      continue;
+    }
+
+    node.metadata = {
+      ...node.metadata,
+      dependencyConfidence: 'reviewed',
+      needsReview: false,
+      dependencyReview: {
+        hardDependencies: requestedSorted,
+        evidence,
+        reason: review.reason,
+      },
+    };
+  }
   for (const override of overrides.stateOverrides) {
     const node = nodeById.get(override.id);
     if (!node || !STATES.has(override.state)) continue;
@@ -790,7 +922,7 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     node.metadata = {
       ...node.metadata,
       ...(override.statusText ? { statusText: override.statusText } : {}),
-      needsReview: false,
+      needsReview: node.metadata?.dependencyReviewRejected ? true : false,
     };
   }
   for (const override of overrides.proofOverrides) {
@@ -835,7 +967,10 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   // checklist prose cannot leave a false DONE node behind.
   for (const node of nodes) {
     if (node.kind !== 'workpack' || node.state !== 'done') continue;
-    const gaps = completionGaps(repoRoot, node);
+    // Bootstrap persists source-derived graph state. Generated proof output is
+    // live validation evidence and must not change the checked-in graph when
+    // an ignored artifact happens to exist in one checkout.
+    const gaps = completionGaps(repoRoot, node, { includeExpectedArtifacts: false });
     if (gaps.length === 0) continue;
     node.state = 'validation';
     node.lifecycleState = 'validation';
@@ -844,7 +979,9 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
       completionGaps: gaps,
       sourceStatusText: node.metadata.statusText,
       statusText: `Validation — completion contract gaps: ${gaps.join('; ')}`,
-      needsReview: false,
+      // A rejected workpack dependency review remains a migration blocker;
+      // completion-contract demotion must not accidentally clear it.
+      needsReview: node.metadata?.dependencyReviewRejected ? true : false,
     };
   }
 
@@ -892,7 +1029,7 @@ function nodeMap(graph) {
   return new Map(graph.nodes.map((node) => [node.id, node]));
 }
 
-export function completionGaps(root, node) {
+export function completionGaps(root, node, { includeExpectedArtifacts = true } = {}) {
   if (!node.completion) return [];
   const gaps = [];
   const required = new Set(node.completion.required ?? []);
@@ -920,9 +1057,11 @@ export function completionGaps(root, node) {
         gaps.push(`${requirement}: planning document is not executable evidence ${reference}`);
       }
     }
-    for (const reference of expected) {
-      if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
-        gaps.push(`${requirement}: missing expected artifact ${reference}`);
+    if (includeExpectedArtifacts) {
+      for (const reference of expected) {
+        if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
+          gaps.push(`${requirement}: missing expected artifact ${reference}`);
+        }
       }
     }
   }

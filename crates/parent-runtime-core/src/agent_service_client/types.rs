@@ -1,11 +1,19 @@
-use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModel;
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
+    ActivityScreenReadModel,
+};
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel;
 use ocentra_parent_agent_protocol::app_game_notification_readiness::AppGameNotificationReadinessReadModel;
+use ocentra_parent_agent_protocol::app_game_notification_status::AppGameNotificationStatusReadModels;
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessReadModel;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
+use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionReadModel;
+use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryReadModel;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanDiscoveryEventHistoryState,
 };
@@ -76,8 +84,41 @@ pub(crate) struct ScreenReadModelAgentServiceSnapshot {
     pub(crate) read_model: ActivityScreenReadModel,
 }
 
+pub(crate) struct AppUseReadModelAgentServiceSnapshot {
+    pub(crate) read_model: ActivityAppUseReadModel,
+}
+
+pub(crate) struct GamesReadModelAgentServiceSnapshot {
+    pub(crate) read_model: ActivityGamesReadModel,
+}
+
+pub(crate) struct BrowserManagedStatusAgentServiceSnapshot {
+    pub(crate) event: ParentRouteEventSnapshot,
+    pub(crate) status: BrowserManagedSessionStatus,
+}
+
+pub(crate) struct BrowserInventoryReadModelAgentServiceSnapshot {
+    pub(crate) event: ParentRouteEventSnapshot,
+    pub(crate) read_model: BrowserInventoryReadModel,
+}
+
+pub(crate) struct BrowserEvidenceReadModelAgentServiceSnapshot {
+    pub(crate) event: ParentRouteEventSnapshot,
+    pub(crate) read_model: BrowserEvidenceReadModel,
+}
+
+pub(crate) struct BrowserActivityReadModelAgentServiceSnapshot {
+    pub(crate) read_model: ActivityBrowserReadModel,
+}
+
+pub(crate) struct BrowserInterventionReadModelAgentServiceSnapshot {
+    pub(crate) event: ParentRouteEventSnapshot,
+    pub(crate) read_model: BrowserInterventionReadModel,
+}
+
 pub(crate) struct AppGameNotificationReadinessAgentServiceSnapshot {
     pub(crate) read_model: AppGameNotificationReadinessReadModel,
+    pub(crate) status_read_models: Option<AppGameNotificationStatusReadModels>,
 }
 
 pub(crate) struct AppGamePolicyReadinessAgentServiceSnapshot {

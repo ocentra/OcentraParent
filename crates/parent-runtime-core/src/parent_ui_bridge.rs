@@ -30,23 +30,18 @@ use crate::agent_service_client::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, LanRuntimeReplaySnapshot,
-    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
-    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
-    TrackingReadModelAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
+    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
+    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 use crate::agent_service_client::{
-    dispatch_agent_command, dispatch_known_agent_command, load_activity_screen_read_model_snapshot,
-    load_app_game_adapter_dispatch_preflight_read_model_snapshot,
-    load_app_game_adapter_dispatch_result_read_model_snapshot,
-    load_app_game_child_runtime_transport_receipt_read_model_snapshot,
-    load_app_game_notification_readiness_read_model_snapshot,
-    load_app_game_platform_proof_status_read_model_snapshot,
-    load_app_game_policy_readiness_read_model_snapshot,
-    load_app_game_timer_parent_surface_read_model_snapshot,
-    load_lan_runtime_event_chain_replay_events, load_network_flow_read_model_snapshot,
-    load_network_runtime_event_chain_stream_snapshot, load_policy_preview_read_model_snapshot,
-    load_tracking_read_model_snapshot,
+    dispatch_agent_command, dispatch_known_agent_command, health_check_for_address,
+    health_check_timeout_ms, load_lan_runtime_event_chain_replay_events,
+    load_network_flow_read_model_snapshot, load_policy_preview_read_model_snapshot,
 };
 
 use self::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
@@ -82,6 +77,15 @@ struct ParentRouteLiveActivitySnapshotInput<'a> {
     parent_access_state: &'a ParentPortalParentAccessState,
     tracking_read_model_snapshot: Option<&'a TrackingReadModelAgentServiceSnapshot>,
     screen_read_model_snapshot: Option<&'a ScreenReadModelAgentServiceSnapshot>,
+    app_use_read_model_snapshot: Option<&'a AppUseReadModelAgentServiceSnapshot>,
+    browser_activity_read_model_snapshot: Option<&'a BrowserActivityReadModelAgentServiceSnapshot>,
+    games_read_model_snapshot: Option<&'a GamesReadModelAgentServiceSnapshot>,
+    browser_inventory_read_model_snapshot:
+        Option<&'a BrowserInventoryReadModelAgentServiceSnapshot>,
+    browser_evidence_read_model_snapshot: Option<&'a BrowserEvidenceReadModelAgentServiceSnapshot>,
+    browser_managed_status_snapshot: Option<&'a BrowserManagedStatusAgentServiceSnapshot>,
+    browser_intervention_read_model_snapshot:
+        Option<&'a BrowserInterventionReadModelAgentServiceSnapshot>,
     app_game_notification_readiness_snapshot:
         Option<&'a AppGameNotificationReadinessAgentServiceSnapshot>,
     app_game_policy_readiness_snapshot: Option<&'a AppGamePolicyReadinessAgentServiceSnapshot>,
@@ -104,6 +108,14 @@ pub fn load_parent_route_snapshot(
 ) -> ParentRouteSnapshot {
     let lan_route_query = lan_route_query_for_load(&route, context);
     build_parent_route_snapshot(route, &lan_route_query, None, None)
+}
+
+pub fn parent_agent_service_health_for_address(agent_addr: &str) -> bool {
+    health_check_for_address(agent_addr)
+}
+
+pub fn parent_agent_service_health_timeout_ms() -> u64 {
+    health_check_timeout_ms()
 }
 
 pub fn load_parent_subscription_event(

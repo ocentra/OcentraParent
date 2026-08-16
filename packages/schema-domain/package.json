@@ -5,6 +5,10 @@
   "type": "module",
   "description": "Generated/thin validation and edge-decoder helpers over Rust-owned contracts.",
   "exports": {
+    "./account-identity-authority": {
+      "import": "./dist/account-identity-authority.js",
+      "types": "./dist/account-identity-authority.d.ts"
+    },
     "./app-runtime-decision": {
       "import": "./dist/app-runtime-decision.js",
       "types": "./dist/app-runtime-decision.d.ts"

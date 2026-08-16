@@ -81,3 +81,10 @@ These are proof-routing fields, not implementation code prescriptions.
 - This is only a foundation contract handoff. WP01 remains open: it does not prove the remaining schema parity, evidence-grade, policy-action, private-bus audit, service runtime, or platform rows.
 - The historical `./network-control-catalog` parent-domain contradiction is resolved: the unpublished compatibility surface and shim family were retired, while the selected `network-domain` subpaths remain canonical for that boundary.
 - This does not close the broader WP01 outcome: Rust contract/eventing validation and the workpack's capture, platform, and enforcement no-claim boundaries remain independently required.
+
+## Current code-drafted runtime composition slice — tests deferred
+
+- `crates/agent-service/src/service_runtime.rs` initializes one shared `NetworkRuntimeSpine` for the service lifetime.
+- `crates/agent-service/src/network_runtime_delivery.rs` and `network_runtime_stream_payload.rs` route observations through that shared spine, preserving only the shared in-process journal/queue/dead-letter substrate while returning event-ID-scoped per-call entries. `EventBus::new()` does not enable an idempotency registry; delivery and stream still republish rows independently, so no deduplication claim is made.
+- No legal network-owned production durable journal path is currently available. The typed state is therefore `in-memory-manual-required`; the slice does not claim durable custody, replay across process restart, or production readiness.
+- The workpack remains open pending durable-custody ownership, required tests, proof bundle, and all untouched contract/eventing boundaries.

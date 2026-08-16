@@ -54,14 +54,38 @@ crates/family-identity-core:
   Rust account/family runtime semantics and parity against the canonical schema.
 
 cloudflare-control-plane-plan WP06:
-  real Workers-D1/DO/KV binding, persistence adapter, migration execution
+  real Workers-D1/DO/KV binding, persistence surface, migration execution
   surface, and storage proof; it consumes this packet's canonical contract.
 
 cloudflare-control-plane-plan WP08:
   Cloudflare test-runner and test-pyramid proof after the WP06 storage packet.
 ```
 
-PR #607's TypeScript Cloudflare adapter/D1-test-double work is historical
+## 2026-08-16 code-drafted handoff
+
+The Rust-owned schema boundary now publishes `AccountIdentityAuthorityHandoff`
+plus its provider-subject mapping and optional authority snapshot through
+`crates/schema/src/account_identity_authority.rs`. The checked-in TypeScript
+projection is generated from
+`crates/schema/src/account_identity_authority.template.txt` at
+`packages/schema-domain/src/generated-account-identity-authority.ts`, with the
+public thin adapter at
+`packages/schema-domain/src/account-identity-authority.ts`.
+
+The snapshot uses only the existing family-identity authority vocabulary:
+account state, household/member references, membership, role, child profile,
+device trust, and session freshness. The handoff carries an opaque provider
+subject and mapping status but does not verify a provider, mint a session, or
+authorize a household action. Cloudflare WP06 retains the public schema
+handoff as a downstream contract input, but no production consumer or
+provider-subject persistence route exists. Provider verification, the runtime
+store caller, and Cloudflare runner proof remain downstream work.
+
+This is code-drafted only. Focused Rust/TypeScript generation checks, tests,
+and retained proof are deferred; the prior durable manifest must not be read
+as validating this new handoff until those checks are rerun.
+
+PR #607's TypeScript Cloudflare persistence/D1-test-double work is historical
 branch evidence only. It is not an implementation starting point or proof of
 this workpack.
 
@@ -147,12 +171,15 @@ deployment, or whole-plan readiness.
 - [x] Cross-plan Cloudflare WP06/WP08 handoffs and no-claim boundary recorded.
 - [x] Checklist/PLAN_STATE changes made only for proven rows.
 
-## Completion record
+## Prior narrow completion record
 
 The tracked durable manifest in `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`
 records the Rust source/test surface: `crates/schema` owns the generated edge
 contract and `crates/family-identity-core` owns account/family authority.
 
-This local completion is intentionally narrow. Cloudflare WP06 still owns
+That prior record is intentionally narrow and predates the 2026-08-16 handoff
+above. Cloudflare WP06 still owns
 D1/DO/KV binding and migration/storage proof; Cloudflare WP08 then owns
 runner/integration proof; Account WP06 remains open for final aggregation.
+The new handoff remains code-drafted/tests-deferred and does not change those
+ownership or no-claim boundaries.

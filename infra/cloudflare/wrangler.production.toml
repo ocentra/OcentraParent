@@ -21,6 +21,7 @@ database_id = "REPLACE_WITH_PRODUCTION_D1_ID"
 binding = "ACCOUNT_IDENTITY_D1"
 database_name = "ocentra-parent-account-identity"
 database_id = "REPLACE_WITH_PRODUCTION_ACCOUNT_IDENTITY_D1_ID"
+migrations_dir = "migrations/account-identity"
 
 [[kv_namespaces]]
 binding = "BILLING_RATE_LIMIT_KV"

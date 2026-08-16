@@ -47,7 +47,7 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ### Close execution authority first
 
-- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; unscheduled/manual-required until WP11's enforcement-specific durable-journal handoff is present, then establish trusted dispatch before advancing execution state. Eventing WP06's generic prerequisite alone does not satisfy WP11 or dispatch-ready proof.
+- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; the reachable raw PID/name service path is now fail-closed/manual-required. WP04 remains unscheduled until WP11's enforcement-specific durable-journal handoff and a canonical persisted grant/binding/trusted-issuer composition route the authenticated executor; Eventing WP06's generic prerequisite alone does not satisfy dispatch-ready proof.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md): 5 open of 5 boxes.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md): 5 open of 5 boxes.
 - [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md): 5 open of 5 boxes.

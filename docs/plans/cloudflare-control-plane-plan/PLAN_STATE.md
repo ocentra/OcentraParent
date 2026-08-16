@@ -1,6 +1,68 @@
 # Cloudflare Control Plane Plan State
 
-Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
+## Production billing read-model boundary - 2026-08-16
+
+- `infra/cloudflare/src/billing-binding-read-model.ts` now permits fixture
+  seeding and fixture fallback only when `ENVIRONMENT` is `local`, `test`, or
+  `development` and `AUTH_ADAPTER_MODE` is exactly `local-safe-fixture`.
+  Production, preview, and provider modes never create billing schema rows or
+  populate D1/KV/R2 from `fixtures.ts`.
+- Production reads require their owned D1/KV/R2 binding and durable row/object
+  where a single record is required. Missing billing status, referral, or
+  entitlement rows return a typed `billing-read-model-manual-required` error;
+  empty durable collections remain empty rather than becoming demo rows.
+- Production invoice-subject lookup now queries the stored invoice ledger; it
+  no longer scans the fixture-only demo subject list. License approval is
+  derived from the stored entitlement snapshot rather than a fixture account.
+- `infra/cloudflare/src/index.ts` maps this typed unavailable result to the
+  existing manual-required route shape with HTTP 503. Local-safe fixture mode
+  remains explicit for local/dev/test harnesses and cannot be selected by
+  production or preview environments.
+- This is a production-code draft only. No provider verification, migration,
+  deployment, tests, proof, or runtime readiness claim is made.
+
+## Production reachability audit - 2026-08-16
+
+- WP06 source was re-audited after removal of the dead D1 adapter. The only
+  production definition/reference for `createAccountIdentityStore` is
+  `infra/cloudflare/src/storage/account-identity-store.ts`; its callers are
+  the store's unit tests only. `infra/cloudflare/src/index.ts` and
+  `src/routes.ts` do not import or dispatch an account-identity store route.
+- `ACCOUNT_IDENTITY_D1` is declared in `src/env.ts` and both Wrangler files,
+  but both database IDs remain placeholders and the isolated migration has no
+  recorded application. Binding/configuration and migration source therefore
+  do not constitute a deployed runtime owner.
+- The reachable Worker auth path in `src/index.ts` calls `verifyAuthState`.
+  `src/auth/verifier.ts` has no cryptographic provider verifier: the
+  `local-safe-fixture` branch is a fixture-only normalization path, while
+  account-adapter modes return `manual-required`. No provider-verified input
+  can legally reach the D1 store today.
+- No Cloudflare production-code slice is authorized from this audit. Adding an
+  account route, provider issuer, or store caller would invent authority. WP06
+  remains code-drafted/manual-required; WP08 remains test-only and blocked on
+  WP06; WP07 remains local-dev/proof-only; WP11 remains a no-source deployment
+  workpack rather than a production-code gap.
+- The graph report currently derives WP01 as `planned` and WP06 as `blocked`
+  on WP01 plus Account WP08, while the plan text records the narrow WP01
+  scaffold as source-present. This is a graph/validation coordination finding,
+  not evidence for changing runtime status or adding code.
+
+## WP06 production-code follow-up - 2026-08-16
+
+- Account-identity D1 is now declared in `infra/cloudflare/src/env.ts`,
+  `wrangler.toml`, and `wrangler.production.toml`, with the binding-specific
+  `migrations/account-identity/0001_account_identity_authority.sql` migration.
+- `src/storage/account-identity-store.ts` consumes the migrated table and no
+  longer creates production schema inline. An unapplied table returns typed
+  `manual-required`; other D1 failures remain fail-closed. Account DO/KV are
+  absent by design in this slice. The store has no production route caller;
+  provider verification and the runtime-owned persistence handoff remain
+  manual-required.
+- This is code drafted only. Migration execution, tests, validation, proof,
+  provider verification/login routes, public account routes, and runtime or
+  deployment readiness remain deferred.
+
+Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 account-identity D1 migration/configuration and its migrated-schema consumer are code drafted, with validation/proof deferred; account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 

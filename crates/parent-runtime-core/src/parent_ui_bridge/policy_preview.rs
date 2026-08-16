@@ -4,6 +4,8 @@ use super::*;
 mod access_summary;
 #[path = "policy_preview/access_write.rs"]
 mod access_write;
+#[path = "policy_preview/authoring.rs"]
+pub(crate) mod authoring;
 #[path = "policy_preview/cards.rs"]
 mod cards;
 #[path = "policy_preview/details.rs"]
@@ -12,6 +14,8 @@ mod details;
 mod helpers;
 #[path = "policy_preview/panel.rs"]
 mod panel;
+#[path = "policy_preview/resolution.rs"]
+pub(crate) mod resolution;
 #[path = "policy_preview/summary.rs"]
 mod summary;
 

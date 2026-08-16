@@ -15,6 +15,7 @@ members = [
   "crates/child-notification-core",
   "crates/child-policy-core",
   "crates/child-runtime",
+  "crates/child-runtime-android-bridge",
   "crates/entitlement-core",
   "crates/family-identity-core",
   "crates/lan-core",

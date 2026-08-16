@@ -12,3 +12,7 @@ pub(super) fn agent_command_timeout_for(command: &AgentCommandName) -> Duration 
         _ => agent_command_timeout(),
     }
 }
+
+pub(super) fn agent_health_check_timeout_ms() -> u64 {
+    agent_command_timeout_for(&AgentCommandName::AgentHealthCheck).as_millis() as u64
+}

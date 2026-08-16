@@ -7,6 +7,12 @@ use super::snapshots_app_game::{
     app_game_policy_readiness_snapshot_from_result,
     app_game_timer_parent_surface_snapshot_from_result,
 };
+use super::snapshots_browser::{
+    browser_activity_read_model_snapshot_from_result,
+    browser_evidence_read_model_snapshot_from_result,
+    browser_intervention_read_model_snapshot_from_result,
+    browser_inventory_read_model_snapshot_from_result, browser_managed_status_snapshot_from_result,
+};
 use super::snapshots_lan::{lan_runtime_replay_events_from_result, lan_snapshot_from_result};
 use super::snapshots_lan::{
     network_flow_snapshot_from_result, network_runtime_event_chain_snapshot_from_result,
@@ -23,10 +29,14 @@ use super::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, LanAgentServiceSnapshot,
-    LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
-    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
-    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, LanRuntimeReplaySnapshot,
+    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
+    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
+    TrackingReadModelAgentServiceSnapshot,
 };
 use super::*;
 
@@ -132,6 +142,101 @@ pub(crate) fn load_activity_screen_read_model_snapshot(
         AgentRoute::Localhost,
     )
     .and_then(activity_screen_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_activity_app_use_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<AppUseReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityAppUseReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(|result| {
+        super::snapshots_tracking::activity_app_use_read_model_snapshot_from_result(result)
+    })
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_activity_games_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<GamesReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityGamesReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(|result| {
+        super::snapshots_tracking::activity_games_read_model_snapshot_from_result(result)
+    })
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_managed_status_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserManagedStatusAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserManagedBridgePoll,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_managed_status_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_activity_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserActivityReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityBrowserReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_activity_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_inventory_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInventoryReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserInventoryReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_inventory_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_evidence_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserEvidenceReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserEvidenceRecentGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_evidence_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_intervention_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInterventionReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserInterventionReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_intervention_read_model_snapshot_from_result)
     .map_err(AgentServiceError::from_display)
 }
 

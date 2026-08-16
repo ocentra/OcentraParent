@@ -11,54 +11,59 @@
         android:allowBackup="false"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/OcentraParentTheme">
+        android:theme="@style/OcentraChildTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="ca.ocentra.child.agent.ChildAgentActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Legacy Android capability adapters remain declared behind the child shell. -->
         <activity
-            android:name=".AndroidMediaProjectionCaptureActivity"
+            android:name="ca.ocentra.parent.agent.AndroidMediaProjectionCaptureActivity"
             android:exported="false" />
 
         <receiver
-            android:name=".AppGameAndroidChildRuntimeReceiptReceiver"
+            android:name="ca.ocentra.parent.agent.AppGameAndroidChildRuntimeReceiptReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="ca.ocentra.parent.agent.APP_GAME_CHILD_RUNTIME_RECEIPT_CHANNEL_PROOF" />
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".AppGameAndroidChildRuntimeDeliveryReceiver"
+            android:name="ca.ocentra.parent.agent.AppGameAndroidChildRuntimeDeliveryReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="ca.ocentra.parent.agent.APP_GAME_CHILD_RUNTIME_DELIVERY_INTAKE_PROOF" />
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".AppGameAndroidChildRuntimeNotificationActionReceiver"
+            android:name="ca.ocentra.parent.agent.AppGameAndroidChildRuntimeNotificationActionReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="ca.ocentra.parent.agent.APP_GAME_CHILD_RUNTIME_NOTIFICATION_REQUEST_ACTION_PROOF" />
             </intent-filter>
         </receiver>
         <receiver
-            android:name=".TrackingAndroidGeofenceTransitionReceiver"
+            android:name="ca.ocentra.parent.agent.TrackingAndroidGeofenceTransitionReceiver"
             android:exported="false" />
-
         <service
-            android:name=".OcentraParentAgentService"
+            android:name="ca.ocentra.child.agent.ChildAgentCompositionService"
             android:exported="false"
             android:foregroundServiceType="dataSync" />
         <service
-            android:name=".AndroidMediaProjectionCaptureService"
+            android:name="ca.ocentra.parent.agent.OcentraParentAgentService"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+        <service
+            android:name="ca.ocentra.parent.agent.AndroidMediaProjectionCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
         <service
-            android:name=".AppGameAndroidAccessibilityRuntimeService"
+            android:name="ca.ocentra.parent.agent.AppGameAndroidAccessibilityRuntimeService"
             android:exported="false"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>

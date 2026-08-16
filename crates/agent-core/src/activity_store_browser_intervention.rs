@@ -57,7 +57,7 @@ pub(crate) fn browser_intervention_read_model(
         .unwrap_or(BrowserUnmanagedEnforcementState::RequiresOsAppControl);
     let unmanaged_fallback_action = latest
         .map(activity_store_browser_intervention_fallback::top_level_unmanaged_fallback_action)
-        .unwrap_or(BrowserUnmanagedFallbackActionState::OsBlockManualRequired);
+        .unwrap_or(BrowserUnmanagedFallbackActionState::Unavailable);
     let latest_event_id = latest.map(|row| row.event_id.clone());
     let latest_observed_at = latest.map(|row| row.observed_at.clone());
     let intervention_rows = read_rows

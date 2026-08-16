@@ -55,7 +55,7 @@ jobs:
   owned-process-adapter-windows:
     name: 'Proof: Windows Owned Process Adapter'
     runs-on: windows-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
 

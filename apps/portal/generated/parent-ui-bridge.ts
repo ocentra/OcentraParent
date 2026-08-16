@@ -1191,6 +1191,9 @@ export const ParentDevBridgeRoute = {
 export type ParentDevBridgeRouteName = (typeof ParentDevBridgeRoute)[keyof typeof ParentDevBridgeRoute];
 
 export const ParentUiActionPayloadField = {
+  PolicyPreviewAuthoringDraft: 'policyPreviewAuthoringDraft',
+  PolicyPreviewAuthoringHandle: 'policyPreviewAuthoringHandle',
+  PolicyRequestAssistantPreviewConfirmRequest: 'policyRequestAssistantPreviewConfirmRequest',
   PolicyRequestParentResolutionRequest: 'policyRequestParentResolutionRequest',
   ScreenSettingsRequest: 'screenSettingsRequest',
   ScreenSettingsResponse: 'screenSettingsResponse',
@@ -1797,10 +1800,7 @@ export interface ParentNetworkRuntimeEventValueSnapshot {
 }
 
 export interface ParentNetworkEvidenceSummarySnapshot {
-  readonly analyzerAlertRef?: string | null;
-  readonly detectionResultRef?: string | null;
   readonly aiAuditRef?: string | null;
-  readonly riskBudgetRef?: string | null;
   readonly policyDecisionRef?: string | null;
   readonly networkEvidenceGrade?: string | null;
   readonly interventionResultRef?: string | null;
@@ -1817,6 +1817,26 @@ export interface ParentNetworkRuntimeEventChainStreamSnapshot {
   readonly streamedEventCount?: number | null;
   readonly events: readonly ParentNetworkRuntimeEventResultSnapshot[];
   readonly invalidEventCount: number;
+}
+
+export interface ParentPolicyPreviewConfirmationContext {
+  readonly requestId?: string | null;
+  readonly submissionKey?: string | null;
+  readonly householdId?: string | null;
+  readonly childProfileId?: string | null;
+  readonly deviceId?: string | null;
+  readonly sourceDocumentId?: string | null;
+  readonly policyVersion?: number | null;
+  readonly targetReferenceId?: string | null;
+  readonly ruleId?: string | null;
+  readonly requestedAt?: string | null;
+  readonly expiresAt?: string | null;
+  readonly assistantPreviewId?: string | null;
+  readonly auditReferenceIds?: string | null;
+  readonly actorId?: string | null;
+  readonly actorRole?: string | null;
+  readonly actorState?: string | null;
+  readonly confirmationAuditReferenceId?: string | null;
 }
 
 export interface ParentPolicyPreviewReadModelSnapshot {  readonly schemaVersion?: string | null;
@@ -1864,13 +1884,21 @@ export interface ParentPolicyPreviewReadModelSnapshot {  readonly schemaVersion?
   readonly networkPolicyMappingMode?: string | null;
   readonly networkAdapterActionAuthorized?: boolean | null;
   readonly networkEnforcementCommandAuthorized?: boolean | null;
+  readonly confirmationContext?: ParentPolicyPreviewConfirmationContext | null;
 }
 
 export interface ParentRouteLiveActivitySnapshot {
   readonly recentSummary?: ParentUnknownRecord | null;
   readonly ingestStatus?: ParentUnknownRecord | null;
   readonly activityScreenReadModel?: ParentUnknownRecord | null;
+  readonly activityAppUseReadModel?: ParentUnknownRecord | null;
+  readonly activityBrowserReadModel?: ParentUnknownRecord | null;
+  readonly activityGamesReadModel?: ParentUnknownRecord | null;
   readonly screenSummaryPanel?: ParentScreenSummaryPanelSnapshot | null;
+  readonly browserInventoryEvent?: ParentRouteEventSnapshot | null;
+  readonly browserInventoryReadModel?: ParentUnknownRecord | null;
+  readonly browserEvidenceEvent?: ParentRouteEventSnapshot | null;
+  readonly browserEvidenceReadModel?: ParentUnknownRecord | null;
   readonly browserManagedEvent?: ParentRouteEventSnapshot | null;
   readonly browserManagedStatus?: ParentUnknownRecord | null;
   readonly localAiRuntimeStatusEvent?: ParentRouteEventSnapshot | null;
@@ -1909,6 +1937,20 @@ export interface ParentPolicyPreviewPanelCardSnapshot {
   readonly details: readonly ParentPolicyPreviewPanelDetailSnapshot[];
 }
 
+export interface ParentPolicyPreviewActionSnapshot {
+  readonly action: ParentUiActionKind;
+  readonly label: string;
+  readonly payload?: ParentUiActionPayload | null;
+}
+
+export interface ParentPolicyPreviewAuthoringSnapshot {
+  readonly targetValue: string;
+  readonly requestedAction: string;
+  readonly stageAction: ParentPolicyPreviewActionSnapshot;
+  readonly confirmAction?: ParentPolicyPreviewActionSnapshot | null;
+  readonly cancelAction: ParentPolicyPreviewActionSnapshot;
+}
+
 export interface ParentPolicyPreviewPanelSnapshot {
   readonly title: string;
   readonly body: string;
@@ -1917,6 +1959,7 @@ export interface ParentPolicyPreviewPanelSnapshot {
   readonly cards: readonly ParentPolicyPreviewPanelCardSnapshot[];
   readonly emptyMessage: string;
   readonly productClaim: string;
+  readonly authoring?: ParentPolicyPreviewAuthoringSnapshot | null;
 }
 
 export interface ParentAppGamePanelDetailSnapshot {
@@ -2148,6 +2191,8 @@ export type ParentUiActionKind =
   | 'refresh-route'
   | 'reconnect'
   | 'agent-command-requested'
+  | 'policy-preview-authoring-draft-staged'
+  | 'policy-preview-authoring-draft-cancelled'
   | 'policy-request-assistant-preview-confirm-requested'
   | 'policy-request-parent-resolution-requested'
   | 'lan-pairing-browser-discovery-scan-requested'
@@ -2162,6 +2207,8 @@ export const ParentUiActionKind = {
   RefreshRoute: 'refresh-route',
   Reconnect: 'reconnect',
   AgentCommandRequested: 'agent-command-requested',
+  PolicyPreviewAuthoringDraftStaged: 'policy-preview-authoring-draft-staged',
+  PolicyPreviewAuthoringDraftCancelled: 'policy-preview-authoring-draft-cancelled',
   PolicyRequestAssistantPreviewConfirmRequested: 'policy-request-assistant-preview-confirm-requested',
   PolicyRequestParentResolutionRequested: 'policy-request-parent-resolution-requested',
   LanPairingBrowserDiscoveryScanRequested: 'lan-pairing-browser-discovery-scan-requested',

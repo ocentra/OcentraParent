@@ -1,11 +1,12 @@
 use super::*;
-use crate::agent_service_client::payload_fields::serialized_enum_label;
+use crate::agent_service_client::payload_fields::{log_field_string, serialized_enum_label};
 use crate::agent_service_client::snapshots_network::app_game_read_model_from_response;
 use crate::agent_service_client::transport::rejection_message;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel;
 use ocentra_parent_agent_protocol::app_game_notification_readiness::AppGameNotificationReadinessReadModel;
+use ocentra_parent_agent_protocol::app_game_notification_status::AppGameNotificationStatusReadModels;
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessReadModel;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
@@ -42,7 +43,15 @@ pub(super) fn app_game_notification_readiness_snapshot_from_result(
         constants::field::APP_GAME_NOTIFICATION_READINESS_READ_MODEL,
         "notification readiness",
     )?;
-    Ok(AppGameNotificationReadinessAgentServiceSnapshot { read_model })
+    let status_read_models = response_event
+        .payload
+        .get(constants::field::APP_GAME_NOTIFICATION_STATUS_READ_MODELS)
+        .and_then(log_field_string)
+        .and_then(|value| serde_json::from_str::<AppGameNotificationStatusReadModels>(value).ok());
+    Ok(AppGameNotificationReadinessAgentServiceSnapshot {
+        read_model,
+        status_read_models,
+    })
 }
 
 pub(super) fn app_game_policy_readiness_snapshot_from_result(

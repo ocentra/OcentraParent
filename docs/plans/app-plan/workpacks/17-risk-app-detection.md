@@ -11,6 +11,16 @@ This workpack adds the app-only parent-domain candidate proof for risk app
 detection with confidence, source, policy routing, parent display, and
 no-content boundaries.
 
+Code-pass status (2026-08-16): Rust app-game-core now promotes explicit
+upstream inventory risk-category rows and unknown-process rows into advisory
+candidates. This is code-drafted and unvalidated; executable-name heuristics,
+publisher/hash enrichment, local-AI quality, service consumption, tests, and
+proof remain deferred.
+
+Risk labels are parsed by the shared `agent-protocol` contract. Malformed
+evidence is retained as an explicit invalid/manual-required state; it is never
+silently discarded into an apparently proved candidate.
+
 ## Where We Want To Be
 
 Risk app detection creates explainable candidates for parent review and policy
@@ -28,12 +38,16 @@ AI/chatbot, messaging/social/video, and unknown risk without directly enforcing.
 
 ## Touched Paths
 
-- `packages/parent-domain/src/app-riskdetection.ts`
-- `packages/parent-domain/src/app-riskdetection-rules.ts`
-- `packages/parent-domain/src/app-riskdetection-data.ts`
-- `packages/parent-domain/tests/app-riskdetection.test.ts`
-- `scripts/test/app-riskdetection-proof.mjs`
-- `output/app-plan-proof/17-riskapp-detection/`
+- `crates/app-game-core/src/app_game_risk_candidate_detection.rs`
+- `crates/app-game-core/src/app_game_category_risk_policy_routing.rs`
+- `crates/agent-protocol/src/app_game.rs`
+
+The detector recognizes only explicit upstream category labels and emits
+`AppRisk` candidates with `AskParent`; unknown/no-proof rows remain candidates
+for review and are rejected by policy routing until category evidence exists.
+The production composition can pass a detected candidate through the existing
+category/risk route and Rust policy compiler. It never asserts content
+knowledge or dispatches enforcement.
 
 ## Tests And Proof
 
@@ -72,7 +86,7 @@ Fill this before reporting `DONE` or PR-ready:
 Risk detection is advisory evidence. Parent policy and platform authority still
 decide actions.
 
-## Completion - 2026-06-03
+## Historical completion note - 2026-06-03
 
 - Owner/lane: `codex-c`.
 - Branch: `codex/app-game-read-model-service-events`.
@@ -97,6 +111,7 @@ Proof captured:
 - Parent-surface disclosure carries confidence percent, source evidence count,
   and no-content-captured state.
 
-No runtime status moved: this is contract/proof-harness evidence only, not live
-OS scanning, live catalog enrichment, service read model, portal evidence drawer
-UI, local model quality, or platform enforcement proof.
+The historical package-domain contract/proof harness does not establish current
+Rust runtime completion. No live OS scanning, catalog enrichment, service read
+model, portal evidence drawer UI, local model quality, or platform enforcement
+claim moves up in this code pass.

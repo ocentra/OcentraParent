@@ -603,6 +603,33 @@ pub struct AppGameInventoryCategoryCandidate {
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum AppGameRiskCategoryKind {
+    VpnProxy,
+    RemoteDesktop,
+    DownloadTorrent,
+    InstallerUpdater,
+    AiChatbot,
+    SocialVideoMessaging,
+    UnknownRisk,
+}
+
+impl AppGameRiskCategoryKind {
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "vpnProxy" => Some(Self::VpnProxy),
+            "remoteDesktop" => Some(Self::RemoteDesktop),
+            "downloadTorrent" => Some(Self::DownloadTorrent),
+            "installerUpdater" => Some(Self::InstallerUpdater),
+            "aiChatbot" => Some(Self::AiChatbot),
+            "socialVideoMessaging" => Some(Self::SocialVideoMessaging),
+            "unknownRisk" => Some(Self::UnknownRisk),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameInventoryEvidenceRow {

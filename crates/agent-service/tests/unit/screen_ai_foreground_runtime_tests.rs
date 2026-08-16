@@ -67,6 +67,9 @@ fn screen_foreground_key_prefers_real_window_id_and_rejects_degraded_state() {
 #[test]
 fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() -> TestResult {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    if root.exists() {
+        fs::remove_dir_all(&root)?;
+    }
     let config = ScreenAiForegroundRuntimeConfig {
         screen_analysis_enabled: true,
         foreground_capture_enabled: true,

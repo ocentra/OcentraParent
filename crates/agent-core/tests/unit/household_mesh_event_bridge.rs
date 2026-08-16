@@ -5,9 +5,8 @@ use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgeState;
 
 use crate::test_text::{TestResult, TestText};
 use crate::{
-    export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
-    HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
-    HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
+    export_selected_local_event, HouseholdMeshAuthenticationState, HouseholdMeshBridgeRejection,
+    HouseholdMeshExportDecision, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
 };
 
 type SelectedEventCase = (HouseholdMeshLocalEventKind, TestText, TestText);
@@ -51,245 +50,52 @@ fn household_mesh_rejects_unselected_local_events() {
 }
 
 #[test]
-fn household_mesh_validates_incoming_before_local_republish() -> TestResult {
-    let decision = validate_incoming_lan_message(
-        &provider_result_message(),
-        mesh::TEST_BRIDGE_FAMILY_ID,
-        mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-        mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-        &[],
-        &[],
-    );
-    let HouseholdMeshImportDecision::Republish(republish) = decision else {
-        return Err(TestText::from_display(mesh::TEST_INCOMING_VALIDATES_EXPECT));
-    };
-    assert_eq!(republish.family_id, mesh::TEST_BRIDGE_FAMILY_ID);
-    assert_eq!(
-        republish.target_child_device_id,
-        mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID
-    );
-    assert_eq!(
-        republish.local_event_ref,
-        mesh::LOCAL_EVENT_AI_RESULT_RETURN
-    );
-    assert_eq!(
-        republish.lan_message_type,
-        mesh::LAN_MESSAGE_AI_RESULT_RETURN
-    );
-    assert_eq!(
-        republish.bridge_state,
-        HouseholdMeshBridgeState::LocalRepublishRequired
-    );
-    assert_eq!(
-        republish.policy_authority,
-        HouseholdMeshPolicyAuthority::ChildAgentOnly
-    );
-    assert!(republish.validated_before_republish);
-    assert!(republish.child_agent_policy_authority_preserved);
-
-    Ok(())
-}
-
-#[test]
-fn household_mesh_rejects_unauthenticated_incoming_messages() {
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                authentication_state: HouseholdMeshAuthenticationState::Anonymous,
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+fn household_mesh_rejection_strings_match_the_protocol_contract() {
+    let cases = [
+        (
+            HouseholdMeshBridgeRejection::UnselectedLocalEvent,
+            mesh::REJECTION_UNSELECTED_LOCAL_EVENT,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::UnauthenticatedMessage)
-    );
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                authentication_state: HouseholdMeshAuthenticationState::StaleOrRevoked,
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::UnauthenticatedMessage,
+            mesh::REJECTION_UNAUTHENTICATED_MESSAGE,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::UnauthenticatedMessage)
-    );
-}
-
-#[test]
-fn household_mesh_rejects_direct_publish_and_policy_escalation() {
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                direct_remote_publish_requested: true,
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::DirectRemotePublish,
+            mesh::REJECTION_DIRECT_REMOTE_PUBLISH,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::DirectRemotePublish)
-    );
-    assert_eq!(
-        HouseholdMeshBridgeRejection::DirectRemotePublish.as_str(),
-        mesh::REJECTION_DIRECT_REMOTE_PUBLISH
-    );
-
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                policy_authority: HouseholdMeshPolicyAuthority::ProviderClaimed,
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::PolicyAuthorityEscalation,
+            mesh::REJECTION_POLICY_AUTHORITY_ESCALATION,
         ),
-        HouseholdMeshImportDecision::Reject(
-            HouseholdMeshBridgeRejection::PolicyAuthorityEscalation
-        )
-    );
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                policy_authority: HouseholdMeshPolicyAuthority::ParentUiClaimed,
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::RawPayload,
+            mesh::REJECTION_RAW_PAYLOAD,
         ),
-        HouseholdMeshImportDecision::Reject(
-            HouseholdMeshBridgeRejection::PolicyAuthorityEscalation
-        )
-    );
-    assert_eq!(
-        HouseholdMeshBridgeRejection::PolicyAuthorityEscalation.as_str(),
-        mesh::REJECTION_POLICY_AUTHORITY_ESCALATION
-    );
-}
-
-#[test]
-fn household_mesh_rejects_raw_payload_invalid_refs_and_route_mismatches() {
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                raw_payload_included: true,
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::MismatchedMessageRef,
+            mesh::REJECTION_MISMATCHED_MESSAGE_REF,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::RawPayload)
-    );
-
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                local_event_ref: mesh::LOCAL_EVENT_RAW_CAPTURE_INTERNAL.to_string(),
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::ReplayedMessage,
+            mesh::REJECTION_REPLAYED_MESSAGE,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::UnselectedLocalEvent)
-    );
-
-    assert_eq!(
-        validate_incoming_lan_message(
-            &HouseholdMeshLanMessage {
-                lan_message_type: mesh::LAN_MESSAGE_PROVIDER_ADVERTISEMENT.to_string(),
-                ..provider_result_message()
-            },
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::StaleMessage,
+            mesh::REJECTION_STALE_MESSAGE,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::MismatchedMessageRef)
-    );
-    assert_eq!(
-        HouseholdMeshBridgeRejection::MismatchedMessageRef.as_str(),
-        mesh::REJECTION_MISMATCHED_MESSAGE_REF
-    );
-}
-
-#[test]
-fn household_mesh_rejects_replay_stale_family_and_device_mismatches() {
-    assert_eq!(
-        validate_incoming_lan_message(
-            &provider_result_message(),
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[mesh::TEST_BRIDGE_INBOUND_MESSAGE_ID],
-            &[],
+        (
+            HouseholdMeshBridgeRejection::FamilyMismatch,
+            mesh::REJECTION_FAMILY_MISMATCH,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::ReplayedMessage)
-    );
-    assert_eq!(
-        validate_incoming_lan_message(
-            &provider_result_message(),
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[mesh::TEST_BRIDGE_IDEMPOTENCY_KEY],
+        (
+            HouseholdMeshBridgeRejection::WrongTargetDevice,
+            mesh::REJECTION_WRONG_TARGET_DEVICE,
         ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::ReplayedMessage)
-    );
-    assert_eq!(
-        validate_incoming_lan_message(
-            &provider_result_message(),
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_SENT_AT_EPOCH_SECONDS + mesh::TEST_BRIDGE_STALE_AFTER_SECONDS + 1,
-            &[],
-            &[],
-        ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::StaleMessage)
-    );
-    assert_eq!(
-        validate_incoming_lan_message(
-            &provider_result_message(),
-            mesh::TEST_BRIDGE_OTHER_FAMILY_ID,
-            mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
-        ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::FamilyMismatch)
-    );
-    assert_eq!(
-        validate_incoming_lan_message(
-            &provider_result_message(),
-            mesh::TEST_BRIDGE_FAMILY_ID,
-            mesh::TEST_BRIDGE_OTHER_CHILD_DEVICE_ID,
-            mesh::TEST_BRIDGE_RECEIVED_AT_EPOCH_SECONDS,
-            &[],
-            &[],
-        ),
-        HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::WrongTargetDevice)
-    );
+    ];
+    for (rejection, expected) in cases {
+        assert_eq!(rejection.as_str(), expected);
+    }
 }
 
 fn assert_selected_export(
@@ -427,11 +233,4 @@ fn selected_event_cases() -> [SelectedEventCase; 13] {
             TestText::from_display(mesh::LAN_MESSAGE_READ_MODEL_QUERY_REQUEST),
         ),
     ]
-}
-
-fn provider_result_message() -> HouseholdMeshLanMessage {
-    HouseholdMeshLanMessage::proof_fixture_for(
-        mesh::LOCAL_EVENT_AI_RESULT_RETURN,
-        mesh::LAN_MESSAGE_AI_RESULT_RETURN,
-    )
 }

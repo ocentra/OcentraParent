@@ -30,6 +30,22 @@ After PR399, the composited blocker proof uses the shared
 Managed warn/block/redirect actions have policy decision refs, evidence refs,
 target refs, audit refs, child-facing delivery proof, and portal proof.
 
+## Production-code pass (2026-08-16)
+
+The browser runtime now derives action-intent outbox and handoff references from
+the actual action-intent identity instead of test-only constants. The service
+does not synthesize child acceptance from a handoff that lacks trusted parent
+profile, device, and observation context; child delivery remains unavailable /
+manual-required until that typed authority is supplied. This is a code-drafted,
+tests/proof/checklist-deferred slice and does not claim intervention execution,
+child delivery, or portal proof.
+
+Owning production paths:
+
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-core/src/browser_event_runtime/action_handoff.rs`
+- `crates/agent-service/src/browser_runtime_stream_api.rs`
+
 ## Scope
 
 - Observe navigation.

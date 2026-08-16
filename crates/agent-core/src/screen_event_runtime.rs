@@ -142,6 +142,13 @@ fn screen_runtime_event_payload_from_deletion_input(
         observed_at,
     );
     payload.previous_phase_ref = Some(constants::screen_flow::SCREEN_QUEUE_EVENT_REF.to_string());
+    payload.ai_request_ref = None;
+    payload.ai_result_ref = None;
+    payload.summary_ref = None;
+    payload.policy_decision_ref = None;
+    payload.policy_action = None;
+    payload.parent_rule_ref = None;
+    payload.action_ref = None;
     payload.deletion_proof_ref = Some(input.deletion_proof_ref.clone());
     payload.ai_audit_state = ScreenAiAuditState::NotRequested;
     payload.policy_state = ScreenPolicyState::NotReady;
@@ -162,14 +169,24 @@ fn screen_runtime_event_payload_from_degraded_input(
         screen_runtime_event_payload_from_capture_input(phase, &capture_input, observed_at);
     if matches!(
         phase,
-        ScreenRuntimePhase::AiAnalysisCompleted
-            | ScreenRuntimePhase::DeletionCommitted
-            | ScreenRuntimePhase::PortalReadModelUpdated
+        ScreenRuntimePhase::DeletionCommitted | ScreenRuntimePhase::PortalReadModelUpdated
     ) {
+        payload.ai_request_ref = None;
+        payload.ai_result_ref = None;
+        payload.summary_ref = None;
+        payload.previous_phase_ref = Some(
+            if phase == ScreenRuntimePhase::DeletionCommitted {
+                constants::screen_flow::SCREEN_QUEUE_EVENT_REF
+            } else {
+                constants::screen_flow::SCREEN_DELETION_EVENT_REF
+            }
+            .to_string(),
+        );
         payload.deletion_proof_ref = Some(input.deletion_proof_ref.clone());
         payload.evidence_scope = ScreenEvidenceScope::DeletedQueryStoreSummary;
         payload.custody_state = constants::eventing_source::CUSTODY_LOCAL_JOURNAL.to_string();
         payload.deletion_state = ScreenDeletionState::Committed;
+        payload.ai_audit_state = ScreenAiAuditState::NotRequested;
     }
     if phase == ScreenRuntimePhase::PortalReadModelUpdated {
         payload.portal_read_model_ref = Some(input.portal_read_model_ref.clone());
@@ -343,8 +360,6 @@ impl ScreenRuntimeSpine {
         for phase in [
             ScreenRuntimePhase::CaptureObserved,
             ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
             ScreenRuntimePhase::DeletionCommitted,
             ScreenRuntimePhase::PortalReadModelUpdated,
         ] {

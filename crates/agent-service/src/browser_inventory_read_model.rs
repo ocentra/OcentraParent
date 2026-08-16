@@ -1,3 +1,4 @@
+use ocentra_parent_agent_core::browser_platform_inventory::BrowserPlatformInventoryObservation;
 use ocentra_parent_agent_core::browser_windows_inventory::BrowserWindowsInventoryObservation;
 use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
 use ocentra_parent_agent_protocol::browser_inventory::{
@@ -16,11 +17,47 @@ pub fn browser_inventory_read_model_from_windows_inventory(
     generated_at: BrowserInventoryGeneratedAtText,
     observations: &[BrowserWindowsInventoryObservation],
 ) -> BrowserInventoryReadModel {
+    let observations = observations
+        .iter()
+        .map(BrowserPlatformInventoryObservation::from)
+        .collect::<Vec<_>>();
+    browser_inventory_read_model_from_observations(
+        generated_at,
+        &observations,
+        constants::browser::INVENTORY_ROW_ID_PREFIX_WINDOWS,
+        constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED,
+    )
+}
+
+pub fn browser_inventory_read_model_from_platform_inventory(
+    generated_at: BrowserInventoryGeneratedAtText,
+    observations: &[BrowserPlatformInventoryObservation],
+) -> BrowserInventoryReadModel {
+    browser_inventory_read_model_from_observations(
+        generated_at,
+        observations,
+        constants::browser::INVENTORY_ROW_ID_PREFIX_PLATFORM,
+        constants::browser::INVENTORY_EXECUTABLE_PATH_REF_PLATFORM_REDACTED,
+    )
+}
+
+fn browser_inventory_read_model_from_observations(
+    generated_at: BrowserInventoryGeneratedAtText,
+    observations: &[BrowserPlatformInventoryObservation],
+    row_id_prefix: &'static str,
+    executable_path_ref: &'static str,
+) -> BrowserInventoryReadModel {
     let rows = observations
         .iter()
         .enumerate()
         .map(|(index, observation)| {
-            browser_inventory_row_from_windows_observation(&generated_at, index, observation)
+            browser_inventory_row_from_observation(
+                &generated_at,
+                index,
+                observation,
+                row_id_prefix,
+                executable_path_ref,
+            )
         })
         .collect::<Vec<_>>();
     let returned = rows.len() as u64;
@@ -39,14 +76,16 @@ pub fn browser_inventory_read_model_from_windows_inventory(
     }
 }
 
-fn browser_inventory_row_from_windows_observation(
+fn browser_inventory_row_from_observation(
     generated_at: &BrowserInventoryGeneratedAtText,
     row_index: usize,
-    observation: &BrowserWindowsInventoryObservation,
+    observation: &BrowserPlatformInventoryObservation,
+    row_id_prefix: &'static str,
+    executable_path_ref: &'static str,
 ) -> BrowserInventoryRow {
     BrowserInventoryRow {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        inventory_row_id: windows_inventory_row_id(observation, row_index).0,
+        inventory_row_id: inventory_row_id(observation, row_index, row_id_prefix).0,
         scanned_at: generated_at.0.clone(),
         device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
         product_name: observation.product_name.clone(),
@@ -61,9 +100,10 @@ fn browser_inventory_row_from_windows_observation(
         active_tab_capability: observation.active_tab_capability,
         managed_profile_state: observation.managed_profile_state,
         unmanaged_fallback_capability: observation.unmanaged_fallback_capability,
-        executable_path_ref: observation.executable_path.as_ref().map(|_| {
-            constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED.to_string()
-        }),
+        executable_path_ref: observation
+            .executable_path
+            .as_ref()
+            .map(|_| executable_path_ref.to_string()),
         publisher_signature_ref: None,
         file_hash_ref: None,
         profile_id: None,
@@ -85,11 +125,12 @@ fn latest_observed_at(
     Some(generated_at.clone())
 }
 
-fn windows_inventory_row_id(
-    observation: &BrowserWindowsInventoryObservation,
+fn inventory_row_id(
+    observation: &BrowserPlatformInventoryObservation,
     row_index: usize,
+    row_id_prefix: &'static str,
 ) -> BrowserInventoryRowIdText {
-    let mut row_id = String::from(constants::browser::INVENTORY_ROW_ID_PREFIX_WINDOWS);
+    let mut row_id = String::from(row_id_prefix);
     row_id.push(constants::delimiter::HYPHEN);
     row_id.push_str(observation.browser_family.as_protocol_str());
     row_id.push(constants::delimiter::HYPHEN);

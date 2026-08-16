@@ -27,6 +27,18 @@ delivery.
 - Child-device delivery, policy evaluator execution, broad app blocking,
   adapter dispatch, or platform support.
 
+## Code-pass status
+
+The agent-service notification-readiness report now emits a typed native-app
+preference-status read model derived from the existing app/game readiness rows.
+parent-runtime-core consumes that payload and the existing portal notification
+panel renders delivery-result, parent-preference, quiet-hours, provider-channel,
+and manual-proof states. The app-game-core preflight/handoff builders remain the
+upstream typed ownership; this service projection does not claim parent
+preference mutation or native runtime execution. Parent preference and
+quiet-hours behavior remain manual-required or not-sent, and the workpack stays
+unvalidated with tests/proof/checklist deferred.
+
 ## Proof
 
 - Shared source:

@@ -152,6 +152,13 @@ parent-visible receipt claims are considered.
   generic journal/replay handoff, but WP04 remains unscheduled/manual-required until WP11 supplies
   enforcement-specific durable-journal proof and trusted dispatch. The closed
   #606 unsafe/no-op slice does not reduce this gap.
+- WP04's reachable `agent-service` execution path now fails closed with
+  `ManualRequired` in `crates/agent-service/src/enforcement_api/enforcement_command_execution/adapter_outcome.rs`;
+  it no longer turns caller-shaped PID/name fields into raw process termination.
+  The authenticated grant/managed-target executor in
+  `crates/agent-core/src/authenticated_delivery_execution.rs` remains uncalled
+  because the service command payload has no canonical persisted grant, binding,
+  trusted issuer, or WP11 durable-dispatch composition.
 - Live code audit (2026-07-23): WP06 has a Rust managed-profile/launch/bridge
   boundary, but it is not an adapter-backed enforcement action. The policy
   mapper returns `ManagedBrowserControl` as manual-required for browser

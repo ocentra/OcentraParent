@@ -9,7 +9,7 @@ use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
 use crate::browser_runtime_stream_payload::BrowserRuntimeServiceStreamReport;
-use crate::test_invariants::{require_json_decode, require_some};
+use crate::test_invariants::require_some;
 
 const BROWSER_ACTION_INTENT_EXECUTION_FIELDS: [&TestStr; 4] = [
     constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS,
@@ -27,15 +27,22 @@ pub(super) fn assert_action_intent_execution_payload_zero(payload: &LogFields) {
 pub(super) fn assert_action_intent_handoff_report_ready(
     report: &BrowserRuntimeServiceStreamReport,
     payload: &LogFields,
+    action_intent_id: &TestStr,
 ) {
     assert_eq!(report.action_intent_handoff_candidates, 1);
     assert_eq!(
         report.action_intent_handoff_outbox_refs,
-        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF.to_string()]
+        vec![expected_action_intent_ref(
+            constants::browser::ACTION_INTENT_OUTBOX_REF_PREFIX,
+            action_intent_id,
+        )]
     );
     assert_eq!(
         report.action_intent_handoff_refs,
-        vec![constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF.to_string()]
+        vec![expected_action_intent_ref(
+            constants::browser::ACTION_INTENT_HANDOFF_REF_PREFIX,
+            action_intent_id,
+        )]
     );
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_CANDIDATES),
@@ -43,51 +50,27 @@ pub(super) fn assert_action_intent_handoff_report_ready(
     );
 }
 
-pub(super) fn assert_action_intent_handoff_payload_refs(payload: &LogFields) {
+pub(super) fn assert_action_intent_handoff_payload_refs(
+    payload: &LogFields,
+    action_intent_id: &TestStr,
+) {
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS),
         Some(&LogFieldValue::String(serialize_test_json(&vec![
-            constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF
+            expected_action_intent_ref(
+                constants::browser::ACTION_INTENT_OUTBOX_REF_PREFIX,
+                action_intent_id,
+            )
         ])))
     );
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS),
         Some(&LogFieldValue::String(serialize_test_json(&vec![
-            constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF
+            expected_action_intent_ref(
+                constants::browser::ACTION_INTENT_HANDOFF_REF_PREFIX,
+                action_intent_id,
+            )
         ])))
-    );
-}
-
-pub(super) fn assert_child_status_report_refs(
-    report: &BrowserRuntimeServiceStreamReport,
-    payload: &LogFields,
-) {
-    let child_command_refs = payload_string_refs(
-        payload,
-        constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS,
-    );
-    let child_accepted_event_refs = payload_string_refs(
-        payload,
-        constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS,
-    );
-    let parent_read_model_refs = payload_string_refs(
-        payload,
-        constants::field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
-    );
-
-    assert_eq!(report.action_intent_child_accepted_rows, 1);
-    assert_eq!(report.action_intent_child_command_refs, child_command_refs);
-    assert_eq!(
-        report.action_intent_child_accepted_event_refs,
-        child_accepted_event_refs
-    );
-    assert_eq!(
-        report.action_intent_parent_read_model_refs,
-        parent_read_model_refs
-    );
-    assert_eq!(
-        payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS),
-        Some(&LogFieldValue::Number(1.0))
     );
 }
 
@@ -132,10 +115,12 @@ pub(super) fn assert_store_backed_stream_first_entry(entries: &[Value]) {
     );
 }
 
-pub(super) fn assert_store_backed_stream_child_status_and_no_execution(payload: &LogFields) {
+pub(super) fn assert_store_backed_stream_child_status_unavailable_and_no_execution(
+    payload: &LogFields,
+) {
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_ROWS),
-        Some(&LogFieldValue::Number(1.0))
+        Some(&LogFieldValue::Number(0.0))
     );
     assert_eq!(
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_DISPATCH_ATTEMPTS),
@@ -158,14 +143,11 @@ where
     crate::test_invariants::serialize_test_json(value)
 }
 
-fn payload_string_refs(payload: &LogFields, field_name: &TestStr) -> Vec<TestString> {
-    let encoded_refs = require_some(
-        payload.get(field_name).and_then(|value| match value {
-            LogFieldValue::String(value) => Some(value.as_str()),
-            _ => None,
-        }),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
-
-    require_json_decode(encoded_refs, constants::error::AGENT_EVENT_SERIALIZES)
+fn expected_action_intent_ref(prefix: &TestStr, action_intent_id: &TestStr) -> TestString {
+    let suffix = action_intent_id
+        .strip_prefix(constants::browser::ACTION_INTENT_ID_PREFIX)
+        .unwrap_or(action_intent_id);
+    let mut value = TestString::from(prefix);
+    value.push_str(suffix);
+    value
 }

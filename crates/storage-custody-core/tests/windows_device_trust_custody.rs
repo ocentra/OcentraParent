@@ -7,13 +7,13 @@ use ocentra_storage_custody_core::windows_device_trust_custody::{
 use sha2::{Digest, Sha256};
 use std::{
     fs::{self, OpenOptions},
-    sync::mpsc::{self, RecvTimeoutError},
+    sync::mpsc,
     time::Duration,
 };
 use winreg::{enums::HKEY_CURRENT_USER, RegKey};
 
 #[test]
-fn revoking_an_unissued_parent_device_trust_binding_is_idempotent() -> Result<(), String> {
+fn revoking_without_authenticated_parent_authority_fails_closed_stably() -> Result<(), String> {
     let root = std::env::temp_dir().join(format!(
         "ocentra-wp02-unissued-revocation-{}",
         std::process::id()
@@ -22,12 +22,22 @@ fn revoking_an_unissued_parent_device_trust_binding_is_idempotent() -> Result<()
     let custody = WindowsDeviceTrustCustody::open(&root)
         .map_err(|error| format!("open Windows custody: {error:?}"))?;
 
-    custody
-        .revoke_or_reset("family", "account", "device")
-        .map_err(|error| format!("first unissued revocation: {error:?}"))?;
-    custody
-        .revoke_or_reset("family", "account", "device")
-        .map_err(|error| format!("second unissued revocation: {error:?}"))?;
+    let binding = binding("family", "account", "device", &install_generation(&root)?);
+    let binding_hash = hex(Sha256::digest(&binding));
+    let sealed_path = root.join(format!("{binding_hash}.sealed"));
+    let lock_path = root.join(format!("{binding_hash}.lock"));
+    let first = custody.revoke_or_reset("family", "account", "device");
+    assert_eq!(first, Err(Error::Platform));
+    let second = custody.revoke_or_reset("family", "account", "device");
+    assert_eq!(second, Err(Error::Platform));
+    assert!(
+        !sealed_path.exists(),
+        "authority rejection must not create a record"
+    );
+    assert!(
+        !lock_path.exists(),
+        "authority rejection must precede binding-lock creation"
+    );
 
     let _cleanup = fs::remove_dir_all(root);
     Ok(())
@@ -151,7 +161,7 @@ fn corrupt_multibyte_registry_epoch_is_rejected_without_panic() -> Result<(), St
 }
 
 #[test]
-fn binding_fence_blocks_a_second_custody_handle_until_release() -> Result<(), String> {
+fn binding_fence_is_not_reached_before_authenticated_authority_gate() -> Result<(), String> {
     let root = temporary_root("binding-fence");
     let _cleanup = fs::remove_dir_all(&root);
     WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("open custody: {error:?}"))?;
@@ -175,14 +185,12 @@ fn binding_fence_blocks_a_second_custody_handle_until_release() -> Result<(), St
     });
 
     assert_eq!(
-        receiver.recv_timeout(Duration::from_millis(100)),
-        Err(RecvTimeoutError::Timeout)
+        receiver
+            .recv_timeout(Duration::from_millis(100))
+            .map_err(|error| format!("receive authority-gate result: {error}"))?,
+        Err(Error::Platform)
     );
     FileExt::unlock(&lock).map_err(|error| format!("release fence: {error}"))?;
-    receiver
-        .recv_timeout(Duration::from_secs(1))
-        .map_err(|error| format!("receive contender result: {error}"))?
-        .map_err(|error| format!("contender revoke: {error:?}"))?;
     contender
         .join()
         .map_err(|_error| "contender thread panicked")?

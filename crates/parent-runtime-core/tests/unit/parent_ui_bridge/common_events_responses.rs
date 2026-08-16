@@ -1,5 +1,7 @@
 use super::super::super::*;
 
+use super::activity::{app_use_read_model_response_event, games_read_model_response_event};
+
 const SCREEN_SETTINGS_STATUS_ACCEPTED: &str = "accepted";
 
 pub(crate) struct PayloadText(pub(crate) String);
@@ -457,6 +459,8 @@ pub(crate) fn policy_request_parent_resolution_resolved_response_event() -> Agen
 
 pub(crate) fn app_game_route_load_response_events() -> Vec<AgentEventEnvelope> {
     vec![
+        app_use_read_model_response_event(),
+        games_read_model_response_event(),
         app_game_notification_readiness_response_event(),
         app_game_policy_readiness_response_event(),
         app_game_platform_proof_status_response_event(),

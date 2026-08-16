@@ -35,12 +35,19 @@ Purpose: define the child Windows package, service lifecycle, and respawn proof 
 
 ## Execution truth
 
-Current WP02 execution state is `blocked / proof-present`.
+Current WP02 execution state is `production code drafted / test-deferred`.
 
-What is real:
-- The Windows child-agent package artifact is real. `npm run release:package:windows` built the MSI, latest MSI alias, manifest, checksum sidecars, and bootstrap installer from the real workspace.
-- The Windows proof harness now records distinct install, start, stop, restart, respawn, and uninstall-authority-cleanup states.
-- Respawn is only modeled from Windows service-manager failure-action state and is not inferred from package build, WiX authoring, or WinSW XML alone.
+Production code drafted in this pass:
+- `ocentra-child-runtime` now exposes the `ocentra-child-agent-service` executable composition boundary.
+- The composition boundary owns durable journal/tombstone paths, startup recovery, typed readiness, and a bounded observed-event ingress API; network transport remains out of scope.
+- The Windows builder, WiX manifest, WinSW service configuration, updater service naming, and bootstrap temp identity target the child artifact and child service identity.
+- The Windows WinSW service manifest now provides only the child-owned durable data path; unused parent transport/origin environment variables are absent because this service has no transport owner.
+
+Tests, lifecycle validation, proof, and elevated-host execution remain deferred. This pass does not claim installed runtime health, respawn, uninstall, or release readiness.
+
+Deferred validation references:
+- The package/proof commands and retained proof paths remain inputs for the later validation phase; they were not run or used as completion evidence here.
+- Respawn remains a later service-manager validation boundary and is not inferred from package build, WiX authoring, or WinSW XML alone.
 
 What is blocked/manual-required on this host:
 - Install, start, stop, restart, uninstall, and live respawn execution remain blocked by `admin-required`.
@@ -51,7 +58,7 @@ Non-claims that remain explicit:
 - Parent-client parity is not claimed from this slice.
 - Parent-authorized revoke parity is not claimed from this slice; that remains separate uninstall/revocation scope.
 
-Proof root:
+Deferred proof root:
 - `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/`
 - Current blocked install-attempt proof: `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json`
 - Current artifact-only proof: `test-results/windows-package-lifecycle-proof/2026-06-28T20-18-36-351Z/proof.json`

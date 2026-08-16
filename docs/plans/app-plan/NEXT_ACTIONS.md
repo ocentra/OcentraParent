@@ -1,41 +1,62 @@
-﻿<!-- agent-capsule -->
+<!-- agent-capsule -->
 
 > Agent Capsule
 > Plan: `app-plan`
 > Doc: `NEXT_ACTIONS.md`
 > Kind: short resume/action list.
-> Read when: When starting or resuming this plan after PLAN_STATE.md.
-> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
-> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
-> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
-> Proof rule: Update when current next product slice changes.
+> Read when: After `PLAN_STATE.md` when resuming this plan.
+> Stop rule: Select only the first legal incomplete workpack from the graph.
+> Proves: execution order only; not completion.
 
 <!-- /agent-capsule -->
 
 # Native Apps Plan Next Actions
 
-Latest selected slice: WP01 contract-boundary code/test/proof validation is
-merged through PR #640/#643; do not treat it as full workpack or plan closure.
-The next slice must be selected from the graph and must preserve the app-only
-owner boundary.
+The code-first audit is complete for all 95 workpacks. Use
+[CODE_AUDIT.md](CODE_AUDIT.md) and the engineering graph; do not route from
+legacy package/script paths embedded in old workpack prose.
 
-1. Select the smallest current workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
-2. Read `workpacks/00-owner-boundary-proof-gate.md` to apply current app-plan owner/import/proof rules.
-3. If the selected workpack owner path is unclear, classify it with [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md).
-4. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md).
-5. Select required test/proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
-6. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
-7. Keep status open until proof artifacts exist and checklist/proof rows are updated.
+## Phase 1 implementation order
 
-## Actioned completion tracker
+1. **WP18 + WP49 — compiler/routing foundation**
+   - Implement one Rust-owned native app policy compiler and category/risk/AI
+     candidate routing path.
+   - Require evidence freshness, device/local-user binding, schedule/authority
+     refs, dry-run semantics, and fail-closed manual-required hard actions.
+   - Add focused positive and stale/wrong-device/missing-proof/no-adapter tests.
+2. **WP16 + WP17 — durable review/risk production**
+   - Produce new/unknown/risk candidates from authoritative inventory/runtime
+     evidence.
+   - Add one-shot/persistent approval, expiry/replay, restart, and parent/child
+     lifecycle tests.
+3. **WP19 + WP20 — runtime and child UX**
+   - Compose sessions, schedules, bonus/allow-once state, timer lifecycle, and
+     child warning/request delivery with restart tests.
+4. **WP62-WP65 — notification preference and delivery status**
+   - WP59's scheduler bridge, WP60's metadata-only audit-history bridge, and
+     WP61's persisted provider-preflight bridge are implemented and
+     focused-green at `4cf6a11c9`, `bae505ce8`, and `8355613d8`; implement
+     preference preflight and real status producers next. Durable
+     history/query, quiet-hours, retry/dead-letter, and provider delivery remain
+     separate runtime boundaries.
+5. **WP15 + WP48 + WP63 — parent product surface**
+   - Render inventory/running/foreground/session and source freshness states,
+     evidence drill-in, empty/stale/degraded/manual states, and malicious/large
+     metadata tests.
+6. **WP26 — performance harnesses**
+   - Add the specified inventory/process/replay/policy/portal scale tests.
+7. **WP102 — route cleanup**
+   - Implement its bounded service-handoff model/test or explicitly merge and
+     retire the redundant packet into WP103.
 
-- [ ] Re-check this plan route from AGENTS/PLAN_STATE and confirm the assigned workpack path.
-- [ ] Apply `workpacks/00-owner-boundary-proof-gate.md` to the selected workpack before source changes.
-- [ ] Classify ambiguous/generated workpacks with `WORKPACK_FAMILIES.md` before opening source.
-- [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
-- [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
+## Execution rules
 
-## State
-
-- Route is still in planning-to-research-to-proof lane; implementation status is not marked complete.
-- Keep this file aligned with `PLAN_STATE.md`, `PLAN_HEALTH.md`, and proof artifacts before any DONE/PR_READY update.
+- Claim exact files through Enforcer before editing.
+- One coherent workpack slice per branch; use E: only for any worktree.
+- Update the workpack, `CODE_AUDIT.md`, `PLAN_STATE.md`, `WORKPACK_INDEX.md`,
+  and graph mapping with every verified finding.
+- Finish source and expected-test writing before broad validation.
+- Phase 2 runs focused tests/Enforcer for the touched slice.
+- Phase 3 regenerates proof from a clean checkout only after Phase 2 is green.
+- Do not open the plan PR until the selected whole-plan audit/implementation
+  batch is internally coherent under the user's promotion policy.

@@ -5,12 +5,12 @@ use crate::{
     activity_surface_store::load_app_game_model,
     browser_evidence_payload::browser_evidence_read_model_payload,
     browser_inventory_read_model::{
+        browser_inventory_read_model_from_platform_inventory,
         browser_inventory_read_model_from_windows_inventory, BrowserInventoryGeneratedAtText,
     },
     browser_payload::browser_inventory_read_model_payload,
     browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
-    network_product_path_bridge::prove_network_product_path_for_read_model,
     network_runtime_delivery::deliver_network_runtime_for_read_model,
     network_runtime_stream_payload::{
         network_runtime_event_chain_stream_payload,
@@ -20,7 +20,9 @@ use crate::{
 };
 use ocentra_parent_agent_core::{
     activity_store::ActivityStore,
-    browser_windows_inventory::windows_browser_inventory_observations,
+    browser_platform_inventory::{
+        browser_platform_inventory_observations, BrowserPlatformInventoryObservation,
+    },
     browser_windows_package_inventory::windows_browser_package_observations,
     browser_windows_package_source::live_windows_browser_package_entries_with_limit,
     process_capture::{collect_process_snapshot, ProcessObservation},
@@ -103,12 +105,12 @@ use self::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
 };
 use self::app_game_notification_readiness_payload::{
-    app_game_notification_readiness_from_service_model, app_game_notification_readiness_payload,
+    app_game_notification_readiness_report_from_service_model,
+    app_game_notification_readiness_report_payload,
 };
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
-use self::app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct ActivityEventId(pub(crate) &'static str);
@@ -175,18 +177,13 @@ pub async fn build_network_flow_read_model_report(
     match load_network_flow_read_model().await {
         Some(read_model) => {
             let delivery = deliver_network_runtime_for_read_model(&read_model).await;
-            let product_path = prove_network_product_path_for_read_model(&read_model);
             build_event(
                 constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
                 &command.message_id,
                 command.source,
                 AgentEventName::AgentNetworkFlowReadModelReported,
                 LogLevel::Info,
-                network_flow_read_model_payload_with_runtime_delivery(
-                    &read_model,
-                    Some(&delivery),
-                    Some(&product_path),
-                ),
+                network_flow_read_model_payload_with_runtime_delivery(&read_model, Some(&delivery)),
                 None,
             )
         }
@@ -282,15 +279,10 @@ pub async fn build_activity_app_game_notification_readiness_report(
         AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         async {
             load_app_game_model().await.map(|model| {
-                let local_outbox_runtime_claimed =
-                    setup_outbox_has_records(&std::path::PathBuf::from(activity_db_path()));
-                app_game_notification_readiness_from_service_model(
-                    model,
-                    local_outbox_runtime_claimed,
-                )
+                app_game_notification_readiness_report_from_service_model(model, false)
             })
         },
-        app_game_notification_readiness_payload,
+        app_game_notification_readiness_report_payload,
     )
     .await
 }
@@ -340,12 +332,16 @@ pub(crate) fn browser_inventory_read_model_from_service_defaults(
 ) -> BrowserInventoryReadModel {
     let candidate_paths = system_browser_candidate_paths();
     let mut observations =
-        windows_browser_inventory_observations(&candidate_paths.0, process_observations, None);
+        browser_platform_inventory_observations(&candidate_paths.0, process_observations, None);
     let package_identities = live_windows_browser_package_entries_with_limit(
         constants::browser::PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY,
     );
-    observations.extend(windows_browser_package_observations(&package_identities));
-    browser_inventory_read_model_from_windows_inventory(
+    observations.extend(
+        windows_browser_package_observations(&package_identities)
+            .iter()
+            .map(BrowserPlatformInventoryObservation::from),
+    );
+    browser_inventory_read_model_from_platform_inventory(
         BrowserInventoryGeneratedAtText(generated_at.0),
         &observations,
     )

@@ -4,8 +4,12 @@ use ocentra_parent_agent_protocol::activity_surface::{
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel;
+use ocentra_parent_agent_protocol::app_game_notification_parent_surface_intent::AppGameNotificationParentSurfaceIntentReadModel;
 use ocentra_parent_agent_protocol::app_game_notification_readiness::{
     AppGameNotificationReadinessReadModel, AppGameNotificationReadinessRow,
+};
+use ocentra_parent_agent_protocol::app_game_notification_status::{
+    AppGameNotificationPreferenceStatusEntry, AppGameNotificationStatusReadModels,
 };
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_policy_readiness::{
@@ -14,6 +18,7 @@ use ocentra_parent_agent_protocol::app_game_policy_readiness::{
 use ocentra_parent_agent_protocol::app_game_timer_parent_preference_setup_request::AppGameTimerParentPreferenceSetupRequest;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusBoundaryEntry;
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelResultSnapshot, ParentActivityTrackingReadModelRowSnapshot,
     ParentAppGameActionRowSnapshot, ParentAppGameAdapterDispatchPanelSnapshot,
@@ -131,6 +136,12 @@ pub(super) fn parent_portal_shell_status(
         connection_state,
         lan_add_device_read_model,
     )
+}
+
+pub(super) fn parent_access_state_for_lan_read_model(
+    read_model: Option<&LanBrowserAddDeviceReadModel>,
+) -> ParentPortalParentAccessState {
+    app_game_readiness_labels::parent_access_state_for_read_model(read_model)
 }
 
 pub(super) fn browser_route_panels_snapshot(

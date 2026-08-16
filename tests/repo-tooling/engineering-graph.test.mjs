@@ -222,7 +222,13 @@ test('flattened matrix preserves plan, topology, dependency, and completion gaps
               blockers: [{ id: 'WP-example-00', state: 'validation' }],
               unlocks: ['WP-example-02'],
               completionContract: { gaps: ['tests: missing'] },
-              codeTestTopology: { state: 'code-and-tests', implementationFiles: 2, testFiles: 1 },
+              codeTestTopology: {
+                state: 'code-and-tests',
+                codeExpectation: 'code-and-tests',
+                codeExpectationSatisfied: true,
+                implementationFiles: 2,
+                testFiles: 1,
+              },
             },
           ],
         },
@@ -240,6 +246,8 @@ test('flattened matrix preserves plan, topology, dependency, and completion gaps
       state: 'validation',
       storedState: 'active',
       codeState: 'code-and-tests',
+      codeExpectation: 'code-and-tests',
+      codeExpectationSatisfied: true,
       implementationFiles: 2,
       testFiles: 1,
       dependsOn: ['WP-example-00'],
@@ -412,6 +420,22 @@ test('code inventory reports implementation and test topology without claiming a
       schemaVersion: 1,
       authority: 'test map',
       plans: { 'example-plan': ['crates/example'] },
+      workpacks: {
+        'WP-example-plan-01-planning-boundary': {
+          planSlug: 'example-plan',
+          codeExpectation: 'no-code-required',
+          roots: [],
+        },
+        'WP-example-plan-02-test-audit': {
+          planSlug: 'example-plan',
+          codeExpectation: 'tests-only',
+          roots: ['crates/example/tests/unit.rs'],
+        },
+        'WP-example-plan-03-runtime': {
+          planSlug: 'example-plan',
+          roots: ['crates/example'],
+        },
+      },
     })
   );
 
@@ -421,11 +445,61 @@ test('code inventory reports implementation and test topology without claiming a
     codeFiles: 2,
     implementationFiles: 1,
     testFiles: 1,
-    reviewedWorkpackMaps: 0,
+    reviewedWorkpackMaps: 3,
   });
   assert.equal(inventory.plans[0].state, 'code-and-tests');
   assert.deepEqual(inventory.plans[0].missingRoots, []);
   assert.deepEqual(inventory.plans[0].testPaths, ['crates/example/tests/unit.rs']);
+  const planning = inventory.workpacks.find((workpack) => workpack.workpackId.endsWith('planning-boundary'));
+  assert.equal(planning.state, 'no-source');
+  assert.equal(planning.codeExpectation, 'no-code-required');
+  assert.equal(planning.codeExpectationSatisfied, true);
+  const testAudit = inventory.workpacks.find((workpack) => workpack.workpackId.endsWith('test-audit'));
+  assert.equal(testAudit.state, 'tests-only');
+  assert.equal(testAudit.codeExpectationSatisfied, true);
+  const runtime = inventory.workpacks.find((workpack) => workpack.workpackId.endsWith('runtime'));
+  assert.equal(runtime.state, 'code-and-tests');
+  assert.equal(runtime.codeExpectation, 'code-and-tests');
+  assert.equal(runtime.codeExpectationSatisfied, true);
+});
+
+test('code inventory rejects unknown expectations and empty required roots', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'ocentra-engineering-graph-invalid-map-'));
+  await mkdir(path.join(root, 'docs', 'engineering-graph'), { recursive: true });
+  const codeMapPath = path.join(root, 'docs', 'engineering-graph', 'code-map.json');
+  await writeFile(
+    codeMapPath,
+    JSON.stringify({
+      schemaVersion: 1,
+      authority: 'test map',
+      plans: { 'example-plan': [] },
+      workpacks: {
+        'WP-example-plan-01-invalid': {
+          planSlug: 'example-plan',
+          codeExpectation: 'docs-maybe',
+          roots: [],
+        },
+      },
+    })
+  );
+  await assert.rejects(() => buildCodeInventory({ root }), /codeExpectation must be/);
+
+  await writeFile(
+    codeMapPath,
+    JSON.stringify({
+      schemaVersion: 1,
+      authority: 'test map',
+      plans: { 'example-plan': [] },
+      workpacks: {
+        'WP-example-plan-02-missing-roots': {
+          planSlug: 'example-plan',
+          codeExpectation: 'tests-only',
+          roots: [],
+        },
+      },
+    })
+  );
+  await assert.rejects(() => buildCodeInventory({ root }), /must declare non-empty roots/);
 });
 
 test('repository bootstrap is queryable and keeps plan scope isolated', async () => {
@@ -491,7 +565,10 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   assert.ok(!scoped.some((node) => node.id.startsWith('WP-browser-plan-')));
 
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
-  assert.equal(globalSummary.ready.length, 0);
+  assert.deepEqual(
+    globalSummary.ready.map((node) => node.id),
+    ['WP-eventing-plan-09-network-consumer-event-chain']
+  );
   assert.ok(globalSummary.blocked.length > 0);
 });
 
@@ -523,9 +600,11 @@ test('progress report joins derived workpack state with reviewed plan topology',
   assert.equal(blocked.state, 'blocked');
 });
 
-test('reviewed workpack code maps stay exact while unmapped rows remain unknown', async () => {
+test('reviewed app workpack code maps stay exact after the full plan audit', async () => {
   const report = await buildProgressReport({ root: repoRoot });
   const app = report.plans.find((plan) => plan.id === 'PLAN-app-plan');
+  assert.equal(app.workpacks.rows.length, 95);
+  assert.ok(app.workpacks.rows.every((workpack) => workpack.codeTestTopology.scope === 'reviewed-workpack-roots'));
   const mapped = app.workpacks.rows.find(
     (workpack) => workpack.id === 'WP-app-plan-01-contract-boundary-and-effect-schemas'
   );
@@ -533,10 +612,41 @@ test('reviewed workpack code maps stay exact while unmapped rows remain unknown'
   assert.ok(mapped.codeTestTopology.implementationFiles > 0);
   assert.ok(mapped.codeTestTopology.testFiles > 0);
   assert.ok(mapped.codeTestTopology.implementationPaths.some((file) => file.endsWith('runtime_decision.rs')));
-  const unmapped = app.workpacks.rows.find(
+  const ownedProcessLimit = app.workpacks.rows.find(
     (workpack) => workpack.id === 'WP-app-plan-21-windows-owned-process-terminate-time-limit-proof'
   );
-  assert.equal(unmapped.codeTestTopology, 'unknown-workpack-ownership');
+  assert.equal(ownedProcessLimit.codeTestTopology.scope, 'reviewed-workpack-roots');
+  assert.ok(
+    ownedProcessLimit.codeTestTopology.implementationPaths.some((file) =>
+      file.endsWith('enforcement_app_time_limit.rs')
+    )
+  );
+  assert.ok(ownedProcessLimit.codeTestTopology.testFiles > 0);
+});
+
+test('reviewed app game workpack maps cover the full imported plan', async () => {
+  const report = await buildProgressReport({ root: repoRoot });
+  const appGame = report.plans.find((plan) => plan.id === 'PLAN-app-game-plan');
+  assert.equal(appGame.workpacks.rows.length, 220);
+  assert.ok(appGame.workpacks.rows.every((workpack) => workpack.codeTestTopology.scope === 'reviewed-workpack-roots'));
+
+  const windowsInventory = appGame.workpacks.rows.find(
+    (workpack) => workpack.id === 'WP-app-game-plan-06-windows-installed-inventory-adapter'
+  );
+  assert.ok(windowsInventory.codeTestTopology.implementationFiles > 0);
+  assert.ok(windowsInventory.codeTestTopology.testFiles > 0);
+  assert.ok(
+    windowsInventory.codeTestTopology.implementationPaths.some((file) =>
+      file.endsWith('app_game_windows_inventory_source.rs')
+    )
+  );
+
+  const physicalProof = appGame.workpacks.rows.find(
+    (workpack) => workpack.id === 'WP-app-game-plan-181-app-game-android-physical-device-proof'
+  );
+  assert.equal(physicalProof.codeTestTopology.codeExpectation, 'no-code-required');
+  assert.equal(physicalProof.codeTestTopology.implementationFiles, 0);
+  assert.equal(physicalProof.codeTestTopology.testFiles, 0);
 });
 
 test('root goal scope includes the full reviewed code map', async () => {

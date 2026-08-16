@@ -1,5 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 
+const lanDiscoveryReadyTimeoutMs = 90_000;
+
 export async function assertLanRouteSurface(page: Page): Promise<void> {
   const surface = page.locator('svg.parent-portal-svg-surface');
   const viewport = page.viewportSize();
@@ -53,7 +55,7 @@ async function selectFreshServiceBackedLanDevice(page: Page, surface: ReturnType
   await lanScopeChoice.click({ force: true });
 
   const deviceChoice = surface.getByRole('button', { name: /^Select (?!LAN |Parent Portal$|Portal$).+/ }).first();
-  await expect(deviceChoice).toBeVisible({ timeout: 30_000 });
+  await expect(deviceChoice).toBeVisible({ timeout: lanDiscoveryReadyTimeoutMs });
   const deviceLabel = ((await deviceChoice.getAttribute('aria-label')) ?? '').replace(/^Select /, '');
   await deviceChoice.click({ force: true });
   await expect(

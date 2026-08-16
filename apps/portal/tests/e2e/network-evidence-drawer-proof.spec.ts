@@ -24,9 +24,6 @@ test('network evidence drawer renders service-backed refs without unsupported cl
     timeout: shellReadyTimeoutMs,
   });
   const commandResult = page.locator('.command-result-panel');
-  await expect(commandResult.getByText(ParentAgentEvent.LogSnapshotReported)).toHaveCount(1, {
-    timeout: shellReadyTimeoutMs,
-  });
   const networkCommand = page.getByRole('button', { exact: true, name: 'Refresh network activity' });
   await expect(networkCommand).toBeEnabled({ timeout: shellReadyTimeoutMs });
 

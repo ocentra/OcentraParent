@@ -1,10 +1,12 @@
 mod generic_command;
 mod network_flow;
+mod policy_authoring;
 mod rust_owned_command;
 mod state;
 
 use self::generic_command::dispatch_parent_ui_action_agent_command;
 use self::network_flow::dispatch_parent_ui_action_network_flow_refresh;
+use self::policy_authoring::dispatch_parent_ui_action_policy_authoring;
 use self::rust_owned_command::dispatch_parent_ui_action_rust_owned_command;
 use self::state::ActionDispatchState;
 use super::*;
@@ -15,6 +17,8 @@ pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentU
         ParentUiActionKind::RefreshRoute
             | ParentUiActionKind::Reconnect
             | ParentUiActionKind::AgentCommandRequested
+            | ParentUiActionKind::PolicyPreviewAuthoringDraftStaged
+            | ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled
             | ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested
             | ParentUiActionKind::PolicyRequestParentResolutionRequested
             | ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested
@@ -32,9 +36,13 @@ pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentU
         dispatch_parent_ui_action_message(action, &lan_route_query),
         lan_route_query.events().to_vec(),
     );
-    dispatch_parent_ui_action_network_flow_refresh(action, &mut state);
-    dispatch_parent_ui_action_agent_command(action, action_owned, &mut state);
-    dispatch_parent_ui_action_rust_owned_command(action, action_owned, &mut state);
+    let policy_authoring_handled =
+        dispatch_parent_ui_action_policy_authoring(action, &lan_route_query, &mut state);
+    if !policy_authoring_handled {
+        dispatch_parent_ui_action_network_flow_refresh(action, &mut state);
+        dispatch_parent_ui_action_agent_command(action, action_owned, &mut state);
+        dispatch_parent_ui_action_rust_owned_command(action, action_owned, &mut state);
+    }
     let snapshot = build_parent_route_snapshot(
         action.route.clone(),
         &lan_route_query,

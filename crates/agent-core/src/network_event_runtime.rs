@@ -6,7 +6,7 @@ use crate::{
     NetworkObservation,
 };
 use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
-use ocentra_eventing::bus::reports::handler::PublishReport;
+use ocentra_eventing::bus::reports::handler::{HandlerOutcome, PublishReport};
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
     envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventId, ids::EventType,
@@ -23,7 +23,9 @@ use ocentra_parent_agent_protocol::network_flow::{
     NetworkInterventionState, NetworkRuntimeClaimBoundary,
     NetworkRuntimeEventPayload as ProtocolNetworkRuntimeEventPayload, NetworkRuntimePhase,
 };
-use std::sync::{Arc, Mutex};
+use std::collections::BTreeSet;
+use std::sync::Arc;
+use tokio::sync::Mutex as AsyncMutex;
 
 pub mod broker_delivery;
 #[path = "network_event_runtime/helpers.rs"]
@@ -70,6 +72,25 @@ pub struct NetworkRuntimeReport {
     pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
     pub dead_letters: Vec<DeadLetter>,
     pub handled_phases: Vec<NetworkRuntimePhase>,
+    pub journal_state: NetworkRuntimeJournalState,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum NetworkRuntimeJournalState {
+    Durable,
+    #[default]
+    InMemoryManualRequired,
+    UnavailableManualRequired,
+}
+
+impl NetworkRuntimeJournalState {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Durable => "durable",
+            Self::InMemoryManualRequired => "in-memory-manual-required",
+            Self::UnavailableManualRequired => "unavailable-manual-required",
+        }
+    }
 }
 
 impl NetworkRuntimeReport {
@@ -200,29 +221,30 @@ pub async fn publish_network_runtime_chain_for_observation(
         .await
 }
 
-struct NetworkRuntimeSpine {
+#[derive(Clone)]
+pub struct NetworkRuntimeSpine {
     bus: EventBus,
-    handled_phases: Arc<Mutex<Vec<NetworkRuntimePhase>>>,
+    chain_lock: Arc<AsyncMutex<()>>,
 }
 
 impl NetworkRuntimeSpine {
-    async fn with_default_handlers() -> Result<Self, EventingError> {
+    pub async fn with_default_handlers() -> Result<Self, EventingError> {
         let bus = EventBus::new();
-        let handled_phases = Arc::new(Mutex::new(Vec::new()));
         for phase in NetworkRuntimePhase::ordered_chain() {
-            subscribe_default_handler(&bus, *phase, Arc::clone(&handled_phases)).await?;
+            subscribe_default_handler(&bus, *phase).await?;
         }
         Ok(Self {
             bus,
-            handled_phases,
+            chain_lock: Arc::new(AsyncMutex::new(())),
         })
     }
 
-    async fn publish_observation_chain(
+    pub async fn publish_observation_chain(
         &self,
         observation: NetworkObservation,
         observed_at: &str,
     ) -> Result<NetworkRuntimeReport, EventingError> {
+        let _chain_guard = self.chain_lock.lock().await;
         let runtime_decision = network_runtime_decision_from_observation(&observation);
         let mut reports = Vec::new();
         for phase in NetworkRuntimePhase::ordered_chain()
@@ -242,26 +264,56 @@ impl NetworkRuntimeSpine {
                 network_event_metadata(phase, &observation, observed_at, phase.target_handler())?;
             reports.push(self.bus.publish(payload, metadata).await?);
         }
+        let current_event_ids: BTreeSet<_> = reports
+            .iter()
+            .map(|report| report.event_id.clone())
+            .collect();
+        let stored_events: Vec<_> = self
+            .bus
+            .journal()
+            .await
+            .into_iter()
+            .filter(|event| current_event_ids.contains(&event.event_id))
+            .collect();
+        if stored_events.len() != reports.len() {
+            return Err(EventingError::InvalidValue {
+                field: "network_runtime_journal",
+                value: "current_publish_event_missing_from_retained_journal".to_string(),
+            });
+        }
+        let dead_letters: Vec<_> = self
+            .bus
+            .dead_letters()
+            .await
+            .into_iter()
+            .filter(|dead_letter| current_event_ids.contains(&dead_letter.envelope.event_id))
+            .collect();
+        let handled_phases = handled_phases_for_reports(&reports);
         Ok(NetworkRuntimeReport {
             publish_reports: reports,
-            stored_events: self.bus.journal().await,
-            dead_letters: self.bus.dead_letters().await,
-            handled_phases: self
-                .handled_phases
-                .lock()
-                .map_err(|_poison| EventingError::InvalidValue {
-                    field: "network_runtime_handler_trace",
-                    value: "poisoned".to_string(),
-                })?
-                .clone(),
+            stored_events,
+            dead_letters,
+            handled_phases,
+            journal_state: if self.bus.has_production_durable_journal() {
+                NetworkRuntimeJournalState::Durable
+            } else {
+                NetworkRuntimeJournalState::InMemoryManualRequired
+            },
         })
+    }
+
+    pub fn journal_state(&self) -> NetworkRuntimeJournalState {
+        if self.bus.has_production_durable_journal() {
+            NetworkRuntimeJournalState::Durable
+        } else {
+            NetworkRuntimeJournalState::InMemoryManualRequired
+        }
     }
 }
 
 async fn subscribe_default_handler(
     bus: &EventBus,
     phase: NetworkRuntimePhase,
-    handled_phases: Arc<Mutex<Vec<NetworkRuntimePhase>>>,
 ) -> Result<(), EventingError> {
     bus.subscribe::<NetworkRuntimeEventPayload, _, _>(
         EventSubscriber::new(
@@ -269,27 +321,28 @@ async fn subscribe_default_handler(
             EventType::parse(phase.event_type())?,
             TargetHandler::parse(phase.target_handler())?,
         ),
-        move |context| {
-            let handled_phases = Arc::clone(&handled_phases);
-            async move { record_handled_phase(&handled_phases, context.payload().phase) }
-        },
+        |_| async { Ok(()) },
     )
     .await
     .map(|_| ())
 }
 
-fn record_handled_phase(
-    handled_phases: &Mutex<Vec<NetworkRuntimePhase>>,
-    phase: NetworkRuntimePhase,
-) -> Result<(), EventingError> {
-    handled_phases
-        .lock()
-        .map_err(|_poison| EventingError::InvalidValue {
-            field: "network_runtime_handler_trace",
-            value: "poisoned".to_string(),
-        })?
-        .push(phase);
-    Ok(())
+fn handled_phases_for_reports(reports: &[PublishReport]) -> Vec<NetworkRuntimePhase> {
+    reports
+        .iter()
+        .filter(|report| {
+            report
+                .handler_reports
+                .iter()
+                .any(|handler| handler.outcome == HandlerOutcome::Handled)
+        })
+        .filter_map(|report| {
+            NetworkRuntimePhase::ordered_chain()
+                .iter()
+                .copied()
+                .find(|phase| phase.event_type() == report.event_type.as_str())
+        })
+        .collect()
 }
 
 fn network_event_metadata(

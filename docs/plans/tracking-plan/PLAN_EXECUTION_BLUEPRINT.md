@@ -13,6 +13,13 @@
 
 # Tracking Plan Execution Blueprint
 
+> **2026-08-15 routing correction:** current source and test ownership is the
+> 42-row map in `CODE_AUDIT.md` and `docs/engineering-graph/code-map.json`.
+> Commands or ownership paths below that target `packages/tracking-domain` or
+> `scripts/test/tracking-*.mjs` are historical expectations, not runnable
+> present-checkout gates. Restore or replace them only in the owning Phase 1
+> workpack before using them for Phase 2 or proof.
+
 ## Execution rule
 
 Tracking is mature but large. Do not execute the full plan. Select one workpack from `WORKPACK_INDEX.md` and use its named proof root, proof ids, no-claim boundaries, and focused commands.

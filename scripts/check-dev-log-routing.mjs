@@ -22,6 +22,7 @@ function main() {
   const repoRoot = parseRepoRoot(process.argv.slice(2));
   const contractsPath = path.join(repoRoot, 'packages', 'logging-domain', 'src', 'logging-contracts.ts');
   const portalLoggerPath = path.join(repoRoot, 'packages', 'portal-domain', 'src', 'dev-logger.ts');
+  const portalLoggerImplementationPath = path.join(repoRoot, 'packages', 'portal-domain', 'src', 'dev-logger-impl.ts');
   const portalLoggerWrapperPath = path.join(repoRoot, 'apps', 'portal', 'src', 'dev-logger.ts');
   const bridgeServerPath = path.join(repoRoot, 'packages', 'logging-domain', 'src', 'transport', 'bridgeServer.ts');
   const cargoPath = path.join(repoRoot, 'crates', 'agent-service', 'Cargo.toml');
@@ -31,6 +32,7 @@ function main() {
   for (const filePath of [
     contractsPath,
     portalLoggerPath,
+    portalLoggerImplementationPath,
     portalLoggerWrapperPath,
     bridgeServerPath,
     cargoPath,
@@ -41,7 +43,7 @@ function main() {
   }
 
   const contractsText = readText(contractsPath);
-  const portalLoggerText = readText(portalLoggerPath);
+  const portalLoggerText = readText(portalLoggerImplementationPath);
   const portalLoggerWrapperText = readText(portalLoggerWrapperPath);
   const bridgeServerText = readText(bridgeServerPath);
   const cargoText = readText(cargoPath);
@@ -62,8 +64,9 @@ function main() {
     portalLoggerText.includes('resolvePortalCompatibilityUrl(') &&
     portalLoggerText.includes('sendPortalCompatibilityLog(');
   const portalPrefersBridgeBeforeCompatibility =
-    portalLoggerText.includes('if (await sendPortalBridgeMessage(') &&
-    portalLoggerText.includes('return sendPortalCompatibilityLog(');
+    /return\s*\(\s*\(await sendPortalBridgeMessage\([\s\S]*?\)\s*\|\|\s*\(await sendPortalCompatibilityLog\(/.test(
+      portalLoggerText
+    );
   const bridgeServerImplementsReceiver = bridgeServerText.includes("case '/__logs__':");
 
   if (contractsText.includes('DevLogEndpoint') && contractsText.includes('Write:')) {
@@ -77,7 +80,7 @@ function main() {
     );
     ensure(
       portalUsesCompatibilityEndpoint && portalPrefersBridgeBeforeCompatibility,
-      'portal dev logger must keep the compatibility endpoint only as a fallback after the bridge transport'
+      'portal dev logger implementation must keep the compatibility endpoint behind a bridge short-circuit fallback'
     );
   }
 

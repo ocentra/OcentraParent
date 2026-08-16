@@ -18,6 +18,32 @@ This index keeps the browser plan tied to existing source documents and code. It
 is not a replacement for feature, expectation, roadmap, checklist, package, or
 crate ownership docs.
 
+## 2026-08-16 production reachability audit
+
+The production-code pass found no additional reachable Browser slice with a
+real owner-backed input. The following boundaries are retained as blockers,
+not completion claims:
+
+- WP11 reaches `crates/agent-core/src/browser_bridge_poll.rs` from
+  `crates/agent-service/src/browser_runtime_impl/bridge.rs`, but
+  `browser_bridge_poll/parse.rs` intentionally emits `unknown` /
+  `target-list-only`. Focus/activation, extension, foreground-correlation, and
+  owned-shell sources are absent.
+- WP21's `crates/agent-core/src/browser_bridge_native_host.rs` is a validator
+  with test-only inbound references. No extension package, native-host
+  registration, or production IPC caller exists.
+- WP20's AppLocker/App Control model is reachable only as a service
+  enforcement product-control read model whose states remain static and
+  manual-required. Windows policy/runtime authority is absent.
+- WP22's `crates/browser-core/src/performance_budget.rs` is fixture/evaluator
+  code with no runtime measurement producer or service-health bridge caller.
+
+The graph report currently presents all 30 Browser workpacks as `planned` with
+no dependencies; it is stale relative to the source-backed implementation and
+blocker notes. Legacy `packages/activity-domain/src/browser*.ts` references are
+not active ownership; current TypeScript edge ownership is
+`packages/browser-domain`, with Rust runtime ownership under the paths below.
+
 ## Product Source Docs
 
 - Owning feature: [Browser and web control](../../features/browser-web-control.md)

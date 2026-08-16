@@ -55,3 +55,24 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
 - [ ] Keep portal projection claims separate from sibling domain/runtime readiness.
+
+## Production-code audit boundary (2026-08-16)
+
+The shipped entrypoint and typed host bridge are present. The audit found no
+missing portal-only production slice with an independently owned backend
+authority:
+
+- WP01-WP04 and WP10 have real bridge/read-model consumption, but account,
+  setup, device-trust, and physical LAN authority remain sibling-owned.
+- WP05 already has the narrow real portal staging/cancel/confirm path and Rust
+  authoring boundary. Do not duplicate it or claim policy mutation, rollback,
+  delivery, or enforcement from the panel.
+- WP06-WP09 and WP11-WP16 are mixed route/read-model seams with missing domain
+  providers, durable custody, action authority, or degraded-state ownership.
+- WP17-WP20 are proof, mobile scaffold, documentation, and manual-review work,
+  not portal production-code gaps.
+
+No fake store, fixture, static success, generic JSON bridge, or proof adapter
+was added. The next legal code change must come with a named sibling service
+read model/action owner and a shipped portal caller; otherwise preserve the
+typed unavailable/manual-required states.

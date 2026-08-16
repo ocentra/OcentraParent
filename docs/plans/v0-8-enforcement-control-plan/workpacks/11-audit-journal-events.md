@@ -127,6 +127,15 @@ The recent-history query row is now covered, but the workpack remains open
 until each remaining transition family has its own selected validation and
 durable query proof.
 
+The current production journal writer is
+`crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs`
+and the projection reader is `crates/agent-service/src/enforcement_audit_history.rs`.
+Those seams are reachable for the existing service audit flow, but they do not
+yet compose the authenticated grant/managed-target executor into WP04's
+dispatch lifecycle. Until the WP11 enforcement-specific durable handoff and
+that trusted composition are connected, WP04 remains manual-required and no
+execution receipt may be advanced from journal evidence alone.
+
 ## Negative Cases
 
 - missing audit entries must block ready claims

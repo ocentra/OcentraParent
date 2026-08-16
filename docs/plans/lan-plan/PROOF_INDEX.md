@@ -14,6 +14,17 @@
 
 <!-- /agent-capsule -->
 
+## Current Checkout Truth - 2026-08-15
+
+No generated `output/lan-plan-proof/`,
+`output/playwright/lan-source-matrix-plan-completion/`, or
+`test-results/v0-9-lan-source-matrix-plan-completion/` artifact is present in
+this clean checkout. The only retained LAN proof source currently tracked is
+`docs/proof/lan-plan/25-rollout-checklist-and-pr-gate/01-rollout-gate-truth.md`.
+Every later `Files present` list in this document is therefore a historical or
+expected artifact manifest, not current proof. Regenerate and re-check files
+before moving any Phase 3 proof/checklist row.
+
 ## Current Authoritative Proof Roots
 
 `Slice A` proof root:
@@ -110,19 +121,21 @@ Files present for the current Rust bridge slice:
 - `06-portal-source-matrix-proof.md`
 - `11-backend-lan-runtime-stream.md`
 
-This proof root currently proves only the parent Rust bridge LAN-sample removal,
-inventory-backed read-model serialization path, and the typed Tauri
+The historical proof root described below covered only the parent Rust bridge
+LAN-sample removal, inventory-backed read-model serialization path, and the typed Tauri
 host-subscription bridge that delivers deduplicated route snapshots into the
 product shell. It now also references refreshed Rust-backed Playwright artifacts
 under `output/playwright/lan-source-matrix-plan-completion/` for `/devices`,
 policy-target persistence, and Activity or Network evidence rendering, plus the
 dev-web bridge parity note for the `4777/4778/4779` desktop lane. The
-supporting regenerated browser proof artifact
-`test-results/v0-9-lan-source-matrix-plan-completion/proof.json` is now
-present on this branch/worktree. It now also proves the focused backend
-`agent-service` LAN runtime event-chain stream. It does not yet prove full
-`agent-service`/`lan-core` parity, browser-side replay consumption of that
-stream, signed relay/cache rows, broader network-flow evidence breadth, or
+supporting regenerated browser proof artifact was historically written under
+`test-results/v0-9-lan-source-matrix-plan-completion/proof.json`. Generated
+output is not retained verifier source, and the aggregate source-matrix runner
+named by WP20 is absent from the current repository. The tracked code also has
+the focused backend `agent-service` LAN runtime event-chain stream in focused
+tests. It does not yet prove full
+backend-to-real-Tauri-`AppHandle`-to-portal-listener delivery, the missing
+aggregate verifier programs, broader network-flow evidence breadth, or
 physical household/manual network artifacts.
 
 `15 Household Device Store` proof root:

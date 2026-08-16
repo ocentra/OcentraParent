@@ -9,6 +9,12 @@ Sources: [full scope plan](../v0-5-native-apps-full-scope-plan.md),
 App approval and policy foundations exist, but native new/unknown app detection
 and parent approval are not yet a complete evidence-backed workflow.
 
+Code-pass status (2026-08-16): Rust production wiring now derives an unknown
+candidate from an inventory evidence row and delegates validation to the
+durable approval owner. This is code-drafted and unvalidated; tests, proof,
+checklist closure, service consumption, and live platform evidence remain
+deferred.
+
 ## Where We Want To Be
 
 New inventory apps, unknown runtime processes, portable executables, installers,
@@ -28,14 +34,12 @@ adapter proof exists.
 
 ## Touched Paths
 
-- `packages/parent-domain/src/app-game-control-approval-flow.ts`
-- `packages/parent-domain/src/app-game-control-authority.ts`
-- `packages/parent-domain/src/app-game-control-authority-rules.ts`
-- `packages/parent-domain/tests/app-game-unknown-approval-flow.test.ts`
-- `packages/parent-domain/tests/app-game-control-authority.test.ts`
-- `docs/plans/app-game-plan/workpacks/17-unknown-app-game-approval-flow.md`
-- `output/app-plan-proof/16-new-app-and-unknown-app-approval-flow`
-- `output/app-game-plan-proof/17-unknown-app-game-approval-flow`
+- `crates/app-game-core/src/app_game_unknown_approval.rs`
+- `crates/app-game-core/src/app_game_unknown_approval_types.rs`
+
+The former package-domain paths are historical routing references, not current
+production owners. The Rust adapter preserves observe-only/manual-required
+boundaries and does not dispatch an enforcement adapter.
 
 ## Tests And Proof
 

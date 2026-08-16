@@ -8,7 +8,9 @@ use ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModel;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_schema::parent_ui_bridge::ParentRouteContext;
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelFailureReason, ParentActivityTrackingReadModelResultSnapshot,
@@ -37,16 +39,20 @@ use self::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, LanAgentServiceSnapshot,
-    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
-    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
-    TrackingReadModelAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
+    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
+    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 
 mod command_result_projection;
 pub(crate) mod loaders;
 mod payload_fields;
 pub(crate) mod snapshots_app_game;
+pub(crate) mod snapshots_browser;
 pub(crate) mod snapshots_common;
 pub(crate) mod snapshots_lan;
 mod snapshots_lan_replay;
@@ -102,6 +108,48 @@ pub(crate) fn load_activity_screen_read_model_snapshot(
     context: Option<&ParentRouteContext>,
 ) -> AgentServiceResult<types::ScreenReadModelAgentServiceSnapshot> {
     loaders::load_activity_screen_read_model_snapshot(context)
+}
+
+pub(crate) fn load_activity_app_use_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<types::AppUseReadModelAgentServiceSnapshot> {
+    loaders::load_activity_app_use_read_model_snapshot(context)
+}
+
+pub(crate) fn load_activity_games_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<types::GamesReadModelAgentServiceSnapshot> {
+    loaders::load_activity_games_read_model_snapshot(context)
+}
+
+pub(crate) fn load_browser_activity_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserActivityReadModelAgentServiceSnapshot> {
+    loaders::load_browser_activity_read_model_snapshot(context)
+}
+
+pub(crate) fn load_browser_managed_status_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserManagedStatusAgentServiceSnapshot> {
+    loaders::load_browser_managed_status_snapshot(context)
+}
+
+pub(crate) fn load_browser_inventory_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInventoryReadModelAgentServiceSnapshot> {
+    loaders::load_browser_inventory_read_model_snapshot(context)
+}
+
+pub(crate) fn load_browser_evidence_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserEvidenceReadModelAgentServiceSnapshot> {
+    loaders::load_browser_evidence_read_model_snapshot(context)
+}
+
+pub(crate) fn load_browser_intervention_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInterventionReadModelAgentServiceSnapshot> {
+    loaders::load_browser_intervention_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_notification_readiness_read_model_snapshot(
@@ -160,6 +208,42 @@ pub(crate) fn dispatch_known_agent_command(
     context: Option<&ParentRouteContext>,
 ) -> AgentServiceResult<types::AgentServiceCommandResult> {
     loaders::dispatch_known_agent_command(command, payload, context)
+}
+
+pub(crate) fn health_check_for_address(agent_addr: &str) -> bool {
+    let result = transport::send_agent_command_to_address(
+        agent_addr,
+        AgentCommandName::AgentHealthCheck,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .ok();
+    let Some(result) = result else {
+        return false;
+    };
+    let response = result.response_event;
+    result.command == AgentCommandName::AgentHealthCheck
+        && response.schema_version == AGENT_PROTOCOL_SCHEMA_VERSION
+        && response.correlation_id == result.command_message_id
+        && response.source.peer_id == constants::peer::LOCAL_DEV_AGENT
+        && response.source.role == AgentPeerRole::AgentService
+        && response.target.peer_id == constants::peer::PORTAL_DEV
+        && response.target.role == AgentPeerRole::Portal
+        && response.event == AgentEventName::AgentHealthReported
+        && matches!(
+            response.payload.get(constants::field::ONLINE),
+            Some(LogFieldValue::Boolean(true))
+        )
+        && matches!(
+            response.payload.get(constants::field::TRANSPORT),
+            Some(LogFieldValue::String(value))
+                if value == constants::value::TRANSPORT_WEBSOCKET
+        )
+}
+
+pub(crate) fn health_check_timeout_ms() -> u64 {
+    transport::agent_health_check_timeout_ms()
 }
 
 pub(crate) fn dispatch_lan_agent_command(

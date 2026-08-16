@@ -30,6 +30,28 @@ Expected outcome:
 - Provider or peer devices cannot publish policy/enforcement events directly.
 - The proof root records whether this is eventing-local validation, LAN consumer proof, or remote-access handoff proof.
 
+## Current production-code pass
+
+The production boundary is code-drafted but unvalidated in this pass. The
+exact implementation roots are:
+
+- `crates/agent-protocol/src/household_mesh.rs`
+- `crates/agent-protocol/src/household_mesh/household_mesh_bridge_input.rs`
+- `crates/agent-core/src/household_mesh_event_bridge.rs`
+- `crates/agent-core/src/household_mesh_bridge_runtime_validation_import.rs`
+
+The protocol side now produces only a structural validation brand after the
+schema, exact local-event/LAN-message mapping, family/target, replay, stale,
+payload, and custody checks. Agent-core owns the private peer-authorization
+token and the only structural-to-republish conversion path. Its current
+authority resolver is deliberately unavailable and returns a fail-closed
+manual-required outcome until LAN pairing/transport and account/device trust
+composition supplies a non-forgeable runtime token. No caller-supplied
+envelope field or fixture mints runtime authority.
+
+Tests, validation, proof, checklist, and runtime authority composition remain
+deferred; this note does not mark WP10 done.
+
 ## Required proof fields
 
 The selected proof must name, at minimum:

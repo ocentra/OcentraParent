@@ -46,9 +46,12 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 
 ## Current execution truth
 
-- Status: `blocked / proof-present`
+- Status: `blocked / proof-deferred`
 - Proof root: `output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/`
 - The runner in `infra/cloudflare/scripts/test-runner.ts` now owns the WP08 family-to-file contract and emits the selected proof IDs, assertion IDs, and any same-directory exclusions with `--list`.
+- Cloudflare WP06 retains an isolated D1 store and migration configuration, but
+  no production caller or provider verifier exists. WP08 has no runner or
+  proof result for an account-storage runtime handoff.
 - Same-directory extras are explicit and excluded from the WP08 runner contract until the strategy and matrix adopt them first:
   - unit: `tests/unit/billing-binding-read-model.test.ts`
   - integration: `tests/integration/checkout-portal-hosted.test.ts`, `local-dev-seeding-workflow.test.ts`, `payment-routes-real.test.ts`, `provider-webhooks.test.ts`, `reconciliation-auth-boundary.test.ts`, `worker-runtime-real.test.ts`
@@ -74,7 +77,11 @@ Define the Cloudflare-specific test command family and the reduced Parent test p
 ## Exact blockers
 
 - The module dependency preflight `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty tree, so the module-local runner dependencies are unavailable. WP01 owns restoring a clean resolver graph before WP08 reruns the module scripts.
-- Account WP08's Rust contract and Cloudflare WP06's account-D1 binding, adapter, migration, and integration proof are not yet retained. WP08 therefore cannot produce its account-storage runner handoff to Account WP06.
+- Account WP08's Rust contract and Cloudflare WP06's account-D1 binding,
+  migration, and integration proof are not yet retained as validation
+  evidence. No concrete provider verifier or production write route exists;
+  WP08 therefore cannot produce its account-storage runner handoff to Account
+  WP06.
 - `infra/cloudflare/src/index.ts` imports the current module-local generated route `./generated/billing-contracts.js`; the old `packages/billing-domain/src/*` import paths are not WP08 blockers and must not be revived.
 
 ## Validation

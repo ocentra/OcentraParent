@@ -150,6 +150,10 @@ impl WindowsDeviceTrustCustody {
         platform::unprotect(&r.ciphertext, &b).map(|_plaintext| ())
     }
     pub fn revoke_or_reset(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
+        // Local callers cannot revoke parent trust without the owning
+        // authenticated authority. Until that authority is available, keep
+        // the operation manual-required and preserve the sealed material.
+        platform::require_authenticated_parent_authority()?;
         let b = custody_binding([family, account, device, &self.install_generation])?;
         let binding_lock = self.binding_lock(&b);
         let _binding_guard = binding_lock
@@ -293,6 +297,50 @@ mod tests {
         assert_eq!(opened.install_generation, generation);
 
         let _cleanup = platform::remove(&binding);
+        let _cleanup = fs::remove_dir_all(root);
+        Ok(())
+    }
+
+    #[test]
+    fn binding_fence_serializes_two_custody_handles_until_release() -> Result<(), String> {
+        let root = std::env::temp_dir().join(format!(
+            "ocentra-wp02-binding-fence-unit-{}",
+            std::process::id()
+        ));
+        let _cleanup = fs::remove_dir_all(&root);
+        let custody = WindowsDeviceTrustCustody::open(&root)
+            .map_err(|error| format!("open custody: {error:?}"))?;
+        let binding = custody_binding(["family", "account", "device", &custody.install_generation])
+            .map_err(|error| format!("derive binding: {error:?}"))?;
+        let fence = custody
+            .binding_fence(&binding)
+            .map_err(|error| format!("acquire first binding fence: {error:?}"))?;
+        let contender_root = root.clone();
+        let contender_binding = binding.clone();
+        let (sender, receiver) = std::sync::mpsc::channel();
+        let contender = std::thread::spawn(move || {
+            let result = WindowsDeviceTrustCustody::open(contender_root).and_then(|second| {
+                second
+                    .binding_fence(&contender_binding)
+                    .map(|_second_fence| ())
+            });
+            sender.send(result)
+        });
+
+        assert_eq!(
+            receiver.recv_timeout(std::time::Duration::from_millis(100)),
+            Err(std::sync::mpsc::RecvTimeoutError::Timeout)
+        );
+        drop(fence);
+        receiver
+            .recv_timeout(std::time::Duration::from_secs(1))
+            .map_err(|error| format!("receive released-fence result: {error}"))?
+            .map_err(|error| format!("second binding fence: {error:?}"))?;
+        contender
+            .join()
+            .map_err(|_error| "contender thread panicked")?
+            .map_err(|error| format!("send contender result: {error}"))?;
+
         let _cleanup = fs::remove_dir_all(root);
         Ok(())
     }

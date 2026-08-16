@@ -44,8 +44,6 @@ mod network_linux_nftables_lab_status_bridge;
 mod network_live_capture_execution_bridge;
 #[path = "../../src/network_live_capture_readiness_bridge.rs"]
 mod network_live_capture_readiness_bridge;
-#[path = "../../src/network_product_path_bridge.rs"]
-mod network_product_path_bridge;
 #[path = "../../src/network_remote_delivery_status_cross_process.rs"]
 mod network_remote_delivery_status_cross_process;
 #[path = "../../src/network_remote_delivery_status_payload.rs"]
@@ -79,10 +77,6 @@ mod network_flow_payload_tests;
 mod network_linux_nftables_lab_status_bridge_tests;
 #[path = "network_live_capture_readiness_bridge_tests.rs"]
 mod network_live_capture_readiness_bridge_tests;
-#[path = "network_product_path_bridge_tests.rs"]
-mod network_product_path_bridge_tests;
-#[path = "network_product_path_integration_tests.rs"]
-mod network_product_path_integration_tests;
 #[path = "network_remote_delivery_status_service_tests.rs"]
 mod network_remote_delivery_status_service_tests;
 #[path = "network_runtime_delivery_tests.rs"]

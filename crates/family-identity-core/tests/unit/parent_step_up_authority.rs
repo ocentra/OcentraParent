@@ -37,7 +37,7 @@ fn receipt() -> ParentStepUpAuthorityReceipt {
         action: "pair-child-device".to_owned(),
         nonce: "nonce-1".to_owned(),
         issued_at: "2026-08-05T22:59:59.000Z".to_owned(),
-        expires_at: "2026-08-05T23:05:00.000Z".to_owned(),
+        expires_at: "2026-08-05T23:04:59.000Z".to_owned(),
         signature: "encoded-signature".to_owned(),
     }
 }

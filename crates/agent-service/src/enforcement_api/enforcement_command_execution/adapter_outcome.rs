@@ -1,10 +1,12 @@
 use ocentra_parent_agent_core::enforcement_adapter::{
-    terminate_owned_process, EnforcementAdapterOutcome, OwnedProcessTerminationTarget,
+    unavailable_adapter_outcome, EnforcementAdapterOutcome,
 };
 use ocentra_parent_agent_core::enforcement_boundary::{
     EnforcementAdapterRequest, EnforcementBoundaryInput,
 };
-use ocentra_parent_agent_protocol::enforcement::{EnforcementAdapterKind, EnforcementMode};
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAdapterKind, EnforcementMode, EnforcementUnavailableReason,
+};
 
 use crate::enforcement_payload::{
     EnforcementCommandPayload, EnforcementPayloadError, EnforcementText,
@@ -31,25 +33,16 @@ pub(super) fn adapter_outcome_for_request(
 }
 
 fn adapter_outcome_for_kind(
-    request: &EnforcementCommandPayload,
-    action: &ocentra_parent_agent_protocol::enforcement::EnforcementAction,
+    _request: &EnforcementCommandPayload,
+    _action: &ocentra_parent_agent_protocol::enforcement::EnforcementAction,
     adapter_kind: EnforcementAdapterKind,
     mode: EnforcementMode,
     completed_at: &EnforcementText,
 ) -> Result<EnforcementAdapterOutcome, EnforcementCommandExecutionError> {
     match (adapter_kind, mode) {
         (EnforcementAdapterKind::ProcessControl, EnforcementMode::TerminateProcess) => {
-            let pid =
-                request
-                    .process_id
-                    .ok_or(EnforcementCommandExecutionError::PayloadRejection(
-                        EnforcementPayloadError::ProcessIdRequired,
-                    ))?;
-            Ok(terminate_owned_process(
-                OwnedProcessTerminationTarget {
-                    pid,
-                    expected_process_name: action.target.target_value.clone(),
-                },
+            Ok(unavailable_adapter_outcome(
+                EnforcementUnavailableReason::ManualRequired,
                 &completed_at.0,
             ))
         }

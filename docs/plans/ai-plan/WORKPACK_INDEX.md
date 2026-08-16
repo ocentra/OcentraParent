@@ -16,10 +16,17 @@
 
 Use this index to open exactly one assigned workpack. Do not read every file in `workpacks/`.
 
+## Code-first audit overlay
+
+The status column below is checkbox/document state. It is not implementation
+truth. Use [CODE_AUDIT.md](CODE_AUDIT.md) for the 2026-08-15 source/test review:
+all 48 workpacks are graph-mapped; 11 are Phase 1 complete for bounded code/test
+scope and 37 retain concrete code or expected-test gaps.
+
 | Status  | Workpack                                                                                                                     |  Size | Boxes                 |
 | ------- | ---------------------------------------------------------------------------------------------------------------------------- | ----: | --------------------- |
 | checked | [01 - Source Index And Repo Reconciliation](workpacks/01-source-index-and-repo-reconciliation.md)                            | 2,049 | 5/5 checked; 0 open   |
-| open    | [02 - Current AI Snapshot And Gap Map](workpacks/02-current-ai-snapshot-and-gap-map.md)                                      |   818 | 0/5 checked; 5 open   |
+| checked | [02 - Current AI Snapshot And Gap Map](workpacks/02-current-ai-snapshot-and-gap-map.md)                                      |   818 | 5/5 checked; 0 open   |
 | open    | [03 - Contract Boundary And Effect Schemas](workpacks/03-contract-boundary-and-effect-schemas.md)                            |   928 | 0/6 checked; 6 open   |
 | open    | [04 - Rust Protocol Parity For AI Contracts](workpacks/04-rust-protocol-parity-for-ai-contracts.md)                          |   821 | 0/5 checked; 5 open   |
 | open    | [05 - LocalModelRuntimeStatus Hardening](workpacks/05-local-model-runtime-status-hardening.md)                               |   822 | 0/5 checked; 5 open   |

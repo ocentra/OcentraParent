@@ -20,6 +20,7 @@ use ocentra_parent_agent_protocol::app_game::{
 };
 use ocentra_parent_agent_protocol::app_game_policy_readiness::{
     AppGamePolicyReadinessReadModel, APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE,
+    APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING,
     APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE, APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW,
     APP_GAME_POLICY_READINESS_STATE_MISSING, APP_GAME_POLICY_READINESS_STATE_READY,
     APP_GAME_POLICY_READINESS_STATUS_PARTIAL,
@@ -96,7 +97,7 @@ async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows
     assert_eq!(read_model.platform_authority_row_count, 0);
     assert_eq!(read_model.category_candidate_row_count, 0);
     assert_eq!(read_model.unknown_review_row_count, 0);
-    assert_eq!(read_model.rows.len(), 7);
+    assert_eq!(read_model.rows.len(), 8);
     assert_eq!(
         read_model.rows[0].readiness_kind,
         APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE
@@ -128,6 +129,28 @@ async fn app_game_policy_readiness_command_reports_service_backed_readiness_rows
         .readiness_state,
         APP_GAME_POLICY_READINESS_STATE_READY
     );
+    assert_eq!(
+        readiness_row(
+            &read_model.rows,
+            APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING
+        )
+        .readiness_state,
+        APP_GAME_POLICY_READINESS_STATE_READY
+    );
+    assert_eq!(
+        readiness_row(
+            &read_model.rows,
+            APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING
+        )
+        .row_count,
+        0
+    );
+    assert!(readiness_row(
+        &read_model.rows,
+        APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING
+    )
+    .evidence_reference_ids
+    .is_empty());
 }
 
 fn command_envelope() -> AgentCommandEnvelope {

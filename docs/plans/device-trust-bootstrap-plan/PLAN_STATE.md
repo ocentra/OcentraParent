@@ -61,6 +61,37 @@ Current direction from research and the pasted plan set:
 - A narrow Rust parent-presence custody slice is present in `crates/family-identity-core` and is exercised by visible crate tests. Generated command logs may be written below `output/device-trust-bootstrap-plan-proof/` for a local run, but no generated proof file is committed as product truth.
 - The current plan-local tests are mostly doc-shape and route-alignment checks, not runtime trust-bootstrap proof.
 
+## Production-code reachability audit (2026-08-16)
+
+This source audit is against consolidated root `0a7e8c689`. It does not
+promote tests, proof artifacts, graph topology, or typed DTOs into runtime
+authority. No new production slice was accepted because no missing slice has a
+shipped caller that owns the required cryptographic/device authority.
+
+| Workpack | Reachable production code | Missing production authority / caller |
+| --- | --- | --- |
+| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar, and durable local event journal. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped ceremony issuer or complete trust-state owner. |
+| WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch custody; `crates/parent-runtime-core` has an opaque staged-handle facade. | No registered desktop/native command caller or trusted ceremony issuer reaches the facade; non-Windows custody and end-to-end sealing remain unavailable/manual-required. |
+| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. | No passkey/OS-native signature verifier, one-time nonce authority, or shipped parent-presence caller; policy proof consumption is not ceremony authority. |
+| WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
+| WP05 | `crates/entitlement-core` validates snapshot bindings and `child-runtime` evaluates the resulting input. | Signature/revocation authority is unavailable by default; no device-trust-bound capability unlock caller. |
+| WP06 | `crates/storage-custody-core` provides restore preflight and a parent-authority gate plus an unavailable executor port. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
+| WP07 | `crates/child-runtime` durably records tamper evidence and identity-bound parent revocation; service readiness blocks ingress. | Package/device-owner removal, attestation, parent transport, and platform handoff are absent; state remains manual-required. |
+| WP08 | Research/dependency review only. | No runtime dependency adoption owner or trust-root caller. |
+| WP09 | Route aggregation/documentation only. | No runtime trust behavior; completion remains downstream of WP01-WP08 evidence and authority. |
+
+The smallest honest result is therefore a durable gap map, not a synthetic
+issuer, test bridge, proof adapter, or dead DTO caller. The first production
+unblock is a real platform/passkey ceremony issuer and registered runtime
+composition for WP02/WP03; subsequent WP04-WP07 work remains dependent on its
+authority and platform owners.
+
+The repository graph is stale relative to plan/workpack sources:
+`npm run graph:validate` reported checked-in graph/source drift with the same
+703-node count but differing source-derived content. This audit did not
+bootstrap or edit graph JSON; graph completion state remains non-authoritative
+until the owning coordinator performs the permitted graph refresh.
+
 ## Current ownership interpretation
 
 ```text
@@ -101,7 +132,7 @@ remote-access-plan and policy-control-plane-plan:
 ## Current coupling risks
 
 ```text
-- A partial parent-presence custody repository now exists in `crates/family-identity-core`. Production custody deliberately returns unavailable on every platform until a trusted custody provider can exclude same-user challenge-store writers. The broader device-trust runtime state machine remains open.
+- A partial parent-presence custody repository now exists in `crates/family-identity-core`. Production custody deliberately returns unavailable on every platform until a trusted custody provider can exclude same-user challenge-store writers. Its lifecycle authority sidecar now uses a process lock, reload-before-update, and atomic synchronized persistence; the broader device-trust runtime state machine remains open.
 - `family-domain` contains trust-adjacent authority helpers but not platform key sealing, QR approval runtime, recovery bundle runtime, or trust-root state machine.
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.
@@ -109,8 +140,35 @@ remote-access-plan and policy-control-plane-plan:
 - The merged Windows-only WP02 local-custody slice has a visible parent-desktop
   command and parent-runtime source/test vertical path; Android, Linux, iOS,
   and macOS custody implementations and their proof remain absent.
+- The Windows custody revoke/reset path now fails closed behind the same
+  authenticated-parent authority gate as sealing; no platform ceremony issuer
+  exists in this lane, so local revocation remains manual-required.
+- WP03 now rejects parent step-up receipts with a lifetime over five minutes
+  before any external verifier call; real signature verification, one-time
+  nonce consume, and OS/passkey ceremony ownership remain manual-required.
+- WP04 now has a typed QR challenge/response boundary with action, household,
+  parent, approving-device, desktop, target, nonce, audit, expiry, and replay
+  bindings. Its authority verifier is unavailable by default until a real
+  issuer, phone ceremony, nonce consumer, and transport owner exist.
+- WP04 binds the response to a trusted expected approving-device identity and
+  requires response timestamps to remain inside the issued challenge interval;
+  a response `Fresh` field remains an untrusted claim until nonce consumption.
+- WP05 now validates entitlement account, household, trusted-device, package,
+  timestamp, and grace-shape bindings before any authority result is consumed.
+  Signature verification and revocation authority remain unavailable and
+  manual-required, so this path cannot unlock capabilities by itself.
+- WP06 now blocks confirmation-only restore and requires a verified parent
+  `PairChildDevice` authority bound to the local household and target device
+  before applying a recovery preview. An unavailable-by-default restore
+  executor receipt must prove execution identity, section outcomes,
+  idempotence, tombstone preservation, and no duplicates before applied/
+  partial state can be projected; encryption/key custody, revocation
+  preservation, and runtime proof remain manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
-- Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
+- Child tamper/uninstall now has a code-drafted child-runtime boundary: durable
+  tamper evidence forces a separate manual-required readiness state, while durable revocation
+  requires a verified, identity-bound parent authority. Platform package or
+  device-owner removal, attestation, transport, and proof remain open.
 ```
 
 ## Current proof interpretation
@@ -155,7 +213,9 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
   DPAPI/registry-epoch vertical slice is Windows-only.
 - A fail-closed record-backed parent-step-up authority and receipt contract are
   merged, but phone-QR approval, encrypted recovery bundles, entitlement
-  binding, and child-uninstall authorization runtime remain absent.
+  binding, and platform child-uninstall handoff remain absent. The child
+  runtime now owns only the verified revocation/evidence boundary; it does not
+  claim platform removal or anti-tamper enforcement.
 - Login alone does not create trust, child devices do not own the trust root, and revocation must win over stale state.
 
 ## Latest selected slice (2026-08-09)

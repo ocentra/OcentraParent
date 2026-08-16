@@ -12,7 +12,9 @@ use ocentra_parent_desktop::{
     parent_route_subscription_event_name, ParentDesktopAgentAddress, ParentRouteSubscriptionId,
     ParentRouteSubscriptionRegistry,
 };
-use ocentra_parent_runtime_core::parent_ui_bridge::load_parent_route_snapshot;
+use ocentra_parent_runtime_core::parent_ui_bridge::{
+    load_parent_route_snapshot, parent_agent_service_health_timeout_ms,
+};
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteEventId, ParentRouteEventSnapshot, ParentRouteId, ParentRoutePeerId,
     ParentRoutePeerRole, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -363,7 +365,10 @@ fn assert_parent_platform_proof_state_runtime_truth(state: &Value) {
         state["deviceRoleState"]["localAiRuntimeClaim"],
         serde_json::json!(DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton)
     );
-    assert_eq!(state["serviceConnectTimeoutMs"], serde_json::json!(250));
+    assert_eq!(
+        state["serviceConnectTimeoutMs"],
+        serde_json::json!(parent_agent_service_health_timeout_ms())
+    );
 }
 
 fn assert_parent_platform_proof_state_package_operations_truth(state: &Value) {

@@ -31,6 +31,7 @@ This file records documentation health and consistency checks for the plan. It i
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match current proof.
 - `packages/network-domain` is package metadata/proof-consumer surface unless explicit public exports exist; canonical shared network shapes live in `crates/schema` or the owning Rust crate. `packages/schema-domain` is temporary generated-validation or edge-decoder surface only where migration is still incomplete.
 - Current active proof is bounded to the reviewed WP01 contract/runtime slice and does not close broader WP01 or WP02-WP08.
+- WP04's fabricated product-path caller, payload fields, bridge, and pipeline are deleted. Remaining tests that import or bless that path are invalidated debt, not implementation proof.
 
 ## Required hygiene before PR_READY
 
@@ -74,7 +75,7 @@ Do not collapse those boundaries.
 WP01 foundation contracts/eventing scope beyond the active tracked review receipt
 WP02 passive capture/parser proof
 WP03 classification/correlation proof
-WP04 cascade/parent surface proof
+WP04 shipped cascade/parent surface composition and replacement of invalidated fake-path tests
 WP05 adapter/platform action proof
 WP06 AI audit/risk budget proof
 WP07 performance/security/rollout proof

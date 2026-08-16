@@ -56,9 +56,8 @@ use ocentra_parent_agent_core::household_ai_provider_route_state::{
     HouseholdAiRouteDecisionState, HouseholdAiRouteRejectionReason,
 };
 use ocentra_parent_agent_core::household_mesh_event_bridge::{
-    export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
-    HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
-    HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
+    export_selected_local_event, HouseholdMeshAuthenticationState, HouseholdMeshBridgeRejection,
+    HouseholdMeshExportDecision, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
 };
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};

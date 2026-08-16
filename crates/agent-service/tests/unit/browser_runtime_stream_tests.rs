@@ -66,8 +66,8 @@ mod browser_runtime_stream_test_assertions;
 
 use browser_runtime_stream_test_assertions::{
     assert_action_intent_execution_payload_zero, assert_action_intent_handoff_payload_refs,
-    assert_action_intent_handoff_report_ready, assert_child_status_report_refs,
-    assert_store_backed_stream_child_status_and_no_execution,
+    assert_action_intent_handoff_report_ready,
+    assert_store_backed_stream_child_status_unavailable_and_no_execution,
     assert_store_backed_stream_first_entry, assert_store_backed_stream_payload_header,
 };
 
@@ -207,8 +207,15 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
     assert_eq!(report.action_intent_adapter_executions, 0);
     assert_eq!(report.action_intent_child_intervention_executions, 0);
     assert_eq!(report.action_intent_enforcement_executions, 0);
-    assert_action_intent_handoff_report_ready(&report, &payload);
-    assert_action_intent_handoff_payload_refs(&payload);
+    assert_action_intent_handoff_report_ready(
+        &report,
+        &payload,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID,
+    );
+    assert_action_intent_handoff_payload_refs(
+        &payload,
+        constants::browser::TEST_BROWSER_RUNTIME_ACTION_INTENT_ID,
+    );
     assert_action_intent_execution_payload_zero(&payload);
     assert_child_status_payload_empty!(payload);
 
@@ -216,15 +223,13 @@ async fn service_browser_runtime_action_intent_status_projects_pending_candidate
         BrowserRuntimeInput::dry_run_action_handoff_fixture(),
     )
     .await?;
-    let mut report = BrowserRuntimeServiceStreamReport::default();
     let child_status_response =
-        action_intent_child_status_from_handoff(&handoff.request_report.response)
-            .await
-            .ok_or_else(|| IoError::other(constants::error::AGENT_EVENT_SERIALIZES))?;
-    report.record_action_intent_child_status(&child_status_response);
+        action_intent_child_status_from_handoff(&handoff.request_report.response).await;
+    assert!(child_status_response.is_none());
+    let report = BrowserRuntimeServiceStreamReport::default();
     let payload = browser_runtime_event_chain_stream_payload(&report);
 
-    assert_child_status_report_refs(&report, &payload);
+    assert_child_status_payload_empty!(payload);
 
     Ok(())
 }
@@ -258,20 +263,21 @@ async fn service_browser_runtime_stream_projects_store_backed_policy_preview_can
         payload.get(constants::field::BROWSER_RUNTIME_ACTION_INTENT_CANDIDATES),
         Some(&LogFieldValue::Number(1.0))
     );
-    assert_action_intent_handoff_report_ready(&report, &payload);
-    assert_action_intent_handoff_payload_refs(&payload);
-    assert_child_status_report_refs(&report, &payload);
+    let expected_action_intent_id = {
+        let mut value = TestString::from(constants::browser::ACTION_INTENT_ID_PREFIX);
+        value.push_str(policy_constants::TEST_DECISION_ID);
+        value
+    };
+    assert_action_intent_handoff_report_ready(&report, &payload, &expected_action_intent_id);
+    assert_action_intent_handoff_payload_refs(&payload, &expected_action_intent_id);
+    assert_child_status_payload_empty!(payload);
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::POLICY_PREVIEW_ID],
         policy_constants::TEST_PREVIEW_ID
     );
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::ACTION_INTENT_ID],
-        {
-            let mut value = TestString::from(constants::browser::ACTION_INTENT_ID_PREFIX);
-            value.push_str(policy_constants::TEST_DECISION_ID);
-            value
-        }
+        expected_action_intent_id
     );
     assert_eq!(
         policy_entry[constants::field::PAYLOAD][constants::field::POLICY_DRY_RUN],
@@ -423,7 +429,7 @@ async fn websocket_browser_runtime_stream_command_reports_store_backed_chain() -
         );
         assert_store_backed_stream_payload_header(&event);
         assert_store_backed_stream_first_entry(&entries);
-        assert_store_backed_stream_child_status_and_no_execution(&event.payload);
+        assert_store_backed_stream_child_status_unavailable_and_no_execution(&event.payload);
 
         Ok::<(), Box<dyn Error>>(())
     }
@@ -509,6 +515,7 @@ pub(super) fn policy_preview_read_model_for_browser(
             policy_reviewed_at: None,
             policy_audit_reference_id: None,
             network_evidence_mapping: None,
+            confirmation_context: None,
         }],
     })
 }

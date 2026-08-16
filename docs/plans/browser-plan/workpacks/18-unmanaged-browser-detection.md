@@ -23,6 +23,12 @@ reason, custody, and query visibility. Contract tests reject exact URL/tab,
 social account/route/feed/video, and browser-game/cloud-gaming exact fields for
 unmanaged evidence.
 
+2026-08-16 browser-code-pass: the existing typed `BrowserInventoryReadModel`
+service event is now carried through a JSON payload field and loaded into the
+Rust parent bridge on the Browser route. The projection remains process-only;
+it does not add exact URL, active-tab, page-title, or enforcement authority.
+This is code-drafted, unvalidated, and tests/proof/checklist-deferred.
+
 ## Where We Want To Be
 
 Browser-like processes outside current managed sessions are recorded as
@@ -46,6 +52,12 @@ unmanaged/possible-bypass evidence with no exact URL fields.
 
 - `crates/agent-core/src/browser_managed_discovery.rs`
 - `crates/agent-service/src/browser_runtime_status.rs`
+- `crates/agent-service/src/browser_payload.rs`
+- `crates/parent-runtime-core/src/agent_service_client/snapshots_browser.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies/load.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/browser.rs`
+- `crates/schema/src/parent_ui_bridge.rs`
+- `apps/portal/generated/parent-ui-bridge.ts`
 - `packages/activity-domain/src/browser*.ts`
 - `scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`
 
