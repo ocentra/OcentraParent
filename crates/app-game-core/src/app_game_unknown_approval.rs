@@ -1,5 +1,12 @@
 use ocentra_eventing::envelope::{EventEnvelope, EventMetadata};
 use ocentra_eventing::journal::ndjson::NdjsonEventJournal;
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameInventoryEvidenceRow, APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE,
+    APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+    APP_GAME_INVENTORY_SOURCE_LAUNCHER_MANIFEST, APP_GAME_INVENTORY_SOURCE_PORTABLE_APP,
+    APP_GAME_INVENTORY_STATE_DETECTABLE, APP_GAME_INVENTORY_STATE_INSTALLED,
+    APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE,
+};
 
 use crate::app_game_unknown_approval_event::{
     AppGameUnknownApprovalEvent, AppGameUnknownApprovalTransition,
@@ -13,7 +20,8 @@ use crate::app_game_unknown_approval_types::{
     AppGameUnknownApprovalPersistenceState, AppGameUnknownApprovalRequest,
     AppGameUnknownApprovalRequestInput, AppGameUnknownApprovalResponseInput,
     AppGameUnknownApprovalSnapshot, AppGameUnknownApprovalWriteReceipt, AppGameUnknownCandidate,
-    AppGameUnknownCandidateInput,
+    AppGameUnknownCandidateInput, AppGameUnknownCandidateKind, AppGameUnknownCandidateSource,
+    AppGameUnknownClassification, AppGameUnknownInventoryCandidateContext,
 };
 use crate::app_game_unknown_approval_validation::{
     require_text, validate_optional_refs, validate_unknown_candidate,
@@ -37,6 +45,83 @@ pub fn produce_app_game_unknown_candidate(
     };
     validate_unknown_candidate(&candidate)?;
     Ok(candidate)
+}
+
+pub fn produce_app_game_unknown_candidate_from_inventory(
+    row: &AppGameInventoryEvidenceRow,
+    context: AppGameUnknownInventoryCandidateContext,
+) -> Result<Option<AppGameUnknownCandidate>, AppGameUnknownApprovalError> {
+    let Some((kind, source, classification)) = unknown_candidate_shape(row) else {
+        return Ok(None);
+    };
+
+    let evidence_refs = row
+        .evidence
+        .iter()
+        .map(|evidence| evidence.evidence_id.clone())
+        .collect::<Vec<_>>();
+    let category_candidate_ref = row
+        .category_candidates
+        .iter()
+        .find_map(|candidate| candidate.catalog_ref.clone());
+
+    produce_app_game_unknown_candidate(AppGameUnknownCandidateInput {
+        candidate_id: context.candidate_id,
+        subject_ref: row.inventory_entry_id.clone(),
+        device_ref: context.device_ref,
+        local_user_ref: context.local_user_ref,
+        kind,
+        source,
+        classification,
+        observed_at_epoch_ms: context.observed_at_epoch_ms,
+        evidence_refs,
+        category_candidate_ref,
+        child_status_refs: Vec::new(),
+    })
+    .map(Some)
+}
+
+fn unknown_candidate_shape(
+    row: &AppGameInventoryEvidenceRow,
+) -> Option<(
+    AppGameUnknownCandidateKind,
+    AppGameUnknownCandidateSource,
+    AppGameUnknownClassification,
+)> {
+    if row.inventory_state != APP_GAME_INVENTORY_STATE_INSTALLED
+        && row.inventory_state != APP_GAME_INVENTORY_STATE_DETECTABLE
+    {
+        return None;
+    }
+
+    match row.classification_state.as_str() {
+        APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS => Some((
+            if row.product_kind == APP_GAME_PRODUCT_UNKNOWN_EXECUTABLE
+                || row.source_kind == APP_GAME_INVENTORY_SOURCE_PORTABLE_APP
+            {
+                AppGameUnknownCandidateKind::PortableExecutable
+            } else {
+                AppGameUnknownCandidateKind::UnknownProcess
+            },
+            AppGameUnknownCandidateSource::Inventory,
+            AppGameUnknownClassification::UnknownApp,
+        )),
+        APP_GAME_CLASSIFICATION_LAUNCHER_GAME_CANDIDATE => Some((
+            AppGameUnknownCandidateKind::LauncherGameCandidate,
+            if row.source_kind == APP_GAME_INVENTORY_SOURCE_LAUNCHER_MANIFEST {
+                AppGameUnknownCandidateSource::Launcher
+            } else {
+                AppGameUnknownCandidateSource::Inventory
+            },
+            AppGameUnknownClassification::PossibleGame,
+        )),
+        APP_GAME_CLASSIFICATION_POSSIBLY_GAME => Some((
+            AppGameUnknownCandidateKind::GameLikeExecutable,
+            AppGameUnknownCandidateSource::Inventory,
+            AppGameUnknownClassification::PossibleGame,
+        )),
+        _ => None,
+    }
 }
 
 pub async fn persist_app_game_unknown_approval_request(

@@ -31,6 +31,15 @@ pub enum AppGameUnknownClassification {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AppGameUnknownInventoryCandidateContext {
+    pub candidate_id: String,
+    pub device_ref: String,
+    pub local_user_ref: String,
+    pub observed_at_epoch_ms: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppGameUnknownCandidateInput {
     pub candidate_id: String,
     pub subject_ref: String,
