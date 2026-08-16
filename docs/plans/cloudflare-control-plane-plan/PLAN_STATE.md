@@ -5,12 +5,16 @@
 - Account-identity D1 is now declared in `infra/cloudflare/src/env.ts`,
   `wrangler.toml`, and `wrangler.production.toml`, with the binding-specific
   `migrations/account-identity/0001_account_identity_authority.sql` migration.
+- `src/account-identity-d1-adapter.ts` consumes the generated Account WP08
+  handoff and validates schema version plus mapping/authority account identity;
+  it accepts only an opaque runtime-owned verified-provider boundary and never
+  persists the optional authority snapshot. No public route reaches this write.
 - `src/storage/account-identity-store.ts` consumes the migrated table and no
   longer creates production schema inline. An unapplied table returns typed
   `manual-required`; other D1 failures remain fail-closed. Account DO/KV are
-  absent by design in this slice, and no Account WP08 DTO adapter is claimed.
+  absent by design in this slice.
 - This is code drafted only. Migration execution, tests, validation, proof,
-  Account WP08 contract consumption, provider/login routes, and runtime or
+  provider verification/login routes, public account routes, and runtime or
   deployment readiness remain deferred.
 
 Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 account-identity D1 migration/configuration and its migrated-schema consumer are code drafted, with validation/proof deferred; account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.

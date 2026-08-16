@@ -35,5 +35,8 @@
     "tsx": "^4.20.6",
     "typescript": "^6.0.2",
     "wrangler": "^4.84.1"
+  },
+  "dependencies": {
+    "@ocentra-parent/schema-domain": "file:../../packages/schema-domain"
   }
 }

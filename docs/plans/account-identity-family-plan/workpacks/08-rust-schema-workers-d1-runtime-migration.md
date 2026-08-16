@@ -76,8 +76,12 @@ The snapshot uses only the existing family-identity authority vocabulary:
 account state, household/member references, membership, role, child profile,
 device trust, and session freshness. The handoff carries an opaque provider
 subject and mapping status but does not verify a provider, mint a session, or
-authorize a household action. Cloudflare WP06 may consume the public schema
-adapter after its D1 migration/adapter owner is established.
+authorize a household action. Cloudflare WP06 now consumes the public schema
+adapter through `infra/cloudflare/src/account-identity-d1-adapter.ts`. That
+consumer validates the handoff and persists only the narrow provider-subject
+mapping; it does not verify a provider, persist the optional authority
+snapshot, or expose a route. Provider verification and Cloudflare runner proof
+remain downstream work.
 
 This is code-drafted only. Focused Rust/TypeScript generation checks, tests,
 and retained proof are deferred; the prior durable manifest must not be read

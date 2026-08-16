@@ -16109,13 +16109,16 @@
       "title": "WP06 Storage DO D1 KV R2 Queue Bindings",
       "path": "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
       "parent": "PLAN-cloudflare-control-plane-plan",
-      "dependsOn": [],
+      "dependsOn": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
+      ],
       "state": "active",
       "lifecycleState": "active",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "source-present / retained-proof-absent",
+        "statusText": "code drafted / proof-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -16179,13 +16182,16 @@
       "title": "WP08 Testing Runner And Test Pyramid",
       "path": "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
       "parent": "PLAN-cloudflare-control-plane-plan",
-      "dependsOn": [],
+      "dependsOn": [
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
+      ],
       "state": "planned",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "source-present / retained-proof-absent",
+        "statusText": "blocked / proof-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true

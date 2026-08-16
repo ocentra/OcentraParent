@@ -1,9 +1,13 @@
 import type { D1Database } from '@cloudflare/workers-types';
+import type {
+  AccountIdentityMappingStatus,
+  AccountIdentityProvider as SchemaAccountIdentityProvider,
+} from '@ocentra-parent/schema-domain/account-identity-authority';
 
 /** External identity providers supported by the narrow account mapping boundary. */
-export type AccountIdentityProvider = 'authjs' | 'firebase';
+export type AccountIdentityProvider = SchemaAccountIdentityProvider;
 /** Lifecycle state for a provider-subject mapping. */
-export type AccountIdentityStatus = 'active' | 'revoked';
+export type AccountIdentityStatus = AccountIdentityMappingStatus;
 
 /** Minimal account identity data retained by Cloudflare custody. */
 export interface AccountIdentityRecord {
