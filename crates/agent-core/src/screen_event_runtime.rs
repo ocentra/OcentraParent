@@ -162,9 +162,7 @@ fn screen_runtime_event_payload_from_degraded_input(
         screen_runtime_event_payload_from_capture_input(phase, &capture_input, observed_at);
     if matches!(
         phase,
-        ScreenRuntimePhase::AiAnalysisCompleted
-            | ScreenRuntimePhase::DeletionCommitted
-            | ScreenRuntimePhase::PortalReadModelUpdated
+        ScreenRuntimePhase::DeletionCommitted | ScreenRuntimePhase::PortalReadModelUpdated
     ) {
         payload.deletion_proof_ref = Some(input.deletion_proof_ref.clone());
         payload.evidence_scope = ScreenEvidenceScope::DeletedQueryStoreSummary;
@@ -343,8 +341,6 @@ impl ScreenRuntimeSpine {
         for phase in [
             ScreenRuntimePhase::CaptureObserved,
             ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
             ScreenRuntimePhase::DeletionCommitted,
             ScreenRuntimePhase::PortalReadModelUpdated,
         ] {
