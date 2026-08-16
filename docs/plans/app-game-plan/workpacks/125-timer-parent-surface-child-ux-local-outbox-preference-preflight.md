@@ -22,8 +22,8 @@ preference and quiet-hours preflight rows without claiming UI or delivery.
 
 ## Scope
 
-- Add a parent-domain bridge from WP122 child UX local outbox scheduler rows to
-  child UX parent preference preflight rows.
+- Add a Rust-owned App/Game bridge from WP122 child UX local outbox scheduler
+  rows to child UX parent preference preflight rows.
 - Convert scheduled child UX rows into parent-preference-required rows with
   parent preference, notification frequency, and quiet-hours setup refs.
 - Keep manual-required and unavailable scheduler rows blocked before preference
@@ -52,7 +52,25 @@ preference and quiet-hours preflight rows without claiming UI or delivery.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX preference preflight.
+- Rust App/Game crate build and Clippy.
+- Focused Rust tests for ready, blocked, and malformed child UX preference
+  preflight rows.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1 Active
+
+The 2026-08-15 live-code audit invalidated the historical `parent-domain`
+completion claim. That package is absent, and the broad timer service/portal
+files previously mapped by the graph contain no child-UX preference-preflight
+producer. WP122's persisted scheduler record is the current Rust source
+boundary; existing notification preference/status fixtures do not implement
+this conversion.
+
+This workpack is active for a bounded `ocentra-app-game-core` projection. Honest
+persisted `due-local` rows must become parent-preference-required rows with
+distinct preference, frequency, and quiet-hours setup requirements. Manual,
+dead-letter, unpersisted, mismatched, and already-claimed rows must fail closed
+or remain explicitly blocked. Preference mutation, quiet-hours execution,
+provider delivery, receipts, cloud routing, parent UI, child delivery, adapter
+dispatch, and enforcement remain unclaimed.
