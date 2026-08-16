@@ -39,6 +39,7 @@ use crate::agent_service_client::types::{
 };
 use crate::agent_service_client::{
     dispatch_agent_command, dispatch_known_agent_command,
+    health_check_for_address,
     load_activity_app_use_read_model_snapshot, load_activity_games_read_model_snapshot,
     load_activity_screen_read_model_snapshot,
     load_app_game_adapter_dispatch_preflight_read_model_snapshot,
@@ -118,6 +119,10 @@ pub fn load_parent_route_snapshot(
 ) -> ParentRouteSnapshot {
     let lan_route_query = lan_route_query_for_load(&route, context);
     build_parent_route_snapshot(route, &lan_route_query, None, None)
+}
+
+pub fn parent_agent_service_health_for_address(agent_addr: &str) -> bool {
+    health_check_for_address(agent_addr)
 }
 
 pub fn load_parent_subscription_event(

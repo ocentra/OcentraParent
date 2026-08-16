@@ -208,6 +208,18 @@ pub(crate) fn dispatch_known_agent_command(
     loaders::dispatch_known_agent_command(command, payload, context)
 }
 
+pub(crate) fn health_check_for_address(agent_addr: &str) -> bool {
+    transport::send_agent_command_to_address(
+        agent_addr,
+        AgentCommandName::AgentHealthCheck,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .map(|result| result.response_event.event == AgentEventName::AgentHealthReported)
+    .unwrap_or(false)
+}
+
 pub(crate) fn dispatch_lan_agent_command(
     command_name: AgentCommandText<'_>,
     payload: &Value,

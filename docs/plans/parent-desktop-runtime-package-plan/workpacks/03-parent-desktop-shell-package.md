@@ -70,7 +70,7 @@ These are proof-routing fields, not implementation code prescriptions.
 - `cmd /c npm run tauri:build --workspace @ocentra-parent/parent-desktop` now passes after adding the explicit bundle icon list in `apps/parent-desktop/src-tauri/tauri.conf.json`. It produces real Windows package artifacts:
   - `apps/parent-desktop/src-tauri/target/release/bundle/msi/Ocentra Parent_0.1.1_x64_en-US.msi`
   - `apps/parent-desktop/src-tauri/target/release/bundle/nsis/Ocentra Parent_0.1.1_x64-setup.exe`
-- `cargo test --manifest-path apps/parent-desktop/src-tauri/Cargo.toml parent_platform_proof_state -- --test-threads=1` proves the shell reports `ready` only when the Rust service socket accepts and `degraded` when it does not.
+- The production Tauri command now derives `ready` only from the typed Rust-service `AgentHealthCheck` / `AgentHealthReported` WebSocket handshake; the prior socket-acceptance check was insufficient because any listener could satisfy it. Validation and proof rerun remain deferred in this production-code phase.
 - `node --test scripts/test/parent-desktop-runtime-package-proof.test.mjs` now matches the current Tauri invoke/listen bridge model instead of the stale agent-WebSocket assumption.
 - `node scripts/test/parent-desktop-shell-package-proof.mjs` writes `test-results/parent-desktop-shell-package-proof/proof.json` after proving:
   - `dev:desktop` and `dev:desktop:lan` dry-run launch anchors generate desktop Tauri configs
@@ -83,10 +83,10 @@ These are proof-routing fields, not implementation code prescriptions.
 - Parent desktop package truth is explicit as a Tauri desktop shell that embeds the built parent portal and connects to the Rust service boundary.
 - Real Windows package artifacts now exist as both MSI and NSIS outputs.
 - Real launch anchors exist for both `dev:desktop` and `dev:desktop:lan`; in this lane the plain dry-run legitimately inherited the lane's LAN-mode default and still resolved to an allowed desktop stack command.
-- Service bridge truth is honest:
-  - ready when the Rust service socket accepts
-  - degraded when the Rust service is unavailable
-  - not upgraded into a stale or healthy fallback claim
+- Service bridge production truth is fail-closed:
+  - ready only after the Rust service returns the typed health response
+  - degraded when the handshake fails, is rejected, or the service is unavailable
+  - not upgraded from a raw socket listener or stale fallback claim
 - A local artifact hash is recorded in `test-results/parent-desktop-shell-package-proof/proof.json`.
 - Desktop shell proof explicitly keeps child-agent runtime authority outside this packet.
 
