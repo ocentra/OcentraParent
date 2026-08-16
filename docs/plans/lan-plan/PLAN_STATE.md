@@ -248,6 +248,46 @@ other 22 rows into missing-code work.
 
 ## Open Execution Buckets
 
+## Production Reachability Audit - 2026-08-16
+
+This audit follows the shipped Rust service entrypoint (`agent-service::app::router`),
+its WebSocket command dispatch, the Tauri parent bridge, and the portal projection.
+It records production-code reachability only; graph validation, tests, proof,
+physical household evidence, and platform artifacts remain separate gates.
+
+| WP | Actual production path | Code-pass truth | Remaining production boundary |
+| --- | --- | --- | --- |
+| 01 | `agent-protocol` LAN contracts -> `lan-core` verification/read-model shapes -> `agent-service` command dispatch | Reachable Rust contract and service boundary exists; no missing production slice found. | Contract validation and physical/runtime proof remain deferred. |
+| 02 | `AgentLanPairing*` command -> `agent-service::lan_pairing_browser_add_device_state` -> trusted registry/read model | Reachable durable evidence/device-record path exists and is fail-closed on persistence failure. | Household authority and physical evidence remain external/manual. |
+| 03 | `AgentLanPairingStatusGet`/discovery scan -> `physical_lan_scan` -> `lan-core::network_inventory_hardware` | Real local-interface selection and scan-plan attribution are reachable. | OS/platform coverage and manual interface proof remain open. |
+| 04 | `physical_lan_scan` -> `windows_neighbors`/`linux_neighbors`/`macos_neighbors` | Real OS neighbor-table readers and normalization are reachable. | macOS live/manual platform proof remains open; no local parser gap identified. |
+| 05 | active discovery command -> `stimulate_bounded_ipv4_neighbors` -> packet/neighbor refresh | Bounded targeted ARP refresh is a real production call with subnet/interface scope. | Packet/manual household proof remains open. |
+| 06 | active discovery command -> bounded IPv4 target planner and refresh suppression | Real bounded sweep path is reachable and reuses durable MAC-bound suppression truth. | Physical reachability and packet proof remain open. |
+| 07 | `app::router` passive runtime -> raw ARP/DHCP and UDP multicast collectors -> listener state | Long-running bounded passive runtime and source parsers are reachable. | DHCP longevity, platform packet behavior, and manual proof remain open. |
+| 08 | scan -> `enrich_mdns_dns_sd_devices` -> real mDNS query/parse/merge | mDNS/DNS-SD socket query and bounded parser are reachable from production scan. | Packet/manual proof; mDNS never establishes child authority alone. |
+| 09 | scan -> `enrich_ssdp_upnp_devices` -> bounded M-SEARCH/descriptor fetch/merge | SSDP/UPnP socket and private-location descriptor path is reachable and bounded. | Packet/manual proof; infrastructure remains non-enrollable. |
+| 10 | platform neighbor readers -> reverse-DNS/NetBIOS/LLMNR name evidence | Real platform enrichment is reachable as weak name-only evidence. | No production gap; names cannot establish identity or assignment. |
+| 11 | neighbor scan -> `service_identity::enrich_service_identity_probes` -> bounded HTTP/HTTPS/TLS/WSD/SNMP probes | Real bounded service-probe caller and evidence merge exist. | Optional OS fingerprint and live/manual probe proof remain open. |
+| 12 | neighbor inventory -> `mac_identity` assessment and source projection | MAC/OUI/private/multicast handling is reachable as weak evidence. | Vendor data cannot establish platform or child identity; no code gap found. |
+| 13 | scan result -> `lan-core::read_model_builder` canonical merge/dedupe -> service read model | Durable install/pairing-aware merge path is reachable. | Broader physical/authority proof remains open. |
+| 14 | canonical device builder -> weighted classification -> Tauri/portal snapshot | Explainable classification and manual/unknown fences are reachable. | Installability and physical proof remain open. |
+| 15 | scan/read-model path -> scan-history and trusted-registry JSON with write lock | Restart continuity and fail-closed durable store path are reachable. | Cross-session/physical proof remains open. |
+| 16 | service LAN stream -> parent replay parser -> Tauri subscription -> portal listener | Production seams exist end-to-end, but no real `AppHandle` emission-to-listener regression is present. | Integrated delivery validation is the remaining Phase 1 gap; no source edit authorized in this code-only pass. |
+| 17 | `app::router` -> periodic `spawn_lan_mdns_advertisement_runtime` -> UDP multicast sink | Parent/child mDNS advertisement production sender is reachable where platform support/configuration exists. | Signed-child confirmation and mobile/macOS background multicast proof remain open. |
+| 18 | `AgentLanPairingSignedChildAgentObserve` -> signed envelope parser/verifier/replay guard -> passive observation | Verification is reachable only through an explicit command path. The passive collector marks `OcentraBeacon` unsupported and has no signed hello/heartbeat socket receiver. | Live child beacon transport/child-runtime caller and second-device authority are external; no speculative LAN transport added. |
+| 19 | LAN route select/revoke/controller lease commands -> service runtime validation, registry persistence, audit, selected-route dispatch | Real pairing/controller/revoke callers and fail-closed authority checks are reachable. | Physical two-device topology and platform authority proof remain open. |
+| 20 | proof/fixture/aggregate verifier files | No product runtime owner; this is validation/proof-only. | Named aggregate verifier scripts are absent; excluded from production-code work. |
+| 21 | Rust protocol/shared contract modules consumed by LAN service/runtime | Contract/domain boundary is present; no independent runtime caller is owned here. | Downstream runtime, invite/account, and setup authority remain separate owners. |
+| 22 | plan/source-map documentation only | No production entrypoint or behavior. | Documentation/status reconciliation only; no code slice. |
+| 23 | same service pairing/route/revoke commands plus parent route snapshot consumer | Production pairing and route seams already exist; no missing LAN runtime wiring found. | Integrated/physical route proof remains open. |
+| 24 | Tauri parent snapshot -> generated bridge -> portal LAN presentation | Thin consumer is reachable and Rust-backed; it does not own LAN truth. | UI/manual proof remains separate; no LAN code gap. |
+| 25 | rollout checklist/PR gate wrappers over WP16/WP20 and manual artifacts | No product runtime owner; validation/release wrapper only. | Blocked by integrated delivery validation, absent aggregate verifiers, and manual topology evidence. |
+
+The only concrete production-code transport gap found in this pass is WP18's
+missing signed-child beacon receiver. Its owner must provide a real child/runtime
+transport and device authority before LAN can add an ingress; the current typed
+WebSocket observation command remains an explicit manual/controlled seam.
+
 - Local Rust implementation complete; manual/packet proof remains: `04`, `07`,
   `08`, `09`, `11`, `17`
 - Partial implemented slices still needing local proof/gap closure: none after
