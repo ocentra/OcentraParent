@@ -37,7 +37,8 @@ Purpose: define the child Android package, install proof, and device-owner gap p
 
 Status: production code drafted / test-deferred.
 
-The Android package now owns a `ca.ocentra.child.agent` identity, a child
+The Android package builder now uses `OCENTRA_CHILD_ANDROID_VERSION` and rejects
+the legacy parent-scoped version input. The Android package now owns a `ca.ocentra.child.agent` identity, a child
 activity/foreground-service entrypoint, and an app-private `child-runtime/`
 composition directory. Existing parent-package Android capability adapters are
 deliberately retained behind the child shell. A Rust-owned JNI bridge now

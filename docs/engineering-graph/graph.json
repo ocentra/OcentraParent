@@ -15568,7 +15568,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Code drafted / test-deferred — Android child identity/composition and Rust/JNI startup/readiness bridge implemented; native packaging, tests, validation, proof, and transport remain deferred",
+        "statusText": "Code drafted / test-deferred — Android child identity/composition, Rust/JNI bridge, and child package version boundary implemented; native packaging, tests, validation, proof, and transport remain deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15586,7 +15586,8 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md",
+            "scripts/release/android/build-agent-package.mjs"
           ],
           "tests": [
             "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"

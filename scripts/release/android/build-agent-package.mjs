@@ -7,7 +7,12 @@ import { fileURLToPath } from 'node:url';
 import { evaluateReleaseVersionPolicy } from '../version-policy.mjs';
 
 const repoRoot = resolve(fileURLToPath(new URL('../../..', import.meta.url)));
-const version = process.env['OCENTRA_PARENT_VERSION'] ?? releaseVersion();
+if (process.env['OCENTRA_PARENT_VERSION']) {
+  throw new Error(
+    'Refusing legacy parent-scoped Android child package version input. Use OCENTRA_CHILD_ANDROID_VERSION.'
+  );
+}
+const version = process.env['OCENTRA_CHILD_ANDROID_VERSION'] ?? releaseVersion();
 const packageRoot = join(repoRoot, 'target', 'release-packages', 'android');
 const apkSource = join(
   repoRoot,
