@@ -2553,6 +2553,8 @@ dependencies = [
 name = "ocentra-child-runtime"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
+ "fs2",
  "ocentra-app-core",
  "ocentra-app-game-core",
  "ocentra-browser-core",
@@ -2575,6 +2577,7 @@ dependencies = [
  "ocentra-storage-custody-core",
  "ocentra-tracking-core",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
@@ -2706,6 +2709,7 @@ version = "0.1.1"
 dependencies = [
  "base64",
  "ed25519-dalek",
+ "ocentra-schema",
  "rand_core 0.6.4",
  "reqwest",
  "semver",
@@ -2737,6 +2741,7 @@ dependencies = [
  "base64",
  "chrono",
  "ed25519-dalek",
+ "ocentra-app-game-core",
  "ocentra-child-runtime",
  "ocentra-eventing",
  "ocentra-lan-core",
@@ -4358,6 +4363,16 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
+
+[[package]]
+name = "walkdir"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "29790946404f91d9c5d06f9874efddea1dc06c5efe94541a7d6863108e3a5e4b"
+dependencies = [
+ "same-file",
+ "winapi-util",
+]
 
 [[package]]
 name = "want"
