@@ -232,8 +232,16 @@ Expected evidence for `B2`:
 ## Code-First Audit Correction - 2026-08-15
 
 All 25 LAN workpacks now have reviewed implementation/test ownership in the
-engineering graph. Twenty-two have their bounded Phase 1 production code and
-expected tests written. Three remain incomplete before focused Phase 2 runs:
+engineering graph. Twenty-one have their bounded Phase 1 production code and
+expected tests written. Four remain incomplete for distinct reasons:
+
+- `18` still lacks a production signed-child beacon ingress and child/runtime
+  transport authority; its verifier is only reachable through the controlled
+  observation command.
+- `16` has a production delivery chain but lacks the integrated backend replay
+  -> real Tauri `AppHandle` -> portal-listener validation.
+- `20` is proof-only and its named aggregate verifier programs are absent.
+- `25` is a rollout wrapper blocked by WP16/WP20 plus manual topology evidence.
 
 - `16`: no integrated backend replay -> real Tauri `AppHandle` emit -> portal
   listener regression;
@@ -243,8 +251,8 @@ expected tests written. Three remain incomplete before focused Phase 2 runs:
 - `25`: depends on both gaps above before its rollout gate can be code/test
   complete.
 
-Manual household/router/platform artifacts remain Phase 3 and do not turn the
-other 22 rows into missing-code work.
+Manual household/router/platform artifacts remain separate Phase 3 gates and do
+not turn the other 21 code-present rows into missing-code work.
 
 ## Open Execution Buckets
 
@@ -290,10 +298,10 @@ WebSocket observation command remains an explicit manual/controlled seam.
 
 - Local Rust implementation complete; manual/packet proof remains: `04`, `07`,
   `08`, `09`, `11`, `17`
-- Partial implemented slices still needing local proof/gap closure: none after
-  the accepted 2026-06-28 LAN packet waves; the remaining open work is now
-  integration/runtime parity or explicit manual/packet proof
-- Phase 1 code/expected-test gaps: `16`, `20`, `25`
+- Production implementation gap: `18` (signed-child beacon ingress and
+  child/runtime transport authority are not owned by the current LAN service).
+- Phase 1 validation/proof/wrapper gaps: `16` integrated delivery validation,
+  `20` absent aggregate verifiers, and `25` rollout gate.
 - Physical/manual final gates after Phase 1: `04`, `07`, `08`, `09`, `11`,
   `16`, `17`, `18`, `19`, `20`, `23`, `25`
 - Locally closed rows and truth-synced summaries: `01`, `02`, `03`, `05`,
@@ -313,7 +321,8 @@ WebSocket observation command remains an explicit manual/controlled seam.
   the optional OS-fingerprint manual gate
 - weighted classification and installability proof for
   unknown/probable/not-installable states
-- real signed child hello/heartbeat artifacts
+- production signed-child beacon ingress/child-runtime transport authority,
+  then real signed child hello/heartbeat artifacts
 - restart and physical cross-session event-stream proof completion
 - real Tauri `AppHandle` emission plus portal-listener observation of a
   backend replay batch; backend validation, bridge construction, the host
@@ -328,10 +337,11 @@ WebSocket observation command remains an explicit manual/controlled seam.
   be called green again
 
 Household/setup/account first-run UX is no longer a broad unvalidated LAN gap.
-The remaining Phase 1 truth is concentrated in the integrated route/runtime
-test (`16`) and executable aggregate verifiers (`20`, `25`). Signed-child,
-paired-device, router/firewall, packet, and platform evidence remains Phase 3
-for the locally code-complete rows.
+The remaining Phase 1 truth includes the WP18 production signed-child ingress
+and child-runtime transport dependency, the integrated route/runtime validation
+(`16`), and executable aggregate verifiers/rollout gating (`20`, `25`).
+Signed-child artifacts, paired-device, router/firewall, packet, and platform
+evidence remain later gates after the production transport owner exists.
 
 ## Next Slice
 
