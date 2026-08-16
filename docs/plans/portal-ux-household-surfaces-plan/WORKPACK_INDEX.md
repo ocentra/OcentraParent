@@ -41,6 +41,17 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | open    | [19 Product Docs And Checklist Sync](workpacks/19-product-docs-and-checklist-sync.md)                 | 1,036 | 0/5 checked; 5 open   |
 | open    | [20 Manual User Review Gate](workpacks/20-manual-user-review-gate.md)                                 | 1,116 | 0/5 checked; 5 open   |
 
+## Production reachability audit (2026-08-16)
+
+The portal entrypoint and typed host bridge are real and reach Rust parent
+route snapshots/actions. WP01-WP04 and WP10 have source-backed consumption
+boundaries; WP05 has the existing bounded Rust authoring/confirmation seam.
+The remaining open rows either lack a sibling-owned service read model/action,
+remain domain-authority dependent, or are explicitly tests, proof, mobile
+scaffold, docs, or manual review. The index must not promote route existence,
+static/proof panels, fixtures, generic JSON, or DTO-only components into
+product truth. No portal-only production edit was legal in this audit.
+
 ## Selection rules
 
 - Choose exactly one workpack.
