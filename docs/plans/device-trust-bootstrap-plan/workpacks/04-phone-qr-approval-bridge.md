@@ -77,6 +77,9 @@ output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/17-blockers
   response state before consulting an authority verifier. The verifier remains
   unavailable/manual-required until a real issuer, phone ceremony, signature
   check, nonce consume, and transport owner exist.
+- The response's `Fresh` replay field is an untrusted input claim; only the
+  authority verifier may establish freshness by consuming the nonce or
+  challenge reference.
 
 ## Negative cases
 

@@ -18,6 +18,8 @@ pub enum PhoneQrApprovalResult {
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
 pub enum PhoneQrApprovalReplayState {
+    /// A response claim; only the authority verifier can establish freshness
+    /// by consuming the nonce or challenge reference.
     Fresh,
     Consumed,
     ReplayRejected,

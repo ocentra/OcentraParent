@@ -119,6 +119,9 @@ remote-access-plan and policy-control-plane-plan:
   parent, approving-device, desktop, target, nonce, audit, expiry, and replay
   bindings. Its authority verifier is unavailable by default until a real
   issuer, phone ceremony, nonce consumer, and transport owner exist.
+- WP04 binds the response to a trusted expected approving-device identity and
+  requires response timestamps to remain inside the issued challenge interval;
+  a response `Fresh` field remains an untrusted claim until nonce consumption.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```

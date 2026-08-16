@@ -33,6 +33,8 @@ pub struct PhoneQrApprovalRequest {
     pub action_ref: String,
     pub household_ref: String,
     pub parent_account_ref: String,
+    /// Trusted desktop/session context; never derive this from the response.
+    pub expected_approving_device_ref: String,
     pub desktop_device_ref: String,
     pub target_ref: String,
     pub expected_nonce_or_challenge_ref: String,
@@ -131,6 +133,7 @@ fn validate_response_shape(
     request: &PhoneQrApprovalRequest,
 ) -> Result<(), PhoneQrApprovalAuthorityFailure> {
     let observed_at = parse_timestamp(&request.observed_at)?;
+    let challenge_issued_at = parse_timestamp(&challenge.issued_at)?;
     let issued_at = parse_timestamp(&response.issued_at)?;
     let approved_at = parse_timestamp(&response.approved_at)?;
     let expires_at = parse_timestamp(&response.expires_at)?;
@@ -141,6 +144,8 @@ fn validate_response_shape(
         || response.household_ref != challenge.household_ref
         || response.parent_account_ref != challenge.parent_account_ref
         || response.approving_device_ref.is_empty()
+        || request.expected_approving_device_ref.is_empty()
+        || response.approving_device_ref != request.expected_approving_device_ref
         || response.desktop_device_ref != challenge.desktop_device_ref
         || response.target_ref != challenge.target_ref
         || response.nonce_or_challenge_ref != challenge.nonce_or_challenge_ref
@@ -159,7 +164,12 @@ fn validate_response_shape(
     if response.replay_state != PhoneQrApprovalReplayState::Fresh {
         return Err(PhoneQrApprovalAuthorityFailure::ReplayRejected);
     }
-    if issued_at > approved_at || !approved_at.is_before(&expires_at) || approved_at > observed_at {
+    if issued_at < challenge_issued_at
+        || approved_at < challenge_issued_at
+        || issued_at > approved_at
+        || !approved_at.is_before(&expires_at)
+        || approved_at > observed_at
+    {
         return Err(PhoneQrApprovalAuthorityFailure::Expired);
     }
     Ok(())
