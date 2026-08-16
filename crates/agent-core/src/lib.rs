@@ -38,6 +38,7 @@ mod browser_event_runtime_refs;
 pub mod browser_intervention_event;
 pub mod browser_managed_discovery;
 pub mod browser_managed_session;
+pub mod browser_platform_inventory;
 pub mod browser_windows_inventory;
 pub mod browser_windows_inventory_paths;
 pub mod browser_windows_inventory_source;
