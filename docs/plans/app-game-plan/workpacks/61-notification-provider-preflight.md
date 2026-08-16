@@ -44,11 +44,27 @@ before any delivery can be claimed.
 - Child-device delivery, policy evaluator execution, adapter dispatch, broad
   app/game blocking, or platform support.
 
+## Current Code Audit (2026-08-15)
+
+- `app_game_child_ux_provider_preflight` validates one canonical scheduler row
+  against its persisted local-outbox record, rejects identity/evidence/unsafe
+  claim mismatches, and maps due/manual/unavailable states without delivery.
+- Existing contract tests cover provider-adapter-required, manual,
+  unavailable, unpersisted, mismatched, claimed, and missing-requirement cases.
+- No current WP61 owner consumes the complete WP59
+  `AppGameNotificationSchedulerBridgeReadModel`, generates deterministic
+  adapter/credential/smoke requirement refs per scheduled row, or preserves
+  WP59 manual/unavailable rows in one preflight read model.
+- The advertised `packages/parent-domain` source/test owner and proof harness
+  are absent. Current ownership is Rust `app-game-core` plus the canonical
+  agent-protocol scheduler schema.
+
 ## Proof
 
-- `packages/parent-domain/src/app-game-notification-provider-preflight.ts`
-- `packages/parent-domain/tests/app-game-notification-provider-preflight.test.ts`
-- `scripts/test/app-game-notification-provider-preflight-proof.mjs`
+- `crates/app-game-core/src/app_game_child_ux_provider_preflight.rs`
+- `crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs`
+- `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
+- Historical `packages/parent-domain/...` and script harness routes are absent.
 - `test-results/app-game-notification-provider-preflight-proof/proof.json`
 - `output/app-game-plan-proof/61-notification-provider-preflight/`
 - `output/app-plan-proof/61-notification-provider-preflight/`

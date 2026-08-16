@@ -26,14 +26,29 @@ after WP59 scheduler linking without claiming delivery.
 - Policy evaluator execution, broad app blocking, adapter dispatch, or
   platform support.
 
+## Current Code Audit (2026-08-15)
+
+- `app_game_child_ux_provider_preflight` validates one canonical scheduler row
+  against its persisted local-outbox source record and rejects identity,
+  evidence, and unsafe-claim mismatches.
+- Due-local rows become provider-adapter-required only when adapter,
+  credential, and smoke-proof requirement refs are present; manual and
+  unavailable scheduler rows remain blocked.
+- Focused Rust contract tests cover provider-required, manual, unavailable,
+  unpersisted, mismatched, claimed, and missing-requirement paths.
+- No current WP61 owner consumes the complete WP59 scheduler bridge read model,
+  generates deterministic per-row requirement refs, or retains all blocked
+  rows in one native-app read model. Historical `packages/parent-domain` and
+  proof-harness paths below do not exist in the current checkout.
+
 ## Proof
 
-- Shared source:
-  `packages/parent-domain/src/app-game-notification-provider-preflight.ts`
-- Shared test:
-  `packages/parent-domain/tests/app-game-notification-provider-preflight.test.ts`
-- Harness:
-  `scripts/test/app-game-notification-provider-preflight-proof.mjs`
+- Current implementation:
+  `crates/app-game-core/src/app_game_child_ux_provider_preflight.rs`
+- Current types:
+  `crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs`
+- Current focused tests:
+  `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
 - Native app proof pack:
   `output/app-plan-proof/61-notification-provider-preflight/`
 

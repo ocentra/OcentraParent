@@ -2562,9 +2562,11 @@
     "WP-app-plan-61-notification-provider-preflight": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_notification_readiness.rs",
-        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
+        "crates/agent-protocol/src/schema_domain_mirrors.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_preflight.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs",
+        "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
       ]
     },
     "WP-app-plan-62-notification-preference-preflight": {
@@ -6380,9 +6382,11 @@
     "WP-app-game-plan-61-notification-provider-preflight": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/agent-protocol/src/app_game_notification_readiness.rs",
-        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
+        "crates/agent-protocol/src/schema_domain_mirrors.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_preflight.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs",
+        "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
       ]
     },
     "WP-app-game-plan-62-notification-preference-preflight": {
