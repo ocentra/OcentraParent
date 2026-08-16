@@ -2,12 +2,15 @@
 
 Scope: prove append/replay behavior, lineage compatibility, event topology, journal modes, and replay safety.
 
-Current state: locally proved. This packet is the selectable generic journal
-prerequisite for enforcement WP11. The retained WP06 durable manifest now ties the
-focused crate evidence to the topology/journal proof and the production typed,
-redacted enforcement-audit journal handoff. The handoff records before-action and
-final audit summaries before their corresponding activity audit writes; it does
-not implement or prove enforcement dispatch.
+Current state: code correction drafted; tests/validation/proof deferred. This
+packet is the selectable generic journal prerequisite for enforcement WP11. The
+retained WP06 durable manifest ties the focused crate evidence to the
+topology/journal proof and the production typed, redacted enforcement-audit
+journal handoff. The handoff records before-action and final audit summaries
+before their corresponding activity audit writes; it does not implement or
+prove enforcement dispatch. The current source audit also found and corrected
+the NDJSON recovery caller's narrow append-lock visibility boundary; the
+retained proof predates that correction and is not refreshed by this slice.
 
 Source rows: `05-implementation-workpacks.md` rows 36-41 and 69-78.
 

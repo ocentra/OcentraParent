@@ -112,6 +112,7 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 - Network AI classification, policy decisions, enforcement commands, adapter side effects, audit storage, and portal rendering remain network/service/UI consumer work, not event bus responsibilities.
 - External transport delivery currently proves local queue/idempotency/dead-letter semantics and route-decision requirements only. A live transport/relay delivery implementation remains a separate workpack.
 - The NDJSON journal is the reusable append/replay proof layer. Production durability requirements such as fsync policy, SQLite projections, remote replication, or retention/deletion enforcement remain consumer/platform decisions.
+- Current source audit at root `d1d39b437` found `NdjsonEventJournal::recover` calling `acquire_append_file_lock` across the `ndjson_io` child boundary while the helper was only `pub(super)`. The helper and guard are now visible only within `crate::journal::ndjson` (not crate-wide and not re-exported), preserving the journal module's ownership boundary. Tests, compile validation, and proof refresh remain deferred.
 - The fresh regression audit work itself is locally proved: no eventing test modules remain under `crates/ocentra-eventing/src/`, the focused crate suites still pass, and the proof root is recorded under `output/eventing-plan-proof/13-test-folder-layout-regression-audit/`.
 
 ## Checklist summary
