@@ -94,8 +94,6 @@ pub fn execute_authenticated_owned_process_delivery(
             )
             .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ExecutionRejected)
     } else {
-        store
-            .recover_pending(&grant.issuer_key_id, &grant.nonce)
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ReplayRejected)
+        Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected)
     }
 }
