@@ -50,7 +50,24 @@ boundary rows without claiming delivery.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX provider-status handoff.
+- Rust App/Game crate build and Clippy.
+- Focused Rust tests for WP123 status conversion, V0.8 boundary parity, and
+  delivery-claim rejection.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1 Active
+
+The 2026-08-15 live-code audit invalidated the historical `parent-domain`
+completion claim. The tracked Rust tree contains the canonical V0.8 notification
+provider-status boundary and WP123 now owns App/Game child-UX provider-preflight
+rows, but no current Rust bridge binds those two contracts. The existing
+App/Game parent-surface status types are fixture/read-model inputs, not a producer
+from WP123.
+
+This workpack is active for a bounded Rust handoff in `ocentra-app-game-core`.
+Provider-adapter-required and manual-required preflight rows must become honest
+V0.8 manual-required entries; unavailable rows must become unavailable entries.
+The bridge must preserve scheduler/outbox/channel/readiness/manual-proof/audit
+refs and keep provider delivery, receipts, credentials, sensitive payloads,
+cloud routing, UI, child delivery, adapter dispatch, and enforcement unclaimed.

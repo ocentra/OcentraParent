@@ -6123,15 +6123,15 @@
       "path": "docs/plans/app-game-plan/workpacks/124-timer-parent-surface-child-ux-local-outbox-provider-status-handoff.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "reference/no boxes",
+        "statusText": "active",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
