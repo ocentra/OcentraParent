@@ -1,6 +1,6 @@
 # Child Agent Runtime Distribution Plan State
 
-Status: production code drafted for the child service composition boundary, durable startup recovery, typed readiness, bounded desktop ingress, WP02/WP03/WP04 desktop package retargeting, the WP05 Android child composition shell, and the WP08 durable parent-authorized revocation boundary; tests, validation, and proof are intentionally deferred to the later global phase. Transport and the Android Rust/JNI bridge remain explicit downstream gaps. WP06 remains capability-only, WP09 remains matrix/release alignment, WP10 remains a typed handoff, and WP11 remains proof-gate work.
+Status: production code drafted for the child service composition boundary, durable startup recovery, typed readiness, bounded desktop ingress, WP02/WP03/WP04 desktop package retargeting, the WP05 Android child composition shell, the WP08 durable parent-authorized revocation boundary, and the WP10 package/update consumer projection; tests, validation, and proof are intentionally deferred to the later global phase. Transport and the Android Rust/JNI bridge remain explicit downstream gaps. WP06 remains capability-only, WP09 remains matrix/release alignment, and WP11 remains proof-gate work.
 
 Global phase boundary: this pass changes production/core code only. No tests, proof artifacts, Enforcer validation scans/checks, precommit, CI, or PR claims are made from this lane.
 
@@ -86,6 +86,7 @@ Current child direction:
 - Managed respawn configuration is drafted for Windows WinSW, macOS launchd, and Linux systemd; kill/reboot/service-manager restart behavior remains unvalidated. Android remains manual-required; iOS remains unsupported.
 - WP08 now has a production child-service revocation/audit boundary plus its existing contract/read-model slice; platform uninstall/device-owner cleanup, tests, validation, and proof remain deferred and unsupported/manual-required control remains visible rather than implied.
 - Setup-device-trust handoff now has a real Rust-owned contract proof pack under `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/`, with explicit request/response refs, external artifact pointer, route-sync rows, and no-claim boundaries that keep setup/trust/package/runtime states separate.
+- WP10 production code now drafts `crates/agent-updater/src/handoff.rs` as the typed consumer of the setup-owned response plus updater outcome. It preserves response identity/artifact/platform/no-claim state and exposes current, dry-run, completed, reboot-required, and failed package-update outcomes without claiming install, setup, trust, service health, transport, or runtime readiness. No setup producer or live transport wiring exists yet.
 - WP01 now has a real scope-and-route proof pack under `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/`, with explicit Rust-first ownership, historical parent-client compatibility note, and no-claim boundaries between package build, install, runtime health, respawn, uninstall/revocation, setup trust, and release readiness.
 - WP11 now has a real aggregate proof gate under `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/`, and it intentionally records that the child plan is not PR-ready or release-ready while WP02 remains blocked on exact local lifecycle proof gaps.
 
@@ -97,6 +98,7 @@ Open gaps:
 - WP08 has production revocation/audit code drafted under `crates/child-runtime/src/removal.rs` and `service.rs`; contract/read-model proof, package/device cleanup artifacts, tests, and validation remain deferred, with no platform uninstall-control parity claim.
 - WP05 is production-code drafted under the child Android identity and local composition boundary; package, install/runtime, transport, device-authority, and store validation remain deferred.
 - WP07 is production-manager configuration drafted under the child desktop identity; live installed runtime health and respawn validation remain deferred.
+- WP10 package/update consumer wiring is production-code drafted under `crates/agent-updater`; setup-producer integration, install callback, transport, tests, validation, and proof remain deferred.
 - Proof docs still disagree between the `output/child-agent-runtime-distribution-plan-proof/...` route and stale legacy proof-path references.
 
 ## HID execution guard

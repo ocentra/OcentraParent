@@ -70,7 +70,9 @@ These are field requirements for proof routing, not an implementation code presc
 - The proof carries `artifact_requirement.external_artifact_path` as an external artifact pointer into the Windows package proof root and keeps that pointer separate from package/install/runtime readiness claims.
 - The proof names route sync with `setup-install-provisioning-plan` and `device-trust-bootstrap-plan` through explicit route-sync rows rather than absorbing those plans' ownership.
 - No `schema-domain` edge was added in this workpack because no live TypeScript consumer currently needs this handoff shape; Rust/shared ownership stays canonical and TypeScript remains optional/thin only if a consumer appears later.
-- This workpack closes only the typed handoff contract slice. It does not claim setup journey completion, package readiness, install success, service health, respawn, uninstall/revocation parity, or parent-client parity.
+- `crates/agent-updater/src/handoff.rs` now owns the package/update consumer projection. It consumes the canonical response together with `UpdateOutcome`, retains typed handoff identity/artifact/platform fields and the response no-claim list, and maps current, dry-run, completed, reboot-required, and failed updater states without collapsing manual-required handoff states.
+- The consumer is an explicit Rust API/composition port; no setup producer, platform transport, install callback, or live runtime wiring exists in this slice. Callers must pass the updater result and retain the returned projection as package/update state only.
+- This workpack is production-code drafted / test-deferred. It does not claim setup journey completion, package readiness, install success, service health, respawn, uninstall/revocation parity, transport, or parent-client parity.
 
 ## Required proof files
 

@@ -27,7 +27,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | code drafted / test-deferred | [WP07 Child Managed Service Respawn](workpacks/07-child-managed-service-respawn.md) | manager configuration retargeted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/` |
 | code drafted / test-deferred | [WP08 Child Parent Authorized Uninstall](workpacks/08-child-parent-authorized-uninstall.md) | service revocation/audit boundary drafted; platform cleanup/tests/proof deferred | `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/` |
 | code drafted / test-deferred | [WP09 Child Signing Store Device Owner Matrix](workpacks/09-child-signing-store-device-owner-matrix.md) | Windows manifest/checksum/signature consumption drafted; platform matrix/tests/proof deferred | `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/` |
-| complete | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` |
+| code drafted / test-deferred | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | typed handoff contract and package/update consumer drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` |
 | complete | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 14/14 | `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
 
 ## Default execution order

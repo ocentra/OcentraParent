@@ -15,6 +15,7 @@ use crate::installer::{start_msi_upgrade, MsiUpgradeOutcome};
 use crate::manifest::{parse_signed_manifest, verify_manifest};
 use crate::network::{download_file, fetch_text};
 
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum UpdateOutcome {
     Current { version: String },
     WouldInstall { current: String, latest: String },
