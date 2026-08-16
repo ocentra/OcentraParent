@@ -115,6 +115,10 @@ remote-access-plan and policy-control-plane-plan:
 - WP03 now rejects parent step-up receipts with a lifetime over five minutes
   before any external verifier call; real signature verification, one-time
   nonce consume, and OS/passkey ceremony ownership remain manual-required.
+- WP04 now has a typed QR challenge/response boundary with action, household,
+  parent, approving-device, desktop, target, nonce, audit, expiry, and replay
+  bindings. Its authority verifier is unavailable by default until a real
+  issuer, phone ceremony, nonce consumer, and transport owner exist.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```

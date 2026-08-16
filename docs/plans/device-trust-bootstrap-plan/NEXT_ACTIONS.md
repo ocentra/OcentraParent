@@ -27,3 +27,7 @@ provider and ceremony issuer are owned by the correct runtime.
 WP03 now has a bounded receipt lifetime gate, but remains blocked on the real
 passkey/OS-native authority adapter, signature verification, nonce consumption,
 and retained runtime proof.
+
+WP04 now has a typed challenge/response boundary and fail-closed verifier port,
+but remains blocked on the external issuer/signature authority, phone
+ceremony, one-time nonce consumer, transport, and retained runtime proof.

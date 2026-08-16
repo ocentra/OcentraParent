@@ -68,6 +68,7 @@ pub mod parent_control_capability_data_ts;
 pub mod parent_owned_sync_export;
 pub mod parent_owned_sync_export_ts;
 pub mod parent_step_up_receipt;
+pub mod phone_qr_approval;
 pub mod parent_storage_settings_apply_flow;
 pub mod parent_storage_settings_apply_flow_ts;
 pub mod parent_ui_bridge;

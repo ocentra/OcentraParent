@@ -72,6 +72,11 @@ output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/17-blockers
 
 - No proof root currently exists on disk for this workpack.
 - The current plan-local tests for this slice are document assertions, not QR approval runtime proof.
+- The Rust production boundary now owns typed challenge/response shapes and
+  rejects mismatched bindings, expired or overlong challenges, and non-fresh
+  response state before consulting an authority verifier. The verifier remains
+  unavailable/manual-required until a real issuer, phone ceremony, signature
+  check, nonce consume, and transport owner exist.
 
 ## Negative cases
 

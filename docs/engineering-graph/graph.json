@@ -16839,7 +16839,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked",
+        "statusText": "blocked / typed challenge-response boundary drafted; issuer, ceremony, transport, and proof remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16849,7 +16849,9 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md"
+            "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md",
+            "crates/schema/src/phone_qr_approval.rs",
+            "crates/family-identity-core/src/phone_qr_approval_authority.rs"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
