@@ -41,7 +41,19 @@ Child UX is respectful, actionable, and consistent with actual capability state.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Completion - 2026-06-03
+## Current Status - Phase 1 Active
+
+The 2026-08-15 code audit found that the historical TypeScript owners and tests
+below are no longer tracked. Current Rust has the WP17 approval lifecycle and
+WP51 runtime decisions, but no bounded child-facing contract that turns those
+states into controlled respectful copy tokens and an evidence-bound ask-parent
+action without accepting arbitrary diagnostics or private paths.
+
+This workpack is active for that `ocentra-app-game-core` contract and focused
+tests. Live child rendering, delivery/outbox, notifications, persistence,
+platform shield behavior, and adapter execution remain outside this slice.
+
+## Historical Contract Completion - 2026-06-03
 
 - Owner: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
