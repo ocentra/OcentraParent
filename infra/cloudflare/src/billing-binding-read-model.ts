@@ -66,6 +66,9 @@ const SELECT_STATUS_BY_SUBJECT_SQL = normalizeSql('SELECT payload_json FROM bill
 const SELECT_INVOICES_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_invoices WHERE subject = ?1 ORDER BY invoice_id'
 );
+const SELECT_INVOICE_SUBJECT_SQL = normalizeSql(
+  'SELECT subject FROM billing_invoices WHERE invoice_id = ?1 LIMIT 1'
+);
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_referrals WHERE subject = ?1 LIMIT 1'
 );
@@ -112,6 +115,40 @@ interface PayloadJsonRow {
 
 interface RowCountRow {
   row_count: number | string;
+}
+
+interface InvoiceSubjectRow {
+  subject: string;
+}
+
+export class BillingReadModelUnavailableError extends Error {
+  readonly code = 'billing-read-model-manual-required';
+
+  constructor(readonly scope: string) {
+    super(`${this.code}:${scope}`);
+    this.name = 'BillingReadModelUnavailableError';
+  }
+}
+
+function isLocalFixtureEnvironment(env: Env): boolean {
+  const authAdapterMode = env.AUTH_ADAPTER_MODE?.trim();
+  return (
+    (env.ENVIRONMENT === 'local' || env.ENVIRONMENT === 'test' || env.ENVIRONMENT === 'development') &&
+    authAdapterMode === 'local-safe-fixture'
+  );
+}
+
+function requireProductionBinding(env: Env, binding: 'BILLING_D1' | 'BILLING_CONFIG_KV' | 'BILLING_AUDIT_R2'): void {
+  if (!isLocalFixtureEnvironment(env) && !env[binding]) {
+    throw new BillingReadModelUnavailableError(`${binding.toLowerCase()}-binding-missing`);
+  }
+}
+
+function requireProductionRecord<T>(env: Env, record: T | null, scope: string): T | null {
+  if (record !== null || isLocalFixtureEnvironment(env)) {
+    return record;
+  }
+  throw new BillingReadModelUnavailableError(scope);
 }
 
 export interface BillingBindingSeedPatch {
@@ -523,6 +560,9 @@ class LocalBillingD1Database implements D1Database {
 }
 
 export function buildDefaultBillingBindingSeed(env: Env): BillingBindingSeedPatch {
+  if (!isLocalFixtureEnvironment(env)) {
+    throw new BillingReadModelUnavailableError('local-fixture-environment-required');
+  }
   const subjects = Array.from(DEFAULT_BILLING_SUBJECTS);
   return {
     pricingPlans: asReadonlyArray(LOCAL_PRICING_PLANS),
@@ -825,6 +865,9 @@ async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch
 }
 
 async function ensureReadModelSeedOnce(env: Env): Promise<void> {
+  if (!isLocalFixtureEnvironment(env)) {
+    return;
+  }
   const patch = buildDefaultBillingBindingSeed(env);
 
   if (env.BILLING_D1) {
@@ -873,9 +916,16 @@ function includesQuery(values: ReadonlyArray<string>, query: string): boolean {
 
 export async function loadPricingPlans(env: Env): Promise<ReadonlyArray<PricingPlanSummary>> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_CONFIG_KV');
   const plans = await env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, 'json');
   await recordBindingRead(env, 'pricing-public', null);
-  return Array.isArray(plans) ? (plans as ReadonlyArray<PricingPlanSummary>) : LOCAL_PRICING_PLANS;
+  if (Array.isArray(plans)) {
+    return plans as ReadonlyArray<PricingPlanSummary>;
+  }
+  if (isLocalFixtureEnvironment(env)) {
+    return LOCAL_PRICING_PLANS;
+  }
+  throw new BillingReadModelUnavailableError('billing-pricing-plans-missing');
 }
 
 export async function loadLocalSeedSummary(env: Env): Promise<{
@@ -886,7 +936,10 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
   adminAccountCount: number;
   referralFixtureCount: number;
   manualReviewAccountCount: number;
-}> {
+} | null> {
+  if (!isLocalFixtureEnvironment(env)) {
+    return null;
+  }
   const pricingPlans = await loadPricingPlans(env);
   const adminAccounts = await loadAdminBillingAccounts(env, null);
   const referrals = await loadAdminBillingReferrals(env, null);
@@ -903,23 +956,34 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
 
 export async function loadBillingStatusSummary(env: Env, subject: string): Promise<BillingStatusSummary> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const stored = parsePayloadRow<BillingStatusSummary>(
     await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject)
   );
   await recordBindingRead(env, 'billing-status', subject);
-  return stored ?? buildBillingStatusSummary(subject, env);
+  return (
+    requireProductionRecord(env, stored, `billing-status-row-missing:${subject}`) ??
+    buildBillingStatusSummary(subject, env)
+  );
 }
 
 export async function loadBillingInvoices(env: Env, subject: string): Promise<ReadonlyArray<BillingInvoiceSummary>> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const stored = parsePayloadRows<BillingInvoiceSummary>(
     await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_INVOICES_BY_SUBJECT_SQL, subject)
   );
   await recordBindingRead(env, 'billing-invoices', subject);
-  return stored.length > 0 ? stored : buildBillingInvoices(subject);
+  return stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : buildBillingInvoices(subject);
 }
 
 export async function findBillingInvoiceSubject(env: Env, invoiceId: string): Promise<string | null> {
+  await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
+  if (!isLocalFixtureEnvironment(env)) {
+    const row = await d1First<InvoiceSubjectRow>(env.BILLING_D1, SELECT_INVOICE_SUBJECT_SQL, invoiceId);
+    return row?.subject ?? null;
+  }
   for (const subject of DEFAULT_BILLING_SUBJECTS) {
     const invoice = (await loadBillingInvoices(env, subject)).find((row) => row.invoiceId === invoiceId);
     if (invoice) {
@@ -932,11 +996,15 @@ export async function findBillingInvoiceSubject(env: Env, invoiceId: string): Pr
 
 export async function loadBillingReferralSummary(env: Env, subject: string): Promise<BillingReferralSummary> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const stored = parsePayloadRow<BillingReferralSummary>(
     await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_REFERRAL_BY_SUBJECT_SQL, subject)
   );
   await recordBindingRead(env, 'billing-referrals', subject);
-  return stored ?? buildBillingReferralSummary(subject);
+  return (
+    requireProductionRecord(env, stored, `billing-referral-row-missing:${subject}`) ??
+    buildBillingReferralSummary(subject)
+  );
 }
 
 export async function loadBillingEntitlementSnapshot(
@@ -944,11 +1012,15 @@ export async function loadBillingEntitlementSnapshot(
   subject: string
 ): Promise<BillingEntitlementSnapshotSummary> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const stored = parsePayloadRow<BillingEntitlementSnapshotSummary>(
     await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_SNAPSHOT_BY_SUBJECT_SQL, subject)
   );
   await recordBindingRead(env, 'billing-entitlement-snapshot', subject);
-  return stored ?? buildEntitlementSnapshot(subject);
+  return (
+    requireProductionRecord(env, stored, `billing-entitlement-snapshot-row-missing:${subject}`) ??
+    buildEntitlementSnapshot(subject)
+  );
 }
 
 export async function loadBillingLicenseDecision(
@@ -1010,7 +1082,23 @@ export async function loadBillingLicenseDecision(
     };
   }
 
-  return buildLicenseDecision(subject, requestId, deviceId, requestedNewDevice);
+  if (isLocalFixtureEnvironment(env)) {
+    return buildLicenseDecision(subject, requestId, deviceId, requestedNewDevice);
+  }
+
+  return {
+    requestId,
+    subject,
+    deviceId,
+    decision: 'allowed',
+    reasonCode: 'within-plan',
+    deviceActivationBehavior: 'allow-new-device',
+    requestedDeviceAlreadyTrusted,
+    planId: snapshot.planId,
+    currentActiveDevices: snapshot.activeDevices,
+    limit: snapshot.deviceLimit,
+    auditReference: `${snapshot.auditReference}:license-check-allowed`,
+  };
 }
 
 export async function loadAdminBillingAccounts(
@@ -1018,12 +1106,13 @@ export async function loadAdminBillingAccounts(
   query: string | null
 ): Promise<ReadonlyArray<AdminBillingAccountSummary>> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingAccountSummary>(
     await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_ACCOUNTS_SQL)
   );
   await recordBindingRead(env, 'admin-billing-accounts', null);
-  const rows = stored.length > 0 ? stored : listAdminBillingAccounts(query);
+  const rows = stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : listAdminBillingAccounts(query);
   if (!loweredQuery) {
     return rows;
   }
@@ -1037,12 +1126,13 @@ export async function loadAdminBillingInvoices(
   query: string | null
 ): Promise<ReadonlyArray<AdminBillingInvoiceSummary>> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingInvoiceSummary>(
     await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_INVOICES_SQL)
   );
   await recordBindingRead(env, 'admin-billing-invoices', null);
-  const rows = stored.length > 0 ? stored : listAdminBillingInvoices(query);
+  const rows = stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : listAdminBillingInvoices(query);
   if (!loweredQuery) {
     return rows;
   }
@@ -1056,12 +1146,13 @@ export async function loadAdminBillingDisputes(
   query: string | null
 ): Promise<ReadonlyArray<AdminBillingDisputeSummary>> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingDisputeSummary>(
     await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_DISPUTES_SQL)
   );
   await recordBindingRead(env, 'admin-billing-disputes', null);
-  const rows = stored.length > 0 ? stored : listAdminBillingDisputes(query);
+  const rows = stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : listAdminBillingDisputes(query);
   if (!loweredQuery) {
     return rows;
   }
@@ -1075,12 +1166,13 @@ export async function loadAdminBillingReferrals(
   query: string | null
 ): Promise<ReadonlyArray<AdminBillingReferralSummary>> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_D1');
   const loweredQuery = query?.trim().toLowerCase() ?? '';
   const stored = parsePayloadRows<AdminBillingReferralSummary>(
     await d1All<PayloadJsonRow>(env.BILLING_D1, SELECT_ADMIN_REFERRALS_SQL)
   );
   await recordBindingRead(env, 'admin-billing-referrals', null);
-  const rows = stored.length > 0 ? stored : listAdminBillingReferrals(query);
+  const rows = stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : listAdminBillingReferrals(query);
   if (!loweredQuery) {
     return rows;
   }
@@ -1092,11 +1184,12 @@ export async function loadBillingAuditEvents(
   query: string | null
 ): Promise<ReadonlyArray<BillingAuditEventSummary>> {
   await ensureReadModelSeed(env);
+  requireProductionBinding(env, 'BILLING_AUDIT_R2');
   const loweredQuery = query?.trim().toLowerCase() ?? '';
   const object = await env.BILLING_AUDIT_R2?.get(AUDIT_EVENTS_KEY);
   const stored = object ? ((await object.json<ReadonlyArray<BillingAuditEventSummary>>()) ?? []) : [];
   await recordBindingRead(env, 'admin-billing-audit', null);
-  const rows = stored.length > 0 ? stored : listBillingAuditEvents(query);
+  const rows = stored.length > 0 || !isLocalFixtureEnvironment(env) ? stored : listBillingAuditEvents(query);
   if (!loweredQuery) {
     return rows;
   }

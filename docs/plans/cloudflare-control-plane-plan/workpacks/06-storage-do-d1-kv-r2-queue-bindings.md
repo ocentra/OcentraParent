@@ -2,6 +2,18 @@
 
 > **2026-07-28 correction:** `infra/cloudflare` imports module-local generated billing contracts. This workpack remains open because it has no tracked account-storage proof bundle; restore the module dependency environment, then record the actual result.
 
+## Production billing read-model boundary - 2026-08-16
+
+The Worker read-model path no longer auto-seeds or falls back to fixture
+billing data outside an explicit `local`/`test`/`development` environment
+using `local-safe-fixture`. Production and preview reads require real owned
+bindings and durable data; missing required rows return the typed
+`billing-read-model-manual-required` boundary and the Worker emits the
+manual-required route response. Invoice lookup uses the durable ledger rather
+than demo subjects, and license approval uses the stored entitlement snapshot.
+This slice does not add provider authority or claim migration/deployment
+readiness; tests and retained proof remain deferred.
+
 ## Production reachability audit - 2026-08-16
 
 The retained store is not a production handoff. `createAccountIdentityStore`
