@@ -17,7 +17,7 @@ use ocentra_parent_agent_protocol::{
 };
 use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
-    dispatch_parent_ui_action, load_parent_route_snapshot,
+    dispatch_parent_ui_action, load_parent_route_snapshot, parent_agent_service_health_for_address,
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -158,7 +158,9 @@ impl ParentRouteSubscriptionRegistry {
 
 #[tauri::command]
 fn parent_platform_proof_state() -> ParentDesktopPlatformProofState {
-    parent_platform_proof_state_for_address(configured_agent_address())
+    let agent_address = configured_agent_address();
+    let service_is_healthy = parent_agent_service_health_for_address(agent_address.0.as_str());
+    parent_platform_proof_state_for_connection(agent_address, service_is_healthy)
 }
 
 #[tauri::command]
@@ -270,6 +272,13 @@ pub fn parent_platform_proof_state_for_address(
     agent_address: ParentDesktopAgentAddress,
 ) -> ParentDesktopPlatformProofState {
     let service_connects = agent_service_connects(&agent_address);
+    parent_platform_proof_state_for_connection(agent_address, service_connects)
+}
+
+fn parent_platform_proof_state_for_connection(
+    agent_address: ParentDesktopAgentAddress,
+    service_connects: bool,
+) -> ParentDesktopPlatformProofState {
     let agent_address = agent_address.0;
     let service_state = if service_connects {
         constants::value::PARENT_DESKTOP_SERVICE_CONNECTED

@@ -33,17 +33,27 @@ pub(super) fn send_agent_command(
     context: Option<&ParentRouteContext>,
     route: AgentRoute,
 ) -> Result<AgentServiceCommandResult, String> {
+    let agent_addr = agent_addr();
+    send_agent_command_to_address(&agent_addr, command, payload, context, route)
+}
+
+pub(super) fn send_agent_command_to_address(
+    agent_addr: &str,
+    command: AgentCommandName,
+    payload: LogFields,
+    context: Option<&ParentRouteContext>,
+    route: AgentRoute,
+) -> Result<AgentServiceCommandResult, String> {
     let command_origin = resolve_command_origin(&payload);
     let timeout = agent_command_timeout_for(&command);
-    let agent_addr = agent_addr();
-    let url = agent_ws_url_for_addr(&agent_addr);
+    let url = agent_ws_url_for_addr(agent_addr);
     let mut request = url.as_str().into_client_request().map_err(|error| {
         format!("agent-service WebSocket request build failed at {url}: {error}")
     })?;
     request
         .headers_mut()
         .insert(ORIGIN, header_value(&command_origin)?);
-    let stream = connect_agent_stream(&agent_addr, &url, timeout)?;
+    let stream = connect_agent_stream(agent_addr, &url, timeout)?;
     let (mut socket, _) = websocket_client(request, stream)
         .map_err(|error| format!("agent-service WebSocket handshake failed at {url}: {error}"))?;
     let ready_event = read_agent_event(&mut socket, "connection-ready", timeout)?;
