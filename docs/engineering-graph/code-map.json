@@ -717,6 +717,10 @@
     "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration": {
       "planSlug": "account-identity-family-plan",
       "roots": [
+        "crates/schema/src/account_identity_authority.rs",
+        "crates/schema/src/account_identity_authority_ts.rs",
+        "crates/schema/src/account_identity_authority.template.txt",
+        "crates/schema/src/lib.rs",
         "crates/schema/src/family_reference_primitives_ts.rs",
         "crates/schema/src/family_reference_primitives.template.txt",
         "crates/schema/src/family_references_ts.rs",
@@ -743,7 +747,10 @@
         "crates/family-identity-core/tests/contract/household_authority_handoff.rs",
         "crates/family-identity-core/tests/unit/household_authority.rs",
         "crates/family-identity-core/tests/unit/setup_lifecycle.rs",
-        "crates/family-identity-core/tests/unit/session_lifecycle.rs"
+        "crates/family-identity-core/tests/unit/session_lifecycle.rs",
+        "packages/schema-domain/src/generated-account-identity-authority.ts",
+        "packages/schema-domain/src/account-identity-authority.ts",
+        "packages/schema-domain/package.json"
       ]
     },
     "WP-ai-plan-01-source-index-and-repo-reconciliation": {

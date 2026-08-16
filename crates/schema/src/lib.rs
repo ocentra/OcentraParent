@@ -21,6 +21,8 @@ pub(crate) fn schema_result_or_unreachable<T, E>(value: Result<T, E>, _context: 
 }
 
 pub mod activity_event_kind_ts;
+pub mod account_identity_authority;
+pub mod account_identity_authority_ts;
 pub mod app_game_preview_source_freshness;
 pub mod app_game_preview_source_freshness_ts;
 pub mod app_game_source_freshness_policy_consumption;
