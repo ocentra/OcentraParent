@@ -10,6 +10,58 @@ contents. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
+## Authoritative production reachability dashboard - 2026-08-16
+
+This section supersedes every older Phase-1 count, checkbox summary, graph
+state, and historical completion sentence below. It answers a narrower
+question: does a shipped entrypoint reach a real caller with trusted input and
+produce a material product effect? A mapped file, DTO, status/read-model
+panel, mock, fixture, `TEST_*` adapter, synthetic reference/outcome, generated
+proof artifact, or shape-only test does not count as product implementation.
+Phase 2 tests/Enforcer and Phase 3 proof are not claimed here.
+
+| Plan | Exact workpacks | Actual shipped caller / material effect | Principal production-code gap | Honest production phase state |
+| --- | ---: | --- | --- | --- |
+| Account identity/family | 8 | Family/setup/provisioning helpers and Rust family-identity contracts are reachable; no verified account request writes authority. | Provider/trust decision, account/session routes, household authority, and Cloudflare D1/DO/KV runtime caller/migration remain unresolved. | Blocked/manual-required; no authorized runtime slice. |
+| AI | 48 | Local chat/assistant and screen-analysis paths can reach the configured local runner; deterministic activity classifiers and typed status/read models exist. | No neutral durable AI work-item lifecycle, complete custody context, verified provider/model authority, or trusted AI-to-policy handoff. | Incomplete; runtime foundations exist without a complete product chain. |
+| App/game | 220 | `service_runtime` captures Windows inventory/process/foreground/launcher observations into encrypted journal/SQLite and agent-service read models. | Parent-authored compiler/evaluator caller, approval service composition, scheduler, child delivery/provider, and authenticated adapter execution are absent; timer is only PID/name scoped. | Incomplete/blocked; no legal source slice found. |
+| App | 95 | Agent-service/app-game-core read models, risk readiness, route/compiler composition, and portal projections are reachable. | Live OS/app policy authority, service evaluator runtime, notification/child delivery, durable timer execution, and native action owner are missing. | Incomplete/manual-required. |
+| Browser | 30 | Windows inventory, managed launch/profile custody, CDP target-list evidence, service events, and portal status paths are reachable. | Active-focus authority, cross-platform inventory, trusted intervention delivery, AppLocker/WDAC, native-host lifecycle, and authenticated action receipts are missing. | Incomplete; native authority gaps remain. |
+| Child-agent runtime distribution | 11 | The child service starts and locally gates tamper/recovery/removal state; runtime status paths are real. | Signed package/distribution, platform permission/install owner, trusted provisioning input, and production delivery/rollback are not composed. | Blocked/incomplete on sibling distribution and identity/trust owners. |
+| Cloudflare control plane | 13 | Worker route dispatcher reaches billing/admin/webhook and auth-verifier boundaries; durable store/migration configuration exists. | Provider verification is manual-required, account D1 store has no runtime caller, fixture paths cannot authorize production, and deployed Durable Object/binding/migration ownership is absent. | Blocked/manual-required. |
+| Data custody/storage | 9 | Encrypted local queue/journal, ActivityStore projections, deletion/outbox, and custody read models provide real local persistence effects. | User-authorized export/delete/sync custody worker, durable cross-boundary lifecycle, and end-to-end source-to-custody ownership remain incomplete. | Incomplete; local custody foundations only. |
+| Device trust bootstrap | 9 | Typed challenge/presence/identity contracts and local bootstrap state are reachable in bounded flows. | No shipped parent/device enrollment caller with sealed key custody, signed presence, revocation, and durable bootstrap handoff. | Blocked; follow WP02 → WP03 dependency chain. |
+| Eventing | 13 | Shared event contracts, journal append/replay, and ActivityStore projections are used by selected agent-service/runtime paths. | Generic eventing does not supply every domain’s durable policy dispatch, trusted authority, replay/idempotency, or receipt lifecycle. | Incomplete; foundational runtime only. |
+| LAN | 25 | Agent-service discovery/pairing commands and parent read paths produce bounded network observations and fail-closed state. | Physical trusted-device enrollment, signed hello/lease, durable transport authority, and setup aggregation remain absent. | Incomplete/manual-required. |
+| Logging domain parity | 10 | Rust logging markers and structured event fields are emitted by service/runtime paths. | Full cross-domain schema parity, enforcement instrumentation, durable audit custody, and executable abuse/lifecycle coverage remain incomplete. | Incomplete; observability is not control authority. |
+| Network | 8 | Agent-service/agent-core discovery adapters and ActivityStore/network read models produce bounded visibility evidence. | No live analyzer-to-policy handoff, blocking adapter, durable rule authority, or provider/runtime execution exists. | Incomplete/manual-required. |
+| Parent desktop/runtime package | 11 | Tauri route commands and provisioning/install-state contracts are reachable from the desktop shell. | Signed package/build/update/rollback, integrity verification, installer distribution, and release publishing callers are absent. | Blocked on runtime-distribution ownership. |
+| Payment/subscription | 13 | Cloudflare billing routes/read models and subscription contract projections are reachable. | No provider-owned verification/webhook-to-entitlement persistence path; fixture/demo fallback is not production authority. | Blocked/manual-required. |
+| Policy control plane | 8 | Policy contracts, decision/read models, and service boundary guards are reachable. | Trusted parent authorization, durable policy dispatch/journal, evaluator-to-adapter handoff, rollback, and receipt authority remain missing; unsafe paths fail closed. | Blocked/manual-required. |
+| Portal UX/household surfaces | 20 | Portal routes render Rust/service snapshots and send typed parent intents. | Portal owns no account, child, custody, policy, notification, or native execution authority; many upstream live callers are absent. | Projection-only/incomplete. |
+| Remote access | 6 | Typed remote route/capability/status boundaries and local read models are present. | No authenticated relay/session owner, durable authorization, transport provider, or production remote execution path is wired. | Blocked/manual-required. |
+| Screen AI pipeline | 10 | Screen startup/capture, encrypted queue, local adapter process, ActivityStore summaries, and portal status are reachable. | Canonical AI router/provider, real result-to-policy authority, durable full-chain replay, custody-negative enforcement, and live operator harness are missing. | Incomplete; local capture foundation only. |
+| Screen | 43 | Desktop capture, Android MediaProjection entrypoint, encrypted image queue, deletion/read models, and portal settings/status are reachable. | Unified platform capability/permission owner, real OCR/VLM composition, policy authority, child disclosure/live view, and complete custody lifecycle are missing. | Incomplete/manual-required. |
+| Setup/install/provisioning | 7 | Tauri/portal first-run projection and child-service startup/runtime gates are reachable. | No trusted account/session, signed installer, child package/permission, device-trust, custody, or policy readiness aggregation reaches setup progression. | Blocked; presentation boundary remains unavailable/manual-required. |
+| Tracking | 42 | Typed config/check-in/geofence flows and ActivityStore/portal read models exist; parent/child process-local cascades run. | WP34-WP36 are not durable production completion: no owner maps the live cascade into journal/replay/SQLite projection; notifications, adapters, providers, and full UI remain open. | Incomplete; follow WP34-37 → WP39 dependency chain. |
+| V0.8 enforcement | 20 | Agent-service command dispatch and the Windows session-validated PID/name time-limit path are reachable; generic adapter execution returns `ManualRequired`. | Trusted policy decision refs, authenticated native adapter/grant, durable dispatch journal, broad app/browser/network/mobile execution, rollback, and receipt custody remain absent. | Blocked/manual-required; narrow timer only. |
+
+### Next dependency chains
+
+These are routing candidates, not authorization to bypass the graph READY gate:
+
+- Device Trust: WP02 → WP03, after the real enrollment/presence owner is
+  assigned through graph routing.
+- Tracking: WP34-WP37 → WP39, with durable journal/replay ownership before the
+  portal event-to-read-model chain is assigned.
+- Data Custody: WP04 → WP07, with the source/export/delete custody owner and
+  durable lifecycle routed before implementation assignment.
+
+No plan is production-code complete from this dashboard. A plan may have
+bounded runtime foundations or a real presentation surface while its trusted
+authority, durability, provider, child-delivery, native-adapter, or rollback
+chain remains absent.
+
 ## Current merged repository and code/test audit baseline - 2026-08-15
 
 Repository organization is complete for this audit baseline. Consolidation PR
