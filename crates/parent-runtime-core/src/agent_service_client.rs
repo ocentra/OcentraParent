@@ -8,7 +8,9 @@ use ocentra_parent_agent_protocol::tracking::read_model::TrackingReadModel;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
+use ocentra_parent_agent_protocol::transport::AgentPeerRole;
 use ocentra_parent_agent_protocol::transport::AgentRoute;
+use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_schema::parent_ui_bridge::ParentRouteContext;
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelFailureReason, ParentActivityTrackingReadModelResultSnapshot,
@@ -209,15 +211,39 @@ pub(crate) fn dispatch_known_agent_command(
 }
 
 pub(crate) fn health_check_for_address(agent_addr: &str) -> bool {
-    transport::send_agent_command_to_address(
+    let result = transport::send_agent_command_to_address(
         agent_addr,
         AgentCommandName::AgentHealthCheck,
         LogFields::new(),
         None,
         AgentRoute::Localhost,
     )
-    .map(|result| result.response_event.event == AgentEventName::AgentHealthReported)
-    .unwrap_or(false)
+    .ok();
+    let Some(result) = result else {
+        return false;
+    };
+    let response = result.response_event;
+    result.command == AgentCommandName::AgentHealthCheck
+        && response.schema_version == AGENT_PROTOCOL_SCHEMA_VERSION
+        && response.correlation_id == result.command_message_id
+        && response.source.peer_id == constants::peer::LOCAL_DEV_AGENT
+        && response.source.role == AgentPeerRole::AgentService
+        && response.target.peer_id == constants::peer::PORTAL_DEV
+        && response.target.role == AgentPeerRole::Portal
+        && response.event == AgentEventName::AgentHealthReported
+        && matches!(
+            response.payload.get(constants::field::ONLINE),
+            Some(LogFieldValue::Boolean(true))
+        )
+        && matches!(
+            response.payload.get(constants::field::TRANSPORT),
+            Some(LogFieldValue::String(value))
+                if value == constants::value::TRANSPORT_WEBSOCKET
+        )
+}
+
+pub(crate) fn health_check_timeout_ms() -> u64 {
+    transport::agent_health_check_timeout_ms()
 }
 
 pub(crate) fn dispatch_lan_agent_command(

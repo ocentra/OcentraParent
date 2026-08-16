@@ -18,6 +18,7 @@ use ocentra_parent_agent_protocol::{
 use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
     dispatch_parent_ui_action, load_parent_route_snapshot, parent_agent_service_health_for_address,
+    parent_agent_service_health_timeout_ms,
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -33,7 +34,8 @@ use self::parent_route_subscription_delivery::{
 
 pub mod parent_route_subscription_delivery;
 
-const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
+// Compatibility/test-only raw socket probe; production readiness uses the typed health handshake.
+const LEGACY_SOCKET_CONNECT_TIMEOUT_MS: u64 = 250;
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
 #[serde(transparent)]
 pub struct ParentRouteSubscriptionId(pub String);
@@ -324,7 +326,7 @@ fn parent_platform_proof_state_for_connection(
             constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_OWNER_PACKAGE_SERVICE.to_string(),
         service_launch_strategy_state:
             constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_STRATEGY_CONNECT_OR_DEGRADE.to_string(),
-        service_connect_timeout_ms: SERVICE_CONNECT_TIMEOUT_MS,
+        service_connect_timeout_ms: parent_agent_service_health_timeout_ms(),
         package_service_manager_state: constants::value::PARENT_DESKTOP_PACKAGE_SERVICE_AUTO_START
             .to_string(),
         package_health_probe_state: constants::value::PARENT_DESKTOP_PACKAGE_HEALTH_PROBE_REQUIRED
@@ -364,7 +366,10 @@ pub fn agent_service_connects(agent_address: &ParentDesktopAgentAddress) -> bool
         .parse::<SocketAddr>()
         .ok()
         .and_then(|address| {
-            TcpStream::connect_timeout(&address, Duration::from_millis(SERVICE_CONNECT_TIMEOUT_MS))
+            TcpStream::connect_timeout(
+                &address,
+                Duration::from_millis(LEGACY_SOCKET_CONNECT_TIMEOUT_MS),
+            )
                 .ok()
         })
         .is_some()
