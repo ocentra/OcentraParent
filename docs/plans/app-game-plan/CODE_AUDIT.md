@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 166/220 have current production source plus the expected checked-in tests
+- 167/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 185/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 35/220 retain a concrete production-code or expected-test gap.
+- 186/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 34/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -96,7 +96,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP54 Policy Readiness Portal Renderer | Rust policy-readiness/app-game-core/service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP56 Notification Service Read Model | Rust notification-readiness/service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP58 Notification Local Outbox Bridge | Rust readiness-row bridge, canonical `NotificationLocalOutboxRecord`, reused atomic WP121 store, deterministic JSONL, and focused service negative | **Complete for bounded Phase 1; Phase 2 passed** | Eligible rows append/reopen/replay idempotently and conflicts fail closed; manual/unavailable rows stay out. The false WP125 setup-outbox runtime claim is removed. Retained Phase 3 proof and real service composition/provider lifecycle remain later boundaries. |
-| WP59 Notification Scheduler Bridge | Rust canonical per-record scheduler route/store and child-UX lifecycle tests | **Incomplete** | Safe due-local mapping plus atomic reopen/idempotency/conflict behavior exist, but no bridge consumes the WP58 read model, retains its manual/unavailable blocked rows, or round-trips scheduler JSONL. Production quiet-hours/retry workers remain explicitly outside this bounded packet. |
+| WP59 Notification Scheduler Bridge | Rust WP58-to-scheduler bridge, canonical per-record scheduler route/store, and contract tests | **Complete for bounded Phase 1; Phase 2 green** | The bridge consumes and validates the WP58 read model, schedules only linked rows, retains manual/unavailable rows as blocked, round-trips deterministic scheduler JSONL, and proves atomic reopen/idempotency/conflict behavior at `4cf6a11c9`. Production quiet-hours/retry workers, provider delivery, receipts, and retained Phase 3 proof remain outside this bounded packet. |
 | WP60 Notification Audit-History Bridge | Rust notification-readiness/service/portal tests | **Incomplete** | No durable ordered notification attempt/receipt/history store and replay/query tests. |
 | WP61 Notification Provider Preflight | Rust notification-readiness/service/portal tests | **Incomplete** | No selected provider credential/capability preflight boundary and negative integration matrix. |
 | WP62 Notification Preference Preflight | Rust notification-readiness/service/portal tests | **Incomplete** | No durable parent preference/quiet-hours/frequency owner and mutation/replay tests. |
@@ -264,7 +264,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP59-WP65: implement the notification scheduler, ordered history,
+1. WP60-WP65: implement ordered notification history,
    provider/preference owners, and receipt-backed status producers.
 2. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
    and hostile/oversized metadata tests.
@@ -286,6 +286,6 @@ helpers. It is not release-ready. The central unfinished chain is:
 `live evidence -> durable review/risk -> compiler/evaluator -> child UX/delivery
 -> notification delivery/history -> cross-platform runtime + tests -> complete parent UI`
 
-Phase 2 should run focused tests and Enforcer only after the 46 writing gaps are
+Phase 2 should run focused tests and Enforcer only after the 34 writing gaps are
 closed or explicitly retired. Phase 3 should then regenerate clean-checkout proof;
 historical ignored output is not a substitute.

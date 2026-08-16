@@ -19,12 +19,12 @@
 - Audit date: 2026-08-15.
 - Authoritative code/test inventory: [CODE_AUDIT.md](CODE_AUDIT.md).
 - Graph coverage: **95/95 reviewed workpack maps**.
-- Bounded Phase 1: **78 complete, 17 incomplete**.
+- Bounded Phase 1: **79 complete, 16 incomplete**.
 - Phase 2 focused tests/Enforcer: not run for this plan-wide audit.
 - Phase 3 proof: not regenerated.
 
-The 17 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
-WP26, WP48, WP49, WP59, WP60, WP61, WP62, WP63, WP64, WP65, and
+The 16 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
+WP26, WP48, WP49, WP60, WP61, WP62, WP63, WP64, WP65, and
 WP102.
 
 ## Current ownership
@@ -72,7 +72,7 @@ not be promoted as runtime policy/timer support.
 1. WP18/WP49 compiler and category/risk routing.
 2. WP16/WP17 durable unknown/new-app review and live risk candidates.
 3. WP19/WP20 time-budget runtime composition and child UX.
-4. WP59-WP65 notification scheduler/history/provider pipeline.
+4. WP60-WP65 notification history/provider pipeline.
 5. WP15/WP48/WP63 parent inventory/freshness UI.
 6. WP26 load/performance harnesses.
 7. WP102 implement or explicitly merge/retire into WP103.

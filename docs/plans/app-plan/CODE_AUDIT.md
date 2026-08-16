@@ -21,9 +21,9 @@ release-ready. Those are Phase 2 and Phase 3.
 ## Result
 
 - 95/95 workpacks have reviewed code/test topology in the engineering graph.
-- 78/95 have no remaining source/test-writing gap in their bounded Phase 1
+- 79/95 have no remaining source/test-writing gap in their bounded Phase 1
   scope. Many are intentionally narrow contract or handoff packets.
-- 17/95 retain a concrete production-code or expected-test gap.
+- 16/95 retain a concrete production-code or expected-test gap.
 - Real Windows inventory, process, foreground, recurring service capture,
   encrypted journal/SQLite projection, source-status rows, scoped owned-process
   time-limit execution, and several Rust/service/portal read models exist.
@@ -93,7 +93,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP54 Policy-readiness portal renderer | Rust-owned policy readiness is rendered in the portal with empty/manual states and focused tests. | **Complete for Phase 1** | Authoring/mutation remains elsewhere. |
 | WP56 Notification service read model | Agent service builds and reports notification-readiness rows; payload/service tests exist. | **Complete for Phase 1** | It explicitly reports provider/outbox/scheduler delivery as unclaimed. |
 | WP58 Notification local outbox | Rust readiness-row bridge creates canonical local-outbox records, reuses the atomic store, round-trips deterministic JSONL, persists/reopens/replays idempotently, rejects conflicts, and excludes manual/unavailable rows; service regression keeps the unrelated setup outbox from claiming WP58 runtime. | **Complete for bounded Phase 1; Phase 2 passed** | Phase 3 proof and live service/provider composition remain open; no delivery or receipt claim is made. |
-| WP59 Notification scheduler | Canonical Rust per-record scheduler route/store has due/manual/unavailable, atomic reopen, idempotency, and conflict tests. | **Incomplete** | No WP59 bridge consumes the WP58 read model, retains blocked rows, or round-trips scheduler JSONL. Production quiet-hours/retry execution remains outside this bounded bridge. |
+| WP59 Notification scheduler | Shared Rust WP58-to-scheduler bridge, canonical per-record scheduler route/store, and contract tests. | **Complete for bounded Phase 1; Phase 2 green** | The bridge validates WP58, schedules linked rows only, retains blocked manual/unavailable rows, round-trips deterministic scheduler JSONL, and proves atomic reopen/idempotency/conflict behavior at `4cf6a11c9`. Production quiet-hours/retry execution, provider delivery, receipts, and retained proof remain outside this bounded bridge. |
 | WP60 Notification audit history | Rows carry evidence/audit refs. | **Incomplete** | No durable ordered notification attempt/receipt/history store/query or replay tests exist. |
 | WP61 Provider preflight | Manual/provider-required states are representable. | **Incomplete** | No selected provider credential/capability preflight boundary or negative integration matrix exists. |
 | WP62 Preference preflight | Preference-required state is representable. | **Incomplete** | No durable parent preference/quiet-hours/frequency preflight owner or mutation/replay tests exist. |
@@ -144,7 +144,7 @@ release-ready. Those are Phase 2 and Phase 3.
    production, feeding the compiler rather than presentation-only DTOs.
 3. WP19 + WP20: compose authoritative sessions, schedules, bonus/allow-once,
    child warning/request UX, restart recovery, and focused integration tests.
-4. WP59-WP65: implement the notification scheduler, history,
+4. WP60-WP65: implement notification history,
    provider/preference preflight, and status producers already expected by the
    WP66/WP67 parent surface.
 5. WP15 + WP48 + WP63: finish the cohesive inventory/running/foreground/session
@@ -165,6 +165,6 @@ live evidence -> durable review/risk state -> policy compiler/runtime
 -> complete parent inventory/freshness surfaces
 ```
 
-Phase 2 must run focused tests and Enforcer only after the 17 writing gaps are
+Phase 2 must run focused tests and Enforcer only after the 16 writing gaps are
 closed or explicitly reduced. Phase 3 then regenerates proof from a clean
 checkout; historical ignored proof is not a substitute.

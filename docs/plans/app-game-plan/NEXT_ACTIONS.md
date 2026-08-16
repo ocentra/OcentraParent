@@ -27,11 +27,13 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open Phase 1 work by dependency impact
 
-The 2026-08-15 code audit maps all 220 workpacks and leaves 35 source/test
+The 2026-08-15 code audit maps all 220 workpacks and leaves 34 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP59-WP65: notification scheduler, history, provider/preference
-   owners, and receipt-backed status.
+1. WP60-WP65: ordered notification history, provider/preference owners, and
+   receipt-backed status. WP59's bounded scheduler bridge is implemented and
+   focused-green at `4cf6a11c9`; production retry/quiet-hours workers remain a
+   later runtime boundary.
 2. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
    metadata tests.
 3. WP188-WP202, WP204: Android replay/test closure and Linux foreground

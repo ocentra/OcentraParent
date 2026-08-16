@@ -56,31 +56,38 @@ scheduler handoff without claiming provider delivery or production runtime.
 - Existing child-UX contract tests exercise due, manual, unavailable,
   persistence, reopen, replay, and conflict behavior for individual canonical
   records.
-- No current production function consumes the WP58
-  `AppGameNotificationLocalOutboxBridgeReadModel`, retains its blocked
-  manual/unavailable rows in a WP59 result, or serializes/parses the resulting
-  scheduler records as deterministic JSONL. Those are the remaining bounded
-  WP59 source/test gaps.
+- `build_app_game_notification_scheduler_bridge` now validates and consumes the
+  WP58 `AppGameNotificationLocalOutboxBridgeReadModel`, schedules only linked
+  records, and retains manual-required/unavailable rows as explicit blocked
+  WP59 rows.
+- The bridge serializes and parses deterministic scheduler JSONL and persists
+  scheduled rows through `AppGameChildUxSchedulerProofStore`; focused tests
+  cover reopen, exact replay idempotency, same-identity conflict rejection,
+  tampered source counts/claims/identities, and the non-claim boundary.
+- The implementation and focused Phase 2 gates are committed at `4cf6a11c9`.
 - The historical parent-domain source/test/proof paths named below are absent;
   current ownership is Rust `app-game-core` plus the canonical agent-protocol
   scheduler schema.
 
-## Proof
+## Implementation and proof routes
 
-- `packages/parent-domain/src/app-game-notification-scheduler-bridge.ts`
-- `packages/parent-domain/tests/app-game-notification-scheduler-bridge.test.ts`
-- `scripts/test/app-game-notification-scheduler-bridge-proof.mjs`
+- `crates/app-game-core/src/app_game_notification_scheduler_bridge.rs`
+- `crates/app-game-core/src/app_game_notification_scheduler_bridge_types.rs`
+- `crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs`
+- Historical `packages/parent-domain/...` and
+  `scripts/test/app-game-notification-scheduler-bridge-proof.mjs` routes are
+  absent and are not current implementation authority.
 - `test-results/app-game-notification-scheduler-bridge-proof/proof.json`
 - `output/app-game-plan-proof/59-notification-scheduler-bridge/`
 - `output/app-plan-proof/59-notification-scheduler-bridge/`
 
 ## Validation
 
-- [ ] Bridge parses the WP58 app/game outbox bridge read model before
+- [x] Bridge parses the WP58 app/game outbox bridge read model before
       scheduling.
-- [ ] Only linked local outbox records become scheduler JSONL rows.
-- [ ] Manual-required and unavailable rows remain unscheduled.
-- [ ] Scheduler JSONL rereads through the existing scheduler record parser.
+- [x] Only linked local outbox records become scheduler JSONL rows.
+- [x] Manual-required and unavailable rows remain unscheduled.
+- [x] Scheduler JSONL rereads through the existing scheduler record parser.
 - [ ] Proof pack records no provider delivery, no receipt ingestion, no
       retry-worker/quiet-hours timer runtime, no parent UI, no child delivery,
       no adapter dispatch, no durable production outbox, and no platform claim.

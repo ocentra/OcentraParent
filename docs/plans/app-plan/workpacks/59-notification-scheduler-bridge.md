@@ -26,26 +26,27 @@ WP58 outbox linking.
 
 ## Current Code Audit (2026-08-15)
 
-The shared Rust owner already has a safe per-record canonical scheduler route,
-an atomic scheduler proof store, and tests for due/manual/unavailable mapping,
-reopen, idempotent replay, and identity conflicts. It does not yet consume the
-WP58 bridge read model, preserve blocked WP58 rows in a WP59 result, or
-round-trip scheduler JSONL. Historical parent-domain and proof paths are absent.
+The shared Rust owner now validates and consumes the WP58 bridge read model,
+schedules only linked rows, preserves blocked manual/unavailable rows, and
+round-trips deterministic scheduler JSONL. It reuses the atomic scheduler store
+and has focused tests for reopen, idempotent replay, identity conflict, source
+tampering, and explicit runtime/provider/UI non-claims. The code and focused
+Phase 2 gates are committed at `4cf6a11c9`; historical parent-domain routes are
+absent and are not implementation authority.
 
 ## Proof
 
 - Shared source:
-  `packages/parent-domain/src/app-game-notification-scheduler-bridge.ts`
+  `crates/app-game-core/src/app_game_notification_scheduler_bridge.rs`
 - Shared test:
-  `packages/parent-domain/tests/app-game-notification-scheduler-bridge.test.ts`
-- Harness:
-  `scripts/test/app-game-notification-scheduler-bridge-proof.mjs`
+  `crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs`
+- Historical `packages/parent-domain/...` and script harness routes are absent.
 - Native app proof pack:
   `output/app-plan-proof/59-notification-scheduler-bridge/`
 
 ## Validation
 
 - [ ] Cross-recorded from shared app/game WP59 proof.
-- [ ] Native app rows schedule only after local outbox eligibility is proved.
-- [ ] Manual-required and unavailable rows remain unscheduled.
-- [ ] Runtime/provider/UI/child/adapter/platform claims remain false.
+- [x] Native app rows schedule only after local outbox eligibility is proved.
+- [x] Manual-required and unavailable rows remain unscheduled.
+- [x] Runtime/provider/UI/child/adapter/platform claims remain false.

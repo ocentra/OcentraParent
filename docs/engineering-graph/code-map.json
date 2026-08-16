@@ -2538,10 +2538,13 @@
       "roots": [
         "crates/agent-protocol/src/schema_domain_mirrors.rs",
         "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge_types.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_store.rs",
-        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs"
       ]
     },
     "WP-app-plan-60-notification-audit-history-bridge": {
@@ -6348,10 +6351,13 @@
       "roots": [
         "crates/agent-protocol/src/schema_domain_mirrors.rs",
         "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_scheduler_bridge_types.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_types.rs",
         "crates/app-game-core/src/app_game_child_ux_scheduler_store.rs",
-        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_scheduler_bridge.rs"
       ]
     },
     "WP-app-game-plan-60-notification-audit-history-bridge": {

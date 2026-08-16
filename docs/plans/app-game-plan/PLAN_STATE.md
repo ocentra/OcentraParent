@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **165** have current production source plus expected checked-in tests for their
+- **167** have current production source plus expected checked-in tests for their
   bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **36** retain a concrete production-code or expected-test gap.
+  packets; **34** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -90,7 +90,7 @@ packages/schema-domain:
 - Scoped owned-process time-limit dispatch, parent preference request
   persistence/outbox, adapter readiness/dispatch, platform status, receipt,
   parent-runtime, and portal surfaces are present with bounded tests.
-- These do not erase the 36 Phase 1 gaps or claim cross-platform/provider/child
+- These do not erase the 34 Phase 1 gaps or claim cross-platform/provider/child
   delivery and physical proof.
 
 ## Historical gap narrative
@@ -161,7 +161,7 @@ Checked generated handoff rows do not override the selected workpack proof root 
 - The six app/game capability, schema, and settings guides are reviewed
   no-code reference/control-routing packets. They do not claim product
   implementation or proof completion.
-- Thirty-five implementation/test-writing gaps remain; select them through
+- Thirty-four implementation/test-writing gaps remain; select them through
   `CODE_AUDIT.md` and `WORKPACK_INDEX.md`.
 
 ## Default no-read list
