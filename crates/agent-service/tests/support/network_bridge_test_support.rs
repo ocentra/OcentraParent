@@ -1,3 +1,4 @@
+use ocentra_parent_agent_core::network_event_runtime::NetworkRuntimeJournalPath;
 use ocentra_parent_agent_core::network_event_runtime::{
     remote_delivery_outbox_handoff_types::NetworkRuntimeRemoteDeliveryOutboxHandoffReport,
     remote_delivery_transport_dispatch_state_types::NetworkRuntimeRemoteDeliveryTransportDispatchStateReport,
@@ -13,7 +14,14 @@ use ocentra_parent_agent_protocol::network_flow::{
     NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
-use std::string::String as TestString;
+use std::{
+    fs,
+    path::PathBuf,
+    string::String as TestString,
+    sync::OnceLock,
+    time::{SystemTime, UNIX_EPOCH},
+};
+use tokio::sync::OnceCell;
 
 use crate::test_text::TestText;
 
@@ -64,7 +72,49 @@ pub struct NetworkRuntimeServiceStreamReportForTest {
     pub entries: Vec<serde_json::Value>,
 }
 
+static NETWORK_RUNTIME_TEST_SPINE: OnceCell<()> = OnceCell::const_new();
+static NETWORK_RUNTIME_TEST_JOURNAL_PATH: OnceLock<NetworkRuntimeJournalPath> = OnceLock::new();
+
+async fn ensure_network_runtime_spine_for_test() {
+    NETWORK_RUNTIME_TEST_SPINE
+        .get_or_init(|| async {
+            let path = network_runtime_journal_path_for_test();
+            crate::network_runtime_delivery::initialize_network_runtime_spine(&path)
+                .await
+                .expect("durable network runtime test spine must initialize");
+        })
+        .await;
+}
+
+pub fn network_runtime_journal_path_for_test() -> NetworkRuntimeJournalPath {
+    NETWORK_RUNTIME_TEST_JOURNAL_PATH
+        .get_or_init(|| {
+            let artifact_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("..")
+                .join("..")
+                .join("target")
+                .join("test-artifacts")
+                .join("network-runtime");
+            fs::create_dir_all(&artifact_dir)
+                .expect("network runtime test artifact directory must exist");
+            let artifact_dir = fs::canonicalize(&artifact_dir)
+                .expect("network runtime test artifact directory must resolve");
+            let nonce = SystemTime::now()
+                .duration_since(UNIX_EPOCH)
+                .expect("test clock must be after the Unix epoch")
+                .as_nanos();
+            let path = artifact_dir.join(format!(
+                "{}-{}-network-runtime-journal.ndjson",
+                std::process::id(),
+                nonce
+            ));
+            NetworkRuntimeJournalPath::new(path)
+        })
+        .clone()
+}
+
 pub(crate) async fn handle_local_command_text_for_test(body: TestText) -> AgentEventEnvelope {
+    ensure_network_runtime_spine_for_test().await;
     crate::agent_service_lib::websocket::dispatch_local_command_text(
         crate::agent_service_lib::websocket::WebsocketCommandText(body.0),
     )
@@ -144,9 +194,32 @@ pub fn network_flow_digest_for_test(
 pub async fn deliver_network_runtime_for_read_model_for_test(
     read_model: &ActivityNetworkFlowReadModel,
 ) -> NetworkRuntimeServiceDeliveryReportForTest {
+    ensure_network_runtime_spine_for_test().await;
     let report =
-        crate::network_runtime_delivery::deliver_network_runtime_for_read_model(read_model).await;
+        crate::network_runtime_delivery::read_network_runtime_delivery_for_read_model(read_model)
+            .await;
     delivery_report_for_test(&report)
+}
+
+pub async fn seed_network_runtime_for_test(read_model: &ActivityNetworkFlowReadModel) {
+    ensure_network_runtime_spine_for_test().await;
+    let observations = read_model
+        .rows
+        .iter()
+        .map(
+            |row| crate::activity_capture::capture_events::NetworkCaptureObservation {
+                source_event_id: row.event_id.clone(),
+                observed_at: row.observed_at.clone(),
+                observation: crate::network_runtime_delivery::network_runtime_observation_from_row(
+                    row,
+                )
+                .expect("canonical associated PID count must be present in test read model"),
+            },
+        )
+        .collect::<Vec<_>>();
+    crate::network_runtime_delivery::publish_captured_network_observations(&observations)
+        .await
+        .expect("durable network runtime test publication must succeed");
 }
 
 pub fn network_flow_read_model_payload_with_runtime_delivery_for_test(
@@ -162,6 +235,7 @@ pub fn network_flow_read_model_payload_with_runtime_delivery_for_test(
 pub async fn stream_network_runtime_event_chain_for_read_model_for_test(
     read_model: &ActivityNetworkFlowReadModel,
 ) -> NetworkRuntimeServiceStreamReportForTest {
+    ensure_network_runtime_spine_for_test().await;
     stream_report_for_test(
         crate::network_runtime_stream_payload::stream_network_runtime_event_chain_for_read_model(
             read_model,

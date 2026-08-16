@@ -65,6 +65,7 @@ pub struct ActivityNetworkFlowObservation {
     pub process_attribution_status: String,
     pub process_id: Option<u64>,
     pub process_name: Option<String>,
+    pub associated_pid_count: Option<usize>,
     pub counters: ActivityNetworkFlowCounters,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
@@ -933,6 +934,7 @@ pub struct NetworkRuntimeEventPayload {
     pub destination_domain: Option<String>,
     pub process_id: Option<u32>,
     pub process_name: Option<String>,
+    pub associated_pid_count: usize,
     pub evidence_scope: NetworkEvidenceScope,
     pub evidence_grade: NetworkRuntimeEvidenceGrade,
     /// Canonical A-D grade carried across the runtime event boundary.

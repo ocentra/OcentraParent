@@ -102,7 +102,6 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = enforcement_api::build_enforcement_policy_dispatch_report;
     let _ = enforcement_api::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report;
     let _ = enforcement_api::enforcement_supported_adapter_runtime_proof_report::build_enforcement_supported_adapter_runtime_proof_report;
-    let _ = activity_capture::spawn_startup_activity_capture;
     let _ = activity_capture::startup_activity_capture_enabled;
     let _ = activity_capture::startup_activity_capture_enabled_for_value;
     let _ = activity_capture::record_activity_capture_once;

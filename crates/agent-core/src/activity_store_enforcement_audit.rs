@@ -12,6 +12,14 @@ impl ActivityStore {
         enforcement_audit_fields_by_event_id(&self.connection, event_id)
     }
 
+    pub fn replace_enforcement_audit_fields_by_event_id(
+        &self,
+        event_id: &str,
+        fields: &LogFields,
+    ) -> Result<(), ActivityStoreError> {
+        replace_enforcement_audit_fields_by_event_id(&self.connection, event_id, fields)
+    }
+
     pub fn latest_enforcement_audit_fields(&self) -> Result<Option<LogFields>, ActivityStoreError> {
         latest_enforcement_audit_fields(&self.connection)
     }
@@ -48,6 +56,25 @@ fn enforcement_audit_fields_by_event_id(
         }
         None => Ok(None),
     }
+}
+
+fn replace_enforcement_audit_fields_by_event_id(
+    connection: &Connection,
+    event_id: &str,
+    fields: &LogFields,
+) -> Result<(), ActivityStoreError> {
+    let fields_json = serde_json::to_string(fields)?;
+    let changed = connection.execute(
+        constants::sqlite::UPDATE_ENFORCEMENT_AUDIT_FIELDS_BY_EVENT_ID,
+        params![
+            fields_json,
+            event_id,
+            constants::activity_event_kind::ENFORCEMENT_AUDIT_RECORDED
+        ],
+    )?;
+    (changed == 1)
+        .then_some(())
+        .ok_or_else(|| rusqlite::Error::StatementChangedRows(changed).into())
 }
 
 fn latest_enforcement_audit_fields(

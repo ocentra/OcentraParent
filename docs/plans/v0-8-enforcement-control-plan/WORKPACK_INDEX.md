@@ -30,7 +30,7 @@ Use this index to open exactly one assigned workpack. Do not read every file in
 | open    | [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md)             | 1,127 | 0/5 checked; 5 open |
 | open    | [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md)     | 1,190 | 0/5 checked; 5 open |
 | open    | [10 Parent Approval And Override](workpacks/10-parent-approval-override.md)                       | 1,181 | 0/5 checked; 5 open; parent-resolution plus approved-request artifact/target binding is enforced through the child-runtime facade and focused-tested, but transport/adapter execution remains open |
-| open    | [11 Audit And Journal Events](workpacks/11-audit-journal-events.md)                               | 1,123 | 0/5 checked; 5 open; journal sequence code/tests are focused-verified, but WP11 still owns the retained enforcement-journal handoff required before WP04 dispatch-ready work |
+| open    | [11 Audit And Journal Events](workpacks/11-audit-journal-events.md)                               | 1,123 | 0/5 checked; 5 open; journal sequence plus completed-command retry recovery/exact-report persistence are focused-verified and fail closed without reexecution; remaining transition/query/proof handoff still blocks WP04 dispatch-ready work |
 | open    | [12 Child-Facing Status And Reasons](workpacks/12-child-facing-status-and-reasons.md)             | 1,116 | 0/5 checked; 5 open |
 | open    | [13 Service Read Models And API](workpacks/13-service-read-models-and-api.md)                     | 1,074 | 0/5 checked; 5 open |
 | open    | [14 Portal Control State Consumption](workpacks/14-portal-control-state-consumption.md)           | 1,093 | 0/5 checked; 5 open |

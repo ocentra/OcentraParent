@@ -43,7 +43,7 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ### Establish the durable-journal handoff before execution authority
 
-- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes; the generic Eventing prerequisite is locally evidenced, but WP11 must still establish the enforcement-specific durable journal before WP04 can be scheduled for dispatch-ready work.
+- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes; completed-command retry recovery and exact final-report persistence are focused-green and fail closed without adapter reexecution, but approval/denial/expiry/override coverage plus the enforcement-specific durable query/proof handoff remain open before WP04 can be scheduled for dispatch-ready work.
 
 ### Close execution authority first
 

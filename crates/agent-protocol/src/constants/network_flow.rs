@@ -34,6 +34,22 @@ pub const EVENT_ENFORCEMENT_COMMAND_ISSUED: &str = "enforcement.command.issued";
 pub const EVENT_ENFORCEMENT_RESULT_OBSERVED: &str = "enforcement.result.observed";
 pub const EVENT_AUDIT_ENTRY_COMMITTED: &str = "audit.entry.committed";
 pub const EVENT_PORTAL_READ_MODEL_UPDATED: &str = "portal.read_model.updated";
+pub const NETWORK_RUNTIME_CAPTURE_PUBLISH_FIELD: &str = "network_runtime_capture_publish";
+pub const NETWORK_RUNTIME_ACTIVITY_STORE_FIELD: &str = "network_runtime_activity_store";
+pub const NETWORK_RUNTIME_ACTIVITY_STORE_READ_MODEL_FIELD: &str =
+    "network_runtime_activity_store_read_model";
+pub const NETWORK_RUNTIME_ACTIVITY_STORE_JOIN_FIELD: &str = "network_runtime_activity_store_join";
+pub const NETWORK_RUNTIME_SPINE_FIELD: &str = "network_runtime_spine";
+pub const NETWORK_RUNTIME_SPINE_INIT_FAILURE: &str = "failed_to_initialize_once_cell";
+pub const NETWORK_RUNTIME_SPINE_JOURNAL_PATH_MISMATCH: &str =
+    "network_runtime_spine_journal_path_mismatch";
+pub const NETWORK_RUNTIME_SPINE_NOT_INITIALIZED: &str = "durable_spine_not_initialized";
+pub const NETWORK_RUNTIME_STARTUP_SPINE_INIT_FAILURE: &str =
+    "network_runtime_spine_initialization_failed";
+pub const NETWORK_RUNTIME_STARTUP_SPINE_PATH_MISMATCH: &str =
+    "network_runtime_spine_journal_path_mismatch";
+pub const NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE: &str =
+    "network_runtime_retained_reconciliation_failed";
 
 pub const TEST_DEVICE_REF: &str = "device.child.windows-1";
 pub const TEST_FLOW_EVENT_REF: &str = "event.network.flow.observed.1";
@@ -497,6 +513,9 @@ pub const RUNTIME_INSTANCE_LOCAL_CHILD_AGENT: &str = "local-child-agent";
 pub const AGGREGATE_NETWORK_FLOW_PREFIX: &str = "network-flow-";
 pub const CORRELATION_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-correlation-";
 pub const IDEMPOTENCY_NETWORK_RUNTIME_PREFIX: &str = "network-runtime-idempotency-";
+pub const NETWORK_RUNTIME_EVENT_ID_PREFIX: &str = "network-runtime-event-sha256-";
+pub const NETWORK_RUNTIME_JOURNAL_STATE_UNAVAILABLE_MANUAL_REQUIRED: &str =
+    "unavailable-manual-required";
 pub const IDEMPOTENCY_NETWORK_REVIEW_PREFIX: &str = "network-review-idempotency-";
 pub const REQUEST_NETWORK_REVIEW_PREFIX: &str = "network-review-request-";
 pub const REQUEST_NETWORK_REVIEW_TIMEOUT_MS: u64 = 50;

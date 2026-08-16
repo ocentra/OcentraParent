@@ -92,7 +92,6 @@ fn activity_store_error_event_projects_the_app_game_read_model_failure() {
 
 #[test]
 fn app_game_activity_read_models_clippy_linkage() {
-    let _ = super::activity_capture::spawn_startup_activity_capture;
     let _ = super::activity_capture::startup_activity_capture_enabled;
     let _ = super::activity_capture::startup_activity_capture_enabled_for_value;
     let _ = super::activity_capture::record_activity_capture_once;

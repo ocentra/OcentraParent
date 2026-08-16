@@ -80,6 +80,50 @@ fn activity_store_reads_enforcement_audit_fields_by_exact_event_id() -> TestResu
 }
 
 #[test]
+fn activity_store_replaces_exact_enforcement_audit_fields() -> TestResult {
+    let store = open_in_memory_store();
+    let event_id = constants::enforcement::TEST_AUDIT_EVENT_ID;
+    ingest_enforcement_events(
+        &store,
+        &[enforcement_audit_event(
+            event_id,
+            constants::enforcement::TEST_RESULT_ID,
+        )],
+    );
+    let mut replacement = enforcement_fields(event_id, constants::enforcement::TEST_TIMER_STATE_ID);
+    replacement.insert(
+        constants::field::EVENTS_STORED.to_string(),
+        LogFieldValue::Number(1.0),
+    );
+
+    activity_store_query(
+        store.replace_enforcement_audit_fields_by_event_id(event_id, &replacement),
+    )?;
+
+    assert_eq!(
+        enforcement_audit_fields_by_event_id(&store, event_id)?,
+        Some(replacement)
+    );
+    Ok(())
+}
+
+#[test]
+fn activity_store_refuses_to_replace_missing_enforcement_audit_fields() {
+    let store = open_in_memory_store();
+    let fields = enforcement_fields(
+        constants::enforcement::TEST_AUDIT_EVENT_ID,
+        constants::enforcement::TEST_RESULT_ID,
+    );
+
+    assert!(store
+        .replace_enforcement_audit_fields_by_event_id(
+            constants::enforcement::TEST_AUDIT_EVENT_ID,
+            &fields,
+        )
+        .is_err());
+}
+
+#[test]
 fn activity_store_reads_most_recent_enforcement_audit_fields_only() -> TestResult {
     let store = open_in_memory_store();
     ingest_enforcement_events(

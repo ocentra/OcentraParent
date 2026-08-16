@@ -1,0 +1,68 @@
+use super::{NetworkRuntimeStartupError, StartupErrorReason};
+use crate::{network::NetworkPolicy, service_runtime::initialize_network_runtime};
+use ocentra_parent_agent_protocol::constants;
+
+pub async fn run_agent_service() {
+    let network = NetworkPolicy::from_environment();
+    if let Err(error) = initialize_network_runtime().await {
+        let reason = match error {
+            NetworkRuntimeStartupError::Spine => {
+                constants::network_flow::NETWORK_RUNTIME_STARTUP_SPINE_INIT_FAILURE
+            }
+            NetworkRuntimeStartupError::SpineJournalPathMismatch => {
+                constants::network_flow::NETWORK_RUNTIME_STARTUP_SPINE_PATH_MISMATCH
+            }
+            NetworkRuntimeStartupError::Reconciliation => {
+                constants::network_flow::NETWORK_RUNTIME_STARTUP_RECONCILIATION_FAILURE
+            }
+        };
+        let _ = crate::dev_log::write_agent_error(
+            constants::error::AGENT_SERVICE_RUNS,
+            super::startup_error_log_fields(&network, StartupErrorReason(reason.to_string())),
+        );
+        return;
+    }
+    let listener = match tokio::net::TcpListener::bind(network.bind_address()).await {
+        Ok(listener) => listener,
+        Err(error) => {
+            let _ = crate::dev_log::write_agent_error(
+                constants::error::LOCALHOST_BIND_SUCCEEDS,
+                super::startup_error_log_fields(&network, StartupErrorReason(error.to_string())),
+            );
+            return;
+        }
+    };
+    let _ = crate::dev_log::write_agent_info(
+        constants::dev_log_message::AGENT_SERVICE_STARTED,
+        super::startup_log_fields(&network),
+    );
+    crate::network_runtime_delivery::spawn_recurring_capture_loop();
+    crate::screen_ai_cadence_runtime::spawn_screen_ai_cadence_runtime();
+    crate::screen_ai_foreground_runtime::spawn_screen_ai_foreground_runtime();
+    crate::screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
+    crate::screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
+    crate::screen_ai_service_event_subscription::live_view_service_runtime::spawn_screen_live_view_worker_runtime();
+    let _screen_ai_service_event_runtime =
+        match crate::screen_ai_service_event_subscription::ScreenAiServiceEventRuntime::start()
+            .await
+        {
+            Ok(runtime) => runtime,
+            Err(error) => {
+                let _ = crate::dev_log::write_agent_error(
+                    constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBES,
+                    super::startup_error_log_fields(
+                        &network,
+                        StartupErrorReason(error.to_string()),
+                    ),
+                );
+                return;
+            }
+        };
+
+    if let Err(error) = axum::serve(listener, crate::app::router(network.clone())).await {
+        let _ = crate::dev_log::write_agent_error(
+            constants::error::AGENT_SERVICE_RUNS,
+            super::startup_error_log_fields(&network, StartupErrorReason(error.to_string())),
+        );
+    }
+}

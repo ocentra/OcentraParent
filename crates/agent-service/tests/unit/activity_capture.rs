@@ -35,8 +35,8 @@ mod activity_capture_tests;
 #[cfg(test)]
 mod clippy_linkage {
     use crate::activity_capture::{
-        spawn_startup_activity_capture, startup_activity_capture_enabled,
-        startup_activity_capture_enabled_for_value, StartupActivityCaptureDisabledValue,
+        startup_activity_capture_enabled, startup_activity_capture_enabled_for_value,
+        StartupActivityCaptureDisabledValue,
     };
     use crate::test_invariants::{
         require_json_decode, require_log_string_field, require_ok, require_some,
@@ -117,8 +117,6 @@ mod clippy_linkage {
         assert!(!startup_activity_capture_enabled_for_value(
             &StartupActivityCaptureDisabledValue(Some(constants::value::TRUE))
         ));
-        spawn_startup_activity_capture();
-
         match previous {
             Some(value) => {
                 env::set_var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED, value)

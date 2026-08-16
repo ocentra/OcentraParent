@@ -15,7 +15,7 @@ use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_T
 use crate::{
     fields::fields_from_pairs,
     network_runtime_delivery::{
-        network_runtime_observation_from_row, shared_network_runtime_spine,
+        durable_network_runtime_projection, network_runtime_projection_row_counts,
     },
     network_runtime_stream_events::{stream_entries_from_report, NetworkRuntimeServiceStreamEntry},
 };
@@ -48,24 +48,9 @@ pub(crate) async fn stream_network_runtime_event_chain_for_read_model(
         ..NetworkRuntimeServiceStreamReport::default()
     };
 
-    let spine = match shared_network_runtime_spine().await {
-        Ok(spine) => spine,
-        Err(_) => {
-            stream.failed_rows = stream.observed_rows;
-            return stream;
-        }
-    };
-    stream.journal_state = spine.journal_state();
-
-    for row in &read_model.rows {
-        let observation = network_runtime_observation_from_row(row);
-        match spine
-            .publish_observation_chain(observation, &row.observed_at)
-            .await
-        {
-            Ok(report) => stream.record_success(&report),
-            Err(_) => stream.failed_rows += 1,
-        }
+    match durable_network_runtime_projection(read_model).await {
+        Ok(report) => stream.record_success(read_model, &report),
+        Err(_) => stream.failed_rows = stream.observed_rows,
     }
 
     stream
@@ -128,7 +113,11 @@ pub(crate) fn network_runtime_event_chain_stream_payload(
 }
 
 impl NetworkRuntimeServiceStreamReport {
-    fn record_success(&mut self, report: &NetworkRuntimeReport) {
+    fn record_success(
+        &mut self,
+        read_model: &ActivityNetworkFlowReadModel,
+        report: &NetworkRuntimeReport,
+    ) {
         let entries = stream_entries_from_report(report);
         self.streamed_events += entries.len();
         self.enforcement_command_events += entries
@@ -137,9 +126,9 @@ impl NetworkRuntimeServiceStreamReport {
                 entry.stream_type == constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
             })
             .count();
-        if report.manual_required() {
-            self.manual_required_rows += 1;
-        }
+        let counts = network_runtime_projection_row_counts(read_model, report);
+        self.manual_required_rows = counts.manual_required_rows;
+        self.failed_rows = counts.failed_rows;
         self.journal_state = report.journal_state;
         self.entries.extend(entries);
     }

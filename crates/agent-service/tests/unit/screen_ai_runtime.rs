@@ -58,7 +58,6 @@ mod test_text;
 mod time;
 
 const _: () = {
-    let _ = activity_capture::spawn_startup_activity_capture;
     let _ = activity_capture::startup_activity_capture_enabled;
     let _ = activity_capture::startup_activity_capture_enabled_for_value;
     let _ = activity_capture::record_activity_capture_once;

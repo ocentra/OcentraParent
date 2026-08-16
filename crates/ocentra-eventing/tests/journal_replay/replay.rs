@@ -4,6 +4,7 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::CorrelationId;
 use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
 use ocentra_eventing::journal::policy::{JournalPolicy, JournalSelector};
+use ocentra_eventing::journal::production_file::ProductionFileEventJournal;
 use ocentra_eventing::journal::EventJournal;
 use ocentra_eventing::replay::{ReplayCursor, ReplayFilter, ReplayMode};
 use std::sync::Arc;
@@ -15,8 +16,8 @@ use super::{
         TEST_TARGET,
     },
     support::{
-        bus_with_recording_journal, cleanup, event_type, journal_path, shared_log, snapshot,
-        stored_event, subscribe_log_handler, tamper_first_journal_payload_label,
+        bus_with_recording_journal, cleanup, event_type, journal_path, read_lines, shared_log,
+        snapshot, stored_event, subscribe_log_handler, tamper_first_journal_payload_label,
     },
 };
 
@@ -70,6 +71,43 @@ async fn no_subscriber_publish_report_exposes_only_before_dispatch_append() {
     assert_eq!(report.journal_appends.len(), 1);
     assert_eq!(report.journal_appends[0].sequence, 1);
     assert_eq!(snapshot(&log), vec![format!("journal:{TEST_EVENT_TYPE}")]);
+}
+
+#[tokio::test]
+async fn production_event_bus_retries_before_dispatch_idempotently() {
+    let path = journal_path(TestText("production-bus-before-dispatch-retry".to_owned()));
+    let journal = ProductionFileEventJournal::new(&path.0);
+    let first_bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+    );
+    let retry_bus = EventBus::with_journal(
+        JournalPolicy::before_dispatch(JournalSelector::All),
+        journal.clone().shared(),
+    );
+    let first = first_bus
+        .publish(
+            test_event(TestText("production bus retry".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("first production bus publish");
+    let retry = retry_bus
+        .publish(
+            test_event(TestText("production bus retry".to_owned())),
+            metadata(TestText(TEST_TARGET.to_owned())),
+        )
+        .await
+        .expect_value("retry production bus publish");
+
+    assert_eq!(first.journal_appends.len(), 1);
+    assert_eq!(retry.journal_appends.len(), 1);
+    assert_eq!(
+        retry.journal_appends[0].sequence,
+        first.journal_appends[0].sequence
+    );
+    assert_eq!(read_lines(path.clone()).await.len(), 1);
+    cleanup(path).await;
 }
 
 #[tokio::test]

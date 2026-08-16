@@ -26,67 +26,130 @@ impl NetworkRuntimeChainRefs {
         observation: &NetworkObservation,
         observed_at: &str,
         decision: &NetworkRuntimeDecision,
+        source_event_id: Option<&str>,
     ) -> Self {
+        let (
+            ai_request_ref,
+            ai_analysis_ref,
+            policy_evaluation_ref,
+            policy_decision_ref,
+            adapter_capability_ref,
+            enforcement_command_ref,
+            enforcement_result_ref,
+            audit_entry_ref,
+        ) = continuation_refs(phase, observation, observed_at, decision, source_event_id);
         Self {
-            previous_phase_ref: previous_phase_ref(phase, observation, observed_at, decision),
-            evidence_ref: network_phase_ref(
-                observation,
-                observed_at,
-                NetworkRuntimePhase::FlowObserved,
-            ),
-            ai_request_ref: reached_phase_ref(
+            previous_phase_ref: previous_phase_ref(
                 phase,
-                NetworkRuntimePhase::AiAnalysisRequested,
                 observation,
                 observed_at,
                 decision,
+                source_event_id,
             ),
-            ai_analysis_ref: reached_phase_ref(
-                phase,
-                NetworkRuntimePhase::AiAnalysisCompleted,
-                observation,
-                observed_at,
-                decision,
-            ),
-            policy_evaluation_ref: reached_phase_ref(
-                phase,
-                NetworkRuntimePhase::PolicyEvaluationRequested,
-                observation,
-                observed_at,
-                decision,
-            ),
-            policy_decision_ref: reached_phase_ref(
-                phase,
-                NetworkRuntimePhase::PolicyDecisionCompleted,
-                observation,
-                observed_at,
-                decision,
-            ),
-            adapter_capability_ref: enforcement_reached(phase, observation, decision)
-                .then(|| network_adapter_capability_ref(observation, observed_at)),
-            enforcement_command_ref: reached_enforcement_phase_ref(
-                phase,
-                NetworkRuntimePhase::EnforcementCommandIssued,
-                observation,
-                observed_at,
-                decision,
-            ),
-            enforcement_result_ref: reached_enforcement_phase_ref(
-                phase,
-                NetworkRuntimePhase::EnforcementResultObserved,
-                observation,
-                observed_at,
-                decision,
-            ),
-            audit_entry_ref: reached_phase_ref(
-                phase,
-                NetworkRuntimePhase::AuditEntryCommitted,
-                observation,
-                observed_at,
-                decision,
-            ),
+            evidence_ref: evidence_ref(observation, observed_at, source_event_id),
+            ai_request_ref,
+            ai_analysis_ref,
+            policy_evaluation_ref,
+            policy_decision_ref,
+            adapter_capability_ref,
+            enforcement_command_ref,
+            enforcement_result_ref,
+            audit_entry_ref,
         }
     }
+}
+
+fn continuation_refs(
+    phase: NetworkRuntimePhase,
+    observation: &NetworkObservation,
+    observed_at: &str,
+    decision: &NetworkRuntimeDecision,
+    source_event_id: Option<&str>,
+) -> (
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+    Option<String>,
+) {
+    (
+        reached_phase_ref(
+            phase,
+            NetworkRuntimePhase::AiAnalysisRequested,
+            observation,
+            observed_at,
+            decision,
+            source_event_id,
+        ),
+        reached_phase_ref(
+            phase,
+            NetworkRuntimePhase::AiAnalysisCompleted,
+            observation,
+            observed_at,
+            decision,
+            source_event_id,
+        ),
+        reached_phase_ref(
+            phase,
+            NetworkRuntimePhase::PolicyEvaluationRequested,
+            observation,
+            observed_at,
+            decision,
+            source_event_id,
+        ),
+        reached_phase_ref(
+            phase,
+            NetworkRuntimePhase::PolicyDecisionCompleted,
+            observation,
+            observed_at,
+            decision,
+            source_event_id,
+        ),
+        enforcement_reached(phase, observation, decision)
+            .then(|| network_adapter_capability_ref(observation, observed_at, source_event_id)),
+        reached_enforcement_phase_ref(
+            phase,
+            NetworkRuntimePhase::EnforcementCommandIssued,
+            observation,
+            observed_at,
+            decision,
+            source_event_id,
+        ),
+        reached_enforcement_phase_ref(
+            phase,
+            NetworkRuntimePhase::EnforcementResultObserved,
+            observation,
+            observed_at,
+            decision,
+            source_event_id,
+        ),
+        reached_phase_ref(
+            phase,
+            NetworkRuntimePhase::AuditEntryCommitted,
+            observation,
+            observed_at,
+            decision,
+            source_event_id,
+        ),
+    )
+}
+
+fn evidence_ref(
+    observation: &NetworkObservation,
+    observed_at: &str,
+    source_event_id: Option<&str>,
+) -> String {
+    source_event_id.map(str::to_owned).unwrap_or_else(|| {
+        network_phase_ref(
+            observation,
+            observed_at,
+            NetworkRuntimePhase::FlowObserved,
+            None,
+        )
+    })
 }
 
 fn previous_phase_ref(
@@ -94,9 +157,10 @@ fn previous_phase_ref(
     observation: &NetworkObservation,
     observed_at: &str,
     decision: &NetworkRuntimeDecision,
+    source_event_id: Option<&str>,
 ) -> Option<String> {
     previous_published_phase(phase, observation, decision)
-        .map(|previous| network_phase_ref(observation, observed_at, previous))
+        .map(|previous| network_phase_ref(observation, observed_at, previous, source_event_id))
 }
 
 fn reached_phase_ref(
@@ -105,10 +169,11 @@ fn reached_phase_ref(
     observation: &NetworkObservation,
     observed_at: &str,
     decision: &NetworkRuntimeDecision,
+    source_event_id: Option<&str>,
 ) -> Option<String> {
     (phase_reaches(phase, threshold)
         && should_publish_phase_for_runtime_decision(threshold, observation, decision))
-    .then(|| network_phase_ref(observation, observed_at, threshold))
+    .then(|| network_phase_ref(observation, observed_at, threshold, source_event_id))
 }
 
 fn reached_enforcement_phase_ref(
@@ -117,9 +182,10 @@ fn reached_enforcement_phase_ref(
     observation: &NetworkObservation,
     observed_at: &str,
     decision: &NetworkRuntimeDecision,
+    source_event_id: Option<&str>,
 ) -> Option<String> {
     (enforcement_reached(phase, observation, decision) && phase_reaches(phase, threshold))
-        .then(|| network_phase_ref(observation, observed_at, threshold))
+        .then(|| network_phase_ref(observation, observed_at, threshold, source_event_id))
 }
 
 fn enforcement_reached(
@@ -165,14 +231,28 @@ fn network_phase_ref(
     observation: &NetworkObservation,
     observed_at: &str,
     phase: NetworkRuntimePhase,
+    source_event_id: Option<&str>,
 ) -> String {
+    if let Some(source_event_id) = source_event_id {
+        return super::helpers::network_event_id_string(phase, source_event_id);
+    }
     let mut value = network_correlation_id(observation, observed_at);
     value.push(constants::delimiter::HYPHEN);
     value.push_str(phase.event_type());
     value
 }
 
-fn network_adapter_capability_ref(observation: &NetworkObservation, observed_at: &str) -> String {
+fn network_adapter_capability_ref(
+    observation: &NetworkObservation,
+    observed_at: &str,
+    source_event_id: Option<&str>,
+) -> String {
+    if let Some(source_event_id) = source_event_id {
+        return super::helpers::network_event_id_string(
+            NetworkRuntimePhase::EnforcementCommandIssued,
+            source_event_id,
+        );
+    }
     let mut value = network_correlation_id(observation, observed_at);
     value.push(constants::delimiter::HYPHEN);
     value.push_str(constants::network_flow::TARGET_ENFORCEMENT_DRY_RUN);

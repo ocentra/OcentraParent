@@ -112,7 +112,7 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 - Network AI classification, policy decisions, enforcement commands, adapter side effects, audit storage, and portal rendering remain network/service/UI consumer work, not event bus responsibilities.
 - External transport delivery currently proves local queue/idempotency/dead-letter semantics and route-decision requirements only. A live transport/relay delivery implementation remains a separate workpack.
 - The NDJSON journal is the reusable append/replay proof layer. Production durability requirements such as fsync policy, SQLite projections, remote replication, or retention/deletion enforcement remain consumer/platform decisions.
-- Current source audit at root `d1d39b437` found `NdjsonEventJournal::recover` calling `acquire_append_file_lock` across the `ndjson_io` child boundary while the helper was only `pub(super)`. The helper and guard are now visible only within `crate::journal::ndjson` (not crate-wide and not re-exported), preserving the journal module's ownership boundary. Tests, compile validation, and proof refresh remain deferred.
+- Current source audit at root `d1d39b437` found `NdjsonEventJournal::recover` calling `acquire_append_file_lock` across the `ndjson_io` child boundary while the helper was only `pub(super)`. The helper and guard are now visible only within `crate::journal::ndjson` (not crate-wide and not re-exported), preserving the journal module's ownership boundary. Its proof refresh remains deferred.
 - The fresh regression audit work itself is locally proved: no eventing test modules remain under `crates/ocentra-eventing/src/`, the focused crate suites still pass, and the proof root is recorded under `output/eventing-plan-proof/13-test-folder-layout-regression-audit/`.
 
 ## Checklist summary
@@ -130,24 +130,29 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   but the cited proof bundle is not present in this checkout. WP06 is locally
   evidenced by its durable hand-authored manifest because enforcement WP11
   needs its exact generic handoff.
-- WP09 is the single legal READY code packet for the missing network production
-  foundation. Its contracts are present, but agent-core/agent-service still
-  lack ingestion-time publish, deterministic identity/idempotency, a
-  network-owned durable journal, startup replay, and removal of read-time
-  republish side effects before readiness. Downstream AI, policy, enforcement,
-  audit, and portal consumers remain blocked/fail-closed. No hard dependency is
-  recorded; tests, proof, CI, review, and merge remain open.
-- Workpacks open in truth: WP09 implementation/validation/proof gates and WP10
-  consumer-boundary handoff.
-- Current meaning: implementation surfaces exist across the crate and its
-  mirrors; WP06/WP11/WP12/WP13 are locally proved. The plan remains open
-  because WP09 lacks its production implementation/proof gates and WP10 lacks
+- WP09 is the single legal production-foundation packet. Its current source
+  diff now implements ingestion-time publication of the exact captured source
+  observation, deterministic phase-scoped identity/idempotency, a
+  network-owned `ProductionFileEventJournal` with recovery before listener
+  readiness, startup/recurring reconciliation, and projection-only read/stream
+  consumers. Phase 1 production code and expected focused tests are implemented
+  in the shared worktree. Focused Eventing, protocol, core, ActivityStore,
+  service, and parent-runtime families plus changed-file architecture/Enforcer
+  gates pass locally. Retained proof, normal pre-commit, CI, review, and merge
+  remain open. Downstream AI, policy, enforcement, audit, and portal consumers remain
+  blocked/fail-closed; this does not unlock Network WP04.
+- Workpacks open in truth: WP09 retained proof, normal pre-commit, CI, review,
+  and merge gates, plus WP10 consumer-boundary handoff.
+- Current meaning: WP09 Phase 1 code and expected tests are written and its
+  focused local test/Enforcer gates pass, while retained proof, normal
+  pre-commit, CI, review, and merge remain open. Rows 57-62 remain unchecked.
+  WP06/WP11/WP12/WP13 are locally proved; WP10 still lacks
   its required proof roots and consumer-plan handoff verification.
 
 ### Active/open workpacks
 
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
-  (READY for code implementation; tests/validation/proof deferred)
+  (Phase 1 written and focused local Phase 2 green; proof, pre-commit, CI, review, and merge open)
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
 
 ## Validation reality

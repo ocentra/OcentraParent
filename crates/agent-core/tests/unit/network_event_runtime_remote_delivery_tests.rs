@@ -215,10 +215,19 @@ async fn network_runtime_remote_event_chain_journal_preserves_export_boundary_wi
         report.event_chain_support_status_ref.as_str(),
         constants::network_flow::TEST_REMOTE_EVENT_CHAIN_SUPPORT_STATUS_REF
     );
-    assert_eq!(
-        report.stored_event_count,
-        ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase::ordered_chain().len() - 6
-    );
+    let owned_phase_count = ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase::ordered_chain()
+        .iter()
+        .filter(|phase| {
+            matches!(
+                phase,
+                ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase::FlowObserved
+                    | ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase::DomainObserved
+                    | ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase::ActivityClassified
+            )
+        })
+        .count();
+    assert_eq!(report.stored_event_count, owned_phase_count);
+    assert_eq!(report.exported_event_type_count, owned_phase_count);
     assert_eq!(report.journal_entry_count, report.stored_event_count);
     assert_eq!(
         report.projection_replay_record_count,

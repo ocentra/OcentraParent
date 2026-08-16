@@ -30,6 +30,22 @@ pub trait EventJournal: Send + Sync {
     ) -> JournalAppendFuture<'a> {
         self.append(envelope)
     }
+
+    /// Append a phase record under the journal's idempotent contract.
+    ///
+    /// The idempotency key is the pair `(event_id, phase)`. If that pair was
+    /// already persisted with the exact same envelope, implementations return
+    /// its existing append acknowledgement. A different phase for the same
+    /// event id may be persisted separately, while any conflicting envelope
+    /// for the event id must be rejected. The default preserves historical
+    /// behavior for journals that do not provide idempotent storage.
+    fn append_phase_idempotent<'a>(
+        &'a self,
+        envelope: &'a StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> JournalAppendFuture<'a> {
+        self.append_phase(envelope, phase)
+    }
 }
 
 pub type SharedEventJournal = Arc<dyn EventJournal>;

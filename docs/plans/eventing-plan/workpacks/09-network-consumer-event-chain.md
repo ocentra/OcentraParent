@@ -19,20 +19,24 @@ Expected outcome:
 
 ## Current production audit (2026-08-16)
 
-The network event contracts exist in `agent-protocol`, but the shipped capture
-path does not call a durable consumer chain. The service read API republishes
-stored rows through `NetworkRuntimeDelivery`'s `OnceCell` and
-`NetworkRuntimeSpine`/`EventBus::new`; the phase subscribers are no-op routing
-surfaces, and `refs.rs`/`TEST_*` values manufacture or validate phase refs
-without a production journal. There is no network-owned durable journal or
-startup replay/recovery before readiness.
+The current production diff now carries the exact captured source observation
+from ingestion into `NetworkRuntimeSpine`, derives deterministic phase IDs,
+refs, and source correlation, and persists through a network-owned
+`ProductionFileEventJournal`. Journal recovery is performed before listener
+readiness; startup and recurring reconciliation retry retained ActivityStore
+observations; and activity/read-model delivery and stream APIs consume the
+durable projection without republishing. The production spine registers no
+phase subscribers or handlers. It emits only facts this owner performs now:
+`FlowObserved`, `DomainObserved` when a domain is present, and
+`ActivityClassified`. It does not manufacture AI, policy, enforcement, audit,
+or portal completion events.
 
 This workpack is therefore the single legal READY code packet for the missing
 production foundation, not a historical validation row. Its owning boundary is
 `agent-core` plus `agent-service`, consuming the typed `agent-protocol`
 contracts and reusable `ocentra-eventing` journal/bus semantics.
 
-## Ready implementation boundary (no completion claim)
+## Implemented production boundary (acceptance still open)
 
 The production slice must establish, at the owning boundary:
 
@@ -43,17 +47,34 @@ The production slice must establish, at the owning boundary:
 - startup recovery before the service reports the network path ready; and
 - no read-time republish or other side effect in activity/read-model APIs.
 
-The first shipped slice is capture-ingestion through durable journal/replay.
-AI, policy, enforcement, audit, and portal consumers are downstream contracts;
-they remain blocked and fail-closed until their owning plans provide real
-authority, consumer, and handoff implementations. The current nested
-`network_event_runtime` fixture/prove/`TEST_*` files are review/test material,
-not shipped production behavior, and are excluded from the code-map production
-topology.
+The current code slice implements the first shipped boundary: capture-ingestion
+through deterministic durable journal/replay, startup/recurring reconciliation,
+fail-closed persisted-row reconstruction, and projection-only reads. Real
+expected tests are written and the focused local Eventing, protocol, core,
+ActivityStore, service, and parent-runtime families plus changed-file
+architecture/Enforcer gates pass. Retained proof, normal pre-commit, CI,
+review, and merge remain open. AI, policy, enforcement, audit, and portal
+consumers are downstream contracts; they remain blocked and fail-closed until
+their owning plans provide real authority, consumer, and handoff
+implementations. The current nested `network_event_runtime` fixture/prove/
+`TEST_*` files are review/test material, not shipped production behavior, and
+are excluded from the code-map production topology.
 
 The reviewed ownership map records the exact current implementation/test roots
-for this boundary. Tests, retained proof, CI, review, and merge remain later
-gates; this route does not mark WP09 done or claim live capture/enforcement.
+for this boundary. Expected focused tests and current local gates are recorded
+below; retained proof, normal pre-commit, CI, review, and merge remain later
+gates. This route does not mark WP09 done or claim live capture/enforcement.
+
+Current focused local evidence:
+
+- Eventing journal replay: 41 passed.
+- Protocol `network_runtime`: 10 passed; protocol `network_flow`: 17 passed.
+- Agent-core network runtime: 43 passed; focused ActivityStore integrity: 6 passed.
+- Agent-service network bridge/runtime: 39 passed, including real SQLite
+  corruption through startup reconciliation with no journal mutation.
+- Parent-runtime network-flow integration: 2 passed.
+- Changed-file architecture and routed Enforcer checks pass; retained proof,
+  normal pre-commit, CI, review, and merge are not yet complete.
 
 Expected tests/proof:
 
@@ -69,5 +90,10 @@ Failure conditions:
 - Do not mark this complete from eventing-only tests.
 - Do not claim live network capture, DNS/firewall enforcement, or child delivery from reusable eventing.
 - Do not let AI or network observations become enforcement without policy/enforcement consumer proof.
-- Do not treat read-time republish, no-op subscribers, `TEST_*` refs, or an
-  in-memory `OnceCell`/`EventBus::new` spine as durable production composition.
+- Do not treat no-op subscribers, `TEST_*` refs, or test-created paths as
+  downstream authority or acceptance proof. The production spine is the
+  recovered `ProductionFileEventJournal`; no in-memory fallback is used for
+  production initialization, no production subscribers are registered, and
+  read-time APIs remain projection-only.
+- Do not mark this workpack DONE/PR_READY or use it to unlock Network WP04
+  until retained proof, normal pre-commit, CI, review, and merge are complete.

@@ -26,11 +26,11 @@ This file is the short resume list for the next worker. It is derived from open 
 ## Highest-open workpacks by route dependency
 
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
-  is the single legal READY code packet. Implement only the reviewed
-  agent-core/agent-service ingestion-time publish, deterministic identity,
-  durable network-journal, startup-recovery, and read-side-effect removal
-  boundary; tests, proof, CI, review, and
-  merge remain later gates.
+  is the active bounded production packet. The reviewed agent-core/agent-service
+  ingestion-time publish, deterministic identity, durable network journal,
+  startup recovery, fail-closed reconciliation, read-side-effect removal, and
+  expected focused tests are implemented and locally green. Retained proof,
+  normal pre-commit, CI, review, and merge remain later gates.
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
   is open because the expected local proof roots remain absent and the
   LAN/remote-access consumer handoff still needs exact verification.
@@ -57,16 +57,22 @@ This file is the short resume list for the next worker. It is derived from open 
 ## WP09 production-route boundary
 
 - Contracts in `agent-protocol` are not production event-chain proof.
-- The current capture path does not publish once at ingestion into a durable
-  network consumer chain; the service read API republishes rows through an
-  in-memory `OnceCell`/`EventBus::new` spine, and phase subscribers are no-op
-  routing surfaces.
-- `TEST_*` phase refs and test-created journal paths do not establish a
-  production network journal or startup recovery before readiness.
-- WP09 is READY for implementation only. Do not mark it done, claim live
-  capture/enforcement, or use its future code slice to unblock Network WP04
-  until tests, retained proof, and the consumer handoff exist. AI, policy,
-  enforcement, audit, and portal remain downstream blocked/fail-closed; nested
+- The current production diff now captures the exact source observation at
+  ingestion, publishes deterministic phase IDs through the network runtime,
+  and persists through a `ProductionFileEventJournal` recovered before the
+  listener. Startup and recurring reconciliation retry retained observations;
+  read and stream APIs consume projection only and do not republish.
+- `TEST_*` phase refs and test-created journal paths remain proof/test material;
+  they do not establish acceptance. The production spine registers no phase
+  subscribers or handlers and emits only `FlowObserved`, `DomainObserved` when
+  present, and `ActivityClassified`. Downstream AI, policy, enforcement, audit,
+  and portal consumers remain blocked/fail-closed; no completion event is
+  synthesized for them.
+- WP09 Phase 1 production code and expected focused tests are written. Focused
+  Eventing, protocol, core, ActivityStore, service, and parent-runtime tests,
+  plus changed-file architecture/Enforcer gates, pass locally. Retained proof,
+  normal pre-commit, CI, review, and merge remain open. Do not mark it done, claim live
+  capture/enforcement, or use it to unblock Network WP04; nested
   fixture/prove/`TEST_*` runtime files are not shipped production topology.
 
 ## PR readiness guard

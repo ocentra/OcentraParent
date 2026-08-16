@@ -5,6 +5,7 @@ pub enum ActivityStoreError {
     Database(rusqlite::Error),
     Journal(JournalError),
     Json(serde_json::Error),
+    InvalidNetworkField { field: &'static str },
 }
 
 impl From<rusqlite::Error> for ActivityStoreError {

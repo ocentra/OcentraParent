@@ -93,6 +93,8 @@ fn network_flow_rows(
         )?,
         process_id: optional_u64_field(payload, constants::field::PROCESS_ID),
         process_name: optional_string_field(payload, constants::field::PROCESS_NAME),
+        associated_pid_count: optional_u64_field(payload, constants::field::ASSOCIATED_PID_COUNT)
+            .and_then(|value| usize::try_from(value).ok()),
         counters: ActivityNetworkFlowCounters {
             connection_count: required_u64_field(payload, constants::field::CONNECTION_COUNT)?,
             bytes_sent: optional_u64_field(payload, constants::field::BYTES_SENT),

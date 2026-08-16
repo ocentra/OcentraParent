@@ -115,12 +115,12 @@ fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
         observed_rows: 1,
         delivered_rows: 1,
         failed_rows: 0,
-        publish_reports: 11,
-        stored_events: 11,
+        publish_reports: 0,
+        stored_events: 3,
         dead_letters: 0,
         manual_required_rows: 0,
-        enforcement_command_events: 1,
-        journal_state: NetworkRuntimeJournalState::InMemoryManualRequired,
+        enforcement_command_events: 0,
+        journal_state: NetworkRuntimeJournalState::Durable,
     };
 
     let payload = network_flow_read_model_payload_with_runtime_delivery_for_test(
@@ -138,7 +138,19 @@ fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
     );
     assert_eq!(
         payload.get(constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS),
-        Some(&LogFieldValue::Number(1.0))
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_RUNTIME_PUBLISH_REPORTS),
+        Some(&LogFieldValue::Number(0.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_RUNTIME_STORED_EVENTS),
+        Some(&LogFieldValue::Number(3.0))
+    );
+    assert_eq!(
+        payload.get(constants::field::NETWORK_RUNTIME_DURABLE_JOURNAL_STATE),
+        Some(&LogFieldValue::String("durable".to_string()))
     );
 }
 
@@ -187,6 +199,7 @@ fn observation() -> ActivityNetworkFlowObservation {
             constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED.to_string(),
         process_id: Some(4242),
         process_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        associated_pid_count: Some(1),
         counters: ActivityNetworkFlowCounters {
             connection_count: 1,
             bytes_sent: None,

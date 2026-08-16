@@ -11,7 +11,7 @@ use crate::{
     browser_payload::browser_inventory_read_model_payload,
     browser_runtime_paths::system_browser_candidate_paths,
     event_builder::build_event,
-    network_runtime_delivery::deliver_network_runtime_for_read_model,
+    network_runtime_delivery::read_network_runtime_delivery_for_read_model,
     network_runtime_stream_payload::{
         network_runtime_event_chain_stream_payload,
         stream_network_runtime_event_chain_for_read_model,
@@ -176,7 +176,7 @@ pub async fn build_network_flow_read_model_report(
 ) -> AgentEventEnvelope {
     match load_network_flow_read_model().await {
         Some(read_model) => {
-            let delivery = deliver_network_runtime_for_read_model(&read_model).await;
+            let delivery = read_network_runtime_delivery_for_read_model(&read_model).await;
             build_event(
                 constants::event_id::NETWORK_FLOW_READ_MODEL_REPORTED,
                 &command.message_id,
