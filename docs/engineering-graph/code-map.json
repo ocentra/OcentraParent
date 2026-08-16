@@ -2551,7 +2551,12 @@
       "planSlug": "app-plan",
       "roots": [
         "crates/app-game-core/src/app_game_notification_audit_history_bridge.rs",
-        "crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs"
+        "crates/app-game-core/src/app_game_notification_audit_history_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_read_model_validation.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs"
       ]
     },
     "WP-app-plan-61-notification-provider-preflight": {
@@ -6364,7 +6369,12 @@
       "planSlug": "app-game-plan",
       "roots": [
         "crates/app-game-core/src/app_game_notification_audit_history_bridge.rs",
-        "crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs"
+        "crates/app-game-core/src/app_game_notification_audit_history_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_read_model_validation.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs"
       ]
     },
     "WP-app-game-plan-61-notification-provider-preflight": {

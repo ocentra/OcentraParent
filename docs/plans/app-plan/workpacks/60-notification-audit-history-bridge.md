@@ -27,18 +27,19 @@ after local outbox linking.
 
 ## Current Code Audit (2026-08-15)
 
-The former graph roots point at the later app/game notification parent-surface
-intent, which does not consume WP58 or create audit-history entries. The named
-`packages/logging-domain` source/test owner and proof harness are absent. No
-current notification-specific queued/manual/unavailable audit-history read
-model, ref-preservation test, or deterministic JSONL handoff exists. Generic
-logging and enforcement history are separate owners and do not close WP60.
+The shared Rust owner now validates and consumes WP58, records ordered
+queued/manual/unavailable metadata entries, preserves audit/evidence/policy
+refs for linked and blocked rows, and round-trips deterministic JSONL. Focused
+tests reject tampered refs/claims/identities and preserve explicit runtime,
+provider, UI, child, adapter, and platform non-claims. Code and focused Phase 2
+gates are committed at `bae505ce8`; durable production history/query remains a
+later boundary.
 
 ## Proof
 
-- Planned shared source:
+- Shared source:
   `crates/app-game-core/src/app_game_notification_audit_history_bridge.rs`
-- Planned shared test:
+- Shared test:
   `crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs`
 - Historical `packages/logging-domain/...` and script harness routes are absent.
 - Native app proof pack:
@@ -47,8 +48,8 @@ logging and enforcement history are separate owners and do not close WP60.
 ## Validation
 
 - [ ] Cross-recorded from shared app/game WP60 proof.
-- [ ] Native app rows become audit-history entries only after local outbox
+- [x] Native app rows become audit-history entries only after local outbox
       eligibility or manual/unavailable status is parsed.
-- [ ] Manual-required and unavailable rows remain blocked/manual without
+- [x] Manual-required and unavailable rows remain blocked/manual without
       provider sends.
-- [ ] Runtime/provider/UI/child/adapter/platform claims remain false.
+- [x] Runtime/provider/UI/child/adapter/platform claims remain false.

@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 167/220 have current production source plus the expected checked-in tests
+- 168/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 186/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 34/220 retain a concrete production-code or expected-test gap.
+- 187/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 33/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -97,7 +97,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP56 Notification Service Read Model | Rust notification-readiness/service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP58 Notification Local Outbox Bridge | Rust readiness-row bridge, canonical `NotificationLocalOutboxRecord`, reused atomic WP121 store, deterministic JSONL, and focused service negative | **Complete for bounded Phase 1; Phase 2 passed** | Eligible rows append/reopen/replay idempotently and conflicts fail closed; manual/unavailable rows stay out. The false WP125 setup-outbox runtime claim is removed. Retained Phase 3 proof and real service composition/provider lifecycle remain later boundaries. |
 | WP59 Notification Scheduler Bridge | Rust WP58-to-scheduler bridge, canonical per-record scheduler route/store, and contract tests | **Complete for bounded Phase 1; Phase 2 green** | The bridge consumes and validates the WP58 read model, schedules only linked rows, retains manual/unavailable rows as blocked, round-trips deterministic scheduler JSONL, and proves atomic reopen/idempotency/conflict behavior at `4cf6a11c9`. Production quiet-hours/retry workers, provider delivery, receipts, and retained Phase 3 proof remain outside this bounded packet. |
-| WP60 Notification Audit-History Bridge | No current WP60 implementation/test owner | **Incomplete** | The mapped `app_game_notification_parent_surface_intent` is a later provider/preference surface and does not consume WP58 or emit audit-history rows. The advertised `packages/logging-domain` owner is absent; no notification-specific queued/manual/unavailable audit-history read model, ref-preservation test, or JSONL handoff exists. Durable production history/query remains a later non-goal for this bounded bridge. |
+| WP60 Notification Audit-History Bridge | Rust WP58-to-audit-history bridge/read model plus focused contract tests | **Complete for bounded Phase 1; Phase 2 green** | The bridge validates WP58, records ordered queued/manual/unavailable metadata rows, preserves audit/evidence/policy refs even for blocked rows, round-trips deterministic JSONL, and rejects tampered refs/claims/identities at `bae505ce8`. Durable production history/query, provider delivery/receipts, retry/quiet-hours runtime, and retained proof remain outside this bounded packet. |
 | WP61 Notification Provider Preflight | Rust notification-readiness/service/portal tests | **Incomplete** | No selected provider credential/capability preflight boundary and negative integration matrix. |
 | WP62 Notification Preference Preflight | Rust notification-readiness/service/portal tests | **Incomplete** | No durable parent preference/quiet-hours/frequency owner and mutation/replay tests. |
 | WP63 Source Freshness Source Panel Polish | Rust notification-readiness/service/portal tests | **Incomplete** | No source-status panel/polish implementation and focused UI tests. |
@@ -264,8 +264,8 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP60-WP65: implement ordered notification history,
-   provider/preference owners, and receipt-backed status producers.
+1. WP61-WP65: implement notification provider/preference ownership,
+   preflight, and receipt-backed status producers.
 2. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
    and hostile/oversized metadata tests.
 3. WP188-WP202 and WP204: finish Android replay/test coverage and Linux foreground
@@ -286,6 +286,6 @@ helpers. It is not release-ready. The central unfinished chain is:
 `live evidence -> durable review/risk -> compiler/evaluator -> child UX/delivery
 -> notification delivery/history -> cross-platform runtime + tests -> complete parent UI`
 
-Phase 2 should run focused tests and Enforcer only after the 34 writing gaps are
+Phase 2 should run focused tests and Enforcer only after the 33 writing gaps are
 closed or explicitly retired. Phase 3 should then regenerate clean-checkout proof;
 historical ignored output is not a substitute.

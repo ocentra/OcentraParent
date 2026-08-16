@@ -45,23 +45,22 @@ without claiming provider delivery, parent history UI, or production runtime.
 
 ## Current Code Audit (2026-08-15)
 
-- The graph previously mapped this workpack to
-  `app_game_notification_parent_surface_intent`, but that later surface consumes
-  provider/preference status handoffs; it does not consume WP58 or create
-  notification audit-history rows.
-- The advertised `packages/logging-domain` source/test owner and proof harness
-  are absent from the tracked tree.
-- No current notification-specific typed read model maps linked WP58 rows to
-  queued audit entries while retaining manual/unavailable rows, source audit,
-  evidence, and policy refs. No deterministic audit-history JSONL test exists.
-- Generic logging NDJSON and enforcement audit-history code are separate owners
-  and do not satisfy this notification handoff.
+- `app_game_notification_audit_history_bridge` now validates and consumes WP58
+  rows, records ordered queued/manual/unavailable metadata entries, and retains
+  source audit, evidence, policy, readiness, bridge, and blocked refs.
+- WP58 now carries source audit/policy refs at read-model level so blocked rows
+  retain the same authority context instead of fabricating unavailable refs.
+- Focused tests prove deterministic JSONL including blocked rows, explicit
+  provider/runtime/UI non-claims, and rejection of tampered refs, claims, and
+  bridge identities. Code and Phase 2 gates are committed at `bae505ce8`.
+- Generic logging NDJSON and enforcement audit history remain separate owners;
+  durable production notification history/query is still outside this packet.
 
 ## Proof
 
-- Planned current owner:
+- Current owner:
   `crates/app-game-core/src/app_game_notification_audit_history_bridge.rs`
-- Planned focused test:
+- Focused test:
   `crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs`
 - Historical `packages/logging-domain/...` and script harness routes are absent.
 - `test-results/app-game-notification-audit-history-bridge-proof/proof.json`
@@ -70,12 +69,12 @@ without claiming provider delivery, parent history UI, or production runtime.
 
 ## Validation
 
-- [ ] Handoff parses app/game local outbox bridge rows before audit entry
+- [x] Handoff parses app/game local outbox bridge rows before audit entry
       creation.
-- [ ] Linked local outbox rows become queued audit-history entries.
-- [ ] Manual-required and unavailable rows remain blocked/manual and do not
+- [x] Linked local outbox rows become queued audit-history entries.
+- [x] Manual-required and unavailable rows remain blocked/manual and do not
       create provider sends.
-- [ ] Source audit, evidence, and policy refs are preserved in the handoff read
+- [x] Source audit, evidence, and policy refs are preserved in the handoff read
       model.
 - [ ] Proof pack records no provider delivery, no receipt ingestion, no
       retry-worker/quiet-hours timer runtime, no parent UI, no child delivery,
