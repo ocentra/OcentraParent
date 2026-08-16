@@ -147,6 +147,37 @@ pub async fn persist_app_game_unknown_approval_request(
     persist_transition(journal, metadata, event, &request_id).await
 }
 
+pub async fn persist_app_game_unknown_approval_request_from_inventory(
+    journal: &NdjsonEventJournal,
+    metadata: EventMetadata,
+    row: &AppGameInventoryEvidenceRow,
+    candidate_context: AppGameUnknownInventoryCandidateContext,
+    request_id: String,
+    transition_id: String,
+    child_reason_refs: Vec<String>,
+    expires_at_epoch_ms: u64,
+) -> Result<Option<AppGameUnknownApprovalWriteReceipt>, AppGameUnknownApprovalError> {
+    let Some(candidate) =
+        produce_app_game_unknown_candidate_from_inventory(row, candidate_context)?
+    else {
+        return Ok(None);
+    };
+
+    persist_app_game_unknown_approval_request(
+        journal,
+        metadata,
+        AppGameUnknownApprovalRequestInput {
+            request_id,
+            transition_id,
+            candidate,
+            child_reason_refs,
+            expires_at_epoch_ms,
+        },
+    )
+    .await
+    .map(Some)
+}
+
 pub async fn persist_app_game_unknown_parent_response(
     journal: &NdjsonEventJournal,
     metadata: EventMetadata,
