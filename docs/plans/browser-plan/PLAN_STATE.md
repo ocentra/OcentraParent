@@ -75,6 +75,39 @@ has fixture budget evaluation but no runtime health producer or bridge owner.
 The remaining numbered workpack rows are validation, proof, manual-platform, or
 documentation gaps unless one of those external authorities is added.
 
+Production reachability audit (2026-08-16):
+
+```text
+WP11: crates/agent-service/src/browser_runtime_impl/bridge.rs calls
+      crates/agent-core/src/browser_bridge_poll.rs, whose target parser emits
+      BrowserActiveTabState::Unknown and BrowserActiveProofSource::TargetListOnly.
+      No focus/activation, extension, foreground-correlation, or owned-shell
+      provider is present; target-list evidence must remain unknown.
+WP21: crates/agent-core/src/browser_bridge_native_host.rs exports only a
+      validator whose inbound references are test references. No extension
+      package, native-host registration, or runtime IPC owner exists.
+WP20: the browser-domain App Control representation is reachable through the
+      agent-service enforcement product-control report, but its states are
+      static/manual-required specifications. No Windows AppLocker/WDAC runtime
+      input or policy owner exists.
+WP22: crates/browser-core/src/performance_budget.rs exposes a fixture budget
+      matrix and evaluator with no production service-health producer or bridge
+      caller. A telemetry bridge would be synthetic without a runtime owner.
+```
+
+Browser production implementation is therefore parked, not complete. The exact
+remaining production-code blockers are WP11 native focus authority, WP21
+extension/native-host packaging and registration, WP20 Windows AppLocker/WDAC
+authority, and WP22 runtime performance-health measurement ownership.
+
+Topology warning (2026-08-16): `npm run graph:report -- --json` currently
+derives all 30 Browser workpacks as `planned` with empty dependency lists,
+despite the source/index notes and existing Rust/service implementation roots.
+This audit does not edit `graph.json` or run graph bootstrap. Legacy ownership
+references to `packages/activity-domain/src/browser*.ts` remain stale; the
+active TypeScript edge ownership is `packages/browser-domain` and the active
+runtime ownership is the Rust paths in `source-index.md`.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.
