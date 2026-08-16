@@ -75,6 +75,9 @@ portal-domain and apps/portal:
 Cloudflare control-plane runtime/schema:
   Cloudflare retains an isolated optional `ACCOUNT_IDENTITY_D1` store and migration configuration, but no provider verifier, runtime store caller, account/session routes, household authority, deployed/migrated D1 schema, Durable Object coordination, or production Worker readiness. Those runtime/persistence boundaries remain open here.
 
+2026-08-16 production reachability audit:
+  `infra/cloudflare/src/auth/verifier.ts` is invoked by the Worker route dispatcher, but both Wrangler configurations set `AUTH_ADAPTER_MODE` to `account-auth-adapter-manual-required`; the only non-blocked bearer path is the local-safe fixture mode and its token normalization is not cryptographic provider verification. The Worker route manifest contains billing/admin/webhook routes, not Account identity routes. Provider library, issuer, trust material, and runtime-owned account caller remain unresolved, so no Account auth or D1 persistence implementation slice is authorized.
+
 Adjacent plans:
   Payment, policy, data custody, device trust, LAN, remote, setup-install, and broader portal UX consume account/family authority through handoff contracts, events, requests, read models, and proof routes. They must not re-own the authority model.
 ```
