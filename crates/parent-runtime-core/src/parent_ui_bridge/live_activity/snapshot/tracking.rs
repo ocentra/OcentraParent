@@ -3,6 +3,8 @@ use super::*;
 pub(super) fn apply_tracking_and_screen_live_activity_impl(
     tracking_read_model_snapshot: Option<&TrackingReadModelAgentServiceSnapshot>,
     screen_read_model_snapshot: Option<&ScreenReadModelAgentServiceSnapshot>,
+    app_use_read_model_snapshot: Option<&AppUseReadModelAgentServiceSnapshot>,
+    games_read_model_snapshot: Option<&GamesReadModelAgentServiceSnapshot>,
     route: &ParentRouteId,
     snapshot: &mut ParentRouteLiveActivitySnapshot,
 ) {
@@ -26,4 +28,21 @@ pub(super) fn apply_tracking_and_screen_live_activity_impl(
             screen_read_model_snapshot.map(|snapshot| &snapshot.read_model),
         ));
     }
+    snapshot.activity_app_use_read_model = app_use_read_model_snapshot
+        .and_then(|snapshot| activity_surface_adapter_value(&snapshot.read_model));
+    snapshot.activity_games_read_model = games_read_model_snapshot
+        .and_then(|snapshot| activity_surface_adapter_value(&snapshot.read_model));
+}
+
+fn activity_surface_adapter_value<T>(read_model: &T) -> Option<Value>
+where
+    T: serde::Serialize,
+{
+    let value = serde_json::to_value(read_model).ok()?;
+    let state = value.get("state")?.clone();
+    Some(serde_json::json!({
+        "ok": true,
+        "state": state,
+        "value": value,
+    }))
 }

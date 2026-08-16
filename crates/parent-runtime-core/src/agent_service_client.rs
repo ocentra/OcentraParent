@@ -37,10 +37,10 @@ use self::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, LanAgentServiceSnapshot,
-    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
-    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
-    TrackingReadModelAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
+    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
+    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 
 mod command_result_projection;
@@ -102,6 +102,18 @@ pub(crate) fn load_activity_screen_read_model_snapshot(
     context: Option<&ParentRouteContext>,
 ) -> AgentServiceResult<types::ScreenReadModelAgentServiceSnapshot> {
     loaders::load_activity_screen_read_model_snapshot(context)
+}
+
+pub(crate) fn load_activity_app_use_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<types::AppUseReadModelAgentServiceSnapshot> {
+    loaders::load_activity_app_use_read_model_snapshot(context)
+}
+
+pub(crate) fn load_activity_games_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<types::GamesReadModelAgentServiceSnapshot> {
+    loaders::load_activity_games_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_notification_readiness_read_model_snapshot(

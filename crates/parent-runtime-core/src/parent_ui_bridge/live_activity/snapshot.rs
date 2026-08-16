@@ -37,6 +37,8 @@ pub(super) fn live_activity_snapshot_impl(
     tracking::apply_tracking_and_screen_live_activity_impl(
         input.tracking_read_model_snapshot,
         input.screen_read_model_snapshot,
+        input.app_use_read_model_snapshot,
+        input.games_read_model_snapshot,
         input.route,
         &mut snapshot,
     );
@@ -49,6 +51,8 @@ fn empty_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot {
         recent_summary: None,
         ingest_status: None,
         activity_screen_read_model: None,
+        activity_app_use_read_model: None,
+        activity_games_read_model: None,
         screen_summary_panel: None,
         browser_managed_event: None,
         browser_managed_status: None,

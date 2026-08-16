@@ -23,10 +23,11 @@ use super::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, LanAgentServiceSnapshot,
-    LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
-    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
-    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, LanRuntimeReplaySnapshot,
+    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
+    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
+    TrackingReadModelAgentServiceSnapshot,
 };
 use super::*;
 
@@ -132,6 +133,36 @@ pub(crate) fn load_activity_screen_read_model_snapshot(
         AgentRoute::Localhost,
     )
     .and_then(activity_screen_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_activity_app_use_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<AppUseReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityAppUseReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(|result| {
+        super::snapshots_tracking::activity_app_use_read_model_snapshot_from_result(result)
+    })
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_activity_games_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<GamesReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityGamesReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(|result| {
+        super::snapshots_tracking::activity_games_read_model_snapshot_from_result(result)
+    })
     .map_err(AgentServiceError::from_display)
 }
 

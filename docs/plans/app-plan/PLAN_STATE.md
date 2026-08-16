@@ -34,6 +34,10 @@ category/risk compilation-to-time-budget handoff; restart/service scheduling
 and validation remain deferred.
 WP20 now has a Rust time-budget-to-child-notice bridge; live UI/service
 delivery and validation remain deferred.
+WP15 now hydrates the existing portal app/game dashboard from the local
+agent-service app-use and games read models through the parent runtime bridge;
+the production slice is unvalidated and tests/proof/checklist closure remain
+deferred.
 
 The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
 WP26, WP48, WP49, WP62, WP63, WP64, WP65, and

@@ -2226,9 +2226,19 @@
     "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/agent-service/tests/unit/app_game_activity_read_models.rs",
-        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/app_game.rs",
+        "crates/parent-runtime-core/src/agent_service_client.rs",
+        "crates/parent-runtime-core/src/agent_service_client/loaders.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_tracking.rs",
+        "crates/parent-runtime-core/src/agent_service_client/types.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies/load.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/tracking.rs",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "apps/portal/generated/parent-ui-bridge.ts",
         "apps/portal/src/ParentPortalRoute.tsx",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
         "apps/portal/tests/live-activity/live-activity-state.test.ts"
       ]
     },

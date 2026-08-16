@@ -1,4 +1,6 @@
-use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModel;
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityAppUseReadModel, ActivityGamesReadModel, ActivityScreenReadModel,
+};
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel;
@@ -74,6 +76,14 @@ pub(crate) struct TrackingReadModelAgentServiceSnapshot {
 
 pub(crate) struct ScreenReadModelAgentServiceSnapshot {
     pub(crate) read_model: ActivityScreenReadModel,
+}
+
+pub(crate) struct AppUseReadModelAgentServiceSnapshot {
+    pub(crate) read_model: ActivityAppUseReadModel,
+}
+
+pub(crate) struct GamesReadModelAgentServiceSnapshot {
+    pub(crate) read_model: ActivityGamesReadModel,
 }
 
 pub(crate) struct AppGameNotificationReadinessAgentServiceSnapshot {

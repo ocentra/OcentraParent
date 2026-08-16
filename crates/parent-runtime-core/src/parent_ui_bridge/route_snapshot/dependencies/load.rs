@@ -41,6 +41,16 @@ pub(super) fn load_parent_route_snapshot_dependencies_impl(
         policy_preview_snapshot,
         tracking_read_model_snapshot,
         screen_read_model_snapshot,
+        app_use_read_model_snapshot: if app_game_required {
+            load_activity_app_use_read_model_snapshot(None).ok()
+        } else {
+            None
+        },
+        games_read_model_snapshot: if app_game_required {
+            load_activity_games_read_model_snapshot(None).ok()
+        } else {
+            None
+        },
         app_game_notification_readiness_snapshot: if app_game_required {
             load_app_game_notification_readiness_read_model_snapshot(None).ok()
         } else {
