@@ -39,8 +39,8 @@ use self::types::{
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
     AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
     BrowserActivityReadModelAgentServiceSnapshot, BrowserInterventionReadModelAgentServiceSnapshot,
-    BrowserManagedStatusAgentServiceSnapshot, GamesReadModelAgentServiceSnapshot,
-    LanAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
+    BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
     NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
     ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
@@ -129,6 +129,12 @@ pub(crate) fn load_browser_managed_status_snapshot(
     context: Option<&ParentRouteContext>,
 ) -> AgentServiceResult<BrowserManagedStatusAgentServiceSnapshot> {
     loaders::load_browser_managed_status_snapshot(context)
+}
+
+pub(crate) fn load_browser_inventory_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInventoryReadModelAgentServiceSnapshot> {
+    loaders::load_browser_inventory_read_model_snapshot(context)
 }
 
 pub(crate) fn load_browser_intervention_read_model_snapshot(

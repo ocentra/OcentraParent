@@ -58,6 +58,8 @@ fn empty_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot {
         activity_browser_read_model: None,
         activity_games_read_model: None,
         screen_summary_panel: None,
+        browser_inventory_event: None,
+        browser_inventory_read_model: None,
         browser_managed_event: None,
         browser_managed_status: None,
         local_ai_runtime_status_event: None,

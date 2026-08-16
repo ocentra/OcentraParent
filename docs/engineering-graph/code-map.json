@@ -1350,6 +1350,7 @@
       "roots": [
         "crates/agent-protocol/src/browser_read_model.rs",
         "crates/parent-runtime-core/src/agent_service_client/snapshots_browser.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_tracking.rs",
         "crates/parent-runtime-core/src/agent_service_client/loaders.rs",
         "crates/parent-runtime-core/src/agent_service_client/types.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge.rs",
@@ -1426,11 +1427,28 @@
       "planSlug": "browser-plan",
       "roots": [
         "crates/agent-protocol/src/browser_unmanaged_enforcement.rs",
+        "crates/agent-protocol/src/constants/field.rs",
         "crates/agent-protocol/tests/contract/browser_managed_tests.rs",
         "crates/agent-core/src/browser_managed_discovery.rs",
         "crates/agent-core/tests/unit/browser_managed_session_tests.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/browser_inventory_read_model.rs",
+        "crates/agent-service/src/browser_payload.rs",
         "crates/agent-service/src/browser_runtime_status.rs",
-        "crates/agent-service/tests/unit/browser_runtime_tests.rs"
+        "crates/agent-service/tests/unit/browser_runtime_tests.rs",
+        "crates/parent-runtime-core/src/agent_service_client.rs",
+        "crates/parent-runtime-core/src/agent_service_client/loaders.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_browser.rs",
+        "crates/parent-runtime-core/src/agent_service_client/types.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_requirements.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies/load.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/browser.rs",
+        "crates/schema/src/parent_ui_bridge.rs",
+        "apps/portal/generated/parent-ui-bridge.ts"
       ]
     },
     "WP-browser-plan-19-unmanaged-fallback-ux-and-actions": {

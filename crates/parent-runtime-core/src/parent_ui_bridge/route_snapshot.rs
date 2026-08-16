@@ -1,8 +1,9 @@
 use super::route_requirements::{
     route_requires_app_game_session_read_models, route_requires_browser_activity_read_model,
-    route_requires_browser_read_models, route_requires_network_flow_read_model,
-    route_requires_network_runtime_event_chain_stream, route_requires_policy_preview_read_model,
-    route_requires_screen_summary_read_model, route_requires_tracking_read_model,
+    route_requires_browser_inventory_read_model, route_requires_browser_read_models,
+    route_requires_network_flow_read_model, route_requires_network_runtime_event_chain_stream,
+    route_requires_policy_preview_read_model, route_requires_screen_summary_read_model,
+    route_requires_tracking_read_model,
 };
 use super::*;
 

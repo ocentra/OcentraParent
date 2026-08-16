@@ -17,6 +17,8 @@ pub(super) struct ParentRouteSnapshotDependencies {
     pub(super) browser_activity_read_model_snapshot:
         Option<BrowserActivityReadModelAgentServiceSnapshot>,
     pub(super) games_read_model_snapshot: Option<GamesReadModelAgentServiceSnapshot>,
+    pub(super) browser_inventory_read_model_snapshot:
+        Option<BrowserInventoryReadModelAgentServiceSnapshot>,
     pub(super) browser_managed_status_snapshot: Option<BrowserManagedStatusAgentServiceSnapshot>,
     pub(super) browser_intervention_read_model_snapshot:
         Option<BrowserInterventionReadModelAgentServiceSnapshot>,
@@ -56,6 +58,9 @@ pub(super) fn build_live_activity_snapshot(
         app_use_read_model_snapshot: loaded.app_use_read_model_snapshot.as_ref(),
         browser_activity_read_model_snapshot: loaded.browser_activity_read_model_snapshot.as_ref(),
         games_read_model_snapshot: loaded.games_read_model_snapshot.as_ref(),
+        browser_inventory_read_model_snapshot: loaded
+            .browser_inventory_read_model_snapshot
+            .as_ref(),
         browser_managed_status_snapshot: loaded.browser_managed_status_snapshot.as_ref(),
         browser_intervention_read_model_snapshot: loaded
             .browser_intervention_read_model_snapshot

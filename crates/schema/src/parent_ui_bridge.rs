@@ -1651,6 +1651,8 @@ pub struct ParentRouteLiveActivitySnapshot {
     pub activity_browser_read_model: Option<Value>,
     pub activity_games_read_model: Option<Value>,
     pub screen_summary_panel: Option<ParentScreenSummaryPanelSnapshot>,
+    pub browser_inventory_event: Option<ParentRouteEventSnapshot>,
+    pub browser_inventory_read_model: Option<Value>,
     pub browser_managed_event: Option<ParentRouteEventSnapshot>,
     pub browser_managed_status: Option<Value>,
     pub local_ai_runtime_status_event: Option<ParentRouteEventSnapshot>,

@@ -1897,6 +1897,8 @@ export interface ParentRouteLiveActivitySnapshot {
   readonly activityBrowserReadModel?: ParentUnknownRecord | null;
   readonly activityGamesReadModel?: ParentUnknownRecord | null;
   readonly screenSummaryPanel?: ParentScreenSummaryPanelSnapshot | null;
+  readonly browserInventoryEvent?: ParentRouteEventSnapshot | null;
+  readonly browserInventoryReadModel?: ParentUnknownRecord | null;
   readonly browserManagedEvent?: ParentRouteEventSnapshot | null;
   readonly browserManagedStatus?: ParentUnknownRecord | null;
   readonly localAiRuntimeStatusEvent?: ParentRouteEventSnapshot | null;

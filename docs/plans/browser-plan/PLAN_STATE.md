@@ -52,6 +52,13 @@ existing portal live-activity adapter shape. This remains unvalidated with
 tests/proof/checklist deferred; it does not add capture, focus proof,
 unmanaged exact-URL authority, intervention delivery, or enforcement.
 
+Code-pass note (2026-08-16): WP18 now has a production-code draft for the
+typed `BrowserInventoryReadModel` parent-bridge seam. The Browser route loads
+the existing service inventory event and projects its process-only rows into
+the existing portal live-activity state. This remains unvalidated with
+tests/proof/checklist deferred; it does not add exact URL, active-tab, page
+title, OS blocking, process termination, or enforcement authority.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.

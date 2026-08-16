@@ -41,6 +41,12 @@ pub fn browser_inventory_read_model_payload(read_model: &BrowserInventoryReadMod
     let mut pairs = browser_inventory_read_model_pairs(read_model);
     pairs.extend(browser_inventory_latest_identity_pairs(latest));
     pairs.extend(browser_inventory_latest_state_pairs(latest));
+    if let Ok(serialized) = serde_json::to_string(read_model) {
+        pairs.0.push((
+            constants::field::BROWSER_INVENTORY_READ_MODEL_JSON,
+            LogFieldValue::String(serialized),
+        ));
+    }
     fields_from_pairs(pairs.0)
 }
 

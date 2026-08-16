@@ -14,6 +14,10 @@ pub(super) fn apply_browser_live_activity_impl(
     if let Some(activity) = input.browser_activity_read_model_snapshot {
         snapshot.activity_browser_read_model = activity_surface_adapter_value(&activity.read_model);
     }
+    if let Some(inventory) = input.browser_inventory_read_model_snapshot {
+        snapshot.browser_inventory_event = Some(inventory.event.clone());
+        snapshot.browser_inventory_read_model = serde_json::to_value(&inventory.read_model).ok();
+    }
     if !matches!(input.route, ParentRouteId::Browser) {
         return;
     }
