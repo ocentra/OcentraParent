@@ -90,6 +90,7 @@ pub struct HouseholdMeshTransportEnvelope {
 }
 
 impl HouseholdMeshTransportEnvelope {
+    #[cfg(any(test, feature = "test-support"))]
     pub fn proof_fixture_for(local_event_ref: &str, lan_message_type: &str) -> Self {
         Self {
             schema_version: mesh::EVENT_SCHEMA_VERSION,
@@ -131,22 +132,6 @@ pub struct HouseholdMeshLocalRepublish {
     pub policy_authority: HouseholdMeshPolicyAuthority,
     pub validated_before_republish: bool,
     pub child_agent_policy_authority_preserved: bool,
-}
-
-impl HouseholdMeshLocalRepublish {
-    pub fn from_validated_message(message: &HouseholdMeshTransportEnvelope) -> Self {
-        Self {
-            family_id: message.family_id.clone(),
-            target_child_device_id: message.target_child_device_id.clone(),
-            source_peer_id: message.source_peer_id.clone(),
-            local_event_ref: message.local_event_ref.clone(),
-            lan_message_type: message.lan_message_type.clone(),
-            bridge_state: HouseholdMeshBridgeState::LocalRepublishRequired,
-            policy_authority: HouseholdMeshPolicyAuthority::ChildAgentOnly,
-            validated_before_republish: true,
-            child_agent_policy_authority_preserved: true,
-        }
-    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -268,6 +253,26 @@ impl HouseholdMeshBridgeCustody {
 pub struct HouseholdMeshBridgeValidation {
     pub state: HouseholdMeshBridgeValidationState,
     pub rejection_reason: Option<HouseholdMeshBridgeRejectionReason>,
+}
+
+impl HouseholdMeshBridgeValidation {
+    pub(crate) fn rejected(reason: HouseholdMeshBridgeRejectionReason) -> Self {
+        Self {
+            state: HouseholdMeshBridgeValidationState::Rejected,
+            rejection_reason: Some(reason),
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct HouseholdMeshStructurallyValidatedTransportEnvelope {
+    message: HouseholdMeshTransportEnvelope,
+}
+
+impl HouseholdMeshStructurallyValidatedTransportEnvelope {
+    pub fn message(&self) -> &HouseholdMeshTransportEnvelope {
+        &self.message
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
