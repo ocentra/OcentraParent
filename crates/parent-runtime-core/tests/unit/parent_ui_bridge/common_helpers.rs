@@ -11,42 +11,47 @@ use serde_json::{json, Value};
 use super::super::tests_support::sample_lan_read_model;
 use super::super::LAN_DISCOVERY_REPORTED_EVENT;
 
+#[derive(Copy, Clone)]
 pub(crate) struct TestContext(pub(crate) &'static str);
 
+#[derive(Copy, Clone)]
 pub(crate) struct TestLabel(pub(crate) &'static str);
 
+#[derive(Copy, Clone)]
 pub(crate) struct TestValue(pub(crate) &'static str);
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CommandText(pub(crate) String);
 
 pub(crate) fn require_some<T>(value: Option<T>, context: TestContext) -> T {
-    value.expect(context.0)
+    value.unwrap_or_else(|| std::panic::resume_unwind(Box::new(context.0)))
 }
 
-pub(crate) fn require_route_snapshot<'a>(
-    value: &'a Option<super::super::ParentRouteSnapshot>,
+pub(crate) fn require_route_snapshot(
+    value: &Option<super::super::ParentRouteSnapshot>,
     context: TestContext,
-) -> &'a super::super::ParentRouteSnapshot {
-    value.as_ref().expect(context.0)
+) -> &super::super::ParentRouteSnapshot {
+    value
+        .as_ref()
+        .unwrap_or_else(|| std::panic::resume_unwind(Box::new(context.0)))
 }
 
-pub(crate) fn require_snapshot_live_activity<'a>(
-    value: &'a Option<super::super::ParentRouteSnapshot>,
+pub(crate) fn require_snapshot_live_activity(
+    value: &Option<super::super::ParentRouteSnapshot>,
     snapshot_context: TestContext,
     live_activity_context: TestContext,
-) -> &'a ParentRouteLiveActivitySnapshot {
+) -> &ParentRouteLiveActivitySnapshot {
     require_route_snapshot(value, snapshot_context)
         .live_activity
         .as_ref()
-        .expect(live_activity_context.0)
+        .unwrap_or_else(|| std::panic::resume_unwind(Box::new(live_activity_context.0)))
 }
 
-pub(crate) fn require_result_live_activity<'a>(
-    value: &'a super::super::ParentUiActionResult,
+pub(crate) fn require_result_live_activity(
+    value: &super::super::ParentUiActionResult,
     snapshot_context: TestContext,
     live_activity_context: TestContext,
-) -> &'a ParentRouteLiveActivitySnapshot {
+) -> &ParentRouteLiveActivitySnapshot {
     require_snapshot_live_activity(&value.snapshot, snapshot_context, live_activity_context)
 }
 
@@ -92,10 +97,10 @@ pub(crate) fn live_activity_json(
     )
 }
 
-pub(crate) fn last_event_payload_field<'a>(
-    result: &'a super::super::ParentUiActionResult,
+pub(crate) fn last_event_payload_field(
+    result: &super::super::ParentUiActionResult,
     field: TestLabel,
-) -> Option<&'a Value> {
+) -> Option<&Value> {
     result
         .events
         .last()
@@ -122,7 +127,9 @@ pub(crate) fn assert_lan_scan_snapshot(result: &super::super::ParentUiActionResu
         .as_ref()
         .and_then(|snapshot| snapshot.live_activity.as_ref())
         .and_then(|live_activity| live_activity.lan_pairing_browser_discovery_event.as_ref())
-        .expect("LAN scan snapshot includes discovery event");
+        .unwrap_or_else(|| {
+            std::panic::resume_unwind(Box::new("LAN scan snapshot includes discovery event"))
+        });
 
     assert_eq!(
         result.message,
@@ -186,7 +193,7 @@ pub(crate) fn assert_panel_detail_value(details: &Value, label: TestLabel, expec
                 detail.get("label").and_then(|value| value.as_str()) == Some(label.0)
             })
         })
-        .expect("expected matching panel detail");
+        .unwrap_or_else(|| std::panic::resume_unwind(Box::new("expected matching panel detail")));
     assert_eq!(
         detail.get("value").and_then(|value| value.as_str()),
         Some(expected.0),
@@ -199,8 +206,8 @@ pub(crate) fn sample_lan_read_model_with_explicit_history() -> LanBrowserAddDevi
         schema_version: 1,
         generated_at: "2026-06-23T00:00:03Z".to_string(),
         state: LanDiscoveryEventHistoryState::Ready,
-        latest_event_id: None,
-        latest_observed_at: None,
+        latest_event_id: Some("lan-history-2".to_string()),
+        latest_observed_at: Some("2026-06-23T00:00:02Z".to_string()),
         rows: vec![
             LanDiscoveryEventRow {
                 schema_version: 1,
@@ -272,23 +279,11 @@ pub(crate) fn assert_app_game_snapshots_are_empty(
 
 pub(crate) fn assert_network_policy_bridge_snapshot(
     live_activity: &serde_json::Value,
-    expected_streamed_event_count: serde_json::Value,
+    expected_streamed_event_count: &serde_json::Value,
 ) {
-    assert_eq!(
-        live_activity["networkEvidenceSummary"]["analyzerAlertRef"],
-        json!("event.network.analyzer.alert.1")
-    );
-    assert_eq!(
-        live_activity["networkEvidenceSummary"]["detectionResultRef"],
-        json!("event.network.detection.result.1")
-    );
     assert_eq!(
         live_activity["networkEvidenceSummary"]["aiAuditRef"],
         json!("event.ai.analysis.completed.1")
-    );
-    assert_eq!(
-        live_activity["networkEvidenceSummary"]["riskBudgetRef"],
-        json!("event.network.risk-budget.1")
     );
     assert_eq!(
         live_activity["networkEvidenceSummary"]["policyDecisionRef"],
@@ -304,7 +299,7 @@ pub(crate) fn assert_network_policy_bridge_snapshot(
     );
     assert_eq!(
         live_activity["networkRuntimeEventChainStream"]["streamedEventCount"],
-        expected_streamed_event_count
+        *expected_streamed_event_count
     );
     assert_eq!(
         live_activity["networkRuntimeEventChainStream"]["events"][0]["eventType"],

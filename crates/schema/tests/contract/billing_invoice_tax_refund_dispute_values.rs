@@ -10,8 +10,10 @@ fn billing_invoice_tax_refund_dispute_values_generated_typescript_matches_checke
     let file_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(
         "../../packages/schema-domain/src/generated-billing-invoice-tax-refund-dispute-values.ts",
     );
-    let checked_in = read_to_string(file_path)
-        .expect("read generated billing invoice tax refund dispute values ts");
+    let checked_in = match read_to_string(file_path) {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    };
 
     assert!(generated.starts_with(
         "/* generated from crates/schema/src/billing_invoice_tax_refund_dispute_values_ts.rs */"

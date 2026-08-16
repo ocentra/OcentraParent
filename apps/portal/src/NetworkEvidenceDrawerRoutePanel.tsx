@@ -106,10 +106,7 @@ function NetworkEvidenceUnsupportedClaimCard({
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <NetworkEvidenceDrawerDetail label={PortalDetails.BrowserEvidence} value={summary.browserRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.ExactUrlClaim} value={summary.exactUrlClaim} />
-        <NetworkEvidenceDrawerDetail label={PortalDetails.AnalyzerAlerts} value={summary.analyzerAlertRef} />
-        <NetworkEvidenceDrawerDetail label={PortalDetails.DetectionResults} value={summary.detectionResultRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.LocalAiResult} value={summary.aiAuditRef} />
-        <NetworkEvidenceDrawerDetail label={PortalDetails.RiskBudget} value={summary.riskBudgetRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.PolicyPreview} value={summary.policyDecisionRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.EnforcementHandoff} value={summary.interventionResultRef} />
         <NetworkEvidenceDrawerDetail label={PortalDetails.DeletedEvidence} value={summary.retentionState} />

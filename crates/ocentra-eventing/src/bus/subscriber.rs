@@ -36,7 +36,7 @@ impl EventSubscriber {
 }
 
 #[derive(Clone)]
-pub(super) struct SubscriberRecord {
+pub(crate) struct SubscriberRecord {
     pub(super) id: SubscriberId,
     pub(super) event_type: EventType,
     pub(super) target_handler: TargetHandler,

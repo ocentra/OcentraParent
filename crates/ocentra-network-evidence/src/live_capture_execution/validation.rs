@@ -1,4 +1,4 @@
-use crate::live_capture::{NetworkLiveCapturePlatform, NetworkLiveCaptureProofState};
+use crate::live_capture::NetworkLiveCapturePlatform;
 
 use super::{
     NetworkLiveCaptureExecutionError, NetworkLiveCaptureExecutionInput,

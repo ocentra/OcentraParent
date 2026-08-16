@@ -1,9 +1,6 @@
 use ocentra_schema::encryption_key_custody as contracts;
 
-use super::{
-    derive_decrypt_attempt_result, DecryptAttemptInput, EncryptionKeyCustodyDerivationError,
-    PlatformKeyCustodyInput,
-};
+use super::{EncryptionKeyCustodyDerivationError, PlatformKeyCustodyInput};
 
 pub(super) fn derive_platform_key_custody_row(
     input: PlatformKeyCustodyInput,

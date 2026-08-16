@@ -25,9 +25,20 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open workpacks by route dependency
 
+- [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
+  is the single legal READY code packet. Implement only the reviewed
+  agent-core/agent-service ingestion-time publish, deterministic identity,
+  durable network-journal, startup-recovery, and read-side-effect removal
+  boundary; tests, proof, CI, review, and
+  merge remain later gates.
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
   is open because the expected local proof roots remain absent and the
   LAN/remote-access consumer handoff still needs exact verification.
+- WP06 is locally proved at
+  `docs/proof/eventing-plan/`: the typed
+  `00-enforcement-wp11-handoff.md`, journal/replay proof, topology/lineage
+  proof, and compact validation log are retained. This is a generic Eventing
+  prerequisite only; enforcement retains authority/action/rollback proof.
 - WP11 is now locally proved: the scoped proof roots remain present, package-wide
   `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
   passes again, focused `policy-control-audit-redaction.test.ts`,
@@ -42,6 +53,21 @@ This file is the short resume list for the next worker. It is derived from open 
   and `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
 - Next slice: verify the owning LAN/remote-access proof handoff for WP10 before
   changing its local status.
+
+## WP09 production-route boundary
+
+- Contracts in `agent-protocol` are not production event-chain proof.
+- The current capture path does not publish once at ingestion into a durable
+  network consumer chain; the service read API republishes rows through an
+  in-memory `OnceCell`/`EventBus::new` spine, and phase subscribers are no-op
+  routing surfaces.
+- `TEST_*` phase refs and test-created journal paths do not establish a
+  production network journal or startup recovery before readiness.
+- WP09 is READY for implementation only. Do not mark it done, claim live
+  capture/enforcement, or use its future code slice to unblock Network WP04
+  until tests, retained proof, and the consumer handoff exist. AI, policy,
+  enforcement, audit, and portal remain downstream blocked/fail-closed; nested
+  fixture/prove/`TEST_*` runtime files are not shipped production topology.
 
 ## PR readiness guard
 

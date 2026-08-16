@@ -6,17 +6,22 @@
 //! process, host, and UI bridge boundaries. Domain crates own behavior;
 //! this crate owns serializable DTO shape.
 
-pub(crate) fn schema_option_or_unreachable<T>(value: Option<T>, context: &str) -> T {
-    value.expect(context)
+pub(crate) fn schema_option_or_unreachable<T>(value: Option<T>, _context: &str) -> T {
+    match value {
+        Some(value) => value,
+        None => std::process::abort(),
+    }
 }
 
-pub(crate) fn schema_result_or_unreachable<T, E: std::fmt::Debug>(
-    value: Result<T, E>,
-    context: &str,
-) -> T {
-    value.expect(context)
+pub(crate) fn schema_result_or_unreachable<T, E>(value: Result<T, E>, _context: &str) -> T {
+    match value {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    }
 }
 
+pub mod account_identity_authority;
+pub mod account_identity_authority_ts;
 pub mod activity_event_kind_ts;
 pub mod app_game_preview_source_freshness;
 pub mod app_game_preview_source_freshness_ts;
@@ -26,6 +31,8 @@ pub mod app_game_timer_service_readiness;
 pub mod app_game_timer_service_readiness_ts;
 pub mod app_risk_detection;
 pub mod app_risk_detection_ts;
+pub mod authenticated_delivery_grant;
+pub mod authenticated_delivery_managed_process;
 pub mod billing_checkout_portal_boundary_values_ts;
 pub mod billing_contracts_ts;
 pub mod billing_entitlement_proof;
@@ -62,14 +69,18 @@ pub mod parent_control_capabilities_ts;
 pub mod parent_control_capability_data_ts;
 pub mod parent_owned_sync_export;
 pub mod parent_owned_sync_export_ts;
+pub mod parent_step_up_receipt;
 pub mod parent_storage_settings_apply_flow;
 pub mod parent_storage_settings_apply_flow_ts;
 pub mod parent_ui_bridge;
 pub mod parent_ui_bridge_ts;
+pub mod phone_qr_approval;
 pub mod policy_enforcement_ts;
+pub mod remote_capability_fabric;
 pub mod report_query_custody;
 pub mod report_query_custody_ts;
 pub mod retention_delete_tombstone;
 pub mod setup_device_trust_handoff;
+pub mod tracking_event_contracts;
 pub mod typescript_literal;
 pub mod v0_8_notification_provider_status_boundary_ts;

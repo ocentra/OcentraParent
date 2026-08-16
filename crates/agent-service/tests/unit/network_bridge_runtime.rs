@@ -3,6 +3,8 @@ extern crate self as ocentra_parent_agent_service;
 
 use chrono::{DateTime, SecondsFormat};
 
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
 #[path = "../support/test_text.rs"]
 mod test_text;
 
@@ -13,6 +15,7 @@ use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentMessageTarget, AgentRoute,
 };
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
+use test_invariants::require_ok;
 
 #[path = "../support/network_bridge_test_support.rs"]
 pub mod test_support;
@@ -41,8 +44,6 @@ mod network_linux_nftables_lab_status_bridge;
 mod network_live_capture_execution_bridge;
 #[path = "../../src/network_live_capture_readiness_bridge.rs"]
 mod network_live_capture_readiness_bridge;
-#[path = "../../src/network_product_path_bridge.rs"]
-mod network_product_path_bridge;
 #[path = "../../src/network_remote_delivery_status_cross_process.rs"]
 mod network_remote_delivery_status_cross_process;
 #[path = "../../src/network_remote_delivery_status_payload.rs"]
@@ -76,10 +77,6 @@ mod network_flow_payload_tests;
 mod network_linux_nftables_lab_status_bridge_tests;
 #[path = "network_live_capture_readiness_bridge_tests.rs"]
 mod network_live_capture_readiness_bridge_tests;
-#[path = "network_product_path_bridge_tests.rs"]
-mod network_product_path_bridge_tests;
-#[path = "network_product_path_integration_tests.rs"]
-mod network_product_path_integration_tests;
 #[path = "network_remote_delivery_status_service_tests.rs"]
 mod network_remote_delivery_status_service_tests;
 #[path = "network_runtime_delivery_tests.rs"]
@@ -157,8 +154,10 @@ fn network_bridge_runtime_links_report_builders_and_time_helpers() {
     let timestamp_now: String = time::timestamp_now();
     let timestamp_from_epoch: String = time::timestamp_from_epoch_seconds(0);
     let timestamp_after_epoch: String = time::timestamp_after_epoch_seconds(0, 1);
-    let parsed_timestamp_now = DateTime::parse_from_rfc3339(&timestamp_now)
-        .expect("timestamp_now must use RFC3339 formatting");
+    let parsed_timestamp_now = require_ok(
+        DateTime::parse_from_rfc3339(&timestamp_now),
+        "timestamp_now must use RFC3339 formatting",
+    );
     assert_eq!(
         parsed_timestamp_now.to_rfc3339_opts(SecondsFormat::Millis, true),
         timestamp_now
@@ -182,6 +181,35 @@ async fn network_bridge_runtime_links_remote_delivery_report_builder() {
     assert_eq!(
         event.event,
         ocentra_parent_agent_protocol::transport::AgentEventName::AgentNetworkRemoteDeliveryStatusReported
+    );
+}
+
+#[test]
+fn network_bridge_runtime_links_test_invariant_helpers() {
+    let decoded: serde_json::Value =
+        test_invariants::require_json_decode("{\"timestamp\":\"ok\"}", "json decodes");
+    assert_eq!(decoded["timestamp"], "ok");
+
+    assert_eq!(
+        test_invariants::require_some(Some("linked"), "option links"),
+        "linked"
+    );
+
+    let mut payload = LogFields::new();
+    payload.insert(
+        constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM.to_string(),
+        ocentra_parent_agent_protocol::logging::LogFieldValue::String("[]".to_string()),
+    );
+    assert_eq!(
+        test_invariants::require_log_string_field(
+            Some(&test_invariants::log_field(
+                &payload,
+                constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM,
+                "log field links",
+            )),
+            "string log field links",
+        ),
+        "[]"
     );
 }
 

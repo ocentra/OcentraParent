@@ -1,15 +1,13 @@
-use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::source_status::ActivityAppGameSourceStatusRow;
 use ocentra_parent_agent_protocol::activity_surface::{
     ActivityReadModelState, ActivitySurfaceRequest,
 };
 use ocentra_parent_agent_protocol::app_game::{
-    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
-    AppGameRuntimeEvidenceRow, AppGameServiceReadModel, APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR,
-    APP_GAME_CAPABILITY_STATUS_DEGRADED, APP_GAME_CAPABILITY_STATUS_MANUAL_REQUIRED,
-    APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED, APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED,
-    APP_GAME_CAPABILITY_STATUS_STALE, APP_GAME_CAPABILITY_STATUS_UNAVAILABLE,
-    APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM,
+    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameRuntimeEvidenceRow,
+    AppGameServiceReadModel, APP_GAME_CAPABILITY_STATUS_ADAPTER_ERROR,
+    APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED, APP_GAME_CAPABILITY_STATUS_STALE,
+    APP_GAME_CAPABILITY_STATUS_UNAVAILABLE, APP_GAME_CAPABILITY_STATUS_UNSUPPORTED_PLATFORM,
 };
 use ocentra_parent_agent_protocol::constants;
 
@@ -49,7 +47,7 @@ pub(super) fn row_device_id(request: &ActivitySurfaceRequest) -> DeviceId {
     )
 }
 
-pub(super) fn row_state(capability_status: CapabilityStatus) -> ActivityReadModelState {
+pub(super) fn row_state(capability_status: &CapabilityStatus) -> ActivityReadModelState {
     match capability_status.0.as_str() {
         APP_GAME_CAPABILITY_STATUS_PERMISSION_LIMITED => ActivityReadModelState::PermissionRequired,
         APP_GAME_CAPABILITY_STATUS_STALE => ActivityReadModelState::Stale,

@@ -9,16 +9,29 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const enforcerWrapper = path.join(repoRoot, 'scripts', 'enforcer', 'run-ocentra-enforcer.mjs');
 const singleSourceContractsConfig = path.join('scripts', 'check-single-source-contracts.json');
 const ignoredExpansionDirs = new Set([
+  '.agents',
+  '.codebase-memory',
+  '.codeql-local',
+  '.codex',
+  '.codex-artifacts',
+  '.codex-logs',
+  '.codex-tmp',
   '.git',
   '.enforce',
   '.ledger',
+  '.logs',
+  '.tmp',
+  '.wix',
   'coverage',
   'dist',
   'node_modules',
   'output',
   'target',
+  'target-lan-verify',
+  'target-parent-domain-logger-fixture',
   'target-parent-dev',
   'test-results',
+  'tmp',
 ]);
 
 export function main(rawArgs = process.argv.slice(2)) {
@@ -31,6 +44,7 @@ export function main(rawArgs = process.argv.slice(2)) {
     runEnforcer(['check', 'architecture-policy', ...rawArgs]);
     return;
   }
+  if (files.length === 0) return;
 
   const { generatedFiles, generatorFiles, sourceFiles } = classifyArchitectureFiles(files);
   const passthroughArgs = stripFiles(rawArgs);
@@ -141,6 +155,7 @@ function expandFiles(files) {
   if (files === null) return null;
   const expanded = [];
   for (const file of files) {
+    if (pathSegments(file).some((segment) => ignoredExpansionDirs.has(segment))) continue;
     const absolute = path.resolve(repoRoot, file);
     if (fs.existsSync(absolute) && fs.statSync(absolute).isDirectory()) {
       expanded.push(...collectDirectoryFiles(file));
@@ -148,7 +163,11 @@ function expandFiles(files) {
     }
     expanded.push(file);
   }
-  return expanded.length === 0 ? null : expanded;
+  return expanded;
+}
+
+function pathSegments(file) {
+  return file.replace(/\\/gu, '/').split('/').filter(Boolean);
 }
 
 function collectDirectoryFiles(start) {

@@ -50,7 +50,7 @@ pub(super) fn section_title(kind: ActivityReportSectionKind) -> SummaryText {
 
 pub(super) fn report_id(
     frequency: ActivityReportFrequency,
-    generated_at: GeneratedAtText,
+    generated_at: &GeneratedAtText,
 ) -> ReportId {
     let prefix = if frequency == ActivityReportFrequency::Daily {
         constants::activity_surface::REPORT_ID_DAILY

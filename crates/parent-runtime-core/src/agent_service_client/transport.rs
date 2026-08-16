@@ -23,6 +23,10 @@ mod timeouts;
 use self::timeouts::agent_command_timeout_for;
 use self::{connection::*, envelope::*, read::read_agent_event, read_impl::map_websocket_error};
 
+pub(super) fn agent_health_check_timeout_ms() -> u64 {
+    timeouts::agent_health_check_timeout_ms()
+}
+
 use super::parent_route_event_snapshot;
 use super::payload_fields::{resolve_command_origin, serialized_enum_label};
 use super::types::AgentServiceCommandResult;
@@ -33,17 +37,27 @@ pub(super) fn send_agent_command(
     context: Option<&ParentRouteContext>,
     route: AgentRoute,
 ) -> Result<AgentServiceCommandResult, String> {
+    let agent_addr = agent_addr();
+    send_agent_command_to_address(&agent_addr, command, payload, context, route)
+}
+
+pub(super) fn send_agent_command_to_address(
+    agent_addr: &str,
+    command: AgentCommandName,
+    payload: LogFields,
+    context: Option<&ParentRouteContext>,
+    route: AgentRoute,
+) -> Result<AgentServiceCommandResult, String> {
     let command_origin = resolve_command_origin(&payload);
     let timeout = agent_command_timeout_for(&command);
-    let agent_addr = agent_addr();
-    let url = agent_ws_url_for_addr(&agent_addr);
+    let url = agent_ws_url_for_addr(agent_addr);
     let mut request = url.as_str().into_client_request().map_err(|error| {
         format!("agent-service WebSocket request build failed at {url}: {error}")
     })?;
     request
         .headers_mut()
         .insert(ORIGIN, header_value(&command_origin)?);
-    let stream = connect_agent_stream(&agent_addr, &url, timeout)?;
+    let stream = connect_agent_stream(agent_addr, &url, timeout)?;
     let (mut socket, _) = websocket_client(request, stream)
         .map_err(|error| format!("agent-service WebSocket handshake failed at {url}: {error}"))?;
     let ready_event = read_agent_event(&mut socket, "connection-ready", timeout)?;
@@ -55,6 +69,8 @@ pub(super) fn send_agent_command(
     }
 
     let command_envelope = lan_command_envelope(command, payload, context, route);
+    let command = command_envelope.command.clone();
+    let command_message_id = command_envelope.message_id.clone();
     let body = serde_json::to_string(&command_envelope)
         .map_err(|error| format!("agent-service command serialization failed: {error}"))?;
     socket
@@ -64,6 +80,8 @@ pub(super) fn send_agent_command(
     let response_event = read_agent_event(&mut socket, "command-response", timeout)?;
 
     Ok(AgentServiceCommandResult {
+        command,
+        command_message_id,
         events: vec![
             parent_route_event_snapshot(&ready_event),
             parent_route_event_snapshot(&response_event),

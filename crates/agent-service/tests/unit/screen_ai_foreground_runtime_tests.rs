@@ -13,20 +13,22 @@ use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilitySt
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_CATEGORY_UNKNOWN, SCREEN_PROVIDER_SERVICE_METADATA,
-    SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX, SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV,
+    SCREEN_SERVICE_FOREGROUND_EVENT_ID_PREFIX, SCREEN_SERVICE_FOREGROUND_EVIDENCE_ID_PREFIX,
+    SCREEN_SERVICE_FOREGROUND_KEY_WINDOW_PREFIX, SCREEN_SERVICE_FOREGROUND_MODEL_ID,
+    SCREEN_SERVICE_FOREGROUND_QUEUE_JOB_ID_PREFIX, SCREEN_SERVICE_FOREGROUND_RESULT_ID_PREFIX,
+    SCREEN_SERVICE_FOREGROUND_RUNTIME_ENABLED_ENV, SCREEN_SERVICE_FOREGROUND_SOURCE_ID,
+    SCREEN_SERVICE_FOREGROUND_SUMMARY_CAPTURED, SCREEN_SERVICE_FOREGROUND_TEMPLATE_VERSION,
 };
 use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
 };
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-use test_text::TestText;
-
 use super::{
-    screen_ai_foreground_runtime::{
-        record_screen_ai_foreground_captured_image, ScreenAiForegroundTickClock,
+    screen_ai_cadence_runtime_event::{
+        record_captured_screen_image_to_paths, ScreenAiServiceCapturePaths,
+        ScreenAiServiceCaptureRecord,
     },
+    screen_ai_foreground_runtime::ScreenAiForegroundTickClock,
     screen_ai_foreground_runtime_config::{foreground_key, ScreenAiForegroundRuntimeConfig},
 };
 
@@ -65,6 +67,9 @@ fn screen_foreground_key_prefers_real_window_id_and_rejects_degraded_state() {
 #[test]
 fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() -> TestResult {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    if root.exists() {
+        fs::remove_dir_all(&root)?;
+    }
     let config = ScreenAiForegroundRuntimeConfig {
         screen_analysis_enabled: true,
         foreground_capture_enabled: true,
@@ -82,7 +87,7 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
     };
     let image = captured_test_image();
 
-    let queue_job_id = record_screen_ai_foreground_captured_image(
+    let queue_job_id = record_foreground_capture_for_test(
         &config,
         &image,
         foreground_clock(4, constants::activity_store::TEST_SECOND_OBSERVED_AT),
@@ -121,7 +126,7 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
         queue_entry
             .get(constants::field::SCREEN_QUEUE_JOB_ID)
             .and_then(serde_json::Value::as_str),
-        Some(queue_job_id.to_string().as_str())
+        Some(queue_job_id.as_str())
     );
     assert_eq!(
         queue_entry
@@ -168,6 +173,36 @@ fn screen_foreground_capture_writes_native_trigger_queue_and_read_model_event() 
     );
 
     Ok(())
+}
+
+fn record_foreground_capture_for_test(
+    config: &ScreenAiForegroundRuntimeConfig,
+    image: &CapturedScreenImage,
+    clock: ScreenAiForegroundTickClock,
+    sequence_index: u64,
+) -> Result<String, crate::activity_capture::ActivityCaptureError> {
+    record_captured_screen_image_to_paths(ScreenAiServiceCaptureRecord {
+        paths: ScreenAiServiceCapturePaths {
+            queue_dir: &config.queue_dir,
+            journal_path: &config.journal_path,
+            journal_key_path: &config.journal_key_path,
+            store_path: &config.store_path,
+        },
+        image,
+        clock,
+        sequence_index,
+        capture_reason: constants::activity_capture::SCREEN_TRIGGER_NATIVE_APP_FOREGROUND_START,
+        source_id: SCREEN_SERVICE_FOREGROUND_SOURCE_ID,
+        queue_job_id_prefix: SCREEN_SERVICE_FOREGROUND_QUEUE_JOB_ID_PREFIX,
+        result_id_prefix: SCREEN_SERVICE_FOREGROUND_RESULT_ID_PREFIX,
+        event_id_prefix: SCREEN_SERVICE_FOREGROUND_EVENT_ID_PREFIX,
+        evidence_id_prefix: SCREEN_SERVICE_FOREGROUND_EVIDENCE_ID_PREFIX,
+        summary: SCREEN_SERVICE_FOREGROUND_SUMMARY_CAPTURED,
+        model_id: SCREEN_SERVICE_FOREGROUND_MODEL_ID,
+        template_version: SCREEN_SERVICE_FOREGROUND_TEMPLATE_VERSION,
+        temporary_image_ttl_seconds: config.temporary_image_ttl_seconds,
+    })
+    .map(|queue_job_id| queue_job_id.0)
 }
 
 fn foreground_clock(

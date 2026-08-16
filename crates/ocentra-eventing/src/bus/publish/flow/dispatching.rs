@@ -1,48 +1,59 @@
 use std::sync::Arc;
 
 use crate::bus::dispatch::{dispatch_concurrent, dispatch_sequential};
+use crate::bus::publish::flow::{
+    receipt::validate_before_dispatch_receipt, BeforeDispatchReceiptValidator,
+};
 use crate::bus::publisher::EventPublisher;
 use crate::bus::reports::dead_letter::{DeadLetter, DeadLetterReason};
-use crate::bus::reports::{dead_letters_for, empty_publish_report};
+use crate::bus::reports::empty_publish_report;
 use crate::bus::{DispatchMode, EventBus, SubscriberRecord};
+use crate::journal::policy::JournalDispatchPhase;
 use crate::queue::state::NoSubscriberQueueDecision;
-use crate::{
-    EventingError, ExpectValue, JournalDispatchPhase, PublishReport, QueueDisposition,
-    StoredEventEnvelope,
-};
+use crate::{EventingError, ExpectValue, PublishReport, QueueDisposition, StoredEventEnvelope};
+
+use super::queued;
 
 pub(super) async fn publish_without_subscribers(
     bus: &EventBus,
     stored: StoredEventEnvelope,
     dispatch_mode: DispatchMode,
+    validator: Option<BeforeDispatchReceiptValidator>,
 ) -> Result<PublishReport, EventingError> {
     match bus
         .queue
         .enqueue_no_subscriber(stored.clone(), bus.clock.now())?
     {
-        NoSubscriberQueueDecision::Dispatch(queue_report)
-        | NoSubscriberQueueDecision::Queued(queue_report) => {
+        NoSubscriberQueueDecision::Dispatch(queue_report) => {
+            let reservation = bus.queue.reserve_dispatch(&stored)?;
             bus.record_stored_snapshot(&stored).await;
-            Ok(empty_publish_report(
-                &stored,
-                dispatch_mode,
-                queue_report,
-                0,
-            ))
+            let mut report = empty_publish_report(&stored, dispatch_mode, queue_report, 0);
+            let append = bus
+                .append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
+                .await?;
+            validate_before_dispatch_receipt(validator, append.as_ref())?;
+            if let Some(append) = append {
+                report.journal_appends.push(append);
+            }
+            // No handler observed this event. An AfterDispatch record authorizes
+            // action replay, so it must only exist after an actual dispatch.
+            reservation.complete();
+            Ok(report)
+        }
+        NoSubscriberQueueDecision::Queued(queue_report) => {
+            queued::publish_queued(bus, stored, dispatch_mode, queue_report).await
         }
         NoSubscriberQueueDecision::QueuedWithDeadLetter(queue_report, dropped, reason, error) => {
-            let dropped = *dropped;
-            bus.record_stored_snapshot(&stored).await;
-            let dead_letter = DeadLetter::for_queue(&dropped, reason, error);
-            bus.queue
-                .mark_completed(&dropped.event_id, dropped.idempotency_key.clone());
-            bus.record_dead_letter(dead_letter).await;
-            Ok(empty_publish_report(
-                &stored,
+            queued::publish_with_dropped_dead_letter(
+                bus,
+                stored,
                 dispatch_mode,
                 queue_report,
-                1,
-            ))
+                dropped,
+                reason,
+                error,
+            )
+            .await
         }
         NoSubscriberQueueDecision::DeadLetter(queue_report, reason, error) => {
             bus.record_stored_snapshot(&stored).await;

@@ -1302,10 +1302,7 @@ pub struct ParentNetworkRuntimeEventValueSnapshot {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentNetworkEvidenceSummarySnapshot {
-    pub analyzer_alert_ref: Option<ParentContractReferenceId>,
-    pub detection_result_ref: Option<ParentContractReferenceId>,
     pub ai_audit_ref: Option<ParentContractReferenceId>,
-    pub risk_budget_ref: Option<ParentContractReferenceId>,
     pub policy_decision_ref: Option<ParentContractReferenceId>,
     pub network_evidence_grade: Option<String>,
     pub intervention_result_ref: Option<ParentContractReferenceId>,
@@ -1326,6 +1323,28 @@ pub struct ParentNetworkRuntimeEventChainStreamSnapshot {
     pub streamed_event_count: Option<u64>,
     pub events: Vec<ParentNetworkRuntimeEventResultSnapshot>,
     pub invalid_event_count: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewConfirmationContext {
+    pub request_id: Option<String>,
+    pub submission_key: Option<String>,
+    pub household_id: Option<String>,
+    pub child_profile_id: Option<String>,
+    pub device_id: Option<String>,
+    pub source_document_id: Option<String>,
+    pub policy_version: Option<u64>,
+    pub target_reference_id: Option<String>,
+    pub rule_id: Option<String>,
+    pub requested_at: Option<String>,
+    pub expires_at: Option<String>,
+    pub assistant_preview_id: Option<String>,
+    pub audit_reference_ids: Option<String>,
+    pub actor_id: Option<String>,
+    pub actor_role: Option<String>,
+    pub actor_state: Option<String>,
+    pub confirmation_audit_reference_id: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1376,6 +1395,7 @@ pub struct ParentPolicyPreviewReadModelSnapshot {
     pub network_policy_mapping_mode: Option<String>,
     pub network_adapter_action_authorized: Option<bool>,
     pub network_enforcement_command_authorized: Option<bool>,
+    pub confirmation_context: Option<ParentPolicyPreviewConfirmationContext>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1395,6 +1415,24 @@ pub struct ParentPolicyPreviewPanelCardSnapshot {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewActionSnapshot {
+    pub action: ParentUiActionKind,
+    pub label: String,
+    pub payload: Option<Value>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewAuthoringSnapshot {
+    pub target_value: String,
+    pub requested_action: String,
+    pub stage_action: ParentPolicyPreviewActionSnapshot,
+    pub confirm_action: Option<ParentPolicyPreviewActionSnapshot>,
+    pub cancel_action: ParentPolicyPreviewActionSnapshot,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ParentPolicyPreviewPanelSnapshot {
     pub title: String,
     pub body: String,
@@ -1403,6 +1441,7 @@ pub struct ParentPolicyPreviewPanelSnapshot {
     pub cards: Vec<ParentPolicyPreviewPanelCardSnapshot>,
     pub empty_message: String,
     pub product_claim: String,
+    pub authoring: Option<ParentPolicyPreviewAuthoringSnapshot>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -1605,7 +1644,14 @@ pub struct ParentRouteLiveActivitySnapshot {
     pub recent_summary: Option<Value>,
     pub ingest_status: Option<Value>,
     pub activity_screen_read_model: Option<Value>,
+    pub activity_app_use_read_model: Option<Value>,
+    pub activity_browser_read_model: Option<Value>,
+    pub activity_games_read_model: Option<Value>,
     pub screen_summary_panel: Option<ParentScreenSummaryPanelSnapshot>,
+    pub browser_inventory_event: Option<ParentRouteEventSnapshot>,
+    pub browser_inventory_read_model: Option<Value>,
+    pub browser_evidence_event: Option<ParentRouteEventSnapshot>,
+    pub browser_evidence_read_model: Option<Value>,
     pub browser_managed_event: Option<ParentRouteEventSnapshot>,
     pub browser_managed_status: Option<Value>,
     pub local_ai_runtime_status_event: Option<ParentRouteEventSnapshot>,
@@ -1687,7 +1733,10 @@ pub enum ParentUiActionKind {
     RefreshRoute,
     Reconnect,
     AgentCommandRequested,
+    PolicyPreviewAuthoringDraftStaged,
+    PolicyPreviewAuthoringDraftCancelled,
     PolicyRequestAssistantPreviewConfirmRequested,
+    PolicyRequestParentResolutionRequested,
     LanPairingBrowserDiscoveryScanRequested,
     NetworkFlowReadModelRefreshRequested,
     TrackingRetentionSettingsWriteRequested,

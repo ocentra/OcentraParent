@@ -1,9 +1,13 @@
+use ocentra_lan_core::network_inventory::passive_discovery::LanPassiveDiscoveryTriggerReason;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::policy_constants;
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandName, AgentEventName, AgentMessageTarget, AgentRoute,
 };
+
+#[path = "../support/test_invariants.rs"]
+mod test_invariants;
 
 #[macro_use]
 #[path = "../support/lan_root_harness.rs"]
@@ -13,6 +17,8 @@ declare_lan_root_harness!();
 mod lan_pairing_test_assertions;
 #[path = "../unit/lan_pairing_test_commands.rs"]
 mod lan_pairing_test_commands;
+#[path = "../unit/lan_pairing_test_multidevice_commands.rs"]
+mod lan_pairing_test_multidevice_commands;
 
 use crate::{
     app::lan_pairing::LanPairingRuntime,
@@ -25,8 +31,9 @@ use crate::{
     lan_pairing_test_commands::{
         command_for_target, health_command, health_command_for_target, intent_payload,
         intent_payload_for_kind, intent_payload_for_pairing, local_network_target, paired_runtime,
-        route_revoke_command, serialize_command, status_command,
+        serialize_command, status_command,
     },
+    lan_pairing_test_multidevice_commands::route_revoke_command,
 };
 
 #[path = "lan_pairing/controller_lease.rs"]
@@ -41,8 +48,121 @@ mod lan_ai_job_tests;
 mod lan_ai_provider_heartbeat_tests;
 #[path = "lan_pairing/lan_ai_route_metadata.rs"]
 mod lan_ai_route_metadata_tests;
+#[path = "lan_pairing_multidevice.rs"]
+mod lan_pairing_multidevice_tests;
 #[path = "lan_pairing/mdns_advertisement.rs"]
 mod mdns_advertisement_tests;
+#[path = "lan_pairing_runtime_state/passive_discovery.rs"]
+mod passive_discovery_runtime_tests;
+
+#[tokio::test]
+async fn lan_pairing_links_background_runtime_state_tasks() {
+    let runtime = paired_runtime().await;
+    crate::lan_pairing_runtime_state::mdns_advertisement::spawn_lan_mdns_advertisement_runtime(
+        runtime.clone(),
+    );
+    crate::lan_pairing_runtime_state::passive_discovery::spawn_lan_passive_discovery_runtime(
+        runtime.clone(),
+    );
+    tokio::task::yield_now().await;
+    let app_resumed_rows = runtime
+        .passive_discovery_history_snapshot()
+        .rows
+        .iter()
+        .filter(|row| row.trigger_reason == LanPassiveDiscoveryTriggerReason::AppResumed)
+        .count();
+    assert_eq!(app_resumed_rows, 1);
+}
+
+#[tokio::test]
+async fn lan_pairing_links_exact_clippy_helpers_to_behavioral_contracts() {
+    let epoch: String = crate::time::timestamp_from_epoch_seconds(0);
+    let after_epoch: String = crate::time::timestamp_after_epoch_seconds(0, 1);
+    assert_eq!(epoch, "1970-01-01T00:00:00.000Z");
+    assert_eq!(after_epoch, "1970-01-01T00:00:01.000Z");
+
+    let decoded: serde_json::Value =
+        test_invariants::require_json_decode(br#"{"status":"paired"}"#, "lan pairing helper JSON");
+    assert_eq!(decoded["status"], "paired");
+
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::LAN_PAIRING_ID.to_string(),
+        LogFieldValue::String(constants::lan_pairing::PAIRING_ID.to_string()),
+    );
+    assert_eq!(
+        test_invariants::require_log_string_field(
+            fields.get(constants::field::LAN_PAIRING_ID),
+            "lan pairing helper field",
+        ),
+        constants::lan_pairing::PAIRING_ID
+    );
+
+    let second_payload = lan_pairing_test_multidevice_commands::second_proof_payload();
+    assert_eq!(
+        second_payload.get(constants::field::LAN_PAIRING_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::SECOND_PAIRING_ID.to_string(),
+        ))
+    );
+    assert_eq!(
+        second_payload.get(constants::field::LAN_ROUTE_ID),
+        Some(&LogFieldValue::String(
+            constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK.to_string(),
+        ))
+    );
+
+    let runtime = paired_runtime().await;
+    let selected = runtime.selected_target();
+    assert_eq!(
+        crate::app::lan_pairing::route_trust_state(selected.as_ref()).0,
+        constants::value::LAN_PAIRING_PAIRED
+    );
+    assert_eq!(
+        crate::lan_pairing_status::route_trust_state_for_selected_target(selected.as_ref()).0,
+        constants::value::LAN_PAIRING_PAIRED
+    );
+}
+
+#[test]
+fn empty_lan_pairing_runtime_starts_unpaired_without_selected_or_revoked_devices() {
+    let runtime = LanPairingRuntime::empty();
+
+    assert_eq!(runtime.trusted_device_count(), 0);
+    assert!(runtime.trusted_device_ids().is_empty());
+    assert!(runtime.revoked_device_ids().is_empty());
+    assert_eq!(runtime.selected_target(), None);
+    assert!(!runtime.has_revoked_pairing());
+}
+
+#[tokio::test]
+async fn paired_lan_pairing_runtime_exposes_the_selected_child_route() {
+    let runtime = paired_runtime().await;
+
+    assert_eq!(runtime.trusted_device_count(), 1);
+    assert_eq!(
+        runtime.trusted_device_ids(),
+        vec![constants::lan_pairing::CHILD_DEVICE_ID.into()]
+    );
+    assert!(runtime.revoked_device_ids().is_empty());
+    assert!(!runtime.has_revoked_pairing());
+
+    let selected = runtime.selected_target();
+    assert_eq!(
+        selected.as_ref().map(|target| {
+            (
+                target.selected_child_device_id.as_str(),
+                target.route_id.as_str(),
+                target.trust_state,
+            )
+        }),
+        Some((
+            constants::lan_pairing::CHILD_DEVICE_ID,
+            constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
+            ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState::Paired,
+        ))
+    );
+}
 #[path = "lan_pairing/persistent_registry_restart.rs"]
 mod persistent_registry_restart_tests;
 #[path = "lan_pairing/selected_route_restart.rs"]

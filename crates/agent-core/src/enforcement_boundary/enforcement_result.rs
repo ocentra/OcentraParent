@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
 use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementAction, EnforcementAdapterResultCode, EnforcementCapabilityState, EnforcementResult,
-    EnforcementResultStatus, EnforcementRollbackState, EnforcementUnavailableReason,
+    EnforcementAction, EnforcementAdapterResultCode, EnforcementResult, EnforcementResultStatus,
+    EnforcementRollbackState, EnforcementUnavailableReason,
 };
 
 use super::enforcement_result_capability::capability_state_result;

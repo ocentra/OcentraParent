@@ -9,8 +9,8 @@ use ocentra_eventing::ids::{
 use ocentra_eventing::topology::EventTopologyFamilyVariant;
 
 use super::{
-    PolicyEvent, PolicyEventApplyOutcome, PolicyEventDeadLetterReason, PolicyEventKind,
-    PolicyEventReplayRecord, PolicyEventScope,
+    PolicyEvent, PolicyEventApplyOutcome, PolicyEventKind, PolicyEventReplayRecord,
+    PolicyEventScope,
 };
 
 pub(crate) fn policy_event_redacted_summary(event: &PolicyEvent) -> String {

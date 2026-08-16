@@ -45,9 +45,10 @@ fn schema_version_rejects_zero_and_preserves_nonzero_value() {
             .value(),
         3
     );
-    let error = serde_json::from_str::<SchemaVersion>("0")
-        .expect_err("schema version zero should be rejected");
-    assert!(error.is_data());
+    assert!(matches!(
+        serde_json::from_str::<SchemaVersion>("0"),
+        Err(error) if error.is_data()
+    ));
     assert_eq!(
         serde_json::from_str::<SchemaVersion>("3")
             .expect_value("schema version deserializes")

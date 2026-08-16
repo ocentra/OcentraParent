@@ -14,6 +14,8 @@
 
 # Data Custody Storage Plan Checklist Index
 
+> **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
+
 ## Fill rules
 
 - Leave a checkbox unchecked until proof exists.
@@ -132,17 +134,17 @@
 
 ## WP07 Rollout Proof And Route Gate
 
-- [x] WP01 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
-- [x] WP02 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
-- [x] WP03 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
-- [x] WP04 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
-- [x] WP05 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
-- [x] WP06 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
-- [x] WP08 proof root consumed or blocker recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
-- [x] Route/index sync proof written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/01-route-index-sync-proof.md`
-- [x] Privacy language review proof written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/02-privacy-language-review-proof.md`
-- [x] Manual-required gap register written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/03-manual-required-gap-register.md`
-- [x] Adjacent handoff proof written. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/04-adjacent-handoff-proof.md`
-- [x] Focused validation commands pass or blockers recorded. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/16-validation-commands.log`
-- [x] PLAN_STATE and WORKPACK_INDEX reflect actual state. Proof: `docs/plans/data-custody-storage-plan/PLAN_STATE.md`; `docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md`
-- [x] No PR_READY claim without required proof roots. Proof: `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/00-rollout-proof-pack.md`
+- [ ] WP01 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP02 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP03 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP04 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP05 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP06 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] WP08 proof root accepted by a clean-checkout aggregate gate. Blocker: historic `output/` evidence is ignored and absent.
+- [ ] Route/index aggregate proof published from a clean checkout.
+- [ ] Privacy language review published from a clean checkout.
+- [ ] Manual-required gap register published from a clean checkout.
+- [ ] Adjacent handoff proof published from a clean checkout.
+- [x] Focused retention lifecycle validation passes. Commands: `cargo test -p ocentra-storage-custody-core --test unit retention_delete_tombstone_store`; `cargo test -p ocentra-child-runtime --test unit_runtime_gate tombstone`. Durable proof pointer: [`docs/proof/data-custody-storage-plan/07-rollout-focused-validation.md`](../../proof/data-custody-storage-plan/07-rollout-focused-validation.md). Test owners: `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`; `crates/child-runtime/tests/unit/runtime_gate.rs`.
+- [x] PLAN_STATE and WORKPACK_INDEX reflect the limited lifecycle proof and aggregate blocker.
+- [x] No PR_READY claim is made without accepted aggregate proof roots.

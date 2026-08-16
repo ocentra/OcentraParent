@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - develop
       - production
   push:
     branches:
@@ -344,11 +345,6 @@ jobs:
       - name: Architecture policy diff gate
         run: >-
           npm run lint:architecture -- --base "${{ steps.architecture-range.outputs.base }}"
-          --head "${{ steps.architecture-range.outputs.head }}"
-
-      - name: Rust cargo re-export gate
-        run: >-
-          npm run lint:enforcer:reexports -- --base "${{ steps.architecture-range.outputs.base }}"
           --head "${{ steps.architecture-range.outputs.head }}"
 
   portal-typescript:

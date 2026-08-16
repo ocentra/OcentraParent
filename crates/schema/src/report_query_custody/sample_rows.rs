@@ -18,7 +18,7 @@ fn sample_report_query_custody_rows_primary(
 ) -> Vec<ReportQueryCustodyRow> {
     vec![
         sample_row(ReportQueryCustodySampleRowInput {
-            request: &request,
+            request,
             state: ReportQueryCustodyState::DerivedFresh,
             source_freshness: ReportQueryCustodySourceFreshness::Fresh,
             source_data_class: ReportQueryCustodySourceDataClass::SqliteQueryRow,
@@ -34,7 +34,7 @@ fn sample_report_query_custody_rows_primary(
             tombstone_state: ReportQueryCustodyTombstoneState::NotRequired,
         }),
         sample_row(ReportQueryCustodySampleRowInput {
-            request: &request,
+            request,
             state: ReportQueryCustodyState::DerivedStale,
             source_freshness: ReportQueryCustodySourceFreshness::Stale,
             source_data_class: ReportQueryCustodySourceDataClass::GeneratedSummary,
@@ -50,7 +50,7 @@ fn sample_report_query_custody_rows_primary(
             tombstone_state: ReportQueryCustodyTombstoneState::NotRequired,
         }),
         sample_row(ReportQueryCustodySampleRowInput {
-            request: &request,
+            request,
             state: ReportQueryCustodyState::PartiallyRedacted,
             source_freshness: ReportQueryCustodySourceFreshness::Stale,
             source_data_class: ReportQueryCustodySourceDataClass::NotificationHistory,
@@ -66,7 +66,7 @@ fn sample_report_query_custody_rows_primary(
             tombstone_state: ReportQueryCustodyTombstoneState::NotRequired,
         }),
         sample_row(ReportQueryCustodySampleRowInput {
-            request: &request,
+            request,
             state: ReportQueryCustodyState::DeletedSource,
             source_freshness: ReportQueryCustodySourceFreshness::Deleted,
             source_data_class: ReportQueryCustodySourceDataClass::AuditEvent,
@@ -89,7 +89,7 @@ fn sample_report_query_custody_rows_secondary(
 ) -> Vec<ReportQueryCustodyRow> {
     vec![
         sample_row(ReportQueryCustodySampleRowInput {
-            request: &request,
+            request,
             state: ReportQueryCustodyState::SyncConflict,
             source_freshness: ReportQueryCustodySourceFreshness::Conflicted,
             source_data_class: ReportQueryCustodySourceDataClass::SqliteQueryRow,
@@ -105,7 +105,7 @@ fn sample_report_query_custody_rows_secondary(
             tombstone_state: ReportQueryCustodyTombstoneState::NotRequired,
         }),
         sample_row(ReportQueryCustodySampleRowInput {
-            request: &request,
+            request,
             state: ReportQueryCustodyState::CursorExpired,
             source_freshness: ReportQueryCustodySourceFreshness::Expired,
             source_data_class: ReportQueryCustodySourceDataClass::GeneratedSummary,
@@ -119,7 +119,7 @@ fn sample_report_query_custody_rows_secondary(
             tombstone_state: ReportQueryCustodyTombstoneState::NotRequired,
         }),
         sample_row(ReportQueryCustodySampleRowInput {
-            request: &request,
+            request,
             state: ReportQueryCustodyState::RateLimited,
             source_freshness: ReportQueryCustodySourceFreshness::RateLimited,
             source_data_class: ReportQueryCustodySourceDataClass::NotificationHistory,
@@ -246,12 +246,12 @@ pub(super) fn report_query_custody_known_gaps() -> [&'static str; 5] {
 
 pub(super) fn required_report_query_custody_non_claims() -> Vec<ReportQueryCustodyNonClaim> {
     vec![
-        ReportQueryCustodyNonClaim::NoSecondTruthStore,
-        ReportQueryCustodyNonClaim::NoPortalUi,
-        ReportQueryCustodyNonClaim::NoRawChildEvidence,
-        ReportQueryCustodyNonClaim::NoUnboundedPagination,
-        ReportQueryCustodyNonClaim::NoProviderRouting,
-        ReportQueryCustodyNonClaim::NoOcentraHostedFamilyDataCustody,
+        ReportQueryCustodyNonClaim::SecondTruthStore,
+        ReportQueryCustodyNonClaim::PortalUi,
+        ReportQueryCustodyNonClaim::RawChildEvidence,
+        ReportQueryCustodyNonClaim::UnboundedPagination,
+        ReportQueryCustodyNonClaim::ProviderRouting,
+        ReportQueryCustodyNonClaim::OcentraHostedFamilyDataCustody,
     ]
 }
 

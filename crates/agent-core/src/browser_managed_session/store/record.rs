@@ -1,9 +1,7 @@
 use ocentra_parent_agent_protocol::browser::{
     BrowserCustodyLabel, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
-use ocentra_parent_agent_protocol::browser_managed::{
-    BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
-};
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
 use ocentra_parent_agent_protocol::constants;
 
 use super::super::{
@@ -41,8 +39,8 @@ pub(crate) fn profile_store_record(
             profile_root_ref: constants::browser::PROFILE_ROOT_REF_MANAGED.to_string(),
             profile_scope_id: config.profile_scope_id.clone(),
             device_id: config.device_id.clone(),
-            browser_family: config.browser_family.clone(),
-            browser_channel: config.browser_channel.clone(),
+            browser_family: config.browser_family,
+            browser_channel: config.browser_channel,
             lifecycle_state: input.lifecycle_state,
             custody_label: BrowserCustodyLabel::ChildDeviceLocal,
             policy_revision: config.policy_revision.clone(),

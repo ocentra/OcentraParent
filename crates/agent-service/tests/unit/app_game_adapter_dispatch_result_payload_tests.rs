@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
     AppGameAdapterDispatchResultRow, APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_BLOCKED,
     APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING,
@@ -19,12 +16,11 @@ use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
 use ocentra_parent_agent_protocol::constants::{self, v08_supported_adapter_runtime_proof};
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
-use crate::test_invariants::{require_ok, require_some};
+use crate::test_invariants::require_some;
 
-use super::app_game_adapter_dispatch_result_fields::required_string;
 use super::app_game_adapter_dispatch_result_payload::{
-    app_game_adapter_dispatch_result_read_model, AppGameAdapterDispatchExecutionEvidence,
-    DispatchExecutionStatusText, StaticText,
+    app_game_adapter_dispatch_execution_evidence, app_game_adapter_dispatch_result_read_model,
+    AppGameAdapterDispatchExecutionEvidence, DispatchExecutionStatusText,
 };
 use super::app_game_adapter_execution_readiness_payload::GeneratedAtText;
 
@@ -81,9 +77,17 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
         constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
         LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
     );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::SOURCE_READ_MODEL_ID.to_string(),
+        LogFieldValue::String(APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID.to_string()),
+    );
 
-    let evidence = require_ok(
-        enforcement_audit_evidence(&payload),
+    let evidence = require_some(
+        app_game_adapter_dispatch_execution_evidence(&payload),
         constants::error::AGENT_EVENT_SERIALIZES,
     );
 
@@ -99,6 +103,80 @@ fn app_game_adapter_dispatch_result_parses_enforcement_audit_payload_evidence() 
     assert_eq!(
         evidence.audit_event_id,
         constants::enforcement::TEST_AUDIT_EVENT_ID
+    );
+}
+
+#[test]
+fn app_game_adapter_dispatch_result_rejects_unowned_execution_audit_evidence() {
+    let mut payload = LogFields::new();
+    payload.insert(
+        constants::field::ENFORCEMENT_RESULT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_RESULT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_STATUS.to_string(),
+        LogFieldValue::String(constants::enforcement::RESULT_ACTUALLY_ENFORCED.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE.to_string(),
+        LogFieldValue::String(constants::enforcement::ADAPTER_PROCESS_ALREADY_EXITED.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::SOURCE_READ_MODEL_ID.to_string(),
+        LogFieldValue::String("timer-enforcement-read-model".to_string()),
+    );
+
+    assert!(app_game_adapter_dispatch_execution_evidence(&payload).is_none());
+}
+
+#[test]
+fn app_game_adapter_dispatch_result_keeps_typed_executed_failure_evidence() {
+    let mut payload = LogFields::new();
+    payload.insert(
+        constants::field::ENFORCEMENT_RESULT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_RESULT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_STATUS.to_string(),
+        LogFieldValue::String(constants::enforcement::RESULT_FAILED.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE.to_string(),
+        LogFieldValue::String(constants::enforcement::ADAPTER_FAILED.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::ENFORCEMENT_AUDIT_EVENT.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_AUDIT_EVENT_ID.to_string()),
+    );
+    payload.insert(
+        constants::field::SOURCE_READ_MODEL_ID.to_string(),
+        LogFieldValue::String(APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID.to_string()),
+    );
+
+    let evidence = require_some(
+        app_game_adapter_dispatch_execution_evidence(&payload),
+        constants::error::AGENT_EVENT_SERIALIZES,
+    );
+
+    assert_eq!(
+        evidence.status_text.0,
+        constants::enforcement::RESULT_FAILED
+    );
+    assert_eq!(
+        evidence.adapter_result_code,
+        constants::enforcement::ADAPTER_FAILED
     );
 }
 
@@ -158,25 +236,6 @@ fn app_game_adapter_dispatch_result_read_model_with_execution(
     execution_evidence: Option<&AppGameAdapterDispatchExecutionEvidence>,
 ) -> ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel{
     app_game_adapter_dispatch_result_read_model(generated_at, execution_evidence)
-}
-
-fn enforcement_audit_evidence(
-    payload: &LogFields,
-) -> Result<AppGameAdapterDispatchExecutionEvidence, StaticText> {
-    Ok(AppGameAdapterDispatchExecutionEvidence {
-        result_id: required_string(payload, StaticText(constants::field::ENFORCEMENT_RESULT_ID))?.0,
-        status_text: required_string(payload, StaticText(constants::field::ENFORCEMENT_STATUS))?,
-        adapter_result_code: required_string(
-            payload,
-            StaticText(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-        )?
-        .0,
-        audit_event_id: required_string(
-            payload,
-            StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
-        )?
-        .0,
-    })
 }
 
 fn assert_scoped_accepted_row(rows: &[AppGameAdapterDispatchResultRow]) {

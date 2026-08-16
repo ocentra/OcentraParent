@@ -1,5 +1,7 @@
 import { expect, type Page } from '@playwright/test';
 
+const lanDiscoveryReadyTimeoutMs = 90_000;
+
 export async function assertLanRouteSurface(page: Page): Promise<void> {
   const surface = page.locator('svg.parent-portal-svg-surface');
   const viewport = page.viewportSize();
@@ -17,13 +19,7 @@ export async function assertLanRouteSurface(page: Page): Promise<void> {
     await expect(surface.locator('text').filter({ hasText: 'Info' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'Update' }).first()).toBeVisible();
     await expect(surface.locator('text').filter({ hasText: 'Capability' }).first()).toBeVisible();
-
-    await expect(
-      surface
-        .locator('text')
-        .filter({ hasText: /Device: (?!No device selected).+/ })
-        .first()
-    ).toBeVisible({ timeout: 30_000 });
+    await selectFreshServiceBackedLanDevice(page, surface);
 
     await closeParentPortalDetailIfOpen(page);
     const capabilityTab = page.getByRole('tab', { name: 'Show LAN pairing Capability' });
@@ -51,6 +47,25 @@ export async function assertLanRouteSurface(page: Page): Promise<void> {
       await page.setViewportSize(viewport);
     }
   }
+}
+
+async function selectFreshServiceBackedLanDevice(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {
+  const lanScopeChoice = surface.getByRole('button', { exact: true, name: 'Select LAN Devices' });
+  await expect(lanScopeChoice).toBeVisible({ timeout: 30_000 });
+  await lanScopeChoice.click({ force: true });
+
+  const deviceChoice = surface.getByRole('button', { name: /^Select (?!LAN |Parent Portal$|Portal$).+/ }).first();
+  await expect(deviceChoice).toBeVisible({ timeout: lanDiscoveryReadyTimeoutMs });
+  const deviceLabel = ((await deviceChoice.getAttribute('aria-label')) ?? '').replace(/^Select /, '');
+  await deviceChoice.click({ force: true });
+  await expect(
+    surface
+      .locator('text')
+      .filter({ hasText: `Device: ${deviceLabel}` })
+      .first()
+  ).toBeVisible({
+    timeout: 30_000,
+  });
 }
 
 async function assertOptionalLanNeighborRouteProof(page: Page, surface: ReturnType<Page['locator']>): Promise<void> {

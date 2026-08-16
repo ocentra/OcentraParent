@@ -19,7 +19,11 @@
 output/eventing-plan-proof/<workpack-file-stem>/
 ```
 
-`docs/proof/eventing-plan/` is accepted only for the current WP12 route-proof manifest bundle. New implementation/workpack proof should use `output/eventing-plan-proof/<workpack-file-stem>/` unless preserving a historical route pointer.
+`docs/proof/eventing-plan/` holds the current WP12 route-proof manifest bundle
+and the hand-authored WP06 durable proof manifest. New raw/generated
+implementation output remains under `output/eventing-plan-proof/<workpack-file-stem>/`
+and stays ignored unless a route explicitly selects a hand-authored durable
+manifest.
 
 ## Common commands
 
@@ -113,6 +117,17 @@ output/eventing-plan-proof/67-lock-await/
 output/eventing-plan-proof/68-fixture-parity/
 ```
 
+## WP06 journal and enforcement handoff durable manifest
+
+WP06's durable hand-authored manifest is retained as
+`docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md`,
+`wp06-01-journal-replay-proof.md`, `wp06-02-topology-lineage-proof.md`, and
+`wp06-16-validation-commands.md`. The first artifact records the typed generic
+journal/replay/idempotency handoff consumed by enforcement WP11; the next two
+prove the journal and topology/lineage slice. Raw/generated output remains
+ignored. This releases only the generic Eventing prerequisite: WP10 remains
+open and WP11 still owns enforcement-specific durable journal proof.
+
 ## Required states
 
 ```text
@@ -130,6 +145,7 @@ proof-root presence
 WP12 rollout-proof route restored without PR_READY claims
 WP13 source-side test scaffold cleanup locally proved
 WP11 scoped proof roots restored locally, package-wide agent-protocol-domain type-check passes again, and focused policy-control plus contracts validation is green
+WP06 generic journal/topology proof and `00-enforcement-wp11-handoff.md` are retained in the tracked durable manifest; WP10 and enforcement-specific WP11 proof remain open
 WP10 remains open until its proof roots and blocking validation exist
 ```
 

@@ -63,10 +63,10 @@ fn passive_discovery_records_app_resumed_trigger() {
 #[test]
 fn passive_discovery_records_heartbeat_loss_once_until_recovery() {
     let runtime = LanPairingRuntime::empty();
-    let mut listener_state = runtime
-        .passive_discovery_listener_state
-        .lock()
-        .expect("passive discovery state lock remains available");
+    let mut listener_state = require_ok(
+        runtime.passive_discovery_listener_state.lock(),
+        "passive discovery state lock remains available",
+    );
     let mut observed_state = LanPassiveDiscoveryRuntimeObservedState::default();
 
     set_heartbeat_state(
@@ -182,10 +182,10 @@ fn local_network_identity_change_emits_wifi_ssid_rescan_trigger_on_same_interfac
 #[test]
 fn passive_runtime_records_local_network_change_triggers_once_snapshot_exists() {
     let runtime = LanPairingRuntime::empty();
-    let mut listener_state = runtime
-        .passive_discovery_listener_state
-        .lock()
-        .expect("passive discovery state lock remains available");
+    let mut listener_state = require_ok(
+        runtime.passive_discovery_listener_state.lock(),
+        "passive discovery state lock remains available",
+    );
     let mut observed_state = LanPassiveDiscoveryRuntimeObservedState::default();
 
     runtime.record_local_network_change_triggers_if_needed(
@@ -222,11 +222,11 @@ fn passive_runtime_records_local_network_change_triggers_once_snapshot_exists() 
 #[test]
 fn stopped_passive_listener_halts_runtime_collection_without_recording_rows() {
     let runtime = LanPairingRuntime::empty();
-    runtime
-        .passive_discovery_listener_state
-        .lock()
-        .expect("passive discovery state lock remains available")
-        .stop();
+    require_ok(
+        runtime.passive_discovery_listener_state.lock(),
+        "passive discovery state lock remains available",
+    )
+    .stop();
     let mut observed_state = LanPassiveDiscoveryRuntimeObservedState::default();
 
     assert!(!runtime.collect_passive_discovery_runtime_slice(&mut observed_state));
@@ -281,11 +281,11 @@ fn passive_runtime_records_allowed_snmp_probe_responses_into_history() {
 #[test]
 fn stopped_passive_runtime_ignores_allowed_snmp_probe_responses() {
     let runtime = LanPairingRuntime::empty();
-    runtime
-        .passive_discovery_listener_state
-        .lock()
-        .expect("passive discovery state lock remains available")
-        .stop();
+    require_ok(
+        runtime.passive_discovery_listener_state.lock(),
+        "passive discovery state lock remains available",
+    )
+    .stop();
     let receiver = require_ok(UdpSocket::bind((Ipv4Addr::LOCALHOST, 0)), "bind receiver");
     require_ok(
         receiver.set_read_timeout(Some(std::time::Duration::from_millis(250))),
@@ -316,10 +316,10 @@ fn set_heartbeat_state(
     reachability: LanPairingDeviceReachability,
 ) {
     let observed_at = observed_at.into();
-    *runtime
-        .lan_ai_provider_heartbeat
-        .lock()
-        .expect("heartbeat state lock remains available") = Some(LanAiProviderHeartbeatState {
+    *require_ok(
+        runtime.lan_ai_provider_heartbeat.lock(),
+        "heartbeat state lock remains available",
+    ) = Some(LanAiProviderHeartbeatState {
         observed_at,
         reachability,
     });

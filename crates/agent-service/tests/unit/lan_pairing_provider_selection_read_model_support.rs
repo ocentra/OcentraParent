@@ -1,5 +1,5 @@
 #[cfg(test)]
-use crate::app::{lan_pairing::LanPairingRuntime, time::timestamp_now};
+use crate::app::{lan_pairing::LanPairingRuntime, time::TIMESTAMP_NOW};
 use ocentra_parent_agent_protocol::constants;
 #[cfg(test)]
 use ocentra_parent_agent_protocol::lan_pairing::{
@@ -55,7 +55,7 @@ pub(crate) fn provider_selection_read_model(
 
     LanProviderSelectionReadModel {
         schema_version: constants::lan_pairing::SCHEMA_VERSION,
-        checked_at: timestamp_now(),
+        checked_at: TIMESTAMP_NOW(),
         selected_provider_route_id: selected_provider_route_id(selected.as_ref(), &routing_state),
         authorized_provider_selection_state: LanProviderSelectionProofState::CiMechanicalProof,
         physical_household_provider_proof_state: LanProviderSelectionProofState::ManualRequired,

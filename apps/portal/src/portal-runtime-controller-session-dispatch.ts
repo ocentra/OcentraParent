@@ -35,11 +35,14 @@ export function createPortalRuntimeDispatchHostAction(
         [DevLogField.ConnectionState]: deps.state.connectionState,
       });
       const result = await deps.bridge.dispatch(actionWithContext);
+      if (action.route !== deps.getRoute()) {
+        return result;
+      }
       deps.state.connectionState = result.connectionState;
       deps.state.commandEnabled = result.connectionState === ParentBridgeConnectionState.Connected;
       deps.state.lastHostMessage = result.message;
       applyParentRouteEvents(deps.state, result.events);
-      if (result.snapshot !== null) {
+      if (result.snapshot?.route === action.route) {
         applyParentRouteSnapshot(deps.state, result.snapshot);
         deps.state.lastHostMessage = result.message;
       }

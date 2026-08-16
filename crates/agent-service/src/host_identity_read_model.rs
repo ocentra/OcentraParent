@@ -16,12 +16,14 @@ use ocentra_parent_agent_protocol::policy_constants as policy;
 pub(crate) struct GeneratedAtText(pub(crate) String);
 
 pub(crate) fn host_identity_read_model(generated_at: GeneratedAtText) -> HostIdentityReadModel {
+    let entries = host_identity_entries(&generated_at);
+    let generated_at = generated_at.0;
     HostIdentityReadModel {
         schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: host_identity::READ_MODEL_ID_V0_8.to_string(),
-        generated_at: generated_at.0.clone(),
+        generated_at,
         platform: ParentPlatform::Windows,
-        entries: host_identity_entries(&generated_at),
+        entries,
     }
 }
 
@@ -212,16 +214,6 @@ fn fallback_and_custody_entries(generated_at: &GeneratedAtText) -> Vec<HostIdent
     ]
 }
 
-struct HostIdentityEntrySpecInput {
-    read_model_entry_id: &'static str,
-    evidence_kind: HostIdentityEvidenceKind,
-    evidence_class: HostIdentityEvidenceClass,
-    host_evidence_requirement: &'static str,
-    required_evidence_artifacts: &'static [&'static str],
-    acceptance_signals: &'static [&'static str],
-    fallback_behavior: &'static str,
-}
-
 struct HostIdentityEntrySpec {
     read_model_entry_id: &'static str,
     evidence_kind: HostIdentityEvidenceKind,
@@ -237,18 +229,6 @@ struct HostIdentityReadinessSpec {
     readiness_state: EnforcementReadinessState,
     proof_level: EnforcementReadinessProofLevel,
     runtime_owner: EnforcementReadinessRuntimeOwner,
-}
-
-fn entry_spec(spec: HostIdentityEntrySpecInput) -> HostIdentityEntrySpec {
-    HostIdentityEntrySpec {
-        read_model_entry_id: spec.read_model_entry_id,
-        evidence_kind: spec.evidence_kind,
-        evidence_class: spec.evidence_class,
-        host_evidence_requirement: spec.host_evidence_requirement,
-        required_evidence_artifacts: spec.required_evidence_artifacts,
-        acceptance_signals: spec.acceptance_signals,
-        fallback_behavior: spec.fallback_behavior,
-    }
 }
 
 fn host_identity_entry(

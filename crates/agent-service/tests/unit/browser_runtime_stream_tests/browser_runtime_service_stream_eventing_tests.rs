@@ -19,7 +19,14 @@ async fn service_browser_runtime_stream_uses_named_event_request_boundary() -> s
 
     assert_eq!(evented_report, direct_report);
     assert_eq!(evented_report.action_intent_handoff_candidates, 1);
-    assert_eq!(evented_report.action_intent_child_accepted_rows, 1);
+    assert_eq!(evented_report.action_intent_child_accepted_rows, 0);
+    assert!(evented_report.action_intent_child_command_refs.is_empty());
+    assert!(evented_report
+        .action_intent_child_accepted_event_refs
+        .is_empty());
+    assert!(evented_report
+        .action_intent_parent_read_model_refs
+        .is_empty());
     assert_eq!(evented_report.action_intent_dispatch_attempts, 0);
     assert_eq!(evented_report.action_intent_adapter_executions, 0);
     assert_eq!(

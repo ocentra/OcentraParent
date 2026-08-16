@@ -1,16 +1,9 @@
 mod artifacts;
-mod claims;
 mod policy;
 mod result;
 mod state;
 
 use super::*;
-
-pub(super) fn reject_unsupported_claims(
-    input: &NetworkActionResultInput,
-) -> Result<(), NetworkActionResultError> {
-    claims::reject_unsupported_claims(input)
-}
 
 pub(super) fn boundary_reasons(
     input: &NetworkActionResultInput,

@@ -1,50 +1,23 @@
 use std::sync::Arc;
 
-use tokio::{fs::OpenOptions, io::AsyncWriteExt};
+use crate::journal::{EventJournal, JournalAppendFuture};
+use crate::{EventingError, ExpectValue, JournalDispatchPhase, StoredEventEnvelope};
 
-use crate::journal::{hash_chain::hash_entry, EventJournal, JournalAppendFuture};
-use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
-
-use super::{
-    JournalAppend, JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
-};
+use super::NdjsonEventJournal;
 
 impl NdjsonEventJournal {
     async fn append_entry(
         &self,
         envelope: &StoredEventEnvelope,
         phase: JournalDispatchPhase,
-    ) -> Result<JournalAppend, EventingError> {
+    ) -> Result<crate::JournalAppend, EventingError> {
         let _append_permit = Arc::clone(&self.append_gate)
             .acquire_owned()
             .await
             .expect_value("journal append gate remains open");
-        self.recover_state().await?;
-        let append = {
-            let state = self.state.lock().expect_value("journal state lock");
-            let next_sequence = state.next_sequence.saturating_add(1);
-            let previous_hash = previous_hash(&self.options, &state);
-            let current_hash = current_hash(
-                &self.options,
-                next_sequence,
-                &previous_hash,
-                envelope,
-                phase,
-            )?;
-            JournalAppend {
-                sequence: next_sequence,
-                previous_hash,
-                current_hash,
-            }
-        };
-        self.write_entry(&append, envelope, phase).await?;
-        {
-            let mut state = self.state.lock().expect_value("journal state lock");
-            state.next_sequence = append.sequence;
-            state.previous_hash = append.current_hash.clone();
-            state.recovered = true;
-        }
-        Ok(append)
+        let _append_file_lock = self.acquire_append_file_lock().await?;
+        self.prepare_append_state().await?;
+        self.append_entry_with_gate(envelope, phase).await
     }
 }
 
@@ -62,30 +35,5 @@ impl EventJournal for NdjsonEventJournal {
         phase: JournalDispatchPhase,
     ) -> JournalAppendFuture<'a> {
         Box::pin(async move { self.append_entry(envelope, phase).await })
-    }
-}
-
-fn previous_hash(
-    options: &NdjsonJournalOptions,
-    state: &super::super::ndjson_state::NdjsonJournalState,
-) -> Option<JournalHash> {
-    match options.hash_chain {
-        JournalHashChain::Disabled => None,
-        JournalHashChain::Enabled => state.previous_hash.clone(),
-    }
-}
-
-fn current_hash(
-    options: &NdjsonJournalOptions,
-    sequence: u64,
-    previous_hash: &Option<JournalHash>,
-    envelope: &StoredEventEnvelope,
-    phase: JournalDispatchPhase,
-) -> Result<Option<JournalHash>, EventingError> {
-    match options.hash_chain {
-        JournalHashChain::Disabled => Ok(None),
-        JournalHashChain::Enabled => {
-            hash_entry(sequence, previous_hash.as_ref(), envelope, phase).map(Some)
-        }
     }
 }

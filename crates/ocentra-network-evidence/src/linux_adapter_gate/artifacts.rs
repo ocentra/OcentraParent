@@ -1,7 +1,5 @@
-use super::{
-    NetworkLinuxAdapterArtifactRefs, NetworkLinuxAdapterGateError,
-    NetworkLinuxAdapterRequiredArtifact,
-};
+use super::normalization::NetworkLinuxAdapterArtifactRefs;
+use super::{NetworkLinuxAdapterGateError, NetworkLinuxAdapterRequiredArtifact};
 
 pub(super) fn normalize_artifact_refs(
     input: &super::NetworkLinuxAdapterGateInput,

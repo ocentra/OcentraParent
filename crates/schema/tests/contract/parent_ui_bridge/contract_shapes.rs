@@ -4,11 +4,8 @@ use super::fixtures::{
 use crate::support::ValueOrUnreachable as _;
 use ocentra_schema::parent_ui_bridge::{
     ParentBridgeConnectionState, ParentChildDeviceId, ParentCommandResultDetailSnapshot,
-    ParentCommandResultProjectionSnapshot, ParentLanAddressRef,
-    ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot, ParentLanDeviceId,
-    ParentLanPairingDeviceRefSnapshot, ParentLanRouteId,
-    ParentLanServiceIdentityProbeEvidenceSnapshot, ParentPortalClipboardText,
-    ParentPortalDetailValue, ParentRouteContext, ParentRouteEventCorrelationId, ParentRouteEventId,
+    ParentCommandResultProjectionSnapshot, ParentPortalClipboardText, ParentPortalDetailValue,
+    ParentRouteContext, ParentRouteEventCorrelationId, ParentRouteEventId,
     ParentRouteEventSnapshot, ParentRouteId, ParentRouteLiveActivitySnapshot, ParentRoutePeerId,
     ParentRoutePeerRole, ParentRouteSnapshot, ParentSubscriptionEvent,
     ParentTrackingStatusProofArtifact, ParentUiAction, ParentUiActionKind, ParentUiActionResult,

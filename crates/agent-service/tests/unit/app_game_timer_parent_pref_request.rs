@@ -27,6 +27,131 @@ mod activity_api {
     pub(crate) struct ActivityEventId(pub(crate) &'static str);
     pub(crate) struct GeneratedAtText(pub(crate) String);
 }
+mod timer_state_fixture {
+    use ocentra_parent_agent_core::enforcement_boundary::EnforcementBoundaryOutcome;
+    use ocentra_parent_agent_protocol::activity::policy::{
+        ParentActorReference, ParentEvidenceReference, ParentEvidenceReferenceKind, PolicyAction,
+        PolicyTarget, PolicyTargetType,
+    };
+    use ocentra_parent_agent_protocol::constants;
+    use ocentra_parent_agent_protocol::enforcement::{
+        EnforcementAction, EnforcementAdapterKind, EnforcementAdapterResultCode,
+        EnforcementAuditEvent, EnforcementAuditEventKind, EnforcementCapabilityState,
+        EnforcementCapabilityStatus, EnforcementDependencyState, EnforcementMode,
+        EnforcementPermissionState, EnforcementResult, EnforcementResultStatus,
+        EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
+        ParentActionReference, ParentPlatform,
+    };
+    use ocentra_parent_agent_protocol::policy_constants;
+    use ocentra_parent_agent_protocol::ParentActorRole;
+
+    pub(crate) fn outcome() -> EnforcementBoundaryOutcome {
+        let actor = ParentActorReference {
+            actor_id: policy_constants::TEST_PARENT_ACTOR_ID.to_string(),
+            role: ParentActorRole::Parent,
+        };
+        let evidence = ParentEvidenceReference {
+            evidence_reference_id: policy_constants::TEST_EVIDENCE_ID.to_string(),
+            kind: ParentEvidenceReferenceKind::ActivityEvent,
+            observed_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        };
+        let capability = EnforcementCapabilityStatus {
+            schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+            platform: ParentPlatform::Windows,
+            adapter_kind: EnforcementAdapterKind::ProcessControl,
+            capability_state: EnforcementCapabilityState::Supported,
+            permission_state: EnforcementPermissionState::NotRequired,
+            dependency_state: EnforcementDependencyState::Installed,
+            supported_actions: vec![
+                EnforcementMode::TerminateProcess,
+                EnforcementMode::TemporaryBlock,
+            ],
+            degraded_reason: None,
+            last_checked_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        };
+        let parent_approval = ParentActionReference {
+            action_reference_id: constants::enforcement::TEST_PARENT_ACTION_REFERENCE_ID
+                .to_string(),
+            actor: actor.clone(),
+            policy_version: policy_constants::TEST_POLICY_VERSION.to_string(),
+            created_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+        };
+        let action = EnforcementAction {
+            schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+            action_id: constants::enforcement::TEST_ACTION_ID.to_string(),
+            intent_id: constants::enforcement::TEST_INTENT_ID.to_string(),
+            policy_decision_id: policy_constants::TEST_DECISION_ID.to_string(),
+            policy_action: PolicyAction::Block,
+            adapter_kind: EnforcementAdapterKind::ProcessControl,
+            platform: ParentPlatform::Windows,
+            target: PolicyTarget {
+                target_id: constants::enforcement::TEST_PROCESS_TARGET_ID.to_string(),
+                target_type: PolicyTargetType::Process,
+                target_value: constants::enforcement::TEST_PROCESS_TARGET_VALUE.to_string(),
+            },
+            mode: EnforcementMode::TerminateProcess,
+            capability: capability.clone(),
+            reason_codes: vec![policy_constants::TEST_REASON_PARENT_BLOCK.to_string()],
+            evidence_references: vec![evidence.clone()],
+            local_ai_result_id: None,
+            parent_approval: Some(parent_approval),
+            dry_run: false,
+            requested_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+            expires_at: Some(policy_constants::TEST_EXPIRES_AT.to_string()),
+            rollback_token: Some(constants::enforcement::TEST_ROLLBACK_TOKEN.to_string()),
+        };
+        let result = EnforcementResult {
+            schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+            result_id: constants::enforcement::TEST_RESULT_ID.to_string(),
+            action_id: action.action_id.clone(),
+            status: EnforcementResultStatus::ActuallyEnforced,
+            adapter_result_code: EnforcementAdapterResultCode::ProcessTerminated,
+            started_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+            completed_at: Some(policy_constants::TEST_EVALUATED_AT.to_string()),
+            rollback_token: action.rollback_token.clone(),
+            rollback_state: EnforcementRollbackState::Available,
+            unavailable_reason: None,
+            unavailable_status: None,
+            failed_reason: None,
+            next_check_at: None,
+            capability: capability.clone(),
+        };
+        EnforcementBoundaryOutcome {
+            action: action.clone(),
+            result: result.clone(),
+            audit_event: EnforcementAuditEvent {
+                schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                audit_event_id: constants::enforcement::TEST_AUDIT_EVENT_ID.to_string(),
+                audit_event_kind: EnforcementAuditEventKind::Succeeded,
+                action: action.clone(),
+                result,
+                capability,
+                unavailable_status: None,
+                policy_version: policy_constants::TEST_POLICY_VERSION.to_string(),
+                evidence_references: vec![evidence.clone()],
+                actor: Some(actor),
+                parent_override: action.parent_approval.clone(),
+                journal_sequence: Some(constants::enforcement::TEST_JOURNAL_SEQUENCE.to_string()),
+                observed_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+            },
+            timer_event: Some(EnforcementTimerEvent {
+                schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+                timer_event_id: constants::enforcement::TEST_TIMER_EVENT_ID.to_string(),
+                timer_event_kind: EnforcementTimerEventKind::RestartRecovered,
+                action_id: action.action_id,
+                policy_decision_id: policy_constants::TEST_DECISION_ID.to_string(),
+                evidence_references: vec![evidence],
+                scheduled_at: policy_constants::TEST_EVALUATED_AT.to_string(),
+                effective_at: Some(policy_constants::TEST_EXPIRES_AT.to_string()),
+                rollback_token: Some(constants::enforcement::TEST_ROLLBACK_TOKEN.to_string()),
+                recovered_after_restart: true,
+                unavailable_reason: None,
+            }),
+            adapter_request: None,
+        }
+    }
+}
+
 #[path = "../../src/activity_api/app_game_child_runtime_transport_receipt_payload.rs"]
 mod app_game_child_runtime_transport_receipt_payload;
 #[path = "../../src/activity_api/app_game_timer_parent_preference_setup_request.rs"]
@@ -44,6 +169,11 @@ mod clippy_linkage {
     use crate::test_invariants::{
         require_json_decode, require_log_string_field, require_ok, require_some,
         serialize_test_json,
+    };
+    use ocentra_parent_agent_protocol::activity::ActivityObserver;
+    use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
+    use ocentra_parent_agent_protocol::activity_query::{
+        ActivityIngestStatus, ActivityRecentSummary,
     };
     use ocentra_parent_agent_protocol::constants;
     use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -67,7 +197,10 @@ mod clippy_linkage {
                 .and_then(|value| value.as_bool()),
             "app_game_timer_parent_pref_request linkage bool",
         ));
-        let field = LogFieldValue::String(encoded);
+        let json_text = crate::json_contract::serialize_json_string(&serde_json::json!({
+            "app_game_pref_request": true
+        }));
+        let field = LogFieldValue::String(json_text.0);
         let text = require_log_string_field(
             Some(&field),
             "app_game_timer_parent_pref_request linkage field",
@@ -104,10 +237,6 @@ mod clippy_linkage {
                 command_envelope(),
             )
             .await;
-        let _ = app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records(
-            &store_path,
-        );
-
         assert_eq!(
             event.event,
             AgentEventName::AgentActivityAppGameTimerParentPreferenceSetupRequested
@@ -124,11 +253,74 @@ mod clippy_linkage {
         let _ = crate::activity_store_path::activity_journal_path();
         let _ = crate::activity_store_path::activity_journal_key_path();
         let _ = crate::event_builder::portal_peer();
-        let _ = crate::json_contract::serialize_json_value(serde_json::json!({
+        let value = crate::json_contract::serialize_json_value(serde_json::json!({
             "app_game_pref_request": true
         }));
-        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        assert_eq!(value["app_game_pref_request"], true);
+        let ingest = crate::activity_payload::ingest_status_payload(&ActivityIngestStatus {
+            schema_version: 1,
+            database_ready: true,
+            events_ingested: 1,
+            events_stored: 1,
+            duplicate_events: 0,
+            last_event_id: Some("event-1".to_string()),
+        });
+        assert_eq!(
+            ingest.get(constants::field::DATABASE_READY),
+            Some(&LogFieldValue::Boolean(true))
+        );
+        let recent = crate::activity_payload::recent_summary_payload(&ActivityRecentSummary {
+            schema_version: 1,
+            limit: 1,
+            returned: 1,
+            first_observed_at: Some("2026-06-29T00:00:00Z".to_string()),
+            last_observed_at: Some("2026-06-29T00:00:00Z".to_string()),
+            last_event_id: Some("event-1".to_string()),
+            most_recent_kind: None,
+            most_recent_observer: Some(ActivityObserver::AgentService),
+            most_recent_subject_kind: Some(ActivitySubjectKind::Device),
+            most_recent_subject_id: Some("device-1".to_string()),
+            most_recent_subject_name: Some("device".to_string()),
+        });
+        assert_eq!(
+            recent.get(constants::field::RETURNED),
+            Some(&LogFieldValue::Number(1.0))
+        );
+        assert_eq!(
+            crate::activity_payload::activity_store_error_payload().get(constants::field::REASON),
+            Some(&LogFieldValue::String(
+                constants::value::ACTIVITY_STORE_UNAVAILABLE.to_string()
+            ))
+        );
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 0);
         let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
+        let timer_state_path = crate::enforcement_timer_state_path::enforcement_timer_state_path();
+        if let Some(timer_state_dir) = timer_state_path.parent_dir() {
+            let _ = timer_state_dir.create_all();
+        }
+    }
+
+    #[tokio::test]
+    async fn enforcement_timer_state_helpers_are_linked() {
+        let timer_state_path = crate::enforcement_timer_state_path::enforcement_timer_state_path();
+        let outcome = crate::timer_state_fixture::outcome();
+        let stored = crate::enforcement_timer_state_file::store_active_timer_state_for_outcome_with_app_game_session(
+            &outcome,
+            &timer_state_path,
+            "2026-06-29T00:00:00Z",
+            None,
+        )
+        .await;
+        assert!(matches!(stored, Ok(Some(_))));
+        assert!(matches!(
+            crate::enforcement_timer_state_file::read_active_timer_state(&timer_state_path).await,
+            Ok(Some(_))
+        ));
+        assert!(
+            crate::enforcement_timer_state_file::remove_active_timer_state(&timer_state_path)
+                .await
+                .is_ok()
+        );
     }
 
     async fn link_activity_surface_store_helpers(store_path: &std::path::Path) {
@@ -180,10 +372,12 @@ mod clippy_linkage {
     }
 
     fn command_envelope() -> AgentCommandEnvelope {
+        let event_id = crate::activity_api::ActivityEventId("cmd-app-game-pref-linkage");
+        let generated_at = crate::activity_api::GeneratedAtText("2026-06-29T00:00:00Z".to_string());
         AgentCommandEnvelope {
             schema_version: AGENT_PROTOCOL_SCHEMA_VERSION,
-            message_id: "cmd-app-game-pref-linkage".to_string(),
-            sent_at: "2026-06-29T00:00:00Z".to_string(),
+            message_id: event_id.0.to_string(),
+            sent_at: generated_at.0,
             source: AgentPeer {
                 peer_id: constants::peer::PORTAL_DEV.to_string(),
                 role: AgentPeerRole::Portal,

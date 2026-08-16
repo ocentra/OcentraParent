@@ -42,7 +42,6 @@ export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedP
   if (!decision.confirmationRequired) {
     return false;
   }
-
   const check = parentStorageApplyDecisionChecksGenerated[decision.applyState];
   return check?.(decision) ?? true;
 }

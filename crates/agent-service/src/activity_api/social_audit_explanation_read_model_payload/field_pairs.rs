@@ -16,7 +16,7 @@ pub(super) fn social_audit_explanation_fields_from_pairs(
 }
 
 pub(super) fn field_pair(
-    key: SocialAuditExplanationFieldKey,
+    key: &SocialAuditExplanationFieldKey,
     value: LogFieldValue,
 ) -> SocialAuditExplanationFieldPair {
     SocialAuditExplanationFieldPair(key.0, value)

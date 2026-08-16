@@ -5,6 +5,7 @@ use super::{
     BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
     BrowserUnmanagedProcessKind, BROWSER_EVIDENCE_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn browser_managed_status_serializes_to_contract_shape() {
@@ -41,7 +42,8 @@ fn browser_managed_status_serializes_to_contract_shape() {
         query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
     };
 
-    let serialized = serde_json::to_value(status).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(status).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized[constants::field::MANAGED_STATE],
@@ -87,7 +89,8 @@ fn browser_managed_profile_store_entry_serializes_redacted_refs() {
         repair_reason: None,
     };
 
-    let serialized = serde_json::to_value(entry).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(entry).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized[constants::field::PROFILE_PATH_REF],
@@ -142,7 +145,8 @@ fn browser_managed_running_status_serializes_process_state() {
         query_visibility: BrowserQueryVisibilityLabel::LiveLocal,
     };
 
-    let serialized = serde_json::to_value(status).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(status).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized[constants::field::MANAGED_STATE],
@@ -199,7 +203,8 @@ fn browser_unmanaged_status_serializes_process_only_fields() {
         query_visibility: BrowserQueryVisibilityLabel::Unavailable,
     };
 
-    let serialized = serde_json::to_value(status).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(status).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized[constants::field::UNMANAGED_PROCESS_NAME],

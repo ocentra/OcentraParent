@@ -26,6 +26,9 @@ PROOF_INDEX.md
 TEST_PROOF_EXPECTATIONS.md
 CHECKLIST_INDEX.md
 output/account-identity-family-plan-proof/01-auth-provider-decision/
+output/account-identity-family-plan-proof/08-rust-schema-workers-d1-runtime-migration/
+output/cloudflare-control-plane-plan-proof/06-storage-do-d1-kv-r2-queue-bindings/
+output/cloudflare-control-plane-plan-proof/08-testing-runner-and-test-pyramid/
 output/account-identity-family-plan-proof/02-identity-household-role-model/
 output/account-identity-family-plan-proof/03-session-token-lifecycle/
 output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/
@@ -33,7 +36,7 @@ output/account-identity-family-plan-proof/05-device-ownership-authz/
 output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/
 ```
 
-If any prior proof root is missing, this workpack records a blocker and does not claim readiness.
+If any prior proof root is missing, this workpack records a blocker and does not claim readiness or release payment, policy, remote, or device-trust scheduling.
 
 ## Current owner/import/proof constraints
 
@@ -55,6 +58,9 @@ account/household role matrix proof
 session/token lifecycle proof
 invite/recovery lifecycle proof
 device ownership authZ proof
+WP08 Rust schema/account-authority proof
+Cloudflare WP06 D1/DO/KV binding, migration, and storage proof or exact blocker
+Cloudflare WP08 test-runner/integration proof or exact blocker
 setup UI proof or explicit UI blocker
 state-changing request safety proof or blocker
 logging/redaction proof
@@ -96,12 +102,14 @@ Required artifacts:
 06-route-sync-proof.md
 07-logging-redaction-proof.md
 08-manual-required-gap-register.md
+09-account-authority-cloudflare-storage-gate.md
 16-validation-commands.log
 ```
 
 ## Acceptance criteria
 
 - [ ] WP01 provider proof root exists or blocker recorded.
+- [ ] WP08 Rust schema/account-authority proof root exists or blocker recorded.
 - [ ] WP02 household/role proof root exists or blocker recorded.
 - [ ] WP03 session/token proof root exists or blocker recorded.
 - [ ] WP04 invite/recovery proof root exists or blocker recorded.
@@ -113,6 +121,7 @@ Required artifacts:
 - [ ] Recovery/invite misuse proof exists.
 - [ ] Origin/request safety proof exists or blocker recorded.
 - [ ] Logging redaction proof exists or blocker recorded.
+- [ ] Cloudflare WP06 storage proof and Cloudflare WP08 runner/proof are re-aggregated after their focused validation or each exact blocker is recorded; prior WP06 completion evidence is not reused as final-gate proof.
 - [ ] Route sync proof names all adjacent consumers.
 - [ ] Manual-required gap register exists.
 - [ ] Focused commands pass or blockers are recorded.
@@ -142,6 +151,7 @@ If policy/eventing lanes are active, do not route-sync those plan files directly
 - Support/admin cannot act as owner.
 - Child profile cannot authorize child device.
 - Login cannot authorize policy/payment/remote/export without role/device/freshness gates.
+- Account WP08 cannot substitute Cloudflare storage/runner proof, and Cloudflare cannot redefine the Rust authority contract, for final-gate input.
 
 ## Manual-required gaps
 
@@ -152,10 +162,10 @@ Any adjacent plan not yet updated must be listed in `08-manual-required-gap-regi
 ```text
 Workpack id and branch: WP06 Security Proof And Route Gate / codex/tracking-plan-full-continuation-a
 Current branch note: this historical completion record predates the plan-harness branch. On codex/plan-harness-update, treat it as prior proof evidence only; new edits must follow workpacks/00-owner-boundary-proof-gate.md, TEST_PROOF_EXPECTATIONS.md, and PROOF_INDEX.md.
-Current status: complete for the local proof-gate aggregation slice. `00-security-proof-pack.md`, `01-authn-negative-proof.md`, `02-authz-matrix-proof.md`, `03-token-replay-proof.md`, `04-recovery-abuse-proof.md`, `05-origin-csrf-open-redirect-proof.md`, `06-route-sync-proof.md`, `07-logging-redaction-proof.md`, `08-manual-required-gap-register.md`, and `16-validation-commands.log` now exist under `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/`.
-Prior proof roots consumed: `output/account-identity-family-plan-proof/01-auth-provider-decision/`; `output/account-identity-family-plan-proof/02-identity-household-role-model/`; `output/account-identity-family-plan-proof/03-session-token-lifecycle/`; `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/`; `output/account-identity-family-plan-proof/05-device-ownership-authz/`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/`.
+Current status: reopened / rerun required. The prior local aggregation pack remains historical evidence only. It cannot be final-gate proof until green WP08 Rust authority, Cloudflare WP06 storage, and Cloudflare WP08 runner/proof roots are consumed in `09-account-authority-cloudflare-storage-gate.md`. A precise blocker is retained for audit but keeps this gate and dependent scheduling blocked.
+Prior proof roots consumed: `output/account-identity-family-plan-proof/01-auth-provider-decision/`; `output/account-identity-family-plan-proof/02-identity-household-role-model/`; `output/account-identity-family-plan-proof/03-session-token-lifecycle/`; `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/`; `output/account-identity-family-plan-proof/05-device-ownership-authz/`; `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/`. WP08 is a required missing input, not a consumed root.
 Route-sync status: adjacent consumer boundaries for setup-install, Cloudflare, payment, policy, data custody, device trust, LAN, remote, and portal UX are now consumed from the account proof roots. WP07 is no longer blocked; the real setup-route proof root is part of this gate pack. Browser request-safety remains an explicit blocker because this slice still does not own a real browser request consumer.
 Validation commands and results: see `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`. This slice re-used prior focused command logs from WP01-WP05 and WP07, then ran docs/proof-slice verification only.
-Manual-required gaps: browser request-safety remains blocked until a later slice owns a real browser request consumer; account identity adapter/runtime implementation and D1/DO/KV schema proof remain open; Cloudflare worker/runtime proof, payment execution, policy execution, data-custody execution, device-trust bootstrap, LAN transport, remote transport, and broader portal UX/runtime remain owned by adjacent plans.
+Manual-required gaps: browser request-safety remains blocked until a later slice owns a real browser request consumer; green WP08 Rust schema/account-authority proof plus Cloudflare WP06 storage and Cloudflare WP08 runner/proof are required before this gate reruns; any missing input keeps dependent payment/policy/remote/device-trust scheduling blocked. Cloudflare worker/runtime proof, payment execution, policy execution, data-custody execution, device-trust bootstrap, LAN transport, remote transport, and broader portal UX/runtime remain owned by adjacent plans.
 No-claim boundaries: do not claim PR_READY; do not claim product-ready account/family flow; do not claim Cloudflare runtime, payment runtime, policy runtime, data-custody execution, device-trust bootstrap, LAN transport, or remote transport readiness from this WP06 closure.
 ```

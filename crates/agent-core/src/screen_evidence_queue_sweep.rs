@@ -1,13 +1,10 @@
-use std::{fs::OpenOptions, io::Write};
-
-use chrono::{DateTime, Utc};
-use ocentra_parent_agent_protocol::constants;
-
 use crate::JournalError;
+use sha2::{Digest, Sha256};
+use std::{collections::HashSet, io::Write, path::Path};
 
 use super::{
-    screen_evidence_queue_record, ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue,
-    ScreenEvidenceQueueSweep,
+    screen_evidence_queue_outbox, screen_evidence_queue_record, ScreenEvidenceExpiredQueueEntry,
+    ScreenEvidenceQueue, ScreenEvidenceQueueSweep,
 };
 
 pub(crate) fn remove_expired_entries(
@@ -15,22 +12,40 @@ pub(crate) fn remove_expired_entries(
     now: &str,
     deletion_proof_prefix: &str,
 ) -> Result<ScreenEvidenceQueueSweep, JournalError> {
-    let contents = match std::fs::read_to_string(&queue.path) {
-        Ok(contents) => contents,
-        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
-            return Ok(ScreenEvidenceQueueSweep {
-                expired_entries: Vec::new(),
-                retained_count: 0,
-            });
-        }
-        Err(error) => return Err(error.into()),
-    };
+    super::with_exclusive_queue_lock(queue, || {
+        remove_expired_entries_locked(queue, now, deletion_proof_prefix)
+    })
+}
+
+fn remove_expired_entries_locked(
+    queue: &ScreenEvidenceQueue,
+    now: &str,
+    deletion_proof_prefix: &str,
+) -> Result<ScreenEvidenceQueueSweep, JournalError> {
+    let contents = super::read_queue_contents(queue)?.unwrap_or_default();
+    let leases = super::screen_evidence_queue_leases::read_leases(queue)?;
     let mut retained = Vec::new();
-    let mut expired_entries = Vec::new();
-    for line in contents.lines().filter(|line| !line.trim().is_empty()) {
-        let record = screen_evidence_queue_record::decrypted_record_from_line(line)?;
-        if screen_evidence_queue_record::queue_record_expired(record.expires_at.as_deref(), now) {
-            expired_entries.push(ScreenEvidenceExpiredQueueEntry {
+    let mut newly_expired = Vec::new();
+    let mut queue_job_ids = HashSet::new();
+    let records = parse_queue_records(&contents);
+    quarantine_corrupt_queue_records(queue, &records.corrupt)?;
+    let has_corrupt_records = !records.corrupt.is_empty();
+    queue_job_ids.extend(
+        records
+            .valid
+            .iter()
+            .map(|(_, record)| record.queue_job_id.clone()),
+    );
+    let leases = prune_expired_or_orphaned_leases(queue, leases, &queue_job_ids, now)?;
+    for (line, record) in records.valid {
+        let actively_leased = leases.iter().any(|lease| {
+            lease.queue_job_id == record.queue_job_id
+                && screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
+        });
+        if !actively_leased
+            && screen_evidence_queue_record::queue_record_expired(record.expires_at.as_deref(), now)
+        {
+            newly_expired.push(ScreenEvidenceExpiredQueueEntry {
                 queue_job_id: record.queue_job_id.clone(),
                 image_digest: record.image_digest,
                 expires_at: record.expires_at.unwrap_or_default(),
@@ -43,17 +58,209 @@ pub(crate) fn remove_expired_entries(
             retained.push(line);
         }
     }
-    let mut file = OpenOptions::new()
-        .write(true)
-        .truncate(true)
-        .open(&queue.path)?;
-    for line in &retained {
-        file.write_all(line.as_bytes())?;
-        file.write_all(&[constants::byte::NEWLINE])?;
+    // The deletion outbox is the durable intent. It is synced before the queue
+    // is mutated, so a process crash or later publication failure cannot lose a
+    // deletion that still needs a terminal read-model/event projection.
+    let outbox = screen_evidence_queue_outbox::read_outbox(queue)?;
+    super::screen_evidence_queue_outbox_quarantine::quarantine_corrupt_outbox(queue, &outbox)?;
+    let failures = screen_evidence_queue_outbox::outbox_failures(&outbox.corrupt_lines);
+    let mut pending = outbox.entries;
+    let mut known = pending
+        .iter()
+        .map(|entry| entry.queue_job_id.clone())
+        .collect::<HashSet<_>>();
+    let has_newly_expired = !newly_expired.is_empty();
+    if has_newly_expired {
+        pending.extend(
+            newly_expired
+                .into_iter()
+                .filter(|entry| known.insert(entry.queue_job_id.clone())),
+        );
+        screen_evidence_queue_outbox::write_outbox_with_corrupt_lines(
+            queue,
+            &pending,
+            &outbox.corrupt_lines,
+        )?;
+        // The replacement directory entry is durable before any queue record
+        // can disappear.
+        super::sync_parent_directory(&screen_evidence_queue_outbox::outbox_path(queue))?;
     }
-    file.sync_data()?;
+    if has_newly_expired || has_corrupt_records {
+        super::replace_queue_lines(queue, &retained)?;
+    }
     Ok(ScreenEvidenceQueueSweep {
-        expired_entries,
+        expired_entries: pending,
         retained_count: retained.len() as u64,
+        outbox_failures: failures,
+    })
+}
+
+fn prune_expired_or_orphaned_leases(
+    queue: &ScreenEvidenceQueue,
+    leases: Vec<super::ScreenEvidenceQueueLease>,
+    queue_job_ids: &HashSet<String>,
+    now: &str,
+) -> Result<Vec<super::ScreenEvidenceQueueLease>, JournalError> {
+    let lease_count = leases.len();
+    let retained = leases
+        .into_iter()
+        .filter(|lease| {
+            queue_job_ids.contains(&lease.queue_job_id)
+                && screen_evidence_queue_record::timestamp_is_after(&lease.lease_expires_at, now)
+        })
+        .collect::<Vec<_>>();
+    if retained.len() != lease_count {
+        super::screen_evidence_queue_leases::write_leases(queue, &retained)?;
+    }
+    Ok(retained)
+}
+
+struct ParsedQueueRecords<'a> {
+    valid: Vec<(
+        &'a str,
+        screen_evidence_queue_record::EncryptedScreenEvidenceQueueRecord,
+    )>,
+    corrupt: Vec<(usize, &'a str)>,
+}
+
+fn parse_queue_records(contents: &str) -> ParsedQueueRecords<'_> {
+    contents
+        .lines()
+        .enumerate()
+        .filter(|(_, line)| !line.trim().is_empty())
+        .fold(
+            ParsedQueueRecords {
+                valid: Vec::new(),
+                corrupt: Vec::new(),
+            },
+            |mut parsed, (index, line)| {
+                screen_evidence_queue_record::decrypted_record_from_line(line)
+                    .map(|record| parsed.valid.push((line, record)))
+                    .unwrap_or_else(|_| parsed.corrupt.push((index + 1, line)));
+                parsed
+            },
+        )
+}
+
+fn quarantine_corrupt_queue_records(
+    queue: &ScreenEvidenceQueue,
+    corrupt: &[(usize, &str)],
+) -> Result<(), JournalError> {
+    corrupt.is_empty().then_some(()).map_or_else(
+        || {
+            let path = queue.path().with_extension("queue-quarantine");
+            let existing_record_digests = existing_quarantine_record_digests(&path);
+            let mut quarantine = std::fs::OpenOptions::new()
+                .create(true)
+                .append(true)
+                .open(&path)?;
+            corrupt
+                .iter()
+                .map(|(line_number, raw_record)| {
+                    (*line_number, malformed_record_digest(raw_record))
+                })
+                .filter(|(_, digest)| !existing_record_digests.contains(digest))
+                .try_for_each(|(line_number, digest)| -> Result<(), JournalError> {
+                    serde_json::to_writer(
+                        &mut quarantine,
+                        &serde_json::json!({
+                            "lineNumber": line_number,
+                            "malformedRecordDigest": digest,
+                        }),
+                    )?;
+                    quarantine.write_all(b"\n")?;
+                    Ok(())
+                })?;
+            quarantine.sync_all()?;
+            super::sync_parent_directory(&path)?;
+            Ok(())
+        },
+        |_| Ok(()),
+    )
+}
+
+fn malformed_record_digest(raw_record: &str) -> String {
+    format!("{:x}", Sha256::digest(raw_record.as_bytes()))
+}
+
+fn existing_quarantine_record_digests(path: &Path) -> HashSet<String> {
+    std::fs::read_to_string(path)
+        .ok()
+        .into_iter()
+        .flat_map(|contents| {
+            contents
+                .lines()
+                .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+                .filter_map(|value| {
+                    value
+                        .get("malformedRecordDigest")
+                        .and_then(serde_json::Value::as_str)
+                        .map(str::to_string)
+                })
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+pub(crate) fn acknowledge_expired_entries(
+    queue: &ScreenEvidenceQueue,
+    queue_job_ids: &[String],
+) -> Result<u64, JournalError> {
+    super::with_exclusive_queue_lock(queue, || {
+        let ids = queue_job_ids.iter().collect::<HashSet<_>>();
+        let outbox = screen_evidence_queue_outbox::read_outbox(queue)?;
+        super::screen_evidence_queue_outbox_quarantine::quarantine_corrupt_outbox(queue, &outbox)?;
+        let pending = outbox.entries;
+        let retained = pending
+            .iter()
+            .filter(|entry| !ids.contains(&entry.queue_job_id))
+            .cloned()
+            .collect::<Vec<_>>();
+        let removed = pending.len().saturating_sub(retained.len()) as u64;
+        if removed == 0 {
+            return Ok(0);
+        }
+        screen_evidence_queue_outbox::write_outbox_with_corrupt_lines(
+            queue,
+            &retained,
+            &outbox.corrupt_lines,
+        )?;
+        Ok(removed)
+    })
+}
+
+pub(crate) fn acknowledge_outbox_failures(
+    queue: &ScreenEvidenceQueue,
+    failures: &[super::ScreenEvidenceOutboxFailure],
+) -> Result<u64, JournalError> {
+    super::with_exclusive_queue_lock(queue, || {
+        let outbox = screen_evidence_queue_outbox::read_outbox(queue)?;
+        super::screen_evidence_queue_outbox_quarantine::quarantine_corrupt_outbox(queue, &outbox)?;
+        let failure_ids = failures
+            .iter()
+            .map(|failure| failure.queue_job_id.as_str())
+            .collect::<HashSet<_>>();
+        let retained_corrupt = outbox
+            .corrupt_lines
+            .iter()
+            .filter(|line| {
+                screen_evidence_queue_outbox::outbox_failures(std::slice::from_ref(line))
+                    .first()
+                    .is_none_or(|failure| !failure_ids.contains(failure.queue_job_id.as_str()))
+            })
+            .cloned()
+            .collect::<Vec<_>>();
+        let removed = outbox
+            .corrupt_lines
+            .len()
+            .saturating_sub(retained_corrupt.len()) as u64;
+        if removed > 0 {
+            screen_evidence_queue_outbox::write_outbox_with_corrupt_lines(
+                queue,
+                &outbox.entries,
+                &retained_corrupt,
+            )?;
+        }
+        Ok(removed)
     })
 }

@@ -1,4 +1,6 @@
+#[cfg(not(windows))]
 use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+#[cfg(not(windows))]
 use ocentra_parent_agent_protocol::enforcement::ParentPlatform;
 
 #[cfg(not(windows))]

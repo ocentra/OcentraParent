@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::collections::BTreeMap;
 
 use ocentra_parent_agent_protocol::constants;
@@ -24,7 +21,7 @@ use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::handle_local_command_text_for_test;
 
-use super::enforcement_broad_adapter_proof_read_model::{
+use super::enforcement_api::enforcement_broad_adapter_proof_read_model::{
     v08_broad_adapter_proof_read_model, GeneratedAtTextRef,
 };
 use super::test_text::{
@@ -165,14 +162,14 @@ async fn broad_adapter_proof_websocket_command_returns_service_read_model() -> T
 
     let read_model: V08BroadAdapterRuntimeProofReadModel = test_ok(
         serde_json::from_str(
-            &test_some(
+            test_some(
                 optional_log_string(
                     &event.payload,
                     constants::field::ENFORCEMENT_BROAD_ADAPTER_PROOF_READ_MODEL,
                 ),
                 constants::error::AGENT_EVENT_SERIALIZES,
             )?
-            .to_string(),
+            .as_ref(),
         ),
         constants::error::AGENT_EVENT_SERIALIZES,
     )?;

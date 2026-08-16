@@ -3,8 +3,6 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_FOREGROUND_FOREGROUND,
 };
 
-use super::WindowsForegroundWindowRecord;
-
 pub(super) fn apply_foreground_row(
     summary: &mut AppGameSessionSummary,
     row: &AppGameForegroundEvidenceRow,

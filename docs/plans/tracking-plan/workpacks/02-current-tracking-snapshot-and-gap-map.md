@@ -46,17 +46,17 @@ Proof root: `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map
 
 ## AI Worker Checklist
 
-- [ ] Confirm repo state before changing status.
-- [ ] Keep "planning exists" separate from "runtime proof exists".
-- [ ] Update the feature doc and capability checklist when proof changes.
-- [ ] Do not use old checkpoint wording to override current docs.
+- [x] Confirm repo state before changing status.
+- [x] Keep "planning exists" separate from "runtime proof exists".
+- [x] Update the feature doc and capability checklist when proof changes.
+- [x] Do not use old checkpoint wording to override current docs.
 
 ## Where We Are
 
-This workpack now has current snapshot and gap-map proof from
-`codex/tracking-plan-full-continuation-a` under the proof root below. The proof
-checks source docs, the refreshed current snapshot, and product-readiness
-closure blockers while keeping runtime/product-complete behavior unclaimed.
+The 2026-08-15 snapshot is reconciled to actual current source and tests. It
+records 24 bounded Phase 1 complete workpacks and 18 with concrete code/test
+gaps, while keeping focused validation, proof, physical-device, provider,
+durability, and product-ready claims open.
 
 ## Where We Want To Be
 
@@ -83,14 +83,12 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch:
-      `codex/tracking-plan-full-continuation-a`.
+- [ ] Workpack id and branch: `codex/tracking-plan-code-audit`.
 - [ ] Touched files: current snapshot, source index, implementation checklist,
       WP01/WP02 docs, source reconciliation proof script, generated WP01/WP02 proof
       roots, and product-checklist delta queue.
-- [ ] Validation commands and results:
-      `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` passed
-      after regenerating the product-readiness closure proof.
+- [ ] Validation commands and results: Phase 2 focused validation remains open;
+      the formerly named tracking proof command does not exist in this checkout.
 - [ ] Proof artifacts under
       `output/tracking-plan-proof/02-current-tracking-snapshot-and-gap-map/`.
 - [ ] Product doc/checklist updates: current snapshot, source index,

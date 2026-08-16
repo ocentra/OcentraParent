@@ -23,7 +23,7 @@ pub(super) fn import_preflight_section_decisions(
         if section.retention_state == contracts::ExportImportSectionRetentionState::Expired {
             rejected_sections.push(contracts::ExportImportSectionDecision {
                 data_class: section.data_class,
-                state: contracts::ExportImportSectionDecisionState::RejectedExpiredRetention,
+                state: contracts::ExportImportSectionDecisionState::RetentionExpired,
                 reason: "Retention expired before restore preview.".to_string(),
             });
             continue;
@@ -32,7 +32,7 @@ pub(super) fn import_preflight_section_decisions(
         if blocked_by_tombstone {
             rejected_sections.push(contracts::ExportImportSectionDecision {
                 data_class: section.data_class,
-                state: contracts::ExportImportSectionDecisionState::RejectedTombstonePreserved,
+                state: contracts::ExportImportSectionDecisionState::TombstonePreserved,
                 reason: "Local tombstone ordering blocks section resurrection.".to_string(),
             });
             continue;
@@ -48,11 +48,11 @@ pub(super) fn import_preflight_section_decisions(
 
     let state = if accepted_sections.is_empty() {
         if rejected_sections.iter().all(|decision| {
-            decision.state == contracts::ExportImportSectionDecisionState::RejectedExpiredRetention
+            decision.state == contracts::ExportImportSectionDecisionState::RetentionExpired
         }) {
-            contracts::ExportImportPreflightState::RejectedExpiredRetention
+            contracts::ExportImportPreflightState::RetentionExpired
         } else {
-            contracts::ExportImportPreflightState::RejectedTombstoneConflict
+            contracts::ExportImportPreflightState::TombstoneConflict
         }
     } else if rejected_sections.is_empty() {
         contracts::ExportImportPreflightState::AcceptedPreview

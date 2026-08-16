@@ -31,7 +31,7 @@ pub(crate) fn custody(payload: &NetworkRuntimeEventPayload) -> NetworkRuntimeStr
 }
 
 pub(crate) fn evidence_grade(payload: &NetworkRuntimeEventPayload) -> NetworkEvidenceGrade {
-    capture::evidence_grade(payload)
+    payload.evidence_grade_contract
 }
 
 pub(crate) fn domain_attribution(
@@ -47,7 +47,7 @@ pub(crate) fn ai_advisory_state(payload: &NetworkRuntimeEventPayload) -> Network
 pub(crate) fn policy_decision_action(
     payload: &NetworkRuntimeEventPayload,
 ) -> NetworkPolicyDecisionAction {
-    classification::policy_decision_action(payload)
+    payload.policy_action
 }
 
 pub(crate) fn enforcement_mode(payload: &NetworkRuntimeEventPayload) -> NetworkEnforcementMode {

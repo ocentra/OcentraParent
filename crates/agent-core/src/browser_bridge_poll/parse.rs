@@ -61,8 +61,8 @@ fn target_event(
         return Ok(None);
     }
     let observation = BrowserBridgeTargetObservation {
-        browser_family: config.browser_family.clone(),
-        browser_channel: config.browser_channel.clone(),
+        browser_family: config.browser_family,
+        browser_channel: config.browser_channel,
         managed_browser_session_id: config.managed_browser_session_id.clone(),
         profile_id: config.profile_id.clone(),
         process_id: config.process_id,

@@ -17,6 +17,26 @@ notification plan owns notification delivery handoff.
 domain/enforcement plans own runtime apply behavior after confirmed policy handoff.
 ```
 
+## Production-code audit — 2026-08-16
+
+The Rust command path exists, but the portal/provider handoff is incomplete. `apps/portal/src/portal-actions.ts` and `apps/portal/src/portal-runtime-controller-actions.ts` expose `requestPolicyRequestParentResolution`, while `apps/portal/src/PolicyPreviewRoutePanel.tsx` only renders draft staging and assistant confirmation; no rendered parent-resolution surface invokes the callback. `crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/command.rs` maps the action to the Rust command, and the new parent-runtime staging boundary projects a typed request only from trusted preview context plus local controller authority. The agent-service resolution modules validate the canonical confirmed request and delivery binding, but the account/identity-owned actor context and notification-provider dispatch composition are not present at this boundary. The portal must therefore remain fail-closed/manual-required and must not mint approval or contract JSON; the drafted staging slice does not remove those dependency blockers.
+
+## Production-code pass status — 2026-08-16
+
+The WP05 policy lane now has a narrow Rust-owned typed parent-resolution staging/relay slice in:
+
+```text
+crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch.rs
+crates/parent-runtime-core/src/parent_ui_bridge/policy_preview.rs
+crates/parent-runtime-core/src/parent_ui_bridge/policy_preview/resolution.rs
+```
+
+The action boundary accepts only a strict decision input. Rust projects approval, actor, request, delivery-binding, expiry, and audit fields from the trusted preview context, binds the actor to the local active-controller record, and retains one-shot relay-attempt state so a failed/deferred attempt cannot be replayed as a new approval. `Modify` does not accept arbitrary caller-selected changes; its approved action is projected from the trusted preview context. Missing or ambiguous account/identity context fails closed for manual review.
+
+This is code drafted and unvalidated only. The rendered portal parent-resolution surface, account/identity provider composition, notification-provider dispatch, WP11 pre-action/post-action durability, concrete runtime composition, tests, and proof remain open. This slice does not claim approval, notification, delivery, enforcement, rollback, or workpack completion.
+
+The resolution service keeps `notification_handoff_claim_state` explicitly `Unclaimed` until the notification owner composes a real provider dispatch. A resolved policy request is not evidence that a parent notification was sent.
+
 ## Required lifecycle
 
 ```text

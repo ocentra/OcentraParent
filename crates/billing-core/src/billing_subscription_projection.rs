@@ -6,15 +6,10 @@ use crate::billing_subscription::{
     BillingProviderEventDecisionState, BillingProviderWebhookDecision,
     BillingProviderWebhookDecisionRecordedEvent, BillingSubscriptionStatus, BillingTransitionId,
 };
-use ocentra_eventing::error::EventingError;
 use ocentra_eventing::expect_value::ExpectValue;
 
-const BILLING_ENTITLEMENT_TRANSITION_PROJECTED_EVENT_TYPE: &str =
-    "billing.entitlement.transition-projected";
-const BILLING_IDEMPOTENCY_SEPARATOR: &str = ":";
 const BILLING_DECISION_PREFIX: &str = "billing-decision:";
 const BILLING_TRANSITION_PREFIX: &str = "billing-transition:";
-const BILLING_SCHEMA_VERSION: u16 = 1;
 const ERROR_BILLING_TRANSITION_ID: &str = "billing transition id";
 
 pub(crate) fn project_billing_entitlement_transition(

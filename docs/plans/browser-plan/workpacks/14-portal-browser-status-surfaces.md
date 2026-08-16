@@ -19,6 +19,15 @@
 Portal renders managed browser status, evidence summary, and intervention
 summary. The richer parent browser workflow is not complete.
 
+2026-08-16 browser-code-pass: the parent-runtime Browser route now consumes
+typed agent-service managed-status and intervention read models through the
+existing Rust-owned live-activity bridge. The service keeps the canonical
+protocol models and emits dedicated JSON transport fields for the bridge
+adapter; unrelated routes are not hydrated. This is code-drafted,
+unvalidated, and tests/proof/checklist-deferred. It does not add active-tab
+focus authority, unmanaged exact-URL authority, OS blocking, or action
+delivery.
+
 2026-06-02 codex-d completion: the browser route now exposes service-backed
 browser inventory, exact URL capability, and active-tab proof cards from the
 typed `agent.browser.inventory.read-model.reported` event. Portal live-activity
@@ -71,6 +80,18 @@ service-backed read models.
 - `packages/portal-domain/src/parent-portal-service-state-rows.ts`
 - `packages/portal-domain/tests/contracts.test.ts`
 - `packages/portal-domain/tests/parent-portal-service-state.test.ts`
+- `crates/agent-protocol/src/constants/field.rs`
+- `crates/agent-service/src/browser_payload.rs`
+- `crates/agent-service/src/activity_api/browser_intervention_payload.rs`
+- `crates/parent-runtime-core/src/agent_service_client/snapshots_browser.rs`
+- `crates/parent-runtime-core/src/agent_service_client/loaders.rs`
+- `crates/parent-runtime-core/src/agent_service_client/types.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_requirements.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies/load.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/browser.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge.rs`
 
 ## Tests And Proof
 

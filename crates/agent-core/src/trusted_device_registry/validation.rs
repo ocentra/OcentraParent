@@ -21,7 +21,7 @@ impl TrustedDeviceRegistry {
         selection::validate_selected_pairing(
             self,
             intent,
-            &entry,
+            entry,
             observed_at,
             require_selected_pairing,
         )?;

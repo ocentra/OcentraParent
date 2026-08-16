@@ -1,11 +1,6 @@
-use ocentra_parent_agent_protocol::transport::{
-    AgentCommandEnvelope, AgentCommandName, AgentRoute,
-};
+use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentRoute};
 
-use crate::{
-    lan_pairing_browser_runtime::{browser_add_device_request_event, browser_discovery_scan_event},
-    lan_pairing_payload::parse_intent,
-};
+use crate::lan_pairing_payload::parse_intent;
 
 #[path = "command_routing/direct.rs"]
 mod direct;
@@ -64,7 +59,6 @@ async fn route_lan_command_inner(
 
 fn should_continue_without_lan_handling(command: &AgentCommandEnvelope) -> bool {
     command.target.route != AgentRoute::LocalNetwork
-        || command.command == AgentCommandName::AgentLanRuntimeEventChainStreamGet
 }
 
 fn validate_control_command(

@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    AggregateKey, CorrelationId, DomainEvent, EventContract, EventId, EventType, EventingError,
-    IdempotencyKey, QueueReport, SchemaVersion, StoredEventEnvelope, SubscriberId, TargetHandler,
-};
+use crate::{QueueReport, StoredEventEnvelope};
 
 use super::DispatchMode;
 
@@ -65,5 +62,6 @@ pub(super) fn empty_publish_report(
         handled_count: 0,
         dead_letter_count,
         handler_reports: Vec::new(),
+        journal_appends: Vec::new(),
     }
 }

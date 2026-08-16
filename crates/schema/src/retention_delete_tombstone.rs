@@ -245,11 +245,11 @@ pub fn required_retention_delete_states() -> Vec<RetentionDeleteState> {
 
 pub fn required_retention_delete_non_claims() -> Vec<RetentionDeleteNonClaim> {
     vec![
-        RetentionDeleteNonClaim::NoUiHideOnly,
-        RetentionDeleteNonClaim::NoResurrection,
-        RetentionDeleteNonClaim::NoPlainAuditPayload,
-        RetentionDeleteNonClaim::NoTsBusinessOwner,
-        RetentionDeleteNonClaim::NoLanOwnership,
+        RetentionDeleteNonClaim::UiHideOnly,
+        RetentionDeleteNonClaim::Resurrection,
+        RetentionDeleteNonClaim::PlainAuditPayload,
+        RetentionDeleteNonClaim::TsBusinessOwner,
+        RetentionDeleteNonClaim::LanOwnership,
     ]
 }
 

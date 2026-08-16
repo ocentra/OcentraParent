@@ -88,11 +88,10 @@ pub(super) fn test_event_for_type_with_aggregate_and_idempotency(
 ) -> TestEvent {
     TestEvent {
         label: label.0,
-        aggregate_key: AggregateKey::parse(aggregate_key.0.as_str())
-            .expect_value("aggregate key parses"),
-        idempotency_key: IdempotencyKey::parse(idempotency_key.0.as_str())
+        aggregate_key: AggregateKey::parse(aggregate_key.0).expect_value("aggregate key parses"),
+        idempotency_key: IdempotencyKey::parse(idempotency_key.0)
             .expect_value("idempotency key parses"),
-        event_type: EventType::parse(event_type.0.as_str()).expect_value("event type parses"),
+        event_type: EventType::parse(event_type.0).expect_value("event type parses"),
     }
 }
 
@@ -106,7 +105,7 @@ pub(super) fn metadata_with_event_id(target: TestText, event_id: TestText) -> Ev
         CorrelationId::parse(TEST_CORRELATION_ID).expect_value("correlation id parses"),
         source(),
         RecordedAt::parse(TEST_OBSERVED_AT).expect_value("recorded at parses"),
-        Some(TargetHandler::parse(target.0.as_str()).expect_value("target handler parses")),
+        Some(TargetHandler::parse(target.0).expect_value("target handler parses")),
     )
 }
 
@@ -130,8 +129,8 @@ pub(super) fn subscriber_for_event(
     event_type: TestText,
 ) -> EventSubscriber {
     EventSubscriber::new(
-        SubscriberId::parse(id.0.as_str()).expect_value("subscriber id parses"),
-        EventType::parse(event_type.0.as_str()).expect_value("event type parses"),
-        TargetHandler::parse(target.0.as_str()).expect_value("target handler parses"),
+        SubscriberId::parse(id.0).expect_value("subscriber id parses"),
+        EventType::parse(event_type.0).expect_value("event type parses"),
+        TargetHandler::parse(target.0).expect_value("target handler parses"),
     )
 }

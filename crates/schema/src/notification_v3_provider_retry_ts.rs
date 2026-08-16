@@ -415,7 +415,10 @@ fn push_export<T: Serialize>(output: &mut String, name: &str, value: &T) {
     } else {
         export_line
     };
-    writeln!(output, "{export_line}\n").expect("write notification-v3 provider retry ts");
+    schema_result_or_unreachable(
+        writeln!(output, "{export_line}\n"),
+        "write notification-v3 provider retry ts",
+    );
 }
 
 pub fn notification_v3_provider_retry_typescript() -> String {

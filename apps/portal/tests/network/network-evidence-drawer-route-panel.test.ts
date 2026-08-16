@@ -34,7 +34,7 @@ describe('network evidence drawer portal route panel', () => {
     expect(html).toContain('Connections</dt><dd>1');
     expect(html).toContain('Exact URL claim</dt><dd>Not reported');
     expect(html).toContain('Performance state</dt><dd>degraded');
-    expect(html).toContain('analyzer-alert-1');
+    expect(html).toContain('Local AI result</dt><dd>ai-audit-1');
     expect(html).not.toContain('page content');
   });
 

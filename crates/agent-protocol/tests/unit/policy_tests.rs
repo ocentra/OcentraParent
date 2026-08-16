@@ -15,14 +15,12 @@ use crate::{
     LocalAiModelLoadState, LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass,
     LocalModelRuntimeStatus,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn policy_rule_serializes_parent_authored_shape() {
     let rule = rule(PolicyAction::AskParent);
-    let serialized = match serde_json::to_value(rule) {
-        Ok(value) => value,
-        Err(_) => serde_json::Value::default(),
-    };
+    let serialized = serde_json::to_value(rule).expect_value("policy rule serializes");
 
     assert_eq!(serialized["ruleId"], policy::TEST_ASK_PARENT_RULE_ID);
     assert_eq!(serialized["action"], policy::ACTION_ASK_PARENT);
@@ -47,10 +45,7 @@ fn policy_decision_serializes_dry_run_disabled_handoff_shape() {
         enforcement_handoff_state: PolicyDecisionHandoffState::Disabled,
         expires_at: None,
     };
-    let serialized = match serde_json::to_value(decision) {
-        Ok(value) => value,
-        Err(_) => serde_json::Value::default(),
-    };
+    let serialized = serde_json::to_value(decision).expect_value("policy decision serializes");
 
     assert_eq!(
         serialized["schemaVersion"],
@@ -68,10 +63,7 @@ fn policy_decision_serializes_dry_run_disabled_handoff_shape() {
 #[test]
 fn local_ai_safety_result_serializes_policy_signal_shape() {
     let result = local_ai_result(PolicyAction::AskParent, LocalAiUnknownState::LowConfidence);
-    let serialized = match serde_json::to_value(result) {
-        Ok(value) => value,
-        Err(_) => serde_json::Value::default(),
-    };
+    let serialized = serde_json::to_value(result).expect_value("local AI safety result serializes");
 
     assert_eq!(
         serialized["schemaVersion"],

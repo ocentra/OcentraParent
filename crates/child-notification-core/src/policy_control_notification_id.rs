@@ -1,8 +1,6 @@
 use ocentra_eventing::error::EventingError;
 use serde::{Deserialize, Serialize};
 
-const POLICY_CONTROL_NOTIFICATION_ID_PREFIX: &str = "policy-control-notification:";
-
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct PolicyControlNotificationId(String);
@@ -35,8 +33,4 @@ impl From<PolicyControlNotificationId> for String {
     fn from(value: PolicyControlNotificationId) -> Self {
         value.0
     }
-}
-
-pub fn policy_control_notification_id_prefix() -> &'static str {
-    POLICY_CONTROL_NOTIFICATION_ID_PREFIX
 }

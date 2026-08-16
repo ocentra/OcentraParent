@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::LanAiProviderRoutingState;
 use ocentra_parent_agent_protocol::LanPairingDeviceReachability;
@@ -42,7 +43,7 @@ fn provider_selection_read_model_serializes_honest_manual_and_cloud_states() {
         ],
     };
 
-    let json = serde_json::to_value(&model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let json = serde_json::to_value(&model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     assert_eq!(
         json["candidates"][0]["routingState"],
         constants::value::LAN_AI_PROVIDER_ROUTING_AUTHORIZED_RESULT
@@ -76,7 +77,8 @@ fn provider_selection_candidate_serializes_route_blocked_rejection() {
         evidence_label: constants::value::LAN_REASON_OFFLINE.to_string(),
     };
 
-    let json = serde_json::to_value(&candidate).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let json =
+        serde_json::to_value(&candidate).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     assert_eq!(json["evidenceLabel"], constants::value::LAN_REASON_OFFLINE);
     assert_eq!(
         json["routingState"],

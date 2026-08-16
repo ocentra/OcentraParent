@@ -20,6 +20,7 @@ pub const SCREEN_DELETION_REQUIRED: &str = "deletionRequired";
 pub const SCREEN_DELETION_DELETED: &str = "deleted";
 pub const SCREEN_DELETION_EXPIRED_DELETED: &str = "expiredDeleted";
 pub const SCREEN_DELETION_DELETE_FAILED: &str = "deleteFailed";
+pub const SCREEN_DELETION_DELETE_FAILED_SUMMARY: &str = "Screen evidence deletion failed.";
 pub const SCREEN_CUSTODY_TEMP_QUEUE: &str = "child-device-temp-queue";
 pub const SCREEN_CUSTODY_JOURNAL: &str = "child-device-journal";
 pub const SCREEN_CUSTODY_QUERY_STORE: &str = "child-device-query-store";
@@ -75,6 +76,12 @@ pub const SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_ENV: &str =
     "OCENTRA_PARENT_SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS";
 pub const SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT: u64 = 300;
 pub const SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME: &str = "ocentra-parent-screen-evidence";
+pub const SCREEN_SERVICE_DELETION_OUTBOX_EXTENSION: &str = "deletion-outbox";
+pub const SCREEN_SERVICE_DELETION_OUTBOX_QUARANTINE_EXTENSION: &str = "deletion-outbox-quarantine";
+pub const SCREEN_SERVICE_DELETION_OUTBOX_CORRUPT_ID_PREFIX: &str =
+    "screen-retention-outbox-corrupt-";
+pub const SCREEN_SERVICE_DELETION_OUTBOX_QUARANTINE_PROOF_PREFIX: &str =
+    "screen-retention-outbox-quarantine-";
 pub const SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX: &str = "screen-service-queue-job-";
 pub const SCREEN_SERVICE_RESULT_ID_PREFIX: &str = "screen-service-analysis-result-";
 pub const SCREEN_SERVICE_EVENT_ID_PREFIX: &str = "screen-service-analysis-event-";
@@ -370,9 +377,8 @@ impl ScreenRuntimePhase {
         SCREEN_RUNTIME_PHASE_TARGET_HANDLERS[self as usize]
     }
 
-    pub fn runtime_role(self) -> RuntimeRole {
+    pub fn runtime_role(self) -> Result<RuntimeRole, EventingError> {
         RuntimeRole::parse(SCREEN_RUNTIME_PHASE_RUNTIME_ROLES[self as usize])
-            .expect("screen runtime phase role is a valid runtime role")
     }
 }
 
@@ -569,9 +575,8 @@ impl ScreenHouseholdMeshPhase {
         SCREEN_HOUSEHOLD_MESH_PHASE_TARGET_HANDLERS[self as usize]
     }
 
-    pub fn runtime_role(self) -> RuntimeRole {
+    pub fn runtime_role(self) -> Result<RuntimeRole, EventingError> {
         RuntimeRole::parse(SCREEN_HOUSEHOLD_MESH_PHASE_RUNTIME_ROLES[self as usize])
-            .expect("screen household mesh phase role is a valid runtime role")
     }
 }
 

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
@@ -78,5 +79,5 @@ fn temporary_live_session_id(
 
 fn temporary_live_state(value: &'static str) -> TrackingTemporaryLiveState {
     TrackingTemporaryLiveState::parse(value)
-        .expect("canonical tracking live-session state failed to parse")
+        .expect_value("canonical tracking live-session state failed to parse")
 }

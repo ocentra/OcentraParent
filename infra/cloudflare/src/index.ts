@@ -9,6 +9,7 @@ import {
 } from './fixtures.js';
 import {
   applyBillingStateMutation,
+  BillingReadModelUnavailableError,
   findBillingInvoiceSubject,
   loadAdminBillingAccounts,
   loadAdminBillingDisputes,
@@ -57,6 +58,23 @@ import { redactHeaders } from './security/redaction.js';
 
 const STATE_CHANGING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE']);
 const INTERACTIVE_CSRF_HEADER = 'x-ocentra-csrf';
+
+function billingReadModelUnavailableResponse(
+  route: RouteManifestEntry,
+  error: BillingReadModelUnavailableError,
+  identity?: VerifiedIdentity
+): Response {
+  return json(503, {
+    status: 'manual-required',
+    handlerKey: route.handlerKey,
+    authState: route.authState,
+    proofIdFamily: route.proofIdFamily,
+    actorRole: identity?.role ?? null,
+    blocker: error.code,
+    scope: error.scope,
+    message: 'Durable billing read-model data is unavailable; fixture fallback is disabled outside local-safe mode.',
+  });
+}
 
 function interactiveCsrfToken(env: Env): string | null {
   if (env.INTERACTIVE_CSRF_TOKEN) {
@@ -1954,6 +1972,9 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
         route,
       });
     } catch (error) {
+      if (error instanceof BillingReadModelUnavailableError) {
+        return billingReadModelUnavailableResponse(route, error);
+      }
       return json(500, {
         error: 'worker-unhandled-error',
         handlerKey: route.handlerKey,
@@ -1980,6 +2001,9 @@ async function handleRequest(request: Request, env: Env): Promise<Response> {
       identity: authResult.identity,
     });
   } catch (error) {
+    if (error instanceof BillingReadModelUnavailableError) {
+      return billingReadModelUnavailableResponse(route, error, authResult.identity);
+    }
     return json(500, {
       error: 'worker-unhandled-error',
       handlerKey: route.handlerKey,

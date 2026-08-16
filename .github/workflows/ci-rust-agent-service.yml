@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
 
       - name: Rust format
         run: node scripts/ci/check-rust-format.mjs
@@ -29,6 +31,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
 
       - name: Service clippy
         run: cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings
@@ -42,6 +46,11 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
 
       - name: Service tests
-        run: cargo test -p ocentra-parent-agent-service --all-targets -- --test-threads=1
+        run: cargo test -p ocentra-parent-agent-service --all-targets
+
+      - name: Logging core required recovery gate
+        run: cargo test -p ocentra-parent-logging-core --all-targets --all-features

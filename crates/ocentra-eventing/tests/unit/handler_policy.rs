@@ -13,29 +13,21 @@ use super::fixtures::{
 use crate::{EventBus, EventRecorder, EventingError, HandlerExecutionPolicy};
 use ocentra_eventing::bus::reports::handler::HandlerOutcome;
 
-fn retry_attempt(
-    attempts: Arc<AtomicUsize>,
-) -> impl std::future::Future<Output = Result<(), EventingError>> {
-    async move {
-        let previous = attempts.fetch_add(1, Ordering::SeqCst);
-        if previous == 0 {
-            Err(EventingError::EmptyValue {
-                field: "retryable_handler_failure",
-            })
-        } else {
-            Ok(())
-        }
+async fn retry_attempt(attempts: Arc<AtomicUsize>) -> Result<(), EventingError> {
+    let previous = attempts.fetch_add(1, Ordering::SeqCst);
+    if previous == 0 {
+        Err(EventingError::EmptyValue {
+            field: "retryable_handler_failure",
+        })
+    } else {
+        Ok(())
     }
 }
 
-fn timeout_attempt(
-    attempts: Arc<AtomicUsize>,
-) -> impl std::future::Future<Output = Result<(), EventingError>> {
-    async move {
-        attempts.fetch_add(1, Ordering::SeqCst);
-        tokio::time::sleep(Duration::from_millis(50)).await;
-        Ok(())
-    }
+async fn timeout_attempt(attempts: Arc<AtomicUsize>) -> Result<(), EventingError> {
+    attempts.fetch_add(1, Ordering::SeqCst);
+    tokio::time::sleep(Duration::from_millis(50)).await;
+    Ok(())
 }
 
 #[tokio::test]

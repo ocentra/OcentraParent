@@ -19,8 +19,9 @@ use crate::{
     lan_pairing_test_assertions::assert_rejection_with_audit,
     lan_pairing_test_commands::{
         command_for_target, intent_payload, intent_payload_for_kind, local_network_target,
-        paired_runtime, route_revoke_command, serialize_command,
+        paired_runtime, serialize_command,
     },
+    lan_pairing_test_multidevice_commands::route_revoke_command,
     test_text::TestText,
 };
 
@@ -379,6 +380,7 @@ async fn observer_lan_ai_job_submit_is_rejected_before_provider_routing() {
     );
 }
 
+#[derive(Clone, Copy)]
 struct LanAiJobSubmitExpectation {
     message_id: &'static str,
     intent_id: &'static str,
@@ -386,6 +388,7 @@ struct LanAiJobSubmitExpectation {
     capability: &'static str,
 }
 
+#[derive(Clone, Copy)]
 struct LanAiJobPayloadExpectation {
     authority: &'static str,
     capability: &'static str,
@@ -485,6 +488,7 @@ async fn lan_ai_provider_runtime_with_state(
     runtime
 }
 
+#[derive(Clone, Copy)]
 struct LanAiJobBlockExpectation {
     reason: &'static str,
 }
@@ -522,6 +526,7 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     }
 }
 
+#[derive(Clone, Copy)]
 struct LanParentAuthorityExpectation {
     authority: &'static str,
 }

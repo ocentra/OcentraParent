@@ -1,7 +1,5 @@
 #![forbid(unsafe_code)]
 
-use ocentra_eventing::error::EventingError;
-
 use super::super::PolicyContractAction;
 use super::super::{
     PolicyContractApprovalKind, PolicyContractApprovalRequest, PolicyContractOverrideGrant,

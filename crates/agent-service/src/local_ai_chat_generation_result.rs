@@ -53,7 +53,7 @@ pub(crate) fn failed_result(
     message_id: impl Into<LocalAiRuntimeText>,
     config: &LocalAiRuntimeConfigSnapshot,
     request: &LocalAiChatGenerationRequest,
-    failure: LocalAiFailedGeneration,
+    failure: &LocalAiFailedGeneration,
 ) -> LocalAiChatGenerationResult {
     let message_id = message_id.into();
     LocalAiChatGenerationResult {

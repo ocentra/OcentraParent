@@ -10,22 +10,12 @@ use crate::{
     PolicyTarget, PolicyTargetType, V08EnforcementProductControlParentAction,
     V08EnforcementProductControlSurface,
 };
-
-type DispatchStates = (
-    EnforcementMode,
-    EnforcementCapabilityState,
-    EnforcementPolicyDispatchProofLevel,
-    EnforcementPolicyDispatchOutcomeState,
-    EnforcementPolicyDispatchRejectionReason,
-    EnforcementPolicyDispatchSourceState,
-    EnforcementPolicyDispatchApprovalState,
-    EnforcementPolicyDispatchTimerState,
-);
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn serializes_policy_dispatch_read_model_with_stable_fields() {
     let read_model = proof_read_model();
-    let json = serde_json::to_value(&read_model).expect("read model serializes: {error:?}");
+    let json = serde_json::to_value(&read_model).expect_value("read model serializes: {error:?}");
 
     assert_eq!(json["readModelId"], dispatch::READ_MODEL_ID);
     assert_eq!(
@@ -53,9 +43,10 @@ fn serializes_policy_dispatch_read_model_with_stable_fields() {
 #[test]
 fn deserializes_report_only_and_scaffold_states_without_claim_upgrade() {
     let read_model = proof_read_model();
-    let encoded = serde_json::to_string(&read_model).expect("read model serializes: {error:?}");
+    let encoded =
+        serde_json::to_string(&read_model).expect_value("read model serializes: {error:?}");
     let decoded: EnforcementPolicyDispatchReadModel =
-        serde_json::from_str(&encoded).expect("read model deserializes: {error:?}");
+        serde_json::from_str(&encoded).expect_value("read model deserializes: {error:?}");
 
     assert_eq!(
         decoded.entries[0].matrix_row.proof_level,

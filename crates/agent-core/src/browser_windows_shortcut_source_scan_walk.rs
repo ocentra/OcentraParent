@@ -14,7 +14,7 @@ pub(crate) fn collect_shortcut_targets(
         return;
     };
     for entry in entries.flatten() {
-        if collect_shortcut_target_entry(entry, limit, targets) {
+        if collect_shortcut_target_entry(&entry, limit, targets) {
             break;
         }
     }
@@ -29,7 +29,7 @@ pub(crate) fn is_shortcut_path(path: &Path) -> bool {
 }
 
 fn collect_shortcut_target_entry(
-    entry: fs::DirEntry,
+    entry: &fs::DirEntry,
     limit: usize,
     targets: &mut Vec<BrowserWindowsLiveShortcutTarget>,
 ) -> bool {

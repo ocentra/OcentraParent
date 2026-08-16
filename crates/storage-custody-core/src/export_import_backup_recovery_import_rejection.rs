@@ -37,7 +37,7 @@ fn reject_schema_version(
         return None;
     }
     Some(RejectedPreflightInput {
-        state: contracts::ExportImportPreflightState::RejectedSchemaVersion,
+        state: contracts::ExportImportPreflightState::SchemaVersionInvalid,
         migration_state: contracts::ExportImportMigrationState::NotRequired,
         schema_version_supported,
         household_binding_match: true,
@@ -56,7 +56,7 @@ fn reject_wrong_household(
         return None;
     }
     Some(RejectedPreflightInput {
-        state: contracts::ExportImportPreflightState::RejectedWrongHousehold,
+        state: contracts::ExportImportPreflightState::HouseholdMismatch,
         migration_state: contracts::ExportImportMigrationState::NotRequired,
         schema_version_supported: true,
         household_binding_match: false,
@@ -79,7 +79,7 @@ fn reject_wrong_key(
         return None;
     }
     Some(RejectedPreflightInput {
-        state: contracts::ExportImportPreflightState::RejectedWrongKey,
+        state: contracts::ExportImportPreflightState::KeyUnavailable,
         migration_state: contracts::ExportImportMigrationState::NotRequired,
         schema_version_supported: true,
         household_binding_match: true,
@@ -99,7 +99,7 @@ fn reject_corrupt_bundle(
         return None;
     }
     Some(RejectedPreflightInput {
-        state: contracts::ExportImportPreflightState::RejectedCorruptBundle,
+        state: contracts::ExportImportPreflightState::BundleCorrupt,
         migration_state: contracts::ExportImportMigrationState::NotRequired,
         schema_version_supported: true,
         household_binding_match: true,
@@ -119,7 +119,7 @@ fn reject_migration_unsupported(
         return None;
     }
     Some(RejectedPreflightInput {
-        state: contracts::ExportImportPreflightState::RejectedMigrationUnsupported,
+        state: contracts::ExportImportPreflightState::MigrationUnsupported,
         migration_state,
         schema_version_supported: true,
         household_binding_match: true,
@@ -139,7 +139,7 @@ fn reject_duplicate_device(
         return None;
     }
     Some(RejectedPreflightInput {
-        state: contracts::ExportImportPreflightState::RejectedDuplicateDevice,
+        state: contracts::ExportImportPreflightState::DeviceDuplicate,
         migration_state: import_preflight_migration_state(bundle, context),
         schema_version_supported: true,
         household_binding_match: true,
@@ -148,7 +148,7 @@ fn reject_duplicate_device(
         duplicate_device_detected: true,
         rejected_sections: vec![contracts::ExportImportSectionDecision {
             data_class: contracts::ExportImportDataClass::DeviceRegistry,
-            state: contracts::ExportImportSectionDecisionState::RejectedDuplicateDevice,
+            state: contracts::ExportImportSectionDecisionState::DuplicateDevice,
             reason: "Existing local device identity would be duplicated by restore.".to_string(),
         }],
     })

@@ -1,4 +1,3 @@
-use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::social_alert_report_read_model::SocialAlertReportReadModelSnapshot;
 use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_CLAIM_NOT_CLAIMED;
@@ -11,9 +10,7 @@ use ocentra_parent_agent_protocol::SOCIAL_ALERT_REPORT_PROVIDER_STATUS_MANUAL_RE
 use super::social_alert_report_read_model_payload::{
     social_alert_report_read_model_from_service, social_alert_report_read_model_payload,
 };
-#[path = "../support/log_payload.rs"]
-mod log_payload;
-use log_payload::payload_json;
+use crate::log_payload::payload_json;
 
 #[test]
 fn social_alert_report_payload_reports_honest_service_rows() {

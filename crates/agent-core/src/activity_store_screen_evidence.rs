@@ -1,11 +1,12 @@
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::screen_evidence::{
     ScreenAnalysisResult, ScreenCategoryCandidate, ScreenEvidenceQueueHealth,
     ScreenEvidenceRecentSummary, SCREEN_CUSTODY_QUERY_STORE, SCREEN_DELETION_DELETED,
-    SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_EXPIRED_DELETED, SCREEN_QUEUE_STATUS_DELETED,
-    SCREEN_QUEUE_STATUS_EXPIRED, SCREEN_QUEUE_STATUS_FAILED,
+    SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_EXPIRED_DELETED, SCREEN_DELETION_REQUIRED,
+    SCREEN_QUEUE_STATUS_DELETED, SCREEN_QUEUE_STATUS_EXPIRED, SCREEN_QUEUE_STATUS_FAILED,
+    SCREEN_QUEUE_STATUS_QUEUED,
 };
 use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use rusqlite::{params, Connection};
@@ -24,13 +25,25 @@ pub(crate) fn screen_evidence_recent_summary(
     limit: u64,
     generated_at: &str,
 ) -> Result<ScreenEvidenceRecentSummary, ActivityStoreError> {
-    let mut statement =
-        connection.prepare(constants::sqlite::SELECT_RECENT_SCREEN_ANALYSIS_ACTIVITY)?;
+    let results = screen_analysis_results(connection, limit as i64)?;
+    let queue_health_results = latest_screen_analysis_results_per_queue_job(connection)?;
+    Ok(summary_from_results(
+        limit,
+        generated_at,
+        results,
+        &queue_health_results,
+    ))
+}
+
+fn latest_screen_analysis_results_per_queue_job(
+    connection: &Connection,
+) -> Result<Vec<ScreenAnalysisResult>, ActivityStoreError> {
+    let mut statement = connection
+        .prepare(constants::sqlite::SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_PER_QUEUE_JOB)?;
     let rows = statement.query_map(
         params![
             constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED,
             constants::activity_observer::LOCAL_AI,
-            limit as i64
         ],
         |row| {
             Ok((
@@ -44,19 +57,79 @@ pub(crate) fn screen_evidence_recent_summary(
     let mut results = Vec::new();
     for row in rows {
         let (_event_id, observed_at, fields_json, evidence_json) = row?;
-        let fields = serde_json::from_str::<LogFields>(&fields_json)?;
-        let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(&evidence_json)?;
-        if let Some(result) = result_from_fields(observed_at, &fields, evidence) {
+        if let Some(result) = result_from_json(observed_at, &fields_json, &evidence_json)? {
             results.push(result);
         }
     }
-    Ok(summary_from_results(limit, generated_at, results))
+    Ok(results)
+}
+
+fn screen_analysis_results(
+    connection: &Connection,
+    limit: i64,
+) -> Result<Vec<ScreenAnalysisResult>, ActivityStoreError> {
+    let mut statement =
+        connection.prepare(constants::sqlite::SELECT_RECENT_SCREEN_ANALYSIS_ACTIVITY)?;
+    let rows = statement.query_map(
+        params![
+            constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED,
+            constants::activity_observer::LOCAL_AI,
+            limit
+        ],
+        |row| {
+            Ok((
+                row.get::<_, String>(0)?,
+                row.get::<_, String>(1)?,
+                row.get::<_, String>(2)?,
+                row.get::<_, String>(3)?,
+            ))
+        },
+    )?;
+    let mut results = Vec::new();
+    for row in rows {
+        let (_event_id, observed_at, fields_json, evidence_json) = row?;
+        if let Some(result) = result_from_json(observed_at, &fields_json, &evidence_json)? {
+            results.push(result);
+        }
+    }
+    Ok(results)
+}
+
+pub(crate) fn screen_evidence_result_for_queue_job(
+    connection: &Connection,
+    queue_job_id: &str,
+) -> Result<Option<ScreenAnalysisResult>, ActivityStoreError> {
+    let mut statement = connection
+        .prepare(constants::sqlite::SELECT_LATEST_SCREEN_ANALYSIS_ACTIVITY_FOR_QUEUE_JOB)?;
+    let mut rows = statement.query(params![
+        constants::activity_event_kind::SCREEN_ANALYSIS_SUMMARIZED,
+        constants::activity_observer::LOCAL_AI,
+        queue_job_id,
+    ])?;
+    let Some(row) = rows.next()? else {
+        return Ok(None);
+    };
+    let observed_at = row.get(1)?;
+    let fields_json = row.get::<_, String>(2)?;
+    let evidence_json = row.get::<_, String>(3)?;
+    result_from_json(observed_at, &fields_json, &evidence_json)
+}
+
+fn result_from_json(
+    observed_at: String,
+    fields_json: &str,
+    evidence_json: &str,
+) -> Result<Option<ScreenAnalysisResult>, ActivityStoreError> {
+    let fields = serde_json::from_str::<LogFields>(fields_json)?;
+    let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(evidence_json)?;
+    Ok(result_from_fields(observed_at, &fields, evidence))
 }
 
 fn summary_from_results(
     limit: u64,
     generated_at: &str,
     results: Vec<ScreenAnalysisResult>,
+    queue_health_results: &[ScreenAnalysisResult],
 ) -> ScreenEvidenceRecentSummary {
     let latest = results.first();
     ScreenEvidenceRecentSummary {
@@ -65,7 +138,7 @@ fn summary_from_results(
         custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
         limit,
         returned: results.len() as u64,
-        queue_health: queue_health(generated_at, latest, &results),
+        queue_health: queue_health(generated_at, latest, queue_health_results),
         latest_result_id: latest.map(|result| result.screen_analysis_result_id.clone()),
         latest_summary: latest.map(|result| result.summary.clone()),
         latest_primary_category: latest.and_then(|result| result.primary_category.clone()),
@@ -88,9 +161,9 @@ fn queue_health(
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
         generated_at: generated_at.to_string(),
         custody_state: SCREEN_CUSTODY_QUERY_STORE.to_string(),
-        pending_count: 0,
+        pending_count: queue_status_count(results, SCREEN_QUEUE_STATUS_QUEUED),
         expired_count: deletion_state_count(results, SCREEN_DELETION_EXPIRED_DELETED),
-        delete_pending_count: 0,
+        delete_pending_count: deletion_state_count(results, SCREEN_DELETION_REQUIRED),
         delete_failed_count: deletion_state_count(results, SCREEN_DELETION_DELETE_FAILED),
         latest_queue_job_id: latest.map(|result| result.queue_job_id.clone()),
         latest_status: latest.map(queue_status_from_result),
@@ -99,9 +172,22 @@ fn queue_health(
 }
 
 fn deletion_state_count(results: &[ScreenAnalysisResult], state: &str) -> u64 {
+    let mut observed_jobs = std::collections::HashSet::new();
     results
         .iter()
+        // The query is newest-first. Count only the first row for each job so
+        // historical pending/deleted/expired transitions do not inflate health.
+        .filter(|result| observed_jobs.insert(result.queue_job_id.as_str()))
         .filter(|result| result.image_deletion_state == state)
+        .count() as u64
+}
+
+fn queue_status_count(results: &[ScreenAnalysisResult], status: &str) -> u64 {
+    let mut observed_jobs = std::collections::HashSet::new();
+    results
+        .iter()
+        .filter(|result| observed_jobs.insert(result.queue_job_id.as_str()))
+        .filter(|result| queue_status_from_result(result) == status)
         .count() as u64
 }
 
@@ -110,7 +196,8 @@ fn queue_status_from_result(result: &ScreenAnalysisResult) -> String {
         SCREEN_DELETION_DELETE_FAILED => SCREEN_QUEUE_STATUS_FAILED.to_string(),
         SCREEN_DELETION_EXPIRED_DELETED => SCREEN_QUEUE_STATUS_EXPIRED.to_string(),
         SCREEN_DELETION_DELETED => SCREEN_QUEUE_STATUS_DELETED.to_string(),
-        _ => SCREEN_QUEUE_STATUS_DELETED.to_string(),
+        SCREEN_DELETION_REQUIRED => SCREEN_QUEUE_STATUS_QUEUED.to_string(),
+        _ => SCREEN_QUEUE_STATUS_FAILED.to_string(),
     }
 }
 

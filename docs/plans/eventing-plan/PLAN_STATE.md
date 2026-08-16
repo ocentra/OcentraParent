@@ -57,13 +57,16 @@ Network, AI, policy, enforcement, portal, data-custody, browser, app-game, scree
 ## Current proof interpretation
 
 ```text
-output/eventing-plan-proof/<workpack>/ is the normal implementation/workpack proof root.
-docs/proof/eventing-plan/ is accepted only for the current WP12 route-proof manifest bundle.
+output/eventing-plan-proof/<workpack>/ is the normal raw/generated implementation/workpack proof root.
+docs/proof/eventing-plan/ is accepted for the current WP12 route-proof bundle and the hand-authored WP06 durable manifest.
 crate tests can prove local reusable bus behavior only.
 event-domain metadata does not prove shared event contract implementation.
 agent-protocol/service tests prove protocol/service handoff only when selected.
 consumer plan proof is required before claiming product behavior.
-WP10 remains open until its proof roots and LAN/remote-access handoff verification exist.
+WP06 now retains its exact enforcement WP11 journal handoff, journal/topology
+  proof, and compact validation log in its hand-authored durable manifest under
+  `docs/proof/eventing-plan/`. WP10 remains
+open until its proof roots and LAN/remote-access handoff verification exist.
 ```
 
 ## Resume route
@@ -85,6 +88,16 @@ WP10 remains open until its proof roots and LAN/remote-access handoff verificati
 - `crates/ocentra-eventing` exists and the focused crate harnesses currently pass: `unit`, `contract`, `journal_replay`, `integration`, and `version_skew`.
 - `packages/event-domain` mirror tests and `type-check` pass in this checkout.
 - Focused downstream contract mirrors also pass: `@ocentra-parent/agent-protocol-domain` `network-runtime-events.test.ts` plus `contracts.test.ts`, and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
+- 2026-08-16 production-code pass: WP10 now has a code-drafted, unvalidated
+  structural household-mesh validator and fail-closed runtime authorization
+  boundary in `crates/agent-protocol/src/household_mesh.rs`,
+  `crates/agent-protocol/src/household_mesh/household_mesh_bridge_input.rs`,
+  `crates/agent-core/src/household_mesh_event_bridge.rs`, and
+  `crates/agent-core/src/household_mesh_bridge_runtime_validation_import.rs`.
+  Agent-core owns the private token and republish conversion; the resolver
+  remains unavailable until LAN/account/device authority composition exists.
+  Tests, validation, proof, checklist, and runtime integration remain
+  deferred.
 - A fresh WP13 regression proof now exists at `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json` plus `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
 - A fresh WP12 route-proof bundle is restored locally at `docs/proof/eventing-plan/`, `output/eventing-plan-proof/rollout-proof/`, and `test-results/eventing-rollout-proof/`.
 - A scoped 2026-06-17 WP11 regeneration pass now restores the eventing proof roots at `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
@@ -99,6 +112,7 @@ WP10 remains open until its proof roots and LAN/remote-access handoff verificati
 - Network AI classification, policy decisions, enforcement commands, adapter side effects, audit storage, and portal rendering remain network/service/UI consumer work, not event bus responsibilities.
 - External transport delivery currently proves local queue/idempotency/dead-letter semantics and route-decision requirements only. A live transport/relay delivery implementation remains a separate workpack.
 - The NDJSON journal is the reusable append/replay proof layer. Production durability requirements such as fsync policy, SQLite projections, remote replication, or retention/deletion enforcement remain consumer/platform decisions.
+- Current source audit at root `d1d39b437` found `NdjsonEventJournal::recover` calling `acquire_append_file_lock` across the `ndjson_io` child boundary while the helper was only `pub(super)`. The helper and guard are now visible only within `crate::journal::ndjson` (not crate-wide and not re-exported), preserving the journal module's ownership boundary. Tests, compile validation, and proof refresh remain deferred.
 - The fresh regression audit work itself is locally proved: no eventing test modules remain under `crates/ocentra-eventing/src/`, the focused crate suites still pass, and the proof root is recorded under `output/eventing-plan-proof/13-test-folder-layout-regression-audit/`.
 
 ## Checklist summary
@@ -112,12 +126,28 @@ WP10 remains open until its proof roots and LAN/remote-access handoff verificati
 
 - Workpacks indexed: 13 route workpacks.
 - Workpack source: `05-implementation-workpacks.md` rows split into focused files under `workpacks/`.
-- Historical route docs describe prior closure for WP01-WP11, but the cited proof bundle is not present in this checkout.
-- Workpacks open in truth: WP10 consumer-boundary handoff only.
-- Current meaning: implementation surfaces exist across the crate and its mirrors, WP11/WP12/WP13 are locally proved, but the plan remains open because WP10 still lacks complete proof.
+- Historical route docs describe prior closure for WP01-WP08 and WP11-WP13,
+  but the cited proof bundle is not present in this checkout. WP06 is locally
+  evidenced by its durable hand-authored manifest because enforcement WP11
+  needs its exact generic handoff.
+- WP09 is the single legal READY code packet for the missing network production
+  foundation. Its contracts are present, but agent-core/agent-service still
+  lack ingestion-time publish, deterministic identity/idempotency, a
+  network-owned durable journal, startup replay, and removal of read-time
+  republish side effects before readiness. Downstream AI, policy, enforcement,
+  audit, and portal consumers remain blocked/fail-closed. No hard dependency is
+  recorded; tests, proof, CI, review, and merge remain open.
+- Workpacks open in truth: WP09 implementation/validation/proof gates and WP10
+  consumer-boundary handoff.
+- Current meaning: implementation surfaces exist across the crate and its
+  mirrors; WP06/WP11/WP12/WP13 are locally proved. The plan remains open
+  because WP09 lacks its production implementation/proof gates and WP10 lacks
+  its required proof roots and consumer-plan handoff verification.
 
 ### Active/open workpacks
 
+- [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
+  (READY for code implementation; tests/validation/proof deferred)
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
 
 ## Validation reality
@@ -129,7 +159,11 @@ WP10 remains open until its proof roots and LAN/remote-access handoff verificati
 - Focused downstream mirror validation also passes: `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts` and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
 - Scoped WP11 proof regeneration now passes through the reusable eventing surface and writes proof artifacts under `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
 - `npm run type-check --workspace @ocentra-parent/agent-protocol-domain` now passes again, and the focused policy-control/contract tests plus touched-file architecture gate pass for the scoped WP11 source files.
-- Current interpretation: the reusable runtime behavior is partially exercised, WP11/WP12/WP13 are locally proved, but the plan remains open because WP10 still lacks its local proof roots and consumer-plan handoff verification.
+- WP06 focused proof now passes: journal/replay (22), topology manifest (4),
+  lineage compatibility (3), runtime shutdown (5), and the scoped
+  architecture gate are recorded in the durable manifest under
+  `docs/proof/eventing-plan/`.
+- Current interpretation: the reusable runtime behavior is partially exercised, WP06/WP11/WP12/WP13 are locally proved, but the plan remains open because WP10 lacks its local proof roots and consumer-plan handoff verification.
 
 ## Default no-read list
 
@@ -150,8 +184,8 @@ WP10 remains open until its proof roots and LAN/remote-access handoff verificati
   - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
   - do not mark this plan complete from checklist deltas alone.
 - Active proof-root route:
-  - use `output/eventing-plan-proof/<workpack-file-stem>/` for new implementation/workpack proof.
-  - `docs/proof/eventing-plan/` is accepted only as the current WP12 route-proof manifest bundle.
+  - use `output/eventing-plan-proof/<workpack-file-stem>/` for new raw/generated implementation/workpack output.
+  - `docs/proof/eventing-plan/` is accepted for the current WP12 route-proof bundle and the hand-authored WP06 durable manifest.
   - historical `docs/proof/eventing-plan/slice-*` references do not close runtime work by themselves.
 - Before any checked update, attach:
   - a real test run log or explicit blocker from the assigned implementation boundary,

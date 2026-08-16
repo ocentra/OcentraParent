@@ -51,19 +51,17 @@ plan package. They are planning inputs, not implementation proof.
 
 | Source                                                         | Current Role                                                                              |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `packages/network-domain/src/network-flow.ts`                  | Canonical TypeScript network flow query contracts.                                        |
-| `packages/network-domain/src/network-contracts.ts`             | Canonical TypeScript network evidence, classification, and policy-action contracts.       |
-| `packages/network-domain/src/network-control-catalog*.ts`      | Canonical network-control catalog, schema, metadata, and generated setting seeds.         |
-| `packages/network-domain/tests/unit/network-flow.test.ts`      | Network flow contract/query tests.                                                        |
-| `packages/network-domain/tests/unit/network-contracts.test.ts` | Network evidence and policy-action contract tests.                                        |
-| `packages/network-domain/tests/unit/network-control-catalog.test.ts` | Network-control catalog coverage, counts, renderability, and no-claim boundaries.    |
-| `packages/parent-domain/package.json`                          | Parent-domain no longer publishes the stale `./network-control-catalog` compatibility surface; canonical imports must use `@ocentra-parent/network-domain/network-control-catalog*`. |
-| `crates/agent-protocol/src/network_flow.rs`                    | Rust protocol shape for network flow evidence.                                            |
-| `crates/agent-protocol/src/network_flow_tests.rs`              | Rust protocol tests.                                                                      |
+| `crates/network-core/src/network_runtime.rs`                   | Rust network runtime/domain decisions and replay-safe network behavior.                  |
+| `crates/agent-protocol/src/network_flow.rs`                    | Canonical Rust protocol payload, A-D grade, policy-action, and event contract shapes.    |
+| `crates/agent-protocol/tests/contract/network_eventing_contract.rs` | Payload mutation, version-skew, and shared-eventing contract tests.                  |
 | `crates/agent-protocol/src/constants/network_flow.rs`          | Rust protocol constants for network flow boundaries.                                      |
 | `crates/agent-core/src/network_capture*.rs`                    | Current network capture adapter foundation.                                               |
+| `crates/agent-service/src/activity_capture*.rs`                | Bounded recurring activity capture orchestration and event-batch ownership.                |
 | `crates/agent-core/src/activity_store_network_flow*.rs`        | Network flow journal/SQLite storage foundation.                                           |
-| `crates/agent-core/src/network_event_runtime*.rs`              | Runtime chain, queue, replay, and remote-delivery proof foundation.                       |
+| `crates/agent-core/src/network_event_runtime*.rs`              | Runtime spine, handler receipt, queue/replay, no-enforcement proof, and journal-state boundary. |
+| `crates/agent-service/src/service_runtime.rs`                  | Service-lifetime startup owner for the shared network runtime spine.                         |
+| `crates/agent-service/src/network_runtime_delivery.rs`          | Shared-spine network delivery path and durable-journal readiness projection.                  |
+| `crates/agent-service/src/network_runtime_stream_payload.rs`   | Shared-spine runtime stream path and durable-journal readiness projection.                   |
 | `crates/agent-service/src/network_flow_digest*.rs`             | Service digest rollups and unusual indicators.                                            |
 | `crates/agent-service/src/activity_network_flow_payload.rs`    | Service payload boundary for activity network flow.                                       |
 | `crates/ocentra-network-evidence/src/*`                        | Parser, classifier, cascade, adapter-gate, performance, and platform-claim proof logic.  |

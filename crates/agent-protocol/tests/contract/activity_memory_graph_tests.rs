@@ -7,6 +7,7 @@ use super::{
     ACTIVITY_MEMORY_GRAPH_CAPABILITY_READY, ACTIVITY_MEMORY_GRAPH_CUSTODY_ACTIVITY_STORE,
     ACTIVITY_MEMORY_GRAPH_INDEX_VERSION, ACTIVITY_MEMORY_GRAPH_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn activity_memory_graph_serializes_evidence_cited_edges() {
@@ -26,7 +27,7 @@ fn activity_memory_graph_serializes_evidence_cited_edges() {
     };
 
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["schemaVersion"],
@@ -45,7 +46,7 @@ fn activity_memory_graph_round_trips_child_profile_display_name_in_typescript_sh
     let value = child_profile_round_trip_value();
 
     let parsed: ActivityMemoryGraphReadModel =
-        serde_json::from_value(value).expect("typescript activity memory graph shape parses");
+        serde_json::from_value(value).expect_value("typescript activity memory graph shape parses");
 
     assert_eq!(
         parsed.query.child_profile,
@@ -63,7 +64,7 @@ fn activity_memory_graph_round_trips_child_profile_display_name_in_typescript_sh
     );
 
     let serialized =
-        serde_json::to_value(parsed).expect("activity memory graph round trip serializes");
+        serde_json::to_value(parsed).expect_value("activity memory graph round trip serializes");
 
     assert_eq!(
         serialized["query"]["childProfile"]["displayName"],

@@ -11,7 +11,7 @@ import {
 } from '../generated/parent-ui-bridge';
 import { shouldPrimeDeveloperRoute } from './portal-runtime-controller-session-context';
 import type { PortalRuntimeState } from './portal-state';
-import { applyParentRouteSnapshot } from './portal-state';
+import { applyParentRouteSnapshot, beginParentRouteLoad } from './portal-state';
 
 type PortalRuntimeLoadDeps = {
   bridge: {
@@ -37,11 +37,11 @@ export function createPortalRuntimeLoadCurrentRoute(
     const sequence = routeLoadSequence + 1;
     routeLoadSequence = sequence;
     disposeRouteSubscription();
-    deps.state.connectionState = ParentBridgeConnectionState.Connecting;
+    beginParentRouteLoad(deps.state, route);
     deps.refresh();
     try {
       const snapshot = await deps.bridge.loadRoute(route, currentRouteContext());
-      if (sequence !== routeLoadSequence) {
+      if (sequence !== routeLoadSequence || route !== deps.getRoute() || snapshot.route !== route) {
         return;
       }
       applyParentRouteSnapshot(deps.state, snapshot);

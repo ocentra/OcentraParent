@@ -21,6 +21,11 @@ pub(crate) fn fallback_action_for_intervention(
         Some(BrowserInterventionAction::RelaunchManaged) => {
             Some(BrowserUnmanagedFallbackActionState::RelaunchManagedBrowser)
         }
+        Some(BrowserInterventionAction::Block)
+        | Some(BrowserInterventionAction::Redirect)
+        | Some(BrowserInterventionAction::TimeLimit) => {
+            Some(BrowserUnmanagedFallbackActionState::OsBlockManualRequired)
+        }
         Some(BrowserInterventionAction::Monitor) => {
             Some(BrowserUnmanagedFallbackActionState::ReportOnly)
         }

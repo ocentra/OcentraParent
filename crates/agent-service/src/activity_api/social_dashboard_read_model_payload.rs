@@ -84,7 +84,7 @@ pub fn social_dashboard_read_model_from_service() -> SocialDashboardUxSnapshot {
 
 fn social_dashboard_panels() -> Vec<SocialDashboardPanel> {
     vec![
-        panel(PanelSpec {
+        panel(&PanelSpec {
             panel_kind: SOCIAL_DASHBOARD_PANEL_ACCOUNT_APPROVAL_QUEUE,
             status: SOCIAL_DASHBOARD_STATUS_READY_FOR_REVIEW,
             primary_action: SOCIAL_DASHBOARD_ACTION_OPEN_PARENT_APPROVAL,
@@ -93,7 +93,7 @@ fn social_dashboard_panels() -> Vec<SocialDashboardPanel> {
             evidence_ref: SOCIAL_DASHBOARD_EVIDENCE_ACCOUNT_APPROVAL_QUEUE,
             reason: SOCIAL_DASHBOARD_REASON_PARENT_REVIEW_NEEDED,
         }),
-        panel(PanelSpec {
+        panel(&PanelSpec {
             panel_kind: SOCIAL_DASHBOARD_PANEL_FEED_VIDEO_GATES,
             status: SOCIAL_DASHBOARD_STATUS_READY_FOR_REVIEW,
             primary_action: SOCIAL_DASHBOARD_ACTION_REVIEW_FEED_GATE,
@@ -102,7 +102,7 @@ fn social_dashboard_panels() -> Vec<SocialDashboardPanel> {
             evidence_ref: SOCIAL_DASHBOARD_EVIDENCE_FEED_VIDEO_GATES,
             reason: SOCIAL_DASHBOARD_REASON_FEED_VIDEO_GATE_CANDIDATE,
         }),
-        panel(PanelSpec {
+        panel(&PanelSpec {
             panel_kind: SOCIAL_DASHBOARD_PANEL_NATIVE_APP_CAPABILITY,
             status: SOCIAL_DASHBOARD_STATUS_MANUAL_REQUIRED,
             primary_action: SOCIAL_DASHBOARD_ACTION_REVIEW_NATIVE_CAPABILITY,
@@ -111,7 +111,7 @@ fn social_dashboard_panels() -> Vec<SocialDashboardPanel> {
             evidence_ref: SOCIAL_DASHBOARD_EVIDENCE_NATIVE_APP_CAPABILITY,
             reason: SOCIAL_DASHBOARD_REASON_NATIVE_APP_MANUAL_REQUIRED,
         }),
-        panel(PanelSpec {
+        panel(&PanelSpec {
             panel_kind: SOCIAL_DASHBOARD_PANEL_CONNECTOR_BOUNDARIES,
             status: SOCIAL_DASHBOARD_STATUS_MANUAL_REQUIRED,
             primary_action: SOCIAL_DASHBOARD_ACTION_REVIEW_CONNECTOR_BOUNDARY,
@@ -120,7 +120,7 @@ fn social_dashboard_panels() -> Vec<SocialDashboardPanel> {
             evidence_ref: SOCIAL_DASHBOARD_EVIDENCE_CONNECTOR_BOUNDARIES,
             reason: SOCIAL_DASHBOARD_REASON_CONNECTOR_BOUNDARY_MANUAL_REQUIRED,
         }),
-        panel(PanelSpec {
+        panel(&PanelSpec {
             panel_kind: SOCIAL_DASHBOARD_PANEL_DECISION_MEMORY,
             status: SOCIAL_DASHBOARD_STATUS_CONTRACT_ONLY,
             primary_action: SOCIAL_DASHBOARD_ACTION_REVIEW_MEMORY_ENTRY,
@@ -129,7 +129,7 @@ fn social_dashboard_panels() -> Vec<SocialDashboardPanel> {
             evidence_ref: SOCIAL_DASHBOARD_EVIDENCE_DECISION_MEMORY,
             reason: SOCIAL_DASHBOARD_REASON_MEMORY_CONTRACT_ONLY,
         }),
-        panel(PanelSpec {
+        panel(&PanelSpec {
             panel_kind: SOCIAL_DASHBOARD_PANEL_SETTINGS_CUSTODY,
             status: SOCIAL_DASHBOARD_STATUS_MANUAL_REQUIRED,
             primary_action: SOCIAL_DASHBOARD_ACTION_REVIEW_SETTINGS_CUSTODY,
@@ -138,7 +138,7 @@ fn social_dashboard_panels() -> Vec<SocialDashboardPanel> {
             evidence_ref: SOCIAL_DASHBOARD_EVIDENCE_SETTINGS_CUSTODY,
             reason: SOCIAL_DASHBOARD_REASON_SETTINGS_CUSTODY_RUNTIME_GAP,
         }),
-        panel(PanelSpec {
+        panel(&PanelSpec {
             panel_kind: SOCIAL_DASHBOARD_PANEL_MANUAL_REQUIRED_GAPS,
             status: SOCIAL_DASHBOARD_STATUS_MANUAL_REQUIRED,
             primary_action: SOCIAL_DASHBOARD_ACTION_MANUAL_REVIEW,
@@ -194,7 +194,7 @@ fn read_model_pairs(read_model: &SocialDashboardUxSnapshot) -> FieldPairs {
     ])
 }
 
-fn panel(spec: PanelSpec) -> SocialDashboardPanel {
+fn panel(spec: &PanelSpec) -> SocialDashboardPanel {
     SocialDashboardPanel {
         panel_id: spec.panel_kind.to_string(),
         panel_kind: spec.panel_kind.to_string(),

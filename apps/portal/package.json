@@ -15,6 +15,7 @@
   "dependencies": {
     "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
     "@ocentra-parent/portal-domain": "file:../../packages/portal-domain",
+    "@ocentra-parent/schema-domain": "file:../../packages/schema-domain",
     "@tauri-apps/api": "^2.11.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6"

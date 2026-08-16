@@ -11,33 +11,27 @@ use crate::policy_source::{
     PolicyReasonCode, PolicyRollbackRef, PolicyVersion,
 };
 
+mod adapter_execution;
+mod adapter_execution_validation;
+mod debug;
+mod record_receipt_validation;
+mod record_serde;
 mod state_context;
 mod state_values;
 mod transition_rules;
 mod transitions;
 mod validation;
 
-const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 1;
+const POLICY_DELIVERY_SCHEMA_VERSION_VALUE: u16 = 2;
 const POLICY_DELIVERY_INITIAL_SEQUENCE_VALUE: u64 = 1;
 
-fn parse_delivery_text_id(
-    value: impl Into<String>,
-    field: &'static str,
-) -> Result<String, EventingError> {
-    let value = value.into();
-    if value.trim().is_empty() {
-        return Err(EventingError::EmptyValue { field });
-    }
-    Ok(value)
-}
-
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct PolicyDeliveryId(String);
 
 impl PolicyDeliveryId {
     pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-        parse_delivery_text_id(value, policy_control::delivery::FIELD_DELIVERY_ID).map(Self)
+        validation::validate_policy_delivery_id(value).map(Self)
     }
 
     pub fn as_str(&self) -> &str {
@@ -59,13 +53,13 @@ impl From<PolicyDeliveryId> for String {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(try_from = "String", into = "String")]
 pub struct PolicyDeliveryAttemptId(String);
 
 impl PolicyDeliveryAttemptId {
     pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-        parse_delivery_text_id(value, policy_control::delivery::FIELD_ATTEMPT_ID).map(Self)
+        validation::validate_policy_delivery_attempt_id(value).map(Self)
     }
 
     pub fn as_str(&self) -> &str {
@@ -171,14 +165,14 @@ pub enum PolicyDeliveryParentVisibleState {
     Superseded,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryTarget {
     pub child_profile_id: PolicyChildProfileId,
     pub device_id: PolicyDeviceId,
     pub domain: PolicyConsumerDomain,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize)]
 pub struct PolicyDeliveryRecord {
     pub schema_version: SchemaVersion,
     pub delivery_id: PolicyDeliveryId,
@@ -199,19 +193,57 @@ pub struct PolicyDeliveryRecord {
     pub reason_code: Option<PolicyReasonCode>,
     pub superseded_by_policy_version: Option<PolicyVersion>,
     pub rollback_reference_state: Option<PolicyDeliveryState>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    execution_receipt: Option<PolicyDeliveryExecutionReceipt>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PolicyDeliveryReceiptProvenance {
+    NotRequired,
+    EvidencePresent,
+    LegacySchemaV1Unverified,
+    MissingRequired,
 }
 
 impl PolicyDeliveryRecord {
     pub fn parent_visible_state(&self) -> PolicyDeliveryParentVisibleState {
-        state_values::policy_delivery_parent_visible_state(self.state)
+        record_receipt_validation::parent_visible_state(self)
     }
 
     pub fn is_active(&self) -> bool {
         self.state == PolicyDeliveryState::Applied
+            && validation::validate_policy_delivery_record(self).is_ok()
+    }
+
+    pub fn execution_receipt(&self) -> Option<&PolicyDeliveryExecutionReceipt> {
+        self.execution_receipt.as_ref()
+    }
+
+    pub fn execution_receipt_provenance(&self) -> PolicyDeliveryReceiptProvenance {
+        if self.execution_receipt.is_some() {
+            return PolicyDeliveryReceiptProvenance::EvidencePresent;
+        }
+        if self.schema_version.value() == 1
+            && matches!(
+                self.state,
+                PolicyDeliveryState::Acknowledged | PolicyDeliveryState::RolledBack
+            )
+        {
+            return PolicyDeliveryReceiptProvenance::LegacySchemaV1Unverified;
+        }
+        if matches!(
+            self.state,
+            PolicyDeliveryState::Acknowledged
+                | PolicyDeliveryState::Applied
+                | PolicyDeliveryState::RolledBack
+        ) {
+            return PolicyDeliveryReceiptProvenance::MissingRequired;
+        }
+        PolicyDeliveryReceiptProvenance::NotRequired
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct PolicyDeliveryTransition {
     pub attempt_id: PolicyDeliveryAttemptId,
     pub sequence: PolicyDeliverySequence,
@@ -222,7 +254,22 @@ pub struct PolicyDeliveryTransition {
     pub rollback_reference_state: Option<PolicyDeliveryState>,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct PolicyDeliveryExecutionReceipt {
+    pub delivery_id: PolicyDeliveryId,
+    pub household_id: PolicyHouseholdId,
+    pub policy_version: PolicyVersion,
+    pub source_document_id: ParentPolicyDocumentId,
+    pub target: PolicyDeliveryTarget,
+    pub attempt_id: PolicyDeliveryAttemptId,
+    pub sequence: PolicyDeliverySequence,
+    pub state: PolicyDeliveryState,
+    pub audit_reference_ids: Vec<PolicyAuditReferenceId>,
+    pub reason_code: Option<PolicyReasonCode>,
+    pub rollback_reference_state: Option<PolicyDeliveryState>,
+}
+
+#[derive(Clone, PartialEq, Eq)]
 pub enum PolicyDeliveryApplyOutcome {
     Advanced(PolicyDeliveryRecord),
     Duplicate(PolicyDeliveryRecord),
@@ -239,6 +286,15 @@ impl PolicyDeliveryApplyOutcome {
 
 pub fn policy_delivery_schema_version() -> Result<SchemaVersion, EventingError> {
     validation::policy_delivery_schema_version()
+}
+
+pub fn derive_policy_delivery_id(
+    artifact: &CompiledDomainPolicyArtifact,
+    target: &PolicyDeliveryTarget,
+    attempt_id: &PolicyDeliveryAttemptId,
+    sequence: PolicyDeliverySequence,
+) -> Result<PolicyDeliveryId, EventingError> {
+    validation::derive_policy_delivery_id(artifact, target, attempt_id, sequence)
 }
 
 pub fn queue_policy_delivery(
@@ -261,9 +317,37 @@ pub fn validate_policy_delivery_record(record: &PolicyDeliveryRecord) -> Result<
     validation::validate_policy_delivery_record(record)
 }
 
+pub fn validate_policy_delivery_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: &PolicyDeliveryTransition,
+    receipt: Option<&PolicyDeliveryExecutionReceipt>,
+) -> Result<(), EventingError> {
+    state_context::assert_execution_receipt(current, transition, receipt)
+}
+
 pub fn apply_policy_delivery_transition(
     current: &PolicyDeliveryRecord,
     transition: PolicyDeliveryTransition,
 ) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
-    transitions::apply_policy_delivery_transition(current, transition)
+    apply_policy_delivery_transition_without_execution_receipt(current, transition)
+}
+
+/// Applies a state transition that is backed by the adapter's own execution
+/// receipt. Receipt-required states cannot be advanced through the legacy
+/// receiptless path.
+pub fn apply_policy_delivery_transition_with_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+    receipt: PolicyDeliveryExecutionReceipt,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    transitions::apply_policy_delivery_transition_with_execution_receipt(
+        current, transition, receipt,
+    )
+}
+
+pub fn apply_policy_delivery_transition_without_execution_receipt(
+    current: &PolicyDeliveryRecord,
+    transition: PolicyDeliveryTransition,
+) -> Result<PolicyDeliveryApplyOutcome, EventingError> {
+    transitions::apply_policy_delivery_transition_without_execution_receipt(current, transition)
 }

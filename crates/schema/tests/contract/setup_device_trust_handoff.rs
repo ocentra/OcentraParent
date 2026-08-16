@@ -2,28 +2,41 @@ use crate::support::{error_or_unreachable, result_or_unreachable};
 use ocentra_schema::setup_device_trust_handoff as contracts;
 use serde_json::json;
 
+macro_rules! option_or_abort {
+    ($value:expr $(,)?) => {
+        match $value {
+            Some(value) => value,
+            None => std::process::abort(),
+        }
+    };
+}
+
 macro_rules! timestamp {
     ($value:expr $(,)?) => {
-        contracts::SetupDeviceTrustHandoffTimestamp::parse($value).expect("timestamp")
+        option_or_abort!(contracts::SetupDeviceTrustHandoffTimestamp::parse($value))
     };
 }
 
 macro_rules! claim_boundary {
     ($value:expr $(,)?) => {
-        contracts::SetupDeviceTrustHandoffClaimBoundary::parse($value).expect("claim boundary")
+        option_or_abort!(contracts::SetupDeviceTrustHandoffClaimBoundary::parse(
+            $value
+        ))
     };
 }
 
 fn artifact_requirement() -> contracts::SetupDeviceTrustHandoffArtifactRequirement {
     contracts::SetupDeviceTrustHandoffArtifactRequirement {
-        requirement_ref: contracts::SetupDeviceTrustHandoffArtifactRequirementRef::parse(
-            "child-package-artifact-required",
-        )
-        .expect("artifact requirement ref"),
-        external_artifact_path: contracts::SetupDeviceTrustHandoffExternalArtifactPath::parse(
-            "output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/artifacts/windows/child-agent-service.msi",
-        )
-        .expect("artifact path"),
+        requirement_ref: option_or_abort!(
+            contracts::SetupDeviceTrustHandoffArtifactRequirementRef::parse(
+                "child-package-artifact-required",
+            )
+        ),
+        external_artifact_path: option_or_abort!(
+            contracts::SetupDeviceTrustHandoffExternalArtifactPath::parse(
+                "output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/artifacts/windows/child-agent-service.msi",
+            )
+        ),
         claim_boundary: claim_boundary!(
             "package artifact path only; no package readiness; no install/runtime readiness",
         ),
@@ -33,47 +46,46 @@ fn artifact_requirement() -> contracts::SetupDeviceTrustHandoffArtifactRequireme
 fn request() -> contracts::SetupDeviceTrustHandoffRequest {
     contracts::SetupDeviceTrustHandoffRequest {
         schema_version: contracts::SETUP_DEVICE_TRUST_HANDOFF_SCHEMA_VERSION.to_string(),
-        handoff_id: contracts::SetupDeviceTrustHandoffId::parse("handoff-setup-device-trust-1")
-            .expect("handoff id"),
-        household_ref: contracts::SetupDeviceTrustHandoffHouseholdRef::parse("household-alpha")
-            .expect("household ref"),
-        child_profile_ref: contracts::SetupDeviceTrustHandoffChildProfileRef::parse(
-            "child-profile-alpha",
-        )
-        .expect("child profile ref"),
-        target_device_ref: contracts::SetupDeviceTrustHandoffTargetDeviceRef::parse(
-            "target-device-windows-alpha",
-        )
-        .expect("target device ref"),
-        setup_session_ref: contracts::SetupDeviceTrustHandoffSetupSessionRef::parse(
-            "setup-session-alpha",
-        )
-        .expect("setup session ref"),
-        trust_bootstrap_ref: contracts::SetupDeviceTrustHandoffTrustBootstrapRef::parse(
-            "trust-bootstrap-alpha",
-        )
-        .expect("trust bootstrap ref"),
-        child_package_target_ref: contracts::SetupDeviceTrustHandoffChildPackageTargetRef::parse(
-            "child-package-target-windows-service",
-        )
-        .expect("child package target ref"),
+        handoff_id: option_or_abort!(contracts::SetupDeviceTrustHandoffId::parse(
+            "handoff-setup-device-trust-1",
+        )),
+        household_ref: option_or_abort!(contracts::SetupDeviceTrustHandoffHouseholdRef::parse(
+            "household-alpha",
+        )),
+        child_profile_ref: option_or_abort!(
+            contracts::SetupDeviceTrustHandoffChildProfileRef::parse("child-profile-alpha")
+        ),
+        target_device_ref: option_or_abort!(
+            contracts::SetupDeviceTrustHandoffTargetDeviceRef::parse("target-device-windows-alpha")
+        ),
+        setup_session_ref: option_or_abort!(
+            contracts::SetupDeviceTrustHandoffSetupSessionRef::parse("setup-session-alpha")
+        ),
+        trust_bootstrap_ref: option_or_abort!(
+            contracts::SetupDeviceTrustHandoffTrustBootstrapRef::parse("trust-bootstrap-alpha")
+        ),
+        child_package_target_ref: option_or_abort!(
+            contracts::SetupDeviceTrustHandoffChildPackageTargetRef::parse(
+                "child-package-target-windows-service",
+            )
+        ),
         platform: contracts::SetupDeviceTrustHandoffPlatform::Windows,
         setup_state: contracts::SetupDeviceTrustHandoffSetupState::TrustBootstrapIssued,
         trust_bootstrap_state:
             contracts::SetupDeviceTrustHandoffTrustBootstrapState::BootstrapIssued,
         artifact_requirement: artifact_requirement(),
-        expiry_or_replay_guard_ref:
+        expiry_or_replay_guard_ref: option_or_abort!(
             contracts::SetupDeviceTrustHandoffExpiryOrReplayGuardRef::parse(
                 "setup-session-alpha:trust-bootstrap-alpha:nonce-001",
             )
-            .expect("expiry or replay guard ref"),
+        ),
         requested_at: timestamp!("2026-06-28T17:55:00Z"),
         no_claim: vec![
-            contracts::SetupDeviceTrustHandoffNoClaim::NotParentBootstrapProof,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotChildPairingCode,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotPackageReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotInstallRuntimeReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotParentClientParity,
+            contracts::SetupDeviceTrustHandoffNoClaim::ParentBootstrapProof,
+            contracts::SetupDeviceTrustHandoffNoClaim::ChildPairingCode,
+            contracts::SetupDeviceTrustHandoffNoClaim::PackageReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::InstallRuntimeReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::ParentClientParity,
         ],
     }
 }
@@ -96,16 +108,15 @@ fn response() -> contracts::SetupDeviceTrustHandoffResponse {
         artifact_requirement: request.artifact_requirement,
         install_precondition_state:
             contracts::SetupDeviceTrustHandoffInstallPreconditionState::ArtifactProofRequired,
-        manual_required_state:
-            contracts::SetupDeviceTrustHandoffManualRequiredState::ParentActionRequired,
+        manual_required_state: contracts::SetupDeviceTrustHandoffManualRequiredState::ParentAction,
         expiry_or_replay_guard_ref: request.expiry_or_replay_guard_ref,
         handoff_status: contracts::SetupDeviceTrustHandoffStatus::ReadyForChildPackageDistribution,
         no_claim: vec![
-            contracts::SetupDeviceTrustHandoffNoClaim::NotPackageArtifactProof,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotPackageReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotInstallRuntimeReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotServiceHealthProof,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotParentClientParity,
+            contracts::SetupDeviceTrustHandoffNoClaim::PackageArtifactProof,
+            contracts::SetupDeviceTrustHandoffNoClaim::PackageReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::InstallRuntimeReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::ServiceHealthProof,
+            contracts::SetupDeviceTrustHandoffNoClaim::ParentClientParity,
         ],
         updated_at: timestamp!("2026-06-28T18:00:00Z"),
     }
@@ -198,21 +209,21 @@ fn setup_device_trust_handoff_proof_keeps_no_claim_boundaries_explicit() {
     assert_eq!(
         proof.request.no_claim,
         vec![
-            contracts::SetupDeviceTrustHandoffNoClaim::NotParentBootstrapProof,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotChildPairingCode,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotPackageReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotInstallRuntimeReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotParentClientParity,
+            contracts::SetupDeviceTrustHandoffNoClaim::ParentBootstrapProof,
+            contracts::SetupDeviceTrustHandoffNoClaim::ChildPairingCode,
+            contracts::SetupDeviceTrustHandoffNoClaim::PackageReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::InstallRuntimeReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::ParentClientParity,
         ]
     );
     assert_eq!(
         proof.response.no_claim,
         vec![
-            contracts::SetupDeviceTrustHandoffNoClaim::NotPackageArtifactProof,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotPackageReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotInstallRuntimeReadiness,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotServiceHealthProof,
-            contracts::SetupDeviceTrustHandoffNoClaim::NotParentClientParity,
+            contracts::SetupDeviceTrustHandoffNoClaim::PackageArtifactProof,
+            contracts::SetupDeviceTrustHandoffNoClaim::PackageReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::InstallRuntimeReadiness,
+            contracts::SetupDeviceTrustHandoffNoClaim::ServiceHealthProof,
+            contracts::SetupDeviceTrustHandoffNoClaim::ParentClientParity,
         ]
     );
     assert_eq!(proof.route_sync.len(), 2);
@@ -224,9 +235,7 @@ fn setup_device_trust_handoff_contract_rejects_missing_target_package_field() {
         serde_json::to_value(proof()),
         crate::assert_context!("proof serializes"),
     );
-    let response = encoded["response"]
-        .as_object_mut()
-        .expect("response object");
+    let response = option_or_abort!(encoded["response"].as_object_mut());
     response.remove("childPackageTargetRef");
 
     let decoded =

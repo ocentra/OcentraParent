@@ -1,9 +1,0 @@
-lane: codex-a
-threadId: lan-domain-verification
-assignedBy: user
-plan: central-schema-round
-workpack: lan-domain-verification
-worktree: C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent
-branch: codex/tracking-plan-full-continuation-a
-scope: packages/lan-domain
-startedAt: 2026-06-21T22:15:00Z

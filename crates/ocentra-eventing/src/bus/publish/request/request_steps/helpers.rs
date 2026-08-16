@@ -1,8 +1,7 @@
 use tokio::task::JoinHandle;
 
 use crate::{
-    EventClockSleep, EventingError, ExpectValue, PublishReport, RequestEvent, RequestId,
-    RequestReport,
+    EventClockSleep, EventingError, PublishReport, RequestEvent, RequestId, RequestReport,
 };
 
 use super::super::EventBus;
@@ -43,7 +42,7 @@ pub(super) async fn handle_receiver_result(
     match payload {
         Ok(payload) => Ok(payload),
         Err(_) => {
-            bus.requests.timeout(&request_id);
+            bus.requests.timeout(request_id);
             Err(EventingError::RequestTimedOut {
                 request_id: request_id.clone(),
             })

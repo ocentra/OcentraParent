@@ -16,6 +16,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
 
       - name: Build shared contracts
         run: npm run build:contracts
@@ -29,6 +31,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
 
       - name: Build shared contracts
         run: npm run build:contracts
@@ -45,6 +49,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
 
       - name: Build shared contracts
         run: npm run build:contracts
@@ -61,6 +67,8 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
 
       - name: Build shared contracts
         run: npm run build:contracts

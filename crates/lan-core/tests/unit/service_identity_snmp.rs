@@ -83,7 +83,7 @@ fn snmp_identity_query_notifies_allowed_snmp_observer_with_received_payload() {
     server.join().value_or_unreachable();
 
     assert!(observation.observed_allowed_snmp_response());
-    let observed_payload = observed_payload.lock().expect("observer lock available");
+    let observed_payload = observed_payload.lock().value_or_unreachable();
     assert_eq!(observed_payload.as_slice(), &[expected_response]);
 }
 

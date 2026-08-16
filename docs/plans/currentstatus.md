@@ -298,7 +298,7 @@ This file currently covers these **19** plans:
 ### Eventing Plan
 
 - plan status: **in-progress**
-- primary Rust crates: `ocentra-eventing`, `agent-protocol`, `agent-service`
+- primary Rust crates: `ocentra-eventing`, `agent-protocol`, `agent-core`, `agent-service`
 - primary TS domains/apps: `event-domain`, `agent-protocol-domain`, `endpoint-domain`
 - read if working this plan: [AGENTS](eventing-plan/AGENTS.md), [PLAN_STATE](eventing-plan/PLAN_STATE.md), [NEXT_ACTIONS](eventing-plan/NEXT_ACTIONS.md), [WORKPACK_INDEX](eventing-plan/WORKPACK_INDEX.md)
 - test/proof route for this plan: selected `eventing-plan/workpacks/*.md`, then later-phase [TEST_PROOF_DECISION_MATRIX](../agent/TEST_PROOF_DECISION_MATRIX.md)
@@ -308,7 +308,9 @@ This file currently covers these **19** plans:
 | 01 source boundary and semantics audit                | open   | partial | partial | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `agent-protocol-domain`                    |
 | 02 crate contract and type boundary                   | open   | done    | covered | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `agent-protocol-domain`                    |
 | 03-06 runtime/queue/request-response/journal replay   | open   | done    | covered | `ocentra-eventing`, `agent-service`                   | `event-domain`, `endpoint-domain`                          |
-| 07-10 protocol/runtime/network/LAN integration slices | open   | partial | partial | `ocentra-eventing`, `agent-protocol`, `agent-service` | `event-domain`, `agent-protocol-domain`, `endpoint-domain` |
+| 07-08 protocol/runtime integration                       | open   | partial | partial | `ocentra-eventing`, `agent-protocol`, `agent-service` | `event-domain`, `agent-protocol-domain`, `endpoint-domain` |
+| 09 network consumer event chain                          | ready  | drafted | deferred | `agent-protocol`, `agent-core`, `agent-service`       | `event-domain`, `agent-protocol-domain`                    |
+| 10 LAN household mesh consumer                           | open   | partial | partial | `ocentra-eventing`, `agent-protocol`, `agent-service` | `event-domain`, `agent-protocol-domain`, `endpoint-domain` |
 | 11 type safety and ownership hardening                | open   | done    | covered | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `schema-domain`                            |
 | 12 rollout proof and PR gate                          | open   | partial | partial | `ocentra-eventing`                                    | `event-domain`                                             |
 
@@ -322,6 +324,7 @@ This file currently covers these **19** plans:
 - Workpack `02` now has a stronger public contract boundary: `SchemaVersion` fails closed on serde deserialize instead of only through manual constructors, and the strong wrapper IDs now reject whitespace while still accepting the dotted subscriber and target lineage already used by repo constants and crate fixtures.
 - Workpack `11` now carries `expected_schema_version` and `received_schema_version` through stored-envelope decode contract mismatches, so downstream drift reports stay explicit instead of generic.
 - Workpacks `03-06` already have concrete runtime/request/journal mechanics in the crate; the remaining open state is no longer “missing core code”, it is mostly consumer-handoff and proof reconciliation.
+- WP09 is the single legal READY code packet for the missing production network foundation: agent-core capture must publish once at ingestion with deterministic identity/idempotency, agent-core/agent-service must own durable network journaling and startup replay before readiness, and read-time APIs must not republish. Nested fixture/prove/`TEST_*` runtime files are not shipped production behavior. AI, policy, enforcement, audit, and portal consumers remain downstream blocked/fail-closed until their owning plans provide real authority and handoffs. The current `OnceCell`/`EventBus::new` read-time spine does not establish this boundary.
 
 **Test List Done**
 
@@ -331,6 +334,7 @@ This file currently covers these **19** plans:
 - `crates/ocentra-eventing/tests/unit/ids.rs` now proves representative event, request, journal, subscriber, target, source-service/component, and runtime-instance wrappers accept real repo values while rejecting whitespace without inventing incompatible slug grammar.
 - `crates/ocentra-eventing/tests/unit/envelope.rs`, `crates/ocentra-eventing/tests/version-skew/roundtrip.rs`, and `packages/event-domain/tests/unit/eventing.test.ts` now prove stored-envelope mismatch strings keep expected/received schema-version context and that the shared TS stored-header boundary preserves valid versions while rejecting `0`.
 - `cargo test -p ocentra-eventing` and `npm test` in `packages/event-domain` pass, but the reusable-eventing proof packs still fail on the workspace clippy gate because `ocentra-eventing` uses denied `expect_used`, `clone_on_ref_ptr`, and `needless_pass_by_value` patterns in both library and test targets.
+- WP09 production tests and retained proof are deliberately deferred to its later validation/proof phase; the existing contract/test references do not claim a shipped network journal or startup-recovery path.
 
 **Test List Required**
 
@@ -340,6 +344,7 @@ This file currently covers these **19** plans:
 **Reason / Blocker / Deferred**
 
 - Remaining eventing open state is now mostly proof/doc/consumer-boundary reconciliation, not absence of core event-bus code or crate tests.
+- WP09 remains open after the READY routing decision: no completion, live-capture, enforcement, Network WP04 unblock, review, or merge claim is made.
 - Deep e2e and product claims should still wait for the downstream consumer plans to finish their own protocol/runtime proofs.
 
 ### Setup Install Provisioning Plan
@@ -546,14 +551,15 @@ This file currently covers these **19** plans:
 ### Network Plan
 
 - plan status: **in-progress**
-- primary Rust crates: `network-core`, `ocentra-network-evidence`
-- primary TS domains/apps: `network-domain`, `evidence-domain`, `capability-domain`
+- primary Rust crates: `network-core`, `agent-protocol`, `agent-core`, `agent-service`, `ocentra-network-evidence`
+- primary TS domains/apps: `portal-domain`, `apps/portal` (projection/read-model consumers only)
 - read if working this plan: [AGENTS](network-plan/AGENTS.md), [PLAN_STATE](network-plan/PLAN_STATE.md), [NEXT_ACTIONS](network-plan/NEXT_ACTIONS.md), [WORKPACK_INDEX](network-plan/WORKPACK_INDEX.md)
 - test/proof route for this plan: selected `network-plan/workpacks/*.md`, then later-phase [TEST_PROOF_DECISION_MATRIX](../agent/TEST_PROOF_DECISION_MATRIX.md)
 
 | workpack(s)                                                       | status | code        | test        | location crate                             | location domain/app                                  |
 | ----------------------------------------------------------------- | ------ | ----------- | ----------- | ------------------------------------------ | ---------------------------------------------------- |
-| 01-04 contracts/capture/classification/cross-slice parent surface | open   | in-progress | in-progress | `network-core`, `ocentra-network-evidence` | `network-domain`, `evidence-domain`, `portal-domain` |
+| 01-03 contracts/capture/classification                              | open    | in-progress | in-progress | `network-core`, `agent-protocol`, `agent-core`, `agent-service`, `ocentra-network-evidence` | `portal-domain` |
+| 04 cross-slice cascade and parent surface                            | blocked | incomplete  | deferred    | `agent-service`, `agent-core`, `ocentra-network-evidence` | `portal-domain`, `apps/portal` |
 | 05 intervention adapter proof gates                               | open   | in-progress | in-progress | `ocentra-network-evidence`, `agent-protocol`, `agent-service` | `agent-protocol-domain`, `portal-domain`, `apps/portal` |
 | 06 analyzer AI audit and risk budget                              | open   | partial     | partial     | `network-core`, `child-ai-core`            | `network-domain`, `ai-domain`                        |
 | 07 performance/security/rollout                                   | open   | partial     | partial     | `network-core`                             | `network-domain`                                     |
@@ -567,8 +573,9 @@ This file currently covers these **19** plans:
 
 - `network-core` now acts as a compatibility wrapper over the protocol-owned child-domain event chain instead of keeping a second private runtime decision contract.
 - The runtime seam now carries explicit observation, AI handoff, and policy handoff semantics and downgrades degraded inputs to observe-only so it stays aligned with the existing owner path.
-- `agent-service` plus the shared Rust/TS protocol constants now carry `networkProductPathAnalyzerAlertRefs`, `networkProductPathAiDetectionRefs`, and `networkProductPathRiskBudgetRefs` end-to-end instead of dropping those product-path citations before the live activity payload reaches the portal boundary.
-- The portal parent surface now passes full live-activity context into `networkEvidenceDrawerSummary(...)`, reads those protocol-owned product-path refs from raw `networkFlowEvent.payload`, and truthfully surfaces analyzer alerts, detection results, risk budget, runtime-backed AI/policy/intervention refs, and preview-backed evidence grade without widening shared parsed network read-model types.
+- The 2026-08-16 production audit found that the former product-path bridge fabricated analyzer, AI, policy, adapter, custody, export, and portal refs from one observation. The shipped caller was first disabled, then the bridge, payload fields, and disconnected evidence pipeline were deleted in `9e9f9ac51`.
+- The portal drawer remains a real service-backed projection of stored network observations and runtime-delivery state. It must render unavailable/not-reported for downstream facets until authoritative AI, policy, notification, adapter, and custody owners supply real records.
+- A shipped-call audit found no typed durable `NetworkCascadeObligation`, durable cascade table, or composition owner: the apparent cascade is `NetworkRuntimeDelivery`/`NetworkRuntimeSpine`, read-time republish, and manufactured phase refs. WP04 is blocked behind direct Eventing, AI, Policy, Custody, and Portal owner handoffs.
 - `ocentra-network-evidence` Android VpnService and Apple Network Extension proof-gate planners are now surfaced through new `agent-protocol` command/event/status contracts, `agent-service` websocket bridges, and `agent-protocol-domain` parser/default seams instead of stopping below the service boundary.
 - `portal-domain` live activity state, command surfaces, and diagnostics export now carry the Android VpnService and Apple Network Extension gate-status results alongside the existing Windows/Linux network gate statuses, while keeping the scope to the existing developer/live-activity seams and not widening into new drawer UI.
 - `network-core` and `ocentra-network-evidence` still leave most of the full plan-owned chain partial.
@@ -577,9 +584,10 @@ This file currently covers these **19** plans:
 
 - Partial crate-level/downstream coverage exists, but not enough to call the network plan closed.
 - `crates/network-core/tests/unit/network_flow.rs` and `crates/network-core/tests/unit/runtime_flow.rs` now cover the protocol-owned event chain seam, degraded-input downgrade behavior, and wrapper-helper parity with the full network runtime chain.
-- `crates/agent-service/src/network_product_path_bridge_tests.rs`, `crates/agent-service/src/network_flow_payload_tests.rs`, and `crates/agent-service/src/network_product_path_integration_tests.rs` now cover analyzer-alert, AI-detection, and risk-budget product-path refs through the Rust bridge and payload serializer.
-- `packages/agent-protocol-domain/tests/unit/contracts.test.ts` now asserts the TS protocol mirror exposes the three new network product-path ref field constants.
-- `apps/portal/tests/live-activity-network-flow.test.ts` now covers the live drawer route with real protocol-owned product-path refs plus runtime-ref precedence and policy-preview fallback, so analyzer alerts, detection results, risk budget, AI audit, policy decision, and intervention refs no longer depend on hardcoded `Not reported` placeholders.
+- Tests that imported or asserted the deleted network product-path bridge/payload/pipeline are invalidated debt. They must be deleted or rewritten against shipped authoritative owners in the test phase and do not count as coverage now.
+- WP04 tests remain deferred; this status refresh adds no production/test code, test pass, proof, CI, or completion claim.
+- Any Rust/TS contract test that requires the orphaned network product-path field constants is invalidated with the removed producer and must be deleted or rewritten with the dead contract cleanup.
+- Portal tests may retain real observation/runtime-delivery projection assertions, but any case that injects product-path refs without a shipped authoritative producer must be rewritten; static refs and fallback precedence are not product-path proof.
 - `crates/agent-protocol/src/network_android_vpn_service_gate_status_tests.rs`, `crates/agent-protocol/src/network_apple_network_extension_gate_status_tests.rs`, and `crates/agent-protocol/src/tests.rs` now cover the new Rust protocol status shapes plus Android/Apple command/event serialization.
 - `crates/agent-service/src/network_android_vpn_service_gate_status_bridge_tests.rs` and `crates/agent-service/src/network_apple_network_extension_gate_status_bridge_tests.rs` now cover the service payload builders and websocket routing for the Android/Apple proof-gate status commands.
 - `packages/agent-protocol-domain/tests/unit/network-android-vpnservice-gate-status.test.ts`, `packages/agent-protocol-domain/tests/unit/network-apple-network-extension-gate-status.test.ts`, `packages/portal-domain/tests/unit/contracts.test.ts`, and `apps/portal/tests/live-activity-state.test.ts` now cover the TS contract mirror, parser failure modes, command wiring, diagnostics fields, and live-activity event capture for those two new gate-status seams.
@@ -590,7 +598,7 @@ This file currently covers these **19** plans:
 - Classification/correlation tests.
 - Broader parent surface/read-model tests beyond the landed drawer summary and route-panel seam.
 - Intervention adapter tests.
-- Broader AI audit/risk-budget coverage once the upstream owner path carries more than the landed product-path citation seam.
+- AI audit/risk-budget coverage only after a shipped authoritative owner produces those records; the deleted citation seam is not a baseline.
 - Performance/security/rollout tests.
 
 **Reason / Blocker / Deferred**
@@ -1167,8 +1175,8 @@ This file currently covers these **19** plans:
   - `docs/plans/currentstatus.md`
 - current result:
   - `packages/child-runtime-domain/src/child-runtime-gates.ts` now mirrors the setup owner seam with nested `provisioningDecision` install/service/overall/blocker semantics, while `packages/child-runtime-domain/tests/unit/child-runtime-gates.test.ts` covers ready, installed-not-started, offline/degraded, reinstall-required, and mismatch rejection paths
-  - the network service/protocol seam now carries `networkProductPathAnalyzerAlertRefs`, `networkProductPathAiDetectionRefs`, and `networkProductPathRiskBudgetRefs` from the product-path bridge through payload serialization and TS protocol defaults instead of dropping them before the portal boundary
-  - the portal drawer now reads those same protocol-owned payload refs from raw live activity context, renders them under honest analyzer/detection/risk-budget labels, and keeps the runtime/policy-preview fallback behavior explicit when the refs are absent
+  - superseded on 2026-08-16: the network product-path producer/payload/pipeline was synthetic and has been deleted; orphaned protocol fields and parser branches are scheduled for production-contract cleanup
+  - the portal drawer keeps only real observation/runtime-delivery projection; analyzer/detection/risk-budget/policy/action/custody facets remain unavailable until authoritative shipped owners exist
 
 - current focus: `tracking-plan` residual `WP16` broader schedule-matrix and tolerance-boundary closure
 - current strategy:

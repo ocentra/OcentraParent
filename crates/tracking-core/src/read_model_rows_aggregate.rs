@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
@@ -22,11 +23,11 @@ pub(crate) fn query_visibility(
     match lifecycle_state {
         TrackingReadModelRowLifecycleState::Tombstone => {
             TrackingReadModelQueryVisibility::parse(TRACKING_READ_MODEL_ROW_VISIBILITY_TOMBSTONE)
-                .expect("tracking read-model tombstone visibility parses")
+                .expect_value("tracking read-model tombstone visibility parses")
         }
         TrackingReadModelRowLifecycleState::Active => {
             TrackingReadModelQueryVisibility::parse(TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE)
-                .expect("tracking read-model active visibility parses")
+                .expect_value("tracking read-model active visibility parses")
         }
     }
 }
@@ -42,7 +43,7 @@ pub(crate) fn deleted_at(
                 .or_else(|| Some(row.observed_at.clone()))
                 .map(|value| {
                     TrackingReadModelDeletedAt::parse(value)
-                        .expect("tracking read-model deleted-at parses")
+                        .expect_value("tracking read-model deleted-at parses")
                 })
         }
     }
@@ -66,10 +67,6 @@ pub(crate) fn evidence_reference_ids(
     evidence: &[ActivityEvidenceRef],
 ) -> Vec<TrackingEvidenceRef> {
     read_model_rows_aggregate_fields::evidence_reference_ids(fields, evidence)
-}
-
-pub(crate) fn split_evidence_reference_ids(value: &str) -> Vec<TrackingEvidenceRef> {
-    read_model_rows_aggregate_fields::split_evidence_reference_ids(value)
 }
 
 pub(crate) fn string_field(fields: &LogFields, key: &str) -> Option<String> {

@@ -6,6 +6,36 @@ Owns: event-driven delivery lifecycle, per-child/device/domain status, offline d
 
 Handoff: eventing and enforcement plans own runtime mechanics; this workpack defines the policy delivery contract and proof.
 
+## Current implementation boundary
+
+- [x] The policy-owned delivery contract covers explicit lifecycle states, audit and rollback linkage, fail-closed receipt-required transitions, receipt evidence validation, and degraded parent-visible behavior.
+- [x] No production execution-authority entry is exposed; caller-supplied receipt fields are evidence only, cannot advance delivery state, and cannot generically hydrate schema-v2 acknowledged, applied, or rolled-back history.
+- [x] Schema-v1 receiptless acknowledged and rolled-back history is retained as explicitly unverified compatibility data and surfaces `manualRequired` rather than active success.
+- [x] Until a trusted adapter exists, the child-policy handoff converts acknowledged and applied requests into typed `manualRequired` state rather than fabricating active success.
+- [ ] A trusted domain- or enforcement-owned adapter must perform the real side effect, emit the required inspectable execution trace, and provide non-forgeable execution authority before acknowledged, applied, or rolled-back advancement can be proven at runtime.
+
+Status: contract checked; runtime blocked on the domain/enforcement handoff. The current public policy surface fails closed and cannot advance receipt-required acknowledged, applied, or rolled-back state.
+
+## Production-code audit — 2026-08-16
+
+The owner-backed production slice is drafted in the v0-8 enforcement adapter:
+`crates/schema/src/authenticated_delivery_managed_process.rs` carries only a
+signed managed-process identity, `crates/agent-core/src/enforcement_adapter.rs`
+resolves it through local launcher/session evidence and re-verifies executable
+identity/start time, and
+`crates/agent-core/src/authenticated_delivery_execution.rs` persists the
+adapter-owned trace. `crates/child-policy-core/src/policy_control_delivery_handoff.rs::apply_trusted_adapter_delivery_handoff`
+still accepts a public receipt for compatibility. The new
+`crates/agent-service/src/authenticated_delivery_policy_receipt.rs` builds a
+policy receipt only from the private adapter-owned trace and binds its
+household, policy version, child, device, observed process identity, and result
+to the typed receipt context. Callers must use that trace-backed service bridge
+for trusted advancement; public receipts remain evidence only. The production
+slice is code-drafted and unvalidated; tests, WP11 journal handoff, proof, and
+runtime integration are deferred. WP11 pre-action/post-action durability and
+the concrete runtime composition that connects this bridge to child-policy
+state remain unfinished.
+
 ## Ownership boundary
 
 ```text

@@ -73,8 +73,8 @@ pub enum ScreenCaptureAttempt {
 impl ScreenCaptureAttempt {
     pub fn status(&self) -> ActivityCaptureCapabilityStatus {
         match self {
-            Self::Captured(image) => image.metadata.status.clone(),
-            Self::Degraded(metadata) => metadata.status.clone(),
+            Self::Captured(image) => image.metadata.status,
+            Self::Degraded(metadata) => metadata.status,
         }
     }
 }

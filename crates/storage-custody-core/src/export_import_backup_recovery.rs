@@ -1,5 +1,8 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
+use ocentra_family_identity_core::household_authority::HouseholdAuthorityAction;
+use ocentra_family_identity_core::household_authority_proof::VerifiedHouseholdAuthority;
+
 #[path = "export_import_backup_recovery_build.rs"]
 mod export_import_backup_recovery_build;
 #[path = "export_import_backup_recovery_import.rs"]
@@ -75,6 +78,43 @@ pub struct RestoreApplyRequest {
     pub confirmed: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RestoreExecutorReceipt {
+    pub execution_ref: String,
+    pub state: contracts::ExportImportRestoreApplyState,
+    pub applied_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub idempotent: bool,
+    pub tombstones_preserved: bool,
+    pub duplicates_created: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RestoreExecutorFailure {
+    Unavailable,
+}
+
+pub trait RestoreExecutor {
+    fn execute_restore(
+        &mut self,
+        preflight: &contracts::ExportImportImportPreflight,
+        request: &RestoreApplyRequest,
+    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure>;
+}
+
+#[derive(Debug, Default)]
+pub struct UnavailableRestoreExecutor;
+
+impl RestoreExecutor for UnavailableRestoreExecutor {
+    fn execute_restore(
+        &mut self,
+        _preflight: &contracts::ExportImportImportPreflight,
+        _request: &RestoreApplyRequest,
+    ) -> Result<RestoreExecutorReceipt, RestoreExecutorFailure> {
+        Err(RestoreExecutorFailure::Unavailable)
+    }
+}
+
 pub fn derive_export_bundle(
     request: ExportBundleBuildRequest,
     sections: Vec<ExportPayloadSectionInput>,
@@ -94,5 +134,54 @@ pub fn apply_restore(
     preflight: &contracts::ExportImportImportPreflight,
     request: &RestoreApplyRequest,
 ) -> contracts::ExportImportRestoreApplyResult {
-    export_import_backup_recovery_restore::apply_restore(preflight, request)
+    export_import_backup_recovery_restore::blocked_restore(preflight, request)
+}
+
+pub fn apply_restore_with_parent_authority(
+    preflight: &contracts::ExportImportImportPreflight,
+    context: &ImportBundleContext,
+    request: &RestoreApplyRequest,
+    authority: &VerifiedHouseholdAuthority,
+) -> contracts::ExportImportRestoreApplyResult {
+    let mut executor = UnavailableRestoreExecutor;
+    apply_restore_with_parent_authority_and_executor(
+        preflight,
+        context,
+        request,
+        authority,
+        &mut executor,
+    )
+}
+
+pub fn apply_restore_with_parent_authority_and_executor(
+    preflight: &contracts::ExportImportImportPreflight,
+    context: &ImportBundleContext,
+    request: &RestoreApplyRequest,
+    authority: &VerifiedHouseholdAuthority,
+    executor: &mut impl RestoreExecutor,
+) -> contracts::ExportImportRestoreApplyResult {
+    let Some(identity_binding) = authority.identity_binding() else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    let Some(target_device_id) = context.target_device_id.as_ref() else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    if !export_import_backup_recovery_restore::preflight_is_applicable(preflight)
+        || !request.confirmed
+        || authority.input().action != HouseholdAuthorityAction::PairChildDevice
+        || identity_binding.household_id != context.local_household_id.as_str()
+        || identity_binding.target_device_id != target_device_id.as_str()
+    {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    }
+
+    let Ok(receipt) = executor.execute_restore(preflight, request) else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    let Some(result) =
+        export_import_backup_recovery_restore::apply_restore_after_execution(preflight, receipt)
+    else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    result
 }

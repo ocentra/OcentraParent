@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_acknowledgement_id_from_violation_id, TrackingAcknowledgementState,
@@ -12,7 +13,7 @@ pub fn record_parent_acknowledgement(
     let acknowledgement_state = TrackingAcknowledgementState::parse(
         constants::tracking_runtime::ACKNOWLEDGEMENT_STATE_ACKNOWLEDGED,
     )
-    .expect("tracking acknowledgement contract drift");
+    .expect_value("tracking acknowledgement contract drift");
 
     TrackingParentAcknowledgementRecordedEvent {
         child_device_id: event.child_device_id.clone(),

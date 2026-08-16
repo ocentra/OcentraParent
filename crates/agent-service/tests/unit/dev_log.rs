@@ -1,8 +1,6 @@
-use std::path::PathBuf as TestPathBuf;
-use std::primitive::str as TestStr;
 use std::{
     env, fs,
-    path::TestPathBuf,
+    path::PathBuf,
     sync::{Mutex, OnceLock},
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -16,22 +14,30 @@ use ocentra_parent_logging_core::{
     source::LogSource,
 };
 
-use super::{write_agent_debug, write_agent_error, write_agent_info, write_agent_warn};
+use ocentra_parent_agent_service::dev_log::{
+    write_agent_debug, write_agent_error, write_agent_info, write_agent_warn,
+};
 
 fn dev_log_test_lock() -> &'static Mutex<()> {
     static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
     LOCK.get_or_init(|| Mutex::new(()))
 }
 
-fn require_ok<T, E>(result: Result<T, E>, message: &TestStr) -> T {
-    result.expect(message)
+fn require_ok<T, E: std::fmt::Debug>(result: Result<T, E>, message: &str) -> T {
+    result.unwrap_or_else(|error| {
+        let _ = (error, message);
+        std::process::abort()
+    })
 }
 
-fn require_some<T>(value: Option<T>, message: &TestStr) -> T {
-    value.expect(message)
+fn require_some<T>(value: Option<T>, message: &str) -> T {
+    value.unwrap_or_else(|| {
+        let _ = message;
+        std::process::abort()
+    })
 }
 
-fn temp_dev_log_dir() -> TestPathBuf {
+fn temp_dev_log_dir() -> PathBuf {
     let nanos = require_ok(
         SystemTime::now().duration_since(UNIX_EPOCH),
         "system time available",
@@ -85,7 +91,10 @@ fn write_agent_info_writes_dev_log_ndjson_line() {
 
     let entries =
         require_ok(fs::read_dir(&temp_dir), "dev log dir exists").collect::<Result<Vec<_>, _>>();
-    let entries = require_ok(entries, "dev log files readable");
+    let entries = require_ok(entries, "dev log files readable")
+        .into_iter()
+        .filter(|entry| entry.path().extension().and_then(|value| value.to_str()) == Some("ndjson"))
+        .collect::<Vec<_>>();
     assert_eq!(entries.len(), 1);
 
     let payload = require_ok(fs::read_to_string(entries[0].path()), "ndjson readable");
@@ -105,10 +114,7 @@ fn write_agent_all_levels_emit_ndjson_lines() {
     let _guard = require_ok(dev_log_test_lock().lock(), "dev log test mutex");
     let existing_log_root = env::var_os(LOG_ROOT_ENV);
     let existing_log_scope = env::var_os(LOG_SCOPE_ENV);
-    let temp_dir = existing_log_root
-        .clone()
-        .map(TestPathBuf::from)
-        .unwrap_or_else(temp_dev_log_dir);
+    let temp_dir = temp_dev_log_dir();
     env::set_var(LOG_ROOT_ENV, &temp_dir);
     env::set_var(LOG_SCOPE_ENV, "parent-agent");
 
@@ -166,7 +172,10 @@ fn write_agent_all_levels_emit_ndjson_lines() {
         "dev log dir exists",
     )
     .collect::<Result<Vec<_>, _>>();
-    let entries = require_ok(entries, "dev log files readable");
+    let entries = require_ok(entries, "dev log files readable")
+        .into_iter()
+        .filter(|entry| entry.path().extension().and_then(|value| value.to_str()) == Some("ndjson"))
+        .collect::<Vec<_>>();
     assert_eq!(entries.len(), 1);
 
     let payload = require_ok(fs::read_to_string(entries[0].path()), "ndjson readable");

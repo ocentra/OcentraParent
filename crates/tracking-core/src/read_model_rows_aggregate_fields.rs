@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -13,7 +14,7 @@ pub(super) fn evidence_reference_ids(
 
     for reference in evidence {
         let evidence_ref = TrackingEvidenceRef::parse(reference.evidence_id.clone())
-            .expect("tracking read-model evidence reference parses");
+            .expect_value("tracking read-model evidence reference parses");
         if !ids.iter().any(|id| id == &evidence_ref) {
             ids.push(evidence_ref);
         }
@@ -28,7 +29,7 @@ pub(super) fn split_evidence_reference_ids(value: &str) -> Vec<TrackingEvidenceR
         .filter(|id| !id.is_empty())
         .map(|id| {
             TrackingEvidenceRef::parse(id)
-                .expect("tracking read-model split evidence reference parses")
+                .expect_value("tracking read-model split evidence reference parses")
         })
         .collect()
 }

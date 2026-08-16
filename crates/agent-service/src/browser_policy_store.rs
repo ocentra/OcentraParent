@@ -3,7 +3,6 @@ use std::{fs, io::ErrorKind, path::Path};
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
 use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyEffectivePolicy;
 use ocentra_parent_agent_protocol::browser_policy_model::BrowserPolicyValue;
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::policy_constants;
 use serde::{Deserialize, Serialize};
 

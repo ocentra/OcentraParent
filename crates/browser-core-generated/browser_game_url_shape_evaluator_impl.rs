@@ -173,9 +173,7 @@ pub(super) fn evaluate_browser_game_url_shape(
     let path_depth = route_hints::path_depth_for(&segments);
     let route_surface_kind = route_surface::route_surface_kind_for(&segments, &route_hints);
     let host_shape = host::host_shape_for(&hostname);
-    let has_game_id_like_segment = segments
-        .iter()
-        .any(|segment| route_hints::segment_looks_like_game_id(segment));
+    let has_game_id_like_segment = segments.iter().any(route_hints::segment_looks_like_game_id);
     let reason_codes = reason_codes::reason_codes_for(route_surface_kind, &route_hints);
     let confidence = confidence::confidence_for(route_surface_kind, host_shape, path_depth);
 

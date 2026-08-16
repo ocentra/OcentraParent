@@ -401,6 +401,28 @@ impl PolicyRequestStatus {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct PolicyPreviewConfirmationContext {
+    pub request_id: Option<String>,
+    pub submission_key: Option<String>,
+    pub household_id: Option<String>,
+    pub child_profile_id: Option<String>,
+    pub device_id: Option<String>,
+    pub source_document_id: Option<String>,
+    pub policy_version: Option<u64>,
+    pub target_reference_id: Option<String>,
+    pub rule_id: Option<String>,
+    pub requested_at: Option<String>,
+    pub expires_at: Option<String>,
+    pub assistant_preview_id: Option<String>,
+    pub audit_reference_ids: Option<String>,
+    pub actor_id: Option<String>,
+    pub actor_role: Option<String>,
+    pub actor_state: Option<String>,
+    pub confirmation_audit_reference_id: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PolicyPreviewReadModelRow {
     pub preview_id: String,
     pub source_event_id: String,
@@ -427,6 +449,7 @@ pub struct PolicyPreviewReadModelRow {
     pub policy_reviewed_at: Option<String>,
     pub policy_audit_reference_id: Option<String>,
     pub network_evidence_mapping: Option<PolicyPreviewNetworkEvidenceMapping>,
+    pub confirmation_context: Option<PolicyPreviewConfirmationContext>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

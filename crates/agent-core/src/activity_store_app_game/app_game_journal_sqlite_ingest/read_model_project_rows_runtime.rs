@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::app_game::{
-    AppGameRuntimeEvidenceRow, APP_GAME_JOURNAL_ROW_KIND_RUNTIME, APP_GAME_RUNTIME_RUNNING,
+    AppGameRuntimeEvidenceRow, APP_GAME_RUNTIME_RUNNING,
 };
 
 use crate::ActivityStoreError;

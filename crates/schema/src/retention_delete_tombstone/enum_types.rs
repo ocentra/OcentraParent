@@ -276,15 +276,15 @@ const RETENTION_DELETE_NON_CLAIM_VARIANTS: [&str; 5] = [
 #[repr(usize)]
 pub enum RetentionDeleteNonClaim {
     #[serde(rename = "no-ui-hide-only")]
-    NoUiHideOnly,
+    UiHideOnly,
     #[serde(rename = "no-resurrection")]
-    NoResurrection,
+    Resurrection,
     #[serde(rename = "no-plain-audit-payload")]
-    NoPlainAuditPayload,
+    PlainAuditPayload,
     #[serde(rename = "no-ts-business-owner")]
-    NoTsBusinessOwner,
+    TsBusinessOwner,
     #[serde(rename = "no-lan-ownership")]
-    NoLanOwnership,
+    LanOwnership,
 }
 
 impl RetentionDeleteNonClaim {

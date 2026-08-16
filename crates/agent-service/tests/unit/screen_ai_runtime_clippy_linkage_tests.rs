@@ -22,21 +22,27 @@ fn screen_ai_runtime_clippy_linkage_keeps_entrypoints_live() {
         screen_ai_foreground_runtime_config::ScreenAiForegroundRuntimeConfig::scheduler_settings;
 
     let analysis_clock = config::ScreenAiAnalysisCycleClock::from_system_time();
-    let analysis_clock_parsed = DateTime::parse_from_rfc3339(&analysis_clock.timestamp).unwrap();
+    let analysis_clock_parsed = test_invariants::require_ok(
+        DateTime::parse_from_rfc3339(&analysis_clock.timestamp),
+        "analysis clock timestamp should parse",
+    );
     assert_eq!(
         analysis_clock_parsed.to_rfc3339_opts(SecondsFormat::Millis, true),
         analysis_clock.timestamp
     );
 
     let capture_clock = ScreenAiServiceCaptureClock::from_system_time();
-    let capture_clock_parsed = DateTime::parse_from_rfc3339(&capture_clock.timestamp).unwrap();
+    let capture_clock_parsed = test_invariants::require_ok(
+        DateTime::parse_from_rfc3339(&capture_clock.timestamp),
+        "capture clock timestamp should parse",
+    );
     assert_eq!(
         capture_clock_parsed.to_rfc3339_opts(SecondsFormat::Millis, true),
         capture_clock.timestamp
     );
 
     let runtime = crate::screen_ai_analysis_runtime::adapter_runtime_status(
-        None::<std::path::PathBuf>,
+        None::<&std::path::Path>,
         "2026-06-29T00:00:00Z",
     );
     assert_eq!(runtime.last_checked_at, "2026-06-29T00:00:00Z");

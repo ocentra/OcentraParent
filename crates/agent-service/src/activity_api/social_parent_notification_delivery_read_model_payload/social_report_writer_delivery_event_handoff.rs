@@ -94,7 +94,7 @@ pub async fn request_social_report_writer_delivery_read_model_from_service(
     let requested_at: String = timestamp_now();
     let request = SocialReportWriterDeliveryReadModelRequest {
         request_id: RequestId::parse(
-            social_report_writer_delivery_request_id(RequestedAtText(requested_at.clone())).0,
+            social_report_writer_delivery_request_id(&RequestedAtText(requested_at.clone())).0,
         )?,
         requested_at,
     };
@@ -118,7 +118,7 @@ fn social_report_writer_delivery_metadata(
     Ok(EventMetadata::from_parts(
         ocentra_eventing::ids::EventId::generated(),
         CorrelationId::parse(
-            social_report_writer_delivery_correlation_id(RequestedAtText(
+            social_report_writer_delivery_correlation_id(&RequestedAtText(
                 request.requested_at.clone(),
             ))
             .0,
@@ -139,7 +139,7 @@ fn social_report_writer_delivery_metadata(
     ))
 }
 
-fn social_report_writer_delivery_request_id(requested_at: RequestedAtText) -> RequestIdText {
+fn social_report_writer_delivery_request_id(requested_at: &RequestedAtText) -> RequestIdText {
     let mut value = String::from(
         constants::browser::REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX,
     );
@@ -148,7 +148,7 @@ fn social_report_writer_delivery_request_id(requested_at: RequestedAtText) -> Re
 }
 
 fn social_report_writer_delivery_correlation_id(
-    requested_at: RequestedAtText,
+    requested_at: &RequestedAtText,
 ) -> CorrelationIdText {
     let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
     value.push_str(&requested_at.0);

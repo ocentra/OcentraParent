@@ -20,7 +20,7 @@ use crate::{
 };
 
 #[derive(Clone, Debug)]
-struct LocalAiGenerationMessageId(String);
+pub(crate) struct LocalAiGenerationMessageId(String);
 
 impl<T> From<T> for LocalAiGenerationMessageId
 where
@@ -133,7 +133,7 @@ async fn execute_llama_cli(
                     &message_id.0,
                     config,
                     &request,
-                    LocalAiFailedGeneration {
+                    &LocalAiFailedGeneration {
                         duration_ms: elapsed_ms(started_at),
                         exit_code: None,
                         stderr_byte_size: 0,
@@ -148,7 +148,7 @@ async fn execute_llama_cli(
                     &message_id.0,
                     config,
                     &request,
-                    LocalAiFailedGeneration {
+                    &LocalAiFailedGeneration {
                         duration_ms: elapsed_ms(started_at),
                         exit_code: None,
                         stderr_byte_size: 0,
@@ -177,7 +177,7 @@ fn complete_or_failed_result(
             &message_id.0,
             config,
             request,
-            LocalAiFailedGeneration {
+            &LocalAiFailedGeneration {
                 duration_ms: elapsed_ms(started_at),
                 exit_code,
                 stderr_byte_size,
@@ -193,7 +193,7 @@ fn complete_or_failed_result(
             &message_id.0,
             config,
             request,
-            LocalAiFailedGeneration {
+            &LocalAiFailedGeneration {
                 duration_ms: elapsed_ms(started_at),
                 exit_code,
                 stderr_byte_size,

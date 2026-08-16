@@ -24,6 +24,7 @@ mod local_ai_queue;
 mod local_platform_probe;
 mod managed_browser;
 mod notification;
+mod parser_policy;
 mod performance;
 mod pipeline;
 mod platform_claims;

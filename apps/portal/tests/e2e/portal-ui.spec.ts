@@ -168,6 +168,7 @@ async function assertHealthResultForCopy(page: Page, commandResult: Locator): Pr
 
 async function assertNetworkFlowResult(page: Page, commandResult: Locator): Promise<void> {
   await clickCommandControl(page, 'Refresh network activity');
+  await expectCommandResultEvent(commandResult, 'agent.network.flow.read-model.reported');
   await clickCommandControl(page, 'Refresh network activity');
   await expectCommandResultEvent(commandResult, 'agent.network.flow.read-model.reported');
   await expect(commandResult.locator('.log')).toHaveCount(1);

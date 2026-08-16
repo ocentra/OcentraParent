@@ -157,7 +157,6 @@ fn network_flow_response_event_payload(
     let mut payload = NetworkFlowResponsePayload::new();
     insert_network_flow_response_event_summary_fields(&mut payload, read_model, row, digest);
     insert_network_flow_response_event_endpoint_fields(&mut payload, row);
-    insert_network_flow_response_event_product_path_fields(&mut payload);
     payload
 }
 
@@ -303,23 +302,6 @@ fn insert_network_flow_response_event_endpoint_fields(
     payload.insert(
         payload_field!(constants::field::LAST_SEEN_AT),
         LogFieldValue::String(row.counters.last_seen_at.clone().unwrap_or_default()),
-    );
-}
-
-fn insert_network_flow_response_event_product_path_fields(
-    payload: &mut NetworkFlowResponsePayload,
-) {
-    payload.insert(
-        payload_field!(constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS),
-        LogFieldValue::String("event.network.analyzer.alert.1".to_string()),
-    );
-    payload.insert(
-        payload_field!(constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS),
-        LogFieldValue::String("event.network.detection.result.1".to_string()),
-    );
-    payload.insert(
-        payload_field!(constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS),
-        LogFieldValue::String("event.network.risk-budget.1".to_string()),
     );
 }
 

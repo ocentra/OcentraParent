@@ -1,14 +1,11 @@
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyPatch;
-use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyRejectionReason;
 use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
-use ocentra_parent_agent_protocol::constants;
 
 use super::{persist, read_state};
 use crate::browser_policy_request::apply_browser_policy_patches;
 use crate::browser_policy_runtime::BrowserPolicyRuntime;
 use crate::browser_policy_runtime_support::{
-    BrowserPolicyMessage, BrowserPolicyPolicyId, BrowserPolicyRequestId, BrowserPolicyRevisionId,
-    BrowserPolicyTimestamp,
+    BrowserPolicyPolicyId, BrowserPolicyRequestId, BrowserPolicyRevisionId, BrowserPolicyTimestamp,
 };
 use crate::time::timestamp_now;
 

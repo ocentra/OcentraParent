@@ -15,7 +15,10 @@ pub(super) async fn build_activity_app_game_action_report(
 ) -> AgentEventEnvelope {
     match command.command.clone() {
         AgentCommandName::AgentActivityAppGameAdapterDispatchExecute => {
-            build_activity_app_game_adapter_dispatch_execute_report(command).await
+            Box::pin(build_activity_app_game_adapter_dispatch_execute_report(
+                command,
+            ))
+            .await
         }
         AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet => {
             build_activity_app_game_timer_parent_surface_report(command).await

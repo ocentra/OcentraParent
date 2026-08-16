@@ -1,87 +1,9 @@
 use std::fmt::{Display, Formatter};
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 
 pub const ENCRYPTION_KEY_CUSTODY_SCHEMA_VERSION: &str = "encryption-key-custody-proof";
 
-const ENCRYPTION_KEY_CLASS_CHILD_DEVICE_LOCAL_KEY: &str = "child-device-local-key";
-const ENCRYPTION_KEY_CLASS_PARENT_DESKTOP_KEY: &str = "parent-desktop-key";
-const ENCRYPTION_KEY_CLASS_PARENT_MOBILE_KEY: &str = "parent-mobile-key";
-const ENCRYPTION_KEY_CLASS_HOUSEHOLD_RECOVERY_KEY: &str = "household-recovery-key";
-const ENCRYPTION_KEY_CLASS_PROVIDER_AUTH_TOKEN: &str = "provider-auth-token";
-const ENCRYPTION_KEY_CLASS_SUPPORT_DIAGNOSTIC_TOKEN: &str = "support-diagnostic-token";
-const ENCRYPTION_KEY_HOLDER_CHILD_DEVICE: &str = "child-device";
-const ENCRYPTION_KEY_HOLDER_PARENT_DESKTOP: &str = "parent-desktop";
-const ENCRYPTION_KEY_HOLDER_PARENT_MOBILE: &str = "parent-mobile";
-const ENCRYPTION_KEY_HOLDER_HOUSEHOLD_RECOVERY_PATH: &str = "household-recovery-path";
-const ENCRYPTION_KEY_HOLDER_PROVIDER_CONNECTION: &str = "provider-connection";
-const ENCRYPTION_KEY_HOLDER_SUPPORT_FLOW: &str = "support-flow";
-const ENCRYPTION_KEY_HOLDER_HOSTED_PORTAL: &str = "hosted-portal";
-const ENCRYPTION_UNLOCK_SCOPE_CHILD_EVIDENCE_LOCAL: &str = "child-evidence-local";
-const ENCRYPTION_UNLOCK_SCOPE_PARENT_OWNED_BUNDLE: &str = "parent-owned-bundle";
-const ENCRYPTION_UNLOCK_SCOPE_PARENT_CACHE_REPORTS: &str = "parent-cache-reports";
-const ENCRYPTION_UNLOCK_SCOPE_HOUSEHOLD_RECOVERY_BUNDLE: &str = "household-recovery-bundle";
-const ENCRYPTION_UNLOCK_SCOPE_PROVIDER_API_ONLY: &str = "provider-api-only";
-const ENCRYPTION_UNLOCK_SCOPE_DIAGNOSTICS_METADATA_ONLY: &str = "diagnostics-metadata-only";
-const ENCRYPTION_UNLOCK_SCOPE_STATUS_ONLY: &str = "status-only";
-const PLATFORM_KEY_CUSTODY_SURFACE_WINDOWS: &str = "windows";
-const PLATFORM_KEY_CUSTODY_SURFACE_MACOS: &str = "macos";
-const PLATFORM_KEY_CUSTODY_SURFACE_LINUX: &str = "linux";
-const PLATFORM_KEY_CUSTODY_SURFACE_ANDROID: &str = "android";
-const PLATFORM_KEY_CUSTODY_SURFACE_IOS: &str = "ios";
-const PLATFORM_KEY_CUSTODY_SURFACE_WEB_PORTAL: &str = "web-portal";
-const PLATFORM_KEY_CUSTODY_SURFACE_PARENT_DESKTOP: &str = "parent-desktop";
-const PLATFORM_KEY_CUSTODY_SURFACE_CHILD_SERVICE: &str = "child-service";
-const PLATFORM_KEY_CUSTODY_SURFACE_PARENT_MOBILE: &str = "parent-mobile";
-const PLATFORM_KEY_CUSTODY_SURFACE_CHILD_MOBILE: &str = "child-mobile";
-const PLATFORM_KEY_STORE_KIND_WINDOWS_DPAPI_USER: &str = "windows-dpapi-user";
-const PLATFORM_KEY_STORE_KIND_WINDOWS_DPAPI_MACHINE: &str = "windows-dpapi-machine";
-const PLATFORM_KEY_STORE_KIND_MACOS_KEYCHAIN: &str = "macos-keychain";
-const PLATFORM_KEY_STORE_KIND_SECURE_ENCLAVE_BACKED: &str = "secure-enclave-backed";
-const PLATFORM_KEY_STORE_KIND_LINUX_SECRET_STORE_UNDECIDED: &str = "linux-secret-store-undecided";
-const PLATFORM_KEY_STORE_KIND_ANDROID_KEYSTORE: &str = "android-keystore";
-const PLATFORM_KEY_STORE_KIND_IOS_KEYCHAIN: &str = "ios-keychain";
-const PLATFORM_KEY_STORE_KIND_NO_DECRYPT_ROOT: &str = "no-decrypt-root";
-const PLATFORM_KEY_STORE_KIND_PARENT_DESKTOP_LOCAL_KEY_PATH: &str = "parent-desktop-local-key-path";
-const PLATFORM_KEY_STORE_KIND_CHILD_SERVICE_LOCAL_KEY_PATH: &str = "child-service-local-key-path";
-const PLATFORM_KEY_STORE_KIND_PARENT_MOBILE_APPROVAL_PATH: &str = "parent-mobile-approval-path";
-const PLATFORM_KEY_STORE_KIND_CHILD_MOBILE_PLATFORM_KEY_PATH: &str =
-    "child-mobile-platform-key-path";
-const PLATFORM_DECRYPT_AUTHORITY_CHILD_LOCAL_EVIDENCE_ONLY: &str = "child-local-evidence-only";
-const PLATFORM_DECRYPT_AUTHORITY_PARENT_OWNED_BUNDLES_ONLY: &str = "parent-owned-bundles-only";
-const PLATFORM_DECRYPT_AUTHORITY_PARENT_CACHE_REPORTS_AND_BUNDLES: &str =
-    "parent-cache-reports-and-bundles";
-const PLATFORM_DECRYPT_AUTHORITY_HOUSEHOLD_RECOVERY_BUNDLES_ONLY: &str =
-    "household-recovery-bundles-only";
-const PLATFORM_DECRYPT_AUTHORITY_NOT_DECRYPT_ROOT: &str = "not-decrypt-root";
-const PLATFORM_DECRYPT_AUTHORITY_MANUAL_REQUIRED: &str = "manual-required";
-const KEY_CUSTODY_STATE_KEY_AVAILABLE: &str = "keyAvailable";
-const KEY_CUSTODY_STATE_KEY_UNAVAILABLE: &str = "keyUnavailable";
-const KEY_CUSTODY_STATE_KEY_REVOKED: &str = "keyRevoked";
-const KEY_CUSTODY_STATE_WRONG_HOUSEHOLD: &str = "wrongHousehold";
-const KEY_CUSTODY_STATE_WRONG_DEVICE: &str = "wrongDevice";
-const KEY_CUSTODY_STATE_REINSTALL_REQUIRED: &str = "reinstallRequired";
-const KEY_CUSTODY_STATE_RECOVERY_AVAILABLE: &str = "recoveryAvailable";
-const KEY_CUSTODY_STATE_RECOVERY_NOT_SUPPORTED: &str = "recoveryNotSupported";
-const RECOVERY_MODE_MANUAL_REQUIRED: &str = "manualRequired";
-const RECOVERY_MODE_PARENT_OWNED_RECOVERY: &str = "parent-owned-recovery";
-const RECOVERY_MODE_NOT_SUPPORTED: &str = "notSupported";
-const DECRYPT_DECISION_STATE_ALLOWED: &str = "allowed";
-const DECRYPT_DECISION_STATE_WRONG_HOUSEHOLD_DENIED: &str = "wrongHouseholdDenied";
-const DECRYPT_DECISION_STATE_WRONG_DEVICE_DENIED: &str = "wrongDeviceDenied";
-const DECRYPT_DECISION_STATE_REVOKED_KEY_DENIED: &str = "revokedKeyDenied";
-const DECRYPT_DECISION_STATE_LOST_KEY_MANUAL_REQUIRED: &str = "lostKeyManualRequired";
-const DECRYPT_DECISION_STATE_RECOVERY_AVAILABLE_MANUAL_REQUIRED: &str =
-    "recoveryAvailableManualRequired";
-const DECRYPT_DECISION_STATE_LIMITED_UNTIL_DEVICE_PROOF: &str = "limitedUntilDeviceProof";
-const DECRYPT_DECISION_STATE_NOT_DECRYPT_ROOT_DENIED: &str = "notDecryptRootDenied";
-const DECRYPT_DECISION_STATE_PLATFORM_MANUAL_REQUIRED: &str = "platformManualRequired";
-const ENCRYPTION_KEY_NON_CLAIM_NO_UNIVERSAL_OCENTRA_KEY: &str = "no-universal-ocentra-key";
-const ENCRYPTION_KEY_NON_CLAIM_NO_HOSTED_DECRYPT_ROOT: &str = "no-hosted-decrypt-root";
-const ENCRYPTION_KEY_NON_CLAIM_NO_PLAINTEXT_FALLBACK: &str = "no-plaintext-fallback";
-const ENCRYPTION_KEY_NON_CLAIM_NO_TS_BUSINESS_OWNER: &str = "no-ts-business-owner";
-const ENCRYPTION_KEY_NON_CLAIM_NO_LAN_OWNERSHIP: &str = "no-lan-ownership";
-const ENCRYPTION_KEY_NON_CLAIM_NO_MOBILE_BROAD_CLAIM: &str = "no-mobile-broad-claim";
 const ENCRYPTION_KEY_CONTRACT_VERSION_V0_2: &str = "v0.2";
 const ENCRYPTION_ATTEMPT_WINDOWS_PARENT: &str = "attempt-windows-parent";
 const ENCRYPTION_ATTEMPT_WRONG_HOUSEHOLD: &str = "attempt-wrong-household";

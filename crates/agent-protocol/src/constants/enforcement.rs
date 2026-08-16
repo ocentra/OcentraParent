@@ -106,8 +106,23 @@ pub const REJECTION_REASON_CODE_REQUIRED: &str = "enforcement-reason-code-requir
 pub const REJECTION_ACTIVE_TIMER_STATE_REQUIRED: &str = "enforcement-active-timer-state-required";
 pub const REJECTION_ACTIVE_TIMER_STATE_MISMATCH: &str = "enforcement-active-timer-state-mismatch";
 pub const REJECTION_PARENT_ACTION_REQUIRED: &str = "enforcement-parent-action-required";
+pub const REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED: &str =
+    "enforcement-app-game-session-evidence-required";
+pub const REJECTION_APP_GAME_RUNTIME_EVIDENCE_MISMATCH: &str =
+    "enforcement-app-game-runtime-evidence-mismatch";
+pub const APP_GAME_RUNTIME_EVIDENCE_GENERATED_AT: &str = "";
 
 pub const SOURCE_ID_AGENT_SERVICE: &str = "enforcement-agent-service";
+pub const EVENT_AUDIT_JOURNAL_RECORDED: &str = "enforcement.audit-journal.recorded";
+pub const EVENT_SCHEMA_VERSION: u16 = 1;
+pub const EVENTING_AGGREGATE_AUDIT_PREFIX: &str = "enforcement-audit-";
+pub const EVENTING_IDEMPOTENCY_AUDIT_PREFIX: &str = "enforcement-audit-idempotency-";
+pub const EVENTING_CUSTODY_LOCAL_AUDIT: &str = "local-audit";
+pub const EVENTING_RUNTIME_ROLE_AGENT: &str = "agent";
+pub const EVENTING_SOURCE_COMPONENT: &str = "enforcement-command-execution";
+pub const EVENTING_RUNTIME_INSTANCE: &str = "default";
+pub const EVENTING_JOURNAL_EXTENSION: &str = "eventing.ndjson";
+pub const JOURNAL_REJECTED_ID_PREFIX: &str = "0-rejected-";
 pub const JOURNAL_BEFORE_ACTION_ID_PREFIX: &str = "0-before-action-";
 pub const INTENT_ID_PREFIX: &str = "enforcement-intent-";
 pub const ACTION_ID_PREFIX: &str = "enforcement-action-";

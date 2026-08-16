@@ -160,6 +160,12 @@ pub mod request {
     pub const FIELD_RESOLVED_APPROVAL_ID: &str = "policy_request.resolved_approval_id";
     pub const FIELD_HOUSEHOLD_ID: &str = "policy_request.household_id";
     pub const FIELD_POLICY_VERSION: &str = "policy_request.policy_version";
+    pub const FIELD_CANONICAL_CONFIRMED_REQUEST_JSON: &str =
+        "policy_request.canonical_confirmed_request_json";
+    pub const FIELD_CANONICAL_RESOLVED_REQUEST_JSON: &str =
+        "policy_request.canonical_resolved_request_json";
+    pub const FIELD_CANONICAL_TEMPORARY_OVERRIDE_JSON: &str =
+        "policy_request.canonical_temporary_override_json";
 
     pub const OVERRIDE_ID_PREFIX: &str = "policy-override:";
     pub const VALUE_DUPLICATE_SUBMISSION_KEY_PREFIX: &str = "duplicate submission key ";
@@ -191,6 +197,18 @@ pub mod request {
     pub const STATUS_MODIFIED: &str = "modified";
     pub const STATUS_EXPIRED: &str = "expired";
     pub const STATUS_REPLAY_REJECTED: &str = "replay-rejected";
+}
+
+pub mod delivery_binding {
+    pub const STATUS_ERROR: &str =
+        "policy_delivery_binding.request_status: approved-or-modified-required";
+    pub const MISMATCH_ERROR: &str = "policy_delivery_binding.{field}: request-binding-mismatch";
+    pub const FIELD_PLACEHOLDER: &str = "{field}";
+    pub const FIELD_HOUSEHOLD_ID: &str = "household_id";
+    pub const FIELD_CHILD_PROFILE_ID: &str = "child_profile_id";
+    pub const FIELD_DEVICE_ID: &str = "device_id";
+    pub const FIELD_SOURCE_DOCUMENT_ID: &str = "source_document_id";
+    pub const FIELD_POLICY_VERSION: &str = "policy_version";
 }
 
 pub mod delivery {

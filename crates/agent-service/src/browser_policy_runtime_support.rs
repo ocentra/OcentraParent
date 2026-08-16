@@ -84,6 +84,7 @@ pub(crate) fn accepted_response(
     message: BrowserPolicyMessage,
     generated_at: BrowserPolicyTimestamp,
 ) -> BrowserPolicyUpdateResponse {
+    let BrowserPolicyTimestamp(generated_at) = generated_at;
     BrowserPolicyUpdateResponse {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         request_id: request_id.0,
@@ -93,7 +94,7 @@ pub(crate) fn accepted_response(
         effective_policy: Some(effective_policy),
         capability_registry: Some(browser_policy_capability_registry(
             crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
-                generated_at: &generated_at.0,
+                generated_at: &generated_at,
             },
         )),
         rejection_reason: None,
@@ -109,6 +110,7 @@ pub(crate) fn rejected_response(
     message: BrowserPolicyMessage,
     generated_at: BrowserPolicyTimestamp,
 ) -> BrowserPolicyUpdateResponse {
+    let BrowserPolicyTimestamp(generated_at) = generated_at;
     BrowserPolicyUpdateResponse {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         request_id: request_id.0,
@@ -118,7 +120,7 @@ pub(crate) fn rejected_response(
         effective_policy: None,
         capability_registry: Some(browser_policy_capability_registry(
             crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
-                generated_at: &generated_at.0,
+                generated_at: &generated_at,
             },
         )),
         rejection_reason: Some(rejection_reason),

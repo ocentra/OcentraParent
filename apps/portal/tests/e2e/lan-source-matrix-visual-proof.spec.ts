@@ -6,6 +6,8 @@ const shellReadyTimeoutMs = 90_000;
 const devicesLanScreenshotPath = process.env['LAN_SOURCE_MATRIX_DEVICES_SCREENSHOT']?.trim() ?? '';
 const policyNetworkTargetScreenshotPath = process.env['LAN_SOURCE_MATRIX_POLICY_TARGET_SCREENSHOT']?.trim() ?? '';
 const manageTargetSelectionStorageKey = 'ocentra.parent.portal.manage-target-selection.v1';
+const serviceBackedLanTargetName = /^Select (?!LAN |Parent Portal$).+/u;
+const lanNeighborTargetName = /^Select LAN \d{1,3}(?:\.\d{1,3}){3}$/u;
 
 type StoredManageTargetSelection = {
   readonly device: string;
@@ -24,7 +26,7 @@ test('devices and policy-network surfaces preserve the selected LAN policy targe
   const scanButton = page.getByRole('button', { exact: true, name: 'Scan Local Area Network' });
   await expect(scanButton).toBeVisible({ timeout: shellReadyTimeoutMs });
   await scanButton.click({ force: true });
-  await expect(page.getByRole('button', { name: /^Select LAN \d{1,3}(?:\.\d{1,3}){3}$/u }).first()).toBeVisible({
+  await expect(surface.getByRole('button', { name: serviceBackedLanTargetName }).first()).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
 
@@ -54,7 +56,7 @@ async function captureOptionalFullPageScreenshot(page: Page, screenshotPath: str
 }
 
 async function selectPolicyCapableLanTarget(page: Page, surface: Locator): Promise<StoredManageTargetSelection> {
-  const candidateLabels = prioritizeCandidateLabels(await listLanChoiceLabels(page));
+  const candidateLabels = prioritizeCandidateLabels(await listLanChoiceLabels(surface));
   expect(candidateLabels.length).toBeGreaterThan(0);
 
   const attempts: string[] = [];
@@ -88,13 +90,11 @@ async function selectPolicyCapableLanTarget(page: Page, surface: Locator): Promi
   throw new Error(`No policy-capable LAN target found. Attempts: ${attempts.join(' | ')}`);
 }
 
-async function listLanChoiceLabels(page: Page): Promise<readonly string[]> {
+async function listLanChoiceLabels(surface: Locator): Promise<readonly string[]> {
   const serviceBackedLabels = await accessibleButtonNames(
-    page.getByRole('button', { name: /^Select [A-Z0-9._-]{4,}$/u })
+    surface.getByRole('button', { name: serviceBackedLanTargetName })
   );
-  const lanLabels = await accessibleButtonNames(
-    page.getByRole('button', { name: /^Select LAN \d{1,3}(?:\.\d{1,3}){3}$/u })
-  );
+  const lanLabels = await accessibleButtonNames(surface.getByRole('button', { name: lanNeighborTargetName }));
   return [...new Set([...serviceBackedLabels, ...lanLabels])].filter(
     (label) => label !== 'Select LAN' && label !== 'Select Scanning LAN'
   );

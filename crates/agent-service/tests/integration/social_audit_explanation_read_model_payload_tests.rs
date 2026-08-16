@@ -1,4 +1,3 @@
-use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::SocialAuditExplanationSnapshot;
 use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_CLAIM_NOT_CLAIMED;
@@ -9,9 +8,7 @@ use ocentra_parent_agent_protocol::SOCIAL_AUDIT_EXPLANATION_SUBJECT_FEED_VIDEO_G
 use super::social_audit_explanation_read_model_payload::{
     social_audit_explanation_read_model_from_service, social_audit_explanation_read_model_payload,
 };
-#[path = "../support/log_payload.rs"]
-mod log_payload;
-use log_payload::{payload_json, payload_number};
+use crate::log_payload::{payload_json, payload_number};
 
 #[test]
 fn social_audit_explanation_payload_reports_six_honest_service_rows() {

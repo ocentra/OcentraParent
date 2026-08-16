@@ -117,7 +117,7 @@ fn env_llama_split_mode(env_var_name: LocalAiRuntimeEnvVar) -> Option<LocalAiRun
 }
 
 fn env_llama_numeric_list(env_var_name: LocalAiRuntimeEnvVar) -> Option<LocalAiRuntimeText> {
-    env_value(env_var_name).filter(|value| is_safe_numeric_list(value))
+    env_value(env_var_name).filter(is_safe_numeric_list)
 }
 
 fn env_llama_non_negative_integer(

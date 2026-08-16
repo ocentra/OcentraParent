@@ -3,9 +3,8 @@ use std::time::Duration;
 use ocentra_parent_screen_capture_adapter::trigger_scheduler::ScreenCaptureSchedulerState;
 
 use crate::{
-    screen_ai_foreground_runtime::{
-        ScreenAiForegroundRuntimeConfig, ScreenAiForegroundTickClock, ScreenAiForegroundTickOutcome,
-    },
+    screen_ai_foreground_runtime::{ScreenAiForegroundTickClock, ScreenAiForegroundTickOutcome},
+    screen_ai_foreground_runtime_config::ScreenAiForegroundRuntimeConfig,
     screen_ai_service_event_bridge::publish_screen_capture_queue_events_for_queue_job,
     screen_ai_service_event_bridge::ScreenAiQueueJobId,
     screen_ai_service_event_subscription::ObservedAtText,

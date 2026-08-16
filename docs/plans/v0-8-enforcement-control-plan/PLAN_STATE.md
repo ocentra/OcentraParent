@@ -87,6 +87,14 @@ policy decision refs
   folder as current truth and treat preserved READMEs as historical context
   only.
 
+## Closed PR disposition
+
+PR #606 is closed without merge. Its policy receipt slice was unsafe/no-op and
+is not runtime or proof evidence for this plan. Do not revive it as an
+implementation shortcut: WP04 still needs the trusted-dispatch/journal boundary
+that can establish authority before execution state, replay/rollback, and
+parent-visible receipt claims are considered.
+
 ## What is already present / proved
 
 - WP01 contract boundary and Effect Schema ownership is now backed by
@@ -140,9 +148,28 @@ policy decision refs
   Rust-service, and proof-harness validation path rather than the broken
   `parent-domain` indirection.
 - Action-authority and adapter-execution gaps remain open in WP04, WP05, WP06,
-  and WP08.
+  and WP08. Eventing WP06 now retains a hand-authored durable manifest for its
+  generic journal/replay handoff, but WP04 remains unscheduled/manual-required until WP11 supplies
+  enforcement-specific durable-journal proof and trusted dispatch. The closed
+  #606 unsafe/no-op slice does not reduce this gap.
+- WP04's reachable `agent-service` execution path now fails closed with
+  `ManualRequired` in `crates/agent-service/src/enforcement_api/enforcement_command_execution/adapter_outcome.rs`;
+  it no longer turns caller-shaped PID/name fields into raw process termination.
+  The authenticated grant/managed-target executor in
+  `crates/agent-core/src/authenticated_delivery_execution.rs` remains uncalled
+  because the service command payload has no canonical persisted grant, binding,
+  trusted issuer, or WP11 durable-dispatch composition.
+- Live code audit (2026-07-23): WP06 has a Rust managed-profile/launch/bridge
+  boundary, but it is not an adapter-backed enforcement action. The policy
+  mapper returns `ManagedBrowserControl` as manual-required for browser
+  targets, and `agent-service` currently executes only
+  `ProcessControl + TerminateProcess`; no managed-browser execution outcome,
+  receipt, rollback, or audit trace exists. Existing proof/read-model labels
+  that say `ExecutesRealService` for managed browser must not be read as runtime
+  proof until this contradiction is removed.
 - Approval/audit/read-model visibility gaps remain open in WP10, WP11, WP12,
-  WP13, and WP14.
+  WP13, and WP14. WP11's Eventing prerequisite is documented by a durable manifest; WP11
+  remains open until its own durable audit/journal contract and query proof exist.
 - Integrity and anti-claim boundaries remain open in WP15, WP16, and WP17.
 - Playwright/UI and rollout gate closure remain open in WP19 and WP20.
 - Notification delivery, exact-URL control, network blocking, broad app

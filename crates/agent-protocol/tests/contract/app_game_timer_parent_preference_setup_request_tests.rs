@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequest;
 use ocentra_parent_agent_protocol::AppGameTimerParentPreferenceSetupRequestResult;
 
@@ -7,11 +8,11 @@ const RESULT_JSON: &str = r#"{"schemaVersion":"app-game-timer-parent-preference-
 #[test]
 fn app_game_timer_parent_preference_setup_request_round_trips_through_json() {
     let request = serde_json::from_str::<AppGameTimerParentPreferenceSetupRequest>(REQUEST_JSON)
-        .expect("request parses");
+        .expect_value("request parses");
     let reparsed = serde_json::from_value::<AppGameTimerParentPreferenceSetupRequest>(
-        serde_json::to_value(&request).expect("request serializes"),
+        serde_json::to_value(&request).expect_value("request serializes"),
     )
-    .expect("request reparses");
+    .expect_value("request reparses");
 
     assert_eq!(
         reparsed.request_id,
@@ -27,11 +28,11 @@ fn app_game_timer_parent_preference_setup_request_round_trips_through_json() {
 fn app_game_timer_parent_preference_setup_request_result_round_trips_through_json() {
     let result =
         serde_json::from_str::<AppGameTimerParentPreferenceSetupRequestResult>(RESULT_JSON)
-            .expect("request result parses");
+            .expect_value("request result parses");
     let reparsed = serde_json::from_value::<AppGameTimerParentPreferenceSetupRequestResult>(
-        serde_json::to_value(&result).expect("request result serializes"),
+        serde_json::to_value(&result).expect_value("request result serializes"),
     )
-    .expect("request result reparses");
+    .expect_value("request result reparses");
 
     assert_eq!(
         reparsed.schema_version,

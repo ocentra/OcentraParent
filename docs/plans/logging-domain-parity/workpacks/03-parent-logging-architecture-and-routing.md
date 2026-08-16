@@ -45,7 +45,7 @@ cloudflare infra logging
 
 Portal dev logs must have a real receiver or bridge route.
 
-Agent-service dev logs must be ready to migrate to `crates/logging-core` in WP04.
+Agent-service dev logs must delegate to `crates/logging-core`; the current source already performs this mapping, while WP04 owns the core implementation and its independent validation/proof.
 
 `/api/dev/log-snapshot` must be documented as a snapshot/status endpoint, not the primary local log store.
 
@@ -92,7 +92,7 @@ Required artifacts:
 - [ ] Local-dev-observability and product-safe logging separated in docs/API.
 - [ ] Parent scopes defined.
 - [ ] Portal dev-log route implemented or moved to bridge path.
-- [ ] Agent-service current logging path mapped to Rust crate migration.
+- [x] Agent-service current logging path maps protocol fields to `logging-core::DevLogger` from live startup, health, and activity callers; focused validation/proof remains deferred.
 - [ ] `/api/dev/log-snapshot` role documented as snapshot, not primary store.
 - [ ] Cloudflare infra scope kept separate.
 - [ ] README/package docs updated.
@@ -129,7 +129,7 @@ If route depends on WP02 bridge, record blocker instead of faking proof.
 
 ## Manual-required gaps
 
-This workpack does not complete Rust logging-core. It may create compatibility routing only until WP04 migrates agent-service to the Rust crate.
+This workpack does not complete Rust logging-core or repo-wide agent-service adoption. The current agent-service dev-log path is already logging-core-backed; operation-specific marker APIs remain a separate core capability and are not evidence that generic dev-log calls carry operation identity.
 
 ## Current audit note
 
@@ -148,7 +148,7 @@ Remaining blocker for full-workpack closeout:
 
 ```text
 - the portal dev-log consumer slice is now proved in output/logging-domain-parity-proof/03-parent-logging-architecture-and-routing/
-- the remaining open row is the Rust-side agent-service-to-logging-core mapping, which this delegated slice intentionally did not widen into
+- source inspection closes the production reachability question for the Rust-side mapping: `app::health`, `service_runtime::run_agent_service`, and `activity_capture` call `agent-service::dev_log`, which invokes `logging-core::DevLogger`; the remaining row is focused validation/proof, deferred in this code-only pass
 ```
 
 ## Fill before DONE or PR-ready
@@ -198,7 +198,6 @@ Product/runtime claims:
 - this slice proves only the portal dev-log consumer path, parent scope model, and snapshot-endpoint documentation boundary
 
 Known gaps/manual-required states:
-- the agent-service current logging path mapped to Rust crate migration row remains open
-- this slice intentionally did not read or validate crates/agent-service/** or crates/logging-core/**
-- full WP03 closeout must happen in a later Rust-owned slice or by reducing that row to the correct owner boundary
+- focused validation/proof for the live agent-service-to-logging-core path remains deferred
+- full WP03 closeout still requires the named proof artifacts and any remaining focused route checks
 ```

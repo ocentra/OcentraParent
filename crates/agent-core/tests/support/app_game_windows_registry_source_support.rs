@@ -4,6 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
@@ -104,30 +105,32 @@ pub fn write_registry_export(path: impl Into<TestPath>, export: impl Display) {
     let export = TestText::from_display(export);
     let path = path.into().0;
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+        fs::create_dir_all(parent).expect_value(constants::error::ACTIVITY_CAPTURE_RECORDS);
     }
-    fs::write(&path, export.0.as_str()).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::write(&path, export.0.as_str()).expect_value(constants::error::ACTIVITY_CAPTURE_RECORDS);
 }
 
 pub fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path();
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.0.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.0.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .expect_value(constants::error::JOURNAL_APPENDS),
         );
     }
-    let reader = ActivityJournal::open(path.0.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader =
+        ActivityJournal::open(path.0.clone(), key).expect_value(constants::error::JOURNAL_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

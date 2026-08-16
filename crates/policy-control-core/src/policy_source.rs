@@ -405,10 +405,6 @@ pub fn assess_policy_source_compatibility(
     )
 }
 
-pub(crate) fn policy_surface_name(surface: PolicySourceSurface) -> &'static str {
-    names::policy_surface_name(surface)
-}
-
 pub(crate) fn policy_actor_role_name(role: ParentPolicyActorRole) -> &'static str {
     names::policy_actor_role_name(role)
 }

@@ -46,7 +46,7 @@ pub(super) fn parse_policy_request_assistant_preview_confirm_request(
         .payload
         .get(constants::field::POLICY_REQUEST_ASSISTANT_PREVIEW_CONFIRM_REQUEST)
         .and_then(payload_string)
-        .and_then(deserialize_request)
+        .and_then(|text| deserialize_request(&text))
         .map(|request| {
             (
                 request,
@@ -99,7 +99,7 @@ fn payload_string(value: &LogFieldValue) -> Option<PolicyRequestPayloadText<'_>>
 }
 
 fn deserialize_request(
-    text: PolicyRequestPayloadText<'_>,
+    text: &PolicyRequestPayloadText<'_>,
 ) -> Option<PolicyRequestAssistantPreviewConfirmRequest> {
     serde_json::from_str(text.0).ok()
 }
@@ -109,7 +109,7 @@ fn rejected_request() -> (
     PolicyRequestAssistantPreviewConfirmParseState,
 ) {
     (
-        default_policy_request_assistant_preview_confirm_request(),
+        super::default_policy_request_assistant_preview_confirm_request(),
         PolicyRequestAssistantPreviewConfirmParseState::Rejected,
     )
 }

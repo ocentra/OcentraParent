@@ -7,7 +7,6 @@ use ocentra_parent_agent_protocol::app_game::{
 use ocentra_parent_agent_protocol::app_game_authority_classifier::{
     AppGameControlActionResult, AppGameControlApprovalAuthority,
 };
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::{AppGameAiClassifierResult, AppGamePlatformAuthorityMatrix};
 
 use crate::ActivityStoreError;

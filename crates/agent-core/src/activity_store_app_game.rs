@@ -204,7 +204,7 @@ pub(crate) fn app_game_service_read_model(
     )
 }
 
-fn app_game_session_summaries(
+pub(crate) fn app_game_session_summaries(
     connection: &Connection,
     limit: u64,
 ) -> Result<Vec<AppGameSessionSummary>, ActivityStoreError> {

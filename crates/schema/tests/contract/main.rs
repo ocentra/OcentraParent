@@ -11,6 +11,8 @@ mod app_game_source_freshness_policy_consumption;
 mod app_game_timer_service_readiness;
 #[path = "app_risk_detection.rs"]
 mod app_risk_detection;
+#[path = "authenticated_delivery_grant.rs"]
+mod authenticated_delivery_grant;
 #[path = "billing_checkout_portal_boundary.rs"]
 mod billing_checkout_portal_boundary;
 #[path = "billing_checkout_portal_boundary_values.rs"]
@@ -59,6 +61,8 @@ mod export_import_backup_recovery;
 mod family_reference_primitives;
 #[path = "family_references.rs"]
 mod family_references;
+#[path = "lan_discovery_event_kind_generated.rs"]
+mod lan_discovery_event_kind_generated;
 #[path = "logging_contracts.rs"]
 mod logging_contracts;
 #[path = "notification_local_outbox_contracts.rs"]
@@ -71,6 +75,8 @@ mod parent_agent_protocol_bridge_defaults;
 mod parent_owned_sync_export;
 #[path = "parent_screen_settings_command_state.rs"]
 mod parent_screen_settings_command_state;
+#[path = "parent_step_up_receipt.rs"]
+mod parent_step_up_receipt;
 #[path = "parent_storage_settings_apply_flow.rs"]
 mod parent_storage_settings_apply_flow;
 #[path = "parent_ui_bridge.rs"]
@@ -79,12 +85,18 @@ mod parent_ui_bridge;
 mod parent_ui_bridge_ts;
 #[path = "policy_enforcement.rs"]
 mod policy_enforcement;
+#[path = "remote_capability_fabric.rs"]
+mod remote_capability_fabric;
+#[path = "remote_capability_fabric_authorization.rs"]
+mod remote_capability_fabric_authorization;
 #[path = "report_query_custody.rs"]
 mod report_query_custody;
 #[path = "retention_delete_tombstone.rs"]
 mod retention_delete_tombstone;
 #[path = "setup_device_trust_handoff.rs"]
 mod setup_device_trust_handoff;
+#[path = "tracking_event_contracts.rs"]
+mod tracking_event_contracts;
 #[path = "typescript_literal.rs"]
 mod typescript_literal;
 #[path = "v0_8_notification_provider_status_boundary.rs"]

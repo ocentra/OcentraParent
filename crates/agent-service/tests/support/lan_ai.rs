@@ -50,7 +50,8 @@ pub(crate) fn seed_lan_ai_job_lease_for_test(
 ) {
     let job_id = job_id.to_string();
     let expires_at = expires_at.to_string();
-    let lease_state = normalized_lan_ai_lease_state(TestText::from_display(lease_state));
+    let lease_state = TestText::from_display(lease_state);
+    let lease_state = normalized_lan_ai_lease_state(&lease_state);
     let Ok(mut leases) = runtime.lan_ai_job_leases.lock() else {
         return;
     };
@@ -90,7 +91,7 @@ fn record_lan_ai_provider_heartbeat_state_for_test(
     });
 }
 
-fn normalized_lan_ai_lease_state(lease_state: TestText) -> TestLeaseState {
+fn normalized_lan_ai_lease_state(lease_state: &TestText) -> TestLeaseState {
     [
         (
             constants::value::LAN_AI_LEASE_STATE_CLAIMED,
@@ -114,7 +115,7 @@ fn normalized_lan_ai_lease_state(lease_state: TestText) -> TestLeaseState {
         ),
     ]
     .into_iter()
-    .find_map(|(value, state)| (lease_state.0 == value).then_some(state))
+    .find_map(|(value, state)| (lease_state.as_str() == value).then_some(state))
     .unwrap_or(TestLeaseState::Claimed)
 }
 
@@ -132,4 +133,24 @@ fn lan_ai_lease_id() -> TestText {
         constants::lan_pairing::LAN_AI_LEASE_ID_PREFIX,
         constants::lan_pairing::LAN_AI_JOB_ID
     ))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn lan_ai_helpers_are_linked() {
+        let _ = mark_selected_offline_for_test;
+        let _ = mark_selected_stale_for_test;
+        let _ = mark_lan_ai_provider_heartbeat_stale_for_test;
+        let _ = mark_lan_ai_provider_heartbeat_offline_for_test;
+        let _ = |runtime: &LanPairingRuntime| {
+            seed_lan_ai_job_lease_for_test(runtime, "job", "claimed", 1, "2026-06-24T00:00:00Z")
+        };
+        let lease_state = TestText::from_display(constants::value::LAN_AI_LEASE_STATE_CLAIMED);
+        let _ = normalized_lan_ai_lease_state(&lease_state);
+        let _ = lan_ai_claim_id;
+        let _ = lan_ai_lease_id;
+    }
 }

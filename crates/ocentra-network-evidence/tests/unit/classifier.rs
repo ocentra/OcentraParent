@@ -5,9 +5,7 @@ use ocentra_network_evidence::category::{
 };
 use ocentra_network_evidence::classifier::NetworkClassifierBasis;
 use ocentra_network_evidence::classifier::*;
-use ocentra_network_evidence::dns::types::*;
 use ocentra_network_evidence::domain::{normalize_domain_with_public_suffix, PublicSuffixModel};
-use ocentra_network_evidence::process::*;
 
 #[test]
 fn classifier_uses_fresh_domain_category_for_video() {

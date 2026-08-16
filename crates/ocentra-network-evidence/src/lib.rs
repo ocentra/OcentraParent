@@ -26,9 +26,9 @@ pub mod local_platform_probe;
 pub mod managed_browser;
 pub mod notification;
 pub mod packet;
+pub mod parser_policy;
 pub mod pcap;
 pub mod performance;
-pub mod pipeline;
 pub mod platform_claims;
 pub mod policy;
 pub mod process;
@@ -67,7 +67,7 @@ use ai_detection::{
     evaluate_network_ai_detection_fixtures, NetworkAiDetectionEvaluationError,
     NetworkAiDetectionEvaluationInput, NetworkAiDetectionEvaluationProof,
     NetworkAiDetectionFixtureCase, NetworkAiDetectionInputKind, NetworkAiDetectionLabel,
-    NetworkAiDetectionResult, NetworkAiDetectionRiskLevel, NetworkAiDetectionUncertaintyCode,
+    NetworkAiDetectionRiskLevel,
 };
 use android_vpn_service_gate::{
     NetworkAndroidVpnServiceGateProof, NetworkAndroidVpnServiceGateState,
@@ -98,9 +98,7 @@ use local_ai_queue::{
     plan_network_local_ai_queue, NetworkLocalAiQueueError, NetworkLocalAiQueueInput,
     NetworkLocalAiQueuePlan,
 };
-use platform_claims::{
-    NetworkPlatformClaimEntry, NetworkPlatformClaimState, NetworkPlatformClaimTarget,
-};
+use platform_claims::{NetworkPlatformClaimState, NetworkPlatformClaimTarget};
 use policy::{
     map_network_evidence_grade_to_policy, NetworkEvidencePolicyAction,
     NetworkEvidencePolicyMapping, NetworkEvidencePolicyMappingError,

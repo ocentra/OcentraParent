@@ -1,15 +1,12 @@
 use tokio::task::JoinHandle;
 
 use crate::{
-    DomainEvent, EventMetadata, EventingError, RequestCompletionReport, RequestEvent, RequestId,
-    RequestOptions, RequestReport, StoredEventEnvelope,
+    DomainEvent, EventMetadata, EventingError, JournalAppend, RequestCompletionReport,
+    RequestEvent, RequestId, RequestOptions, RequestReport, StoredEventEnvelope,
 };
 
 use super::{
-    dispatch::{dispatch_concurrent, dispatch_sequential},
-    reports::dead_letter::DeadLetter,
-    reports::{dead_letters_for, empty_publish_report},
-    DispatchMode, EventBus, PublishReport, SubscriberRecord,
+    reports::dead_letter::DeadLetter, DispatchMode, EventBus, PublishReport, SubscriberRecord,
 };
 
 mod flow;
@@ -94,6 +91,29 @@ impl EventBus {
         E: DomainEvent,
     {
         flow::publish_with_mode(self, event, metadata, dispatch_mode).await
+    }
+
+    /// Publishes only after the selected before-dispatch journal append passes
+    /// the caller's durable-receipt predicate. This is an authorization-boundary
+    /// API: a failed predicate prevents every subscriber from observing the event.
+    pub async fn publish_with_mode_and_before_dispatch_receipt_validator<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+        dispatch_mode: DispatchMode,
+        validator: fn(&JournalAppend) -> Result<(), EventingError>,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        flow::publish_with_mode_and_before_dispatch_receipt_validator(
+            self,
+            event,
+            metadata,
+            dispatch_mode,
+            validator,
+        )
+        .await
     }
 
     pub async fn journal(&self) -> Vec<StoredEventEnvelope> {

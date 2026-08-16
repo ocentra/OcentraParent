@@ -1,6 +1,6 @@
 use ocentra_schema::encryption_key_custody as contracts;
 
-use super::{DecryptAttemptInput, EncryptionKeyCustodyDerivationError};
+use super::DecryptAttemptInput;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) struct DecryptAttemptOutcome {

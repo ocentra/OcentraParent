@@ -3,6 +3,10 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+use std::path::PathBuf as TestPathBuf;
+use std::primitive::str as TestStr;
+use std::string::String as TestString;
+
 #[path = "../support/test_text.rs"]
 mod test_text;
 
@@ -21,6 +25,8 @@ mod fields;
 mod json_contract;
 #[path = "../../src/websocket/policy_request_confirm.rs"]
 mod policy_request_confirm;
+#[path = "../../src/websocket/policy_request_resolution/persistence.rs"]
+mod policy_request_resolution_persistence;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 #[path = "../../src/time.rs"]
@@ -45,8 +51,20 @@ mod clippy_linkage {
     use ocentra_parent_agent_protocol::AGENT_PROTOCOL_SCHEMA_VERSION;
     use std::{env, fs::remove_file};
 
+    struct ActivityDbPathRestore(Option<String>);
+
+    impl Drop for ActivityDbPathRestore {
+        fn drop(&mut self) {
+            match self.0.take() {
+                Some(value) => env::set_var(constants::env_var::ACTIVITY_DB_PATH, value),
+                None => env::remove_var(constants::env_var::ACTIVITY_DB_PATH),
+            }
+        }
+    }
+
     #[tokio::test]
     async fn public_wrapper_and_helpers_are_linked() {
+        let _guard = activity_report_env_lock::REPORT_ENV_LOCK.lock().await;
         let encoded = serialize_test_json(&serde_json::json!({
             "policy_request_confirm": true
         }));
@@ -72,12 +90,13 @@ mod clippy_linkage {
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "policy_request_confirm": true
         }));
-        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 0);
         let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
 
         let store_path = temp_store_path("policy-request-confirm-clippy");
         cleanup_path(&store_path);
-        let previous_store_path = env::var(constants::env_var::ACTIVITY_DB_PATH).ok();
+        let _restore_activity_db_path =
+            ActivityDbPathRestore(env::var(constants::env_var::ACTIVITY_DB_PATH).ok());
         env::set_var(constants::env_var::ACTIVITY_DB_PATH, &store_path);
 
         let event = policy_request_confirm::build_policy_request_assistant_preview_confirm_report(
@@ -90,10 +109,6 @@ mod clippy_linkage {
             AgentEventName::AgentPolicyRequestAssistantPreviewConfirmReported
         );
 
-        match previous_store_path {
-            Some(value) => env::set_var(constants::env_var::ACTIVITY_DB_PATH, value),
-            None => env::remove_var(constants::env_var::ACTIVITY_DB_PATH),
-        }
         cleanup_path(&store_path);
     }
 
@@ -138,6 +153,3 @@ mod clippy_linkage {
         let _ = remove_file(shm_path);
     }
 }
-use std::path::PathBuf as TestPathBuf;
-use std::primitive::str as TestStr;
-use std::string::String as TestString;

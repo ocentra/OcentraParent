@@ -7,6 +7,22 @@ mod test_support;
 #[path = "policy_control.rs"]
 mod policy_control;
 
+#[path = "authenticated_delivery_grant.rs"]
+mod authenticated_delivery_grant;
+#[path = "authenticated_delivery_grant_authority_bounds.rs"]
+mod authenticated_delivery_grant_authority_bounds;
+#[path = "authenticated_delivery_grant_basics.rs"]
+mod authenticated_delivery_grant_basics;
+#[path = "authenticated_delivery_grant_device_trust.rs"]
+mod authenticated_delivery_grant_device_trust;
+#[path = "authenticated_delivery_grant_fixture.rs"]
+mod authenticated_delivery_grant_fixture;
+#[path = "authenticated_delivery_grant_milestone_phase.rs"]
+mod authenticated_delivery_grant_milestone_phase;
+#[path = "authenticated_delivery_grant_prepared_closure.rs"]
+mod authenticated_delivery_grant_prepared_closure;
+#[path = "authenticated_delivery_grant_provenance.rs"]
+mod authenticated_delivery_grant_provenance;
 #[path = "policy_authority.rs"]
 mod policy_authority;
 
@@ -19,8 +35,29 @@ mod policy_conflict;
 #[path = "policy_compiler.rs"]
 mod policy_compiler;
 
+#[path = "policy_delivery_helpers.rs"]
+mod policy_delivery_helpers;
+
 #[path = "policy_delivery.rs"]
 mod policy_delivery;
+
+#[path = "policy_delivery_receipt_helpers.rs"]
+mod policy_delivery_receipt_helpers;
+
+#[path = "policy_delivery_receipt_identity.rs"]
+mod policy_delivery_receipt_identity;
+
+#[path = "policy_delivery_receipt_redaction.rs"]
+mod policy_delivery_receipt_redaction;
+
+#[path = "policy_delivery_record_boundaries.rs"]
+mod policy_delivery_record_boundaries;
+
+#[path = "policy_delivery_metadata.rs"]
+mod policy_delivery_metadata;
+
+#[path = "policy_delivery_receipt.rs"]
+mod policy_delivery_receipt;
 
 #[path = "policy_event.rs"]
 mod policy_event;

@@ -29,6 +29,10 @@ Purpose: define parent step-up auth with passkeys, biometrics, and OS-native app
 
 - No proof root currently exists on disk for this workpack.
 - Current plan-local tests for this slice are document assertions; passkey/WebAuthn and OS-native step-up runtime proof are still missing.
+- The Rust receipt-shape boundary now rejects receipts whose issued-to-expiry
+  lifetime exceeds five minutes before consulting an authority verifier. The
+  verifier remains unavailable/manual-required until a real passkey or
+  OS-native authority owns signature verification and one-time nonce consume.
 
 ## Negative cases
 

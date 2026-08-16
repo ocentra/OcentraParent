@@ -4,6 +4,8 @@ coverage/
 .turbo/
 .wix/
 .codex-temp/
+.codex-artifacts/
+.codebase-memory/
 .codeql-local/
 .eslintcache
 *.tsbuildinfo
@@ -15,6 +17,12 @@ target/
 /target-*/
 tmp/
 .tmp/
+/.tmp-*
+/*_arch_now*.txt
+/agent_service_tests_arch_*.txt
+/cargo-*.txt
+/clippy-*.txt
+/tmp-*-architecture*.txt
 apps/*/src-tauri/gen/
 apps/*/src-tauri/.generated/
 apps/*/src-tauri/target-*-dev/

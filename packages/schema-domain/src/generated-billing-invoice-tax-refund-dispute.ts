@@ -223,7 +223,6 @@ const BillingInvoiceTaxRefundDisputeRowRefinedSchema = BillingInvoiceTaxRefundDi
 );
 
 export const BillingInvoiceTaxRefundDisputeRowSchema = withParser(BillingInvoiceTaxRefundDisputeRowRefinedSchema);
-
 const BillingInvoiceTaxRefundDisputeProofStruct = Schema.Struct({
   schemaVersion: BillingInvoiceTaxRefundDisputeSchemaVersionSchema,
   rows: Schema.Array(BillingInvoiceTaxRefundDisputeRowSchema),

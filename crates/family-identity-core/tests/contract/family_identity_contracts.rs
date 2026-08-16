@@ -1,5 +1,5 @@
 use ocentra_eventing::error::EventingError;
-use ocentra_eventing::expect_value::ExpectValue;
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_family_identity_core::family_identity::{
     ChildCustodyLabel, ChildProfile, ChildProfileId, DeviceId, DeviceRegistration,
     DeviceRouteStateLabel, HouseholdId, HouseholdMembershipState, HouseholdProfile, HouseholdRole,
@@ -24,11 +24,11 @@ fn household_profile_round_trips_with_member_and_child_ids() {
         vec![ParentMemberId::parse("parent-1").expect_value("parent member id")],
         vec![ChildProfileId::parse("child-1").expect_value("child profile id")],
     )
-    .expect("household profile");
+    .expect_value("household profile");
 
-    let json = serde_json::to_value(&profile).expect("serialize household profile");
+    let json = serde_json::to_value(&profile).expect_value("serialize household profile");
     let round_trip: HouseholdProfile =
-        serde_json::from_value(json).expect("deserialize household profile");
+        serde_json::from_value(json).expect_value("deserialize household profile");
 
     assert_eq!(round_trip, profile);
 }
@@ -42,7 +42,7 @@ fn parent_member_rejects_non_parent_roles() {
         HouseholdMembershipState::Active,
         "2026-06-27T00:00:00Z",
     )
-    .expect_err("child device agent is not a parent member");
+    .expect_err_value("child device agent is not a parent member");
 
     assert_eq!(
         error,
@@ -62,10 +62,11 @@ fn parent_member_round_trips_with_observer_membership_state() {
         HouseholdMembershipState::Invited,
         "2026-06-27T00:00:00Z",
     )
-    .expect("parent member");
+    .expect_value("parent member");
 
-    let json = serde_json::to_value(&member).expect("serialize parent member");
-    let round_trip: ParentMember = serde_json::from_value(json).expect("deserialize parent member");
+    let json = serde_json::to_value(&member).expect_value("serialize parent member");
+    let round_trip: ParentMember =
+        serde_json::from_value(json).expect_value("deserialize parent member");
 
     assert_eq!(round_trip, member);
 }
@@ -79,7 +80,7 @@ fn device_registration_rejects_wrong_household_child_binding() {
         vec![DeviceId::parse("device-1").expect_value("device id")],
         ChildCustodyLabel::parse("family-custody").expect_value("custody label"),
     )
-    .expect("child profile");
+    .expect_value("child profile");
     let registration = DeviceRegistration::new(
         DeviceId::parse("device-1").expect_value("device id"),
         ChildProfileId::parse("child-1").expect_value("child profile id"),
@@ -89,11 +90,11 @@ fn device_registration_rejects_wrong_household_child_binding() {
         DeviceRouteStateLabel::parse("lan-selected").expect_value("route state"),
         Some(String::from("2026-06-27T02:00:00Z")),
     )
-    .expect("device registration");
+    .expect_value("device registration");
 
     let error = registration
         .validate_child_profile(&child_profile)
-        .expect_err("wrong household binding is rejected");
+        .expect_err_value("wrong household binding is rejected");
 
     assert_eq!(
         error,
@@ -113,10 +114,11 @@ fn child_profile_round_trips_with_device_ids_and_custody_label() {
         vec![DeviceId::parse("device-1").expect_value("device id")],
         ChildCustodyLabel::parse("family-custody").expect_value("custody label"),
     )
-    .expect("child profile");
+    .expect_value("child profile");
 
-    let json = serde_json::to_value(&child_profile).expect("serialize child profile");
-    let round_trip: ChildProfile = serde_json::from_value(json).expect("deserialize child profile");
+    let json = serde_json::to_value(&child_profile).expect_value("serialize child profile");
+    let round_trip: ChildProfile =
+        serde_json::from_value(json).expect_value("deserialize child profile");
 
     assert_eq!(round_trip, child_profile);
 }
@@ -130,11 +132,11 @@ fn observer_permission_round_trips_with_read_only_scope() {
         vec![HouseholdAuthorityAction::ViewChildStatus],
         true,
     )
-    .expect("observer permission");
+    .expect_value("observer permission");
 
-    let json = serde_json::to_value(&permission).expect("serialize observer permission");
+    let json = serde_json::to_value(&permission).expect_value("serialize observer permission");
     let round_trip: ObserverPermission =
-        serde_json::from_value(json).expect("deserialize observer permission");
+        serde_json::from_value(json).expect_value("deserialize observer permission");
 
     assert_eq!(round_trip, permission);
 }
@@ -148,7 +150,7 @@ fn observer_permission_rejects_write_scope() {
         vec![HouseholdAuthorityAction::ChangePolicy],
         true,
     )
-    .expect_err("write scope is blocked for observers");
+    .expect_err_value("write scope is blocked for observers");
 
     assert_eq!(
         error,
@@ -167,18 +169,23 @@ fn active_controller_lease_round_trips_and_stays_reusable() {
         DeviceId::parse("device-1").expect_value("device id"),
         "2026-06-27T01:00:00Z",
         "2026-06-27T02:00:00Z",
+        vec![HouseholdAuthorityAction::StartRemoteView],
         ParentControllerLeaseState::Active,
     )
-    .expect("active lease record");
+    .expect_value("active lease record");
 
-    let json = serde_json::to_value(&lease).expect("serialize controller lease");
+    let json = serde_json::to_value(&lease).expect_value("serialize controller lease");
+    assert_eq!(
+        json.get("granted_actions"),
+        Some(&serde_json::json!(["start-remote-view"]))
+    );
     let round_trip: ParentControllerLease =
-        serde_json::from_value(json).expect("deserialize controller lease");
+        serde_json::from_value(json).expect_value("deserialize controller lease");
 
     assert_eq!(round_trip, lease);
     lease
         .ensure_reusable()
-        .expect("active lease remains reusable");
+        .expect_value("active lease remains reusable");
 }
 
 #[test]
@@ -189,13 +196,14 @@ fn revoked_controller_lease_cannot_be_reused() {
         DeviceId::parse("device-1").expect_value("device id"),
         "2026-06-27T01:00:00Z",
         "2026-06-27T02:00:00Z",
+        vec![HouseholdAuthorityAction::StartRemoteControl],
         ParentControllerLeaseState::Revoked,
     )
-    .expect("revoked lease record");
+    .expect_value("revoked lease record");
 
     let error = lease
         .ensure_reusable()
-        .expect_err("revoked lease reuse is rejected");
+        .expect_err_value("revoked lease reuse is rejected");
 
     assert_eq!(
         error,
@@ -215,10 +223,10 @@ fn setup_invite_and_audit_event_round_trip_through_serde_json() {
         SetupInviteTargetRole::Observer,
         "2026-06-28T00:00:00Z",
     )
-    .expect("setup invite");
-    let invite_json = serde_json::to_value(&invite).expect("serialize setup invite");
+    .expect_value("setup invite");
+    let invite_json = serde_json::to_value(&invite).expect_value("serialize setup invite");
     let invite_round_trip: SetupInvite =
-        serde_json::from_value(invite_json).expect("deserialize setup invite");
+        serde_json::from_value(invite_json).expect_value("deserialize setup invite");
     assert_eq!(invite_round_trip, invite);
 
     let audit_event = SetupAuditEvent::new(
@@ -230,10 +238,10 @@ fn setup_invite_and_audit_event_round_trip_through_serde_json() {
         "2026-06-27T03:00:00Z",
         Some(SetupAuditEvidenceRef::parse("evidence-1").expect_value("evidence ref")),
     )
-    .expect("audit event");
-    let audit_json = serde_json::to_value(&audit_event).expect("serialize setup audit event");
+    .expect_value("audit event");
+    let audit_json = serde_json::to_value(&audit_event).expect_value("serialize setup audit event");
     let audit_round_trip: SetupAuditEvent =
-        serde_json::from_value(audit_json).expect("deserialize setup audit event");
+        serde_json::from_value(audit_json).expect_value("deserialize setup audit event");
     assert_eq!(audit_round_trip, audit_event);
 }
 
@@ -245,13 +253,13 @@ fn recovery_record_stays_distinct_from_recovery_state_enum() {
         RecoveryKind::HouseholdTransfer,
         true,
     )
-    .expect("recovery record");
+    .expect_value("recovery record");
 
     assert_eq!(record.reason, RecoveryKind::HouseholdTransfer);
     assert!(record.parent_action_required);
-    let json = serde_json::to_value(&record).expect("serialize recovery contract state");
+    let json = serde_json::to_value(&record).expect_value("serialize recovery contract state");
     let round_trip: RecoveryContractState =
-        serde_json::from_value(json).expect("deserialize recovery contract state");
+        serde_json::from_value(json).expect_value("deserialize recovery contract state");
 
     assert_eq!(round_trip, record);
     assert_eq!(
@@ -268,7 +276,7 @@ fn recovery_contract_state_rejects_missing_parent_action_for_transfer() {
         RecoveryKind::HouseholdTransfer,
         false,
     )
-    .expect_err("household transfer must keep parent action required");
+    .expect_err_value("household transfer must keep parent action required");
 
     assert_eq!(
         error,

@@ -31,6 +31,43 @@ Done workpack != deployed website, account readiness, package readiness, child r
 WP06 = rollout blocker/aggregation pack; it can be locally complete while broad setup readiness stays blocked.
 ```
 
+## Production reachability audit (2026-08-16)
+
+This is a production-code audit only. The local `done`/proof wording above is
+retained as historical narrow-slice state; it does not promote any setup
+journey into shipped onboarding readiness.
+
+| Workpack | Reachable production code | Missing production owner/call path | Code-pass decision |
+| --- | --- | --- | --- |
+| WP01 Family Web Info Site | `apps/portal/src/main.ts` and `apps/portal/src/hosted-portal-distribution.tsx` ship a parent portal/hosted distribution boundary. `infra/cloudflare/src/routes.ts` exposes health, pricing, billing, admin, and webhook routes, but no family-site/setup route. | No shipped public family-site entrypoint, deployment/custom-domain owner, or real download/register/support handoff is present in this repo. Cloudflare/deployment and runtime-distribution owners remain required. | No setup-owned slice; public-site proof is not runtime. |
+| WP02 Registration Login Entry | `crates/provisioning-core/src/provisioning_install/family_context.rs` can classify an already supplied family context, but no production caller supplies account/session/household authority to it. The portal Start route is a presentation projection only. | Provider verification, session/token issuance, household membership, invite, and recovery are account-identity-owned and unresolved; no setup route can authorize a write or mint identity. | Blocked on `account-identity-family-plan`; no edit. |
+| WP03 Parent Install Journey | `apps/parent-desktop/src-tauri/src/lib.rs` has shipped Tauri route commands and `crates/provisioning-core/src/provisioning_install.rs` has install-state contracts. Neither is a package/install/update entrypoint, and no caller connects them to a signed artifact. | Signed package, platform installer, integrity/checksum, update/rollback, store delivery, and publishing authority belong to `parent-desktop-runtime-package-plan`. | No setup-owned slice; installer/proof text is not runtime. |
+| WP04 Child Install Permission Journey | `crates/child-runtime/src/bin/ocentra-child-agent-service.rs` starts the real child service and `crates/child-runtime/src/service.rs` durably gates tamper/recovery/removal state. `crates/child-runtime/src/runtime_gate.rs` defines provisioning preflight but `rg` found no production caller constructing or evaluating `ChildRuntimePreflightInput`. | Child package/distribution, platform permission/disclosure, and the missing preflight input owner are outside setup; no trusted account/device handoff reaches the shipped child service. | Blocked on `child-agent-runtime-distribution` plus account/device-trust inputs; no edit. |
+| WP05 Pairing Readiness Recovery | LAN pairing has a real agent-service owner (`crates/agent-service/src/lan_pairing_command_entrypoints.rs`, `crates/agent-service/src/app.rs`) and a parent read path (`crates/parent-runtime-core/src/agent_service_client/loaders.rs`, `parent_ui_bridge/lan_route.rs`) with durable/fail-closed protocol state. | The Start setup snapshot does not consume that read model, and no setup-owned aggregation joins it with account, install, permission, custody, and policy readiness. Physical LAN/device-trust authority remains sibling-owned. | A pairing-only projection would not satisfy setup progression; no edit without the missing cross-owner readiness inputs. |
+| WP07 First-Run Setup UI And State Machine | This route is reachable through `apps/parent-desktop/src-tauri/src/lib.rs` -> `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs` -> `apps/portal/src/ParentPortalRoute.tsx`/`SetupFirstRunRoutePanel.tsx`. The Rust panel in `parent_ui_bridge/browser.rs` intentionally reports `unavailable` and names account, pairing/trust, and custody as not wired. | No live Rust setup read model receives the required account, package, child-runtime, pairing, permission, custody, and policy states; the TS side is presentation-only. | Reachable boundary is honest but incomplete; no synthetic hydration or completion state. |
+| WP06 Rollout Proof And Route Gate | No production entrypoint; this workpack is documentation/proof aggregation only. | It cannot create runtime authority or upgrade sibling blockers. | Proof-only; excluded from production-code closure. |
+
+### Audit findings and stale topology
+
+- The graph report at `f7d8f4e33` reports WP01-WP04/WP06 as `no-source` with
+  `no-code-required`, and WP05/WP07 as `code-and-tests`; the plan index still
+  labels all seven local proof slices `done`/`done-but-blocked`. This is a
+  lifecycle/proof topology difference, not evidence of shipped setup runtime.
+- The graph report has no implementation roots for the public site, account
+  entry, parent-install, or rollout workpacks. Their proof roots therefore do
+  not map to production callers.
+- `PLAN_STATE.md` describes a `packages/setup-domain` package boundary, but
+  that directory/package is absent from the current checkout. The actual
+  setup contract owner found in source is
+  `crates/provisioning-core/src/provisioning_install.rs`; the plan wording is
+  stale and must not be used as an implementation path.
+- No legal setup production slice is authorized by this audit. The smallest
+  future slices are: account-owned verified session/household handoff (WP02),
+  package-owner signed parent artifact/install state (WP03), child-owner
+  package/permission/preflight input handoff (WP04), and a setup-owned
+  aggregation that consumes those trusted states plus the existing LAN read
+  model before WP07 can report anything beyond manual-required/unavailable.
+
 ## Current product direction
 
 ```text

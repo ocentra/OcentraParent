@@ -4,7 +4,6 @@ use ocentra_parent_agent_protocol::activity::policy::ParentActorReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentActorRole;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
-use ocentra_parent_agent_protocol::activity::policy::PolicyAction;
 use ocentra_parent_agent_protocol::activity::policy::PolicyTarget;
 use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
 use ocentra_parent_agent_protocol::activity::policy_context::ParentDeviceReference;

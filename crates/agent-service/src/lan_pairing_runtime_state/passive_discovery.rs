@@ -38,37 +38,6 @@ pub(crate) struct LanPassiveDiscoveryLocalNetworkChangeTrigger {
     pub(crate) summary: String,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub(crate) struct LanPassiveDiscoveryTextRef<'a>(pub(crate) &'a str);
-
-pub(crate) trait LanPassiveDiscoveryTextSource {
-    fn as_passive_discovery_text_ref(&self) -> LanPassiveDiscoveryTextRef<'_>;
-}
-
-impl LanPassiveDiscoveryTextSource for LanPassiveDiscoveryTextRef<'_> {
-    fn as_passive_discovery_text_ref(&self) -> LanPassiveDiscoveryTextRef<'_> {
-        *self
-    }
-}
-
-impl LanPassiveDiscoveryTextSource for String {
-    fn as_passive_discovery_text_ref(&self) -> LanPassiveDiscoveryTextRef<'_> {
-        LanPassiveDiscoveryTextRef(self.as_str())
-    }
-}
-
-impl LanPassiveDiscoveryTextSource for &String {
-    fn as_passive_discovery_text_ref(&self) -> LanPassiveDiscoveryTextRef<'_> {
-        LanPassiveDiscoveryTextRef(self.as_str())
-    }
-}
-
-impl LanPassiveDiscoveryTextSource for &str {
-    fn as_passive_discovery_text_ref(&self) -> LanPassiveDiscoveryTextRef<'_> {
-        LanPassiveDiscoveryTextRef(self)
-    }
-}
-
 pub(crate) fn spawn_lan_passive_discovery_runtime(runtime: LanPairingRuntime) {
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(PASSIVE_DISCOVERY_INTERVAL);

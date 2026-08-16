@@ -29,8 +29,8 @@ crates/schema or the owning Rust crate:
 schema-domain:
   Temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
 
-network-domain:
-  Package metadata and proof-consumer surface unless a selected public export explicitly exists. Current tests consume Rust-owned/generated network contracts.
+network-core, agent-protocol, and agent-core:
+  Rust-owned network domain decisions, canonical protocol contracts, and production runtime/eventing proof surfaces.
 
 ocentra-network-evidence:
   Rust network evidence/proof crate for packet, DNS, domain, flow, classifier, cascade, policy-handoff, platform-gate, adapter, risk, and AI-audit proof helpers.
@@ -51,7 +51,7 @@ Browser, screen, AI, policy, enforcement, LAN, data custody, device-trust, and n
 ## Current coupling risks
 
 ```text
-- `network-domain` is currently package metadata/proof-consumer surface, while canonical shared network contracts live in `crates/schema` or the owning Rust crate.
+- Canonical shared network contracts live in `crates/agent-protocol`; runtime ownership is `crates/network-core` and `crates/agent-core`.
 - Checklist count is not proof completion.
 - Shim-cleanup skeleton proof is not workpack completion.
 - Schema/unit tests are not live capture proof.
@@ -78,6 +78,14 @@ Real platform proof remains required for platform claims unless explicitly marke
 2. Read `NEXT_ACTIONS.md` when starting/resuming.
 3. Read `WORKPACK_INDEX.md`.
 4. Use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+
+## Latest validation slice — 2026-08-09
+
+WP08 control-catalog reference routing now has an executable route-boundary
+contract test and durable manifest at
+`docs/proof/network-plan/slice-08-control-catalog-routing.md`. The graph state
+is `validation`, not `done`: no network runtime, policy, enforcement, portal,
+platform, CI, review, or main-merge claim is made by this slice.
 5. Open only the assigned workpack.
 6. Use `CHECKLIST_INDEX.md` for exact checklist sections.
 7. Use `PROOF_INDEX.md` for proof artifacts.
@@ -90,10 +98,10 @@ Real platform proof remains required for platform claims unless explicitly marke
 
 Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a` found:
 
-- the canonical network contract source is `crates/schema` or the owning Rust crate; `packages/network-domain` is a package metadata/proof-consumer surface unless selected public exports exist;
-- real network code exists across `packages/network-domain`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
+- the canonical network contract source is Rust-owned: `crates/agent-protocol`, with `crates/network-core` and `crates/agent-core` owning domain/runtime behavior;
+- real network code exists across `crates/network-core`, `crates/agent-protocol`, `crates/agent-core`, `crates/agent-service`, `crates/ocentra-network-evidence`, and `apps/portal`;
 - the proof root was missing at audit time, but `docs/proof/network-plan/` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` were restored on 2026-06-17 and now record the bounded parent-domain frontage retirement;
-- only the slice-01 proof pack exists right now; broader plan proof bundles are still missing;
+- three bounded WP01 proof documents exist right now: `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` for the retired parent-domain frontage, `docs/proof/network-plan/01-network-foundation-eventing-contract.md` for the typed reusable-eventing handoff, and `docs/proof/network-plan/01-foundation-contracts-and-eventing.md` for the reviewed runtime-contract repair; `PLAN_PROOF_MANIFEST.md`, `PROOF_INDEX.md`, and `PLAN_HEALTH.md` route those receipts while broader plan proof bundles remain missing;
 - `implementation-checklist.md` shows 127/128 checked boxes, but that count is not a truthful completion signal while source paths, proof routing, and workpack state are out of sync.
 
 ## Current slice checkpoint
@@ -102,22 +110,88 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - This slice retires `packages/parent-domain/src/network-flow.ts` and `packages/parent-domain/src/network-contracts.ts` because `@ocentra-parent/parent-domain` does not publish `./network-flow` or `./network-contracts`, and no live in-repo consumers were found for those parent-domain paths; it does not widen into Rust, portal, or platform proof.
 - The former `@ocentra-parent/parent-domain` `./network-control-catalog` contradiction is already retired as well; canonical `network-flow`, `network-contracts`, and control-catalog ownership remains only in `crates/schema`, the owning Rust crate, or selected network proof surfaces.
 - Proof pack for this slice lives at `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` with artifacts under `output/network-plan-proof/01-network-foundation-shim-cleanup/`.
+- The current WP01 eventing sub-slice is a direct `NetworkFlowObservedEvent` to reusable `DomainEvent`/`EventEnvelope` contract handoff in `crates/agent-protocol`; its focused round-trip and invalid-device-reference evidence live at `docs/proof/network-plan/01-network-foundation-eventing-contract.md`. This does not close WP01 or establish service, capture, policy, enforcement, or platform proof.
 
 ## What is already present in source
 
-- `packages/network-domain` is present as package metadata/proof-consumer surface and has unit tests that consume Rust-owned/generated network contracts.
+- `crates/network-core` owns network domain/runtime decisions; it does not create a second schema truth.
 - `crates/agent-protocol` owns real Rust network contracts, status payload shapes, constants, and protocol tests.
 - `crates/agent-core` owns real network capture, ActivityStore network rows, runtime chain, queue, replay, and remote-delivery proof logic with tests.
-- `crates/agent-service` owns real network payload, digest, runtime-delivery, product-path, remote-delivery, and platform-gate bridge code with tests.
-- `crates/ocentra-network-evidence` owns real packet, DNS, domain, classifier, cascade, adapter-gate, performance, and platform-claim proof logic with tests.
+- `crates/agent-service` owns real network payload, digest, runtime-delivery, remote-delivery, and platform-gate bridge code with tests. The fabricated product-path bridge and its payload fields were deleted; the shipped read path exposes only real observation/runtime-delivery state.
+- `crates/ocentra-network-evidence` owns real packet, DNS, domain, classifier, adapter-gate, performance, and platform-claim helpers. Its disconnected synthetic product-path pipeline was deleted; surviving deterministic helper modules still do not prove a shipped cascade.
 - `apps/portal` owns real service-backed network read-model parsing, drawer projection, refresh routing, and e2e proof fixtures.
 
 ## Open gaps / truth boundaries
 
+### 2026-08-16 WP04 synthetic product-path removal — code incomplete
+
+- Commit `3971ad5da` first stopped the shipped read API from invoking the
+  fabricated product-path helper. Commit `9e9f9ac51` then deleted the optional
+  product-path payload fields, bridge, and disconnected evidence pipeline.
+- Real stored network observations and real runtime-delivery/journal reporting
+  remain reachable. AI, policy, adapter, retention, deletion, export, and portal
+  refs/counters are no longer fabricated from one observation ID.
+- Test/support files that import or assert the deleted APIs remain scheduled for
+  delete/rewrite in the test phase; they are not production evidence.
+- This is a fail-honest removal only. It does not complete WP04 or establish
+  a live analyzer, AI queue, policy decision, notification delivery, adapter
+  action, custody lifecycle, or parent-surface product path.
+
+### 2026-08-16 WP04 shipped-call dependency audit — blocked
+
+- The real capture owner persists observations through `ActivityStore`; the
+  apparent cascade is only the `agent-service` `NetworkRuntimeDelivery`
+  `OnceCell`, the `agent-core` `NetworkRuntimeSpine`/`EventBus::new` path,
+  read-time republish, and `refs.rs` phase-reference manufacturing.
+- No typed durable `NetworkCascadeObligation`, durable cascade table, or
+  shipped composition owner exists. A deterministic builder, injected ref, or
+  read-time phase projection cannot authorize cross-slice behavior.
+- WP04 is blocked behind the direct owner handoffs recorded in its workpack and
+  graph review: Eventing WP09 network consumer event chain; AI WP07 job queue
+  and WP19 result journal; Policy WP05
+  ask-parent overrides and WP08 event model; Custody WP04 tombstone and WP06
+  report custody; Portal WP09 network surfaces and WP12 reports/notifications/
+  custody.
+- These are legal-composition prerequisites only. This route does not mark any
+  owner workpack done, add production/test code, or create proof. WP04 must not
+  return to READY until the required shipped owners and their independent proof
+  exist.
+
+### Current code-drafted WP01 runtime slice — tests deferred
+
+- `agent-service` now owns one service-lifetime `NetworkRuntimeSpine`; network delivery and stream paths reuse its event bus instead of recreating a bus per observation.
+- The existing eventing API exposes journal capability, but no network-specific production durable-journal owner is available in this route. The runtime therefore reports `in-memory-manual-required` explicitly and does not claim durable replay or production custody.
+- Reports are scoped to the current publish event IDs under the spine chain lock; delivery and stream still republish read-model rows independently, and no deduplication/idempotency claim is made.
+- Required tests, proof artifacts, graph completion, live capture, transport, policy, enforcement, and platform readiness remain open.
+
+### Current code-drafted WP07 resource-safety slice — tests deferred
+
+- The recurring `agent-service` activity-capture path now owns the observed-at
+  timestamp as a `String` for the duration of one capture batch instead of
+  leaking a `Box::leak` allocation on every interval.
+- Existing process/network snapshot limits remain the capture bounds; this
+  slice does not claim high-concurrency, soak, shutdown, deployment, or
+  platform-readiness completion.
+- Required tests, benchmarks, proof, rollout evidence, and graph completion
+  remain open.
+
+### WP08 production audit boundary — reference validation only
+
+- Graph inspection at root `5253707fe` reports WP08 as `validation`, not
+  `done`. Its route-boundary validation and catalog references do not claim
+  network runtime, policy, enforcement, portal, platform, or deployment
+  behavior.
+- `crates/network-core/src/network_control_catalog*` and
+  `crates/network-core/src/generated_bridge.rs` are catalog/reference routing
+  surfaces. No reachable production intervention or network-service behavior
+  is owned by WP08, so no production edit is legal from this route.
+- The production audit therefore ends at WP08; runtime implementation gaps
+  remain in WP02-WP07 and must be selected through their owning boundaries.
+
 ### Real dependency blockers
 
 - Cross-plan rows that depend on browser exact-URL evidence, screen-summary fallback, AI runtime ownership, eventing semantics, LAN/family-hub delivery, or enforcement authority remain dependent on their owning plans.
-- No current proof manifest or committed proof bundle ties the scattered TS, Rust, script, and portal surfaces back to this plan's workpacks.
+- The current proof manifest ties the reviewed WP01 contract/runtime slice to its retained proof route; it does not prove broader plan completion, live capture, or platform readiness.
 
 ### External platform constraints
 
@@ -128,7 +202,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Windows proof is expected where a row needs it; current gaps are proof-generation and row-tracking gaps, not a host limitation.
 - Android tooling is present and an AVD exists, but no device is attached right now and the remembered Samsung Wi-Fi ADB endpoint did not answer during the audit refresh.
 - WSL is installed but stopped, and Docker Desktop's binary exists while the Linux engine is currently unavailable; Linux proof through WSL and/or Docker is therefore feasible but not currently active.
-- only `docs/proof/network-plan/01-network-foundation-shim-cleanup.md` and `output/network-plan-proof/01-network-foundation-shim-cleanup/` exist so far; all broader plan proof bundles still need to be generated before rows can close honestly.
+- The shim-cleanup proof and the WP01 foundation-contract manifest/receipt exist; all broader plan proof bundles still need to be generated before rows can close honestly.
 - Production live packet capture driver support and live raw artifact creation.
 - Router/log import implementation proof.
 - Local AI model execution or remote provider execution.
@@ -150,7 +224,8 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Workpacks indexed: 8 route workpacks.
 - Workpack source: `03-network-implementation-checklist-and-workpacks.md` rows split into focused files under `workpacks/`.
 - Workpacks with implementation proof complete: 0.
-- Workpacks open: 8.
+- Workpacks requiring production implementation: 7 (WP01-WP07).
+- WP08 state: validation/reference routing only; no production implementation claim.
 - Current meaning: the plan is routeable, but live capture, adapter intervention, mobile authority, and production rollout remain unproved unless a selected workpack provides proof.
 
 ### Active/open workpacks
@@ -158,11 +233,11 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - WP01 foundation contracts and eventing.
 - WP02 passive capture and parsing.
 - WP03 classification and correlation.
-- WP04 cross-slice cascade and parent surface.
+- WP04 cross-slice cascade and parent surface (blocked behind direct shipped-owner handoffs).
 - WP05 intervention adapter proof gates.
 - WP06 analyzer, AI audit, and risk budget.
 - WP07 performance, security, and rollout.
-- WP08 control catalog reference routing.
+- WP08 control catalog reference routing (validation/reference-only; not runtime).
 
 ## Default no-read list
 

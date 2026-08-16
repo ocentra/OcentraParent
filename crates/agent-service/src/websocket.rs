@@ -1,5 +1,6 @@
 use axum::extract::ws::WebSocket;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use std::{future::Future, pin::Pin};
 
 #[path = "websocket/activity_app_game_action_reports.rs"]
 mod activity_app_game_action_reports;
@@ -37,6 +38,8 @@ mod lan_command_reports;
 mod network_command_reports;
 #[path = "websocket/policy_request_confirm.rs"]
 mod policy_request_confirm;
+#[path = "websocket/policy_request_resolution.rs"]
+mod policy_request_resolution;
 #[path = "websocket/socket_session.rs"]
 mod socket_session;
 #[path = "websocket/tracking_retention_settings_write.rs"]
@@ -59,11 +62,11 @@ pub struct WebsocketBrowserPolicyStorePath(pub std::path::PathBuf);
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct WebsocketCommandOrigin(pub(crate) Option<String>);
 
-pub(crate) async fn handle_command_text_for_test(
+pub(crate) fn handle_command_text_for_test(
     text: WebsocketCommandText,
     lan_pairing: LanPairingRuntime,
     origin: WebsocketCommandOrigin,
-) -> AgentEventEnvelope {
+) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     command_entry::handle_command_text(
         text,
         lan_pairing,
@@ -75,15 +78,14 @@ pub(crate) async fn handle_command_text_for_test(
         ),
         origin,
     )
-    .await
 }
 
-pub(crate) async fn handle_command_text_with_browser_policy_for_test(
+pub(crate) fn handle_command_text_with_browser_policy_for_test(
     text: WebsocketCommandText,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
     origin: WebsocketCommandOrigin,
-) -> AgentEventEnvelope {
+) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     command_entry::handle_command_text(
         text,
         lan_pairing,
@@ -93,38 +95,36 @@ pub(crate) async fn handle_command_text_with_browser_policy_for_test(
         ),
         origin,
     )
-    .await
 }
 
-pub async fn dispatch_local_command_text(text: WebsocketCommandText) -> AgentEventEnvelope {
+pub fn dispatch_local_command_text(
+    text: WebsocketCommandText,
+) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     handle_command_text_for_test(
         text,
         LanPairingRuntime::empty(),
         WebsocketCommandOrigin(None),
     )
-    .await
 }
 
-pub async fn dispatch_local_command_text_with_browser_policy_store(
+pub fn dispatch_local_command_text_with_browser_policy_store(
     text: WebsocketCommandText,
     store_path: WebsocketBrowserPolicyStorePath,
-) -> AgentEventEnvelope {
+) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     handle_command_text_with_browser_policy_for_test(
         text,
         LanPairingRuntime::empty(),
         BrowserPolicyRuntime::for_store_path(store_path.0),
         WebsocketCommandOrigin(None),
     )
-    .await
 }
 
-pub(crate) async fn handle_socket(
+pub(crate) fn handle_socket(
     socket: WebSocket,
     lan_pairing: LanPairingRuntime,
     browser_policy: BrowserPolicyRuntime,
     screen_settings: ScreenSettingsRuntime,
     origin: WebsocketCommandOrigin,
-) {
+) -> Pin<Box<dyn Future<Output = ()> + Send + 'static>> {
     socket_session::handle_socket(socket, lan_pairing, browser_policy, screen_settings, origin)
-        .await;
 }

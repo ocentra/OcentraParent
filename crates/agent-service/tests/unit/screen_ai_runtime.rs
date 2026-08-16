@@ -52,26 +52,103 @@ pub(crate) mod screen_ai_service_event_subscription;
 mod screen_ai_service_event_subscription_tests;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
+#[path = "../support/test_text.rs"]
+mod test_text;
 #[path = "../../src/time.rs"]
 mod time;
 
+const _: () = {
+    let _ = activity_capture::spawn_startup_activity_capture;
+    let _ = activity_capture::startup_activity_capture_enabled;
+    let _ = activity_capture::startup_activity_capture_enabled_for_value;
+    let _ = activity_capture::record_activity_capture_once;
+    let _ = activity_capture::record_activity_capture_to_paths;
+    let _ = activity_capture::record_activity_capture_to_paths_at;
+
+    let _ = activity_surface_read_model_states::request_targets_remote_device;
+    let _ = activity_surface_read_model_states::empty_screen_read_model;
+    let _ = activity_surface_read_model_states::unavailable_screen_read_model;
+    let _ = activity_surface_read_model_states::offline_screen_read_model;
+    let _ = activity_surface_read_model_states::empty_app_use_read_model;
+    let _ = activity_surface_read_model_states::unavailable_app_use_read_model;
+    let _ = activity_surface_read_model_states::offline_app_use_read_model;
+    let _ = activity_surface_read_model_states::unavailable_games_read_model;
+    let _ = activity_surface_read_model_states::offline_games_read_model;
+    let _ = activity_surface_read_model_states::unavailable_browser_read_model;
+    let _ = activity_surface_read_model_states::offline_browser_read_model;
+    let _ = activity_surface_read_model_states::unavailable_network_read_model;
+    let _ = activity_surface_read_model_states::offline_network_read_model;
+
+    let _ = activity_surface_read_models::screen_read_model;
+    let _ = activity_surface_read_models::browser_read_model;
+    let _ = activity_surface_read_models::network_read_model;
+    let _ = activity_surface_read_models::app_use::app_use_read_model::<
+        Option<ocentra_parent_agent_protocol::activity_query::ActivityRecentSummary>,
+    >;
+    let _ = activity_surface_read_models::games::games_read_model;
+
+    let _ = screen_ai_service_capture_event_builder::screen_queue_job;
+    let _ = screen_ai_service_capture_event_builder::screen_analysis_event;
+
+    let _ = event_builder::build_event::<&str, &str>;
+    let _ = event_builder::portal_peer;
+};
+
 mod screen_ai_analysis_runtime {
-    #[path = "../../../src/screen_ai_analysis_runtime/adapter.rs"]
-    pub(crate) mod adapter;
-    #[path = "../../../src/screen_ai_analysis_runtime/adapter_process.rs"]
-    pub(crate) mod adapter_process;
-    #[path = "../../../src/screen_ai_analysis_runtime/adapter_redaction.rs"]
-    pub(crate) mod adapter_redaction;
-    #[path = "../screen_ai_analysis_runtime_adapter_tests.rs"]
-    mod adapter_tests;
-    #[path = "../../../src/screen_ai_analysis_runtime/config.rs"]
-    pub(crate) mod config;
-    #[path = "../../../src/screen_ai_analysis_runtime/event_record.rs"]
-    pub(crate) mod event_record;
-    #[path = "../screen_ai_analysis_runtime_event_record_tests.rs"]
-    mod event_record_tests;
-    #[path = "../../../src/screen_ai_analysis_runtime/queue.rs"]
-    pub(crate) mod queue;
+    pub(crate) mod adapter {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/adapter.rs"
+        ));
+    }
+    pub(crate) mod adapter_process {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/adapter_process.rs"
+        ));
+    }
+    pub(crate) mod adapter_redaction {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/adapter_redaction.rs"
+        ));
+    }
+    mod adapter_tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/screen_ai_analysis_runtime_adapter_tests.rs"
+        ));
+    }
+    pub(crate) mod config {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/config.rs"
+        ));
+    }
+    pub(crate) mod event_record {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/event_record.rs"
+        ));
+    }
+    pub(crate) mod lease_heartbeat {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/lease_heartbeat.rs"
+        ));
+    }
+    mod event_record_tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/screen_ai_analysis_runtime_event_record_tests.rs"
+        ));
+    }
+    pub(crate) mod queue {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/screen_ai_analysis_runtime/queue.rs"
+        ));
+    }
 
     type ScreenAiAnalysisCycleClock = config::ScreenAiAnalysisCycleClock;
     type ScreenAiAnalysisCycleOutcome = config::ScreenAiAnalysisCycleOutcome;
@@ -93,8 +170,11 @@ mod screen_ai_analysis_runtime {
 
     use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
 
-    use self::queue::{
-        first_queued_screen_image, load_existing_screen_key, metadata_result_for_queue_job,
+    use self::{
+        lease_heartbeat::{start_analysis_lease_heartbeat, ScreenAnalysisLeaseHeartbeatInput},
+        queue::{
+            first_queued_screen_image, load_existing_screen_key, metadata_result_for_queue_job,
+        },
     };
 
     pub(crate) async fn record_screen_ai_analysis_cycle_with_events(
@@ -108,16 +188,28 @@ mod screen_ai_analysis_runtime {
         let Some(key) = load_existing_screen_key(&config.journal_key_path)? else {
             return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
         };
-        let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
-        let Some(image) = first_queued_screen_image(&queue, config.max_queue_scan)? else {
+        let queue = ScreenEvidenceQueue::open(&config.queue_dir, key.clone())?;
+        let Some(image) = first_queued_screen_image(
+            &queue,
+            config.max_queue_scan,
+            &clock,
+            config.adapter_timeout_ms,
+        )?
+        else {
             return Ok(ScreenAiAnalysisCycleOutcome::QueueEmpty);
         };
+        let _lease_heartbeat = start_analysis_lease_heartbeat(ScreenAnalysisLeaseHeartbeatInput {
+            queue_dir: config.queue_dir.clone(),
+            key,
+            queue_job_id: image.queue_job_id.clone(),
+            adapter_timeout_ms: config.adapter_timeout_ms,
+        });
         let metadata = metadata_result_for_queue_job(&config.store_path, &image, &clock)?;
         if metadata
             .as_ref()
             .is_some_and(|result| result.provider_kind != SCREEN_PROVIDER_SERVICE_METADATA)
         {
-            queue.remove_entries(std::slice::from_ref(&image.queue_job_id))?;
+            queue.complete_claimed_entry(&image.queue_job_id)?;
             return Ok(ScreenAiAnalysisCycleOutcome::AlreadyAnalyzed {
                 queue_job_id: image.queue_job_id,
             });
@@ -145,19 +237,15 @@ mod screen_ai_analysis_runtime {
             &clock.timestamp,
         )
         .await?;
-        queue.remove_entries(std::slice::from_ref(&image.queue_job_id))?;
+        queue.complete_claimed_entry(&image.queue_job_id)?;
         Ok(outcome)
     }
 
-    pub(crate) fn adapter_runtime_status<P>(
-        command: Option<P>,
+    pub(crate) fn adapter_runtime_status(
+        command: Option<&std::path::Path>,
         timestamp: impl std::fmt::Display,
-    ) -> LocalModelRuntimeStatus
-    where
-        P: AsRef<std::path::Path>,
-    {
+    ) -> LocalModelRuntimeStatus {
         let timestamp = timestamp.to_string();
-        let command = command.as_ref().map(AsRef::as_ref);
         adapter::runtime_status(command, timestamp.as_str())
     }
 
@@ -213,6 +301,10 @@ mod screen_ai_analysis_runtime {
 
 mod screen_ai_service_event_subscription_live_view {
     use super::screen_ai_service_event_subscription::live_view_service_runtime;
-    #[path = "../live_view_service_runtime_tests.rs"]
-    mod live_view_service_runtime_tests;
+    mod live_view_service_runtime_tests {
+        include!(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/unit/live_view_service_runtime_tests.rs"
+        ));
+    }
 }

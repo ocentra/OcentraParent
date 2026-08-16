@@ -222,15 +222,21 @@ pub fn evaluate_remote_access_session(
     let allowed = remote_access_session_is_allowed(request);
 
     RemoteAccessSessionDecision {
-        authorization_state: allowed
-            .then_some(RemoteAccessSessionAuthorizationState::Allowed)
-            .unwrap_or(RemoteAccessSessionAuthorizationState::Rejected),
-        relay_requirement_state: (request.relay_state != RemoteAccessRelayState::Available)
-            .then_some(RemoteAccessRelayRequirementState::Required)
-            .unwrap_or(RemoteAccessRelayRequirementState::NotRequired),
-        auto_expiry_state: allowed
-            .then_some(RemoteAccessAutoExpiryState::Required)
-            .unwrap_or(RemoteAccessAutoExpiryState::NotRequired),
+        authorization_state: if allowed {
+            RemoteAccessSessionAuthorizationState::Allowed
+        } else {
+            RemoteAccessSessionAuthorizationState::Rejected
+        },
+        relay_requirement_state: if request.relay_state != RemoteAccessRelayState::Available {
+            RemoteAccessRelayRequirementState::Required
+        } else {
+            RemoteAccessRelayRequirementState::NotRequired
+        },
+        auto_expiry_state: if allowed {
+            RemoteAccessAutoExpiryState::Required
+        } else {
+            RemoteAccessAutoExpiryState::NotRequired
+        },
     }
 }
 
@@ -262,15 +268,21 @@ pub fn plan_remote_access_session_effects(
     .all(std::convert::identity);
 
     RemoteAccessSessionEffectPlan {
-        view_stream_state: allowed
-            .then_some(RemoteAccessViewStreamState::Start)
-            .unwrap_or(RemoteAccessViewStreamState::DoNotStart),
-        input_bridge_state: input_allowed
-            .then_some(RemoteAccessInputBridgeState::Start)
-            .unwrap_or(RemoteAccessInputBridgeState::DoNotStart),
-        disclosure_banner_state: allowed
-            .then_some(RemoteAccessDisclosureBannerState::Show)
-            .unwrap_or(RemoteAccessDisclosureBannerState::DoNotShow),
+        view_stream_state: if allowed {
+            RemoteAccessViewStreamState::Start
+        } else {
+            RemoteAccessViewStreamState::DoNotStart
+        },
+        input_bridge_state: if input_allowed {
+            RemoteAccessInputBridgeState::Start
+        } else {
+            RemoteAccessInputBridgeState::DoNotStart
+        },
+        disclosure_banner_state: if allowed {
+            RemoteAccessDisclosureBannerState::Show
+        } else {
+            RemoteAccessDisclosureBannerState::DoNotShow
+        },
         audit_state: RemoteAccessAuditState::Record,
     }
 }

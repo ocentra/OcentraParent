@@ -1,14 +1,9 @@
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiDegradedState;
-use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobStatus;
-use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerLifecycle;
 use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantBackendState;
 use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantEvidenceContext;
-use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderState;
 use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantProviderStatus;
-use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantRunState;
 use ocentra_parent_agent_protocol::policy_constants as policy;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 
@@ -61,7 +56,7 @@ pub(super) fn provider_status_for_command(
         runtime_unavailable,
         &scheduler_status.lifecycle_state,
     );
-    let degraded_state = scheduler_status.degraded_state.clone();
+    let degraded_state = scheduler_status.degraded_state;
     let unavailable_reason = runtime
         .unavailable_reason
         .or_else(|| scheduler_status.unavailable_reason.clone());

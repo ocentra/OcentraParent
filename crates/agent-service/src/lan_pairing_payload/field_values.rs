@@ -22,7 +22,8 @@ pub(super) fn optional_payload_text(
     fields: &LogFields,
     field_name: LanPairingText,
 ) -> Option<LanPairingPayloadText> {
-    match fields.get(field_name.0.as_str()) {
+    let field_name = field_name.0;
+    match fields.get(field_name.as_str()) {
         Some(LogFieldValue::String(value)) if !value.is_empty() => {
             Some(LanPairingPayloadText(value.clone()))
         }
@@ -34,7 +35,8 @@ pub(super) fn required_payload_text(
     fields: &LogFields,
     field_name: LanPairingText,
 ) -> Result<LanPairingPayloadText, LanPairingRejectionReason> {
-    match fields.get(field_name.0.as_str()) {
+    let field_name = field_name.0;
+    match fields.get(field_name.as_str()) {
         Some(LogFieldValue::String(value)) if !value.is_empty() => {
             Ok(LanPairingPayloadText(value.clone()))
         }

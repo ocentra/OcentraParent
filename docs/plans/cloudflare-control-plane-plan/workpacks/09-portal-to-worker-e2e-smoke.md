@@ -1,5 +1,7 @@
 # Workpack 09: Portal To Worker E2E Smoke
 
+> **2026-07-28 correction:** The later missing-private-billing-import blocker text is historical. `infra/cloudflare` now imports module-local generated billing contracts. This workpack remains open because it has no tracked proof bundle; rerun after installing dependencies and record the actual result.
+
 ## Goal
 
 Define the first consumer-side smoke that proves a parent portal route can talk to the shared worker boundary safely.
@@ -34,12 +36,12 @@ Define the first consumer-side smoke that proves a parent portal route can talk 
 
 - The owned e2e family stays explicitly scoped to `tests/e2e/portal-to-worker-billing-status.test.ts`.
 - The test contract stays explicitly scoped to `/auth/billing/status`.
-- The owned command blocked before route execution because `infra/cloudflare/src/index.ts` could not import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
+- The owned command is deferred before route execution because WP01's module dependency tree is currently empty; the worker imports module-local generated billing contracts rather than private billing-domain source.
 - Secret/private leakage assumptions remain denied by the owned test contract, but runtime success is not proven because the worker never booted.
 
 ## Exact blocker set
 
-- `packages/billing-domain/src/billing-checkout-portal-boundary.js`
+- Restore the WP01 resolver graph, then retain the actual portal-to-worker boot or route blocker if one remains.
 
 ## Validations run
 

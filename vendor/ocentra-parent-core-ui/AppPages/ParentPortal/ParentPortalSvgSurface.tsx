@@ -69,6 +69,7 @@ import type {
   ParentPortalAppGameDashboardRow,
   ParentPortalAppGameDashboardTone,
 } from './app-game-dashboard-intent';
+import type { ParentPortalAppGameSourcePanelSection } from './app-game-source-panel-intent';
 import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
@@ -5908,7 +5909,7 @@ function ParentPortalAppGameDashboardPanel({
   const visibleRowCount = Math.max(1, Math.floor(Math.max(1, lowerH - 32) / (rowCardH + rowGap)) * rowsColumns);
   const visibleRows = dashboard.rows.slice(0, visibleRowCount);
   const sideX = x + rowsW + 14;
-  const sidePanelH = compact ? 0 : (lowerH - 10) / 2;
+  const sidePanelH = compact ? 0 : (lowerH - 20) / 3;
   const summaryLines = wrapCardText(dashboard.summary, w - 24, 12, 2);
 
   return (
@@ -5989,6 +5990,15 @@ function ParentPortalAppGameDashboardPanel({
             y={lowerY + sidePanelH + 10}
             w={sideW}
             h={sidePanelH}
+            title="SOURCE FRESHNESS"
+            rows={appGameSourcePanelMetrics(dashboard.sourcePanelSections)}
+            cfg={cfg}
+          />
+          <ParentPortalAppGameDashboardMetricList
+            x={sideX}
+            y={lowerY + (sidePanelH + 10) * 2}
+            w={sideW}
+            h={sidePanelH}
             title="EVIDENCE DRAWER"
             rows={dashboard.evidenceRows}
             cfg={cfg}
@@ -5997,6 +6007,23 @@ function ParentPortalAppGameDashboardPanel({
       )}
     </g>
   );
+}
+
+function appGameSourcePanelMetrics(
+  sections: readonly ParentPortalAppGameSourcePanelSection[]
+): readonly ParentPortalAppGameDashboardMetric[] {
+  return sections.flatMap((section) => [
+    {
+      label: section.title,
+      value: section.subtitle,
+      tone: section.tone,
+    },
+    {
+      label: `${section.title} evidence`,
+      value: `${section.evidenceCount} refs; ${section.manualRequiredCount} manual-required`,
+      tone: section.evidenceCount > 0 ? 'cyan' : 'gold',
+    },
+  ]);
 }
 
 function ParentPortalAppGameDashboardMetricCard({

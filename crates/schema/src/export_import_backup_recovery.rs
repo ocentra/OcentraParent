@@ -349,23 +349,23 @@ const EXPORT_IMPORT_SECTION_SEEDS: &[SectionSeed] = &[
 
 pub fn required_export_import_negative_preflight_states() -> Vec<ExportImportPreflightState> {
     vec![
-        ExportImportPreflightState::RejectedSchemaVersion,
-        ExportImportPreflightState::RejectedMigrationUnsupported,
-        ExportImportPreflightState::RejectedWrongHousehold,
-        ExportImportPreflightState::RejectedWrongKey,
-        ExportImportPreflightState::RejectedCorruptBundle,
-        ExportImportPreflightState::RejectedExpiredRetention,
-        ExportImportPreflightState::RejectedDuplicateDevice,
+        ExportImportPreflightState::SchemaVersionInvalid,
+        ExportImportPreflightState::MigrationUnsupported,
+        ExportImportPreflightState::HouseholdMismatch,
+        ExportImportPreflightState::KeyUnavailable,
+        ExportImportPreflightState::BundleCorrupt,
+        ExportImportPreflightState::RetentionExpired,
+        ExportImportPreflightState::DeviceDuplicate,
     ]
 }
 
 pub fn required_export_import_non_claims() -> Vec<ExportImportNonClaim> {
     vec![
-        ExportImportNonClaim::NoProviderRuntime,
-        ExportImportNonClaim::NoAutoApply,
-        ExportImportNonClaim::NoDefaultSupportDecrypt,
-        ExportImportNonClaim::NoTsBusinessOwner,
-        ExportImportNonClaim::NoLanOwnership,
+        ExportImportNonClaim::ProviderRuntime,
+        ExportImportNonClaim::AutoApply,
+        ExportImportNonClaim::DefaultSupportDecrypt,
+        ExportImportNonClaim::TsBusinessOwner,
+        ExportImportNonClaim::LanOwnership,
     ]
 }
 

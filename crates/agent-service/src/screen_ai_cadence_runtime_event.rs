@@ -95,10 +95,10 @@ pub(crate) fn record_captured_screen_image_to_paths(
         record.clock.epoch_seconds,
         record.sequence_index,
     );
-    let job = screen_queue_job(&record, &ids, image_digest.clone());
+    let job = screen_queue_job(&record, &ids, &image_digest);
     ScreenEvidenceQueue::open(record.paths.queue_dir, key)?
         .append_encrypted_image(&job, &image.png_bytes)?;
-    let event = screen_analysis_event(&record, &ids, &job, image_digest);
+    let event = screen_analysis_event(&record, &ids, &job, &image_digest);
     record_activity_events_to_paths(
         record.paths.journal_path,
         record.paths.journal_key_path,

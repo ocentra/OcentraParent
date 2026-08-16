@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::fs::{remove_file, write};
 use std::path::Path;
 use std::path::PathBuf as TestPathBuf;
@@ -126,7 +123,7 @@ async fn app_game_notification_readiness_command_reports_service_backed_intent_r
 }
 
 #[tokio::test]
-async fn app_game_notification_readiness_command_reports_persisted_local_outbox_runtime() {
+async fn app_game_notification_readiness_does_not_treat_setup_outbox_as_notification_runtime() {
     let _guard = REPORT_ENV_LOCK.lock().await;
     let store_path = temp_path(constants::value::APP_GAME_NOTIFICATION_READINESS_LOCAL_OUTBOX);
     cleanup_path(&store_path);
@@ -155,7 +152,7 @@ async fn app_game_notification_readiness_command_reports_persisted_local_outbox_
     std::env::remove_var(constants::env_var::ACTIVITY_DB_PATH);
     cleanup_path(&store_path);
 
-    assert!(read_model.local_outbox_runtime_claimed);
+    assert!(!read_model.local_outbox_runtime_claimed);
     assert!(!read_model.provider_delivery_claimed);
     assert!(!read_model.provider_receipt_ingestion_claimed);
     assert!(!read_model.child_delivery_claimed);

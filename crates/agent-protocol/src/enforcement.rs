@@ -1,7 +1,12 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    activity::policy::{ParentActorReference, ParentEvidenceReference, PolicyAction, PolicyTarget},
+    activity::policy::{
+        ParentActorReference, ParentEvidenceReference, PolicyAction, PolicyTarget, PolicyTargetType,
+    },
     activity::policy_context::ParentDeviceReference,
     constants::enforcement as enforcement_constants,
 };
@@ -542,6 +547,120 @@ pub struct EnforcementAuditEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct EnforcementAuditJournalEvent {
+    pub audit_event_id: String,
+    pub action_id: String,
+    pub intent_id: String,
+    pub result_id: String,
+    pub policy_decision_id: String,
+    pub policy_version: String,
+    pub policy_action: PolicyAction,
+    pub target_id: String,
+    pub target_type: PolicyTargetType,
+    pub adapter_kind: EnforcementAdapterKind,
+    pub platform: ParentPlatform,
+    pub audit_event_kind: EnforcementAuditEventKind,
+    #[serde(default)]
+    pub provenance: EnforcementAuditJournalProvenance,
+    pub result_status: EnforcementResultStatus,
+    pub adapter_result_code: EnforcementAdapterResultCode,
+    pub capability_state: EnforcementCapabilityState,
+    pub evidence_references: Vec<ParentEvidenceReference>,
+    pub actor: Option<ParentActorReference>,
+    pub parent_override: Option<ParentActionReference>,
+    pub unavailable_status: Option<EnforcementUnavailableStatus>,
+    pub rollback_state: EnforcementRollbackState,
+    pub dry_run: bool,
+    pub reason_codes: Vec<String>,
+    pub reason: Option<String>,
+    pub requested_at: String,
+    pub started_at: Option<String>,
+    pub completed_at: Option<String>,
+    pub journal_sequence: Option<String>,
+    pub device_id: Option<String>,
+    pub source_peer_id: Option<String>,
+    pub target_route: Option<String>,
+    pub observed_at: String,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum EnforcementAuditJournalProvenance {
+    /// Journal records written before provenance was introduced. Projection
+    /// consumers may derive only the safe legacy accepted-intent shape.
+    #[default]
+    Legacy,
+    RejectedIntent,
+    AcceptedIntent,
+    AdapterResult,
+}
+
+impl From<&EnforcementAuditEvent> for EnforcementAuditJournalEvent {
+    fn from(audit: &EnforcementAuditEvent) -> Self {
+        Self {
+            audit_event_id: audit.audit_event_id.clone(),
+            action_id: audit.action.action_id.clone(),
+            intent_id: audit.action.intent_id.clone(),
+            result_id: audit.result.result_id.clone(),
+            policy_decision_id: audit.action.policy_decision_id.clone(),
+            policy_version: audit.policy_version.clone(),
+            policy_action: audit.action.policy_action,
+            target_id: audit.action.target.target_id.clone(),
+            target_type: audit.action.target.target_type,
+            adapter_kind: audit.action.adapter_kind,
+            platform: audit.action.platform,
+            audit_event_kind: audit.audit_event_kind,
+            provenance: EnforcementAuditJournalProvenance::AdapterResult,
+            result_status: audit.result.status,
+            adapter_result_code: audit.result.adapter_result_code,
+            capability_state: audit.capability.capability_state,
+            evidence_references: audit.evidence_references.clone(),
+            actor: audit.actor.clone(),
+            parent_override: audit.parent_override.clone(),
+            unavailable_status: audit.unavailable_status.clone(),
+            rollback_state: audit.result.rollback_state,
+            dry_run: audit.action.dry_run,
+            reason_codes: audit.action.reason_codes.clone(),
+            reason: audit
+                .result
+                .failed_reason
+                .clone()
+                .or_else(|| audit.result.unavailable_reason.clone()),
+            requested_at: audit.action.requested_at.clone(),
+            started_at: Some(audit.result.started_at.clone()),
+            completed_at: audit.result.completed_at.clone(),
+            journal_sequence: audit.journal_sequence.clone(),
+            device_id: None,
+            source_peer_id: None,
+            target_route: None,
+            observed_at: audit.observed_at.clone(),
+        }
+    }
+}
+
+impl DomainEvent for EnforcementAuditJournalEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(enforcement_constants::EVENT_AUDIT_JOURNAL_RECORDED)?,
+            SchemaVersion::new(enforcement_constants::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        let mut value = String::from(enforcement_constants::EVENTING_AGGREGATE_AUDIT_PREFIX);
+        value.push_str(&self.action_id);
+        AggregateKey::parse(value)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(enforcement_constants::EVENTING_IDEMPOTENCY_AUDIT_PREFIX);
+        value.push_str(&self.audit_event_id);
+        IdempotencyKey::parse(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EnforcementTimerEvent {
     pub schema_version: String,
     pub timer_event_id: String,
@@ -566,4 +685,20 @@ pub struct EnforcementActiveTimerState {
     pub audit_event: EnforcementAuditEvent,
     pub timer_event: EnforcementTimerEvent,
     pub stored_at: String,
+    #[serde(default)]
+    pub app_game_session: Option<AppGameTimerSessionBinding>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameTimerSessionBinding {
+    pub session_id: String,
+    pub runtime_evidence_id: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub process_name: String,
+    pub classification_state: String,
+    pub last_observed_at: String,
+    pub running_duration_ms: u64,
+    pub foreground_duration_ms: u64,
 }

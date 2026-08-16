@@ -1,4 +1,5 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFields;
 use ocentra_parent_agent_protocol::policy_constants;
@@ -25,17 +26,17 @@ use ocentra_parent_agent_protocol::transport::{
 fn tracking_config_update_event_names_serialize_exact_contract_text() {
     assert_eq!(
         serde_json::to_value(TrackingConfigUpdateEventName::Parent)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         constants::tracking_config_update::PARENT_EVENT_TYPE
     );
     assert_eq!(
         serde_json::to_value(TrackingConfigUpdateEventName::Child)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         constants::tracking_config_update::CHILD_EVENT_TYPE
     );
     assert_eq!(
         serde_json::to_value(TrackingConfigUpdateEventName::Applied)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         constants::tracking_config_update::APPLIED_EVENT_TYPE
     );
 }
@@ -54,12 +55,12 @@ fn tracking_config_update_applied_event_serializes_durable_child_runtime_result(
         TrackingDurableSettingsPersistenceState::Persisted,
     );
     let serialized =
-        serde_json::to_value(&applied_event).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&applied_event).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         applied_event
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::tracking_config_update::APPLIED_EVENT_TYPE
@@ -103,11 +104,11 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
             TrackingPolicyRuleRef::parse(
                 constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
             )
-            .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME),
+            .expect_value(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME),
             TrackingPolicyRuleRef::parse(
                 constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED,
             )
-            .expect(constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED),
+            .expect_value(constants::tracking_config_update::POLICY_RULE_REMOTE_SYNC_DISABLED),
         ],
         false,
     );
@@ -132,7 +133,7 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
     assert_eq!(
         change_requested
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::tracking_config_update::CHANGE_REQUESTED_EVENT_TYPE
@@ -140,7 +141,7 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
     assert_eq!(
         evaluation
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED
@@ -148,7 +149,7 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
     assert_eq!(
         decision
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::network_flow::EVENT_POLICY_DECISION_COMPLETED
@@ -156,7 +157,7 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
     assert_eq!(
         approved
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::tracking_config_update::CHANGE_APPROVED_EVENT_TYPE
@@ -164,7 +165,7 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
     assert_eq!(
         audit
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED
@@ -172,18 +173,18 @@ fn tracking_config_change_approval_chain_serializes_named_contract_and_refs() {
     assert_eq!(
         portal
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
     );
 
     let serialized_decision =
-        serde_json::to_value(&decision).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&decision).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_portal =
-        serde_json::to_value(&portal).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let serialized_requested =
-        serde_json::to_value(&change_requested).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&portal).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized_requested = serde_json::to_value(&change_requested)
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized_decision["decisionState"], "approved");
     assert_eq!(serialized_decision["childRuntimePublishRequired"], true);
@@ -210,7 +211,7 @@ fn tracking_config_change_rejection_chain_serializes_manual_required_surface_sta
         vec![TrackingPolicyRuleRef::parse(
             constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME,
         )
-        .expect(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME)],
+        .expect_value(constants::tracking_config_update::POLICY_RULE_LOCAL_CHILD_RUNTIME)],
         false,
     );
     let decision = tracking_config_policy_decision_completed_event(
@@ -235,11 +236,11 @@ fn tracking_config_change_rejection_chain_serializes_manual_required_surface_sta
     );
 
     let serialized_rejected =
-        serde_json::to_value(&rejected).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&rejected).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_audit =
-        serde_json::to_value(&audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_portal =
-        serde_json::to_value(&portal).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&portal).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized_rejected["rejectionReasonCode"],

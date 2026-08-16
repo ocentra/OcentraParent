@@ -13,10 +13,10 @@ pub(super) fn browser_evidence_fields_from_pairs(
 }
 
 pub(super) fn field_pair(
-    key: BrowserEvidenceFieldKey,
+    BrowserEvidenceFieldKey(key): BrowserEvidenceFieldKey,
     value: LogFieldValue,
 ) -> BrowserEvidenceFieldPair {
-    BrowserEvidenceFieldPair(key.0, value)
+    BrowserEvidenceFieldPair(key, value)
 }
 
 pub(super) fn optional_text(value: Option<BrowserEvidenceTextRef<'_>>) -> LogFieldValue {

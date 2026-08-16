@@ -23,17 +23,17 @@ This file records documentation health and consistency checks for the plan. It i
 - Current snapshot: `current-eventing-snapshot.md`
 - Implementation checklist present: true
 - Workpacks indexed: 13 route workpacks
-- `docs/proof/eventing-plan/` now exists as the local WP12 route-proof bundle.
+- `docs/proof/eventing-plan/` contains the WP12 route-proof bundle and the WP06 durable manifest.
 
 ## Consistency warnings
 
 - Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
-- Historical proof and rollout rows currently overclaim checkout state; cited `output/eventing-plan-proof/*` roots outside WP11/WP12/WP13 are still incomplete for open workpacks.
+- Historical proof and rollout rows currently overclaim checkout state; cited `output/eventing-plan-proof/*` roots outside WP06/WP11/WP12/WP13 are still incomplete for open workpacks. WP06 is locally evidenced as the generic enforcement prerequisite; WP10 remains open.
 - WP11 now has focused local proof roots plus passing package-wide `@ocentra-parent/agent-protocol-domain` type-check, focused policy-control/contract tests, and a passing touched-file architecture gate.
 - WP12 now has a focused local route-proof bundle and WP13 has a focused local regression proof root.
-- Do not treat focused `cargo test` passes or stale checked rows as plan closure; WP11/WP12/WP13 are locally proved, but the full plan still remains open because WP10 lacks current local proof.
-- The route/proof split must stay explicit: `output/eventing-plan-proof/<workpack>/` for implementation proof; `docs/proof/eventing-plan/` only for the current WP12 route-proof manifest bundle.
+- Do not treat focused `cargo test` passes or stale checked rows as plan closure; WP06/WP11/WP12/WP13 are locally proved, but the full plan remains open because WP10 lacks current local proof.
+- The route/proof split must stay explicit: `output/eventing-plan-proof/<workpack>/` for raw/generated implementation output; `docs/proof/eventing-plan/` for the WP12 route-proof bundle and the hand-authored WP06 durable manifest.
 
 ## Required hygiene before PR_READY
 
@@ -54,7 +54,10 @@ This file records documentation health and consistency checks for the plan. It i
 ## Current rollout note
 
 - WP11 source-boundary hardening is locally proved. WP12 route-proof reconciliation is locally restored, and WP13 also has a local proof root and focused revalidation.
-- WP10 remains open until household mesh import/export proof and owning LAN/remote-access handoff verification exist.
+- WP06 retains a hand-authored durable manifest for generic journal/topology/
+  replay mechanics and the typed enforcement WP11 handoff under
+  `docs/proof/eventing-plan/`; raw/generated output remains ignored. WP10
+  remains open until household mesh import/export proof and owning LAN/remote-access handoff verification exist.
 
 ## Agent Route Walkthrough
 
@@ -73,8 +76,8 @@ This file records documentation health and consistency checks for the plan. It i
 
 ### State
 
-- Current state: route and schema hygiene are improved, WP13 local proof is present, WP12 local route proof is restored, and WP11 is locally proved through its proof roots plus focused package validation.
-- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while the remaining WP10 gap is handled.
+- Current state: route and schema hygiene are improved, WP13 local proof is present, WP12 local route proof is restored, WP11 is locally proved through its proof roots plus focused package validation, and WP06 locally evidences its generic enforcement handoff. WP10 remains open.
+- Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while WP10 is handled; do not promote the local Eventing handoff into enforcement action proof.
 
 ### Decision routes and failure controls
 

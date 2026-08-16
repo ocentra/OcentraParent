@@ -31,3 +31,17 @@ Failure conditions:
 - Do not claim real-time or production readiness from local happy-path tests.
 - Do not keep raw traffic proof without custody and delete/export boundaries.
 - Do not ship support/privacy claims that exceed the proved authority tier.
+
+## Current code-drafted slice — tests deferred
+
+The recurring Windows activity-capture path no longer leaks one heap
+allocation per capture interval. The capture operation owns one bounded
+timestamp `String`, while a lifetime-bound `ObservedAtText` borrows it during
+current event-batch construction; the capture limits remain the existing
+process/network limits.
+This is a production resource-safety correction, not rollout or performance
+completion.
+
+Shutdown coordination, high-concurrency/soak measurements, deployment
+rollback, platform adapter readiness, and retained privacy/security proof
+remain open.

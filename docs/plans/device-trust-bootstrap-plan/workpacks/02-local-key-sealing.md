@@ -78,8 +78,33 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 
 ## Current audit state
 
-- No proof root currently exists on disk for this workpack.
-- Platform custody expectations are modeled, but platform-backed sealing runtime proof is still missing on Windows, Android, and Linux; iOS and macOS proof remain external-platform constraints from this host.
+- The merged Windows-only custody and dispatch safety slice has an unregistered
+  native parent-runtime facade consumes only an opaque staged-ceremony handle and
+  rejects an unstaged or already-consumed handle before it can call
+  `storage-custody-core`. No parent desktop bridge action is registered for this
+  facade, so this adapter-local rejection does not prove a live desktop-command or
+  webview dispatch path. There is no record-backed household-authority owner yet, so
+  no ceremony issuer is exported to external/runtime callers; caller-supplied
+  authority flags cannot mint a ceremony. That adapter
+  source DPAPI-protects locally generated trust material with its family/account/device
+  binding, atomically persists the ciphertext record, and then activates a
+  separately DPAPI-protected epoch below the current user's Windows registry
+  hive. Revocation removes that epoch before best-effort record deletion, and
+  without an operational issuer, no end-to-end Windows seal or restored-record
+  execution proof is claimed. The focused custody test covers only idempotent
+  revocation of an unissued binding. Production parent-presence custody remains
+  fail-closed and does not yet stage operational ceremonies.
+- This is a merged Windows-only source-and-test slice, not a workpack close. Android,
+  Linux, iOS, and macOS platform custody are still absent. No encrypted recovery
+  bundle, re-pair flow, entitlement unlock, child removal, or whole
+  device-trust state machine is claimed here.
+- The production revocation path now applies the same authenticated-parent
+  authority gate as sealing. Without an owning ceremony/authority provider it
+  remains manual-required and preserves the sealed record and platform epoch;
+  local callers cannot revoke trust by supplying identity strings alone.
+- The required proof root is generated locally under
+  `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` and is not
+  committed product truth.
 
 ## Negative cases
 
@@ -90,3 +115,5 @@ output/device-trust-bootstrap-plan-proof/02-local-key-sealing/17-blockers.md
 - LAN pairing cannot unwrap trust material by itself.
 - Package install/copy cannot create a trusted sealed key state by itself.
 - Recovery bundle availability cannot bypass wrong-household, wrong-device, or wrong-key rejection.
+- A local revoke/reset caller cannot delete sealed trust material without the
+  authenticated parent authority; unavailable authority remains manual-required.

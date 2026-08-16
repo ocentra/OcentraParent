@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use serde_json::{json, Value};
 
 use ocentra_parent_agent_protocol::social_parent_notification_delivery_read_model::{
@@ -20,7 +21,7 @@ use ocentra_parent_agent_protocol::SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REP
 #[test]
 fn social_parent_notification_delivery_snapshot_serializes_claim_boundaries() {
     let snapshot = snapshot();
-    let value = serde_json::to_value(snapshot).expect("snapshot serializes: {error:?}");
+    let value = serde_json::to_value(snapshot).expect_value("snapshot serializes: {error:?}");
 
     assert_eq!(
         value["schemaVersion"],
@@ -40,7 +41,7 @@ fn social_parent_notification_delivery_snapshot_serializes_claim_boundaries() {
 }
 
 fn assert_ready_row(row: Option<&Value>) {
-    let row = row.expect("ready row exists");
+    let row = row.expect_value("ready row exists");
     assert_eq!(
         row["notificationDeliveryReadinessState"],
         json!(SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATE_REPORT_READY)

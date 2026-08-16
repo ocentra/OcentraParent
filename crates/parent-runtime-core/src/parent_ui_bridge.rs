@@ -1,4 +1,6 @@
 mod action_dispatch;
+mod action_result_app_game;
+pub mod lan_replay_rejection_episode;
 mod lan_route;
 mod presentation;
 pub(crate) mod route_metadata;
@@ -18,7 +20,6 @@ use ocentra_schema::parent_ui_bridge::{
     ParentPortalParentAccessState, ParentRouteContext, ParentRouteId, ParentRouteSnapshot,
     ParentSubscriptionEvent, ParentUiAction, ParentUiActionKind, ParentUiActionResult,
 };
-use serde::Serialize;
 use serde_json::Value;
 
 use crate::agent_service_client::snapshots_lan::network_flow_snapshot_from_parts;
@@ -29,23 +30,21 @@ use crate::agent_service_client::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
     NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
     ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 use crate::agent_service_client::{
-    dispatch_agent_command, dispatch_known_agent_command, load_activity_screen_read_model_snapshot,
-    load_app_game_adapter_dispatch_preflight_read_model_snapshot,
-    load_app_game_adapter_dispatch_result_read_model_snapshot,
-    load_app_game_child_runtime_transport_receipt_read_model_snapshot,
-    load_app_game_notification_readiness_read_model_snapshot,
-    load_app_game_platform_proof_status_read_model_snapshot,
-    load_app_game_policy_readiness_read_model_snapshot,
-    load_app_game_timer_parent_surface_read_model_snapshot, load_network_flow_read_model_snapshot,
-    load_network_runtime_event_chain_stream_snapshot, load_policy_preview_read_model_snapshot,
-    load_tracking_read_model_snapshot,
+    dispatch_agent_command, dispatch_known_agent_command, health_check_for_address,
+    health_check_timeout_ms, load_lan_runtime_event_chain_replay_events,
+    load_network_flow_read_model_snapshot, load_policy_preview_read_model_snapshot,
 };
 
+use self::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use self::lan_route::{
     command_enabled_for_route, connection_state_for_route, data_source_for_route,
     is_dev_tools_route, lan_route_query_for_action, lan_route_query_for_load, LanRouteQuery,
@@ -61,7 +60,6 @@ use self::route_snapshot::build_parent_route_snapshot_impl;
 const PARENT_UI_BRIDGE_SCHEMA_VERSION: u16 = 1;
 const EMPTY_TIMESTAMP: &str = "";
 const HOST_BRIDGE_URL: &str = "host-bridge://tauri-parent";
-const LAN_DISCOVERY_REPORTED_EVENT: &str = "agent.lan-pairing.browser-discovery.reported";
 
 #[derive(Default)]
 struct ParentRouteSnapshotOverlay {
@@ -79,6 +77,15 @@ struct ParentRouteLiveActivitySnapshotInput<'a> {
     parent_access_state: &'a ParentPortalParentAccessState,
     tracking_read_model_snapshot: Option<&'a TrackingReadModelAgentServiceSnapshot>,
     screen_read_model_snapshot: Option<&'a ScreenReadModelAgentServiceSnapshot>,
+    app_use_read_model_snapshot: Option<&'a AppUseReadModelAgentServiceSnapshot>,
+    browser_activity_read_model_snapshot: Option<&'a BrowserActivityReadModelAgentServiceSnapshot>,
+    games_read_model_snapshot: Option<&'a GamesReadModelAgentServiceSnapshot>,
+    browser_inventory_read_model_snapshot:
+        Option<&'a BrowserInventoryReadModelAgentServiceSnapshot>,
+    browser_evidence_read_model_snapshot: Option<&'a BrowserEvidenceReadModelAgentServiceSnapshot>,
+    browser_managed_status_snapshot: Option<&'a BrowserManagedStatusAgentServiceSnapshot>,
+    browser_intervention_read_model_snapshot:
+        Option<&'a BrowserInterventionReadModelAgentServiceSnapshot>,
     app_game_notification_readiness_snapshot:
         Option<&'a AppGameNotificationReadinessAgentServiceSnapshot>,
     app_game_policy_readiness_snapshot: Option<&'a AppGamePolicyReadinessAgentServiceSnapshot>,
@@ -103,12 +110,46 @@ pub fn load_parent_route_snapshot(
     build_parent_route_snapshot(route, &lan_route_query, None, None)
 }
 
+pub fn parent_agent_service_health_for_address(agent_addr: &str) -> bool {
+    health_check_for_address(agent_addr)
+}
+
+pub fn parent_agent_service_health_timeout_ms() -> u64 {
+    health_check_timeout_ms()
+}
+
 pub fn load_parent_subscription_event(
     route: ParentRouteId,
     context: Option<&ParentRouteContext>,
 ) -> ParentSubscriptionEvent {
+    ParentRouteSubscriptionLoadState::default().load(route, context)
+}
+
+fn load_parent_subscription_event_with_state(
+    state: &mut ParentRouteSubscriptionLoadState,
+    route: ParentRouteId,
+    context: Option<&ParentRouteContext>,
+) -> ParentSubscriptionEvent {
     let lan_route_query = lan_route_query_for_load(&route, context);
-    let events = dedupe_route_events_by_event_id(lan_route_query.events());
+    let replay_attempted = matches!(&lan_route_query, LanRouteQuery::Available(_));
+    let (mut events, replay_rejected) = if replay_attempted {
+        match load_lan_runtime_event_chain_replay_events() {
+            Ok(replay) if lan_replay_is_bound_to_status(&replay, &lan_route_query) => {
+                (replay.events, false)
+            }
+            Ok(_unbound_replay) => (Vec::new(), true),
+            Err(_redacted_error) => (Vec::new(), true),
+        }
+    } else {
+        (Vec::new(), false)
+    };
+    events.extend_from_slice(lan_route_query.events());
+    if replay_rejected {
+        events.push(state.replay_rejection_diagnostic());
+    } else {
+        state.complete_replay_rejection_episode();
+    }
+    let events = dedupe_route_events_by_event_id(&events);
     let snapshot = build_parent_route_snapshot(route.clone(), &lan_route_query, None, None);
     ParentSubscriptionEvent {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
@@ -116,6 +157,22 @@ pub fn load_parent_subscription_event(
         snapshot,
         events: (!events.is_empty()).then_some(events),
     }
+}
+
+fn lan_replay_is_bound_to_status(
+    replay: &LanRuntimeReplaySnapshot,
+    lan_route_query: &LanRouteQuery,
+) -> bool {
+    let Some(status_history) = lan_route_query
+        .read_model()
+        .map(|read_model| &read_model.discovery_event_history)
+    else {
+        return false;
+    };
+
+    replay.history_state == status_history.state
+        && replay.latest_event_id == status_history.latest_event_id
+        && replay.latest_observed_at == status_history.latest_observed_at
 }
 
 pub fn dispatch_parent_ui_action(action: &ParentUiAction) -> ParentUiActionResult {

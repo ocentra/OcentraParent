@@ -1,6 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_dev_bridge::{
     configured_parent_dev_bridge_address, log_parent_dev_bridge_error, serve_parent_dev_bridge,
+    ParentDevBridgeErrorMessage,
 };
 use ocentra_parent_logging_core::field::{LogFieldValue, LogFields};
 use ocentra_parent_logging_core::{dev_log::DevLogger, source::LogSource};
@@ -20,11 +21,7 @@ async fn main() {
     };
 
     if let Err(error) = serve_parent_dev_bridge(address).await {
-        log_parent_dev_bridge_error(
-            constants::error::PARENT_DEV_BRIDGE_RUNS,
-            Some(address),
-            error,
-        );
+        log_parent_dev_bridge_error(ParentDevBridgeErrorMessage::Run, Some(address), &error);
         std::process::exit(1);
     }
 }

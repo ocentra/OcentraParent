@@ -9,7 +9,6 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_JOURNAL_FIELD_ROW_JSON, APP_GAME_JOURNAL_FIELD_ROW_KIND,
     APP_GAME_JOURNAL_REPLAY_STATE_STORED, APP_GAME_JOURNAL_SOURCE_ID,
 };
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 pub(super) fn fields_for_row(

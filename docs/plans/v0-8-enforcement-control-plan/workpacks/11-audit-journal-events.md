@@ -30,10 +30,30 @@ happened and why.
 
 ```text
 schema-domain owns public audit event, action result, reason, and reference schemas when they cross package/crate/protocol boundaries.
-eventing-plan owns generic replay, idempotency, and journal mechanics.
+eventing-plan WP06 Journal Replay And Lineage owns generic replay, idempotency, and journal mechanics.
 policy-control-plane-plan owns upstream policy authority and approval semantics.
 v0-8-enforcement-control-plan owns enforcement-specific action, rollback, approval, and visibility event meaning.
 ```
+
+## Required handoff to WP04 trusted dispatch
+
+WP11 is not a downstream reporting embellishment. Before WP04 is scheduled for
+dispatch-ready proof, Eventing WP06 Journal Replay And Lineage is reopened by
+its Eventing owner and must provide its generic replay/idempotency mechanics
+handoff. WP11 then provides the enforcement-specific durable journal contract
+and route to that actual prerequisite.
+
+The handoff must make these states queryable and durable enough for WP04 to
+consume: accepted/rejected dispatch intent, adapter result/no-op/mismatch/
+unavailable, rollback/recovery, actor/target/policy/evidence references, and
+redacted parent-visible receipt/read-model references. Eventing WP06 now retains
+a hand-authored durable manifest for its generic replay/idempotency/journal
+handoff under `docs/proof/eventing-plan/`; raw/generated output remains ignored.
+That is a prerequisite, not the enforcement
+durable-journal contract: WP11 remains open until it retains the listed
+enforcement-specific audit/query proof, and WP04 remains
+unscheduled/manual-required. Neither may manufacture a local journal or
+advance action state from a no-op.
 
 ## Source Inputs
 
@@ -82,12 +102,39 @@ Focused validation should record:
 - [ ] Journal timer and rollback transitions.
 - [ ] Journal approvals, denials, expiry, and overrides.
 - [ ] Include evidence, policy, actor, route, and target references.
-- [ ] Add read-model/query coverage for recent action history.
+- [x] Add read-model/query coverage for recent action history.
+
+Current evidence mapping:
+
+- The typed-request authorization-rejection subcase is durable and queryable;
+  see `docs/proof/v0-8-enforcement-control-plan/wp11-audit-journal-events.md`.
+- `ActivityStore::recent_enforcement_audit_fields` now returns a caller-bounded,
+  newest-first view of stored enforcement-audit fields. Its focused regression
+  proves the cap, SQLite timestamp/rowid order, and the zero-limit boundary.
+- The unchecked rows deliberately remain the completion authority for the
+  remaining transition families; this proof does not convert them to done.
 
 ## Where We Are
 
 Enforcement action states exist, but product trust requires durable audit for
 actions, failures, previews, timer transitions, and approvals.
+
+The fail-safe authorization-rejection boundary is now durable and queryable:
+the service records a typed `EnforcementAuditRecorded` activity event before it
+returns `AgentCommandRejected`. See
+`docs/proof/v0-8-enforcement-control-plan/wp11-audit-journal-events.md`.
+The recent-history query row is now covered, but the workpack remains open
+until each remaining transition family has its own selected validation and
+durable query proof.
+
+The current production journal writer is
+`crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs`
+and the projection reader is `crates/agent-service/src/enforcement_audit_history.rs`.
+Those seams are reachable for the existing service audit flow, but they do not
+yet compose the authenticated grant/managed-target executor into WP04's
+dispatch lifecycle. Until the WP11 enforcement-specific durable handoff and
+that trusted composition are connected, WP04 remains manual-required and no
+execution receipt may be advanced from journal evidence alone.
 
 ## Negative Cases
 

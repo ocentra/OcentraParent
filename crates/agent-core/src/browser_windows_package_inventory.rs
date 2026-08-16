@@ -1,15 +1,7 @@
-use ocentra_parent_agent_protocol::browser::{
-    BrowserCapabilityStatus, BrowserChannel, BrowserFamily,
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_inventory::{
+    BrowserInventoryInstallState, BrowserInventoryRunningState,
 };
-use ocentra_parent_agent_protocol::browser_inventory::BrowserActiveTabCapability;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserExactUrlCapability;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryInstallState;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserInventoryRunningState;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserManagedProfileState;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserManagementTier;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserSupportTier;
-use ocentra_parent_agent_protocol::browser_inventory::BrowserUnmanagedFallbackCapability;
-use ocentra_parent_agent_protocol::constants;
 
 use crate::browser_windows_inventory::BrowserWindowsInventoryObservation;
 

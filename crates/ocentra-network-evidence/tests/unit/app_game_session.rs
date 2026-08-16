@@ -1,7 +1,6 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::app_game_session::*;
 use ocentra_network_evidence::dns::types::*;
-use ocentra_network_evidence::policy::*;
 
 #[test]
 fn app_game_session_correlation_confirms_foreground_session_from_stored_refs() {

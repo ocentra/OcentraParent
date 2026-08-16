@@ -1,7 +1,7 @@
 use chrono::{SecondsFormat, Utc};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct TimestampText(String);
+pub(crate) struct TimestampText(String);
 
 pub trait FromTimestampText {
     fn from_timestamp_text(value: TimestampText) -> Self;
@@ -23,20 +23,18 @@ where
     T::from_timestamp_text(timestamp_text_now())
 }
 
+pub fn timestamp_after_epoch_seconds<T>(epoch_seconds: u64, delta_seconds: u64) -> T
+where
+    T: FromTimestampText,
+{
+    timestamp_from_epoch_seconds(epoch_seconds.saturating_add(delta_seconds))
+}
+
 pub fn timestamp_from_epoch_seconds<T>(epoch_seconds: u64) -> T
 where
     T: FromTimestampText,
 {
     T::from_timestamp_text(timestamp_text_from_epoch_seconds(epoch_seconds))
-}
-
-pub fn timestamp_after_epoch_seconds<T>(epoch_seconds: u64, delta_seconds: u64) -> T
-where
-    T: FromTimestampText,
-{
-    T::from_timestamp_text(timestamp_text_from_epoch_seconds(
-        epoch_seconds.saturating_add(delta_seconds),
-    ))
 }
 
 fn timestamp_text_now() -> TimestampText {

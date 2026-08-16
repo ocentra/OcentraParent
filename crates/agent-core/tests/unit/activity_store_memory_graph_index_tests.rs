@@ -20,7 +20,7 @@ fn durable_memory_graph_index_retrieves_relationships_after_raw_events_are_remov
     cleanup_store_path(&store_path);
     {
         let store = ok(
-            ActivityStore::open(store_path.to_path_buf()),
+            ActivityStore::open(&store_path),
             constants::error::ACTIVITY_STORE_OPENS,
         )?;
         ingest_memory_graph_events(&store)?;
@@ -45,7 +45,7 @@ fn durable_memory_graph_index_retrieves_relationships_after_raw_events_are_remov
         )?;
     }
     let reopened = ok(
-        ActivityStore::open(store_path.to_path_buf()),
+        ActivityStore::open(&store_path),
         constants::error::ACTIVITY_STORE_OPENS,
     )?;
 

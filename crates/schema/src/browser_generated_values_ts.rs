@@ -1,3 +1,4 @@
+#[derive(Clone, Copy)]
 enum BrowserGeneratedValuesTemplate {
     AiAnalysisValues,
     ControlIdentifiers,

@@ -129,14 +129,6 @@ pub(crate) fn route_select_command(payload: LogFields) -> AgentCommandEnvelope {
     route_select_command_for_target(constants::lan_pairing::CHILD_DEVICE_ID, payload)
 }
 
-pub(crate) fn route_revoke_command(payload: LogFields) -> AgentCommandEnvelope {
-    command_for_target(
-        AgentCommandName::AgentLanPairingRouteRevoke,
-        local_network_target(constants::lan_pairing::CHILD_DEVICE_ID),
-        payload,
-    )
-}
-
 pub(crate) fn route_select_command_for_target(
     device_id: impl Display,
     payload: LogFields,
@@ -191,16 +183,6 @@ pub(crate) fn proof_payload() -> LogFields {
         constants::lan_pairing::CHILD_DEVICE_ID,
         constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK,
         constants::lan_pairing::PROOF_DIGEST,
-    )
-}
-
-pub(crate) fn second_proof_payload() -> LogFields {
-    proof_payload_for_pairing(
-        constants::lan_pairing::SECOND_PAIRING_ID,
-        constants::lan_pairing::SECOND_CHALLENGE_ID,
-        constants::lan_pairing::SECOND_CHILD_DEVICE_ID,
-        constants::lan_pairing::ROUTE_ID_SECOND_LOCAL_NETWORK,
-        constants::lan_pairing::SECOND_PROOF_DIGEST,
     )
 }
 
@@ -380,9 +362,8 @@ pub(crate) fn intent_payload_for_pairing(
 }
 
 pub(crate) fn serialize_command(command: AgentCommandEnvelope) -> TestText {
-    let command_value =
-        serde_json::to_value(command).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    TestText::from_display(
-        serde_json::to_string(&command_value).expect(constants::error::AGENT_EVENT_SERIALIZES),
-    )
+    let command_value = serde_json::to_value(command).unwrap_or_else(|_| std::process::abort());
+    let serialized =
+        serde_json::to_string(&command_value).unwrap_or_else(|_| std::process::abort());
+    TestText::from_display(serialized)
 }

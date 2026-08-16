@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::path::PathBuf as TestPathBuf;
 use std::{
     fs,
@@ -8,7 +5,11 @@ use std::{
     sync::atomic::{AtomicU64, Ordering},
 };
 
-use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_core::{
+    activity_store::ActivityStore,
+    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
+    screen_evidence_queue::ScreenEvidenceQueue,
+};
 use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
@@ -24,16 +25,17 @@ use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
 };
 
-use crate::test_invariants::{require_json_decode, require_ok};
+use crate::test_invariants::{require_json_decode, require_ok, require_some};
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-use test_text::TestText;
+use crate::test_text::TestText;
 
 use super::{
     screen_ai_analysis_runtime::{
         config::{
             ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenAiAnalysisRuntimeConfig,
+        },
+        lease_heartbeat::{
+            start_analysis_lease_heartbeat_with_interval, ScreenAnalysisLeaseHeartbeatInput,
         },
         record_screen_ai_analysis_cycle_with_events,
     },
@@ -130,6 +132,84 @@ async fn screen_analysis_cycle_publishes_row_ready_event_and_gates_missing_polic
     assert_unavailable_analysis_summary(&config, &queue_job_id);
 }
 
+#[tokio::test]
+async fn screen_analysis_lease_heartbeat_retries_transient_queue_open_failure() {
+    let config = test_analysis_config();
+    let queue_job_id = record_test_capture(&config);
+    let key_bytes = require_ok(
+        fs::read(&config.journal_key_path),
+        constants::error::JOURNAL_READS,
+    );
+    let mut key = [0; JOURNAL_KEY_BYTES];
+    key.copy_from_slice(&key_bytes);
+    let key = JournalKey::from_bytes(key);
+    let queue = require_ok(
+        ScreenEvidenceQueue::open(&config.queue_dir, key.clone()),
+        constants::error::JOURNAL_OPENS,
+    );
+    let claimed = require_some(
+        require_ok(
+            queue.claim_first_decrypted_entry(
+                1,
+                constants::activity_store::TEST_FIRST_OBSERVED_AT,
+                constants::activity_store::TEST_THIRD_OBSERVED_AT,
+            ),
+            constants::error::JOURNAL_READS,
+        ),
+        constants::error::JOURNAL_READS,
+    );
+    assert_eq!(claimed.queue_job_id, queue_job_id.as_str());
+    let lease_path = queue.path().with_extension("analysis-leases");
+    let initial_expiry = lease_expiry(&lease_path, queue_job_id.as_str());
+    let blocked_queue_dir = config.queue_dir.with_extension("heartbeat-blocked");
+    reset_test_path(&blocked_queue_dir);
+    require_ok(
+        fs::rename(&config.queue_dir, &blocked_queue_dir),
+        constants::error::JOURNAL_APPENDS,
+    );
+    require_ok(
+        fs::write(&config.queue_dir, b"blocked queue directory"),
+        constants::error::JOURNAL_APPENDS,
+    );
+
+    let heartbeat = start_analysis_lease_heartbeat_with_interval(
+        ScreenAnalysisLeaseHeartbeatInput {
+            queue_dir: config.queue_dir.clone(),
+            key,
+            queue_job_id: queue_job_id.to_string(),
+            adapter_timeout_ms: config.adapter_timeout_ms,
+        },
+        std::time::Duration::from_millis(100),
+    );
+    for _ in 0..16 {
+        tokio::task::yield_now().await;
+    }
+    require_ok(
+        fs::remove_file(&config.queue_dir),
+        constants::error::JOURNAL_APPENDS,
+    );
+    require_ok(
+        fs::rename(&blocked_queue_dir, &config.queue_dir),
+        constants::error::JOURNAL_APPENDS,
+    );
+
+    let mut renewed_expiry = initial_expiry.clone();
+    for _ in 0..20 {
+        tokio::time::sleep(std::time::Duration::from_millis(50)).await;
+        renewed_expiry = lease_expiry(&lease_path, queue_job_id.as_str());
+        if renewed_expiry != initial_expiry {
+            break;
+        }
+    }
+    drop(heartbeat);
+    reset_test_path(require_some(
+        config.queue_dir.parent(),
+        constants::error::JOURNAL_APPENDS,
+    ));
+
+    assert_ne!(renewed_expiry, initial_expiry);
+}
+
 fn test_analysis_config() -> ScreenAiAnalysisRuntimeConfig {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
     reset_test_path(&root);
@@ -158,6 +238,24 @@ fn reset_test_path(path: &Path) {
     }
 }
 
+fn lease_expiry(path: &Path, queue_job_id: &str) -> String {
+    #[derive(serde::Deserialize)]
+    struct LeaseRecord {
+        queue_job_id: String,
+        lease_expires_at: String,
+    }
+
+    let contents = require_ok(fs::read_to_string(path), constants::error::JOURNAL_READS);
+    require_some(
+        contents
+            .lines()
+            .map(|line| require_json_decode::<LeaseRecord>(line, constants::error::JOURNAL_READS))
+            .find(|lease| lease.queue_job_id == queue_job_id)
+            .map(|lease| lease.lease_expires_at),
+        constants::error::JOURNAL_READS,
+    )
+}
+
 fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> TestText {
     TestText::from_display(require_ok(
         record_captured_screen_image_to_paths(ScreenAiServiceCaptureRecord {
@@ -168,7 +266,7 @@ fn record_test_capture(config: &ScreenAiAnalysisRuntimeConfig) -> TestText {
                 store_path: &config.store_path,
             },
             image: &captured_test_image(),
-            clock: capture_clock(2, constants::activity_store::TEST_SECOND_OBSERVED_AT),
+            clock: capture_clock(constants::activity_store::TEST_SECOND_OBSERVED_AT),
             sequence_index: 1,
             capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE,
             source_id: SCREEN_SERVICE_SOURCE_ID,
@@ -197,11 +295,13 @@ fn analysis_clock(
     }
 }
 
-fn capture_clock(
-    epoch_seconds: u64,
-    timestamp: impl std::fmt::Display,
-) -> ScreenAiServiceCaptureClock {
+fn capture_clock(timestamp: impl std::fmt::Display) -> ScreenAiServiceCaptureClock {
     let timestamp = timestamp.to_string();
+    let epoch_seconds = require_ok(
+        chrono::DateTime::parse_from_rfc3339(&timestamp),
+        constants::error::ACTIVITY_STORE_INGESTS,
+    )
+    .timestamp() as u64;
     ScreenAiServiceCaptureClock {
         epoch_seconds,
         timestamp,

@@ -24,9 +24,9 @@ impl LanPairingRuntime {
             LanSignedChildAgentMessageKind::Heartbeat => SIGNED_CHILD_MESSAGE_KIND_HEARTBEAT,
         };
         let summary = signed_child_observed_summary(
-            LanPairingText(message_kind.to_string()),
-            LanPairingText(claim.route_id.clone()),
-            LanPairingText(claim.install_id.clone()),
+            &LanPairingText(message_kind.to_string()),
+            &LanPairingText(claim.route_id.clone()),
+            &LanPairingText(claim.install_id.clone()),
         );
         if let Ok(mut state) = self.passive_discovery_listener_state.lock() {
             let _ = state.record_passive_update(
@@ -42,9 +42,9 @@ impl LanPairingRuntime {
 }
 
 fn signed_child_observed_summary(
-    message_kind: LanPairingText,
-    route_id: LanPairingText,
-    install_id: LanPairingText,
+    message_kind: &LanPairingText,
+    route_id: &LanPairingText,
+    install_id: &LanPairingText,
 ) -> LanPairingText {
     let mut summary = String::from(SIGNED_CHILD_OBSERVED_SUMMARY_PREFIX);
     summary.push_str(message_kind.0.as_str());

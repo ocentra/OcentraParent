@@ -9,11 +9,12 @@ use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_CAPABILITY_READY, SCREEN_CAPTURE_REASON_MANUAL_PARENT_TEST,
     SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CATEGORY_SCHOOL, SCREEN_CUSTODY_JOURNAL,
-    SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED, SCREEN_POLICY_CONFIDENCE_READY,
-    SCREEN_PROVIDER_LOCAL_VISION, SCREEN_QUEUE_STATUS_FAILED,
+    SCREEN_DELETION_DELETED, SCREEN_DELETION_DELETE_FAILED, SCREEN_DELETION_EXPIRED_DELETED,
+    SCREEN_DELETION_REQUIRED, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
+    SCREEN_QUEUE_STATUS_FAILED,
 };
 
-use crate::test_text::{test_ok as ok, test_some as some, TestResult, TestText};
+use crate::test_text::{test_some as some, TestResult, TestText};
 use crate::ActivityStore;
 
 #[test]
@@ -130,7 +131,7 @@ fn activity_store_reports_empty_screen_summary_without_inventing_results() -> Te
 }
 
 #[test]
-fn activity_store_surfaces_screen_delete_failed_queue_health() -> TestResult {
+fn activity_store_surfaces_delete_failed_queue_health_without_policy_metadata() -> TestResult {
     let store = ActivityStore::open_in_memory().map_err(|error| {
         TestText::from_display(format!(
             "{}: {error:?}",
@@ -169,6 +170,202 @@ fn activity_store_surfaces_screen_delete_failed_queue_health() -> TestResult {
         Some(SCREEN_DELETION_DELETE_FAILED.to_string())
     );
     assert_eq!(summary.latest_policy_eligible, Some(false));
+    assert_eq!(summary.results[0].policy_decision_ref, None);
+    assert_eq!(summary.results[0].policy_action, None);
+    Ok(())
+}
+
+#[test]
+fn activity_store_queue_health_uses_latest_deletion_state_per_job() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let mut pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        "screen-health-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    insert_log_field(
+        &mut pending.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-pending-job".to_string()),
+    );
+    let deleted = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-deleted",
+        SCREEN_DELETION_DELETED,
+    );
+    let expired = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-expired",
+        SCREEN_DELETION_EXPIRED_DELETED,
+    );
+
+    store
+        .ingest_events(&[pending, deleted, expired])
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
+    let summary = store
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+
+    assert_eq!(summary.queue_health.pending_count, 1);
+    assert_eq!(summary.queue_health.delete_pending_count, 1);
+    assert_eq!(summary.queue_health.expired_count, 1);
+    assert_eq!(summary.queue_health.delete_failed_count, 0);
+    Ok(())
+}
+
+#[test]
+fn activity_store_queue_health_counts_pending_jobs_beyond_result_limit() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let mut older_pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_FIRST_OBSERVED_AT,
+        "screen-health-older-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    insert_log_field(
+        &mut older_pending.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-older-pending-job".to_string()),
+    );
+    let mut latest_pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-latest-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    insert_log_field(
+        &mut latest_pending.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-latest-pending-job".to_string()),
+    );
+    let mut latest_pending_transition = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-health-latest-pending-transition",
+        SCREEN_DELETION_DELETED,
+    );
+    insert_log_field(
+        &mut latest_pending_transition.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String("screen-health-latest-pending-job".to_string()),
+    );
+    store
+        .ingest_events(&[older_pending, latest_pending, latest_pending_transition])
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
+
+    let summary = store
+        .screen_evidence_recent_summary(1, constants::activity_store::TEST_THIRD_OBSERVED_AT)
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+
+    assert_eq!(summary.returned, 1);
+    assert_eq!(summary.results.len(), 1);
+    assert_eq!(
+        summary.results[0].queue_job_id,
+        "screen-health-latest-pending-job"
+    );
+    assert_eq!(
+        summary.latest_image_deletion_state.as_deref(),
+        Some(SCREEN_DELETION_DELETED)
+    );
+    assert_eq!(summary.queue_health.pending_count, 1);
+    assert_eq!(summary.queue_health.delete_pending_count, 1);
+    Ok(())
+}
+
+#[test]
+fn activity_store_tied_screen_transitions_prefer_terminal_state_and_indexed_job_lookup(
+) -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let terminal = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-tied-terminal",
+        SCREEN_DELETION_EXPIRED_DELETED,
+    );
+    let pending = screen_event_with_deletion_state(
+        constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        "screen-tied-pending",
+        SCREEN_DELETION_REQUIRED,
+    );
+    store.ingest_events(&[terminal, pending]).map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_INGESTS
+        ))
+    })?;
+
+    let summary = store
+        .screen_evidence_recent_summary(
+            constants::activity_store::DEFAULT_RECENT_LIMIT,
+            constants::activity_store::TEST_THIRD_OBSERVED_AT,
+        )
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+    let indexed = store
+        .screen_evidence_result_for_queue_job(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID)
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?
+        .ok_or_else(|| TestText::from_display(constants::error::ACTIVITY_STORE_QUERIES))?;
+    let index_count: i64 = store
+        .connection_for_test()
+        .query_row(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'activity_events_screen_queue_job_idx'",
+            [],
+            |row| row.get(0),
+        )
+        .map_err(|error| TestText::from_display(error.to_string()))?;
+
+    assert_eq!(
+        summary.latest_image_deletion_state.as_deref(),
+        Some(SCREEN_DELETION_EXPIRED_DELETED)
+    );
+    assert_eq!(
+        indexed.image_deletion_state,
+        SCREEN_DELETION_EXPIRED_DELETED
+    );
+    assert_eq!(index_count, 1);
     Ok(())
 }
 
@@ -212,6 +409,55 @@ fn activity_store_skips_incomplete_screen_summary_rows() -> TestResult {
     Ok(())
 }
 
+#[test]
+fn activity_store_uses_older_complete_screen_row_before_recent_limit() -> TestResult {
+    let store = ActivityStore::open_in_memory().map_err(|error| {
+        TestText::from_display(format!(
+            "{}: {error:?}",
+            constants::error::ACTIVITY_STORE_OPENS
+        ))
+    })?;
+    let mut older_complete = screen_summary_event();
+    older_complete.event_id = "screen-complete-older".to_string();
+    older_complete.observed_at = constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string();
+    let mut newer_incomplete = incomplete_screen_summary_event();
+    newer_incomplete.event_id = "screen-incomplete-newer".to_string();
+    newer_incomplete.observed_at = constants::activity_store::TEST_THIRD_OBSERVED_AT.to_string();
+    insert_log_field(
+        &mut newer_incomplete.fields,
+        constants::field::SCREEN_QUEUE_JOB_ID,
+        LogFieldValue::String(constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string()),
+    );
+    store
+        .ingest_events(&[older_complete, newer_incomplete])
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_INGESTS
+            ))
+        })?;
+
+    let summary = store
+        .screen_evidence_recent_summary(1, constants::activity_store::TEST_THIRD_OBSERVED_AT)
+        .map_err(|error| {
+            TestText::from_display(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_STORE_QUERIES
+            ))
+        })?;
+
+    assert_eq!(summary.returned, 1);
+    assert_eq!(
+        summary.results[0].analyzed_at,
+        constants::activity_store::TEST_FIRST_OBSERVED_AT
+    );
+    assert_eq!(
+        summary.latest_result_id,
+        Some(constants::activity_store::TEST_SCREEN_RESULT_ID.to_string())
+    );
+    Ok(())
+}
+
 fn screen_summary_event() -> ActivityEvent {
     let mut fields = LogFields::new();
     insert_screen_summary_core_fields(&mut fields);
@@ -237,6 +483,22 @@ fn delete_failed_screen_summary_event() -> ActivityEvent {
     );
 
     screen_event(fields)
+}
+
+fn screen_event_with_deletion_state(
+    observed_at: &str,
+    event_id: &str,
+    deletion_state: &str,
+) -> ActivityEvent {
+    let mut event = screen_summary_event();
+    event.observed_at = observed_at.to_string();
+    event.event_id = event_id.to_string();
+    insert_log_field(
+        &mut event.fields,
+        constants::field::SCREEN_IMAGE_DELETION_STATE,
+        LogFieldValue::String(deletion_state.to_string()),
+    );
+    event
 }
 
 fn insert_screen_summary_core_fields(fields: &mut LogFields) {

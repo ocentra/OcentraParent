@@ -1,4 +1,5 @@
 use super::*;
+use crate::parent_ui_bridge::action_result_app_game;
 
 pub(super) fn action_result_message(action: &ParentUiAction) -> String {
     match action.action {
@@ -7,8 +8,17 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         ParentUiActionKind::AgentCommandRequested => {
             "parent Rust facade forwarded LAN agent command request"
         }
+        ParentUiActionKind::PolicyPreviewAuthoringDraftStaged => {
+            "parent Rust facade staged a policy preview draft"
+        }
+        ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled => {
+            "parent Rust facade invalidated a policy preview draft"
+        }
         ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
             "parent Rust facade requested policy preview parent confirmation"
+        }
+        ParentUiActionKind::PolicyRequestParentResolutionRequested => {
+            "parent Rust facade requested parent policy request resolution"
         }
         ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested => {
             "parent Rust facade requested LAN pairing browser discovery scan"
@@ -25,11 +35,9 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         ParentUiActionKind::ScreenSettingsReplaceRequested => {
             "parent Rust facade requested screen settings replace"
         }
-        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested => {
-            "parent Rust facade requested app/game adapter dispatch execution"
-        }
-        ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
-            "parent Rust facade requested app/game timer parent preference setup"
+        ParentUiActionKind::AppGameAdapterDispatchExecuteRequested
+        | ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested => {
+            return action_result_app_game::action_result_message(&action.action).to_string();
         }
     }
     .to_string()

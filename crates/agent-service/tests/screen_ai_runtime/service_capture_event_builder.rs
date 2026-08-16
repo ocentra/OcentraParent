@@ -13,7 +13,7 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_UNKNOWN;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_JOURNAL;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_TEMP_QUEUE;
-use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_DELETED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_REQUIRED;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_IMAGE_FORMAT_PNG;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED;
@@ -28,10 +28,7 @@ use ocentra_parent_screen_capture_adapter::CapturedScreenImage;
 
 use crate::screen_ai_cadence_runtime_event::ScreenAiServiceCaptureRecord;
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-
-use test_text::TestText;
+use crate::test_text::TestText;
 
 const DEFAULT_MAX_RETRY_COUNT: u64 = 0;
 const DEFAULT_SETTING_VERSION: u64 = 1;
@@ -75,7 +72,7 @@ impl ScreenAiServiceCaptureIds {
 pub(crate) fn screen_queue_job(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
-    image_digest: TestText,
+    image_digest: &TestText,
 ) -> ScreenAnalysisQueueJob {
     ScreenAnalysisQueueJob {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
@@ -96,7 +93,7 @@ pub(crate) fn screen_queue_job(
         parent_setting_ref: SCREEN_SERVICE_PARENT_SETTING_REF.to_string(),
         setting_version: DEFAULT_SETTING_VERSION,
         related_evidence_refs: Vec::new(),
-        encrypted_image_ref: record.paths.queue_dir.to_string_lossy().to_string(),
+        encrypted_image_ref: format!("screen-evidence:{}", ids.queue_job_id),
         image_digest: image_digest.to_string(),
         image_byte_size: record.image.png_bytes.len() as u64,
         image_format: SCREEN_IMAGE_FORMAT_PNG.to_string(),
@@ -107,7 +104,7 @@ pub(crate) fn screen_queue_job(
         unavailable_reason: None,
         deletion_required: true,
         deleted_at: None,
-        deletion_status: SCREEN_DELETION_DELETED.to_string(),
+        deletion_status: SCREEN_DELETION_REQUIRED.to_string(),
         deletion_proof_ref: None,
         custody_state: SCREEN_CUSTODY_TEMP_QUEUE.to_string(),
     }
@@ -117,9 +114,9 @@ pub(crate) fn screen_analysis_event(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: TestText,
+    image_digest: &TestText,
 ) -> ActivityEvent {
-    let evidence = screen_analysis_evidence(ids, job, image_digest.clone());
+    let evidence = screen_analysis_evidence(ids, job, image_digest);
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: ids.event_id.to_string(),
@@ -134,7 +131,7 @@ pub(crate) fn screen_analysis_event(
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
             subject_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            display_name: record.image.metadata.title.clone(),
+            display_name: None,
         },
         fields: fields_from_pairs_test(screen_analysis_fields(record, ids, job, image_digest)),
         evidence,
@@ -143,14 +140,14 @@ pub(crate) fn screen_analysis_event(
 
 fn screen_analysis_evidence(
     ids: &ScreenAiServiceCaptureIds,
-    job: &ScreenAnalysisQueueJob,
-    image_digest: TestText,
+    _job: &ScreenAnalysisQueueJob,
+    image_digest: &TestText,
 ) -> Vec<ActivityEvidenceRef> {
     vec![ActivityEvidenceRef {
         evidence_id: ids.evidence_id.to_string(),
         kind: ActivityEvidenceKind::Screenshot,
         digest: Some(image_digest.to_string()),
-        uri: Some(job.encrypted_image_ref.clone()),
+        uri: None,
     }]
 }
 
@@ -158,10 +155,10 @@ fn screen_analysis_fields(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: TestText,
+    image_digest: &TestText,
 ) -> Vec<(TestText, LogFieldValue)> {
     let mut fields = Vec::new();
-    fields.extend(screen_analysis_identity_fields(record, ids, job));
+    fields.extend(screen_analysis_identity_fields(ids, job));
     fields.extend(screen_analysis_model_fields(record));
     fields.extend(screen_analysis_capture_fields(
         job,
@@ -172,7 +169,6 @@ fn screen_analysis_fields(
 }
 
 fn screen_analysis_identity_fields(
-    record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
 ) -> Vec<(TestText, LogFieldValue)> {
@@ -185,7 +181,10 @@ fn screen_analysis_identity_fields(
             constants::field::SCREEN_QUEUE_JOB_ID,
             job.queue_job_id.clone(),
         ),
-        string_field(constants::field::SCREEN_SUMMARY, record.summary),
+        string_field(
+            constants::field::SCREEN_SUMMARY,
+            constants::activity_surface::SUMMARY_READY,
+        ),
         string_field(
             constants::field::SCREEN_PRIMARY_CATEGORY,
             SCREEN_CATEGORY_UNKNOWN,
@@ -203,7 +202,7 @@ fn screen_analysis_model_fields(
         ),
         string_field(
             constants::field::SCREEN_IMAGE_DELETION_STATE,
-            SCREEN_DELETION_DELETED,
+            SCREEN_DELETION_REQUIRED,
         ),
         bool_field(constants::field::SCREEN_POLICY_ELIGIBLE, false),
         string_field(
@@ -224,10 +223,9 @@ fn screen_analysis_model_fields(
 
 fn screen_analysis_capture_fields(
     job: &ScreenAnalysisQueueJob,
-    image_digest: impl std::fmt::Display,
+    image_digest: &TestText,
     image: &CapturedScreenImage,
 ) -> Vec<(TestText, LogFieldValue)> {
-    let image_digest = TestText::from_display(image_digest);
     vec![
         string_field(
             constants::field::SCREEN_CAPTURE_REASON,

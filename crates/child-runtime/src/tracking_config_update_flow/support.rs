@@ -44,10 +44,10 @@ pub(super) fn apply_child_tracking_config_updated_event(
     let effective_tracking_state = applied_state.effective_tracking_state.clone();
 
     TrackingConfigUpdateAppliedReport {
-        parent_event_type: child_event.parent_event_type.clone(),
+        parent_event_type: child_event.parent_event_type,
         child_event_type: TrackingConfigUpdateEventName::Child,
         applied_event_type: TrackingConfigUpdateEventName::Applied,
-        target_scope: child_event.target.scope.clone(),
+        target_scope: child_event.target.scope,
         response_state: TrackingConfigUpdateResponseState::Applied,
         effective_tracking_state,
         applied_state,
@@ -73,10 +73,10 @@ pub(super) fn tracking_config_update_applied_report(
     applied_event: &TrackingConfigUpdateAppliedEvent,
 ) -> TrackingConfigUpdateAppliedReport {
     TrackingConfigUpdateAppliedReport {
-        parent_event_type: applied_event.parent_event_type.clone(),
-        child_event_type: applied_event.child_event_type.clone(),
+        parent_event_type: applied_event.parent_event_type,
+        child_event_type: applied_event.child_event_type,
         applied_event_type: TrackingConfigUpdateEventName::Applied,
-        target_scope: applied_event.target.scope.clone(),
+        target_scope: applied_event.target.scope,
         response_state: applied_event.response_state.clone(),
         effective_tracking_state: applied_event.effective_tracking_state.clone(),
         applied_state: TrackingConfigUpdateAppliedState {

@@ -364,8 +364,7 @@ async fn tracking_child_check_in_request_rejects_duplicate_awaited_request_ids()
     let first = option_or_panic!(first, "first request should return a receipt");
     let duplicate = decision
         .publish_tracking_child_check_in_request(&bus, request)
-        .await
-        .expect_err("duplicate request id should be rejected");
+        .await;
 
     assert_eq!(
         first.response.delivery_state,
@@ -373,7 +372,7 @@ async fn tracking_child_check_in_request_rejects_duplicate_awaited_request_ids()
     );
     assert!(matches!(
         duplicate,
-        EventingError::DuplicateRequest { ref request_id }
+        Err(EventingError::DuplicateRequest { ref request_id })
             if request_id.as_str() == constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
     ));
     let (_, _, _, completion) = option_or_panic!(

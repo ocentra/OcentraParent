@@ -3,10 +3,6 @@ use crate::household_mesh_event_bridge::HouseholdMeshLocalEventKind;
 #[path = "household_mesh_event_bridge_lookup_tables.rs"]
 mod household_mesh_event_bridge_lookup_tables;
 
-pub(crate) fn bridge_message_type_for_local_event(event_type: &str) -> Option<&'static str> {
-    household_mesh_event_bridge_lookup_tables::bridge_message_type_for_local_event(event_type)
-}
-
 pub(crate) fn bridge_local_event_kind_for_local_event(
     event_type: &str,
 ) -> Option<HouseholdMeshLocalEventKind> {

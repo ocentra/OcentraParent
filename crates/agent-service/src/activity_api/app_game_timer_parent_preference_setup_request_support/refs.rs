@@ -230,7 +230,7 @@ fn child_runtime_delivery_receipt_ingested_ids(
 }
 
 fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> SetupRequestIds {
-    let request_id = |suffix| parent_preference_setup_suffixed_id(request, SetupSuffix(suffix));
+    let request_id = |suffix| parent_preference_setup_suffixed_id(request, &SetupSuffix(suffix));
     SetupRequestIds {
         parent_preference_mutation_receipt_id: request_id(
             constants::value::APP_GAME_PARENT_PREFERENCE_SETUP_MUTATION_RECEIPT_SUFFIX,
@@ -285,7 +285,7 @@ fn setup_request_ids(request: &AppGameTimerParentPreferenceSetupRequest) -> Setu
 
 fn parent_preference_setup_suffixed_id(
     request: &AppGameTimerParentPreferenceSetupRequest,
-    suffix: SetupSuffix,
+    suffix: &SetupSuffix,
 ) -> SetupReferenceId {
     let mut reference_id = request.parent_preference_setup_reference_id.clone();
     reference_id.push(constants::delimiter::HYPHEN);

@@ -1,5 +1,10 @@
 # Repo Organization Goal
 
+> **Historical checkpoint:** this goal records the retired
+> `codex/tracking-plan-full-continuation-a` organization pass. Current work is
+> routed by `PLAN_STATE.md`, `CODE_AUDIT.md`, and the engineering graph; do not
+> create or resume the branch named below from this document.
+
 This file defines the organization pass for the tracking continuation branch.
 It is a goal contract, not a completion claim.
 

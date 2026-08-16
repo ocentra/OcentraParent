@@ -221,7 +221,7 @@ jobs:
 
       - name: Write tracking iOS simulator proof
         if: ${{ !inputs.docs_hub_only }}
-        run: npm run test:tracking-plan-ios-simulator-proof -- --require-simulator --skip-build --app-path target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
+        run: npm run test:tracking-plan-ios-simulator-proof
 
       - name: Upload iOS simulator preview
         if: ${{ !inputs.docs_hub_only }}

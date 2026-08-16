@@ -15,7 +15,7 @@ pub(crate) fn activity_store_error_event(
     event: AgentEventName,
 ) -> AgentEventEnvelope {
     let mut event_id = String::from(constants::value::ACTIVITY_CAPTURE_STORE_ERROR);
-    event_id.push_str(&event_id_suffix.0);
+    event_id.push_str(event_id_suffix.0);
     build_event(
         &event_id,
         &command.message_id,

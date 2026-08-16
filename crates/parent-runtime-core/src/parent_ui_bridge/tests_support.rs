@@ -28,8 +28,13 @@ use tungstenite::{
     Message,
 };
 
+pub(super) const REQUEST_MESSAGE_ID_CORRELATION: &str = "test-request-message-id";
+
 pub(super) fn require_ok<T, E: std::fmt::Debug>(result: Result<T, E>, context: &'static str) -> T {
-    result.expect(context)
+    match result {
+        Ok(value) => value,
+        Err(error) => std::panic::resume_unwind(Box::new(format!("{context}: {error:?}"))),
+    }
 }
 
 fn env_lock() -> &'static Mutex<()> {
@@ -73,7 +78,9 @@ pub(super) fn start_lan_local_server_with_capture(
     event_name: AgentEventName,
     read_model: LanBrowserAddDeviceReadModel,
 ) -> (String, mpsc::Receiver<CapturedLanRequest>) {
-    start_local_server_with_capture_response(lan_event(event_name, &read_model))
+    let response_event = lan_event(event_name, &read_model);
+    drop(read_model);
+    start_local_server_with_capture_response(response_event)
 }
 
 pub(super) fn start_local_server_with_capture_response(
@@ -126,6 +133,11 @@ fn start_local_server_with_capture_responses_inner(
         send_json_message(&mut socket, &ready_event(), "ready event sends");
         let command_text = expect_text_message(require_ok(socket.read(), "command reads"));
         let command: Value = require_ok(serde_json::from_str(&command_text), "command parses");
+        let command_message_id = command
+            .get("messageId")
+            .and_then(Value::as_str)
+            .unwrap_or_default()
+            .to_string();
         let _ = tx.send(CapturedLanRequest {
             origin: require_ok(
                 observed_origin.lock(),
@@ -134,7 +146,14 @@ fn start_local_server_with_capture_responses_inner(
             .clone(),
             command,
         });
-        if let Some(response_event) = next_response {
+        if let Some(mut response_event) = next_response {
+            if response_event.correlation_id == REQUEST_MESSAGE_ID_CORRELATION {
+                assert!(
+                    !command_message_id.is_empty(),
+                    "correlated local response requires command messageId"
+                );
+                response_event.correlation_id = command_message_id;
+            }
             send_json_message(&mut socket, &response_event, "response event sends");
         } else {
             thread::sleep(Duration::from_millis(750));

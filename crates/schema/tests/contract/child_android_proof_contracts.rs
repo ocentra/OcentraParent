@@ -38,7 +38,10 @@ fn child_android_proof_contracts_generated_typescript_matches_checked_in_files()
     ];
 
     for (generated, path, header) in checks {
-        let checked_in = fs::read_to_string(path).expect("child android source should be readable");
+        let checked_in = match fs::read_to_string(path) {
+            Ok(value) => value,
+            Err(_) => std::process::abort(),
+        };
         assert_eq!(generated, checked_in);
         assert!(generated.starts_with(header));
     }

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use std::fs::remove_file;
 use std::path::{Path, PathBuf};
 
@@ -41,7 +42,7 @@ fn live_process_snapshot_reads_current_process_without_foreground_claim() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
     let rows = windows_process_runtime_rows_from_records(&[record]);
 
     assert_eq!(rows.len(), 1);
@@ -82,7 +83,7 @@ fn live_process_snapshot_uses_opaque_path_refs_when_executable_is_visible() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
     let Ok(current_exe) = std::env::current_exe() else {
         return;
     };
@@ -124,15 +125,15 @@ fn live_process_snapshot_journal_event_replays_into_sqlite_read_model() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
     let (store, lines) = append_and_replay(&[event]);
     let model = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.running_now_returned, 1);
@@ -161,16 +162,16 @@ fn live_process_snapshot_journal_event_ids_change_per_observation() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
     let second_event = live_windows_process_snapshot_journal_event_for_pid(
         constants::peer::LOCAL_DEV_AGENT,
         std::env::consts::OS,
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         current_pid,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES)
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_ne!(first_event.event_id, second_event.event_id);
     assert_eq!(
@@ -183,21 +184,23 @@ fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJo
     let path = temp_journal_path();
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.0.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.0.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .expect_value(constants::error::JOURNAL_APPENDS),
         );
     }
-    let reader = ActivityJournal::open(path.0.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader =
+        ActivityJournal::open(path.0.clone(), key).expect_value(constants::error::JOURNAL_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

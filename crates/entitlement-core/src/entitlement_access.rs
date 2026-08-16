@@ -7,11 +7,6 @@
 //! this crate.
 
 use crate::entitlement_snapshot::EntitlementSnapshotContext;
-use crate::entitlement_snapshot_values::{
-    EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState,
-    EntitlementPackageBuildState, EntitlementSnapshotBindingState,
-    EntitlementSnapshotFreshnessState, EntitlementSnapshotSignatureState,
-};
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};

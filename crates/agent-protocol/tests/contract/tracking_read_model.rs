@@ -300,7 +300,7 @@ fn tracking_read_model_row_serializes_journal_citation_ids_and_visibility(
         serialized["queryVisibility"],
         TRACKING_READ_MODEL_ROW_VISIBILITY_ACTIVE
     );
-    assert_eq!(serialized["deletedAt"].is_null(), true);
+    assert!(serialized["deletedAt"].is_null());
 
     Ok(())
 }

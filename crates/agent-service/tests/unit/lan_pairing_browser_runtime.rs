@@ -1,6 +1,10 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
+use ocentra_lan_core::network_inventory::passive_discovery::{
+    LanPassiveDiscoverySource, LanPassiveDiscoveryTriggerReason,
+};
+use ocentra_lan_core::network_inventory::LanPassiveRuntimeLocalNetworkIdentity;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingNetworkMode, LanPairingProductionDiscoveryState,
@@ -21,13 +25,6 @@ use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
-#[macro_use]
-#[path = "../support/lan_root_harness.rs"]
-mod lan_root_harness;
-declare_lan_root_harness!();
-#[path = "../unit/lan_pairing_test_commands.rs"]
-mod lan_pairing_test_commands;
-
 use crate::{
     app::{
         fields::fields_from_pairs, lan_pairing::LanPairingRuntime,
@@ -37,6 +34,7 @@ use crate::{
         command_for_target, intent_payload, local_network_target, paired_runtime, pairing_command,
         proof_payload, route_select_command, serialize_command,
     },
+    test_invariants::{require_ok, require_some},
     test_text::TestText,
 };
 
@@ -101,18 +99,20 @@ async fn browser_discovery_scan_reports_real_local_service_state() {
 
 #[tokio::test]
 async fn browser_discovery_scan_returns_before_active_refresh_completes() {
-    let event = tokio::time::timeout(
-        Duration::from_secs(5),
-        handle_command_text_for_test(
-            serialize_command(browser_discovery_scan_command(LogFields::new())),
-            LanPairingRuntime::empty(),
-            Some(TestText::from_display(
-                constants::lan_pairing::ALLOWED_ORIGIN,
-            )),
-        ),
-    )
-    .await
-    .expect("browser scan dispatch must not block on physical LAN IO");
+    let event = require_ok(
+        tokio::time::timeout(
+            Duration::from_secs(5),
+            handle_command_text_for_test(
+                serialize_command(browser_discovery_scan_command(LogFields::new())),
+                LanPairingRuntime::empty(),
+                Some(TestText::from_display(
+                    constants::lan_pairing::ALLOWED_ORIGIN,
+                )),
+            ),
+        )
+        .await,
+        "browser scan dispatch must not block on physical LAN IO",
+    );
 
     assert_eq!(
         event.event,
@@ -177,6 +177,30 @@ async fn add_device_request_rejects_wrong_origin_without_trusting_device() {
             constants::value::LAN_REASON_WRONG_ORIGIN.to_string()
         ))
     );
+}
+
+#[tokio::test]
+async fn add_device_request_rejects_malformed_payload_without_trusting_device() {
+    let event = handle_command_text_for_test(
+        serialize_command(add_device_request_command(LogFields::new())),
+        LanPairingRuntime::empty(),
+        Some(TestText::from_display(
+            constants::lan_pairing::ALLOWED_ORIGIN,
+        )),
+    )
+    .await;
+
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
+    assert_eq!(
+        event.payload.get(constants::field::LAN_REJECTION_REASON),
+        Some(&LogFieldValue::String(
+            constants::value::LAN_REASON_MALFORMED.to_string()
+        ))
+    );
+    assert!(event
+        .payload
+        .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
+        .is_none());
 }
 
 #[tokio::test]
@@ -268,25 +292,77 @@ async fn paired_runtime_scan_exposes_registry_and_selected_readiness() {
     );
 }
 
+#[test]
+fn passive_discovery_helpers_report_network_identity_changes_and_sources() {
+    let previous = LanPassiveRuntimeLocalNetworkIdentity {
+        ip_address: Some("192.168.1.10".to_string()),
+        network_interface: Some("wlan0".to_string()),
+        wifi_ssid: Some("old-wifi".to_string()),
+        default_gateway: Some("192.168.1.1".to_string()),
+    };
+    let current = LanPassiveRuntimeLocalNetworkIdentity {
+        ip_address: Some("192.168.1.11".to_string()),
+        network_interface: Some("eth0".to_string()),
+        wifi_ssid: Some("new-wifi".to_string()),
+        default_gateway: Some("192.168.1.254".to_string()),
+    };
+
+    let triggers =
+        crate::lan_pairing_runtime_state::passive_discovery::local_network_change_triggers(
+            Some(&previous),
+            &current,
+        );
+    let reasons = triggers
+        .iter()
+        .map(|trigger| trigger.reason.clone())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        reasons,
+        vec![
+            LanPassiveDiscoveryTriggerReason::InterfaceDown,
+            LanPassiveDiscoveryTriggerReason::InterfaceUp,
+            LanPassiveDiscoveryTriggerReason::IpAddressChanged,
+            LanPassiveDiscoveryTriggerReason::DefaultGatewayChanged,
+        ]
+    );
+    assert_eq!(
+        crate::lan_pairing_runtime_state::passive_discovery::passive_discovery_udp_sources(),
+        &[
+            LanPassiveDiscoverySource::Dhcp,
+            LanPassiveDiscoverySource::Mdns,
+            LanPassiveDiscoverySource::Ssdp,
+            LanPassiveDiscoverySource::WsDiscovery,
+            LanPassiveDiscoverySource::Llmnr,
+            LanPassiveDiscoverySource::Netbios,
+        ]
+    );
+}
+
 fn read_model_payload(payload: &LogFields) -> Value {
     match payload.get(constants::field::LAN_ADD_DEVICE_READ_MODEL) {
-        Some(LogFieldValue::String(value)) => {
-            serde_json::from_str(value).expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-        }
+        Some(LogFieldValue::String(value)) => require_ok(
+            serde_json::from_str(value),
+            constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+        ),
         _ => serde_json::json!({}),
     }
 }
 
 fn typed_read_model_payload(payload: &LogFields) -> LanBrowserAddDeviceReadModel {
-    let value = payload
-        .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
-        .and_then(|field| match field {
-            LogFieldValue::String(value) => Some(value.as_str()),
-            _ => None,
-        })
-        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+    let value = require_some(
+        payload
+            .get(constants::field::LAN_ADD_DEVICE_READ_MODEL)
+            .and_then(|field| match field {
+                LogFieldValue::String(value) => Some(value.as_str()),
+                _ => None,
+            }),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    );
 
-    serde_json::from_str(value).expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+    require_ok(
+        serde_json::from_str(value),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    )
 }
 
 fn browser_discovery_scan_command(payload: LogFields) -> AgentCommandEnvelope {
@@ -336,7 +412,7 @@ fn challenge_request_payload() -> LogFields {
 
 fn household_decision_payload() -> LogFields {
     household_decision_payload_for_device_with_action(
-        &local_agent_canonical_device_id(),
+        local_agent_canonical_device_id(),
         constants::lan_pairing::HOUSEHOLD_ACTION_RENAME,
         None,
     )
@@ -425,11 +501,15 @@ fn local_agent_canonical_device_id() -> TestString {
 }
 
 fn serialized_discovery_source(source: LanPairingDiscoverySource) -> TestString {
-    serde_json::to_value(source)
-        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-        .as_str()
-        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
-        .to_owned()
+    require_some(
+        require_ok(
+            serde_json::to_value(source),
+            constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+        )
+        .as_str(),
+        constants::value::LAN_READ_MODEL_JSON_EXPECTATION,
+    )
+    .to_owned()
 }
 
 fn temp_registry_path() -> TestPathBuf {

@@ -1,7 +1,4 @@
-use super::{
-    NetworkLinuxAdapterGateError, NetworkLinuxAdapterGateInput, NetworkLinuxAdapterGateState,
-    NetworkLinuxAdapterRequiredArtifact,
-};
+use super::{NetworkLinuxAdapterGateError, NetworkLinuxAdapterGateInput};
 
 pub(super) struct NormalizedLinuxAdapterGateInput {
     pub linux_adapter_gate_ref: String,

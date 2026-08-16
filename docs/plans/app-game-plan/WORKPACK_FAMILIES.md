@@ -52,13 +52,16 @@ time budget/session/child UX contracts
 Android/platform proof contract rows
 
 Owners:
-crates/schema or the owning Rust crate first when shapes cross package/crate/app/plan boundaries
-packages/schema-domain only as temporary generated-validation or edge-decoder surface
-packages/app-game-domain only as helper/projection/focused validation surface
-crates/agent-protocol only when Rust/wire parity is selected
+the owning Rust crate first when shapes cross package/crate/app/plan boundaries
+packages/schema-domain only as a generated-validation or edge-decoder surface
+crates/agent-protocol for canonical wire/evidence contracts
+crates/agent-core, app-game-core, agent-service, parent-runtime-core, portal, or
+Android Java only when the selected workpack maps that exact runtime layer
 
 Rule:
-Do not re-create canonical shared shapes in sibling feature domains. Direct imports from policy/enforcement/notification/portal are not the way to share contracts; move shared shapes to `crates/schema` or another neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete.
+Do not re-create removed App/Game TypeScript owners. Direct imports from
+policy/enforcement/notification/portal are not the way to share contracts; use
+the owning Rust boundary and generated edges only where needed.
 ```
 
 ## Adapter and source-observation family

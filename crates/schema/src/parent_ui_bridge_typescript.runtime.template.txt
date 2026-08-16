@@ -64,6 +64,10 @@ export const ParentDevBridgeRoute = {
 export type ParentDevBridgeRouteName = (typeof ParentDevBridgeRoute)[keyof typeof ParentDevBridgeRoute];
 
 export const ParentUiActionPayloadField = {
+  PolicyPreviewAuthoringDraft: 'policyPreviewAuthoringDraft',
+  PolicyPreviewAuthoringHandle: 'policyPreviewAuthoringHandle',
+  PolicyRequestAssistantPreviewConfirmRequest: 'policyRequestAssistantPreviewConfirmRequest',
+  PolicyRequestParentResolutionRequest: 'policyRequestParentResolutionRequest',
   ScreenSettingsRequest: 'screenSettingsRequest',
   ScreenSettingsResponse: 'screenSettingsResponse',
   ScreenSettingsUpdateKind: 'screenSettingsUpdateKind',

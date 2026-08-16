@@ -4,16 +4,6 @@ use crate::{
     constants, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel, BrowserFamily,
 };
 
-fn protocol_lookup<T: Copy, const N: usize>(
-    value: impl AsRef<str>,
-    variants: [(&'static str, T); N],
-) -> Option<T> {
-    let value = value.as_ref();
-    variants
-        .into_iter()
-        .find_map(|(protocol, variant)| (value == protocol).then_some(variant))
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserManagedState {
     #[serde(rename = "not-installed")]

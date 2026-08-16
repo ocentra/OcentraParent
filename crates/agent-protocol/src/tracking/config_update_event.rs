@@ -1,5 +1,6 @@
 use ocentra_eventing::envelope::{DomainEvent, EventContract};
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, RequestId, SchemaVersion};
 use ocentra_eventing::request::{EventResponseContract, RequestEvent};
 use serde::{Deserialize, Serialize};
@@ -18,8 +19,8 @@ use crate::{constants, AgentCommandEnvelope, AgentRoute, AGENT_PROTOCOL_SCHEMA_V
 
 pub const TRACKING_CONFIG_UPDATE_SCHEMA_VERSION: u16 = crate::AGENT_PROTOCOL_SCHEMA_VERSION;
 
-fn parse_or_panic<T, E: std::fmt::Debug>(result: Result<T, E>, message: &'static str) -> T {
-    result.expect(message)
+fn parse_or_panic<T, E>(result: Result<T, E>, message: &'static str) -> T {
+    result.expect_value(message)
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -678,7 +679,7 @@ pub fn tracking_config_update_applied_event_from_child(
     durable_settings_persistence_state: TrackingDurableSettingsPersistenceState,
 ) -> TrackingConfigUpdateAppliedEvent {
     TrackingConfigUpdateAppliedEvent {
-        parent_event_type: child_event.parent_event_type.clone(),
+        parent_event_type: child_event.parent_event_type,
         child_event_type: TrackingConfigUpdateEventName::Child,
         source_command_id: child_event.source_command_id.clone(),
         target: child_event.target.clone(),

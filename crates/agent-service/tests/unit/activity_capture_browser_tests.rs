@@ -1,8 +1,3 @@
-#[macro_use]
-#[path = "../support/unit_root_basic_harness.rs"]
-mod unit_root_basic_harness;
-declare_agent_service_unit_root_basic_harness!();
-
 use std::{
     fs::read,
     fs::remove_file,
@@ -49,6 +44,11 @@ fn record_browser_events_replays_appended_journal_lines_into_sqlite_read_model()
     assert_browser_capture_status(&status, &event);
     assert!(!String::from_utf8_lossy(&journal_bytes)
         .contains(constants::activity_store::TEST_BROWSER_URL));
+    assert_eq!(
+        journal_bytes.iter().filter(|byte| **byte == b'\n').count(),
+        1,
+        "duplicate event IDs must not create duplicate encrypted journal lines"
+    );
     assert_eq!(read_model.returned, 1);
     assert_eq!(read_model.latest_event_id, Some(event.event_id));
     assert_browser_row_is_journal_replayed(&read_model);

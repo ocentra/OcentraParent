@@ -20,13 +20,22 @@ preference mutation, or runtime service production behavior.
 
 ## Non-Goals
 
-- Live service event ingestion for parent-surface intent rows.
 - Parent preference mutation, frequency controls, or quiet-hours editor
   behavior.
 - Provider delivery, credentials, webhooks, receipts, cloud routing, child
   delivery, production retry/quiet-hours workers, durable production storage,
   policy evaluator execution, broad app blocking, mobile UI, or platform
   support.
+
+## Code-pass status
+
+The existing parent-runtime notification panel now consumes the joined
+parent-surface intent rows emitted in the agent-service notification-readiness
+payload. The existing Portal App/Game Sessions renderer displays redacted
+surface, provider, preference, quiet-hours, drill-in, audit, and manual-proof
+metadata. Older payloads without a joined intent retain the typed provider/
+preference boundary fallback; no live provider or parent mutation is claimed.
+The workpack remains unvalidated with tests/proof/checklist deferred.
 
 ## Proof
 

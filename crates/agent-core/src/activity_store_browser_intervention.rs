@@ -46,18 +46,18 @@ pub(crate) fn browser_intervention_read_model(
     let rows = browser_intervention_store_rows(connection, limit)?;
     let read_rows = rows
         .into_iter()
-        .filter_map(browser_intervention_read_row_from_store)
+        .filter_map(|row| browser_intervention_read_row_from_store(&row))
         .collect::<Vec<_>>();
     let latest = read_rows.first();
     let managed_session_intervention_capability = latest
-        .map(|row| row.managed_session_intervention_capability.clone())
+        .map(|row| row.managed_session_intervention_capability)
         .unwrap_or(BrowserInterventionCapabilityState::NeedsManagedSession);
     let unmanaged_browser_enforcement = latest
-        .map(|row| row.unmanaged_browser_enforcement.clone())
+        .map(|row| row.unmanaged_browser_enforcement)
         .unwrap_or(BrowserUnmanagedEnforcementState::RequiresOsAppControl);
     let unmanaged_fallback_action = latest
         .map(activity_store_browser_intervention_fallback::top_level_unmanaged_fallback_action)
-        .unwrap_or(BrowserUnmanagedFallbackActionState::OsBlockManualRequired);
+        .unwrap_or(BrowserUnmanagedFallbackActionState::Unavailable);
     let latest_event_id = latest.map(|row| row.event_id.clone());
     let latest_observed_at = latest.map(|row| row.observed_at.clone());
     let intervention_rows = read_rows
@@ -143,7 +143,7 @@ fn browser_intervention_store_row_from_sqlite(
 }
 
 fn browser_intervention_read_row_from_store(
-    row: BrowserInterventionStoreRow,
+    row: &BrowserInterventionStoreRow,
 ) -> Option<BrowserInterventionReadRow> {
     let fields = &row.fields;
     let managed_session_intervention_capability =
@@ -151,11 +151,11 @@ fn browser_intervention_read_row_from_store(
     let unmanaged_browser_enforcement = unmanaged_enforcement_field(fields)
         .unwrap_or(BrowserUnmanagedEnforcementState::MonitorOnly);
     let derived = browser_intervention_derived_fields(fields, &unmanaged_browser_enforcement);
-    let intervention = browser_intervention_row_from_fields(&row, fields, &derived)?;
+    let intervention = browser_intervention_row_from_fields(row, fields, &derived)?;
 
     Some(BrowserInterventionReadRow {
-        event_id: row.event_id,
-        observed_at: row.observed_at,
+        event_id: row.event_id.clone(),
+        observed_at: row.observed_at.clone(),
         managed_session_intervention_capability,
         unmanaged_browser_enforcement,
         unmanaged_fallback_action: derived.unmanaged_fallback_action,
@@ -248,10 +248,10 @@ fn browser_intervention_row_from_fields(
         observed_url: derived.observed_url.clone(),
         intervention_mechanism: intervention_mechanism_field(fields)?,
         intervention_outcome: intervention_outcome_field(fields)?,
-        browser_boundary_state: derived.browser_boundary_state.clone(),
-        exact_url_claim_state: derived.exact_url_claim_state.clone(),
-        unmanaged_detection_state: derived.unmanaged_detection_state.clone(),
-        unmanaged_fallback_action: derived.unmanaged_fallback_action.clone(),
+        browser_boundary_state: derived.browser_boundary_state,
+        exact_url_claim_state: derived.exact_url_claim_state,
+        unmanaged_detection_state: derived.unmanaged_detection_state,
+        unmanaged_fallback_action: derived.unmanaged_fallback_action,
         child_delivery_state: intervention_delivery_state_field(fields)
             .unwrap_or(BrowserInterventionDeliveryState::NotDelivered),
         reason: string_field(fields, constants::field::REASON),
@@ -315,10 +315,4 @@ fn inferred_unmanaged_fallback_action(
         intervention_action,
         intervention_outcome,
     )
-}
-
-fn top_level_unmanaged_fallback_action(
-    row: &BrowserInterventionReadRow,
-) -> BrowserUnmanagedFallbackActionState {
-    activity_store_browser_intervention_fallback::top_level_unmanaged_fallback_action(row)
 }

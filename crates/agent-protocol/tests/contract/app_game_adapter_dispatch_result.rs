@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::AppGameAdapterDispatchResultRow;
 use ocentra_parent_agent_protocol::APP_GAME_ADAPTER_DISPATCH_ADAPTER_EXECUTION_DECISION_MISSING;
@@ -63,7 +64,7 @@ fn app_game_adapter_dispatch_result_serializes_parent_safe_command_result_rows()
         rows: vec![scoped_command_result_row()],
     };
 
-    let serialized = serde_json::to_value(&read_model).expect("dispatch result serializes");
+    let serialized = serde_json::to_value(&read_model).expect_value("dispatch result serializes");
 
     assert_eq!(
         serialized["readModelId"],

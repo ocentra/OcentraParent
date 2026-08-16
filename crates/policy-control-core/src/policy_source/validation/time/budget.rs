@@ -4,8 +4,6 @@ use ocentra_eventing::error::EventingError;
 
 use crate::policy_source::PolicyScheduleTimeBudget;
 
-use super::format;
-
 mod basics;
 mod carryover;
 mod effective_until;

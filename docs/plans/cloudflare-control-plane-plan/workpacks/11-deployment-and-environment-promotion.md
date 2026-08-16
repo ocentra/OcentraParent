@@ -1,5 +1,7 @@
 # Workpack 11: Deployment And Environment Promotion
 
+> **2026-07-28 correction:** The later missing-private-billing-import blocker text is historical. `infra/cloudflare` now imports module-local generated billing contracts. This workpack remains open because it has no tracked proof bundle; rerun after installing dependencies and record the actual result.
+
 ## Goal
 
 Define deployment commands, environment promotion, and rollback expectations for the shared worker module.
@@ -41,12 +43,8 @@ Define deployment commands, environment promotion, and rollback expectations for
 
 ## Exact blocker set
 
-- Missing billing-domain runtime boundary modules:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - `packages/billing-domain/src/billing-referral-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-api-boundary.js`
-  - `packages/billing-domain/src/billing-account-runtime-boundary.js`
-  - `packages/billing-domain/src/billing-support-admin-runtime-boundary.js`
+- Module dependency environment absent: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty tree. WP01 must retain a clean resolver graph before deploy dry-runs are rerun.
+- The worker uses module-local generated billing contracts; a deploy failure after dependency restoration must be recorded by its actual current diagnostics.
 - Placeholder-backed resource identifiers remain in both configs.
 - `AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"` remains active in both configs.
 - The current deploy scripts emit `--env` warnings because they do not point at matching `[env.*]` sections in the selected config file.

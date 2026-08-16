@@ -28,6 +28,8 @@ mod app_game_policy_readiness_tests;
 mod app_game_timer_parent_preference_setup_request_tests;
 #[path = "app_game_timer_parent_surface_read_model_tests.rs"]
 mod app_game_timer_parent_surface_read_model_tests;
+#[path = "authenticated_delivery_grant.rs"]
+mod authenticated_delivery_grant;
 #[path = "browser_inventory_tests.rs"]
 mod browser_inventory_tests;
 #[path = "browser_managed_tests.rs"]
@@ -78,6 +80,8 @@ mod lan_pairing_provider_selection;
 mod network_android_vpn_service_gate_status_tests;
 #[path = "network_apple_network_extension_gate_status_tests.rs"]
 mod network_apple_network_extension_gate_status_tests;
+#[path = "network_eventing_contract.rs"]
+mod network_eventing_contract;
 #[path = "network_flow_tests.rs"]
 mod network_flow_tests;
 #[path = "network_linux_nftables_lab_status_tests.rs"]

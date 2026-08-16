@@ -3,7 +3,7 @@ use ocentra_child_notification_core::policy_control_notification::{
 };
 use ocentra_child_policy_core::policy_control_delivery_handoff::{
     apply_policy_control_delivery_handoff as apply_child_policy_control_delivery_handoff,
-    queue_policy_control_delivery_handoff as queue_child_policy_control_delivery_handoff,
+    queue_policy_control_delivery_for_request as queue_child_policy_control_delivery_for_request,
 };
 use ocentra_child_policy_core::policy_control_request_handoff::{
     confirm_policy_control_request_handoff as confirm_child_policy_control_request_handoff,
@@ -114,7 +114,8 @@ pub fn queue_policy_control_delivery_handoff(
     attempt_id: PolicyDeliveryAttemptId,
     audit_reference_ids: Vec<PolicyAuditReferenceId>,
 ) -> Result<PolicyControlDeliveryHandoffReport, EventingError> {
-    let handoff = queue_child_policy_control_delivery_handoff(
+    let handoff = queue_child_policy_control_delivery_for_request(
+        request,
         artifact,
         target,
         delivery_id,

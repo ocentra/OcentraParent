@@ -1,5 +1,4 @@
 use std::{
-    fs::read_to_string,
     fs::{create_dir_all, OpenOptions},
     io::Write,
     path::PathBuf,
@@ -11,7 +10,7 @@ use serde_json::{Map, Value};
 
 use super::app_game_timer_parent_preference_setup_request::AppGameTimerSetupStorePath;
 
-struct SetupOutboxPath(PathBuf);
+pub(crate) struct SetupOutboxPath(PathBuf);
 
 struct SetupOutboxTextRef<'a>(&'a str);
 
@@ -32,12 +31,6 @@ pub(crate) trait SetupOutboxStorePathSource {
 impl SetupOutboxStorePathSource for AppGameTimerSetupStorePath {
     fn setup_outbox_store_path(&self) -> SetupOutboxPath {
         SetupOutboxPath(self.0.clone())
-    }
-}
-
-impl SetupOutboxStorePathSource for PathBuf {
-    fn setup_outbox_store_path(&self) -> SetupOutboxPath {
-        SetupOutboxPath(self.clone())
     }
 }
 
@@ -77,12 +70,6 @@ pub(crate) fn append_setup_outbox_record(
     file.write_all(line.as_bytes()).map_err(|_error| ())?;
     file.write_all(constants::delimiter::NEWLINE.to_string().as_bytes())
         .map_err(|_error| ())
-}
-
-pub(crate) fn setup_outbox_has_records(store_path: &impl SetupOutboxStorePathSource) -> bool {
-    read_to_string(setup_outbox_path(store_path).0)
-        .map(|contents| contents.lines().any(|line| !line.trim().is_empty()))
-        .unwrap_or(false)
 }
 
 fn setup_outbox_path(store_path: &impl SetupOutboxStorePathSource) -> SetupOutboxPath {

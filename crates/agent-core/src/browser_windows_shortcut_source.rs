@@ -1,7 +1,4 @@
-use std::{
-    fs,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::constants;
 
@@ -53,20 +50,12 @@ fn live_windows_shortcut_roots() -> Vec<PathBuf> {
     browser_windows_shortcut_source_paths::live_windows_shortcut_roots()
 }
 
-fn start_menu_programs_root(root: std::ffi::OsString) -> PathBuf {
-    browser_windows_shortcut_source_paths::start_menu_programs_root(root)
-}
-
 fn collect_shortcut_targets(
     root: &Path,
     limit: usize,
     targets: &mut Vec<BrowserWindowsLiveShortcutTarget>,
 ) {
     browser_windows_shortcut_source_scan::collect_shortcut_targets(root, limit, targets)
-}
-
-fn is_shortcut_path(path: &Path) -> bool {
-    browser_windows_shortcut_source_scan::is_shortcut_path(path)
 }
 
 fn shortcut_target_from_path(path: &Path) -> Option<String> {
@@ -79,28 +68,4 @@ fn link_info_target(bytes: &[u8], offset: usize) -> Option<String> {
 
 fn read_u32(bytes: &[u8], offset: usize) -> Option<u32> {
     browser_windows_shortcut_source_parse::read_u32(bytes, offset)
-}
-
-fn read_null_terminated_ansi(bytes: &[u8]) -> Option<String> {
-    browser_windows_shortcut_source_parse::read_null_terminated_ansi(bytes)
-}
-
-fn executable_target_path(target: &str) -> Option<PathBuf> {
-    browser_windows_shortcut_source_paths::executable_target_path(target)
-}
-
-fn expand_leading_windows_env_var(path: &str) -> String {
-    browser_windows_shortcut_source_paths::expand_leading_windows_env_var(path)
-}
-
-fn unquoted_known_executable_target(target: &str) -> &str {
-    browser_windows_shortcut_source_paths::unquoted_known_executable_target(target)
-}
-
-fn push_install_location_candidates(paths: &mut Vec<PathBuf>, install_location: &Path) {
-    browser_windows_shortcut_source_paths::push_install_location_candidates(paths, install_location)
-}
-
-fn push_known_executable_target(paths: &mut Vec<PathBuf>, target: &str) {
-    browser_windows_shortcut_source_paths::push_known_executable_target(paths, target)
 }

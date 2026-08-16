@@ -9,8 +9,7 @@ use ocentra_parent_agent_protocol::app_game::{
 };
 
 use crate::activity_surface_read_models::shared::{
-    push_evidence, row_state, CapabilityStatus, EvidenceId, ObservedAt, SourceKind,
-    SourceStatusRowInput,
+    push_evidence, row_state, CapabilityStatus, ObservedAt, SourceKind, SourceStatusRowInput,
 };
 
 const SOURCE_STATUS_PRECEDENCE_ORDER: [&str; 8] = [
@@ -80,26 +79,6 @@ pub(super) fn app_game_source_status_rows(
     rows
 }
 
-fn push_local_db_row_evidence(
-    target: &mut Vec<ocentra_parent_agent_protocol::activity::ActivityEvidenceRef>,
-    evidence_id: EvidenceId,
-) {
-    if evidence_id.0.is_empty() {
-        return;
-    }
-    push_evidence(
-        target,
-        &[
-            ocentra_parent_agent_protocol::activity::ActivityEvidenceRef {
-                evidence_id: evidence_id.0,
-                kind: ocentra_parent_agent_protocol::activity::ActivityEvidenceKind::LocalDbRow,
-                digest: None,
-                uri: None,
-            },
-        ],
-    );
-}
-
 fn push_launcher_source_status_row(
     target: &mut Vec<ActivityAppGameSourceStatusRow>,
     row: &AppGameLauncherEvidenceRow,
@@ -128,11 +107,11 @@ fn push_source_status_row(input: SourceStatusRowInput<'_>) {
         {
             row.last_observed_at = Some(input.observed_at.0.clone());
         }
-        if source_status_precedence(input.capability_status.clone())
-            < source_status_precedence(CapabilityStatus(row.capability_status.clone()))
+        if source_status_precedence(&input.capability_status)
+            < source_status_precedence(&CapabilityStatus(row.capability_status.clone()))
         {
             row.capability_status = input.capability_status.0.clone();
-            row.state = row_state(input.capability_status);
+            row.state = row_state(&input.capability_status);
         }
         push_evidence(&mut row.evidence, input.evidence);
         return;
@@ -141,7 +120,7 @@ fn push_source_status_row(input: SourceStatusRowInput<'_>) {
     push_evidence(&mut source_evidence, input.evidence);
     input.target.push(ActivityAppGameSourceStatusRow {
         source_kind: input.source_kind.0,
-        state: row_state(input.capability_status.clone()),
+        state: row_state(&input.capability_status),
         row_count: 1,
         last_observed_at: Some(input.observed_at.0),
         capability_status: input.capability_status.0,
@@ -149,7 +128,7 @@ fn push_source_status_row(input: SourceStatusRowInput<'_>) {
     });
 }
 
-fn source_status_precedence(capability_status: CapabilityStatus) -> u8 {
+fn source_status_precedence(capability_status: &CapabilityStatus) -> u8 {
     SOURCE_STATUS_PRECEDENCE_ORDER
         .iter()
         .position(|status| capability_status.0 == *status)

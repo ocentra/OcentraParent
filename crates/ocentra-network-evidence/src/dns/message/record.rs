@@ -1,4 +1,4 @@
-use super::{data, name, DnsRecordData, DnsResourceRecord, NetworkReplayError};
+use super::{data, name, DnsResourceRecord, NetworkReplayError};
 
 pub(super) fn parse_resource_record(
     payload: &[u8],

@@ -79,7 +79,9 @@ describe('enforcement schema surface', () => {
       })
     ).toThrow('Expected unavailable enforcement results to include typed unavailable status');
   });
+});
 
+describe('enforcement timer and action schema surface', () => {
   it('rejects unavailable timer events that omit the typed unavailable reason', () => {
     expect(() =>
       EnforcementTimerEventSchema.parse({

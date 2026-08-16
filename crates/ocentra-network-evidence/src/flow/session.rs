@@ -1,8 +1,8 @@
 use crate::dns::types::NetworkEvidenceGrade;
-use crate::flow::{NetworkFlowKey, NetworkFlowPacket, NetworkFlowProtocol, NetworkFlowSession};
+use crate::flow::{NetworkFlowKey, NetworkFlowPacket, NetworkFlowSession};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum FlowDirection {
+pub(super) enum FlowDirection {
     InitiatorToResponder,
     ResponderToInitiator,
 }

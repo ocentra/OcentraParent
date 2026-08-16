@@ -1,5 +1,6 @@
 use super::{constants, APP_GAME_SCHEMA_VERSION};
 use crate::app_game_authority_classifier::*;
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_control_authority_serializes_parent_approval_and_action_result_shape() {
@@ -24,9 +25,9 @@ fn app_game_control_authority_serializes_parent_approval_and_action_result_shape
     let action_result = approved_action_result();
 
     let authority_json =
-        serde_json::to_value(authority).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(authority).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let result_json =
-        serde_json::to_value(action_result).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(action_result).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         authority_json["schemaVersion"],
@@ -64,7 +65,8 @@ fn app_game_platform_authority_matrix_serializes_proof_gated_rows() {
         generated_at: APP_GAME_TEST_TIMESTAMP.to_string(),
     };
 
-    let serialized = serde_json::to_value(matrix).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(matrix).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["matrixId"], APP_GAME_TEST_PLATFORM_MATRIX_ID);
     assert_eq!(
@@ -101,9 +103,9 @@ fn app_game_ai_classifier_result_serializes_evidence_only_policy_handoff() {
     let unavailable = classifier_result_unavailable();
 
     let candidate_json =
-        serde_json::to_value(candidate).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(candidate).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let unavailable_json =
-        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(unavailable).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(candidate_json["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(

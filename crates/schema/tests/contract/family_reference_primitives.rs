@@ -5,11 +5,13 @@ use std::path::PathBuf;
 fn family_reference_primitives_generated_typescript_matches_checked_in_file() {
     let generated =
         ocentra_schema::family_reference_primitives_ts::family_reference_primitives_typescript();
-    let checked_in = fs::read_to_string(
+    let checked_in = match fs::read_to_string(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../packages/schema-domain/src/generated-family-reference-primitives.ts"),
-    )
-    .expect("family reference primitives source should be readable");
+    ) {
+        Ok(value) => value,
+        Err(_) => std::process::abort(),
+    };
 
     assert_eq!(generated, checked_in);
     assert!(generated

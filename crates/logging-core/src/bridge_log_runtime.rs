@@ -117,7 +117,7 @@ pub fn bridge_payload_to_stored_log(
         correlation_id: payload.correlation_id.clone(),
         tags: payload.tags.clone(),
         stack: payload.stack.clone(),
-        origin: payload.origin.clone(),
+        origin: payload.origin,
         environment: payload.environment.clone(),
     }
 }
@@ -150,7 +150,7 @@ pub fn stored_log_to_bridge_payload(log: &StoredTestLogLine) -> BridgeLogPayload
         tags: log.tags.clone(),
         stack: log.stack.clone(),
         suite_type: log.suite_type.clone(),
-        origin: log.origin.clone(),
+        origin: log.origin,
         environment: log.environment.clone(),
     }
 }

@@ -2,7 +2,6 @@ use std::io::{ErrorKind, Read, Write};
 use std::time::Duration;
 
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
-use serde_json;
 use tungstenite::{Error as WebSocketError, Message, WebSocket};
 
 pub(super) fn read_agent_event<S: Read + Write>(

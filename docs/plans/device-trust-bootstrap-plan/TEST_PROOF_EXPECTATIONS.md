@@ -19,6 +19,8 @@
 output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
 ```
 
+This root is local generated evidence only. Do not commit files below it.
+
 ## Test layout
 
 ```text
@@ -41,6 +43,8 @@ Current device-trust coverage starts in:
 
 These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
 
+The narrow Windows DPAPI adapter is separately covered by `crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs`. That proof requires a current authorized parent-device authority input whose trust subject and device reference exactly match the sealed context, and incorporates a machine-local Windows registry binding that is read at seal/unseal rather than serialized in the blob. It proves only the Windows adapter boundary: same-device unseal, different trusted-device rejection, revoked rejection, and persisted-blob round trip. It does not close WP02 or claim Android, Linux, macOS, iOS, recovery, or complete trust lifecycle coverage.
+
 Implementation-adjacent coverage currently lives in:
 
 - `packages/family-domain/tests/unit/household-authority.test.ts`
@@ -52,6 +56,44 @@ Implementation-adjacent coverage currently lives in:
 - `crates/agent-protocol/src/lan_pairing_tests.rs`
 - `crates/agent-service/src/lan_pairing_tests.rs`
 - `crates/agent-service/src/lan_pairing_multidevice_tests.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_cross_process.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_nonce_process.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs`
+
+WP01 parent-presence runtime custody:
+
+```powershell
+cargo test -p ocentra-family-identity-core --test unit trust_bootstrap
+cargo clippy -p ocentra-family-identity-core --tests -- -D warnings
+npm run lint:architecture -- --files crates/family-identity-core/src crates/family-identity-core/tests/unit
+```
+
+This focused proof covers explicit-path SQLite custody, durable challenge and nonce identity, opaque receipt generation/redaction, concurrent process consumption/issuance, restart replay rejection, exact integrity-critical SQLite object allowlisting before initialization, and fail-closed path cases. Malformed or executable extra objects must be rejected before initialization can repair them, and isolated trigger, view, virtual-table, and structural fixtures must prove the existing database bytes remain unchanged.
+
+On Windows, production custody requires retained handles for the final database file and every ancestor, all opened without delete sharing. A runtime probe must demonstrate that the active filesystem denies rename while such a handle is held; otherwise opening returns unavailable. The focused security test must prove both final-file and ancestor rename denial while custody is live.
+
+On Unix, production custody currently returns unavailable before creating or opening the database because this boundary cannot exclude same-user pathname substitution. The explicit debug-only custody seam may exercise owner-private `0600` creation, atomic first publication, restart, concurrency, and permissive-existing-file rejection, but those tests are not a production custody claim.
+
+Trust sealing must remain manual-required until the authority contract exposes a specifically authorized high-risk sealing action. `device_trust_ref` values must come from a CSPRNG and remain opaque and input-independent. Parent-presence decisions must be correlated and redacted, committed to a canonical transactional outbox with custody state, and delivered fail-closed into the owned `ocentra-eventing` hash-chained journal. Focused proof must cover accepted and rejected decisions, delivery failure, restart recovery, replay, and idempotent re-delivery. The no-claim boundary remains subscriber delivery, a broader event-bus runtime, and complete device-trust integration.
+
+Windows DPAPI adapter validation:
+
+**Windows-only proof label.** The commands below are a Windows-host proof
+requirement. On non-Windows hosts, the adapter is expected to return
+`PlatformUnavailable`; a passing compile or skipped `#[cfg(windows)]` test is
+not DPAPI proof. Record non-Windows execution as `unsupported-platform`
+coverage, not as same-device or persisted-blob validation.
+
+```powershell
+cargo check -p ocentra-storage-custody-core
+cargo test -p ocentra-family-identity-core --test unit trust_bootstrap_probes
+cargo clippy -p ocentra-storage-custody-core --lib -- -D warnings
+cargo clippy -p ocentra-family-identity-core --all-targets -- -D warnings
+npm run lint:architecture -- --files crates/storage-custody-core/src/windows_dpapi_key_sealing.rs crates/family-identity-core/src/trust_bootstrap.rs crates/family-identity-core/src/trust_bootstrap/current_authority.rs crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs
+```
+
+The Windows adapter must fail closed when the local machine binding cannot be read; no roaming, plaintext, or portable-key fallback is permitted. The current sealing capability derives subject/device binding only from the verified parent ceremony, while unseal requires a current runtime-owned lifecycle authority source rather than a caller-deserialized snapshot.
 
 ## Common commands
 
@@ -125,13 +167,14 @@ A workpack can be complete for one tier while other tiers remain open. Record th
 
 Every device-trust proof slice must preserve product-safe logging and local harness logging.
 
-Product/runtime-safe logging:
+Product/runtime-safe logging and artifacts:
 
 ```text
 redact protected auth material, sealed key bytes, recovery payloads, QR private values, entitlement signing material, private device identifiers beyond opaque refs, and support-private diagnostics unless explicitly selected for proof
 log trust subject, device role, actor role, trust state, sealed-key state, platform store, step-up state, QR challenge state, entitlement binding state, recovery state, tamper/uninstall state, revocation state, replay state, platform note, proof ref, manual-required note, and no-claim boundary when safe
 separate login/session, setup, LAN pairing, package install, license, trust, key sealing, step-up, QR approval, recovery, tamper/uninstall, and route-gate states
 never treat document tests, route tests, login logs, LAN logs, package logs, or license logs as trust proof without selected runtime proof or exact blocker
+do not claim an artifact was emitted, published, journaled, or logged when the domain only constructed and returned it
 ```
 
 Local Codex/MCP/debug harness logging:

@@ -1,20 +1,15 @@
 import { randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 
-import {
-  AgentCommand,
-  AgentCommandEnvelopeSchema,
-  AgentEvent,
-  AgentEventEnvelopeSchema,
-} from '@ocentra-parent/schema-domain/agent-command-event-contracts';
-import { AgentProtocolDefaults } from '@ocentra-parent/schema-domain/agent-protocol-defaults';
-import { AgentProtocolSchemaVersion } from '@ocentra-parent/schema-domain/event-primitives';
-
 import { PortalNetworkActivitySeed, seedPortalNetworkActivityStore } from './portal-network-activity-seed.mjs';
+import { createPortalSmokeCommandEnvelope } from './websocket-command-envelope.mjs';
+import { parseAgentEventEnvelope } from './websocket-event-envelope.mjs';
 
 const preflightTimeoutMs = 30_000;
 const requestTimeoutMs = 5_000;
 const retryDelayMs = 500;
+const networkFlowReadModelCommandName = 'agent.network.flow.read-model.get';
+const networkFlowReadModelEventName = 'agent.network.flow.read-model.reported';
 
 export async function assertAgentNetworkActivityReadModel(webSocketUrl, activityDbPath) {
   const startedAt = Date.now();
@@ -56,7 +51,7 @@ function requestNetworkFlowReadModel(webSocketUrl) {
     const timeout = setTimeout(() => {
       cleanup();
       socket.close();
-      reject(new Error(`Timed out waiting for ${AgentEvent.NetworkFlowReadModelReported}`));
+      reject(new Error(`Timed out waiting for ${networkFlowReadModelEventName}`));
     }, requestTimeoutMs);
 
     const cleanup = () => {
@@ -71,7 +66,7 @@ function requestNetworkFlowReadModel(webSocketUrl) {
     const onMessage = (message) => {
       void handleMessageData(message.data)
         .then((event) => {
-          if (event.event !== AgentEvent.NetworkFlowReadModelReported) {
+          if (event.event !== networkFlowReadModelEventName) {
             return;
           }
           cleanup();
@@ -96,24 +91,16 @@ function requestNetworkFlowReadModel(webSocketUrl) {
 }
 
 function networkFlowReadModelCommand() {
-  return AgentCommandEnvelopeSchema.parse({
-    schemaVersion: AgentProtocolSchemaVersion,
-    messageId: `${AgentProtocolDefaults.MessageIdPrefix}${randomUUID()}`,
-    sentAt: new Date().toISOString(),
-    source: AgentProtocolDefaults.Peer.PortalDev,
-    target: AgentProtocolDefaults.Target.LocalhostWindowsAgent,
-    command: AgentCommand.NetworkFlowReadModelGet,
-    payload: {},
-  });
+  return createPortalSmokeCommandEnvelope(`cmd-network-flow-${randomUUID()}`, networkFlowReadModelCommandName, {});
 }
 
 async function handleMessageData(data) {
   const text = await messageDataText(data);
-  return AgentEventEnvelopeSchema.parse(JSON.parse(text));
+  return parseAgentEventEnvelope(JSON.parse(text));
 }
 
 async function messageDataText(data) {
-  if (typeof data === AgentProtocolDefaults.Primitive.String) {
+  if (typeof data === 'string') {
     return data;
   }
   if (data instanceof ArrayBuffer) {
@@ -135,12 +122,12 @@ function networkFlowEvidenceIds(event) {
   }
   return digest.evidence
     .map((reference) => reference?.evidenceId)
-    .filter((evidenceId) => typeof evidenceId === AgentProtocolDefaults.Primitive.String);
+    .filter((evidenceId) => typeof evidenceId === 'string');
 }
 
 function networkFlowDigest(event) {
-  const rawDigest = event.payload[AgentProtocolDefaults.Field.ActivityDigest];
-  if (typeof rawDigest !== AgentProtocolDefaults.Primitive.String) {
+  const rawDigest = event.payload.activityDigest;
+  if (typeof rawDigest !== 'string') {
     return null;
   }
   return JSON.parse(rawDigest);
@@ -149,21 +136,21 @@ function networkFlowDigest(event) {
 function describeNetworkFlowEvent(event, evidenceIds) {
   return JSON.stringify({
     event: event.event,
-    returned: event.payload[AgentProtocolDefaults.Field.Returned],
-    activeRows: event.payload[AgentProtocolDefaults.Field.ActiveRows],
-    latestEventId: event.payload[AgentProtocolDefaults.Field.LatestEventId],
-    latestObservedAt: event.payload[AgentProtocolDefaults.Field.LatestObservedAt],
-    destinationDomain: event.payload[AgentProtocolDefaults.Field.DestinationDomain],
-    processName: event.payload[AgentProtocolDefaults.Field.ProcessName],
+    returned: event.payload.returned,
+    activeRows: event.payload.activeRows,
+    latestEventId: event.payload.latestEventId,
+    latestObservedAt: event.payload.latestObservedAt,
+    destinationDomain: event.payload.destinationDomain,
+    processName: event.payload.processName,
     evidenceIds,
     seededEvidencePresent: evidenceIds.includes(PortalNetworkActivitySeed.EvidenceId),
-    seededRowIsLatest: event.payload[AgentProtocolDefaults.Field.LatestEventId] === PortalNetworkActivitySeed.EventId,
+    seededRowIsLatest: event.payload.latestEventId === PortalNetworkActivitySeed.EventId,
   });
 }
 
 function isSeededNetworkFlowUiPayload(event, evidenceIds) {
   return (
     evidenceIds.includes(PortalNetworkActivitySeed.EvidenceId) &&
-    event.payload[AgentProtocolDefaults.Field.LatestEventId] === PortalNetworkActivitySeed.EventId
+    event.payload.latestEventId === PortalNetworkActivitySeed.EventId
   );
 }

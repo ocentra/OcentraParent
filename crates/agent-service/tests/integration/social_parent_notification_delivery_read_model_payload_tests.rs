@@ -19,9 +19,7 @@ use super::social_parent_notification_delivery_read_model_payload::social_report
     request_social_report_writer_delivery_read_model_from_service,
     social_report_writer_delivery_read_model_from_service,
 };
-#[path = "../support/log_payload.rs"]
-mod log_payload;
-use log_payload::payload_json;
+use crate::log_payload::payload_json;
 
 #[test]
 fn social_parent_notification_delivery_payload_reports_honest_service_rows() {

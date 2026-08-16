@@ -1,5 +1,7 @@
 # Workpack 05: Auth Admin Support Boundary
 
+> **2026-07-28 correction:** The later missing-private-billing-import blocker text is historical. `infra/cloudflare` now imports module-local generated billing contracts. This workpack remains open because it has no tracked proof bundle; rerun after installing dependencies and record the actual result.
+
 ## Goal
 
 Define the auth-state model and adapter interface for parent, admin, support, webhook, and queue-only routes.
@@ -65,9 +67,8 @@ Focused outcome:
 
 External blocker:
 
-- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` are all blocked by the same external missing import:
-  - `packages/billing-domain/src/billing-checkout-portal-boundary.js`
-  - imported from `infra/cloudflare/src/index.ts`
+- `npm --prefix infra/cloudflare run test:unit`, `test:security`, and `test:integration` are deferred until WP01 restores the currently empty module dependency tree.
+- `infra/cloudflare/src/index.ts` uses the module-local generated billing-contract route; rerun the selected families after dependency restoration and retain only their then-current exact blockers.
 - This blocker is outside the WP05 owner surface, so WP05 is not green; it is proof-present with an exact carried dependency blocker.
 
 Proof root:

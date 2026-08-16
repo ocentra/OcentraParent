@@ -1,9 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    NetworkEvidenceGrade, NetworkEvidencePolicyAction, NetworkEvidencePolicyMapping,
-    NetworkEvidencePolicyMode,
-};
+use crate::{NetworkEvidenceGrade, NetworkEvidencePolicyMapping};
 
 mod artifacts;
 mod boundary;
@@ -140,27 +137,6 @@ pub enum NetworkLinuxAdapterGateError {
     TunInterfaceMutationClaimRejected,
     ServiceManagerInstallClaimRejected,
     PolicyMappingAuthorityRejected,
-}
-
-struct NormalizedLinuxAdapterGateInput {
-    linux_adapter_gate_ref: String,
-    policy_decision_ref: String,
-    parent_rule_ref: String,
-    evidence_refs: Vec<String>,
-    local_ai_result_ref: Option<String>,
-    distro_ref: String,
-    kernel_ref: String,
-}
-
-struct NetworkLinuxAdapterArtifactRefs {
-    distro_kernel_proof_ref: Option<String>,
-    permission_proof_ref: Option<String>,
-    adapter_api_capability_proof_ref: Option<String>,
-    adapter_plan_proof_ref: Option<String>,
-    service_manager_scope_proof_ref: Option<String>,
-    rollback_plan_ref: Option<String>,
-    lab_result_artifact_ref: Option<String>,
-    audit_event_ref: Option<String>,
 }
 
 pub fn plan_network_linux_adapter_gate(

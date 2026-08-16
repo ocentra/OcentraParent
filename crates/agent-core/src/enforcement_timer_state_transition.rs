@@ -36,25 +36,27 @@ pub(super) fn transition_outcome(
 
 pub(super) fn transition_outcome_with_result(
     state: &EnforcementActiveTimerState,
-    ids: EnforcementTimerTransitionIds,
+    ids: impl Borrow<EnforcementTimerTransitionIds>,
     timer_event_kind: EnforcementTimerEventKind,
     status: EnforcementResultStatus,
-    result_override: TransitionResultOverride,
+    result_override: impl Borrow<TransitionResultOverride>,
 ) -> EnforcementBoundaryOutcome {
+    let ids = ids.borrow();
+    let result_override = result_override.borrow();
     let parent_override = result_override.parent_override.clone();
     let action = transition_action(&state.action, parent_override.clone());
-    let result = transition_result(&action, &ids, status, &result_override);
+    let result = transition_result(&action, ids, status, result_override);
     let timer_event = transition_timer_event(
         &action,
         &state.timer_event,
-        &ids,
+        ids,
         timer_event_kind,
-        super::enforcement_timer_state_result::unavailable_reason_from_transition(&result_override),
+        super::enforcement_timer_state_result::unavailable_reason_from_transition(result_override),
     );
     let audit_event = transition_audit_event(
         &action,
         &result,
-        &ids,
+        ids,
         &state.audit_event.policy_version,
         parent_override,
     );
@@ -78,3 +80,4 @@ fn transition_action(
     }
     transition
 }
+use std::borrow::Borrow;

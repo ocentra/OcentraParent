@@ -1,4 +1,3 @@
-use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::SocialDashboardUxSnapshot;
 use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_CAPABILITY_READY;
@@ -13,9 +12,7 @@ use ocentra_parent_agent_protocol::SOCIAL_DASHBOARD_SCHEMA_VERSION;
 use super::social_dashboard_read_model_payload::{
     social_dashboard_read_model_from_service, social_dashboard_read_model_payload,
 };
-#[path = "../support/log_payload.rs"]
-mod log_payload;
-use log_payload::{payload_json, payload_number, payload_text};
+use crate::log_payload::{payload_json, payload_number, payload_text};
 
 #[test]
 fn social_dashboard_payload_reports_seven_honest_service_rows() {

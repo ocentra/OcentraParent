@@ -1,10 +1,15 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
+use std::{
+    fs,
+    sync::atomic::{AtomicU64, Ordering},
+};
 
+use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
+use ocentra_eventing::replay::ReplayFilter;
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAiAuditState;
 use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimeEventPayload;
 use ocentra_parent_agent_protocol::screen_evidence::ScreenRuntimePhase;
 use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPABILITY_READY;
@@ -18,13 +23,17 @@ use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_LOCAL_VISION
 
 use super::screen_ai_service_event_bridge::{
     publish_screen_capture_queue_event_chain, publish_screen_degraded_event_chain,
-    publish_screen_deletion_event_chain, publish_screen_service_row_event_chain,
-    screen_runtime_capture_input_from_service_row, screen_runtime_degraded_input_from_service_row,
-    screen_runtime_deletion_input_from_service_row, screen_runtime_input_from_service_row,
-    ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
+    publish_screen_service_row_event_chain, screen_runtime_capture_input_from_service_row,
+    screen_runtime_degraded_input_from_service_row, screen_runtime_deletion_input_from_service_row,
+    screen_runtime_input_from_service_row, ScreenAiServiceEventBridgeError,
+    ScreenAiServiceEventBridgeRefs,
 };
-use super::screen_ai_service_event_subscription::{ActionRefText, ObservedAtText};
+use super::screen_ai_service_event_subscription::{
+    ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
+};
 use crate::test_invariants::require_ok;
+
+static SCREEN_SERVICE_EVENT_TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
 #[test]
 fn screen_service_event_bridge_maps_service_row_to_existing_screen_runtime_input() {
@@ -136,11 +145,19 @@ async fn screen_service_event_bridge_publishes_capture_queue_events_from_capture
 
 #[tokio::test]
 async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row() {
-    let report = publish_screen_deletion_event_chain(
-        service_screen_row(),
-        ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
-    )
-    .await;
+    let journal_path = screen_deletion_journal_path("retention-row");
+    let _ = fs::remove_file(&journal_path);
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let report = runtime
+        .publish_deletion_row(
+            service_screen_row(),
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+            &journal_path,
+        )
+        .await;
     let report = require_ok(
         report,
         constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
@@ -150,6 +167,7 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
         constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
     )
     .payload;
+    let _ = fs::remove_file(&journal_path);
 
     assert_eq!(payload.phase, ScreenRuntimePhase::DeletionCommitted);
     assert_eq!(payload.policy_decision_ref, None);
@@ -164,7 +182,153 @@ async fn screen_service_event_bridge_publishes_deletion_event_from_retention_row
 }
 
 #[tokio::test]
-async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
+async fn screen_service_event_runtime_bounds_each_deletion_publication_report() {
+    let journal_path = screen_deletion_journal_path("bounded-report");
+    let _ = fs::remove_file(&journal_path);
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first = require_ok(
+        runtime
+            .publish_deletion_row(
+                service_screen_row(),
+                ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+                &journal_path,
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let mut second_row = service_screen_row();
+    second_row.queue_job_id.push_str("-second");
+    second_row.row_id.push_str("-second");
+    let second = require_ok(
+        runtime
+            .publish_deletion_row(
+                second_row,
+                ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+                &journal_path,
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+
+    assert_eq!(first.publish_reports.len(), 1);
+    assert_eq!(first.stored_events.len(), 1);
+    assert_eq!(second.publish_reports.len(), 1);
+    assert_eq!(second.stored_events.len(), 1);
+    assert!(!second.raw_image_escaped());
+    let _ = fs::remove_file(&journal_path);
+}
+
+#[tokio::test]
+async fn screen_service_event_runtime_bounds_memory_while_durable_journal_retains_proof() {
+    let journal_path = screen_deletion_journal_path("bounded-memory");
+    let _ = fs::remove_file(&journal_path);
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first = require_ok(
+        runtime
+            .publish_deletion_row(
+                service_screen_row(),
+                ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+                &journal_path,
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let mut second_row = service_screen_row();
+    second_row.queue_job_id.push_str("-retained");
+    second_row.row_id.push_str("-retained");
+    let second = require_ok(
+        runtime
+            .publish_deletion_row(
+                second_row,
+                ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+                &journal_path,
+            )
+            .await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+
+    let replay = require_ok(
+        NdjsonEventJournal::with_options(&journal_path, NdjsonJournalOptions::hash_chain())
+            .replay_projection(ReplayFilter::all())
+            .await,
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES,
+    );
+    let _ = fs::remove_file(&journal_path);
+
+    assert_eq!(first.stored_events.len(), 1);
+    assert_eq!(second.stored_events.len(), 1);
+    assert_eq!(replay.records.len(), 2);
+}
+
+#[tokio::test]
+async fn screen_service_event_runtime_isolates_concurrent_deletion_publication_reports() {
+    let journal_path = screen_deletion_journal_path("concurrent");
+    let _ = fs::remove_file(&journal_path);
+    let runtime = require_ok(
+        ScreenAiServiceEventRuntime::start().await,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first_row = service_screen_row();
+    let first_queue_job_id = first_row.queue_job_id.clone();
+    let mut second_row = service_screen_row();
+    second_row.queue_job_id.push_str("-concurrent");
+    second_row.row_id.push_str("-concurrent");
+    let second_queue_job_id = second_row.queue_job_id.clone();
+
+    let (first, second) = tokio::join!(
+        runtime.publish_deletion_row(
+            first_row,
+            ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
+            &journal_path,
+        ),
+        runtime.publish_deletion_row(
+            second_row,
+            ObservedAtText(constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string()),
+            &journal_path,
+        )
+    );
+    let first = require_ok(
+        first,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let second = require_ok(
+        second,
+        constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_BRIDGE_PUBLISHES,
+    );
+    let first_payload = require_ok(
+        first.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
+    )
+    .payload;
+    let second_payload = require_ok(
+        second.stored_events[0].decode::<ScreenRuntimeEventPayload>(),
+        constants::screen_flow::ERROR_SCREEN_RUNTIME_PAYLOAD_DECODES,
+    )
+    .payload;
+
+    assert_eq!(first.stored_events.len(), 1);
+    assert_eq!(second.stored_events.len(), 1);
+    assert_eq!(first_payload.queue_job_id, first_queue_job_id);
+    assert_eq!(second_payload.queue_job_id, second_queue_job_id);
+    let _ = fs::remove_file(&journal_path);
+}
+
+fn screen_deletion_journal_path(suffix: &str) -> std::path::PathBuf {
+    let sequence = SCREEN_SERVICE_EVENT_TEST_SEQUENCE.fetch_add(1, Ordering::Relaxed);
+    std::env::temp_dir().join(format!(
+        "ocentra-screen-service-deletion-{suffix}-{}-{sequence}.ndjson",
+        std::process::id()
+    ))
+}
+
+#[tokio::test]
+async fn screen_service_event_bridge_publishes_degraded_non_ai_event_path() {
     let report = publish_screen_degraded_event_chain(
         degraded_service_screen_row(),
         ObservedAtText(constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string()),
@@ -195,8 +359,6 @@ async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
         vec![
             ScreenRuntimePhase::CaptureObserved,
             ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
             ScreenRuntimePhase::DeletionCommitted,
             ScreenRuntimePhase::PortalReadModelUpdated,
         ]
@@ -206,6 +368,9 @@ async fn screen_service_event_bridge_publishes_degraded_ai_event_path() {
             && payload.policy_action.is_none()
             && payload.parent_rule_ref.is_none()
             && payload.action_ref.is_none()
+            && payload.ai_request_ref.is_none()
+            && payload.ai_result_ref.is_none()
+            && payload.ai_audit_state == ScreenAiAuditState::NotRequested
     }));
     assert_eq!(
         payloads

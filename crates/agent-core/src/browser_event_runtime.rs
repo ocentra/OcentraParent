@@ -334,7 +334,7 @@ fn browser_event_source(
 ) -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
         event_custody(input),
-        phase.runtime_role(),
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(constants::browser::RUNTIME_COMPONENT_BROWSER_SPINE)?,
         RuntimeInstanceId::parse(constants::browser::RUNTIME_INSTANCE_LOCAL_BROWSER_RUNTIME)?,

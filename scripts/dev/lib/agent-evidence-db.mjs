@@ -1,84 +1,38 @@
 import fs from 'node:fs';
-import { createRequire } from 'node:module';
+import { DuckDBInstance } from '@duckdb/node-api';
 
 import { getDuckDbPath, getEvidenceScope, getManifestPath, listNdjsonFiles } from './agent-log-paths.mjs';
 
-const require = createRequire(import.meta.url);
-
-function loadDuckDb() {
-  return require('duckdb');
-}
-
 function openDatabase(filePath) {
-  const DuckDb = loadDuckDb();
-  return new Promise((resolve, reject) => {
-    const database = new DuckDb.Database(filePath, (error) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve(database);
-    });
-  });
+  return DuckDBInstance.create(filePath);
 }
 
 function runAsync(connection, sql, ...params) {
-  return new Promise((resolve, reject) => {
-    connection.run(sql, ...params, (error) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
+  return connection.run(sql, params).then(() => undefined);
 }
 
-function allAsync(connection, sql, ...params) {
-  return new Promise((resolve, reject) => {
-    connection.all(sql, ...params, (error, rows) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve(rows);
-    });
-  });
+async function allAsync(connection, sql, ...params) {
+  const reader = await connection.runAndReadAll(sql, params);
+  return reader.getRowObjects();
 }
 
 function closeConnection(connection) {
-  return new Promise((resolve, reject) => {
-    connection.close((error) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
+  connection.disconnectSync();
 }
 
 function closeDatabase(database) {
-  return new Promise((resolve, reject) => {
-    database.close((error) => {
-      if (error != null) {
-        reject(error);
-        return;
-      }
-      resolve();
-    });
-  });
+  database.closeSync();
 }
 
 async function withConnection(scope, work) {
   const database = await openDatabase(getDuckDbPath(scope));
-  const connection = database.connect();
+  const connection = await database.connect();
   try {
     await ensureSchema(connection);
     return await work(connection);
   } finally {
-    await closeConnection(connection);
-    await closeDatabase(database);
+    closeConnection(connection);
+    closeDatabase(database);
   }
 }
 

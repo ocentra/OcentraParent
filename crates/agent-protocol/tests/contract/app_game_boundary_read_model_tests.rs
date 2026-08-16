@@ -4,6 +4,7 @@ use super::{
     APP_GAME_BOUNDARY_READ_MODEL_CUSTODY_CHILD_DEVICE_QUERY_STORE,
     APP_GAME_BOUNDARY_READ_MODEL_STATUS_NO_ROWS, APP_GAME_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_boundary_read_model_serializes_counts_without_runtime_claims() {
@@ -25,7 +26,7 @@ fn app_game_boundary_read_model_serializes_counts_without_runtime_claims() {
     };
 
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["schemaVersion"], APP_GAME_SCHEMA_VERSION);
     assert_eq!(
@@ -52,7 +53,8 @@ fn app_game_boundary_read_model_row_serializes_boundary_kind_and_citations() {
         evidence: Vec::new(),
     };
 
-    let serialized = serde_json::to_value(row).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(row).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["boundaryKind"],

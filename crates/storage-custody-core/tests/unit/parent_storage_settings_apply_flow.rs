@@ -270,32 +270,32 @@ fn delete_inputs() -> Vec<ParentStorageDeleteActionInput> {
     vec![
         delete_input!(
             "delete-local",
-            contracts::ParentStorageDeleteActionKind::DeleteLocalChildEvidence,
+            contracts::ParentStorageDeleteActionKind::LocalChildEvidence,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
         delete_input!(
             "delete-cache",
-            contracts::ParentStorageDeleteActionKind::DeleteParentPortalCache,
+            contracts::ParentStorageDeleteActionKind::ParentPortalCache,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
         delete_input!(
             "delete-report",
-            contracts::ParentStorageDeleteActionKind::DeleteGeneratedReport,
+            contracts::ParentStorageDeleteActionKind::GeneratedReport,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
         delete_input!(
             "delete-provider",
-            contracts::ParentStorageDeleteActionKind::DeleteProviderBackupCopy,
+            contracts::ParentStorageDeleteActionKind::ProviderBackupCopy,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::ManualRequired,
         ),
         delete_input!(
             "delete-support",
-            contracts::ParentStorageDeleteActionKind::DeleteSupportBundle,
+            contracts::ParentStorageDeleteActionKind::SupportBundle,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
         delete_input!(
             "delete-metadata",
-            contracts::ParentStorageDeleteActionKind::DeleteOcentraMetadata,
+            contracts::ParentStorageDeleteActionKind::OcentraMetadata,
             sync_contracts::ParentOwnedSyncDeleteVisibilityState::DeleteVisible,
         ),
     ]

@@ -24,7 +24,7 @@ jobs:
         run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
 
       - name: Write tracking iOS simulator proof
-        run: npm run test:tracking-plan-ios-simulator-proof -- --require-simulator --skip-build --app-path target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
+        run: npm run test:tracking-plan-ios-simulator-proof
 
       - name: Upload iOS simulator preview
         uses: actions/upload-artifact@v6

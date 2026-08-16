@@ -23,6 +23,13 @@ Purpose: define encrypted recovery bundles, reset, revoke, and re-pair flows.
 
 - No proof root currently exists on disk for this workpack.
 - Recovery authorization and handoff rules exist in `packages/family-domain`, but encrypted recovery bundle handling and re-pair runtime proof are still missing.
+- The storage restore boundary now blocks the legacy confirmation-only entry
+  point. Applying a preview requires a verified parent `PairChildDevice`
+  authority bound to the local household and target device, plus an available
+  restore executor receipt. The default executor remains unavailable, and an
+  incomplete or incoherent receipt is blocked, so authority confirmation
+  alone cannot claim applied/partial restore; bundle encryption, key custody,
+  revocation preservation, and runtime proof remain open.
 
 ## Negative cases
 

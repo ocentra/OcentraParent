@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_alert_evaluation_id_from_violation_id, TrackingAlertEvaluationId,
@@ -69,5 +70,5 @@ fn alert_severity_for(
         }
         _ => constants::tracking_runtime::ALERT_SEVERITY_INFO,
     };
-    TrackingAlertSeverity::parse(severity).expect("tracking alert severity contract drift")
+    TrackingAlertSeverity::parse(severity).expect_value("tracking alert severity contract drift")
 }

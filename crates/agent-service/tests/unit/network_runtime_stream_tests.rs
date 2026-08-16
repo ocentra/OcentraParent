@@ -19,8 +19,10 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
-    ActivityNetworkFlowReadModel, NetworkRuntimePhase,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
+    ActivityNetworkFlowReadModel, NetworkAuditEntryCommittedEvent, NetworkEvidenceGrade,
+    NetworkFlowObservedEvent, NetworkPolicyDecisionAction, NetworkPolicyDecisionCompletedEvent,
+    NetworkRuntimePhase, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
+    NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
     NETWORK_FLOW_READ_MODEL_FIELD_DELETED_EVIDENCE_REFERENCE_IDS,
     NETWORK_FLOW_READ_MODEL_FIELD_EXPORTABLE_ROWS, NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS,
 };
@@ -52,11 +54,11 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
     assert_eq!(report.observed_rows, 1);
     assert_eq!(
         report.streamed_events,
-        NetworkRuntimePhase::ordered_chain().len()
+        NetworkRuntimePhase::ordered_chain().len() - 4
     );
     assert_eq!(report.failed_rows, 0);
     assert_eq!(report.manual_required_rows, 0);
-    assert_eq!(report.enforcement_command_events, 1);
+    assert_eq!(report.enforcement_command_events, 0);
     assert_eq!(report.active_rows, 1);
     assert_eq!(report.exportable_rows, 1);
     assert_eq!(
@@ -81,12 +83,35 @@ async fn service_network_runtime_streams_protocol_event_chain_entries(
         false
     );
     assert_eq!(
-        entries[7][constants::field::EVENT_TYPE],
-        constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED
+        entries[5][constants::field::EVENT_TYPE],
+        constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED
+    );
+    let flow_event: NetworkFlowObservedEvent =
+        serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
+    assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::B);
+    let policy_event: NetworkPolicyDecisionCompletedEvent =
+        serde_json::from_value(entries[4][constants::field::PAYLOAD].clone())?;
+    assert_eq!(
+        policy_event.decision_action,
+        NetworkPolicyDecisionAction::Observe
     );
     assert_eq!(
-        entries[8][constants::field::PAYLOAD][constants::field::ADAPTER_ACTION_EXECUTED],
+        entries[0][constants::field::PAYLOAD][constants::field::CLAIM_BOUNDARY]
+            [constants::field::ADAPTER_ACTION_EXECUTED],
         false
+    );
+    assert_eq!(
+        entries
+            .iter()
+            .filter(|entry| {
+                matches!(
+                    entry[constants::field::EVENT_TYPE].as_str(),
+                    Some(constants::network_flow::EVENT_ENFORCEMENT_COMMAND_ISSUED)
+                        | Some(constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED)
+                )
+            })
+            .count(),
+        0
     );
     Ok(())
 }
@@ -135,6 +160,14 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
         entries[8][constants::field::PAYLOAD][constants::field::VISIBLE_MANUAL_REQUIRED],
         true
     );
+    let audit_event: NetworkAuditEntryCommittedEvent =
+        serde_json::from_value(entries[7][constants::field::PAYLOAD].clone())?;
+    assert_eq!(
+        audit_event.policy_decision_ref,
+        entries[6][constants::field::EVENT_REF]
+            .as_str()
+            .unwrap_or_default()
+    );
     Ok(())
 }
 
@@ -142,7 +175,7 @@ async fn service_network_runtime_stream_skips_enforcement_for_manual_required_ro
 async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
-    let store_path = temp_path(TestText::from_display(
+    let store_path = temp_path(&TestText::from_display(
         constants::activity_store::TEST_NETWORK_STORE_SUFFIX,
     ));
     cleanup_path(&store_path);
@@ -165,18 +198,50 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
         event.event,
         AgentEventName::AgentNetworkRuntimeEventChainStreamReported
     );
-    assert_eq!(entries.len(), NetworkRuntimePhase::ordered_chain().len());
+    assert_eq!(
+        entries.len(),
+        NetworkRuntimePhase::ordered_chain().len() - 4
+    );
     assert_eq!(
         event
             .payload
             .get(constants::field::NETWORK_RUNTIME_STREAMED_EVENTS),
         Some(&LogFieldValue::Number(
-            NetworkRuntimePhase::ordered_chain().len() as f64
+            (NetworkRuntimePhase::ordered_chain().len() - 4) as f64
         ))
     );
+    let event_types = entries
+        .iter()
+        .map(|entry| {
+            entry[constants::field::EVENT_TYPE]
+                .as_str()
+                .unwrap_or_default()
+        })
+        .collect::<Vec<_>>();
     assert_eq!(
-        entries[10][constants::field::EVENT_TYPE],
+        event_types,
+        vec![
+            constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED,
+            constants::network_flow::EVENT_NETWORK_DOMAIN_OBSERVED,
+            constants::network_flow::EVENT_NETWORK_ACTIVITY_CLASSIFIED,
+            constants::network_flow::EVENT_POLICY_EVALUATION_REQUESTED,
+            constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
+            constants::network_flow::EVENT_AUDIT_ENTRY_COMMITTED,
+            constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED,
+        ]
+    );
+    assert_eq!(
+        entries[6][constants::field::EVENT_TYPE],
         constants::network_flow::EVENT_PORTAL_READ_MODEL_UPDATED
+    );
+    let flow_event: NetworkFlowObservedEvent =
+        serde_json::from_value(entries[0][constants::field::PAYLOAD].clone())?;
+    assert_eq!(flow_event.evidence_grade, NetworkEvidenceGrade::B);
+    let policy_event: NetworkPolicyDecisionCompletedEvent =
+        serde_json::from_value(entries[4][constants::field::PAYLOAD].clone())?;
+    assert_eq!(
+        policy_event.decision_action,
+        NetworkPolicyDecisionAction::Observe
     );
     Ok(())
 }
@@ -185,7 +250,7 @@ async fn websocket_network_runtime_stream_command_reports_store_backed_chain(
 async fn websocket_network_runtime_stream_reports_tombstone_without_streaming_deleted_row(
 ) -> Result<(), Box<dyn std::error::Error>> {
     let _guard = lock_activity_report_env_for_test().await;
-    let store_path = temp_path(TestText::from_display(
+    let store_path = temp_path(&TestText::from_display(
         constants::activity_store::TEST_NETWORK_STORE_SUFFIX,
     ));
     cleanup_path(&store_path);
@@ -402,8 +467,7 @@ fn stream_entries(payload: &LogFields) -> Vec<Value> {
     }
 }
 
-fn temp_path(suffix: TestText) -> TestPathBuf {
-    let suffix = suffix;
+fn temp_path(suffix: &TestText) -> TestPathBuf {
     let mut name = TestString::from(constants::activity_store::TEST_FILE_PREFIX);
     name.push_str(&std::process::id().to_string());
     name.push(constants::delimiter::HYPHEN);

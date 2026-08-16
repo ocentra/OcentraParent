@@ -30,6 +30,13 @@ pub async fn run_agent_service() {
     crate::screen_ai_analysis_runtime::spawn_screen_ai_analysis_runtime();
     crate::screen_ai_retention_sweeper_runtime::spawn_screen_ai_retention_sweeper_runtime();
     crate::screen_ai_service_event_subscription::live_view_service_runtime::spawn_screen_live_view_worker_runtime();
+    if let Err(error) = crate::network_runtime_delivery::initialize_network_runtime_spine().await {
+        let _ = crate::dev_log::write_agent_error(
+            constants::error::AGENT_SERVICE_RUNS,
+            startup_error_log_fields(&network, StartupErrorReason(error.to_string())),
+        );
+        return;
+    }
     let _screen_ai_service_event_runtime =
         match crate::screen_ai_service_event_subscription::ScreenAiServiceEventRuntime::start()
             .await

@@ -24,6 +24,8 @@ jobs:
 
       - uses: ./.github/actions/setup-ci
         if: ${{ !inputs.docs_hub_only }}
+        with:
+          install-tauri-system-dependencies: 'false'
 
       - name: Install cargo-audit
         if: ${{ !inputs.docs_hub_only }}

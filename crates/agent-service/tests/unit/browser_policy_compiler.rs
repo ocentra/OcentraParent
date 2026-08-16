@@ -3,6 +3,8 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+use std::sync::atomic::{AtomicU64, Ordering};
+
 #[path = "../../src/browser_policy_compiler.rs"]
 mod browser_policy_compiler;
 #[path = "../../src/browser_policy_compiler_assessment.rs"]
@@ -38,6 +40,8 @@ use ocentra_parent_agent_protocol::{
     BrowserPolicyEffectivePolicy, BrowserPolicyUpdateStatus, BrowserPolicyValue,
 };
 
+static TEST_POLICY_STORE_COUNTER: AtomicU64 = AtomicU64::new(0);
+
 #[cfg(test)]
 mod clippy_linkage {
     use crate::browser_policy_runtime_support::{
@@ -47,20 +51,17 @@ mod clippy_linkage {
         browser_policy_store_path_from_env, BrowserPolicyAuditRecord, BrowserPolicyRevisionRecord,
         BrowserPolicyStoredState,
     };
-    use crate::test_invariants::{
-        require_json_decode, require_log_string_field, require_ok, require_some,
-    };
     use crate::test_support::default_browser_policy_for_test;
     use ocentra_parent_agent_protocol::browser_policy::BrowserPolicyUpdateKind;
     use ocentra_parent_agent_protocol::constants;
     use ocentra_parent_agent_protocol::policy_constants as policy;
 
     #[tokio::test]
-    async fn browser_policy_compiler_helpers_are_linked() {
+    async fn browser_policy_compiler_helpers_are_linked() -> Result<(), serde_json::Error> {
         let policy = default_browser_policy_for_test(
             crate::test_support::default_browser_policy_id_for_test(),
         );
-        let effective_policy = require_ok(
+        let effective_policy = crate::test_invariants::require_ok(
             crate::browser_policy_compiler::compile_browser_policy(
                 &policy,
                 crate::browser_policy_compiler::BrowserPolicyCompileRequest {
@@ -70,6 +71,12 @@ mod clippy_linkage {
             ),
             constants::error::AGENT_EVENT_SERIALIZES,
         );
+        let capability_registry =
+            crate::browser_policy_compiler::browser_policy_capability_registry(
+                crate::browser_policy_compiler::BrowserPolicyCapabilityRegistryRequest {
+                    generated_at: constants::browser_policy::TEST_SENT_AT,
+                },
+            );
         let revision_id =
             BrowserPolicyRevisionId(format!("{}1", constants::browser_policy::REVISION_PREFIX));
         let audit_event_id =
@@ -92,20 +99,30 @@ mod clippy_linkage {
                 created_at: constants::browser_policy::TEST_SENT_AT.to_string(),
             }],
         };
-        let revision = require_some(
+        let revision = crate::test_invariants::require_some(
             state.revision_by_id(&revision_id),
             constants::error::AGENT_EVENT_SERIALIZES,
         );
-        let active = require_some(
+        let active = crate::test_invariants::require_some(
             state.active_revision(),
             constants::error::AGENT_EVENT_SERIALIZES,
         );
-        let (roundtrip, accepted_status, rejected_status, serialized) = require_ok(
-            super::browser_policy_compiler_roundtrip_helpers(&policy, &effective_policy, &state)
+        let (roundtrip, accepted_status, rejected_status, serialized) =
+            crate::test_invariants::require_ok(
+                super::browser_policy_compiler_roundtrip_helpers(
+                    &policy,
+                    &effective_policy,
+                    &state,
+                )
                 .await,
-            constants::error::AGENT_EVENT_SERIALIZES,
+                constants::error::AGENT_EVENT_SERIALIZES,
+            );
+        assert_serialized_log_field_is_linked(&serialized)?;
+        assert_eq!(
+            capability_registry.generated_at,
+            constants::browser_policy::TEST_SENT_AT
         );
-        assert_serialized_log_field_is_linked(&serialized);
+        assert_eq!(capability_registry.capabilities.len(), 8);
 
         super::assert_browser_policy_revision_helpers(&state, revision, active);
         super::assert_browser_policy_roundtrip_helpers(
@@ -116,14 +133,25 @@ mod clippy_linkage {
             &serialized,
         );
         let _ = browser_policy_store_path_from_env();
+
+        Ok(())
     }
 
-    fn assert_serialized_log_field_is_linked(serialized: &serde_json::Value) {
-        let encoded = crate::test_invariants::serialize_test_json(serialized);
-        let _: serde_json::Value =
-            require_json_decode(&encoded, constants::error::AGENT_EVENT_SERIALIZES);
-        let field = ocentra_parent_agent_protocol::logging::LogFieldValue::String(encoded);
-        let _ = require_log_string_field(Some(&field), constants::error::AGENT_EVENT_SERIALIZES);
+    fn assert_serialized_log_field_is_linked(
+        serialized: &serde_json::Value,
+    ) -> Result<(), serde_json::Error> {
+        let encoded = crate::json_contract::serialize_json_string(serialized);
+        let _: serde_json::Value = crate::test_invariants::require_json_decode(
+            &encoded.0,
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+        let field = ocentra_parent_agent_protocol::logging::LogFieldValue::String(encoded.0);
+        let _ = crate::test_invariants::require_log_string_field(
+            Some(&field),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+
+        Ok(())
     }
 }
 
@@ -140,8 +168,9 @@ async fn browser_policy_compiler_roundtrip_helpers(
     ),
     Box<dyn std::error::Error>,
 > {
+    let sequence = TEST_POLICY_STORE_COUNTER.fetch_add(1, Ordering::Relaxed);
     let store_path = std::env::temp_dir().join(format!(
-        "ocentra-browser-policy-compiler-smoke-{}-{}.json",
+        "ocentra-browser-policy-compiler-smoke-{}-{}-{sequence}.json",
         std::process::id(),
         constants::browser_policy::REVISION_PREFIX
     ));
@@ -177,10 +206,8 @@ async fn browser_policy_compiler_roundtrip_helpers(
         "rejected": rejected.status,
         "roundtrip_revision": roundtrip.active_revision_id.as_deref(),
     }));
-    let _: serde_json::Value = crate::test_invariants::require_json_decode(
-        &crate::test_invariants::serialize_test_json(&serialized),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
+    let json_text = crate::json_contract::serialize_json_string(&serialized);
+    let _: serde_json::Value = serde_json::from_str(&json_text.0)?;
 
     Ok((roundtrip, accepted.status, rejected.status, serialized))
 }

@@ -11,7 +11,6 @@ use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event,
-    fields::fields_from_pairs,
     lan_pairing::{
         extend_log_fields, validate_local_child_target, LanPairingChallengeState, LanPairingRuntime,
     },
@@ -71,6 +70,7 @@ pub(crate) fn pairing_challenge_status_event(
     origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    let origin = LanPairingOptionalText(origin.0);
     match parse_challenge_request(&command.payload) {
         Ok(request) => match validate_challenge_request(runtime, &origin, &command, &request) {
             Ok(()) => {
@@ -165,7 +165,7 @@ fn challenge_rejection_event(
     reason: &LanPairingRejectionReason,
     origin: &LanPairingOptionalText,
 ) -> AgentEventEnvelope {
-    let payload = rejected_control_audit_fields(&command, reason, None, &origin);
+    let payload = rejected_control_audit_fields(&command, reason, None, origin);
     build_event(
         constants::event_id::COMMAND_REJECTED,
         &command.message_id,
@@ -198,6 +198,12 @@ fn support_surface_fields(
 
 pub(crate) fn discovery_state_for_runtime(runtime: &LanPairingRuntime) -> LanPairingText {
     state_projection::discovery_state(&pairing_status(runtime))
+}
+
+pub fn route_trust_state_for_selected_target(
+    selected: Option<&LanSelectedRouteTarget>,
+) -> LanPairingText {
+    selection::route_trust_state(selected)
 }
 
 fn state_fields(status: &LanPairingStatus) -> ocentra_parent_agent_protocol::logging::LogFields {

@@ -58,7 +58,7 @@ pub(crate) fn v08_enforcement_product_control_spine_read_model(
             &cross_platform,
             &browser_domain,
             &os_product,
-            generated_at,
+            &generated_at,
         ),
     }
 }

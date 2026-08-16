@@ -25,8 +25,9 @@ pub(crate) struct EncryptedScreenEvidenceQueueRecord {
 
 pub(crate) fn encrypted_record_from_job(
     job: &ScreenAnalysisQueueJob,
-    encrypted: crate::journal_crypto::EncryptedPayload,
+    encrypted: impl Borrow<crate::journal_crypto::EncryptedPayload>,
 ) -> Value {
+    let encrypted = encrypted.borrow();
     json!({
         constants::field::SCHEMA_VERSION: job.schema_version,
         constants::field::SCREEN_QUEUE_JOB_ID: job.queue_job_id,
@@ -68,11 +69,11 @@ pub(crate) fn decrypted_record_from_line(
 
 pub(crate) fn queue_record_expired(expires_at: Option<&str>, now: &str) -> bool {
     let Some(expires_at) = expires_at else {
-        return false;
+        return true;
     };
     match (parse_timestamp(expires_at), parse_timestamp(now)) {
         (Some(expires_at), Some(now)) => expires_at <= now,
-        _ => false,
+        _ => true,
     }
 }
 
@@ -106,8 +107,16 @@ fn required_u16(value: &Value, key: &str) -> Result<u16, JournalError> {
     )?)
 }
 
+pub(crate) fn timestamp_is_after(value: &str, reference: &str) -> bool {
+    match (parse_timestamp(value), parse_timestamp(reference)) {
+        (Some(value), Some(reference)) => value > reference,
+        _ => false,
+    }
+}
+
 fn parse_timestamp(value: &str) -> Option<DateTime<Utc>> {
     DateTime::parse_from_rfc3339(value)
         .ok()
         .map(|timestamp| timestamp.with_timezone(&Utc))
 }
+use std::borrow::Borrow;

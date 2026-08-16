@@ -5,6 +5,7 @@ use super::{
     EnforcementReadinessProofLevel, EnforcementReadinessRuntimeOwner, EnforcementReadinessState,
     ParentPlatform,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn broad_adapter_readiness_serializes_contract_boundaries() {
@@ -65,7 +66,8 @@ fn broad_adapter_readiness_serializes_contract_boundaries() {
         ],
     };
 
-    let serialized = serde_json::to_value(matrix).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(matrix).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["matrixId"],

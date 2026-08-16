@@ -7,11 +7,12 @@ use super::{
     APP_GAME_TIMER_PARENT_SURFACE_STATE_READY_FOR_PARENT_SURFACE,
     APP_GAME_TIMER_PARENT_SURFACE_STATUS_PARTIAL, APP_GAME_TIMER_PARENT_SURFACE_TARGET_NATIVE_GAME,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_timer_parent_surface_read_model_serializes_no_runtime_claims() {
     let serialized = serde_json::to_value(app_game_timer_parent_surface_read_model())
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["custodyLabel"],

@@ -13,25 +13,32 @@ pub(super) fn direct_pairing_response(
     origin: Option<&LanCommandOrigin>,
     command: &AgentCommandEnvelope,
 ) -> Option<LanCommandDecision> {
-    let origin_wrapper = origin_wrapper(origin);
-
     match command.command.clone() {
         AgentCommandName::AgentLanPairingBrowserDiscoveryScan => Some(LanCommandDecision::Respond(
             browser_discovery_scan_event(runtime, command.clone()),
         )),
-        AgentCommandName::AgentLanPairingAddDeviceRequest => Some(LanCommandDecision::Respond(
-            browser_add_device_request_event(runtime, origin_wrapper.clone(), command.clone()),
-        )),
+        AgentCommandName::AgentLanPairingAddDeviceRequest => {
+            let origin_wrapper = origin_wrapper(origin);
+            Some(LanCommandDecision::Respond(
+                browser_add_device_request_event(runtime, origin_wrapper, command.clone()),
+            ))
+        }
         AgentCommandName::AgentLanPairingSignedChildAgentObserve => {
+            let origin_wrapper = origin_wrapper(origin);
             Some(LanCommandDecision::Respond(signed_child_agent_observed(
                 runtime,
                 &origin_wrapper,
                 command.clone(),
             )))
         }
-        AgentCommandName::AgentLanAiJobSubmit => Some(LanCommandDecision::Respond(
-            lan_ai_job_submit(runtime, origin_wrapper.clone(), command.clone()),
-        )),
+        AgentCommandName::AgentLanAiJobSubmit => {
+            let origin_wrapper = origin_wrapper(origin);
+            Some(LanCommandDecision::Respond(lan_ai_job_submit(
+                runtime,
+                origin_wrapper,
+                command.clone(),
+            )))
+        }
         _ => None,
     }
 }

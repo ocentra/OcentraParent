@@ -100,3 +100,38 @@ Proof artifact expectations:
 - Do not use one generic remote flag for live view, screenshot, diagnostic, and control.
 - Do not claim live view if pairing, standing access, revocation, and remove-device states are absent.
 - Do not claim control from this current-pass capability proof.
+
+## 2026-07-31 Rust contract packet
+
+`crates/schema/src/remote_capability_fabric.rs` now owns the narrow
+view-only grant boundary for this workpack. It uses separate capability,
+pairing, grant, session, actor-role, and device-trust states; it therefore
+cannot turn a generic remote flag into unrelated authority.
+
+The focused contract proof is at
+`output/remote-access-plan-proof/01-remote-capability-fabric/`. It proves a
+paired, trusted parent live-view grant and rejects deferred control,
+cross-household access, support/admin access, unpaired access, missing device
+trust, revoked grants, and removed devices.
+
+This packet does not claim a relay, screen stream, capture permission,
+standing-access persistence, custody/retention, portal disclosure, or remote
+input/control readiness. Those remain owned by the later remote workpacks and
+their adjacent plan handoffs.
+
+## Live validation update (2026-08-09)
+
+The narrow Rust-owned capability contract and focused negative tests were
+replayed on the consolidated E: branch. Authorization now checks the exact
+supported schema version, the authenticated requesting parent actor against
+`parent_actor_ref`, the requested child device against `child_device_ref`, and
+a nonblank audit reference before allowing live view.
+The durable validation manifest is
+`docs/proof/remote-access-plan/slice-01-capability-fabric.md`; local reproducible
+output is under
+`output/remote-access-plan-proof/01-remote-capability-fabric/`.
+
+The graph records this slice as `validation`, not `done`. Pairing workflow,
+standing-access persistence, relay/session runtime, device-trust handoff,
+revoke/remove runtime behavior, custody, portal disclosure, abuse controls,
+CI, review, and merge remain open.

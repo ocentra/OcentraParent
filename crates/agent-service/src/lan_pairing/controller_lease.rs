@@ -1,5 +1,4 @@
 use crate::lan_pairing::LanPairingRuntime;
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanParentIntentEnvelope;

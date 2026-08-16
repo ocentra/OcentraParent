@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_family_identity_core::family_identity::ChildDisclosureState;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
@@ -12,7 +13,7 @@ use ocentra_tracking_core::temporary_live::{
 
 fn child_device_id() -> TrackingChildDeviceId {
     TrackingChildDeviceId::parse(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
-        .expect(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
+        .expect_value(constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID)
 }
 #[test]
 fn temporary_live_tracking_auto_stops_without_authority_or_disclosure() {
@@ -29,7 +30,7 @@ fn temporary_live_tracking_auto_stops_without_authority_or_disclosure() {
         TrackingTemporaryLiveState::parse(
             constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED,
         )
-        .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED)
+        .expect_value(constants::tracking_runtime::TEMPORARY_LIVE_STATE_AUTO_STOPPED)
     );
     assert_eq!(
         decision.high_cadence_state,
@@ -55,7 +56,7 @@ fn temporary_live_tracking_expires_at_duration_boundary() {
         TrackingTemporaryLiveState::parse(
             constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED
         )
-        .expect(constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED)
+        .expect_value(constants::tracking_runtime::TEMPORARY_LIVE_STATE_EXPIRED)
     );
     assert_eq!(
         decision.high_cadence_state,

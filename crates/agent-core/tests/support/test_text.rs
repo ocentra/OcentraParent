@@ -2,18 +2,18 @@ use std::{
     ffi::OsStr,
     fmt::{self, Display},
     ops::Deref,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 #[derive(Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub(crate) struct TestText(pub(crate) String);
+pub struct TestText(pub(crate) String);
 
 impl TestText {
     pub(crate) fn from_display(value: impl Display) -> Self {
         Self(value.to_string())
     }
 
-    pub(crate) fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.0.is_empty()
     }
 }
@@ -65,7 +65,7 @@ pub(crate) fn test_some<T>(value: Option<T>, context: impl Display) -> Result<T,
     value.ok_or_else(|| TestText::from_display(context))
 }
 
-pub(crate) fn test_err<T, E: std::fmt::Debug>(
+pub fn test_err<T, E: std::fmt::Debug>(
     result: Result<T, E>,
     context: impl Display,
 ) -> Result<E, TestText> {

@@ -123,7 +123,7 @@ impl TrustedDeviceRegistry {
             selected_child_device_id: entry.child_device.device_id.clone(),
             route_id: entry.route_id.clone(),
             pairing_id: Some(entry.pairing_id.clone()),
-            trust_state: entry.trust_state.clone(),
+            trust_state: entry.trust_state,
             network_mode: LanPairingNetworkMode::LocalNetwork,
             reachability,
             stale_at: self.selected_route_stale_at.clone(),

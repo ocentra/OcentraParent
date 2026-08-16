@@ -10,6 +10,8 @@ use super::{
     ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
     PolicyTarget, PolicyTargetType,
 };
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
+use ocentra_parent_agent_protocol::enforcement::EnforcementAuditJournalEvent;
 
 const TIMER_TRANSITION_CASES: &[(
     EnforcementTimerEventKind,
@@ -109,9 +111,9 @@ fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
     };
 
     let serialized_audit =
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_timer =
-        serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(timer).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized_audit["auditEventKind"],
@@ -145,6 +147,63 @@ fn enforcement_shapes_serialize_to_parent_domain_contract_names() {
 }
 
 #[test]
+fn enforcement_journal_projection_retains_audit_references_without_raw_target_value() {
+    let capability = process_capability();
+    let mut intent = enforcement_intent();
+    intent.actor = Some(parent_actor());
+    intent.parent_approval = Some(parent_action_reference());
+    let action = enforcement_action(&intent);
+    let result = enforcement_result(&action, capability.clone());
+    let audit = EnforcementAuditEvent {
+        schema_version: policy::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
+        audit_event_id: enforcement::TEST_AUDIT_EVENT_ID.to_string(),
+        audit_event_kind: EnforcementAuditEventKind::Succeeded,
+        action,
+        result,
+        capability,
+        unavailable_status: None,
+        policy_version: policy::TEST_POLICY_VERSION.to_string(),
+        evidence_references: vec![evidence()],
+        actor: intent.actor.clone(),
+        parent_override: intent.parent_approval.clone(),
+        journal_sequence: Some(enforcement::TEST_JOURNAL_SEQUENCE.to_string()),
+        observed_at: policy::TEST_EVALUATED_AT.to_string(),
+    };
+
+    let journal = EnforcementAuditJournalEvent::from(&audit);
+    let serialized =
+        serde_json::to_value(&journal).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+
+    assert_eq!(journal.policy_decision_id, policy::TEST_DECISION_ID);
+    assert_eq!(journal.target_id, enforcement::TEST_PROCESS_TARGET_ID);
+    assert_eq!(journal.target_type, PolicyTargetType::Process);
+    assert_eq!(journal.evidence_references, vec![evidence()]);
+    assert_eq!(journal.actor, intent.actor);
+    assert_eq!(journal.parent_override, intent.parent_approval);
+    assert_eq!(journal.rollback_state, EnforcementRollbackState::Available);
+    assert_eq!(serialized["policyAction"], policy::ACTION_BLOCK);
+    assert_eq!(serialized["targetId"], enforcement::TEST_PROCESS_TARGET_ID);
+    assert_eq!(serialized["targetType"], policy::TARGET_TYPE_PROCESS);
+    assert_eq!(
+        serialized["adapterKind"],
+        enforcement::ADAPTER_KIND_PROCESS_CONTROL
+    );
+    assert_eq!(serialized["platform"], enforcement::PLATFORM_WINDOWS);
+    assert_eq!(
+        serialized["evidenceReferences"][0]["evidenceReferenceId"],
+        policy::TEST_EVIDENCE_ID
+    );
+    assert_eq!(
+        serialized["parentOverride"]["actionReferenceId"],
+        enforcement::TEST_PARENT_ACTION_REFERENCE_ID
+    );
+    assert!(!serialized
+        .as_object()
+        .expect_value("journal projection object")
+        .contains_key("targetValue"));
+}
+
+#[test]
 fn unsupported_status_values_do_not_deserialize() {
     let payload = serde_json::json!({
         "schemaVersion": policy::CONTRACT_SCHEMA_VERSION_V0_6,
@@ -165,7 +224,7 @@ fn unsupported_status_values_do_not_deserialize() {
 
     let parsed = serde_json::from_value::<EnforcementResult>(payload);
 
-    let error = parsed.expect_err("expected invalid enforcement status to fail");
+    let error = parsed.expect_err_value("expected invalid enforcement status to fail");
     let message = error.to_string();
     assert!(
         message.contains("blocked-by-label"),
@@ -185,7 +244,7 @@ fn unavailable_status_serializes_typed_capability_reason() {
     };
 
     let serialized =
-        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(unavailable).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["unavailableReason"],
@@ -223,9 +282,9 @@ fn parent_approval_and_override_serialize_as_audit_references() {
     };
 
     let serialized_action =
-        serde_json::to_value(action).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(action).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let serialized_audit =
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized_action["parentApproval"]["actionReferenceId"],
@@ -278,7 +337,7 @@ fn timer_event_kinds_serialize_to_contract_literals() {
             unavailable_reason: *unavailable_reason,
         };
         let serialized =
-            serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES);
+            serde_json::to_value(timer).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
         assert_eq!(serialized["timerEventKind"], *expected_kind);
         assert_eq!(
@@ -299,7 +358,7 @@ fn timer_event_kinds_serialize_to_contract_literals() {
                 action
                     .rollback_token
                     .as_deref()
-                    .expect(enforcement::TEST_ROLLBACK_TOKEN)
+                    .expect_value(enforcement::TEST_ROLLBACK_TOKEN)
             )
         );
         assert_eq!(
@@ -358,10 +417,12 @@ fn active_timer_state_serializes_action_result_audit_and_timer() {
         result,
         audit_event: audit,
         timer_event: timer,
+        app_game_session: None,
         stored_at: policy::TEST_EVALUATED_AT.to_string(),
     };
 
-    let serialized = serde_json::to_value(state).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(state).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(serialized["stateId"], enforcement::TEST_TIMER_STATE_ID);
     assert_eq!(

@@ -24,7 +24,7 @@ pub(super) fn command_stdout_with_timeout(
         .status
         .success()
         .then(|| String::from_utf8_lossy(&output.stdout).to_string())
-        .and_then(clean_string)
+        .and_then(|value| clean_string(&value))
 }
 
 pub(super) fn command_succeeded_with_timeout(

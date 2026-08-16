@@ -1,6 +1,6 @@
 use std::path::Path;
 
-#[cfg(any(windows, test))]
+#[cfg(windows)]
 use ocentra_parent_agent_protocol::constants;
 use tokio::process::Command;
 
@@ -19,7 +19,7 @@ pub(super) fn adapter_process_command(command: &Path) -> Command {
     Command::new(command)
 }
 
-#[cfg(any(windows, test))]
+#[cfg(windows)]
 pub(super) fn is_windows_batch_adapter(command: &Path) -> bool {
     command
         .extension()

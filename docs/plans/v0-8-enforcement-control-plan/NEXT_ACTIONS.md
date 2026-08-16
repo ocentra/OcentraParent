@@ -32,12 +32,22 @@ workpack/checklist status and does not replace the assigned workpack.
 - Ownership doctrine, workpack-family routing, structured proof expectations,
   and proof-index cleanup are now in place.
 - Product/runtime closure is still blocked by the open workpacks below.
+- PR #606 is closed without merge as an unsafe/no-op policy slice. It is not a
+  shortcut around WP04's trusted-dispatch/journal authority gap.
 
 ## Highest-open workpacks by dependency
 
+### Consume the evidenced generic Eventing prerequisite without overclaiming it
+
+- Eventing owner packet: `eventing-plan/workpacks/06-journal-replay-and-lineage.md`. Its generic replay/idempotency/journal handoff is now retained as a hand-authored durable manifest under `docs/proof/eventing-plan/`; raw/generated output remains ignored by GEN-1.2. Enforcement does not implement or promote that generic Eventing work into action authority.
+
+### Establish the durable-journal handoff before execution authority
+
+- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes; the generic Eventing prerequisite is locally evidenced, but WP11 must still establish the enforcement-specific durable journal before WP04 can be scheduled for dispatch-ready work.
+
 ### Close execution authority first
 
-- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes.
+- [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md): 5 open of 5 boxes; the reachable raw PID/name service path is now fail-closed/manual-required. WP04 remains unscheduled until WP11's enforcement-specific durable-journal handoff and a canonical persisted grant/binding/trusted-issuer composition route the authenticated executor; Eventing WP06's generic prerequisite alone does not satisfy dispatch-ready proof.
 - [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md): 5 open of 5 boxes.
 - [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md): 5 open of 5 boxes.
 - [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md): 5 open of 5 boxes.
@@ -45,7 +55,6 @@ workpack/checklist status and does not replace the assigned workpack.
 ### Then close approval, audit, and read-model truth
 
 - [10 Parent Approval And Override](workpacks/10-parent-approval-override.md): 5 open of 5 boxes.
-- [11 Audit And Journal Events](workpacks/11-audit-journal-events.md): 5 open of 5 boxes.
 - [13 Service Read Models And API](workpacks/13-service-read-models-and-api.md): 5 open of 5 boxes.
 
 ### Keep integrity and non-claim state explicit

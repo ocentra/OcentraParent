@@ -11,15 +11,14 @@ mod test_text;
 #[path = "../support/activity_capture_mod.rs"]
 mod activity_capture;
 mod activity_api {
-    pub(crate) struct ActivityEventId(pub(crate) &'static str);
     pub(crate) struct GeneratedAtText(pub(crate) String);
 }
 #[path = "../../src/activity_store_path.rs"]
 mod activity_store_path;
+#[path = "../../src/app_game_dispatch_evidence.rs"]
+mod app_game_dispatch_evidence;
 #[path = "../../src/dev_log.rs"]
 mod dev_log;
-#[path = "../../src/enforcement_api/enforcement_broad_adapter_proof_read_model.rs"]
-mod enforcement_broad_adapter_proof_read_model;
 #[path = "enforcement_broad_adapter_proof_read_model_tests.rs"]
 mod enforcement_broad_adapter_proof_read_model_tests;
 #[path = "../../src/enforcement_browser_domain_adapter_app_control_proof_states.rs"]
@@ -34,10 +33,10 @@ mod enforcement_capability;
 mod enforcement_cross_platform_capability_proof_read_model;
 #[path = "enforcement_cross_platform_capability_proof_read_model_tests.rs"]
 mod enforcement_cross_platform_capability_proof_read_model_tests;
+#[path = "enforcement_eventing_retry_production_tests.rs"]
+mod enforcement_eventing_retry_production_tests;
 #[path = "enforcement_integrity_runtime_audit_proof.rs"]
 mod enforcement_integrity_runtime_audit_proof;
-#[path = "../../src/enforcement_api/enforcement_integrity_runtime_audit_read_model.rs"]
-mod enforcement_integrity_runtime_audit_read_model;
 #[path = "enforcement_integrity_runtime_audit_read_model_tests.rs"]
 mod enforcement_integrity_runtime_audit_read_model_tests;
 #[path = "../../src/enforcement_os_adapter_product_proof_read_model.rs"]
@@ -50,10 +49,8 @@ mod enforcement_payload;
 mod enforcement_policy_dispatch_read_model;
 #[path = "enforcement_policy_dispatch_read_model_tests.rs"]
 mod enforcement_policy_dispatch_read_model_tests;
-#[path = "../../src/enforcement_api/enforcement_pre_action_journal.rs"]
-mod enforcement_pre_action_journal;
-#[path = "../../src/enforcement_api/enforcement_supported_adapter_runtime_proof_read_model.rs"]
-mod enforcement_supported_adapter_runtime_proof_read_model;
+#[path = "enforcement_rejection_journal_tests.rs"]
+mod enforcement_rejection_journal_tests;
 #[path = "enforcement_supported_adapter_runtime_proof_read_model_tests.rs"]
 mod enforcement_supported_adapter_runtime_proof_read_model_tests;
 #[path = "../../src/enforcement_timer_api.rs"]
@@ -76,16 +73,14 @@ mod event_builder;
 mod fields;
 #[path = "../../src/host_identity_read_model.rs"]
 mod host_identity_read_model;
-#[path = "../../src/enforcement_api/integrity_alert_status_bridge_read_model.rs"]
-mod integrity_alert_status_bridge_read_model;
 #[path = "integrity_alert_status_bridge_read_model_tests.rs"]
 mod integrity_alert_status_bridge_read_model_tests;
 #[path = "../../src/json_contract.rs"]
 mod json_contract;
-#[path = "../../src/enforcement_api/notification_provider_status_boundary_read_model.rs"]
-mod notification_provider_status_boundary_read_model;
 #[path = "notification_provider_status_boundary_read_model_tests.rs"]
 mod notification_provider_status_boundary_read_model_tests;
+#[path = "production_enforcement_api/mod.rs"]
+mod production_enforcement_api;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
 #[path = "../../src/time.rs"]
@@ -95,11 +90,18 @@ mod windows_adapter_artifact_gate_read_model;
 #[path = "../../src/windows_adapter_capability_read_model.rs"]
 mod windows_adapter_capability_read_model;
 
-#[path = "enforcement_runtime/enforcement_api.rs"]
-mod enforcement_api;
+#[path = "../../src/enforcement_api.rs"]
+pub(crate) mod enforcement_api;
 
 #[test]
 fn link_runtime_helpers_used_by_the_current_harness() {
+    test_invariants::require_ok::<_, ()>(Ok(()), "link");
+    test_invariants::require_some(Some(()), "link");
+    let _ = enforcement_api::build_enforcement_audit_report;
+    let _ = enforcement_api::build_enforcement_product_control_spine_report;
+    let _ = enforcement_api::build_enforcement_policy_dispatch_report;
+    let _ = enforcement_api::enforcement_broad_adapter_proof_report::build_enforcement_broad_adapter_proof_report;
+    let _ = enforcement_api::enforcement_supported_adapter_runtime_proof_report::build_enforcement_supported_adapter_runtime_proof_report;
     let _ = activity_capture::spawn_startup_activity_capture;
     let _ = activity_capture::startup_activity_capture_enabled;
     let _ = activity_capture::startup_activity_capture_enabled_for_value;
@@ -130,12 +132,20 @@ fn link_runtime_helpers_used_by_the_current_harness() {
     let _ = json_contract::serialize_json_string(&sample_json);
     let _ = json_contract::serialize_json_value(sample_json.clone());
     let decoded: serde_json::Value =
-        test_invariants::require_json_decode(&sample_json.to_string(), "link");
+        test_invariants::require_json_decode(sample_json.to_string(), "link");
     let log_field =
         ocentra_parent_agent_protocol::logging::LogFieldValue::String(String::from("value"));
     let _ = test_invariants::require_log_string_field(Some(&log_field), "link");
     let _ = test_invariants::serialize_test_json(&decoded);
     let _ = enforcement_timer_api::build_enforcement_timer_report;
-    let _: fn(u64) -> String = time::timestamp_from_epoch_seconds;
+    let _ = enforcement_api::build_enforcement_audit_report_with_app_game_session;
+    let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::append_enforcement_audit_journal_event_phase;
+    let _ = enforcement_api::enforcement_pre_action_journal::eventing_journal::EnforcementEventingJournalPath {
+        path: std::path::PathBuf::new(),
+    };
+    let _ = app_game_dispatch_evidence::AppGameDispatchEvidenceRejection::log_value;
+    let _ = app_game_dispatch_evidence::validate_app_game_dispatch_evidence;
+    let _ = app_game_dispatch_evidence::validate_app_game_timer_session;
+    let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
     let _: fn(u64, u64) -> String = time::timestamp_after_epoch_seconds;
 }

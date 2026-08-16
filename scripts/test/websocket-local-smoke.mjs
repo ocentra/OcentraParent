@@ -3,7 +3,6 @@ import { mkdtemp, readdir, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { setTimeout as delay } from 'node:timers/promises';
-import { AgentEventEnvelopeSchema } from '@ocentra-parent/schema-domain/agent-command-event-contracts';
 import {
   ParentDevEnv,
   ParentDevPort,
@@ -13,21 +12,23 @@ import {
   isLikelyParentAgentOccupant,
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
-import { resolveDebugAgentServicePath } from './agent-service-process.mjs';
+import { createLoopbackOnlyTestEnvironment, resolveDebugAgentServicePath } from './agent-service-process.mjs';
 import { createPortalSmokeCommandEnvelope } from './websocket-command-envelope.mjs';
+import { parseAgentEventEnvelope } from './websocket-event-envelope.mjs';
 import { runAgentEventWebSocketSession } from './websocket-smoke-client.mjs';
 
 const port = ParentDevPort.WebSocketSmokeAgent;
 const healthUrl = createAgentHealthUrl(port);
 const wsUrl = createAgentWebSocketUrl(port);
 const devLogDir = await mkdtemp(join(tmpdir(), 'ocentra-parent-dev-log-'));
+const loopbackTestEnvironment = createLoopbackOnlyTestEnvironment();
 
 await ensurePortFree(port, isLikelyParentAgentOccupant, console.log);
 
 const service = spawn(resolveDebugAgentServicePath(), [], {
   cwd: process.cwd(),
   env: {
-    ...process.env,
+    ...loopbackTestEnvironment,
     [ParentDevEnv.AgentAddress]: createAgentAddress(port),
     [ParentDevEnv.ActivityDbPath]: join(devLogDir, 'activity.sqlite'),
     [ParentDevEnv.DevLogDir]: devLogDir,
@@ -76,7 +77,7 @@ function runWebSocketSmoke() {
     timeoutMessage: 'WebSocket smoke timed out',
     errorMessage: 'WebSocket smoke failed',
     closeMessage: 'WebSocket smoke closed before receiving expected events',
-    parseMessage: (message) => AgentEventEnvelopeSchema.parse(JSON.parse(String(message.data))),
+    parseMessage: (message) => parseAgentEventEnvelope(JSON.parse(String(message.data))),
     onOpen: ({ sendJson }) => {
       sendJson(createPortalSmokeCommandEnvelope('cmd-integration-health', 'agent.health.check', {}));
     },

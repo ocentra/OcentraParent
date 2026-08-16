@@ -2,12 +2,13 @@ use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::transport::{AgentCommandEnvelope, AgentEventEnvelope};
 
-use crate::lan_pairing::runtime_rejection::pairing_rejection_event;
-use crate::lan_pairing::{
-    accepted_pairing_audit_fields, device_ref, extend_log_fields, pairing_status_event,
-    validate_pairing_proof_target, LanPairingRuntime,
+use super::super::{
+    device_ref, extend_log_fields, runtime_rejection::pairing_rejection_event,
+    runtime_validation::validate_pairing_proof_target, LanPairingRuntime,
 };
+use crate::lan_pairing_audit::accepted_pairing_audit_fields;
 use crate::lan_pairing_payload::parse_pairing_proof;
+use crate::lan_pairing_status::pairing_status_event;
 use crate::time::timestamp_now;
 
 pub(super) async fn submit_pairing_proof(

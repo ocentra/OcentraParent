@@ -55,10 +55,13 @@ pub fn router(network: NetworkPolicy) -> Router {
 }
 
 async fn health() -> Json<AgentLogSnapshot> {
-    let _ = write_agent_info(
-        constants::dev_log_message::AGENT_HEALTH_REQUESTED,
-        LogFields::new(),
-    );
+    let _ = tokio::task::spawn_blocking(|| {
+        write_agent_info(
+            constants::dev_log_message::AGENT_HEALTH_REQUESTED,
+            LogFields::new(),
+        )
+    })
+    .await;
     Json(build_dev_log_snapshot())
 }
 

@@ -20,10 +20,7 @@ const BILLING_PROVIDER_WEBHOOK_DECISION_RECORDED_EVENT_TYPE: &str =
 const BILLING_ENTITLEMENT_TRANSITION_PROJECTED_EVENT_TYPE: &str =
     "billing.entitlement.transition-projected";
 const BILLING_IDEMPOTENCY_SEPARATOR: &str = ":";
-const BILLING_DECISION_PREFIX: &str = "billing-decision:";
-const BILLING_TRANSITION_PREFIX: &str = "billing-transition:";
 const ERROR_BILLING_DECISION_ID: &str = "billing decision id";
-const ERROR_BILLING_TRANSITION_ID: &str = "billing transition id";
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BillingProviderEventId {

@@ -10,7 +10,7 @@ use super::event_row::{
     agent_confirmed_summary, discovery_event_row, evidence_found_summary, keyed_discovery_event_id,
     push_discovery_event_row,
 };
-use super::{scan_session_id_for_result, scan_session_key};
+use super::{latest_rfc3339_timestamp, scan_session_id_for_result, scan_session_key};
 use crate::lan_pairing_browser_add_device_state::discovery_projection::serialized_enum_label;
 use crate::lan_pairing_browser_add_device_state::physical_lan_scan::LanNetworkDeviceScanResult;
 
@@ -70,7 +70,7 @@ fn push_evidence_found_rows(
                 Some(LanPairingText(device.canonical_device_id.clone())),
                 Some(evidence_id),
                 evidence_found_summary(
-                    serialized_enum_label(&record.evidence_kind),
+                    &serialized_enum_label(&record.evidence_kind),
                     &LanPairingText(device.display_name.clone()),
                 ),
             ),
@@ -184,14 +184,28 @@ fn canonical_device_observed_at(
     device: &LanCanonicalHouseholdDevice,
     read_model: &LanBrowserAddDeviceReadModel,
 ) -> LanPairingText {
-    device
-        .network_identity
-        .evidence_records
-        .iter()
-        .map(|record| record.last_seen_at.clone())
-        .max()
-        .or_else(|| device.network_identity.offline_at.clone())
-        .or_else(|| device.network_identity.stale_at.clone())
-        .map(LanPairingText)
-        .unwrap_or_else(|| LanPairingText(read_model.generated_at.clone()))
+    latest_rfc3339_timestamp(
+        device
+            .network_identity
+            .evidence_records
+            .iter()
+            .map(|record| LanPairingText(record.last_seen_at.clone()))
+            .chain(
+                device
+                    .network_identity
+                    .offline_at
+                    .iter()
+                    .cloned()
+                    .map(LanPairingText),
+            )
+            .chain(
+                device
+                    .network_identity
+                    .stale_at
+                    .iter()
+                    .cloned()
+                    .map(LanPairingText),
+            ),
+    )
+    .unwrap_or_else(|| LanPairingText(read_model.generated_at.clone()))
 }

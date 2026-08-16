@@ -1,4 +1,3 @@
-use ocentra_eventing::bus::reports::handler::PublishReport;
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
     envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
@@ -133,7 +132,7 @@ pub(crate) fn screen_mesh_event_source(
 ) -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
         EventCustody::parse(custody_label())?,
-        phase.runtime_role(),
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(constants::screen_flow::RUNTIME_COMPONENT_SCREEN_SPINE)?,
         RuntimeInstanceId::parse(constants::screen_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,

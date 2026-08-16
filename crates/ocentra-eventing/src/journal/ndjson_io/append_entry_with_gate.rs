@@ -1,0 +1,112 @@
+use crate::journal::{
+    hash_chain::{hash_entry_v3, synchronization_receipt_hash},
+    JournalAppendDurability, JournalHashVersion,
+};
+use crate::{EventingError, ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
+
+use super::{
+    JournalAppend, JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
+};
+
+impl NdjsonEventJournal {
+    pub(super) async fn append_entry_with_gate(
+        &self,
+        envelope: &StoredEventEnvelope,
+        phase: JournalDispatchPhase,
+    ) -> Result<JournalAppend, EventingError> {
+        let append = {
+            let state = self.state.lock().expect_value("journal state lock");
+            let next_sequence = state.next_sequence.saturating_add(1);
+            let previous_hash = previous_hash(&self.options, &state);
+            let requested_durability = append_durability(self.options.flush);
+            let durability = JournalAppendDurability::Buffered;
+            let current_hash = current_hash(
+                &self.options,
+                next_sequence,
+                &previous_hash,
+                envelope,
+                phase,
+                requested_durability,
+                durability,
+            )?;
+            JournalAppend {
+                sequence: next_sequence,
+                previous_hash,
+                current_hash,
+                hash_version: JournalHashVersion::V3,
+                durability,
+                requested_durability,
+                synchronization_hash: None,
+            }
+        };
+        self.write_entry(&append, envelope, phase).await?;
+        let metadata = tokio::fs::metadata(&self.path)
+            .await
+            .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+        {
+            let mut state = self.state.lock().expect_value("journal state lock");
+            state.next_sequence = append.sequence;
+            state.previous_hash = append.current_hash.clone();
+            state.recovered = true;
+            state.file_len = metadata.len();
+            state.file_modified = metadata.modified().ok();
+        }
+        let mut acknowledgement = append;
+        if self.options.flush == JournalFlushPolicy::Always {
+            acknowledgement.durability = JournalAppendDurability::Synchronized;
+            acknowledgement.synchronization_hash =
+                Some(synchronization_receipt_hash(&acknowledgement)?);
+            if acknowledgement.hash_version == JournalHashVersion::V3 {
+                self.write_synchronization_completion(&acknowledgement)
+                    .await?;
+            }
+            let metadata = tokio::fs::metadata(&self.path)
+                .await
+                .map_err(|error| EventingError::journal_io(self.path_string(), &error))?;
+            let mut state = self.state.lock().expect_value("journal state lock");
+            state.file_len = metadata.len();
+            state.file_modified = metadata.modified().ok();
+        }
+        Ok(acknowledgement)
+    }
+}
+
+fn append_durability(flush: JournalFlushPolicy) -> JournalAppendDurability {
+    match flush {
+        JournalFlushPolicy::Always => JournalAppendDurability::Synchronized,
+        JournalFlushPolicy::Buffered => JournalAppendDurability::Buffered,
+    }
+}
+
+fn previous_hash(
+    options: &NdjsonJournalOptions,
+    state: &super::super::ndjson_state::NdjsonJournalState,
+) -> Option<JournalHash> {
+    match options.hash_chain {
+        JournalHashChain::Disabled => None,
+        JournalHashChain::Enabled => state.previous_hash.clone(),
+    }
+}
+
+fn current_hash(
+    options: &NdjsonJournalOptions,
+    sequence: u64,
+    previous_hash: &Option<JournalHash>,
+    envelope: &StoredEventEnvelope,
+    phase: JournalDispatchPhase,
+    requested_durability: JournalAppendDurability,
+    durability: JournalAppendDurability,
+) -> Result<Option<JournalHash>, EventingError> {
+    match options.hash_chain {
+        JournalHashChain::Disabled => Ok(None),
+        JournalHashChain::Enabled => hash_entry_v3(
+            sequence,
+            previous_hash.as_ref(),
+            envelope,
+            phase,
+            requested_durability,
+            durability,
+        )
+        .map(Some),
+    }
+}

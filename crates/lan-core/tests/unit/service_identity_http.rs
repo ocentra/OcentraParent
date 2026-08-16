@@ -42,7 +42,7 @@ fn probe_response_parser_collects_sanitized_http_title_header_redirect_and_links
 
     server.join().value_or_unreachable();
 
-    let observation = observation.expect("expected probe observation");
+    let observation = observation.value_or_unreachable();
 
     assert_eq!(observation.status_code, Some(302));
     assert_eq!(observation.title.as_deref(), Some("Demo Panel"));
@@ -226,17 +226,17 @@ fn spawn_bounded_probe_handler(
     max_active: Arc<AtomicUsize>,
 ) -> thread::JoinHandle<()> {
     thread::spawn(move || {
-        run_bounded_probe_handler(stream, active, max_active);
+        run_bounded_probe_handler(stream, active.as_ref(), max_active.as_ref());
     })
 }
 
 fn run_bounded_probe_handler(
     mut stream: TcpStream,
-    active: Arc<AtomicUsize>,
-    max_active: Arc<AtomicUsize>,
+    active: &AtomicUsize,
+    max_active: &AtomicUsize,
 ) {
     let current = active.fetch_add(1, Ordering::SeqCst) + 1;
-    update_max_active(max_active.as_ref(), current);
+    update_max_active(max_active, current);
 
     let _ = read_request(&mut stream);
     thread::sleep(Duration::from_millis(150));

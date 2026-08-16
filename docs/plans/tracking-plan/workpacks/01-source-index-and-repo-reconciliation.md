@@ -43,19 +43,20 @@ Proof root: `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/
 
 ## AI Worker Checklist
 
-- [ ] Read the source index and this workpack.
-- [ ] Update source references only when a current source doc changes.
-- [ ] Do not cite inaccessible ChatGPT share content as read.
-- [ ] Keep pasted drafts as planning input, not runtime contract source.
-- [ ] Report product-doc updates or why none were needed.
+- [x] Read the source index and this workpack.
+- [x] Update source references only when a current source doc changes.
+- [x] Do not cite inaccessible ChatGPT share content as read.
+- [x] Keep pasted drafts as planning input, not runtime contract source.
+- [x] Report product-doc updates or why none were needed.
 
 ## Where We Are
 
-This workpack now has source reconciliation proof from
-`codex/tracking-plan-full-continuation-a` under the proof root below. The proof
-checks the current source inputs, source-index assertions, pasted-content audit,
-current snapshot, implementation checklist, and product-readiness closure
-blockers without claiming runtime/product-complete behavior.
+The 2026-08-15 code-first audit re-inventoried the live checkout and replaced
+the stale source route. `packages/tracking-domain` and the advertised
+`scripts/test/tracking-*.mjs` suite are absent; current owners are the Rust
+schema/protocol/tracking/runtime/policy/notification/AI/service crates and the
+presentation-only portal paths listed in `source-index.md`. No product status
+was advanced.
 
 ## Where We Want To Be
 
@@ -82,14 +83,12 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch:
-      `codex/tracking-plan-full-continuation-a`.
+- [ ] Workpack id and branch: `codex/tracking-plan-code-audit`.
 - [ ] Touched files: source index, current snapshot, implementation checklist,
       WP01/WP02 docs, source reconciliation proof script, generated WP01/WP02 proof
       roots, and product-checklist delta queue.
-- [ ] Validation commands and results:
-      `node scripts/test/tracking-source-reconciliation-gap-map-proof.mjs` passed
-      after regenerating the product-readiness closure proof.
+- [ ] Validation commands and results: Phase 2 focused validation remains open;
+      the formerly named tracking proof command does not exist in this checkout.
 - [ ] Proof artifacts under
       `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/`.
 - [ ] Product doc/checklist updates: source index, current snapshot,

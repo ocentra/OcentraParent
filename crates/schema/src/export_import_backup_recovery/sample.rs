@@ -67,12 +67,12 @@ fn partial_rejections() -> Vec<ExportImportSectionDecision> {
     vec![
         rejection(
             ExportImportDataClass::Screenshots,
-            ExportImportSectionDecisionState::RejectedExpiredRetention,
+            ExportImportSectionDecisionState::RetentionExpired,
             EXPORT_IMPORT_REJECTION_REASON_EXPIRED_RETENTION,
         ),
         rejection(
             ExportImportDataClass::Notifications,
-            ExportImportSectionDecisionState::RejectedTombstonePreserved,
+            ExportImportSectionDecisionState::TombstonePreserved,
             EXPORT_IMPORT_REJECTION_REASON_TOMBSTONE_PRESERVED,
         ),
     ]
@@ -121,7 +121,7 @@ fn negative_preflights() -> Vec<ExportImportImportPreflight> {
 fn negative_preflight_policy_rejections() -> Vec<ExportImportImportPreflight> {
     vec![
         negative_preflight(NegativePreflightInput {
-            state: ExportImportPreflightState::RejectedSchemaVersion,
+            state: ExportImportPreflightState::SchemaVersionInvalid,
             migration_state: ExportImportMigrationState::NotRequired,
             schema_version_supported: false,
             household_binding_match: true,
@@ -131,7 +131,7 @@ fn negative_preflight_policy_rejections() -> Vec<ExportImportImportPreflight> {
             rejected_sections: Vec::new(),
         }),
         negative_preflight(NegativePreflightInput {
-            state: ExportImportPreflightState::RejectedMigrationUnsupported,
+            state: ExportImportPreflightState::MigrationUnsupported,
             migration_state: ExportImportMigrationState::RequiredUnsupported,
             schema_version_supported: true,
             household_binding_match: true,
@@ -141,7 +141,7 @@ fn negative_preflight_policy_rejections() -> Vec<ExportImportImportPreflight> {
             rejected_sections: Vec::new(),
         }),
         negative_preflight(NegativePreflightInput {
-            state: ExportImportPreflightState::RejectedWrongHousehold,
+            state: ExportImportPreflightState::HouseholdMismatch,
             migration_state: ExportImportMigrationState::NotRequired,
             schema_version_supported: true,
             household_binding_match: false,
@@ -151,7 +151,7 @@ fn negative_preflight_policy_rejections() -> Vec<ExportImportImportPreflight> {
             rejected_sections: Vec::new(),
         }),
         negative_preflight(NegativePreflightInput {
-            state: ExportImportPreflightState::RejectedWrongKey,
+            state: ExportImportPreflightState::KeyUnavailable,
             migration_state: ExportImportMigrationState::NotRequired,
             schema_version_supported: true,
             household_binding_match: true,
@@ -161,7 +161,7 @@ fn negative_preflight_policy_rejections() -> Vec<ExportImportImportPreflight> {
             rejected_sections: Vec::new(),
         }),
         negative_preflight(NegativePreflightInput {
-            state: ExportImportPreflightState::RejectedCorruptBundle,
+            state: ExportImportPreflightState::BundleCorrupt,
             migration_state: ExportImportMigrationState::NotRequired,
             schema_version_supported: true,
             household_binding_match: true,
@@ -176,7 +176,7 @@ fn negative_preflight_policy_rejections() -> Vec<ExportImportImportPreflight> {
 fn negative_preflight_retention_rejections() -> Vec<ExportImportImportPreflight> {
     vec![
         negative_preflight(NegativePreflightInput {
-            state: ExportImportPreflightState::RejectedExpiredRetention,
+            state: ExportImportPreflightState::RetentionExpired,
             migration_state: ExportImportMigrationState::NotRequired,
             schema_version_supported: true,
             household_binding_match: true,
@@ -185,12 +185,12 @@ fn negative_preflight_retention_rejections() -> Vec<ExportImportImportPreflight>
             duplicate_device_detected: false,
             rejected_sections: vec![rejection(
                 ExportImportDataClass::Screenshots,
-                ExportImportSectionDecisionState::RejectedExpiredRetention,
+                ExportImportSectionDecisionState::RetentionExpired,
                 EXPORT_IMPORT_NEGATIVE_REASON_ALL_EXPIRED,
             )],
         }),
         negative_preflight(NegativePreflightInput {
-            state: ExportImportPreflightState::RejectedDuplicateDevice,
+            state: ExportImportPreflightState::DeviceDuplicate,
             migration_state: ExportImportMigrationState::NotRequired,
             schema_version_supported: true,
             household_binding_match: true,
@@ -199,7 +199,7 @@ fn negative_preflight_retention_rejections() -> Vec<ExportImportImportPreflight>
             duplicate_device_detected: true,
             rejected_sections: vec![rejection(
                 ExportImportDataClass::DeviceRegistry,
-                ExportImportSectionDecisionState::RejectedDuplicateDevice,
+                ExportImportSectionDecisionState::DuplicateDevice,
                 EXPORT_IMPORT_NEGATIVE_REASON_DUPLICATE_DEVICE,
             )],
         }),

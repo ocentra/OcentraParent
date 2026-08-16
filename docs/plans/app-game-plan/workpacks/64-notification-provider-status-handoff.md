@@ -69,3 +69,22 @@ as manual-required or unavailable status rows without claiming delivery.
       production outbox claim.
 - [ ] Product checklist unchanged because this handoff does not move feature
       status and provider/runtime/UI/platform gaps remain.
+
+## Current production-code pass (2026-08-16)
+
+- The current owner is the agent-service notification report boundary at
+  `crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs`
+  and its `logic.rs` plus private `scheduler_runtime.rs` companion.
+- The report now loads the persisted WP59 scheduler bridge and service-owned
+  scheduler proof store, invokes the Rust WP61 provider-preflight builder, and
+  maps only its verified rows into the provider-status boundary.
+- This is a consumer-only service seam: no production writer currently emits
+  `scheduler-bridge.json`, so WP59 scheduler production/runtime composition
+  and durability remain open rather than being implied by this handoff.
+- Missing, malformed, symlinked, or identity-mismatched scheduler evidence
+  falls back to explicit invalid/manual-required or unavailable status only. No provider
+  delivery, receipt, credential, retry, quiet-hours, UI, child-delivery,
+  adapter, or enforcement claim is produced.
+- The historical `packages/parent-domain/...` source/test paths above are not
+  current implementation owners. Tests, validation, retained proof, and
+  runtime durability remain deferred; this workpack is code-drafted, not DONE.

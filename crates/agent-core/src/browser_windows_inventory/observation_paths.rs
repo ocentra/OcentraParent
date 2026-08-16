@@ -47,20 +47,20 @@ fn windows_browser_inventory_path_observation(
     let identity = super::windows_browser_executable_identity(path);
     match identity.support_kind {
         BrowserWindowsSupportKind::ManagedChromium => {
-            Some(super::observation_processes::managed_chromium_path_observation(path, identity))
+            Some(super::observation_processes::managed_chromium_path_observation(path, &identity))
         }
         BrowserWindowsSupportKind::ManualChromium => {
-            Some(super::observation_processes::manual_chromium_path_observation(path, identity))
+            Some(super::observation_processes::manual_chromium_path_observation(path, &identity))
         }
         BrowserWindowsSupportKind::Unsupported => Some(
-            super::observation_processes::unsupported_path_observation(path, identity),
+            super::observation_processes::unsupported_path_observation(path, &identity),
         ),
         BrowserWindowsSupportKind::Unknown => None,
     }
 }
 
 fn merge_process_observation(
-    observations: &mut Vec<BrowserWindowsInventoryObservation>,
+    observations: &mut [BrowserWindowsInventoryObservation],
     process: &ProcessObservation,
     process_observation: &BrowserWindowsInventoryObservation,
 ) -> bool {
@@ -85,15 +85,15 @@ fn merge_process_observation(
     if candidate_observation.process_id.is_none() {
         candidate_observation.process_id = process_observation.process_id;
     }
-    candidate_observation.running_state = process_observation.running_state.clone();
-    candidate_observation.management_tier = process_observation.management_tier.clone();
-    candidate_observation.support_tier = process_observation.support_tier.clone();
-    candidate_observation.exact_url_capability = process_observation.exact_url_capability.clone();
-    candidate_observation.active_tab_capability = process_observation.active_tab_capability.clone();
-    candidate_observation.managed_profile_state = process_observation.managed_profile_state.clone();
+    candidate_observation.running_state = process_observation.running_state;
+    candidate_observation.management_tier = process_observation.management_tier;
+    candidate_observation.support_tier = process_observation.support_tier;
+    candidate_observation.exact_url_capability = process_observation.exact_url_capability;
+    candidate_observation.active_tab_capability = process_observation.active_tab_capability;
+    candidate_observation.managed_profile_state = process_observation.managed_profile_state;
     candidate_observation.unmanaged_fallback_capability =
-        process_observation.unmanaged_fallback_capability.clone();
-    candidate_observation.capability_status = process_observation.capability_status.clone();
+        process_observation.unmanaged_fallback_capability;
+    candidate_observation.capability_status = process_observation.capability_status;
     candidate_observation.reason_code = process_observation.reason_code;
     true
 }

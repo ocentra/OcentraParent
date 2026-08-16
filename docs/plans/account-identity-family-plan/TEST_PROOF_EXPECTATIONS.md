@@ -123,6 +123,53 @@ provider outage cannot unlock privileged flows
 production cannot run in dev-mode auth bypass
 ```
 
+## WP08 Rust Schema And Account Authority
+
+Expected focused commands:
+
+```bash
+# Canonical Rust schema crate plus focused account/family authority coverage.
+cargo test -p ocentra-schema --test contract
+cargo test -p ocentra-schema --test contract family_references_generated_typescript_matches_checked_in_file
+cargo test -p ocentra-family-identity-core household_authority
+cargo test -p ocentra-family-identity-core --test unit setup_lifecycle
+cargo test -p ocentra-family-identity-core --test unit session_lifecycle
+npm run lint:architecture -- --files crates/schema crates/family-identity-core packages/schema-domain/src/generated-family-references.ts
+
+```
+
+Cloudflare WP06 owns the real persistence/migration command and must use
+`cd infra/cloudflare && npm exec -c "wrangler d1 migrations apply <account-identity-d1-database> --local"` only after its dedicated account D1 binding and binding-specific migration directory (or equivalent isolated mapping) exist. Current Cloudflare source declares neither that account D1/DO/KV set nor the isolated migration mapping, so `BILLING_D1` cannot be used as a substitute. Cloudflare WP08 owns the module-scoped runner command `npm --prefix infra/cloudflare run test:integration`. Account WP08 consumes neither result as its own validation; Account WP06 aggregates their proof or exact blockers later.
+
+Expected proof:
+
+```text
+Rust canonical schema authority and compatibility boundary
+exact Rust-generated TS-edge artifact `packages/schema-domain/src/generated-family-references.ts` plus checked-in drift validation
+account-family authority parity and negative-path proof
+redacted correlated authority proof
+Cloudflare WP06 then WP08 handoff and no-claim boundary
+compact focused command log
+```
+
+The durable WP08 manifest root is
+`docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`.
+It must contain the named hand-authored proof records and
+`16-validation-commands.md` compact command record.
+Raw/generated output remains ignored and is not completion evidence by itself.
+
+Required negative cases:
+
+```text
+wrong household or revoked/stale actor cannot read or mutate authority state
+malformed/duplicate/schema-incompatible records reject or degrade safely
+schema-incompatible authority input cannot invent a successful decision
+Account WP08 cannot report a D1 test double or Cloudflare runner as its own proof
+TS edge code cannot become the account-authority owner or bypass the Rust generated-artifact drift test
+account, household, device, invite, recovery, and session operations have focused negative coverage
+authority proof redacts sensitive values and preserves a safe correlation ID
+```
+
 ## WP02 Identity Household Role Model
 
 Expected focused commands:
@@ -286,9 +333,15 @@ WP03 proof root exists
 WP04 proof root exists
 WP05 proof root exists
 WP07 proof root exists or UI blocker recorded
+WP08 Rust schema/account-authority proof root exists or precise blocker recorded
+Cloudflare WP06 storage proof and Cloudflare WP08 runner/proof exist or exact blockers are recorded
 route sync proof names consumers and handoffs
 manual-required gap register exists
 ```
+
+An exact blocker records a failed prerequisite but does not release payment,
+policy, remote, or device-trust scheduling; those consumers remain blocked until
+the required input is actually proven green.
 
 Required negative cases:
 
@@ -303,4 +356,5 @@ provider outage degrades safely
 support/admin cannot act as owner
 child profile cannot authorize child device
 login cannot authorize policy/payment/remote/export without role/device/freshness gates
+Account WP08 cannot replace Cloudflare WP06/WP08 storage/runner proof, and Cloudflare cannot replace the Account WP08 Rust authority proof, at the WP06 final gate
 ```

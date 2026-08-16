@@ -8,7 +8,10 @@ use crate::test_text::TestText;
 use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
-use ocentra_parent_agent_protocol::activity::{ActivityEventKind, ActivityObserver};
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind, ACTIVITY_SCHEMA_VERSION,
+};
 #[cfg(windows)]
 use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS, APP_GAME_CONTENT_KNOWLEDGE_NOT_CLAIMED,
@@ -16,11 +19,22 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
 };
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use ocentra_parent_agent_service::test_support::{
-    record_activity_capture_to_paths_for_test, startup_activity_capture_enabled_for_value_for_test,
+    record_activity_capture_to_paths_for_test, record_activity_events_to_paths_for_test,
+    startup_activity_capture_enabled_for_value_for_test,
 };
 
 type TestResult = Result<(), Box<dyn Error>>;
+
+const FAIL_ACTIVITY_INSERT_TRIGGER: &str = "
+CREATE TRIGGER activity_capture_test_fail_insert
+BEFORE INSERT ON activity_events
+BEGIN
+  SELECT RAISE(ABORT, 'forced activity ingest failure');
+END;
+";
+const DROP_FAIL_ACTIVITY_INSERT_TRIGGER: &str = "DROP TRIGGER activity_capture_test_fail_insert;";
 
 #[test]
 fn startup_activity_capture_can_be_suppressed_for_isolated_service_proofs() {
@@ -195,6 +209,106 @@ fn record_process_snapshot_reuses_journal_key_for_replay() -> TestResult {
 }
 
 #[test]
+fn retry_after_sqlite_ingest_failure_reuses_durable_journal_event() -> TestResult {
+    let unique_suffix = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)?
+        .as_nanos()
+        .to_string();
+    let mut journal_path = std::env::temp_dir();
+    journal_path.push(format!(
+        "{}{}-{}",
+        constants::activity_store::TEST_FILE_PREFIX,
+        std::process::id(),
+        unique_suffix
+    ));
+    journal_path.set_extension(constants::journal::FILE_EXTENSION);
+    let mut key_path = journal_path.clone();
+    key_path.set_extension(constants::activity_store::TEST_CAPTURE_REPLAY_KEY_SUFFIX);
+    let mut store_path = journal_path.clone();
+    store_path.set_extension(constants::activity_store::TEST_CAPTURE_REPLAY_STORE_SUFFIX);
+    cleanup_paths(&journal_path, &key_path, &store_path);
+
+    let result = (|| -> TestResult {
+        let store = ActivityStore::open(&store_path).map_err(debug_io_error)?;
+        store
+            .connection_for_test()
+            .execute_batch(FAIL_ACTIVITY_INSERT_TRIGGER)?;
+        drop(store);
+
+        let event = deterministic_process_event();
+        let failed = record_activity_events_to_paths_for_test(
+            &journal_path,
+            &key_path,
+            &store_path,
+            std::slice::from_ref(&event),
+        );
+        assert!(
+            failed.is_err(),
+            "the SQLite insert trigger must fail ingest"
+        );
+
+        let journal = open_test_journal(&journal_path, &key_path)?;
+        let failed_lines = journal.lines().map_err(debug_io_error)?;
+        assert_eq!(
+            failed_lines.len(),
+            1,
+            "the failed ingest must leave one durable journal event"
+        );
+        let failed_event = journal
+            .decrypt_line(&failed_lines[0])
+            .map_err(debug_io_error)?;
+        assert_eq!(failed_event.event_id, event.event_id);
+        drop(journal);
+
+        let store = ActivityStore::open(&store_path).map_err(debug_io_error)?;
+        assert!(!store
+            .contains_event_id(&event.event_id)
+            .map_err(debug_io_error)?);
+        store
+            .connection_for_test()
+            .execute_batch(DROP_FAIL_ACTIVITY_INSERT_TRIGGER)?;
+        drop(store);
+
+        let recovered = record_activity_events_to_paths_for_test(
+            &journal_path,
+            &key_path,
+            &store_path,
+            std::slice::from_ref(&event),
+        )
+        .map_err(|error| {
+            IoError::other(format!(
+                "{}: {error:?}",
+                constants::error::ACTIVITY_CAPTURE_RECORDS
+            ))
+        })?;
+        let restarted_journal = open_test_journal(&journal_path, &key_path)?;
+        let recovered_lines = restarted_journal.lines().map_err(debug_io_error)?;
+        let restarted_store = ActivityStore::open(&store_path).map_err(debug_io_error)?;
+
+        assert_eq!(
+            recovered_lines.len(),
+            1,
+            "retry must replay the durable event without a second journal append"
+        );
+        assert_eq!(recovered.events_ingested, 1);
+        assert_eq!(recovered.events_stored, 1);
+        assert_eq!(
+            recovered.last_event_id.as_deref(),
+            Some(event.event_id.as_str())
+        );
+        assert!(restarted_store
+            .contains_event_id(&event.event_id)
+            .map_err(debug_io_error)?);
+
+        Ok(())
+    })();
+
+    cleanup_paths(&journal_path, &key_path, &store_path);
+
+    result
+}
+
+#[test]
 fn record_process_snapshot_rejects_invalid_journal_key() -> TestResult {
     let build_path = |suffix: &str, extension: &str| {
         let mut name = String::from(constants::activity_store::TEST_FILE_PREFIX);
@@ -244,6 +358,56 @@ fn record_process_snapshot_rejects_invalid_journal_key() -> TestResult {
     result
 }
 
+fn open_test_journal(
+    journal_path: impl AsRef<std::path::Path>,
+    key_path: impl AsRef<std::path::Path>,
+) -> Result<ActivityJournal, Box<dyn Error>> {
+    let key_bytes = read(key_path)?;
+    let mut key = [0; JOURNAL_KEY_BYTES];
+    key.copy_from_slice(&key_bytes);
+    ActivityJournal::open(
+        journal_path.as_ref().to_path_buf(),
+        JournalKey::from_bytes(key),
+    )
+    .map_err(|error| {
+        IoError::other(format!("{}: {error:?}", constants::error::JOURNAL_OPENS)).into()
+    })
+}
+
+fn debug_io_error(error: impl std::fmt::Debug) -> IoError {
+    IoError::other(format!("{error:?}"))
+}
+
+fn deterministic_process_event() -> ActivityEvent {
+    let mut fields = LogFields::new();
+    fields.insert(
+        constants::field::PID.to_string(),
+        LogFieldValue::Number(4242.0),
+    );
+
+    ActivityEvent {
+        schema_version: ACTIVITY_SCHEMA_VERSION,
+        event_id: constants::event_id::HEALTH_REPORTED.to_string(),
+        observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
+        source: ActivitySource {
+            device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+            platform:
+                ocentra_parent_agent_protocol::policy_constants::TEST_PARENT_DEVICE_PLATFORM_WINDOWS
+                    .to_string(),
+            observer: ActivityObserver::WindowsProcess,
+            source_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+        },
+        kind: ActivityEventKind::ProcessObserved,
+        subject: ActivitySubject {
+            kind: ActivitySubjectKind::Process,
+            subject_id: constants::activity_store::TEST_PROCESS_SUBJECT_ID.to_string(),
+            display_name: Some(constants::activity_store::TEST_PROCESS_SUBJECT_NAME.to_string()),
+        },
+        fields,
+        evidence: Vec::new(),
+    }
+}
+
 fn cleanup_paths(
     journal_path: impl AsRef<std::path::Path>,
     key_path: impl AsRef<std::path::Path>,
@@ -258,7 +422,7 @@ fn cleanup_paths(
     let mut store_wal_path = store_path.clone();
     store_wal_path.set_extension(constants::activity_store::WAL_FILE_EXTENSION);
     let _ = remove_file(store_wal_path);
-    let mut store_shm_path = store_path.clone();
+    let mut store_shm_path = store_path;
     store_shm_path.set_extension(constants::activity_store::SHM_FILE_EXTENSION);
     let _ = remove_file(store_shm_path);
     for index in 1..=3 {

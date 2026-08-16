@@ -11,6 +11,7 @@ import {
   type ParentBridgeConnectionState as ParentBridgeConnectionStateValue,
   type ParentRouteEventSnapshot,
   type ParentRouteAgentEndpoint,
+  type ParentRouteId,
   type ParentRouteSnapshot,
   type ParentSubscriptionEvent,
   type ParentUiDisplayText,
@@ -20,6 +21,7 @@ import {
   latestParentRouteEventTimestampMs,
   parentRouteSnapshotTimestampMs,
 } from './parent-route-event-snapshot';
+import { isReplayBatchBoundToSnapshot } from './lan-replay-snapshot-binding';
 
 const MAX_BUFFERED_PORTAL_EVENTS = 128;
 
@@ -47,6 +49,14 @@ export function createPortalRuntimeState(): PortalRuntimeState {
   };
 }
 
+export function beginParentRouteLoad(state: PortalRuntimeState, route: ParentRouteId): void {
+  if (state.routeSnapshot?.route !== route) {
+    state.routeSnapshot = null;
+  }
+  state.connectionState = ParentBridgeConnectionState.Connecting;
+  state.commandEnabled = false;
+}
+
 export function applyParentRouteSnapshot(state: PortalRuntimeState, snapshot: ParentRouteSnapshot): void {
   state.routeSnapshot = snapshot;
   state.agentEndpoint = snapshot.agentEndpoint;
@@ -64,7 +74,8 @@ export function applyParentRouteEvents(
   }
 
   const bufferedEventKeys = new Set(state.events.map(portalEventBufferKey));
-  for (const snapshot of snapshots) {
+  const boundedSnapshots = snapshots.slice(-MAX_BUFFERED_PORTAL_EVENTS);
+  for (const snapshot of boundedSnapshots) {
     if (!hasRequiredSnapshotEventIdentity(snapshot)) {
       continue;
     }
@@ -88,10 +99,13 @@ export function applyParentRouteEvents(
 }
 
 export function applyParentSubscriptionEvent(state: PortalRuntimeState, event: ParentSubscriptionEvent): void {
-  if (!isStaleIncomingEventBatch(state, event.events ?? [])) {
+  if (
+    isReplayBatchBoundToSnapshot(event.events ?? [], event.snapshot) &&
+    !isStaleIncomingEventBatch(state, event.events ?? [])
+  ) {
     applyParentRouteEvents(state, event.events ?? []);
   }
-  if (!isStaleIncomingRouteSnapshot(state, event.snapshot)) {
+  if (event.snapshot.route === event.route && !isStaleIncomingRouteSnapshot(state, event.snapshot)) {
     applyParentRouteSnapshot(state, event.snapshot);
   }
 }

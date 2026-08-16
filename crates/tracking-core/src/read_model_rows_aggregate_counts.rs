@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     TrackingEvidenceRef, TrackingReadModelCountValue,
 };
@@ -38,7 +39,7 @@ pub(super) fn active_counts_by(
         .into_iter()
         .map(|(value, count)| TrackingReadModelCount {
             value: TrackingReadModelCountValue::parse(value)
-                .expect("tracking read-model count value parses"),
+                .expect_value("tracking read-model count value parses"),
             count,
         })
         .collect()

@@ -1,6 +1,6 @@
 use crate::queue::policy::QueueDisposition;
 
-use super::{EventQueue, EventQueueState};
+use super::EventQueue;
 use crate::bus::reports::EventQueueMetrics;
 use crate::ExpectValue;
 

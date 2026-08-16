@@ -1,34 +1,82 @@
 #![forbid(unsafe_code)]
 
 use super::{
-    policy_control, PolicyDeliveryId, PolicyDeliveryParentVisibleState, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyReasonCode, PolicyVersion,
+    policy_control, PolicyDeliveryParentVisibleState, PolicyDeliverySequence, PolicyDeliveryState,
+    PolicyVersion,
 };
+use crate::policy_source::PolicyConsumerDomain;
 
-const PENDING_STATES: &[PolicyDeliveryState] = &[
-    PolicyDeliveryState::Queued,
-    PolicyDeliveryState::Delivering,
-    PolicyDeliveryState::Delivered,
-    PolicyDeliveryState::Acknowledged,
+const PARENT_VISIBLE_STATE_BY_DELIVERY_STATE: &[(
+    PolicyDeliveryState,
+    PolicyDeliveryParentVisibleState,
+)] = &[
+    (
+        PolicyDeliveryState::Queued,
+        PolicyDeliveryParentVisibleState::Pending,
+    ),
+    (
+        PolicyDeliveryState::Delivering,
+        PolicyDeliveryParentVisibleState::Pending,
+    ),
+    (
+        PolicyDeliveryState::Delivered,
+        PolicyDeliveryParentVisibleState::Pending,
+    ),
+    (
+        PolicyDeliveryState::Acknowledged,
+        PolicyDeliveryParentVisibleState::Pending,
+    ),
+    (
+        PolicyDeliveryState::Applied,
+        PolicyDeliveryParentVisibleState::Applied,
+    ),
+    (
+        PolicyDeliveryState::Rejected,
+        PolicyDeliveryParentVisibleState::ManualRequired,
+    ),
+    (
+        PolicyDeliveryState::Superseded,
+        PolicyDeliveryParentVisibleState::Superseded,
+    ),
+    (
+        PolicyDeliveryState::RolledBack,
+        PolicyDeliveryParentVisibleState::ManualRequired,
+    ),
+    (
+        PolicyDeliveryState::Degraded,
+        PolicyDeliveryParentVisibleState::Degraded,
+    ),
+    (
+        PolicyDeliveryState::Offline,
+        PolicyDeliveryParentVisibleState::Degraded,
+    ),
+    (
+        PolicyDeliveryState::ExpiredBeforeDelivery,
+        PolicyDeliveryParentVisibleState::Degraded,
+    ),
+    (
+        PolicyDeliveryState::RetryScheduled,
+        PolicyDeliveryParentVisibleState::Degraded,
+    ),
+    (
+        PolicyDeliveryState::PartialDomainApply,
+        PolicyDeliveryParentVisibleState::Degraded,
+    ),
+    (
+        PolicyDeliveryState::BlockedByPermission,
+        PolicyDeliveryParentVisibleState::ManualRequired,
+    ),
+    (
+        PolicyDeliveryState::BlockedByCapability,
+        PolicyDeliveryParentVisibleState::ManualRequired,
+    ),
+    (
+        PolicyDeliveryState::ManualRequired,
+        PolicyDeliveryParentVisibleState::ManualRequired,
+    ),
 ];
 
-const MANUAL_REQUIRED_STATES: &[PolicyDeliveryState] = &[
-    PolicyDeliveryState::Rejected,
-    PolicyDeliveryState::RolledBack,
-    PolicyDeliveryState::BlockedByPermission,
-    PolicyDeliveryState::BlockedByCapability,
-    PolicyDeliveryState::ManualRequired,
-];
-
-const DEGRADED_STATES: &[PolicyDeliveryState] = &[
-    PolicyDeliveryState::Degraded,
-    PolicyDeliveryState::Offline,
-    PolicyDeliveryState::ExpiredBeforeDelivery,
-    PolicyDeliveryState::RetryScheduled,
-    PolicyDeliveryState::PartialDomainApply,
-];
-
-const STATE_NAMES: &[(PolicyDeliveryState, &str)] = &[
+const DELIVERY_STATE_NAMES: &[(PolicyDeliveryState, &str)] = &[
     (
         PolicyDeliveryState::Queued,
         policy_control::delivery::STATUS_QUEUED,
@@ -89,37 +137,35 @@ const STATE_NAMES: &[(PolicyDeliveryState, &str)] = &[
 pub(super) fn policy_delivery_parent_visible_state(
     state: PolicyDeliveryState,
 ) -> PolicyDeliveryParentVisibleState {
-    if PENDING_STATES.contains(&state) {
-        PolicyDeliveryParentVisibleState::Pending
-    } else if state == PolicyDeliveryState::Applied {
-        PolicyDeliveryParentVisibleState::Applied
-    } else if MANUAL_REQUIRED_STATES.contains(&state) {
-        PolicyDeliveryParentVisibleState::ManualRequired
-    } else if state == PolicyDeliveryState::Superseded {
-        PolicyDeliveryParentVisibleState::Superseded
-    } else {
-        debug_assert!(DEGRADED_STATES.contains(&state));
-        PolicyDeliveryParentVisibleState::Degraded
-    }
+    PARENT_VISIBLE_STATE_BY_DELIVERY_STATE
+        .iter()
+        .find_map(|(candidate, visible)| (candidate == &state).then_some(*visible))
+        .unwrap_or(PolicyDeliveryParentVisibleState::ManualRequired)
 }
 
 pub(super) fn policy_delivery_state_name(state: PolicyDeliveryState) -> &'static str {
-    STATE_NAMES
+    DELIVERY_STATE_NAMES
         .iter()
-        .find(|(candidate, _)| *candidate == state)
-        .map(|(_, name)| *name)
-        .expect("every policy delivery state must have a stable name")
+        .find_map(|(candidate, name)| (candidate == &state).then_some(*name))
+        .unwrap_or("manual-required")
 }
 
-pub(super) fn conflicting_replay_value(
-    sequence: PolicyDeliverySequence,
-    delivery_id: &PolicyDeliveryId,
-) -> String {
+pub(super) fn policy_delivery_domain_name(domain: PolicyConsumerDomain) -> &'static str {
+    match domain {
+        PolicyConsumerDomain::App => "app",
+        PolicyConsumerDomain::Browser => "browser",
+        PolicyConsumerDomain::Network => "network",
+        PolicyConsumerDomain::Tracking => "tracking",
+        PolicyConsumerDomain::Screen => "screen",
+        PolicyConsumerDomain::Ai => "ai",
+    }
+}
+
+pub(super) fn conflicting_replay_value(sequence: PolicyDeliverySequence) -> String {
     let mut value =
         String::from(policy_control::delivery::VALUE_CONFLICTING_REPLAY_FOR_SEQUENCE_PREFIX);
     value.push_str(&sequence.value().to_string());
-    value.push_str(policy_control::delivery::VALUE_CONFLICTING_REPLAY_ON_SEPARATOR);
-    value.push_str(delivery_id.as_str());
+    value.push_str(" with mismatched transition provenance");
     value
 }
 
@@ -134,13 +180,9 @@ pub(super) fn invalid_transition_value(
     value
 }
 
-pub(super) fn unexpected_reason_code_value(
-    reason_code: &PolicyReasonCode,
-    state: PolicyDeliveryState,
-) -> String {
+pub(super) fn unexpected_reason_code_value(state: PolicyDeliveryState) -> String {
     let mut value = String::from(policy_control::delivery::VALUE_UNEXPECTED_REASON_CODE_PREFIX);
-    value.push_str(reason_code.as_str());
-    value.push_str(policy_control::delivery::VALUE_FOR_STATE_SEPARATOR);
+    value.push_str("present for ");
     value.push_str(policy_delivery_state_name(state));
     value
 }

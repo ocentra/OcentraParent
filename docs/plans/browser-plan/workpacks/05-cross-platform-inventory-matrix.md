@@ -205,6 +205,16 @@ exact active-tab enforcement, final policy execution, browser blocking,
 non-Windows managed CDP support, raw path persistence, raw CDP payload
 persistence, or raw page content capture.
 
+2026-08-16 browser-code-pass: the production adapter slice is code-drafted and
+unvalidated. `agent-core` now routes inventory through a platform-neutral
+observation boundary: Windows retains its existing managed/candidate
+authority, while recognized non-Windows browser processes are surfaced as
+running-unknown/manual-required rows with report-only fallback. The service
+read model consumes that boundary and preserves redacted executable refs.
+Android/iOS owned-shell, device-policy, foreground/active-tab, and native
+browser authorities remain unsupported or manual-required. Tests, proof,
+checklist closure, CI, and runtime validation are explicitly deferred.
+
 ## Where We Want To Be
 
 The browser inventory/read model can show platform-specific capability states
@@ -223,8 +233,11 @@ without claiming desktop CDP where it does not apply.
 
 ## Touched Paths
 
-- `packages/parent-domain/src/browser-control-*.ts`
-- `packages/activity-domain/src/browser*.ts`
+- `crates/agent-core/src/browser_platform_inventory.rs`
+- `crates/agent-core/src/lib.rs`
+- `crates/agent-protocol/src/constants/browser.rs`
+- `crates/agent-service/src/browser_inventory_read_model.rs`
+- `crates/agent-service/src/activity_api.rs`
 - `scripts/test/browser-platform-inventory-matrix-proof.mjs`
 - `scripts/test/browser-platform-android-host-proof.mjs`
 - `scripts/test/browser-platform-android-owned-shell-proof.mjs`

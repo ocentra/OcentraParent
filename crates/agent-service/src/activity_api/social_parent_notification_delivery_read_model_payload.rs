@@ -157,7 +157,8 @@ pub async fn request_social_parent_notification_delivery_read_model_from_service
     let requested_at: String = timestamp_now();
     let request = SocialParentNotificationDeliveryReadModelRequest {
         request_id: RequestId::parse(
-            social_parent_notification_delivery_request_id(RequestedAtText(requested_at.clone())).0,
+            social_parent_notification_delivery_request_id(&RequestedAtText(requested_at.clone()))
+                .0,
         )?,
         requested_at,
     };
@@ -204,7 +205,7 @@ fn social_parent_notification_delivery_metadata(
     Ok(EventMetadata::from_parts(
         ocentra_eventing::ids::EventId::generated(),
         CorrelationId::parse(
-            social_parent_notification_delivery_correlation_id(RequestedAtText(
+            social_parent_notification_delivery_correlation_id(&RequestedAtText(
                 request.requested_at.clone(),
             ))
             .0,
@@ -226,7 +227,7 @@ fn social_parent_notification_delivery_metadata(
 }
 
 fn social_parent_notification_delivery_request_id(
-    requested_at: RequestedAtText,
+    requested_at: &RequestedAtText,
 ) -> RequestedAtText {
     let mut value = String::from(
         constants::browser::REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX,
@@ -236,7 +237,7 @@ fn social_parent_notification_delivery_request_id(
 }
 
 fn social_parent_notification_delivery_correlation_id(
-    requested_at: RequestedAtText,
+    requested_at: &RequestedAtText,
 ) -> CorrelationIdText {
     let mut value = String::from(constants::browser::CORRELATION_BROWSER_RUNTIME_PREFIX);
     value.push_str(&requested_at.0);

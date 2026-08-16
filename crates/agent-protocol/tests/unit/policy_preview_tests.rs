@@ -10,13 +10,14 @@ use super::{
 };
 use crate::activity::policy_preview::{PolicyPreviewManualReviewState, PolicyPreviewSaveState};
 use crate::policy_preview_finding_kinds_csv;
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn policy_preview_read_model_serializes_stored_evidence_rows() {
     let read_model = policy_preview_read_model();
 
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_preview_contract_fields(&serialized);
     assert_preview_state_fields(&serialized);
@@ -187,6 +188,9 @@ fn policy_preview_read_model() -> PolicyPreviewReadModel {
                 adapter_action_authorized: false,
                 enforcement_command_authorized: false,
             }),
+            // This protocol fixture contains no request/source confirmation fields;
+            // production projection therefore emits no confirmation context.
+            confirmation_context: None,
         }],
     }
 }

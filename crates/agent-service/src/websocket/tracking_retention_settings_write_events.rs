@@ -18,7 +18,7 @@ type TrackingRetentionCommandId =
     ocentra_parent_agent_protocol::tracking::identifiers::TrackingRetentionCommandId;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct TrackingRefValue(String);
+pub(super) struct TrackingRefValue(String);
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 struct TrackingRefSegment(&'static str);

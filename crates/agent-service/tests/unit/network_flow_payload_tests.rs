@@ -1,10 +1,10 @@
-use std::primitive::str as TestStr;
 use std::string::String as TestString;
 use std::{error::Error, io::Error as IoError};
 
+use ocentra_parent_agent_core::network_event_runtime::NetworkRuntimeJournalState;
 use ocentra_parent_agent_protocol::activity::{ActivityEvidenceKind, ActivityEvidenceRef};
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::network_flow::{
     ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
     ActivityNetworkFlowReadModel, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
@@ -16,7 +16,7 @@ use ocentra_parent_agent_protocol::network_flow::{
 use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 use ocentra_parent_agent_service::test_support::{
     network_flow_read_model_payload_with_runtime_delivery_for_test,
-    NetworkProductPathServiceProofReportForTest, NetworkRuntimeServiceDeliveryReportForTest,
+    NetworkRuntimeServiceDeliveryReportForTest,
 };
 
 type TestResult<T = ()> = Result<T, Box<dyn Error>>;
@@ -25,8 +25,7 @@ type TestResult<T = ()> = Result<T, Box<dyn Error>>;
 fn network_flow_payload_contains_contract_shaped_digest_json() -> TestResult {
     let read_model = read_model();
 
-    let payload =
-        network_flow_read_model_payload_with_runtime_delivery_for_test(&read_model, None, None);
+    let payload = network_flow_read_model_payload_with_runtime_delivery_for_test(&read_model, None);
     let digest_json = payload
         .get(constants::field::ACTIVITY_DIGEST)
         .and_then(|value| match value {
@@ -91,8 +90,7 @@ fn network_flow_payload_reports_tombstone_refs_without_active_rows() {
         ..read_model()
     };
 
-    let payload =
-        network_flow_read_model_payload_with_runtime_delivery_for_test(&read_model, None, None);
+    let payload = network_flow_read_model_payload_with_runtime_delivery_for_test(&read_model, None);
 
     assert_eq!(
         payload.get(NETWORK_FLOW_READ_MODEL_FIELD_TOMBSTONE_ROWS),
@@ -122,12 +120,12 @@ fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
         dead_letters: 0,
         manual_required_rows: 0,
         enforcement_command_events: 1,
+        journal_state: NetworkRuntimeJournalState::InMemoryManualRequired,
     };
 
     let payload = network_flow_read_model_payload_with_runtime_delivery_for_test(
         &read_model,
         Some(&delivery),
-        None,
     );
 
     assert_eq!(
@@ -141,111 +139,6 @@ fn network_flow_payload_includes_runtime_delivery_counts_when_supplied() {
     assert_eq!(
         payload.get(constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS),
         Some(&LogFieldValue::Number(1.0))
-    );
-}
-
-#[test]
-fn network_flow_payload_includes_product_path_counts_and_refs_when_supplied() {
-    let read_model = read_model();
-    let product_path = product_path_report();
-
-    let payload = network_flow_read_model_payload_with_runtime_delivery_for_test(
-        &read_model,
-        None,
-        Some(&product_path),
-    );
-
-    assert_product_path_payload(&payload);
-}
-
-fn product_path_report() -> NetworkProductPathServiceProofReportForTest {
-    NetworkProductPathServiceProofReportForTest {
-        observed_rows: 1,
-        proved_rows: 1,
-        skipped_rows: 0,
-        failed_rows: 0,
-        manual_required_rows: 1,
-        unavailable_rows: 0,
-        policy_decision_count: 1,
-        action_result_count: 1,
-        retention_record_count: 1,
-        delete_record_count: 1,
-        export_record_count: 1,
-        portal_read_model_count: 1,
-        enforcement_command_events: 0,
-        adapter_action_executed_count: 0,
-        ai_advisory_rows: 1,
-        weak_or_unavailable_blocked_rows: 1,
-        analyzer_alert_refs: vec![row_ref(
-            constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX,
-        )],
-        ai_detection_refs: vec![row_ref(
-            constants::network_flow::PRODUCT_PATH_AI_DETECTION_REF_PREFIX,
-        )],
-        risk_budget_refs: vec![constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()],
-        policy_decision_refs: vec![constants::network_flow::TEST_POLICY_DECISION_REF.to_string()],
-        action_result_refs: vec![constants::network_flow::TEST_ENFORCEMENT_RESULT_REF.to_string()],
-        retention_refs: vec![
-            constants::network_flow::TEST_REMOTE_DELIVERY_DURABLE_DELETE_EXPORT_REF.to_string(),
-        ],
-        deletion_refs: vec![
-            constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_DELETE_REF.to_string(),
-        ],
-        export_refs: vec![
-            constants::network_flow::TEST_REMOTE_DELIVERY_REMOTE_EXPORT_REF.to_string(),
-        ],
-        portal_read_model_refs: vec![
-            constants::network_flow::TEST_PORTAL_READ_MODEL_REF.to_string()
-        ],
-    }
-}
-
-fn assert_product_path_payload(payload: &LogFields) {
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_OBSERVED_ROWS),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_PROVED_ROWS),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_ENFORCEMENT_COMMAND_EVENTS),
-        Some(&LogFieldValue::Number(0.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_WEAK_OR_UNAVAILABLE_BLOCKED_ROWS),
-        Some(&LogFieldValue::Number(1.0))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS),
-        Some(&LogFieldValue::String(row_ref(
-            constants::network_flow::PRODUCT_PATH_ANALYZER_ALERT_REF_PREFIX
-        )))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS),
-        Some(&LogFieldValue::String(row_ref(
-            constants::network_flow::PRODUCT_PATH_AI_DETECTION_REF_PREFIX
-        )))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS),
-        Some(&LogFieldValue::String(
-            constants::network_flow::PRODUCT_PATH_RISK_BUDGET_REF.to_string()
-        ))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_POLICY_DECISION_REFS),
-        Some(&LogFieldValue::String(
-            constants::network_flow::TEST_POLICY_DECISION_REF.to_string()
-        ))
-    );
-    assert_eq!(
-        payload.get(constants::field::NETWORK_PRODUCT_PATH_PORTAL_READ_MODEL_REFS),
-        Some(&LogFieldValue::String(
-            constants::network_flow::TEST_PORTAL_READ_MODEL_REF.to_string()
-        ))
     );
 }
 
@@ -314,10 +207,4 @@ fn test_network_evidence_id() -> TestString {
     let mut evidence_id = TestString::from(constants::activity_capture::NETWORK_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(constants::activity_store::TEST_NETWORK_EVENT_ID);
     evidence_id
-}
-
-fn row_ref(prefix: &TestStr) -> TestString {
-    let mut value = TestString::from(prefix);
-    value.push_str(&test_network_evidence_id());
-    value
 }

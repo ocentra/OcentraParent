@@ -5,8 +5,8 @@ use std::sync::Arc;
 
 use super::{
     super::fixtures::{
-        metadata, test_event, test_event_for_type, OTHER_EVENT_TYPE, TEST_EVENT_TYPE, TEST_LABEL,
-        TEST_TARGET,
+        metadata, test_event, test_event_for_type, TestText, OTHER_EVENT_TYPE, TEST_EVENT_TYPE,
+        TEST_LABEL, TEST_TARGET,
     },
     support::{
         bus_with_recording_journal, event_type, shared_log, snapshot, subscribe_log_handler,

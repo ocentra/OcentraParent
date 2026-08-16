@@ -1,7 +1,7 @@
 use std::io::{self, Write};
 
 use ocentra_eventing::{
-    bus::reports::{DeadLetterEvent, DeadLetterReason},
+    bus::reports::dead_letter::{DeadLetterEvent, DeadLetterReason},
     contract_registry::EventContractRegistry,
     ids::{
         CorrelationId, EventId, EventNamespace, EventType, SourceComponent, SubscriberId,

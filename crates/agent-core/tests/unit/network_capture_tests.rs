@@ -1,5 +1,5 @@
 use ocentra_parent_agent_protocol::activity::{
-    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySubjectKind,
+    ActivityEventKind, ActivityObserver, ActivitySubjectKind,
 };
 use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
@@ -9,17 +9,21 @@ use ocentra_parent_agent_protocol::logging::LogFieldValue;
 
 use crate::{network_observation_event, NetworkObservation};
 
+#[cfg(windows)]
 #[derive(Debug)]
 struct TestError(String);
 
+#[cfg(windows)]
 impl std::fmt::Display for TestError {
     fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         formatter.write_str(&self.0)
     }
 }
 
+#[cfg(windows)]
 impl std::error::Error for TestError {}
 
+#[cfg(windows)]
 type TestResult = Result<(), TestError>;
 
 #[test]
@@ -181,6 +185,7 @@ fn collect_network_snapshot_observes_current_process_socket() -> TestResult {
     Ok(())
 }
 
+#[cfg(windows)]
 fn ok<T, E: core::fmt::Debug>(
     result: Result<T, E>,
     context: impl std::fmt::Display,

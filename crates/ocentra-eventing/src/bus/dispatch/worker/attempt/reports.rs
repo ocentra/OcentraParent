@@ -1,6 +1,5 @@
 use crate::{
-    EventingError, HandlerExecutionPolicy, HandlerOutcome, HandlerReport, StoredEventEnvelope,
-    SubscriberId, TargetHandler,
+    EventingError, HandlerOutcome, HandlerReport, StoredEventEnvelope, SubscriberId, TargetHandler,
 };
 
 use super::SubscriberRecord;

@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::primitive::str as TestStr;
 use std::{
     sync::{
@@ -363,7 +360,7 @@ fn spawn_observed_job(
 ) -> tokio::task::JoinHandle<LocalAiChatGenerationResult> {
     tokio::spawn(async move {
         scheduler
-            .run_generation_job(job_class.clone(), runtime, || async move {
+            .run_generation_job(job_class, runtime, || async move {
                 observed_jobs.lock().await.push(job_class);
                 if let Some(started) = started {
                     started.notify_one();

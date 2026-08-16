@@ -1,8 +1,7 @@
 use super::{
-    BrowserClassifierConfirmation, CdnClassifierHint, NetworkActivityClassification,
-    NetworkActivityClassifierInput, NetworkClassifierBasis, ProcessClassifierHint,
+    NetworkActivityClassification, NetworkActivityClassifierInput, NetworkClassifierBasis,
 };
-use crate::{CategoryFreshnessState, CategoryMatchKind, NetworkCategory, NetworkEvidenceGrade};
+use crate::{CategoryFreshnessState, NetworkCategory, NetworkEvidenceGrade};
 
 pub(super) fn browser_confirmed_cdn(
     input: &NetworkActivityClassifierInput,

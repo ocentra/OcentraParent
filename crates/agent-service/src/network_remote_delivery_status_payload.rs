@@ -28,6 +28,8 @@ use ocentra_parent_agent_protocol::network_flow::NetworkRemoteDeliveryTransportD
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventName;
+use std::future::Future;
+use std::pin::Pin;
 use tokio::sync::OnceCell;
 
 use crate::{
@@ -42,75 +44,88 @@ use crate::{
 static NETWORK_REMOTE_DELIVERY_STATUS: OnceCell<NetworkRemoteDeliveryStatus> =
     OnceCell::const_new();
 
-pub(crate) async fn build_network_remote_delivery_status_report(
+pub(crate) fn build_network_remote_delivery_status_report(
     command: AgentCommandEnvelope,
-) -> AgentEventEnvelope {
-    let correlation_id = command.message_id.clone();
-    let target = command.source;
-    match network_remote_delivery_status_payload().await {
-        Ok(payload) => build_event(
-            constants::event_id::NETWORK_REMOTE_DELIVERY_STATUS_REPORTED,
-            &correlation_id,
-            target,
-            AgentEventName::AgentNetworkRemoteDeliveryStatusReported,
-            LogLevel::Info,
-            payload,
-            None,
-        ),
-        Err(()) => build_event(
-            constants::event_id::COMMAND_REJECTED,
-            &correlation_id,
-            target,
-            AgentEventName::AgentCommandRejected,
-            LogLevel::Warn,
-            fields_from_pairs(vec![(
-                constants::field::REASON,
-                LogFieldValue::String(
-                    constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE
-                        .to_string(),
-                ),
-            )]),
-            None,
-        ),
-    }
+) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send>> {
+    Box::pin(async move {
+        let correlation_id = command.message_id.clone();
+        let target = command.source;
+        match network_remote_delivery_status_payload().await {
+            Ok(payload) => build_event(
+                constants::event_id::NETWORK_REMOTE_DELIVERY_STATUS_REPORTED,
+                &correlation_id,
+                target,
+                AgentEventName::AgentNetworkRemoteDeliveryStatusReported,
+                LogLevel::Info,
+                payload,
+                None,
+            ),
+            Err(()) => build_event(
+                constants::event_id::COMMAND_REJECTED,
+                &correlation_id,
+                target,
+                AgentEventName::AgentCommandRejected,
+                LogLevel::Warn,
+                fields_from_pairs(vec![(
+                    constants::field::REASON,
+                    LogFieldValue::String(
+                        constants::network_flow::ERROR_NETWORK_RUNTIME_REMOTE_CROSS_PROCESS_REPLAY_STATUS_BRIDGE
+                            .to_string(),
+                    ),
+                )]),
+                None,
+            ),
+        }
+    })
 }
 
-pub(crate) async fn network_remote_delivery_status_payload() -> Result<LogFields, ()> {
-    let status = network_remote_delivery_status().await?;
-    let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
-    Ok(fields_from_pairs(vec![(
-        constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
-        LogFieldValue::String(serialized),
-    )]))
+pub(crate) fn network_remote_delivery_status_payload(
+) -> Pin<Box<dyn Future<Output = Result<LogFields, ()>> + Send>> {
+    Box::pin(async move {
+        let status = network_remote_delivery_status().await?;
+        let serialized = serde_json::to_string(&status).map_err(|_error| ())?;
+        Ok(fields_from_pairs(vec![(
+            constants::field::NETWORK_REMOTE_DELIVERY_STATUS,
+            LogFieldValue::String(serialized),
+        )]))
+    })
 }
 
-async fn network_remote_delivery_status() -> Result<&'static NetworkRemoteDeliveryStatus, ()> {
-    NETWORK_REMOTE_DELIVERY_STATUS
-        .get_or_try_init(|| async {
-            let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+fn network_remote_delivery_status(
+) -> Pin<Box<dyn Future<Output = Result<&'static NetworkRemoteDeliveryStatus, ()>> + Send>> {
+    Box::pin(async move {
+        NETWORK_REMOTE_DELIVERY_STATUS
+            .get_or_try_init(network_remote_delivery_status_value)
+            .await
+    })
+}
+
+fn network_remote_delivery_status_value(
+) -> Pin<Box<dyn Future<Output = Result<NetworkRemoteDeliveryStatus, ()>> + Send>> {
+    Box::pin(async move {
+        let report = prove_network_runtime_remote_delivery_transport_dispatch_state()
+            .await
+            .map_err(|_error| ())?;
+        let delete_export_report =
+            prove_network_runtime_remote_delivery_delete_export_propagation()
                 .await
                 .map_err(|_error| ())?;
-            let delete_export_report =
-                prove_network_runtime_remote_delivery_delete_export_propagation()
-                    .await
-                    .map_err(|_error| ())?;
-            let external_cross_process_transport =
-                prove_network_runtime_remote_delivery_external_cross_process_transport()
-                    .await
-                    .map_err(|_error| ())?;
-            let cross_process_replay = &external_cross_process_transport.cross_process_replay;
-            Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
-                &report,
-                &delete_export_report,
-                &cross_process_replay
-                    .cross_process_custody_readiness
-                    .provider_child_readiness,
-                &cross_process_replay.cross_process_custody_readiness,
-                cross_process_replay,
-                &external_cross_process_transport,
-            ))
-        })
-        .await
+        let external_cross_process_transport =
+            prove_network_runtime_remote_delivery_external_cross_process_transport()
+                .await
+                .map_err(|_error| ())?;
+        let cross_process_replay = &external_cross_process_transport.cross_process_replay;
+        Ok::<NetworkRemoteDeliveryStatus, ()>(status_from_report(
+            &report,
+            &delete_export_report,
+            &cross_process_replay
+                .cross_process_custody_readiness
+                .provider_child_readiness,
+            &cross_process_replay.cross_process_custody_readiness,
+            cross_process_replay,
+            &external_cross_process_transport,
+        ))
+    })
 }
 
 fn status_from_report(

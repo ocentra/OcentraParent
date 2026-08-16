@@ -6,10 +6,11 @@ use std::{
 
 use tokio::sync::{RwLock, Semaphore};
 
+use crate::queue::policy::NoSubscriberQueuePolicy;
 use crate::{
     AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
-    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal,
-    StoredEventEnvelope,
+    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestRegistry, SharedEventClock,
+    SharedEventJournal, StoredEventEnvelope,
 };
 
 mod active_dispatch;
@@ -30,9 +31,7 @@ use active_dispatch::ActiveDispatchTracker;
 
 use publisher::{EventContext, EventPublisher};
 use reports::dead_letter::DeadLetter;
-use reports::handler::{
-    EventMetricsSnapshot, HandlerOutcome, HandlerReport, PublishReport, QueueDrainReport,
-};
+use reports::handler::{EventMetricsSnapshot, HandlerReport, PublishReport, QueueDrainReport};
 use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -98,6 +97,31 @@ pub struct EventBus {
 }
 
 impl EventBus {
+    /// Exposes the configured journal phase so a caller that treats a journal
+    /// receipt as an authorization boundary can reject ambiguous two-phase
+    /// delivery before it emits an event.
+    pub fn journal_mode(&self) -> JournalMode {
+        self.journal_policy.mode
+    }
+
+    pub fn journal_covers_event_type(&self, event_type: &EventType) -> bool {
+        self.journal_policy.covers_event_type(event_type)
+    }
+
+    pub fn has_production_durable_journal(&self) -> bool {
+        self.event_journal
+            .as_ref()
+            .is_some_and(|journal| journal.is_production_durable())
+    }
+
+    /// Returns the configured behavior when no subscriber is present. Callers
+    /// that make publication an authorization boundary can reject queueing,
+    /// because a later subscriber would otherwise observe an event after the
+    /// authorization attempt has already failed.
+    pub fn no_subscriber_queue_policy(&self) -> NoSubscriberQueuePolicy {
+        self.queue.policy().no_subscriber()
+    }
+
     pub async fn subscribe<E, F, Fut>(
         &self,
         subscriber: EventSubscriber,

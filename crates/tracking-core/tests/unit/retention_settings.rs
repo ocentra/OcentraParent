@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::tracking::config_update_event::{
     default_tracking_config_update_request, TrackingConfigEffectiveState,
 };
@@ -38,9 +39,9 @@ fn retention_settings_write_persists_requested_remote_states() {
     apply_tracking_retention_settings_write(&request);
 
     let durable_record = std::fs::read_to_string(tracking_retention_settings_durable_store_path())
-        .expect("durable tracking settings record");
+        .expect_value("durable tracking settings record");
     let durable_record: serde_json::Value =
-        serde_json::from_str(&durable_record).expect("json durable tracking settings record");
+        serde_json::from_str(&durable_record).expect_value("json durable tracking settings record");
 
     assert_eq!(durable_record["remote_sync_state"], "enabled");
     assert_eq!(durable_record["remote_ai_state"], "enabled");
@@ -54,9 +55,9 @@ fn tracking_config_update_persists_runtime_state_and_can_disable_tracking() {
 
     let applied = apply_tracking_config_update(&request);
     let durable_record = std::fs::read_to_string(tracking_retention_settings_durable_store_path())
-        .expect("durable tracking settings record");
+        .expect_value("durable tracking settings record");
     let durable_record: serde_json::Value =
-        serde_json::from_str(&durable_record).expect("json durable tracking settings record");
+        serde_json::from_str(&durable_record).expect_value("json durable tracking settings record");
 
     assert_eq!(
         applied.effective_tracking_state,
@@ -81,5 +82,5 @@ fn lock_retention_settings_test_state() -> MutexGuard<'static, ()> {
     RETENTION_SETTINGS_TEST_LOCK
         .get_or_init(|| Mutex::new(()))
         .lock()
-        .expect("retention settings test lock")
+        .expect_value("retention settings test lock")
 }

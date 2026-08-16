@@ -14,7 +14,7 @@ function readCiWorkflow() {
 test('CI gate runs for documentation and expectation changes', () => {
   const workflow = readCiWorkflow();
 
-  assert.match(workflow, /pull_request:\s+branches:\s+- main\s+- production/u);
+  assert.match(workflow, /pull_request:\s+branches:\s+- main\s+- develop\s+- production/u);
   assert.match(workflow, /push:\s+branches:\s+- main/u);
   assert.equal(workflow.includes('paths-ignore'), false);
 });
@@ -153,6 +153,30 @@ test('CI target workflows are split by runnable area', () => {
 
   for (const workflowName of expectedWorkflows) {
     assert.equal(existsSync(join(workflowsRoot, workflowName)), true, `${workflowName} should exist`);
+  }
+});
+
+test('non-desktop workflows skip Tauri system dependencies without skipping Rust setup', () => {
+  const setupCi = readFileSync(join(repoRoot, '.github', 'actions', 'setup-ci', 'action.yml'), 'utf8');
+  const nonDesktopRustWorkflows = [
+    'ci-rust-adapters.yml',
+    'ci-rust-agent-core.yml',
+    'ci-rust-agent-protocol.yml',
+    'ci-rust-agent-service.yml',
+    'ci-child-android.yml',
+    'dependency-policy.yml',
+  ];
+
+  assert.match(setupCi, /install-tauri-system-dependencies:[\s\S]*default: 'true'/u);
+  assert.match(setupCi, /inputs\.install-rust == 'true' && inputs\.install-tauri-system-dependencies == 'true'/u);
+
+  for (const workflowName of nonDesktopRustWorkflows) {
+    const workflow = readFileSync(join(workflowsRoot, workflowName), 'utf8');
+    const setupUses = workflow.match(/uses: \.\/\.github\/actions\/setup-ci/g) ?? [];
+    const tauriOptOuts = workflow.match(/install-tauri-system-dependencies: 'false'/g) ?? [];
+
+    assert.equal(tauriOptOuts.length, setupUses.length, `${workflowName} opts every job out of Tauri packages`);
+    assert.equal(workflow.includes("install-rust: 'false'"), false, `${workflowName} keeps Rust setup enabled`);
   }
 });
 

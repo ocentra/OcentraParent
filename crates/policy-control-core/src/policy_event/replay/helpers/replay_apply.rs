@@ -20,7 +20,7 @@ pub(crate) fn apply_policy_event_replay(
     match next.sequence.value().cmp(&current.last_sequence.value()) {
         std::cmp::Ordering::Less => Ok(PolicyEventApplyOutcome::Stale(current.clone())),
         std::cmp::Ordering::Equal => {
-            apply_equal_sequence_replay(current, next, next_idempotency_key)
+            apply_equal_sequence_replay(current, next, &next_idempotency_key)
         }
         std::cmp::Ordering::Greater => Ok(PolicyEventApplyOutcome::Advanced(
             advanced_replay_record(next, next_aggregate_key, next_idempotency_key)?,
@@ -53,9 +53,9 @@ fn advanced_replay_record(
 fn apply_equal_sequence_replay(
     current: &PolicyEventReplayRecord,
     next: &PolicyEvent,
-    next_idempotency_key: IdempotencyKey,
+    next_idempotency_key: &IdempotencyKey,
 ) -> Result<PolicyEventApplyOutcome, EventingError> {
-    if next_idempotency_key == current.last_idempotency_key
+    if next_idempotency_key == &current.last_idempotency_key
         && super::event_contract::policy_event_event_type(next)? == current.last_event_type
     {
         return Ok(PolicyEventApplyOutcome::Duplicate(current.clone()));

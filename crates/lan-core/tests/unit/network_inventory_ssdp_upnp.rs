@@ -232,7 +232,7 @@ fn discovery_covers_tv_roster_console_and_printer_fixtures() {
             fixture.description_device_type,
             fixture.usn,
             "Acme",
-            &format!("{}-1000", fixture.name.to_uppercase()),
+            format!("{}-1000", fixture.name.to_uppercase()),
         );
         let (http_addr, http_handle) = spawn_http_server(xml, 2);
         let location = format!("http://127.0.0.1:{}/{}.xml", http_addr.port(), fixture.name);

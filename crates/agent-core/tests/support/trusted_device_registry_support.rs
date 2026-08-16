@@ -4,6 +4,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceRef, LanPairingIntentKind, LanPairingProof, LanParentIntentEnvelope,
@@ -39,11 +40,11 @@ pub(crate) fn agent_event_result<T, E>(result: Result<T, E>) -> T
 where
     E: Debug,
 {
-    result.expect(constants::error::AGENT_EVENT_SERIALIZES)
+    result.expect_value(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 pub(crate) fn agent_event_option<T>(result: Option<T>) -> T {
-    result.expect(constants::error::AGENT_EVENT_SERIALIZES)
+    result.expect_value(constants::error::AGENT_EVENT_SERIALIZES)
 }
 
 pub(crate) fn proof(expires_at: impl Display) -> LanPairingProof {

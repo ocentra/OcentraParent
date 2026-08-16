@@ -1,6 +1,7 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::transfer::*;
 
+#[derive(Clone, Copy)]
 struct SourceRef(&'static str);
 
 #[test]

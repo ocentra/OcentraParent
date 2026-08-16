@@ -20,7 +20,25 @@
 output/eventing-plan-proof/<workpack-file-stem>/
 ```
 
-`docs/proof/eventing-plan/` is accepted only for the current WP12 route-proof manifest bundle. Historical `docs/proof` references do not close runtime work by themselves.
+`docs/proof/eventing-plan/` is accepted for the current WP12 route-proof bundle
+and the hand-authored WP06 durable manifest. Historical references still do not
+close runtime work by themselves.
+
+## WP06 prerequisite durable manifest
+
+```text
+docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md
+docs/proof/eventing-plan/wp06-01-journal-replay-proof.md
+docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md
+docs/proof/eventing-plan/wp06-16-validation-commands.md
+```
+
+These tracked, hand-authored artifacts retain the WP06 proof pass. The first
+records the typed generic mechanics handoff and the remaining entries retain
+the focused journal/topology evidence. Raw/generated output remains ignored.
+This releases only the Eventing generic prerequisite; enforcement still owns
+its adapter, authority, audit, rollback, and side-effect proof. WP10 remains
+open and is not satisfied by this bundle.
 
 ## Expected route-closure proof bundle
 

@@ -56,14 +56,15 @@ use ocentra_parent_agent_core::household_ai_provider_route_state::{
     HouseholdAiRouteDecisionState, HouseholdAiRouteRejectionReason,
 };
 use ocentra_parent_agent_core::household_mesh_event_bridge::{
-    export_selected_local_event, validate_incoming_lan_message, HouseholdMeshAuthenticationState,
-    HouseholdMeshBridgeRejection, HouseholdMeshExportDecision, HouseholdMeshImportDecision,
-    HouseholdMeshLanMessage, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
+    export_selected_local_event, HouseholdMeshAuthenticationState, HouseholdMeshBridgeRejection,
+    HouseholdMeshExportDecision, HouseholdMeshLocalEventKind, HouseholdMeshPolicyAuthority,
 };
 use ocentra_parent_agent_core::journal::ActivityJournal;
 use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_core::journal_error;
-use ocentra_parent_agent_core::network_capture::{collect_network_snapshot, NetworkObservation};
+#[cfg(windows)]
+use ocentra_parent_agent_core::network_capture::collect_network_snapshot;
+use ocentra_parent_agent_core::network_capture::NetworkObservation;
 use ocentra_parent_agent_core::network_capture_event::network_observation_event;
 #[cfg(windows)]
 use ocentra_parent_agent_core::network_capture_netstat;
@@ -127,6 +128,12 @@ mod activity_store_policy_preview_tests;
 mod activity_store_screen_evidence_tests;
 #[path = "activity_store_tests.rs"]
 mod activity_store_tests;
+#[path = "authenticated_delivery_execution.rs"]
+mod authenticated_delivery_execution;
+#[path = "authenticated_delivery_grant.rs"]
+mod authenticated_delivery_grant;
+#[path = "authenticated_delivery_grant_rejection_retention.rs"]
+mod authenticated_delivery_grant_rejection_retention;
 #[path = "browser_bridge_cdp_adapter_tests.rs"]
 mod browser_bridge_cdp_adapter_tests;
 #[path = "browser_bridge_native_host_tests.rs"]

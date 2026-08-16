@@ -6,7 +6,7 @@ use ocentra_policy_control_core::policy_event::{
 };
 use ocentra_policy_control_core::policy_source::{
     ParentPolicyDocumentId, PolicyAuditReferenceId, PolicyChildProfileId, PolicyConsumerDomain,
-    PolicyDeviceId, PolicyHouseholdId, PolicyReasonCode, PolicyVersion,
+    PolicyDeviceId, PolicyHouseholdId, PolicyVersion,
 };
 
 fn sample_delivery_scope(version: u64) -> TestResult<PolicyEventScope> {

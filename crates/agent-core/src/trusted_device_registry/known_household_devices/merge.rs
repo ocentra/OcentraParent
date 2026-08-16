@@ -29,9 +29,8 @@ pub(super) fn merge_known_household_device(
         incoming.discovery_state.clone(),
     );
     existing.discovery_state = merged_discovery_state;
-    let merged_trust_state =
-        stronger_trust_state(existing.trust_state.clone(), incoming.trust_state.clone());
-    existing.trust_state = merged_trust_state.clone();
+    let merged_trust_state = stronger_trust_state(existing.trust_state, incoming.trust_state);
+    existing.trust_state = merged_trust_state;
     existing.route_id = existing.route_id.clone().or(incoming.route_id);
     existing.route_state =
         stronger_route_state(existing.route_state.clone(), incoming.route_state.clone());

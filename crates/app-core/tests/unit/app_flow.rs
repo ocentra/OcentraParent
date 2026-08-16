@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainAiAnalysisRequirement, ChildDomainPolicyEvaluationRequirement, ChildRuntimeDomain,
 };
@@ -8,7 +9,7 @@ fn app_foreground_observation_records_evidence_and_requests_policy_not_ai() {
     let evidence = ocentra_app_core::app_evidence_recorded_event(&observed);
     let ai = ocentra_app_core::app_ai_analysis_requested_event(&evidence);
     let policy = ocentra_app_core::app_policy_evaluation_requested_event(&evidence);
-    let policy = policy.expect("foreground app should request policy");
+    let policy = policy.expect_value("foreground app should request policy");
 
     assert_eq!(
         observed.event_type,
@@ -41,7 +42,7 @@ fn app_unknown_usage_requests_ai_before_policy() {
     );
     let evidence = ocentra_app_core::app_evidence_recorded_event(&observed);
     let ai = ocentra_app_core::app_ai_analysis_requested_event(&evidence);
-    let ai = ai.expect("unknown app should request AI");
+    let ai = ai.expect_value("unknown app should request AI");
     let policy = ocentra_app_core::app_policy_evaluation_requested_event(&evidence);
 
     assert_eq!(

@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::ffi::OsString as TestOsString;
 use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
@@ -124,8 +121,8 @@ fn install_plan_creates_managed_cache_directories() {
         plan.ensure_cache_directories(),
         constants::error::LOCAL_AI_RUNTIME_SPAWNS,
     );
-    assert!(plan.runtime_cache_dir().is_dir());
-    assert!(plan.model_cache_dir().is_dir());
+    assert!(AsRef::<Path>::as_ref(&plan.runtime_cache_dir()).is_dir());
+    assert!(AsRef::<Path>::as_ref(&plan.model_cache_dir()).is_dir());
     let _ = fs::remove_dir_all(root);
 }
 

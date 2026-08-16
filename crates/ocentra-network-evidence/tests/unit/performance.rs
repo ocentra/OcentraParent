@@ -1,6 +1,7 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::performance::*;
 
+#[derive(Clone, Copy)]
 struct ScenarioRef(&'static str);
 
 #[test]

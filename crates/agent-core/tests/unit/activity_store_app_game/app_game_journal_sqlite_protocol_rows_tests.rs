@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::app_game::*;
 use ocentra_parent_agent_protocol::app_game_authority_classifier::*;
 use std::fs::remove_file;
@@ -32,7 +33,7 @@ fn journal_replay_projects_new_protocol_boundary_rows() {
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         APP_GAME_TEST_TIMESTAMP,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 6);
     assert_eq!(model.evidence_claim_returned, 1);
@@ -138,38 +139,38 @@ fn protocol_boundary_events() -> Vec<ActivityEvent> {
             std::env::consts::OS,
             &evidence_claim(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_identity_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             APP_GAME_TEST_TIMESTAMP,
             &identity(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_approval_authority_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &approval_authority(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_approval_action_result_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &manual_action_result(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_platform_authority_matrix_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &platform_matrix(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         app_game_ai_classifier_result_journal_event(
             constants::peer::LOCAL_DEV_AGENT,
             std::env::consts::OS,
             &classifier_result(),
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
     ]
 }
 
@@ -414,21 +415,23 @@ fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJo
     path.set_extension(constants::journal::FILE_EXTENSION);
     cleanup_journal_files(&path);
     let key = JournalKey::from_bytes([7; JOURNAL_KEY_BYTES]);
-    let mut journal =
-        ActivityJournal::open(path.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
     let lines = events
         .iter()
         .map(|event| {
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS)
+                .expect_value(constants::error::JOURNAL_APPENDS)
         })
         .collect::<Vec<_>>();
-    let reader = ActivityJournal::open(path.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader =
+        ActivityJournal::open(path.clone(), key).expect_value(constants::error::JOURNAL_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

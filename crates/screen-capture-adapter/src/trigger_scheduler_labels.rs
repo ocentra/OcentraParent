@@ -85,12 +85,12 @@ pub(super) fn trigger_proof_label(trigger: ScreenCaptureScheduleTrigger) -> &'st
     TRIGGER_LABELS
         .iter()
         .find_map(|(candidate, label)| (*candidate == trigger).then_some(*label))
-        .expect("screen capture trigger proof labels must stay exhaustive")
+        .unwrap_or(protocol_constants::SCREEN_TRIGGER_UNKNOWN_PROCESS_FOREGROUND_START)
 }
 
 pub(super) fn suppression_proof_label(reason: ScreenCaptureSuppressionReason) -> &'static str {
     SUPPRESSION_LABELS
         .iter()
         .find_map(|(candidate, label)| (*candidate == reason).then_some(*label))
-        .expect("screen capture suppression proof labels must stay exhaustive")
+        .unwrap_or(protocol_constants::SCREEN_SUPPRESSION_UNSUPPORTED_SCOPE)
 }

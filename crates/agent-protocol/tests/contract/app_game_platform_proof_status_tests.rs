@@ -7,19 +7,20 @@ use crate::{
     APP_GAME_PLATFORM_GAP_PLATFORM_ENFORCEMENT, APP_GAME_PLATFORM_PROOF_SCOPED_WINDOWS_EXECUTION,
     APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL_ID, APP_GAME_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_platform_proof_status_command_and_event_names_are_stable() {
     assert_eq!(
         serde_json::to_value(AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet)
-            .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(crate::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.platform-proof-status.read-model.get"
     );
     assert_eq!(
         serde_json::to_value(
             AgentEventName::AgentActivityAppGamePlatformProofStatusReadModelReported
         )
-        .expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(crate::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.platform-proof-status.read-model.reported"
     );
 }
@@ -49,9 +50,10 @@ fn app_game_platform_proof_status_serializes_without_enforcement_claims() {
     };
 
     let reparsed = serde_json::from_value::<AppGamePlatformProofStatusReadModel>(
-        serde_json::to_value(read_model).expect(crate::constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model)
+            .expect_value(crate::constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .expect("platform proof status read model reparses");
+    .expect_value("platform proof status read model reparses");
 
     assert_eq!(
         reparsed.read_model_id,

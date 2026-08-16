@@ -122,6 +122,7 @@ Do not read all workpacks. Do not read sibling plans by default.
 | Cross-family authZ and device ownership | `workpacks/05-device-ownership-authz.md` |
 | Security, abuse proof, route sync, rollout gate | `workpacks/06-security-proof-and-route-gate.md` |
 | Parent account and family setup UI | `workpacks/07-parent-account-family-setup-ui.md` |
+| Rust-owned canonical account/family schema and account-authority parity | `workpacks/08-rust-schema-workers-d1-runtime-migration.md` |
 
 ## Non-negotiable authority rules
 

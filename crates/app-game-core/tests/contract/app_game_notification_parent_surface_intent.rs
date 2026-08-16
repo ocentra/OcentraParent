@@ -8,20 +8,9 @@ use ocentra_app_game_core::app_game_notification_parent_surface_intent::{
     APP_GAME_NOTIFICATION_PARENT_SURFACE_INPUT_FAMILY_MISMATCH,
     APP_GAME_NOTIFICATION_PARENT_SURFACE_INPUT_ROW_COUNT_MISMATCH,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 type AppGameNotificationText<'a> = &'a str;
-
-trait AppGameNotificationParentSurfaceIntentTestResultExt<T, E> {
-    fn value_or_expect(self, context: AppGameNotificationText<'_>) -> T;
-}
-
-impl<T, E: std::fmt::Debug> AppGameNotificationParentSurfaceIntentTestResultExt<T, E>
-    for Result<T, E>
-{
-    fn value_or_expect(self, context: AppGameNotificationText<'_>) -> T {
-        self.expect(context)
-    }
-}
 
 #[test]
 fn app_game_notification_parent_surface_intent_keeps_parent_surface_redacted_and_manual() {
@@ -30,7 +19,7 @@ fn app_game_notification_parent_surface_intent_keeps_parent_surface_redacted_and
         &provider_status_read_model(),
         &preference_status_read_model(),
     )
-    .value_or_expect("parent surface intent read model");
+    .expect_value("parent surface intent read model");
 
     assert_eq!(read_model.manual_action_required_count, 2);
     assert_eq!(read_model.unavailable_visible_count, 1);

@@ -1,5 +1,5 @@
 use ocentra_parent_agent_core::network_event_runtime::{
-    publish_network_runtime_chain_for_observation, NetworkRuntimeReport,
+    NetworkRuntimeJournalState, NetworkRuntimeReport,
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
@@ -14,7 +14,9 @@ use ocentra_parent_agent_protocol::network_flow::NETWORK_FLOW_READ_MODEL_FIELD_T
 
 use crate::{
     fields::fields_from_pairs,
-    network_runtime_delivery::network_runtime_observation_from_row,
+    network_runtime_delivery::{
+        network_runtime_observation_from_row, shared_network_runtime_spine,
+    },
     network_runtime_stream_events::{stream_entries_from_report, NetworkRuntimeServiceStreamEntry},
 };
 
@@ -25,6 +27,7 @@ pub(crate) struct NetworkRuntimeServiceStreamReport {
     pub(crate) failed_rows: usize,
     pub(crate) manual_required_rows: usize,
     pub(crate) enforcement_command_events: usize,
+    pub(crate) journal_state: NetworkRuntimeJournalState,
     pub(crate) active_rows: usize,
     pub(crate) tombstone_rows: usize,
     pub(crate) exportable_rows: usize,
@@ -41,12 +44,25 @@ pub(crate) async fn stream_network_runtime_event_chain_for_read_model(
         tombstone_rows: read_model.tombstone_rows as usize,
         exportable_rows: read_model.exportable_rows as usize,
         deleted_evidence_reference_ids: read_model.deleted_evidence_reference_ids.clone(),
+        journal_state: NetworkRuntimeJournalState::UnavailableManualRequired,
         ..NetworkRuntimeServiceStreamReport::default()
     };
 
+    let spine = match shared_network_runtime_spine().await {
+        Ok(spine) => spine,
+        Err(_) => {
+            stream.failed_rows = stream.observed_rows;
+            return stream;
+        }
+    };
+    stream.journal_state = spine.journal_state();
+
     for row in &read_model.rows {
         let observation = network_runtime_observation_from_row(row);
-        match publish_network_runtime_chain_for_observation(observation, &row.observed_at).await {
+        match spine
+            .publish_observation_chain(observation, &row.observed_at)
+            .await
+        {
             Ok(report) => stream.record_success(&report),
             Err(_) => stream.failed_rows += 1,
         }
@@ -79,6 +95,10 @@ pub(crate) fn network_runtime_event_chain_stream_payload(
         (
             constants::field::NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS,
             count_value(report.enforcement_command_events),
+        ),
+        (
+            constants::field::NETWORK_RUNTIME_DURABLE_JOURNAL_STATE,
+            LogFieldValue::String(report.journal_state.as_str().to_string()),
         ),
         (
             NETWORK_FLOW_READ_MODEL_FIELD_ACTIVE_ROWS,
@@ -120,6 +140,7 @@ impl NetworkRuntimeServiceStreamReport {
         if report.manual_required() {
             self.manual_required_rows += 1;
         }
+        self.journal_state = report.journal_state;
         self.entries.extend(entries);
     }
 }

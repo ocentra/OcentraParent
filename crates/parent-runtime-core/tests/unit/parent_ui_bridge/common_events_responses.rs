@@ -1,5 +1,7 @@
 use super::super::super::*;
 
+use super::activity::{app_use_read_model_response_event, games_read_model_response_event};
+
 const SCREEN_SETTINGS_STATUS_ACCEPTED: &str = "accepted";
 
 pub(crate) struct PayloadText(pub(crate) String);
@@ -8,60 +10,6 @@ macro_rules! payload_text {
     ($value:expr) => {
         PayloadText($value.to_string())
     };
-}
-
-pub(crate) fn network_runtime_event_chain_response_event() -> AgentEventEnvelope {
-    let entries = json!([
-        {
-            "eventType": constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
-            "payload": {
-                "aiAnalysisRef": "event.ai.analysis.completed.1"
-            }
-        },
-        {
-            "eventType": constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
-            "payload": {
-                "policyDecisionRef": "event.policy.decision.completed.1"
-            }
-        },
-        {
-            "eventType": constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED,
-            "payload": {
-                "enforcementResultRef": "event.enforcement.result.observed.1"
-            }
-        }
-    ]);
-    let mut payload = std::collections::BTreeMap::new();
-    payload.insert(
-        constants::field::NETWORK_RUNTIME_STREAMED_EVENTS.to_string(),
-        LogFieldValue::Number(3.0),
-    );
-    payload.insert(
-        constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM.to_string(),
-        LogFieldValue::String(require_ok(
-            serde_json::to_string(&entries),
-            "network runtime event chain serializes",
-        )),
-    );
-
-    AgentEventEnvelope {
-        schema_version: 1,
-        event_id: "agent.network.runtime.event-chain.reported-1".to_string(),
-        correlation_id: "network-runtime".to_string(),
-        sent_at: "2026-06-23T00:00:01Z".to_string(),
-        source: AgentPeer {
-            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            role: AgentPeerRole::AgentService,
-        },
-        target: AgentPeer {
-            peer_id: constants::peer::PORTAL_DEV.to_string(),
-            role: AgentPeerRole::Portal,
-        },
-        event: AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
-        severity: LogLevel::Info,
-        payload: payload.into(),
-        snapshot: None,
-    }
 }
 
 pub(crate) fn screen_settings_response_event(
@@ -121,6 +69,60 @@ pub(crate) fn screen_settings_response_event(
             role: AgentPeerRole::Portal,
         },
         event,
+        severity: LogLevel::Info,
+        payload: payload.into(),
+        snapshot: None,
+    }
+}
+
+pub(crate) fn network_runtime_event_chain_response_event() -> AgentEventEnvelope {
+    let entries = json!([
+        {
+            "eventType": constants::network_flow::EVENT_AI_ANALYSIS_COMPLETED,
+            "payload": {
+                "aiAnalysisRef": "event.ai.analysis.completed.1"
+            }
+        },
+        {
+            "eventType": constants::network_flow::EVENT_POLICY_DECISION_COMPLETED,
+            "payload": {
+                "policyDecisionRef": "event.policy.decision.completed.1"
+            }
+        },
+        {
+            "eventType": constants::network_flow::EVENT_ENFORCEMENT_RESULT_OBSERVED,
+            "payload": {
+                "enforcementResultRef": "event.enforcement.result.observed.1"
+            }
+        }
+    ]);
+    let mut payload = std::collections::BTreeMap::new();
+    payload.insert(
+        constants::field::NETWORK_RUNTIME_STREAMED_EVENTS.to_string(),
+        LogFieldValue::Number(3.0),
+    );
+    payload.insert(
+        constants::field::NETWORK_RUNTIME_EVENT_CHAIN_STREAM.to_string(),
+        LogFieldValue::String(require_ok(
+            serde_json::to_string(&entries),
+            "network runtime event chain serializes",
+        )),
+    );
+
+    AgentEventEnvelope {
+        schema_version: 1,
+        event_id: "agent.network.runtime.event-chain.reported-1".to_string(),
+        correlation_id: "network-runtime".to_string(),
+        sent_at: "2026-06-23T00:00:01Z".to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            role: AgentPeerRole::AgentService,
+        },
+        target: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        event: AgentEventName::AgentNetworkRuntimeEventChainStreamReported,
         severity: LogLevel::Info,
         payload: payload.into(),
         snapshot: None,
@@ -434,8 +436,31 @@ pub(crate) fn policy_request_assistant_preview_confirmed_response_event() -> Age
     }
 }
 
+pub(crate) fn policy_request_parent_resolution_resolved_response_event() -> AgentEventEnvelope {
+    AgentEventEnvelope {
+        schema_version: 1,
+        event_id: "agent.policy.request.parent-resolution.resolved-1".to_string(),
+        correlation_id: "cmd-policy-request-resolution-1".to_string(),
+        sent_at: "2026-06-18T00:11:01Z".to_string(),
+        source: AgentPeer {
+            peer_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
+            role: AgentPeerRole::AgentService,
+        },
+        target: AgentPeer {
+            peer_id: constants::peer::PORTAL_DEV.to_string(),
+            role: AgentPeerRole::Portal,
+        },
+        event: AgentEventName::AgentPolicyRequestParentResolutionResolved,
+        severity: LogLevel::Info,
+        payload: std::collections::BTreeMap::new().into(),
+        snapshot: None,
+    }
+}
+
 pub(crate) fn app_game_route_load_response_events() -> Vec<AgentEventEnvelope> {
     vec![
+        app_use_read_model_response_event(),
+        games_read_model_response_event(),
         app_game_notification_readiness_response_event(),
         app_game_policy_readiness_response_event(),
         app_game_platform_proof_status_response_event(),

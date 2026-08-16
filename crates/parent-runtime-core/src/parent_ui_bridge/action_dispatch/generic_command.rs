@@ -16,7 +16,7 @@ pub(super) fn dispatch_parent_ui_action_agent_command(
     let generic_command_result = action
         .command
         .as_deref()
-        .ok_or_else(|| missing_agent_command_error())
+        .ok_or_else(missing_agent_command_error)
         .and_then(|command_name| {
             dispatch_agent_command(AgentCommandText(command_name), &action.payload, None)
         });

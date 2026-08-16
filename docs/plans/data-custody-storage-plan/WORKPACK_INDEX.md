@@ -27,7 +27,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | done | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/` |
 | done | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/06-report-query-custody/` |
 | done | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/` |
-| blocked / proof-present | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 0/14 | prior proof roots | `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/` |
+| in progress / limited lifecycle proven | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 3/14 | prior proof roots plus Rust retention lifecycle | `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/` |
 | source | [Migrated Data And AI UI Plan](workpacks/data and AI Ui plan.md) | 0/0 | source evidence only | n/a |
 
 ## Default execution order
@@ -48,6 +48,22 @@ WP06 uses WP01/WP04 derived data and deletion behavior.
 WP08 uses WP03/WP05/WP06 states for parent-visible settings.
 WP07 is last and consumes all previous proof roots.
 ```
+
+## Production-code audit note (2026-08-16)
+
+The `done` rows below describe their recorded contract/proof state, not
+shipped runtime reachability. Source inspection found no non-test caller for
+the WP01/WP02/WP03/WP04/WP05/WP06/WP08 custody derivation APIs. WP07 is
+different: the real `ocentra-child-agent-service` composition opens the
+durable journal and `RetentionDeleteTombstoneStore`, then invokes
+`ChildRuntimeTombstoneEventFlow::recover_pending()` before readiness. Its
+`publish_action` and `publish_action_and_require_journal` methods have no
+non-test caller, so the missing production slice is the trusted custody-action
+producer/handoff, not another storage adapter or proof surface.
+
+Do not treat the graph's current validation/completion state as a substitute
+for this source audit. `npm run graph:validate` currently reports checked-in
+graph drift and was not repaired here.
 
 ## Do not select
 

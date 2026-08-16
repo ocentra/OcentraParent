@@ -1,5 +1,7 @@
 # Workpack 02: Wrangler Env Bindings
 
+> **2026-07-28 correction:** The later missing-private-billing-import blocker text is historical. `infra/cloudflare` now imports module-local generated billing contracts. This workpack remains open because it has no tracked proof bundle; rerun after installing dependencies and record the actual result.
+
 ## Goal
 
 Define development and production Wrangler config, binding names, and secret custody.
@@ -65,8 +67,8 @@ Define development and production Wrangler config, binding names, and secret cus
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare run test:unit` still blocks before worker boot because `infra/cloudflare/src/index.ts` cannot import `packages/billing-domain/src/billing-checkout-portal-boundary.js`.
-- `npm --prefix infra/cloudflare run lint` remains red outside WP02 because broader Cloudflare files import missing billing-domain boundary modules and `src/fixtures.ts` already carries TypeScript return-path errors.
+- Module test and lint reruns wait on WP01: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently reports an empty dependency tree.
+- `infra/cloudflare/src/index.ts` uses the module-local generated billing-contract route; after WP01 restores dependencies, record any then-current module lint or fixture error without reviving private billing-domain imports.
 - Those failures are outside the owned WP02 wrangler/dev-vars surface, so they are carried as blockers rather than fixed here.
 
 ## Proof artifacts

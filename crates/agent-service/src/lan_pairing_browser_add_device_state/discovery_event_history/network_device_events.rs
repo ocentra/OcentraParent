@@ -176,7 +176,7 @@ fn push_reachability_changed_row(
         rows,
         discovery_event_row(
             reachability_discovery_event_id(
-                segment.to_string().into(),
+                &segment.to_string().into(),
                 &context.scan_key,
                 &LanPairingText(device.device_id.clone()),
             ),

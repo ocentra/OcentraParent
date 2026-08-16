@@ -15,6 +15,7 @@ axum = { version = "=0.8.7", features = ["ws"] }
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "std"] }
 base64 = "0.22.1"
 ocentra-parent-agent-core = { path = "../agent-core" }
+ocentra-app-game-core = { path = "../app-game-core" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 ocentra-lan-core = { path = "../lan-core" }
 ocentra-parent-logging-core = { path = "../logging-core" }
@@ -25,6 +26,7 @@ ocentra-parent-runtime-core = { path = "../parent-runtime-core" }
 ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }
 ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
 ocentra-network-evidence = { path = "../ocentra-network-evidence" }
+ocentra-schema = { path = "../schema" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
 sha2 = "0.10.9"
@@ -87,20 +89,16 @@ name = "enforcement_runtime"
 path = "tests/unit/enforcement_runtime.rs"
 
 [[test]]
+name = "dev_log"
+path = "tests/unit/dev_log.rs"
+
+[[test]]
 name = "lan_runtime"
 path = "tests/unit/lan_runtime.rs"
 
 [[test]]
 name = "lan_pairing"
 path = "tests/unit/lan_pairing.rs"
-
-[[test]]
-name = "lan_pairing_browser_runtime"
-path = "tests/unit/lan_pairing_browser_runtime.rs"
-
-[[test]]
-name = "lan_pairing_multidevice"
-path = "tests/unit/lan_pairing_multidevice.rs"
 
 [[test]]
 name = "lan_pairing_runtime_state"

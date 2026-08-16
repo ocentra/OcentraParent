@@ -1,9 +1,7 @@
 use std::collections::HashSet;
 
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
-use ocentra_parent_agent_protocol::app_game::{
-    AppGameInventoryEvidenceRow, APP_GAME_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::app_game::AppGameInventoryEvidenceRow;
 
 #[path = "app_game_windows_inventory_identity.rs"]
 mod app_game_windows_inventory_identity;

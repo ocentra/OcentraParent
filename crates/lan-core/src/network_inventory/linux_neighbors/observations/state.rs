@@ -14,7 +14,7 @@ pub(super) fn reachability_from_linux_state(
     {
         return None;
     }
-    if states.iter().any(is_online_state) {
+    if states.iter().any(|state| is_online_state(state)) {
         return Some(LanPairingDeviceReachability::Online);
     }
     if states
@@ -47,12 +47,12 @@ pub(super) fn linux_state_labels(state: Option<&serde_json::Value>) -> Vec<Strin
     }
 }
 
-fn is_online_state(state: &String) -> bool {
+fn is_online_state(state: &str) -> bool {
     [
         constants::lan_pairing::LINUX_NEIGHBOR_STATE_REACHABLE,
         constants::lan_pairing::LINUX_NEIGHBOR_STATE_PERMANENT,
         constants::lan_pairing::LINUX_NEIGHBOR_STATE_DELAY,
         constants::lan_pairing::LINUX_NEIGHBOR_STATE_PROBE,
     ]
-    .contains(&state.as_str())
+    .contains(&state)
 }

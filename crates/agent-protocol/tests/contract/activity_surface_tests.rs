@@ -13,15 +13,16 @@ use super::{
     SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_VISION,
 };
 use crate::activity_surface::source_status;
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn activity_surface_command_names_match_typescript_contracts() {
     let daily = serde_json::to_value(AgentCommandName::AgentActivityReportDailyGenerate)
-        .expect("daily command serializes");
+        .expect_value("daily command serializes");
     let screen = serde_json::to_value(AgentCommandName::AgentActivityScreenReadModelGet)
-        .expect("screen command serializes");
+        .expect_value("screen command serializes");
     let answer = serde_json::to_value(AgentEventName::AgentActivityReportGenerated)
-        .expect("report event serializes");
+        .expect_value("report event serializes");
 
     assert_eq!(daily, "agent.activity.report.daily.generate");
     assert_eq!(screen, "agent.activity.screen.read-model.get");
@@ -31,7 +32,7 @@ fn activity_surface_command_names_match_typescript_contracts() {
 #[test]
 fn activity_report_document_serializes_report_sections_and_source_states() {
     let report = sample_report_document(ActivityReportFrequency::Daily);
-    let serialized = serde_json::to_value(&report).expect("report serializes");
+    let serialized = serde_json::to_value(&report).expect_value("report serializes");
 
     assert_eq!(serialized["schemaVersion"], ACTIVITY_SURFACE_SCHEMA_VERSION);
     assert_eq!(serialized["frequency"], "daily");
@@ -89,7 +90,7 @@ fn activity_history_list_carries_saved_report_metadata_and_parsed_document() {
             parsed_report: sample_report_document(ActivityReportFrequency::Daily),
         }],
     };
-    let serialized = serde_json::to_value(&list).expect("history serializes");
+    let serialized = serde_json::to_value(&list).expect_value("history serializes");
 
     assert_eq!(serialized["reports"][0]["savedState"], "saved");
     assert_eq!(serialized["storageState"], "saved");
@@ -156,7 +157,7 @@ fn activity_screen_read_model_serializes_foreground_and_background_ms() {
         }],
     };
 
-    let screen_json = serde_json::to_value(&screen).expect("screen serializes");
+    let screen_json = serde_json::to_value(&screen).expect_value("screen serializes");
     assert_eq!(screen_json["rows"][0]["foregroundMs"], 2_400_000);
     assert_eq!(
         screen_json["rows"][0]["imageDeletionState"],
@@ -228,7 +229,7 @@ fn activity_app_use_read_model_serializes_app_game_projection_state() {
         }],
     };
 
-    let app_use_json = serde_json::to_value(app_use).expect("app use serializes");
+    let app_use_json = serde_json::to_value(app_use).expect_value("app use serializes");
     assert_eq!(app_use_json["rows"][0]["runtimeState"], "running");
     assert_eq!(app_use_json["rows"][0]["foregroundState"], "foreground");
     assert_eq!(app_use_json["rows"][0]["approvalAuthorityRowCount"], 1);
@@ -250,7 +251,7 @@ fn activity_browser_read_model_serializes_permission_required_state() {
         rows: vec![],
     };
 
-    let browser_json = serde_json::to_value(browser).expect("browser serializes");
+    let browser_json = serde_json::to_value(browser).expect_value("browser serializes");
     assert_eq!(browser_json["state"], "permission-required");
 }
 
@@ -299,7 +300,7 @@ fn activity_games_read_model_serializes_launcher_source_counts() {
         }],
     };
 
-    let games_json = serde_json::to_value(games).expect("games serializes");
+    let games_json = serde_json::to_value(games).expect_value("games serializes");
     assert_eq!(games_json["rows"][0]["classificationState"], "knownGame");
     assert_eq!(games_json["rows"][0]["launcherRowCount"], 1);
     assert_eq!(games_json["rows"][0]["platformAuthorityRowCount"], 1);
@@ -321,7 +322,7 @@ fn activity_network_read_model_serializes_unavailable_state() {
         rows: vec![],
     };
 
-    let network_json = serde_json::to_value(network).expect("network serializes");
+    let network_json = serde_json::to_value(network).expect_value("network serializes");
     assert_eq!(network_json["state"], "unavailable");
 }
 
@@ -343,7 +344,7 @@ fn activity_report_request_serializes_frequency_for_daily_weekly_monthly() {
             range_end: "2026-05-27T06:20:00Z".to_string(),
         };
 
-        let request_json = serde_json::to_value(request).expect("request serializes");
+        let request_json = serde_json::to_value(request).expect_value("request serializes");
         assert_eq!(request_json["frequency"], expected);
     }
 }

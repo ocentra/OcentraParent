@@ -9,6 +9,7 @@ use super::{
     ParentEvidenceReference, ParentEvidenceReferenceKind, ParentPlatform, PolicyAction,
     PolicyTarget, PolicyTargetType,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn degraded_unavailable_audit_and_timer_serialize_recovery_data() {
@@ -58,7 +59,7 @@ fn manual_required_capability_serializes_as_unavailable_proof_state() {
     };
 
     let serialized =
-        serde_json::to_value(unavailable).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(unavailable).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["capability"]["capabilityState"],
@@ -81,8 +82,8 @@ fn serialized_degraded_unavailable_events() -> (serde_json::Value, serde_json::V
     let timer = enforcement_timer(action);
 
     (
-        serde_json::to_value(audit).expect(constants::error::AGENT_EVENT_SERIALIZES),
-        serde_json::to_value(timer).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(audit).expect_value(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(timer).expect_value(constants::error::AGENT_EVENT_SERIALIZES),
     )
 }
 

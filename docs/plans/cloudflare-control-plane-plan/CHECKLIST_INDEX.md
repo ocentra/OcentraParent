@@ -14,6 +14,8 @@
 
 # Cloudflare Control Plane Checklist Index
 
+> **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
+
 ## Fill rules
 
 - Leave a checkbox unchecked until proof exists.
@@ -25,7 +27,7 @@
 | Row | Owning workpack | Close when |
 | --- | --- | --- |
 | CF-00 | WP00 | Games parity map records keep/adapt/strip decisions and rejects game-only surfaces. |
-| CF-01 | WP01 | Module tree/package scripts exist or blocker recorded, and no-claim scaffold is explicit. |
+| [ ] CF-01 | WP01 | Module tree and package scripts are present in source, but this checkout retains no proof bundle under `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`. First reconcile `wrangler` with `@cloudflare/workers-types`, retain `03-package-dependency-graph.md` plus the scoped lint, unit, architecture, negative-case, and teardown evidence, then check this row. WP07 remains blocked until that clean graph is retained. |
 | CF-02 | WP02 | Wrangler envs, bindings, vars, secret names, and dev/prod separation are documented/proven. |
 | CF-03 | WP03 | Entry guard chain, env validation, request-size/origin behavior, kill switch, and scheduled hook shape are explicit. |
 | CF-04 | WP04 | Route manifest, route groups, and domain contract ownership are explicit. |

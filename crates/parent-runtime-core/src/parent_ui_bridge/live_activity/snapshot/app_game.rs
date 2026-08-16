@@ -12,6 +12,9 @@ pub(super) fn apply_app_game_live_activity_impl(
                 input
                     .app_game_notification_readiness_snapshot
                     .map(|snapshot| &snapshot.read_model),
+                input
+                    .app_game_notification_readiness_snapshot
+                    .and_then(|snapshot| snapshot.status_read_models.as_ref()),
             ));
     }
     if input.app_game_policy_readiness_snapshot.is_some()

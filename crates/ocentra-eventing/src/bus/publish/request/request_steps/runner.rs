@@ -60,8 +60,7 @@ where
         .await?;
     }
 
-    Ok(
-        complete_request::<E>(request_id, &mut publish_report, &mut response_payload)?
-            .expect("request report is present"),
+    complete_request::<E>(request_id, &mut publish_report, &mut response_payload)?.ok_or_else(
+        || EventingError::invalid_value("request_state", "publish or response result missing"),
     )
 }

@@ -1,5 +1,3 @@
-use std::fmt::Debug;
-
 use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
 use ocentra_parent_agent_protocol::constants;
 

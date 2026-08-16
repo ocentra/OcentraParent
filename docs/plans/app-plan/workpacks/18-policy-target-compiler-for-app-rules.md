@@ -10,6 +10,12 @@ Policy and app-control catalog foundations exist, but native app targets need a
 compiler that respects identity strength, category confidence, authority tier,
 schedule, actor, audit, and evidence refs.
 
+2026-08-16 app-plan-code-pass: the Rust compiler and category/risk composition
+are code-drafted in `crates/app-game-core`. The compiler remains dry-run only,
+keeps hard actions manual-required without authority, and is unvalidated in
+this production-code phase. Tests, proof, checklist closure, CI, and runtime
+enforcement are deferred.
+
 ## Where We Want To Be
 
 Parent-authored app rules compile only when required target evidence exists.
@@ -28,10 +34,10 @@ adapter call.
 
 ## Touched Paths
 
-- `packages/parent-domain/src/policy.ts`
-- `packages/parent-domain/src/enforcement-policy-dispatch.ts`
-- `packages/activity-domain/src/app-game*.ts`
-- `fixtures/app/policy/*.json`
+- `crates/app-game-core/src/app_game_policy_target_compiler.rs`
+- `crates/app-game-core/src/app_game_policy_target_compiler_helpers.rs`
+- `crates/app-game-core/src/app_game_category_risk_policy_routing.rs`
+- `crates/app-game-core/src/app_game_category_risk_policy_routing_types.rs`
 
 ## Tests And Proof
 
@@ -70,7 +76,7 @@ Fill this before reporting `DONE` or PR-ready:
 Policy compilation does not prove an adapter can enforce. Strong actions degrade
 until platform proof exists.
 
-## Completion - 2026-06-03
+## Historical completion note - 2026-06-03
 
 - Owner/lane: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
@@ -78,11 +84,9 @@ until platform proof exists.
   `output/app-plan-proof/18-policy-target-compiler-for-app-rules`
 - Shared app/game proof root:
   `output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules`
-- Contract source:
-  `packages/parent-domain/src/app-game-policy-target-compiler.ts` and
-  `packages/parent-domain/src/app-game-policy-target-compiler-rules.ts`
-- Test source:
-  `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
+- The historical TypeScript/package paths below are not tracked implementation
+  owners in the current checkout. Current production ownership is Rust-first in
+  `crates/app-game-core`; existing contract tests are not rerun in this phase.
 
 Completed app-side proof:
 

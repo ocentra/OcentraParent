@@ -5,14 +5,9 @@ use std::{
 };
 
 use crate::bus::reports::dead_letter::DeadLetterReason;
-use crate::bus::reports::EventQueueMetrics;
-use crate::queue::policy::{
-    EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy, QueueReport,
-};
-use crate::queue::reservation::DispatchReservation;
+use crate::queue::policy::{EventQueuePolicy, QueueReport};
 use crate::{
-    EventClockInstant, EventId, EventType, EventingError, ExpectValue, IdempotencyKey,
-    StoredEventEnvelope,
+    EventClockInstant, EventId, EventType, EventingError, IdempotencyKey, StoredEventEnvelope,
 };
 
 #[path = "state/dispatch.rs"]
@@ -79,7 +74,7 @@ pub(crate) enum NoSubscriberQueueDecision {
     Queued(QueueReport),
     QueuedWithDeadLetter(
         QueueReport,
-        Box<StoredEventEnvelope>,
+        Box<QueuedEnvelope>,
         DeadLetterReason,
         EventingError,
     ),

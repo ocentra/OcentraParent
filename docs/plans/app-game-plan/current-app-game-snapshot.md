@@ -14,6 +14,14 @@
 
 <!-- /agent-capsule -->
 
+## Current code-first correction - 2026-08-15
+
+The authoritative current snapshot is [CODE_AUDIT.md](CODE_AUDIT.md): 220/220
+workpacks are mapped, 170 have no bounded Phase 1 writing gap, and 50 still
+need production code or expected tests. The June narrative below preserves
+historical implementation sequencing and removed TypeScript-owner references;
+it must not override the current tracked-source audit.
+
 ## Product Claim Boundary
 
 Current source proves a scoped app/game evidence and enforcement path. It does

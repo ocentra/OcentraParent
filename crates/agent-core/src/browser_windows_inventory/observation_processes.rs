@@ -28,10 +28,10 @@ pub(super) fn windows_browser_inventory_process_observation(
         super::windows_browser_executable_identity(super::process_identity_path(process));
     match identity.support_kind {
         BrowserWindowsSupportKind::ManagedChromium | BrowserWindowsSupportKind::ManualChromium => {
-            Some(unmanaged_process_observation(process, identity))
+            Some(unmanaged_process_observation(process, &identity))
         }
         BrowserWindowsSupportKind::Unsupported => {
-            Some(unsupported_process_observation(process, identity))
+            Some(unsupported_process_observation(process, &identity))
         }
         BrowserWindowsSupportKind::Unknown => None,
     }
@@ -39,7 +39,7 @@ pub(super) fn windows_browser_inventory_process_observation(
 
 pub(super) fn managed_chromium_path_observation(
     path: &Path,
-    identity: BrowserWindowsExecutableIdentity,
+    identity: &BrowserWindowsExecutableIdentity,
 ) -> BrowserWindowsInventoryObservation {
     BrowserWindowsInventoryObservation {
         executable_path: Some(path.to_path_buf()),
@@ -62,7 +62,7 @@ pub(super) fn managed_chromium_path_observation(
 
 pub(super) fn manual_chromium_path_observation(
     path: &Path,
-    identity: BrowserWindowsExecutableIdentity,
+    identity: &BrowserWindowsExecutableIdentity,
 ) -> BrowserWindowsInventoryObservation {
     BrowserWindowsInventoryObservation {
         executable_path: Some(path.to_path_buf()),
@@ -85,7 +85,7 @@ pub(super) fn manual_chromium_path_observation(
 
 pub(super) fn unsupported_path_observation(
     path: &Path,
-    identity: BrowserWindowsExecutableIdentity,
+    identity: &BrowserWindowsExecutableIdentity,
 ) -> BrowserWindowsInventoryObservation {
     BrowserWindowsInventoryObservation {
         executable_path: Some(path.to_path_buf()),
@@ -108,7 +108,7 @@ pub(super) fn unsupported_path_observation(
 
 fn unmanaged_process_observation(
     process: &ProcessObservation,
-    identity: BrowserWindowsExecutableIdentity,
+    identity: &BrowserWindowsExecutableIdentity,
 ) -> BrowserWindowsInventoryObservation {
     BrowserWindowsInventoryObservation {
         executable_path: process
@@ -135,7 +135,7 @@ fn unmanaged_process_observation(
 
 fn unsupported_process_observation(
     process: &ProcessObservation,
-    identity: BrowserWindowsExecutableIdentity,
+    identity: &BrowserWindowsExecutableIdentity,
 ) -> BrowserWindowsInventoryObservation {
     BrowserWindowsInventoryObservation {
         executable_path: process

@@ -5,12 +5,10 @@ use super::{
     LOG_SCHEMA_VERSION,
 };
 use crate::logging::DevLogEntry;
+use ocentra_eventing::expect_value::ExpectValue;
 
 fn to_json<T: serde::Serialize>(value: T) -> serde_json::Value {
-    match serde_json::to_value(value) {
-        Ok(serialized) => serialized,
-        Err(_) => serde_json::Value::default(),
-    }
+    serde_json::to_value(value).expect_value("root contract shape serializes")
 }
 
 #[test]
@@ -53,10 +51,7 @@ fn agent_log_snapshot_serializes_to_typescript_contract_shape() {
     assert_eq!(serialized["entries"][0]["level"], "info");
     assert_eq!(serialized["entries"][0]["source"], "agent-service");
     assert_eq!(serialized["entries"][0]["fields"]["captureEnabled"], false);
-    assert_eq!(
-        serialized["entries"][0]["fields"]["remoteSync"].is_null(),
-        true
-    );
+    assert!(serialized["entries"][0]["fields"]["remoteSync"].is_null());
 }
 
 #[test]
@@ -266,7 +261,7 @@ fn websocket_event_envelope_serializes_to_typescript_contract_shape() {
     assert_eq!(serialized["source"]["role"], "agent-service");
     assert_eq!(serialized["event"], "agent.health.reported");
     assert_eq!(serialized["payload"]["online"], true);
-    assert_eq!(serialized["snapshot"].is_null(), true);
+    assert!(serialized["snapshot"].is_null());
 }
 
 #[test]

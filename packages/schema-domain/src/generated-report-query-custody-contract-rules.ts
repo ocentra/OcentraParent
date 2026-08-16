@@ -52,7 +52,6 @@ export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQuery
     reportQueryCustodyStateIsCoherentGenerated(row)
   );
 }
-
 function reportQueryCustodyStateHasExpectedShapeGenerated(
   row: GeneratedReportQueryCustodyRow,
   expectation: {
@@ -163,7 +162,6 @@ const reportQueryCustodyStateExpectations = {
 export function reportQueryCustodyStateIsCoherentGenerated(row: GeneratedReportQueryCustodyRow): boolean {
   return reportQueryCustodyStateHasExpectedShapeGenerated(row, reportQueryCustodyStateExpectations[row.state]);
 }
-
 export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQueryCustodyContractProof): boolean {
   return (
     GeneratedReportQueryCustodyStates.every((state) => proof.rows.some((row) => row.state === state)) &&

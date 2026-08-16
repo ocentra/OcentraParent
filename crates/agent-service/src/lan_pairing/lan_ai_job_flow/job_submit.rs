@@ -17,8 +17,8 @@ mod job_transition;
 use crate::{
     event_builder::build_event,
     lan_pairing::{
-        authority::validate_authorized_lan_ai_job, extend_log_fields, validate_command_target,
-        LanPairingRuntime,
+        authority::validate_authorized_lan_ai_job, extend_log_fields,
+        runtime_validation::validate_command_target, LanPairingRuntime,
     },
     lan_pairing_audit::{controller_lease_audit_fields, rejected_control_audit_fields},
     lan_pairing_payload::parse_intent,
@@ -34,6 +34,7 @@ pub(crate) fn lan_ai_job_submit(
     origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    let origin = LanPairingOptionalText(origin.0);
     let observed_origin = origin.0.as_deref();
     match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(runtime, &command, &intent)
@@ -100,7 +101,7 @@ fn lan_ai_job_routed_event(
         return lan_ai_job_degraded_event(runtime, command, intent, origin);
     }
 
-    let requested_capability = payload_string(&command.payload, LanAiJobField::CapabilityFlags)
+    let requested_capability = payload_string(&command.payload, &LanAiJobField::CapabilityFlags)
         .unwrap_or_else(|| {
             constants::local_ai_runtime::CAPABILITY_CHAT_COMPLETION
                 .to_string()
@@ -184,7 +185,7 @@ fn lan_ai_unsupported_capability_event(
     );
     event.payload.insert(
         constants::field::LOCAL_AI_CAPABILITY_FLAGS.to_string(),
-        LogFieldValue::String(requested_capability.0.clone()),
+        LogFieldValue::String(requested_capability.0.as_str().to_owned()),
     );
     event
 }

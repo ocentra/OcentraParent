@@ -80,29 +80,12 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
     let generated_at: String = timestamp_now();
     let execution_evidence = tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(store_path.0).ok()?;
-        let fields = store.latest_enforcement_audit_fields().ok()??;
-        Some(AppGameAdapterDispatchExecutionEvidence {
-            result_id: required_string(
-                &fields,
-                StaticText(constants::field::ENFORCEMENT_RESULT_ID),
-            )
-            .ok()?
-            .0,
-            status_text: required_string(&fields, StaticText(constants::field::ENFORCEMENT_STATUS))
-                .ok()?,
-            adapter_result_code: required_string(
-                &fields,
-                StaticText(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
-            )
-            .ok()?
-            .0,
-            audit_event_id: required_string(
-                &fields,
-                StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
-            )
-            .ok()?
-            .0,
-        })
+        let fields = store
+            .latest_matching_enforcement_audit_fields(|fields| {
+                app_game_adapter_dispatch_execution_evidence(fields).is_some()
+            })
+            .ok()??;
+        app_game_adapter_dispatch_execution_evidence(&fields)
     })
     .await
     .ok()
@@ -122,7 +105,43 @@ pub(crate) async fn build_activity_app_game_adapter_dispatch_result_report_with_
     )
 }
 
-struct DispatchResultCounts {
+pub(crate) fn app_game_adapter_dispatch_execution_evidence(
+    fields: &LogFields,
+) -> Option<AppGameAdapterDispatchExecutionEvidence> {
+    let source_read_model_id =
+        required_string(fields, StaticText(constants::field::SOURCE_READ_MODEL_ID)).ok()?;
+    if source_read_model_id.0 != APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID {
+        return None;
+    }
+    required_string(
+        fields,
+        StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT),
+    )
+    .ok()?;
+    let status_text =
+        required_string(fields, StaticText(constants::field::ENFORCEMENT_STATUS)).ok()?;
+
+    Some(AppGameAdapterDispatchExecutionEvidence {
+        result_id: required_string(fields, StaticText(constants::field::ENFORCEMENT_RESULT_ID))
+            .ok()?
+            .0,
+        status_text,
+        adapter_result_code: required_string(
+            fields,
+            StaticText(constants::field::ENFORCEMENT_ADAPTER_RESULT_CODE),
+        )
+        .ok()?
+        .0,
+        audit_event_id: required_string(
+            fields,
+            StaticText(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+        )
+        .ok()?
+        .0,
+    })
+}
+
+pub(crate) struct DispatchResultCounts {
     returned: u64,
     command_accepted: u64,
     blocked_before_command: u64,
@@ -373,7 +392,7 @@ struct OptionalText(Option<String>);
 struct StringList(Vec<String>);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct DispatchExecutionStatusText(pub(crate) String);
+pub struct DispatchExecutionStatusText(pub String);
 
 struct ExecutionAuditFields {
     state: String,

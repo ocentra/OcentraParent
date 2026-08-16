@@ -34,7 +34,16 @@ Purpose: define the signing, store, and device-owner matrix for child artifacts 
 
 ## Execution truth
 
-Status: complete.
+Status: production code drafted / test-deferred. The Windows child updater now enforces deterministic child-only manifest policy, strict artifact/hash inputs, signature verification, and fail-closed installer consumption when an external verifier and trusted public key are absent. Other platform signing/store/device-owner rows remain explicit manual-required or unsigned boundaries.
+
+## Production code boundary
+
+- `crates/agent-updater/src/manifest.rs` owns Windows child manifest policy: canonical serde payload bytes, child product/package/service identity, safe `.msi` artifact names, strict SHA-256, and external Ed25519 verification.
+- `crates/agent-updater/src/hash.rs` rejects malformed checksums before artifact install; `update.rs` rejects unsafe names, uses an updater-owned random temporary directory/file, waits for MSI completion, and cleans the directory afterward.
+- `scripts/release/windows/build-agent-package.ps1` requires an externally supplied child signing key for normal releases; ephemeral keys require an explicit preview switch.
+- `scripts/release/windows/install-latest-windows.ps1` requires an externally supplied verifier executable and `OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64` before consuming a release manifest.
+- Windows MSI is the only platform-owned update consumer in this slice. macOS/Linux/Android/iOS signing, store, and device-owner states remain manual-required or unsigned as documented below.
+- Existing deferred updater contract fixtures still use legacy `OcentraParent*` identities and must be migrated before validation; no test result is inferred from this code pass.
 
 Owner surface:
 
@@ -77,7 +86,7 @@ Proof root:
 - `packages/schema-domain/src/child-signing-store-device-owner-matrix.ts` is a thin parse/coverage adapter and is no longer the canonical matrix owner.
 - Parent-client distribution remains a sibling owner and is not implied by this child matrix.
 
-## Validations
+## Deferred validations (not run in this production pass)
 
 - `cargo test -p ocentra-schema --test contract child_signing_store_device_owner_matrix`
 - `cmd /c npm exec --workspace @ocentra-parent/schema-domain -- vitest run tests/proof/child-signing-store-device-owner-matrix.test.ts`
@@ -91,19 +100,12 @@ Proof root:
 - Exact failing files are `packages/schema-domain/src/generated/parent-owned-sync-export-contracts.ts`, `packages/schema-domain/src/parent-owned-sync-export-validation.ts`, and `packages/schema-domain/src/parent-owned-sync-export.ts`.
 - WP09 completion is based on the focused Rust contract, thin adapter, proof runner, and focused architecture gates above; it does not claim the unrelated package-wide build is green.
 
-## Completion checklist
+## Production-pass checklist
 
-- [x] Windows row is explicit about artifact kind, signing state, store state, and non-mobile management state.
-- [x] macOS row is explicit about artifact kind, signing state, store state, and non-mobile management state.
-- [x] Linux row is explicit about artifact kind, signing state, store state, and non-mobile management state.
-- [x] Android row is explicit about debug signing, Play Store planning, and device-owner/managed-profile manual-required truth.
-- [x] iOS row is explicit about signing-disabled simulator packaging, planned store distribution, and supervision device-proof-required truth.
-- [x] Per-platform rows cite platform-specific proof references instead of a generic matrix claim.
-- [x] Manual-required rows remain visible where platform proof is absent.
-- [x] Device-owner, managed-profile, and supervision claims stay platform-specific.
-- [x] Parent-client parity is explicitly excluded from the matrix.
-- [x] Canonical shared matrix truth is Rust-owned; `schema-domain` stays generated/thin only.
-- [x] Real tests live under `packages/schema-domain/tests/proof/`.
-- [x] Real Rust contract tests live under `crates/schema/tests/contract/`.
-- [x] Real proof runner lives under `scripts/test/`.
-- [x] Proof root and focused validations are recorded under the WP09 output path.
+- [x] Windows updater enforces signed child manifest, strict checksum, safe artifact identity, and child service identity.
+- [x] Windows release packaging requires external signing authority unless an explicit preview-only ephemeral switch is supplied.
+- [x] Windows bootstrap fails closed without an external verifier and trusted public key.
+- [x] macOS/Linux/Android/iOS signing/store/device-owner states remain explicit and non-upgraded.
+- [ ] Platform matrix contract tests and focused validation are run.
+- [ ] Release proof artifacts are refreshed under the declared output root.
+- [ ] Store/device-owner artifacts are collected where platform authority is external.

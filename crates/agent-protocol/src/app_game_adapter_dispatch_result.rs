@@ -46,6 +46,8 @@ pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_ID: &str =
 pub const APP_GAME_ADAPTER_DISPATCH_EXECUTION_AUDIT_OWNED_PROCESS_REF: &str =
     "audit-owned-process-dispatch-service-local-execution-recorded";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_COMMAND: &str = "agent.enforcement.execute";
+pub const APP_GAME_ADAPTER_DISPATCH_EXECUTE_COMMAND: &str =
+    "agent.activity.app-game.adapter-dispatch.execute";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_EVENT: &str =
     "agent.enforcement.audit.reported";
 pub const APP_GAME_ADAPTER_DISPATCH_RESULT_ENFORCEMENT_ACTION_MODE: &str = "terminate-process";

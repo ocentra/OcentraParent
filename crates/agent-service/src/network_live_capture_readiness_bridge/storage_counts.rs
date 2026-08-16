@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::network_flow::{
 
 pub(super) fn apply_storage_counts(
     status: &mut NetworkLiveCaptureStatus,
-    storage_state: NetworkRawCaptureStorageStatusState,
+    storage_state: &NetworkRawCaptureStorageStatusState,
 ) {
     match storage_state {
         NetworkRawCaptureStorageStatusState::CustodyReady => {

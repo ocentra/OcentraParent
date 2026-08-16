@@ -3,6 +3,8 @@ use crate::parent_ui_bridge::ParentRouteLiveActivitySnapshotInput;
 
 #[path = "snapshot/app_game.rs"]
 mod app_game;
+#[path = "snapshot/browser.rs"]
+mod browser;
 #[path = "snapshot/lan.rs"]
 mod lan;
 #[path = "snapshot/network.rs"]
@@ -37,9 +39,12 @@ pub(super) fn live_activity_snapshot_impl(
     tracking::apply_tracking_and_screen_live_activity_impl(
         input.tracking_read_model_snapshot,
         input.screen_read_model_snapshot,
+        input.app_use_read_model_snapshot,
+        input.games_read_model_snapshot,
         input.route,
         &mut snapshot,
     );
+    browser::apply_browser_live_activity_impl(input, &mut snapshot);
     app_game::apply_app_game_live_activity_impl(input, &mut snapshot);
     Some(snapshot)
 }
@@ -49,7 +54,14 @@ fn empty_live_activity_snapshot() -> ParentRouteLiveActivitySnapshot {
         recent_summary: None,
         ingest_status: None,
         activity_screen_read_model: None,
+        activity_app_use_read_model: None,
+        activity_browser_read_model: None,
+        activity_games_read_model: None,
         screen_summary_panel: None,
+        browser_inventory_event: None,
+        browser_inventory_read_model: None,
+        browser_evidence_event: None,
+        browser_evidence_read_model: None,
         browser_managed_event: None,
         browser_managed_status: None,
         local_ai_runtime_status_event: None,
@@ -84,7 +96,3 @@ fn activity_tracking_panel_snapshot(
 ) -> ParentTrackingStatusPanelSnapshot {
     activity_tracking_panel_snapshot_impl(read_model_result, write_result)
 }
-
-pub(super) const SCREEN_SUMMARY_DETAIL_SEPARATOR: &str = " | ";
-pub(super) const SCREEN_SUMMARY_NOT_REPORTED: &str = "Not reported";
-pub(super) const SCREEN_SUMMARY_UNAVAILABLE: &str = "Unavailable";

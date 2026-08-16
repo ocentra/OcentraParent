@@ -6,6 +6,7 @@ use super::{
     APP_GAME_NOTIFICATION_READINESS_STATE_READY_FOR_LOCAL_INTENT,
     APP_GAME_NOTIFICATION_READINESS_STATUS_PARTIAL, APP_GAME_SCHEMA_VERSION,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn app_game_notification_readiness_read_model_serializes_no_delivery_claims() {
@@ -43,7 +44,7 @@ fn app_game_notification_readiness_read_model_serializes_no_delivery_claims() {
     };
 
     let serialized =
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["custodyLabel"],

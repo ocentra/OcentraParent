@@ -4,11 +4,10 @@ mod read_model_project_rows_foreground;
 mod read_model_project_rows_runtime;
 
 use ocentra_parent_agent_protocol::app_game::{
-    AppGameForegroundEvidenceRow, AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow,
-    AppGameRuntimeEvidenceRow, APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_JOURNAL_FIELD_ROW_JSON,
+    AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow, APP_GAME_JOURNAL_FIELD_ROW_JSON,
     APP_GAME_JOURNAL_FIELD_ROW_KIND, APP_GAME_JOURNAL_ROW_KIND_FOREGROUND,
     APP_GAME_JOURNAL_ROW_KIND_INVENTORY, APP_GAME_JOURNAL_ROW_KIND_LAUNCHER,
-    APP_GAME_JOURNAL_ROW_KIND_RUNTIME, APP_GAME_RUNTIME_RUNNING,
+    APP_GAME_JOURNAL_ROW_KIND_RUNTIME,
 };
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 

@@ -16,10 +16,6 @@ use ocentra_parent_agent_protocol::screen_evidence::{
     SCREEN_WINRT_OCR_TEMPLATE_VERSION,
 };
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-use test_text::TestText;
-
 use super::{
     config::{ScreenAiAnalysisCycleClock, ScreenAiAnalysisCycleOutcome, ScreenOcrRedactionPolicy},
     event_record::{analysis_event_record, outcome_for_generation, screen_analysis_event},
@@ -158,10 +154,7 @@ fn complete_generation(output_text: TestString) -> LocalAiChatGenerationResult {
     }
 }
 
-fn string_value<'a>(
-    event: &'a ActivityEvent,
-    field: impl std::fmt::Display,
-) -> Option<&'a TestStr> {
+fn string_value(event: &ActivityEvent, field: impl std::fmt::Display) -> Option<&TestStr> {
     let field = field.to_string();
     match event.fields.get(field.as_str()) {
         Some(LogFieldValue::String(value)) => Some(value),

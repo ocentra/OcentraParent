@@ -33,9 +33,7 @@ fn windows_neighbor_parser_keeps_cached_hostname_when_later_rows_are_ip_only() {
     ocentra_lan_core::network_inventory::neighbor_support::cache::clear_cached_neighbor_identities(
     );
     let named = network_device_from_windows_neighbor(
-        &neighbor_record(Some(String::from(
-            constants::lan_pairing::TEST_HOSTNAME.to_string(),
-        ))),
+        &neighbor_record(Some(constants::lan_pairing::TEST_HOSTNAME.to_string())),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
         &LanPreviousNetworkInventory::default(),
@@ -69,11 +67,11 @@ fn windows_neighbor_parser_keeps_cached_hostname_when_later_rows_are_ip_only() {
 fn windows_neighbor_parser_rejects_unsafe_and_oversized_hostnames() {
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("192.168.2.99".to_string()),
-            String::from("00-11-22-33-44-77".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from("Ethernet".to_string())),
-            Some(String::from("bad host<script>".to_string())),
+            "192.168.2.99".to_string(),
+            "00-11-22-33-44-77".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some("Ethernet".to_string()),
+            Some("bad host<script>".to_string()),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
@@ -95,11 +93,11 @@ fn windows_neighbor_parser_rejects_unsafe_and_oversized_hostnames() {
     let oversized = "a".repeat(256);
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("192.168.2.100".to_string()),
-            String::from("00-11-22-33-44-78".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from("Ethernet".to_string())),
-            Some(String::from(oversized.clone())),
+            "192.168.2.100".to_string(),
+            "00-11-22-33-44-78".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some("Ethernet".to_string()),
+            Some(oversized),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
@@ -123,13 +121,11 @@ fn windows_neighbor_parser_rejects_unsafe_and_oversized_hostnames() {
 fn windows_neighbor_parser_keeps_duplicate_hostname_rows_separate_by_mac() {
     let first = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("192.168.2.101".to_string()),
-            String::from("00-11-22-33-44-79".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from("Ethernet".to_string())),
-            Some(String::from(
-                constants::lan_pairing::TEST_HOSTNAME.to_string(),
-            )),
+            "192.168.2.101".to_string(),
+            "00-11-22-33-44-79".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some("Ethernet".to_string()),
+            Some(constants::lan_pairing::TEST_HOSTNAME.to_string()),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
@@ -139,13 +135,11 @@ fn windows_neighbor_parser_keeps_duplicate_hostname_rows_separate_by_mac() {
     .value_or_unreachable();
     let second = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("192.168.2.102".to_string()),
-            String::from("00-11-22-33-44-7A".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from("Ethernet".to_string())),
-            Some(String::from(
-                constants::lan_pairing::TEST_HOSTNAME.to_string(),
-            )),
+            "192.168.2.102".to_string(),
+            "00-11-22-33-44-7A".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some("Ethernet".to_string()),
+            Some(constants::lan_pairing::TEST_HOSTNAME.to_string()),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
@@ -169,10 +163,10 @@ fn windows_neighbor_parser_keeps_duplicate_hostname_rows_separate_by_mac() {
 fn windows_neighbor_parser_accepts_ipv6_rows_without_forcing_ipv4_only_logic() {
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("fe80::2b4d".to_string()),
-            String::from("00-11-22-33-44-66".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from("Ethernet".to_string())),
+            "fe80::2b4d".to_string(),
+            "00-11-22-33-44-66".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some("Ethernet".to_string()),
             None::<String>,
         ),
         &HashMap::new(),
@@ -316,15 +310,11 @@ fn previous_scan_hydrates_hostname_platform_and_label_for_same_mac() {
 #[test]
 fn trusted_registry_hydrates_identity_before_previous_scan_history() {
     let trusted_inventory = LanIdentityHintInventory::from_devices(&[trusted_device(
-        String::from(constants::lan_pairing::TEST_LAN_MAC.to_string()),
-        Some(String::from(
-            constants::lan_pairing::TEST_LAN_IP.to_string(),
-        )),
-        Some(String::from(
-            constants::lan_pairing::TEST_HOSTNAME.to_string(),
-        )),
-        String::from("Family Tablet".to_string()),
-        String::from(constants::lan_pairing::PLATFORM_WINDOWS.to_string()),
+        constants::lan_pairing::TEST_LAN_MAC.to_string(),
+        Some(constants::lan_pairing::TEST_LAN_IP.to_string()),
+        Some(constants::lan_pairing::TEST_HOSTNAME.to_string()),
+        "Family Tablet".to_string(),
+        constants::lan_pairing::PLATFORM_WINDOWS.to_string(),
     )]);
     let previous_inventory = LanPreviousNetworkInventory::from_devices(&[
         LanNetworkInventoryDevice {
@@ -460,10 +450,10 @@ fn windows_neighbor_parser_uses_netbios_cache_hostname_and_marks_netbios_scan_so
 
     let parsed = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("192.168.2.58".to_string()),
-            String::from("00-11-22-33-44-58".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from("Ethernet".to_string())),
+            "192.168.2.58".to_string(),
+            "00-11-22-33-44-58".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some("Ethernet".to_string()),
             None::<String>,
         ),
         &netbios_names,
@@ -552,13 +542,11 @@ fn current_windows_neighbor_ipv4_observations_prefer_more_reachable_ip_for_same_
 fn windows_neighbor_parser_requires_selected_interface_match_when_scope_is_explicit() {
     assert!(network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("192.168.2.110".to_string()),
-            String::from("00-11-22-33-44-10".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from("Wi-Fi".to_string())),
-            Some(String::from(
-                constants::lan_pairing::TEST_HOSTNAME.to_string()
-            )),
+            "192.168.2.110".to_string(),
+            "00-11-22-33-44-10".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some("Wi-Fi".to_string()),
+            Some(constants::lan_pairing::TEST_HOSTNAME.to_string()),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),
@@ -569,13 +557,11 @@ fn windows_neighbor_parser_requires_selected_interface_match_when_scope_is_expli
 
     let selected = network_device_from_windows_neighbor(
         &neighbor_record_with_values(
-            String::from("192.168.2.111".to_string()),
-            String::from("00-11-22-33-44-11".to_string()),
-            String::from(constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string()),
-            Some(String::from(" ethernet ".to_string())),
-            Some(String::from(
-                constants::lan_pairing::TEST_HOSTNAME.to_string(),
-            )),
+            "192.168.2.111".to_string(),
+            "00-11-22-33-44-11".to_string(),
+            constants::lan_pairing::WINDOWS_NEIGHBOR_STATE_REACHABLE.to_string(),
+            Some(" ethernet ".to_string()),
+            Some(constants::lan_pairing::TEST_HOSTNAME.to_string()),
         ),
         &HashMap::new(),
         &LanIdentityHintInventory::default(),

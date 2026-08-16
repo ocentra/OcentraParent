@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_core::browser_bridge_event::{
     browser_tab_observation_event, BrowserBridgeTargetObservation,
 };
@@ -59,7 +60,7 @@ pub fn browser_event() -> ActivityEvent {
         constants::activity_store::TEST_SECOND_OBSERVED_AT,
         0,
     )
-    .expect(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
+    .expect_value(constants::error::BROWSER_BRIDGE_MAPS_TARGET)
 }
 
 pub fn active_window_event() -> ActivityEvent {

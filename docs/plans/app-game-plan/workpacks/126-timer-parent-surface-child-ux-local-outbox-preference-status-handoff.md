@@ -23,8 +23,8 @@ delivery.
 
 ## Scope
 
-- Add a parent-domain bridge from WP125 child UX preference-preflight rows to
-  the existing V3 notification rule/provider/retry contract.
+- Add a Rust-owned App/Game bridge from WP125 child UX preference-preflight rows
+  to the existing V3 notification rule/provider/retry status contract.
 - Convert parent-preference-required and manual-required preflight rows into
   manual setup status entries.
 - Convert unavailable preflight rows into disabled/not-sent status entries.
@@ -53,7 +53,28 @@ delivery.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX preference-status handoff.
+- Rust App/Game crate build and Clippy.
+- Focused Rust tests for manual, unavailable, and malformed preference-status
+  handoff rows.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1/2 Complete; Phase 3 Open
+
+Commit `64fe263e5` adds the Rust-owned preference-status handoff in
+`ocentra-app-game-core` and corrects WP125 to retain safe provider channel,
+reason, and severity enums on blocked rows. Parent-preference-required and
+manual-required rows become manual setup/manual-required status entries;
+unavailable rows become channel-disabled/not-sent entries. All rows preserve
+their scheduler identity, safe provider context, preference/quiet-hours/rule/
+intent/retry/escalation refs, evidence, policy, audit, and manual-proof refs.
+
+The handoff embeds the existing App/Game parent-surface preference-status row,
+keeps provider receipts absent, and leaves preference mutation, frequency UI,
+quiet-hours/retry execution, provider delivery/receipts/credentials, cloud
+routing, parent UI, child delivery, adapter dispatch, and enforcement false.
+Two focused contract tests cover manual/unavailable mappings and claimed,
+malformed, or duplicate-context rejection. The complete App/Game contract suite
+(96 tests), unit suite (10 tests), crate Clippy, seven focused Enforcer checks,
+formatting, diff hygiene, hub guard, and pre-commit passed. Retained Phase 3
+proof and whole-plan gates remain open.

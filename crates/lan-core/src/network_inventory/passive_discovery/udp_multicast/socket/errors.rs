@@ -10,7 +10,7 @@ pub(super) fn parse_passive_multicast_group(
     source: LanPassiveDiscoverySource,
     multicast_group: &str,
 ) -> Result<Ipv4Addr, LanPassiveDiscoveryUdpMulticastCaptureOutcome> {
-    multicast_group.parse::<Ipv4Addr>().map_err(|_| {
+    multicast_group.parse::<Ipv4Addr>().map_err(|_error| {
         unsupported_capture(
             source,
             "invalid multicast group for passive discovery listener".to_string(),
@@ -24,7 +24,7 @@ pub(super) fn bind_passive_udp_socket(
     read_timeout: Duration,
     multicast: bool,
 ) -> Result<UdpSocket, LanPassiveDiscoveryUdpMulticastCaptureOutcome> {
-    bind_udp_multicast_socket(port, read_timeout).map_err(|_| {
+    bind_udp_multicast_socket(port, read_timeout).map_err(|_error| {
         let transport = if multicast { "multicast" } else { "broadcast" };
         unsupported_capture(
             source,

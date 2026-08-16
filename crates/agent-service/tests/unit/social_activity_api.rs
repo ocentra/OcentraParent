@@ -3,6 +3,10 @@
 extern crate ocentra_parent_agent_service as agent_service_lib;
 extern crate self as ocentra_parent_agent_service;
 
+use std::primitive::str as TestStr;
+
+#[path = "../support/log_payload.rs"]
+mod log_payload;
 #[path = "../support/test_text.rs"]
 mod test_text;
 
@@ -60,10 +64,15 @@ mod social_source_custody_mutation_service_tests;
 
 #[cfg(test)]
 mod clippy_linkage {
+    use std::collections::BTreeMap;
+
     use super::*;
     use crate::test_invariants::{
         require_json_decode, require_log_string_field, require_ok, require_some,
         serialize_test_json,
+    };
+    use crate::test_text::{
+        count_for_display, optional_log_string, test_ok, test_some, TestResult,
     };
     use ocentra_parent_agent_protocol::constants;
     use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -101,8 +110,36 @@ mod clippy_linkage {
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "social_activity_api": true
         }));
-        let _: String = crate::time::timestamp_from_epoch_seconds(1);
+        let _: String = crate::time::timestamp_after_epoch_seconds(1, 0);
         let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
+
+        let text = crate::test_text::TestText::from_display("social-activity");
+        let mut counts = BTreeMap::new();
+        let mut payload = LogFields::new();
+        counts.insert(text.clone(), 1);
+        payload.insert(
+            constants::field::ACTIVITY_REPORT_ID.to_string(),
+            LogFieldValue::String(text.to_string()),
+        );
+
+        let _: TestResult = Ok(());
+        assert_eq!(text.as_bytes(), b"social-activity");
+        assert_eq!(text.as_str(), "social-activity");
+        assert_eq!(
+            test_ok(Ok::<usize, std::io::Error>(1), "social_activity_api result")
+                .unwrap_or_else(|_| std::process::abort()),
+            1
+        );
+        assert_eq!(
+            test_some(Some(2), "social_activity_api value")
+                .unwrap_or_else(|_| std::process::abort()),
+            2
+        );
+        assert_eq!(count_for_display(&counts, "social-activity"), 1);
+        assert_eq!(
+            optional_log_string(&payload, constants::field::ACTIVITY_REPORT_ID),
+            Some(text)
+        );
 
         let command = command_envelope("cmd-social-activity-clippy");
         assert_eq!(
@@ -174,4 +211,3 @@ mod clippy_linkage {
         }
     }
 }
-use std::primitive::str as TestStr;

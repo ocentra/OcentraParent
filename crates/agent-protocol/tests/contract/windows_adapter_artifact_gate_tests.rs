@@ -2,6 +2,7 @@ use crate::windows_adapter_artifact_gate::{
     WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateDecision,
     WindowsAdapterArtifactGateEntry, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 use super::{
     constants, constants::windows_adapter_artifact_gate as artifact_gate,
@@ -20,7 +21,8 @@ fn windows_adapter_artifact_gate_serializes_refusal_boundaries() {
         entries: vec![app_gate_entry()],
     };
 
-    let serialized = serde_json::to_value(proof).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(proof).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized[constants::field::READ_MODEL_ID],
@@ -79,7 +81,7 @@ fn windows_adapter_artifact_evidence_serializes_custody_event_refs() {
     };
 
     let serialized =
-        serde_json::to_value(evidence).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(evidence).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["artifactKind"],

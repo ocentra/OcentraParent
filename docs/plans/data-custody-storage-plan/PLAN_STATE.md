@@ -18,7 +18,7 @@
 
 This plan owns data custody guarantees, encrypted storage, evidence retention, export/import/restore, sync, deletion/tombstones, no-stolen-data boundaries, cloud/relay custody, report/query custody, and parent storage settings/apply flow.
 
-Route status: execution-grade architecture, UI docs, and test/proof inventory now exist. WP01 custody source of truth, WP02 encryption key custody, WP03 parent-owned cloud sync, WP04 retention/delete/tombstone, WP05 export/import/backup/recovery, WP06 report/query custody, and WP08 parent storage settings/apply flow now have green implementation-plus-proof roots. WP07 rollout proof and route gate still needs its own refresh because its current aggregate text predates the new WP01/WP03 proof state and must not be treated as current aggregate truth.
+Route status: execution-grade architecture, UI docs, and test/proof inventory now exist. WP01 custody source of truth, WP02 encryption key custody, WP03 parent-owned cloud sync, WP04 retention/delete/tombstone, WP05 export/import/backup/recovery, WP06 report/query custody, and WP08 parent storage settings/apply flow now have green implementation-plus-proof roots. WP07 rollout proof and route gate is refreshed with a focused child-runtime lifecycle, a reusable startup-recovery entry point, and tracked command-evidence pointer; its ignored aggregate proof roots remain unavailable in a clean checkout, so WP07 is still not accepted as aggregate route truth.
 
 ## Current ownership interpretation
 
@@ -71,7 +71,11 @@ Import preview remains non-mutating; WP05 restore/apply proof covers only the sh
 Restore/apply proof must prove tombstone preservation and reject resurrection.
 WP06 report/query proof root now proves source refs, citation allowlists, redaction, deletion/expiry behavior, stable pagination, stale/conflict honesty, and rate-limit boundaries at the shared contract/runtime layer.
 WP08 parent storage settings/apply flow proof root now proves explicit storage mode labels, preview-before-apply, separate disconnect/delete states, manual-required visibility, and no-claim portal/provider-runtime boundaries at the shared contract/runtime layer; it is not final portal rendering, host wiring, or provider execution proof.
-WP07 can aggregate only accepted proof roots plus exact carried blockers.
+WP07 can aggregate only accepted proof roots plus exact carried blockers. Its
+`ChildRuntimeTombstoneEventFlow::recover_pending` method is now invoked by the
+concrete child-service startup in `crates/child-runtime/src/service.rs` before
+readiness. Restart behavior, aggregate publication, and downstream delivery
+proof remain open; source wiring alone is not lifecycle completion.
 ```
 
 ## Current Route Status
@@ -79,6 +83,36 @@ WP07 can aggregate only accepted proof roots plus exact carried blockers.
 - Status: execution-grade route established; no product completion claim is made.
 - Default action: choose one workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md), then choose required proof from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
 - Current limitation: this plan defines ownership, expected proof, and handoff boundaries. It does not claim implementation is complete.
+
+## Production-code reachability audit (2026-08-16, root `26e93c22e`)
+
+This pass inspected the mapped production owners and non-test callers. The
+shared custody workpacks have real Rust implementations, but their public
+derivation functions are not currently reached by a shipped custody entrypoint
+outside their internal proof/composition modules:
+
+```text
+WP01: crates/schema data-custody source-of-truth contract plus generated edge; no shipped runtime consumer found.
+WP02: schema/storage-custody-core key-custody derivation; no shipped key/decrypt runtime caller found; platform/provider owners remain required.
+WP03: schema/storage-custody-core sync/provider/tombstone derivation; no provider SDK/upload/delete/retrieval caller found.
+WP04: schema/storage-custody-core retention/delete state and tombstone store; no production creator routes a typed action into child publication.
+WP05: schema/storage-custody-core export/import/preflight/apply state machine; no provider or child filesystem restore executor caller found.
+WP06: schema/storage-custody-core report/query custody derivation; no report, notification, AI, or portal runtime consumer found.
+WP07: real child-service composition exists. ocentra-child-agent-service -> run_child_agent_service -> ChildAgentService::initialize_with_paths opens the journal/store and invokes journal.recover() plus ChildRuntimeTombstoneEventFlow::recover_pending() before readiness. No non-test caller invokes publish_action or publish_action_and_require_journal.
+WP08: schema/storage-custody-core parent-storage settings/apply derivation plus generated edge; no portal/desktop host/provider apply caller found.
+Migrated Data And AI UI: source-only and not executable custody scope.
+```
+
+The smallest honest production slice is therefore blocked on an upstream
+trusted custody-action producer/consumer handoff for WP07 publication. Wiring
+the existing public publish method from preflight or a synthetic service event
+would invent authority and is intentionally not performed. The child startup
+recovery path is source-present; restart validation, aggregate proof, and
+terminal delivery remain deferred.
+
+Graph truth is stale: `npm run graph:validate` reports that the checked-in
+graph differs from current plan/workpack source and requests bootstrap. No
+graph bootstrap or direct graph JSON edit was made in this code-only pass.
 
 ## What Is Already Present
 
@@ -91,7 +125,12 @@ WP07 can aggregate only accepted proof roots plus exact carried blockers.
 - WP04 retention/delete/tombstone is now implemented and proved through `crates/schema/src/retention_delete_tombstone.rs`, `crates/storage-custody-core/src/retention_delete_tombstone.rs`, and `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/`.
 - WP05 export/import/backup/recovery is now implemented and proved through `crates/schema/src/export_import_backup_recovery.rs`, `crates/storage-custody-core/src/export_import_backup_recovery.rs`, and `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`.
 - WP06 report/query custody is now implemented and proved through `crates/schema/src/report_query_custody.rs`, `crates/storage-custody-core/src/report_query_custody.rs`, `packages/schema-domain/src/generated/report-query-custody-contracts.ts`, and `output/data-custody-storage-plan-proof/06-report-query-custody/`.
-- WP07 rollout proof and route gate now has a real proof root under `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/`, but its aggregate text is stale relative to the new WP01 proof root and still requires a dedicated WP07 refresh before it can be used for aggregate route truth.
+- WP07 has a focused, real retention lifecycle through the Rust event journal,
+  child-runtime durable outbox, concrete child-service startup recovery, and
+  explicit terminal acknowledgement. Its cited aggregate `output/` proof root
+  is not present in a clean checkout because `output/` is ignored, and restart
+  validation/publication remain open, so WP07 cannot be used for aggregate route
+  truth.
 - WP08 parent storage settings/apply flow is now implemented and proved through `crates/schema/src/parent_storage_settings_apply_flow.rs`, `crates/schema/src/parent_storage_settings_apply_flow_ts.rs`, `crates/storage-custody-core/src/parent_storage_settings_apply_flow.rs`, `packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contracts.ts`, `packages/schema-domain/src/parent-storage-settings-apply-flow.ts`, and `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`.
 
 ## Open Product Gaps

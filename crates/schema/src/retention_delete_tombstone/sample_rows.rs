@@ -15,7 +15,7 @@ fn sample_retention_delete_rows_primary(
 ) -> Vec<RetentionDeleteRow> {
     vec![
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::EvidenceJournal,
             state: RetentionDeleteState::DeleteRequested,
             retention_class: RetentionDeleteRetentionClass::DeleteRequested,
@@ -35,7 +35,7 @@ fn sample_retention_delete_rows_primary(
             hard_deleted: false,
         }),
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::PolicyHistory,
             state: RetentionDeleteState::DeleteValidated,
             retention_class: RetentionDeleteRetentionClass::DeleteRequested,
@@ -55,7 +55,7 @@ fn sample_retention_delete_rows_primary(
             hard_deleted: false,
         }),
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::EvidenceJournal,
             state: RetentionDeleteState::TombstoneWritten,
             retention_class: RetentionDeleteRetentionClass::DeleteConfirmed,
@@ -82,7 +82,7 @@ fn sample_retention_delete_rows_secondary(
 ) -> Vec<RetentionDeleteRow> {
     vec![
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::Screenshots,
             state: RetentionDeleteState::LocalRedacted,
             retention_class: RetentionDeleteRetentionClass::DeleteConfirmed,
@@ -102,7 +102,7 @@ fn sample_retention_delete_rows_secondary(
             hard_deleted: false,
         }),
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::NetworkArtifacts,
             state: RetentionDeleteState::PropagationPending,
             retention_class: RetentionDeleteRetentionClass::DeleteConfirmed,
@@ -122,7 +122,7 @@ fn sample_retention_delete_rows_secondary(
             hard_deleted: false,
         }),
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::Reports,
             state: RetentionDeleteState::Propagated,
             retention_class: RetentionDeleteRetentionClass::DeleteConfirmed,
@@ -149,7 +149,7 @@ fn sample_retention_delete_rows_tertiary(
 ) -> Vec<RetentionDeleteRow> {
     vec![
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::AiOutputs,
             state: RetentionDeleteState::ReplayProtected,
             retention_class: RetentionDeleteRetentionClass::DeleteConfirmed,
@@ -169,7 +169,7 @@ fn sample_retention_delete_rows_tertiary(
             hard_deleted: false,
         }),
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::Notifications,
             state: RetentionDeleteState::AuditRetained,
             retention_class: RetentionDeleteRetentionClass::AuditMinimal,
@@ -189,7 +189,7 @@ fn sample_retention_delete_rows_tertiary(
             hard_deleted: false,
         }),
         sample_row(SampleRowInput {
-            request: &request,
+            request,
             data_class: RetentionDeleteDataClass::Logs,
             state: RetentionDeleteState::HardDeleted,
             retention_class: RetentionDeleteRetentionClass::HardDeleted,

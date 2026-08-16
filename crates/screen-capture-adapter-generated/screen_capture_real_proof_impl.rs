@@ -34,7 +34,7 @@ pub fn main() -> ProofResult<()> {
     let requested_scope = env::var(ENV_CAPTURE_SCOPE)
         .ok()
         .map(ScreenCaptureProofText)
-        .map(requested_scope)
+        .map(|value| requested_scope(&value))
         .unwrap_or_else(|| {
             if target_title.is_some() {
                 ScreenCaptureScope::SelectedWindow
@@ -83,7 +83,7 @@ pub fn main() -> ProofResult<()> {
     Ok(())
 }
 
-fn requested_scope(value: ScreenCaptureProofText) -> ScreenCaptureScope {
+fn requested_scope(value: &ScreenCaptureProofText) -> ScreenCaptureScope {
     match value.0.as_str() {
         SCOPE_SELECTED_WINDOW_INPUT => ScreenCaptureScope::SelectedWindow,
         SCOPE_PRIMARY_DISPLAY_INPUT => ScreenCaptureScope::PrimaryDisplay,

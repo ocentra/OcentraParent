@@ -1,12 +1,12 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::fs::remove_file;
 use std::path::PathBuf as TestPathBuf;
 use std::primitive::str as TestStr;
 use std::string::String as TestString;
 
-use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::{
+    AppGameAdapterDispatchResultReadModel, APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID,
+};
 use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_PARENT_PLATFORM_WINDOWS;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
@@ -67,7 +67,7 @@ async fn app_game_adapter_dispatch_result_command_returns_typed_event() {
 }
 
 #[tokio::test]
-async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evidence() {
+async fn app_game_adapter_dispatch_result_command_ignores_unowned_store_audit_evidence() {
     let paths = temp_paths(constants::enforcement::TEST_AUDIT_EVENT_ID);
     cleanup_paths(&paths);
     let enforcement_event =
@@ -89,91 +89,142 @@ async fn app_game_adapter_dispatch_result_command_reads_latest_store_audit_evide
         AgentEventName::AgentActivityAppGameAdapterDispatchResultReadModelReported
     );
     let read_model = dispatch_result_read_model(&event);
-    assert_eq!(read_model.adapter_execution_reported_count, 1);
-    assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
-    #[cfg(windows)]
-    assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 1);
-
-    #[cfg(not(windows))]
-    assert_eq!(read_model.adapter_dispatch_executed_claimed_count, 0);
-    let accepted = require_some(
-        read_model.rows.iter().find(|row| {
-            row.dispatch_adapter_execution_result_id.as_deref()
-                == Some(constants::enforcement::TEST_RESULT_ID)
-        }),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
-    #[cfg(windows)]
-    assert!(accepted.adapter_dispatch_executed_claimed);
-
-    #[cfg(not(windows))]
-    assert!(!accepted.adapter_dispatch_executed_claimed);
-    assert_eq!(
-        accepted.dispatch_adapter_execution_result_id.as_deref(),
-        Some(constants::enforcement::TEST_RESULT_ID)
-    );
-    assert_eq!(
-        accepted
-            .dispatch_adapter_execution_audit_event_id
-            .as_deref(),
-        Some(constants::enforcement::TEST_AUDIT_EVENT_ID)
-    );
-
-    #[cfg(windows)]
-    assert_eq!(
-        accepted.dispatch_adapter_execution_status.as_deref(),
-        Some(constants::enforcement::RESULT_ACTUALLY_ENFORCED)
-    );
-
-    #[cfg(not(windows))]
-    assert_eq!(
-        accepted.dispatch_adapter_execution_status.as_deref(),
-        Some(constants::enforcement::RESULT_UNAVAILABLE)
-    );
+    assert_eq!(read_model.adapter_execution_reported_count, 0);
+    assert_eq!(read_model.adapter_execution_evidence_missing_count, 1);
+    assert!(read_model.rows.iter().all(|row| {
+        row.dispatch_adapter_execution_result_id.is_none()
+            && row.dispatch_adapter_execution_audit_event_id.is_none()
+            && !row.adapter_dispatch_executed_claimed
+    }));
 }
 
 #[tokio::test]
-async fn app_game_adapter_dispatch_execute_command_runs_scoped_enforcement_and_readback() {
-    let paths = temp_paths(APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID);
+async fn app_game_adapter_dispatch_readback_excludes_rejected_enforcement_audits() {
+    let paths = temp_paths("rejected-enforcement-audit");
     cleanup_paths(&paths);
-    let execute_event = build_activity_app_game_adapter_dispatch_execute_report_with_paths(
-        dispatch_execute_command(),
-        paths.clone(),
-    )
-    .await;
-    let readback_event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
+    let mut command = enforcement_execute_command();
+    command.payload.insert(
+        constants::field::POLICY_TARGET_TYPE.to_string(),
+        LogFieldValue::String(policy_constants::TARGET_TYPE_DEVICE.to_string()),
+    );
+    command.payload.insert(
+        constants::field::TARGET_ID.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    command.payload.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String(constants::enforcement::TEST_CHILD_DEVICE_ID.to_string()),
+    );
+    let rejection = build_enforcement_audit_report_with_paths(command, paths.clone()).await;
+    let event = build_activity_app_game_adapter_dispatch_result_report_with_store_path(
         dispatch_result_command(),
         ActivityStorePath(paths.store_path.clone()),
     )
     .await;
     cleanup_paths(&paths);
 
+    assert_eq!(rejection.event, AgentEventName::AgentCommandRejected);
+    let read_model = dispatch_result_read_model(&event);
+    assert_eq!(read_model.adapter_execution_reported_count, 0);
+    assert_eq!(read_model.adapter_execution_evidence_missing_count, 1);
+    assert!(read_model.rows.iter().all(|row| {
+        row.dispatch_adapter_execution_status.is_none()
+            && row.dispatch_adapter_execution_audit_event_id.is_none()
+            && !row.adapter_dispatch_executed_claimed
+    }));
+}
+
+#[tokio::test]
+async fn app_game_adapter_dispatch_rejection_does_not_create_pre_action_execution_evidence() {
+    let paths = temp_paths("pre-action-audit-provenance");
+    cleanup_paths(&paths);
+    let execute_event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(
+            dispatch_execute_command(),
+            paths.clone(),
+        ),
+    )
+    .await;
+    let pre_action_evidence = ActivityStore::open(&paths.store_path).and_then(|store| {
+        store.latest_matching_enforcement_audit_fields(|fields| {
+            fields.get(constants::field::SOURCE_READ_MODEL_ID)
+                == Some(&LogFieldValue::String(
+                    APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL_ID.to_string(),
+                ))
+                && fields.get(constants::field::ENFORCEMENT_STATUS)
+                    == Some(&LogFieldValue::String(
+                        constants::enforcement::RESULT_WOULD_ENFORCE.to_string(),
+                    ))
+        })
+    });
+    cleanup_paths(&paths);
+
+    assert_eq!(execute_event.event, AgentEventName::AgentCommandRejected);
+    assert!(matches!(pre_action_evidence, Ok(None)));
+}
+
+#[tokio::test]
+async fn app_game_adapter_dispatch_execute_requires_stored_session_evidence() {
+    let paths = temp_paths(APP_GAME_ADAPTER_DISPATCH_EXECUTE_TEST_COMMAND_ID);
+    cleanup_paths(&paths);
+    let execute_event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(
+            dispatch_execute_command(),
+            paths.clone(),
+        ),
+    )
+    .await;
+    cleanup_paths(&paths);
+
+    assert_eq!(execute_event.event, AgentEventName::AgentCommandRejected);
     assert_eq!(
-        execute_event.event,
-        AgentEventName::AgentActivityAppGameAdapterDispatchExecuted
+        execute_event
+            .payload
+            .get(constants::field::REASON)
+            .and_then(string_log_value),
+        Some(TestText::from_display(
+            constants::enforcement::REJECTION_APP_GAME_SESSION_EVIDENCE_REQUIRED,
+        ))
     );
-    let execute_result = dispatch_execute_result(&execute_event);
+}
+
+#[tokio::test]
+async fn app_game_adapter_dispatch_execute_rejects_unresolved_runtime_evidence() {
+    let paths = temp_paths("unresolved-runtime-evidence");
+    cleanup_paths(&paths);
+    let mut command = dispatch_execute_command();
+    command.payload.insert(
+        constants::field::APP_GAME_RUNTIME_EVIDENCE_ID.to_string(),
+        LogFieldValue::String("runtime-evidence-missing-from-store".to_string()),
+    );
+    command.payload.insert(
+        constants::field::PROCESS_ID.to_string(),
+        LogFieldValue::Number(4242.0),
+    );
+    command.payload.insert(
+        constants::field::POLICY_TARGET_VALUE.to_string(),
+        LogFieldValue::String("ocentra-fixture.exe".to_string()),
+    );
+    command.payload.insert(
+        constants::field::EVIDENCE_REFERENCE_IDS.to_string(),
+        LogFieldValue::String("runtime-evidence-missing-from-store".to_string()),
+    );
+    let event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone()),
+    )
+    .await;
+    cleanup_paths(&paths);
+
+    assert_eq!(event.event, AgentEventName::AgentCommandRejected);
     assert_eq!(
-        execute_result
-            .get(constants::field::EXECUTION_RESULT_ID)
-            .and_then(|value| value.as_str()),
-        Some(constants::enforcement::TEST_RESULT_ID)
+        event
+            .payload
+            .get(constants::field::REASON)
+            .and_then(string_log_value),
+        Some(TestText::from_display(
+            constants::enforcement::REJECTION_APP_GAME_RUNTIME_EVIDENCE_MISMATCH,
+        ))
     );
-    assert_eq!(
-        execute_result
-            .get(constants::field::EXECUTION_AUDIT_EVENT_ID)
-            .and_then(|value| value.as_str()),
-        Some(constants::enforcement::TEST_AUDIT_EVENT_ID)
-    );
-    assert_eq!(
-        execute_result
-            .get(constants::field::BROAD_INSTALLED_APP_BLOCKING_CLAIMED)
-            .and_then(|value| value.as_bool()),
-        Some(false)
-    );
-    let read_model = dispatch_result_read_model(&readback_event);
-    assert_eq!(read_model.adapter_execution_reported_count, 1);
-    assert_eq!(read_model.adapter_execution_evidence_missing_count, 0);
 }
 
 #[tokio::test]
@@ -182,9 +233,10 @@ async fn app_game_adapter_dispatch_execute_rejects_non_windows_targets() {
     cleanup_paths(&paths);
     let mut command = dispatch_execute_command();
     command.target.platform = constants::enforcement::PLATFORM_LINUX.to_string();
-    let event =
-        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone())
-            .await;
+    let event = Box::pin(
+        build_activity_app_game_adapter_dispatch_execute_report_with_paths(command, paths.clone()),
+    )
+    .await;
     cleanup_paths(&paths);
 
     assert_eq!(event.event, AgentEventName::AgentCommandRejected);
@@ -336,19 +388,6 @@ fn dispatch_result_read_model(
         event
             .payload
             .get(constants::field::APP_GAME_ADAPTER_DISPATCH_RESULT_READ_MODEL)
-            .and_then(string_log_value),
-        constants::error::AGENT_EVENT_SERIALIZES,
-    );
-    require_json_decode(value, constants::error::AGENT_EVENT_SERIALIZES)
-}
-
-fn dispatch_execute_result(
-    event: &ocentra_parent_agent_protocol::transport::AgentEventEnvelope,
-) -> serde_json::Value {
-    let value = require_some(
-        event
-            .payload
-            .get(constants::field::APP_GAME_ADAPTER_DISPATCH_EXECUTE_RESULT)
             .and_then(string_log_value),
         constants::error::AGENT_EVENT_SERIALIZES,
     );

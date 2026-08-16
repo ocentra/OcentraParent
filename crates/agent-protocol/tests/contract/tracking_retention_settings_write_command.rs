@@ -1,4 +1,5 @@
 use ocentra_eventing::envelope::DomainEvent;
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_eventing::request::{EventResponseContract, RequestEvent};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::config_update_event::{
@@ -29,10 +30,10 @@ use ocentra_parent_agent_protocol::transport::{AgentCommandName, AgentEventName}
 fn retention_settings_write_command_and_event_names_serialize_to_contract_shape() {
     let command =
         serde_json::to_value(AgentCommandName::AgentActivityTrackingRetentionSettingsWrite)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let event =
         serde_json::to_value(AgentEventName::AgentActivityTrackingRetentionSettingsWriteReported)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(command, "agent.activity.tracking.retention-settings.write");
     assert_eq!(
@@ -64,7 +65,8 @@ fn retention_settings_write_request_serializes_without_remote_overclaims() {
         ],
     };
 
-    let serialized = serde_json::to_value(request).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(request).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["schemaVersion"],
@@ -126,7 +128,8 @@ fn retention_settings_write_result_serializes_local_execution_without_product_ov
         product_claim_state: TrackingExecutionClaimState::Unclaimed,
     };
 
-    let serialized = serde_json::to_value(result).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let serialized =
+        serde_json::to_value(result).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         serialized["schemaVersion"],
@@ -171,40 +174,40 @@ fn child_check_in_request_contract_serializes_with_check_in_id_as_request_id() {
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         check_in_id: TrackingCheckInId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         requested_at: TrackingTimestamp::parse(constants::tracking_runtime::DEFAULT_OBSERVED_AT)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         request_state: TrackingChildCheckInRequestState::Pending,
         delivery_state: TrackingChildCheckInDeliveryState::Queued,
         related_alert_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         include_location_if_permitted: true,
         expires_at: TrackingTimestamp::parse("2026-06-12T12:05:00Z")
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         evidence_refs: vec![TrackingEvidenceRef::parse(
             constants::tracking_runtime::DEFAULT_EVIDENCE_REF,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES)],
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES)],
         audit_refs: vec![String::from("audit.tracking.child-check-in.request")],
     };
 
     let serialized =
-        serde_json::to_value(&request).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&request).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         request
             .contract()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .event_type
             .as_str(),
         constants::tracking_runtime::TRACKING_CHILD_CHECK_IN_REQUESTED_EVENT_TYPE
@@ -212,7 +215,7 @@ fn child_check_in_request_contract_serializes_with_check_in_id_as_request_id() {
     assert_eq!(
         request
             .request_id()
-            .expect(constants::error::AGENT_EVENT_SERIALIZES)
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES)
             .as_str(),
         constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID
     );
@@ -237,39 +240,39 @@ fn child_check_in_request_receipt_serializes_delivery_receipt_state_and_reason()
         child_device_id: TrackingChildDeviceId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_DEVICE_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         child_profile_id: TrackingChildProfileId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_PROFILE_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         check_in_id: TrackingCheckInId::parse(
             constants::tracking_runtime::DEFAULT_CHILD_CHECK_IN_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         related_alert_id: TrackingPolicyViolationId::parse(
             constants::tracking_runtime::DEFAULT_POLICY_VIOLATION_ID,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         request_state: TrackingChildCheckInRequestState::Pending,
         delivery_state: TrackingChildCheckInDeliveryState::Duplicate,
         receipt_recorded_at: TrackingTimestamp::parse(
             constants::tracking_runtime::DEFAULT_OBSERVED_AT,
         )
-        .expect(constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         reason_code: Some(
             TrackingReasonCode::parse(
                 constants::tracking_runtime::REASON_DUPLICATE_CHECK_IN_REQUEST,
             )
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         ),
     };
 
     let serialized =
-        serde_json::to_value(&receipt).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(&receipt).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     receipt
         .validate()
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     assert_eq!(serialized["schemaVersion"], TRACKING_RUNTIME_SCHEMA_VERSION);
     assert_eq!(
         serialized["deliveryState"],

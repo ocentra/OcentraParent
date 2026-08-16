@@ -15,8 +15,10 @@ use ocentra_parent_agent_protocol::{
     DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
     DeviceRuntimeSurface, LanPairingParentAuthority,
 };
+use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
-    dispatch_parent_ui_action, load_parent_route_snapshot, load_parent_subscription_event,
+    dispatch_parent_ui_action, load_parent_route_snapshot, parent_agent_service_health_for_address,
+    parent_agent_service_health_timeout_ms,
 };
 use ocentra_schema::parent_ui_bridge::{
     ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
@@ -26,8 +28,14 @@ use ocentra_schema::parent_ui_bridge::{
 use serde::Serialize;
 use tauri::{AppHandle, Emitter, State as TauriState};
 
-const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
+use self::parent_route_subscription_delivery::{
+    deliver_parent_route_subscription_event, ParentRouteSubscriptionDeliveryState,
+};
 
+pub mod parent_route_subscription_delivery;
+
+// Compatibility/test-only raw socket probe; production readiness uses the typed health handshake.
+const LEGACY_SOCKET_CONNECT_TIMEOUT_MS: u64 = 250;
 #[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
 #[serde(transparent)]
 pub struct ParentRouteSubscriptionId(pub String);
@@ -152,7 +160,9 @@ impl ParentRouteSubscriptionRegistry {
 
 #[tauri::command]
 fn parent_platform_proof_state() -> ParentDesktopPlatformProofState {
-    parent_platform_proof_state_for_address(configured_agent_address())
+    let agent_address = configured_agent_address();
+    let service_is_healthy = parent_agent_service_health_for_address(agent_address.0.as_str());
+    parent_platform_proof_state_for_connection(agent_address, service_is_healthy)
 }
 
 #[tauri::command]
@@ -219,7 +229,10 @@ fn spawn_parent_route_subscription(
     active: Arc<AtomicBool>,
 ) {
     thread::spawn(move || {
-        let mut last_snapshot = Some(load_parent_route_snapshot(route.clone(), context.as_ref()));
+        let mut load_state = ParentRouteSubscriptionLoadState::default();
+        let mut delivery_state = ParentRouteSubscriptionDeliveryState::new(
+            load_parent_route_snapshot(route.clone(), context.as_ref()),
+        );
         while active.load(Ordering::SeqCst) {
             thread::sleep(Duration::from_millis(
                 PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS,
@@ -227,14 +240,14 @@ fn spawn_parent_route_subscription(
             if !active.load(Ordering::SeqCst) {
                 break;
             }
-            let event = load_parent_subscription_event(route.clone(), context.as_ref());
-            if last_snapshot.as_ref() == Some(&event.snapshot) {
-                continue;
-            }
-            if emit_parent_route_subscription_event(&app, &subscription_id, &event).is_err() {
+            let event = load_state.load(route.clone(), context.as_ref());
+            if deliver_parent_route_subscription_event(&mut delivery_state, &event, |event| {
+                emit_parent_route_subscription_event(&app, &subscription_id, event)
+            })
+            .is_err()
+            {
                 break;
             }
-            last_snapshot = Some(event.snapshot);
         }
         let _ = registry.unregister(&subscription_id);
     });
@@ -261,6 +274,13 @@ pub fn parent_platform_proof_state_for_address(
     agent_address: ParentDesktopAgentAddress,
 ) -> ParentDesktopPlatformProofState {
     let service_connects = agent_service_connects(&agent_address);
+    parent_platform_proof_state_for_connection(agent_address, service_connects)
+}
+
+fn parent_platform_proof_state_for_connection(
+    agent_address: ParentDesktopAgentAddress,
+    service_connects: bool,
+) -> ParentDesktopPlatformProofState {
     let agent_address = agent_address.0;
     let service_state = if service_connects {
         constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
@@ -306,7 +326,7 @@ pub fn parent_platform_proof_state_for_address(
             constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_OWNER_PACKAGE_SERVICE.to_string(),
         service_launch_strategy_state:
             constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_STRATEGY_CONNECT_OR_DEGRADE.to_string(),
-        service_connect_timeout_ms: SERVICE_CONNECT_TIMEOUT_MS,
+        service_connect_timeout_ms: parent_agent_service_health_timeout_ms(),
         package_service_manager_state: constants::value::PARENT_DESKTOP_PACKAGE_SERVICE_AUTO_START
             .to_string(),
         package_health_probe_state: constants::value::PARENT_DESKTOP_PACKAGE_HEALTH_PROBE_REQUIRED
@@ -346,8 +366,11 @@ pub fn agent_service_connects(agent_address: &ParentDesktopAgentAddress) -> bool
         .parse::<SocketAddr>()
         .ok()
         .and_then(|address| {
-            TcpStream::connect_timeout(&address, Duration::from_millis(SERVICE_CONNECT_TIMEOUT_MS))
-                .ok()
+            TcpStream::connect_timeout(
+                &address,
+                Duration::from_millis(LEGACY_SOCKET_CONNECT_TIMEOUT_MS),
+            )
+            .ok()
         })
         .is_some()
 }

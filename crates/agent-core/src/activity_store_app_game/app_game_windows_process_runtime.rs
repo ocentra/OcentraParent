@@ -1,7 +1,5 @@
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
-use ocentra_parent_agent_protocol::app_game::{
-    AppGameRuntimeEvidenceRow, AppGameSessionSummary, APP_GAME_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::app_game::{AppGameRuntimeEvidenceRow, AppGameSessionSummary};
 
 #[path = "app_game_windows_process_runtime_row.rs"]
 mod app_game_windows_process_runtime_row;

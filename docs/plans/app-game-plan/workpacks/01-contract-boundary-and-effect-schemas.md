@@ -23,17 +23,19 @@ Shared app/game identity, inventory, runtime, foreground, launcher, session, cat
 Current owner path:
 
 ```text
-crates/schema or the owning Rust crate:
+the owning Rust crate:
   canonical shared app/game contracts when shapes cross package, crate, app, or plan boundaries.
 packages/schema-domain:
-  temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
-packages/app-game-domain:
-  helper/projection/focused validation only.
-crates/app-game-core / crates/agent-protocol / crates/agent-service:
-  Rust/runtime/wire/service consumers only when selected.
+  generated-validation or edge-decoder surface only.
+crates/agent-protocol / crates/agent-core / crates/app-game-core / crates/agent-service:
+  canonical Rust contract/runtime/wire/service owners when selected.
 ```
 
-Historical references to `packages/activity-domain/src/app-game*.ts` and `packages/parent-domain` are stale owner paths for new canonical shared shapes. Existing legacy contracts may be read for migration context, but new cross-boundary shape ownership should be in `crates/schema` or another explicitly neutral Rust-owned boundary. Use `schema-domain` only as a temporary generated-validation or edge-decoder surface while migration is still incomplete.
+Historical references to `packages/activity-domain`, `packages/parent-domain`,
+`packages/agent-protocol-domain`, `packages/text-domain`, and
+`packages/app-game-domain` are stale: those tracked owners are absent. Existing
+workpack prose may be read for migration context, but current ownership is the
+Rust-first map in `CODE_AUDIT.md` and the executable graph.
 
 Required scope:
 
@@ -52,8 +54,8 @@ cargo test -p ocentra-schema
 cargo lint-architecture crates/schema
 npm run build --workspace @ocentra-parent/schema-domain
 npm run type-check --workspace @ocentra-parent/schema-domain
-npm run build --workspace @ocentra-parent/app-game-domain
-npm run test --workspace @ocentra-parent/app-game-domain
+cargo test -p ocentra-app-game-core app_game
+cargo test -p ocentra-parent-agent-protocol app_game
 ```
 
 If Rust/wire/service consumers are touched, add the focused commands from `TEST_PROOF_EXPECTATIONS.md`.

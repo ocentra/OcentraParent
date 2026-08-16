@@ -1,21 +1,44 @@
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::{
+    collections::BTreeMap,
+    path::{Path, PathBuf},
+    sync::{Arc, Mutex, MutexGuard},
+};
 
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
-    envelope::DomainEvent, envelope::EventContract, envelope::EventMetadata, envelope::EventSource,
-    error::EventingError, ids::AggregateKey, ids::CorrelationId, ids::EventCustody, ids::EventId,
-    ids::EventType, ids::IdempotencyKey, ids::RecordedAt, ids::RuntimeInstanceId,
-    ids::SchemaVersion, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
+    bus::reports::handler::{HandlerOutcome, PublishReport},
+    bus::subscriber::EventSubscriber,
+    bus::subscriber::SubscriptionReport,
+    bus::EventBus,
+    envelope::DomainEvent,
+    envelope::EventContract,
+    envelope::EventMetadata,
+    envelope::EventSource,
+    error::EventingError,
+    ids::AggregateKey,
+    ids::CorrelationId,
+    ids::EventCustody,
+    ids::EventId,
+    ids::EventType,
+    ids::IdempotencyKey,
+    ids::RecordedAt,
+    ids::RuntimeInstanceId,
+    ids::SchemaVersion,
+    ids::SourceComponent,
+    ids::SourceService,
+    ids::SubscriberId,
     ids::TargetHandler,
+    journal::ndjson::NdjsonEventJournal,
+    journal::ndjson::NdjsonJournalOptions,
 };
-use ocentra_parent_agent_core::screen_event_runtime::ScreenRuntimeReport;
+use ocentra_parent_agent_core::screen_event_runtime::{ScreenRuntimeReport, ScreenRuntimeSpine};
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
 use ocentra_parent_agent_protocol::constants;
 use serde::{Deserialize, Serialize};
 
 use crate::screen_ai_service_event_bridge::{
     publish_screen_degraded_event_chain, publish_screen_service_row_event_chain,
-    ScreenAiServiceEventBridgeError, ScreenAiServiceEventBridgeRefs,
+    screen_runtime_deletion_input_from_service_row, ScreenAiServiceEventBridgeError,
+    ScreenAiServiceEventBridgeRefs,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -29,6 +52,7 @@ pub(crate) mod live_view_service_runtime;
 
 pub(crate) struct ScreenAiServiceEventRuntime {
     bus: EventBus,
+    deletion_journals: Arc<Mutex<BTreeMap<PathBuf, NdjsonEventJournal>>>,
 }
 
 impl ScreenAiServiceEventRuntime {
@@ -36,7 +60,10 @@ impl ScreenAiServiceEventRuntime {
         let bus = EventBus::new();
         let state = ScreenAiServiceEventSubscriptionState::default();
         subscribe_screen_service_row_ready_events(&bus, state.clone()).await?;
-        Ok(Self { bus })
+        Ok(Self {
+            bus,
+            deletion_journals: Arc::new(Mutex::new(BTreeMap::new())),
+        })
     }
 
     pub(crate) async fn publish_row_ready(
@@ -51,6 +78,35 @@ impl ScreenAiServiceEventRuntime {
             observed_at,
         )
         .await
+    }
+
+    pub(crate) async fn publish_deletion_row(
+        &self,
+        row: ActivityScreenReadModelRow,
+        observed_at: ObservedAtText,
+        journal_path: &Path,
+    ) -> Result<ScreenRuntimeReport, ScreenAiServiceEventBridgeError> {
+        let input = screen_runtime_deletion_input_from_service_row(row)?;
+        let deletion_spine =
+            ScreenRuntimeSpine::with_durable_deletion_handler(self.deletion_journal(journal_path))
+                .await
+                .map_err(|_subscription_error| {
+                    ScreenAiServiceEventBridgeError::EventPublishFailed
+                })?;
+        deletion_spine
+            .publish_deletion_event(input, observed_at.0.as_str())
+            .await
+            .map_err(|_publish_error| ScreenAiServiceEventBridgeError::EventPublishFailed)
+    }
+
+    fn deletion_journal(&self, journal_path: &Path) -> NdjsonEventJournal {
+        let mut journals = lock_recover(&self.deletion_journals);
+        journals
+            .entry(journal_path.to_path_buf())
+            .or_insert_with(|| {
+                NdjsonEventJournal::with_options(journal_path, NdjsonJournalOptions::hash_chain())
+            })
+            .clone()
     }
 }
 
@@ -155,7 +211,7 @@ pub(crate) async fn publish_screen_service_row_ready_event(
     event: ScreenAiServiceRowReadyEvent,
     observed_at: ObservedAtText,
 ) -> Result<ocentra_eventing::bus::reports::handler::PublishReport, EventingError> {
-    bus.publish(event, screen_service_row_ready_metadata(observed_at)?)
+    bus.publish(event, screen_service_row_ready_metadata(&observed_at)?)
         .await
 }
 
@@ -169,7 +225,7 @@ async fn handle_screen_service_row_ready_event(
     let result = publish_screen_runtime_chain_for_row(event, observed_at).await;
 
     match result {
-        Ok(report) => {
+        Ok(report) if screen_runtime_report_succeeded(&report) => {
             let downstream_event_count = report.stored_events.len();
             let raw_image_escaped = report.raw_image_escaped();
             state.record(ScreenAiServiceEventSubscriptionDispatch::Published {
@@ -179,6 +235,18 @@ async fn handle_screen_service_row_ready_event(
                 raw_image_escaped,
             });
             Ok(())
+        }
+        Ok(_) => {
+            state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
+                queue_job_id,
+                screen_analysis_result_id,
+                reason: ScreenAiServiceEventBridgeError::EventPublishFailed,
+            });
+            Err(EventingError::InvalidValue {
+                field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+                value: constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS
+                    .to_string(),
+            })
         }
         Err(reason) => {
             state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
@@ -193,6 +261,23 @@ async fn handle_screen_service_row_ready_event(
             })
         }
     }
+}
+
+pub(crate) fn publish_report_succeeded(report: &PublishReport) -> bool {
+    report.subscriber_count > 0
+        && report.handled_count == report.subscriber_count
+        && report.dead_letter_count == 0
+        && report.handler_reports.len() == report.subscriber_count
+        && report
+            .handler_reports
+            .iter()
+            .all(|handler| handler.outcome == HandlerOutcome::Handled)
+}
+
+fn screen_runtime_report_succeeded(report: &ScreenRuntimeReport) -> bool {
+    report.dead_letters.is_empty()
+        && !report.publish_reports.is_empty()
+        && report.publish_reports.iter().all(publish_report_succeeded)
 }
 
 async fn publish_screen_runtime_chain_for_row(
@@ -219,7 +304,7 @@ fn screen_service_row_is_degraded(row: &ActivityScreenReadModelRow) -> bool {
 }
 
 fn screen_service_row_ready_metadata(
-    observed_at: ObservedAtText,
+    observed_at: &ObservedAtText,
 ) -> Result<EventMetadata, EventingError> {
     Ok(EventMetadata::from_parts(
         EventId::generated(),

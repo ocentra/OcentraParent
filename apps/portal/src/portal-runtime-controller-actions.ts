@@ -115,9 +115,30 @@ export function createPortalRuntimeActions(
         dispatchHostAction,
         {}
       ),
+    stagePolicyPreviewAuthoringDraft: (payload: ParentUiActionPayload) =>
+      createDispatchActionWithPayload(
+        ParentUiActionKind.PolicyPreviewAuthoringDraftStaged,
+        deps,
+        dispatchHostAction,
+        payload
+      ),
+    cancelPolicyPreviewAuthoringDraft: (payload: ParentUiActionPayload) =>
+      createDispatchActionWithPayload(
+        ParentUiActionKind.PolicyPreviewAuthoringDraftCancelled,
+        deps,
+        dispatchHostAction,
+        payload
+      ),
     requestPolicyRequestAssistantPreviewConfirm: (payload: ParentUiActionPayload) =>
       createDispatchActionWithPayload(
         ParentUiActionKind.PolicyRequestAssistantPreviewConfirmRequested,
+        deps,
+        dispatchHostAction,
+        payload
+      ),
+    requestPolicyRequestParentResolution: (payload: ParentUiActionPayload) =>
+      createDispatchActionWithPayload(
+        ParentUiActionKind.PolicyRequestParentResolutionRequested,
         deps,
         dispatchHostAction,
         payload

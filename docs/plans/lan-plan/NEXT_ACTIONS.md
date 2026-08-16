@@ -27,11 +27,11 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ## Highest-open workpacks by current remaining work
 
-- [16 Read Models And LAN Events](workpacks/16-read-models-and-lan-events.md): backend `agent-service` LAN runtime event-chain stream is locally green; remaining W16 work is richer network-flow evidence breadth, browser-side stream replay consumption, and physical/manual artifacts, not another local backend stream code gap.
+- [16 Read Models And LAN Events](workpacks/16-read-models-and-lan-events.md): backend stream, parent replay validation, desktop delivery decision, and portal listener/state seams exist and are separately tested. The next exact Phase 1 slice is one integrated backend replay -> real Tauri `AppHandle` emit -> portal-listener regression; richer network-flow and physical/manual evidence follow later.
 - [19 Assignment, Revocation, And Audit](workpacks/19-assignment-revocation-audit.md): main-lane route/runtime/UI verification bucket now reduced to broader physical/manual topology artifacts after the restart/readback Rust proof closed locally.
-- [20 Proof Gates, Fixtures, And Rollout](workpacks/20-proof-gates-fixtures-rollout.md): proof-gate wrapper stays open until the real physical/manual artifact family exists.
+- [20 Proof Gates, Fixtures, And Rollout](workpacks/20-proof-gates-fixtures-rollout.md): restore or replace all six aggregate verifier programs named by current LAN docs; every referenced `v0-9-*lan*`/production-discovery runner is absent from the current tree.
 - [23 Pairing And Route Proof](workpacks/23-pairing-and-route-proof.md): locally green Rust route/revoke proof with real two-device/manual topology artifacts still open.
-- [25 Rollout Checklist And PR Gate](workpacks/25-rollout-checklist-and-pr-gate.md): final wrapper stays open until the remaining manual-required LAN proofs are real; the broader wrapper gates and current Windows portal rerun are green in this lane.
+- [25 Rollout Checklist And PR Gate](workpacks/25-rollout-checklist-and-pr-gate.md): final wrapper depends first on the WP16 integrated delivery regression and WP20 executable verifier repair, then on the remaining manual-required LAN proofs.
 - [18 Signed Child Hello And Heartbeat](workpacks/18-signed-child-hello-heartbeat.md): local Rust/core closure is green; explicit iOS/manual and second-device physical proof remain open.
 
 ## Active note
@@ -56,12 +56,11 @@ workpack/checklist status and does not replace the assigned workpack.
   batches once a newer Rust-backed view is buffered, so subscribed LAN route
   updates no longer drop or regress Rust-owned event history while refreshing
   the latest snapshot.
-  Main-lane reruns are now green across `parent-runtime-core` route snapshot
-  tests, schema bridge contract tests, portal LAN consumer vitest coverage, and
-  the real Playwright LAN source-matrix plus network-evidence proof. Remaining
-  `16` work is the broader service/runtime parity path, canonical replay/event
-  proof, and richer explicit event-history diagnostics beyond the current
-  snapshot-backed `/devices` path.
+  Existing focused tests cover `parent-runtime-core` route snapshots, schema
+  bridge contracts, portal consumers, desktop delivery decisions, and the
+  backend runtime stream separately. They do not exercise a real `AppHandle`
+  emission into the portal listener. That integrated regression is the exact
+  remaining Phase 1 test gap; broader runtime/manual proof follows later.
 - The latest `03` slice lifts gateway, DNS server, DHCP server,
   broadcast-address, and IPv6-prefix capture into the shared Rust
   local-interface shape and persists that interface map into

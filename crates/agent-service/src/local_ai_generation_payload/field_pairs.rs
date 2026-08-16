@@ -4,10 +4,12 @@ use crate::fields::fields_from_pairs;
 
 pub(super) struct LocalAiGenerationFieldPair(pub(super) &'static str, pub(super) LogFieldValue);
 
+#[derive(Clone, Copy)]
 pub(super) struct LocalAiGenerationFieldKey(pub(super) &'static str);
 
 pub(super) struct LocalAiGenerationOwnedText(pub(super) String);
 
+#[derive(Clone, Copy)]
 pub(super) struct LocalAiGenerationTextRef<'a>(pub(super) &'a str);
 
 pub(super) fn local_ai_generation_fields_from_pairs(

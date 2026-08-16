@@ -18,7 +18,7 @@ pub(crate) fn spawn_screen_live_view_worker_runtime() {
     )) {
         return;
     }
-    let _ = run_screen_live_view_worker_runtime();
+    let _ = super::run_screen_live_view_worker_runtime();
 }
 
 pub(crate) fn run_screen_live_view_worker_runtime() -> ScreenLiveViewServiceRuntimeRecord {

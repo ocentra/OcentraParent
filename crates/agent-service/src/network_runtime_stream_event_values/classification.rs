@@ -22,12 +22,6 @@ pub(crate) fn ai_advisory_state(payload: &NetworkRuntimeEventPayload) -> Network
     advisory::ai_advisory_state(payload)
 }
 
-pub(crate) fn policy_decision_action(
-    payload: &NetworkRuntimeEventPayload,
-) -> ocentra_parent_agent_protocol::network_flow::NetworkPolicyDecisionAction {
-    advisory::policy_decision_action(payload)
-}
-
 pub(crate) fn enforcement_mode(payload: &NetworkRuntimeEventPayload) -> NetworkEnforcementMode {
     enforcement::enforcement_mode(payload)
 }

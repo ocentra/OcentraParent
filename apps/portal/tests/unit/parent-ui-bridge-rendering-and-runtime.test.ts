@@ -2,6 +2,11 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
+import {
+  PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY,
+  readStoredManageTargetSelection,
+  writeStoredManageTargetSelection,
+} from '@ocentra-parent/portal-domain/manage-target-selection';
 
 const BridgeContractFile = 'generated/parent-ui-bridge.ts';
 const ProductSnapshotRefreshFiles = [
@@ -296,4 +301,51 @@ it('product bridge guard: the product route shell does not mount parallel diagno
   for (const panel of ProductOverlayPanelsRemovedFromRouteShell) {
     expect(source).not.toContain(panel);
   }
+});
+
+it('product bridge guard: the vendor surface owns LAN target-selection persistence through its supported prop contract', () => {
+  const routeSource = readFileSync(resolve(TestDirectory, '..', 'src/ParentPortalRoute.tsx'), 'utf8');
+  const vendorSurfaceDeclaration = readFileSync(
+    resolve(TestDirectory, '..', 'src/vendor-parent-portal-surface.d.ts'),
+    'utf8'
+  );
+
+  expect(routeSource).not.toContain('onTargetChange=');
+  expect(vendorSurfaceDeclaration).toContain('export type ParentPortalSvgSurfaceProps = Readonly<{');
+  expect(vendorSurfaceDeclaration).not.toContain('Record<string, unknown>');
+});
+
+it('product bridge guard: vendor LAN selection uses the portal-domain storage read/write contract', () => {
+  const vendorSurfaceSource = readFileSync(
+    resolve(
+      TestDirectory,
+      '..',
+      '..',
+      '..',
+      'vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx'
+    ),
+    'utf8'
+  );
+  const storage = new Map<string, string>();
+  const selection = {
+    scope: 'perDevice' as const,
+    device: 'Child device',
+    deviceId: 'child-device-1',
+    browser: 'Chrome',
+  };
+  const storageContract = {
+    getItem(key: string): string | null {
+      return storage.get(key) ?? null;
+    },
+    setItem(key: string, value: string): void {
+      storage.set(key, value);
+    },
+  };
+
+  writeStoredManageTargetSelection(selection, storageContract);
+
+  expect(storage.get(PARENT_PORTAL_MANAGE_TARGET_SELECTION_STORAGE_KEY)).toBe(JSON.stringify(selection));
+  expect(readStoredManageTargetSelection(storageContract)).toEqual(selection);
+  expect(vendorSurfaceSource).toContain('() => readStoredManageTargetSelection() ?? defaultManageTargetSelection()');
+  expect(vendorSurfaceSource).toContain('writeStoredManageTargetSelection(manageTargetSelection);');
 });

@@ -1,3 +1,5 @@
+use chrono::{DateTime, FixedOffset, Utc};
+
 use crate::family_identity::{
     ActorAccountState, ChildProfileBindingState, DeviceOwnershipScope, DeviceTrustState,
     HouseholdMembershipState, HouseholdRole, SessionFreshnessState,
@@ -26,7 +28,10 @@ pub(crate) fn household_authority_failure_reason(
             HouseholdAuthorizationFailureReason::AccountNotActive,
         ),
         (
-            input.device_trust_state != DeviceTrustState::Trusted,
+            (input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+                && !bootstrap_sealing_state_is_allowed(input))
+                || (input.action != HouseholdAuthorityAction::SealParentDeviceTrust
+                    && input.device_trust_state != DeviceTrustState::Trusted),
             HouseholdAuthorizationFailureReason::DeviceNotTrusted,
         ),
         (
@@ -42,6 +47,11 @@ pub(crate) fn household_authority_failure_reason(
         (
             requires_child_profile_device_scope(input.action)
                 && input.device_ownership_scope != DeviceOwnershipScope::ChildProfileDevice,
+            HouseholdAuthorizationFailureReason::WrongDeviceScope,
+        ),
+        (
+            requires_parent_controller_device_scope(input.action)
+                && input.device_ownership_scope != DeviceOwnershipScope::ParentControllerDevice,
             HouseholdAuthorizationFailureReason::WrongDeviceScope,
         ),
         (
@@ -62,9 +72,15 @@ pub(crate) fn parent_step_up_validation_failure_reason(
     input: &ParentStepUpValidationInput,
     assertion: &ParentStepUpAssertionSnapshot,
 ) -> Option<ParentStepUpValidationFailureReason> {
+    let (Some(assertion_expires_at), Some(observed_at)) = (
+        parse_rfc3339_utc(&assertion.expires_at),
+        parse_rfc3339_utc(&input.observed_at),
+    ) else {
+        return Some(ParentStepUpValidationFailureReason::Expired);
+    };
     [
         (
-            assertion.expires_at < input.observed_at,
+            assertion_expires_at <= observed_at,
             ParentStepUpValidationFailureReason::Expired,
         ),
         (
@@ -103,6 +119,12 @@ pub(crate) fn parent_step_up_validation_failure_reason(
     .find_map(|(failed, reason)| failed.then_some(reason))
 }
 
+fn parse_rfc3339_utc(value: &str) -> Option<DateTime<Utc>> {
+    DateTime::<FixedOffset>::parse_from_rfc3339(value)
+        .ok()
+        .map(|timestamp| timestamp.with_timezone(&Utc))
+}
+
 pub(crate) fn audit_requirement_state(action: HouseholdAuthorityAction) -> AuditRequirementState {
     if matches!(action, HouseholdAuthorityAction::ViewChildStatus) {
         AuditRequirementState::NotRequired
@@ -116,7 +138,8 @@ pub(crate) fn elevated_confirmation_state(
 ) -> ElevatedConfirmationState {
     if matches!(
         action,
-        HouseholdAuthorityAction::RevokeChildDevice
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
             | HouseholdAuthorityAction::ManageBilling
@@ -131,6 +154,9 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
     matches!(
         (role, action),
         (
+            HouseholdRole::ParentOwner,
+            HouseholdAuthorityAction::SealParentDeviceTrust
+        ) | (
             HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
             HouseholdAuthorityAction::PairChildDevice
                 | HouseholdAuthorityAction::RevokeChildDevice
@@ -178,7 +204,8 @@ fn controller_lease_failure_reason(
 fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
-        HouseholdAuthorityAction::ChangePolicy
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
@@ -210,11 +237,29 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
     )
 }
 
+fn requires_parent_controller_device_scope(action: HouseholdAuthorityAction) -> bool {
+    matches!(action, HouseholdAuthorityAction::SealParentDeviceTrust)
+}
+
 fn requires_controller_lease(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
         HouseholdAuthorityAction::StartRemoteView | HouseholdAuthorityAction::StartRemoteControl
     )
+}
+
+fn bootstrap_sealing_state_is_allowed(input: &HouseholdAuthorityInput) -> bool {
+    input.action == HouseholdAuthorityAction::SealParentDeviceTrust
+        && matches!(
+            (input.device_trust_state, input.child_profile_binding_state),
+            (DeviceTrustState::Pending | DeviceTrustState::ResetRequired, _)
+                // A trusted parent controller with no child binding is the established
+                // controller path used when sealing local parent-device custody.
+                | (
+                    DeviceTrustState::Trusted,
+                    ChildProfileBindingState::Missing
+                )
+        )
 }
 
 fn matches_target_child_profile(asserted: Option<&str>, expected: Option<&str>) -> bool {

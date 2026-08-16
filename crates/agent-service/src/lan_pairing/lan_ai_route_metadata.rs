@@ -22,7 +22,7 @@ pub(crate) fn lan_ai_household_route_fields(
     let request = household_route_request(command, intent, requested_capability);
     let route =
         select_household_ai_provider_route(&request, &[household_provider_candidate(runtime)]);
-    let request_job_id = LanPairingText(request.job_id.clone());
+    let request_job_id = LanPairingText(request.job_id);
     fields_from_pairs(vec![
         (
             constants::field::LAN_AI_SELECTED_PROVIDER_PEER_ID,

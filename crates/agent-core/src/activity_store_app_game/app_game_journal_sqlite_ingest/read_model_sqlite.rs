@@ -1,13 +1,10 @@
 use ocentra_parent_agent_protocol::app_game::{
-    AppGameEvidenceClaim, AppGameForegroundEvidenceRow, AppGameIdentity,
-    AppGameInventoryEvidenceRow, AppGameLauncherEvidenceRow, AppGameRuntimeEvidenceRow,
     AppGameServiceReadModel, APP_GAME_CAPABILITY_STATUS_NOT_CLAIMED,
     APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE, APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED,
     APP_GAME_SCHEMA_VERSION,
 };
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use ocentra_parent_agent_protocol::{AppGameAiClassifierResult, AppGamePlatformAuthorityMatrix};
+use ocentra_parent_agent_protocol::logging::LogFields;
 use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;

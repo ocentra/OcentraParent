@@ -359,5 +359,6 @@ fn ok<T, E: std::fmt::Debug>(
     result: Result<T, E>,
     context: ScreenCaptureProofError,
 ) -> ProofResult<T> {
-    result.map_err(|error| ScreenCaptureProofError(format!("{}: {error:?}", context.0)))
+    let context = context.0;
+    result.map_err(|error| ScreenCaptureProofError(format!("{context}: {error:?}")))
 }

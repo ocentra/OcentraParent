@@ -1,34 +1,21 @@
-use ocentra_parent_agent_core::{
-    browser_event_runtime::{
-        publish_browser_runtime_chain_for_input,
-        request_browser_runtime_action_intent_handoff_for_input,
-        request_browser_runtime_action_intent_status_for_input,
-        request_browser_runtime_social_provider_receipt_status_for_input,
-        BrowserRuntimeActionIntentHandoffResponse, BrowserRuntimeActionIntentStatusResponse,
-        BrowserRuntimeReport, BrowserRuntimeSocialProviderReceiptStatusResponse,
-    },
-    parent_child_event_runtime::publish_parent_child_runtime_for_validated_intent,
+use ocentra_parent_agent_core::browser_event_runtime::{
+    publish_browser_runtime_chain_for_input,
+    request_browser_runtime_action_intent_handoff_for_input,
+    request_browser_runtime_action_intent_status_for_input,
+    request_browser_runtime_social_provider_receipt_status_for_input,
 };
 use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
 use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
-use ocentra_parent_agent_protocol::child_agent::child_agent_events::ChildCommandKind;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::logging::LogFields;
-use ocentra_parent_agent_protocol::parent_controller_events::{
-    ParentControllerActionKind, ParentControllerSource,
-};
-use ocentra_parent_agent_protocol::transport::parent_child_runtime_input::ParentChildRuntimeInput;
-use ocentra_parent_agent_protocol::transport::ParentChildRuntimeEventPayload;
 use serde::{Deserialize, Serialize};
 
 use crate::{
     browser_runtime_delivery::{
         browser_runtime_input_from_row, browser_runtime_input_from_row_with_policy_preview,
     },
-    browser_runtime_stream_events::{
-        stream_entries_from_report, BrowserRuntimeServiceStreamEntry, BrowserRuntimeText,
-    },
+    browser_runtime_stream_events::BrowserRuntimeServiceStreamEntry,
     fields::fields_from_pairs,
     json_contract::serialize_json_string,
 };
@@ -180,13 +167,13 @@ fn action_intent_payload_fields(report: &BrowserRuntimeServiceStreamReport) -> B
         ),
         (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_OUTBOX_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.action_intent_handoff_outbox_refs.clone(),
             )),
         ),
         (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.action_intent_handoff_refs.clone(),
             )),
         ),
@@ -196,19 +183,19 @@ fn action_intent_payload_fields(report: &BrowserRuntimeServiceStreamReport) -> B
         ),
         (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_COMMAND_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.action_intent_child_command_refs.clone(),
             )),
         ),
         (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_CHILD_ACCEPTED_EVENT_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.action_intent_child_accepted_event_refs.clone(),
             )),
         ),
         (
             constants::field::BROWSER_RUNTIME_ACTION_INTENT_PARENT_READ_MODEL_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.action_intent_parent_read_model_refs.clone(),
             )),
         ),
@@ -249,13 +236,13 @@ fn social_provider_receipt_payload_fields(
         ),
         (
             constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.social_provider_attempt_refs.clone(),
             )),
         ),
         (
             constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.social_provider_receipt_proof_refs.clone(),
             )),
         ),
@@ -265,25 +252,25 @@ fn social_provider_receipt_payload_fields(
         ),
         (
             constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_RESULT_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.social_provider_durable_result_refs.clone(),
             )),
         ),
         (
             constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_DURABLE_STORE_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.social_provider_durable_store_refs.clone(),
             )),
         ),
         (
             constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_READ_MODEL_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.social_provider_read_model_refs.clone(),
             )),
         ),
         (
             constants::field::BROWSER_RUNTIME_SOCIAL_PROVIDER_SUPPORT_STATUS_REFS,
-            string_array_value(BrowserRuntimeStrings(
+            string_array_value(&BrowserRuntimeStrings(
                 report.social_provider_support_status_refs.clone(),
             )),
         ),
@@ -294,6 +281,6 @@ fn count_value(value: usize) -> LogFieldValue {
     LogFieldValue::Number(value as f64)
 }
 
-fn string_array_value(values: BrowserRuntimeStrings) -> LogFieldValue {
+fn string_array_value(values: &BrowserRuntimeStrings) -> LogFieldValue {
     LogFieldValue::String(serialize_json_string(&values.0).0)
 }

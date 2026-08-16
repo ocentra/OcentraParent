@@ -6,6 +6,7 @@ use super::{
     AGENT_PROTOCOL_SCHEMA_VERSION,
 };
 use crate::local_ai_runtime::status::LocalProviderCapability;
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn local_model_runtime_status_serializes_to_typescript_contract_shape() {
@@ -29,7 +30,7 @@ fn local_model_runtime_status_serializes_to_typescript_contract_shape() {
         ),
     };
 
-    let serialized = serde_json::to_value(status).expect("local AI status serializes: {error:?}");
+    let serialized = serde_json::to_value(status).expect_value("local AI status serializes");
 
     assert_eq!(
         serialized["runtimeReferenceId"],
@@ -91,7 +92,7 @@ fn local_model_load_state_serializes_every_safe_lifecycle_state() {
     ];
 
     for (state, expected) in states {
-        let serialized = serde_json::to_value(state).expect("load state serializes: {error:?}");
+        let serialized = serde_json::to_value(state).expect_value("load state serializes");
 
         assert_eq!(serialized, expected);
     }
@@ -108,7 +109,7 @@ fn local_provider_capability_serializes_local_only_without_remote_ai() {
     };
 
     let serialized =
-        serde_json::to_value(capability).expect("provider capability serializes: {error:?}");
+        serde_json::to_value(capability).expect_value("provider capability serializes");
 
     assert_eq!(
         serialized["privacyMode"],
@@ -139,7 +140,7 @@ fn local_ai_runtime_status_command_serializes_to_typescript_contract_shape() {
         payload: LogFields::new(),
     };
 
-    let serialized = serde_json::to_value(command).expect("command serializes: {error:?}");
+    let serialized = serde_json::to_value(command).expect_value("command serializes");
 
     assert_eq!(serialized["command"], "agent.local-ai.runtime.status.get");
 }

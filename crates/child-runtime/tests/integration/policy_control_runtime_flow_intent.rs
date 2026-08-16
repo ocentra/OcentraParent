@@ -38,12 +38,14 @@ trait ResultRequiredExt<T, E> {
 impl<T, E: std::fmt::Debug> ResultRequiredExt<T, E> for Result<T, E> {
     fn required(self, context: impl std::fmt::Display) -> T {
         let context = context.to_string();
-        self.expect(&context)
+        let _ = context;
+        self.unwrap_or_else(|_| std::process::abort())
     }
 
     fn required_err(self, context: impl std::fmt::Display) -> E {
         let context = context.to_string();
-        self.err().expect(&context)
+        let _ = context;
+        self.err().unwrap_or_else(|| std::process::abort())
     }
 }
 
@@ -314,7 +316,7 @@ fn assistant_preview_and_confirmation_stay_gated_until_parent_review() {
 }
 
 #[test]
-fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
+fn resolved_request_queues_delivery_and_surfaces_manual_required_without_losing_audit_refs() {
     let request = child_request();
     let resolved = resolve_policy_control_request_handoff(
         &request,
@@ -354,6 +356,27 @@ fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
         .is_none());
     assert!(queued.delivery.source_rollback_ref.is_none());
 
+    let mut mismatched_target = sample_delivery_target();
+    mismatched_target.device_id =
+        PolicyDeviceId::parse("device-other").required("mismatched policy device id");
+    let error = queue_policy_control_delivery_handoff(
+        &compiled,
+        mismatched_target,
+        &resolved.request,
+        resolved.temporary_override.as_ref(),
+        PolicyDeliveryId::parse("delivery-mismatched-target").required("policy delivery id"),
+        PolicyDeliveryAttemptId::parse("attempt-mismatched-target").required("policy attempt id"),
+        vec![audit_ref("audit-policy-queued")],
+    )
+    .required_err("cross-request target must not queue");
+    assert_eq!(
+        error,
+        EventingError::InvalidValue {
+            field: "policy_delivery.target.device_id",
+            value: "request-target-mismatch".to_string(),
+        }
+    );
+
     let applied = apply_policy_control_delivery_handoff(
         &resolved.request,
         resolved.temporary_override.as_ref(),
@@ -369,12 +392,14 @@ fn resolved_request_can_queue_and_apply_delivery_without_losing_audit_refs() {
             rollback_reference_state: None,
         },
     )
-    .required("applied delivery handoff");
+    .required("receipt-required delivery handoff surfaces dependency state");
 
     assert_eq!(
         applied.parent_notification.state,
-        ocentra_child_notification_core::policy_control_notification::PolicyControlNotificationState::DeliveryApplied
+        ocentra_child_notification_core::policy_control_notification::PolicyControlNotificationState::DeliveryManualRequired
     );
+    assert_eq!(applied.delivery.state, PolicyDeliveryState::ManualRequired);
+    assert!(!applied.delivery.is_active());
     assert_eq!(applied.parent_notification.audit_reference_ids.len(), 3);
 }
 
@@ -420,8 +445,8 @@ fn replay_and_expire_paths_do_not_create_extra_delivery_truth() {
     assert_eq!(
         error,
         EventingError::InvalidValue {
-            field: "policy_control_notification.delivery_state",
-            value: "expired".to_string(),
+            field: "policy_delivery.request_status",
+            value: "approved-or-modified-required:expired".to_string(),
         }
     );
 }

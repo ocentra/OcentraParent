@@ -6,7 +6,7 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 ## Current status
 
-`blocked / proof-present`
+`source-present / focused-validation-recorded / no-production-claim`
 
 ## First-touch surface
 
@@ -21,8 +21,10 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 ## Output files
 
 - `infra/cloudflare/`
+- `infra/cloudflare/package.json`
 - [SOURCE_SURFACE_STATUS_MATRIX.md](../SOURCE_SURFACE_STATUS_MATRIX.md)
-- `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/`
+- `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/03-package-dependency-graph.md`
+- [tracked receipt](../../../proof/cloudflare-control-plane-plan/01-cloudflare-module-scaffold.md)
 
 ## Execution truth
 
@@ -36,14 +38,17 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 - The concentrated runtime versus placeholder subdirectories is explicit:
   - real runtime files include `src/index.ts`, `src/env.ts`, `src/routes.ts`, `src/billing-binding-read-model.ts`, `src/fixtures.ts`, `src/testing.ts`, `src/auth/model.ts`, `src/auth/verifier.ts`, and `src/security/redaction.ts`
   - scaffold-only directories still carry `README.md` placeholders under `src/durable-objects/`, `src/flows/`, `src/handlers/`, `src/observability/`, `src/providers/`, `src/queues/`, and `src/storage/`
-- The proof root `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` is now real.
-- The packet remains blocked because the scoped module lint gate fails outside WP01 ownership on missing `packages/billing-domain/src/*.js` boundary modules imported by `infra/cloudflare`.
+- The former missing `billing-domain` import blocker is stale: `infra/cloudflare` now consumes module-local generated billing contracts.
+- The selected dependency graph now resolves normally: `wrangler@4.115.0` with `@cloudflare/workers-types@5.20260804.1`, from the declared `^5.20260722.1` range. The former Wrangler/Workers Types peer mismatch is closed for this module graph.
+- Focused current gates pass: module lint; unit `49/49`; contract `14/14`; integration `70/70`, including real local Wrangler Worker boot; and Cloudflare architecture policy. The detailed command log and negative/teardown records are retained under `output/cloudflare-control-plane-plan-proof/01-cloudflare-module-scaffold/` with a tracked receipt alongside this plan.
 
 ## Acceptance
 
 - The module tree exists.
 - Package scripts are explicit.
 - The concentrated runtime surface versus placeholder subdirectories is explicit.
+- The selected `wrangler` and `@cloudflare/workers-types` declarations resolve without a peer mismatch, with the exact resolver output retained in `03-package-dependency-graph.md`.
+- WP07 remains a separate proof-only workpack and is not closed or started by this WP01 refresh.
 
 ## Proof IDs
 
@@ -53,6 +58,8 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 ## Validation
 
 - Scoped validation: `npm --prefix infra/cloudflare run lint`
+- Dependency reconciliation: `npm --prefix infra/cloudflare install --ignore-scripts --no-audit --no-fund --no-package-lock`
+- Resolved graph: `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types`
 - Architecture validation: `npm run lint:architecture -- --files infra/cloudflare`
 
 ## Negative cases
@@ -63,13 +70,17 @@ Keep the repo-local `infra/cloudflare/` module shape honest without overclaiming
 
 - Do not claim module completion from directory existence alone.
 
-## Exact validations
+## Current focused validations
 
-- `cmd /c npm --prefix infra/cloudflare run lint` -> blocked
-- `cmd /c npm run lint:architecture -- --files infra/cloudflare/src/index.ts infra/cloudflare/src/env.ts infra/cloudflare/src/routes.ts infra/cloudflare/src/auth/verifier.ts infra/cloudflare/scripts/test-runner.ts infra/cloudflare/tests/unit/env-bindings.test.ts infra/cloudflare/tests/unit/route-manifest.test.ts` -> exited 0 but matched zero files, so it is non-proving rather than green coverage
+- `npm --prefix infra/cloudflare run lint` -> passed
+- `npm --prefix infra/cloudflare run test:unit` -> passed (49 tests across 7 suites)
+- `npm --prefix infra/cloudflare run test:contract` -> passed (14 tests)
+- `npm --prefix infra/cloudflare run test:integration` -> passed (70 tests, including real local Wrangler Worker boot)
+- `npm run lint:architecture -- --files infra/cloudflare` -> passed (architecture-policy and generated-artifacts)
 
 ## No-claim boundary
 
 - This workpack does not claim payment readiness, account authority, trusted-device authority, storage operations readiness, or deployment readiness.
 - This workpack does not claim runtime completeness from placeholder directories, docs, or script presence alone.
-- This workpack does not claim validation-green status while module lint is blocked and the architecture helper is currently skipping the requested file set.
+- This workpack claims only its scaffold/package-script acceptance and its scoped validation. It does not claim broader Cloudflare runtime readiness.
+- This workpack records a clean local dependency graph and focused validation only; it does not grant a bypass for WP07's separate local-dev proof requirements.

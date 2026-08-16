@@ -45,17 +45,17 @@ pub enum ReportQueryCustodySourceDataClass {
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 pub enum ReportQueryCustodyNonClaim {
     #[serde(rename = "no-second-truth-store")]
-    NoSecondTruthStore,
+    SecondTruthStore,
     #[serde(rename = "no-portal-ui")]
-    NoPortalUi,
+    PortalUi,
     #[serde(rename = "no-raw-child-evidence")]
-    NoRawChildEvidence,
+    RawChildEvidence,
     #[serde(rename = "no-unbounded-pagination")]
-    NoUnboundedPagination,
+    UnboundedPagination,
     #[serde(rename = "no-provider-routing")]
-    NoProviderRouting,
+    ProviderRouting,
     #[serde(rename = "no-ocentra-hosted-family-data-custody")]
-    NoOcentraHostedFamilyDataCustody,
+    OcentraHostedFamilyDataCustody,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]

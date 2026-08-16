@@ -11,16 +11,13 @@ use ocentra_parent_agent_protocol::enforcement_os_adapter_product_proof::V08OsAd
 use ocentra_parent_agent_protocol::enforcement_readiness::EnforcementReadinessState;
 use ocentra_parent_agent_protocol::policy_constants;
 
-use self::test_text::{count_for_display, test_ok, TestResult, TestText};
+use crate::test_text::{count_for_display, test_ok, TestResult, TestText};
 use crate::{
     enforcement_os_adapter_product_proof_read_model::{
         v08_os_adapter_product_proof_read_model, GeneratedAtTextRef,
     },
     test_invariants::require_some,
 };
-
-#[path = "../support/test_text.rs"]
-mod test_text;
 
 #[path = "enforcement_os_adapter_product_proof_read_model_tests/product_control_api_tests.rs"]
 mod product_control_api_tests;

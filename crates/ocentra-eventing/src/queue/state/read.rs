@@ -1,4 +1,4 @@
-use crate::{EventId, EventType, IdempotencyKey};
+use crate::EventType;
 
 use super::{EventQueue, QueuedEnvelope};
 use crate::ExpectValue;

@@ -160,7 +160,6 @@ export const AppGamePolicyCompileRequestSchema = withParser(
       )
     )
 );
-
 export const AppGamePolicyCompiledDecisionSchema = withParser(
   Schema.Struct({
     schemaVersion: ParentContractSchemaVersionSchema,

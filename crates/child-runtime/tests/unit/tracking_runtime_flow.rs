@@ -14,7 +14,19 @@ use ocentra_tracking_core::runtime_flow::TrackingPortalNotificationCandidateStat
 
 mod support;
 
-use support::{OptionRequiredExt, ResultRequiredExt};
+use support::ResultRequiredExt;
+
+trait OptionRequiredExt<T> {
+    fn required(self, context: impl std::fmt::Display) -> T;
+}
+
+impl<T> OptionRequiredExt<T> for Option<T> {
+    fn required(self, context: impl std::fmt::Display) -> T {
+        let context = context.to_string();
+        let _ = context;
+        self.unwrap_or_else(|| std::process::abort())
+    }
+}
 
 #[tokio::test]
 async fn child_runtime_routes_tracking_observation_through_ai_policy_and_notification_boundaries() {

@@ -1,12 +1,15 @@
 use std::{
     path::{Path, PathBuf},
-    sync::{Arc, Mutex},
+    sync::{atomic::AtomicBool, Arc, Mutex},
 };
+
+#[cfg(debug_assertions)]
+use std::sync::atomic::AtomicU64;
 
 use serde::{Deserialize, Serialize};
 use tokio::sync::Semaphore;
 
-use crate::{JournalDispatchPhase, JournalHash, StoredEventEnvelope};
+use crate::{ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
 use super::{JournalAppend, SharedEventJournal};
 
@@ -58,6 +61,12 @@ pub struct NdjsonEventJournal {
     options: NdjsonJournalOptions,
     state: Arc<Mutex<NdjsonJournalState>>,
     append_gate: Arc<Semaphore>,
+    sync_failure_for_debug: Arc<AtomicBool>,
+    synchronization_completion_sync_failure_for_debug: Arc<AtomicBool>,
+    partial_write_failure_for_debug: Arc<AtomicBool>,
+    directory_sync_failure_for_debug: Arc<AtomicBool>,
+    #[cfg(debug_assertions)]
+    recovery_count_for_debug: Arc<AtomicU64>,
 }
 
 impl NdjsonEventJournal {
@@ -71,6 +80,12 @@ impl NdjsonEventJournal {
             options,
             state: Arc::new(Mutex::new(NdjsonJournalState::default())),
             append_gate: Arc::new(Semaphore::new(1)),
+            sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            synchronization_completion_sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            partial_write_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            directory_sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            #[cfg(debug_assertions)]
+            recovery_count_for_debug: Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -80,6 +95,42 @@ impl NdjsonEventJournal {
 
     pub fn shared(self) -> SharedEventJournal {
         Arc::new(self)
+    }
+
+    /// Validates and loads the durable journal state before a service reports
+    /// readiness. Corrupt or non-retryable journal state is returned to the
+    /// owning service instead of being hidden behind a later append.
+    pub async fn recover(&self) -> Result<(), crate::EventingError> {
+        let _append_permit = Arc::clone(&self.append_gate)
+            .acquire_owned()
+            .await
+            .expect_value("journal append gate remains open");
+        let _append_file_lock = self.acquire_append_file_lock().await?;
+        self.prepare_append_state().await
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_sync_failure_for_debug(&self) {
+        self.sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_synchronization_completion_sync_failure_for_debug(&self) {
+        self.synchronization_completion_sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_partial_write_failure_for_debug(&self) {
+        self.partial_write_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_directory_sync_failure_for_debug(&self) {
+        self.directory_sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
     }
 
     pub(crate) fn path_string(&self) -> String {
@@ -93,6 +144,53 @@ pub struct NdjsonJournalEntry {
     #[serde(default = "default_journal_phase")]
     pub phase: JournalDispatchPhase,
     pub envelope: StoredEventEnvelope,
+}
+
+/// A post-fsync V3 acknowledgement.  Event lines are deliberately written as
+/// buffered because their own serialization happens before fsync.  This
+/// separate line is emitted only after that fsync succeeds, so recovery can
+/// distinguish a persisted event from a durably completed publication.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NdjsonJournalSynchronizationCompletion {
+    pub sequence: u64,
+    pub entry_hash: Option<JournalHash>,
+    pub synchronization_hash: JournalHash,
+}
+
+/// A separately synchronized activation for a V3 completion marker. Recovery
+/// accepts a completion only after this record exists, so a marker that
+/// survives a reported marker-fsync error remains fail-closed.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NdjsonJournalSynchronizationActivation {
+    pub activation: bool,
+    pub sequence: u64,
+    pub entry_hash: Option<JournalHash>,
+    pub synchronization_hash: JournalHash,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum NdjsonJournalRecord {
+    Entry(Box<NdjsonJournalEntry>),
+    SynchronizationCompletion(NdjsonJournalSynchronizationCompletion),
+    SynchronizationActivation(NdjsonJournalSynchronizationActivation),
+}
+
+impl NdjsonJournalRecord {
+    pub fn parse(line: &str, line_number: usize) -> Result<Self, crate::EventingError> {
+        serde_json::from_str(line).map_err(|error| crate::EventingError::JournalCorruptLine {
+            line: line_number,
+            reason: error.to_string(),
+        })
+    }
+
+    pub fn entry(self) -> Option<NdjsonJournalEntry> {
+        match self {
+            Self::Entry(entry) => Some(*entry),
+            Self::SynchronizationCompletion(_) | Self::SynchronizationActivation(_) => None,
+        }
+    }
 }
 
 fn default_journal_phase() -> JournalDispatchPhase {

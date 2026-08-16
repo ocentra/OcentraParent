@@ -8,6 +8,7 @@ use super::{
     TrackingLocationRelationKind, TrackingNotificationChannelKind, TrackingRuntimeRef,
     TrackingTimestampKind, TrackingUncertaintyKind,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 pub(super) fn parse_contract_text<T, E>(
     value: &'static str,
@@ -16,5 +17,5 @@ pub(super) fn parse_contract_text<T, E>(
 where
     E: core::fmt::Debug,
 {
-    parse(value).expect("tracking runtime contract drift")
+    parse(value).expect_value("tracking runtime contract drift")
 }

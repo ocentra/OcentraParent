@@ -14,6 +14,8 @@
 
 # Setup Install Provisioning Plan Checklist Index
 
+> **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
+
 ## Fill rules
 
 - Leave a checkbox unchecked until proof exists.

@@ -4,7 +4,7 @@ use ocentra_parent_agent_protocol::network_flow::{
 
 pub(super) fn apply_execution_counts(
     status: &mut NetworkLiveCaptureStatus,
-    execution_state: NetworkLiveCaptureExecutionStatusState,
+    execution_state: &NetworkLiveCaptureExecutionStatusState,
 ) {
     match execution_state {
         NetworkLiveCaptureExecutionStatusState::BoundedExecuted => {

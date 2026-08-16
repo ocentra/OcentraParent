@@ -142,6 +142,24 @@ npm run test --workspace @ocentra-parent/family-domain -- provider
 
 Implementation remains open until WP02/WP03 convert this decision into family-domain contracts and tests.
 
+## 2026-08-04 runtime slice evidence
+
+The account-identity lane added a narrow Cloudflare persistence boundary without changing the provider decision or historical acceptance rows. `infra/cloudflare/src/storage/account-identity-store.ts` stores only a verified provider subject to an Ocentra account id in the optional/manual-required `ACCOUNT_IDENTITY_D1` binding. Its real SQLite-backed unit proof covers persistence, same-account status update, lookup, missing-binding manual-required behavior, malformed input, and cross-account uniqueness conflict. The durable proof is `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; the ignored `output/` copy remains a local raw-evidence pointer.
+
+This evidence does not close WP01 or the plan. External provider token verification, login/session route wiring, household/membership/role/device authority, D1 deployment/migration proof, and production readiness remain manual-required. Historical checkboxes and the prior validation log are intentionally unchanged.
+
+## 2026-08-16 production reachability audit
+
+`infra/cloudflare/src/auth/verifier.ts` is reached by the Worker route
+dispatcher, but both Wrangler configurations use
+`AUTH_ADAPTER_MODE=account-auth-adapter-manual-required`. The only non-blocked
+bearer path is `local-safe-fixture`; it normalizes a caller token and is not a
+cryptographic provider verifier. The route manifest contains billing,
+admin, and provider-webhook routes, not Account identity routes. The D1 store
+has no production caller. Provider library, issuer, trust material, and the
+runtime-owned Account caller remain unresolved; no Account auth or D1
+persistence implementation slice is authorized from this workpack.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP01 Auth Provider Decision`; `codex/tracking-plan-full-continuation-a`.

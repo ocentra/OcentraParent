@@ -23,11 +23,13 @@ import {
 } from '../dev/local-dev-config.mjs';
 import { ensurePortFree } from '../dev/port-utils.mjs';
 import {
+  buildPortalE2eRustServices,
+  createLoopbackOnlyTestEnvironment,
   ensureParentDevBridgeBinaryUnlocked,
   spawnAgentService,
   spawnParentDevBridge,
   spawnVitePortal,
-  stopProcessTree,
+  stopProcessTreeAndWait,
 } from './agent-service-process.mjs';
 import {
   assertAgentNetworkActivityReadModel,
@@ -63,16 +65,37 @@ const logBridgePort = resolveParentDevPort(
 const parentBridgeUrl = createParentDevBridgeUrl(parentBridgePort);
 const logBridgeUrl = createHttpOrigin(ParentDevHost.Loopback, logBridgePort);
 const portalLogBridgeEnvKey = 'VITE_OCENTRA_PARENT_LOG_BRIDGE_URL';
+const activityCaptureStartupDisabledEnv = 'OCENTRA_PARENT_ACTIVITY_CAPTURE_STARTUP_DISABLED';
 const devLogDir = await mkdtemp(path.join(tmpdir(), 'ocentra-parent-e2e-log-'));
+const loopbackTestEnvironment = createLoopbackOnlyTestEnvironment();
+const managedBrowserStatusEnvironment = {
+  OCENTRA_PARENT_MANAGED_BROWSER_EXECUTABLE: path.join(devLogDir, 'managed-browser-unavailable.exe'),
+  OCENTRA_PARENT_MANAGED_BROWSER_PROFILE_DIR: path.join(devLogDir, 'managed-browser-profile'),
+};
 const activityDbPath = path.join(devLogDir, 'activity.sqlite');
 const children = [];
-const playwrightArgs = process.argv.slice(2);
+const playwrightArgs = playwrightArguments(process.argv.slice(2));
 const agentStartupTimeoutMs = 120000;
 
 let exitCode = 1;
 let stopping = false;
 
+function playwrightArguments(argumentsToFilter) {
+  const result = [];
+  for (let index = 0; index < argumentsToFilter.length; index += 1) {
+    const argument = argumentsToFilter[index];
+    // Enforcer adds these harness options after the child command. They are not Playwright options.
+    if (argument === '--root' || argument === '--profile') {
+      index += 1;
+      continue;
+    }
+    result.push(argument);
+  }
+  return result;
+}
+
 try {
+  buildPortalE2eRustServices(repoRoot);
   await requireManagedPortFree('agent', agentPort, isLikelyParentAgentOccupant, ParentDevEnv.AgentPort);
   await requireManagedPortFree('portal', portalPort, isLikelyParentPortalOccupant, ParentDevEnv.PortalPort);
   await requireManagedPortFree(
@@ -99,7 +122,7 @@ try {
   await ensureParentDevBridgeBinaryUnlocked(repoRoot);
   const bridge = spawnParentDevBridge(
     {
-      ...process.env,
+      ...loopbackTestEnvironment,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
       [ParentDevEnv.DevLogDir]: devLogDir,
@@ -117,7 +140,7 @@ try {
   const portal = spawnVitePortal(
     portalPort,
     {
-      ...process.env,
+      ...loopbackTestEnvironment,
       [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
       [ParentDevEnv.PortalAgentWebSocketUrl]: createAgentWebSocketUrl(agentPort),
@@ -172,11 +195,13 @@ process.exit(exitCode);
 function spawnAgent() {
   return spawnAgentService(
     {
-      ...process.env,
+      ...loopbackTestEnvironment,
+      ...managedBrowserStatusEnvironment,
       [ParentDevEnv.AgentAddress]: createAgentAddress(agentPort),
       [ParentDevEnv.AgentAllowedOrigins]: createHttpOrigin(ParentDevHost.Loopback, portalPort),
       [ParentDevEnv.ActivityDbPath]: activityDbPath,
       [ParentDevEnv.DevLogDir]: devLogDir,
+      [activityCaptureStartupDisabledEnv]: 'true',
     },
     repoRoot
   );
@@ -192,7 +217,7 @@ function spawnLogBridge() {
     cwd: repoRoot,
     detached: process.platform !== 'win32',
     env: {
-      ...process.env,
+      ...loopbackTestEnvironment,
       OCENTRA_PARENT_LOG_BRIDGE_HOST: ParentDevHost.Loopback,
       OCENTRA_PARENT_LOG_BRIDGE_PORT: String(logBridgePort),
       OCENTRA_PARENT_LOG_DIR: devLogDir,
@@ -230,7 +255,7 @@ function runPlaywright() {
     {
       cwd: portalRoot,
       env: {
-        ...process.env,
+        ...loopbackTestEnvironment,
         [ParentDevEnv.ActivityDbPath]: activityDbPath,
         [ParentDevEnv.DevLogDir]: devLogDir,
       },
@@ -354,46 +379,7 @@ async function stopChildren() {
 }
 
 async function stopChild(child) {
-  if (child.exitCode !== null || child.signalCode !== null) {
-    return;
-  }
-
-  const exitPromise = waitForExit(child, 5000);
-  stopProcessTree(child);
-  if (await exitPromise) {
-    return;
-  }
-
-  forceKill(child);
-  await waitForExit(child, 2000);
-}
-
-function waitForExit(child, timeout) {
-  if (child.exitCode !== null || child.signalCode !== null) {
-    return true;
-  }
-
-  return Promise.race([
-    once(child, 'exit').then(() => true),
-    delay(timeout).then(() => child.exitCode !== null || child.signalCode !== null),
-  ]);
-}
-
-function forceKill(child) {
-  if (child.pid === undefined) {
-    return;
-  }
-
-  if (process.platform === 'win32') {
-    spawn('taskkill', ['/PID', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
-    return;
-  }
-
-  try {
-    process.kill(-child.pid, 'SIGKILL');
-  } catch {
-    child.kill('SIGKILL');
-  }
+  await stopProcessTreeAndWait(child);
 }
 
 function isLikelyParentLogBridgeOccupant(occupant) {

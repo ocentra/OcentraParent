@@ -13,13 +13,9 @@ use ocentra_parent_agent_protocol::screen_settings::ScreenSettingsUpdateStatus;
 use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use tokio::sync::Mutex as AsyncMutex;
 
-use crate::{
-    screen_settings_store::{
-        read_screen_settings_state, screen_settings_store_path_from_env,
-        write_screen_settings_state, ScreenSettingsAuditRecord, ScreenSettingsRevisionRecord,
-        ScreenSettingsStoreError, ScreenSettingsStoredState,
-    },
-    time::timestamp_now,
+use crate::screen_settings_store::{
+    read_screen_settings_state, screen_settings_store_path_from_env, write_screen_settings_state,
+    ScreenSettingsStoreError, ScreenSettingsStoredState,
 };
 
 #[path = "screen_settings_runtime/get_flow.rs"]
@@ -33,7 +29,7 @@ mod validation;
 struct ScreenSettingsRequestId(String);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-struct ScreenSettingsTimestamp(String);
+pub(crate) struct ScreenSettingsTimestamp(String);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct ScreenSettingsText(String);
@@ -135,7 +131,7 @@ pub(crate) fn default_disabled_setting(
         policy_use_enabled: false,
         changed_by_parent_ref: constants::screen_settings::DEFAULT_CHANGED_BY_PARENT_REF
             .to_string(),
-        changed_at: generated_at.to_string(),
+        changed_at: generated_at,
         setting_version: 1,
         reason: Some(constants::screen_settings::DEFAULT_REASON.to_string()),
     }

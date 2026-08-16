@@ -249,6 +249,7 @@ fn with_parent_authority(mut payload: LogFields) -> LogFields {
     payload
 }
 
+#[derive(Clone, Copy)]
 struct ControllerLeasePayloadKindExpectation {
     intent_id: &'static str,
     intent_kind: &'static str,
@@ -279,6 +280,7 @@ fn second_controller_payload_for_kind(
     payload
 }
 
+#[derive(Clone, Copy)]
 struct AuditTypeExpectation {
     audit_type: &'static str,
 }
@@ -337,6 +339,7 @@ fn second_controller_payload() -> LogFields {
     payload
 }
 
+#[derive(Clone, Copy)]
 struct ControllerLeasePayloadExpectation {
     intent_id: &'static str,
 }

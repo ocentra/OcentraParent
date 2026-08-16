@@ -1,6 +1,15 @@
 # Child Android Distribution
 
-Purpose: prove the child Android package, install state, and device-owner or managed-profile gaps honestly.
+Purpose: define the child Android package and keep install, runtime, transport, and device-owner or managed-profile gaps honest.
+
+## Production code boundary
+
+The Android package now uses the `ca.ocentra.child.agent` identity and launches
+the child-owned composition foreground service. The service owns an app-private
+composition directory and typed manual-required health state while deliberately
+retaining the existing parent-package Android capability adapters behind the
+child shell. It does not embed the Rust child-runtime crate or provide
+LAN/WebSocket transport because the Android native bridge is not implemented.
 
 ## Validation anchors
 

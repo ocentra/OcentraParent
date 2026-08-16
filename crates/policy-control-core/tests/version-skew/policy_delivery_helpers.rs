@@ -4,9 +4,8 @@ use ocentra_parent_agent_protocol::activity::policy_preview::{
     PolicySourceStatus, PolicySourceSurface,
 };
 use ocentra_policy_control_core::policy_delivery::{
-    apply_policy_delivery_transition, queue_policy_delivery, PolicyDeliveryApplyOutcome,
-    PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord, PolicyDeliverySequence,
-    PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
+    queue_policy_delivery, PolicyDeliveryAttemptId, PolicyDeliveryId, PolicyDeliveryRecord,
+    PolicyDeliverySequence, PolicyDeliveryState, PolicyDeliveryTarget, PolicyDeliveryTransition,
 };
 use ocentra_policy_control_core::policy_source::{
     compile_domain_policy_artifact, parent_policy_source_schema_version, ParentPolicyActorRole,
@@ -169,24 +168,36 @@ pub(super) fn sample_queued_delivery() -> TestResult<PolicyDeliveryRecord> {
     ))
 }
 
+pub(super) fn sample_delivery_id() -> TestResult<PolicyDeliveryId> {
+    let source = sample_policy_source_document(7)?;
+    let compiled = test_ok!(
+        compile_domain_policy_artifact(&source, PolicyConsumerDomain::Tracking),
+        "compiled domain policy artifact"
+    );
+    let target = sample_delivery_target()?;
+    let attempt_id = test_ok!(
+        PolicyDeliveryAttemptId::parse("attempt-queued"),
+        "policy attempt id"
+    );
+    let sequence = test_ok!(
+        PolicyDeliverySequence::new(1),
+        "policy delivery initial sequence"
+    );
+
+    Ok(
+        ocentra_policy_control_core::policy_delivery::derive_policy_delivery_id(
+            &compiled,
+            &target,
+            &attempt_id,
+            sequence,
+        )?,
+    )
+}
+
 pub(super) fn audit_ref(value: impl std::fmt::Display) -> TestResult<PolicyAuditReferenceId> {
     Ok(test_ok!(
         PolicyAuditReferenceId::parse(value.to_string()),
         "policy audit ref"
-    ))
-}
-
-pub(super) fn attempt(value: impl std::fmt::Display) -> TestResult<PolicyDeliveryAttemptId> {
-    Ok(test_ok!(
-        PolicyDeliveryAttemptId::parse(value.to_string()),
-        "policy attempt id"
-    ))
-}
-
-pub(super) fn reason(value: impl std::fmt::Display) -> TestResult<PolicyReasonCode> {
-    Ok(test_ok!(
-        PolicyReasonCode::parse(value.to_string()),
-        "policy reason code"
     ))
 }
 
@@ -200,7 +211,7 @@ pub(super) fn transition_or_context<T>(
     }
 }
 
-pub(super) fn transition(
+pub(crate) fn transition(
     sequence: u64,
     attempt_id: impl std::fmt::Display,
     state: PolicyDeliveryState,
@@ -221,45 +232,4 @@ pub(super) fn transition(
         superseded_by_policy_version: None,
         rollback_reference_state: None,
     })
-}
-
-pub(super) fn assert_explicit_wp04_delivery_state_round_trip(
-    queued: &PolicyDeliveryRecord,
-    state: PolicyDeliveryState,
-    transition_meta: Option<(PolicyDeliveryAttemptId, PolicyAuditReferenceId)>,
-    reason_code: Option<PolicyReasonCode>,
-) -> TestResult {
-    let (attempt_id, audit_reference_id) = test_some!(transition_meta, "transition metadata");
-    let mut transition = transition(2, attempt_id.as_str(), state)?;
-    transition.audit_reference_ids = vec![audit_reference_id];
-    transition.reason_code = reason_code;
-    if state == PolicyDeliveryState::Superseded {
-        transition.superseded_by_policy_version =
-            Some(test_ok!(PolicyVersion::new(8), "policy version"));
-    }
-
-    let record = test_ok!(
-        apply_policy_delivery_transition(queued, transition),
-        "explicit wp04 delivery state transition"
-    )
-    .into_record();
-
-    let serialized = test_ok!(
-        serde_json::to_value(&record),
-        "serialize policy delivery record"
-    );
-    assert_eq!(
-        serialized["state"],
-        test_ok!(
-            serde_json::to_value(&state),
-            "serialize policy delivery state"
-        )
-    );
-
-    let round_trip: PolicyDeliveryRecord = test_ok!(
-        serde_json::from_value(serialized),
-        "deserialize policy delivery record"
-    );
-    assert_eq!(round_trip.state, state);
-    Ok(())
 }

@@ -20,7 +20,9 @@ Use this file only when `docs/PLAN_INDEX.md` or a hub assignment selects
 ## High-density execution contract
 
 Task: work only the assignment slice for this plan.
-Context: `PLAN_STATE.md` is current state; `WORKPACK_INDEX.md` chooses one workpack; `TEST_PROOF_EXPECTATIONS.md` defines required local tests/proof.
+Context: `PLAN_STATE.md` is current state; `CODE_AUDIT.md` is current
+code/test ownership and Phase 1 status; `WORKPACK_INDEX.md` chooses one
+workpack; `TEST_PROOF_EXPECTATIONS.md` defines required local tests/proof.
 Scope rule: one plan, one workpack, exact checklist rows. Sibling plans, full checklists, source inventories, and checkpoints are closed unless named by the selected route.
 Implementation rule: code may move only after route, workpack, expected tests, and proof location are identified.
 Test rule: expected tests are obligations, not suggestions. If the test crate/folder does not exist yet, record the missing location and keep the row open.
@@ -35,12 +37,19 @@ App/game is the native app and native game evidence spine. It observes and norma
 Module roles:
 
 ```text
-crates/schema or the owning Rust crate: canonical shared app/game schema, brands, parser, evidence row, adapter readiness, classifier digest, policy target, platform proof, child UX, handoff shapes, and route/action/read-model DTOs when those shapes cross package, crate, app, or plan boundaries.
-schema-domain: temporary generated-validation or edge-decoder surface only where TypeScript still needs one during migration.
-app-game-domain: TypeScript helper/projection and focused validation surface. It consumes Rust-owned/generated shapes and must not become a broad aggregator of policy, enforcement, notification, portal, or production runtime behavior.
-app-game-core: child-local Rust app/game observation, sessionization, evidence event, AI-request event, and policy-request event boundary. It should use event/protocol handoffs rather than importing sibling runtime crates.
-agent-protocol and agent-service: wire/service boundaries only when the selected workpack names protocol, service handler, or read API proof.
-parent-domain, policy-domain, enforcement-domain, notification-domain, portal-domain, and apps/portal: consumers/projections/handoff owners. They must not re-own app/game observation, sessionization, or platform adapter authority.
+agent-protocol and agent-core: canonical app/game contracts, Windows source
+observation, journal/SQLite projection, sessionization, and evidence/read-model
+boundaries.
+app-game-core: Rust-owned source-freshness, policy-preview, timer-handoff,
+notification-intent, and runtime-decision models.
+agent-service, parent-runtime-core, and apps/portal: service composition,
+parent bridge, and rendered projections/actions when selected.
+platforms/android/agent: Android UsageEvents, Accessibility, delivery, receipt,
+and notification runtime sources; focused App/Game Java tests are required when
+the selected workpack owns executable Android behavior.
+schema-domain: generated validation/decoder edge only. Removed
+activity-domain, parent-domain, agent-protocol-domain, text-domain, and
+app-game-domain paths are not current owners and must not be recreated.
 AI plan: classifier/digest consumer only. AI consumes stored evidence or structured digests and does not scan apps, games, launchers, windows, processes, or devices directly.
 platform adapters: source observers for assigned OS/platform proof only. They produce typed observations and capability states; they do not decide policy or enforcement.
 ```
@@ -50,8 +59,8 @@ Direct imports are allowed only for neutral/shared infrastructure or explicit pu
 ```text
 Rust-owned canonical app/game/evidence/policy-reference/protocol/capability/logging shapes plus generated DTOs or temporary edge decoders
 neutral event/evidence/logging/protocol primitives
-approved public app-game-domain helper exports when the selected workpack names app-game-domain scope
 approved Rust runtime/parity crates when the selected workpack names Rust proof
+generated schema-domain decoders only at TypeScript edges
 pure common helpers that do not own feature behavior or side effects
 ```
 
@@ -70,13 +79,14 @@ If app/game needs AI, policy, enforcement, notification, portal, child-runtime, 
 ## Default read order
 
 1. [PLAN_STATE.md](PLAN_STATE.md) - current state, open gaps, default no-read list.
-2. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
-3. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
-4. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) - classify the assigned workpack family only when owner path is unclear.
-5. Assigned workpack under `workpacks/`, if any.
-6. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
-7. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
-8. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
+2. [CODE_AUDIT.md](CODE_AUDIT.md) - current code/test ownership and Phase 1 gap.
+3. [NEXT_ACTIONS.md](NEXT_ACTIONS.md) - short resume/open-work list.
+4. [WORKPACK_INDEX.md](WORKPACK_INDEX.md) - choose assigned workpack only.
+5. [WORKPACK_FAMILIES.md](WORKPACK_FAMILIES.md) - classify the assigned workpack family only when owner path is unclear.
+6. Assigned workpack under `workpacks/`, if any.
+7. [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) - exact checklist section/row lookup only.
+8. [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md) - local test/proof decision tree after the workpack is known.
+9. [PROOF_INDEX.md](PROOF_INDEX.md) - only when validating proof or PR-ready claims.
 
 ## Local decision tree
 

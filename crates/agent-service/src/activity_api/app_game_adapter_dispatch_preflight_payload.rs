@@ -103,15 +103,15 @@ pub fn app_game_adapter_dispatch_preflight_read_model(
         adapter_dispatch_executed_claimed_count: 0,
         host_capability_available_count: count_host_capability_state(
             &rows,
-            CapabilityStateText(APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE.to_string()),
+            &CapabilityStateText(APP_GAME_ADAPTER_HOST_CAPABILITY_AVAILABLE.to_string()),
         ),
         host_capability_not_detected_count: count_host_capability_state(
             &rows,
-            CapabilityStateText(APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED.to_string()),
+            &CapabilityStateText(APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_DETECTED.to_string()),
         ),
         host_capability_not_applicable_count: count_host_capability_state(
             &rows,
-            CapabilityStateText(APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE.to_string()),
+            &CapabilityStateText(APP_GAME_ADAPTER_HOST_CAPABILITY_NOT_APPLICABLE.to_string()),
         ),
         host_capability_probe_ref_count: rows
             .iter()
@@ -292,7 +292,7 @@ fn dispatch_outcome_state(row: &AppGameAdapterExecutionReadinessRow) -> StateTex
 
 fn count_host_capability_state(
     rows: &[AppGameAdapterDispatchPreflightRow],
-    state: CapabilityStateText,
+    state: &CapabilityStateText,
 ) -> u64 {
     rows.iter()
         .filter(|row| row.host_capability_state == state.0)

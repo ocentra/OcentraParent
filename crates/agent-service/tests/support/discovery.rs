@@ -4,7 +4,6 @@ use ocentra_lan_core::network_inventory::passive_discovery::{
     collect_allowed_snmp_response_packets, LanPassiveDiscoveryEventHistory,
     LanPassiveDiscoveryListenerState,
 };
-use ocentra_parent_agent_protocol::constants;
 
 use crate::lan_pairing::LanPairingRuntime;
 

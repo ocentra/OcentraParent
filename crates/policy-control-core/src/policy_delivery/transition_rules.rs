@@ -163,7 +163,7 @@ const SUPERSEDED_TRANSITIONS: &[PolicyDeliveryState] = &[];
 const ROLLED_BACK_TRANSITIONS: &[PolicyDeliveryState] = &[PolicyDeliveryState::Superseded];
 const EXPIRED_TRANSITIONS: &[PolicyDeliveryState] = &[PolicyDeliveryState::Superseded];
 
-const TRANSITION_RULES: &[(PolicyDeliveryState, &[PolicyDeliveryState])] = &[
+const TRANSITIONS_BY_CURRENT_STATE: &[(PolicyDeliveryState, &[PolicyDeliveryState])] = &[
     (PolicyDeliveryState::Queued, QUEUED_TRANSITIONS),
     (PolicyDeliveryState::Delivering, DELIVERING_TRANSITIONS),
     (PolicyDeliveryState::Delivered, DELIVERED_TRANSITIONS),
@@ -202,9 +202,8 @@ pub(super) fn transition_allowed(current: PolicyDeliveryState, next: PolicyDeliv
 }
 
 fn allowed_transitions(current: PolicyDeliveryState) -> &'static [PolicyDeliveryState] {
-    TRANSITION_RULES
+    TRANSITIONS_BY_CURRENT_STATE
         .iter()
-        .find(|(state, _)| *state == current)
-        .map(|(_, transitions)| *transitions)
-        .expect("every policy delivery state must define transition rules")
+        .find_map(|(candidate, transitions)| (candidate == &current).then_some(*transitions))
+        .unwrap_or(BLOCKED_TRANSITIONS)
 }

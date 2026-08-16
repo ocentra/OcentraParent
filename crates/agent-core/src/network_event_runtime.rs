@@ -1,23 +1,31 @@
 use crate::{
     network_event_runtime_state::{
-        ai_audit_state, evidence_grade, evidence_scope, risk_budget_state,
+        ai_audit_state, evidence_grade, evidence_grade_contract, evidence_scope, policy_action,
+        risk_budget_state,
     },
     NetworkObservation,
 };
 use ocentra_eventing::bus::reports::dead_letter::DeadLetter;
-use ocentra_eventing::bus::reports::handler::PublishReport;
+use ocentra_eventing::bus::reports::handler::{HandlerOutcome, PublishReport};
 use ocentra_eventing::{
     bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
-    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventCustody,
-    ids::EventId, ids::EventType, ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent,
-    ids::SourceService, ids::SubscriberId, ids::TargetHandler,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventId, ids::EventType,
+    ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent, ids::SourceService,
+    ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_network_core::network_runtime::{
+    evaluate_network_runtime, NetworkAdapterState, NetworkAiHandoffState,
+    NetworkCapturePermissionState, NetworkObservationIntent, NetworkParserState,
+    NetworkPolicyHandoffState, NetworkRuntimeDecision, NetworkRuntimeInput,
+};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::network_flow::{
-    NetworkInterventionState, NetworkRiskBudgetState, NetworkRuntimeClaimBoundary,
+    NetworkInterventionState, NetworkRuntimeClaimBoundary,
     NetworkRuntimeEventPayload as ProtocolNetworkRuntimeEventPayload, NetworkRuntimePhase,
 };
+use std::collections::BTreeSet;
+use std::sync::Arc;
+use tokio::sync::Mutex as AsyncMutex;
 
 pub mod broker_delivery;
 #[path = "network_event_runtime/helpers.rs"]
@@ -63,6 +71,26 @@ pub struct NetworkRuntimeReport {
     pub publish_reports: Vec<PublishReport>,
     pub stored_events: Vec<ocentra_eventing::envelope::StoredEventEnvelope>,
     pub dead_letters: Vec<DeadLetter>,
+    pub handled_phases: Vec<NetworkRuntimePhase>,
+    pub journal_state: NetworkRuntimeJournalState,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum NetworkRuntimeJournalState {
+    Durable,
+    #[default]
+    InMemoryManualRequired,
+    UnavailableManualRequired,
+}
+
+impl NetworkRuntimeJournalState {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Durable => "durable",
+            Self::InMemoryManualRequired => "in-memory-manual-required",
+            Self::UnavailableManualRequired => "unavailable-manual-required",
+        }
+    }
 }
 
 impl NetworkRuntimeReport {
@@ -82,16 +110,17 @@ fn network_runtime_event_payload_from_observation(
     phase: NetworkRuntimePhase,
     observation: &NetworkObservation,
     observed_at: &str,
+    decision: NetworkRuntimeDecision,
 ) -> NetworkRuntimeEventPayload {
-    let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at);
+    let chain_refs = NetworkRuntimeChainRefs::for_phase(phase, observation, observed_at, &decision);
     let risk_budget_state = risk_budget_state(observation);
     NetworkRuntimeEventPayload {
         phase,
-        capability_status: observation.status.clone(),
+        capability_status: observation.status,
         domain_attribution_status: observation.domain_attribution_status(),
         process_attribution_status: observation.process_attribution_status(),
-        protocol: observation.protocol.clone(),
-        tcp_state: observation.tcp_state.clone(),
+        protocol: observation.protocol,
+        tcp_state: observation.tcp_state,
         local_ip: observation.local_ip.clone(),
         local_port: observation.local_port,
         destination_ip: observation.destination_ip.clone(),
@@ -101,9 +130,11 @@ fn network_runtime_event_payload_from_observation(
         process_name: observation.process_name.clone(),
         evidence_scope: evidence_scope(observation),
         evidence_grade: evidence_grade(observation),
-        ai_audit_state: ai_audit_state(phase),
-        risk_budget_state: risk_budget_state.clone(),
+        evidence_grade_contract: evidence_grade_contract(observation),
+        ai_audit_state: ai_audit_state(phase, decision.ai_handoff_state),
+        risk_budget_state,
         intervention_state: helpers::intervention_state_from_budget(&risk_budget_state),
+        policy_action: policy_action(observation),
         claim_boundary: NetworkRuntimeClaimBoundary::metadata_only(),
         previous_phase_ref: chain_refs.previous_phase_ref,
         evidence_ref: chain_refs.evidence_ref,
@@ -119,11 +150,23 @@ fn network_runtime_event_payload_from_observation(
     }
 }
 
-pub(super) fn should_publish_phase(
+pub(super) fn should_publish_phase_for_runtime_decision(
     phase: NetworkRuntimePhase,
     observation: &NetworkObservation,
+    decision: &NetworkRuntimeDecision,
 ) -> bool {
     helpers::should_publish_phase(phase, observation)
+        && match phase {
+            NetworkRuntimePhase::AiAnalysisRequested | NetworkRuntimePhase::AiAnalysisCompleted => {
+                decision.ai_handoff_state == NetworkAiHandoffState::Required
+            }
+            NetworkRuntimePhase::PolicyEvaluationRequested
+            | NetworkRuntimePhase::PolicyDecisionCompleted => {
+                decision.policy_handoff_state == NetworkPolicyHandoffState::Publish
+                    || decision.ai_handoff_state == NetworkAiHandoffState::Required
+            }
+            _ => true,
+        }
 }
 
 pub(super) fn network_correlation_id(
@@ -137,6 +180,37 @@ pub(super) fn network_aggregate_key(payload: &NetworkRuntimeEventPayload) -> Str
     helpers::network_aggregate_key(payload)
 }
 
+pub(super) fn network_runtime_decision_from_observation(
+    observation: &NetworkObservation,
+) -> NetworkRuntimeDecision {
+    evaluate_network_runtime(NetworkRuntimeInput {
+        adapter_state: if observation.status
+            == ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus::Available
+        {
+            NetworkAdapterState::Available
+        } else {
+            NetworkAdapterState::Missing
+        },
+        capture_permission_state: if observation.status
+            == ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus::Available
+        {
+            NetworkCapturePermissionState::Granted
+        } else {
+            NetworkCapturePermissionState::Missing
+        },
+        parser_state: NetworkParserState::Valid,
+        observation_intent: if evidence_grade(observation)
+            == ocentra_parent_agent_protocol::network_flow::NetworkRuntimeEvidenceGrade::AdapterUnavailable
+        {
+            NetworkObservationIntent::TelemetryObservationOnly
+        } else if observation.destination_domain.is_some() {
+            NetworkObservationIntent::FlowRequiresPolicy
+        } else {
+            NetworkObservationIntent::UnknownRouteRequiresAi
+        },
+    })
+}
+
 pub async fn publish_network_runtime_chain_for_observation(
     observation: NetworkObservation,
     observed_at: &str,
@@ -147,50 +221,128 @@ pub async fn publish_network_runtime_chain_for_observation(
         .await
 }
 
-struct NetworkRuntimeSpine {
+#[derive(Clone)]
+pub struct NetworkRuntimeSpine {
     bus: EventBus,
+    chain_lock: Arc<AsyncMutex<()>>,
 }
 
 impl NetworkRuntimeSpine {
-    async fn with_default_handlers() -> Result<Self, EventingError> {
+    pub async fn with_default_handlers() -> Result<Self, EventingError> {
         let bus = EventBus::new();
         for phase in NetworkRuntimePhase::ordered_chain() {
-            bus.subscribe::<NetworkRuntimeEventPayload, _, _>(
-                EventSubscriber::new(
-                    SubscriberId::parse(phase.subscriber_id())?,
-                    EventType::parse(phase.event_type())?,
-                    TargetHandler::parse(phase.target_handler())?,
-                ),
-                |_| async { Ok(()) },
-            )
-            .await?;
+            subscribe_default_handler(&bus, *phase).await?;
         }
-        Ok(Self { bus })
+        Ok(Self {
+            bus,
+            chain_lock: Arc::new(AsyncMutex::new(())),
+        })
     }
 
-    async fn publish_observation_chain(
+    pub async fn publish_observation_chain(
         &self,
         observation: NetworkObservation,
         observed_at: &str,
     ) -> Result<NetworkRuntimeReport, EventingError> {
+        let _chain_guard = self.chain_lock.lock().await;
+        let runtime_decision = network_runtime_decision_from_observation(&observation);
         let mut reports = Vec::new();
         for phase in NetworkRuntimePhase::ordered_chain()
             .iter()
             .copied()
-            .filter(|phase| helpers::should_publish_phase(*phase, &observation))
+            .filter(|phase| {
+                should_publish_phase_for_runtime_decision(*phase, &observation, &runtime_decision)
+            })
         {
-            let payload =
-                network_runtime_event_payload_from_observation(phase, &observation, observed_at);
+            let payload = network_runtime_event_payload_from_observation(
+                phase,
+                &observation,
+                observed_at,
+                runtime_decision,
+            );
             let metadata =
                 network_event_metadata(phase, &observation, observed_at, phase.target_handler())?;
             reports.push(self.bus.publish(payload, metadata).await?);
         }
+        let current_event_ids: BTreeSet<_> = reports
+            .iter()
+            .map(|report| report.event_id.clone())
+            .collect();
+        let stored_events: Vec<_> = self
+            .bus
+            .journal()
+            .await
+            .into_iter()
+            .filter(|event| current_event_ids.contains(&event.event_id))
+            .collect();
+        if stored_events.len() != reports.len() {
+            return Err(EventingError::InvalidValue {
+                field: "network_runtime_journal",
+                value: "current_publish_event_missing_from_retained_journal".to_string(),
+            });
+        }
+        let dead_letters: Vec<_> = self
+            .bus
+            .dead_letters()
+            .await
+            .into_iter()
+            .filter(|dead_letter| current_event_ids.contains(&dead_letter.envelope.event_id))
+            .collect();
+        let handled_phases = handled_phases_for_reports(&reports);
         Ok(NetworkRuntimeReport {
             publish_reports: reports,
-            stored_events: self.bus.journal().await,
-            dead_letters: self.bus.dead_letters().await,
+            stored_events,
+            dead_letters,
+            handled_phases,
+            journal_state: if self.bus.has_production_durable_journal() {
+                NetworkRuntimeJournalState::Durable
+            } else {
+                NetworkRuntimeJournalState::InMemoryManualRequired
+            },
         })
     }
+
+    pub fn journal_state(&self) -> NetworkRuntimeJournalState {
+        if self.bus.has_production_durable_journal() {
+            NetworkRuntimeJournalState::Durable
+        } else {
+            NetworkRuntimeJournalState::InMemoryManualRequired
+        }
+    }
+}
+
+async fn subscribe_default_handler(
+    bus: &EventBus,
+    phase: NetworkRuntimePhase,
+) -> Result<(), EventingError> {
+    bus.subscribe::<NetworkRuntimeEventPayload, _, _>(
+        EventSubscriber::new(
+            SubscriberId::parse(phase.subscriber_id())?,
+            EventType::parse(phase.event_type())?,
+            TargetHandler::parse(phase.target_handler())?,
+        ),
+        |_| async { Ok(()) },
+    )
+    .await
+    .map(|_| ())
+}
+
+fn handled_phases_for_reports(reports: &[PublishReport]) -> Vec<NetworkRuntimePhase> {
+    reports
+        .iter()
+        .filter(|report| {
+            report
+                .handler_reports
+                .iter()
+                .any(|handler| handler.outcome == HandlerOutcome::Handled)
+        })
+        .filter_map(|report| {
+            NetworkRuntimePhase::ordered_chain()
+                .iter()
+                .copied()
+                .find(|phase| phase.event_type() == report.event_type.as_str())
+        })
+        .collect()
 }
 
 fn network_event_metadata(
@@ -214,7 +366,7 @@ fn network_event_source(
 ) -> Result<EventSource, EventingError> {
     Ok(EventSource::new(
         helpers::event_custody(observation),
-        phase.runtime_role(),
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(constants::network_flow::RUNTIME_COMPONENT_NETWORK_SPINE)?,
         RuntimeInstanceId::parse(constants::network_flow::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT)?,

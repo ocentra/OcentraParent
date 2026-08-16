@@ -41,18 +41,16 @@ pub(super) fn ssdp_network_inventory_device(
         .or_else(|| short_ssdp_label(record.response.device_type.as_deref()))
         .or_else(|| short_ssdp_label(Some(record.response.search_target.as_str())))
         .unwrap_or_else(|| record.response.usn.clone());
-    let platform = record
-        .response
-        .infrastructure
-        .then(|| constants::lan_pairing::PLATFORM_ROUTER.to_string())
-        .unwrap_or_else(|| {
-            record
-                .response
-                .device_type
-                .as_ref()
-                .and_then(|device_type| short_ssdp_label(Some(device_type)))
-                .unwrap_or_else(|| constants::lan_pairing::PLATFORM_UNKNOWN.to_string())
-        });
+    let platform = if record.response.infrastructure {
+        constants::lan_pairing::PLATFORM_ROUTER.to_string()
+    } else {
+        record
+            .response
+            .device_type
+            .as_ref()
+            .and_then(|device_type| short_ssdp_label(Some(device_type)))
+            .unwrap_or_else(|| constants::lan_pairing::PLATFORM_UNKNOWN.to_string())
+    };
     let device_id = record
         .response
         .udn

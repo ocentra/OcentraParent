@@ -4,12 +4,12 @@ use ocentra_parent_agent_protocol::household_mesh::{
 };
 
 use crate::{
-    household_mesh_event_bridge_lookup::{
-        bridge_local_event_kind_for_local_event, bridge_message_type_for_local_event,
-        is_selected_local_event_ref, lan_message_type_for_ref, local_event_ref,
-    },
+    household_mesh_event_bridge_lookup::{lan_message_type_for_ref, local_event_ref},
     household_mesh_event_bridge_rejection::rejection_as_str,
 };
+
+#[path = "household_mesh_event_bridge_validation.rs"]
+mod household_mesh_event_bridge_validation;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum HouseholdMeshLocalEventKind {
@@ -55,6 +55,31 @@ pub enum HouseholdMeshBridgeRejection {
 pub type HouseholdMeshLanMessage = HouseholdMeshTransportEnvelope;
 pub type HouseholdMeshLocalRepublish =
     ocentra_parent_agent_protocol::household_mesh::HouseholdMeshLocalRepublish;
+
+/// Runtime-owned proof that the inbound peer has been authorized by a
+/// trusted composition boundary.  No constructor is exposed: the current
+/// resolver is deliberately unavailable until the LAN authority/registry
+/// integration exists.
+pub(crate) struct HouseholdMeshPeerAuthorization {
+    source_peer_id: String,
+}
+
+impl HouseholdMeshPeerAuthorization {
+    fn matches_source(&self, source_peer_id: &str) -> bool {
+        self.source_peer_id == source_peer_id
+    }
+}
+
+pub(crate) fn resolve_household_mesh_peer_authorization(
+    _message: &HouseholdMeshLanMessage,
+    _expected_family_id: &str,
+    _expected_target_child_device_id: &str,
+) -> Option<HouseholdMeshPeerAuthorization> {
+    // Do not promote envelope authentication fields or caller-supplied peer
+    // IDs into runtime authority.  LAN pairing/account composition must
+    // supply the non-forgeable token before republish can be enabled.
+    None
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum HouseholdMeshExportDecision {
@@ -107,59 +132,24 @@ pub fn export_selected_local_event(
     })
 }
 
-pub fn validate_incoming_lan_message(
+pub(crate) fn validate_incoming_lan_message(
     message: &HouseholdMeshLanMessage,
     expected_family_id: &str,
     expected_target_child_device_id: &str,
     received_at_epoch_seconds: u64,
     seen_message_ids: &[&str],
     seen_idempotency_keys: &[&str],
+    authorization: Option<&HouseholdMeshPeerAuthorization>,
 ) -> HouseholdMeshImportDecision {
-    if message.authentication_state != HouseholdMeshAuthenticationState::PairedTrustedDevice {
-        return HouseholdMeshImportDecision::Reject(
-            HouseholdMeshBridgeRejection::UnauthenticatedMessage,
-        );
-    }
-    if message.direct_remote_publish_requested {
-        return HouseholdMeshImportDecision::Reject(
-            HouseholdMeshBridgeRejection::DirectRemotePublish,
-        );
-    }
-    if message.policy_authority != HouseholdMeshPolicyAuthority::ChildAgentOnly {
-        return HouseholdMeshImportDecision::Reject(
-            HouseholdMeshBridgeRejection::PolicyAuthorityEscalation,
-        );
-    }
-    if message.raw_payload_included {
-        return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::RawPayload);
-    }
-    if seen_message_ids.contains(&message.message_id.as_str())
-        || seen_idempotency_keys.contains(&message.idempotency_key.as_str())
-    {
-        return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::ReplayedMessage);
-    }
-    if message.is_stale_at(received_at_epoch_seconds) {
-        return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::StaleMessage);
-    }
-    if message.family_id != expected_family_id {
-        return HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::FamilyMismatch);
-    }
-    if message.target_child_device_id != expected_target_child_device_id {
-        return HouseholdMeshImportDecision::Reject(
-            HouseholdMeshBridgeRejection::WrongTargetDevice,
-        );
-    }
-    if lan_message_type_for_ref(&message.local_event_ref) != Some(message.lan_message_type.as_str())
-    {
-        return if is_selected_local_event_ref(&message.local_event_ref) {
-            HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::MismatchedMessageRef)
-        } else {
-            HouseholdMeshImportDecision::Reject(HouseholdMeshBridgeRejection::UnselectedLocalEvent)
-        };
-    }
-    HouseholdMeshImportDecision::Republish(HouseholdMeshLocalRepublish::from_validated_message(
+    household_mesh_event_bridge_validation::validate_incoming_lan_message(
         message,
-    ))
+        expected_family_id,
+        expected_target_child_device_id,
+        received_at_epoch_seconds,
+        seen_message_ids,
+        seen_idempotency_keys,
+        authorization,
+    )
 }
 
 impl HouseholdMeshBridgeRejection {

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use std::fmt::Display;
 use std::{
     fs,
@@ -86,7 +87,7 @@ fn live_inventory_source_respects_limit_before_journal_projection() {
         std::slice::from_ref(&root.0),
         1,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(events.len(), 1);
     cleanup_inventory_root(&root);
@@ -104,14 +105,14 @@ fn live_inventory_journal_event_replays_into_sqlite_read_model() {
         std::slice::from_ref(&root.0),
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let (store, lines) = append_and_replay(&events);
     let model = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.inventory_returned, 1);
@@ -141,7 +142,7 @@ fn live_inventory_default_source_is_optional_on_unsupported_platforms() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     for event in events {
         assert_eq!(event.evidence.len(), 0);
@@ -157,30 +158,33 @@ fn shortcut_path(root: impl AsRef<Path>, file_name: impl Display) -> TestPath {
 fn write_shortcut(path: impl AsRef<Path>) {
     let path = path.as_ref();
     if let Some(parent) = path.parent() {
-        fs::create_dir_all(parent).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+        fs::create_dir_all(parent).expect_value(constants::error::ACTIVITY_CAPTURE_RECORDS);
     }
-    fs::write(path, constants::value::EMPTY).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::write(path, constants::value::EMPTY)
+        .expect_value(constants::error::ACTIVITY_CAPTURE_RECORDS);
 }
 
 fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path();
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.0.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.0.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .expect_value(constants::error::JOURNAL_APPENDS),
         );
     }
-    let reader = ActivityJournal::open(path.0.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader =
+        ActivityJournal::open(path.0.clone(), key).expect_value(constants::error::JOURNAL_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);
@@ -215,7 +219,7 @@ fn temp_name(suffix: impl Display) -> TestText {
 fn unique_temp_token() -> TestText {
     let value = SystemTime::now()
         .duration_since(UNIX_EPOCH)
-        .expect(constants::error::ACTIVITY_CAPTURE_RECORDS)
+        .expect_value(constants::error::ACTIVITY_CAPTURE_RECORDS)
         .as_nanos()
         .to_string();
     TestText::from_display(value)

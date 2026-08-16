@@ -104,46 +104,8 @@ fn rule_conflict_kind(
     overlap::rule_conflict_kind(left, right, schedule_map)
 }
 
-fn intervals_overlap(left: &PolicyScheduleWindow, right: &PolicyScheduleWindow) -> bool {
-    overlap::intervals_overlap(left, right)
-}
-
-fn schedule_has_nonexistent_local_time(
-    schedule: &PolicyScheduleWindow,
-) -> Result<bool, EventingError> {
-    schedules::schedule_has_nonexistent_local_time(schedule)
-}
-
-fn schedule_has_ambiguous_local_time(
-    schedule: &PolicyScheduleWindow,
-) -> Result<bool, EventingError> {
-    schedules::schedule_has_ambiguous_local_time(schedule)
-}
-
-fn schedule_has_transition_local_time(
-    schedule: &PolicyScheduleWindow,
-    transition: DstTransitionKind,
-) -> Result<bool, EventingError> {
-    schedules::schedule_has_transition_local_time(schedule, transition)
-}
-
-fn schedule_on_single_transition_day(
-    schedule: &PolicyScheduleWindow,
-    transition: DstTransitionKind,
-) -> Result<bool, EventingError> {
-    schedules::schedule_on_single_transition_day(schedule, transition)
-}
-
-fn schedule_uses_supported_wp07_dst_timezone(schedule: &PolicyScheduleWindow) -> bool {
-    schedules::schedule_uses_supported_wp07_dst_timezone(schedule)
-}
-
 fn normalized_time_ranges(schedule: &PolicyScheduleWindow) -> Vec<(u16, u16)> {
     schedules::normalized_time_ranges(schedule)
-}
-
-fn parse_clock_minutes(value: &str) -> Option<u16> {
-    schedules::parse_clock_minutes(value)
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -157,12 +119,4 @@ struct UtcDate {
     year: i32,
     month: u8,
     day: u8,
-}
-
-fn parse_utc_date(field: &'static str, value: &str) -> Result<UtcDate, EventingError> {
-    schedules::parse_utc_date(field, value)
-}
-
-fn day_of_week(year: i32, month: u8, day: u8) -> u8 {
-    schedules::day_of_week(year, month, day)
 }

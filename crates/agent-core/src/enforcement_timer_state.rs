@@ -1,8 +1,9 @@
-use ocentra_parent_agent_protocol::enforcement::{
-    EnforcementAction, EnforcementActiveTimerState, EnforcementAdapterResultCode,
-    EnforcementAuditEvent, EnforcementAuditEventKind, EnforcementResult, EnforcementResultStatus,
-    EnforcementRollbackState, EnforcementTimerEvent, EnforcementTimerEventKind,
-    EnforcementUnavailableReason, EnforcementUnavailableStatus, ParentActionReference,
+use ocentra_parent_agent_protocol::{
+    constants,
+    enforcement::{
+        AppGameTimerSessionBinding, EnforcementActiveTimerState, EnforcementResultStatus,
+        EnforcementTimerEventKind, ParentActionReference,
+    },
 };
 
 use crate::enforcement_boundary::EnforcementBoundaryOutcome;
@@ -30,6 +31,14 @@ pub fn active_timer_state_from_outcome(
     outcome: &EnforcementBoundaryOutcome,
     stored_at: &str,
 ) -> Option<EnforcementActiveTimerState> {
+    active_timer_state_from_outcome_with_app_game_session(outcome, stored_at, None)
+}
+
+pub fn active_timer_state_from_outcome_with_app_game_session(
+    outcome: &EnforcementBoundaryOutcome,
+    stored_at: &str,
+    app_game_session: Option<AppGameTimerSessionBinding>,
+) -> Option<EnforcementActiveTimerState> {
     let timer_event = outcome.timer_event.clone()?;
     enforcement_timer_state_helpers::active_timer_event(&timer_event, &outcome.result).then(|| {
         EnforcementActiveTimerState {
@@ -42,6 +51,7 @@ pub fn active_timer_state_from_outcome(
             audit_event: outcome.audit_event.clone(),
             timer_event,
             stored_at: stored_at.to_string(),
+            app_game_session,
         }
     })
 }
@@ -56,6 +66,33 @@ pub fn restart_recovered_timer_outcome(
         EnforcementTimerEventKind::RestartRecovered,
         EnforcementResultStatus::NoOp,
         None,
+    )
+}
+
+pub fn expiring_timer_before_dispatch_outcome(
+    state: &EnforcementActiveTimerState,
+    ids: EnforcementTimerTransitionIds,
+) -> EnforcementBoundaryOutcome {
+    let before_dispatch_ids = EnforcementTimerTransitionIds {
+        result_id: before_dispatch_id(&ids.result_id),
+        audit_event_id: before_dispatch_id(&ids.audit_event_id),
+        timer_event_id: before_dispatch_id(&ids.timer_event_id),
+        observed_at: ids.observed_at,
+    };
+    enforcement_timer_state_transition::transition_outcome(
+        state,
+        before_dispatch_ids,
+        EnforcementTimerEventKind::Expired,
+        EnforcementResultStatus::WouldEnforce,
+        None,
+    )
+}
+
+fn before_dispatch_id(value: &str) -> String {
+    format!(
+        "{}{}",
+        constants::enforcement::JOURNAL_BEFORE_ACTION_ID_PREFIX,
+        value
     )
 }
 

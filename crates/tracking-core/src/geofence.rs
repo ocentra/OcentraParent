@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     tracking_evidence_ref_from_observation_id, tracking_transition_id_from_observation_id,
@@ -166,5 +167,5 @@ fn parse_contract_text<T, E>(
 where
     E: core::fmt::Debug,
 {
-    parse(value).expect("tracking geofence contract drift")
+    parse(value).expect_value("tracking geofence contract drift")
 }

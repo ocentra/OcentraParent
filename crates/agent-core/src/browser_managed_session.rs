@@ -1,21 +1,9 @@
-use std::{
-    fs,
-    io::ErrorKind,
-    net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener},
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{net::SocketAddr, path::PathBuf};
 
-use ocentra_parent_agent_protocol::browser::{
-    BrowserChannel, BrowserCustodyLabel, BrowserFamily, BROWSER_EVIDENCE_SCHEMA_VERSION,
-};
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_managed::{
     BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
 };
-use ocentra_parent_agent_protocol::constants;
-
-use crate::browser_managed_discovery::managed_browser_executable_identity;
-
 #[path = "browser_managed_session/launch.rs"]
 mod launch;
 #[path = "browser_managed_session/store.rs"]
@@ -138,24 +126,10 @@ pub fn launch_managed_browser(
     launch::launch_managed_browser(config)
 }
 
-fn default_profile_path_rejected(path: &Path) -> bool {
-    launch::default_profile_path_rejected(path)
-}
-
-fn managed_profile_path_owned(path: &Path) -> bool {
-    launch::managed_profile_path_owned(path)
-}
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct BrowserManagedProfileStorePaths {
     profile_dir: PathBuf,
     metadata_path: PathBuf,
-}
-
-fn managed_profile_store_paths(
-    config: &BrowserManagedProfileStoreConfig,
-) -> Result<BrowserManagedProfileStorePaths, BrowserManagedProfileStoreError> {
-    store::managed_profile_store_paths(config)
 }
 
 struct ProfileStoreRecordInput {
@@ -165,33 +139,4 @@ struct ProfileStoreRecordInput {
     repaired_at: Option<String>,
     deleted_at: Option<String>,
     repair_reason: Option<String>,
-}
-
-fn profile_store_record(
-    config: &BrowserManagedProfileStoreConfig,
-    paths: BrowserManagedProfileStorePaths,
-    input: ProfileStoreRecordInput,
-) -> BrowserManagedProfileStoreRecord {
-    store::profile_store_record(config, paths, input)
-}
-
-fn read_profile_store_entry(
-    metadata_path: &Path,
-) -> Result<Option<BrowserManagedProfileStoreEntry>, BrowserManagedProfileStoreError> {
-    store::read_profile_store_entry(metadata_path)
-}
-
-fn write_profile_store_entry(
-    metadata_path: &Path,
-    entry: &BrowserManagedProfileStoreEntry,
-) -> Result<(), BrowserManagedProfileStoreError> {
-    store::write_profile_store_entry(metadata_path, entry)
-}
-
-fn profile_id_contains_path_separator(profile_id: &str) -> bool {
-    store::profile_id_contains_path_separator(profile_id)
-}
-
-fn normalized_component_names(path: &Path) -> Vec<String> {
-    launch::normalized_component_names(path)
 }

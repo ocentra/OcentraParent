@@ -6,6 +6,7 @@ const shellReadyTimeoutMs = 90_000;
 const commandCenterScreenshotPath = process.env['LAN_COMMAND_CENTER_SCREENSHOT']?.trim() ?? '';
 const devicesScreenshotPath = process.env['LAN_COMMAND_CENTER_DEVICES_SCREENSHOT']?.trim() ?? '';
 const proofPanelsScreenshotPath = process.env['LAN_COMMAND_CENTER_PROOF_PANELS_SCREENSHOT']?.trim() ?? '';
+const serviceBackedLanTargetName = /^Select (?!LAN |Parent Portal$).+/u;
 
 test('existing command center and devices surfaces expose Rust-backed LAN state', async ({ page }) => {
   await page.goto('/#/commands');
@@ -37,7 +38,7 @@ test('existing command center and devices surfaces expose Rust-backed LAN state'
   const scanButton = page.getByRole('button', { exact: true, name: 'Scan Local Area Network' });
   await expect(scanButton).toBeEnabled({ timeout: shellReadyTimeoutMs });
   await scanButton.click({ force: true });
-  await expect(page.getByRole('button', { name: /^Select LAN \d{1,3}(?:\.\d{1,3}){3}$/u }).first()).toBeVisible({
+  await expect(surface.getByRole('button', { name: serviceBackedLanTargetName }).first()).toBeVisible({
     timeout: shellReadyTimeoutMs,
   });
   await captureOptionalFullPageScreenshot(page, devicesScreenshotPath);

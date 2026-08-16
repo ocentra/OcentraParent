@@ -1,6 +1,7 @@
 use std::{
     fs::{read_dir, read_to_string},
     io::Result as IoResult,
+    path::Path,
 };
 
 use ocentra_parent_agent_protocol::activity_surface::{
@@ -28,7 +29,8 @@ pub(super) fn load_saved_reports(
     request: &ActivitySurfaceRequest,
     directory: ReportStorageDir,
 ) -> IoResult<LoadSavedReportsResult> {
-    let directory = directory.0;
+    let ReportStorageDir(directory) = directory;
+    let directory = directory.as_path();
     if !directory.exists() {
         return Ok(LoadSavedReportsResult {
             reports: Vec::new(),
@@ -41,7 +43,7 @@ pub(super) fn load_saved_reports(
     let mut skipped_reports = 0;
     for entry in entries {
         let path = entry?.path();
-        if !path_is_report_json(ReportPath(path.clone())) {
+        if !path_is_report_json(path.as_path()) {
             continue;
         }
         let Ok(body) = read_to_string(&path) else {
@@ -53,7 +55,7 @@ pub(super) fn load_saved_reports(
             continue;
         };
         if scope_matches(&request.scope, &report.scope) && range_matches(request, &report) {
-            reports.push(history_item_from_report(ReportPath(path), report));
+            reports.push(history_item_from_report(&ReportPath(path), report));
         }
     }
 
@@ -65,10 +67,10 @@ pub(super) fn load_saved_reports(
 }
 
 fn history_item_from_report(
-    path: ReportPath,
+    path: &ReportPath,
     report: ActivityReportDocument,
 ) -> ActivityHistoricalReportListItem {
-    let path = path.0;
+    let path = path.0.as_path();
     let metadata = report.saved_metadata.clone();
     let file_name = metadata
         .as_ref()
@@ -162,8 +164,7 @@ fn history_summary(report: &ActivityReportDocument) -> HistorySummaryText {
     )
 }
 
-fn path_is_report_json(path: ReportPath) -> bool {
-    let path = path.0;
+fn path_is_report_json(path: &Path) -> bool {
     path.extension()
         .and_then(|value| value.to_str())
         .map(|value| value == constants::activity_surface::REPORT_FILE_EXTENSION)

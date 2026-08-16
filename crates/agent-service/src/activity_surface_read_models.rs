@@ -6,14 +6,6 @@ use ocentra_parent_agent_protocol::activity_surface::{
 use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::ScreenEvidenceRecentSummary;
-use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
-
-use crate::activity_surface_read_model_states::{
-    empty_screen_read_model, offline_browser_read_model, offline_network_read_model,
-    offline_screen_read_model, request_targets_remote_device, unavailable_browser_read_model,
-    unavailable_network_read_model, unavailable_screen_read_model,
-};
-
 #[path = "activity_surface_read_models/app_use.rs"]
 pub(crate) mod app_use;
 #[path = "activity_surface_read_models/browser.rs"]

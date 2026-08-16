@@ -1,10 +1,5 @@
 use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReference;
-use ocentra_parent_agent_protocol::activity::policy::ParentEvidenceReferenceKind;
-use ocentra_parent_agent_protocol::activity::ActivityEvidenceKind;
 use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphNodeKind;
-use ocentra_parent_agent_protocol::activity_memory_graph::ACTIVITY_MEMORY_GRAPH_GAME_LABEL_HINT;
-use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::activity_store_memory_graph_rows::MemoryGraphStoreRow;
 
@@ -27,14 +22,6 @@ pub(crate) fn node_label(row: &MemoryGraphStoreRow) -> Option<String> {
 
 pub(crate) fn evidence_references(row: &MemoryGraphStoreRow) -> Vec<ParentEvidenceReference> {
     activity_store_memory_graph_helpers_evidence::evidence_references(row)
-}
-
-pub(crate) fn parent_evidence_kind(kind: &ActivityEvidenceKind) -> ParentEvidenceReferenceKind {
-    activity_store_memory_graph_helpers_evidence::parent_evidence_kind(kind)
-}
-
-pub(crate) fn string_field(fields: &LogFields, key: &str) -> Option<String> {
-    activity_store_memory_graph_helpers_labels::string_field(fields, key)
 }
 
 pub(crate) fn confidence_for_row(row: &MemoryGraphStoreRow) -> f64 {

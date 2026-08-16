@@ -68,7 +68,7 @@ pub(super) fn parse_identifier<T>(
 ) -> T {
     let value = value.into();
     let _ = field_name;
-    parse(value).expect("invalid parent UI bridge identifier")
+    parse(value).unwrap_or_else(|| std::process::abort())
 }
 
 pub(super) fn parse_optional_identifier<T>(
@@ -159,8 +159,7 @@ pub(super) fn data_source_tone(data_source: &ParentRouteDataSource) -> ParentPor
 pub(super) fn parent_portal_shell_status_card_id(
     value: &'static str,
 ) -> ParentPortalShellStatusCardId {
-    ParentPortalShellStatusCardId::parse(value)
-        .expect("parent portal shell status card identifiers are static and non-empty")
+    ParentPortalShellStatusCardId::parse(value).unwrap_or_else(|| std::process::abort())
 }
 
 pub(super) fn current_lan_add_device_read_model_value(

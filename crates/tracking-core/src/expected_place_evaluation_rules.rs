@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::tracking::identifiers::{
     TrackingCapabilityStatus, TrackingReasonCode,
@@ -96,7 +97,7 @@ fn capability_requires_manual_review(capability_status: &TrackingCapabilityStatu
 }
 
 fn reason_code(value: &'static str) -> TrackingReasonCode {
-    TrackingReasonCode::parse(value).expect("tracking expected-place reason code parses")
+    TrackingReasonCode::parse(value).expect_value("tracking expected-place reason code parses")
 }
 
 pub(crate) fn protocol_exception_state_for_expected_place_exception(

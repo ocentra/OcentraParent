@@ -4,6 +4,7 @@ use std::string::String as TestString;
 use serde_json::Value;
 
 use super::*;
+use crate::test_invariants::{require_ok, require_some};
 use crate::test_text::TestText;
 
 #[tokio::test]
@@ -64,8 +65,10 @@ async fn persistent_runtime_scan_persists_known_household_device_store() {
         AgentEventName::AgentLanPairingBrowserDiscoveryReported
     );
     let registry_json = read_to_string(&registry_path).unwrap_or_default();
-    let registry_value: Value =
-        serde_json::from_str(&registry_json).expect("persistent registry json parses");
+    let registry_value: Value = require_ok(
+        serde_json::from_str(&registry_json),
+        "persistent registry json parses",
+    );
     assert!(
         registry_value[constants::lan_pairing::REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES]
             .as_array()
@@ -82,10 +85,7 @@ async fn persistent_runtime_restores_known_household_device_into_read_model_as_s
     let _ = remove_file(&registry_path);
     let runtime = LanPairingRuntime::persistent_json(&registry_path);
     {
-        let mut registry = runtime
-            .registry
-            .lock()
-            .expect("registry lock available for test");
+        let mut registry = require_ok(runtime.registry.lock(), "registry lock available for test");
         let changed = registry.merge_known_household_devices(vec![stored_known_router()]);
         assert!(changed);
         assert!(runtime.persist_registry(&registry));
@@ -105,14 +105,16 @@ async fn persistent_runtime_restores_known_household_device_into_read_model_as_s
         AgentEventName::AgentLanPairingBrowserDiscoveryReported
     );
     let read_model = typed_read_model_payload(&event.payload);
-    let device = read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| {
-            device.canonical_device_id
-                == canonical_device_id_for_mac(constants::lan_pairing::TEST_ROUTER_MAC)
-        })
-        .expect("stored known router restored into read model");
+    let device = require_some(
+        read_model
+            .canonical_household_devices
+            .iter()
+            .find(|device| {
+                device.canonical_device_id
+                    == canonical_device_id_for_mac(constants::lan_pairing::TEST_ROUTER_MAC)
+            }),
+        "stored known router restored into read model",
+    );
 
     assert_eq!(
         device.discovery_state,
@@ -136,10 +138,7 @@ async fn persistent_runtime_restores_offline_known_household_device_as_offline()
     let _ = remove_file(&registry_path);
     let runtime = LanPairingRuntime::persistent_json(&registry_path);
     {
-        let mut registry = runtime
-            .registry
-            .lock()
-            .expect("registry lock available for test");
+        let mut registry = require_ok(runtime.registry.lock(), "registry lock available for test");
         let changed = registry.merge_known_household_devices(vec![stored_offline_known_router()]);
         assert!(changed);
         assert!(runtime.persist_registry(&registry));
@@ -159,14 +158,16 @@ async fn persistent_runtime_restores_offline_known_household_device_as_offline()
         AgentEventName::AgentLanPairingBrowserDiscoveryReported
     );
     let read_model = typed_read_model_payload(&event.payload);
-    let device = read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| {
-            device.canonical_device_id
-                == canonical_device_id_for_mac(constants::lan_pairing::TEST_ROUTER_MAC)
-        })
-        .expect("stored offline known router restored into read model");
+    let device = require_some(
+        read_model
+            .canonical_household_devices
+            .iter()
+            .find(|device| {
+                device.canonical_device_id
+                    == canonical_device_id_for_mac(constants::lan_pairing::TEST_ROUTER_MAC)
+            }),
+        "stored offline known router restored into read model",
+    );
 
     assert_eq!(
         device.discovery_state,
@@ -227,17 +228,19 @@ async fn selected_child_canonical_device_id(runtime: &LanPairingRuntime) -> Test
 }
 
 fn paired_child_canonical_device_id(read_model: &LanBrowserAddDeviceReadModel) -> TestString {
-    read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| {
-            device.classification == LanCanonicalHouseholdDeviceClassification::ChildAgent
-                && device.trust_state == LanPairingTrustState::Paired
-                && device.route_id.as_deref()
-                    == Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK)
-        })
-        .map(|device| device.canonical_device_id.clone())
-        .expect("selected paired child device present before restart")
+    require_some(
+        read_model
+            .canonical_household_devices
+            .iter()
+            .find(|device| {
+                device.classification == LanCanonicalHouseholdDeviceClassification::ChildAgent
+                    && device.trust_state == LanPairingTrustState::Paired
+                    && device.route_id.as_deref()
+                        == Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK)
+            })
+            .map(|device| device.canonical_device_id.clone()),
+        "selected paired child device present before restart",
+    )
 }
 
 fn assert_selected_route_and_rename_restored(
@@ -266,14 +269,16 @@ fn assert_selected_route_and_rename_restored(
     assert_eq!(device.trust_state, LanPairingTrustState::Paired);
 }
 
-fn restored_canonical_device<'a>(
-    read_model: &'a LanBrowserAddDeviceReadModel,
+fn restored_canonical_device(
+    read_model: &LanBrowserAddDeviceReadModel,
     selected_canonical_device_id: impl Into<TestString>,
-) -> &'a LanCanonicalHouseholdDevice {
+) -> &LanCanonicalHouseholdDevice {
     let selected_canonical_device_id = selected_canonical_device_id.into();
-    read_model
-        .canonical_household_devices
-        .iter()
-        .find(|device| device.canonical_device_id == selected_canonical_device_id)
-        .expect("selected child canonical device restored into read model")
+    require_some(
+        read_model
+            .canonical_household_devices
+            .iter()
+            .find(|device| device.canonical_device_id == selected_canonical_device_id),
+        "selected child canonical device restored into read model",
+    )
 }

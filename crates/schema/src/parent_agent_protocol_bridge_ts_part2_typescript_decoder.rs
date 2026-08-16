@@ -26,18 +26,18 @@ pub(super) fn activity_surface_decoder_typescript(
     replace_tokens(activity_surface_decoder_template(), replacements.as_slice())
 }
 
-fn activity_surface_decoder_replacements<'a>(
-    types: &'a ActivitySurfaceTypescriptNames,
-) -> Vec<(&'static str, &'a str)> {
+fn activity_surface_decoder_replacements(
+    types: &ActivitySurfaceTypescriptNames,
+) -> Vec<(&'static str, &str)> {
     let mut replacements = activity_surface_decoder_type_replacements(types);
     replacements.extend(activity_surface_decoder_read_model_replacements(types));
     replacements.extend(activity_surface_decoder_schema_replacements(types));
     replacements
 }
 
-fn activity_surface_decoder_type_replacements<'a>(
-    types: &'a ActivitySurfaceTypescriptNames,
-) -> Vec<(&'static str, &'a str)> {
+fn activity_surface_decoder_type_replacements(
+    types: &ActivitySurfaceTypescriptNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         ("__SCHEMA_VERSION_CONST__", &types.schema_version_const),
         ("__SCOPE_KIND_CONST__", &types.scope_kind_const),
@@ -94,9 +94,9 @@ fn activity_surface_decoder_type_replacements<'a>(
     ]
 }
 
-fn activity_surface_decoder_read_model_replacements<'a>(
-    types: &'a ActivitySurfaceTypescriptNames,
-) -> Vec<(&'static str, &'a str)> {
+fn activity_surface_decoder_read_model_replacements(
+    types: &ActivitySurfaceTypescriptNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         ("__SCREEN_ROW_TYPE__", &types.screen_row_type),
         ("__APP_USE_ROW_TYPE__", &types.app_use_row_type),
@@ -124,9 +124,9 @@ fn activity_surface_decoder_read_model_replacements<'a>(
     ]
 }
 
-fn activity_surface_decoder_schema_replacements<'a>(
-    types: &'a ActivitySurfaceTypescriptNames,
-) -> Vec<(&'static str, &'a str)> {
+fn activity_surface_decoder_schema_replacements(
+    types: &ActivitySurfaceTypescriptNames,
+) -> Vec<(&'static str, &str)> {
     vec![
         (
             "__READ_MODEL_STATE_SCHEMA_CONST__",

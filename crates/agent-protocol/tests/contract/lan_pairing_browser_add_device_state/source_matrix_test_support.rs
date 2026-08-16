@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::LanDiscoverySourceAuthority;
 use ocentra_parent_agent_protocol::LanDiscoverySourceKind;
@@ -12,34 +13,6 @@ use ocentra_parent_agent_protocol::LanPlanWorkpackStatusRow;
 use ocentra_parent_agent_protocol::V09ProductionDiscoveryHouseholdProofState;
 use ocentra_parent_agent_protocol::V09ProductionDiscoveryHouseholdRuntimeOwner;
 use ocentra_parent_agent_protocol::LAN_PAIRING_SCHEMA_VERSION;
-
-const WORKPACK_TITLES: [&str; 25] = [
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_01,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_02,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_03,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_04,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_05,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_06,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_07,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_08,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_09,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_10,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_11,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_12,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_13,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_14,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_15,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_16,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_17,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_18,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_19,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_20,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_21,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_22,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_23,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_24,
-    constants::lan_pairing::LAN_SOURCE_MATRIX_TITLE_25,
-];
 
 macro_rules! workpack_row {
     ($workpack_id:expr, $title:expr) => {
@@ -78,10 +51,10 @@ pub(super) fn source_matrix_fixture() -> LanDiscoverySourceMatrix {
 pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
     let workpack_rows = value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_WORKPACK_ROWS]
         .as_array()
-        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+        .expect_value(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
     let source_rows = value[constants::lan_pairing::LAN_SOURCE_MATRIX_FIELD_SOURCE_ROWS]
         .as_array()
-        .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
+        .expect_value(constants::value::LAN_READ_MODEL_JSON_EXPECTATION);
 
     assert_eq!(workpack_rows.len(), 25);
     for workpack_id in 1..=25 {
@@ -152,7 +125,7 @@ pub(super) fn assert_source_matrix_json(value: &serde_json::Value) {
         assert!(
             value["claimsNotProved"]
                 .as_array()
-                .expect(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
+                .expect_value(constants::value::LAN_READ_MODEL_JSON_EXPECTATION)
                 .iter()
                 .any(|claim| claim == non_claim),
             "missing LAN source matrix non-claim: {non_claim}"

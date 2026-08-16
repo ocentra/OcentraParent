@@ -7,6 +7,8 @@ use crate::family_identity::{
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HouseholdAuthorityAction {
+    #[serde(rename = "seal-parent-device-trust")]
+    SealParentDeviceTrust,
     #[serde(rename = "pair-child-device")]
     PairChildDevice,
     #[serde(rename = "revoke-child-device")]
@@ -182,7 +184,8 @@ pub fn authorize_household_action(input: HouseholdAuthorityInput) -> HouseholdAu
 pub fn requires_parent_step_up(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
-        HouseholdAuthorityAction::PairChildDevice
+        HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::PairChildDevice
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteControl
@@ -192,7 +195,7 @@ pub fn requires_parent_step_up(action: HouseholdAuthorityAction) -> bool {
 }
 
 pub fn validate_parent_step_up_assertion(
-    input: ParentStepUpValidationInput,
+    input: &ParentStepUpValidationInput,
 ) -> ParentStepUpValidationDecision {
     let Some(assertion) = input.assertion.as_ref() else {
         return rejected_parent_step_up_validation(ParentStepUpValidationFailureReason::Required);
@@ -200,7 +203,7 @@ pub fn validate_parent_step_up_assertion(
 
     if let Some(failure_reason) =
         crate::household_authority_validation::parent_step_up_validation_failure_reason(
-            &input, assertion,
+            input, assertion,
         )
     {
         return rejected_parent_step_up_validation(failure_reason);

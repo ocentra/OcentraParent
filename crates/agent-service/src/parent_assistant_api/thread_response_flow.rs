@@ -45,7 +45,7 @@ fn active_thread_for_command(
         AgentCommandName::AgentParentAssistantThreadArchive => {
             let thread = upsert_thread(
                 threads,
-                thread_id.clone(),
+                thread_id,
                 ParentAssistantThreadState::Archived,
                 now,
                 false,

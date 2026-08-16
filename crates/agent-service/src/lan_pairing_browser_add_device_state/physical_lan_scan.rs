@@ -4,12 +4,7 @@ use ocentra_lan_core::network_inventory::{
     plan_lan_discovery_scan_with_active_refresh_suppression,
     targeted_arp_refresh_evidence_for_scan, LanDiscoveryRefreshMode, LanNetworkInventoryDevice,
 };
-use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceRef, LanPairingText, LanTrustedDeviceRegistryEntry,
-};
-use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
-    LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
-};
+use ocentra_parent_agent_protocol::lan_pairing::{LanPairingDeviceRef, LanPairingText};
 use ocentra_parent_agent_protocol::transport::{
     AgentCommandEnvelope, AgentCommandName, AgentRoute,
 };
@@ -21,11 +16,14 @@ use super::scan_history::{
     LanScanHistorySnapshot,
 };
 
+#[path = "physical_lan_scan/persisted_result.rs"]
+mod persisted_result;
 #[path = "physical_lan_scan/scan_truth.rs"]
 mod scan_truth;
 #[path = "physical_lan_scan/suppression_device.rs"]
 mod suppression_device;
 
+use self::persisted_result::persisted_scan_result_or_fail;
 use self::suppression_device::scan_session_id;
 
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
@@ -43,7 +41,7 @@ pub(crate) fn network_device_scan_result_for_command(
     let now = Utc::now();
     let previous_scan_snapshot = load_scan_history_snapshot(runtime);
     if let Some(scan_result) =
-        cached_localhost_status_scan_result(command, previous_scan_snapshot.clone(), now)
+        cached_scan_result_for_command(command, previous_scan_snapshot.clone(), now)
     {
         return scan_result;
     }
@@ -90,29 +88,45 @@ pub(crate) fn network_device_scan_result_for_command(
             selected_interface_scope,
             Some(&allowed_snmp_response_observer),
         );
-        save_scan_history(
+        return persisted_scan_result_or_fail(
             runtime,
-            &devices,
-            Some(LanScanHistoryMetadata {
+            devices,
+            LanScanHistoryMetadata {
                 scan_id: scan_session_id(now).0,
                 paired_registry_truth_count: scan_truth.paired_registry_truth_count,
                 recent_previous_agent_truth_count: scan_truth.recent_previous_agent_truth_count,
                 durable_household_truth_count: scan_truth.durable_household_truth_count,
                 scan_plan,
-            }),
-        );
-        let current_scan_snapshot = load_scan_history_snapshot(runtime);
-        return LanNetworkDeviceScanResult {
-            devices: current_scan_snapshot
-                .as_ref()
-                .map(|snapshot| snapshot.devices.clone())
-                .unwrap_or(devices),
+            },
             previous_scan_snapshot,
-            current_scan_snapshot,
-            reused_recent_snapshot: false,
-        };
+        );
     }
     LanNetworkDeviceScanResult::default()
+}
+
+fn cached_scan_result_for_command(
+    command: &AgentCommandEnvelope,
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> Option<LanNetworkDeviceScanResult> {
+    cached_localhost_status_scan_result(command, previous_scan_snapshot.clone(), now)
+        .or_else(|| cached_runtime_event_stream_scan_result(command, previous_scan_snapshot, now))
+}
+
+pub(crate) fn cached_runtime_event_stream_scan_result(
+    command: &AgentCommandEnvelope,
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> Option<LanNetworkDeviceScanResult> {
+    if command.command != AgentCommandName::AgentLanRuntimeEventChainStreamGet
+        || command.target.route != AgentRoute::LocalNetwork
+    {
+        return None;
+    }
+    Some(cached_scan_result_from_snapshot(
+        previous_scan_snapshot,
+        now,
+    ))
 }
 
 pub(super) fn refresh_network_device_scan_history(
@@ -133,22 +147,32 @@ pub(crate) fn cached_localhost_status_scan_result(
         return None;
     }
 
+    Some(cached_scan_result_from_snapshot(
+        previous_scan_snapshot,
+        now,
+    ))
+}
+
+fn cached_scan_result_from_snapshot(
+    previous_scan_snapshot: Option<LanScanHistorySnapshot>,
+    now: DateTime<Utc>,
+) -> LanNetworkDeviceScanResult {
     let Some(snapshot) = previous_scan_snapshot else {
-        return Some(LanNetworkDeviceScanResult::default());
+        return LanNetworkDeviceScanResult::default();
     };
-    if !scan_history_is_recent(LanPairingText(snapshot.updated_at.clone()), now) {
-        return Some(LanNetworkDeviceScanResult {
+    if !scan_history_is_recent(&LanPairingText(snapshot.updated_at.clone()), now) {
+        return LanNetworkDeviceScanResult {
             previous_scan_snapshot: Some(snapshot),
             ..LanNetworkDeviceScanResult::default()
-        });
+        };
     }
 
-    Some(LanNetworkDeviceScanResult {
+    LanNetworkDeviceScanResult {
         devices: snapshot.devices.clone(),
         previous_scan_snapshot: Some(snapshot.clone()),
         current_scan_snapshot: Some(snapshot),
         reused_recent_snapshot: true,
-    })
+    }
 }
 
 pub(crate) fn cached_status_snapshot_devices(
@@ -163,7 +187,7 @@ pub(crate) fn cached_status_snapshot_devices(
     }
     let previous_scan_snapshot = previous_scan_snapshot?;
     scan_history_is_recent(
-        LanPairingText(previous_scan_snapshot.updated_at.clone()),
+        &LanPairingText(previous_scan_snapshot.updated_at.clone()),
         now,
     )
     .then(|| previous_scan_snapshot.devices.clone())
@@ -183,20 +207,6 @@ pub(crate) fn scan_truth_context(
     now: DateTime<Utc>,
 ) -> LanScanTruthContext {
     scan_truth::scan_truth_context(runtime, previous_scan_snapshot, now)
-}
-
-pub(crate) fn durable_household_scan_suppression_devices(
-    stored_known_household_devices: &[LanCanonicalHouseholdDevice],
-    previous_scan_snapshot: Option<&LanScanHistorySnapshot>,
-    trusted_registry: &[LanTrustedDeviceRegistryEntry],
-    household_device_decisions: &[LanHouseholdDeviceDecision],
-) -> Vec<LanPairingDeviceRef> {
-    scan_truth::durable_household_scan_suppression_devices(
-        stored_known_household_devices,
-        previous_scan_snapshot,
-        trusted_registry,
-        household_device_decisions,
-    )
 }
 
 pub(crate) fn command_uses_physical_lan_scan(command: &AgentCommandName) -> bool {

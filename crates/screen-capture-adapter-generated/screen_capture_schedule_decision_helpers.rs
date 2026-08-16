@@ -1,6 +1,6 @@
 use std::env;
 
-use super::{constants, protocol_constants, ScreenCaptureScope};
+use super::{constants, ScreenCaptureScope};
 use ocentra_parent_screen_capture_adapter::trigger_scheduler::{
     ScreenCaptureScheduleDecision, ScreenCaptureScheduleTrigger, ScreenCaptureSchedulerSettings,
 };
@@ -187,7 +187,7 @@ fn scope_label(scope: ScreenCaptureScope) -> serde_json::Value {
     let label = SCOPE_LABELS
         .iter()
         .find_map(|(candidate, label)| (*candidate == scope).then_some(*label))
-        .expect(protocol_constants::error::AGENT_EVENT_SERIALIZES);
+        .unwrap_or(constants::SCOPE_ACTIVE_WINDOW);
     json!(label)
 }
 

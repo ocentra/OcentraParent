@@ -1,6 +1,7 @@
 use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_network_evidence::readiness::*;
 
+#[derive(Clone, Copy)]
 enum ExternalAuditRef {
     Missing,
     Present(&'static str),

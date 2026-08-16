@@ -7,6 +7,7 @@ use super::{
     LocalAiProviderSchedulerLifecycle, LocalAiProviderSchedulerQueue,
     LocalAiProviderSchedulerStatus, LocalAiProviderSingletonScope, LocalAiResourceClass,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn local_ai_runtime_provider_proof_serializes_shared_parent_child_provider() {
@@ -23,10 +24,7 @@ fn local_ai_runtime_provider_proof_serializes_shared_parent_child_provider() {
         )],
     };
 
-    let serialized = match serde_json::to_value(read_model) {
-        Ok(value) => value,
-        Err(_) => serde_json::Value::default(),
-    };
+    let serialized = serde_json::to_value(read_model).expect_value("proof read model serializes");
 
     assert_eq!(
         serialized["readModelId"],
@@ -54,10 +52,7 @@ fn local_ai_runtime_provider_proof_serializes_unavailable_reason() {
         unavailable_status(),
     );
 
-    let serialized = match serde_json::to_value(entry) {
-        Ok(value) => value,
-        Err(_) => serde_json::Value::default(),
-    };
+    let serialized = serde_json::to_value(entry).expect_value("proof entry serializes");
 
     assert_eq!(
         serialized["proofStatus"],
@@ -71,6 +66,7 @@ fn local_ai_runtime_provider_proof_serializes_unavailable_reason() {
     assert_eq!(serialized["runtimeAccessLaneCount"], 1);
 }
 
+#[derive(Clone, Copy)]
 enum ProofEntryIdCase {
     SharedParentChildProvider,
     StatusContractHardening,
@@ -103,7 +99,7 @@ fn proof_entry(
         requirement,
         proof_status,
         physical_device_id: source_scheduler_status.physical_device_id.clone(),
-        singleton_scope: source_scheduler_status.singleton_scope.clone(),
+        singleton_scope: source_scheduler_status.singleton_scope,
         provider_id: source_scheduler_status.provider_id.clone(),
         runtime_reference_id: source_scheduler_status.runtime_reference_id.clone(),
         model_id: source_scheduler_status.model_id.clone(),
@@ -117,9 +113,9 @@ fn proof_entry(
             LocalAiProviderSchedulerJobClass::ChildSafety,
             LocalAiProviderSchedulerJobClass::ParentAssistant,
         ],
-        scheduler_lifecycle: source_scheduler_status.lifecycle_state.clone(),
+        scheduler_lifecycle: source_scheduler_status.lifecycle_state,
         queue: source_scheduler_status.queue.clone(),
-        degraded_state: source_scheduler_status.degraded_state.clone(),
+        degraded_state: source_scheduler_status.degraded_state,
         unavailable_reason: source_scheduler_status.unavailable_reason.clone(),
         source_scheduler_status,
         runtime_access_lane_count: 1,

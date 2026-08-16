@@ -3,6 +3,7 @@ use ocentra_network_evidence::adapter_capability_status::*;
 use ocentra_network_evidence::local_platform_probe::*;
 use ocentra_network_evidence::platform_claims::*;
 
+#[derive(Clone, Copy)]
 enum CapabilityRef {
     Missing,
     Present(&'static str),

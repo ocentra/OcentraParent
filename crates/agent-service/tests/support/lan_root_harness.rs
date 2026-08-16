@@ -32,8 +32,6 @@ macro_rules! declare_lan_root_harness {
         mod lan_runtime_test_support;
         #[path = "../support/lan_test_websocket_dispatch.rs"]
         mod lan_test_websocket_dispatch;
-        #[path = "../support/test_invariants.rs"]
-        mod test_invariants;
         #[path = "../support/test_text.rs"]
         mod test_text;
         #[path = "../../src/time.rs"]

@@ -6,7 +6,6 @@ use ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationContext;
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError;
 use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
 use ocentra_parent_agent_protocol::constants;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingProof;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;

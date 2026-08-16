@@ -18,6 +18,7 @@ fn timestamp(value: &str) -> ChildArtifactMatrixTimestamp {
     )
 }
 
+#[derive(Clone, Copy)]
 struct ChildArtifactMatrixRowInput<'a> {
     platform: ChildArtifactMatrixPlatform,
     artifact_kind: ChildArtifactMatrixArtifactKind,
@@ -37,7 +38,7 @@ struct ChildArtifactMatrixRowInput<'a> {
     claim_boundary: &'a str,
 }
 
-fn row(input: ChildArtifactMatrixRowInput<'_>) -> ChildArtifactMatrixRow {
+fn row(input: &ChildArtifactMatrixRowInput<'_>) -> ChildArtifactMatrixRow {
     let ChildArtifactMatrixRowInput {
         platform,
         artifact_kind,
@@ -55,7 +56,7 @@ fn row(input: ChildArtifactMatrixRowInput<'_>) -> ChildArtifactMatrixRow {
         store_boundary,
         management_boundary,
         claim_boundary,
-    } = input;
+    } = *input;
 
     ChildArtifactMatrixRow {
         platform,
@@ -78,7 +79,7 @@ fn row(input: ChildArtifactMatrixRowInput<'_>) -> ChildArtifactMatrixRow {
 }
 
 fn windows_row() -> ChildArtifactMatrixRow {
-    row(ChildArtifactMatrixRowInput {
+    row(&ChildArtifactMatrixRowInput {
         platform: ChildArtifactMatrixPlatform::Windows,
         artifact_kind: ChildArtifactMatrixArtifactKind::WindowsMsiServicePackage,
         distribution_mode: ChildArtifactMatrixDistributionMode::DirectMsiDownload,
@@ -99,7 +100,7 @@ fn windows_row() -> ChildArtifactMatrixRow {
 }
 
 fn macos_row() -> ChildArtifactMatrixRow {
-    row(ChildArtifactMatrixRowInput {
+    row(&ChildArtifactMatrixRowInput {
         platform: ChildArtifactMatrixPlatform::Macos,
         artifact_kind: ChildArtifactMatrixArtifactKind::MacosLaunchdPkg,
         distribution_mode: ChildArtifactMatrixDistributionMode::DirectPkgDownload,
@@ -124,7 +125,7 @@ fn macos_row() -> ChildArtifactMatrixRow {
 }
 
 fn linux_row() -> ChildArtifactMatrixRow {
-    row(ChildArtifactMatrixRowInput {
+    row(&ChildArtifactMatrixRowInput {
         platform: ChildArtifactMatrixPlatform::Linux,
         artifact_kind: ChildArtifactMatrixArtifactKind::LinuxSystemdDeb,
         distribution_mode: ChildArtifactMatrixDistributionMode::DirectDebDownload,
@@ -149,7 +150,7 @@ fn linux_row() -> ChildArtifactMatrixRow {
 }
 
 fn android_row() -> ChildArtifactMatrixRow {
-    row(ChildArtifactMatrixRowInput {
+    row(&ChildArtifactMatrixRowInput {
         platform: ChildArtifactMatrixPlatform::Android,
         artifact_kind: ChildArtifactMatrixArtifactKind::AndroidDebugApk,
         distribution_mode: ChildArtifactMatrixDistributionMode::DebugApkSideload,
@@ -174,7 +175,7 @@ fn android_row() -> ChildArtifactMatrixRow {
 }
 
 fn ios_row() -> ChildArtifactMatrixRow {
-    row(ChildArtifactMatrixRowInput {
+    row(&ChildArtifactMatrixRowInput {
         platform: ChildArtifactMatrixPlatform::Ios,
         artifact_kind: ChildArtifactMatrixArtifactKind::IosSimulatorAppZip,
         distribution_mode: ChildArtifactMatrixDistributionMode::UnsignedSimulatorZip,

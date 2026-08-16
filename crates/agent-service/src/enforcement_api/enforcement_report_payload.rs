@@ -127,22 +127,20 @@ fn serialized_enforcement_field_pairs(
         FieldPair {
             key: constants::field::ENFORCEMENT_ACTION,
             value: LogFieldValue::String(
-                serde_json::to_string(&outcome.action)
-                    .map_err(|_| EnforcementJournalBuildError::Serialize)?,
+                serde_json::to_string(&outcome.action).map_err(agent_event_serializes_error)?,
             ),
         },
         FieldPair {
             key: constants::field::ENFORCEMENT_RESULT,
             value: LogFieldValue::String(
-                serde_json::to_string(&outcome.result)
-                    .map_err(|_| EnforcementJournalBuildError::Serialize)?,
+                serde_json::to_string(&outcome.result).map_err(agent_event_serializes_error)?,
             ),
         },
         FieldPair {
             key: constants::field::ENFORCEMENT_AUDIT_EVENT,
             value: LogFieldValue::String(
                 serde_json::to_string(&outcome.audit_event)
-                    .map_err(|_| EnforcementJournalBuildError::Serialize)?,
+                    .map_err(agent_event_serializes_error)?,
             ),
         },
     ])
@@ -208,7 +206,7 @@ fn optional_timer_event(
 ) -> Result<LogFieldValue, EnforcementJournalBuildError> {
     match &outcome.timer_event {
         Some(timer) => Ok(LogFieldValue::String(
-            serde_json::to_string(timer).map_err(|_| EnforcementJournalBuildError::Serialize)?,
+            serde_json::to_string(timer).map_err(agent_event_serializes_error)?,
         )),
         None => Ok(LogFieldValue::Null(())),
     }
@@ -219,7 +217,7 @@ fn optional_timer_state(
 ) -> Result<LogFieldValue, EnforcementJournalBuildError> {
     match active_state {
         Some(state) => Ok(LogFieldValue::String(
-            serde_json::to_string(state).map_err(|_| EnforcementJournalBuildError::Serialize)?,
+            serde_json::to_string(state).map_err(agent_event_serializes_error)?,
         )),
         None => Ok(LogFieldValue::Null(())),
     }
@@ -238,4 +236,8 @@ fn evidence_reference_ids(
             .collect::<Vec<_>>()
             .join(constants::delimiter::LIST.encode_utf8(&mut separator)),
     )
+}
+
+fn agent_event_serializes_error(_: serde_json::Error) -> EnforcementJournalBuildError {
+    EnforcementJournalBuildError::Serialize
 }

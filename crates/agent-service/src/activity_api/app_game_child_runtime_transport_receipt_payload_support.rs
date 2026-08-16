@@ -108,19 +108,19 @@ fn read_model_from_rows(
         returned: rows.len() as u64,
         transport_required_count: count_rows(
             &rows,
-            AppGameReceiptBoundaryState(
+            &AppGameReceiptBoundaryState(
                 APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_TRANSPORT_REQUIRED.to_string(),
             ),
         ),
         manual_required_count: count_rows(
             &rows,
-            AppGameReceiptBoundaryState(
+            &AppGameReceiptBoundaryState(
                 APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_MANUAL_REQUIRED.to_string(),
             ),
         ),
         unavailable_count: count_rows(
             &rows,
-            AppGameReceiptBoundaryState(
+            &AppGameReceiptBoundaryState(
                 APP_GAME_CHILD_RUNTIME_TRANSPORT_RECEIPT_STATE_UNAVAILABLE.to_string(),
             ),
         ),

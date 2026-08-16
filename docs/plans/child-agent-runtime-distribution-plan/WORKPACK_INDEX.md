@@ -19,15 +19,15 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
 | complete | [WP01 Child Agent Scope And Route Boundary](workpacks/01-child-agent-scope-and-route-boundary.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary/` |
-| blocked / proof-present | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` |
-| complete | [WP03 Child macOS Service Package](workpacks/03-child-macos-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` |
-| complete | [WP04 Child Linux Service Package](workpacks/04-child-linux-service-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/` |
-| complete | [WP05 Child Android Agent Package](workpacks/05-child-android-agent-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/` |
+| code drafted / test-deferred | [WP02 Child Windows Service Package](workpacks/02-child-windows-service-package.md) | service composition/package code drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/02-child-windows-service-package/` |
+| code drafted / test-deferred | [WP03 Child macOS Service Package](workpacks/03-child-macos-service-package.md) | production code drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` |
+| code drafted / test-deferred | [WP04 Child Linux Service Package](workpacks/04-child-linux-service-package.md) | production code drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/` |
+| code drafted / test-deferred | [WP05 Child Android Agent Package](workpacks/05-child-android-agent-package.md) | child identity, foreground composition, and Rust/JNI bridge drafted; native packaging/tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/` |
 | complete | [WP06 Child iOS Capability Package](workpacks/06-child-ios-agent-capability-package.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/06-ios-entitlement-capability-proof/` |
-| complete | [WP07 Child Managed Service Respawn](workpacks/07-child-managed-service-respawn.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/` |
-| complete | [WP08 Child Parent Authorized Uninstall](workpacks/08-child-parent-authorized-uninstall.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/` |
-| complete | [WP09 Child Signing Store Device Owner Matrix](workpacks/09-child-signing-store-device-owner-matrix.md) | 12/12 | `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/` |
-| complete | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | 10/10 | `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` |
+| code drafted / test-deferred | [WP07 Child Managed Service Respawn](workpacks/07-child-managed-service-respawn.md) | manager configuration retargeted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/` |
+| code drafted / test-deferred | [WP08 Child Parent Authorized Uninstall](workpacks/08-child-parent-authorized-uninstall.md) | service revocation/audit boundary drafted; platform cleanup/tests/proof deferred | `output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall/` |
+| code drafted / test-deferred | [WP09 Child Signing Store Device Owner Matrix](workpacks/09-child-signing-store-device-owner-matrix.md) | Windows manifest/checksum/signature consumption drafted; platform matrix/tests/proof deferred | `output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix/` |
+| code drafted / test-deferred | [WP10 Setup Device Trust Handoff](workpacks/10-setup-device-trust-handoff.md) | typed handoff contract and package/update consumer drafted; tests/validation/proof deferred | `output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff/` |
 | complete | [WP11 Proof CI Release Gate](workpacks/11-proof-ci-release-gate.md) | 14/14 | `output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate/` |
 
 ## Default execution order

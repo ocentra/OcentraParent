@@ -18,18 +18,13 @@ pub(super) fn intervention_state_from_budget(
 
 pub(super) fn should_publish_phase(
     phase: NetworkRuntimePhase,
-    observation: &NetworkObservation,
+    _observation: &NetworkObservation,
 ) -> bool {
-    match observation_risk_budget_state(observation) {
-        NetworkRiskBudgetState::ObserveOnly => true,
-        NetworkRiskBudgetState::ManualReviewRequired | NetworkRiskBudgetState::Unavailable => {
-            !matches!(
-                phase,
-                NetworkRuntimePhase::EnforcementCommandIssued
-                    | NetworkRuntimePhase::EnforcementResultObserved
-            )
-        }
-    }
+    !matches!(
+        phase,
+        NetworkRuntimePhase::EnforcementCommandIssued
+            | NetworkRuntimePhase::EnforcementResultObserved
+    )
 }
 
 pub(super) fn event_custody(
@@ -51,7 +46,37 @@ pub(super) fn network_correlation_id(
     value.push_str(observation.status.as_protocol_str());
     value.push(constants::delimiter::HYPHEN);
     value.push_str(observed_at);
+    if observation.destination_ip.is_none() && observation.destination_domain.is_none() {
+        append_destination_less_identity(&mut value, observation);
+    }
     value
+}
+
+fn append_destination_less_identity(value: &mut String, observation: &NetworkObservation) {
+    let local_port = observation.local_port.map(|port| port.to_string());
+    let process_id = observation.pid.map(|pid| pid.to_string());
+    for (field, identity) in [
+        (
+            constants::field::NETWORK_PROTOCOL,
+            observation
+                .protocol
+                .map(|protocol| protocol.as_protocol_str()),
+        ),
+        (constants::field::LOCAL_IP, observation.local_ip.as_deref()),
+        (constants::field::LOCAL_PORT, local_port.as_deref()),
+        (
+            constants::field::TCP_STATE,
+            observation.tcp_state.map(|state| state.as_protocol_str()),
+        ),
+        (constants::field::PROCESS_ID, process_id.as_deref()),
+    ] {
+        value.push(constants::delimiter::HYPHEN);
+        value.push_str(field);
+        value.push(constants::delimiter::COLON);
+        if let Some(identity) = identity {
+            value.push_str(identity);
+        }
+    }
 }
 
 pub(super) fn network_aggregate_key(
@@ -72,8 +97,4 @@ pub(super) fn network_aggregate_key(
     }
     value.push_str(payload.capability_status.as_protocol_str());
     value
-}
-
-fn observation_risk_budget_state(observation: &NetworkObservation) -> NetworkRiskBudgetState {
-    crate::network_event_runtime_state::risk_budget_state(observation)
 }

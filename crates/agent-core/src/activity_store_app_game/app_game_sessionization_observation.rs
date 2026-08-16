@@ -3,7 +3,7 @@ use ocentra_parent_agent_protocol::constants;
 
 use crate::activity_store_app_game_observation::AppGameObservation;
 
-use super::{ForegroundFocus, SessionState, SessionizationState, SESSION_STALE_TIMEOUT_MS};
+use super::{SessionState, SessionizationState, SESSION_STALE_TIMEOUT_MS};
 
 pub(super) fn apply_observation(state: &mut SessionizationState, observation: &AppGameObservation) {
     let Some(observed_at_ms) = crate::activity_store_app_game::app_game_session_time::timestamp_ms(

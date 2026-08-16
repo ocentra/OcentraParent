@@ -2,7 +2,7 @@ use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::household_mesh::HouseholdMeshBridgePhase;
 
 use crate::{
-    household_mesh_bridge_runtime::{HouseholdMeshBridgeEventPayload, HouseholdMeshBridgeInput},
+    household_mesh_bridge_runtime::HouseholdMeshBridgeInput,
     household_mesh_bridge_runtime_refs::{
         bridge_local_event_kind_for_local_event, bridge_message_type_for_local_event,
     },

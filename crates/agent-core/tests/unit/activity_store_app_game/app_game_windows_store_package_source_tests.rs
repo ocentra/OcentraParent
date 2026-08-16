@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use std::fmt::Display;
 use std::{
     fs,
@@ -106,7 +107,7 @@ fn store_package_manifest_source_respects_limit_before_journal_projection() {
         std::slice::from_ref(&root.0),
         1,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(events.len(), 1);
     cleanup_store_package_root(root.as_ref());
@@ -125,14 +126,14 @@ fn store_package_journal_event_replays_into_sqlite_read_model() {
         std::slice::from_ref(&root.0),
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let (store, lines) = append_and_replay(&events);
     let model = app_game_journal_sqlite_read_model(
         store.connection_for_test(),
         constants::activity_store::DEFAULT_RECENT_LIMIT,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
-    .expect(constants::error::ACTIVITY_STORE_QUERIES);
+    .expect_value(constants::error::ACTIVITY_STORE_QUERIES);
 
     assert_eq!(lines.len(), 1);
     assert_eq!(model.inventory_returned, 1);
@@ -158,7 +159,7 @@ fn store_package_default_source_is_optional_on_unsupported_platforms() {
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
         constants::activity_store::DEFAULT_RECENT_LIMIT as usize,
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     for event in events {
         assert_eq!(event.evidence.len(), 0);
@@ -188,31 +189,33 @@ fn package_dir(root: impl AsRef<Path>, suffix: impl Display) -> TestPath {
 
 fn write_manifest(root: impl AsRef<Path>, manifest: impl Display) {
     let root = root.as_ref();
-    fs::create_dir_all(root).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::create_dir_all(root).expect_value(constants::error::ACTIVITY_CAPTURE_RECORDS);
     let mut path = root.to_path_buf();
     path.push(APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME);
-    fs::write(path, manifest.to_string()).expect(constants::error::ACTIVITY_CAPTURE_RECORDS);
+    fs::write(path, manifest.to_string()).expect_value(constants::error::ACTIVITY_CAPTURE_RECORDS);
 }
 
 fn append_and_replay(events: &[ActivityEvent]) -> (ActivityStore, Vec<ActivityJournalLine>) {
     let path = temp_journal_path();
     cleanup_journal_files(&path);
     let key = test_key();
-    let mut journal =
-        ActivityJournal::open(path.0.clone(), key.clone()).expect(constants::error::JOURNAL_OPENS);
+    let mut journal = ActivityJournal::open(path.0.clone(), key.clone())
+        .expect_value(constants::error::JOURNAL_OPENS);
     let mut lines = Vec::new();
     for event in events {
         lines.push(
             journal
                 .append(event)
-                .expect(constants::error::JOURNAL_APPENDS),
+                .expect_value(constants::error::JOURNAL_APPENDS),
         );
     }
-    let reader = ActivityJournal::open(path.0.clone(), key).expect(constants::error::JOURNAL_OPENS);
-    let store = ActivityStore::open_in_memory().expect(constants::error::ACTIVITY_STORE_OPENS);
+    let reader =
+        ActivityJournal::open(path.0.clone(), key).expect_value(constants::error::JOURNAL_OPENS);
+    let store =
+        ActivityStore::open_in_memory().expect_value(constants::error::ACTIVITY_STORE_OPENS);
     let status = store
         .ingest_journal(&reader)
-        .expect(constants::error::ACTIVITY_STORE_INGESTS);
+        .expect_value(constants::error::ACTIVITY_STORE_INGESTS);
     cleanup_journal_files(&path);
 
     assert_eq!(status.events_ingested, events.len() as u64);

@@ -96,19 +96,6 @@ pub(crate) fn assert_audit_refs_match_status(
     Ok(())
 }
 
-pub(crate) fn assert_active_policy_has_rules(
-    document: &ParentPolicySourceDocument,
-) -> Result<(), EventingError> {
-    if document.status == PolicySourceStatus::Active && document.rules.is_empty() {
-        return Err(EventingError::InvalidValue {
-            field: policy_control::source::FIELD_RULES,
-            value: policy_control::source::VALUE_ACTIVE_POLICY_HAS_NO_RULES.to_string(),
-        });
-    }
-
-    Ok(())
-}
-
 fn policy_status_requires_audit_refs(status: PolicySourceStatus) -> bool {
     !matches!(
         status,

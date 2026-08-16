@@ -7,7 +7,13 @@ use super::snapshots_app_game::{
     app_game_policy_readiness_snapshot_from_result,
     app_game_timer_parent_surface_snapshot_from_result,
 };
-use super::snapshots_lan::lan_snapshot_from_result;
+use super::snapshots_browser::{
+    browser_activity_read_model_snapshot_from_result,
+    browser_evidence_read_model_snapshot_from_result,
+    browser_intervention_read_model_snapshot_from_result,
+    browser_inventory_read_model_snapshot_from_result, browser_managed_status_snapshot_from_result,
+};
+use super::snapshots_lan::{lan_runtime_replay_events_from_result, lan_snapshot_from_result};
 use super::snapshots_lan::{
     network_flow_snapshot_from_result, network_runtime_event_chain_snapshot_from_result,
     policy_preview_snapshot_from_result,
@@ -23,7 +29,11 @@ use super::types::{
     AppGameChildRuntimeTransportReceiptAgentServiceSnapshot,
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
-    AppGameTimerParentSurfaceAgentServiceSnapshot, LanAgentServiceSnapshot,
+    AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
+    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, LanRuntimeReplaySnapshot,
     NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
     PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
     TrackingReadModelAgentServiceSnapshot,
@@ -55,6 +65,18 @@ pub(crate) fn request_lan_browser_discovery_scan(
         AgentRoute::LocalNetwork,
     )
     .and_then(lan_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_lan_runtime_event_chain_replay_events(
+) -> AgentServiceResult<LanRuntimeReplaySnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+        LogFields::new(),
+        None,
+        AgentRoute::LocalNetwork,
+    )
+    .and_then(lan_runtime_replay_events_from_result)
     .map_err(AgentServiceError::from_display)
 }
 
@@ -123,6 +145,101 @@ pub(crate) fn load_activity_screen_read_model_snapshot(
     .map_err(AgentServiceError::from_display)
 }
 
+pub(crate) fn load_activity_app_use_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<AppUseReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityAppUseReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(|result| {
+        super::snapshots_tracking::activity_app_use_read_model_snapshot_from_result(result)
+    })
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_activity_games_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<GamesReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityGamesReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(|result| {
+        super::snapshots_tracking::activity_games_read_model_snapshot_from_result(result)
+    })
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_managed_status_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserManagedStatusAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserManagedBridgePoll,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_managed_status_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_activity_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserActivityReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityBrowserReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_activity_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_inventory_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInventoryReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserInventoryReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_inventory_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_evidence_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserEvidenceReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserEvidenceRecentGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_evidence_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_intervention_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInterventionReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserInterventionReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_intervention_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
 pub(crate) fn load_app_game_notification_readiness_read_model_snapshot(
     _context: Option<&ParentRouteContext>,
 ) -> AgentServiceResult<AppGameNotificationReadinessAgentServiceSnapshot> {
@@ -132,7 +249,7 @@ pub(crate) fn load_app_game_notification_readiness_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_notification_readiness_snapshot_from_result)
+    .and_then(|result| app_game_notification_readiness_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -145,7 +262,7 @@ pub(crate) fn load_app_game_policy_readiness_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_policy_readiness_snapshot_from_result)
+    .and_then(|result| app_game_policy_readiness_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -158,7 +275,7 @@ pub(crate) fn load_app_game_platform_proof_status_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_platform_proof_status_snapshot_from_result)
+    .and_then(|result| app_game_platform_proof_status_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -171,7 +288,7 @@ pub(crate) fn load_app_game_child_runtime_transport_receipt_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_child_runtime_transport_receipt_snapshot_from_result)
+    .and_then(|result| app_game_child_runtime_transport_receipt_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -184,7 +301,7 @@ pub(crate) fn load_app_game_adapter_dispatch_preflight_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_adapter_dispatch_preflight_snapshot_from_result)
+    .and_then(|result| app_game_adapter_dispatch_preflight_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -197,7 +314,7 @@ pub(crate) fn load_app_game_adapter_dispatch_result_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_adapter_dispatch_result_snapshot_from_result)
+    .and_then(|result| app_game_adapter_dispatch_result_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 
@@ -210,7 +327,7 @@ pub(crate) fn load_app_game_timer_parent_surface_read_model_snapshot(
         None,
         AgentRoute::Localhost,
     )
-    .and_then(app_game_timer_parent_surface_snapshot_from_result)
+    .and_then(|result| app_game_timer_parent_surface_snapshot_from_result(&result))
     .map_err(AgentServiceError::from_display)
 }
 

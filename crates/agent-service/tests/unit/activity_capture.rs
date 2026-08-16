@@ -26,6 +26,7 @@ mod time;
 mod activity_capture_browser_tests;
 #[path = "activity_capture_freshness_tests.rs"]
 mod activity_capture_freshness_tests;
+#[cfg(windows)]
 #[path = "activity_capture_inventory_tests.rs"]
 mod activity_capture_inventory_tests;
 #[path = "activity_capture_tests.rs"]
@@ -41,35 +42,70 @@ mod clippy_linkage {
         require_json_decode, require_log_string_field, require_ok, require_some,
         serialize_test_json,
     };
+    use crate::test_text::TestText;
     use ocentra_parent_agent_protocol::constants;
     use ocentra_parent_agent_protocol::logging::LogFieldValue;
     use std::env;
 
     #[test]
-    fn activity_capture_runtime_and_helpers_are_linked() {
-        let encoded = serialize_test_json(&serde_json::json!({
+    fn activity_capture_runtime_and_helpers_are_linked() -> Result<(), TestText> {
+        let encoded = serde_json::json!({
             "activity_capture": true
-        }));
-        let decoded: serde_json::Value =
-            require_json_decode(&encoded, "activity_capture linkage json");
+        })
+        .to_string();
+        let decoded: serde_json::Value = serde_json::from_str(&encoded).map_err(|error| {
+            TestText::from_display(format!("activity_capture linkage json: {error}"))
+        })?;
+        assert_eq!(decoded["activity_capture"], true);
+        let serialized = serialize_test_json(&decoded);
+        let _: serde_json::Value =
+            require_json_decode(&serialized, constants::error::AGENT_EVENT_SERIALIZES);
+        let _: () = require_ok(
+            Ok::<(), TestText>(()),
+            constants::error::AGENT_EVENT_SERIALIZES,
+        );
+        let LogFieldValue::String(text) = LogFieldValue::String(encoded) else {
+            return Err(TestText::from_display(
+                "activity_capture linkage field must be text",
+            ));
+        };
+        assert_eq!(
+            require_log_string_field(
+                Some(&LogFieldValue::String(text.clone())),
+                constants::error::AGENT_EVENT_SERIALIZES,
+            ),
+            text.as_str()
+        );
         assert!(require_some(
-            decoded
-                .get("activity_capture")
-                .and_then(|value| value.as_bool()),
-            "activity_capture linkage bool",
+            Some(true),
+            constants::error::AGENT_EVENT_SERIALIZES
         ));
-        let field = LogFieldValue::String(encoded);
-        let text = require_log_string_field(Some(&field), "activity_capture linkage field");
-        let _: serde_json::Value = require_json_decode(text, "activity_capture linkage field json");
-        let _: () = require_ok(Ok::<(), std::io::Error>(()), "activity_capture linkage ok");
+        let _: serde_json::Value = serde_json::from_str(&text).map_err(|error| {
+            TestText::from_display(format!("activity_capture linkage field json: {error}"))
+        })?;
         let _ = crate::activity_store_path::activity_journal_path();
         let _ = crate::activity_store_path::activity_journal_key_path();
-        let _ = crate::event_builder::portal_peer();
+        let event = crate::event_builder::build_event(
+            "activity-capture",
+            "activity-capture-correlation",
+            crate::event_builder::portal_peer(),
+            ocentra_parent_agent_protocol::transport::AgentEventName::AgentHealthReported,
+            ocentra_parent_agent_protocol::logging::LogLevel::Info,
+            ocentra_parent_agent_protocol::logging::LogFields::new(),
+            None,
+        );
+        assert_eq!(event.correlation_id, "activity-capture-correlation");
         let _ = crate::json_contract::serialize_json_value(serde_json::json!({
             "activity_capture": true
         }));
+        let json_text = crate::json_contract::serialize_json_string(&decoded);
+        assert_eq!(json_text.0, decoded.to_string());
         let _: String = crate::time::timestamp_from_epoch_seconds(1);
         let _: String = crate::time::timestamp_after_epoch_seconds(1, 1);
+        let _ = crate::dev_log::write_agent_info_ref;
+        let _ = crate::dev_log::write_agent_warn_ref;
+        let _ = crate::dev_log::write_agent_error_ref;
+        let _ = crate::dev_log::write_agent_debug_ref;
 
         let previous = env::var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED).ok();
         env::set_var(
@@ -79,7 +115,7 @@ mod clippy_linkage {
 
         assert!(!startup_activity_capture_enabled());
         assert!(!startup_activity_capture_enabled_for_value(
-            StartupActivityCaptureDisabledValue(Some(constants::value::TRUE))
+            &StartupActivityCaptureDisabledValue(Some(constants::value::TRUE))
         ));
         spawn_startup_activity_capture();
 
@@ -89,5 +125,6 @@ mod clippy_linkage {
             }
             None => env::remove_var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED),
         }
+        Ok(())
     }
 }

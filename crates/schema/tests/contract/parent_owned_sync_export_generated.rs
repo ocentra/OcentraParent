@@ -1,4 +1,4 @@
-use crate::support::{assert_generated_line_eq, ContractLine};
+use crate::support::{assert_generated_line_eq, ContractLine, ValueOrUnreachable};
 use ocentra_schema::parent_owned_sync_export as contracts;
 use ocentra_schema::parent_owned_sync_export_ts::{
     parent_owned_sync_export_contract_rules_typescript,
@@ -8,7 +8,8 @@ use serde_json::json;
 
 pub(super) fn assert_parent_owned_sync_export_contracts() {
     let proof = contracts::sample_parent_owned_sync_export_contract_proof();
-    let encoded = serde_json::to_value(&proof).expect("proof serializes");
+    let encoded = serde_json::to_value(&proof)
+        .value_or_unreachable(crate::assert_context!("proof serializes"));
 
     assert_eq!(
         encoded["schemaVersion"],
@@ -28,8 +29,8 @@ pub(super) fn assert_parent_owned_sync_export_contracts() {
     );
     assert!(encoded.get("schema_version").is_none());
 
-    let decoded: contracts::ParentOwnedSyncExportContractProof =
-        serde_json::from_value(encoded).expect("proof deserializes");
+    let decoded: contracts::ParentOwnedSyncExportContractProof = serde_json::from_value(encoded)
+        .value_or_unreachable(crate::assert_context!("proof deserializes"));
     assert_eq!(decoded, proof);
 
     let checked_in = include_str!(

@@ -56,7 +56,7 @@ macro_rules! provider_setup_audit_event {
         provider_audit_activity_event(
             $command,
             $result,
-            provider_audit_event_ref!($result, $field, $status),
+            &provider_audit_event_ref!($result, $field, $status),
         )
     };
 }
@@ -229,7 +229,7 @@ fn persisted_result(
 fn provider_audit_activity_event(
     command: &AgentCommandEnvelope,
     result: &AppGameTimerParentPreferenceSetupRequestResult,
-    event: ProviderAuditEventRef<'_>,
+    event: &ProviderAuditEventRef<'_>,
 ) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(

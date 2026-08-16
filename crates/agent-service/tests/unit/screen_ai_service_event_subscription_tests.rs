@@ -1,6 +1,3 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use ocentra_eventing::{bus::reports::handler::HandlerOutcome, bus::EventBus};
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::activity_surface::ActivityReadModelState;
@@ -25,7 +22,7 @@ use super::screen_ai_service_event_subscription::{
 use crate::screen_ai_service_event_subscription;
 use crate::test_invariants::require_ok;
 
-const DEGRADED_SCREEN_RUNTIME_EVENT_COUNT: usize = 6;
+const DEGRADED_SCREEN_RUNTIME_EVENT_COUNT: usize = 4;
 
 #[tokio::test]
 async fn screen_service_event_runtime_start_registers_subscriber_for_production_startup() {

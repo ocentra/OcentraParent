@@ -14,7 +14,11 @@ path = "src/lib.rs"
 ocentra-family-identity-core = { path = "../family-identity-core" }
 ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-policy-control-core = { path = "../policy-control-core" }
+ocentra-schema = { path = "../schema" }
 serde = { version = "1.0.228", features = ["derive"] }
+
+[dev-dependencies]
+serde_json = "1.0.145"
 
 [[test]]
 name = "unit"

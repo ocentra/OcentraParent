@@ -7,9 +7,7 @@ use crate::household_mesh_bridge_runtime::{
 use crate::household_mesh_bridge_runtime_state::{
     HouseholdMeshBridgeDirection, HouseholdMeshBridgeRejectionReason,
 };
-use crate::household_mesh_event_bridge::{
-    HouseholdMeshExportDecision, HouseholdMeshImportDecision,
-};
+use crate::household_mesh_event_bridge::HouseholdMeshExportDecision;
 
 #[path = "household_mesh_bridge_runtime_validation_direction.rs"]
 mod household_mesh_bridge_runtime_validation_direction;

@@ -21,6 +21,15 @@ files still contain open checklist items, and the expected
 `output/browser-plan-proof/<workpack-file-stem>/` roots are absent in this
 checkout. Treat this file as a router, not completion truth.
 
+Production-code routing note (2026-08-16): no new reachable implementation
+slice is authorized after the existing WP18/WP13 bridges. WP11 requires a real
+focus/activation provider; WP21 requires extension/native-host packaging and
+registration; WP20 requires Windows AppLocker/WDAC authority; and WP22 requires
+a runtime performance-health producer. These workpacks remain open and
+code-blocked; validation, proof, and platform gaps must not be promoted to
+production implementation. The graph report's all-`planned` topology is stale
+and is not completion evidence.
+
 | Status  | Workpack                                                                                            |   Size | Boxes                 |
 | ------- | --------------------------------------------------------------------------------------------------- | -----: | --------------------- |
 | open    | [01 Contract Boundary And Effect Schemas](workpacks/01-contract-boundary-and-effect-schemas.md)     |  5,608 | 0/16 checked; 16 open |

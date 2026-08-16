@@ -190,7 +190,7 @@ fn export_import_backup_recovery_rejects_wrong_household_wrong_key_and_corrupt_b
     );
     assert_eq!(
         wrong_household.state,
-        contracts::ExportImportPreflightState::RejectedWrongHousehold
+        contracts::ExportImportPreflightState::HouseholdMismatch
     );
 
     let wrong_key = run_import_preflight(
@@ -212,7 +212,7 @@ fn export_import_backup_recovery_rejects_wrong_household_wrong_key_and_corrupt_b
     );
     assert_eq!(
         wrong_key.state,
-        contracts::ExportImportPreflightState::RejectedWrongKey
+        contracts::ExportImportPreflightState::KeyUnavailable
     );
 
     let corrupt = run_import_preflight(
@@ -234,7 +234,7 @@ fn export_import_backup_recovery_rejects_wrong_household_wrong_key_and_corrupt_b
     );
     assert_eq!(
         corrupt.state,
-        contracts::ExportImportPreflightState::RejectedCorruptBundle
+        contracts::ExportImportPreflightState::BundleCorrupt
     );
 }
 
@@ -270,7 +270,7 @@ fn export_import_backup_recovery_rejects_schema_expiry_duplicate_device_and_unsu
     );
     assert_eq!(
         unsupported_schema.state,
-        contracts::ExportImportPreflightState::RejectedSchemaVersion
+        contracts::ExportImportPreflightState::SchemaVersionInvalid
     );
 
     let expired = run_import_preflight(
@@ -292,7 +292,7 @@ fn export_import_backup_recovery_rejects_schema_expiry_duplicate_device_and_unsu
     );
     assert_eq!(
         expired.state,
-        contracts::ExportImportPreflightState::RejectedExpiredRetention
+        contracts::ExportImportPreflightState::RetentionExpired
     );
 
     let duplicate_device_bundle = derive_export_bundle(
@@ -325,7 +325,7 @@ fn export_import_backup_recovery_rejects_schema_expiry_duplicate_device_and_unsu
     );
     assert_eq!(
         duplicate_device.state,
-        contracts::ExportImportPreflightState::RejectedDuplicateDevice
+        contracts::ExportImportPreflightState::DeviceDuplicate
     );
 }
 
@@ -362,29 +362,35 @@ fn export_import_backup_recovery_rejects_unsupported_migration() {
     );
     assert_eq!(
         migration_blocked.state,
-        contracts::ExportImportPreflightState::RejectedMigrationUnsupported
+        contracts::ExportImportPreflightState::MigrationUnsupported
     );
 }
 
 #[test]
-fn export_import_backup_recovery_apply_restore_reports_pending_before_confirmation() {
+fn export_import_backup_recovery_apply_restore_blocks_without_real_executor() {
     let preflight = sample_restore_preflight();
 
-    let pending = apply_restore(&preflight, &RestoreApplyRequest { confirmed: false });
+    let blocked = apply_restore(&preflight, &RestoreApplyRequest { confirmed: false });
     assert_eq!(
-        pending.state,
-        contracts::ExportImportRestoreApplyState::ApplyPending
+        blocked.state,
+        contracts::ExportImportRestoreApplyState::Blocked
     );
+    assert!(blocked.explicit_confirmation_required);
+    assert!(blocked.local_truth_authoritative);
+    assert!(blocked.tombstones_preserved);
+    assert!(!blocked.idempotent);
+    assert!(!blocked.duplicates_created);
+    assert!(blocked.accepted_sections.is_empty());
 }
 
 #[test]
-fn export_import_backup_recovery_apply_restore_is_idempotent_and_preserves_tombstones() {
+fn export_import_backup_recovery_apply_restore_remains_blocked_until_executor_receipt() {
     let preflight = sample_restore_preflight();
 
-    let applied_once = apply_restore(&preflight, &RestoreApplyRequest { confirmed: true });
-    let applied_twice = apply_restore(&preflight, &RestoreApplyRequest { confirmed: true });
+    let blocked_once = apply_restore(&preflight, &RestoreApplyRequest { confirmed: true });
+    let blocked_twice = apply_restore(&preflight, &RestoreApplyRequest { confirmed: true });
 
-    assert_applied_restore_is_idempotent(&applied_once, &applied_twice);
+    assert_blocked_restore_is_stable(&blocked_once, &blocked_twice);
 }
 
 #[test]
@@ -449,18 +455,21 @@ fn sample_restore_preflight() -> contracts::ExportImportImportPreflight {
     )
 }
 
-fn assert_applied_restore_is_idempotent(
-    applied_once: &contracts::ExportImportRestoreApplyResult,
-    applied_twice: &contracts::ExportImportRestoreApplyResult,
+fn assert_blocked_restore_is_stable(
+    blocked_once: &contracts::ExportImportRestoreApplyResult,
+    blocked_twice: &contracts::ExportImportRestoreApplyResult,
 ) {
     assert_eq!(
-        applied_once.state,
-        contracts::ExportImportRestoreApplyState::Partial
+        blocked_once.state,
+        contracts::ExportImportRestoreApplyState::Blocked
     );
-    assert_eq!(applied_once, applied_twice);
-    assert!(applied_once.tombstones_preserved);
-    assert!(applied_once.idempotent);
-    assert!(!applied_once.duplicates_created);
+    assert_eq!(blocked_once, blocked_twice);
+    assert!(blocked_once.explicit_confirmation_required);
+    assert!(blocked_once.local_truth_authoritative);
+    assert!(blocked_once.tombstones_preserved);
+    assert!(!blocked_once.idempotent);
+    assert!(!blocked_once.duplicates_created);
+    assert!(blocked_once.accepted_sections.is_empty());
 }
 
 fn sample_build_request() -> ExportBundleBuildRequest {

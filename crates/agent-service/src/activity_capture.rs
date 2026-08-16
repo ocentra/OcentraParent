@@ -1,10 +1,6 @@
 use std::{fs, path::Path, time::Duration};
 
-use ocentra_parent_agent_core::{
-    activity_store::ActivityStore,
-    journal::ActivityJournal,
-    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
-};
+use ocentra_parent_agent_core::journal_crypto::{JournalKey, JOURNAL_KEY_BYTES};
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::activity_query::ActivityIngestStatus;
 use ocentra_parent_agent_protocol::constants;
@@ -22,6 +18,8 @@ mod app_game;
 pub(crate) mod capture_events;
 #[path = "activity_capture/errors.rs"]
 mod errors;
+#[path = "activity_capture/persistence.rs"]
+mod persistence;
 pub(crate) type ActivityCaptureError = errors::ActivityCaptureError;
 
 pub(crate) struct StartupActivityCaptureDisabledValue<'a>(pub(crate) Option<&'a str>);
@@ -44,7 +42,7 @@ pub fn spawn_startup_activity_capture() {
 }
 
 pub(crate) fn startup_activity_capture_enabled() -> bool {
-    startup_activity_capture_enabled_for_value(StartupActivityCaptureDisabledValue(
+    startup_activity_capture_enabled_for_value(&StartupActivityCaptureDisabledValue(
         std::env::var(constants::env_var::ACTIVITY_CAPTURE_STARTUP_DISABLED)
             .ok()
             .as_deref(),
@@ -52,7 +50,7 @@ pub(crate) fn startup_activity_capture_enabled() -> bool {
 }
 
 pub(crate) fn startup_activity_capture_enabled_for_value(
-    value: StartupActivityCaptureDisabledValue<'_>,
+    value: &StartupActivityCaptureDisabledValue<'_>,
 ) -> bool {
     windows_activity_capture_supported() && value.0 != Some(constants::value::TRUE)
 }
@@ -110,7 +108,7 @@ pub fn record_activity_capture_to_paths(
         store_path,
         process_limit,
         network_limit,
-        ActivityCaptureObservedAt(observed_at.as_str()),
+        &ActivityCaptureObservedAt(observed_at.as_str()),
     )
 }
 
@@ -120,10 +118,10 @@ pub(crate) fn record_activity_capture_to_paths_at(
     store_path: &Path,
     process_limit: usize,
     network_limit: usize,
-    observed_at: ActivityCaptureObservedAt<'_>,
+    observed_at: &ActivityCaptureObservedAt<'_>,
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
     let events = capture_events::activity_capture_events(
-        capture_events::ObservedAtText(Box::leak(observed_at.0.to_string().into_boxed_str())),
+        capture_events::ObservedAtText(observed_at.0),
         capture_events::CaptureLimit(process_limit),
         capture_events::CaptureLimit(network_limit),
     )?;
@@ -136,18 +134,7 @@ pub(crate) fn record_activity_events_to_paths(
     store_path: &Path,
     events: &[ActivityEvent],
 ) -> Result<ActivityIngestStatus, ActivityCaptureError> {
-    let key = load_or_create_journal_key(key_path)?;
-    let mut journal = ActivityJournal::open(journal_path.to_path_buf(), key)?;
-    let existing_line_count = journal.lines()?.len();
-    for event in events {
-        journal.append(event)?;
-    }
-    let mut appended_events = Vec::new();
-    for line in journal.lines()?.into_iter().skip(existing_line_count) {
-        appended_events.push(journal.decrypt_line(&line)?);
-    }
-    let store = ActivityStore::open(store_path)?;
-    Ok(store.ingest_events(&appended_events)?)
+    persistence::record_unseen_activity_events(journal_path, key_path, store_path, events)
 }
 
 fn load_or_create_journal_key(path: &Path) -> Result<JournalKey, ActivityCaptureError> {

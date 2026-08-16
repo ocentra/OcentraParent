@@ -24,6 +24,7 @@ use super::common::events::responses::*;
 use super::common::events::samples::*;
 use super::common::helpers::*;
 
+#[test]
 fn parent_route_snapshot_serializes_with_host_bridge_snapshot_fields() {
     let value = route_snapshot_json(
         ParentRouteId::Activity,
@@ -292,7 +293,7 @@ fn parent_subscription_event_serializes_for_host_bridge() {
     assert_eq!(value["snapshot"]["dataSource"], "rust-read-model");
     assert_eq!(
         value["events"].as_array().map(|events| events.len()),
-        Some(2)
+        Some(3)
     );
     assert_eq!(
         value["events"][0]["eventId"],
@@ -303,6 +304,40 @@ fn parent_subscription_event_serializes_for_host_bridge() {
         json!("agent.lan-pairing.status.reported")
     );
     assert_eq!(value["events"][1]["correlationId"], json!("lan"));
+    let warning = &value["events"][2];
+    let warning_event_id = require_some(
+        warning["eventId"].as_str(),
+        TestContext("rejected replay warning has a host-owned event id"),
+    );
+    assert!(warning_event_id.starts_with("lan-runtime-event-chain-replay-rejected-"));
+    let warning_sent_at = require_some(
+        warning["sentAt"].as_str(),
+        TestContext("rejected replay warning has a sent-at timestamp"),
+    );
+    let _parsed_warning_sent_at = require_ok(
+        chrono::DateTime::parse_from_rfc3339(warning_sent_at),
+        "rejected replay warning sent-at parses as RFC3339",
+    );
+    let mut warning_without_host_fields = warning.clone();
+    warning_without_host_fields["eventId"] = json!(null);
+    warning_without_host_fields["sentAt"] = json!(null);
+    assert_eq!(
+        warning_without_host_fields,
+        json!({
+            "event": "lan-runtime-event-chain-replay-rejected",
+            "eventId": null,
+            "correlationId": null,
+            "sentAt": null,
+            "sourcePeerId": constants::peer::LOCAL_DEV_AGENT,
+            "sourceRole": "agent-service",
+            "targetPeerId": constants::peer::PORTAL_DEV,
+            "targetRole": "portal",
+            "severity": "warn",
+            "payload": null,
+            "snapshot": null,
+            "commandResultProjection": null
+        })
+    );
 }
 
 #[test]
@@ -324,7 +359,7 @@ fn parent_subscription_event_dedupes_duplicate_event_ids_while_preserving_latest
 
     assert_eq!(
         value["events"].as_array().map(|events| events.len()),
-        Some(1)
+        Some(2)
     );
     assert_eq!(
         value["events"][0]["eventId"],
@@ -335,6 +370,25 @@ fn parent_subscription_event_dedupes_duplicate_event_ids_while_preserving_latest
         json!("agent.lan-pairing.status.reported")
     );
     assert_eq!(value["events"][0]["correlationId"], json!("lan"));
+    assert_eq!(
+        value["events"][1]["event"],
+        json!("lan-runtime-event-chain-replay-rejected")
+    );
+    let warning_event_id = require_some(
+        value["events"][1]["eventId"].as_str(),
+        TestContext("deduped rejected replay warning has a host-owned event id"),
+    );
+    assert!(warning_event_id.starts_with("lan-runtime-event-chain-replay-rejected-"));
+    let warning_sent_at = require_some(
+        value["events"][1]["sentAt"].as_str(),
+        TestContext("deduped rejected replay warning has a sent-at timestamp"),
+    );
+    let _parsed_warning_sent_at = require_ok(
+        chrono::DateTime::parse_from_rfc3339(warning_sent_at),
+        "deduped rejected replay warning sent-at parses as RFC3339",
+    );
+    assert_eq!(value["events"][1]["correlationId"], json!(null));
+    assert_eq!(value["events"][1]["payload"], json!(null));
     assert_eq!(
         value["snapshot"]["liveActivity"]["lanAddDeviceReadModel"]["discoveryEventHistory"]
             ["latestEventId"],
@@ -647,7 +701,7 @@ fn parent_ui_action_serializes_and_returns_snapshot() {
         TestContext("network flow command returns live activity snapshot"),
         TestContext("live activity snapshot serializes"),
     );
-    assert_network_policy_bridge_snapshot(&live_activity, json!(3));
+    assert_network_policy_bridge_snapshot(&live_activity, &json!(3));
 }
 
 #[test]

@@ -14,7 +14,7 @@ pub(crate) struct EnforcementRequestedAtText<'a>(pub(crate) &'a str);
 pub(crate) fn enforcement_capability_for_policy(
     action: PolicyAction,
     target_type: PolicyTargetType,
-    requested_at: EnforcementRequestedAtText<'_>,
+    requested_at: &EnforcementRequestedAtText<'_>,
 ) -> EnforcementCapabilityStatus {
     match (action, target_type) {
         (PolicyAction::AskParent, _) => timer_control_capability(requested_at.0),

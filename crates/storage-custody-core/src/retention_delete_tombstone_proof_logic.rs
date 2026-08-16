@@ -4,12 +4,8 @@ use super::{RetentionDeleteDerivationError, RetentionDeleteDerivationInput};
 
 #[path = "retention_delete_tombstone_proof_finalize.rs"]
 mod retention_delete_tombstone_proof_finalize;
-#[path = "retention_delete_tombstone_proof_rank.rs"]
-mod retention_delete_tombstone_proof_rank;
 #[path = "retention_delete_tombstone_proof_rows.rs"]
 mod retention_delete_tombstone_proof_rows;
-#[path = "retention_delete_tombstone_proof_signal.rs"]
-mod retention_delete_tombstone_proof_signal;
 
 pub(super) fn build_retention_delete_tombstone_proof(
     request: &contracts::RetentionDeleteRequest,

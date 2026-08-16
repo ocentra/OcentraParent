@@ -1,32 +1,30 @@
+use ocentra_eventing::expect_value::{ExpectErrValue, ExpectValue};
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     DeviceRoleRuntimeReadModel, LanAiProviderRoutingState, LanChildAgentResponse,
     LanChildMdnsAdvertisement, LanChildMdnsAdvertisementInput, LanMdnsAdvertisementLifecycleState,
     LanMdnsAdvertisementSupportState, LanMdnsTxtRecord, LanPairingAuditEvent,
     LanPairingAuditEventType, LanPairingAuthenticationState, LanPairingChallenge,
-    LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingDeviceRef,
-    LanPairingDiscoveryDevice, LanPairingDiscoveryRuntimeStatus, LanPairingIntentKind,
-    LanPairingNetworkMode, LanPairingProductionDiscoveryState, LanPairingProof,
-    LanPairingProofPreview, LanPairingRejectionReason, LanPairingResponseState,
-    LanPairingRouteSelectionRequest, LanPairingRoutingDecision, LanPairingTrustState,
-    LanParentIntentEnvelope, LanParentMdnsAdvertisement, LanSelectedRouteTarget,
-    LanSignedChildAgentClaim, LanSignedChildAgentEnvelope, LanSignedChildAgentMessageKind,
-    LanTrustedDeviceRegistryEntry, LanTrustedDeviceRegistrySnapshot,
+    LanPairingChallengeRequest, LanPairingDeviceReachability, LanPairingDiscoveryDevice,
+    LanPairingDiscoveryRuntimeStatus, LanPairingIntentKind, LanPairingNetworkMode,
+    LanPairingProductionDiscoveryState, LanPairingProof, LanPairingProofPreview,
+    LanPairingRejectionReason, LanPairingResponseState, LanPairingRouteSelectionRequest,
+    LanPairingRoutingDecision, LanPairingTrustState, LanParentIntentEnvelope,
+    LanParentMdnsAdvertisement, LanSelectedRouteTarget, LanSignedChildAgentEnvelope,
+    LanSignedChildAgentMessageKind, LanTrustedDeviceRegistryEntry,
+    LanTrustedDeviceRegistrySnapshot,
 };
 use ocentra_parent_agent_protocol::lan_pairing_authority::LanPairingParentAuthority;
 use ocentra_parent_agent_protocol::lan_pairing_support::{
-    LanPairingHttpEndpointSupport, LanPairingManualProofGap, LanPairingPersistenceMode,
-    LanPairingProofMode, LanPairingRestartBehavior, LanPairingRouteRequirement,
-    LanPairingRuntimeSupportSurface, LanPairingTransport, LanPairingUnsupportedHttpEndpoint,
+    LanPairingManualProofGap, LanPairingPersistenceMode, LanPairingProofMode,
+    LanPairingRestartBehavior, LanPairingRouteRequirement, LanPairingRuntimeSupportSurface,
+    LanPairingTransport,
 };
-use ocentra_parent_agent_protocol::policy_constants;
-use ocentra_parent_agent_protocol::ParentEvidenceReference;
-use ocentra_parent_agent_protocol::ParentEvidenceReferenceKind;
 
 use super::lan_pairing_helpers::*;
 
 fn to_json<T: serde::Serialize>(value: T) -> serde_json::Value {
-    serde_json::to_value(value).expect("lan pairing contract serializes")
+    serde_json::to_value(value).expect_value("lan pairing contract serializes")
 }
 
 #[test]
@@ -209,7 +207,7 @@ fn signed_child_agent_envelope_rejects_missing_signature_fields() {
     ));
     let envelope_object = envelope_json
         .as_object_mut()
-        .expect("envelope is an object");
+        .expect_value("envelope is an object");
     envelope_object.remove("signatureBase64");
 
     let error = result_error_or_unreachable(
@@ -299,7 +297,7 @@ fn signed_child_agent_envelope_rejects_unknown_message_kind() {
         "nonce-unknown-kind",
         17,
     ))
-    .expect("signed envelope serializes");
+    .expect_value("signed envelope serializes");
     envelope_json["claim"]["messageKind"] = serde_json::json!("future-lan-message-kind");
 
     let error = result_error_or_unreachable(
@@ -320,7 +318,7 @@ fn mdns_advertisements_use_opaque_metadata_and_hint_only_txt_records() {
         LanMdnsAdvertisementLifecycleState::Start,
         LanMdnsAdvertisementSupportState::Supported,
     )
-    .expect("parent advertisement constructs");
+    .expect_value("parent advertisement constructs");
     let child = LanChildMdnsAdvertisement::new(LanChildMdnsAdvertisementInput {
         advertisement_id: "sha256:child-family-1".to_string(),
         opaque_device_id: "sha256:child-device-1".to_string(),
@@ -332,10 +330,12 @@ fn mdns_advertisements_use_opaque_metadata_and_hint_only_txt_records() {
         lifecycle_state: LanMdnsAdvertisementLifecycleState::Degraded,
         support_state: LanMdnsAdvertisementSupportState::Degraded,
     })
-    .expect("child advertisement constructs");
+    .expect_value("child advertisement constructs");
 
-    let parent_json = serde_json::to_value(parent).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let child_json = serde_json::to_value(child).expect(constants::error::AGENT_EVENT_SERIALIZES);
+    let parent_json =
+        serde_json::to_value(parent).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    let child_json =
+        serde_json::to_value(child).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         parent_json["serviceType"],
@@ -438,7 +438,8 @@ fn mdns_advertisement_constructors_reject_missing_or_unsanitized_values() {
         })
         .is_err()
     );
-    let error = LanMdnsTxtRecord::new("bad key", "value").expect_err("invalid TXT key must fail");
+    let error =
+        LanMdnsTxtRecord::new("bad key", "value").expect_err_value("invalid TXT key must fail");
     assert!(error.to_string().contains("bad key"));
 }
 
@@ -591,8 +592,6 @@ fn assert_lan_discovery_surface_has_no_sensitive_markers(value: &serde_json::Val
 }
 
 fn assert_lan_pairing_audit_event_has_no_sensitive_markers(value: &serde_json::Value) {
-    const MARKERS: [&str; 2] = ["rawToken", "rawEvidence"];
-
     fn value_has_sensitive_marker(value: &serde_json::Value) -> bool {
         const MARKERS: [&str; 2] = ["rawToken", "rawEvidence"];
 
@@ -719,7 +718,7 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
     let support = websocket_runtime_support_surface();
 
     let support_json =
-        serde_json::to_value(support).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(support).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(support_json["transport"], "websocket");
     assert_eq!(
@@ -736,7 +735,7 @@ fn lan_pairing_runtime_support_surface_serializes_supported_and_planned_api_clai
     );
     assert!(support_json["supportedWebSocketCommands"]
         .as_array()
-        .expect("supported websocket commands serializes as an array")
+        .expect_value("supported websocket commands serializes as an array")
         .iter()
         .any(|command| command == constants::lan_pairing::COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET));
     assert_eq!(
@@ -818,10 +817,10 @@ fn websocket_runtime_support_surface() -> LanPairingRuntimeSupportSurface {
 #[test]
 fn lan_pairing_runtime_support_surface_serializes_local_registry_persistence() {
     let persistence_json = serde_json::to_value(LanPairingPersistenceMode::LocalJsonRegistry)
-        .expect(constants::error::AGENT_EVENT_SERIALIZES);
+        .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let restart_json =
         serde_json::to_value(LanPairingRestartBehavior::RestoreTrustedRegistryUnselected)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES);
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         persistence_json,
@@ -880,11 +879,11 @@ fn lan_pairing_registry_snapshot_and_route_decision_make_selection_explicit() {
     };
 
     let snapshot_json =
-        serde_json::to_value(snapshot).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(snapshot).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let selection_json =
-        serde_json::to_value(selection).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(selection).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
     let rejected_json =
-        serde_json::to_value(rejected).expect(constants::error::AGENT_EVENT_SERIALIZES);
+        serde_json::to_value(rejected).expect_value(constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(snapshot_json["authenticationState"], "paired");
     assert_eq!(

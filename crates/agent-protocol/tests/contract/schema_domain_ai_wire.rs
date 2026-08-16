@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::schema_domain_ai_wire::{
     LocalAiAdapterBoundary, LocalAiEvidenceContextBuildRequestWire,
     LocalAiEvidenceContextBuildResultWire, LocalAiExecutionState, LocalAiProviderPrivacyMode,
@@ -13,10 +14,7 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::family::{
 };
 
 fn to_json<T: serde::Serialize>(value: T) -> serde_json::Value {
-    match serde_json::to_value(value) {
-        Ok(serialized) => serialized,
-        Err(_) => serde_json::Value::default(),
-    }
+    serde_json::to_value(value).expect_value("schema domain AI wire fixture must serialize")
 }
 
 #[test]
@@ -55,13 +53,13 @@ fn schema_domain_ai_wire_build_request_and_result_keep_nested_parent_shapes() {
         request_id: "request-1".to_string().into(),
         requested_at: "2026-06-20T18:11:00.000Z".to_string().into(),
         child_profile: ChildProfileReference {
-            child_profile_id: "child-1".to_string().into(),
-            display_name: "Child One".to_string().into(),
+            child_profile_id: "child-1".to_string(),
+            display_name: "Child One".to_string(),
         },
         device: ParentDeviceReference {
             device_id: "device-1".to_string().into(),
             child_profile_id: Some("child-1".to_string().into()),
-            label: "Parent Laptop".to_string().into(),
+            label: "Parent Laptop".to_string(),
             platform: ParentDevicePlatform::Windows,
         },
         requested_evaluation_kind: LocalAiRequestedEvaluationKind::MixedContext,
@@ -88,7 +86,7 @@ fn schema_domain_ai_wire_build_request_and_result_keep_nested_parent_shapes() {
     assert_eq!(request["requestedEvaluationKind"], "mixed-context");
     assert_eq!(request["childProfile"]["childProfileId"], "child-1");
     assert_eq!(request["childProfile"]["displayName"], "Child One");
-    assert_eq!(request["childProfile"].get("familyId").is_none(), true);
+    assert!(request["childProfile"].get("familyId").is_none());
     assert_eq!(request["device"]["platform"], "windows");
     assert_eq!(request["allowedCustody"][0], "live-local-child-agent");
     assert_eq!(request["promptVersion"], "prompt-v1");

@@ -1,3 +1,4 @@
+use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::AgentCommandName;
 use ocentra_parent_agent_protocol::AgentEventName;
 use ocentra_parent_agent_protocol::AppGameAdapterExecutionReadinessReadModel;
@@ -16,14 +17,14 @@ fn app_game_adapter_execution_readiness_command_and_event_names_are_stable() {
         serde_json::to_value(
             AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet
         )
-        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.adapter-execution-readiness.read-model.get"
     );
     assert_eq!(
         serde_json::to_value(
             AgentEventName::AgentActivityAppGameAdapterExecutionReadinessReadModelReported
         )
-        .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
+        .expect_value(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
         "agent.activity.app-game.adapter-execution-readiness.read-model.reported"
     );
 }
@@ -93,9 +94,9 @@ fn app_game_adapter_execution_readiness_serializes_no_claim_upgrades() {
 
     let reparsed = serde_json::from_value::<AppGameAdapterExecutionReadinessReadModel>(
         serde_json::to_value(read_model)
-            .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .expect(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
+    .expect_value(ocentra_parent_agent_protocol::constants::error::AGENT_EVENT_SERIALIZES);
 
     assert_eq!(
         reparsed.read_model_id,

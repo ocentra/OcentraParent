@@ -1,12 +1,7 @@
-use std::{
-    env, fs,
-    path::{Path, PathBuf},
-    time::Duration,
-};
+use std::{env, path::PathBuf, time::Duration};
 
-use ocentra_parent_agent_core::{
-    journal_crypto::{JournalKey, JOURNAL_KEY_BYTES},
-    screen_evidence_queue::{ScreenEvidenceExpiredQueueEntry, ScreenEvidenceQueue},
+use ocentra_parent_agent_core::screen_evidence_queue::{
+    ScreenEvidenceExpiredQueueEntry, ScreenEvidenceOutboxFailure, ScreenEvidenceQueue,
 };
 use ocentra_parent_agent_protocol as parent_protocol;
 use ocentra_parent_agent_protocol::activity::{
@@ -35,12 +30,18 @@ use crate::{
     activity_store_path::{activity_db_path, activity_journal_key_path, activity_journal_path},
     fields::fields_from_pairs,
     screen_ai_retention_sweeper_deletion_events::publish_screen_retention_deletion_events,
-    screen_ai_service_event_subscription::ObservedAtText,
+    screen_ai_service_event_subscription::{ObservedAtText, ScreenAiServiceEventRuntime},
     time::timestamp_now,
 };
 
+#[path = "screen_ai_retention_sweeper_failure_events.rs"]
+mod failure_events;
 #[path = "screen_ai_retention_sweeper_runtime/key_loader.rs"]
 mod key_loader;
+#[path = "screen_ai_retention_sweeper_runtime/outbox_projection.rs"]
+mod outbox_projection;
+
+use failure_events::outbox_failure_event;
 
 const DEFAULT_POLL_SECONDS: u64 = 5;
 
@@ -93,7 +94,20 @@ pub(crate) fn spawn_screen_ai_retention_sweeper_runtime() {
     }
 }
 
+pub(crate) async fn run_screen_ai_retention_blocking<T, F>(
+    operation: F,
+) -> Result<T, tokio::task::JoinError>
+where
+    T: Send + 'static,
+    F: FnOnce() -> T + Send + 'static,
+{
+    tokio::task::spawn_blocking(operation).await
+}
+
 async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweeperRuntimeConfig) {
+    let Ok(event_runtime) = ScreenAiServiceEventRuntime::start().await else {
+        return;
+    };
     let mut interval = tokio::time::interval(Duration::from_secs(config.poll_seconds));
     let mut sweep_count = 0;
     let mut tick_count = 0;
@@ -102,17 +116,33 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
         tick_count += 1;
         let clock = ScreenAiRetentionSweeperClock::now();
         let observed_at = clock.timestamp.clone();
-        let outcome = record_screen_ai_retention_sweeper_tick(&config, clock);
+        let tick_config = config.clone();
+        let Ok(outcome) = run_screen_ai_retention_blocking(move || {
+            record_screen_ai_retention_sweeper_tick(&tick_config, clock)
+        })
+        .await
+        else {
+            return;
+        };
         if let Ok(ScreenAiRetentionSweeperOutcome::Swept {
             expired_entries, ..
         }) = outcome
         {
-            let _ = publish_screen_retention_deletion_events(
+            let published = publish_screen_retention_deletion_events(
+                &event_runtime,
                 &config.store_path,
                 &expired_entries,
                 ObservedAtText(observed_at),
             )
             .await;
+            let finalization_config = config.clone();
+            let Ok(_) = run_screen_ai_retention_blocking(move || {
+                finalize_published_deletion_outbox(&finalization_config, &published)
+            })
+            .await
+            else {
+                return;
+            };
             sweep_count += 1;
         }
         if config.max_sweeps.is_some_and(|max| sweep_count >= max) {
@@ -122,6 +152,35 @@ async fn run_screen_ai_retention_sweeper_runtime(config: ScreenAiRetentionSweepe
             break;
         }
     }
+}
+
+pub(crate) fn acknowledge_published_deletion_outbox(
+    config: &ScreenAiRetentionSweeperRuntimeConfig,
+    published: &[crate::screen_ai_retention_sweeper_deletion_events::ScreenAiRetentionSweeperDeletionEventOutcome],
+) -> Result<u64, ActivityCaptureError> {
+    if published.is_empty() {
+        return Ok(0);
+    }
+    let Some(key) = key_loader::load_existing_screen_key(&config.journal_key_path)? else {
+        return Err(ActivityCaptureError::Io);
+    };
+    let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
+    let queue_job_ids = published
+        .iter()
+        .map(|outcome| outcome.queue_job_id.clone())
+        .collect::<Vec<_>>();
+    let acknowledged = queue.acknowledge_expired_entries(&queue_job_ids)?;
+    if acknowledged != queue_job_ids.len() as u64 {
+        return Err(ActivityCaptureError::Io);
+    }
+    Ok(acknowledged)
+}
+
+pub(crate) fn finalize_published_deletion_outbox(
+    config: &ScreenAiRetentionSweeperRuntimeConfig,
+    published: &[crate::screen_ai_retention_sweeper_deletion_events::ScreenAiRetentionSweeperDeletionEventOutcome],
+) -> Result<u64, ActivityCaptureError> {
+    acknowledge_published_deletion_outbox(config, published)
 }
 
 pub(crate) fn record_screen_ai_retention_sweeper_tick(
@@ -134,22 +193,41 @@ pub(crate) fn record_screen_ai_retention_sweeper_tick(
         return Ok(ScreenAiRetentionSweeperOutcome::QueueEmpty);
     };
     let queue = ScreenEvidenceQueue::open(&config.queue_dir, key)?;
-    let sweep = queue.remove_expired_entries(
+    let sweep_result = queue.remove_expired_entries(
         observed_at.0.as_str(),
         SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX,
-    )?;
-    if !sweep.expired_entries.is_empty() {
-        let events = sweep
-            .expired_entries
+    );
+    let failure_outcome = sweep_result
+        .as_ref()
+        .err()
+        .map(|_| record_retryable_sweep_failure(&queue, config, &observed_at))
+        .transpose()?
+        .flatten();
+    if let Some(outcome) = failure_outcome {
+        return Ok(outcome);
+    }
+    let sweep = sweep_result?;
+    let mut events = sweep
+        .expired_entries
+        .iter()
+        .map(|entry| expired_entry_event(entry, observed_at.clone()))
+        .collect::<Vec<_>>();
+    events.extend(
+        sweep
+            .outbox_failures
             .iter()
-            .map(|entry| expired_entry_event(entry, observed_at.clone()))
-            .collect::<Vec<_>>();
+            .map(|failure| outbox_failure_event(failure, observed_at.clone())),
+    );
+    if !events.is_empty() {
         record_activity_events_to_paths(
             &config.journal_path,
             &config.journal_key_path,
             &config.store_path,
             &events,
         )?;
+        outbox_projection::acknowledge_projected_outbox_failures(&queue, &sweep.outbox_failures)?;
+    }
+    if !sweep.expired_entries.is_empty() {
         return Ok(ScreenAiRetentionSweeperOutcome::Swept {
             expired_entries: sweep.expired_entries,
             retained_count: sweep.retained_count,
@@ -164,11 +242,58 @@ pub(crate) fn record_screen_ai_retention_sweeper_tick(
     }
 }
 
+fn record_retryable_sweep_failure(
+    queue: &ScreenEvidenceQueue,
+    config: &ScreenAiRetentionSweeperRuntimeConfig,
+    observed_at: &ScreenAiObservedAt,
+) -> Result<Option<ScreenAiRetentionSweeperOutcome>, ActivityCaptureError> {
+    let entries = queue.read_decrypted_entries(usize::MAX)?;
+    let now = chrono::DateTime::parse_from_rfc3339(observed_at.0.as_str()).ok();
+    let failures = entries
+        .iter()
+        .filter(|entry| {
+            entry
+                .expires_at
+                .as_deref()
+                .and_then(|expires_at| chrono::DateTime::parse_from_rfc3339(expires_at).ok())
+                .zip(now.as_ref())
+                .is_none_or(|(expires_at, now)| expires_at <= *now)
+        })
+        .map(|entry| {
+            let mut deletion_proof_ref =
+                String::from(SCREEN_SERVICE_RETENTION_DELETE_PROOF_ID_PREFIX);
+            deletion_proof_ref.push_str(&entry.queue_job_id);
+            ScreenEvidenceOutboxFailure {
+                queue_job_id: entry.queue_job_id.clone(),
+                malformed_record_digest: entry.image_digest.clone(),
+                deletion_proof_ref,
+            }
+        })
+        .collect::<Vec<_>>();
+    (!failures.is_empty())
+        .then(|| {
+            let events = failures
+                .iter()
+                .map(|failure| outbox_failure_event(failure, observed_at.clone()))
+                .collect::<Vec<_>>();
+            record_activity_events_to_paths(
+                &config.journal_path,
+                &config.journal_key_path,
+                &config.store_path,
+                &events,
+            )?;
+            Ok(ScreenAiRetentionSweeperOutcome::NoExpired {
+                pending_count: u64::try_from(entries.len()).unwrap_or(u64::MAX),
+            })
+        })
+        .transpose()
+}
+
 impl ScreenAiRetentionSweeperRuntimeConfig {
     pub(crate) fn from_environment() -> Option<Self> {
         if !env_flag(
             ScreenAiEnvVar(SCREEN_SERVICE_RETENTION_SWEEPER_RUNTIME_ENABLED_ENV),
-            false,
+            true,
         ) {
             return None;
         }
@@ -185,7 +310,11 @@ impl ScreenAiRetentionSweeperRuntimeConfig {
             )),
             queue_dir: env_path(ScreenAiEnvVar(SCREEN_SERVICE_QUEUE_DIR_ENV))
                 .map(|path| path.0)
-                .unwrap_or_else(|| default_queue_dir().0),
+                .unwrap_or_else(|| {
+                    let mut path = env::temp_dir();
+                    path.push(SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME);
+                    path
+                }),
             journal_path: activity_journal_path().into(),
             journal_key_path: activity_journal_key_path().into(),
             store_path: activity_db_path().into(),
@@ -231,20 +360,15 @@ fn env_path(env_var_name: ScreenAiEnvVar) -> Option<ScreenAiPath> {
         .map(ScreenAiPath)
 }
 
-fn default_queue_dir() -> ScreenAiPath {
-    let mut path = env::temp_dir();
-    path.push(SCREEN_SERVICE_DEFAULT_QUEUE_DIR_NAME);
-    ScreenAiPath(path)
-}
-
 fn expired_entry_event(
     entry: &ScreenEvidenceExpiredQueueEntry,
     observed_at: ScreenAiObservedAt,
 ) -> ActivityEvent {
+    let ScreenAiObservedAt(observed_at) = observed_at;
     ActivityEvent {
         schema_version: parent_protocol::ACTIVITY_SCHEMA_VERSION,
         event_id: retention_event_id(entry).0,
-        observed_at: observed_at.0.clone(),
+        observed_at,
         source: ActivitySource {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             platform: std::env::consts::OS.to_string(),

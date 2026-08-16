@@ -417,7 +417,6 @@ export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessMatchesStatusGe
   (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired &&
     runtimeReadinessState ===
       AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedByCompilerDecision);
-
 export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateForStatusGenerated = (
   timerStatusState: TimerStatusStateValue
 ): TimerRuntimeReadinessStateValue => {

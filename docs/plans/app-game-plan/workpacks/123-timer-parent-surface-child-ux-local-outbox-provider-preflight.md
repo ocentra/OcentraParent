@@ -52,7 +52,26 @@ that state exactly what setup is still required before delivery can be claimed.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX local outbox provider preflight.
-- Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
+- [x] Rust App/Game crate build and Clippy.
+- [x] Focused Rust tests for WP122 due-local conversion, provider setup requirements,
+  and manual/unsafe input rejection.
+- [x] Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1/2 Complete; Phase 3 Open
+
+The 2026-08-15 live-code audit invalidated the historical `parent-domain`
+completion claim because that package and its child-UX provider-preflight bridge
+are absent from the tracked tree. Commit `3f81b0200` now supplies the Rust owner
+in `ocentra-app-game-core`: only a persisted, identity-bound `due-local` WP122 row
+becomes `provider-adapter-required`, with scheduler/outbox/decision/channel,
+reason, evidence, policy, and audit refs preserved plus three distinct adapter,
+credential, and physical-smoke-proof requirements.
+
+Manual and dead-letter scheduler states remain manual-required or unavailable;
+unpersisted, mismatched, missing-evidence, duplicate-requirement, or claimed
+delivery rows fail closed. Three focused preflight tests, all 89 App/Game
+contract tests, 10 unit tests, Clippy, seven focused Enforcer checks, and
+pre-commit pass. Provider execution, credential storage, receipts,
+retry/quiet-hours runtime, cloud routing, service composition, UI, child
+delivery, retained proof, and adapter dispatch remain later workpacks/Phase 3.

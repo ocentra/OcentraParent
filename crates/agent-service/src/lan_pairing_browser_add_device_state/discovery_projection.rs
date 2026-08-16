@@ -61,7 +61,7 @@ pub(crate) fn selected_device_readiness(
 ) -> LanSelectedDeviceReadiness {
     match selected {
         Some(target) => {
-            let route_id = non_empty_text(LanPairingText(target.route_id.clone()));
+            let route_id = non_empty_text(&LanPairingText(target.route_id.clone()));
             let ready_for_control = route_id.is_some()
                 && target.trust_state == LanPairingTrustState::Paired
                 && target.reachability == LanPairingDeviceReachability::Online;
@@ -91,7 +91,7 @@ pub(crate) fn selected_device_readiness(
     }
 }
 
-fn non_empty_text(value: LanPairingText) -> Option<LanPairingText> {
+fn non_empty_text(value: &LanPairingText) -> Option<LanPairingText> {
     let trimmed = value.0.trim();
     (!trimmed.is_empty()).then(|| LanPairingText(trimmed.to_string()))
 }
@@ -132,9 +132,11 @@ pub(super) fn pairing_request_state(
     observed_at: LanPairingText,
     expires_at: LanPairingText,
 ) -> LanPairingProductionDiscoveryState {
+    let observed_at = observed_at.0;
+    let expires_at = expires_at.0;
     if accepted {
         LanPairingProductionDiscoveryState::Paired
-    } else if observed_at.0 > expires_at.0 {
+    } else if observed_at > expires_at {
         LanPairingProductionDiscoveryState::Expired
     } else {
         LanPairingProductionDiscoveryState::Pending

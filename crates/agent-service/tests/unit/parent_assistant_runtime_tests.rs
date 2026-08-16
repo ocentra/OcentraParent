@@ -89,10 +89,7 @@ mod parent_assistant_report_history;
 mod parent_assistant_runtime;
 #[path = "../support/test_invariants.rs"]
 mod test_invariants;
-#[path = "../support/test_text.rs"]
-mod test_text;
 
-use crate::test_text::TestText;
 use std::path::PathBuf as TestPathBuf;
 use std::string::String as TestString;
 use std::{
@@ -164,6 +161,8 @@ type TestResult = Result<(), Box<dyn Error>>;
 
 #[path = "parent_assistant_runtime_tests/activity_history_context_tests.rs"]
 mod activity_history_context_tests;
+#[path = "parent_assistant_runtime_tests/clippy_linkage_tests.rs"]
+mod clippy_linkage_tests;
 
 #[tokio::test]
 async fn parent_assistant_unconfigured_provider_returns_cited_unavailable_answer() {

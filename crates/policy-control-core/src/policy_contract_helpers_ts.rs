@@ -39,9 +39,6 @@ const POLICY_CONTRACT_HELPERS_TYPESCRIPT_HELPER_FRAGMENTS: [(&str, &str); 8] = [
         "policy_contract_helpers_ts.helpers/validation-internals.template.txt",
     ),
 ];
-const POLICY_CONTRACT_HELPERS_TYPESCRIPT_READ_ERROR: &str =
-    "policy contract helpers TypeScript sidecar should be readable";
-
 fn read_policy_contract_helpers_typescript_sidecar(path: &str) -> Result<String, std::io::Error> {
     std::fs::read_to_string(
         Path::new(env!("CARGO_MANIFEST_DIR"))

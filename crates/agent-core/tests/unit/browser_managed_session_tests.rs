@@ -1,7 +1,4 @@
-use std::{
-    fmt::Debug,
-    path::{Path, PathBuf},
-};
+use std::path::{Path, PathBuf};
 
 use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
 use ocentra_parent_agent_protocol::browser_managed::{

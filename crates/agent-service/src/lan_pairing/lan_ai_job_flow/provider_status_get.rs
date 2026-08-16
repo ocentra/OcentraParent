@@ -1,12 +1,11 @@
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingAuditEventType;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
-use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 
 use crate::lan_pairing::{
-    authority::validate_observer_read_intent, extend_log_fields, validate_command_target,
-    LanPairingRuntime,
+    authority::validate_observer_read_intent, extend_log_fields,
+    runtime_validation::validate_command_target, LanPairingRuntime,
 };
 use crate::lan_pairing_audit::controller_lease_audit_fields;
 use crate::lan_pairing_payload::parse_intent;
@@ -19,6 +18,7 @@ pub(crate) fn lan_ai_provider_status_get(
     origin: LanPairingOptionalText,
     command: AgentCommandEnvelope,
 ) -> AgentEventEnvelope {
+    let origin = LanPairingOptionalText(origin.0);
     let observed_origin = origin.0.as_deref();
     let event = match parse_intent(&command.payload) {
         Ok(intent) => match validate_command_target(&runtime, &command, &intent)

@@ -8,22 +8,23 @@ use crate::{
     },
     policy_constants,
 };
+use ocentra_eventing::expect_value::ExpectValue;
 
 #[test]
 fn integrity_alert_status_bridge_serializes_stable_state_values() {
     assert_eq!(
         serde_json::to_value(V08IntegrityAlertState::StoppedOrRemoved)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         bridge::STATE_STOPPED_OR_REMOVED
     );
     assert_eq!(
         serde_json::to_value(V08IntegrityAlertParentVisibleStatus::TamperReviewRequired)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         bridge::STATUS_TAMPER_REVIEW_REQUIRED
     );
     assert_eq!(
         serde_json::to_value(V08IntegrityAlertDeliveryState::NotDeliveredProviderNotConfigured)
-            .expect(constants::error::AGENT_EVENT_SERIALIZES),
+            .expect_value(constants::error::AGENT_EVENT_SERIALIZES),
         bridge::DELIVERY_PROVIDER_NOT_CONFIGURED
     );
 }
@@ -38,10 +39,10 @@ fn integrity_alert_status_bridge_preserves_non_claim_flags_and_refs() {
         entries: vec![entry()],
     };
     let reparsed = serde_json::from_value::<V08IntegrityAlertStatusBridgeReadModel>(
-        serde_json::to_value(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
+        serde_json::to_value(read_model).expect_value(constants::error::AGENT_EVENT_SERIALIZES),
     )
-    .expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let reparsed_entry = reparsed.entries.first().expect(bridge::READ_MODEL_ID);
+    .expect_value(constants::error::AGENT_EVENT_SERIALIZES);
+    let reparsed_entry = reparsed.entries.first().expect_value(bridge::READ_MODEL_ID);
 
     assert_eq!(reparsed.read_model_id, bridge::READ_MODEL_ID);
     assert_eq!(

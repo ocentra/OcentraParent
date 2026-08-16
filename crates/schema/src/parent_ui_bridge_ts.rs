@@ -20,9 +20,6 @@ use crate::schema_result_or_unreachable;
 use ocentra_parent_agent_protocol::constants::activity_event_kind;
 use ocentra_parent_agent_protocol::constants::tracking_retention_settings_write;
 
-#[path = "parent_ui_bridge_ts_compact.rs"]
-mod parent_ui_bridge_ts_compact;
-
 const PARENT_DEV_BRIDGE_URL_ENV_KEY: &str = "VITE_PARENT_DEV_BRIDGE_URL";
 const PARENT_AGENT_PROTOCOL_BRIDGE_TYPES_TOKEN: &str = "__PARENT_AGENT_PROTOCOL_BRIDGE_TYPES__";
 const PARENT_ACTIVITY_MEMORY_GRAPH_TYPES_TOKEN: &str = "__PARENT_ACTIVITY_MEMORY_GRAPH_TYPES__";
@@ -344,7 +341,7 @@ fn activity_memory_graph_typescript(prefix: &str) -> String {
         .replace("__ACTIVITY_MEMORY_GRAPH_PREFIX__", prefix)
 }
 
-fn trim_generated_trailing_whitespace(value: String) -> String {
+fn trim_generated_trailing_whitespace(value: &str) -> String {
     let mut trimmed = String::with_capacity(value.len());
 
     for line in value.split_inclusive('\n') {
@@ -359,13 +356,9 @@ fn trim_generated_trailing_whitespace(value: String) -> String {
     trimmed
 }
 
-fn compact_generated_typescript(value: String) -> String {
-    parent_ui_bridge_ts_compact::compact_generated_typescript(value)
-}
-
 pub fn parent_ui_bridge_typescript() -> String {
     trim_generated_trailing_whitespace(
-        parent_ui_bridge_typescript_template()
+        &parent_ui_bridge_typescript_template()
             .replace(
                 PARENT_BRIDGE_COMMAND_LOAD_ROUTE_TOKEN,
                 PARENT_BRIDGE_COMMAND_LOAD_ROUTE,
@@ -479,7 +472,7 @@ pub fn parent_ui_screen_bridge_typescript() -> String {
 
 pub fn portal_contracts_typescript() -> String {
     trim_generated_trailing_whitespace(
-        portal_contracts_typescript_template()
+        &portal_contracts_typescript_template()
             .replace(
                 PARENT_AGENT_PROTOCOL_BRIDGE_TYPES_TOKEN,
                 &generated_portal_agent_protocol_bridge_typescript(),

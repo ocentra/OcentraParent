@@ -1,5 +1,6 @@
 use crate::constants;
 use ocentra_eventing::error::EventingError;
+use ocentra_eventing::expect_value::ExpectValue;
 use serde::{Deserialize, Serialize};
 
 macro_rules! tracking_text_identifier {
@@ -196,11 +197,8 @@ fn parse_tracking_identifier(
     Ok(value)
 }
 
-fn parse_or_expect<T, E>(result: Result<T, E>, message: &'static str) -> T
-where
-    E: std::fmt::Debug,
-{
-    result.expect(message)
+fn parse_or_expect<T, E>(result: Result<T, E>, message: &'static str) -> T {
+    result.expect_value(message)
 }
 
 fn tracking_policy_violation_id_from_source_and_rule_ref(

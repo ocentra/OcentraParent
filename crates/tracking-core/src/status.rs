@@ -56,7 +56,7 @@ pub enum TrackingRuntimeServiceState {
     DisabledByParent,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackingPermissionState {
     GrantedForeground,
     GrantedBackground,
@@ -70,7 +70,7 @@ pub enum TrackingPermissionState {
     ManualRequired,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackingPlatformState {
     Android,
     Ios,
@@ -81,7 +81,7 @@ pub enum TrackingPlatformState {
     Unsupported,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum TrackingBackgroundCapabilityState {
     Ready,
     PermissionRequired,

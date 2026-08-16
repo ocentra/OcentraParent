@@ -1,28 +1,15 @@
 use std::net::{IpAddr, Ipv4Addr, SocketAddr};
-use std::sync::{Mutex, OnceLock};
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_dev_bridge::{
-    configured_parent_dev_bridge_address, parent_dev_bridge_log_fields, ParentDevBridgeFailure,
+    parent_dev_bridge_address_from_configuration, parent_dev_bridge_log_fields,
+    ParentDevBridgeFailure,
 };
 use ocentra_parent_logging_core::field::LogFieldValue;
 
-fn parent_dev_bridge_env_lock() -> &'static Mutex<()> {
-    static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
-    LOCK.get_or_init(|| Mutex::new(()))
-}
-
 #[test]
 fn configured_parent_dev_bridge_defaults_to_loopback() {
-    let _guard = parent_dev_bridge_env_lock().lock().expect("env lock");
-    unsafe {
-        std::env::set_var(constants::env_var::PARENT_DEV_BRIDGE_PORT, "4491");
-        std::env::remove_var(constants::env_var::DEV_NETWORK_MODE);
-    }
-    let address = configured_parent_dev_bridge_address();
-    unsafe {
-        std::env::remove_var(constants::env_var::PARENT_DEV_BRIDGE_PORT);
-    }
+    let address = parent_dev_bridge_address_from_configuration(Some(4491), false);
 
     assert_eq!(
         address.map(|value| value.to_string()),
@@ -32,19 +19,7 @@ fn configured_parent_dev_bridge_defaults_to_loopback() {
 
 #[test]
 fn configured_parent_dev_bridge_uses_wildcard_for_lan_mode() {
-    let _guard = parent_dev_bridge_env_lock().lock().expect("env lock");
-    unsafe {
-        std::env::set_var(constants::env_var::PARENT_DEV_BRIDGE_PORT, "4491");
-        std::env::set_var(
-            constants::env_var::DEV_NETWORK_MODE,
-            constants::value::LOCAL_NETWORK_MODE,
-        );
-    }
-    let address = configured_parent_dev_bridge_address();
-    unsafe {
-        std::env::remove_var(constants::env_var::PARENT_DEV_BRIDGE_PORT);
-        std::env::remove_var(constants::env_var::DEV_NETWORK_MODE);
-    }
+    let address = parent_dev_bridge_address_from_configuration(Some(4491), true);
 
     assert_eq!(
         address.map(|value| value.to_string()),
@@ -53,16 +28,11 @@ fn configured_parent_dev_bridge_uses_wildcard_for_lan_mode() {
 }
 
 #[test]
-fn configured_parent_dev_bridge_rejects_invalid_ports() {
-    let _guard = parent_dev_bridge_env_lock().lock().expect("env lock");
-    unsafe {
-        std::env::set_var(constants::env_var::PARENT_DEV_BRIDGE_PORT, "not-a-port");
-        std::env::remove_var(constants::env_var::DEV_NETWORK_MODE);
-    }
-    assert_eq!(configured_parent_dev_bridge_address(), None);
-    unsafe {
-        std::env::remove_var(constants::env_var::PARENT_DEV_BRIDGE_PORT);
-    }
+fn configured_parent_dev_bridge_rejects_missing_or_invalid_ports() {
+    assert_eq!(
+        parent_dev_bridge_address_from_configuration(None, false),
+        None
+    );
 }
 
 #[test]

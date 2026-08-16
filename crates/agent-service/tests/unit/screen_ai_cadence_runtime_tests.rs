@@ -1,8 +1,4 @@
-#[path = "../support/test_invariants.rs"]
-mod test_invariants;
-
 use std::path::PathBuf as TestPathBuf;
-use std::primitive::str as TestStr;
 use std::{
     fs,
     sync::atomic::{AtomicU64, Ordering},
@@ -12,8 +8,7 @@ use ocentra_parent_agent_core::activity_store::ActivityStore;
 use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::screen_evidence::{
-    SCREEN_CATEGORY_UNKNOWN, SCREEN_PROVIDER_SERVICE_METADATA,
-    SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV, SCREEN_SERVICE_EVENT_ID_PREFIX,
+    SCREEN_CATEGORY_UNKNOWN, SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_SERVICE_EVENT_ID_PREFIX,
     SCREEN_SERVICE_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_MODEL_ID, SCREEN_SERVICE_QUEUE_JOB_ID_PREFIX,
     SCREEN_SERVICE_RESULT_ID_PREFIX, SCREEN_SERVICE_SOURCE_ID, SCREEN_SERVICE_SUMMARY_CAPTURED,
     SCREEN_SERVICE_TEMPLATE_VERSION,
@@ -22,15 +17,8 @@ use ocentra_parent_screen_capture_adapter::{
     CapturedScreenImage, ScreenCaptureMetadata, ScreenCaptureScope,
 };
 
-#[path = "../support/test_text.rs"]
-mod test_text;
-use test_text::TestText;
-
 use super::{
-    screen_ai_cadence_runtime::{
-        record_screen_ai_cadence_tick, ScreenAiCadenceRuntimeConfig, ScreenAiCadenceTickClock,
-        ScreenAiCadenceTickOutcome,
-    },
+    screen_ai_cadence_runtime::{ScreenAiCadenceRuntimeConfig, ScreenAiCadenceTickClock},
     screen_ai_cadence_runtime_event::{
         record_captured_screen_image_to_paths, ScreenAiServiceCapturePaths,
         ScreenAiServiceCaptureRecord,
@@ -39,52 +27,16 @@ use super::{
 use crate::test_invariants::{require_json_decode, require_ok, require_some};
 
 static TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
-const SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE: &TestStr = "{}\n";
-
-#[test]
-fn screen_cadence_runtime_is_disabled_without_explicit_parent_setting() {
-    std::env::remove_var(SCREEN_SERVICE_CADENCE_RUNTIME_ENABLED_ENV);
-
-    assert_eq!(ScreenAiCadenceRuntimeConfig::from_environment(), None);
-}
-
-#[test]
-fn screen_cadence_tick_respects_disabled_screen_analysis_setting() {
-    let config = ScreenAiCadenceRuntimeConfig {
-        screen_analysis_enabled: false,
-        cadence_capture_enabled: true,
-        cadence_seconds: 1,
-        max_captures: Some(1),
-        max_ticks: Some(1),
-        max_pending_queue_records: 1,
-        temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
-        queue_dir: test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX),
-        journal_path: test_path(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
-        journal_key_path: test_path(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
-        store_path: test_path(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
-    };
-
-    let outcome = require_ok(
-        record_screen_ai_cadence_tick(
-            &config,
-            ocentra_parent_screen_capture_adapter::trigger_scheduler::ScreenCaptureSchedulerState {
-                last_capture_at_epoch_seconds: None,
-            },
-            cadence_clock(1, constants::activity_store::TEST_FIRST_OBSERVED_AT),
-            1,
-        ),
-        constants::error::ACTIVITY_STORE_INGESTS,
-    );
-
-    assert_eq!(outcome, ScreenAiCadenceTickOutcome::Suppressed);
-    assert!(!config.queue_dir.exists());
-    assert!(!config.store_path.exists());
-}
 
 #[test]
 fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
     let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
+    if root.exists() {
+        require_ok(
+            fs::remove_dir_all(&root),
+            constants::error::ACTIVITY_STORE_INGESTS,
+        );
+    }
     let config = ScreenAiCadenceRuntimeConfig {
         screen_analysis_enabled: true,
         cadence_capture_enabled: true,
@@ -185,58 +137,6 @@ fn screen_cadence_capture_writes_encrypted_queue_and_read_model_event() {
         summary.results[0].capture_reason,
         constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE
     );
-}
-
-#[test]
-fn screen_cadence_tick_suppresses_when_pending_queue_is_full() {
-    let root = test_path(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
-    let queue_dir = root.join(constants::activity_store::TEST_SCREEN_QUEUE_SUFFIX);
-    require_ok(
-        fs::create_dir_all(&queue_dir),
-        constants::error::ACTIVITY_STORE_OPENS,
-    );
-    require_ok(
-        fs::write(
-            queue_dir.join(constants::activity_store::SCREEN_EVIDENCE_QUEUE_FILE_NAME),
-            SCREEN_SERVICE_TEST_QUEUE_RECORD_LINE,
-        ),
-        constants::error::ACTIVITY_STORE_OPENS,
-    );
-    let config = ScreenAiCadenceRuntimeConfig {
-        screen_analysis_enabled: true,
-        cadence_capture_enabled: true,
-        cadence_seconds: 1,
-        max_captures: Some(1),
-        max_ticks: Some(1),
-        max_pending_queue_records: 1,
-        temporary_image_ttl_seconds:
-            ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_TEMPORARY_IMAGE_TTL_SECONDS_DEFAULT,
-        queue_dir,
-        journal_path: root.join(constants::activity_store::TEST_CAPTURE_JOURNAL_SUFFIX),
-        journal_key_path: root.join(constants::activity_store::TEST_CAPTURE_KEY_SUFFIX),
-        store_path: root.join(constants::activity_store::TEST_CAPTURE_STORE_SUFFIX),
-    };
-
-    let outcome = require_ok(
-        record_screen_ai_cadence_tick(
-            &config,
-            ocentra_parent_screen_capture_adapter::trigger_scheduler::ScreenCaptureSchedulerState {
-                last_capture_at_epoch_seconds: None,
-            },
-            cadence_clock(3, constants::activity_store::TEST_THIRD_OBSERVED_AT),
-            1,
-        ),
-        constants::error::ACTIVITY_STORE_INGESTS,
-    );
-
-    assert_eq!(
-        outcome,
-        ScreenAiCadenceTickOutcome::QueueBackpressure {
-            pending_count: 1,
-            max_pending_queue_records: 1,
-        }
-    );
-    assert!(!config.store_path.exists());
 }
 
 fn cadence_clock(

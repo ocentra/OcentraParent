@@ -8,9 +8,9 @@ pub mod text;
 
 mod location;
 
-pub fn split_http_headers(
-    response: &[u8],
-) -> Result<(&str, HashMap<String, String>, &[u8]), SsdpDiscoveryError> {
+pub type SplitHttpHeaders<'a> = (&'a str, HashMap<String, String>, &'a [u8]);
+
+pub fn split_http_headers(response: &[u8]) -> Result<SplitHttpHeaders<'_>, SsdpDiscoveryError> {
     let header_end = response
         .windows(4)
         .position(|window| window == b"\r\n\r\n")

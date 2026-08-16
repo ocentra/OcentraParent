@@ -248,7 +248,7 @@ fn family_variant(event_type: TestText) -> EventTopologyFamilyVariant {
     }
 }
 
-fn entry<'a>(manifest: &'a EventTopologyManifest, event_type: TestText) -> &'a EventTopologyEntry {
+fn entry(manifest: &EventTopologyManifest, event_type: TestText) -> &EventTopologyEntry {
     let event_type = event_type.0;
     manifest
         .entries()
@@ -257,7 +257,7 @@ fn entry<'a>(manifest: &'a EventTopologyManifest, event_type: TestText) -> &'a E
         .expect_value("topology entry exists")
 }
 
-fn manifest_entry<'a>(manifest_json: &'a Value, event_type: TestText) -> &'a Value {
+fn manifest_entry(manifest_json: &Value, event_type: TestText) -> &Value {
     let event_type = event_type.0;
     manifest_json["entries"]
         .as_array()

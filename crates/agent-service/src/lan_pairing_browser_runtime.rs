@@ -28,7 +28,7 @@ pub(crate) fn browser_discovery_scan_event(
     let scan_command = command.clone();
     let event = retag_lan_pairing_event(
         pairing_status_event(runtime, browser_discovery_scan_ack_command(command)),
-        LanPairingEventIdRef(constants::lan_pairing::EVENT_BROWSER_DISCOVERY_REPORTED),
+        &LanPairingEventIdRef(constants::lan_pairing::EVENT_BROWSER_DISCOVERY_REPORTED),
         AgentEventName::AgentLanPairingBrowserDiscoveryReported,
         LogLevel::Info,
     );
@@ -69,7 +69,7 @@ pub(crate) fn browser_add_device_request_event(
                 .ok();
             return retag_lan_pairing_event(
                 pairing_status_event(runtime, command),
-                LanPairingEventIdRef(constants::lan_pairing::EVENT_ADD_DEVICE_REPORTED),
+                &LanPairingEventIdRef(constants::lan_pairing::EVENT_ADD_DEVICE_REPORTED),
                 AgentEventName::AgentLanPairingAddDeviceReported,
                 LogLevel::Info,
             );
@@ -80,11 +80,11 @@ pub(crate) fn browser_add_device_request_event(
         None => {}
     }
 
-    let event = pairing_challenge_status_event(runtime, origin.clone(), command);
+    let event = pairing_challenge_status_event(runtime, origin, command);
     if event.event == AgentEventName::AgentLanPairingStatusReported {
         retag_lan_pairing_event(
             event,
-            LanPairingEventIdRef(constants::lan_pairing::EVENT_ADD_DEVICE_REPORTED),
+            &LanPairingEventIdRef(constants::lan_pairing::EVENT_ADD_DEVICE_REPORTED),
             AgentEventName::AgentLanPairingAddDeviceReported,
             LogLevel::Info,
         )
@@ -95,7 +95,7 @@ pub(crate) fn browser_add_device_request_event(
 
 fn retag_lan_pairing_event(
     mut event: AgentEventEnvelope,
-    event_id: LanPairingEventIdRef,
+    event_id: &LanPairingEventIdRef,
     event_name: AgentEventName,
     severity: LogLevel,
 ) -> AgentEventEnvelope {
