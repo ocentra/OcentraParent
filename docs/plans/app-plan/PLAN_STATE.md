@@ -90,7 +90,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
 | 18 | Compiler is called only inside the app-game risk-routing/detection module. | No shipped caller supplies parent rule, device, user, schedule, and trusted adapter context. |
 | 19 | Time-budget functions are library code only. | No runtime composes authoritative sessions with schedule/bonus/allow-once state. |
 | 20 | Child-UX notice builders are library code only. | No child runtime delivery, persistence, or app warning/block request caller. |
-| 21 | Websocket enforcement timer commands validate app session evidence, then `agent-core::enforcement_adapter` can terminate a matching owned Windows process and journal the result. | This is a narrow owned-process time-limit path, not broad app blocking or policy compilation. |
+| 21 | Websocket enforcement timer commands validate current ActivityStore app-session evidence, then `agent-core::enforcement_adapter` attempts Windows process termination by PID/name and journals the result. | The final adapter path does not verify executable path, process start time, or owner SID; identity hardening remains absent. This is narrow time-limit only, not broad app blocking or policy compilation. |
 | 22 | Coordination/proof routing only. | No product source. |
 | 23 | Generic child-runtime AI handoff exists; no app-specific classifier caller. | Digest/evidence boundary does not produce app control. |
 | 24 | Coordination/platform routing only. | Unsupported platform actions remain manual-required. |
@@ -163,7 +163,7 @@ The table is the current per-workpack runtime truth; historical `Complete`,
 | 104 | Agent service emits the typed timer parent-surface event/report. | Event transport does not create app policy authority. |
 | 105 | Timer read-API command/report routing is reachable. | No native-app compiler-to-timer composition. |
 | 106 | Typed timer response encoding is reachable. | Response shape only. |
-| 107 | Parent runtime consumes timer snapshots. | No live app policy source/action beyond the separate owned-process timer path. |
+| 107 | Parent runtime consumes timer snapshots. | No live app policy source/action beyond the separate PID/name-validated Windows timer path. |
 | 108 | Portal timer surface renders the parent snapshot. | UI/projection only; no app control authority. |
 
 ### Audit conclusion and stale topology
@@ -171,10 +171,11 @@ The table is the current per-workpack runtime truth; historical `Complete`,
 - The real shipped chain is `agent-service::service_runtime` -> recurring
   Windows inventory/process/foreground capture -> encrypted journal/SQLite ->
   `activity_api`/websocket -> parent snapshots. A separate websocket timer
-  command can validate fresh app runtime evidence and terminate a matching
-  owned Windows process. Neither chain supplies the missing native-app policy
-  compiler, approval lifecycle, child UX, provider delivery, or broad control
-  authority.
+  command can validate fresh app runtime evidence and attempt Windows process
+  termination by PID/name. Final executable-path, process-start-time, and
+  owner-identity checks are not carried through that adapter path. Neither
+  chain supplies the missing native-app policy compiler, approval lifecycle,
+  child UX, provider delivery, or broad control authority.
 - `app_game_policy_target_compiler`, unknown approval persistence, time-budget
   composition, child-UX outbox, and notification/provider bridges are not
   connected to a trusted parent-authored app-policy entrypoint. Readiness and
@@ -209,7 +210,8 @@ agent-protocol
 
 agent-core + agent-service
   real Windows acquisition, recurring capture, journal/SQLite projection,
-  read models/events, and scoped owned-process time-limit execution
+  read models/events, and scoped PID/name-validated Windows time-limit execution;
+  final executable-path, start-time, and owner-identity hardening is absent
 
 schema + schema-domain
   Rust-generated cross-boundary TypeScript contracts
