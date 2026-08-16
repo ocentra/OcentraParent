@@ -30,6 +30,94 @@
         "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
       ],
       "reason": "Trusted owned-process dispatch must consume the enforcement-specific durable journal and authority boundary first."
+    },
+    {
+      "from": "WP-app-game-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-game-plan-59-notification-scheduler-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/59-notification-scheduler-bridge.md"
+      ],
+      "reason": "Provider status handoff consumes the scheduler bridge before projecting provider state."
+    },
+    {
+      "from": "WP-app-game-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-game-plan-61-notification-provider-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/61-notification-provider-preflight.md"
+      ],
+      "reason": "Provider status handoff preserves and classifies the provider-preflight result."
+    },
+    {
+      "from": "WP-app-game-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-game-plan-59-notification-scheduler-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/59-notification-scheduler-bridge.md"
+      ],
+      "reason": "Preference status handoff consumes the scheduler bridge before projecting preference state."
+    },
+    {
+      "from": "WP-app-game-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-game-plan-62-notification-preference-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/62-notification-preference-preflight.md"
+      ],
+      "reason": "Preference status handoff consumes the preference-preflight result."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "Cloudflare WP06 consumes the Account WP08 canonical identity handoff."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "Cloudflare WP06 requires the module dependency environment established by WP01."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "Cloudflare WP08 runner proof follows the WP06 storage binding and migration handoff."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "Cloudflare WP08 runner execution requires the module dependency environment established by WP01."
     }
   ],
   "stateOverrides": [
