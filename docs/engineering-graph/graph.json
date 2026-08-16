@@ -15565,7 +15565,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Android child identity/composition drafted; expected tests, validation, proof, native bridge, and transport deferred",
+        "statusText": "Code drafted / test-deferred — Android child identity/composition and Rust/JNI startup/readiness bridge implemented; native packaging, tests, validation, proof, and transport remain deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,

@@ -11,9 +11,33 @@ import ca.ocentra.parent.agent.ChildAndroidStorageProtocolProof;
 
 public final class ChildAgentComposition implements AutoCloseable {
     public enum Readiness {
+        RUST_RUNTIME_READY,
+        RUST_RUNTIME_RECOVERY_PENDING,
+        RUST_RUNTIME_REVOKED,
         RUST_RUNTIME_MANUAL_REQUIRED,
-        FAILED,
         STOPPED
+    }
+
+    public enum RustReadiness {
+        UNAVAILABLE(0),
+        READY(1),
+        RECOVERY_PENDING(2),
+        REVOKED(3);
+
+        private final int nativeCode;
+
+        RustReadiness(int nativeCode) {
+            this.nativeCode = nativeCode;
+        }
+
+        static RustReadiness fromNativeCode(int nativeCode) {
+            for (RustReadiness readiness : values()) {
+                if (readiness.nativeCode == nativeCode) {
+                    return readiness;
+                }
+            }
+            return UNAVAILABLE;
+        }
     }
 
     public enum TransportState {
@@ -26,6 +50,8 @@ public final class ChildAgentComposition implements AutoCloseable {
         private final String durableRoot;
         private final String legacyServiceState;
         private final String legacyStorageState;
+        private final RustReadiness rustReadiness;
+        private final int nativeDomainFlowCount;
         private final String failureReason;
 
         private Health(
@@ -34,6 +60,8 @@ public final class ChildAgentComposition implements AutoCloseable {
             String durableRoot,
             String legacyServiceState,
             String legacyStorageState,
+            RustReadiness rustReadiness,
+            int nativeDomainFlowCount,
             String failureReason
         ) {
             this.readiness = readiness;
@@ -41,6 +69,8 @@ public final class ChildAgentComposition implements AutoCloseable {
             this.durableRoot = durableRoot;
             this.legacyServiceState = legacyServiceState;
             this.legacyStorageState = legacyStorageState;
+            this.rustReadiness = rustReadiness;
+            this.nativeDomainFlowCount = nativeDomainFlowCount;
             this.failureReason = failureReason;
         }
 
@@ -64,6 +94,14 @@ public final class ChildAgentComposition implements AutoCloseable {
             return legacyStorageState;
         }
 
+        public RustReadiness rustReadiness() {
+            return rustReadiness;
+        }
+
+        public int nativeDomainFlowCount() {
+            return nativeDomainFlowCount;
+        }
+
         public String failureReason() {
             return failureReason;
         }
@@ -72,7 +110,10 @@ public final class ChildAgentComposition implements AutoCloseable {
     private final File durableRoot;
     private final String legacyServiceState;
     private final String legacyStorageState;
+    private long nativeHandle;
     private Readiness readiness;
+    private RustReadiness rustReadiness;
+    private int nativeDomainFlowCount;
     private String failureReason;
 
     private ChildAgentComposition(
@@ -83,6 +124,7 @@ public final class ChildAgentComposition implements AutoCloseable {
         this.durableRoot = durableRoot;
         this.legacyServiceState = legacyServiceState;
         this.legacyStorageState = legacyStorageState;
+        this.rustReadiness = RustReadiness.UNAVAILABLE;
         this.readiness = Readiness.RUST_RUNTIME_MANUAL_REQUIRED;
     }
 
@@ -91,11 +133,22 @@ public final class ChildAgentComposition implements AutoCloseable {
         ensureDirectory(durableRoot);
         Bundle serviceStatus = ChildAndroidServiceProtocolProof.createServiceProtocolBundle();
         Bundle storageStatus = ChildAndroidStorageProtocolProof.createStorageProtocolBundle();
-        return new ChildAgentComposition(
+        ChildAgentComposition composition = new ChildAgentComposition(
             durableRoot,
             serviceStatus.getString(ChildAndroidServiceProtocolProof.FIELD_FOREGROUND_SERVICE_STATUS),
             storageStatus.getString(ChildAndroidStorageProtocolProof.FIELD_STORAGE_BRIDGE_STATE)
         );
+        if (!NATIVE_BRIDGE_AVAILABLE) {
+            composition.failureReason = "Rust child-runtime Android bridge is unavailable";
+            return composition;
+        }
+        composition.nativeHandle = nativeStart(durableRoot.getAbsolutePath());
+        if (composition.nativeHandle == 0L) {
+            composition.failureReason = nativeFailureReason();
+            return composition;
+        }
+        composition.refreshNativeHealth();
+        return composition;
     }
 
     public static ChildAgentComposition failed(Context context, String reason) {
@@ -106,25 +159,101 @@ public final class ChildAgentComposition implements AutoCloseable {
             "unavailable"
         );
         composition.failureReason = reason;
-        composition.readiness = Readiness.FAILED;
+        composition.readiness = Readiness.RUST_RUNTIME_MANUAL_REQUIRED;
         return composition;
     }
 
     public Health health() {
+        refreshNativeHealth();
         return new Health(
             readiness,
             TransportState.NOT_IMPLEMENTED,
             durableRoot.getAbsolutePath(),
             legacyServiceState,
             legacyStorageState,
+            rustReadiness,
+            nativeDomainFlowCount,
             failureReason
         );
     }
 
     @Override
     public void close() {
+        if (nativeHandle != 0L) {
+            nativeStop(nativeHandle);
+            nativeHandle = 0L;
+        }
         readiness = Readiness.STOPPED;
     }
+
+    private void refreshNativeHealth() {
+        if (readiness == Readiness.STOPPED) {
+            return;
+        }
+        if (nativeHandle == 0L) {
+            rustReadiness = RustReadiness.UNAVAILABLE;
+            readiness = Readiness.RUST_RUNTIME_MANUAL_REQUIRED;
+            if (failureReason == null || failureReason.isEmpty()) {
+                failureReason = nativeFailureReason();
+            }
+            return;
+        }
+        rustReadiness = RustReadiness.fromNativeCode(nativeReadiness(nativeHandle));
+        nativeDomainFlowCount = nativeDomainFlowCount(nativeHandle);
+        switch (rustReadiness) {
+            case READY:
+                readiness = Readiness.RUST_RUNTIME_READY;
+                failureReason = null;
+                break;
+            case RECOVERY_PENDING:
+                readiness = Readiness.RUST_RUNTIME_RECOVERY_PENDING;
+                failureReason = "Rust child-runtime tombstone recovery remains pending";
+                break;
+            case REVOKED:
+                readiness = Readiness.RUST_RUNTIME_REVOKED;
+                failureReason = "Rust child-runtime trust is revoked";
+                break;
+            case UNAVAILABLE:
+            default:
+                readiness = Readiness.RUST_RUNTIME_MANUAL_REQUIRED;
+                failureReason = nativeFailureReason();
+                break;
+        }
+    }
+
+    private static String nativeFailureReason() {
+        if (!NATIVE_BRIDGE_AVAILABLE) {
+            return "Rust child-runtime Android bridge is unavailable";
+        }
+        String reason = nativeLastError();
+        if (reason == null || reason.isEmpty()) {
+            return "Rust child-runtime bridge startup or health query failed";
+        }
+        return reason;
+    }
+
+    private static final boolean NATIVE_BRIDGE_AVAILABLE;
+
+    static {
+        boolean loaded;
+        try {
+            System.loadLibrary("ocentra_child_runtime_android");
+            loaded = true;
+        } catch (UnsatisfiedLinkError error) {
+            loaded = false;
+        }
+        NATIVE_BRIDGE_AVAILABLE = loaded;
+    }
+
+    private static native long nativeStart(String durableRoot);
+
+    private static native int nativeReadiness(long handle);
+
+    private static native int nativeDomainFlowCount(long handle);
+
+    private static native String nativeLastError();
+
+    private static native boolean nativeStop(long handle);
 
     private static void ensureDirectory(File directory) throws IOException {
         if (!directory.exists() && !directory.mkdirs()) {

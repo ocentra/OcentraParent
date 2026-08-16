@@ -42,10 +42,15 @@ Android child-agent package and platform composition area.
 - The service owns an app-private `child-runtime/` composition directory and
   typed health/readiness state. Existing parent-package Android capability
   adapters remain deliberately declared behind the child shell.
-- The Android composition reports the Rust `ocentra-child-runtime` native
-  bridge as manual-required and does not claim network/LAN transport, Device
-  Owner, managed profile, UsageStats, Accessibility, VPN/DNS, Play signing, or
-  device runtime support.
+- The Android composition loads the Rust `ocentra-child-runtime` JNI bridge
+  when the native library is packaged, starts the existing child service
+  composition, and exposes typed readiness/domain-flow health. Missing library,
+  failed start/query, recovery pending, and revoked trust remain explicit
+  non-ready/manual-required states. The Gradle package hook stages the bridge
+  through cargo-ndk for configured ABIs (arm64-v8a by default); missing tools,
+  ABI output, or loading remain manual-required. The composition does not claim
+  network/LAN transport, Device Owner, managed profile, UsageStats,
+  Accessibility, VPN/DNS, Play signing, or device runtime support.
 - `mobile-child-agent-capability-proof` remains a later validation route for
   install, launch, permission, lifecycle, and authority gaps.
 - `parent-mobile-service-bridge-proof` and
@@ -97,8 +102,9 @@ Android child-agent package and platform composition area.
 
 ## Gaps To Fill
 
-- Rust/native child-runtime bridge and external transport remain
-  manual-required.
+- Rust/native child-runtime bridge source is drafted under
+  `crates/child-runtime-android-bridge`; the cargo-ndk package hook exists, but
+  ABI/device packaging validation and external transport remain manual-required.
 - Store/signing and policy proof are incomplete.
 - Android parent app and Android child agent must stay separate in source,
   package artifacts, docs, and UI.
