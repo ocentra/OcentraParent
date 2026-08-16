@@ -28,7 +28,7 @@ use crate::{
     activity_surface_read_models::activity_screen_row_from_result,
     local_ai_provider_scheduler::local_ai_provider_scheduler,
     screen_ai_service_event_subscription::{
-        ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
+        publish_report_succeeded, ActionRefText, ObservedAtText, ScreenAiServiceEventRuntime,
     },
 };
 
@@ -144,7 +144,12 @@ async fn record_claimed_analysis(
                 ObservedAtText(clock.timestamp.clone()),
             )
             .await
-            .map_err(|_| ActivityCaptureError::ScreenAiEventRuntime)?;
+            .map_err(|_| ActivityCaptureError::ScreenAiEventRuntime)
+            .and_then(|report| {
+                publish_report_succeeded(&report)
+                    .then_some(())
+                    .ok_or(ActivityCaptureError::ScreenAiEventRuntime)
+            })?;
         queue.complete_claimed_entry(&image.queue_job_id)?;
         return Ok(ScreenAiAnalysisCycleOutcome::AlreadyAnalyzed {
             queue_job_id: image.queue_job_id.clone(),
@@ -182,7 +187,12 @@ async fn record_claimed_analysis(
             ObservedAtText(clock.timestamp.clone()),
         )
         .await
-        .map_err(|_| ActivityCaptureError::ScreenAiEventRuntime)?;
+        .map_err(|_| ActivityCaptureError::ScreenAiEventRuntime)
+        .and_then(|report| {
+            publish_report_succeeded(&report)
+                .then_some(())
+                .ok_or(ActivityCaptureError::ScreenAiEventRuntime)
+        })?;
     queue.complete_claimed_entry(&image.queue_job_id)?;
     Ok(outcome)
 }

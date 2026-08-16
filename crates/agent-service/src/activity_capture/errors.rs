@@ -45,7 +45,7 @@ impl ActivityCaptureError {
             ),
             (
                 ActivityCaptureError::ScreenAiEventRuntime,
-                "screen AI event runtime handoff failed",
+                constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS,
             ),
         ];
 

@@ -5,12 +5,30 @@ use std::{
 };
 
 use ocentra_eventing::{
-    bus::subscriber::EventSubscriber, bus::subscriber::SubscriptionReport, bus::EventBus,
-    envelope::DomainEvent, envelope::EventContract, envelope::EventMetadata, envelope::EventSource,
-    error::EventingError, ids::AggregateKey, ids::CorrelationId, ids::EventCustody, ids::EventId,
-    ids::EventType, ids::IdempotencyKey, ids::RecordedAt, ids::RuntimeInstanceId,
-    ids::SchemaVersion, ids::SourceComponent, ids::SourceService, ids::SubscriberId,
-    ids::TargetHandler, journal::ndjson::NdjsonEventJournal, journal::ndjson::NdjsonJournalOptions,
+    bus::reports::handler::{HandlerOutcome, PublishReport},
+    bus::subscriber::EventSubscriber,
+    bus::subscriber::SubscriptionReport,
+    bus::EventBus,
+    envelope::DomainEvent,
+    envelope::EventContract,
+    envelope::EventMetadata,
+    envelope::EventSource,
+    error::EventingError,
+    ids::AggregateKey,
+    ids::CorrelationId,
+    ids::EventCustody,
+    ids::EventId,
+    ids::EventType,
+    ids::IdempotencyKey,
+    ids::RecordedAt,
+    ids::RuntimeInstanceId,
+    ids::SchemaVersion,
+    ids::SourceComponent,
+    ids::SourceService,
+    ids::SubscriberId,
+    ids::TargetHandler,
+    journal::ndjson::NdjsonEventJournal,
+    journal::ndjson::NdjsonJournalOptions,
 };
 use ocentra_parent_agent_core::screen_event_runtime::{ScreenRuntimeReport, ScreenRuntimeSpine};
 use ocentra_parent_agent_protocol::activity_surface::ActivityScreenReadModelRow;
@@ -207,7 +225,7 @@ async fn handle_screen_service_row_ready_event(
     let result = publish_screen_runtime_chain_for_row(event, observed_at).await;
 
     match result {
-        Ok(report) => {
+        Ok(report) if screen_runtime_report_succeeded(&report) => {
             let downstream_event_count = report.stored_events.len();
             let raw_image_escaped = report.raw_image_escaped();
             state.record(ScreenAiServiceEventSubscriptionDispatch::Published {
@@ -217,6 +235,18 @@ async fn handle_screen_service_row_ready_event(
                 raw_image_escaped,
             });
             Ok(())
+        }
+        Ok(_) => {
+            state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
+                queue_job_id,
+                screen_analysis_result_id,
+                reason: ScreenAiServiceEventBridgeError::EventPublishFailed,
+            });
+            Err(EventingError::InvalidValue {
+                field: constants::screen_flow::FIELD_SCREEN_SERVICE_ROW_READY,
+                value: constants::screen_flow::ERROR_SCREEN_SERVICE_EVENT_SUBSCRIBER_REJECTS
+                    .to_string(),
+            })
         }
         Err(reason) => {
             state.record(ScreenAiServiceEventSubscriptionDispatch::Rejected {
@@ -231,6 +261,23 @@ async fn handle_screen_service_row_ready_event(
             })
         }
     }
+}
+
+pub(crate) fn publish_report_succeeded(report: &PublishReport) -> bool {
+    report.subscriber_count > 0
+        && report.handled_count == report.subscriber_count
+        && report.dead_letter_count == 0
+        && report.handler_reports.len() == report.subscriber_count
+        && report
+            .handler_reports
+            .iter()
+            .all(|handler| handler.outcome == HandlerOutcome::Handled)
+}
+
+fn screen_runtime_report_succeeded(report: &ScreenRuntimeReport) -> bool {
+    report.dead_letters.is_empty()
+        && !report.publish_reports.is_empty()
+        && report.publish_reports.iter().all(publish_report_succeeded)
 }
 
 async fn publish_screen_runtime_chain_for_row(
