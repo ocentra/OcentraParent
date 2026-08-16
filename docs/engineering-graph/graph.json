@@ -16799,7 +16799,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked",
+        "statusText": "blocked / five-minute receipt lifetime gate drafted; external ceremony verifier and proof remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

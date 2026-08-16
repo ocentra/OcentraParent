@@ -1,9 +1,12 @@
+use chrono::{DateTime, TimeDelta};
 use ocentra_schema::parent_step_up_receipt::{
     ParentStepUpAuthorityReceipt, PARENT_STEP_UP_RECEIPT_SCHEMA_VERSION,
 };
 
 use crate::household_authority::{HouseholdAuthorityAction, ParentStepUpAssertionSnapshot};
 use crate::parent_presence::ParentPresenceObservedAt;
+
+const MAX_PARENT_STEP_UP_RECEIPT_LIFETIME_SECONDS: i64 = 5 * 60;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ParentStepUpAuthorityFailure {
@@ -111,6 +114,13 @@ fn validate_receipt_shape(
         return Err(ParentStepUpAuthorityFailure::Expired);
     }
     if issued_at.is_after(&observed_at) {
+        return Err(ParentStepUpAuthorityFailure::InvalidReceiptShape);
+    }
+    let issued_at = DateTime::parse_from_rfc3339(&receipt.issued_at)
+        .map_err(|_error| ParentStepUpAuthorityFailure::TimestampInvalid)?;
+    let expires_at = DateTime::parse_from_rfc3339(&receipt.expires_at)
+        .map_err(|_error| ParentStepUpAuthorityFailure::TimestampInvalid)?;
+    if expires_at - issued_at > TimeDelta::seconds(MAX_PARENT_STEP_UP_RECEIPT_LIFETIME_SECONDS) {
         return Err(ParentStepUpAuthorityFailure::InvalidReceiptShape);
     }
     Ok(())

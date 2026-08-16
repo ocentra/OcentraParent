@@ -23,3 +23,7 @@ tests and proof are deferred.
 The WP02 Windows custody revoke/reset path now refuses local unauthenticated
 removal and preserves manual-required truth until a trusted parent authority
 provider and ceremony issuer are owned by the correct runtime.
+
+WP03 now has a bounded receipt lifetime gate, but remains blocked on the real
+passkey/OS-native authority adapter, signature verification, nonce consumption,
+and retained runtime proof.

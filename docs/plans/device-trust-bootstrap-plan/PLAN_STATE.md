@@ -112,6 +112,9 @@ remote-access-plan and policy-control-plane-plan:
 - The Windows custody revoke/reset path now fails closed behind the same
   authenticated-parent authority gate as sealing; no platform ceremony issuer
   exists in this lane, so local revocation remains manual-required.
+- WP03 now rejects parent step-up receipts with a lifetime over five minutes
+  before any external verifier call; real signature verification, one-time
+  nonce consume, and OS/passkey ceremony ownership remain manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```
