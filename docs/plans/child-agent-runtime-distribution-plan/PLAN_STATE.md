@@ -77,6 +77,7 @@ Current child direction:
 - Windows MSI service/file removal now preserves the child ProgramData custody root for parent/admin audit review; Linux/macOS hooks retain the same manual platform-removal boundary, and Android remains manual-required.
 - The deferred Windows lifecycle harness is stale against this custody-preserving boundary (it expects ProgramData absence and retains legacy parent labels); no proof claim is made until that proof-only route is reconciled.
 - Windows production package code now targets the child composition executable and child service identity; MSI lifecycle, elevated-host execution, and respawn proof remain deferred.
+- The Windows WinSW service entrypoint now exports only `OCENTRA_CHILD_AGENT_DATA_DIR`; legacy parent transport/origin environment variables were removed because no child transport consumer exists. Live service health and lifecycle proof remain deferred.
 - macOS production package code now targets the child composition executable and child launchd identity; signing, install/runtime, and restart proof remain deferred.
 - The macOS child builder now uses `OCENTRA_CHILD_MACOS_VERSION` and rejects the legacy parent-scoped version input; its launchd manifest keeps transport absent rather than exporting an unused parent address.
 - Linux production package code now targets the child composition executable, child `.deb` identity, and child systemd paths; package lifecycle, distro, service-health, and crash-recovery proof remain deferred.

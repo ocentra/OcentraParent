@@ -41,6 +41,7 @@ Production code drafted in this pass:
 - `ocentra-child-runtime` now exposes the `ocentra-child-agent-service` executable composition boundary.
 - The composition boundary owns durable journal/tombstone paths, startup recovery, typed readiness, and a bounded observed-event ingress API; network transport remains out of scope.
 - The Windows builder, WiX manifest, WinSW service configuration, updater service naming, and bootstrap temp identity target the child artifact and child service identity.
+- The Windows WinSW service manifest now provides only the child-owned durable data path; unused parent transport/origin environment variables are absent because this service has no transport owner.
 
 Tests, lifecycle validation, proof, and elevated-host execution remain deferred. This pass does not claim installed runtime health, respawn, uninstall, or release readiness.
 
