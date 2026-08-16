@@ -10,6 +10,8 @@ pub mod app_game_child_ux_outbox_types;
 mod app_game_child_ux_outbox_validation;
 pub mod app_game_child_ux_provider_preflight;
 pub mod app_game_child_ux_provider_preflight_types;
+pub mod app_game_child_ux_provider_status;
+pub mod app_game_child_ux_provider_status_types;
 mod app_game_child_ux_request;
 mod app_game_child_ux_resolve;
 mod app_game_child_ux_runtime;

@@ -8,8 +8,11 @@ use ocentra_app_game_core::app_game_child_ux_outbox_types::{
 };
 use ocentra_app_game_core::app_game_child_ux_provider_preflight::build_app_game_child_ux_provider_preflight;
 use ocentra_app_game_core::app_game_child_ux_provider_preflight_types::{
-    AppGameChildUxProviderPreflightInput, AppGameChildUxProviderPreflightStatus,
+    AppGameChildUxProviderPreflightInput, AppGameChildUxProviderPreflightRow,
+    AppGameChildUxProviderPreflightStatus,
 };
+use ocentra_app_game_core::app_game_child_ux_provider_status::build_app_game_child_ux_provider_status_handoff;
+use ocentra_app_game_core::app_game_child_ux_provider_status_types::AppGameChildUxProviderStatusInput;
 use ocentra_app_game_core::app_game_child_ux_scheduler::build_app_game_child_ux_scheduler_route;
 use ocentra_app_game_core::app_game_child_ux_scheduler_store::AppGameChildUxSchedulerProofStore;
 use ocentra_app_game_core::app_game_child_ux_scheduler_types::{
@@ -32,6 +35,11 @@ use ocentra_eventing::expect_value::ExpectValue;
 use ocentra_parent_agent_protocol::activity::policy::{ParentActorReference, ParentActorRole};
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceChildUxLocalArtifactRecord;
 use ocentra_parent_agent_protocol::enforcement::ParentActionReference;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::{
+    V08NotificationEscalationReadiness, V08NotificationProviderDeliveryClaim,
+    V08NotificationProviderStatus, V08NotificationProviderStatusProofState,
+    V08NotificationQuietHoursReadiness,
+};
 use ocentra_parent_agent_protocol::schema_domain_mirrors::family::{
     FamilyReference, ParentDevicePlatform, ParentDeviceReference,
 };
@@ -391,6 +399,120 @@ fn provider_preflight_rejects_unpersisted_mismatched_and_claimed_rows(
         })
     );
     Ok(())
+}
+
+#[test]
+fn provider_required_preflight_maps_to_unclaimed_manual_v08_status(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let preflight = provider_required_preflight()?;
+    let row = build_app_game_child_ux_provider_status_handoff(provider_status_input(preflight))?;
+    let entry = &row.provider_status_boundary_entry;
+    assert_eq!(
+        row.source_preflight_status,
+        AppGameChildUxProviderPreflightStatus::ProviderAdapterRequired
+    );
+    assert_eq!(
+        entry.provider_status,
+        V08NotificationProviderStatus::ManualRequired
+    );
+    assert_eq!(
+        entry.status_proof_state,
+        V08NotificationProviderStatusProofState::ManualActionRequired
+    );
+    assert_eq!(
+        entry.quiet_hours_readiness,
+        V08NotificationQuietHoursReadiness::ManualRequired
+    );
+    assert_eq!(
+        entry.escalation_readiness,
+        V08NotificationEscalationReadiness::ManualRequired
+    );
+    assert_eq!(
+        entry.delivery_claim_state,
+        V08NotificationProviderDeliveryClaim::NotObserved
+    );
+    assert_eq!(entry.readiness_refs.len(), 3);
+    assert_eq!(entry.manual_proof_requirements.len(), 3);
+    assert!(entry.provider_receipt_refs.is_empty());
+    assert!(!entry.provider_delivery_implemented);
+    assert!(!row.provider_delivery_runtime_claimed);
+    Ok(())
+}
+
+#[test]
+fn unavailable_preflight_maps_to_unavailable_v08_status() -> Result<(), Box<dyn std::error::Error>>
+{
+    let (mut source, mut scheduler) = queued_source_and_scheduler()?;
+    source.state = NotificationLocalOutboxState::DeadLettered;
+    scheduler.source_state = NotificationLocalOutboxState::DeadLettered;
+    scheduler.scheduler_state = NotificationLocalOutboxSchedulerState::DeadLetterReview;
+    let preflight =
+        build_app_game_child_ux_provider_preflight(provider_preflight_input(source, scheduler))?;
+    let row = build_app_game_child_ux_provider_status_handoff(provider_status_input(preflight))?;
+    let entry = &row.provider_status_boundary_entry;
+    assert_eq!(
+        entry.provider_status,
+        V08NotificationProviderStatus::Unavailable
+    );
+    assert_eq!(
+        entry.status_proof_state,
+        V08NotificationProviderStatusProofState::ProviderUnavailableContract
+    );
+    assert_eq!(
+        entry.delivery_claim_state,
+        V08NotificationProviderDeliveryClaim::NotImplemented
+    );
+    assert!(row.source_local_outbox_record_ref.is_none());
+    assert!(row.source_provider_channel.is_none());
+    Ok(())
+}
+
+#[test]
+fn provider_status_rejects_claimed_preflight_and_missing_preference_refs(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let mut claimed = provider_required_preflight()?;
+    claimed.provider_delivery_runtime_claimed = true;
+    assert_eq!(
+        build_app_game_child_ux_provider_status_handoff(provider_status_input(claimed)),
+        Err(ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.child_ux_provider_status.source",
+            value: "provider-preflight-row-1".to_string(),
+        })
+    );
+
+    let mut missing_context = provider_status_input(provider_required_preflight()?);
+    missing_context.preference_refs.clear();
+    assert_eq!(
+        build_app_game_child_ux_provider_status_handoff(missing_context),
+        Err(ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.child_ux_provider_status.context",
+            value: "provider-status-handoff-row-1".to_string(),
+        })
+    );
+    Ok(())
+}
+
+fn provider_required_preflight(
+) -> Result<AppGameChildUxProviderPreflightRow, Box<dyn std::error::Error>> {
+    let (source, scheduler) = queued_source_and_scheduler()?;
+    Ok(build_app_game_child_ux_provider_preflight(
+        provider_preflight_input(source, scheduler),
+    )?)
+}
+
+fn provider_status_input(
+    preflight_row: AppGameChildUxProviderPreflightRow,
+) -> AppGameChildUxProviderStatusInput {
+    AppGameChildUxProviderStatusInput {
+        preflight_row,
+        handoff_row_id: "provider-status-handoff-row-1".into(),
+        status_entry_id: "provider-status-entry-1".into(),
+        notification_intent_ref: "notification-intent-1".into(),
+        notification_status_ref: "notification-status-1".into(),
+        provider_attempt_ref: "provider-attempt-not-started-1".into(),
+        preference_refs: vec!["provider-preference-manual-review-1".into()],
+        last_checked_at: "2026-08-15T00:02:00Z".to_string(),
+    }
 }
 
 fn queued_source_and_scheduler() -> Result<
