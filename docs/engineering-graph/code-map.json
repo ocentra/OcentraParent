@@ -4609,6 +4609,8 @@
         "crates/agent-service/tests/unit/policy_request_confirm.rs",
         "crates/agent-service/tests/unit/policy_request_confirm_tests.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/policy_preview.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/policy_preview/resolution.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/action_result.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_assistant_preview_confirm_requested.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/snapshot_overlay/apply/policy_request_parent_resolution_requested.rs",
