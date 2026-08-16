@@ -23,17 +23,31 @@ bootstrap_cargo_path() {
 }
 
 bootstrap_cargo_path
-version="${OCENTRA_PARENT_VERSION:-$(cd "$repo_root" && node scripts/release/validate-version.mjs --print-version)}"
+legacy_child_environment=(
+  OCENTRA_PARENT_VERSION
+  OCENTRA_PARENT_LINUX_STAGE_PARENT
+  OCENTRA_PARENT_LINUX_BASELINE_ID
+  OCENTRA_PARENT_LINUX_BASELINE_VERSION
+  OCENTRA_PARENT_LINUX_GLIBC_MIN
+  OCENTRA_PARENT_LINUX_ALLOW_NON_BASELINE
+)
+for legacy_name in "${legacy_child_environment[@]}"; do
+  if [[ -n "${!legacy_name:-}" ]]; then
+    echo "Refusing legacy parent-scoped child package input: $legacy_name. Use the OCENTRA_CHILD_LINUX_* controls." >&2
+    exit 1
+  fi
+done
+version="${OCENTRA_CHILD_LINUX_VERSION:-$(cd "$repo_root" && node scripts/release/validate-version.mjs --print-version)}"
 package_root="$repo_root/target/release-packages/linux"
-stage_parent="${OCENTRA_PARENT_LINUX_STAGE_PARENT:-${TMPDIR:-/tmp}}"
+stage_parent="${OCENTRA_CHILD_LINUX_STAGE_PARENT:-${TMPDIR:-/tmp}}"
 stage_root=""
 package_name="ocentra-child-agent-linux-amd64-v${version}.deb"
 package_path="$package_root/$package_name"
 latest_name="ocentra-child-agent-linux-amd64-latest.deb"
 latest_path="$package_root/$latest_name"
-baseline_id="${OCENTRA_PARENT_LINUX_BASELINE_ID:-ubuntu}"
-baseline_version="${OCENTRA_PARENT_LINUX_BASELINE_VERSION:-22.04}"
-baseline_glibc_min="${OCENTRA_PARENT_LINUX_GLIBC_MIN:-2.35}"
+baseline_id="${OCENTRA_CHILD_LINUX_BASELINE_ID:-ubuntu}"
+baseline_version="${OCENTRA_CHILD_LINUX_BASELINE_VERSION:-22.04}"
+baseline_glibc_min="${OCENTRA_CHILD_LINUX_GLIBC_MIN:-2.35}"
 baseline_label="${baseline_id}-${baseline_version}"
 baseline_metadata_path="$package_root/linux-baseline.json"
 
@@ -65,14 +79,14 @@ CARGO_ERROR
   exit 1
 fi
 
-allow_non_baseline="${OCENTRA_PARENT_LINUX_ALLOW_NON_BASELINE:-false}"
+allow_non_baseline="${OCENTRA_CHILD_LINUX_ALLOW_NON_BASELINE:-false}"
 if [[ "$allow_non_baseline" != "true" ]]; then
   if [[ "$host_id" != "$baseline_id" || "$host_version" != "$baseline_version" || "$host_glibc" != "$baseline_glibc_min" ]]; then
     cat >&2 <<BASELINE_ERROR
 Linux package builds must run on ${baseline_label} with glibc ${baseline_glibc_min}.
 Observed host: ${host_pretty}; ID=${host_id}; VERSION_ID=${host_version}; glibc=${host_glibc}.
 Use the package-preview linux-deb job or a matching baseline builder for release proof.
-Set OCENTRA_PARENT_LINUX_ALLOW_NON_BASELINE=true only for local unsupported experiments.
+Set OCENTRA_CHILD_LINUX_ALLOW_NON_BASELINE=true only for local unsupported experiments.
 BASELINE_ERROR
     exit 1
   fi
