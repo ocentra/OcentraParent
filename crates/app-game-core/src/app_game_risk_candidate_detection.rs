@@ -6,10 +6,20 @@ use serde::{Deserialize, Serialize};
 
 use crate::app_game_category_risk_policy_routing::types::{
     AppGameCategoryProofState, AppGameCategoryRiskCandidate, AppGameCategoryRiskCandidateKind,
-    AppGameCategoryRiskCandidateSource,
+    AppGameCategoryRiskCandidateSource, AppGameCategoryRiskRouteRequest,
+};
+use crate::app_game_category_risk_policy_routing::{
+    compile_app_game_category_risk_candidate, AppGameCategoryRiskCompilation,
 };
 use crate::app_game_policy_target_compiler::references::AppGamePolicyEvidenceRef;
-use crate::app_game_policy_target_compiler::types::AppGamePolicyCompilerRequestedAction;
+use crate::app_game_policy_target_compiler::references::{
+    AppGamePolicyCompileRequestId, AppGamePolicyDeviceId, AppGamePolicyLocalUserRef,
+    AppGamePolicyRuleRef, AppGamePolicyScheduleRef, AppGamePolicyTargetRef,
+};
+use crate::app_game_policy_target_compiler::types::{
+    AppGamePolicyCompilerAuthorityEvidence, AppGamePolicyCompilerCapabilityEvidence,
+    AppGamePolicyCompilerContext, AppGamePolicyCompilerRequestedAction,
+};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -36,6 +46,53 @@ pub struct AppGameRiskCandidateDetection {
     pub evidence_state: AppGameRiskEvidenceState,
     pub invalid_evidence_refs: Vec<String>,
     pub candidate: Option<AppGameCategoryRiskCandidate>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppGameRiskCandidateRouteContext {
+    pub compile_request_id: AppGamePolicyCompileRequestId,
+    pub rule_ref: AppGamePolicyRuleRef,
+    pub device_id: AppGamePolicyDeviceId,
+    pub local_user_ref: AppGamePolicyLocalUserRef,
+    pub target_ref: Option<AppGamePolicyTargetRef>,
+    pub schedule_ref: Option<AppGamePolicyScheduleRef>,
+    pub capability_refs: Vec<AppGamePolicyCompilerCapabilityEvidence>,
+    pub authority_refs: Vec<AppGamePolicyCompilerAuthorityEvidence>,
+    pub compiler_context: AppGamePolicyCompilerContext,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppGameRiskPolicyCompilation {
+    pub detection: AppGameRiskCandidateDetection,
+    pub compilation: Option<AppGameCategoryRiskCompilation>,
+}
+
+pub fn compile_app_game_risk_candidate(
+    row: &AppGameInventoryEvidenceRow,
+    context: AppGameRiskCandidateRouteContext,
+) -> AppGameRiskPolicyCompilation {
+    let detection = detect_app_game_risk_candidate(row);
+    let compilation = detection.candidate.clone().map(|candidate| {
+        compile_app_game_category_risk_candidate(
+            &AppGameCategoryRiskRouteRequest {
+                compile_request_id: context.compile_request_id,
+                rule_ref: context.rule_ref,
+                device_id: context.device_id,
+                local_user_ref: context.local_user_ref,
+                target_ref: context.target_ref,
+                schedule_ref: context.schedule_ref,
+                candidate,
+                capability_refs: context.capability_refs,
+                authority_refs: context.authority_refs,
+            },
+            context.compiler_context,
+        )
+    });
+
+    AppGameRiskPolicyCompilation {
+        detection,
+        compilation,
+    }
 }
 
 pub fn detect_app_game_risk_candidate(
