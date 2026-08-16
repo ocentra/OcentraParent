@@ -50,6 +50,11 @@ provider/preference status boundaries; WP66 joins them through the canonical
 parent-surface builder and WP67 renders the joined rows with a legacy fallback.
 All four remain unvalidated with tests/proof/checklist deferred.
 
+Code-pass note (2026-08-16): WP59’s public scheduler persistence boundary now
+revalidates the canonical scheduler bridge read model before writing atomic
+records. Invalid source rows/counts/claims remain rejected; provider delivery,
+retry workers, quiet-hours timers, child delivery, and UI remain unclaimed.
+
 The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
 WP26, WP48, WP49, WP62, WP63, WP64, WP65, and
 WP102.

@@ -67,6 +67,8 @@ pub fn persist_app_game_notification_scheduler_bridge(
     store: &AppGameChildUxSchedulerProofStore,
     read_model: &AppGameNotificationSchedulerBridgeReadModel,
 ) -> io::Result<Vec<AppGameChildUxSchedulerPersistResult>> {
+    validate_app_game_notification_scheduler_bridge_read_model(read_model, INVALID_SOURCE_FIELD)
+        .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error.to_string()))?;
     read_model
         .rows
         .iter()

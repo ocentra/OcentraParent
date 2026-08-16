@@ -34,6 +34,12 @@ tampering, and explicit runtime/provider/UI non-claims. The code and focused
 Phase 2 gates are committed at `4cf6a11c9`; historical parent-domain routes are
 absent and are not implementation authority.
 
+2026-08-16 production-code follow-up: the public scheduler persistence entry
+point now invokes the canonical scheduler read-model validator before writing
+any scheduler records. Invalid counts, row identities, blocked-row shapes, or
+runtime/provider claims fail as invalid data; no scheduler/provider runtime
+authority is added.
+
 ## Proof
 
 - Shared source:
