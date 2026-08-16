@@ -23,8 +23,8 @@ delivery.
 
 ## Scope
 
-- Add a parent-domain bridge from WP125 child UX preference-preflight rows to
-  the existing V3 notification rule/provider/retry contract.
+- Add a Rust-owned App/Game bridge from WP125 child UX preference-preflight rows
+  to the existing V3 notification rule/provider/retry status contract.
 - Convert parent-preference-required and manual-required preflight rows into
   manual setup status entries.
 - Convert unavailable preflight rows into disabled/not-sent status entries.
@@ -53,7 +53,28 @@ delivery.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX preference-status handoff.
+- Rust App/Game crate build and Clippy.
+- Focused Rust tests for manual, unavailable, and malformed preference-status
+  handoff rows.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1 Active
+
+The 2026-08-15 live-code audit invalidated the historical `parent-domain`
+completion claim. That package is absent, and the broad timer service/portal
+files previously mapped by the graph contain only fixture/read-model consumers,
+not a producer from WP125. The current Rust owner is `ocentra-app-game-core`,
+where WP125 now supplies typed preference-preflight rows and the existing
+App/Game parent-surface contract supplies the downstream preference-status
+shape.
+
+This workpack is active for a bounded Rust handoff. Parent-preference-required
+and manual-required rows must map to manual setup status; unavailable rows must
+map to disabled/not-sent status. The producer must preserve source scheduler,
+outbox, provider channel, reason, preference, quiet-hours, evidence, audit, and
+manual-proof refs and reject unsafe claims or malformed source shapes. The audit
+also found that WP125 must retain safe provider-channel/reason/severity enums on
+blocked rows so this handoff does not invent them. Preference mutation,
+quiet-hours/retry execution, delivery, receipts, credentials, cloud routing,
+parent UI, child delivery, adapter dispatch, and enforcement remain unclaimed.
