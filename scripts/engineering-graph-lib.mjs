@@ -836,7 +836,11 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     }
     const evidence = Array.isArray(review?.evidence) ? review.evidence : [];
     if (evidence.length === 0) rejectionReasons.push('evidence must contain existing plan/workpack review paths');
-    const missingEvidence = evidence.filter((reference) => !pathExistsSync(repoRoot, reference));
+    const malformedEvidence = evidence.filter((reference) => typeof reference !== 'string' || reference.trim().length === 0);
+    rejectionReasons.push(...malformedEvidence.map(() => 'evidence entries must be non-empty strings'));
+    const missingEvidence = evidence
+      .filter((reference) => typeof reference === 'string' && reference.trim().length > 0)
+      .filter((reference) => !pathExistsSync(repoRoot, reference));
     rejectionReasons.push(...missingEvidence.map((reference) => `missing evidence ${reference}`));
     if (typeof review?.reason !== 'string' || review.reason.trim().length === 0) {
       rejectionReasons.push('reason is required');
