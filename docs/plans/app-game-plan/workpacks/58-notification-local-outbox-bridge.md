@@ -73,14 +73,25 @@ delivery/runtime support.
   also exposes deterministic JSONL serialization/parsing for the bounded bridge
   artifact; it does not create a second store format.
 
-## Current Status - Phase 1/2 Complete; Phase 3 Open
+## Production boundary follow-up - 2026-08-16
 
-- Focused WP58 bridge tests: 4 passed.
-- Agent-service notification-readiness tests: 3 passed, including the negative
-  WP125 setup-outbox regression.
-- Full app-game-core contract suite: 100 passed; unit suite: 10 passed.
-- App-game-core and agent-service Clippy passed with warnings denied.
-- Architecture plus seven focused Enforcer checks and pre-commit passed.
+- `crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs` now
+  validates the complete bridge read model before returning it and before any
+  local-outbox persistence side effect.
+- `crates/app-game-core/src/app_game_notification_local_outbox_bridge_read_model_validation.rs`
+  now rejects malformed source rows, mismatched bridge/entry/alert identities,
+  provider or scheduler claims, and non-local delivery record state. This keeps
+  a caller-supplied read model from minting a local outbox record outside the
+  WP58 bridge contract.
+- This follow-up is production code drafted only in the global code-writing
+  phase. Focused tests, validation, Enforcer gates, and retained proof remain
+  deferred; provider delivery, receipts, scheduler runtime, UI, child delivery,
+  adapter dispatch, and real service composition remain outside this workpack.
+
+## Current Status - Production code drafted; tests and proof deferred
+
+- The historical Phase 1/2 execution record remains retained in repository
+  history, but it does not validate the production-boundary follow-up above.
 - The historical proof script/output/test-results artifacts remain absent and
   must be regenerated only during Phase 3. Provider delivery, receipt
   ingestion, scheduler runtime, parent UI, child delivery, adapter dispatch,

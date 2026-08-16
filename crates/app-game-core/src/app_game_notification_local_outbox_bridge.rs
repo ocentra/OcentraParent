@@ -8,6 +8,7 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::Notifica
 use crate::app_game_child_ux_outbox_store::AppGameChildUxLocalOutboxStore;
 use crate::app_game_child_ux_outbox_types::AppGameChildUxOutboxPersistResult;
 use crate::app_game_notification_local_outbox_bridge_mapping::bridge_row;
+use crate::app_game_notification_local_outbox_bridge_read_model_validation::validate_app_game_notification_local_outbox_bridge_read_model;
 use crate::app_game_notification_local_outbox_bridge_types::{
     AppGameNotificationLocalOutboxBridgeOptions, AppGameNotificationLocalOutboxBridgeReadModel,
     AppGameNotificationLocalOutboxBridgeStatus,
@@ -37,7 +38,7 @@ pub fn build_app_game_notification_local_outbox_bridge(
         &rows,
         AppGameNotificationLocalOutboxBridgeStatus::Unavailable,
     );
-    Ok(AppGameNotificationLocalOutboxBridgeReadModel {
+    let read_model = AppGameNotificationLocalOutboxBridgeReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
         bridge_id: options.bridge_id,
         generated_at: options.generated_at,
@@ -56,13 +57,23 @@ pub fn build_app_game_notification_local_outbox_bridge(
         parent_notification_ui_claimed: false,
         child_delivery_claimed: false,
         adapter_dispatch_claimed: false,
-    })
+    };
+    validate_app_game_notification_local_outbox_bridge_read_model(
+        &read_model,
+        "app_game.notification_local_outbox.read_model",
+    )?;
+    Ok(read_model)
 }
 
 pub fn persist_app_game_notification_local_outbox_bridge(
     store: &AppGameChildUxLocalOutboxStore,
     read_model: &AppGameNotificationLocalOutboxBridgeReadModel,
 ) -> io::Result<Vec<AppGameChildUxOutboxPersistResult>> {
+    validate_app_game_notification_local_outbox_bridge_read_model(
+        read_model,
+        "app_game.notification_local_outbox.persist",
+    )
+    .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error.to_string()))?;
     read_model
         .rows
         .iter()

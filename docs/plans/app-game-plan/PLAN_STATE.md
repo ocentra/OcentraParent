@@ -29,6 +29,19 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 - This audit changes ownership/status routing only. It does not claim Phase 2
   focused tests/Enforcer, Phase 3 proof, or release readiness.
 
+## Active production-code follow-up - 2026-08-16
+
+- WP58 now has a fail-closed production boundary in
+  `crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs` and
+  `crates/app-game-core/src/app_game_notification_local_outbox_bridge_read_model_validation.rs`:
+  bridge construction and persistence reject malformed source rows, mismatched
+  bridge/entry/alert identities, provider or scheduler claims, and non-local
+  delivery state before writing the canonical local outbox.
+- This is code drafted only. Tests, validation, Enforcer gates, retained proof,
+  and broad completion are deferred; provider delivery, scheduler runtime,
+  service composition, UI, child delivery, and adapter dispatch remain outside
+  WP58.
+
 ## Scope
 
 This folder is the shared native app and native game control plan. It exists because apps and games share the low-level evidence spine, but they do not share product meaning.
