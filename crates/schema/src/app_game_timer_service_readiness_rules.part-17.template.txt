@@ -1,0 +1,30 @@
+  !readiness.rollbackRuntimeClaimed &&
+  !readiness.adapterDispatchClaimed &&
+  !readiness.childDeliveryClaimed &&
+  !readiness.platformEnforcementClaimed &&
+  !readiness.rawPrivateSourceRowsIncluded;
+
+export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceMatchesRuntimeReadinessGenerated = (
+  runtimeReadinessState: TimerRuntimeReadinessStateValue,
+  schedulerPersistenceState: TimerSchedulerPersistenceStateValue
+) =>
+  (runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired &&
+    schedulerPersistenceState ===
+      AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.SchedulerPersistenceProofRequired) ||
+  (runtimeReadinessState ===
+    AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness &&
+    schedulerPersistenceState ===
+      AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedBySourceFreshness) ||
+  (runtimeReadinessState ===
+    AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedByCompilerDecision &&
+    schedulerPersistenceState ===
+      AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedByCompilerDecision);
+
+export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateForRuntimeReadinessGenerated = (
+  runtimeReadinessState: TimerRuntimeReadinessStateValue
+): TimerSchedulerPersistenceStateValue => {
+  if (
+    runtimeReadinessState === AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired
+  ) {
+    return AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.SchedulerPersistenceProofRequired;
+  }

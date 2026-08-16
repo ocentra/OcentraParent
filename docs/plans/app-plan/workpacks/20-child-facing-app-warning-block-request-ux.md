@@ -9,6 +9,11 @@ Sources: [UI/UX guide](../ui-ux-requirements-guide.md),
 Child-facing app warning and request UX is not yet complete for native app
 limits, approvals, manual-required states, or shield/block fallbacks.
 
+Code-pass status (2026-08-16): Rust app-game-core now bridges a time-budget
+decision into the existing child UX notice validator with evidence, reason,
+status, and capability refs. This is code-drafted and unvalidated; live child
+surface/service delivery, tests, proof, and UI snapshots remain deferred.
+
 ## Where We Want To Be
 
 Child UX calmly explains app warnings, time almost finished, time limit reached,
@@ -26,10 +31,12 @@ without exposing parent diagnostics or shame-based copy.
 
 ## Touched Paths
 
-- child-facing portal/app surfaces when assigned.
-- `packages/text-domain` or existing text token paths if copy changes.
-- `packages/parent-domain/src/policy.ts`
-- Playwright child request specs when assigned.
+- `crates/app-game-core/src/app_game_child_ux.rs`
+- `crates/app-game-core/src/app_game_child_ux_types.rs`
+- `crates/app-game-core/src/app_game_time_budget.rs`
+
+The prior portal/text-domain and Playwright paths are later UI/proof owners;
+this Rust bridge does not claim live rendering or notification delivery.
 
 ## Tests And Proof
 
@@ -67,7 +74,7 @@ Fill this before reporting `DONE` or PR-ready:
 Child UX can request, warn, or explain before the platform can enforce. It must
 not claim a block happened unless action proof exists.
 
-## Completion - 2026-06-03
+## Historical completion note - 2026-06-03
 
 - Owner: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
@@ -86,8 +93,8 @@ Completed:
 - Covered the native app target view through native-app and unknown-app target
   kinds while keeping private diagnostics out of child-facing payloads.
 
-Deferred:
-
-- Live native app child UI, portal preview screenshots, overlay rendering,
-  notification delivery, service persistence, Rust/WebSocket parity, adapter
-  execution, and broad installed-app blocking remain later work.
+Current deferred work remains live native app child UI, portal preview
+screenshots, overlay rendering, notification delivery, service persistence,
+Rust/WebSocket parity, adapter execution, and broad installed-app blocking.
+The historical TypeScript contract/proof does not establish current Rust UI
+or runtime completion.

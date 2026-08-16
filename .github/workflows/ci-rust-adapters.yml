@@ -1,0 +1,53 @@
+name: CI Rust Adapters
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-format:
+    name: 'Format: Rust Workspace'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Rust format
+        run: node scripts/ci/check-rust-format.mjs
+
+  adapter-clippy:
+    name: 'Lint: Rust Adapter Clippy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [rust-format]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Adapter clippy
+        run: cargo clippy -p ocentra-parent-agent-maintenance -p ocentra-eventing -p ocentra-network-evidence -p ocentra-parent-screen-capture-adapter --all-targets -- -D warnings
+
+  adapter-tests:
+    name: 'Unit: Rust Adapter Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [adapter-clippy]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Adapter tests
+        run: cargo test -p ocentra-parent-agent-maintenance -p ocentra-eventing -p ocentra-network-evidence -p ocentra-parent-screen-capture-adapter --all-targets

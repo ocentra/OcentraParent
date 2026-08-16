@@ -1,18 +1,52 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserBridgeKind, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserManagedProfileLifecycleState, BrowserManagedProfileStoreEntry,
-    BrowserManagedSessionStatus, BrowserManagedState, BrowserQueryVisibilityLabel,
-    BROWSER_EVIDENCE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser::BrowserCapabilityStatus;
+use ocentra_parent_agent_protocol::browser::BrowserChannel;
+use ocentra_parent_agent_protocol::browser::BrowserCustodyLabel;
+use ocentra_parent_agent_protocol::browser::BrowserFamily;
+use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::browser_managed::BrowserBridgeKind;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileLifecycleState;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedProfileStoreEntry;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedState;
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::constants;
+
+use ocentra_parent_agent_core::{
+    browser_managed_discovery::BrowserUnmanagedProcessObservation,
+    browser_managed_session::BrowserManagedLaunch,
 };
 
-#[cfg(test)]
-use ocentra_parent_agent_core::BrowserManagedLaunchPlan;
-use ocentra_parent_agent_core::{BrowserManagedLaunch, BrowserUnmanagedProcessObservation};
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct BrowserRuntimeText(String);
 
-pub fn missing_browser_status(checked_at: String) -> BrowserManagedSessionStatus {
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct BrowserRuntimeOptionalText(Option<String>);
+
+impl<T> From<T> for BrowserRuntimeText
+where
+    T: Into<String>,
+{
+    fn from(value: T) -> Self {
+        Self(value.into())
+    }
+}
+
+impl<T> From<Option<T>> for BrowserRuntimeOptionalText
+where
+    T: Into<String>,
+{
+    fn from(value: Option<T>) -> Self {
+        Self(value.map(Into::into))
+    }
+}
+
+pub fn missing_browser_status(
+    checked_at: impl Into<BrowserRuntimeText>,
+) -> BrowserManagedSessionStatus {
+    let checked_at = checked_at.into();
     BrowserManagedSessionStatus {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        checked_at,
+        checked_at: checked_at.0,
         managed_browser_session_id: None,
         browser_family: None,
         browser_channel: None,
@@ -42,7 +76,9 @@ pub fn missing_browser_status(checked_at: String) -> BrowserManagedSessionStatus
     }
 }
 
-pub fn profile_missing_status(checked_at: String) -> BrowserManagedSessionStatus {
+pub fn profile_missing_status(
+    checked_at: impl Into<BrowserRuntimeText>,
+) -> BrowserManagedSessionStatus {
     let mut status = missing_browser_status(checked_at);
     status.managed_state = BrowserManagedState::InstalledSupported;
     status.degraded_reason =
@@ -52,7 +88,7 @@ pub fn profile_missing_status(checked_at: String) -> BrowserManagedSessionStatus
 }
 
 pub fn unmanaged_browser_status(
-    checked_at: String,
+    checked_at: impl Into<BrowserRuntimeText>,
     process: BrowserUnmanagedProcessObservation,
 ) -> BrowserManagedSessionStatus {
     let mut status = missing_browser_status(checked_at);
@@ -74,7 +110,7 @@ pub fn unmanaged_browser_status(
 }
 
 pub fn managed_profile_ready_status(
-    checked_at: String,
+    checked_at: impl Into<BrowserRuntimeText>,
     browser_family: BrowserFamily,
     browser_channel: BrowserChannel,
     profile_store_entry: BrowserManagedProfileStoreEntry,
@@ -86,28 +122,13 @@ pub fn managed_profile_ready_status(
     status
 }
 
-#[cfg(test)]
-pub fn launch_pending_status(
-    checked_at: String,
-    plan: BrowserManagedLaunchPlan,
-    profile_store_entry: BrowserManagedProfileStoreEntry,
-) -> BrowserManagedSessionStatus {
-    let mut status = base_managed_status(checked_at);
-    status.browser_family = Some(plan.browser_family);
-    status.browser_channel = Some(plan.browser_channel);
-    status.managed_state = BrowserManagedState::LaunchPending;
-    status.capability_status = BrowserCapabilityStatus::BridgeMissing;
-    status.degraded_reason = Some(constants::value::MANAGED_BROWSER_LAUNCH_PENDING.to_string());
-    apply_profile_store_entry(&mut status, profile_store_entry);
-    status
-}
-
 pub fn running_managed_status(
-    checked_at: String,
+    checked_at: impl Into<BrowserRuntimeText>,
     launch: BrowserManagedLaunch,
     profile_store_entry: BrowserManagedProfileStoreEntry,
-    started_at: String,
+    started_at: impl Into<BrowserRuntimeText>,
 ) -> BrowserManagedSessionStatus {
+    let started_at = started_at.into();
     let mut status = base_managed_status(checked_at);
     status.browser_family = Some(launch.browser_family);
     status.browser_channel = Some(launch.browser_channel);
@@ -117,49 +138,57 @@ pub fn running_managed_status(
     status.capability_status = BrowserCapabilityStatus::BridgeMissing;
     status.degraded_reason =
         Some(constants::value::MANAGED_BROWSER_BRIDGE_CONNECT_PENDING.to_string());
-    status.started_at = Some(started_at);
+    status.started_at = Some(started_at.0);
     apply_profile_store_entry(&mut status, profile_store_entry);
     status.bridge_endpoint_ref = Some(launch.bridge_endpoint_ref);
     status
 }
 
 pub fn bridge_disconnected_status(
-    checked_at: String,
-    reason: &'static str,
+    checked_at: impl Into<BrowserRuntimeText>,
+    reason: impl Into<BrowserRuntimeText>,
 ) -> BrowserManagedSessionStatus {
+    let reason = reason.into();
     let mut status = base_managed_status(checked_at);
     status.managed_state = BrowserManagedState::BridgeDisconnected;
-    status.capability_status = BrowserCapabilityStatus::BridgeMissing;
-    status.degraded_reason = Some(reason.to_string());
+    status.capability_status = BrowserCapabilityStatus::Stale;
+    status.degraded_reason = Some(reason.0);
     status
 }
 
-pub fn status_with_error(checked_at: String, reason: &'static str) -> BrowserManagedSessionStatus {
+pub fn status_with_error(
+    checked_at: impl Into<BrowserRuntimeText>,
+    reason: impl Into<BrowserRuntimeText>,
+) -> BrowserManagedSessionStatus {
+    let reason = reason.into();
     let mut status = base_managed_status(checked_at);
     status.managed_state = BrowserManagedState::Error;
     status.capability_status = BrowserCapabilityStatus::AdapterError;
-    status.degraded_reason = Some(reason.to_string());
+    status.degraded_reason = Some(reason.0);
     status
 }
 
 pub fn connected_status(
-    checked_at: String,
-    browser_version: Option<String>,
+    checked_at: impl Into<BrowserRuntimeText>,
+    browser_version: impl Into<BrowserRuntimeOptionalText>,
     capability_status: BrowserCapabilityStatus,
-    degraded_reason: Option<String>,
+    degraded_reason: impl Into<BrowserRuntimeOptionalText>,
 ) -> BrowserManagedSessionStatus {
+    let browser_version = browser_version.into();
+    let degraded_reason = degraded_reason.into();
     let mut status = base_managed_status(checked_at);
-    status.browser_version = browser_version;
+    status.browser_version = browser_version.0;
     status.managed_state = BrowserManagedState::BridgeConnected;
     status.capability_status = capability_status;
-    status.degraded_reason = degraded_reason;
+    status.degraded_reason = degraded_reason.0;
     status
 }
 
-fn base_managed_status(checked_at: String) -> BrowserManagedSessionStatus {
+fn base_managed_status(checked_at: impl Into<BrowserRuntimeText>) -> BrowserManagedSessionStatus {
+    let checked_at = checked_at.into();
     BrowserManagedSessionStatus {
         schema_version: BROWSER_EVIDENCE_SCHEMA_VERSION,
-        checked_at,
+        checked_at: checked_at.0,
         managed_browser_session_id: Some(constants::browser::SESSION_ID_DEV.to_string()),
         browser_family: Some(BrowserFamily::UnknownChromium),
         browser_channel: Some(BrowserChannel::Unknown),

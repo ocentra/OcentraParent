@@ -1,6 +1,0 @@
-
-Running 1 test using 1 worker
-
-  ok 1 [chromium] › e2e\tracking-hosted-ui-proof.spec.ts:31:1 › hosted policy tracking route renders real-service proof without product claims (1.0m)
-
-  1 passed (1.0m)

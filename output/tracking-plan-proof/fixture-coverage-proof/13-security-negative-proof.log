@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- Fixture coverage does not claim live device behavior.
-- Fixture coverage does not claim provider delivery, child-device runtime execution, physical-device proof, production workers, or product readiness.
-- Remote sync and remote AI remain disabled/default contract rows, not runtime service execution claims.

@@ -1,3 +1,0 @@
-cmd /c npm --workspace @ocentra-parent/parent-domain run build
-cmd /c npm exec --workspace @ocentra-parent/parent-domain -- vitest run tests/tracking-escalation-readiness-proof.test.ts tests/tracking-location-policy.test.ts
-git rev-parse --short=8 HEAD

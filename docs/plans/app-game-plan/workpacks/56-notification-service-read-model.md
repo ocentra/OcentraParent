@@ -1,5 +1,19 @@
 # 56. Notification Service Read Model
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `56. Notification Service Read Model`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Owner And Branch
 
 - Owner/lane: `codex-c`
@@ -49,17 +63,17 @@ support.
 
 ## DONE Checklist
 
-- [x] Hub lock covers the exact implementation, docs, proof, and validation
+- [ ] Hub lock covers the exact implementation, docs, proof, and validation
       paths except the D-owned service README.
-- [x] Existing notification intent contract, policy readiness service model,
+- [ ] Existing notification intent contract, policy readiness service model,
       app/game service read model, protocol-domain, Rust protocol, and
       WebSocket command routing inspected.
-- [x] TypeScript parser rejects wrong events, invalid JSON, invalid payloads,
+- [ ] TypeScript parser rejects wrong events, invalid JSON, invalid payloads,
       invalid readiness states, and true delivery/runtime/UI/adapter claims.
-- [x] Rust protocol DTO serializes readiness rows and preserves all no-claim
+- [ ] Rust protocol DTO serializes readiness rows and preserves all no-claim
       booleans.
-- [x] Agent-service WebSocket command reports notification readiness from the
+- [ ] Agent-service WebSocket command reports notification readiness from the
       real app/game activity-store read model.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no local
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no local
       outbox runtime, no scheduler runtime, no parent UI, no child delivery, no
       policy execution, no adapter dispatch, and no platform support claim.

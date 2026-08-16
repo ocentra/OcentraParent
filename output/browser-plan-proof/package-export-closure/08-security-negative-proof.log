@@ -1,5 +1,0 @@
-Negative proof boundary:
-- No new exact URL, active-tab, page-title, social account/feed/video, browser-game title, cloud-gaming title, or unmanaged exact URL evidence claim.
-- No extension, native host, connector, notification, runtime adapter, policy execution, or enforcement behavior added.
-- Package exports expose existing schema-backed contract modules only.
-- Documentation keeps runtime, UI, connector/native, final policy, enforcement, release, and product checklist completion unclaimed.

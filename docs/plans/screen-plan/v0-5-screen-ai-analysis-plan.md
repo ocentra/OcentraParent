@@ -1,5 +1,20 @@
 # V0.5 Screen AI Analysis Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `V0.5 Screen AI Analysis Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Rule
 
 Local OCR/vision output is evidence, not authority.
@@ -23,8 +38,10 @@ This is not a ban on a capable chosen local model. If the configured parent/devi
 3. Guided VLM:
    yes/no/multi-label classification from the smallest safe image.
 
-4. Family AI hub:
-   heavier VLM only for hard cases when local cheap path is uncertain.
+4. Household AI provider mesh:
+   heavier VLM only for hard cases when the same-device cheap path is
+   uncertain. Provider execution is worker-only; the evidence-owning child
+   agent validates the result before policy.
 
 5. Remote/API:
    disabled for raw screenshots by default.
@@ -151,7 +168,7 @@ VLM path:
 
 ```text
 small local guided classifier only when structured/OCR evidence is insufficient
-family AI hub for heavier VLM jobs
+household AI provider mesh for heavier VLM jobs
 remote disabled for raw screenshots
 ```
 
@@ -160,7 +177,8 @@ Model selection pass:
 ```text
 verify configured Gemma-family model image capability first if it is the parent/device default
 evaluate Qwen2.5-VL or other candidates only when Gemma/runtime quality is insufficient
-keep model candidates behind local/family-hub privacy and resource proof
+keep model candidates behind same-device or household-provider privacy and
+resource proof
 do not block capture MVP on final VLM selection
 ```
 
@@ -211,9 +229,11 @@ type ScreenAiJob = {
     height: number;
   };
 
-  allowedModelKinds: Array<'structured_no_model' | 'ocr_light' | 'vlm_small' | 'vlm_hub' | 'remote_redacted_only'>;
+  allowedModelKinds: Array<
+    'structured_no_model' | 'ocr_light' | 'vlm_small' | 'vlm_household_provider' | 'remote_redacted_only'
+  >;
 
-  privacyMode: 'local_only' | 'family_hub_local' | 'parent_approved_remote_redacted';
+  privacyMode: 'local_only' | 'household_provider_child_validated' | 'parent_approved_remote_redacted';
 
   timeoutMs: number;
   maxImagePixels?: number;

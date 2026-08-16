@@ -1,6 +1,0 @@
-Security/no-claim proof:
-
-- The handoff accepts only compiled decisions that already parse through AppGamePolicyCompiledDecisionSchema.
-- Rows preserve dryRun=true and enforcementHandoffState=disabled.
-- Manual-required block-launch decisions remain manual-required and never dispatch an adapter.
-- Policy evaluator runtime, timers, child delivery, adapter dispatch, and platform enforcement remain false.

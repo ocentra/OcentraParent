@@ -1,36 +1,49 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceKind, ActivityEvidenceRef, AppGamePolicyReadinessReadModel,
-    AppGamePolicyReadinessRow, AppGameServiceReadModel, LogFieldValue, LogFields,
-    APP_GAME_POLICY_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE,
-    APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT,
-    APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT,
-    APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY,
-    APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY,
-    APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE,
-    APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED, APP_GAME_POLICY_READINESS_STATE_MISSING,
-    APP_GAME_POLICY_READINESS_STATE_READY, APP_GAME_POLICY_READINESS_STATUS_NO_ROWS,
-    APP_GAME_POLICY_READINESS_STATUS_PARTIAL, APP_GAME_POLICY_READINESS_STATUS_READY,
-    APP_GAME_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
+use ocentra_parent_agent_protocol::app_game_authority_classifier::{
+    APP_GAME_CONTROL_ACTION_STATUS_ENFORCED, APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::AppGamePolicyReadinessReadModel;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATE_READY;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_NO_ROWS;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_PARTIAL;
+use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_READY;
 
+#[path = "app_game_policy_readiness_payload/rows.rs"]
+mod rows;
+
+use super::app_game_policy_readiness_sources::{
+    app_game_boundary_row_count, category_candidate_row_count, platform_authority_row_count,
+    unknown_review_row_count,
+};
 use crate::fields::fields_from_pairs;
 
-type FieldPair = (&'static str, LogFieldValue);
+#[derive(Clone, Copy)]
+pub(super) struct PolicyReadinessTextRef<'a>(&'a str);
 
 pub fn app_game_policy_readiness_from_service_model(
     model: AppGameServiceReadModel,
 ) -> AppGamePolicyReadinessReadModel {
     let platform_authority_row_count = platform_authority_row_count(&model);
-    let rows = readiness_rows(&model);
+    let category_candidate_row_count = category_candidate_row_count(&model);
+    let unknown_review_row_count = unknown_review_row_count(&model);
+    let rows = rows::readiness_rows(&model);
     let returned = rows.len() as u64;
     let policy_evaluation_ready = !model.evidence_claim_rows.is_empty()
         && !model.identity_rows.is_empty()
         && !model.approval_authority_rows.is_empty()
         && platform_authority_row_count > 0;
+    let category_routing_ready = category_candidate_row_count > 0;
+    let unknown_review_required = unknown_review_row_count > 0;
     let manual_review_required = rows
         .iter()
         .any(|row| row.readiness_state != APP_GAME_POLICY_READINESS_STATE_READY);
-    let capability_status = policy_readiness_status(&model, policy_evaluation_ready);
+    let capability_status = policy_readiness_status(&model, policy_evaluation_ready)
+        .0
+        .to_string();
+    let adapter_dispatch_claimed = adapter_dispatch_claimed(&model);
 
     AppGamePolicyReadinessReadModel {
         schema_version: APP_GAME_SCHEMA_VERSION,
@@ -39,26 +52,39 @@ pub fn app_game_policy_readiness_from_service_model(
         capability_status,
         returned,
         policy_evaluation_ready,
+        category_routing_ready,
+        unknown_review_required,
         manual_review_required,
-        adapter_dispatch_claimed: false,
+        adapter_dispatch_claimed,
         evidence_claim_row_count: model.evidence_claim_rows.len() as u64,
         identity_row_count: model.identity_rows.len() as u64,
         approval_authority_row_count: model.approval_authority_rows.len() as u64,
         approval_action_result_row_count: model.approval_action_result_rows.len() as u64,
         platform_authority_row_count,
         ai_classifier_result_row_count: model.ai_classifier_result_rows.len() as u64,
+        category_candidate_row_count,
+        unknown_review_row_count,
         rows,
     }
+}
+
+fn adapter_dispatch_claimed(model: &AppGameServiceReadModel) -> bool {
+    model.approval_action_result_rows.iter().any(|row| {
+        row.result_status == APP_GAME_CONTROL_ACTION_STATUS_ENFORCED
+            && row.enforcement_result.as_ref().is_some_and(|result| {
+                result.status == APP_GAME_ENFORCEMENT_RESULT_ACTUALLY_ENFORCED
+            })
+    })
 }
 
 pub fn app_game_policy_readiness_payload(
     read_model: &AppGamePolicyReadinessReadModel,
 ) -> LogFields {
-    fields_from_pairs(read_model_pairs(read_model))
+    read_model_fields(read_model)
 }
 
-fn read_model_pairs(read_model: &AppGamePolicyReadinessReadModel) -> Vec<FieldPair> {
-    vec![
+fn read_model_fields(read_model: &AppGamePolicyReadinessReadModel) -> LogFields {
+    fields_from_pairs(vec![
         (
             constants::field::GENERATED_AT,
             LogFieldValue::String(read_model.generated_at.clone()),
@@ -77,204 +103,20 @@ fn read_model_pairs(read_model: &AppGamePolicyReadinessReadModel) -> Vec<FieldPa
         ),
         (
             constants::field::APP_GAME_POLICY_READINESS_READ_MODEL,
-            LogFieldValue::String(
-                serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES),
-            ),
+            LogFieldValue::String(serde_json::to_string(read_model).unwrap_or_default()),
         ),
-    ]
-}
-
-fn readiness_rows(model: &AppGameServiceReadModel) -> Vec<AppGamePolicyReadinessRow> {
-    let policy_evidence_count =
-        model.evidence_claim_rows.len() as u64 + model.identity_rows.len() as u64;
-    let has_policy_evidence =
-        !model.evidence_claim_rows.is_empty() && !model.identity_rows.is_empty();
-    vec![
-        readiness_row(
-            APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE,
-            if has_policy_evidence {
-                APP_GAME_POLICY_READINESS_STATE_READY
-            } else {
-                APP_GAME_POLICY_READINESS_STATE_MISSING
-            },
-            policy_evidence_count,
-            policy_evidence_refs(model),
-        ),
-        readiness_row(
-            APP_GAME_POLICY_READINESS_KIND_APPROVAL_AUTHORITY,
-            if model.approval_authority_rows.is_empty() {
-                APP_GAME_POLICY_READINESS_STATE_MISSING
-            } else {
-                APP_GAME_POLICY_READINESS_STATE_READY
-            },
-            model.approval_authority_rows.len() as u64,
-            approval_authority_refs(model),
-        ),
-        readiness_row(
-            APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT,
-            if model.approval_action_result_rows.is_empty() {
-                APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED
-            } else {
-                APP_GAME_POLICY_READINESS_STATE_READY
-            },
-            model.approval_action_result_rows.len() as u64,
-            approval_action_result_refs(model),
-        ),
-        readiness_row(
-            APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY,
-            if platform_authority_row_count(model) == 0 {
-                APP_GAME_POLICY_READINESS_STATE_MISSING
-            } else {
-                APP_GAME_POLICY_READINESS_STATE_READY
-            },
-            platform_authority_row_count(model),
-            platform_authority_row_refs(model),
-        ),
-        readiness_row(
-            APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT,
-            if model.ai_classifier_result_rows.is_empty() {
-                APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED
-            } else {
-                APP_GAME_POLICY_READINESS_STATE_READY
-            },
-            model.ai_classifier_result_rows.len() as u64,
-            ai_classifier_refs(model),
-        ),
-    ]
-}
-
-fn readiness_row(
-    readiness_kind: &'static str,
-    readiness_state: &'static str,
-    row_count: u64,
-    evidence: Vec<ActivityEvidenceRef>,
-) -> AppGamePolicyReadinessRow {
-    AppGamePolicyReadinessRow {
-        schema_version: APP_GAME_SCHEMA_VERSION,
-        row_id: readiness_kind.to_string(),
-        readiness_kind: readiness_kind.to_string(),
-        readiness_state: readiness_state.to_string(),
-        row_count,
-        evidence_reference_ids: evidence.iter().map(|row| row.evidence_id.clone()).collect(),
-        evidence,
-    }
+    ])
 }
 
 fn policy_readiness_status(
     model: &AppGameServiceReadModel,
     policy_evaluation_ready: bool,
-) -> String {
+) -> PolicyReadinessTextRef<'static> {
     if app_game_boundary_row_count(model) == 0 {
-        APP_GAME_POLICY_READINESS_STATUS_NO_ROWS.to_string()
+        PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATUS_NO_ROWS)
     } else if policy_evaluation_ready {
-        APP_GAME_POLICY_READINESS_STATUS_READY.to_string()
+        PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATUS_READY)
     } else {
-        APP_GAME_POLICY_READINESS_STATUS_PARTIAL.to_string()
+        PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATUS_PARTIAL)
     }
-}
-
-fn policy_evidence_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = Vec::new();
-    push_evidence(&mut evidence, evidence_claim_refs(model));
-    push_evidence(&mut evidence, identity_refs(model));
-    evidence
-}
-
-fn evidence_claim_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = Vec::new();
-    for row in &model.evidence_claim_rows {
-        push_evidence(&mut evidence, row.evidence.clone());
-        push_local_db_row_evidence(&mut evidence, &row.claim_id);
-    }
-    evidence
-}
-
-fn identity_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = Vec::new();
-    for row in &model.identity_rows {
-        push_evidence(&mut evidence, row.evidence.clone());
-        push_local_db_row_evidence(&mut evidence, &row.identity_id);
-    }
-    evidence
-}
-
-fn approval_authority_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = Vec::new();
-    for row in &model.approval_authority_rows {
-        push_local_db_row_evidence(&mut evidence, &row.authority_id);
-    }
-    evidence
-}
-
-fn approval_action_result_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = Vec::new();
-    for row in &model.approval_action_result_rows {
-        push_local_db_row_evidence(&mut evidence, &row.result_id);
-    }
-    evidence
-}
-
-fn platform_authority_row_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = Vec::new();
-    for matrix in &model.platform_authority_matrices {
-        for row in &matrix.rows {
-            push_local_db_row_evidence(&mut evidence, &row.row_id);
-        }
-    }
-    evidence
-}
-
-fn ai_classifier_refs(model: &AppGameServiceReadModel) -> Vec<ActivityEvidenceRef> {
-    let mut evidence = Vec::new();
-    for row in &model.ai_classifier_result_rows {
-        push_local_db_row_evidence(&mut evidence, &row.classifier_run_id);
-        for evidence_ref in &row.source_evidence_refs {
-            push_local_db_row_evidence(&mut evidence, evidence_ref);
-        }
-    }
-    evidence
-}
-
-fn platform_authority_row_count(model: &AppGameServiceReadModel) -> u64 {
-    model
-        .platform_authority_matrices
-        .iter()
-        .map(|matrix| matrix.rows.len() as u64)
-        .sum()
-}
-
-fn app_game_boundary_row_count(model: &AppGameServiceReadModel) -> u64 {
-    model.evidence_claim_rows.len() as u64
-        + model.identity_rows.len() as u64
-        + model.approval_authority_rows.len() as u64
-        + model.approval_action_result_rows.len() as u64
-        + platform_authority_row_count(model)
-        + model.ai_classifier_result_rows.len() as u64
-}
-
-fn push_evidence(target: &mut Vec<ActivityEvidenceRef>, rows: Vec<ActivityEvidenceRef>) {
-    for evidence in rows {
-        if target
-            .iter()
-            .any(|candidate| candidate.evidence_id == evidence.evidence_id)
-        {
-            continue;
-        }
-        target.push(evidence);
-    }
-}
-
-fn push_local_db_row_evidence(target: &mut Vec<ActivityEvidenceRef>, evidence_id: &str) {
-    if evidence_id.is_empty() {
-        return;
-    }
-    push_evidence(
-        target,
-        vec![ActivityEvidenceRef {
-            evidence_id: evidence_id.to_string(),
-            kind: ActivityEvidenceKind::LocalDbRow,
-            digest: None,
-            uri: None,
-        }],
-    );
 }

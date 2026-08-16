@@ -1,0 +1,50 @@
+name: CI Package Windows
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-windows:
+    name: 'Preview: Windows MSI Smoke'
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Setup .NET for WiX
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build preview Windows MSI
+        shell: pwsh
+        env:
+          OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY: 'true'
+        run: ./scripts/release/windows/build-agent-package.ps1
+
+      - name: Smoke Windows MSI install and uninstall
+        shell: pwsh
+        run: ./scripts/smoke/windows-msi-smoke.ps1 -MsiPath ./target/release-packages/ocentra-parent-agent-windows-x64-latest.msi
+
+      - name: Upload Windows MSI smoke logs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-windows-msi-smoke-logs
+          path: target/release-packages/smoke/*.log
+
+      - name: Upload Windows MSI preview
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-windows-x64-preview
+          path: |
+            target/release-packages/*.msi
+            target/release-packages/*.sha256
+            target/release-packages/latest-windows.json
+            target/release-packages/install-ocentra-parent-agent-windows.ps1

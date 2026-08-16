@@ -2,6 +2,12 @@ name: Build
 
 on:
   workflow_call:
+    inputs:
+      docs_hub_only:
+        description: Skip production build for docs/hub-only changes while preserving the required check.
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -14,8 +20,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Build
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run build
+
+      - name: Docs/hub-only build skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Production build skipped for docs/hub-only change."

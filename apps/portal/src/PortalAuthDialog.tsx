@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { PortalText, PortalTextToken } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { LoginDialog, type LoginDialogActionResult } from '../../../vendor/ocentra-parent-core-ui/Auth/LoginDialog';
 import { AUTH_PAGE_LAYOUT_CONTROLS } from '../../../vendor/ocentra-parent-core-ui/Auth/AuthPageLayoutControls';
 
@@ -10,7 +10,7 @@ type PortalAuthDialogProps = {
 function unavailableResult(): Promise<LoginDialogActionResult> {
   return Promise.resolve({
     success: false,
-    error: PortalText.Resolve(PortalTextToken.AuthUnavailable),
+    error: resolvePortalDevText(PortalDevTextToken.AuthUnavailable),
   });
 }
 
@@ -21,11 +21,11 @@ function unavailableSignUp(): Promise<LoginDialogActionResult> {
 export function PortalAuthDialog({ onClose }: PortalAuthDialogProps): ReactElement {
   return (
     <LoginDialog
-      brandTitle={PortalText.Resolve(PortalTextToken.AppTitle)}
-      closeAriaLabel={PortalText.Resolve(PortalTextToken.AuthClose)}
-      contextDescription={PortalText.Resolve(PortalTextToken.AuthBody)}
-      contextEyebrow={PortalText.Resolve(PortalTextToken.AuthEyebrow)}
-      contextTitle={PortalText.Resolve(PortalTextToken.AuthTitle)}
+      brandTitle={resolvePortalDevText(PortalDevTextToken.AppTitle)}
+      closeAriaLabel={resolvePortalDevText(PortalDevTextToken.AuthClose)}
+      contextDescription={resolvePortalDevText(PortalDevTextToken.AuthBody)}
+      contextEyebrow={resolvePortalDevText(PortalDevTextToken.AuthEyebrow)}
+      contextTitle={resolvePortalDevText(PortalDevTextToken.AuthTitle)}
       layoutControls={AUTH_PAGE_LAYOUT_CONTROLS}
       onClose={onClose}
       onFacebookLogin={unavailableResult}

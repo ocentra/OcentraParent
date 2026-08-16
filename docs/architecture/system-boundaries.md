@@ -1,3 +1,17 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: System Boundaries
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # System Boundaries
 
 ## Runtime Surfaces
@@ -5,15 +19,24 @@
 | Surface               | First Role                          | Later Role                                                    |
 | --------------------- | ----------------------------------- | ------------------------------------------------------------- |
 | Windows agent service | Headless local process scaffold     | Capture, local queue, health, enforcement                     |
-| Local/LAN control API | Rust-hosted local query/control API | Parent portal bridge and future Cloudflare parity layer       |
-| Portal                | Web-first dev scaffold              | Tauri/mobile parent apps, reports, rules, devices, alerts     |
+| Local/LAN control API | Rust-hosted local query/control API | Dev bridge, Rust transport, and future Cloudflare parity layer |
+| Portal                | Vite dev/HMR presentation surface   | Tauri/mobile parent apps through HostBridge                   |
 | Cloudflare            | Out of v0 scaffold scope            | Auth, billing, relay, notifications, stateless compile status |
 | Parent-owned storage  | Out of v0 scaffold scope            | Google Drive, OneDrive, iCloud, Dropbox, NAS, local exports   |
 | Notification adapters | Out of v0 scaffold scope            | WhatsApp, push, email, SMS, or provider-specific alerts       |
 
 ## Platform Strategy
 
-The v0 implementation target is Windows desktop service plus local portal. The Rust service owns the first API and WebSocket endpoint so the portal can query, configure, and observe the agent before real capture, policy, or storage work begins.
+Current parent architecture is Rust-first. Product flow is TSX UI through
+HostBridge into the Rust parent app facade, Rust event bus/domain, Rust read
+models, then back through HostBridge to TSX UI. The Vite web portal is dev-only
+for Codex/HMR and local visibility; it is not a product target.
+
+The product targets are Tauri desktop plus Android and iOS parent shells. Rust
+owns contracts, schemas, route snapshots, action handling, read models,
+projections, business logic, and policy/activity/tracking/network/browser/
+enforcement/logging shapes. TypeScript owns presentation, generated bridge DTO
+consumption, thin host/dev adapters, and minimal local visual state.
 
 Shared domains and contracts must still be platform-neutral. They should leave room for:
 
@@ -31,21 +54,24 @@ the default custody layer for child activity data.
 
 ## Local Command Channel
 
-The local portal talks to the Rust service through WebSocket intent/event envelopes. Loopback mode is private by default; LAN mode is explicit and exposes the same dev protocol to another device on the local network.
+The product parent UI talks to Rust through HostBridge. Dev web may use
+DevWebHostBridge and local dev transport while Codex/HMR work is in progress.
+Remove WebSocket from the product `TSX UI <-> parent Rust` path only; Rust-owned
+parent/child LAN/WAN transport remains a runtime concern outside this
+architecture thread.
 
 ```text
-portal query or rule intent
-  -> AgentCommandEnvelope
-  -> ws://127.0.0.1:4477/api/dev/ws or ws://<lan-ip>:4477/api/dev/ws
-  -> Rust agent validator and dispatcher
-  -> AgentEventEnvelope
-  -> portal event log and read model
+TSX UI action
+  -> HostBridge
+  -> Rust parent app facade
+  -> Rust event bus/domain
+  -> Rust read model
+  -> HostBridge
+  -> TSX UI snapshot rendering
 ```
 
-This keeps the long-term shape compatible with multiple devices. Loopback and
-LAN are the first routes; later Cloudflare can relay typed query, rule, approval,
-and event envelopes to a remote device service without storing child evidence as
-the default product model.
+Dev web may substitute a dev bridge adapter and local dev transport for
+HostBridge. That does not make web/Vite a product runtime.
 
 The portal is not an execution boundary. It can request status, author rules, send parent approvals, and display outcomes. The child-device agent validates those requests, runs local AI and policy evaluation, owns timers, and performs enforcement through platform adapters. Browser, mobile, and future desktop portal shells must not run OS commands, capture adapters, child-safety AI, policy evaluators, enforcement logic, or arbitrary scripts.
 
@@ -56,7 +82,7 @@ LAN mode has its own guardrails:
 - browser origins are allowlisted for HTTP and WebSocket upgrade requests
 - managed scripts bind the portal and agent together using the same selected LAN host
 
-Command handlers should be async and nonblocking. If a future platform capability needs blocking OS calls, that work should move behind a bounded adapter so the WebSocket and local API surfaces remain responsive.
+Command handlers should be async and nonblocking. If a future platform capability needs blocking OS calls, that work should move behind a bounded adapter so HostBridge, dev transport, WebSocket, and local API surfaces remain responsive in their respective scopes.
 
 ## Data Flow Target
 
@@ -95,4 +121,7 @@ design before implementation.
 
 ## Contract Rule
 
-If two runtimes need to agree on a value, it belongs in a domain package before any runtime consumes it.
+If two runtimes need to agree on a product value, it belongs in `crates/schema`
+or the owning Rust domain/runtime crate before any runtime consumes it.
+TypeScript consumes generated bridge DTOs or temporary edge decoders from that
+Rust-owned source.

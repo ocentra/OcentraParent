@@ -1,6 +1,0 @@
-workpack=03-contract-boundary-and-effect-schemas
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-TypeScript Effect Schema tracking spine exists in activity-domain and parent-domain.

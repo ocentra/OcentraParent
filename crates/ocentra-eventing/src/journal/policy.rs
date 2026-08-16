@@ -35,6 +35,18 @@ pub enum JournalSelector {
 }
 
 impl JournalSelector {
+    pub fn covers_event_type(&self, event_type: &EventType) -> bool {
+        match self {
+            Self::All => true,
+            Self::EventTypes(event_types) | Self::ContractAllowlist(event_types) => {
+                event_types.iter().any(|candidate| candidate == event_type)
+            }
+            Self::Namespaces(namespaces) => namespaces
+                .iter()
+                .any(|namespace| namespace.matches_event_type(event_type)),
+        }
+    }
+
     pub fn matches(&self, envelope: &StoredEventEnvelope) -> bool {
         match self {
             Self::All => true,
@@ -55,6 +67,9 @@ pub struct JournalPolicy {
 }
 
 impl JournalPolicy {
+    pub fn covers_event_type(&self, event_type: &EventType) -> bool {
+        self.selector.covers_event_type(event_type)
+    }
     pub fn disabled() -> Self {
         Self::default()
     }

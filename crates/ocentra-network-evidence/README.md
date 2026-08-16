@@ -49,6 +49,21 @@ delete/export, custody-chain, and private-traffic-exclusion refs are all
 present. Missing refs stay manual-required, unavailable/degraded live-capture
 states stay visible, and live capture execution, remote upload, raw PCAP without
 custody, content, policy, adapter, and enforcement claims are rejected.
+The bounded live-capture execution proof accepts driver-backed execution only
+when a proof-ready row13 gate is paired with driver invocation, interface,
+permission, bounded-window, clean-stop, custody, retention/delete/export,
+metadata-only sanitization, and private-traffic-exclusion refs. Windows metadata
+snapshots can be recorded as observations, but cannot substitute for
+Npcap/libpcap packet capture. Raw artifact creation, raw PCAP without custody,
+content visibility, policy authority, adapter authority, host filtering, and
+enforcement commands stay rejected.
+The Android physical target proof observes a named physical device through
+read-only ADB identity probes and accepts readiness only when serial, product,
+model, device, Android release, ABI, command refs, and evidence refs match.
+Missing ADB, disconnected targets, missing observations, and mismatches stay
+explicit, while emulator-only product support, live VpnService execution,
+packet capture/blocking, app package correlation, adapter authority, production
+Android support, content visibility, and enforcement commands remain rejected.
 Unmanaged-browser
 correlation records known or portable browser processes as process-only bypass
 evidence, keeps browser-like process names candidate-only, preserves managed
@@ -109,6 +124,13 @@ apply/result, rollback, and audit refs are all present. Dry-run, weak evidence,
 non-block policy actions, manual-required, and unavailable states are
 non-executable, and exact URL, decrypted payload, page content, live firewall
 mutation, netsh or PowerShell invocation, and enforcement-command claims are
+rejected. The bounded Windows Firewall lab execution proof is separate from that
+adapter boundary: it accepts executed-and-rolled-back only when an apply-ready
+row38 adapter proof is paired with an Ocentra lab rule name, an RFC 5737
+TEST-NET target, administrator permission, and apply/verify-present/rollback/
+verify-removed command evidence. Missing host/admin/command evidence stays
+manual-required or unavailable, and production enforcement, persistent firewall
+rules, policy execution, enforcement commands, and exact-content claims remain
 rejected. The Windows WFP proof gate models lab-proof readiness only when
 grade-A block policy, parent rule, evidence, target/provider/layer, lab-ready
 capability, administrator permission, driver signing/package,
@@ -202,20 +224,32 @@ refs, permission or entitlement refs, adapter capability refs, audit refs,
 unavailable-state accounting, and manual follow-ups for missing required
 artifacts while rejecting generic platform support, live adapter execution, UI
 policy authority, exact URL, page content, decrypted payload, and
-enforcement-command claims.
+enforcement-command claims. The adapter capability status proof derives
+target-specific supported, lab-ready, physical-device-ready, Apple-device-ready,
+distro-ready, dry-run, research-only, manual-required, and unavailable status
+rows from that platform manifest instead of creating a second platform truth
+table, preserves manual follow-ups, verifies the current Activity drawer
+capability/platform status source, and keeps live adapter execution, broader
+platform capability UX, UI policy authority, and enforcement-command
+publication unclaimed. The action-result state proof records blocked,
+terminated, dry-run, manual-required, and unavailable result states from policy
+refs plus adapter proof refs while rejecting live host mutation, process
+termination execution, exact URL/content claims, and enforcement-command
+publication.
 
-Live Npcap/libpcap driver invocation and packet capture, full vendor category
-feeds, production CDN intelligence, unmanaged browser exact URL or active-tab
-correlation, unmanaged browser adapter action or process termination, foreground
-session live adapter implementation, app/game policy evaluation, process
-termination, time-limit execution, screen capture adapter execution, OCR/VLM
-execution, screen analysis result creation, raw image retention, remote upload,
-live network adapter enforcement, file/content inspection, local-AI model
-execution/worker runtime, production model-quality monitoring, production SLO
-validation, full policy engine execution, notification provider delivery, portal
-AI audit UI, risk-budget, or performance rendering, live WFP driver/callout
-proof, live adapter execution, Android physical-device behavior, Apple
-entitlement/device behavior, Linux distro/kernel adapter behavior, live
+Production live Npcap/libpcap driver support, raw artifact creation, full vendor
+category feeds, production CDN intelligence, unmanaged browser exact URL or
+active-tab correlation, unmanaged browser adapter action or process termination,
+foreground session live adapter implementation, app/game policy evaluation,
+process termination, time-limit execution, screen capture adapter execution,
+OCR/VLM execution, screen analysis result creation, raw image retention, remote
+upload, live network adapter enforcement, file/content inspection, local-AI
+model execution/worker runtime, production model-quality monitoring, production
+SLO validation, full policy engine execution, notification provider delivery,
+portal AI audit UI, risk-budget, or performance rendering, live WFP
+driver/callout proof, production Windows Firewall enforcement, live adapter
+execution, Android physical-device behavior,
+Apple entitlement/device behavior, Linux distro/kernel adapter behavior, live
 Zeek/TShark/Wireshark/Suricata/Snort execution, full support-material authoring,
 external audit execution, production deployment, and portal rendering remain
 separate proof-gated workpacks.

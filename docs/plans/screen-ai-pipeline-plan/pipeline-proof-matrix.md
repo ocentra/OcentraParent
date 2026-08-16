@@ -1,5 +1,20 @@
 # Pipeline Proof Matrix
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-ai-pipeline-plan`
+> Doc: `Pipeline Proof Matrix`
+> Kind: proof reference; read only when validating matching claim.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 The pipeline proof is the final integration proof after separate screen and AI
 passes. It is not allowed to replace the separate screen or AI proof packs.
 
@@ -29,6 +44,21 @@ output/screen-ai-pipeline-proof/<scenario-id>/
   13-validation-log.txt
 ```
 
+When a household provider mesh route is used, the same scenario must also
+write:
+
+```text
+  14-ai-work-item.json
+  15-provider-discovery.json
+  16-provider-selection.json
+  17-claim-lease-proof.json
+  18-provider-execution-result.json
+  19-result-validation.json
+  20-event-chain-proof.json
+  21-policy-authority-proof.json
+  22-custody-proof.json
+```
+
 ## Required Scenarios
 
 | Scenario                           | Input                                                                | Required result                                                                               |
@@ -56,6 +86,9 @@ Separate PR-ready requirements:
   controlled capture refs.
 - Pipeline PR-ready: same branch contains both screen and AI implementations and
   proves the live combined path.
+- Mesh pipeline PR-ready: the same path additionally proves provider
+  discovery, claim/lease, result validation, child-agent-only policy authority,
+  event topology, and no raw screenshot transfer by default.
 
 ## Merge-Blocking Failures
 
@@ -64,6 +97,11 @@ pipeline starts without screen prerequisite proof
 pipeline starts without AI prerequisite proof
 capture succeeds but AI analysis is not invoked
 AI analysis succeeds but policy does not consume result
+household provider route bypasses child-agent result validation
+provider can publish policy or enforcement events
+duplicate provider claims execute the same job twice
+expired lease result is accepted
+raw screenshot transfers to household provider by default
 policy decision exists but portal/read model cannot explain it
 timed cadence floods queue or skips deletion proof
 disabled screen analysis still creates capture or AI jobs

@@ -1,9 +1,0 @@
-wsl-status exit=0 log=output/tracking-plan-proof/wsl-local-replay/wsl-status.log
-wsl-distros exit=0 log=output/tracking-plan-proof/wsl-local-replay/wsl-distros.log
-wsl-toolchain exit=0 log=output/tracking-plan-proof/wsl-local-replay/wsl-toolchain.log
-plain-linked-worktree-git-probe exit=128 log=output/tracking-plan-proof/wsl-local-replay/plain-linked-worktree-git-probe.log
-mapped-linked-worktree-git-probe exit=0 log=output/tracking-plan-proof/wsl-local-replay/mapped-linked-worktree-git-probe.log
-rolldown-linux-binding-probe exit=0 blocker=none log=output/tracking-plan-proof/wsl-local-replay/rolldown-linux-binding-probe.log
-build-contracts exit=0 blocker=none log=output/tracking-plan-proof/wsl-local-replay/build-contracts.log
-service-read-model-proof exit=0 blocker=none log=output/tracking-plan-proof/wsl-local-replay/service-read-model-proof.log
-rust-core-read-model-test exit=0 blocker=none log=output/tracking-plan-proof/wsl-local-replay/rust-core-read-model-test.log

@@ -1,0 +1,447 @@
+use super::*;
+
+pub(super) fn command_descriptors() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(command_descriptors_activity());
+    descriptors.extend(command_descriptors_browser_network());
+    descriptors.extend(command_descriptors_local_policy_lan());
+    descriptors
+}
+
+fn command_descriptors_activity() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    vec![
+        command("HealthCheck", AgentCommandName::AgentHealthCheck),
+        command("LogSnapshotGet", AgentCommandName::AgentLogSnapshotGet),
+        command("DevEcho", AgentCommandName::AgentDevEcho),
+        command("WatchStatusGet", AgentCommandName::AgentWatchStatusGet),
+        command(
+            "ActivityIngestStatusGet",
+            AgentCommandName::AgentActivityIngestStatusGet,
+        ),
+        command(
+            "ActivityRecentSummaryGet",
+            AgentCommandName::AgentActivityRecentSummaryGet,
+        ),
+        command(
+            "ActivityMemoryGraphGet",
+            AgentCommandName::AgentActivityMemoryGraphGet,
+        ),
+        command(
+            "ActivityReportDailyGenerate",
+            AgentCommandName::AgentActivityReportDailyGenerate,
+        ),
+        command(
+            "ActivityReportWeeklyGenerate",
+            AgentCommandName::AgentActivityReportWeeklyGenerate,
+        ),
+        command(
+            "ActivityReportMonthlyGenerate",
+            AgentCommandName::AgentActivityReportMonthlyGenerate,
+        ),
+        command(
+            "ActivityReportSave",
+            AgentCommandName::AgentActivityReportSave,
+        ),
+        command(
+            "ActivityReportHistoryList",
+            AgentCommandName::AgentActivityReportHistoryList,
+        ),
+        command(
+            "ActivityScreenReadModelGet",
+            AgentCommandName::AgentActivityScreenReadModelGet,
+        ),
+        command(
+            "ActivityAppUseReadModelGet",
+            AgentCommandName::AgentActivityAppUseReadModelGet,
+        ),
+        command(
+            "ActivityBrowserReadModelGet",
+            AgentCommandName::AgentActivityBrowserReadModelGet,
+        ),
+        command(
+            "ActivityGamesReadModelGet",
+            AgentCommandName::AgentActivityGamesReadModelGet,
+        ),
+        command(
+            "ActivityAppGameBoundaryReadModelGet",
+            AgentCommandName::AgentActivityAppGameBoundaryReadModelGet,
+        ),
+        command(
+            "ActivityAppGamePolicyReadinessReadModelGet",
+            AgentCommandName::AgentActivityAppGamePolicyReadinessReadModelGet,
+        ),
+    ]
+}
+
+pub(super) fn command_descriptors_browser_network(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(command_descriptors_browser_network_app_game());
+    descriptors.extend(command_descriptors_browser_network_social());
+    descriptors.extend(command_descriptors_browser_network_runtime());
+    descriptors
+}
+
+fn command_descriptors_browser_network_app_game() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
+        command(
+            "ActivityAppGameNotificationReadinessReadModelGet",
+            AgentCommandName::AgentActivityAppGameNotificationReadinessReadModelGet,
+        ),
+        command(
+            "ActivityAppGameAdapterExecutionReadinessReadModelGet",
+            AgentCommandName::AgentActivityAppGameAdapterExecutionReadinessReadModelGet,
+        ),
+        command(
+            "ActivityAppGamePlatformProofStatusReadModelGet",
+            AgentCommandName::AgentActivityAppGamePlatformProofStatusReadModelGet,
+        ),
+        command(
+            "ActivityAppGameChildRuntimeTransportReceiptReadModelGet",
+            AgentCommandName::AgentActivityAppGameChildRuntimeTransportReceiptReadModelGet,
+        ),
+        command(
+            "ActivityAppGameAdapterDispatchPreflightReadModelGet",
+            AgentCommandName::AgentActivityAppGameAdapterDispatchPreflightReadModelGet,
+        ),
+        command(
+            "ActivityAppGameAdapterDispatchResultReadModelGet",
+            AgentCommandName::AgentActivityAppGameAdapterDispatchResultReadModelGet,
+        ),
+        command(
+            "ActivityAppGameAdapterDispatchExecute",
+            AgentCommandName::AgentActivityAppGameAdapterDispatchExecute,
+        ),
+        command(
+            "ActivityAppGameTimerParentSurfaceReadModelGet",
+            AgentCommandName::AgentActivityAppGameTimerParentSurfaceReadModelGet,
+        ),
+        command(
+            "ActivityAppGameTimerParentPreferenceSetupRequest",
+            AgentCommandName::AgentActivityAppGameTimerParentPreferenceSetupRequest,
+        ),
+    ]
+}
+
+fn command_descriptors_browser_network_social() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
+        command(
+            "BrowserSocialDashboardReadModelGet",
+            AgentCommandName::AgentBrowserSocialDashboardReadModelGet,
+        ),
+        command(
+            "BrowserSocialAuditExplanationReadModelGet",
+            AgentCommandName::AgentBrowserSocialAuditExplanationReadModelGet,
+        ),
+        command(
+            "BrowserSocialAlertReportReadModelGet",
+            AgentCommandName::AgentBrowserSocialAlertReportReadModelGet,
+        ),
+        command(
+            "BrowserSocialAlertReportParentSurfaceReadModelGet",
+            AgentCommandName::AgentBrowserSocialAlertReportParentSurfaceReadModelGet,
+        ),
+        command(
+            "BrowserSocialParentNotificationDeliveryReadModelGet",
+            AgentCommandName::AgentBrowserSocialParentNotificationDeliveryReadModelGet,
+        ),
+        command(
+            "BrowserSocialSourceCustodyMutationApply",
+            AgentCommandName::AgentBrowserSocialSourceCustodyMutationApply,
+        ),
+    ]
+}
+
+fn command_descriptors_browser_network_runtime() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
+        command(
+            "ActivityNetworkReadModelGet",
+            AgentCommandName::AgentActivityNetworkReadModelGet,
+        ),
+        command(
+            "ActivityTrackingRetentionSettingsWrite",
+            AgentCommandName::AgentActivityTrackingRetentionSettingsWrite,
+        ),
+        command(
+            "BrowserEvidenceRecentGet",
+            AgentCommandName::AgentBrowserEvidenceRecentGet,
+        ),
+        command(
+            "BrowserManagedBridgePoll",
+            AgentCommandName::AgentBrowserManagedBridgePoll,
+        ),
+        command(
+            "BrowserInventoryReadModelGet",
+            AgentCommandName::AgentBrowserInventoryReadModelGet,
+        ),
+        command(
+            "BrowserInterventionReadModelGet",
+            AgentCommandName::AgentBrowserInterventionReadModelGet,
+        ),
+    ]
+}
+
+pub(super) fn command_descriptors_local_policy_lan(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    let mut descriptors = Vec::new();
+    descriptors.extend(command_descriptors_local_policy_lan_network());
+    descriptors.extend(command_descriptors_local_policy_lan_local_ai());
+    descriptors.extend(command_descriptors_local_policy_lan_policy());
+    descriptors.extend(command_descriptors_local_policy_lan_enforcement());
+    descriptors.extend(command_descriptors_local_policy_lan_parent_assistant());
+    descriptors.extend(command_descriptors_local_policy_lan_pairing());
+    descriptors
+}
+
+fn command_descriptors_local_policy_lan_network() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
+        command(
+            "BrowserRuntimeEventChainStreamGet",
+            AgentCommandName::AgentBrowserRuntimeEventChainStreamGet,
+        ),
+        command(
+            "NetworkFlowReadModelGet",
+            AgentCommandName::AgentNetworkFlowReadModelGet,
+        ),
+        command(
+            "LanPairingStatusGet",
+            AgentCommandName::AgentLanPairingStatusGet,
+        ),
+        command(
+            "NetworkRuntimeEventChainStreamGet",
+            AgentCommandName::AgentNetworkRuntimeEventChainStreamGet,
+        ),
+        command(
+            "LanRuntimeEventChainStreamGet",
+            AgentCommandName::AgentLanRuntimeEventChainStreamGet,
+        ),
+        command(
+            "NetworkRemoteDeliveryStatusGet",
+            AgentCommandName::AgentNetworkRemoteDeliveryStatusGet,
+        ),
+        command(
+            "NetworkLiveCaptureStatusGet",
+            AgentCommandName::AgentNetworkLiveCaptureStatusGet,
+        ),
+        command(
+            "NetworkLinuxNftablesLabStatusGet",
+            AgentCommandName::AgentNetworkLinuxNftablesLabStatusGet,
+        ),
+        command(
+            "NetworkWindowsFirewallLabStatusGet",
+            AgentCommandName::AgentNetworkWindowsFirewallLabStatusGet,
+        ),
+        command(
+            "NetworkWindowsWfpGateStatusGet",
+            AgentCommandName::AgentNetworkWindowsWfpGateStatusGet,
+        ),
+        command(
+            "NetworkAndroidVpnServiceGateStatusGet",
+            AgentCommandName::AgentNetworkAndroidVpnServiceGateStatusGet,
+        ),
+        command(
+            "NetworkAppleNetworkExtensionGateStatusGet",
+            AgentCommandName::AgentNetworkAppleNetworkExtensionGateStatusGet,
+        ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_local_ai(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    vec![
+        command(
+            "ActivityTrackingReadModelGet",
+            AgentCommandName::AgentActivityTrackingReadModelGet,
+        ),
+        command(
+            "LocalAiRuntimeStatusGet",
+            AgentCommandName::AgentLocalAiRuntimeStatusGet,
+        ),
+        command(
+            "LocalAiChatGenerate",
+            AgentCommandName::AgentLocalAiChatGenerate,
+        ),
+        command(
+            "ParentAssistantAnswerGenerate",
+            AgentCommandName::AgentParentAssistantAnswerGenerate,
+        ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_policy() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
+        command(
+            "PolicyPreviewReadModelGet",
+            AgentCommandName::AgentPolicyPreviewReadModelGet,
+        ),
+        command(
+            "PolicyRequestAssistantPreviewConfirm",
+            AgentCommandName::AgentPolicyRequestAssistantPreviewConfirm,
+        ),
+        command(
+            "PolicyRequestParentResolutionResolve",
+            AgentCommandName::AgentPolicyRequestParentResolutionResolve,
+        ),
+        command("BrowserPolicyGet", AgentCommandName::AgentBrowserPolicyGet),
+        command(
+            "BrowserPolicyPreview",
+            AgentCommandName::AgentBrowserPolicyPreview,
+        ),
+        command(
+            "BrowserPolicyPatch",
+            AgentCommandName::AgentBrowserPolicyPatch,
+        ),
+        command(
+            "BrowserPolicyReplace",
+            AgentCommandName::AgentBrowserPolicyReplace,
+        ),
+        command(
+            "BrowserPolicyRollback",
+            AgentCommandName::AgentBrowserPolicyRollback,
+        ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_enforcement(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    vec![
+        command(
+            "ScreenSettingsGet",
+            AgentCommandName::AgentScreenSettingsGet,
+        ),
+        command(
+            "ScreenSettingsReplace",
+            AgentCommandName::AgentScreenSettingsReplace,
+        ),
+        command(
+            "EnforcementExecute",
+            AgentCommandName::AgentEnforcementExecute,
+        ),
+        command(
+            "EnforcementTimerRecover",
+            AgentCommandName::AgentEnforcementTimerRecover,
+        ),
+        command(
+            "EnforcementTimerExpire",
+            AgentCommandName::AgentEnforcementTimerExpire,
+        ),
+        command(
+            "EnforcementOverrideCancel",
+            AgentCommandName::AgentEnforcementOverrideCancel,
+        ),
+        command(
+            "EnforcementProductControlSpineGet",
+            AgentCommandName::AgentEnforcementProductControlSpineGet,
+        ),
+        command(
+            "EnforcementPolicyDispatchGet",
+            AgentCommandName::AgentEnforcementPolicyDispatchGet,
+        ),
+        command(
+            "EnforcementBroadAdapterProofGet",
+            AgentCommandName::AgentEnforcementBroadAdapterProofGet,
+        ),
+        command(
+            "EnforcementSupportedAdapterRuntimeProofGet",
+            AgentCommandName::AgentEnforcementSupportedAdapterRuntimeProofGet,
+        ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_parent_assistant(
+) -> Vec<ProtocolLiteralDescriptor<AgentCommandName>> {
+    vec![
+        command(
+            "ParentAssistantThreadList",
+            AgentCommandName::AgentParentAssistantThreadList,
+        ),
+        command(
+            "ParentAssistantThreadCreate",
+            AgentCommandName::AgentParentAssistantThreadCreate,
+        ),
+        command(
+            "ParentAssistantThreadOpen",
+            AgentCommandName::AgentParentAssistantThreadOpen,
+        ),
+        command(
+            "ParentAssistantThreadArchive",
+            AgentCommandName::AgentParentAssistantThreadArchive,
+        ),
+        command(
+            "ParentAssistantMessageSend",
+            AgentCommandName::AgentParentAssistantMessageSend,
+        ),
+        command(
+            "ParentAssistantRunCancel",
+            AgentCommandName::AgentParentAssistantRunCancel,
+        ),
+        command(
+            "ParentAssistantQuickActionStart",
+            AgentCommandName::AgentParentAssistantQuickActionStart,
+        ),
+        command(
+            "ParentAssistantActionPreview",
+            AgentCommandName::AgentParentAssistantActionPreview,
+        ),
+        command(
+            "ParentAssistantActionConfirm",
+            AgentCommandName::AgentParentAssistantActionConfirm,
+        ),
+        command(
+            "ParentAssistantProviderStatusGet",
+            AgentCommandName::AgentParentAssistantProviderStatusGet,
+        ),
+    ]
+}
+
+fn command_descriptors_local_policy_lan_pairing() -> Vec<ProtocolLiteralDescriptor<AgentCommandName>>
+{
+    vec![
+        command(
+            "LanPairingProofSubmit",
+            AgentCommandName::AgentLanPairingProofSubmit,
+        ),
+        command(
+            "LanPairingRouteSelect",
+            AgentCommandName::AgentLanPairingRouteSelect,
+        ),
+        command(
+            "LanPairingRouteRevoke",
+            AgentCommandName::AgentLanPairingRouteRevoke,
+        ),
+        command(
+            "LanPairingBrowserDiscoveryScan",
+            AgentCommandName::AgentLanPairingBrowserDiscoveryScan,
+        ),
+        command(
+            "LanPairingAddDeviceRequest",
+            AgentCommandName::AgentLanPairingAddDeviceRequest,
+        ),
+        command(
+            "LanPairingSignedChildAgentObserve",
+            AgentCommandName::AgentLanPairingSignedChildAgentObserve,
+        ),
+        command(
+            "LanPairingControllerLeaseRenew",
+            AgentCommandName::AgentLanPairingControllerLeaseRenew,
+        ),
+        command(
+            "LanPairingControllerLeaseRelease",
+            AgentCommandName::AgentLanPairingControllerLeaseRelease,
+        ),
+        command(
+            "LanPairingControllerLeaseTakeover",
+            AgentCommandName::AgentLanPairingControllerLeaseTakeover,
+        ),
+        command(
+            "LanAiProviderStatusGet",
+            AgentCommandName::AgentLanAiProviderStatusGet,
+        ),
+        command("LanAiJobSubmit", AgentCommandName::AgentLanAiJobSubmit),
+    ]
+}

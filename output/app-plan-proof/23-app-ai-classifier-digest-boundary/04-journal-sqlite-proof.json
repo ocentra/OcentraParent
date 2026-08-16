@@ -1,6 +1,0 @@
-{
-  "schemaVersion": 1,
-  "journalSqliteProof": "not-applicable",
-  "reason": "The app classifier boundary consumes stored evidence and session refs only. This slice does not add journal rows, SQLite projections, or service read models.",
-  "runtimeStorageClaimMoved": false
-}

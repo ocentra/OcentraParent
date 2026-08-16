@@ -1,8 +1,13 @@
 <resources>
-    <string name="app_name">Ocentra Parent Agent</string>
-    <string name="agent_status">Ocentra Parent Agent service scaffold is running.</string>
-    <string name="notification_channel_name">Ocentra Parent Agent</string>
-    <string name="notification_channel_screen_capture_name">Ocentra Parent Screen Capture</string>
+    <string name="app_name">Ocentra Child Agent</string>
+    <string name="agent_status">Ocentra Child Agent composition is running; external transport is not implemented.</string>
+    <string name="notification_channel_name">Ocentra Child Agent</string>
+    <string name="notification_channel_screen_capture_name">Ocentra Child Screen Capture</string>
     <string name="notification_text">Local family safety agent is active.</string>
     <string name="notification_screen_capture_text">Screen capture proof is running after parent-approved consent.</string>
+    <string name="app_game_accessibility_service_description">Ocentra Child app and game warning surface runtime.</string>
+    <string name="app_game_child_notification_channel_name">Ocentra App/Game Child Notices</string>
+    <string name="app_game_child_notification_title">App/game notice</string>
+    <string name="app_game_child_notification_text">A parent rule notice is ready on this device.</string>
+    <string name="app_game_child_notification_request_action">Ask parent</string>
 </resources>

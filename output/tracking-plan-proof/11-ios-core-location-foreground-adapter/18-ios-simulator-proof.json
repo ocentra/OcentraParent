@@ -1,8 +1,0 @@
-{
-  "workpackId": "11-ios-core-location-foreground-adapter",
-  "requiredProofTier": "P3_LOCAL_DEV_MACHINE",
-  "currentProofTier": "P2_HOSTED_CI",
-  "currentStatus": "manual_required",
-  "artifactPath": "test-results/tracking-plan-ios-simulator-proof/proof.json",
-  "manualRequiredReason": "this worker host is not macOS"
-}

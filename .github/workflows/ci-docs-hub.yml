@@ -1,0 +1,26 @@
+name: CI Docs Hub
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-hub:
+    name: Docs and Hub State
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: false
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-mode: skip
+          install-rust: 'false'
+
+      - name: Scan docs and hub state for secrets
+        run: node scripts/security/scan-staged-secrets.mjs --repo

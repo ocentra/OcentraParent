@@ -1,6 +1,0 @@
-node scripts/test/tracking-plan-contract-proof.mjs exit=0
-node scripts/test/tracking-plan-runtime-proof.mjs exit=0
-node scripts/test/tracking-plan-service-read-model-proof.mjs exit=0
-npm run test:child-android-device-proof-artifact-gate exit=0
-npm run test:child-ios-entitlement-capability-proof exit=0
-npm run test:mobile-child-agent-capability-proof exit=0

@@ -18,7 +18,72 @@ type BackgroundDevToolProps = {
   readonly initialTheme: PortalThemeValue;
 };
 
+type PortalBackgroundDevToolState = {
+  readonly dirty: boolean;
+  readonly draftConfig: PortalBackgroundConfig;
+  readonly previewTheme: PortalThemeValue;
+  readonly renderConfig: ReturnType<typeof portalBackgroundRenderConfig>;
+  readonly resetAll: () => void;
+  readonly resetTheme: () => void;
+  readonly saveDraft: () => Promise<void>;
+  readonly setDraftConfig: (config: PortalBackgroundConfig) => void;
+  readonly setPreviewTheme: (theme: PortalThemeValue) => void;
+  readonly status: string;
+};
+
 export function PortalBackgroundDevTool({ initialTheme }: BackgroundDevToolProps): ReactElement {
+  const {
+    dirty,
+    draftConfig,
+    previewTheme,
+    renderConfig,
+    resetAll,
+    resetTheme,
+    saveDraft,
+    setDraftConfig,
+    setPreviewTheme,
+    status,
+  } = usePortalBackgroundDevToolState(initialTheme);
+
+  return (
+    <div
+      style={{
+        background: 'transparent',
+        color: '#e5eefb',
+        fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
+        inset: 0,
+        minHeight: '100vh',
+        overflow: 'hidden',
+        padding: 0,
+        position: 'fixed',
+      }}
+    >
+      <PortalBackgroundSvg
+        {...renderConfig}
+        preserveAspectRatio="xMidYMid slice"
+        style={{
+          height: '100%',
+          inset: 0,
+          position: 'absolute',
+          width: '100%',
+        }}
+      />
+      <PortalBackgroundTunerControls
+        config={draftConfig}
+        dirty={dirty}
+        onConfigChange={setDraftConfig}
+        onPreviewThemeChange={setPreviewTheme}
+        onResetAll={resetAll}
+        onResetTheme={resetTheme}
+        onSave={saveDraft}
+        previewTheme={previewTheme}
+        status={status}
+      />
+    </div>
+  );
+}
+
+function usePortalBackgroundDevToolState(initialTheme: PortalThemeValue): PortalBackgroundDevToolState {
   const [savedConfig, setSavedConfig] = useState<PortalBackgroundConfig>(() => readDefaultPortalBackgroundConfig());
   const [draftConfig, setDraftConfig] = useState<PortalBackgroundConfig>(savedConfig);
   const [previewTheme, setPreviewTheme] = useState<PortalThemeValue>(initialTheme);
@@ -75,40 +140,16 @@ export function PortalBackgroundDevTool({ initialTheme }: BackgroundDevToolProps
     setStatus(`Reset ${previewTheme} draft`);
   };
 
-  return (
-    <div
-      style={{
-        background: 'transparent',
-        color: '#e5eefb',
-        fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-        inset: 0,
-        minHeight: '100vh',
-        overflow: 'hidden',
-        padding: 0,
-        position: 'fixed',
-      }}
-    >
-      <PortalBackgroundSvg
-        {...renderConfig}
-        preserveAspectRatio="xMidYMid slice"
-        style={{
-          height: '100%',
-          inset: 0,
-          position: 'absolute',
-          width: '100%',
-        }}
-      />
-      <PortalBackgroundTunerControls
-        config={draftConfig}
-        dirty={dirty}
-        onConfigChange={setDraftConfig}
-        onPreviewThemeChange={setPreviewTheme}
-        onResetAll={resetAll}
-        onResetTheme={resetTheme}
-        onSave={saveDraft}
-        previewTheme={previewTheme}
-        status={status}
-      />
-    </div>
-  );
+  return {
+    dirty,
+    draftConfig,
+    previewTheme,
+    renderConfig,
+    resetAll,
+    resetTheme,
+    saveDraft,
+    setDraftConfig,
+    setPreviewTheme,
+    status,
+  };
 }

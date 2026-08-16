@@ -1,7 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-source-freshness-preview-gate app-game-source-freshness-policy-consumption app-game-policy-preview-handoff: PASS
-- Policy-ready source freshness rows can build read-only policy preview rows.
-- Manual-required source freshness rows block preview before a compiled decision is accepted.
-- Source/compiled app-game target domain mismatches are rejected.

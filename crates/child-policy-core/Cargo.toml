@@ -1,0 +1,36 @@
+[package]
+name = "ocentra-child-policy-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
+
+[[test]]
+name = "contract_child_domain_policy"
+path = "tests/contract/child_domain_policy.rs"
+
+[[test]]
+name = "contract_policy_control_request"
+path = "tests/contract/policy_control_request.rs"
+
+[[test]]
+name = "replay_policy_control_delivery_handoff"
+path = "tests/replay/policy_control_delivery_handoff.rs"
+
+[[test]]
+name = "replay_policy_control_request_handoff"
+path = "tests/replay/policy_control_request_handoff.rs"
+
+[[test]]
+name = "unit_tracking_policy"
+path = "tests/unit/tracking_policy.rs"

@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=900
+DATE: Fri, 26 Jun 2026 12:00:00 GMT
+EXT:
+LOCATION: http://192.168.1.60:80/device-desc.xml
+SERVER: Linux/2.6 UPnP/1.0 HP-Printer/4.1
+ST: urn:schemas-upnp-org:device:Basic:1
+USN: uuid:0a89b0d7-21cf-47ce-a7e5-0f3b5d6f0101::urn:schemas-upnp-org:device:Basic:1
+BOOTID.UPNP.ORG: 3
+CONFIGID.UPNP.ORG: 9
+SEARCHPORT.UPNP.ORG: 1900
+

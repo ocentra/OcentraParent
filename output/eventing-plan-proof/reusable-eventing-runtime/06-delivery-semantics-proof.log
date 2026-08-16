@@ -1,7 +1,0 @@
-command=node scripts\test\eventing-delivery-semantics-proof.mjs
-status=0
-log=output\eventing-plan-proof\reusable-eventing-runtime\command-logs\eventing-delivery-semantics-proof.log
-
-command=cargo test -p ocentra-eventing
-status=0
-log=output\eventing-plan-proof\reusable-eventing-runtime\command-logs\ocentra-eventing-tests.log

@@ -1,4 +1,0 @@
-{
-  "status": "not_applicable_in_this_slice",
-  "reason": "Foreground app evidence is an evidence layer. App policy compilation, time-limit, warning, ask-parent, and enforcement actions remain later workpacks."
-}

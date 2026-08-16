@@ -1,5 +1,19 @@
 # Source Index
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Source Index`
+> Kind: source ownership index; read only when source ownership is unclear.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not inspect broad source from here; use only the named package/crate path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This index records the source material for the reusable Rust event bus plan.
 Use it before implementation so workers do not invent a second bus shape.
 
@@ -66,7 +80,7 @@ the TypeScript implementation directly.
 | Source                                       | Relevance                                                                                                               |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | `docs/features/child-agent-local-service.md` | Owns the Rust child-agent authority boundary that will eventually consume eventing.                                     |
-| `docs/features/network-domain-control.md`    | Network work depends on eventing after this plan is implemented.                                                        |
+| `docs/features/network-domain-control.md`    | Network work already references `ocentra-eventing`; treat it as a consumer dependency, not a future crate placeholder. |
 | `docs/expectations/network-flow-evidence.md` | Network event contracts must preserve evidence boundaries and no overclaiming.                                          |
 | `docs/plans/network-plan/README.md`          | Network plan should consume the reusable Rust bus instead of inventing a network-only bus.                              |
 | `apps/portal`                                | Vite/TypeScript view surface only; it must not own evidence, policy, AI, enforcement, cascade, or audit business logic. |
@@ -76,10 +90,10 @@ the TypeScript implementation directly.
 
 | Source                  | Current Role                                                                                                                                                                            |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Cargo.toml`            | Workspace members currently include `agent-core`, `agent-protocol`, `agent-service`, `agent-updater`, and `screen-capture-adapter`; the reusable eventing crate is not implemented yet. |
-| `crates/agent-protocol` | Parent protocol constants and serde structs; Parent event contracts should land here only when service/runtime boundaries need them.                                                    |
-| `crates/agent-core`     | Runtime core behavior that will publish and subscribe to eventing once the reusable crate exists.                                                                                       |
-| `crates/agent-service`  | Local service orchestration, parent/controller command validation, child-agent orchestration, and WebSocket/read-model boundary that will consume eventing through typed contracts.     |
+| `Cargo.toml`            | Workspace members now include `crates/ocentra-eventing`; any plan text claiming the reusable crate is not implemented yet is stale.                                                    |
+| `crates/agent-protocol` | Parent/child/network protocol constants and serde structs; focused contract tests, not historical plan text, prove current eventing adoption.                                          |
+| `crates/agent-core`     | Runtime core already contains `ocentra_eventing` consumer surfaces and remains the main local-bus consumer boundary.                                                                   |
+| `crates/agent-service`  | Local service orchestration and read-model/API boundaries depend on typed eventing/protocol contracts; verify through focused proof instead of historical closure wording.              |
 
 ## Not Implementation Proof
 

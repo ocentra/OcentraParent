@@ -1,18 +1,29 @@
-use ocentra_parent_agent_protocol::{
-    constants::v08_notification_provider_status_boundary as boundary, policy_constants,
-    V08NotificationEscalationReadiness, V08NotificationProviderDeliveryClaim,
-    V08NotificationProviderStatus, V08NotificationProviderStatusBoundaryEntry,
-    V08NotificationProviderStatusBoundaryReadModel, V08NotificationProviderStatusProofState,
-    V08NotificationQuietHoursReadiness,
-};
+use ocentra_parent_agent_protocol::constants::v08_notification_provider_status_boundary as boundary;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationEscalationReadiness;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderDeliveryClaim;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatus;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusBoundaryEntry;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusBoundaryReadModel;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusProofState;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationQuietHoursReadiness;
+use ocentra_parent_agent_protocol::policy_constants;
 
-pub(crate) fn v08_notification_provider_status_boundary_read_model(
-    generated_at: &str,
+#[derive(Clone, Copy)]
+pub(crate) struct GeneratedAtTextRef<'a>(pub(crate) &'a str);
+
+#[derive(Clone, Copy)]
+struct StaticTextRefs(&'static [&'static str]);
+
+struct BoundaryTextList(Vec<String>);
+
+pub(crate) fn v08_notification_provider_status_boundary_read_model<'a>(
+    generated_at: impl Into<GeneratedAtTextRef<'a>>,
 ) -> V08NotificationProviderStatusBoundaryReadModel {
+    let generated_at = generated_at.into();
     V08NotificationProviderStatusBoundaryReadModel {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
         read_model_id: boundary::READ_MODEL_ID.to_string(),
-        generated_at: generated_at.to_string(),
+        generated_at: generated_at.0.to_string(),
         source_read_model_ids: vec![
             boundary::SOURCE_REPORTS_NOTIFICATIONS_SYNC.to_string(),
             boundary::SOURCE_INTEGRITY_ALERT_STATUS_BRIDGE.to_string(),
@@ -152,7 +163,7 @@ fn manual_required_spec() -> EntrySpec {
 
 fn entry_from_spec(
     spec: &EntrySpec,
-    generated_at: &str,
+    generated_at: GeneratedAtTextRef<'_>,
 ) -> V08NotificationProviderStatusBoundaryEntry {
     V08NotificationProviderStatusBoundaryEntry {
         schema_version: policy_constants::CONTRACT_SCHEMA_VERSION_V0_6.to_string(),
@@ -167,19 +178,19 @@ fn entry_from_spec(
         provider_attempt_ref: spec.provider_attempt_ref.to_string(),
         audit_refs: vec![boundary::REF_AUDIT.to_string()],
         preference_refs: vec![boundary::REF_PARENT_PREFERENCES.to_string()],
-        readiness_refs: to_strings(spec.readiness_refs),
-        provider_receipt_refs: to_strings(spec.provider_receipt_refs),
-        manual_proof_requirements: to_strings(spec.manual_proof_requirements),
+        readiness_refs: to_strings(StaticTextRefs(spec.readiness_refs)).0,
+        provider_receipt_refs: to_strings(StaticTextRefs(spec.provider_receipt_refs)).0,
+        manual_proof_requirements: to_strings(StaticTextRefs(spec.manual_proof_requirements)).0,
         minimal_payload_boundary: spec.minimal_payload_boundary.to_string(),
         provider_delivery_implemented: false,
         provider_delivery_observed: false,
         delivered_notification_claimed: false,
         sensitive_provider_payload_claimed: false,
         provider_stores_child_evidence_claimed: false,
-        last_checked_at: generated_at.to_string(),
+        last_checked_at: generated_at.0.to_string(),
     }
 }
 
-fn to_strings(values: &[&str]) -> Vec<String> {
-    values.iter().map(|value| (*value).to_string()).collect()
+fn to_strings(values: StaticTextRefs) -> BoundaryTextList {
+    BoundaryTextList(values.0.iter().map(|value| (*value).to_string()).collect())
 }

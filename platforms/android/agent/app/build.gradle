@@ -2,20 +2,63 @@ plugins {
     id 'com.android.application'
 }
 
+def repoRoot = file('../../../../')
+def rustBridgeManifest = file('../../../../crates/child-runtime-android-bridge/Cargo.toml')
+def rustAndroidAbis = (findProperty('rustAndroidAbis') ?: 'arm64-v8a')
+    .split(',')
+    .collect { it.trim() }
+    .findAll { !it.isEmpty() }
+if (rustAndroidAbis.isEmpty()) {
+    throw new GradleException('rustAndroidAbis must include at least one Android ABI')
+}
+def cargoNdkExecutable = findProperty('cargoNdkExecutable')
+    ?: System.getenv('CARGO_NDK')
+    ?: 'cargo-ndk'
+
 android {
+    // Legacy capability sources remain in ca.ocentra.parent.agent; the APK
+    // identity and declared child entrypoint are owned by the child package.
     namespace = 'ca.ocentra.parent.agent'
     compileSdk = 35
 
     defaultConfig {
-        applicationId = 'ca.ocentra.parent.agent'
+        applicationId = 'ca.ocentra.child.agent'
         minSdk = 26
         targetSdk = 35
         versionCode = 2
         versionName = '0.1.1'
+
+        ndk {
+            abiFilters(*rustAndroidAbis)
+        }
     }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+}
+
+tasks.register('packageRustChildRuntimeBridge', Exec) {
+    def cargoNdkArgs = [cargoNdkExecutable]
+    rustAndroidAbis.each { abi ->
+        cargoNdkArgs += ['-t', abi]
+    }
+    cargoNdkArgs += [
+        '-o', file('src/main/jniLibs').absolutePath,
+        'build',
+        '--release',
+        '--manifest-path',
+        rustBridgeManifest.absolutePath,
+    ]
+    workingDir(repoRoot)
+    commandLine(cargoNdkArgs)
+}
+
+tasks.named('preBuild').configure {
+    dependsOn('packageRustChildRuntimeBridge')
+}
+
+dependencies {
+    implementation 'com.google.android.gms:play-services-location:21.3.0'
 }

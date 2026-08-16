@@ -1,0 +1,78 @@
+[package]
+name = "ocentra-child-runtime"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "ocentra-child-agent-service"
+path = "src/bin/ocentra-child-agent-service.rs"
+
+[dependencies]
+atomicwrites = "0.4.4"
+fs2 = "0.4.3"
+ocentra-app-core = { path = "../app-core" }
+ocentra-app-game-core = { path = "../app-game-core" }
+ocentra-browser-core = { path = "../browser-core" }
+ocentra-child-ai-core = { path = "../child-ai-core" }
+ocentra-child-notification-core = { path = "../child-notification-core" }
+ocentra-child-policy-core = { path = "../child-policy-core" }
+ocentra-child-enforcement-core = { path = "../child-enforcement-core" }
+ocentra-entitlement-core = { path = "../entitlement-core" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-family-identity-core = { path = "../family-identity-core" }
+ocentra-lan-core = { path = "../lan-core" }
+ocentra-network-core = { path = "../network-core" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
+ocentra-provisioning-core = { path = "../provisioning-core" }
+ocentra-remote-access-core = { path = "../remote-access-core" }
+ocentra-screen-core = { path = "../screen-core" }
+ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
+ocentra-storage-custody-core = { path = "../storage-custody-core" }
+ocentra-tracking-core = { path = "../tracking-core" }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread", "signal", "sync"] }
+
+[dev-dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread"] }
+
+[[test]]
+name = "integration_tracking_runtime_flow_intent"
+path = "tests/integration/tracking_runtime_flow_intent.rs"
+
+[[test]]
+name = "integration_child_domain_runtime_flow_intent"
+path = "tests/integration/child_domain_runtime_flow_intent.rs"
+
+[[test]]
+name = "integration_child_domain_event_flow"
+path = "tests/integration/child_domain_event_flow.rs"
+
+[[test]]
+name = "integration_policy_control_runtime_flow_intent"
+path = "tests/integration/policy_control_runtime_flow_intent.rs"
+
+[[test]]
+name = "unit_identity"
+path = "tests/unit/identity.rs"
+
+[[test]]
+name = "unit_runtime_gate"
+path = "tests/unit/runtime_gate.rs"
+
+[[test]]
+name = "unit_flow_state"
+path = "tests/unit/tracking_config_update_flow.rs"
+
+[[test]]
+name = "unit_tracking_runtime_flow"
+path = "tests/unit/tracking_runtime_flow.rs"

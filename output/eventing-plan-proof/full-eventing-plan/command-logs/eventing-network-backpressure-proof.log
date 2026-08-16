@@ -1,2 +1,0 @@
-eventing-network-backpressure-proof-ok:agent-core-queue,eventing-queue,source-shape
-proof=output\network-plan-proof\10-network-backpressure-depth\proof-summary.json

@@ -1,0 +1,30 @@
+  rows: readonly SourceFreshnessPreviewGateRowLike[],
+  previewStatus: AppGameSourceFreshnessPreviewGateStatusValue
+) => rows.filter((row) => row.previewStatus === previewStatus).length;
+
+export const countAppGameSourceFreshnessPreviewGateStatesGenerated = (
+  rows: readonly SourceFreshnessPreviewGateRowLike[],
+  gateState: AppGameSourceFreshnessPreviewGateStateValue
+) => rows.filter((row) => row.gateState === gateState).length;
+
+export const countAppGameSourceFreshnessPreviewGateReadModelRowsGenerated = (
+  rows: readonly SourceFreshnessPreviewGateRowLike[]
+) => ({
+  nativeAppRowCount: countAppGameSourceFreshnessPreviewGateRowsGenerated(
+    rows,
+    AppGamePolicyPreviewTargetDomainGenerated.NativeApp
+  ),
+  nativeGameRowCount: countAppGameSourceFreshnessPreviewGateRowsGenerated(
+    rows,
+    AppGamePolicyPreviewTargetDomainGenerated.NativeGame
+  ),
+  previewReadyCount: countAppGameSourceFreshnessPreviewGateStatusesGenerated(
+    rows,
+    AppGameSourceFreshnessPreviewGateStatusGenerated.PreviewReady
+  ),
+  manualRequiredCount: countAppGameSourceFreshnessPreviewGateStatusesGenerated(
+    rows,
+    AppGameSourceFreshnessPreviewGateStatusGenerated.ManualRequired
+  ),
+  sourceManualRequiredCount: countAppGameSourceFreshnessPreviewGateStatesGenerated(
+    rows,

@@ -1,5 +1,20 @@
 # Rust Eventing Full-Scope Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Rust Eventing Full-Scope Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Product And Engineering Objective
 
 Build a reusable Rust event bus that gives Ocentra projects the same practical
@@ -160,6 +175,12 @@ global shared memory bus. Cross-process or cross-device events must cross a
 typed boundary first, such as local API, WebSocket, IPC, LAN, relay,
 parent-owned export, or journal replay, then publish into the destination
 runtime's local bus.
+
+Household mesh coordination must not be implemented as a shared in-memory or
+shared LAN event bus. Each runtime publishes local events to its own bus. A
+Household Mesh Bridge may subscribe to selected local events, convert them to
+typed authenticated transport messages, and publish validated incoming messages
+into the destination runtime's local bus.
 
 ## Required Runtime Behaviors
 

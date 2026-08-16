@@ -1,0 +1,30 @@
+    ) &&
+  readModel.sourceManualRequiredCount ===
+    countAppGameSourceFreshnessPreviewGateStatesGenerated(
+      readModel.rows,
+      AppGameSourceFreshnessPreviewGateStateGenerated.SourceManualRequired
+    ) &&
+  readModel.compilerManualRequiredCount ===
+    countAppGameSourceFreshnessPreviewGateStatesGenerated(
+      readModel.rows,
+      AppGameSourceFreshnessPreviewGateStateGenerated.CompilerManualRequired
+    );
+
+export const appGameSourceFreshnessPreviewGateReadModelHasNoRuntimeClaimsGenerated = (
+  readModel: SourceFreshnessPreviewGateReadModelLike
+) =>
+  !readModel.policyEvaluatorRuntimeClaimed &&
+  !readModel.timerRuntimeClaimed &&
+  !readModel.adapterDispatchClaimed &&
+  !readModel.childDeliveryClaimed &&
+  !readModel.platformEnforcementClaimed;
+
+export const appGameSourceGatedPolicyPreviewReadModelRowHasNoRuntimeClaimsGenerated = (
+  row: SourceGatedPolicyPreviewReadModelRowLike
+) =>
+  !row.serviceRuntimeEventClaimed &&
+  !row.portalUiRendered &&
+  !row.policyEvaluatorRuntimeClaimed &&
+  !row.timerRuntimeClaimed &&
+  !row.adapterDispatchClaimed &&
+  !row.childDeliveryClaimed &&

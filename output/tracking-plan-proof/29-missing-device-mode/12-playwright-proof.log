@@ -1,5 +1,0 @@
-Playwright/UI proof:
-
-- No browser surface was changed or claimed in this workpack.
-- Contract-backed UI state matrix written to 11-ui-snapshots/missing-device-ui-state-matrix.json.
-- Parent portal runtime screenshots remain gated by WP30 hosted UI work; this WP29 proof only proves parent-domain UI state tokens and no-current-location copy gates.

@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-time-budget-policy-runtime: PASS
-- Dry-run, warn-only, ask-parent, manual-required, and approved-bonus runtime decisions build through schema parsing.
-- Cross-device session input is rejected before runtime handoff state can be represented.

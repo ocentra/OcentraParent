@@ -1,2 +1,0 @@
-eventing-journal-replay-proof-ok:event-journal-trait,ndjson-journal,tokio-file-io,one-object-per-line,hash-chain-enabled,journal-selector-types,journal-allowlist,journal-policy-modes,bus-before-dispatch-hook,bus-after-dispatch-hook,replay-cursor,replay-filter,projection-only-mode,action-mode-explicit,projection-safety-gate,public-exports,ndjson-test,selector-test,replay-filter-test,corrupt-line-test,projection-gate-test
-proof=output\eventing-plan-proof\36-41-journal-replay\proof-summary.json

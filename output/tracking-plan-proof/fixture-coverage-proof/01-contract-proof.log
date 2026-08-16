@@ -1,5 +1,0 @@
-Fixture coverage contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-fixture-coverage-proof: PASS
-- Required states are fresh, stale, offline, permission-denied, low-accuracy, ambiguous-nearby-place, exception-active, parent-acknowledged, child-check-in-requested, temporary-live-expired, missing-device, retention-deleted, remote-sync-disabled, and remote-ai-disabled.

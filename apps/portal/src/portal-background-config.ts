@@ -1,16 +1,16 @@
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import {
   DEFAULT_PORTAL_BACKGROUND_CONFIG,
   DEFAULT_PORTAL_BACKGROUND_DARK_COLORS,
   DEFAULT_PORTAL_BACKGROUND_LIGHT_COLORS,
   PortalBackgroundRuntime,
-  PortalDom,
   normalizePortalBackgroundConfig,
   portalBackgroundAppRenderConfig,
   portalBackgroundRenderConfig,
   type PortalBackgroundConfig,
   type PortalBackgroundRenderConfig,
   type PortalBackgroundThemeColors,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/portal-background';
 import savedPortalBackgroundConfig from '../public/portal-background-config.json';
 
 export {

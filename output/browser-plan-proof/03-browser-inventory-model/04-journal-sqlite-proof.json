@@ -1,6 +1,0 @@
-{
-  "schemaVersion": 1,
-  "workpack": "03-browser-inventory-model",
-  "status": "not-applicable",
-  "reason": "This slice adds inventory contracts and service derivation from existing status. It does not add journal or SQLite persistence."
-}

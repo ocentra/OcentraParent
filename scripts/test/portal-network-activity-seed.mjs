@@ -1,7 +1,45 @@
 import { DatabaseSync } from 'node:sqlite';
+import {
+  NetworkEvidenceDrawerProofFixture,
+  networkActivityEvidence,
+  networkActivityFields,
+  networkActivityObservedAt,
+} from './network-evidence-drawer-fixture.mjs';
+
+export const PortalNetworkActivitySeed = Object.freeze({
+  EventId: NetworkEvidenceDrawerProofFixture.eventId,
+  EvidenceId: NetworkEvidenceDrawerProofFixture.evidenceId,
+  JournalEvidenceId: NetworkEvidenceDrawerProofFixture.journalEvidenceId,
+});
+
+const DatabaseLockRetry = Object.freeze({
+  BusyTimeoutMs: 1_500,
+  MaxAttempts: 8,
+  InitialDelayMs: 25,
+});
 
 export function seedPortalNetworkActivityStore(activityDbPath) {
-  const database = new DatabaseSync(activityDbPath);
+  let lastLockError;
+  for (let attempt = 1; attempt <= DatabaseLockRetry.MaxAttempts; attempt += 1) {
+    const database = new DatabaseSync(activityDbPath);
+    try {
+      database.exec(`PRAGMA busy_timeout = ${DatabaseLockRetry.BusyTimeoutMs};`);
+      seedNetworkActivityStore(database);
+      return;
+    } catch (error) {
+      if (!isRetriableDatabaseLockError(error) || attempt === DatabaseLockRetry.MaxAttempts) {
+        throw error;
+      }
+      lastLockError = error;
+      waitForDatabaseLockRetry(attempt);
+    } finally {
+      database.close();
+    }
+  }
+  throw lastLockError;
+}
+
+function seedNetworkActivityStore(database) {
   try {
     database.exec(`
 PRAGMA foreign_keys = ON;
@@ -23,6 +61,7 @@ CREATE INDEX IF NOT EXISTS activity_events_recent_idx
   ON activity_events (observed_at DESC, event_id DESC);
 `);
 
+    database.exec('BEGIN IMMEDIATE;');
     database
       .prepare(
         `
@@ -42,20 +81,89 @@ INSERT OR REPLACE INTO activity_events (
 `
       )
       .run(
-        'network-ui-flow-1',
+        PortalNetworkActivitySeed.EventId,
         networkActivityObservedAt(),
-        'child-device-network-ui',
-        'windows',
-        'windows-network',
-        'activity.domain.observed',
-        'domain',
-        'example-network.test',
-        'example-network.test',
+        NetworkEvidenceDrawerProofFixture.deviceId,
+        NetworkEvidenceDrawerProofFixture.platform,
+        NetworkEvidenceDrawerProofFixture.observer,
+        NetworkEvidenceDrawerProofFixture.kind,
+        NetworkEvidenceDrawerProofFixture.subjectKind,
+        NetworkEvidenceDrawerProofFixture.subjectId,
+        NetworkEvidenceDrawerProofFixture.subjectDisplayName,
         JSON.stringify(networkActivityFields()),
         JSON.stringify(networkActivityEvidence())
       );
-    database.exec('PRAGMA wal_checkpoint(TRUNCATE);');
+    database
+      .prepare(
+        `
+INSERT OR REPLACE INTO activity_events (
+  event_id,
+  observed_at,
+  device_id,
+  platform,
+  observer,
+  kind,
+  subject_kind,
+  subject_id,
+  subject_display_name,
+  fields_json,
+  evidence_json
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+`
+      )
+      .run(
+        'screen-summary-parent-explanation-service-event',
+        screenActivityObservedAt(),
+        'local-dev-agent',
+        'windows',
+        'local-ai',
+        'activity.screen.analysis.summarized',
+        'device',
+        'local-dev-agent',
+        null,
+        JSON.stringify(screenActivityFields()),
+        JSON.stringify(screenActivityEvidence())
+      );
+    database.exec('COMMIT;');
     assertSeededEvidence(database);
+  } catch (error) {
+    try {
+      database.exec('ROLLBACK;');
+    } catch {
+      // Ignore rollback errors when SQLite already ended the transaction.
+    }
+    throw error;
+  }
+}
+
+export function describePortalNetworkActivitySeedState(activityDbPath) {
+  const database = new DatabaseSync(activityDbPath);
+  try {
+    const row = database
+      .prepare(
+        `
+SELECT event_id, observed_at, device_id, kind, subject_kind, subject_id, fields_json, evidence_json
+FROM activity_events
+WHERE event_id = ?;
+`
+      )
+      .get(PortalNetworkActivitySeed.EventId);
+    if (row === undefined) {
+      return { seeded: false, expectedEventId: PortalNetworkActivitySeed.EventId };
+    }
+    return {
+      seeded: true,
+      expectedEventId: PortalNetworkActivitySeed.EventId,
+      expectedEvidenceId: PortalNetworkActivitySeed.EvidenceId,
+      eventId: row.event_id,
+      observedAt: row.observed_at,
+      deviceId: row.device_id,
+      kind: row.kind,
+      subjectKind: row.subject_kind,
+      subjectId: row.subject_id,
+      fields: parseSeedJson(row.fields_json),
+      evidenceIds: seedEvidenceIds(row.evidence_json),
+    };
   } finally {
     database.close();
   }
@@ -70,50 +178,98 @@ FROM activity_events
 WHERE event_id = ?;
 `
     )
-    .get('network-ui-flow-1');
+    .get(PortalNetworkActivitySeed.EventId);
   if (row === undefined || typeof row.evidence_json !== 'string') {
     throw new Error('Network drawer E2E ActivityStore seed did not persist.');
   }
-  if (!row.evidence_json.includes('network-ui-evidence-1')) {
+  if (!row.evidence_json.includes(PortalNetworkActivitySeed.EvidenceId)) {
     throw new Error('Network drawer E2E ActivityStore seed missed the expected evidence ref.');
+  }
+  const screenRow = database
+    .prepare(
+      `
+SELECT fields_json
+FROM activity_events
+WHERE event_id = ?;
+`
+    )
+    .get('screen-summary-parent-explanation-service-event');
+  if (screenRow === undefined || typeof screenRow.fields_json !== 'string') {
+    throw new Error('Screen summary E2E ActivityStore seed did not persist.');
+  }
+  if (!screenRow.fields_json.includes('screen-summary-parent-explanation-service-explanation')) {
+    throw new Error('Screen summary E2E ActivityStore seed missed the parent explanation ref.');
   }
 }
 
-function networkActivityObservedAt() {
-  return new Date(Date.now() + 5 * 60 * 1000).toISOString();
+function parseSeedJson(value) {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 }
 
-function networkActivityFields() {
+function screenActivityObservedAt() {
+  return new Date(Date.now() + 6 * 60 * 1000).toISOString();
+}
+
+function seedEvidenceIds(value) {
+  const parsed = parseSeedJson(value);
+  if (!Array.isArray(parsed)) {
+    return [];
+  }
+  return parsed.map((entry) => entry?.evidenceId).filter((evidenceId) => typeof evidenceId === 'string');
+}
+
+function screenActivityFields() {
   return {
-    capabilityStatus: 'available',
-    adapterId: 'windows-network-snapshot',
-    networkProtocol: 'tcp',
-    tcpState: 'established',
-    localIp: '127.0.0.1',
-    localPort: 4242,
-    destinationIp: '203.0.113.10',
-    destinationPort: 443,
-    destinationDomain: 'example-network.test',
-    domainAttributionStatus: 'domain-observed',
-    processAttributionStatus: 'process-attributed',
-    pid: 4242,
-    processName: 'notepad.exe',
+    screenAnalysisResultId: 'screen-summary-parent-explanation-service-row',
+    queueJobId: 'screen-summary-parent-explanation-service-queue',
+    summary: 'Screen summary parent explanation is ready for parent audit.',
+    primaryCategory: 'school',
+    confidence: 0.94,
+    imageDeletionState: 'deleted',
+    policyEligible: true,
+    modelRuntimeRef: 'screen-summary-parent-explanation-service-local-runtime',
+    localModelRuntimeRefs: 'screen-summary-parent-explanation-service-local-runtime',
+    modelId: 'windows-winrt-ocr-local-proof',
+    providerKind: 'localOcr',
+    promptOrTemplateVersion: 'screen-summary-parent-explanation-service-v1',
+    captureReason: 'managedBrowserUrlChange',
+    captureScope: 'selectedWindow',
+    capabilityStatus: 'ready',
+    imageDigest: 'sha256:screen-summary-parent-explanation-service-digest',
+    custodyState: 'child-device-journal',
+    policyDecisionId: 'screen-summary-parent-explanation-service-policy-decision',
+    policyAction: 'allow',
+    reasonCodes: 'screen-summary-linked,parent-rule-linked,deleted-image-linked',
+    ruleIds: 'screen-summary-parent-explanation-service-parent-rule',
+    parentExplanationRefs: 'screen-summary-parent-explanation-service-explanation',
+    explanationReasons: 'screen-summary-cited,policy-decision-cited,parent-rule-cited',
+    deletionReasons: 'screen-image-deleted',
   };
 }
 
-function networkActivityEvidence() {
+function screenActivityEvidence() {
   return [
     {
-      evidenceId: 'network-ui-evidence-1',
-      kind: 'local-db-row',
-      digest: 'sha256:network-ui-evidence-1',
-      uri: null,
-    },
-    {
-      evidenceId: 'network-ui-journal-1',
+      evidenceId: 'screen-summary-parent-explanation-service-evidence',
       kind: 'journal-entry',
-      digest: 'sha256:network-ui-journal-1',
+      digest: 'sha256:screen-summary-parent-explanation-service-digest',
       uri: null,
     },
   ];
+}
+
+function isRetriableDatabaseLockError(error) {
+  return error instanceof Error && /SQLITE_(?:BUSY|LOCKED)|database is (?:locked|busy)/iu.test(error.message);
+}
+
+function waitForDatabaseLockRetry(attempt) {
+  const retryDelayMs = DatabaseLockRetry.InitialDelayMs * attempt;
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT)), 0, 0, retryDelayMs);
 }

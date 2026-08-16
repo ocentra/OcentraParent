@@ -1,9 +1,0 @@
-{
-  "deletionPendingForAnalysis": true,
-  "encryptedQueueContainsRawDigest": false,
-  "encryptedQueuePath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\ai-plan-proof\\screen-winrt-ocr-worker\\live-wikipedia-browser-ocr\\capture\\queue\\screen-evidence-queue.ndjson",
-  "existedBeforeEncryption": true,
-  "existsAfterDelete": true,
-  "rawImageDeleted": false,
-  "rawTempPath": "C:\\Users\\sujan\\.codex\\worktrees\\ocentra-parent-codex-b\\OcentraParent\\output\\ai-plan-proof\\screen-winrt-ocr-worker\\live-wikipedia-browser-ocr\\capture\\capture.png.tmp"
-}

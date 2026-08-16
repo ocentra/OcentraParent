@@ -1,0 +1,25 @@
+name: CI Local Transport
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-transport:
+    name: 'Test: Local Transport'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          # This lane builds agent-service and runs the WebSocket smoke proof;
+          # it does not compile a Tauri target.
+          install-tauri-system-dependencies: 'false'
+
+      - name: Local and LAN smoke tests
+        run: npm run test:integration

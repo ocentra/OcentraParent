@@ -3,8 +3,9 @@ use serde::{Deserialize, Serialize};
 use crate::ActivityEvidenceRef;
 
 #[path = "activity_surface/source_status.rs"]
-mod source_status;
-pub use source_status::ActivityAppGameSourceStatusRow;
+pub mod source_status;
+
+use source_status::ActivityAppGameSourceStatusRow;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySurfaceScopeKind {
@@ -314,6 +315,10 @@ pub struct ActivityScreenReadModelRow {
     pub explanation_reasons: Vec<String>,
     #[serde(default)]
     pub deletion_reasons: Vec<String>,
+    #[serde(default)]
+    pub ocr_text_snippets: Vec<String>,
+    #[serde(default)]
+    pub redaction_notes: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]

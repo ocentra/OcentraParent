@@ -13,6 +13,7 @@ pub trait DomainEvent: Clone + Send + Sync + Serialize + DeserializeOwned + 'sta
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventContract {
     pub event_type: EventType,
     pub schema_version: SchemaVersion,
@@ -38,6 +39,7 @@ pub enum EventPriority {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventSource {
     pub custody: EventCustody,
     pub role: RuntimeRole,
@@ -65,6 +67,7 @@ impl EventSource {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventMetadata {
     pub event_id: EventId,
     pub correlation_id: CorrelationId,
@@ -129,6 +132,7 @@ impl EventMetadata {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventEnvelope<E> {
     pub contract: EventContract,
     pub event_id: EventId,
@@ -196,7 +200,8 @@ impl StoredEventPayload {
         E: Serialize,
     {
         Ok(Self {
-            value: serde_json::to_value(payload).map_err(EventingError::payload_encode)?,
+            value: serde_json::to_value(payload)
+                .map_err(|error| EventingError::payload_encode(&error))?,
         })
     }
 
@@ -209,6 +214,7 @@ impl StoredEventPayload {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct StoredEventEnvelope {
     pub contract: EventContract,
     pub event_id: EventId,
@@ -233,13 +239,15 @@ impl StoredEventEnvelope {
         E: DomainEvent,
     {
         let payload: E = self.payload.decode().map_err(|error| {
-            EventingError::payload_decode(self.contract.event_type.clone(), error)
+            EventingError::payload_decode(self.contract.event_type.clone(), &error)
         })?;
         let expected = payload.contract()?;
         if expected != self.contract {
             return Err(EventingError::ContractMismatch {
                 expected: expected.event_type,
                 received: self.contract.event_type.clone(),
+                expected_schema_version: expected.schema_version,
+                received_schema_version: self.contract.schema_version,
             });
         }
         Ok(EventEnvelope {

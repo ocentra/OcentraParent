@@ -1,0 +1,30 @@
+export const countAppGamePolicyPreviewRowsGenerated = (
+  rows: readonly PreviewRowLike[],
+  targetDomain: AppGamePolicyPreviewTargetDomainValue
+) => rows.filter((row) => row.targetDomain === targetDomain).length;
+
+export const countAppGamePolicyPreviewStatusesGenerated = (
+  rows: readonly PreviewRowLike[],
+  previewStatus: AppGamePolicyPreviewStatusValue
+) => rows.filter((row) => row.previewStatus === previewStatus).length;
+
+export const countAppGamePolicyPreviewReadModelRowsGenerated = (rows: readonly PreviewRowLike[]) => ({
+  nativeAppRowCount: countAppGamePolicyPreviewRowsGenerated(rows, AppGamePolicyPreviewTargetDomainGenerated.NativeApp),
+  nativeGameRowCount: countAppGamePolicyPreviewRowsGenerated(
+    rows,
+    AppGamePolicyPreviewTargetDomainGenerated.NativeGame
+  ),
+  previewReadyCount: countAppGamePolicyPreviewStatusesGenerated(rows, AppGamePolicyPreviewStatusGenerated.PreviewReady),
+  manualRequiredCount: countAppGamePolicyPreviewStatusesGenerated(
+    rows,
+    AppGamePolicyPreviewStatusGenerated.ManualRequired
+  ),
+  rejectedCount: countAppGamePolicyPreviewStatusesGenerated(rows, AppGamePolicyPreviewStatusGenerated.Rejected),
+});
+
+export const appGamePolicyPreviewReadModelCountsMatchRowsGenerated = (readModel: PreviewReadModelLike) =>
+  readModel.nativeAppRowCount ===
+    countAppGamePolicyPreviewRowsGenerated(readModel.rows, AppGamePolicyPreviewTargetDomainGenerated.NativeApp) &&
+  readModel.nativeGameRowCount ===
+    countAppGamePolicyPreviewRowsGenerated(readModel.rows, AppGamePolicyPreviewTargetDomainGenerated.NativeGame) &&
+  readModel.previewReadyCount ===

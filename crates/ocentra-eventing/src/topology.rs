@@ -37,6 +37,7 @@ pub struct EventTopologyFamilyVariant {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventTopologySubscriberTarget {
     pub subscriber_id: SubscriberId,
     pub target_handler: TargetHandler,
@@ -63,6 +64,7 @@ impl EventTopologyStatus {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventTopologyEntry {
     pub contract: EventContract,
     rust_type: EventTopologyRustType,

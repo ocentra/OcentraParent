@@ -1,6 +1,0 @@
-{
-  "workpack": "32-live-process-snapshot-source",
-  "policyStatus": "not-applicable",
-  "actionStatus": "not-applicable",
-  "reason": "No native app policy or adapter execution is added by this source-reader slice."
-}

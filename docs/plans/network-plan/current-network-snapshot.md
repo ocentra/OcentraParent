@@ -1,5 +1,20 @@
 # Current Network Snapshot
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `network-plan`
+> Doc: `Current Network Snapshot`
+> Kind: current snapshot; read for status/gap claims.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Current Product State
 
 Network/domain control has useful foundation but is not product-complete.
@@ -8,8 +23,33 @@ Current Ocentra truth is:
 - network flow summaries and unusual-indicator reconciliation exist in proof
   form;
 - TypeScript and Rust protocol/read-model foundations exist for network flow
-  evidence;
-- portal visibility exists for service-backed network read models;
+  evidence, including row10 remote-delivery status and network runtime event
+  parity;
+- deterministic PCAP/parser/analyzer/signature, AI audit, risk-budget,
+  policy-preview, retention/read-model, platform/manual-required, adapter
+  capability/status, action-result, performance, and security proof artifacts
+  exist under `output/network-plan-proof/` and `test-results/network-*-proof/`;
+- bounded live-capture execution is modeled as a separate row13b proof: driver
+  execution needs proof-ready row13 refs plus invocation, interface, permission,
+  bounded-window, clean-stop, custody, retention/delete/export, metadata-only
+  sanitization, and private-traffic-exclusion refs; metadata snapshots do not
+  substitute for Npcap/libpcap capture;
+- Android physical target identity is now a separate read-only proof for the
+  named Galaxy S9 target: ADB connect, `adb devices -l`, and getprop
+  observations must match expected product/model/device/release/ABI refs before
+  the target can satisfy physical-device evidence. This does not execute
+  VpnService, packet capture, packet blocking, app correlation, or adapter
+  authority;
+- Windows Firewall bounded lab execution is now a separate row38a proof: an
+  apply-ready row38 adapter proof can be paired with an Ocentra lab rule name,
+  an RFC 5737 TEST-NET target, administrator permission, and
+  apply/verify-present/rollback/verify-removed command evidence before it can
+  report executed-and-rolled-back. Without host/admin/command evidence it stays
+  manual-required or unavailable. This is not production enforcement and does
+  not claim persistent host filtering;
+- portal visibility exists for service-backed network read models, including
+  network evidence drawer status for activity rows and adapter/platform
+  capability state;
 - policy can reference stored flow evidence in dry-run/report-only contexts;
 - host network/domain filtering remains manual-required unless a real OS
   adapter proof exists;
@@ -24,61 +64,32 @@ Current Ocentra truth is:
 | Expectation docs               | `docs/expectations/network-flow-evidence.md`, `docs/expectations/policy.md`, `docs/expectations/enforcement.md`                     | Existing.                                |
 | Architecture                   | `docs/architecture/network-flow-evidence-capture.md`                                                                                | Existing Windows-first observation plan. |
 | Settings/catalog docs          | `docs/network-control-capability-guide.md`, `docs/network-control-schema-proposal.md`, `docs/network-control-settings-inventory.md` | Existing design inputs.                  |
-| TypeScript contracts           | `packages/activity-domain/src/network-flow.ts`                                                                                      | Partial foundation.                      |
-| Rust protocol                  | `crates/agent-protocol/src/network_flow.rs`                                                                                         | Partial foundation.                      |
-| Rust capture/storage           | `crates/agent-core/src/network_capture*.rs`, `crates/agent-core/src/activity_store_network_flow*.rs`                                | Partial foundation.                      |
-| Rust service digest/read model | `crates/agent-service/src/network_flow_digest*.rs`, `crates/agent-service/src/activity_network_flow_payload.rs`                     | Partial foundation.                      |
-| Portal read model              | `apps/portal/src/network-flow-read-model.ts`, `apps/portal/src/live-network-flow-panel.ts`                                          | Partial foundation.                      |
+| TypeScript contracts           | `packages/activity-domain/src/network-flow.ts`, `packages/agent-protocol-domain/src/network-runtime-events.ts`                      | Contract and runtime-event proof exists. |
+| Rust protocol                  | `crates/agent-protocol/src/network_flow.rs`, `crates/agent-protocol/src/network_flow_events.rs`                                     | Protocol parity proof exists.            |
+| Rust capture/storage           | `crates/agent-core/src/network_capture*.rs`, `crates/agent-core/src/activity_store_network_flow*.rs`                                | Deterministic proof foundation.          |
+| Rust service digest/read model | `crates/agent-service/src/network_flow_digest*.rs`, `crates/agent-service/src/activity_network_flow_payload.rs`                     | Service read-model proof exists.         |
+| Portal read model              | `apps/portal/src/network-flow-read-model.ts`, `apps/portal/src/live-network-flow-panel.ts`                                          | Service-backed proof visibility exists.  |
 | Enforcement boundary           | `docs/plans/v0-8-enforcement-control-plan/workpacks/08-network-domain-report-only-boundary.md`                                      | Manual-required/report-only boundary.    |
 
 ## Known Gaps
 
-- Source reconciliation into implementation contracts, runtime modules, and
-  proof artifacts.
-- PCAP replay harness and fixture taxonomy, including safe baseline,
-  suspicious, and edge/high-concurrency fixture families.
-- Packet-tool comparison and analyzer proof for tcpdump, dumpcap, TShark,
-  Wireshark, Zeek-style logs, Suricata alerts, and Snort-compatible rules where
-  used.
-- DNS query/response parsing proof.
-- TLS SNI and HTTP Host parsing proof where visible.
-- QUIC/HTTP3 limitation and DoH/DoT detection proof.
-- Flow aggregation/sessionization proof.
-- Domain normalization and category classifier proof.
-- VPN/proxy/Tor/tunnel classifier proof.
-- Network evidence grade model.
-- Network-triggered evidence cascade model.
-- Cross-slice network evidence bundle model.
-- Network event contracts and reusable eventing projections that consume the
-  reusable Rust eventing plan, with Ocentra Games eventing semantics used only
-  as reference material.
-- Event topic namespace, publisher/subscriber auth, backpressure, retention,
-  filtering, and broker/family-hub decision proof.
-- Broker delivery semantics, idempotency/dedupe, replay, and no duplicate
-  adapter-action proof.
-- Raw PCAP/live capture encryption-at-rest, quota rotation,
-  retention/delete/export, and custody proof.
-- Child-facing ask/warn/limit/block state requirements and approved educational
-  guidance proof.
-- Optional location/device-status cross-slice refs, with proof that network does
-  not infer location from traffic.
-- AI detection model proof over fixture summaries and signature alerts, without
-  raw PCAP, payloads, or decrypted content.
-- AI audit narrative proof with parent-readable recommendations and cited
-  evidence refs.
-- Household risk budget, age/profile threshold, and cascade reaction model.
-- Parent UI evidence drawer and limitation messaging.
-- DNS proxy/block/redirect adapter proof.
-- Windows Firewall adapter proof.
-- Windows WFP observation/intervention proof.
-- Android VpnService proof.
-- Apple Network Extension proof.
-- Linux nftables/eBPF/TUN proof.
-- Router/log import proof.
-- Physical device and authority-enrolled proof where needed.
-- Throughput, packet-to-detection latency, resource impact, and high-concurrency
-  benchmark proof.
-- Security, privacy, retention, delete/export, support, and staged rollout proof.
+- Production live packet capture driver support and live raw artifact creation.
+- Router/log import implementation proof.
+- Live broker/family-hub transport, provider delivery, child-device delivery,
+  remote acknowledgement handling, and remote delete/export propagation.
+- Local AI model execution or remote provider execution.
+- Full policy engine execution and notification provider delivery.
+- Live host DNS/WFP/VPN/NetworkExtension/Linux adapter mutation, packet
+  blocking, process termination execution, and host filtering. Windows Firewall
+  has only a bounded reversible TEST-NET lab execution proof; production
+  enforcement and persistent policy-driven firewall rules remain open.
+- Physical-device proof beyond the named Android target, Device Owner or other
+  authority-enrolled proof, and any platform adapter execution proof where a
+  platform claim needs it.
+- Parent-facing rule UX and broader risk-budget/performance/platform UI beyond
+  the current service-backed network drawer.
+- Production SLO validation, external audit or penetration-test execution,
+  deployment execution, and full support-material authoring.
 
 ## Product Boundary
 

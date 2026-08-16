@@ -1,11 +1,10 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::app_game::{
     AppGameSessionDailyRollup, AppGameSessionSummary, APP_GAME_SCHEMA_VERSION,
 };
 
 use super::app_game_session_time::rollup_date;
 
-#[allow(dead_code)]
-pub(super) fn daily_rollups_from_summaries(
+pub fn daily_rollups_from_summaries(
     summaries: &[AppGameSessionSummary],
 ) -> Vec<AppGameSessionDailyRollup> {
     let mut rollups = Vec::new();

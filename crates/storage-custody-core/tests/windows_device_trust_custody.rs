@@ -1,0 +1,342 @@
+#![cfg(windows)]
+
+use fs2::FileExt;
+use ocentra_storage_custody_core::windows_device_trust_custody::{
+    Error, WindowsDeviceTrustCustody,
+};
+use sha2::{Digest, Sha256};
+use std::{
+    fs::{self, OpenOptions},
+    sync::mpsc,
+    time::Duration,
+};
+use winreg::{enums::HKEY_CURRENT_USER, RegKey};
+
+#[test]
+fn revoking_without_authenticated_parent_authority_fails_closed_stably() -> Result<(), String> {
+    let root = std::env::temp_dir().join(format!(
+        "ocentra-wp02-unissued-revocation-{}",
+        std::process::id()
+    ));
+    let _cleanup = fs::remove_dir_all(&root);
+    let custody = WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open Windows custody: {error:?}"))?;
+
+    let binding = binding("family", "account", "device", &install_generation(&root)?);
+    let binding_hash = hex(Sha256::digest(&binding));
+    let sealed_path = root.join(format!("{binding_hash}.sealed"));
+    let lock_path = root.join(format!("{binding_hash}.lock"));
+    let first = custody.revoke_or_reset("family", "account", "device");
+    assert_eq!(first, Err(Error::Platform));
+    let second = custody.revoke_or_reset("family", "account", "device");
+    assert_eq!(second, Err(Error::Platform));
+    assert!(
+        !sealed_path.exists(),
+        "authority rejection must not create a record"
+    );
+    assert!(
+        !lock_path.exists(),
+        "authority rejection must precede binding-lock creation"
+    );
+
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn concurrent_first_opens_share_one_install_generation() -> Result<(), String> {
+    let root = std::env::temp_dir().join(format!("ocentra-wp02-first-open-{}", std::process::id()));
+    let _cleanup = fs::remove_dir_all(&root);
+    let first_root = root.clone();
+    let second_root = root.clone();
+    let first = std::thread::spawn(move || WindowsDeviceTrustCustody::open(first_root));
+    let second = std::thread::spawn(move || WindowsDeviceTrustCustody::open(second_root));
+    first
+        .join()
+        .map_err(|_error| "first open thread panicked")?
+        .map_err(|error| format!("first open: {error:?}"))?;
+    second
+        .join()
+        .map_err(|_error| "second open thread panicked")?
+        .map_err(|error| format!("second open: {error:?}"))?;
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn reinstall_rotates_the_registry_generation_before_restored_records_can_be_read(
+) -> Result<(), String> {
+    let root = temporary_root("reinstall-generation");
+    let _cleanup = fs::remove_dir_all(&root);
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("first open: {error:?}"))?;
+    let first_generation = install_generation(&root)?;
+
+    fs::remove_dir_all(&root).map_err(|error| format!("remove custody root: {error}"))?;
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("reinstall open: {error:?}"))?;
+    let reinstall_generation = install_generation(&root)?;
+
+    assert_ne!(first_generation, reinstall_generation);
+    assert!(
+        !root.join("device-trust-install-generation").exists(),
+        "install generation must not be retained in restorable custody data"
+    );
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn corrupt_registry_install_generation_is_rotated_on_reopen() -> Result<(), String> {
+    let root = temporary_root("partial-generation");
+    let _cleanup = fs::remove_dir_all(&root);
+    fs::create_dir_all(&root).map_err(|error| format!("create root: {error}"))?;
+    set_install_generation(&root, "partial")?;
+
+    WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open corrupt registry anchor: {error:?}"))?;
+    assert_ne!(install_generation(&root)?, "partial");
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn restored_record_at_a_recreated_root_never_unseals() -> Result<(), String> {
+    let root = temporary_root("restored-root-identity");
+    let _cleanup = fs::remove_dir_all(&root);
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("first open: {error:?}"))?;
+    let old_generation = install_generation(&root)?;
+    let old_binding = binding("family", "account", "device", &old_generation);
+    let restored_record = root.join(format!("{}.sealed", hex(Sha256::digest(&old_binding))));
+    fs::write(&restored_record, "restored-record")
+        .map_err(|error| format!("write restored record backup: {error}"))?;
+    let backup = fs::read(&restored_record).map_err(|error| format!("read backup: {error}"))?;
+
+    fs::remove_dir_all(&root).map_err(|error| format!("remove custody root: {error}"))?;
+    fs::create_dir_all(&root).map_err(|error| format!("recreate custody root: {error}"))?;
+    fs::write(&restored_record, backup).map_err(|error| format!("restore record: {error}"))?;
+    let custody = WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open recreated root: {error:?}"))?;
+
+    assert!(matches!(
+        custody.unseal_current("family", "account", "device"),
+        Err(Error::Platform)
+    ));
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn corrupt_multibyte_registry_epoch_is_rejected_without_panic() -> Result<(), String> {
+    let root = temporary_root("corrupt-epoch");
+    let _cleanup = fs::remove_dir_all(&root);
+    let custody = WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open Windows custody: {error:?}"))?;
+    let binding = binding("family", "account", "device", &install_generation(&root)?);
+    let binding_hash = hex(Sha256::digest(&binding));
+    fs::write(
+        root.join(format!("{binding_hash}.sealed")),
+        r#"{"family":"family","account":"account","device":"device","epoch_hash":"","ciphertext":[]}"#,
+    )
+    .map_err(|error| format!("write sealed record: {error}"))?;
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .create_subkey("Software\\Ocentra\\DeviceTrust\\Epochs")
+        .map_err(|error| format!("open epoch registry key: {error}"))?
+        .0;
+    key.set_value(&binding_hash, &"éé")
+        .map_err(|error| format!("write corrupt epoch: {error}"))?;
+
+    assert_eq!(
+        custody.unseal_current("family", "account", "device"),
+        Err(Error::Platform)
+    );
+
+    let _cleanup = key.delete_value(&binding_hash);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn binding_fence_is_not_reached_before_authenticated_authority_gate() -> Result<(), String> {
+    let root = temporary_root("binding-fence");
+    let _cleanup = fs::remove_dir_all(&root);
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("open custody: {error:?}"))?;
+    let binding = binding("family", "account", "device", &install_generation(&root)?);
+    let lock_path = root.join(format!("{}.lock", hex(Sha256::digest(&binding))));
+    let lock = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .write(true)
+        .truncate(false)
+        .open(lock_path)
+        .map_err(|error| format!("open fence: {error}"))?;
+    lock.lock_exclusive()
+        .map_err(|error| format!("acquire fence: {error}"))?;
+    let (sender, receiver) = mpsc::channel();
+    let contender_root = root.clone();
+    let contender = std::thread::spawn(move || {
+        let result = WindowsDeviceTrustCustody::open(&contender_root)
+            .and_then(|custody| custody.revoke_or_reset("family", "account", "device"));
+        sender.send(result)
+    });
+
+    assert_eq!(
+        receiver
+            .recv_timeout(Duration::from_millis(100))
+            .map_err(|error| format!("receive authority-gate result: {error}"))?,
+        Err(Error::Platform)
+    );
+    FileExt::unlock(&lock).map_err(|error| format!("release fence: {error}"))?;
+    contender
+        .join()
+        .map_err(|_error| "contender thread panicked")?
+        .map_err(|error| format!("send contender result: {error}"))?;
+
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+#[test]
+fn unrelated_sealed_file_cannot_preserve_a_sealed_install_generation() -> Result<(), String> {
+    let root = temporary_root("unrelated-sealed-file");
+    let _cleanup = fs::remove_dir_all(&root);
+    WindowsDeviceTrustCustody::open(&root).map_err(|error| format!("first open: {error:?}"))?;
+    let generation = install_generation(&root)?;
+    let binding = binding("family", "account", "device", &generation);
+    set_sealed_install_generation(&root, &generation, &hex(&binding))?;
+    fs::write(
+        root.join("unrelated.sealed"),
+        "not an active binding record",
+    )
+    .map_err(|error| format!("write unrelated sealed file: {error}"))?;
+
+    WindowsDeviceTrustCustody::open(&root)
+        .map_err(|error| format!("open after unrelated sealed file: {error:?}"))?;
+    assert_ne!(install_generation(&root)?, generation);
+
+    let _cleanup = remove_install_generation(&root);
+    let _cleanup = fs::remove_dir_all(root);
+    Ok(())
+}
+
+fn temporary_root(name: &str) -> std::path::PathBuf {
+    std::env::temp_dir().join(format!("ocentra-wp02-{name}-{}", std::process::id()))
+}
+
+fn install_generation(root: &std::path::Path) -> Result<String, String> {
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey("Software\\Ocentra\\DeviceTrust\\InstallGenerations")
+        .map_err(|error| format!("open install-generation registry key: {error}"))?;
+    let anchor: String = key
+        .get_value(hex(Sha256::digest(
+            canonical_root(root)?.to_string_lossy().as_bytes(),
+        )))
+        .map_err(|error| format!("read install generation: {error}"))?;
+    let mut parts = anchor.split('|');
+    match (
+        parts.next(),
+        parts.next(),
+        parts.next(),
+        parts.next(),
+        parts.next(),
+    ) {
+        (Some(_identity), Some(generation), Some(_state), binding, None)
+            if binding.is_none() || binding.is_some_and(|binding| !binding.is_empty()) =>
+        {
+            Ok(generation.to_owned())
+        }
+        _ => Err("parse install-generation anchor".to_owned()),
+    }
+}
+
+fn set_sealed_install_generation(
+    root: &std::path::Path,
+    generation: &str,
+    binding_hex: &str,
+) -> Result<(), String> {
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .create_subkey("Software\\Ocentra\\DeviceTrust\\InstallGenerations")
+        .map_err(|error| format!("open install-generation registry key: {error}"))?
+        .0;
+    key.set_value(
+        hex(Sha256::digest(
+            canonical_root(root)?.to_string_lossy().as_bytes(),
+        )),
+        &format!("{}|{generation}|sealed|{binding_hex}", root_identity(root)?),
+    )
+    .map_err(|error| format!("write sealed install generation: {error}"))
+}
+
+fn set_install_generation(root: &std::path::Path, generation: &str) -> Result<(), String> {
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .create_subkey("Software\\Ocentra\\DeviceTrust\\InstallGenerations")
+        .map_err(|error| format!("open install-generation registry key: {error}"))?
+        .0;
+    key.set_value(
+        hex(Sha256::digest(
+            canonical_root(root)?.to_string_lossy().as_bytes(),
+        )),
+        &format!("{}|{generation}|empty", root_identity(root)?),
+    )
+    .map_err(|error| format!("write install generation: {error}"))
+}
+
+fn remove_install_generation(root: &std::path::Path) -> Result<(), String> {
+    let key = RegKey::predef(HKEY_CURRENT_USER)
+        .open_subkey_with_flags(
+            "Software\\Ocentra\\DeviceTrust\\InstallGenerations",
+            winreg::enums::KEY_WRITE,
+        )
+        .map_err(|error| format!("open install-generation registry key for cleanup: {error}"))?;
+    key.delete_value(hex(Sha256::digest(
+        canonical_root(root)?.to_string_lossy().as_bytes(),
+    )))
+    .map_err(|error| format!("remove install generation: {error}"))
+}
+
+fn canonical_root(root: &std::path::Path) -> Result<std::path::PathBuf, String> {
+    root.canonicalize()
+        .map_err(|error| format!("canonicalize root: {error}"))
+}
+
+fn root_identity(root: &std::path::Path) -> Result<String, String> {
+    let root = canonical_root(root)?;
+    let metadata = root
+        .metadata()
+        .map_err(|error| format!("read root metadata: {error}"))?;
+    let created = metadata
+        .created()
+        .map_err(|error| format!("read root creation time: {error}"))?
+        .duration_since(std::time::UNIX_EPOCH)
+        .map_err(|error| format!("convert root creation time: {error}"))?;
+    Ok(hex(Sha256::digest(format!(
+        "{}:{}",
+        root.to_string_lossy(),
+        created.as_nanos()
+    ))))
+}
+
+fn binding(family: &str, account: &str, device: &str, generation: &str) -> Vec<u8> {
+    [family, account, device, generation]
+        .into_iter()
+        .flat_map(|part| {
+            let bytes = part.as_bytes();
+            (bytes.len() as u64)
+                .to_be_bytes()
+                .into_iter()
+                .chain(bytes.iter().copied())
+        })
+        .collect()
+}
+
+fn hex(bytes: impl AsRef<[u8]>) -> String {
+    bytes
+        .as_ref()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
+}

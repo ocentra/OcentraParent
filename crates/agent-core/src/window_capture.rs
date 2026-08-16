@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ForegroundWindowObservation {

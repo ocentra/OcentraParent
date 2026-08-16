@@ -1,2 +1,0 @@
-Playwright not run by this final gate because no UI source changed.
-The final gate records missing browser DOM/Playwright proof as a known gap and keeps UI states unclaimed when no screenshot/proof exists.

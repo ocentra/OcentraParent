@@ -7,7 +7,8 @@ import {
   type ReactElement,
   type ReactNode,
 } from 'react';
-import { PortalDom, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import {
   getPictureViewerAnchoredFrame,
   getPictureViewerFrameGroupTransform,

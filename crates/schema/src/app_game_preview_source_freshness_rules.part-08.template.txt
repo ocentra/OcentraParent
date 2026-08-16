@@ -1,0 +1,30 @@
+}
+
+function sourceRowPermissionLimitedFailureGenerated(
+  row: SourceStatusRowLike
+): SourceFreshnessRequirementFailure | null {
+  if (
+    row.state === AppGameSourceFreshnessReadModelStateGenerated.PermissionRequired ||
+    row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.PermissionLimited
+  ) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.PermissionLimited,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.PermissionLimitedSourceStatus,
+    } as const;
+  }
+
+  return null;
+}
+
+function sourceRowUnavailableFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
+  if (
+    row.state === AppGameSourceFreshnessReadModelStateGenerated.Unavailable ||
+    row.state === AppGameSourceFreshnessReadModelStateGenerated.Offline ||
+    row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.Unavailable ||
+    row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.UnsupportedPlatform
+  ) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.Unavailable,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.UnavailableSourceStatus,
+    } as const;
+  }

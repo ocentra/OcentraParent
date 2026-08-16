@@ -1,5 +1,19 @@
 # 64. Notification Provider Status Handoff
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `64. Notification Provider Status Handoff`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Goal
 
 Map app/game notification provider-preflight rows into the existing V0.8
@@ -43,15 +57,34 @@ as manual-required or unavailable status rows without claiming delivery.
 
 ## Validation
 
-- [x] Provider-status handoff parses WP61 app/game provider-preflight rows before
+- [ ] Provider-status handoff parses WP61 app/game provider-preflight rows before
       mapping.
-- [x] Provider-adapter-required and manual-required preflight rows become
+- [ ] Provider-adapter-required and manual-required preflight rows become
       manual-required V0.8 provider-status boundary entries.
-- [x] Unavailable preflight rows become unavailable V0.8 provider-status
+- [ ] Unavailable preflight rows become unavailable V0.8 provider-status
       boundary entries.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       credentials, no retry-worker/quiet-hours timer runtime, no parent UI, no
       child delivery, no adapter dispatch, no broad blocking, and no durable
       production outbox claim.
-- [x] Product checklist unchanged because this handoff does not move feature
+- [ ] Product checklist unchanged because this handoff does not move feature
       status and provider/runtime/UI/platform gaps remain.
+
+## Current production-code pass (2026-08-16)
+
+- The current owner is the agent-service notification report boundary at
+  `crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs`
+  and its `logic.rs` plus private `scheduler_runtime.rs` companion.
+- The report now loads the persisted WP59 scheduler bridge and service-owned
+  scheduler proof store, invokes the Rust WP61 provider-preflight builder, and
+  maps only its verified rows into the provider-status boundary.
+- This is a consumer-only service seam: no production writer currently emits
+  `scheduler-bridge.json`, so WP59 scheduler production/runtime composition
+  and durability remain open rather than being implied by this handoff.
+- Missing, malformed, symlinked, or identity-mismatched scheduler evidence
+  falls back to explicit invalid/manual-required or unavailable status only. No provider
+  delivery, receipt, credential, retry, quiet-hours, UI, child-delivery,
+  adapter, or enforcement claim is produced.
+- The historical `packages/parent-domain/...` source/test paths above are not
+  current implementation owners. Tests, validation, retained proof, and
+  runtime durability remain deferred; this workpack is code-drafted, not DONE.

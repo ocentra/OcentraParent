@@ -1,21 +1,61 @@
 # Browser Source Index
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `Browser Source Index`
+> Kind: source ownership index; read only when source ownership is unclear.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not inspect broad source from here; use only the named package/crate path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This index keeps the browser plan tied to existing source documents and code. It
 is not a replacement for feature, expectation, roadmap, checklist, package, or
 crate ownership docs.
+
+## 2026-08-16 production reachability audit
+
+The production-code pass found no additional reachable Browser slice with a
+real owner-backed input. The following boundaries are retained as blockers,
+not completion claims:
+
+- WP11 reaches `crates/agent-core/src/browser_bridge_poll.rs` from
+  `crates/agent-service/src/browser_runtime_impl/bridge.rs`, but
+  `browser_bridge_poll/parse.rs` intentionally emits `unknown` /
+  `target-list-only`. Focus/activation, extension, foreground-correlation, and
+  owned-shell sources are absent.
+- WP21's `crates/agent-core/src/browser_bridge_native_host.rs` is a validator
+  with test-only inbound references. No extension package, native-host
+  registration, or production IPC caller exists.
+- WP20's AppLocker/App Control model is reachable only as a service
+  enforcement product-control read model whose states remain static and
+  manual-required. Windows policy/runtime authority is absent.
+- WP22's `crates/browser-core/src/performance_budget.rs` is fixture/evaluator
+  code with no runtime measurement producer or service-health bridge caller.
+
+The graph report currently presents all 30 Browser workpacks as `planned` with
+no dependencies; it is stale relative to the source-backed implementation and
+blocker notes. Legacy `packages/activity-domain/src/browser*.ts` references are
+not active ownership; current TypeScript edge ownership is
+`packages/browser-domain`, with Rust runtime ownership under the paths below.
 
 ## Product Source Docs
 
 - Owning feature: [Browser and web control](../../features/browser-web-control.md)
 - Main expectation: [Browser URL and tab evidence](../../expectations/browser-evidence.md)
-- Milestone expectation: [V0.5.1 browser URL and tab evidence capture](../../expectations/roadmap-v0-5-1-browser-url-tab-evidence-capture.md)
+- Milestone expectation: [V0.5.1 browser URL and tab evidence capture](../../roadmaps/roadmap-v0-5-1-browser-url-tab-evidence-capture.md)
 - Main architecture: [Browser URL and tab evidence capture](../../architecture/browser-url-tab-evidence-capture.md)
-- Managed/unmanaged guide: [Managed and unmanaged browser capability guide](../../managed-unmanaged-browser.md)
-- Parent policy catalog: [Browser policy settings catalog](../../browser-policy-settings-catalog.md)
-- Schema proposal: [Browser control schema proposal](../../browser-control-schema-proposal.md)
-- Coverage matrix: [Browser control coverage matrix](../../browser-control-coverage-matrix.md)
-- Raw catalog: [Browser control 1057 settings inventory](../../browser-control-1057-settings-inventory.md)
-- Questionnaire forest: [Browser policy questionnaire forest v1](../../browser-policy-questionnaire-forest-v1.md)
+- Managed/unmanaged guide: [Managed and unmanaged browser capability guide](../../plans/browser-plan/workpacks/managed-unmanaged-browser.md)
+- Parent policy catalog: [Browser policy settings catalog](../../plans/browser-plan/workpacks/browser-policy-settings-catalog.md)
+- Schema proposal: [Browser control schema proposal](../../plans/browser-plan/workpacks/browser-control-schema-proposal.md)
+- Coverage matrix: [Browser control coverage matrix](../../plans/browser-plan/workpacks/browser-control-coverage-matrix.md)
+- Raw catalog: [Browser control 1057 settings inventory](../../plans/browser-plan/workpacks/browser-control-1057-settings-inventory.md)
+- Questionnaire forest: [Browser policy questionnaire forest v1](../../plans/browser-plan/workpacks/browser-policy-questionnaire-forest-v1.md)
 - Browser intelligence plan:
   [V0.5 browser URL and video AI intelligence](v0-5-browser-url-video-ai-intelligence-plan.md)
 - Social/platform gating plan:
@@ -89,28 +129,31 @@ them only when the implementation status, acceptance contract, or proof changes.
 
 ## TypeScript Ownership
 
-- `packages/activity-domain/src/browser.ts`
-- `packages/activity-domain/src/browser-schemas.ts`
-- `packages/activity-domain/src/browser-intervention.ts`
-- `packages/activity-domain/src/browser-intervention-schemas.ts`
-- `packages/activity-domain/src/app-game*.ts`
+- `packages/browser-domain/src/browser-*.ts`
+- `packages/browser-domain/src/browser-ai-*.ts`
+- `packages/browser-domain/src/browser-social-*.ts`
+- `packages/browser-domain/src/browser-game-*.ts`
+- `packages/browser-domain/tests/unit/browser*.test.ts`
+- `packages/browser-domain/tests/unit/social*.test.ts`
+- `packages/browser-domain/tests/unit/browser-game*.test.ts`
 - `packages/parent-domain/src/browser-control-policy.ts`
 - `packages/parent-domain/src/browser-control-manifest.ts`
 - `packages/parent-domain/src/browser-control-values.ts`
 - `packages/parent-domain/src/browser-control-catalog-values.ts`
 - `packages/parent-domain/src/browser-control-full-catalog*.ts`
 - `packages/parent-domain/src/browser-policy-questionnaire-forest*.ts`
-- `packages/parent-domain/src/game-control-catalog*.ts`
 - `packages/agent-protocol-domain/src/browser-policy-adapter.ts`
+- `packages/agent-protocol-domain/src/browser-runtime-events.ts`
+- `packages/agent-protocol-domain/src/social-*.ts`
 
-TypeScript rule: enhance these existing browser paths. Do not create a parallel
-browser domain package unless an ownership boundary genuinely changes. Browser
-URL/video intelligence must reuse activity evidence refs, parent-domain policy
-targets, and local-AI expectation contracts instead of inventing a second
-decision path. Social account/feed gates must reuse parent-domain policy and
-approval contracts instead of creating browser-only approvals. Browser-game
-gates must reuse browser evidence plus app/game, policy, approval, and local-AI
-contracts instead of creating browser-only game authority.
+TypeScript rule: the primary TypeScript ownership boundary for browser-plan
+implementation in this checkout is `packages/browser-domain`. The older
+`packages/activity-domain/src/browser*.ts` paths referenced in previous plan
+text do not exist here and should not be treated as active ownership. Keep
+browser evidence, browser AI, browser-social, and browser-game contract work
+inside `browser-domain` unless an ownership boundary genuinely changes. Keep
+`parent-domain` focused on policy/catalog/manifest shapes and
+`agent-protocol-domain` focused on typed bridge/read-model crossings.
 
 ## Rust Ownership
 
@@ -161,6 +204,7 @@ directly, or invent policy questions outside the manifest.
 - `npm run test:managed-browser-matrix`
 - `npm run test:managed-browser-service-proof`
 - `npm run test:managed-browser-intervention`
+- `node scripts/test/browser-plan-closure-audit-proof.mjs`
 - `node scripts/test/v0-8-browser-domain-adapter-proof.mjs`
 - `node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs`
 - `node scripts/test/browser-performance-health-proof.mjs`
@@ -168,13 +212,21 @@ directly, or invent policy questions outside the manifest.
 
 ## Current Test Files
 
-- `packages/activity-domain/tests/browser*.test.ts`
-- `packages/parent-domain/tests/browser*.test.ts`
-- `packages/agent-protocol-domain/tests/browser-policy-adapter.test.ts`
+- `packages/browser-domain/tests/unit/browser*.test.ts`
+- `packages/browser-domain/tests/unit/social*.test.ts`
+- `packages/browser-domain/tests/unit/browser-game*.test.ts`
+- `packages/agent-protocol-domain/tests/unit/browser*.test.ts`
+- `packages/agent-protocol-domain/tests/unit/social*.test.ts`
 - `crates/agent-protocol/src/browser*_tests.rs`
 - `crates/agent-core/src/browser*_tests.rs`
 - `crates/agent-service/src/browser*_tests.rs`
 - `apps/portal/tests/live-activity-browser-status.test.ts`
+- `apps/portal/tests/social-*.test.ts`
+- `apps/portal/e2e/browser-ai-parent-explanation-ui-proof.spec.ts`
+- `apps/portal/e2e/social-*-ui-proof.spec.ts`
+- `scripts/test/browser*.mjs`
+- `scripts/test/social*.mjs`
+- `scripts/test/browser-game*.mjs`
 
 ## Source Truth Rule
 

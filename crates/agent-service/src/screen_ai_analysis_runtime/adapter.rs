@@ -1,24 +1,31 @@
-use std::{
-    path::Path,
-    process::Stdio,
-    time::{Duration, Instant},
-};
+use std::path::Path;
 
 use base64::prelude::{Engine as _, BASE64_STANDARD};
-use ocentra_parent_agent_protocol::{
-    constants, LocalAiAdapterBoundary, LocalAiCapabilityFlag, LocalAiChatGenerationResult,
-    LocalAiDegradedState, LocalAiExecutionState, LocalAiGenerationState, LocalAiModelLoadState,
-    LocalAiProviderPrivacyMode, LocalAiProviderSource, LocalAiResourceClass,
-    LocalModelRuntimeStatus, ScreenAnalysisResult, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
-    SCREEN_SERVICE_ANALYSIS_FIELD_IMAGE_BASE64, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
-    SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
-    SCREEN_SERVICE_ANALYSIS_RUNTIME_REF, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::generation::LocalAiChatGenerationResult;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::local_ai_runtime::status::LocalModelRuntimeStatus;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisResult;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_FIELD_IMAGE_BASE64;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_PROVIDER_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_RUNTIME_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use serde_json::{Map, Value};
-use tokio::{io::AsyncWriteExt, process::Command, time::timeout};
 
-use super::{queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig};
+use super::{
+    config::ScreenOcrRedactionPolicy, queue::QueuedScreenImage, ScreenAiAnalysisRuntimeConfig,
+};
+
+#[path = "adapter_execution.rs"]
+mod execution;
+#[path = "adapter_parsing.rs"]
+mod parsing;
+#[path = "adapter_status.rs"]
+mod status;
 
 #[derive(Clone, Debug, PartialEq)]
 pub(super) struct ScreenAiAnalysisAdapterOutput {
@@ -30,6 +37,8 @@ pub(super) struct ScreenAiAnalysisAdapterOutput {
     pub(super) model_runtime_ref: String,
     pub(super) model_id: String,
     pub(super) prompt_or_template_version: String,
+    pub(super) ocr_text_snippets: Vec<String>,
+    pub(super) redaction_notes: Vec<String>,
 }
 
 pub(super) async fn run_adapter(
@@ -37,152 +46,21 @@ pub(super) async fn run_adapter(
     image: &QueuedScreenImage,
     metadata: Option<&ScreenAnalysisResult>,
 ) -> LocalAiChatGenerationResult {
-    let Some(command) = config.adapter_command.as_ref() else {
-        return unavailable_generation(config, image, 0);
-    };
-    if !command.is_file() {
-        return unavailable_generation(config, image, 0);
-    }
-    let request = adapter_request(image, metadata);
-    let request_bytes =
-        serde_json::to_vec(&request).expect(constants::error::AGENT_EVENT_SERIALIZES);
-    let started = Instant::now();
-    let mut child = match Command::new(command)
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .spawn()
-    {
-        Ok(child) => child,
-        Err(_) => return failed_generation(config, image, request_bytes.len() as u64, 0),
-    };
-    if let Some(mut stdin) = child.stdin.take() {
-        if stdin.write_all(&request_bytes).await.is_err() {
-            return failed_generation(config, image, request_bytes.len() as u64, 0);
-        }
-    }
-    match timeout(
-        Duration::from_millis(config.adapter_timeout_ms),
-        child.wait_with_output(),
-    )
-    .await
-    {
-        Ok(Ok(output)) => generation_from_process_output(
-            config,
-            image,
-            request_bytes.len() as u64,
-            started.elapsed().as_millis() as u64,
-            output,
-        ),
-        Ok(Err(_)) => failed_generation(
-            config,
-            image,
-            request_bytes.len() as u64,
-            started.elapsed().as_millis() as u64,
-        ),
-        Err(_) => timed_out_generation(config, image, request_bytes.len() as u64),
-    }
+    execution::run_adapter(config, image, metadata).await
 }
 
 pub(super) fn runtime_status(command: Option<&Path>, timestamp: &str) -> LocalModelRuntimeStatus {
-    let available = command.is_some_and(Path::is_file);
-    LocalModelRuntimeStatus {
-        runtime_reference_id: SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
-        provider_id: SCREEN_SERVICE_ANALYSIS_PROVIDER_ID.to_string(),
-        model_id: SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
-        model_reference: SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE.to_string(),
-        privacy_mode: LocalAiProviderPrivacyMode::LocalOnly,
-        adapter_boundary: if available {
-            LocalAiAdapterBoundary::LocalAdapterReady
-        } else {
-            LocalAiAdapterBoundary::LocalAdapterUnavailable
-        },
-        execution_state: if available {
-            LocalAiExecutionState::DryRunReady
-        } else {
-            LocalAiExecutionState::Disabled
-        },
-        provider_source: if available {
-            LocalAiProviderSource::LocalConfig
-        } else {
-            LocalAiProviderSource::Unavailable
-        },
-        load_state: if available {
-            LocalAiModelLoadState::Loaded
-        } else {
-            LocalAiModelLoadState::Unavailable
-        },
-        capability_flags: if available {
-            vec![
-                LocalAiCapabilityFlag::Classification,
-                LocalAiCapabilityFlag::SafetyDecision,
-            ]
-        } else {
-            Vec::new()
-        },
-        resource_class: if available {
-            LocalAiResourceClass::Cpu
-        } else {
-            LocalAiResourceClass::RemoteUnavailable
-        },
-        degraded_state: if available {
-            LocalAiDegradedState::None
-        } else {
-            LocalAiDegradedState::ProviderUnavailable
-        },
-        last_checked_at: timestamp.to_string(),
-        unavailable_reason: if available {
-            None
-        } else {
-            Some(
-                constants::local_ai_runtime::UNAVAILABLE_REASON_RUNTIME_BINARY_UNCONFIGURED
-                    .to_string(),
-            )
-        },
-    }
+    status::runtime_status(
+        status::AdapterRuntimeCommand(command),
+        status::AdapterRuntimeTimestamp(timestamp),
+    )
 }
 
-pub(super) fn parsed_generation_output(
+pub(super) fn parsed_generation_output_with_policy(
     generation: &LocalAiChatGenerationResult,
+    policy: &ScreenOcrRedactionPolicy,
 ) -> Option<ScreenAiAnalysisAdapterOutput> {
-    if generation.generation_state != LocalAiGenerationState::Complete {
-        return None;
-    }
-    let output = generation.output_text.as_ref()?;
-    let parsed = serde_json::from_str::<Value>(output).ok()?;
-    let summary = required_string(&parsed, constants::field::SCREEN_SUMMARY)?;
-    let primary_category = required_string(&parsed, constants::field::SCREEN_PRIMARY_CATEGORY)?;
-    let confidence = required_f64(&parsed, constants::field::SCREEN_CONFIDENCE)?;
-    if !(0.0..=1.0).contains(&confidence) {
-        return None;
-    }
-    let provider_kind = output_provider_kind(&parsed)?;
-    Some(ScreenAiAnalysisAdapterOutput {
-        summary,
-        primary_category,
-        confidence,
-        policy_eligible: required_bool(&parsed, constants::field::SCREEN_POLICY_ELIGIBLE)?,
-        provider_kind,
-        model_runtime_ref: optional_string(&parsed, constants::field::SCREEN_MODEL_RUNTIME_REF)
-            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string()),
-        model_id: optional_string(&parsed, constants::field::SCREEN_MODEL_ID)
-            .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string()),
-        prompt_or_template_version: optional_string(
-            &parsed,
-            constants::field::SCREEN_TEMPLATE_VERSION,
-        )
-        .unwrap_or_else(|| SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string()),
-    })
-}
-
-fn output_provider_kind(value: &Value) -> Option<String> {
-    let provider_kind = optional_string(value, constants::field::SCREEN_PROVIDER_KIND)
-        .unwrap_or_else(|| SCREEN_PROVIDER_LOCAL_VISION.to_string());
-    if provider_kind == SCREEN_PROVIDER_LOCAL_VISION || provider_kind == SCREEN_PROVIDER_LOCAL_OCR {
-        Some(provider_kind)
-    } else {
-        None
-    }
+    parsing::parsed_generation_output_with_policy(generation, policy)
 }
 
 fn adapter_request(image: &QueuedScreenImage, metadata: Option<&ScreenAnalysisResult>) -> Value {
@@ -342,34 +220,6 @@ fn capture_scope(metadata: Option<&ScreenAnalysisResult>) -> &str {
     metadata
         .map(|result| result.capture_scope.as_str())
         .unwrap_or(SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW)
-}
-
-fn required_string(value: &Value, field: &str) -> Option<String> {
-    let value = value.get(field)?.as_str()?.trim();
-    if value.is_empty() {
-        None
-    } else {
-        Some(value.to_string())
-    }
-}
-
-fn optional_string(value: &Value, field: &str) -> Option<String> {
-    value.get(field).and_then(|field_value| {
-        let text = field_value.as_str()?.trim();
-        if text.is_empty() {
-            None
-        } else {
-            Some(text.to_string())
-        }
-    })
-}
-
-fn required_f64(value: &Value, field: &str) -> Option<f64> {
-    value.get(field)?.as_f64()
-}
-
-fn required_bool(value: &Value, field: &str) -> Option<bool> {
-    value.get(field)?.as_bool()
 }
 
 fn local_ai_result_id(queue_job_id: &str) -> String {

@@ -1,99 +1,40 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-ai-pipeline-plan`
+> Doc: `Screen AI Pipeline Plan`
+> Kind: short plan entry point.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 # Screen AI Pipeline Plan
 
-This folder is the required second-stage integration plan for the complete
-screen-capture plus AI-analysis plus policy/action path.
+This is the short, token-efficient entry point for `screen-ai-pipeline-plan`. The original full
+README content is preserved at [README_FULL_ORIGINAL.md](README_FULL_ORIGINAL.md) and is not default context.
 
-It exists because screen capture and AI analysis can and should land as separate
-workstreams, but the product is not complete until a final pipeline pass proves
-the combined runtime behavior.
+## Default agent path
 
-## Stage Order
+1. Read [AGENTS.md](AGENTS.md).
+2. Read [PLAN_STATE.md](PLAN_STATE.md).
+3. Read [NEXT_ACTIONS.md](NEXT_ACTIONS.md) when starting/resuming.
+4. Read [WORKPACK_INDEX.md](WORKPACK_INDEX.md).
+5. Open only the assigned workpack.
+6. Use [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md) to locate exact checklist sections.
+7. Use [PROOF_INDEX.md](PROOF_INDEX.md) only when proof artifacts are needed.
 
-```text
-Stage 1A: Screen capture pass
-  -> proves real triggers create real capture/queue/deletion proof
-  -> can PR independently
+## Current scope
 
-Stage 1B: AI analysis pass
-  -> proves real stored/captured evidence can be analyzed and explained
-  -> can PR independently
+This folder is the required second-stage integration plan for the complete screen-capture plus AI-analysis plus policy/action path.
 
-Stage 2: Screen AI pipeline pass
-  -> starts only after screen and AI prerequisites are merged or explicitly stacked
-  -> proves trigger -> capture -> analysis -> policy -> action/dry-run -> portal
-```
+## Do not default-read
 
-## Prerequisites
-
-The pipeline pass may start only when one of these is true:
-
-- screen capture prerequisite PR is merged to `main`;
-- AI analysis prerequisite PR is merged to `main`;
-- or the primary/user explicitly approves a stacked branch that includes both
-  prerequisite heads.
-
-Before the pipeline pass reports done, it must be based on a branch that contains
-both prerequisite implementations.
-
-## Non-Negotiable Product Gate
-
-Screen capture alone is not enough.
-
-AI analysis alone is not enough.
-
-The product-complete claim needs proof that real activity can flow through the
-whole path:
-
-```text
-browser/app/timed trigger
-  -> real capture or structured-skip proof
-  -> encrypted queue
-  -> OCR/VLM/text/deterministic analysis
-  -> schema-valid AI result or degraded state
-  -> deterministic parent policy
-  -> action or dry-run action
-  -> journal/read model
-  -> parent portal explanation
-  -> raw image deletion proof
-```
-
-## Source Plans
-
-- [Screen Plan](../screen-plan/README.md)
-- [AI Plan](../ai-plan/README.md)
-- [Screen Real Capture Proof Matrix](../screen-plan/v0-5-real-capture-proof-matrix.md)
-- [AI Real Analysis Proof Matrix](../ai-plan/real-ai-analysis-and-pipeline-proof-matrix.md)
-- [Proof Tiers](proof-tiers.md)
-
-## Plan Files
-
-- [Pipeline Proof Matrix](pipeline-proof-matrix.md)
-- [Implementation Checklist](implementation-checklist.md)
-
-## Workpacks
-
-| Step | Workpack                                                                                               | Target State                                                                                      |
-| ---- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| 01   | [Prerequisite merge and branch gate](workpacks/01-prerequisite-merge-and-branch-gate.md)               | Pipeline work starts from a branch that contains both screen and AI prerequisite implementations. |
-| 02   | [Real trigger to capture gate](workpacks/02-real-trigger-to-capture-gate.md)                           | Browser/app/timed triggers produce real capture or structured-skip proof.                         |
-| 03   | [Capture to AI analysis gate](workpacks/03-capture-to-ai-analysis-gate.md)                             | Captured evidence routes into OCR/VLM/text/deterministic analysis.                                |
-| 04   | [AI result to policy gate](workpacks/04-ai-result-to-policy-gate.md)                                   | Schema-valid AI result feeds deterministic parent policy only.                                    |
-| 05   | [Policy action dry-run gate](workpacks/05-policy-action-dry-run-gate.md)                               | Allow/warn/ask/time-limit/block/unknown actions are proved in dry-run or real adapter mode.       |
-| 06   | [Journal read model and portal gate](workpacks/06-journal-read-model-and-portal-gate.md)               | Journal/read model and parent portal show the full chain with evidence refs.                      |
-| 07   | [Deletion retention and custody gate](workpacks/07-deletion-retention-and-custody-gate.md)             | Raw image deletion, custody labels, and no-default-remote behavior are proved.                    |
-| 08   | [Live operator proof gate](workpacks/08-live-operator-proof-gate.md)                                   | Real user-selected URLs/apps are exercised and recorded before product-complete claim.            |
-| 09   | [Performance cadence and backpressure gate](workpacks/09-performance-cadence-and-backpressure-gate.md) | Timed cadence, queue backpressure, and repeated AI analysis stay bounded.                         |
-| 10   | [Final rollout and PR gate](workpacks/10-final-rollout-and-pr-gate.md)                                 | Final report includes artifacts, screenshots, validation, gaps, and non-claims.                   |
-
-## Done Signal
-
-The pipeline pass is done only when:
-
-- screen prerequisite proof exists;
-- AI prerequisite proof exists;
-- combined pipeline proof exists for browser, app, and cadence triggers;
-- policy action or dry-run proof exists;
-- parent portal screenshots show the full chain;
-- raw images are deleted or explicit opt-in retention is proved;
-- remote/cloud screenshot upload remains disabled by default;
-- known gaps and non-claims are documented.
+- `implementation-checklist.md` unless the route names exact rows/sections.
+- `source-index.md` unless source ownership is unclear.
+- all files under `workpacks/`.
+- sibling plan folders.
+- historical proof/checkpoint docs not named by the workpack.

@@ -1,0 +1,60 @@
+use ocentra_browser_core::browser_generated_social_ts::{
+    browser_social_feed_route_classification_typescript,
+    browser_social_feed_video_route_gate_guards_typescript,
+    browser_social_feed_video_route_gate_typescript,
+    browser_social_feed_video_route_gate_values_typescript,
+    browser_social_platform_route_schemas_typescript, browser_social_video_metadata_typescript,
+    browser_url_intelligence_rules_typescript, browser_url_intelligence_schemas_typescript,
+};
+
+#[test]
+fn browser_generated_social_typescript_stays_checked_in() {
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-social-feed-route-classification.ts"
+        ),
+        browser_social_feed_route_classification_typescript()
+    );
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-social-feed-video-route-gate.ts"
+        ),
+        browser_social_feed_video_route_gate_typescript()
+    );
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-social-feed-video-route-gate-guards.ts"
+        ),
+        browser_social_feed_video_route_gate_guards_typescript()
+    );
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-social-feed-video-route-gate-values.ts"
+        ),
+        browser_social_feed_video_route_gate_values_typescript()
+    );
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-social-platform-route-schemas.ts"
+        ),
+        browser_social_platform_route_schemas_typescript()
+    );
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-social-video-metadata.ts"
+        ),
+        browser_social_video_metadata_typescript()
+    );
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-url-intelligence-rules.ts"
+        ),
+        browser_url_intelligence_rules_typescript()
+    );
+    assert_eq!(
+        include_str!(
+            "../../../../packages/schema-domain/src/generated-browser-url-intelligence-schemas.ts"
+        ),
+        browser_url_intelligence_schemas_typescript()
+    );
+}

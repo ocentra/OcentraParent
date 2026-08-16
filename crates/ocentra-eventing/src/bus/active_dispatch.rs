@@ -2,6 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use tokio::sync::Notify;
 
+use crate::ExpectValue;
+
 #[derive(Clone, Default)]
 pub(super) struct ActiveDispatchTracker {
     state: Arc<Mutex<usize>>,
@@ -10,7 +12,10 @@ pub(super) struct ActiveDispatchTracker {
 
 impl ActiveDispatchTracker {
     pub(super) fn enter(&self) -> ActiveDispatchGuard {
-        *self.state.lock().expect("active dispatch tracker lock") += 1;
+        *self
+            .state
+            .lock()
+            .expect_value("active dispatch tracker lock") += 1;
         ActiveDispatchGuard {
             tracker: self.clone(),
             active: true,
@@ -18,7 +23,10 @@ impl ActiveDispatchTracker {
     }
 
     pub(super) fn active_count(&self) -> usize {
-        *self.state.lock().expect("active dispatch tracker lock")
+        *self
+            .state
+            .lock()
+            .expect_value("active dispatch tracker lock")
     }
 
     pub(super) async fn wait_for_idle(&self) {
@@ -46,7 +54,7 @@ impl Drop for ActiveDispatchGuard {
             .tracker
             .state
             .lock()
-            .expect("active dispatch tracker lock");
+            .expect_value("active dispatch tracker lock");
         *active_count = active_count.saturating_sub(1);
         if *active_count == 0 {
             self.tracker.idle.notify_waiters();

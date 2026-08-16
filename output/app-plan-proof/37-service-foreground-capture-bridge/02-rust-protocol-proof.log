@@ -1,7 +1,0 @@
-Rust protocol proof is inherited from shared app/game WP36.
-
-WP37 does not change protocol shapes; it changes service capture wiring.
-
-Focused protocol validation:
-
-- cargo test -p ocentra-parent-agent-protocol app_game: passed, 20 tests

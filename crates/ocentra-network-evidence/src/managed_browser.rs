@@ -1,6 +1,10 @@
+mod validation;
+
 use serde::{Deserialize, Serialize};
 
-use crate::NetworkEvidenceGrade;
+use self::validation::{domains_match, validate_managed_browser_input};
+
+use crate::dns::types::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ManagedBrowserCorrelationState {
@@ -154,52 +158,4 @@ fn missing_browser_correlation(flow_ref: String) -> ManagedBrowserCorrelation {
         evidence_refs: vec![flow_ref],
         evidence_grade: NetworkEvidenceGrade::D,
     }
-}
-
-fn validate_managed_browser_input(
-    input: &ManagedBrowserCorrelationInput,
-) -> Result<(), ManagedBrowserCorrelationError> {
-    if input.network_flow.flow_ref.trim().is_empty() {
-        return Err(ManagedBrowserCorrelationError::EmptyFlowRef);
-    }
-    if input
-        .network_flow
-        .observed_domain
-        .as_ref()
-        .is_some_and(|domain| domain.trim().is_empty())
-    {
-        return Err(ManagedBrowserCorrelationError::EmptyObservedDomain);
-    }
-    if let Some(browser) = &input.managed_browser {
-        validate_browser_evidence(browser)?;
-    }
-    Ok(())
-}
-
-fn validate_browser_evidence(
-    browser: &ManagedBrowserPageEvidence,
-) -> Result<(), ManagedBrowserCorrelationError> {
-    if browser.browser_ref.trim().is_empty() {
-        return Err(ManagedBrowserCorrelationError::EmptyBrowserRef);
-    }
-    if browser.tab_ref.trim().is_empty() {
-        return Err(ManagedBrowserCorrelationError::EmptyTabRef);
-    }
-    if browser.page_url.trim().is_empty() {
-        return Err(ManagedBrowserCorrelationError::EmptyPageUrl);
-    }
-    if browser.page_domain.trim().is_empty() {
-        return Err(ManagedBrowserCorrelationError::EmptyPageDomain);
-    }
-    if browser.source_ref.trim().is_empty() {
-        return Err(ManagedBrowserCorrelationError::EmptyBrowserSourceRef);
-    }
-    Ok(())
-}
-
-fn domains_match(network_domain: &Option<String>, browser_domain: &str) -> bool {
-    network_domain
-        .as_deref()
-        .map(str::trim)
-        .is_some_and(|domain| domain.eq_ignore_ascii_case(browser_domain.trim()))
 }

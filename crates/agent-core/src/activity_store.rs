@@ -1,10 +1,18 @@
 use std::path::Path;
 
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityIngestStatus, ActivityMemoryGraphReadModel,
-    ActivityNetworkFlowReadModel, ActivityRecentSummary, AppGameServiceReadModel,
-    AppGameSessionReport, BrowserEvidenceReadModel, LocalAiParentRuleContextRef,
-    PolicyPreviewReadModel, ScreenEvidenceRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::policy_context::LocalAiParentRuleContextRef;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity_memory_graph::ActivityMemoryGraphReadModel;
+use ocentra_parent_agent_protocol::activity_query::{
+    ActivityIngestStatus, ActivityRecentSummary, ACTIVITY_QUERY_SCHEMA_VERSION,
+};
+use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, AppGameSessionReport};
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenAnalysisResult, ScreenEvidenceRecentSummary,
 };
 use rusqlite::{params, Connection};
 
@@ -17,9 +25,14 @@ use crate::{
     activity_store_parent_rule_context::replace_parent_rule_contexts,
     activity_store_policy_preview::policy_preview_read_model,
     activity_store_rows::{row_from_sqlite, summary_from_rows},
-    activity_store_screen_evidence::screen_evidence_recent_summary,
+    activity_store_screen_evidence::{
+        screen_evidence_recent_summary, screen_evidence_result_for_queue_job,
+    },
     ActivityJournal, ActivityStoreError,
 };
+
+#[path = "activity_store_app_game_access.rs"]
+mod activity_store_app_game_access;
 
 mod internals;
 
@@ -56,6 +69,10 @@ impl ActivityStore {
         }
 
         self.status_with_counts(ingested, duplicate_events)
+    }
+
+    pub fn contains_event_id(&self, event_id: &str) -> Result<bool, ActivityStoreError> {
+        internals::has_event_id(&self.connection, event_id)
     }
 
     pub fn ingest_journal(
@@ -132,6 +149,13 @@ impl ActivityStore {
         screen_evidence_recent_summary(&self.connection, limit, generated_at)
     }
 
+    pub fn screen_evidence_result_for_queue_job(
+        &self,
+        queue_job_id: &str,
+    ) -> Result<Option<ScreenAnalysisResult>, ActivityStoreError> {
+        screen_evidence_result_for_queue_job(&self.connection, queue_job_id)
+    }
+
     pub fn policy_preview_read_model(
         &self,
         limit: u64,
@@ -145,6 +169,10 @@ impl ActivityStore {
         contexts: &[LocalAiParentRuleContextRef],
     ) -> Result<(), ActivityStoreError> {
         replace_parent_rule_contexts(&self.connection, contexts)
+    }
+
+    pub fn connection_for_test(&self) -> &Connection {
+        &self.connection
     }
 
     fn status_with_counts(

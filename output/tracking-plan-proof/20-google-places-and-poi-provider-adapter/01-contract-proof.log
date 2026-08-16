@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-poi-provider-adapter tracking-location-policy: PASS
-- Google Places Nearby Search request uses POST, a bounded circle locationRestriction, included types, maxResultCount 1..20, and the minimal production field mask.
-- Provider response mapping preserves provider id/resource, display text, primary type, category, distance, confidence, ambiguity, and source evidence reference.

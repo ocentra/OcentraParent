@@ -1,6 +1,0 @@
-PASS: `cargo test -p ocentra-parent-agent-protocol app_game`
-
-Result:
-
-- 20 app-game protocol tests passed.
-- Shared WP30 Rust protocol coverage is cross-recorded for native app plan.

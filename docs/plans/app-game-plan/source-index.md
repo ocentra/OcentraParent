@@ -1,5 +1,31 @@
 # App + Game Source Index
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `App + Game Source Index`
+> Kind: source ownership index; read only when source ownership is unclear.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not inspect broad source from here; use only the named package/crate path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
+## Current source correction - 2026-08-15
+
+The older TypeScript inventory below is historical. The tracked tree contains
+no files under the former `packages/activity-domain`, `packages/parent-domain`,
+`packages/agent-protocol-domain`, or `packages/text-domain` App/Game owners, and
+no tracked `scripts/test/app-game-*` runners. Current ownership is recorded
+workpack-by-workpack in [CODE_AUDIT.md](CODE_AUDIT.md) and
+`docs/engineering-graph/code-map.json`: Rust protocol/core/service/parent
+runtime, portal/generated schema edges, and Android Java runtime sources.
+
+Do not recreate removed packages to satisfy historical workpack prose.
+
 This index records source truth for native app and native game work. It should
 be updated when implementation changes ownership, proof, or routing.
 
@@ -10,9 +36,9 @@ be updated when implementation changes ownership, proof, or routing.
 - Main architecture: [App/game evidence sessions](../../architecture/app-game-evidence-sessions.md)
 - Shared implementation route: [app + game plan](README.md)
 - Existing native app planning: [native apps plan](../app-plan/README.md)
-- App capability guide: [app control capability guide](../../app-control-capability-guide.md)
-- App settings source: [app control settings inventory](../../app-control-settings-inventory.md)
-- Game settings source: [game control settings inventory](../../game-control-settings-inventory.md)
+- App capability guide: [app control capability guide](../../plans/app-game-plan/workpacks/app-control-capability-guide.md)
+- App settings source: [app control settings inventory](../../plans/app-game-plan/workpacks/app-control-settings-inventory.md)
+- Game settings source: [game control settings inventory](../../plans/app-game-plan/workpacks/game-control-settings-inventory.md)
 - Browser-game handoff: [browser games/cloud gaming plan](../browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md)
 - Adjacent expectations: [policy](../../expectations/policy.md),
   [enforcement](../../expectations/enforcement.md),

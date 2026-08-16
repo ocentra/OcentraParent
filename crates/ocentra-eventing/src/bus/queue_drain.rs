@@ -1,10 +1,8 @@
-use crate::{EventClockInstant, EventType, EventingError, QueueDisposition, StoredEventEnvelope};
+use crate::{EventType, EventingError};
 
-use super::{
-    publish::DispatchStoredError,
-    reports::{DeadLetter, DeadLetterReason},
-    DispatchMode, EventBus, QueueDrainReport,
-};
+use super::{DispatchMode, EventBus, QueueDrainReport};
+
+mod runner;
 
 impl EventBus {
     pub async fn drain_queued(
@@ -12,15 +10,14 @@ impl EventBus {
         dispatch_mode: DispatchMode,
     ) -> Result<QueueDrainReport, EventingError> {
         self.ensure_active()?;
-        self.drain_queued_unchecked(dispatch_mode).await
+        runner::drain_queued_matching_unchecked(self, dispatch_mode, None).await
     }
 
     pub(super) async fn drain_queued_unchecked(
         &self,
         dispatch_mode: DispatchMode,
     ) -> Result<QueueDrainReport, EventingError> {
-        self.drain_queued_matching_unchecked(dispatch_mode, None)
-            .await
+        runner::drain_queued_matching_unchecked(self, dispatch_mode, None).await
     }
 
     pub(super) async fn drain_queued_for_event_unchecked(
@@ -28,97 +25,6 @@ impl EventBus {
         dispatch_mode: DispatchMode,
         event_type: &EventType,
     ) -> Result<QueueDrainReport, EventingError> {
-        self.drain_queued_matching_unchecked(dispatch_mode, Some(event_type))
-            .await
+        runner::drain_queued_matching_unchecked(self, dispatch_mode, Some(event_type)).await
     }
-
-    async fn drain_queued_matching_unchecked(
-        &self,
-        dispatch_mode: DispatchMode,
-        event_type: Option<&EventType>,
-    ) -> Result<QueueDrainReport, EventingError> {
-        let queued_before = self.queue.queued_count(event_type);
-        let mut expired_count = 0_usize;
-        let mut dispatch_reports = Vec::new();
-        let mut attempted_count = 0_usize;
-
-        while attempted_count < queued_before {
-            let Some(queued_envelope) = self.queue.take_next_queued(event_type) else {
-                break;
-            };
-            attempted_count += 1;
-            let now = self.clock.now();
-            if let Some((reason, error)) = queued_expiration(
-                &queued_envelope.stored,
-                queued_envelope.is_expired(now, self.queue.policy().ttl()),
-                now,
-            ) {
-                expired_count += 1;
-                let dead_letter = DeadLetter::for_queue(&queued_envelope.stored, reason, error);
-                self.queue.mark_completed(
-                    queued_envelope.stored.event_id.clone(),
-                    queued_envelope.stored.idempotency_key.clone(),
-                );
-                self.record_dead_letter(dead_letter).await;
-                continue;
-            }
-
-            let subscribers = self.subscribers_for(&queued_envelope.stored);
-            if subscribers.is_empty() {
-                self.queue.requeue(queued_envelope);
-                continue;
-            }
-
-            let report = match self
-                .dispatch_stored_checked(
-                    queued_envelope.stored.clone(),
-                    subscribers,
-                    dispatch_mode,
-                    self.queue.report(QueueDisposition::Dispatched),
-                    false,
-                )
-                .await
-            {
-                Ok(report) => report,
-                Err(DispatchStoredError::BeforeDispatch(error)) => {
-                    self.queue.requeue(queued_envelope);
-                    return Err(error);
-                }
-                Err(DispatchStoredError::AfterDispatch(error)) => return Err(error),
-            };
-            dispatch_reports.push(report);
-        }
-
-        Ok(QueueDrainReport {
-            queued_before,
-            dispatched_count: dispatch_reports.len(),
-            expired_count,
-            remaining_count: self.queue.queued_count(event_type),
-            dispatch_reports,
-        })
-    }
-}
-
-fn queued_expiration(
-    stored: &StoredEventEnvelope,
-    ttl_expired: bool,
-    now: EventClockInstant,
-) -> Option<(DeadLetterReason, EventingError)> {
-    if stored.is_deadline_expired(now) {
-        return Some((
-            DeadLetterReason::DeadlineExpired,
-            EventingError::EventDeadlineExpired {
-                event_type: stored.contract.event_type.clone(),
-            },
-        ));
-    }
-    if ttl_expired {
-        return Some((
-            DeadLetterReason::QueueExpired,
-            EventingError::NoSubscriber {
-                event_type: stored.contract.event_type.clone(),
-            },
-        ));
-    }
-    None
 }

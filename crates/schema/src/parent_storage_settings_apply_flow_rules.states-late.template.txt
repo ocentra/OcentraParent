@@ -1,0 +1,21 @@
+    GeneratedParentStorageRestorePreview['previewState'],
+    (preview: GeneratedParentStorageRestorePreview) => boolean
+  >
+> = {
+  partialRestore: (preview: GeneratedParentStorageRestorePreview) =>
+    preview.partialRestore && preview.rejectedSections.length > 0,
+  wrongHousehold: (preview: GeneratedParentStorageRestorePreview) => !preview.householdMatch,
+  tombstoneConflict: (preview: GeneratedParentStorageRestorePreview) => preview.rejectedSections.length > 0,
+  manualRequired: (preview: GeneratedParentStorageRestorePreview) =>
+    preview.manualRequiredNote !== null && preview.manualRequiredNote.trim().length > 0,
+};
+
+const parentStorageApplyDecisionChecksGenerated: Partial<
+  Record<GeneratedParentStorageApplyDecision['applyState'], (decision: GeneratedParentStorageApplyDecision) => boolean>
+> = {
+  blockedManualRequired: (decision: GeneratedParentStorageApplyDecision) =>
+    decision.manualRequiredNote !== null && decision.manualRequiredNote.trim().length > 0,
+  rollbackManualRequired: (decision: GeneratedParentStorageApplyDecision) =>
+    decision.manualRequiredNote !== null && decision.manualRequiredNote.trim().length > 0,
+  applyRequiresConfirmation: (decision: GeneratedParentStorageApplyDecision) => decision.manualRequiredNote === null,
+};

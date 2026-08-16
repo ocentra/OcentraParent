@@ -1,0 +1,205 @@
+/* generated from crates/schema/src/app_game_preview_source_freshness.rs */
+
+import { AppGamePolicyCompilerOutcomeState, AppGamePolicyTargetKind } from './app-game-policy-target-compiler-rules';
+import {
+  AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated,
+  AppGamePolicyPreviewNoRuntimeClaimStatesGenerated,
+  AppGamePolicyPreviewStatusGenerated,
+  AppGamePolicyPreviewTargetDomainGenerated,
+  AppGameSourceFreshnessAdapterDispatchStateGenerated,
+  AppGameSourceFreshnessCapabilityStatusGenerated,
+  AppGameSourceFreshnessPolicyReadinessStateGenerated,
+  AppGameSourceFreshnessPolicyTargetKindGenerated,
+  AppGameSourceFreshnessPreviewGateStateGenerated,
+  AppGameSourceFreshnessPreviewGateStatusGenerated,
+  AppGameSourceFreshnessReadModelStateGenerated,
+  AppGameSourceFreshnessReasonCodeGenerated,
+  AppGameSourceFreshnessRequirementKindGenerated,
+  AppGameSourceFreshnessRequirementSourceKindsGenerated,
+  AppGameSourceFreshnessRequirementStateGenerated,
+  AppGameSourceFreshnessSourceKindGenerated,
+  AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated,
+} from './generated-app-game-preview-source-freshness-values';
+
+type AppGamePolicyTargetKindValue = (typeof AppGamePolicyTargetKind)[keyof typeof AppGamePolicyTargetKind];
+type AppGamePolicyPreviewTargetDomainValue =
+  (typeof AppGamePolicyPreviewTargetDomainGenerated)[keyof typeof AppGamePolicyPreviewTargetDomainGenerated];
+type AppGamePolicyPreviewStatusValue =
+  (typeof AppGamePolicyPreviewStatusGenerated)[keyof typeof AppGamePolicyPreviewStatusGenerated];
+type AppGamePolicyCompilerOutcomeStateValue =
+  (typeof AppGamePolicyCompilerOutcomeState)[keyof typeof AppGamePolicyCompilerOutcomeState];
+type AppGameSourceFreshnessPolicyTargetKindValue =
+  (typeof AppGameSourceFreshnessPolicyTargetKindGenerated)[keyof typeof AppGameSourceFreshnessPolicyTargetKindGenerated];
+type AppGameSourceFreshnessRequirementKindValue =
+  (typeof AppGameSourceFreshnessRequirementKindGenerated)[keyof typeof AppGameSourceFreshnessRequirementKindGenerated];
+type AppGameSourceFreshnessSourceKindValue =
+  (typeof AppGameSourceFreshnessSourceKindGenerated)[keyof typeof AppGameSourceFreshnessSourceKindGenerated];
+type AppGameSourceFreshnessReadModelStateValue =
+  (typeof AppGameSourceFreshnessReadModelStateGenerated)[keyof typeof AppGameSourceFreshnessReadModelStateGenerated];
+type AppGameSourceFreshnessCapabilityStatusValue =
+  (typeof AppGameSourceFreshnessCapabilityStatusGenerated)[keyof typeof AppGameSourceFreshnessCapabilityStatusGenerated];
+type AppGameSourceFreshnessRequirementStateValue =
+  (typeof AppGameSourceFreshnessRequirementStateGenerated)[keyof typeof AppGameSourceFreshnessRequirementStateGenerated];
+type AppGameSourceFreshnessReasonCodeValue =
+  (typeof AppGameSourceFreshnessReasonCodeGenerated)[keyof typeof AppGameSourceFreshnessReasonCodeGenerated];
+type AppGameSourceFreshnessPreviewGateStatusValue =
+  (typeof AppGameSourceFreshnessPreviewGateStatusGenerated)[keyof typeof AppGameSourceFreshnessPreviewGateStatusGenerated];
+type AppGameSourceFreshnessPreviewGateStateValue =
+  (typeof AppGameSourceFreshnessPreviewGateStateGenerated)[keyof typeof AppGameSourceFreshnessPreviewGateStateGenerated];
+type AppGameSourceGatedPolicyPreviewProjectionStateValue =
+  (typeof AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated)[keyof typeof AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated];
+
+type PreviewRowLike = {
+  readonly targetDomain: AppGamePolicyPreviewTargetDomainValue;
+  readonly outcomeState: AppGamePolicyCompilerOutcomeStateValue;
+  readonly previewStatus: AppGamePolicyPreviewStatusValue;
+  readonly dryRun: boolean;
+  readonly enforcementHandoffState: unknown;
+  readonly evidenceReferences: ReadonlyArray<unknown>;
+  readonly ruleRefs: ReadonlyArray<unknown>;
+  readonly capabilityRefs: ReadonlyArray<unknown>;
+  readonly auditRefs: ReadonlyArray<unknown>;
+  readonly policyEvaluatorRuntimeClaimState: unknown;
+  readonly timerRuntimeClaimState: unknown;
+  readonly adapterDispatchState: unknown;
+  readonly childDeliveryClaimState: unknown;
+  readonly platformEnforcementClaimState: unknown;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+};
+
+type PreviewReadModelLike = {
+  readonly rows: ReadonlyArray<PreviewRowLike>;
+  readonly nativeAppRowCount: number;
+  readonly nativeGameRowCount: number;
+  readonly previewReadyCount: number;
+  readonly manualRequiredCount: number;
+  readonly rejectedCount: number;
+};
+
+type SourceStatusRowLike = {
+  readonly sourceKind: AppGameSourceFreshnessSourceKindValue;
+  readonly state: AppGameSourceFreshnessReadModelStateValue;
+  readonly rowCount: number;
+  readonly lastObservedAt: unknown;
+  readonly capabilityStatus: AppGameSourceFreshnessCapabilityStatusValue;
+  readonly evidence: ReadonlyArray<unknown>;
+};
+
+type RequirementResultLike = {
+  readonly requirementKind: AppGameSourceFreshnessRequirementKindValue;
+  readonly requirementState: AppGameSourceFreshnessRequirementStateValue;
+  readonly reasonCode: AppGameSourceFreshnessReasonCodeValue | null;
+  readonly matchedSourceKinds: ReadonlyArray<AppGameSourceFreshnessSourceKindValue>;
+  readonly sourceEvidenceRefs: ReadonlyArray<unknown>;
+  readonly lastObservedAt: unknown;
+};
+
+type SourceFreshnessTargetLike = {
+  readonly targetKind: AppGameSourceFreshnessPolicyTargetKindValue;
+  readonly targetRef: unknown;
+};
+
+type SourceFreshnessReadinessLike = {
+  readonly requirementResults: ReadonlyArray<RequirementResultLike>;
+  readonly policyEvidenceRefs: ReadonlyArray<unknown>;
+  readonly policyCompileAllowed: boolean;
+  readonly directAdapterCallRequested: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+type SourceFreshnessRequirementFailure = {
+  readonly requirementState: AppGameSourceFreshnessRequirementStateValue;
+  readonly reasonCode: AppGameSourceFreshnessReasonCodeValue;
+};
+
+type SourceFreshnessRequirementFailureCheck = (
+  row: SourceStatusRowLike,
+  evaluatedAt: unknown,
+  maxSourceAgeMs: number
+) => SourceFreshnessRequirementFailure | null;
+
+type SourceFreshnessRequestLike = {
+  readonly schemaVersion: string;
+  readonly policyRequestId: string;
+  readonly target: SourceFreshnessTargetLike;
+  readonly requiredSources: ReadonlyArray<AppGameSourceFreshnessRequirementKindValue>;
+  readonly maxSourceAgeMs: number;
+  readonly sourceStatusRows: ReadonlyArray<SourceStatusRowLike>;
+  readonly requestedAt: string;
+  readonly sourceRowsFromActivityReadModel: true;
+  readonly rawPrivateSourceRowsIncluded: false;
+};
+
+type SourceFreshnessPreviewGateRowLike = {
+  readonly targetDomain: AppGamePolicyPreviewTargetDomainValue;
+  readonly previewStatus: AppGameSourceFreshnessPreviewGateStatusValue;
+  readonly gateState: AppGameSourceFreshnessPreviewGateStateValue;
+  readonly sourcePolicyCompileAllowed: boolean;
+  readonly sourceReadinessState: unknown;
+  readonly sourceRequirementStates: ReadonlyArray<unknown>;
+  readonly sourceEvidenceRefs: ReadonlyArray<unknown>;
+  readonly previewRow: {
+    readonly targetDomain: AppGamePolicyPreviewTargetDomainValue;
+    readonly previewStatus: unknown;
+  } | null;
+  readonly compiledDecisionProvided: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+};
+
+type SourceFreshnessPreviewGateReadModelLike = {
+  readonly rows: ReadonlyArray<SourceFreshnessPreviewGateRowLike>;
+  readonly nativeAppRowCount: number;
+  readonly nativeGameRowCount: number;
+  readonly previewReadyCount: number;
+  readonly manualRequiredCount: number;
+  readonly sourceManualRequiredCount: number;
+  readonly compilerManualRequiredCount: number;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+};
+
+type SourceGatedPolicyPreviewReadModelRowLike = {
+  readonly targetDomain: AppGamePolicyPreviewTargetDomainValue;
+  readonly gateState: AppGameSourceFreshnessPreviewGateStateValue;
+  readonly projectionState: AppGameSourceGatedPolicyPreviewProjectionStateValue;
+  readonly previewStatus: AppGameSourceFreshnessPreviewGateStatusValue;
+  readonly sourcePolicyCompileAllowed: boolean;
+  readonly sourceEvidenceRefs: ReadonlyArray<unknown>;
+  readonly previewDecisionRef: unknown | null;
+  readonly serviceRuntimeEventClaimed: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+type SourceGatedPolicyPreviewReadModelLike = {
+  readonly rows: ReadonlyArray<SourceGatedPolicyPreviewReadModelRowLike>;
+  readonly nativeAppRowCount: number;
+  readonly nativeGameRowCount: number;
+  readonly previewReadyVisibleCount: number;
+  readonly sourceManualRequiredVisibleCount: number;
+  readonly compilerManualRequiredVisibleCount: number;
+  readonly serviceRuntimeEventClaimed: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};

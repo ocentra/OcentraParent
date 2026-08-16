@@ -1,8 +1,0 @@
-{
-  "claim": "bounded Windows packaged-app manifest source",
-  "source": "AppxManifest.xml",
-  "runtimeUseClaimed": false,
-  "foregroundUseClaimed": false,
-  "defaultUnsupportedPlatformBehavior": "empty event list",
-  "rawPathExposure": "hashed source refs only"
-}

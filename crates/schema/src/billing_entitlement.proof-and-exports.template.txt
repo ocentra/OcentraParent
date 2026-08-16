@@ -1,0 +1,50 @@
+
+export const BillingReferralCreditSummarySchema = withParser(
+  Schema.Struct({
+    activeQualifiedReferralParents: NonNegativeBillingCountSchema,
+    activeReferralCredits: NonNegativeBillingCountSchema,
+    pendingReferralInvites: NonNegativeBillingCountSchema,
+    revokedReferralCredits: NonNegativeBillingCountSchema,
+  }).pipe(
+    Schema.filter(
+      (summary) =>
+        summary.activeReferralCredits === summary.activeQualifiedReferralParents ||
+        'Expected active referral credits to match the count of active qualified referral parents'
+    )
+  )
+);
+
+export const BillingEntitlementContractProofSchema = withParser(
+  Schema.Struct({
+    schemaVersion: BillingEntitlementSchemaVersionSchema,
+    plan: BillingPlanSchema,
+    entitlementSnapshot: BillingEntitlementSnapshotSchema,
+    referralCreditSummary: BillingReferralCreditSummarySchema,
+    subscriptionStatusProofRows: Schema.Array(BillingSubscriptionStatusProofRowSchema),
+    billingSyncEvents: Schema.Array(BillingSyncEventSchema),
+    deviceLimitDecisions: Schema.Array(BillingDeviceLimitDecisionSchema),
+    failureStates: Schema.Array(BillingFailureStateSchema),
+    nonClaims: Schema.Array(BillingEntitlementNonClaimSchema),
+    stripeSdkClaim: BillingStripeSdkClaimSchema,
+    billingProviderBackendClaim: BillingProviderBackendClaimSchema,
+    portalUiClaim: BillingPortalUiClaimSchema,
+    childActivityCustodyClaim: BillingChildActivityCustodyClaimSchema,
+    updatedAt: ParentTimestampSchema,
+  }).pipe(
+    Schema.filter(
+      (proof) =>
+        billingEntitlementProofIsHonest(proof) ||
+        'Expected billing entitlement proof to keep provider UI custody and safety-shutdown non-claims explicit'
+    )
+  )
+);
+
+export type BillingPlan = Infer<typeof BillingPlanSchema>;
+export type BillingEntitlementSeatComposition = Infer<typeof BillingEntitlementSeatCompositionSchema>;
+export type BillingEntitlementSnapshot = Infer<typeof BillingEntitlementSnapshotSchema>;
+export type BillingSubscriptionStatusProofRow = Infer<typeof BillingSubscriptionStatusProofRowSchema>;
+export type BillingSyncEvent = Infer<typeof BillingSyncEventSchema>;
+export type BillingDeviceLimitDecision = Infer<typeof BillingDeviceLimitDecisionSchema>;
+export type BillingReferralCreditSummary = Infer<typeof BillingReferralCreditSummarySchema>;
+export type BillingFailureState = Infer<typeof BillingFailureStateSchema>;
+export type BillingEntitlementContractProof = Infer<typeof BillingEntitlementContractProofSchema>;

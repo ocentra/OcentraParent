@@ -1,4 +1,12 @@
+mod aggregation;
+mod validation;
+
 use serde::{Deserialize, Serialize};
+
+use self::{
+    aggregation::{aggregate_rows, regression_codes},
+    validation::validate_input,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkPerformanceScenarioType {
@@ -202,7 +210,7 @@ pub fn evaluate_network_performance_benchmark(
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-struct NetworkPerformanceAggregate {
+pub(super) struct NetworkPerformanceAggregate {
     fixture_count: u32,
     packet_count: u32,
     flow_count: u32,
@@ -221,193 +229,4 @@ struct NetworkPerformanceAggregate {
     path_states: Vec<NetworkPerformancePathState>,
     false_positive_count: u32,
     false_negative_count: u32,
-}
-
-fn validate_input(
-    input: &NetworkPerformanceBenchmarkInput,
-) -> Result<(), NetworkPerformanceBenchmarkError> {
-    if input.benchmark_run_ref.trim().is_empty() {
-        return Err(NetworkPerformanceBenchmarkError::EmptyBenchmarkRunRef);
-    }
-    if input.fixture_set_ref.trim().is_empty() {
-        return Err(NetworkPerformanceBenchmarkError::EmptyFixtureSetRef);
-    }
-    if input.event_history_ref.trim().is_empty() {
-        return Err(NetworkPerformanceBenchmarkError::EmptyEventHistoryRef);
-    }
-    if input.resource_snapshot_ref.trim().is_empty() {
-        return Err(NetworkPerformanceBenchmarkError::EmptyResourceSnapshotRef);
-    }
-    validate_claims(input)?;
-    validate_thresholds(&input.thresholds)?;
-    if input.rows.is_empty() {
-        return Err(NetworkPerformanceBenchmarkError::EmptyRows);
-    }
-    for row in &input.rows {
-        if row.scenario_ref.trim().is_empty() {
-            return Err(NetworkPerformanceBenchmarkError::EmptyScenarioRef);
-        }
-        if row.measurement_window_ms == 0 {
-            return Err(NetworkPerformanceBenchmarkError::EmptyMeasurementWindow);
-        }
-    }
-    Ok(())
-}
-
-fn validate_claims(
-    input: &NetworkPerformanceBenchmarkInput,
-) -> Result<(), NetworkPerformanceBenchmarkError> {
-    if input.realtime_response_claimed {
-        return Err(NetworkPerformanceBenchmarkError::RealtimeResponseClaimRejected);
-    }
-    if input.production_slo_claimed {
-        return Err(NetworkPerformanceBenchmarkError::ProductionSloClaimRejected);
-    }
-    if input.raw_pcap_claimed {
-        return Err(NetworkPerformanceBenchmarkError::RawPcapClaimRejected);
-    }
-    if input.decrypted_payload_claimed {
-        return Err(NetworkPerformanceBenchmarkError::DecryptedPayloadClaimRejected);
-    }
-    if input.page_content_claimed {
-        return Err(NetworkPerformanceBenchmarkError::PageContentClaimRejected);
-    }
-    if input.exact_url_claimed {
-        return Err(NetworkPerformanceBenchmarkError::ExactUrlClaimRejected);
-    }
-    if input.adapter_action_claimed {
-        return Err(NetworkPerformanceBenchmarkError::AdapterActionClaimRejected);
-    }
-    if input.host_filtering_claimed {
-        return Err(NetworkPerformanceBenchmarkError::HostFilteringClaimRejected);
-    }
-    if input.enforcement_command_claimed {
-        return Err(NetworkPerformanceBenchmarkError::EnforcementCommandClaimRejected);
-    }
-    Ok(())
-}
-
-fn validate_thresholds(
-    thresholds: &NetworkPerformanceBenchmarkThresholds,
-) -> Result<(), NetworkPerformanceBenchmarkError> {
-    let valid = thresholds.max_packet_to_detection_latency_ms > 0
-        && thresholds.min_event_throughput_per_second > 0
-        && thresholds.max_cpu_millis > 0
-        && thresholds.max_memory_peak_kib > 0
-        && thresholds.max_disk_written_bytes > 0
-        && thresholds.min_high_concurrency_flow_count > 0;
-    if valid {
-        Ok(())
-    } else {
-        Err(NetworkPerformanceBenchmarkError::InvalidThresholds)
-    }
-}
-
-fn aggregate_rows(rows: &[NetworkPerformanceBenchmarkRow]) -> NetworkPerformanceAggregate {
-    let mut aggregate = NetworkPerformanceAggregate {
-        fixture_count: 0,
-        packet_count: 0,
-        flow_count: 0,
-        event_count: 0,
-        max_packet_to_summary_latency_ms: 0,
-        max_packet_to_detection_latency_ms: 0,
-        max_detection_to_cascade_latency_ms: 0,
-        max_cascade_to_command_latency_ms: None,
-        event_throughput_per_second: 0,
-        max_cpu_millis: 0,
-        max_memory_peak_kib: 0,
-        total_disk_written_bytes: 0,
-        max_queue_depth: 0,
-        dropped_event_count: 0,
-        high_concurrency_flow_count: 0,
-        path_states: Vec::new(),
-        false_positive_count: 0,
-        false_negative_count: 0,
-    };
-
-    let mut total_measurement_window_ms = 0_u64;
-    for row in rows {
-        aggregate.fixture_count += row.fixture_count;
-        aggregate.packet_count += row.packet_count;
-        aggregate.flow_count += row.flow_count;
-        aggregate.event_count += row.event_count;
-        aggregate.max_packet_to_summary_latency_ms = aggregate
-            .max_packet_to_summary_latency_ms
-            .max(row.packet_to_summary_latency_ms);
-        aggregate.max_packet_to_detection_latency_ms = aggregate
-            .max_packet_to_detection_latency_ms
-            .max(row.packet_to_detection_latency_ms);
-        aggregate.max_detection_to_cascade_latency_ms = aggregate
-            .max_detection_to_cascade_latency_ms
-            .max(row.detection_to_cascade_latency_ms);
-        aggregate.max_cpu_millis = aggregate.max_cpu_millis.max(row.cpu_millis);
-        aggregate.max_memory_peak_kib = aggregate.max_memory_peak_kib.max(row.memory_peak_kib);
-        aggregate.total_disk_written_bytes += row.disk_written_bytes;
-        aggregate.max_queue_depth = aggregate.max_queue_depth.max(row.queue_depth);
-        aggregate.dropped_event_count += row.dropped_event_count;
-        aggregate.false_positive_count += row.false_positive_count;
-        aggregate.false_negative_count += row.false_negative_count;
-        total_measurement_window_ms += u64::from(row.measurement_window_ms);
-        push_path_state(&mut aggregate.path_states, row.path_state);
-
-        if let Some(latency_ms) = row.cascade_to_command_latency_ms {
-            aggregate.max_cascade_to_command_latency_ms = Some(
-                aggregate
-                    .max_cascade_to_command_latency_ms
-                    .map_or(latency_ms, |existing| existing.max(latency_ms)),
-            );
-        }
-        if row.scenario_type == NetworkPerformanceScenarioType::HighConcurrency {
-            aggregate.high_concurrency_flow_count += row.flow_count;
-        }
-    }
-
-    aggregate.event_throughput_per_second = if total_measurement_window_ms == 0 {
-        0
-    } else {
-        ((u64::from(aggregate.event_count) * 1_000) / total_measurement_window_ms) as u32
-    };
-    aggregate
-}
-
-fn regression_codes(
-    aggregate: &NetworkPerformanceAggregate,
-    thresholds: &NetworkPerformanceBenchmarkThresholds,
-) -> Vec<NetworkPerformanceRegressionCode> {
-    let mut codes = Vec::new();
-    if aggregate.max_packet_to_detection_latency_ms > thresholds.max_packet_to_detection_latency_ms
-    {
-        codes.push(NetworkPerformanceRegressionCode::PacketToDetectionLatencyExceeded);
-    }
-    if aggregate.event_throughput_per_second < thresholds.min_event_throughput_per_second {
-        codes.push(NetworkPerformanceRegressionCode::EventThroughputBelowMinimum);
-    }
-    if aggregate.max_queue_depth > thresholds.max_queue_depth {
-        codes.push(NetworkPerformanceRegressionCode::QueueDepthExceeded);
-    }
-    if aggregate.dropped_event_count > thresholds.max_dropped_event_count {
-        codes.push(NetworkPerformanceRegressionCode::DroppedEventsObserved);
-    }
-    if aggregate.max_cpu_millis > thresholds.max_cpu_millis {
-        codes.push(NetworkPerformanceRegressionCode::CpuBudgetExceeded);
-    }
-    if aggregate.max_memory_peak_kib > thresholds.max_memory_peak_kib {
-        codes.push(NetworkPerformanceRegressionCode::MemoryBudgetExceeded);
-    }
-    if aggregate.total_disk_written_bytes > thresholds.max_disk_written_bytes {
-        codes.push(NetworkPerformanceRegressionCode::DiskBudgetExceeded);
-    }
-    if aggregate.high_concurrency_flow_count < thresholds.min_high_concurrency_flow_count {
-        codes.push(NetworkPerformanceRegressionCode::HighConcurrencyFlowCountBelowMinimum);
-    }
-    codes
-}
-
-fn push_path_state(
-    path_states: &mut Vec<NetworkPerformancePathState>,
-    path_state: NetworkPerformancePathState,
-) {
-    if !path_states.contains(&path_state) {
-        path_states.push(path_state);
-    }
 }

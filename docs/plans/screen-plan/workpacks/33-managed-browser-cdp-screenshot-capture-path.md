@@ -1,5 +1,19 @@
 # 33 Managed Browser CDP Screenshot Capture Path
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `33 Managed Browser CDP Screenshot Capture Path`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 CDP screenshot capture is scoped to managed browser page/window/crop and never becomes desktop capture.
@@ -10,13 +24,13 @@ This is capture MVP for browser pages, browser games, video, social web, and web
 
 ## Checklist
 
-- [x] Verify current Chrome DevTools Protocol `Page.captureScreenshot` docs.
-- [x] Define page, viewport, and crop capture modes.
-- [x] Keep capture tied to managed browser target ID.
-- [x] Add capture size and crop limits.
-- [x] Queue image through encrypted temporary image queue.
-- [x] Record URL/title/target evidence refs.
-- [x] Exclude live screencast from MVP default.
+- [ ] Verify current Chrome DevTools Protocol `Page.captureScreenshot` docs.
+- [ ] Define page, viewport, and crop capture modes.
+- [ ] Keep capture tied to managed browser target ID.
+- [ ] Add capture size and crop limits.
+- [ ] Queue image through encrypted temporary image queue.
+- [ ] Record URL/title/target evidence refs.
+- [ ] Exclude live screencast from MVP default.
 
 ## Proof
 

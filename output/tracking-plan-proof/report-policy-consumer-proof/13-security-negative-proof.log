@@ -1,4 +1,0 @@
-Security/no-claim proof:
-
-- Consumer-readiness rows do not claim portal UI completion, child-device delivery, provider delivery, notification receipts, authority enrollment, physical-device behavior, or product completion.
-- The policy drill-in row requires a parsed policy decision and cited evidence references.

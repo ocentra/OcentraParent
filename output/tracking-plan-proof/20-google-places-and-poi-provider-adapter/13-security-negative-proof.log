@@ -1,7 +1,0 @@
-Security/no-claim proof:
-
-- Wildcard Google Places field masks are rejected.
-- Radius is bounded to 25..1000 meters and the request must include at least one included type.
-- Credentials are not stored and live Google provider execution is not claimed.
-- Mapped nearby-place rows preserve ambiguity and do not claim exact child location or physical-device proof.
-- Provider quota/unavailable errors degrade to provider-unavailable instead of silent success.

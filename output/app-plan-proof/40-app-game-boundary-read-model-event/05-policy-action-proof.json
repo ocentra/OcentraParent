@@ -1,8 +1,0 @@
-{
-  "workpack": "40-app-game-boundary-read-model-event",
-  "policyDecisionAdded": false,
-  "policyConsumptionAdded": false,
-  "directActionRequested": false,
-  "adapterDispatchAdded": false,
-  "scope": "native-app cross-record of backend read-model event exposure only"
-}

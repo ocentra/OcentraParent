@@ -1,5 +1,0 @@
-workpack=27-escalation-engine
-AI analysis refs are counted as evidence context only; aiScheduledEscalation is always false.
-Emergency services auto-contact is always false for MVP escalation readiness rows.
-Provider delivery, receipt ingestion, credentials, cloud routing, child delivery, physical-device proof, and production workers are all non-claims.
-Critical alerts become manual-required multi-channel review rows unless resolved by explicit child check-in proof.

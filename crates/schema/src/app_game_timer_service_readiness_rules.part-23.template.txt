@@ -1,0 +1,30 @@
+  blockedBySourceFreshnessCount: rows.filter(
+    (row) =>
+      row.serviceReadinessReadModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedBySourceFreshness
+  ).length,
+  blockedByCompilerDecisionCount: rows.filter(
+    (row) =>
+      row.serviceReadinessReadModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedByCompilerDecision
+  ).length,
+});
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelCountsMatchGenerated = (
+  readModel: TimerServiceReadinessReadModelLike
+) =>
+  readModel.serviceReadModelProofRequiredCount ===
+    readModel.rows.filter(
+      (row) =>
+        row.serviceReadinessReadModelState ===
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.ServiceReadModelProofRequired &&
+        row.serviceReadinessProofRequired &&
+        row.serviceReadApiProofRequired &&
+        !row.serviceReadApiImplemented &&
+        !row.timerScheduled &&
+        !row.adapterDispatchClaimed
+    ).length &&
+  readModel.blockedBySourceFreshnessCount ===
+    readModel.rows.filter(
+      (row) =>
+        row.serviceReadinessReadModelState ===

@@ -1,5 +1,0 @@
-PASS: source freshness requests require sourceRowsFromActivityReadModel=true.
-PASS: source freshness requests require rawPrivateSourceRowsIncluded=false.
-PASS: policy readiness rejects directAdapterCallRequested=true.
-PASS: non-empty source rows must cite evidence refs.
-PASS: stale, missing, and not-claimed source rows block policy compile.

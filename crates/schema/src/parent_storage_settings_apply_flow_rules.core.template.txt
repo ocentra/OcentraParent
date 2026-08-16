@@ -1,0 +1,44 @@
+/* generated from crates/schema/src/parent_storage_settings_apply_flow.rs */
+
+import {
+  GeneratedParentStorageCopyKeys,
+  GeneratedParentStorageDeleteActionKinds,
+  GeneratedParentStorageModeLabels,
+  GeneratedParentStorageNoClaims,
+  type GeneratedParentStorageApplyDecision,
+  type GeneratedParentStorageClaimSafeCopyRow,
+  type GeneratedParentStorageDeleteActionRow,
+  type GeneratedParentStorageDisconnectRow,
+  type GeneratedParentStorageModeCard,
+  type GeneratedParentStorageRestorePreview,
+  type GeneratedParentStorageSettingsApplyFlowContractProof,
+} from './generated-parent-storage-settings-apply-flow-contracts';
+
+export function parentStorageModeCardIsHonestGenerated(card: GeneratedParentStorageModeCard): boolean {
+  if (!card.restorePreviewAvailable || !card.summary.trim()) {
+    return false;
+  }
+
+  const check = parentStorageModeCardChecksGenerated[card.currentModeLabel];
+  return check?.(card) ?? true;
+}
+
+export function parentStorageRestorePreviewIsHonestGenerated(preview: GeneratedParentStorageRestorePreview): boolean {
+  if (
+    !preview.confirmationRequired ||
+    !preview.localTruthAuthoritative ||
+    !preview.tombstonesPreserved ||
+    !preview.productVersion.trim() ||
+    !preview.schemaVersion.trim()
+  ) {
+    return false;
+  }
+
+  const check = parentStorageRestorePreviewChecksGenerated[preview.previewState];
+  return check?.(preview) ?? true;
+}
+
+export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedParentStorageApplyDecision): boolean {
+  if (!decision.confirmationRequired) {
+    return false;
+  }

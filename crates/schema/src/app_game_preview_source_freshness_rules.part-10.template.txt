@@ -1,0 +1,30 @@
+  if (row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.NotClaimed) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.NotClaimed,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.NotClaimedSourceStatus,
+    } as const;
+  }
+
+  return null;
+}
+
+function sourceRowMissingEvidenceFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
+  if (row.evidence.length === 0) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.MissingEvidence,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.MissingSourceEvidence,
+    } as const;
+  }
+
+  return null;
+}
+
+function evaluateRequirementGenerated(
+  request: SourceFreshnessRequestLike,
+  requirementKind: AppGameSourceFreshnessRequirementKindValue,
+  evaluatedAt: string
+): RequirementResultLike {
+  const rows = appGameSourceFreshnessRowsForRequirementGenerated(request.sourceStatusRows, requirementKind);
+
+  if (rows.length === 0) {
+    return {

@@ -1,9 +1,0 @@
-Command:
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- browser-plan-package-exports.test.ts
-
-Result:
-PASS packages/parent-domain/tests/browser-plan-package-exports.test.ts
-
-Proof:
-The test reads packages/parent-domain/package.json directly and asserts exact
-subpath export objects for the browser-plan social and browser-game modules.

@@ -1,6 +1,0 @@
-{
-  "workpack": "39-authority-classifier-read-model-counts",
-  "journalSqliteChange": false,
-  "nativeAppRows": "reuse shared app/game staged rows",
-  "readModelExposure": "existing app-use/games payload counts"
-}

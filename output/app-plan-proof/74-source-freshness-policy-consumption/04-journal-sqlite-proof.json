@@ -1,5 +1,0 @@
-{
-  "schemaVersion": 1,
-  "journalSqliteClaim": "not-applicable",
-  "reason": "WP74 consumes backend read-model rows from WP47 after the WP72 freshness gate and does not add journal or SQLite storage."
-}

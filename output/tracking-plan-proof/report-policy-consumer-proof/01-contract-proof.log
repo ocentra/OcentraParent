@@ -1,5 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-report-policy-consumer-proof tracking-location-policy: PASS
-- Report, policy drill-in, and retention export consumer rows parse through parent-domain schemas.

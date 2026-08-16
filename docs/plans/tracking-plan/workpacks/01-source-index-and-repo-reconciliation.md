@@ -1,5 +1,19 @@
 # WP01 Source Index And Repo Reconciliation
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `WP01 Source Index And Repo Reconciliation`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Purpose
 
 Keep all tracking work grounded in the current repo sources and the two pasted
@@ -29,15 +43,20 @@ Proof root: `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/
 
 ## AI Worker Checklist
 
-- [ ] Read the source index and this workpack.
-- [ ] Update source references only when a current source doc changes.
-- [ ] Do not cite inaccessible ChatGPT share content as read.
-- [ ] Keep pasted drafts as planning input, not runtime contract source.
-- [ ] Report product-doc updates or why none were needed.
+- [x] Read the source index and this workpack.
+- [x] Update source references only when a current source doc changes.
+- [x] Do not cite inaccessible ChatGPT share content as read.
+- [x] Keep pasted drafts as planning input, not runtime contract source.
+- [x] Report product-doc updates or why none were needed.
 
 ## Where We Are
 
-This workpack is planning-only until its implementation branch produces the proof root below. Existing source docs describe the intended capability, but runtime/product-complete behavior is not claimed yet.
+The 2026-08-15 code-first audit re-inventoried the live checkout and replaced
+the stale source route. `packages/tracking-domain` and the advertised
+`scripts/test/tracking-*.mjs` suite are absent; current owners are the Rust
+schema/protocol/tracking/runtime/policy/notification/AI/service crates and the
+presentation-only portal paths listed in `source-index.md`. No product status
+was advanced.
 
 ## Where We Want To Be
 
@@ -64,9 +83,17 @@ This workpack can be assigned independently, implemented against the owning doma
 
 ## Fill This Before Reporting DONE Or PR-ready
 
-- [ ] Workpack id and branch.
-- [ ] Touched files.
-- [ ] Validation commands and results.
-- [ ] Proof artifacts under `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/`.
-- [ ] Product doc/checklist updates or reason none were needed.
-- [ ] Known gaps/manual-required states.
+- [ ] Workpack id and branch: `codex/tracking-plan-code-audit`.
+- [ ] Touched files: source index, current snapshot, implementation checklist,
+      WP01/WP02 docs, source reconciliation proof script, generated WP01/WP02 proof
+      roots, and product-checklist delta queue.
+- [ ] Validation commands and results: Phase 2 focused validation remains open;
+      the formerly named tracking proof command does not exist in this checkout.
+- [ ] Proof artifacts under
+      `output/tracking-plan-proof/01-source-index-and-repo-reconciliation/`.
+- [ ] Product doc/checklist updates: source index, current snapshot,
+      implementation checklist, and owning feature doc/checklist delta queue; the
+      shared capability checklist file was not edited by this lane.
+- [ ] Known gaps/manual-required states: physical-device, authority-enrolled,
+      provider delivery/receipt, full product UI, retention product runtime,
+      production workers, and product-ready tracking remain proof-gated.

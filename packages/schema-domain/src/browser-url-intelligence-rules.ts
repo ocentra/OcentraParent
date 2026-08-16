@@ -1,0 +1,13 @@
+import {
+  browserUrlShapeClassificationResultIsConsistent as GeneratedbrowserUrlShapeClassificationResultIsConsistent,
+  browserUrlIntelligenceMemoryHitIsConsistent as GeneratedbrowserUrlIntelligenceMemoryHitIsConsistent,
+} from './generated-browser-url-intelligence-rules';
+import type {
+  BrowserUrlShapeClassificationCandidate as GeneratedBrowserUrlShapeClassificationCandidate,
+  BrowserUrlIntelligenceMemoryHitCandidate as GeneratedBrowserUrlIntelligenceMemoryHitCandidate,
+} from './generated-browser-url-intelligence-rules';
+
+export const browserUrlShapeClassificationResultIsConsistent = GeneratedbrowserUrlShapeClassificationResultIsConsistent;
+export const browserUrlIntelligenceMemoryHitIsConsistent = GeneratedbrowserUrlIntelligenceMemoryHitIsConsistent;
+export type BrowserUrlShapeClassificationCandidate = GeneratedBrowserUrlShapeClassificationCandidate;
+export type BrowserUrlIntelligenceMemoryHitCandidate = GeneratedBrowserUrlIntelligenceMemoryHitCandidate;

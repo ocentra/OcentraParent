@@ -1,2 +1,0 @@
-eventing-production-shutdown-proof-ok:shutdown-mode-exists,shutdown-report-exists,shutdown-state-exists,shutdown-method-exists,drain-mode-drains-queued,shutdown-dead-letters-remaining-queued,test-only-drop-mode-reports-drops,pending-requests-cancelled,publish-rejects-after-shutdown,request-registry-cancel-for-shutdown,dead-letter-reason-shutdown,drain-test-exists,dead-letter-test-exists,drop-test-exists,request-cancel-test-exists
-proof=output\eventing-plan-proof\74-production-shutdown\proof-summary.json

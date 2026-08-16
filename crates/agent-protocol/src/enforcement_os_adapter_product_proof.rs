@@ -7,7 +7,15 @@ use crate::{
     EnforcementRollbackState, ParentPlatform,
 };
 
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08OsAdapterProductProofSurface {
     #[serde(rename = "owned-process-terminate")]
     OwnedProcessTerminate,
@@ -37,30 +45,28 @@ pub enum V08OsAdapterProductProofSurface {
 
 impl V08OsAdapterProductProofSurface {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::OwnedProcessTerminate => proof_constants::SURFACE_OWNED_PROCESS_TERMINATE,
-            Self::AppTimeLimitLifecycle => proof_constants::SURFACE_APP_TIME_LIMIT_LIFECYCLE,
-            Self::BroadAppBlocking => proof_constants::SURFACE_BROAD_APP_BLOCKING,
-            Self::NetworkDomainBlocking => proof_constants::SURFACE_NETWORK_DOMAIN_BLOCKING,
-            Self::ManagedBrowserServiceCommand => {
-                proof_constants::SURFACE_MANAGED_BROWSER_SERVICE_COMMAND
-            }
-            Self::ManagedBrowserExactUrl => proof_constants::SURFACE_MANAGED_BROWSER_EXACT_URL,
-            Self::UnmanagedBrowserProcessOnly => {
-                proof_constants::SURFACE_UNMANAGED_BROWSER_PROCESS_ONLY
-            }
-            Self::UnmanagedBrowserExactEvidence => {
-                proof_constants::SURFACE_UNMANAGED_BROWSER_EXACT_EVIDENCE
-            }
-            Self::RestartRecovery => proof_constants::SURFACE_RESTART_RECOVERY,
-            Self::ParentCancelOverride => proof_constants::SURFACE_PARENT_CANCEL_OVERRIDE,
-            Self::AuditCustody => proof_constants::SURFACE_AUDIT_CUSTODY,
-            Self::RollbackArtifactGate => proof_constants::SURFACE_ROLLBACK_ARTIFACT_GATE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof_constants::SURFACE_OWNED_PROCESS_TERMINATE,
+                proof_constants::SURFACE_APP_TIME_LIMIT_LIFECYCLE,
+                proof_constants::SURFACE_BROAD_APP_BLOCKING,
+                proof_constants::SURFACE_NETWORK_DOMAIN_BLOCKING,
+                proof_constants::SURFACE_MANAGED_BROWSER_SERVICE_COMMAND,
+                proof_constants::SURFACE_MANAGED_BROWSER_EXACT_URL,
+                proof_constants::SURFACE_UNMANAGED_BROWSER_PROCESS_ONLY,
+                proof_constants::SURFACE_UNMANAGED_BROWSER_EXACT_EVIDENCE,
+                proof_constants::SURFACE_RESTART_RECOVERY,
+                proof_constants::SURFACE_PARENT_CANCEL_OVERRIDE,
+                proof_constants::SURFACE_AUDIT_CUSTODY,
+                proof_constants::SURFACE_ROLLBACK_ARTIFACT_GATE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08OsAdapterProductProofTimerRecoveryState {
     #[serde(rename = "not-required")]
     NotRequired,
@@ -78,18 +84,22 @@ pub enum V08OsAdapterProductProofTimerRecoveryState {
 
 impl V08OsAdapterProductProofTimerRecoveryState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotRequired => proof_constants::TIMER_STATE_NOT_REQUIRED,
-            Self::RestartRecovered => proof_constants::TIMER_STATE_RESTART_RECOVERED,
-            Self::Cancelled => proof_constants::TIMER_STATE_CANCELLED,
-            Self::Expired => proof_constants::TIMER_STATE_EXPIRED,
-            Self::ManualRequired => proof_constants::TIMER_STATE_MANUAL_REQUIRED,
-            Self::Unavailable => proof_constants::TIMER_STATE_UNAVAILABLE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof_constants::TIMER_STATE_NOT_REQUIRED,
+                proof_constants::TIMER_STATE_RESTART_RECOVERED,
+                proof_constants::TIMER_STATE_CANCELLED,
+                proof_constants::TIMER_STATE_EXPIRED,
+                proof_constants::TIMER_STATE_MANUAL_REQUIRED,
+                proof_constants::TIMER_STATE_UNAVAILABLE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08OsAdapterProductProofAuditState {
     #[serde(rename = "journaled")]
     Journaled,
@@ -101,15 +111,19 @@ pub enum V08OsAdapterProductProofAuditState {
 
 impl V08OsAdapterProductProofAuditState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Journaled => proof_constants::AUDIT_STATE_JOURNALED,
-            Self::ManualRequired => proof_constants::AUDIT_STATE_MANUAL_REQUIRED,
-            Self::Unavailable => proof_constants::AUDIT_STATE_UNAVAILABLE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof_constants::AUDIT_STATE_JOURNALED,
+                proof_constants::AUDIT_STATE_MANUAL_REQUIRED,
+                proof_constants::AUDIT_STATE_UNAVAILABLE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08OsAdapterProductProofParentOverrideState {
     #[serde(rename = "not-required")]
     NotRequired,
@@ -123,12 +137,15 @@ pub enum V08OsAdapterProductProofParentOverrideState {
 
 impl V08OsAdapterProductProofParentOverrideState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotRequired => proof_constants::PARENT_OVERRIDE_NOT_REQUIRED,
-            Self::CancelSupported => proof_constants::PARENT_OVERRIDE_CANCEL_SUPPORTED,
-            Self::ManualRequired => proof_constants::PARENT_OVERRIDE_MANUAL_REQUIRED,
-            Self::Unavailable => proof_constants::PARENT_OVERRIDE_UNAVAILABLE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof_constants::PARENT_OVERRIDE_NOT_REQUIRED,
+                proof_constants::PARENT_OVERRIDE_CANCEL_SUPPORTED,
+                proof_constants::PARENT_OVERRIDE_MANUAL_REQUIRED,
+                proof_constants::PARENT_OVERRIDE_UNAVAILABLE,
+            ]
+        )
     }
 }
 

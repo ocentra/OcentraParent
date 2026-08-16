@@ -1,2 +1,0 @@
-eventing-branded-fixture-parity-proof-ok:shared-fixture-exists,rust-tests-include-shared-fixture,rust-tests-cover-valid-scalars,rust-tests-cover-invalid-scalars,typescript-uses-effect-schema-brands,typescript-validates-same-fixture
-proof=output\eventing-plan-proof\68-fixture-parity\proof-summary.json
