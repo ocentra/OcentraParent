@@ -8,6 +8,7 @@ use self::network_flow::dispatch_parent_ui_action_network_flow_refresh;
 use self::rust_owned_command::dispatch_parent_ui_action_rust_owned_command;
 use self::state::ActionDispatchState;
 use super::policy_preview::authoring;
+use super::policy_preview::resolution;
 use super::presentation::parent_access_state_for_lan_read_model;
 use super::*;
 
@@ -70,6 +71,7 @@ fn dispatch_parent_ui_action_policy_authoring(
         ParentUiActionKind::PolicyPreviewAuthoringDraftStaged
             | ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled
             | ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested
+            | ParentUiActionKind::PolicyRequestParentResolutionRequested
     );
     if !is_policy_authoring_action {
         return false;
@@ -135,6 +137,45 @@ fn dispatch_parent_ui_action_policy_authoring(
                     }
                     Err(error) => {
                         let _ = authoring::release(&draft, preview_id, &parent_access_state);
+                        state.reject(error);
+                    }
+                },
+                Err(error) => state.reject(error),
+            }
+        }
+        ParentUiActionKind::PolicyRequestParentResolutionRequested => {
+            let Some(lan_read_model) = lan_route_query.read_model() else {
+                state.reject("parent resolution requires local controller authority");
+                return true;
+            };
+            match resolution::begin(
+                &action.payload,
+                &read_model,
+                &parent_access_state,
+                Some(lan_read_model),
+            ) {
+                Ok(staged) => match resolution::request_payload(&staged) {
+                    Ok(payload) => {
+                        let relay_action = ParentUiAction {
+                            payload,
+                            ..action.clone()
+                        };
+                        dispatch_parent_ui_action_rust_owned_command(&relay_action, true, state);
+                        if state.accepted {
+                            if let Err(error) = resolution::commit(&staged) {
+                                let _ = resolution::restore(&staged);
+                                state.reject(error);
+                            } else {
+                                state.message =
+                                    "parent Rust facade relayed the typed parent resolution"
+                                        .to_string();
+                            }
+                        } else if let Err(error) = resolution::restore(&staged) {
+                            state.reject(error);
+                        }
+                    }
+                    Err(error) => {
+                        let _ = resolution::restore(&staged);
                         state.reject(error);
                     }
                 },

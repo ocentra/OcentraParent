@@ -14,6 +14,8 @@ mod details;
 mod helpers;
 #[path = "policy_preview/panel.rs"]
 mod panel;
+#[path = "policy_preview/resolution.rs"]
+pub(super) mod resolution;
 #[path = "policy_preview/summary.rs"]
 mod summary;
 
