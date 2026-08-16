@@ -12309,12 +12309,12 @@
       "path": "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12709,12 +12709,12 @@
       "path": "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12745,12 +12745,12 @@
       "path": "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "code-drafted; unvalidated; integration/tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12781,12 +12781,12 @@
       "path": "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "code-drafted; unvalidated; integration/tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true

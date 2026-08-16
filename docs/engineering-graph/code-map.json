@@ -2491,8 +2491,11 @@
     "WP-app-plan-48-portal-source-freshness-surface": {
       "planSlug": "app-plan",
       "roots": [
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/activity-ui-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
         "apps/portal/generated/parent-ui-bridge.ts",
-        "apps/portal/src/live-activity-state.ts",
+        "apps/portal/src/ParentPortalRoute.tsx",
         "apps/portal/tests/live-activity/live-activity-state.test.ts"
       ]
     },
@@ -2602,21 +2605,27 @@
     "WP-app-plan-63-source-freshness-source-panel-polish": {
       "planSlug": "app-plan",
       "roots": [
-        "apps/portal/generated/parent-ui-bridge.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-source-panel-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/app-game-dashboard-intent.ts",
+        "vendor/ocentra-parent-core-ui/AppPages/ParentPortal/ParentPortalSvgSurface.tsx",
         "apps/portal/tests/live-activity/live-activity-state.test.ts"
       ]
     },
     "WP-app-plan-64-notification-provider-status-handoff": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_status.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_status_types.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_preflight.rs",
         "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
       ]
     },
     "WP-app-plan-65-notification-preference-status-handoff": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
+        "crates/app-game-core/src/app_game_child_ux_preference_status.rs",
+        "crates/app-game-core/src/app_game_child_ux_preference_status_types.rs",
+        "crates/app-game-core/src/app_game_child_ux_preference_preflight.rs",
         "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
       ]
     },

@@ -38,6 +38,12 @@ WP15 now hydrates the existing portal app/game dashboard from the local
 agent-service app-use and games read models through the parent runtime bridge;
 the production slice is unvalidated and tests/proof/checklist closure remain
 deferred.
+WP48’s existing source-freshness dashboard ownership is reconciled to the
+vendor portal implementation. WP63 now renders its existing typed source
+panel sections beside capability and evidence panels; both remain unvalidated
+with tests/proof/checklist deferred. WP64/WP65 retain app-game-core handoff
+models only; agent-service/portal integration is still an honest dependency
+gap.
 
 The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
 WP26, WP48, WP49, WP62, WP63, WP64, WP65, and
