@@ -4,7 +4,7 @@ Use this file to select exactly one workpack. Use `WORKPACK_FAMILIES.md` only wh
 
 | Workpack | Purpose | Status |
 | ------------------------------------------------------------------------------- | --------------------------------------------- | ------- |
-| [01-policy-source-of-truth](workpacks/01-policy-source-of-truth.md) | Typed policy source truth, versioning, ownership. | Open — contract code exists; trusted identity-backed durable source owner and production caller are missing |
+| [01-policy-source-of-truth](workpacks/01-policy-source-of-truth.md) | Typed policy source truth, versioning, ownership. | Open — contract code exists, but production authority is blocked on Cloudflare WP06 (transitive Account Identity WP08), Device Trust WP01/WP03, and a missing durable source registration/query caller |
 | [02-parent-authoring-preview](workpacks/02-parent-authoring-preview.md) | Parent UI intent, templates, preview, confirmation. | Code drafted / unvalidated / tests deferred; open |
 | [03-domain-policy-compilers](workpacks/03-domain-policy-compilers.md) | Domain compiler contracts and handoffs. | Open — deterministic compiler library exists; no shipped authoritative-source-to-domain compiler caller |
 | [04-delivery-ack-audit](workpacks/04-delivery-ack-audit.md) | Delivery, ack, retry, rollback, and audit. | Contract and trace-backed receipt bridge code drafted but unvalidated; child handoff/runtime integration, tests, and proof remain blocked; caller receipts remain evidence |
@@ -26,6 +26,8 @@ Open: workpack remains blocked or incomplete and cannot be promoted by related c
 - Select exactly one workpack.
 - If owner/proof family is unclear, classify through `WORKPACK_FAMILIES.md`.
 - Keep WP02 open until rendered authoring/preview/conflict/approval surfaces have targeted proof or explicit dependency blockers.
+- WP01 cannot become READY from caller-supplied authority, provisioning input, fixture/manual auth, debug custody, or device-lifecycle storage; its owner-backed prerequisites and production source registration/query caller must be reviewed first.
+- Policy WP03 must remain downstream of WP01's authoritative source registration and active-version query boundary; deterministic compiler contracts alone do not satisfy that handoff.
 - Keep WP05 open until parent confirmation, assistant preview, child-agent validation, notification handoff, expiry, replay, and audit paths have targeted proof or explicit dependency blockers.
 - Do not use compiler, event, or source-truth proof to close WP02/WP05.
 - Do not claim full plan readiness while WP02 or WP05 remain open.

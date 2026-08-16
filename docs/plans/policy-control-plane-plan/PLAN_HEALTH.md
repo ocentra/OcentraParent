@@ -12,7 +12,8 @@ Known risks: duplicate policy truth, ad hoc domain compilers, assistant writes w
 ## State
 
 - Current state: route/contract docs and retained proof exist, but WP01/WP03 are contract-only with no trusted durable source owner or shipped compiler caller; WP02/WP04/WP05 also remain open. WP06/WP07/WP08 route evidence without establishing those production paths.
-- Current action: implement WP01 source authority before WP03 compiler composition, then consume that output in WP04/Screen-AI; keep all production-open workpacks out of DONE/PR_READY.
+- WP01 has reviewed hard implementation prerequisites: Cloudflare WP06 (which consumes Account Identity WP08), Device Trust WP01, and Device Trust WP03. These owner dependencies provide the trusted durable account/household authority and policy-change device/step-up context; they do not claim those workpacks complete.
+- Current action: implement the owner-backed WP01 source authority and registration/query caller before WP03 compiler composition, then consume that output in WP04/Screen-AI; keep all production-open workpacks out of DONE/PR_READY.
 
 ## Required hygiene before PR_READY
 

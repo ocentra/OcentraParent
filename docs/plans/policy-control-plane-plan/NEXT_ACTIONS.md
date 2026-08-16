@@ -13,6 +13,7 @@
 - `workpacks/03-domain-policy-compilers.md` has deterministic Rust contract code and retained contract proof. The formerly cited `@ocentra-parent/policy-domain` package is absent, and no shipped caller loads an authoritative source and invokes a domain compiler.
 - `workpacks/04-delivery-ack-audit.md` has contract/receipt evidence in the Rust owners, but no trusted execution authority or active delivery composition.
 - WP01 and WP03 are production-open despite their contract artifacts. WP02/WP04/WP05 are also open; WP06/WP07/WP08 retain routed proof bundles without upgrading those production gaps.
+- WP01 dependency gate is explicit: first consume Cloudflare WP06's durable identity/household owner (transitive Account Identity WP08) plus Device Trust WP01/WP03 trusted-device and step-up context; then add the durable source repository, trusted resolver, startup recovery, and shipped registration/active-version query caller. Caller-supplied authority and fixture/manual/debug custody remain invalid substitutes.
 - WP02 still depends on rendered parent authoring/preview/conflict/approval surfaces outside this owner slice.
 - WP02 code pass checkpoint: Rust-owned draft validation/staging, trusted preview-row authority projection, typed confirmed-request relay, and bounded handle mark-before-dispatch/restore-on-failure/commit-on-success now back the portal draft/confirm/cancel surface; missing authority context fails closed for manual review, validation and tests remain deferred, and no runtime completion claim is made.
 - WP05 production-code checkpoint: the Rust resolution command/service and delivery-binding validation exist, and a drafted typed decision staging/relay slice now maps `action_dispatch.rs`, `policy_preview.rs`, and `policy_preview/resolution.rs`. It projects `Modify` from trusted preview context only, binds actor identity to the local active-controller record, and fails closed for missing or ambiguous account/identity context. The rendered portal callback, account/identity provider composition, notification-provider dispatch, WP11 durability, runtime integration, validation/tests, and proof remain open; no completion claim is made.
@@ -20,10 +21,10 @@
 
 ## Ordered workpacks
 
-- [ ] Complete `workpacks/01-policy-source-of-truth.md` with trusted identity-backed durable source persistence and a shipped registration/query caller; existing type/proof coverage is contract-only.
+- [ ] Complete `workpacks/01-policy-source-of-truth.md` after Cloudflare WP06 (transitive Account Identity WP08) and Device Trust WP01/WP03 authority prerequisites are available, then add trusted identity-backed durable source persistence, startup recovery, and a shipped registration/active-version query caller; existing type/proof coverage is contract-only.
 - [x] Close `workpacks/07-schedule-time-budget-conflict-model.md` with timezone/DST and conflict precedence proof.
 - [ ] Close `workpacks/02-parent-authoring-preview.md` with preview, conflict, and mobile/accessibility proof.
-- [ ] Complete `workpacks/03-domain-policy-compilers.md` with a shipped active-source-to-domain compiler/persist-or-deliver composition; deterministic library tests are insufficient.
+- [ ] Complete `workpacks/03-domain-policy-compilers.md` only after WP01's authoritative source registration/active-version query boundary exists, with a shipped active-source-to-domain compiler/persist-or-deliver composition; deterministic library tests are insufficient.
 - [ ] Complete `workpacks/04-delivery-ack-audit.md` with trusted per-device/domain delivery authority and an inspectable execution trace; caller-built receipts are evidence only.
 - [x] Close `workpacks/08-policy-event-model.md` with event family, idempotency, and replay proof.
 - [ ] Close `workpacks/05-ask-parent-overrides.md` with approval, expiry, replay, and assistant-preview proof.

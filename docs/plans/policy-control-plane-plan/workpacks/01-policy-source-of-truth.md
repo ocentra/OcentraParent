@@ -6,6 +6,32 @@ Owns: source document shape, policy versioning, actor/role/household scope, sche
 
 Handoff: portal and AI may draft or preview only. Domain plans consume compiled outputs only. Data custody owns export/delete/sync custody.
 
+## Production authority boundary
+
+The current Rust source/validator contracts are not a production source of truth:
+the authority-bearing registration APIs still accept caller-supplied actor
+authority, and this workpack has no non-test durable repository, active-version
+query, startup recovery, or shipped registration caller. A contract test or a
+portal/provisioning input therefore cannot make WP01 ready.
+
+Production implementation must consume the owner-backed authority chain before
+it can register or activate a policy source:
+
+- Account Identity WP08 owns the canonical account/household/member/session
+  authority. It is reached transitively through Cloudflare WP06.
+- Cloudflare WP06 owns the durable D1-backed identity/household persistence
+  and migration/binding boundary required by that authority chain.
+- Device Trust WP01 owns trusted-device source-of-truth context, and Device
+  Trust WP03 owns parent step-up authorization for policy-changing operations.
+
+These are hard implementation prerequisites, not completion claims for those
+owner workpacks. WP01 remains open until a durable source repository, trusted
+authority resolver, startup recovery path, and shipped registration/active
+version query caller exist. Caller-provided authority, provisioning input,
+fixture/manual auth, debug custody, or device-lifecycle storage must not be
+accepted as a substitute. Policy WP03 must consume this authoritative source
+registration/query boundary before composing domain compilers.
+
 ## Required source entities
 
 ```text

@@ -60,6 +60,8 @@ domain plans:
 - Feature-owned parent authoring and assistant approval surfaces remain incomplete and cannot be claimed done from contract tests alone.
 - WP02 production-code pass is drafted but unvalidated: Rust validates/stages the portal draft, projects exact household/child/profile/policy/source/actor context from the trusted preview row, builds and dispatches the typed confirmed-request command from the bounded handle, consumes only after accepted relay, and restores failed pending drafts; absent context fails closed for manual review, and tests/runtime validation remain deferred.
 - WP03 is contract-drafted but production-open: deterministic Rust compilers and validators exist, but non-test callers do not register an identity-backed durable parent policy source, load an active version, invoke the Screen/AI compilers, or persist/deliver their artifacts. The production confirmation route records an audit event; it does not establish active policy source truth.
+- WP01 authority routing is now explicit: production source registration/query requires Cloudflare WP06's durable identity/household persistence (which consumes Account Identity WP08), Device Trust WP01's trusted-device context, and Device Trust WP03's parent step-up context. These are hard prerequisites, not completion claims; no caller-supplied authority or fixture/manual/debug custody path satisfies them.
+- Policy WP03 is ordered after WP01 because its compiler library has no shipped authoritative-source caller; it cannot be promoted from deterministic contract code until WP01 supplies the durable active-source registration/query boundary.
 - The canonical proof root for this plan is `docs/proof/policy-control-plane-plan/`, and the touched route docs in this slice now agree on that single root.
 - `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` records current file presence and route status. WP01/WP03 have contract proof only and remain production-open; WP04 has contract proof but remains runtime-blocked on owner-backed adapter identity/trace; WP02/WP05 also remain open.
 
@@ -76,6 +78,7 @@ domain plans:
 - Single-domain ack is not global active policy.
 - policy-domain package identity is not canonical policy source truth.
 - Focused contract passes are not full plan completion while WP02/WP05 remain open.
+- WP01's owner-backed authority prerequisites are not optional documentation: Account Identity WP08 is transitive through Cloudflare WP06, while Device Trust WP01/WP03 provide the trusted-device and step-up context for policy-changing source operations.
 ```
 
 ## Current proof interpretation

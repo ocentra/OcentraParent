@@ -2,6 +2,34 @@
   "schemaVersion": 1,
   "workpackReviews": [
     {
+      "id": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+      ],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/policy-control-plane-plan/PLAN_HEALTH.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "WP01 has contract-only policy source APIs with caller-supplied authority and no non-test durable source registration/query caller. Production authority requires the Cloudflare WP06 durable identity boundary (which consumes Account Identity WP08) plus Device Trust WP01 trusted-device context and WP03 parent step-up context. This review records hard prerequisites only; it does not claim any owner workpack, policy code, tests, proof, or readiness complete."
+    },
+    {
+      "id": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "hardDependencies": ["WP-policy-control-plane-plan-01-policy-source-of-truth"],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "The deterministic compiler contracts cannot become a shipped production composition until Policy WP01 owns an authoritative source registration and active-version query boundary. This review does not claim compiler callers, persistence, delivery, tests, proof, or readiness complete."
+    },
+    {
       "id": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
       "hardDependencies": ["WP-policy-control-plane-plan-03-domain-policy-compilers"],
       "evidence": [
@@ -52,6 +80,51 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "Policy source registration needs the durable Cloudflare identity/household persistence and migration boundary; Cloudflare WP06 already consumes the canonical Account Identity WP08 handoff, so no redundant direct Account WP08 edge is added here."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Policy-changing source registration requires the trusted-device source context owned by Device Trust WP01; policy contracts or caller-provided device identifiers cannot substitute for that owner."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "Policy-changing source registration requires parent step-up authorization owned by Device Trust WP03; receipt-shaped contract tests do not establish a trusted policy-change authority."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
+      ],
+      "reason": "Domain compilers must consume the active authoritative policy source owned by WP01; deterministic compiler library code alone cannot establish a production source-to-compiler path."
+    },
     {
       "from": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
       "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
