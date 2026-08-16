@@ -43,6 +43,28 @@ scheduler handoff without claiming provider delivery or production runtime.
 - Child-device delivery, policy evaluator execution, adapter dispatch, broad
   app/game blocking, or platform support.
 
+## Current Code Audit (2026-08-15)
+
+- `app_game_child_ux_scheduler` already validates one canonical
+  `NotificationLocalOutboxRecord` and maps an honest queued-local record to a
+  `DueLocal` scheduler record while rejecting unsafe delivery/private-data
+  claims.
+- `AppGameChildUxSchedulerProofStore` already provides atomic persistence,
+  reopen, exact-replay idempotency, and same-identity conflict rejection. Its
+  persisted rows deliberately keep production durable-outbox, provider,
+  receipt, cloud, UI, and private-metadata claims false.
+- Existing child-UX contract tests exercise due, manual, unavailable,
+  persistence, reopen, replay, and conflict behavior for individual canonical
+  records.
+- No current production function consumes the WP58
+  `AppGameNotificationLocalOutboxBridgeReadModel`, retains its blocked
+  manual/unavailable rows in a WP59 result, or serializes/parses the resulting
+  scheduler records as deterministic JSONL. Those are the remaining bounded
+  WP59 source/test gaps.
+- The historical parent-domain source/test/proof paths named below are absent;
+  current ownership is Rust `app-game-core` plus the canonical agent-protocol
+  scheduler schema.
+
 ## Proof
 
 - `packages/parent-domain/src/app-game-notification-scheduler-bridge.ts`

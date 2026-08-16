@@ -72,7 +72,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [54 policy readiness portal renderer](workpacks/54-policy-readiness-portal-renderer.md) | Complete |
 | [56 notification service read model](workpacks/56-notification-service-read-model.md) | Complete |
 | [58 notification local outbox bridge](workpacks/58-notification-local-outbox-bridge.md) | **Complete for bounded Phase 1; Phase 2 passed; proof open** |
-| [59 notification scheduler bridge](workpacks/59-notification-scheduler-bridge.md) | **Incomplete** |
+| [59 notification scheduler bridge](workpacks/59-notification-scheduler-bridge.md) | **Incomplete; per-record scheduler/store exist, WP58 bridge missing** |
 | [60 notification audit history bridge](workpacks/60-notification-audit-history-bridge.md) | **Incomplete** |
 | [61 notification provider preflight](workpacks/61-notification-provider-preflight.md) | **Incomplete** |
 | [62 notification preference preflight](workpacks/62-notification-preference-preflight.md) | **Incomplete** |

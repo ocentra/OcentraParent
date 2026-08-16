@@ -24,6 +24,14 @@ WP58 outbox linking.
 - Policy evaluator execution, broad app blocking, adapter dispatch, or
   platform support.
 
+## Current Code Audit (2026-08-15)
+
+The shared Rust owner already has a safe per-record canonical scheduler route,
+an atomic scheduler proof store, and tests for due/manual/unavailable mapping,
+reopen, idempotent replay, and identity conflicts. It does not yet consume the
+WP58 bridge read model, preserve blocked WP58 rows in a WP59 result, or
+round-trip scheduler JSONL. Historical parent-domain and proof paths are absent.
+
 ## Proof
 
 - Shared source:
