@@ -28,14 +28,28 @@ claiming UI or delivery.
 - Child-device delivery, policy evaluator execution, broad app blocking,
   adapter dispatch, or platform support.
 
+## Current Code Audit (2026-08-15)
+
+- `app_game_child_ux_preference_preflight` validates one scheduler row against
+  its persisted local-outbox source record and rejects identity, evidence, and
+  unsafe-claim mismatches.
+- Due-local rows require distinct parent-preference, notification-frequency,
+  and quiet-hours refs; manual and unavailable states remain blocked.
+- Focused Rust contract tests cover due/manual/unavailable, unpersisted,
+  mismatched, claimed, and duplicate-requirement paths.
+- No current WP62 owner consumes the complete WP59 read model, verifies the
+  durable scheduler store, generates deterministic requirements, or retains
+  blocked rows as one native-app read model. Historical `packages/parent-domain`
+  and proof-harness routes are absent.
+
 ## Proof
 
-- Shared source:
-  `packages/parent-domain/src/app-game-notification-preference-preflight.ts`
-- Shared test:
-  `packages/parent-domain/tests/app-game-notification-preference-preflight.test.ts`
-- Harness:
-  `scripts/test/app-game-notification-preference-preflight-proof.mjs`
+- Current implementation:
+  `crates/app-game-core/src/app_game_child_ux_preference_preflight.rs`
+- Current types:
+  `crates/app-game-core/src/app_game_child_ux_preference_preflight_types.rs`
+- Current focused tests:
+  `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
 - Native app proof pack:
   `output/app-plan-proof/62-notification-preference-preflight/`
 
