@@ -567,7 +567,7 @@ test('repository bootstrap is queryable and keeps plan scope isolated', async ()
   const globalSummary = summarizeGraph(value, undefined, { root: repoRoot });
   assert.deepEqual(
     globalSummary.ready.map((node) => node.id),
-    []
+    ['WP-eventing-plan-09-network-consumer-event-chain']
   );
   assert.ok(globalSummary.blocked.length > 0);
 });

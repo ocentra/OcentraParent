@@ -126,12 +126,28 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 
 - Workpacks indexed: 13 route workpacks.
 - Workpack source: `05-implementation-workpacks.md` rows split into focused files under `workpacks/`.
-- Historical route docs describe prior closure for WP01-WP11, but the cited proof bundle is not present in this checkout. WP06 is locally evidenced by its durable hand-authored manifest because enforcement WP11 needs its exact generic handoff.
-- Workpacks open in truth: WP10 consumer-boundary handoff.
-- Current meaning: implementation surfaces exist across the crate and its mirrors; WP06/WP11/WP12/WP13 are locally proved. The plan remains open because WP10 still lacks its required proof roots and consumer-plan handoff verification.
+- Historical route docs describe prior closure for WP01-WP08 and WP11-WP13,
+  but the cited proof bundle is not present in this checkout. WP06 is locally
+  evidenced by its durable hand-authored manifest because enforcement WP11
+  needs its exact generic handoff.
+- WP09 is the single legal READY code packet for the missing network production
+  foundation. Its contracts are present, but agent-core/agent-service still
+  lack ingestion-time publish, deterministic identity/idempotency, a
+  network-owned durable journal, startup replay, and removal of read-time
+  republish side effects before readiness. Downstream AI, policy, enforcement,
+  audit, and portal consumers remain blocked/fail-closed. No hard dependency is
+  recorded; tests, proof, CI, review, and merge remain open.
+- Workpacks open in truth: WP09 implementation/validation/proof gates and WP10
+  consumer-boundary handoff.
+- Current meaning: implementation surfaces exist across the crate and its
+  mirrors; WP06/WP11/WP12/WP13 are locally proved. The plan remains open
+  because WP09 lacks its production implementation/proof gates and WP10 lacks
+  its required proof roots and consumer-plan handoff verification.
 
 ### Active/open workpacks
 
+- [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
+  (READY for code implementation; tests/validation/proof deferred)
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
 
 ## Validation reality

@@ -829,7 +829,9 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
     }
     const evidence = Array.isArray(review?.evidence) ? review.evidence : [];
     if (evidence.length === 0) rejectionReasons.push('evidence must contain existing plan/workpack review paths');
-    const malformedEvidence = evidence.filter((reference) => typeof reference !== 'string' || reference.trim().length === 0);
+    const malformedEvidence = evidence.filter(
+      (reference) => typeof reference !== 'string' || reference.trim().length === 0
+    );
     rejectionReasons.push(...malformedEvidence.map(() => 'evidence entries must be non-empty strings'));
     const missingEvidence = evidence
       .filter((reference) => typeof reference === 'string' && reference.trim().length > 0)
@@ -958,7 +960,10 @@ export async function buildBootstrapGraph({ root, overridesPath = OVERRIDES_PATH
   // checklist prose cannot leave a false DONE node behind.
   for (const node of nodes) {
     if (node.kind !== 'workpack' || node.state !== 'done') continue;
-    const gaps = completionGaps(repoRoot, node);
+    // Bootstrap persists source-derived graph state. Generated proof output is
+    // live validation evidence and must not change the checked-in graph when
+    // an ignored artifact happens to exist in one checkout.
+    const gaps = completionGaps(repoRoot, node, { includeExpectedArtifacts: false });
     if (gaps.length === 0) continue;
     node.state = 'validation';
     node.lifecycleState = 'validation';
@@ -1017,7 +1022,7 @@ function nodeMap(graph) {
   return new Map(graph.nodes.map((node) => [node.id, node]));
 }
 
-export function completionGaps(root, node) {
+export function completionGaps(root, node, { includeExpectedArtifacts = true } = {}) {
   if (!node.completion) return [];
   const gaps = [];
   const required = new Set(node.completion.required ?? []);
@@ -1045,9 +1050,11 @@ export function completionGaps(root, node) {
         gaps.push(`${requirement}: planning document is not executable evidence ${reference}`);
       }
     }
-    for (const reference of expected) {
-      if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
-        gaps.push(`${requirement}: missing expected artifact ${reference}`);
+    if (includeExpectedArtifacts) {
+      for (const reference of expected) {
+        if (!pathExistsSync(root, reference) && !durableProofSatisfiesExpected(root, node, requirement)) {
+          gaps.push(`${requirement}: missing expected artifact ${reference}`);
+        }
       }
     }
   }

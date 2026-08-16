@@ -40,6 +40,16 @@
       "reason": "Removing fabricated AI policy authority has no separate code-writing prerequisite, but the product handoff explicitly delegates policy authority to the Policy compiler contract; keep that exact owner dependency visible."
     },
     {
+      "id": "WP-eventing-plan-09-network-consumer-event-chain",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/eventing-plan/PLAN_STATE.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP09 is the smallest legal production foundation for the missing network consumer chain. Its reviewed roots cover capture ingestion, ActivityStore/runtime, and agent-service delivery/read-model ownership; fixture/prove/TEST network_event_runtime files are not shipped production topology. No separate hard code-writing prerequisite is recorded. The open implementation boundary is ingestion-time capture publish, deterministic identity/idempotency, a network-owned durable journal, startup replay/recovery, and removal of read-time side effects. AI, policy, enforcement, audit, and portal consumers remain downstream blocked/fail-closed. Tests, proof, CI, review, and merge remain open; READY scheduling does not claim completion or unblock Network WP04."
+    },
+    {
       "id": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
       "hardDependencies": [
         "WP-eventing-plan-09-network-consumer-event-chain",

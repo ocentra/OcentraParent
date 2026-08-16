@@ -4129,7 +4129,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/01-contract-boundary-and-effect-schemas; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4137,7 +4137,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/01-contract-boundary-and-effect-schemas",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4173,7 +4172,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/02-source-index-and-doc-reconciliation; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4181,7 +4180,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/02-source-index-and-doc-reconciliation",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4217,7 +4215,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/03-current-app-game-snapshot-and-gap-map; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4225,7 +4223,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/03-current-app-game-snapshot-and-gap-map",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4261,7 +4258,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/04-app-game-identity-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4269,7 +4266,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/04-app-game-identity-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4303,7 +4299,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/05-inventory-evidence-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4311,7 +4307,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/05-inventory-evidence-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4345,7 +4340,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/06-windows-installed-inventory-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4353,7 +4348,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/06-windows-installed-inventory-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4389,7 +4383,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4397,7 +4391,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/07-windows-store-uwp-appx-inventory-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4433,7 +4426,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4441,7 +4434,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/08-windows-process-runtime-evidence-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4477,7 +4469,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/09-windows-foreground-evidence-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4485,7 +4477,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/09-windows-foreground-evidence-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4521,7 +4512,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4529,7 +4520,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4565,7 +4555,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/11-cross-platform-authority-matrix; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4573,7 +4563,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/11-cross-platform-authority-matrix",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4609,7 +4598,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4617,7 +4606,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/12-app-game-category-and-risk-taxonomy",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4653,7 +4641,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/15-read-models-and-service-events; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4661,7 +4649,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/15-read-models-and-service-events",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4697,7 +4684,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4705,7 +4692,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/16-parent-portal-app-game-dashboard-surfaces",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4741,7 +4727,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/165-app-game-dashboard-platform-capability-limitations; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4749,7 +4735,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/165-app-game-dashboard-platform-capability-limitations",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4785,7 +4770,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/176-app-game-blocking-time-limit-done-gate; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4793,7 +4778,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/176-app-game-blocking-time-limit-done-gate",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4901,7 +4885,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/196-app-game-apple-ci-platform-proof-preflight; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4909,7 +4893,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/196-app-game-apple-ci-platform-proof-preflight",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4945,7 +4928,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/197-app-game-linux-docker-host-preflight; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4953,7 +4936,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/197-app-game-linux-docker-host-preflight",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -4989,7 +4971,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/198-app-game-android-usage-events-capability-proof; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -4997,7 +4979,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/198-app-game-android-usage-events-capability-proof",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5033,7 +5014,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/199-app-game-android-usage-events-runtime-preflight; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5041,7 +5022,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/199-app-game-android-usage-events-runtime-preflight",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5113,7 +5093,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/200-app-game-android-usage-events-count-sample; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5121,7 +5101,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/200-app-game-android-usage-events-count-sample",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5157,7 +5136,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/201-app-game-android-usage-events-package-runtime-proof; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5165,7 +5144,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/201-app-game-android-usage-events-package-runtime-proof",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5237,7 +5215,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5245,7 +5223,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5281,7 +5258,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/23-broad-blocking-proof-gates; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5289,7 +5266,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/23-broad-blocking-proof-gates",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5323,7 +5299,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5331,7 +5307,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/26-install-uninstall-purchase-store-handoffs",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5367,7 +5342,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5375,7 +5350,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/28-e2e-manual-proof-rollout-pr-gate",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5411,7 +5385,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/32-live-process-snapshot-source; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5419,7 +5393,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/32-live-process-snapshot-source",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5455,7 +5428,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/33-live-process-journal-sqlite-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5463,7 +5436,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/33-live-process-journal-sqlite-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5499,7 +5471,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/34-service-capture-app-game-live-process-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5507,7 +5479,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/34-service-capture-app-game-live-process-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -5543,7 +5514,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-game-plan-proof/35-service-app-game-recurring-freshness; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -5551,7 +5522,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-game-plan-proof/35-service-app-game-recurring-freshness",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "possibly done"
@@ -10373,7 +10343,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/02-source-index-and-doc-reconciliation; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10381,7 +10351,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/02-source-index-and-doc-reconciliation",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, docs-only"
@@ -10417,7 +10386,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/03-current-app-snapshot-and-gap-map; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10425,7 +10394,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/03-current-app-snapshot-and-gap-map",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, docs-only"
@@ -10459,7 +10427,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/04-app-identity-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10467,7 +10435,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/04-app-identity-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10501,7 +10468,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/05-installed-app-inventory-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10509,7 +10476,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/05-installed-app-inventory-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10543,7 +10509,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/06-windows-installed-app-inventory-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10551,7 +10517,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/06-windows-installed-app-inventory-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10587,7 +10552,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10595,7 +10560,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/07-windows-store-uwp-appx-inventory-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10631,7 +10595,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/08-windows-process-runtime-evidence-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10639,7 +10603,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/08-windows-process-runtime-evidence-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10675,7 +10638,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/09-windows-foreground-app-evidence-adapter; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10683,7 +10646,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/09-windows-foreground-app-evidence-adapter",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10719,7 +10681,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/10-cross-platform-authority-matrix; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10727,7 +10689,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/10-cross-platform-authority-matrix",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10761,7 +10722,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/11-app-category-and-risk-taxonomy; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10769,7 +10730,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/11-app-category-and-risk-taxonomy",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10803,7 +10763,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/12-app-sessionization-and-duration-engine; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10811,7 +10771,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/12-app-sessionization-and-duration-engine",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10847,7 +10806,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/13-journal-and-sqlite-app-ingest; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10855,7 +10814,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/13-journal-and-sqlite-app-ingest",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -10889,7 +10847,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/14-app-read-models-and-service-events; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -10897,7 +10855,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/14-app-read-models-and-service-events",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11147,7 +11104,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11155,7 +11112,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/21-windows-owned-process-terminate-time-limit-proof",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11191,7 +11147,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/22-broad-blocking-proof-gates; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11199,7 +11155,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/22-broad-blocking-proof-gates",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, coordination-only"
@@ -11233,7 +11188,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/23-app-ai-classifier-digest-boundary; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11241,7 +11196,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/23-app-ai-classifier-digest-boundary",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11277,7 +11231,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/24-platform-extension-checklist-and-proof-routing; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11285,7 +11239,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/24-platform-extension-checklist-and-proof-routing",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, coordination-only"
@@ -11321,7 +11274,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/25-install-and-uninstall-approval-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11329,7 +11282,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/25-install-and-uninstall-approval-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded handoff"
@@ -11399,7 +11351,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/27-e2e-and-manual-proof-artifacts; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11407,7 +11359,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/27-e2e-and-manual-proof-artifacts",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, proof-routing only"
@@ -11441,7 +11392,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/28-rollout-checklist-and-pr-gate; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11449,7 +11400,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/28-rollout-checklist-and-pr-gate",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, coordination-only"
@@ -11483,7 +11433,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/29-rust-protocol-evidence-identity-parity; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11491,7 +11441,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/29-rust-protocol-evidence-identity-parity",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11527,7 +11476,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/30-rust-protocol-authority-classifier-parity; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11535,7 +11484,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/30-rust-protocol-authority-classifier-parity",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11571,7 +11519,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/31-journal-sqlite-authority-classifier-storage; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11579,7 +11527,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/31-journal-sqlite-authority-classifier-storage",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11615,7 +11562,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/32-live-process-snapshot-source; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11623,7 +11570,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/32-live-process-snapshot-source",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11657,7 +11603,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/33-live-process-journal-sqlite-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11665,7 +11611,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/33-live-process-journal-sqlite-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11701,7 +11646,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/34-service-capture-app-game-live-process-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11709,7 +11654,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/34-service-capture-app-game-live-process-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11745,7 +11689,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/35-service-app-game-recurring-freshness; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11753,7 +11697,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/35-service-app-game-recurring-freshness",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11789,7 +11732,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/36-live-foreground-window-source; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11797,7 +11740,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/36-live-foreground-window-source",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11831,7 +11773,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/37-service-foreground-capture-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11839,7 +11781,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/37-service-foreground-capture-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11875,7 +11816,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/38-service-authority-classifier-surface-evidence; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11883,7 +11824,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/38-service-authority-classifier-surface-evidence",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11919,7 +11859,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/39-authority-classifier-read-model-counts; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11927,7 +11867,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/39-authority-classifier-read-model-counts",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -11963,7 +11902,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/40-app-game-boundary-read-model-event; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -11971,7 +11910,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/40-app-game-boundary-read-model-event",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12007,7 +11945,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/41-live-windows-inventory-source; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12015,7 +11953,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/41-live-windows-inventory-source",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12049,7 +11986,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/42-service-windows-inventory-capture-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12057,7 +11994,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/42-service-windows-inventory-capture-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12093,7 +12029,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/43-live-windows-store-package-source; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12101,7 +12037,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/43-live-windows-store-package-source",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12137,7 +12072,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/44-service-windows-store-package-capture-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12145,7 +12080,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/44-service-windows-store-package-capture-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12181,7 +12115,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/45-live-windows-registry-inventory-source; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12189,7 +12123,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/45-live-windows-registry-inventory-source",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12225,7 +12158,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/46-service-windows-registry-capture-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12233,7 +12166,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/46-service-windows-registry-capture-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12269,7 +12201,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/47-backend-source-freshness-read-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12277,7 +12209,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/47-backend-source-freshness-read-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12381,7 +12312,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/53-notification-intent-contract; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12389,7 +12320,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/53-notification-intent-contract",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12423,7 +12353,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/54-policy-readiness-portal-renderer; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12431,7 +12361,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/54-policy-readiness-portal-renderer",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12465,7 +12394,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/56-notification-service-read-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12473,7 +12402,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/56-notification-service-read-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -12507,7 +12435,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/58-notification-local-outbox-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12515,7 +12443,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/58-notification-local-outbox-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "**Complete for bounded Phase 1; Phase 2 passed; proof open**"
@@ -12549,7 +12476,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/59-notification-scheduler-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12557,7 +12484,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/59-notification-scheduler-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "**Bounded Phase 1 complete; focused Phase 2 green; proof open**"
@@ -12591,7 +12517,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/60-notification-audit-history-bridge; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12599,7 +12525,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/60-notification-audit-history-bridge",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "**Bounded Phase 1 complete; focused Phase 2 green; proof open**"
@@ -12635,7 +12560,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/61-notification-provider-preflight; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12643,7 +12568,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/61-notification-provider-preflight",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "**Bounded Phase 1 complete; focused Phase 2 green; proof open**"
@@ -12893,7 +12817,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/74-source-freshness-policy-consumption; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12901,7 +12825,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/74-source-freshness-policy-consumption",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded contract"
@@ -12937,7 +12860,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/75-source-freshness-preview-gate; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12945,7 +12868,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/75-source-freshness-preview-gate",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -12979,7 +12901,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/76-source-gated-policy-preview-read-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -12987,7 +12909,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/76-source-gated-policy-preview-read-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13023,7 +12944,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/78-source-gated-policy-preview-timer-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13031,7 +12952,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/78-source-gated-policy-preview-timer-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13067,7 +12987,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/79-source-gated-policy-preview-timer-status; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13075,7 +12995,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/79-source-gated-policy-preview-timer-status",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13111,7 +13030,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/81-source-gated-policy-preview-timer-runtime-readiness; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13119,7 +13038,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/81-source-gated-policy-preview-timer-runtime-readiness",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13155,7 +13073,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/82-source-gated-policy-preview-timer-scheduler-persistence; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13163,7 +13081,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/82-source-gated-policy-preview-timer-scheduler-persistence",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13199,7 +13116,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/83-source-gated-policy-preview-timer-audit-rollback-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13207,7 +13124,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/83-source-gated-policy-preview-timer-audit-rollback-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13243,7 +13159,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/84-source-gated-policy-preview-timer-audit-rollback-read-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13251,7 +13167,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/84-source-gated-policy-preview-timer-audit-rollback-read-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13287,7 +13202,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/85-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13295,7 +13210,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/85-source-gated-policy-preview-timer-audit-rollback-parent-surface-intent",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13331,7 +13245,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/86-source-gated-policy-preview-timer-service-readiness-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13339,7 +13253,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/86-source-gated-policy-preview-timer-service-readiness-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13375,7 +13288,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/87-source-gated-policy-preview-timer-service-readiness-read-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13383,7 +13296,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/87-source-gated-policy-preview-timer-service-readiness-read-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13419,7 +13331,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/88-source-gated-policy-preview-timer-service-readiness-protocol-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13427,7 +13339,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/88-source-gated-policy-preview-timer-service-readiness-protocol-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13463,7 +13374,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/89-source-gated-policy-preview-timer-service-readiness-protocol-read-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13471,7 +13382,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/89-source-gated-policy-preview-timer-service-readiness-protocol-read-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13507,7 +13417,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/90-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13515,7 +13425,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/90-source-gated-policy-preview-timer-service-readiness-protocol-command-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13551,7 +13460,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/91-source-gated-policy-preview-timer-service-readiness-service-handler-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13559,7 +13468,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/91-source-gated-policy-preview-timer-service-readiness-service-handler-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13595,7 +13503,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/92-source-gated-policy-preview-timer-service-readiness-read-api-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13603,7 +13511,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/92-source-gated-policy-preview-timer-service-readiness-read-api-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13639,7 +13546,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/93-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13647,7 +13554,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/93-source-gated-policy-preview-timer-service-readiness-read-api-response-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13683,7 +13589,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13691,7 +13597,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/94-source-gated-policy-preview-timer-service-readiness-read-api-response-consumer-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13727,7 +13632,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13735,7 +13640,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/95-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13771,7 +13675,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13779,7 +13683,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/96-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-read-model-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13815,7 +13718,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/97-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13823,7 +13726,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/97-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13859,7 +13761,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/98-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13867,7 +13769,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/98-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13903,7 +13804,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13911,7 +13812,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/99-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13947,7 +13847,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13955,7 +13855,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/100-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -13991,7 +13890,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -13999,7 +13898,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/101-source-gated-policy-preview-timer-service-readiness-response-consumer-parent-surface-status-read-model-parent-surface-read-model",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete, bounded projection"
@@ -14071,7 +13969,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/103-timer-service-read-model-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -14079,7 +13977,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/103-timer-service-read-model-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -14115,7 +14012,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/104-timer-service-event-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -14123,7 +14020,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/104-timer-service-event-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -14157,7 +14053,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/105-timer-service-read-api-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -14165,7 +14061,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/105-timer-service-read-api-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -14199,7 +14094,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/106-timer-service-read-api-response-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -14207,7 +14102,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/106-timer-service-read-api-response-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -14243,7 +14137,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/107-timer-service-read-api-response-consumer-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -14251,7 +14145,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/107-timer-service-read-api-response-consumer-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -14287,7 +14180,7 @@
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -14295,7 +14188,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/108-timer-service-read-api-response-consumer-parent-surface-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "Complete"
@@ -15387,7 +15279,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15395,7 +15287,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/01-child-agent-scope-and-route-boundary",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -15595,7 +15486,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/06-child-ios-agent-capability-package; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15603,7 +15494,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/06-child-ios-agent-capability-package",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -15803,7 +15693,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15811,7 +15701,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/11-proof-ci-release-gate",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -17354,15 +17243,24 @@
       "path": "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "ready",
+      "lifecycleState": "ready",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "historical",
+        "statusText": "ready — code boundary routed; implementation/acceptance/proof deferred",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/eventing-plan/PLAN_STATE.md",
+            "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "WP09 is the smallest legal production foundation for the missing network consumer chain. Its reviewed roots cover capture ingestion, ActivityStore/runtime, and agent-service delivery/read-model ownership; fixture/prove/TEST network_event_runtime files are not shipped production topology. No separate hard code-writing prerequisite is recorded. The open implementation boundary is ingestion-time capture publish, deterministic identity/idempotency, a network-owned durable journal, startup replay/recovery, and removal of read-time side effects. AI, policy, enforcement, audit, and portal consumers remain downstream blocked/fail-closed. Tests, proof, CI, review, and merge remain open; READY scheduling does not claim completion or unblock Network WP04."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -17429,7 +17327,7 @@
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/eventing-plan-proof/11-type-safety-and-ownership-hardening; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17442,7 +17340,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/eventing-plan-proof/11-type-safety-and-ownership-hardening",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "done"
@@ -17478,7 +17375,7 @@
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/eventing-plan-proof/12-rollout-proof-and-pr-gate; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17491,7 +17388,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/eventing-plan-proof/12-rollout-proof-and-pr-gate",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "done"
@@ -17525,7 +17421,7 @@
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/eventing-plan-proof/13-test-folder-layout-regression-audit; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17538,7 +17434,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/eventing-plan-proof/13-test-folder-layout-regression-audit",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "done"
@@ -17574,7 +17469,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/01-contract-boundary-and-effect-schemas; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17582,7 +17477,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/01-contract-boundary-and-effect-schemas",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -17618,7 +17512,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/02-evidence-model-and-device-record; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17626,7 +17520,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/02-evidence-model-and-device-record",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -17660,7 +17553,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/03-interface-detection; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17668,7 +17561,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/03-interface-detection",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -17736,7 +17628,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/05-targeted-arp-checks; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17744,7 +17636,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/05-targeted-arp-checks",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -17778,7 +17669,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/06-bounded-arp-sweep; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17786,7 +17677,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/06-bounded-arp-sweep",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -17922,7 +17812,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/10-netbios-llmnr-reverse-dns; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -17930,7 +17820,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/10-netbios-llmnr-reverse-dns",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -17998,7 +17887,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/12-oui-vendor-lookup; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -18006,7 +17895,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/12-oui-vendor-lookup",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -18040,7 +17928,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/13-merge-deduplication-engine; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -18048,7 +17936,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/13-merge-deduplication-engine",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -18082,7 +17969,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/14-explainable-classification; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -18090,7 +17977,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/14-explainable-classification",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -18124,7 +18010,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/15-household-device-store; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -18132,7 +18018,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/15-household-device-store",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -18336,7 +18221,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/21-contract-boundary-and-domain-schemas; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -18344,7 +18229,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/21-contract-boundary-and-domain-schemas",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -18380,7 +18264,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/22-current-state-and-gap-map; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -18388,7 +18272,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/22-current-state-and-gap-map",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"
@@ -18456,7 +18339,7 @@
       "metadata": {
         "planSlug": "lan-plan",
         "indexPath": "docs/plans/lan-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/lan-plan-proof/24-portal-ux-and-first-run-handoff; checklist: reviewed evidence is not recorded",
+        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
         "sourceFormat": "numeric-table-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -18464,7 +18347,6 @@
           "implementation: reviewed evidence is not recorded",
           "tests: reviewed evidence is not recorded",
           "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/lan-plan-proof/24-portal-ux-and-first-run-handoff",
           "checklist: reviewed evidence is not recorded"
         ],
         "sourceStatusText": "complete"

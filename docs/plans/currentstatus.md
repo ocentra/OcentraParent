@@ -298,7 +298,7 @@ This file currently covers these **19** plans:
 ### Eventing Plan
 
 - plan status: **in-progress**
-- primary Rust crates: `ocentra-eventing`, `agent-protocol`, `agent-service`
+- primary Rust crates: `ocentra-eventing`, `agent-protocol`, `agent-core`, `agent-service`
 - primary TS domains/apps: `event-domain`, `agent-protocol-domain`, `endpoint-domain`
 - read if working this plan: [AGENTS](eventing-plan/AGENTS.md), [PLAN_STATE](eventing-plan/PLAN_STATE.md), [NEXT_ACTIONS](eventing-plan/NEXT_ACTIONS.md), [WORKPACK_INDEX](eventing-plan/WORKPACK_INDEX.md)
 - test/proof route for this plan: selected `eventing-plan/workpacks/*.md`, then later-phase [TEST_PROOF_DECISION_MATRIX](../agent/TEST_PROOF_DECISION_MATRIX.md)
@@ -308,7 +308,9 @@ This file currently covers these **19** plans:
 | 01 source boundary and semantics audit                | open   | partial | partial | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `agent-protocol-domain`                    |
 | 02 crate contract and type boundary                   | open   | done    | covered | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `agent-protocol-domain`                    |
 | 03-06 runtime/queue/request-response/journal replay   | open   | done    | covered | `ocentra-eventing`, `agent-service`                   | `event-domain`, `endpoint-domain`                          |
-| 07-10 protocol/runtime/network/LAN integration slices | open   | partial | partial | `ocentra-eventing`, `agent-protocol`, `agent-service` | `event-domain`, `agent-protocol-domain`, `endpoint-domain` |
+| 07-08 protocol/runtime integration                       | open   | partial | partial | `ocentra-eventing`, `agent-protocol`, `agent-service` | `event-domain`, `agent-protocol-domain`, `endpoint-domain` |
+| 09 network consumer event chain                          | ready  | drafted | deferred | `agent-protocol`, `agent-core`, `agent-service`       | `event-domain`, `agent-protocol-domain`                    |
+| 10 LAN household mesh consumer                           | open   | partial | partial | `ocentra-eventing`, `agent-protocol`, `agent-service` | `event-domain`, `agent-protocol-domain`, `endpoint-domain` |
 | 11 type safety and ownership hardening                | open   | done    | covered | `ocentra-eventing`, `agent-protocol`                  | `event-domain`, `schema-domain`                            |
 | 12 rollout proof and PR gate                          | open   | partial | partial | `ocentra-eventing`                                    | `event-domain`                                             |
 
@@ -322,6 +324,7 @@ This file currently covers these **19** plans:
 - Workpack `02` now has a stronger public contract boundary: `SchemaVersion` fails closed on serde deserialize instead of only through manual constructors, and the strong wrapper IDs now reject whitespace while still accepting the dotted subscriber and target lineage already used by repo constants and crate fixtures.
 - Workpack `11` now carries `expected_schema_version` and `received_schema_version` through stored-envelope decode contract mismatches, so downstream drift reports stay explicit instead of generic.
 - Workpacks `03-06` already have concrete runtime/request/journal mechanics in the crate; the remaining open state is no longer “missing core code”, it is mostly consumer-handoff and proof reconciliation.
+- WP09 is the single legal READY code packet for the missing production network foundation: agent-core capture must publish once at ingestion with deterministic identity/idempotency, agent-core/agent-service must own durable network journaling and startup replay before readiness, and read-time APIs must not republish. Nested fixture/prove/`TEST_*` runtime files are not shipped production behavior. AI, policy, enforcement, audit, and portal consumers remain downstream blocked/fail-closed until their owning plans provide real authority and handoffs. The current `OnceCell`/`EventBus::new` read-time spine does not establish this boundary.
 
 **Test List Done**
 
@@ -331,6 +334,7 @@ This file currently covers these **19** plans:
 - `crates/ocentra-eventing/tests/unit/ids.rs` now proves representative event, request, journal, subscriber, target, source-service/component, and runtime-instance wrappers accept real repo values while rejecting whitespace without inventing incompatible slug grammar.
 - `crates/ocentra-eventing/tests/unit/envelope.rs`, `crates/ocentra-eventing/tests/version-skew/roundtrip.rs`, and `packages/event-domain/tests/unit/eventing.test.ts` now prove stored-envelope mismatch strings keep expected/received schema-version context and that the shared TS stored-header boundary preserves valid versions while rejecting `0`.
 - `cargo test -p ocentra-eventing` and `npm test` in `packages/event-domain` pass, but the reusable-eventing proof packs still fail on the workspace clippy gate because `ocentra-eventing` uses denied `expect_used`, `clone_on_ref_ptr`, and `needless_pass_by_value` patterns in both library and test targets.
+- WP09 production tests and retained proof are deliberately deferred to its later validation/proof phase; the existing contract/test references do not claim a shipped network journal or startup-recovery path.
 
 **Test List Required**
 
@@ -340,6 +344,7 @@ This file currently covers these **19** plans:
 **Reason / Blocker / Deferred**
 
 - Remaining eventing open state is now mostly proof/doc/consumer-boundary reconciliation, not absence of core event-bus code or crate tests.
+- WP09 remains open after the READY routing decision: no completion, live-capture, enforcement, Network WP04 unblock, review, or merge claim is made.
 - Deep e2e and product claims should still wait for the downstream consumer plans to finish their own protocol/runtime proofs.
 
 ### Setup Install Provisioning Plan
