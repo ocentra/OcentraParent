@@ -17,10 +17,7 @@ type NetworkEvidenceDrawerSummaryTemplate = {
   readonly browserRef: string;
   readonly domainEvidenceRef: string;
   readonly byteSummary: string;
-  readonly analyzerAlertRef: string;
-  readonly detectionResultRef: string;
   readonly aiAuditRef: string;
-  readonly riskBudgetRef: string;
   readonly policyDecisionRef: string;
   readonly interventionResultRef: string;
   readonly eventHistoryRef: string;
@@ -42,10 +39,7 @@ type NetworkEvidenceDrawerSummaryContext = {
 };
 
 type NetworkEvidenceDrawerEvidenceSummary = {
-  readonly analyzerAlertRef?: string | null;
-  readonly detectionResultRef?: string | null;
   readonly aiAuditRef?: string | null;
-  readonly riskBudgetRef?: string | null;
   readonly policyDecisionRef?: string | null;
   readonly networkEvidenceGrade?: string | null;
   readonly interventionResultRef?: string | null;
@@ -126,10 +120,7 @@ export function networkEvidenceDrawerSummaryTemplate(
     browserRef: NOT_REPORTED,
     domainEvidenceRef: domainDetail(row),
     byteSummary: byteSummary(row),
-    analyzerAlertRef: detailFromOptionalString(summary?.analyzerAlertRef),
-    detectionResultRef: detailFromOptionalString(summary?.detectionResultRef),
     aiAuditRef: detailFromOptionalString(summary?.aiAuditRef),
-    riskBudgetRef: detailFromOptionalString(summary?.riskBudgetRef),
     policyDecisionRef: detailFromOptionalString(summary?.policyDecisionRef),
     interventionResultRef: detailFromOptionalString(summary?.interventionResultRef),
     eventHistoryRef: detailFromRowValue(row, (value) => value.eventId),

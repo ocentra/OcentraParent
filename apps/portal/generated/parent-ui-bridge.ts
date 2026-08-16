@@ -1800,10 +1800,7 @@ export interface ParentNetworkRuntimeEventValueSnapshot {
 }
 
 export interface ParentNetworkEvidenceSummarySnapshot {
-  readonly analyzerAlertRef?: string | null;
-  readonly detectionResultRef?: string | null;
   readonly aiAuditRef?: string | null;
-  readonly riskBudgetRef?: string | null;
   readonly policyDecisionRef?: string | null;
   readonly networkEvidenceGrade?: string | null;
   readonly interventionResultRef?: string | null;

@@ -10,7 +10,6 @@ use ocentra_parent_agent_protocol::lan_pairing::*;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::*;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::signed_discovery_relay_spine::*;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::source_matrix::*;
-use ocentra_parent_agent_protocol::constants;
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityEvidenceRefSnapshot, ParentActivityNetworkEndpointSnapshot,
     ParentActivityNetworkFlowCountersSnapshot, ParentActivityNetworkFlowObservationSnapshot,
@@ -20,7 +19,7 @@ use ocentra_schema::parent_ui_bridge::{
     ParentLanAddDeviceScanSummarySnapshot, ParentLanServiceIdentityProbeEvidenceSnapshot,
     ParentNetworkEvidenceSummarySnapshot, ParentNetworkRuntimeEventChainStreamSnapshot,
     ParentPolicyPreviewReadModelSnapshot, ParentPortalRowSnapshot, ParentPortalShellStatusCardId,
-    ParentPortalTone, ParentRouteDataSource, ParentRouteEventSnapshot, ParentRouteId,
+    ParentPortalTone, ParentRouteDataSource, ParentRouteId,
 };
 use ocentra_schema::parent_ui_bridge::*;
 use self::lan_history::*;
@@ -106,12 +105,10 @@ pub(super) fn network_flow_read_model_snapshot(
 }
 
 pub(super) fn network_evidence_summary_snapshot(
-    network_flow_event: Option<&ParentRouteEventSnapshot>,
     network_runtime_event_chain_stream: Option<&ParentNetworkRuntimeEventChainStreamSnapshot>,
     policy_preview_read_model: Option<&ParentPolicyPreviewReadModelSnapshot>,
 ) -> Option<ParentNetworkEvidenceSummarySnapshot> {
     network::network_evidence_summary_snapshot(
-        network_flow_event,
         network_runtime_event_chain_stream,
         policy_preview_read_model,
     )

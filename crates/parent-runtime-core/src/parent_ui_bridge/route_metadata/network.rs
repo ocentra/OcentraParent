@@ -37,24 +37,9 @@ pub(super) fn network_flow_read_model_snapshot(
 }
 
 pub(super) fn network_evidence_summary_snapshot(
-    network_flow_event: Option<&ParentRouteEventSnapshot>,
     network_runtime_event_chain_stream: Option<&ParentNetworkRuntimeEventChainStreamSnapshot>,
     policy_preview_read_model: Option<&ParentPolicyPreviewReadModelSnapshot>,
 ) -> Option<ParentNetworkEvidenceSummarySnapshot> {
-    let analyzer_alert_ref = parse_optional_identifier(
-        event_payload_string_field(
-            network_flow_event,
-            constants::field::NETWORK_PRODUCT_PATH_ANALYZER_ALERT_REFS,
-        ),
-        ParentContractReferenceId::parse,
-    );
-    let detection_result_ref = parse_optional_identifier(
-        event_payload_string_field(
-            network_flow_event,
-            constants::field::NETWORK_PRODUCT_PATH_AI_DETECTION_REFS,
-        ),
-        ParentContractReferenceId::parse,
-    );
     let ai_audit_ref = latest_runtime_event_ref(network_runtime_event_chain_stream, |value| {
         value.ai_analysis_ref.clone()
     })
@@ -64,13 +49,6 @@ pub(super) fn network_evidence_summary_snapshot(
             .map(ToString::to_string)
             .and_then(ParentContractReferenceId::parse)
     });
-    let risk_budget_ref = parse_optional_identifier(
-        event_payload_string_field(
-            network_flow_event,
-            constants::field::NETWORK_PRODUCT_PATH_RISK_BUDGET_REFS,
-        ),
-        ParentContractReferenceId::parse,
-    );
     let policy_decision_ref =
         latest_runtime_event_ref(network_runtime_event_chain_stream, |value| {
             value.policy_decision_ref.clone()
@@ -88,10 +66,7 @@ pub(super) fn network_evidence_summary_snapshot(
             value.enforcement_result_ref.clone()
         });
 
-    if analyzer_alert_ref.is_none()
-        && detection_result_ref.is_none()
-        && ai_audit_ref.is_none()
-        && risk_budget_ref.is_none()
+    if ai_audit_ref.is_none()
         && policy_decision_ref.is_none()
         && network_evidence_grade.is_none()
         && intervention_result_ref.is_none()
@@ -100,10 +75,7 @@ pub(super) fn network_evidence_summary_snapshot(
     }
 
     Some(ParentNetworkEvidenceSummarySnapshot {
-        analyzer_alert_ref,
-        detection_result_ref,
         ai_audit_ref,
-        risk_budget_ref,
         policy_decision_ref,
         network_evidence_grade,
         intervention_result_ref,
@@ -170,23 +142,6 @@ fn parent_activity_network_flow_counters_snapshot(
         first_seen_at: counters.first_seen_at.clone(),
         last_seen_at: counters.last_seen_at.clone(),
     }
-}
-
-fn event_payload_string_field(
-    event: Option<&ParentRouteEventSnapshot>,
-    field_name: &str,
-) -> Option<String> {
-    let payload = event.and_then(|value| value.payload.as_ref())?;
-    payload_string_field(payload, field_name)
-}
-
-fn payload_string_field(payload: &Value, field_name: &str) -> Option<String> {
-    payload
-        .get(field_name)
-        .and_then(Value::as_str)
-        .map(str::trim)
-        .filter(|value| !value.is_empty())
-        .map(ToString::to_string)
 }
 
 fn latest_runtime_event_ref(

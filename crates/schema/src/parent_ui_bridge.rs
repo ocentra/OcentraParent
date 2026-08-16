@@ -1302,10 +1302,7 @@ pub struct ParentNetworkRuntimeEventValueSnapshot {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentNetworkEvidenceSummarySnapshot {
-    pub analyzer_alert_ref: Option<ParentContractReferenceId>,
-    pub detection_result_ref: Option<ParentContractReferenceId>,
     pub ai_audit_ref: Option<ParentContractReferenceId>,
-    pub risk_budget_ref: Option<ParentContractReferenceId>,
     pub policy_decision_ref: Option<ParentContractReferenceId>,
     pub network_evidence_grade: Option<String>,
     pub intervention_result_ref: Option<ParentContractReferenceId>,
