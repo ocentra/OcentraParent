@@ -1,6 +1,48 @@
 {
   "schemaVersion": 1,
+  "workpackReviews": [
+    {
+      "id": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+      "hardDependencies": ["WP-policy-control-plane-plan-03-domain-policy-compilers"],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "Removing fabricated AI policy authority has no separate code-writing prerequisite, but the product handoff explicitly delegates policy authority to the Policy compiler contract; keep that exact owner dependency visible."
+    },
+    {
+      "id": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md"
+      ],
+      "reason": "The source audit found no hard code-writing prerequisite for removing fabricated product-path references; the implementation lane must establish the real network cascade and parent-surface owner rather than preserve documentation-only refs."
+    },
+    {
+      "id": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md"
+      ],
+      "reason": "WP34-WP36 and the WP32 source inputs already exist as audited typed flows; no unsatisfied code-writing dependency remains for the next real WP37 composition slice. The review does not claim durable journal wiring, tests, proof, or completion."
+    }
+  ],
   "edges": [
+    {
+      "from": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "Screen AI owns the schema-valid handoff, while Policy owns the compiler/authority boundary; the handoff cannot claim policy authority without that owning contract."
+    },
     {
       "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
       "to": "WP-policy-control-plane-plan-04-delivery-ack-audit",
