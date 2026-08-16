@@ -32,7 +32,9 @@ household, policy version, child, device, observed process identity, and result
 to the typed receipt context. Callers must use that trace-backed service bridge
 for trusted advancement; public receipts remain evidence only. The production
 slice is code-drafted and unvalidated; tests, WP11 journal handoff, proof, and
-runtime integration are deferred.
+runtime integration are deferred. WP11 pre-action/post-action durability and
+the concrete runtime composition that connects this bridge to child-policy
+state remain unfinished.
 
 ## Ownership boundary
 

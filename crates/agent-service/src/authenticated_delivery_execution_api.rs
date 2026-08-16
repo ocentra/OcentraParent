@@ -19,8 +19,6 @@ use ocentra_schema::{
 };
 
 pub struct AuthenticatedDeliveryExecutionRequest {
-    pub store_path: PathBuf,
-    pub activity_store_path: PathBuf,
     pub issuer_key_id: String,
     pub nonce: String,
     pub correlation_id: String,
@@ -36,64 +34,91 @@ pub enum AuthenticatedDeliveryExecutionApiError {
     ReplayRejected,
     TargetBindingRejected,
 }
-pub fn execute_authenticated_owned_process_delivery(
-    request: AuthenticatedDeliveryExecutionRequest,
-    grant: &AuthenticatedDeliveryGrant,
-    expected: &AuthenticatedDeliveryGrantExpectation,
-    trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
-) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
-    validate_authenticated_delivery_grant(grant, expected, trusted_issuer)
-        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
-    if request.issuer_key_id != grant.issuer_key_id || request.nonce != grant.nonce {
-        return Err(AuthenticatedDeliveryExecutionApiError::GrantRejected);
-    }
-    let target = authenticated_managed_process_target(
-        grant,
-        &request.managed_process_binding,
-        trusted_issuer,
-        &request.activity_store_path,
-    )
-    .map_err(|_error| AuthenticatedDeliveryExecutionApiError::TargetBindingRejected)?;
-    let mut store = AuthenticatedDeliveryExecutionStore::open(request.store_path)
-        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?;
-    let receipt = AuthenticatedDeliveryExecutionReceipt {
-        correlation_id: request.correlation_id,
-        nonce_digest: redacted_delivery_nonce_digest(&grant.nonce),
-        state: AuthenticatedDeliveryExecutionState::Pending,
-        adapter_result: None,
-        rollback_required: false,
-    };
-    if store
-        .persist_intent(&grant.issuer_key_id, &grant.nonce, &receipt)
-        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?
-    {
-        let mut grant_consumer =
-            AuthenticatedDeliveryGrantConsumer::open(&request.store_path, trusted_issuer.clone())
-                .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
-        match grant_consumer
-            .consume(
-                grant,
-                expected,
-                &request.delivered_payload,
-                receipt.correlation_id.clone(),
-            )
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?
-        {
-            AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_) => {}
-            AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_) => {
-                return Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected)
-            }
+
+struct AuthenticatedDeliveryExecutionContext {
+    store_path: PathBuf,
+    activity_store_path: PathBuf,
+}
+
+pub struct AuthenticatedDeliveryExecutionExecutor {
+    context: AuthenticatedDeliveryExecutionContext,
+}
+
+impl AuthenticatedDeliveryExecutionExecutor {
+    pub(crate) fn from_service_configuration(
+        store_path: PathBuf,
+        activity_store_path: PathBuf,
+    ) -> Self {
+        Self {
+            context: AuthenticatedDeliveryExecutionContext {
+                store_path,
+                activity_store_path,
+            },
         }
-        store
-            .execute_authenticated_owned_process(
-                &grant.issuer_key_id,
-                &grant.nonce,
-                &target,
-                &receipt.correlation_id,
-                &request.completed_at,
+    }
+
+    pub fn execute_authenticated_owned_process_delivery(
+        &self,
+        request: AuthenticatedDeliveryExecutionRequest,
+        grant: &AuthenticatedDeliveryGrant,
+        expected: &AuthenticatedDeliveryGrantExpectation,
+        trusted_issuer: &AuthenticatedDeliveryGrantTrustedIssuer,
+    ) -> Result<AuthenticatedDeliveryExecutionReceipt, AuthenticatedDeliveryExecutionApiError> {
+        validate_authenticated_delivery_grant(grant, expected, trusted_issuer)
+            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
+        if request.issuer_key_id != grant.issuer_key_id || request.nonce != grant.nonce {
+            return Err(AuthenticatedDeliveryExecutionApiError::GrantRejected);
+        }
+        let target = authenticated_managed_process_target(
+            grant,
+            &request.managed_process_binding,
+            trusted_issuer,
+            &self.context.activity_store_path,
+        )
+        .map_err(|_error| AuthenticatedDeliveryExecutionApiError::TargetBindingRejected)?;
+        let mut store = AuthenticatedDeliveryExecutionStore::open(&self.context.store_path)
+            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?;
+        let receipt = AuthenticatedDeliveryExecutionReceipt {
+            correlation_id: request.correlation_id,
+            nonce_digest: redacted_delivery_nonce_digest(&grant.nonce),
+            state: AuthenticatedDeliveryExecutionState::Pending,
+            adapter_result: None,
+            rollback_required: false,
+        };
+        if store
+            .persist_intent(&grant.issuer_key_id, &grant.nonce, &receipt)
+            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::StoreRejected)?
+        {
+            let mut grant_consumer = AuthenticatedDeliveryGrantConsumer::open(
+                &self.context.store_path,
+                trusted_issuer.clone(),
             )
-            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ExecutionRejected)
-    } else {
-        Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected)
+            .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?;
+            match grant_consumer
+                .consume(
+                    grant,
+                    expected,
+                    &request.delivered_payload,
+                    receipt.correlation_id.clone(),
+                )
+                .map_err(|_error| AuthenticatedDeliveryExecutionApiError::GrantRejected)?
+            {
+                AuthenticatedDeliveryGrantConsumeOutcome::Consumed(_) => {}
+                AuthenticatedDeliveryGrantConsumeOutcome::ReplayRejected(_) => {
+                    return Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected)
+                }
+            }
+            store
+                .execute_authenticated_owned_process(
+                    &grant.issuer_key_id,
+                    &grant.nonce,
+                    &target,
+                    &receipt.correlation_id,
+                    &request.completed_at,
+                )
+                .map_err(|_error| AuthenticatedDeliveryExecutionApiError::ExecutionRejected)
+        } else {
+            Err(AuthenticatedDeliveryExecutionApiError::ReplayRejected)
+        }
     }
 }

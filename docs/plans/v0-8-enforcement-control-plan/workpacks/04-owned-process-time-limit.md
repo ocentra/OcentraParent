@@ -121,7 +121,9 @@ those values before effect. It persists an adapter-owned execution trace with
 result and rollback state. Raw `OwnedProcessTerminationTarget` remains
 evidence-only. This is code drafted and unvalidated: focused tests, durable
 WP11 journal handoff, retained proof, and runtime receipt integration remain
-deferred; missing local launcher/session authority fails closed/manual-required.
+deferred; WP11 pre-action/post-action durable journal composition and concrete
+runtime composition are unfinished; missing local launcher/session authority
+fails closed/manual-required.
 
 ### Active pre-dispatch contract packet
 
