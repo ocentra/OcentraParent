@@ -77,8 +77,11 @@ Focused test owners:
 - `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`
 - `crates/child-runtime/tests/unit/runtime_gate.rs`
 
-The startup-recovery entry point is a service-owned integration seam, not proof
-that a concrete child-service startup currently invokes it.
+The concrete child-service startup now invokes `journal.recover()` and
+`ChildRuntimeTombstoneEventFlow::recover_pending()` before readiness in
+`crates/child-runtime/src/service.rs`. This source wiring is not restart proof,
+aggregate route acceptance, or a claim that all downstream delivery paths are
+complete.
 
 ## Validation expectations for this packet
 

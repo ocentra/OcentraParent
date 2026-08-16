@@ -16659,7 +16659,8 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md"
+            "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+            "crates/child-runtime/src/service.rs"
           ],
           "tests": [
             "docs/plans/data-custody-storage-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -16958,11 +16959,7 @@
       "title": "WP07 Child Tamper Uninstall",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [
-        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
-        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
-        "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair"
-      ],
+      "dependsOn": [],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {

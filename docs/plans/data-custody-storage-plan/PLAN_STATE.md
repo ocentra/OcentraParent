@@ -72,9 +72,10 @@ Restore/apply proof must prove tombstone preservation and reject resurrection.
 WP06 report/query proof root now proves source refs, citation allowlists, redaction, deletion/expiry behavior, stable pagination, stale/conflict honesty, and rate-limit boundaries at the shared contract/runtime layer.
 WP08 parent storage settings/apply flow proof root now proves explicit storage mode labels, preview-before-apply, separate disconnect/delete states, manual-required visibility, and no-claim portal/provider-runtime boundaries at the shared contract/runtime layer; it is not final portal rendering, host wiring, or provider execution proof.
 WP07 can aggregate only accepted proof roots plus exact carried blockers. Its
-`ChildRuntimeTombstoneEventFlow::recover_pending` method is an explicit
-service-startup seam; until a concrete child-service owner invokes it and proves
-restart behavior there, it is not live service lifecycle completion.
+`ChildRuntimeTombstoneEventFlow::recover_pending` method is now invoked by the
+concrete child-service startup in `crates/child-runtime/src/service.rs` before
+readiness. Restart behavior, aggregate publication, and downstream delivery
+proof remain open; source wiring alone is not lifecycle completion.
 ```
 
 ## Current Route Status
@@ -95,11 +96,11 @@ restart behavior there, it is not live service lifecycle completion.
 - WP05 export/import/backup/recovery is now implemented and proved through `crates/schema/src/export_import_backup_recovery.rs`, `crates/storage-custody-core/src/export_import_backup_recovery.rs`, and `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`.
 - WP06 report/query custody is now implemented and proved through `crates/schema/src/report_query_custody.rs`, `crates/storage-custody-core/src/report_query_custody.rs`, `packages/schema-domain/src/generated/report-query-custody-contracts.ts`, and `output/data-custody-storage-plan-proof/06-report-query-custody/`.
 - WP07 has a focused, real retention lifecycle through the Rust event journal,
-  child-runtime durable outbox, reusable startup recovery, and explicit terminal
-  acknowledgement. Its cited aggregate `output/` proof root is not present in a
-  clean checkout because `output/` is ignored, and no concrete child-service
-  startup owner invokes the recovery seam yet, so WP07 cannot be used for
-  aggregate route truth.
+  child-runtime durable outbox, concrete child-service startup recovery, and
+  explicit terminal acknowledgement. Its cited aggregate `output/` proof root
+  is not present in a clean checkout because `output/` is ignored, and restart
+  validation/publication remain open, so WP07 cannot be used for aggregate route
+  truth.
 - WP08 parent storage settings/apply flow is now implemented and proved through `crates/schema/src/parent_storage_settings_apply_flow.rs`, `crates/schema/src/parent_storage_settings_apply_flow_ts.rs`, `crates/storage-custody-core/src/parent_storage_settings_apply_flow.rs`, `packages/schema-domain/src/generated/parent-storage-settings-apply-flow-contracts.ts`, `packages/schema-domain/src/parent-storage-settings-apply-flow.ts`, and `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`.
 
 ## Open Product Gaps
