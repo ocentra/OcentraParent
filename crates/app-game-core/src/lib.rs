@@ -8,6 +8,8 @@ pub mod app_game_child_ux_outbox_store;
 mod app_game_child_ux_outbox_token;
 pub mod app_game_child_ux_outbox_types;
 mod app_game_child_ux_outbox_validation;
+pub mod app_game_child_ux_preference_preflight;
+pub mod app_game_child_ux_preference_preflight_types;
 pub mod app_game_child_ux_provider_preflight;
 pub mod app_game_child_ux_provider_preflight_types;
 pub mod app_game_child_ux_provider_status;

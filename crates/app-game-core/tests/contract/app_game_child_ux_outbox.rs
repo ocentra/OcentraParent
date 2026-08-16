@@ -6,6 +6,10 @@ use ocentra_app_game_core::app_game_child_ux_outbox_store::AppGameChildUxLocalOu
 use ocentra_app_game_core::app_game_child_ux_outbox_types::{
     AppGameChildUxOutboxInput, AppGameChildUxOutboxPersistResult, AppGameChildUxOutboxRoute,
 };
+use ocentra_app_game_core::app_game_child_ux_preference_preflight::build_app_game_child_ux_preference_preflight;
+use ocentra_app_game_core::app_game_child_ux_preference_preflight_types::{
+    AppGameChildUxPreferencePreflightInput, AppGameChildUxPreferencePreflightStatus,
+};
 use ocentra_app_game_core::app_game_child_ux_provider_preflight::build_app_game_child_ux_provider_preflight;
 use ocentra_app_game_core::app_game_child_ux_provider_preflight_types::{
     AppGameChildUxProviderPreflightInput, AppGameChildUxProviderPreflightRow,
@@ -48,6 +52,19 @@ use ocentra_parent_agent_protocol::schema_domain_mirrors::notification::{
     NotificationLocalOutboxSchedulerRecord, NotificationLocalOutboxSchedulerState,
     NotificationLocalOutboxSeverity, NotificationLocalOutboxState, V3NotificationProviderChannel,
 };
+
+macro_rules! preference_preflight_input {
+    ($source:expr, $scheduler:expr) => {
+        AppGameChildUxPreferencePreflightInput {
+            scheduler_record: $scheduler,
+            source_outbox_record: $source,
+            preflight_row_id: "preference-preflight-row-1".into(),
+            parent_preference_requirement_ref: "parent-preference-required-1".into(),
+            notification_frequency_requirement_ref: "notification-frequency-required-1".into(),
+            quiet_hours_requirement_ref: "quiet-hours-required-1".into(),
+        }
+    };
+}
 
 #[test]
 fn deliverable_child_ux_record_persists_and_reopens_without_private_payload(
@@ -487,6 +504,114 @@ fn provider_status_rejects_claimed_preflight_and_missing_preference_refs(
         Err(ocentra_eventing::error::EventingError::InvalidValue {
             field: "app_game.child_ux_provider_status.context",
             value: "provider-status-handoff-row-1".to_string(),
+        })
+    );
+    Ok(())
+}
+
+#[test]
+fn preference_preflight_routes_due_manual_and_unavailable_without_runtime_claims(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let (source, scheduler) = queued_source_and_scheduler()?;
+    let row = build_app_game_child_ux_preference_preflight(preference_preflight_input!(
+        source, scheduler
+    ))?;
+    assert_eq!(
+        row.status,
+        AppGameChildUxPreferencePreflightStatus::ParentPreferenceRequired
+    );
+    assert_eq!(
+        row.source_local_outbox_record_ref
+            .as_ref()
+            .map(|reference| reference.as_str()),
+        Some("entry-1")
+    );
+    assert_eq!(row.parent_preference_requirement_refs.len(), 1);
+    assert_eq!(row.notification_frequency_requirement_refs.len(), 1);
+    assert_eq!(row.quiet_hours_requirement_refs.len(), 1);
+    assert_eq!(row.manual_proof_requirements.len(), 3);
+    assert!(!row.parent_preference_mutation_runtime_claimed);
+    assert!(!row.parent_frequency_control_ui_claimed);
+    assert!(!row.quiet_hours_timer_runtime_claimed);
+    assert!(!row.provider_delivery_runtime_claimed);
+    assert!(!row.child_delivery_claimed);
+
+    let (source, mut scheduler) = queued_source_and_scheduler()?;
+    scheduler.scheduler_state = NotificationLocalOutboxSchedulerState::ManualRequired;
+    let manual = build_app_game_child_ux_preference_preflight(preference_preflight_input!(
+        source, scheduler
+    ))?;
+    assert_eq!(
+        manual.status,
+        AppGameChildUxPreferencePreflightStatus::ManualRequired
+    );
+    assert!(manual.source_local_outbox_record_ref.is_none());
+    assert!(manual.parent_preference_requirement_refs.is_empty());
+    assert_eq!(manual.manual_proof_requirements.len(), 3);
+
+    let (mut source, mut scheduler) = queued_source_and_scheduler()?;
+    source.state = NotificationLocalOutboxState::DeadLettered;
+    scheduler.source_state = NotificationLocalOutboxState::DeadLettered;
+    scheduler.scheduler_state = NotificationLocalOutboxSchedulerState::DeadLetterReview;
+    let unavailable = build_app_game_child_ux_preference_preflight(preference_preflight_input!(
+        source, scheduler
+    ))?;
+    assert_eq!(
+        unavailable.status,
+        AppGameChildUxPreferencePreflightStatus::Unavailable
+    );
+    assert!(unavailable.provider_channel.is_none());
+    assert!(unavailable.quiet_hours_requirement_refs.is_empty());
+    Ok(())
+}
+
+#[test]
+fn preference_preflight_rejects_unpersisted_mismatched_claimed_and_duplicate_requirements(
+) -> Result<(), Box<dyn std::error::Error>> {
+    let (source, mut scheduler) = queued_source_and_scheduler()?;
+    scheduler.parent_owned_artifact_written = false;
+    assert_eq!(
+        build_app_game_child_ux_preference_preflight(preference_preflight_input!(
+            source, scheduler
+        )),
+        Err(ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.child_ux_preference_preflight.source",
+            value: "scheduler-entry-1".to_string(),
+        })
+    );
+
+    let (source, mut scheduler) = queued_source_and_scheduler()?;
+    scheduler.source_entry_id = "different-entry".into();
+    assert_eq!(
+        build_app_game_child_ux_preference_preflight(preference_preflight_input!(
+            source, scheduler
+        )),
+        Err(ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.child_ux_preference_preflight.source",
+            value: "scheduler-entry-1".to_string(),
+        })
+    );
+
+    let (source, mut scheduler) = queued_source_and_scheduler()?;
+    scheduler.parent_notification_ui_claimed = true;
+    assert_eq!(
+        build_app_game_child_ux_preference_preflight(preference_preflight_input!(
+            source, scheduler
+        )),
+        Err(ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.child_ux_preference_preflight.source",
+            value: "scheduler-entry-1".to_string(),
+        })
+    );
+
+    let (source, scheduler) = queued_source_and_scheduler()?;
+    let mut duplicate = preference_preflight_input!(source, scheduler);
+    duplicate.quiet_hours_requirement_ref = duplicate.parent_preference_requirement_ref.clone();
+    assert_eq!(
+        build_app_game_child_ux_preference_preflight(duplicate),
+        Err(ocentra_eventing::error::EventingError::InvalidValue {
+            field: "app_game.child_ux_preference_preflight.requirements",
+            value: "preference-preflight-row-1".to_string(),
         })
     );
     Ok(())
