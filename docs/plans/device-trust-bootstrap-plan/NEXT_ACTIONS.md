@@ -31,3 +31,7 @@ and retained runtime proof.
 WP04 now has a typed challenge/response boundary and fail-closed verifier port,
 but remains blocked on the external issuer/signature authority, phone
 ceremony, one-time nonce consumer, transport, and retained runtime proof.
+
+WP05 now has a device-bound entitlement verifier boundary, but remains blocked
+on the real signature/revocation provider and retained runtime proof; the
+unavailable default keeps capability unlock manual-required.

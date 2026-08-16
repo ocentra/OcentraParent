@@ -2,6 +2,8 @@
 
 //! Signed entitlement snapshot derivation and verification context.
 
+use chrono::{DateTime, FixedOffset};
+
 use crate::entitlement_access::{EntitlementCapability, SubscriptionState};
 use crate::entitlement_snapshot_values::{
     EntitlementAccountAuthorityState, EntitlementAccountRef,
@@ -127,6 +129,125 @@ pub struct EntitlementSnapshotVerificationContext {
     pub device_binding_state: EntitlementSnapshotBindingState,
     pub device_trust_state: EntitlementDeviceTrustState,
     pub package_build_state: EntitlementPackageBuildState,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct EntitlementSnapshotVerificationRequest {
+    pub account_ref: EntitlementAccountRef,
+    pub household_ref: EntitlementHouseholdRef,
+    pub trusted_device_ref: EntitlementTrustedDeviceRef,
+    pub package_build_ref: EntitlementPackageBuildRef,
+    pub observed_at: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EntitlementSnapshotVerificationFailure {
+    InvalidSnapshotShape,
+    MissingSignature,
+    InvalidSignature,
+    WrongAccount,
+    WrongHousehold,
+    WrongDevice,
+    WrongPackageBuild,
+    Expired,
+    TimestampInvalid,
+    AuthorityUnavailable,
+}
+
+pub trait EntitlementSnapshotAuthorityVerifier {
+    fn verify_signature_and_revocation(
+        &mut self,
+        snapshot: &SignedEntitlementSnapshot,
+        request: &EntitlementSnapshotVerificationRequest,
+    ) -> Result<EntitlementSnapshotVerificationContext, EntitlementSnapshotVerificationFailure>;
+}
+
+#[derive(Debug, Default)]
+pub struct UnavailableEntitlementSnapshotAuthorityVerifier;
+
+impl EntitlementSnapshotAuthorityVerifier for UnavailableEntitlementSnapshotAuthorityVerifier {
+    fn verify_signature_and_revocation(
+        &mut self,
+        _snapshot: &SignedEntitlementSnapshot,
+        _request: &EntitlementSnapshotVerificationRequest,
+    ) -> Result<EntitlementSnapshotVerificationContext, EntitlementSnapshotVerificationFailure>
+    {
+        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
+    }
+}
+
+pub fn verify_device_bound_entitlement_snapshot(
+    verifier: &mut impl EntitlementSnapshotAuthorityVerifier,
+    snapshot: &SignedEntitlementSnapshot,
+    request: &EntitlementSnapshotVerificationRequest,
+) -> Result<EntitlementSnapshotContext, EntitlementSnapshotVerificationFailure> {
+    validate_snapshot_shape(snapshot, request)?;
+    let verification = verifier.verify_signature_and_revocation(snapshot, request)?;
+    match verification.signature_state {
+        EntitlementSnapshotSignatureState::Missing => {
+            return Err(EntitlementSnapshotVerificationFailure::MissingSignature);
+        }
+        EntitlementSnapshotSignatureState::Invalid => {
+            return Err(EntitlementSnapshotVerificationFailure::InvalidSignature);
+        }
+        EntitlementSnapshotSignatureState::Trusted => {}
+    }
+
+    Ok(snapshot_context_from_signed_snapshot(
+        snapshot,
+        EntitlementSnapshotVerificationContext {
+            signature_state: verification.signature_state,
+            freshness_state: verification.freshness_state,
+            household_binding_state: EntitlementSnapshotBindingState::Matched,
+            device_binding_state: EntitlementSnapshotBindingState::Matched,
+            device_trust_state: verification.device_trust_state,
+            package_build_state: verification.package_build_state,
+        },
+    ))
+}
+
+fn validate_snapshot_shape(
+    snapshot: &SignedEntitlementSnapshot,
+    request: &EntitlementSnapshotVerificationRequest,
+) -> Result<(), EntitlementSnapshotVerificationFailure> {
+    if snapshot.schema_version != ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION {
+        return Err(EntitlementSnapshotVerificationFailure::InvalidSnapshotShape);
+    }
+    if snapshot.signature.is_empty() {
+        return Err(EntitlementSnapshotVerificationFailure::MissingSignature);
+    }
+    if snapshot.account_ref != request.account_ref {
+        return Err(EntitlementSnapshotVerificationFailure::WrongAccount);
+    }
+    if snapshot.household_ref != request.household_ref {
+        return Err(EntitlementSnapshotVerificationFailure::WrongHousehold);
+    }
+    if snapshot.trusted_device_ref != request.trusted_device_ref {
+        return Err(EntitlementSnapshotVerificationFailure::WrongDevice);
+    }
+    if snapshot.package_build_ref != request.package_build_ref {
+        return Err(EntitlementSnapshotVerificationFailure::WrongPackageBuild);
+    }
+
+    let issued_at = parse_snapshot_timestamp(&snapshot.issued_at)?;
+    let expires_at = parse_snapshot_timestamp(&snapshot.expires_at)?;
+    let observed_at = parse_snapshot_timestamp(&request.observed_at)?;
+    if issued_at > observed_at || observed_at >= expires_at {
+        return Err(EntitlementSnapshotVerificationFailure::Expired);
+    }
+    if let Some(grace_until) = snapshot.grace_until.as_deref() {
+        if parse_snapshot_timestamp(grace_until)? < expires_at {
+            return Err(EntitlementSnapshotVerificationFailure::InvalidSnapshotShape);
+        }
+    }
+    Ok(())
+}
+
+fn parse_snapshot_timestamp(
+    value: &str,
+) -> Result<DateTime<FixedOffset>, EntitlementSnapshotVerificationFailure> {
+    DateTime::parse_from_rfc3339(value)
+        .map_err(|_error| EntitlementSnapshotVerificationFailure::TimestampInvalid)
 }
 
 pub fn derive_signed_entitlement_snapshot(

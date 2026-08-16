@@ -122,6 +122,10 @@ remote-access-plan and policy-control-plane-plan:
 - WP04 binds the response to a trusted expected approving-device identity and
   requires response timestamps to remain inside the issued challenge interval;
   a response `Fresh` field remains an untrusted claim until nonce consumption.
+- WP05 now validates entitlement account, household, trusted-device, package,
+  timestamp, and grace-shape bindings before any authority result is consumed.
+  Signature verification and revocation authority remain unavailable and
+  manual-required, so this path cannot unlock capabilities by itself.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```

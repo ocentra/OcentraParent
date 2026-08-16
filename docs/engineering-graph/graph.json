@@ -16881,7 +16881,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial",
+        "statusText": "partial / device-bound verifier boundary drafted; signature, revocation, and proof remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16891,7 +16891,8 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
+            "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md",
+            "crates/entitlement-core/src/entitlement_snapshot.rs"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
