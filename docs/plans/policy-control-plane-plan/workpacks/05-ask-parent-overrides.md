@@ -35,6 +35,8 @@ The action boundary accepts only a strict decision input. Rust projects approval
 
 This is code drafted and unvalidated only. The rendered portal parent-resolution surface, account/identity provider composition, notification-provider dispatch, WP11 pre-action/post-action durability, concrete runtime composition, tests, and proof remain open. This slice does not claim approval, notification, delivery, enforcement, rollback, or workpack completion.
 
+The resolution service keeps `notification_handoff_claim_state` explicitly `Unclaimed` until the notification owner composes a real provider dispatch. A resolved policy request is not evidence that a parent notification was sent.
+
 ## Required lifecycle
 
 ```text

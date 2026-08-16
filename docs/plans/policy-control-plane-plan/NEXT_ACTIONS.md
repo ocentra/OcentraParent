@@ -16,6 +16,7 @@
 - WP02 still depends on rendered parent authoring/preview/conflict/approval surfaces outside this owner slice.
 - WP02 code pass checkpoint: Rust-owned draft validation/staging, trusted preview-row authority projection, typed confirmed-request relay, and bounded handle mark-before-dispatch/restore-on-failure/commit-on-success now back the portal draft/confirm/cancel surface; missing authority context fails closed for manual review, validation and tests remain deferred, and no runtime completion claim is made.
 - WP05 production-code checkpoint: the Rust resolution command/service and delivery-binding validation exist, and a drafted typed decision staging/relay slice now maps `action_dispatch.rs`, `policy_preview.rs`, and `policy_preview/resolution.rs`. It projects `Modify` from trusted preview context only, binds actor identity to the local active-controller record, and fails closed for missing or ambiguous account/identity context. The rendered portal callback, account/identity provider composition, notification-provider dispatch, WP11 durability, runtime integration, validation/tests, and proof remain open; no completion claim is made.
+- WP05 no-claim correction: `crates/agent-service/src/websocket/policy_request_resolution/apply.rs` leaves `notification_handoff_claim_state` `Unclaimed` until a notification-owned provider dispatch exists; policy resolution alone is not notification delivery.
 
 ## Ordered workpacks
 

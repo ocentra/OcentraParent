@@ -97,6 +97,7 @@ Open gaps:
 Real dependency blockers:
 - `portal-ux-household-surfaces-plan` still owns unfinished rendered policy authoring, conflict, approval, and audit surfaces required by WP02.
 - WP05's rendered portal callback remains unconsumed. A Rust-owned typed decision staging/relay slice is drafted in `crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch.rs`, `policy_preview.rs`, and `policy_preview/resolution.rs`; it projects `Modify` from trusted preview context, never accepts arbitrary caller-selected changes, and fails closed until account/identity supplies exact actor context. Notification-provider dispatch remains uncomposed.
+- The WP05 resolution service now reports notification handoff as explicitly `Unclaimed` because no notification-provider dispatch is composed; the resolved policy request remains a typed policy result only and does not claim notification delivery.
 - Device-trust, data-custody, and enforcement handoffs remain dependency-owned and are not proven complete here.
 - WP04 requires a trusted domain- or enforcement-owned adapter that performs the real side effect, emits the required inspectable execution trace, and supplies non-forgeable execution authority; the current public policy surface intentionally exposes no production execution entry and cannot advance acknowledged, applied, or rolled-back state.
 
