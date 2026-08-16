@@ -56,15 +56,18 @@ and quiet-hours proof requirements before any provider delivery can be claimed.
   manual and unavailable scheduler states remain blocked.
 - Focused Rust contract tests cover due/manual/unavailable, unpersisted,
   mismatched, claimed, and duplicate-requirement paths.
-- No current WP62 owner consumes the complete WP59 read model, verifies the
-  durable scheduler store, generates deterministic requirements, or retains
-  blocked rows as one preflight read model. Historical `packages/parent-domain`
-  and proof-harness routes are absent.
+- `app_game_notification_preference_preflight_bridge` now consumes the complete
+  WP59 read model, verifies exact scheduled rows against the durable scheduler
+  store, generates deterministic requirements, and retains blocked rows. This
+  production code was drafted at `a93b45f33`; dedicated bridge tests and all
+  execution/validation are intentionally deferred to later global phases.
 
 ## Proof
 
 - `crates/app-game-core/src/app_game_child_ux_preference_preflight.rs`
 - `crates/app-game-core/src/app_game_child_ux_preference_preflight_types.rs`
+- `crates/app-game-core/src/app_game_notification_preference_preflight_bridge.rs`
+- `crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs`
 - `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
 - Historical `packages/parent-domain/...` and script harness routes are absent.
 - `test-results/app-game-notification-preference-preflight-proof/proof.json`

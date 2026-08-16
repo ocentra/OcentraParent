@@ -37,10 +37,11 @@ claiming UI or delivery.
   and quiet-hours refs; manual and unavailable states remain blocked.
 - Focused Rust contract tests cover due/manual/unavailable, unpersisted,
   mismatched, claimed, and duplicate-requirement paths.
-- No current WP62 owner consumes the complete WP59 read model, verifies the
-  durable scheduler store, generates deterministic requirements, or retains
-  blocked rows as one native-app read model. Historical `packages/parent-domain`
-  and proof-harness routes are absent.
+- The shared WP62 bridge now consumes the complete WP59 read model, verifies
+  exact scheduled rows against the durable scheduler store, generates
+  deterministic requirements, and retains blocked rows. This production code
+  was drafted at `a93b45f33`; dedicated bridge tests and all execution/
+  validation are intentionally deferred to later global phases.
 
 ## Proof
 
@@ -48,6 +49,10 @@ claiming UI or delivery.
   `crates/app-game-core/src/app_game_child_ux_preference_preflight.rs`
 - Current types:
   `crates/app-game-core/src/app_game_child_ux_preference_preflight_types.rs`
+- Shared bridge:
+  `crates/app-game-core/src/app_game_notification_preference_preflight_bridge.rs`
+- Shared bridge types:
+  `crates/app-game-core/src/app_game_notification_preference_preflight_bridge_types.rs`
 - Current focused tests:
   `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
 - Native app proof pack:

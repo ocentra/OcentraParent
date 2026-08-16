@@ -75,7 +75,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [59 notification scheduler bridge](workpacks/59-notification-scheduler-bridge.md) | **Bounded Phase 1 complete; focused Phase 2 green; proof open** |
 | [60 notification audit history bridge](workpacks/60-notification-audit-history-bridge.md) | **Bounded Phase 1 complete; focused Phase 2 green; proof open** |
 | [61 notification provider preflight](workpacks/61-notification-provider-preflight.md) | **Bounded Phase 1 complete; focused Phase 2 green; proof open** |
-| [62 notification preference preflight](workpacks/62-notification-preference-preflight.md) | **Incomplete; safe per-record boundary exists; WP59 persisted-store bridge missing** |
+| [62 notification preference preflight](workpacks/62-notification-preference-preflight.md) | **Production code drafted; expected bridge tests and validation deferred** |
 | [63 source freshness source panel polish](workpacks/63-source-freshness-source-panel-polish.md) | **Incomplete** |
 | [64 notification provider status handoff](workpacks/64-notification-provider-status-handoff.md) | **Incomplete** |
 | [65 notification preference status handoff](workpacks/65-notification-preference-status-handoff.md) | **Incomplete** |

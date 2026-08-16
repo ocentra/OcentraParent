@@ -3124,7 +3124,7 @@
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "draft",
+        "statusText": "code drafted",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12673,15 +12673,15 @@
       "path": "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete; safe per-record boundary exists; WP59 persisted-store bridge missing**",
+        "statusText": "**Production code drafted; expected bridge tests and validation deferred**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
