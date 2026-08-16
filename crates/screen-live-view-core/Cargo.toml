@@ -1,0 +1,30 @@
+[package]
+name = "ocentra-screen-live-view-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+
+[[test]]
+name = "contract_live_view_policy"
+path = "tests/contract/live_view_policy.rs"
+
+[[test]]
+name = "contract_observation_intent"
+path = "tests/contract/observation_intent.rs"
+
+[[test]]
+name = "security_live_view_worker"
+path = "tests/security/live_view_worker.rs"
+
+[[test]]
+name = "unit_live_view_runtime"
+path = "tests/unit/live_view_runtime.rs"

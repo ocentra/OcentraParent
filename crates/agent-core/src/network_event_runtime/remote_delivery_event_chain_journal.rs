@@ -1,7 +1,6 @@
-use ocentra_eventing::{ReplayReadReport, StoredEventEnvelope};
+use ocentra_eventing::{envelope::StoredEventEnvelope, replay::ReplayReadReport};
 use ocentra_parent_agent_protocol::constants;
-
-use crate::network_event_runtime_state::NetworkInterventionState;
+use ocentra_parent_agent_protocol::network_flow::NetworkInterventionState;
 
 use super::remote_delivery_event_chain_journal_types::{
     NetworkRuntimeRemoteEventChainJournalError, NetworkRuntimeRemoteEventChainJournalReport,
@@ -11,10 +10,11 @@ use super::remote_delivery_event_chain_store::{
     exported_event_type_count, publish_network_runtime_remote_event_chain_store, source_component,
     unsupported_claim_counts,
 };
-use super::{
-    prove_network_runtime_remote_delivery_status, NetworkRuntimeEventPayload,
-    NetworkRuntimeRemoteDeliveryStatusReport,
+use super::remote_delivery_status::{
+    prove_network_runtime_remote_delivery_status, NetworkRuntimeRemoteDeliveryStatusReport,
 };
+use super::NetworkRuntimeEventPayload;
+
 pub async fn prove_network_runtime_remote_event_chain_journal(
 ) -> Result<NetworkRuntimeRemoteEventChainJournalReport, NetworkRuntimeRemoteEventChainJournalError>
 {
@@ -29,18 +29,18 @@ pub async fn prove_network_runtime_remote_event_chain_journal(
     build_report(
         remote_delivery_status,
         &store.stored_events,
-        store.projection,
-        store.payloads,
-        unsupported,
+        &store.projection,
+        &store.payloads,
+        &unsupported,
     )
 }
 
 fn build_report(
     remote_delivery_status: NetworkRuntimeRemoteDeliveryStatusReport,
     stored_events: &[StoredEventEnvelope],
-    projection: ReplayReadReport,
-    payloads: Vec<NetworkRuntimeEventPayload>,
-    unsupported: UnsupportedClaimCounts,
+    projection: &ReplayReadReport,
+    payloads: &[NetworkRuntimeEventPayload],
+    unsupported: &UnsupportedClaimCounts,
 ) -> Result<NetworkRuntimeRemoteEventChainJournalReport, NetworkRuntimeRemoteEventChainJournalError>
 {
     if stored_events.is_empty() || projection.records.is_empty() {
@@ -77,16 +77,17 @@ fn build_report(
             .count(),
         enforcement_command_event_count: unsupported.enforcement_command_event_count,
         adapter_action_executed_count: unsupported.adapter_action_executed_count,
+        raw_pcap_available_count: unsupported.raw_pcap_available_count,
         exact_url_available_count: unsupported.exact_url_available_count,
         decrypted_payload_available_count: unsupported.decrypted_payload_available_count,
         page_content_available_count: unsupported.page_content_available_count,
+        video_content_available_count: unsupported.video_content_available_count,
+        private_message_content_available_count: unsupported
+            .private_message_content_available_count,
+        search_query_available_count: unsupported.search_query_available_count,
         projection_replay_mode: projection.mode,
-        durable_envelope_ready: remote_delivery_status.durable_envelope_ready,
         broker_delivery_implemented: remote_delivery_status.external_transport_delivery_implemented,
         family_hub_delivery_implemented: remote_delivery_status.family_hub_delivery_implemented,
-        provider_delivery_implemented: remote_delivery_status.provider_delivery_implemented,
-        child_device_delivery_implemented: remote_delivery_status.child_device_delivery_implemented,
-        product_ready_claimed: remote_delivery_status.product_ready_claimed,
         policy_authority: remote_delivery_status.policy_authority,
         side_effect_authority: remote_delivery_status.side_effect_authority,
         remote_delivery_status,

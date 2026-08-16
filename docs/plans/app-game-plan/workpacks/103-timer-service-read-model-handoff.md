@@ -1,5 +1,19 @@
 # WP103 - Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Read-Model Service Read-Model Handoff
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `WP103 - Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Read-Model Service Read-Model Handoff`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Scope
 
 Add a parent-domain service read-model handoff that consumes WP102 service handoff rows and records which native app/native game rows still require service read-model proof before runtime service emission or API visibility can be claimed.
@@ -13,11 +27,11 @@ Add a parent-domain service read-model handoff that consumes WP102 service hando
 
 ## Implementation Checklist
 
-- [x] Add parent-domain service read-model handoff schemas, builder, no-claim flags, and state rules.
-- [x] Add focused parser/builder tests using the real WP102 proof output.
-- [x] Add proof harness and app-game/app proof artifacts.
-- [x] Update feature/checklist/README docs with the no-claim decision.
-- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [ ] Add parent-domain service read-model handoff schemas, builder, no-claim flags, and state rules.
+- [ ] Add focused parser/builder tests using the real WP102 proof output.
+- [ ] Add proof harness and app-game/app proof artifacts.
+- [ ] Update feature/checklist/README docs with the no-claim decision.
+- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
 
 ## Evidence
 

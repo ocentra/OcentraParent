@@ -1,9 +1,0 @@
-
-running 1 test
-test network_stored_flow_enforcement_result_tests::enforcement_execute_records_network_domain_result_from_stored_flow_policy_refs ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 263 filtered out; finished in 0.08s
-
-   Compiling ocentra-parent-agent-service v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\agent-service)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 13.62s
-     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-f9b64d6b8709d212.exe)

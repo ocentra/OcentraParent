@@ -1,3 +1,5 @@
+import { PortalRoute } from './portal-contract-adapter';
+import { portalRouteHashPath } from './routes';
 import type { ParentPortalGuideTopic } from './parent-portal-guide-types';
 
 export const PARENT_PORTAL_API_GUIDES: readonly ParentPortalGuideTopic[] = [
@@ -68,7 +70,7 @@ export const PARENT_PORTAL_API_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Supported now',
         body: 'Current UI should show provider/status concepts while runtime provider setup remains an explicit integration gap.',
         tone: 'gold',
-        targetRoutePath: '#/diagnostics',
+        targetRoutePath: portalRouteHashPath(PortalRoute.Diagnostics),
         targetNavLabel: 'SUPPORT',
       },
       {
@@ -84,21 +86,21 @@ export const PARENT_PORTAL_API_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Open AI setup',
         body: 'Manage model profile, API provider state, local hub status, and per-device AI policy.',
         tone: 'purple',
-        targetRoutePath: '#/ai-runtime',
+        targetRoutePath: portalRouteHashPath(PortalRoute.AiRuntime),
         targetNavLabel: 'AI SETUP',
       },
       {
         label: 'Set API keys',
         body: 'Choose provider, model, data scope, and retention before any external AI call is allowed.',
         tone: 'gold',
-        targetRoutePath: '#/api-providers',
+        targetRoutePath: portalRouteHashPath(PortalRoute.ApiProviders),
         targetNavLabel: 'API KEYS',
       },
       {
         label: 'Pick per-device model',
         body: 'Choose local-only, local hub queue, API report writing, or disabled for each child device.',
         tone: 'cyan',
-        targetRoutePath: '#/capability-status',
+        targetRoutePath: portalRouteHashPath(PortalRoute.CapabilityStatus),
         targetNavLabel: 'CAPABILITY',
       },
       {

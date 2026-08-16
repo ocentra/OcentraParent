@@ -2,7 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelSourcePolicy {
     #[serde(rename = "bundled")]
     Bundled,
@@ -15,17 +16,20 @@ pub enum LocalAiModelSourcePolicy {
 }
 
 impl LocalAiModelSourcePolicy {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        constants::local_ai_runtime::SOURCE_POLICY_BUNDLED,
+        constants::local_ai_runtime::SOURCE_POLICY_PARENT_INSTALLED,
+        constants::local_ai_runtime::SOURCE_POLICY_LOCAL_CACHE,
+        constants::local_ai_runtime::SOURCE_POLICY_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Bundled => constants::local_ai_runtime::SOURCE_POLICY_BUNDLED,
-            Self::ParentInstalled => constants::local_ai_runtime::SOURCE_POLICY_PARENT_INSTALLED,
-            Self::LocalCache => constants::local_ai_runtime::SOURCE_POLICY_LOCAL_CACHE,
-            Self::Unavailable => constants::local_ai_runtime::SOURCE_POLICY_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelCacheState {
     #[serde(rename = "unavailable")]
     Unavailable,
@@ -42,19 +46,22 @@ pub enum LocalAiModelCacheState {
 }
 
 impl LocalAiModelCacheState {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        constants::local_ai_runtime::CACHE_STATE_UNAVAILABLE,
+        constants::local_ai_runtime::CACHE_STATE_NOT_CACHED,
+        constants::local_ai_runtime::CACHE_STATE_READY,
+        constants::local_ai_runtime::CACHE_STATE_DEGRADED,
+        constants::local_ai_runtime::CACHE_STATE_CORRUPTED,
+        constants::local_ai_runtime::CACHE_STATE_STORAGE_ERROR,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Unavailable => constants::local_ai_runtime::CACHE_STATE_UNAVAILABLE,
-            Self::NotCached => constants::local_ai_runtime::CACHE_STATE_NOT_CACHED,
-            Self::CacheReady => constants::local_ai_runtime::CACHE_STATE_READY,
-            Self::CacheDegraded => constants::local_ai_runtime::CACHE_STATE_DEGRADED,
-            Self::CacheCorrupted => constants::local_ai_runtime::CACHE_STATE_CORRUPTED,
-            Self::StorageError => constants::local_ai_runtime::CACHE_STATE_STORAGE_ERROR,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelCacheHealth {
     #[serde(rename = "healthy")]
     Healthy,
@@ -71,19 +78,22 @@ pub enum LocalAiModelCacheHealth {
 }
 
 impl LocalAiModelCacheHealth {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        constants::local_ai_runtime::CACHE_HEALTH_HEALTHY,
+        constants::local_ai_runtime::CACHE_HEALTH_DEGRADED,
+        constants::local_ai_runtime::CACHE_HEALTH_UNAVAILABLE,
+        constants::local_ai_runtime::CACHE_HEALTH_DOWNLOAD_DISABLED,
+        constants::local_ai_runtime::CACHE_HEALTH_CORRUPTED,
+        constants::local_ai_runtime::CACHE_HEALTH_STORAGE_ERROR,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Healthy => constants::local_ai_runtime::CACHE_HEALTH_HEALTHY,
-            Self::Degraded => constants::local_ai_runtime::CACHE_HEALTH_DEGRADED,
-            Self::Unavailable => constants::local_ai_runtime::CACHE_HEALTH_UNAVAILABLE,
-            Self::DownloadDisabled => constants::local_ai_runtime::CACHE_HEALTH_DOWNLOAD_DISABLED,
-            Self::Corrupted => constants::local_ai_runtime::CACHE_HEALTH_CORRUPTED,
-            Self::StorageError => constants::local_ai_runtime::CACHE_HEALTH_STORAGE_ERROR,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelManifestIntegrityState {
     #[serde(rename = "unavailable")]
     Unavailable,
@@ -102,24 +112,23 @@ pub enum LocalAiModelManifestIntegrityState {
 }
 
 impl LocalAiModelManifestIntegrityState {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        constants::local_ai_runtime::MANIFEST_INTEGRITY_UNAVAILABLE,
+        constants::local_ai_runtime::MANIFEST_INTEGRITY_UNCHECKED,
+        constants::local_ai_runtime::MANIFEST_INTEGRITY_VERIFIED,
+        constants::local_ai_runtime::MANIFEST_INTEGRITY_MISSING,
+        constants::local_ai_runtime::MANIFEST_INTEGRITY_CHECKSUM_MISMATCH,
+        constants::local_ai_runtime::MANIFEST_INTEGRITY_SIGNATURE_INVALID,
+        constants::local_ai_runtime::MANIFEST_INTEGRITY_CORRUPTED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Unavailable => constants::local_ai_runtime::MANIFEST_INTEGRITY_UNAVAILABLE,
-            Self::Unchecked => constants::local_ai_runtime::MANIFEST_INTEGRITY_UNCHECKED,
-            Self::Verified => constants::local_ai_runtime::MANIFEST_INTEGRITY_VERIFIED,
-            Self::ManifestMissing => constants::local_ai_runtime::MANIFEST_INTEGRITY_MISSING,
-            Self::ChecksumMismatch => {
-                constants::local_ai_runtime::MANIFEST_INTEGRITY_CHECKSUM_MISMATCH
-            }
-            Self::SignatureInvalid => {
-                constants::local_ai_runtime::MANIFEST_INTEGRITY_SIGNATURE_INVALID
-            }
-            Self::Corrupted => constants::local_ai_runtime::MANIFEST_INTEGRITY_CORRUPTED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiModelDownloadStatus {
     #[serde(rename = "download-disabled")]
     DownloadDisabled,
@@ -134,15 +143,15 @@ pub enum LocalAiModelDownloadStatus {
 }
 
 impl LocalAiModelDownloadStatus {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        constants::local_ai_runtime::DOWNLOAD_STATUS_DISABLED,
+        constants::local_ai_runtime::DOWNLOAD_STATUS_NOT_REQUESTED,
+        constants::local_ai_runtime::DOWNLOAD_STATUS_IN_PROGRESS,
+        constants::local_ai_runtime::DOWNLOAD_STATUS_COMPLETE,
+        constants::local_ai_runtime::DOWNLOAD_STATUS_FAILED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::DownloadDisabled => constants::local_ai_runtime::DOWNLOAD_STATUS_DISABLED,
-            Self::DownloadNotRequested => {
-                constants::local_ai_runtime::DOWNLOAD_STATUS_NOT_REQUESTED
-            }
-            Self::DownloadInProgress => constants::local_ai_runtime::DOWNLOAD_STATUS_IN_PROGRESS,
-            Self::DownloadComplete => constants::local_ai_runtime::DOWNLOAD_STATUS_COMPLETE,
-            Self::DownloadFailed => constants::local_ai_runtime::DOWNLOAD_STATUS_FAILED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }

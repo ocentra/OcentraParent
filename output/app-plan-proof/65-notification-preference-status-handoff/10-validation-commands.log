@@ -1,2 +1,0 @@
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-preference-status-handoff app-game-notification-preference-preflight v3-notification-rule-provider-retry-contract

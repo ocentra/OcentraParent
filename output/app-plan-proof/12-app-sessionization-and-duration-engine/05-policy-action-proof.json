@@ -1,7 +1,0 @@
-{
-  "policyChanged": false,
-  "actionsExecuted": false,
-  "authorityTierChanged": false,
-  "manualRequiredStateChanged": false,
-  "reason": "WP12 is read-model/session evidence proof only. Policy compiler, app rules, time budgets, approvals, and enforcement remain later app-plan workpacks."
-}

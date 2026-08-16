@@ -1,5 +1,19 @@
 # 20 PR, CI, And Rollout Gate
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `parent-desktop-runtime-package-plan`
+> Doc: `20 PR, CI, And Rollout Gate`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 Sources: [20-step plan](../parent-desktop-runtime-package-20-step-plan.md),
 [test blueprint](../parent-desktop-runtime-package-test-blueprint.md),
 [requirements guide](../runtime-package-requirements-guide.md), and
@@ -17,9 +31,9 @@ package/proof artifacts, docs/checklist state, known gaps, and CI/PR status.
 
 ## Requirement Checklist
 
-- [x] Run focused checks before PR-ready handoff.
+- [ ] Run focused checks before PR-ready handoff.
 - [ ] Push the branch when ready for review.
-- [x] Include package/runtime scope in PR-ready report.
+- [ ] Include package/runtime scope in PR-ready report.
 - [ ] Watch CI and fix D-owned failures.
 - [ ] After merge, primary pulls main and tells active workers to rebase.
 

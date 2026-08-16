@@ -1,12 +1,14 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
 
-import { runPortalUiBoundaryCheck } from './check-portal-ui-boundaries.mjs';
+import { repoAbsolutePath, resolveScopedFiles } from './check-architecture-scope.mjs';
+import { runPortalUiBoundaryCheck, runPortalUiBoundaryCheckForFiles } from './check-portal-ui-boundaries.mjs';
 
 const repoRoot = process.cwd();
 const sourceRoots = ['apps/portal/src'];
-const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'temp-scratchpad-proof']);
+const ignoredPathParts = new Set(['.git', '.turbo', 'coverage', 'dist', 'node_modules', 'ocentra-ledger']);
 const sourceExtension = /\.(?:ts|tsx)$/u;
 const findings = [];
 const typeGuardLiteralValues = new Set([
@@ -39,6 +41,8 @@ const appDomainLiteralPatterns = [
   { pattern: /\brgba?\(/iu, reason: 'raw RGB color embedded in markup' },
   { pattern: /\bhsla?\(/iu, reason: 'raw HSL color embedded in markup' },
 ];
+const scriptName = 'node scripts/check-no-app-string-literals.mjs';
+const usageLines = ['--all', '--base <sha> --head <sha>'];
 
 function toPosix(path) {
   return path.split(sep).join('/');
@@ -161,27 +165,59 @@ function inspectFile(path) {
   visit(source);
 }
 
-const files = [];
-for (const root of sourceRoots) {
-  walk(join(repoRoot, root), files);
-}
-
-for (const file of files) {
-  inspectFile(file);
-}
-
-const uiBoundaryFindings = runPortalUiBoundaryCheck({ repoRoot });
-findings.push(...uiBoundaryFindings);
-
-if (findings.length > 0) {
-  console.error(
-    'App source cannot contain inline domain/UI boundary strings. Move routes, selectors, CSS hooks, colors, and protocol values into typed constants or approved style/token owners.'
-  );
-  for (const finding of findings) {
-    const reason = finding.reason === undefined ? '' : ` ${finding.reason}:`;
-    console.error(`${finding.path}:${finding.line}${reason} ${finding.text}`);
+function collectFullFiles() {
+  const files = [];
+  for (const root of sourceRoots) {
+    walk(join(repoRoot, root), files);
   }
-  process.exit(1);
+  return files;
 }
 
-console.log(`No inline app domain strings or UI boundary violations found across ${files.length} checked files.`);
+function collectScopedFiles(rawArgs) {
+  const scope = resolveScopedFiles(rawArgs, {
+    scriptName,
+    usageLines,
+    roots: sourceRoots,
+    acceptPath: (filePath) => /\.(?:ts|tsx|css)$/u.test(filePath),
+  });
+
+  if (scope.mode === 'skip') {
+    return [];
+  }
+
+  return scope.files.map((filePath) => repoAbsolutePath(filePath));
+}
+
+export function main(rawArgs = process.argv.slice(2)) {
+  findings.length = 0;
+  const files = rawArgs.length === 0 ? collectFullFiles() : collectScopedFiles(rawArgs);
+
+  for (const file of files) {
+    if (sourceExtension.test(file)) {
+      inspectFile(file);
+    }
+  }
+
+  const uiBoundaryFindings =
+    rawArgs.length === 0
+      ? runPortalUiBoundaryCheck({ repoRoot })
+      : runPortalUiBoundaryCheckForFiles(files, { repoRoot });
+  findings.push(...uiBoundaryFindings);
+
+  if (findings.length > 0) {
+    console.error(
+      'App source cannot contain inline domain/UI boundary strings. Move routes, selectors, CSS hooks, colors, and protocol values into typed constants or approved style/token owners.'
+    );
+    for (const finding of findings) {
+      const reason = finding.reason === undefined ? '' : ` ${finding.reason}:`;
+      console.error(`${finding.path}:${finding.line}${reason} ${finding.text}`);
+    }
+    process.exit(1);
+  }
+
+  console.log(`No inline app domain strings or UI boundary violations found across ${files.length} checked files.`);
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main();
+}

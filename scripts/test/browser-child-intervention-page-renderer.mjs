@@ -1,4 +1,4 @@
-import { renderBrowserChildInterventionPage as renderDomainBrowserChildInterventionPage } from '@ocentra-parent/portal-domain/contracts';
+import { renderBrowserChildInterventionPage as renderDomainBrowserChildInterventionPage } from '@ocentra-parent/portal-domain/browser-child-intervention-page';
 
 const defaultBlockMarker = 'OCENTRA_MANAGED_BROWSER_BLOCKED';
 

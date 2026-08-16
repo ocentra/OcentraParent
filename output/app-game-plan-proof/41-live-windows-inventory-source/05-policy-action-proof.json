@@ -1,9 +1,0 @@
-{
-  "workpack": "41-live-windows-inventory-source",
-  "policyAction": {
-    "status": "not-applicable",
-    "reason": "WP41 is core inventory evidence only and does not compile or execute policy actions.",
-    "adapterExecution": "notClaimed",
-    "manualRequiredState": "unchanged"
-  }
-}

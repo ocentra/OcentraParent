@@ -12,11 +12,11 @@ Cross-record the shared app/game WP101 parent-domain parent-surface read-model c
 
 ## Implementation Checklist
 
-- [x] Cross-record parent-domain parent-surface read-model schemas, builder, no-claim flags, and state rules.
-- [x] Cross-record focused parser/builder tests using the real WP100 proof output.
-- [x] Cross-record proof harness and app proof artifacts.
-- [x] Update feature/checklist/README docs with the no-claim decision.
-- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [ ] Cross-record parent-domain parent-surface read-model schemas, builder, no-claim flags, and state rules.
+- [ ] Cross-record focused parser/builder tests using the real WP100 proof output.
+- [ ] Cross-record proof harness and app proof artifacts.
+- [ ] Update feature/checklist/README docs with the no-claim decision.
+- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
 
 ## Evidence
 

@@ -1,6 +1,7 @@
+import { spawn } from 'node:child_process';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
-import { spawn } from 'node:child_process';
+import { pathToFileURL } from 'node:url';
 
 const repoRoot = process.cwd();
 const proofMode = 'child-ios-entitlement-capability-proof';
@@ -13,19 +14,13 @@ await main();
 
 async function main() {
   await mkdir(outputDir, { recursive: true });
+  await runCommand('cargo', ['test', '-p', 'ocentra-schema', '--test', 'contract', 'child_ios_entitlement_capability']);
 
-  await runNpm(['run', 'build:contracts']);
-  await runNpm([
-    'run',
-    'test',
-    '--workspace',
-    '@ocentra-parent/parent-domain',
-    '--',
-    'tests/child-ios-entitlement-capability-proof.test.ts',
-  ]);
-
-  const sourceProof = await assertIosSourceProof();
-  const runtimeReadModel = await parseRuntimeReadModel(buildRuntimeReadModel());
+  const contracts = await importGeneratedModule(
+    'packages/schema-domain/dist/generated-child-ios-entitlement-capability-proof-contracts.js'
+  );
+  const runtimeReadModel = assertGeneratedContract(contracts);
+  const sourceProof = await assertIosSourceProof(runtimeReadModel);
   const matrixProof = await assertProofMatrix();
   const scriptWiring = await assertScriptWiring();
 
@@ -38,78 +33,95 @@ async function main() {
     proofLabels,
     evidence: {
       sourceProof,
-      contract: 'packages/parent-domain/src/child-ios-entitlement-capability-proof.ts',
-      contractTest: 'packages/parent-domain/tests/child-ios-entitlement-capability-proof.test.ts',
+      contract: 'crates/schema/src/child_ios_entitlement_capability_proof.rs',
+      contractGenerator: 'crates/schema/src/child_ios_entitlement_capability_proof_ts.rs',
+      generatedContract: 'packages/schema-domain/src/generated-child-ios-entitlement-capability-proof-contracts.ts',
+      contractTest: 'crates/schema/tests/contract/child_ios_entitlement_capability_proof.rs',
       matrix: 'docs/expectations/pre-ai-proof-matrix.json',
-      checkpoint: 'docs/checkpoints/child-ios-entitlement-capability-proof-2026-05-31.md',
       output: relativePath(proofPath),
     },
     runtimeReadModel,
     matrixProof,
     scriptWiring,
-    childIosEntitlementPackageProved: {
-      simulatorTarget: 'ci-mechanical-proof: iOS app target exists in the Xcode project',
-      bundleIdentifier: 'ci-mechanical-proof: bundle identifier remains ca.ocentra.parent.agent',
-      infoPlist: 'ci-mechanical-proof: basic iOS app plist exists without entitlement or background claims',
-      statusSurface: 'simulator-scaffold: AgentStatusViewController exposes manual-required status labels',
-      simulatorBuildScript: 'ci-mechanical-proof: simulator package script exists with code signing disabled',
-    },
-    childIosEntitlementStillManual: [
-      'Family Controls entitlement approval and behavior',
-      'DeviceActivity schedule and event behavior',
-      'Screen Time API authorization and behavior',
-      'Network Extension entitlement and filtering behavior',
-      'notification authorization and delivery',
-      'background execution mode and behavior',
-      'Apple signing, provisioning, and entitlement files',
-      'TestFlight install and App Store distribution',
-      'physical-device install and runtime evidence',
-    ],
     nonClaims: [
+      'simulator or physical-device launch proof from this CI source-contract lane',
       'Family Controls, DeviceActivity, Screen Time, or Network Extension implementation',
-      'notification permission grant or delivery',
-      'background execution behavior',
+      'notification permission grant, background execution, or recovery behavior',
       'Apple signing, provisioning, entitlement approval, TestFlight, or App Store proof',
-      'simulator launch, physical-device install, or device behavior',
-      'child-agent parity or external LAN/WebSocket iOS transport',
+      'child-agent parity or external iOS transport',
     ],
   };
 
   await writeFile(proofPath, `${JSON.stringify(proof, null, 2)}\n`);
-  console.log(`child-ios-entitlement-capability-proof-ok:${proofLabels.join(',')}`);
-  console.log(`evidence=${proofPath}`);
 }
 
-async function assertIosSourceProof() {
+function assertGeneratedContract(module) {
+  const readModel = structuredClone(module.GeneratedChildIosEntitlementCapabilityReadModel);
+  assertEqual(module.ChildIosEntitlementCapabilityContractRuntime.SchemaVersion, proofMode, 'generated schema version');
+  assertEqual(readModel.schemaVersion, proofMode, 'read model schema version');
+  assertEqual(readModel.bundleId, 'ca.ocentra.parent.agent', 'read model bundle identifier');
+  assertEqual(readModel.surfaceProofs.length, 15, 'surface proof count');
+  assertEqual(readModel.packageLifecycleProofs.length, 13, 'package lifecycle proof count');
+  assertEqual(readModel.protocolBridgeProof.externalTransportState, 'not-implemented', 'external transport state');
+  assertEqual(
+    readModel.surfaceProofs[3].parentCapabilityStatus,
+    'manual-required',
+    'Family Controls capability status'
+  );
+  assertEqual(readModel.surfaceProofs[10].proofState, 'device-proof-required', 'supervision proof state');
+  assertEqual(readModel.packageLifecycleProofs[12].proofState, 'not-implemented', 'recovery proof state');
+  assertIncludes(
+    readModel.protocolBridgeProof.commands,
+    'child.ios.entitlement.capability.snapshot.get',
+    'snapshot command'
+  );
+  assertEqual(
+    readModel.claimBoundaries.capabilityOnlyState,
+    'iOS child runtime remains capability-only; no hidden daemon or persistent background service is claimed',
+    'capability-only claim boundary'
+  );
+  proofLabels.push('rust-generated.child-ios-entitlement-capability-contract');
+  return readModel;
+}
+
+async function assertIosSourceProof(readModel) {
   const project = await readRepoFile('platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj');
   const plist = await readRepoFile('platforms/ios/OcentraParentAgent/Info.plist');
   const statusView = await readRepoFile('platforms/ios/OcentraParentAgent/AgentStatusViewController.swift');
   const buildScript = await readRepoFile('scripts/release/ios/build-simulator-app.sh');
 
-  assertIncludes(project, 'OcentraParentAgent.app', 'iOS app product target');
-  assertIncludes(project, 'PRODUCT_BUNDLE_IDENTIFIER = ca.ocentra.parent.agent', 'iOS bundle identifier');
-  assertIncludes(plist, '<key>CFBundleIdentifier</key>', 'Info.plist bundle identifier key');
-  assertIncludes(plist, '<key>LSRequiresIPhoneOS</key>', 'Info.plist iPhone requirement');
-  assertNotIncludes(plist, '<key>UIBackgroundModes</key>', 'background modes entitlement claim');
-  assertNotIncludes(plist, 'FamilyControls', 'Family Controls framework claim');
-  assertNotIncludes(plist, 'DeviceActivity', 'DeviceActivity framework claim');
-  assertNotIncludes(plist, 'NetworkExtension', 'Network Extension framework claim');
-  assertIncludes(statusView, 'child-ios-entitlement-capability-proof', 'iOS status schema label');
-  assertIncludes(statusView, 'family-controls=manual-required', 'Family Controls manual label');
-  assertIncludes(statusView, 'device-activity=manual-required', 'DeviceActivity manual label');
-  assertIncludes(statusView, 'screen-time=manual-required', 'Screen Time manual label');
-  assertIncludes(statusView, 'network-extension=manual-required', 'Network Extension manual label');
-  assertIncludes(statusView, 'notifications=manual-required', 'notifications manual label');
-  assertIncludes(statusView, 'background-execution=manual-required', 'background execution manual label');
-  assertIncludes(statusView, 'signing=manual-required', 'signing manual label');
-  assertIncludes(statusView, 'testflight=manual-required', 'TestFlight manual label');
-  assertIncludes(statusView, 'device-proof=manual-required', 'device proof manual label');
-  assertIncludes(statusView, 'child-agent-parity=not-claimed', 'child-agent parity non-claim label');
-  assertIncludes(buildScript, 'xcodebuild', 'iOS simulator build command');
-  assertIncludes(buildScript, 'iphonesimulator', 'iOS simulator SDK');
-  assertIncludes(buildScript, 'CODE_SIGNING_ALLOWED=NO', 'unsigned simulator package proof');
+  assertTextIncludes(project, 'OcentraParentAgent.app', 'iOS app product target');
+  assertTextIncludes(project, `PRODUCT_BUNDLE_IDENTIFIER = ${readModel.bundleId}`, 'bundle identifier');
+  assertTextIncludes(plist, '<key>CFBundleIdentifier</key>', 'Info.plist bundle identifier');
+  assertTextIncludes(plist, '<key>LSRequiresIPhoneOS</key>', 'Info.plist iPhone requirement');
+  for (const forbidden of ['<key>UIBackgroundModes</key>', 'FamilyControls', 'DeviceActivity', 'NetworkExtension']) {
+    assertTextExcludes(plist, forbidden, `unproved plist capability ${forbidden}`);
+  }
+  for (const expected of [
+    proofMode,
+    'service-mode=capability-only',
+    'launch-availability=manual-required',
+    'recovery=not-implemented',
+    'family-controls=manual-required',
+    'device-activity=manual-required',
+    'screen-time=manual-required',
+    'network-extension=manual-required',
+    'notifications=manual-required',
+    'background-execution=manual-required',
+    'provisioning=manual-required',
+    'supervision=manual-required',
+    'signing=manual-required',
+    'testflight=manual-required',
+    'device-proof=manual-required',
+    'daemon=not-claimed',
+    'child-agent-parity=not-claimed',
+  ]) {
+    assertTextIncludes(statusView, expected, `iOS status label ${expected}`);
+  }
+  for (const expected of ['xcodebuild', 'iphonesimulator', 'CODE_SIGNING_ALLOWED=NO']) {
+    assertTextIncludes(buildScript, expected, `simulator build token ${expected}`);
+  }
   proofLabels.push('ios-scaffold.entitlement-source-proof');
-
   return {
     project: 'platforms/ios/OcentraParentAgent.xcodeproj/project.pbxproj',
     infoPlist: 'platforms/ios/OcentraParentAgent/Info.plist',
@@ -118,253 +130,38 @@ async function assertIosSourceProof() {
   };
 }
 
-function buildRuntimeReadModel() {
-  return {
-    schemaVersion: proofMode,
-    bundleId: 'ca.ocentra.parent.agent',
-    statusSurfaceClass: 'AgentStatusViewController',
-    protocolBridgeProof: {
-      bundleId: 'ca.ocentra.parent.agent',
-      statusSurfaceClass: 'AgentStatusViewController',
-      bridgeState: 'simulator-scaffold',
-      externalTransportState: 'not-implemented',
-      commands: [
-        'child.ios.entitlement.capability.snapshot.get',
-        'child.ios.entitlement.package.proof.get',
-        'child.ios.entitlement.manual-proof.get',
-      ],
-      events: [
-        'child.ios.entitlement.capability.snapshot.reported',
-        'child.ios.entitlement.package.proof.reported',
-        'child.ios.entitlement.manual-proof.reported',
-      ],
-      runtimeOwner: 'ios-swift-scaffold',
-      proofRequirement: 'iOS simulator scaffold status surface names manual entitlement states',
-      claimBoundary: 'status surface is not external child-agent transport or Apple entitlement proof',
-    },
-    surfaceProofs: surfaceProofs(),
-    packageLifecycleProofs: packageLifecycleProofs(),
-    claimBoundaries: {
-      simulatorPackage: 'Xcode project target, bundle id, plist, status view, and package script are source proof only',
-      familyControls: 'Family Controls remains entitlement-required without Apple approval and device artifacts',
-      deviceActivity: 'DeviceActivity remains entitlement-required without schedule and event artifacts',
-      screenTime: 'Screen Time API remains entitlement-required without authorization and behavior artifacts',
-      networkExtension: 'Network Extension remains entitlement-required without filtering artifacts',
-      notifications: 'notification authorization and delivery remain manual-required',
-      backgroundExecution: 'background execution remains manual-required without UIBackgroundModes and device proof',
-      signingEntitlements: 'signing and entitlements remain signing-required; simulator script disables signing',
-      testflight: 'TestFlight and App Store distribution remain device-proof-required or planned',
-      deviceProof: 'physical-device install and runtime behavior remain device-proof-required',
-      externalTransport: 'no external LAN or WebSocket iOS child-agent transport is claimed',
-    },
-    updatedAt: new Date().toISOString(),
-  };
-}
-
-async function parseRuntimeReadModel(readModel) {
-  const module = await import('@ocentra-parent/parent-domain/child-ios-entitlement-capability-proof');
-  const parsed = module.ChildIosEntitlementCapabilityReadModelSchema.parse(readModel);
-  proofLabels.push('parent-domain.child-ios-entitlement-capability-proof-parse');
-  return parsed;
-}
-
 async function assertProofMatrix() {
   const matrix = JSON.parse(await readRepoFile('docs/expectations/pre-ai-proof-matrix.json'));
   const claim = matrix.claims.find((candidate) => candidate.id === proofMode);
   const scenario = matrix.checkpointScenarios.find((candidate) => candidate.id === proofMode);
-  if (!claim || !scenario) {
-    throw new Error('Proof matrix is missing child-ios-entitlement-capability-proof claim or scenario.');
-  }
-  assertArrayIncludes(matrix.requiredCompletedClaimIds, proofMode, 'required completed claim');
-  assertArrayIncludes(scenario.ciCommands, `node scripts/test/${proofMode}.mjs`, 'scenario command');
-  assertArrayIncludes(claim.ciProof.commands, `node scripts/test/${proofMode}.mjs`, 'claim command');
+  if (!claim || !scenario) throw new Error(`Proof matrix is missing ${proofMode}.`);
+  const command = `node scripts/test/${proofMode}.mjs`;
+  assertIncludes(matrix.requiredCompletedClaimIds, proofMode, 'required completed claim');
+  assertIncludes(scenario.ciCommands, command, 'scenario command');
+  assertIncludes(claim.ciProof.commands, command, 'claim command');
   proofLabels.push('proof-matrix.child-ios-entitlement-capability-proof');
-  return {
-    claimId: claim.id,
-    platformCoverage: claim.platformCoverage,
-    runtimeSurfaceCoverage: claim.runtimeSurfaceCoverage,
-  };
+  return { claimId: claim.id, platformCoverage: claim.platformCoverage };
 }
 
 async function assertScriptWiring() {
   const packageJson = JSON.parse(await readRepoFile('package.json'));
-  const parentDomainPackage = JSON.parse(await readRepoFile('packages/parent-domain/package.json'));
-  const script = packageJson.scripts['test:child-ios-entitlement-capability-proof'];
-  if (script !== `node scripts/test/${proofMode}.mjs`) {
-    throw new Error('Missing root test:child-ios-entitlement-capability-proof script.');
-  }
-  if (!parentDomainPackage.exports['./child-ios-entitlement-capability-proof']) {
-    throw new Error('Missing parent-domain child-ios-entitlement-capability-proof export.');
-  }
+  const expected =
+    'node scripts/enforcer/run-ocentra-enforcer.mjs proof run --proof ocentra-parent.child-ios-entitlement-capability-proof';
+  assertEqual(
+    packageJson.scripts['test:child-ios-entitlement-capability-proof'],
+    expected,
+    'root Enforcer proof command'
+  );
   proofLabels.push('package-scripts.child-ios-entitlement-capability-proof');
-  return {
-    rootScript: 'test:child-ios-entitlement-capability-proof',
-    parentDomainExport: './child-ios-entitlement-capability-proof',
-  };
+  return { rootScript: 'test:child-ios-entitlement-capability-proof' };
 }
 
-function surfaceProofs() {
-  return [
-    surfaceProof(
-      'simulator-app-target',
-      'package-lifecycle',
-      'manual-required',
-      'declared-in-project',
-      'ci-mechanical-proof',
-      'ios-xcode-project'
-    ),
-    surfaceProof(
-      'bundle-identifier',
-      'package-lifecycle',
-      'manual-required',
-      'declared-in-project',
-      'ci-mechanical-proof',
-      'ios-xcode-project'
-    ),
-    surfaceProof(
-      'status-surface',
-      'typed-protocol-bridge',
-      'scaffold',
-      'scaffold-status-label',
-      'simulator-scaffold',
-      'ios-swift-scaffold'
-    ),
-    surfaceProof(
-      'family-controls-entitlement',
-      'family-controls-entitlement',
-      'manual-required',
-      'not-declared',
-      'entitlement-required',
-      'apple-entitlement'
-    ),
-    surfaceProof(
-      'device-activity-framework',
-      'device-activity',
-      'manual-required',
-      'not-declared',
-      'entitlement-required',
-      'apple-device-framework'
-    ),
-    surfaceProof(
-      'screen-time-api',
-      'screen-time-api',
-      'manual-required',
-      'not-declared',
-      'entitlement-required',
-      'apple-device-framework'
-    ),
-    surfaceProof(
-      'network-extension',
-      'network-extension',
-      'manual-required',
-      'not-declared',
-      'entitlement-required',
-      'apple-network-extension'
-    ),
-    surfaceProof(
-      'notifications-permission',
-      'notifications',
-      'manual-required',
-      'not-declared',
-      'manual-required',
-      'apple-notification-permission'
-    ),
-    surfaceProof(
-      'background-execution',
-      'background-execution',
-      'manual-required',
-      'not-declared',
-      'manual-required',
-      'apple-background-mode'
-    ),
-    surfaceProof(
-      'signing-entitlements',
-      'signing-entitlements',
-      'manual-required',
-      'not-applicable',
-      'signing-required',
-      'apple-signing'
-    ),
-    surfaceProof(
-      'testflight-distribution',
-      'testflight-distribution',
-      'manual-required',
-      'not-applicable',
-      'device-proof-required',
-      'apple-testflight'
-    ),
-    surfaceProof(
-      'physical-device-proof',
-      'package-lifecycle',
-      'manual-required',
-      'not-applicable',
-      'device-proof-required',
-      'apple-device-proof'
-    ),
-    surfaceProof(
-      'app-store-distribution',
-      'store-distribution',
-      'planned',
-      'not-applicable',
-      'planned',
-      'app-store-connect'
-    ),
-  ];
-}
-
-function packageLifecycleProofs() {
-  return [
-    lifecycleProof('xcode-project-target', 'ci-mechanical-proof', 'ios-xcode-project'),
-    lifecycleProof('bundle-identifier', 'ci-mechanical-proof', 'ios-xcode-project'),
-    lifecycleProof('simulator-build-script', 'ci-mechanical-proof', 'ios-simulator-build-script'),
-    lifecycleProof('status-view', 'simulator-scaffold', 'ios-swift-scaffold'),
-    lifecycleProof('info-plist', 'ci-mechanical-proof', 'ios-info-plist'),
-    lifecycleProof('simulator-build', 'manual-required', 'ios-simulator-build-script'),
-    lifecycleProof('device-install', 'device-proof-required', 'apple-device-proof'),
-    lifecycleProof('testflight-install', 'device-proof-required', 'apple-testflight'),
-    lifecycleProof('signing-profile', 'signing-required', 'apple-signing'),
-    lifecycleProof('entitlement-review', 'entitlement-required', 'apple-entitlement'),
-  ];
-}
-
-function surfaceProof(surface, parentCapability, parentCapabilityStatus, declarationState, proofState, runtimeOwner) {
-  const proofRequirement = `${surface} remains ${proofState} until Apple artifacts change it`;
-  return {
-    surface,
-    parentCapability,
-    parentCapabilityStatus,
-    declarationState,
-    proofState,
-    runtimeOwner,
-    proofRequirement,
-    claimBoundary: proofRequirement,
-  };
-}
-
-function lifecycleProof(phase, proofState, runtimeOwner) {
-  return {
-    phase,
-    proofState,
-    runtimeOwner,
-    proofRequirement: `${phase} proof state is ${proofState}`,
-    claimBoundary: `${phase} does not upgrade iOS entitlement or device behavior without Apple artifacts`,
-  };
-}
-
-async function readRepoFile(path) {
-  return readFile(join(repoRoot, path), 'utf8');
-}
-
-async function runNpm(args) {
-  await runCommand('cmd', ['/c', 'npm', ...args]);
-}
-
-async function runCommand(commandName, args) {
-  commands.push([commandName, ...args].join(' '));
+async function runCommand(command, args) {
+  commands.push([command, ...args].join(' '));
   await new Promise((resolve, reject) => {
-    const child = spawn(commandName, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
+    const child = spawn(command, args, { cwd: repoRoot, stdio: 'inherit', windowsHide: true });
     child.once('exit', (code) =>
-      code === 0 ? resolve() : reject(new Error(`${commandName} ${args.join(' ')} exited with ${code}`))
+      code === 0 ? resolve() : reject(new Error(`${command} ${args.join(' ')} exited with ${code}`))
     );
     child.once('error', reject);
   });
@@ -373,7 +170,11 @@ async function runCommand(commandName, args) {
 async function gitHead() {
   const chunks = [];
   await new Promise((resolve, reject) => {
-    const child = spawn('git', ['rev-parse', 'HEAD'], { cwd: repoRoot, stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn('git', ['rev-parse', 'HEAD'], {
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      windowsHide: true,
+    });
     child.stdout.on('data', (chunk) => chunks.push(String(chunk)));
     child.once('exit', (code) => (code === 0 ? resolve() : reject(new Error('git rev-parse HEAD failed'))));
     child.once('error', reject);
@@ -381,24 +182,32 @@ async function gitHead() {
   return chunks.join('').trim();
 }
 
+function importGeneratedModule(path) {
+  return import(pathToFileURL(join(repoRoot, path)).href);
+}
+
+function readRepoFile(path) {
+  return readFile(join(repoRoot, path), 'utf8');
+}
+
 function relativePath(path) {
   return relative(repoRoot, path).replaceAll('\\', '/');
 }
 
-function assertIncludes(value, expected, label) {
-  if (!value.includes(expected)) {
-    throw new Error(`${label}: missing ${expected}`);
-  }
+function assertEqual(actual, expected, label) {
+  if (actual !== expected) throw new Error(`${label}: expected ${expected}, received ${actual}`);
 }
 
-function assertNotIncludes(value, expected, label) {
-  if (value.includes(expected)) {
-    throw new Error(`${label}: unexpectedly contains ${expected}`);
-  }
-}
-
-function assertArrayIncludes(values, expected, label) {
+function assertIncludes(values, expected, label) {
   if (!Array.isArray(values) || !values.includes(expected)) {
     throw new Error(`${label}: missing ${expected}`);
   }
+}
+
+function assertTextIncludes(value, expected, label) {
+  if (!value.includes(expected)) throw new Error(`${label}: missing ${expected}`);
+}
+
+function assertTextExcludes(value, expected, label) {
+  if (value.includes(expected)) throw new Error(`${label}: unexpectedly contains ${expected}`);
 }

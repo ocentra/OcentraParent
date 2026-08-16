@@ -27,8 +27,21 @@ async function main() {
     lifecycle: {
       decision: { status: 'not-run' },
       install: { attempted: false, status: 'not-run' },
+      lifecycleStates: {
+        restart: { attempted: false, status: 'not-run' },
+        start: { attempted: false, status: 'not-run' },
+        stop: { attempted: false, status: 'not-run' },
+      },
       reboot: { attempted: false, status: 'not-run' },
+      respawn: { services: [], status: 'not-run' },
+      uninstallAuthorityCleanup: { status: 'not-run' },
     },
+    manualRequired: [],
+    noClaim: [
+      'This proof does not claim parent-client readiness or parity.',
+      'This proof does not claim parent-authorized revoke or remote trust revocation; that remains a separate child uninstall/revocation slice.',
+      'This proof does not claim crash-loop execution or reboot recovery. Respawn is claimed only from installed Windows service-manager failure-action state.',
+    ],
     outputDirectory,
     schemaVersion: 1,
     status: 'started',
@@ -44,10 +57,40 @@ async function main() {
       elevated: proof.elevation.isElevated,
       installRequested: options.install,
     });
+    const manualRequired = [];
+    if (decision.status === 'unsupported-platform') {
+      manualRequired.push('Windows host required for install/start/stop/restart/uninstall lifecycle proof.');
+    }
+    if (decision.status === 'admin-required') {
+      manualRequired.push(
+        'Elevated Windows shell required before install/start/stop/restart/uninstall lifecycle proof can run.'
+      );
+    }
+    if (decision.status === 'ready-not-run') {
+      manualRequired.push(
+        'Install flag not set; the proof remains artifact-only until install lifecycle is explicitly requested.'
+      );
+    }
+    if (decision.status === 'install-requested') {
+      manualRequired.push(
+        'Crash-triggered respawn execution and reboot recovery remain unexercised; service-manager recovery state is the only respawn proof in this slice.'
+      );
+      manualRequired.push(
+        'Parent-authorized revoke remains a separate workpack and is not exercised by MSI uninstall.'
+      );
+    }
+    proof.manualRequired = manualRequired;
     proof.lifecycle = {
       decision,
       install: { attempted: false, status: decision.status },
+      lifecycleStates: {
+        restart: { attempted: false, status: 'not-run' },
+        start: { attempted: false, status: 'not-run' },
+        stop: { attempted: false, status: 'not-run' },
+      },
       reboot: { attempted: false, status: 'not-run' },
+      respawn: { services: [], status: 'not-run' },
+      uninstallAuthorityCleanup: { status: 'not-run' },
     };
     if (decision.status === 'install-requested') {
       proof.lifecycle = {

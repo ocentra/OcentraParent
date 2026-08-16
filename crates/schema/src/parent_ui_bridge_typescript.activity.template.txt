@@ -1,0 +1,163 @@
+export interface ParentActivityEvidenceRefSnapshot {
+  readonly evidenceId: string;
+  readonly kind: string;
+  readonly digest?: string | null;
+  readonly uri?: string | null;
+}
+
+export interface ParentActivityNetworkEndpointSnapshot {
+  readonly ip?: string | null;
+  readonly port?: number | null;
+}
+
+export interface ParentActivityNetworkFlowCountersSnapshot {
+  readonly connectionCount: number;
+  readonly bytesSent?: number | null;
+  readonly bytesReceived?: number | null;
+  readonly firstSeenAt?: string | null;
+  readonly lastSeenAt?: string | null;
+}
+
+export interface ParentActivityNetworkFlowObservationSnapshot {
+  readonly schemaVersion: number;
+  readonly eventId: string;
+  readonly observedAt: string;
+  readonly observer: string;
+  readonly capabilityStatus: string;
+  readonly adapterId: string;
+  readonly protocol?: string | null;
+  readonly tcpState?: string | null;
+  readonly localEndpoint: ParentActivityNetworkEndpointSnapshot;
+  readonly destinationEndpoint: ParentActivityNetworkEndpointSnapshot;
+  readonly destinationDomain?: string | null;
+  readonly domainAttributionStatus: string;
+  readonly processAttributionStatus: string;
+  readonly processId?: number | null;
+  readonly processName?: string | null;
+  readonly counters: ParentActivityNetworkFlowCountersSnapshot;
+  readonly evidence: readonly ParentActivityEvidenceRefSnapshot[];
+}
+
+export interface ParentActivityNetworkFlowReadModelSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly custody: string;
+  readonly limit: number;
+  readonly returned: number;
+  readonly activeRows: number;
+  readonly tombstoneRows: number;
+  readonly exportableRows: number;
+  readonly capabilityStatus: string;
+  readonly latestEventId?: string | null;
+  readonly latestObservedAt?: string | null;
+  readonly latestTombstoneEventId?: string | null;
+  readonly latestTombstoneObservedAt?: string | null;
+  readonly deletedEvidenceReferenceIds: readonly string[];
+  readonly rows: readonly ParentActivityNetworkFlowObservationSnapshot[];
+}
+
+export interface ParentActivityTrackingReadModelCountSnapshot {
+  readonly value: string;
+  readonly count: number;
+}
+
+export interface ParentActivityTrackingReadModelRowSnapshot {
+  readonly schemaVersion: number;
+  readonly eventId: string;
+  readonly observedAt: string;
+  readonly deviceId: string;
+  readonly platform: string;
+  readonly observer: string;
+  readonly kind: string;
+  readonly subjectKind: string;
+  readonly subjectId: string;
+  readonly subjectDisplayName?: string | null;
+  readonly capabilityStatus?: string | null;
+  readonly queryVisibility: string;
+  readonly deletedAt?: string | null;
+  readonly evidenceReferenceIds: readonly string[];
+  readonly deletedEvidenceReferenceIds: readonly string[];
+  readonly evidence: readonly ParentActivityEvidenceRefSnapshot[];
+}
+
+export interface ParentActivityTrackingReadModelSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly custodyLabel: string;
+  readonly limit: number;
+  readonly returned: number;
+  readonly activeRows: number;
+  readonly tombstoneRows: number;
+  readonly capabilityStatus: string;
+  readonly latestEventId?: string | null;
+  readonly latestObservedAt?: string | null;
+  readonly latestActiveEventId?: string | null;
+  readonly latestActiveObservedAt?: string | null;
+  readonly latestTombstoneEventId?: string | null;
+  readonly latestTombstoneObservedAt?: string | null;
+  readonly activeKindCounts: readonly ParentActivityTrackingReadModelCountSnapshot[];
+  readonly activeDeviceCounts: readonly ParentActivityTrackingReadModelCountSnapshot[];
+  readonly activeCapabilityStatusCounts: readonly ParentActivityTrackingReadModelCountSnapshot[];
+  readonly deletedEvidenceReferenceIds: readonly string[];
+  readonly rows: readonly ParentActivityTrackingReadModelRowSnapshot[];
+}
+
+export type ParentActivityTrackingReadModelFailureReason =
+  | 'wrong-event'
+  | 'missing-json-field'
+  | 'invalid-json'
+  | 'invalid-payload';
+
+export interface ParentActivityTrackingReadModelResultSnapshot {
+  readonly ok: boolean;
+  readonly reason?: ParentActivityTrackingReadModelFailureReason | null;
+  readonly value?: ParentActivityTrackingReadModelSnapshot | null;
+}
+
+export interface ParentNetworkRuntimeEventValueSnapshot {
+  readonly aiAnalysisRef?: string | null;
+  readonly policyDecisionRef?: string | null;
+  readonly enforcementResultRef?: string | null;
+}
+
+export interface ParentNetworkEvidenceSummarySnapshot {
+  readonly aiAuditRef?: string | null;
+  readonly policyDecisionRef?: string | null;
+  readonly networkEvidenceGrade?: string | null;
+  readonly interventionResultRef?: string | null;
+}
+
+export interface ParentNetworkRuntimeEventResultSnapshot {
+  readonly ok: boolean;
+  readonly reason?: string | null;
+  readonly eventType?: string | null;
+  readonly value?: ParentNetworkRuntimeEventValueSnapshot | null;
+}
+
+export interface ParentNetworkRuntimeEventChainStreamSnapshot {
+  readonly streamedEventCount?: number | null;
+  readonly events: readonly ParentNetworkRuntimeEventResultSnapshot[];
+  readonly invalidEventCount: number;
+}
+
+export interface ParentPolicyPreviewConfirmationContext {
+  readonly requestId?: string | null;
+  readonly submissionKey?: string | null;
+  readonly householdId?: string | null;
+  readonly childProfileId?: string | null;
+  readonly deviceId?: string | null;
+  readonly sourceDocumentId?: string | null;
+  readonly policyVersion?: number | null;
+  readonly targetReferenceId?: string | null;
+  readonly ruleId?: string | null;
+  readonly requestedAt?: string | null;
+  readonly expiresAt?: string | null;
+  readonly assistantPreviewId?: string | null;
+  readonly auditReferenceIds?: string | null;
+  readonly actorId?: string | null;
+  readonly actorRole?: string | null;
+  readonly actorState?: string | null;
+  readonly confirmationAuditReferenceId?: string | null;
+}
+
+export interface ParentPolicyPreviewReadModelSnapshot {

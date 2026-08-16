@@ -1,0 +1,288 @@
+use std::io::{self, Write};
+
+use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
+use ocentra_eventing::ids::CorrelationId;
+use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
+
+use ocentra_family_identity_core::household_authority_proof::{
+    HouseholdAuthorityCurrentState, HouseholdAuthorityProof, HouseholdAuthorityProofVerifier,
+    VerifiedHouseholdAuthority,
+};
+use ocentra_schema::authenticated_delivery_grant::{
+    AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
+    AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES,
+};
+
+use super::{AuthenticatedDeliveryGrantIssuanceError, DeliveryGrantBindings};
+use crate::policy_authority_resolved_decision::ResolvedPolicyDecision;
+use crate::policy_contract_helpers::authority::PolicyContractAuthorityDecision;
+
+const AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES: usize = 1_024;
+
+struct BoundedWireLenWriter {
+    remaining: usize,
+}
+
+impl BoundedWireLenWriter {
+    fn new(limit: usize) -> Self {
+        Self { remaining: limit }
+    }
+}
+
+impl Write for BoundedWireLenWriter {
+    fn write(&mut self, bytes: &[u8]) -> io::Result<usize> {
+        if bytes.len() > self.remaining {
+            return Err(io::Error::new(
+                io::ErrorKind::WriteZero,
+                "authority envelope exceeds its signed wire limit",
+            ));
+        }
+        self.remaining -= bytes.len();
+        Ok(bytes.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct SignedAuthorityBindings {
+    pub bindings: DeliveryGrantBindings,
+    pub assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
+    /// Household authority is minted and signed by family identity. Policy only
+    /// carries the opaque family-owned proof and consumes its verified material.
+    pub household_authority_proof: HouseholdAuthorityProof,
+    /// The trusted producer's resolved policy identity and decision are signed
+    /// before grant issuance.
+    pub resolved_policy_decision: ResolvedPolicyDecision,
+    /// The trusted producer's policy contract authority is signed before grant issuance.
+    pub policy_authority: PolicyContractAuthorityDecision,
+    pub signature: Vec<u8>,
+}
+
+impl SignedAuthorityBindings {
+    /// Derives the issuance audit chain identifier from authority material only
+    /// after the caller has verified this envelope's signature. The request's
+    /// correlation value is intentionally never an audit authority input.
+    pub(crate) fn trusted_issuance_correlation_id(
+        &self,
+    ) -> Result<CorrelationId, AuthenticatedDeliveryGrantIssuanceError> {
+        let mut hasher = Sha256::new();
+        hasher.update(signing_bytes(self)?);
+        CorrelationId::parse(format!(
+            "authenticated-delivery-grant:issuance:v1:{:x}",
+            hasher.finalize()
+        ))
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+    }
+}
+
+pub struct AuthenticatedDeliveryGrantAuthorityVerifier {
+    verifying_key: VerifyingKey,
+    household_authority_verifier: HouseholdAuthorityProofVerifier,
+}
+
+impl AuthenticatedDeliveryGrantAuthorityVerifier {
+    pub fn new(verifying_key: VerifyingKey, household_authority_key: VerifyingKey) -> Self {
+        Self {
+            verifying_key,
+            household_authority_verifier: HouseholdAuthorityProofVerifier::new(
+                household_authority_key,
+            ),
+        }
+    }
+
+    pub fn verify(
+        &self,
+        signed: &SignedAuthorityBindings,
+    ) -> Result<
+        (
+            DeliveryGrantBindings,
+            AuthenticatedDeliveryGrantAssertionSnapshot,
+            VerifiedHouseholdAuthority,
+            ResolvedPolicyDecision,
+            PolicyContractAuthorityDecision,
+        ),
+        AuthenticatedDeliveryGrantIssuanceError,
+    > {
+        validate_signed_shape(signed)?;
+        let signature = Signature::from_slice(&signed.signature).map_err(|_error| {
+            AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
+        })?;
+        let bytes = signing_bytes(signed)?;
+        self.verifying_key
+            .verify_strict(&bytes, &signature)
+            .map_err(|_error| {
+                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
+            })?;
+        let household_authority = self
+            .household_authority_verifier
+            .verify(&signed.household_authority_proof)
+            .map_err(|_error| {
+                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
+            })?;
+        let identity_binding = household_authority
+            .identity_binding()
+            .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
+        let bindings = &signed.bindings;
+        (identity_binding.household_id == bindings.household_id
+            && identity_binding.parent_actor_id == bindings.issuer_actor_id
+            && identity_binding.parent_device_id == bindings.parent_device_id
+            && identity_binding.child_profile_id == bindings.child_profile_id
+            && identity_binding.target_device_id == bindings.target_device_id)
+            .then_some(())
+            .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
+        Ok((
+            signed.bindings.clone(),
+            signed.assertions.clone(),
+            household_authority,
+            signed.resolved_policy_decision.clone(),
+            signed.policy_authority.clone(),
+        ))
+    }
+
+    pub fn verify_against_current_state(
+        &self,
+        signed: &SignedAuthorityBindings,
+        current_state: &HouseholdAuthorityCurrentState,
+        trusted_now: &str,
+    ) -> Result<
+        (
+            DeliveryGrantBindings,
+            AuthenticatedDeliveryGrantAssertionSnapshot,
+            VerifiedHouseholdAuthority,
+            ResolvedPolicyDecision,
+            PolicyContractAuthorityDecision,
+        ),
+        AuthenticatedDeliveryGrantIssuanceError,
+    > {
+        let (bindings, assertions, _, resolved_decision, policy_authority) = self.verify(signed)?;
+        let household_authority = self
+            .household_authority_verifier
+            .verify_against_current_state(
+                &signed.household_authority_proof,
+                current_state,
+                trusted_now,
+            )
+            .map_err(|_error| {
+                AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected
+            })?;
+        Ok((
+            bindings,
+            assertions,
+            household_authority,
+            resolved_decision,
+            policy_authority,
+        ))
+    }
+}
+
+pub struct AuthenticatedDeliveryGrantAuthoritySigner {
+    signing_key: SigningKey,
+}
+
+impl AuthenticatedDeliveryGrantAuthoritySigner {
+    pub fn from_platform_key(platform_protected_key: [u8; 32]) -> Self {
+        Self {
+            signing_key: SigningKey::from_bytes(&platform_protected_key),
+        }
+    }
+
+    pub fn verifying_key(&self) -> VerifyingKey {
+        self.signing_key.verifying_key()
+    }
+
+    pub fn sign(
+        &self,
+        bindings: DeliveryGrantBindings,
+        assertions: AuthenticatedDeliveryGrantAssertionSnapshot,
+        household_authority_proof: HouseholdAuthorityProof,
+        resolved_policy_decision: ResolvedPolicyDecision,
+        policy_authority: PolicyContractAuthorityDecision,
+    ) -> Result<SignedAuthorityBindings, AuthenticatedDeliveryGrantIssuanceError> {
+        let unsigned = SignedAuthorityBindings {
+            bindings,
+            assertions,
+            household_authority_proof,
+            resolved_policy_decision,
+            policy_authority,
+            signature: Vec::new(),
+        };
+        validate_signed_shape(&unsigned)?;
+        let bytes = signing_bytes(&unsigned)?;
+        let signature = self.signing_key.sign(&bytes).to_bytes().to_vec();
+        let signed = SignedAuthorityBindings {
+            bindings: unsigned.bindings,
+            assertions: unsigned.assertions,
+            household_authority_proof: unsigned.household_authority_proof,
+            resolved_policy_decision: unsigned.resolved_policy_decision,
+            policy_authority: unsigned.policy_authority,
+            signature,
+        };
+        // The signature is JSON encoded as part of the signed envelope.  Check
+        // the completed value, rather than only its unsigned precursor, so a
+        // producer cannot mint an envelope a verifier must reject as oversized.
+        validate_signed_shape(&signed)?;
+        Ok(signed)
+    }
+}
+
+fn signing_bytes(
+    signed: &SignedAuthorityBindings,
+) -> Result<Vec<u8>, AuthenticatedDeliveryGrantIssuanceError> {
+    serde_json::to_vec(&(
+        &signed.bindings,
+        &signed.assertions,
+        &signed.household_authority_proof,
+        &signed.resolved_policy_decision,
+        &signed.policy_authority,
+    ))
+    .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+}
+
+fn validate_signed_shape(
+    signed: &SignedAuthorityBindings,
+) -> Result<(), AuthenticatedDeliveryGrantIssuanceError> {
+    let bindings = &signed.bindings;
+    let fields = [
+        bindings.issuer_actor_id.as_str(),
+        bindings.household_id.as_str(),
+        bindings.parent_device_id.as_str(),
+        bindings.child_profile_id.as_str(),
+        bindings.target_device_id.as_str(),
+        bindings.policy_decision_id.as_str(),
+        bindings.policy_version.as_str(),
+        bindings.action_id.as_str(),
+        bindings.capability_id.as_str(),
+        bindings.evidence_digest.as_str(),
+        bindings.payload_digest.as_str(),
+        bindings.nonce.as_str(),
+        bindings.issued_at.as_str(),
+        bindings.expires_at.as_str(),
+        bindings.revocation_version.as_str(),
+        signed.resolved_policy_decision.aggregate_id.as_str(),
+        signed.resolved_policy_decision.decision_id.as_str(),
+    ];
+    let bounded = fields.iter().all(|field| {
+        !field.trim().is_empty() && field.len() <= AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES
+    });
+    let payload_length_bounded =
+        bindings.payload_length <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES;
+    let wire_len = fields.iter().map(|field| field.len()).sum::<usize>()
+        + AUTHORITY_BINDINGS_WIRE_OVERHEAD_BYTES;
+    let signature_is_bounded = signed.signature.is_empty()
+        || signed.signature.len() == AUTHENTICATED_DELIVERY_GRANT_SIGNATURE_BYTES;
+    (bounded
+        && payload_length_bounded
+        && wire_len <= AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES
+        && signature_is_bounded)
+        .then_some(())
+        .ok_or(AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)?;
+    let mut wire_len_writer =
+        BoundedWireLenWriter::new(AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES);
+    serde_json::to_writer(&mut wire_len_writer, signed)
+        .map_err(|_error| AuthenticatedDeliveryGrantIssuanceError::AuthorityProvenanceRejected)
+}

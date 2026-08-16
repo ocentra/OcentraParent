@@ -1,171 +1,169 @@
-use ocentra_parent_agent_core::EnforcementTimerTransitionIds;
-use ocentra_parent_agent_protocol::{
-    constants, policy_constants, AgentCommandEnvelope, LogFieldValue, LogFields,
-    ParentActionReference, ParentActorReference, ParentActorRole,
-};
+use ocentra_parent_agent_core::enforcement_timer_state::EnforcementTimerTransitionIds;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+
+#[path = "enforcement_timer_payload/helpers.rs"]
+mod helpers;
+#[path = "enforcement_timer_payload/parent_action.rs"]
+mod parent_action;
+
+use crate::activity_api::GeneratedAtText;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct EnforcementTimerText(pub(crate) String);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) struct EnforcementTimerTextRef<'a>(&'a str);
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum EnforcementTimerPayloadError {
+    ParentActionRequired,
+    ProcessIdRequired,
+}
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct EnforcementTimerCommandPayload {
+    pub command_correlation_id: EnforcementTimerText,
+    pub command_sent_at: EnforcementTimerText,
     pub transition_ids: EnforcementTimerTransitionIds,
-    pub expected_action_id: Option<String>,
-    pub parent_override: Option<ParentActionReference>,
+    pub expected_action_id: Option<EnforcementTimerText>,
+    pub parent_override:
+        Option<ocentra_parent_agent_protocol::schema_domain_mirrors::family::ParentActionReference>,
     pub process_id: Option<u32>,
-    pub device_id: String,
-    pub platform: String,
+    pub device_id: EnforcementTimerText,
+    pub platform: EnforcementTimerText,
+    pub source_peer_id: EnforcementTimerText,
+    pub target_route: EnforcementTimerText,
 }
 
 pub(crate) fn parse_timer_recovery_payload(
     command: &AgentCommandEnvelope,
-    observed_at: &str,
+    observed_at: &GeneratedAtText,
 ) -> EnforcementTimerCommandPayload {
     EnforcementTimerCommandPayload {
-        transition_ids: parse_transition_ids(&command.payload, &command.message_id, observed_at),
-        expected_action_id: optional_string(
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
+        transition_ids: parse_transition_ids(
             &command.payload,
-            constants::field::ENFORCEMENT_ACTION_ID,
+            EnforcementTimerTextRef(&command.message_id),
+            observed_at,
+        ),
+        expected_action_id: helpers::optional_string(
+            &command.payload,
+            EnforcementTimerTextRef(constants::field::ENFORCEMENT_ACTION_ID),
         ),
         parent_override: None,
         process_id: None,
-        device_id: command.target.device_id.clone(),
-        platform: command.target.platform.clone(),
+        device_id: EnforcementTimerText(command.target.device_id.clone()),
+        platform: EnforcementTimerText(command.target.platform.clone()),
+        source_peer_id: EnforcementTimerText(command.source.peer_id.clone()),
+        target_route: target_route_text(&command.target.route),
     }
 }
 
 pub(crate) fn parse_timer_expiry_payload(
     command: &AgentCommandEnvelope,
-    observed_at: &str,
-) -> Result<EnforcementTimerCommandPayload, &'static str> {
+    observed_at: &GeneratedAtText,
+) -> Result<EnforcementTimerCommandPayload, EnforcementTimerPayloadError> {
     Ok(EnforcementTimerCommandPayload {
-        transition_ids: parse_transition_ids(&command.payload, &command.message_id, observed_at),
-        expected_action_id: optional_string(
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
+        transition_ids: parse_transition_ids(
             &command.payload,
-            constants::field::ENFORCEMENT_ACTION_ID,
+            EnforcementTimerTextRef(&command.message_id),
+            observed_at,
+        ),
+        expected_action_id: helpers::optional_string(
+            &command.payload,
+            EnforcementTimerTextRef(constants::field::ENFORCEMENT_ACTION_ID),
         ),
         parent_override: None,
-        process_id: Some(required_process_id(&command.payload)?),
-        device_id: command.target.device_id.clone(),
-        platform: command.target.platform.clone(),
+        process_id: Some(helpers::required_process_id(&command.payload)?),
+        device_id: EnforcementTimerText(command.target.device_id.clone()),
+        platform: EnforcementTimerText(command.target.platform.clone()),
+        source_peer_id: EnforcementTimerText(command.source.peer_id.clone()),
+        target_route: target_route_text(&command.target.route),
     })
 }
 
 pub(crate) fn parse_parent_override_payload(
     command: &AgentCommandEnvelope,
-    observed_at: &str,
-) -> Result<EnforcementTimerCommandPayload, &'static str> {
+    observed_at: &GeneratedAtText,
+) -> Result<EnforcementTimerCommandPayload, EnforcementTimerPayloadError> {
     Ok(EnforcementTimerCommandPayload {
-        transition_ids: parse_transition_ids(&command.payload, &command.message_id, observed_at),
-        expected_action_id: optional_string(
+        command_correlation_id: EnforcementTimerText(command.message_id.clone()),
+        command_sent_at: EnforcementTimerText(command.sent_at.clone()),
+        transition_ids: parse_transition_ids(
             &command.payload,
-            constants::field::ENFORCEMENT_ACTION_ID,
+            EnforcementTimerTextRef(&command.message_id),
+            observed_at,
         ),
-        parent_override: Some(parent_action_reference(&command.payload, observed_at)?),
+        expected_action_id: helpers::optional_string(
+            &command.payload,
+            EnforcementTimerTextRef(constants::field::ENFORCEMENT_ACTION_ID),
+        ),
+        parent_override: Some(parent_action::parent_action_reference(
+            &command.payload,
+            observed_at,
+        )?),
         process_id: None,
-        device_id: command.target.device_id.clone(),
-        platform: command.target.platform.clone(),
+        device_id: EnforcementTimerText(command.target.device_id.clone()),
+        platform: EnforcementTimerText(command.target.platform.clone()),
+        source_peer_id: EnforcementTimerText(command.source.peer_id.clone()),
+        target_route: target_route_text(&command.target.route),
     })
+}
+
+fn target_route_text(
+    route: &ocentra_parent_agent_protocol::transport::AgentRoute,
+) -> EnforcementTimerText {
+    let value = match route {
+        ocentra_parent_agent_protocol::transport::AgentRoute::Localhost => {
+            constants::value::DEVICE_RUNTIME_ROUTE_LOCALHOST
+        }
+        ocentra_parent_agent_protocol::transport::AgentRoute::LocalNetwork => {
+            constants::value::DEVICE_RUNTIME_ROUTE_LOCAL_NETWORK
+        }
+        ocentra_parent_agent_protocol::transport::AgentRoute::CloudRelay => {
+            constants::value::DEVICE_RUNTIME_ROUTE_CLOUD_RELAY
+        }
+    };
+    EnforcementTimerText(value.to_string())
 }
 
 fn parse_transition_ids(
     payload: &LogFields,
-    message_id: &str,
-    observed_at: &str,
+    message_id: EnforcementTimerTextRef<'_>,
+    observed_at: &GeneratedAtText,
 ) -> EnforcementTimerTransitionIds {
     EnforcementTimerTransitionIds {
-        result_id: string_or_prefixed(
+        result_id: helpers::string_or_prefixed(
             payload,
-            constants::field::ENFORCEMENT_RESULT_ID,
-            constants::enforcement::RESULT_ID_PREFIX,
+            EnforcementTimerTextRef(constants::field::ENFORCEMENT_RESULT_ID),
+            EnforcementTimerTextRef(constants::enforcement::RESULT_ID_PREFIX),
             message_id,
-        ),
-        audit_event_id: string_or_prefixed(
+        )
+        .0,
+        audit_event_id: helpers::string_or_prefixed(
             payload,
-            constants::field::ENFORCEMENT_AUDIT_EVENT_ID,
-            constants::enforcement::AUDIT_EVENT_ID_PREFIX,
+            EnforcementTimerTextRef(constants::field::ENFORCEMENT_AUDIT_EVENT_ID),
+            EnforcementTimerTextRef(constants::enforcement::AUDIT_EVENT_ID_PREFIX),
             message_id,
-        ),
-        timer_event_id: string_or_prefixed(
+        )
+        .0,
+        timer_event_id: helpers::string_or_prefixed(
             payload,
-            constants::field::ENFORCEMENT_TIMER_EVENT_ID,
-            constants::enforcement::TIMER_EVENT_ID_PREFIX,
+            EnforcementTimerTextRef(constants::field::ENFORCEMENT_TIMER_EVENT_ID),
+            EnforcementTimerTextRef(constants::enforcement::TIMER_EVENT_ID_PREFIX),
             message_id,
-        ),
-        observed_at: optional_string(payload, constants::field::REQUESTED_AT)
-            .unwrap_or_else(|| observed_at.to_string()),
-    }
-}
-
-fn parent_action_reference(
-    payload: &LogFields,
-    observed_at: &str,
-) -> Result<ParentActionReference, &'static str> {
-    Ok(ParentActionReference {
-        action_reference_id: required_string(
+        )
+        .0,
+        observed_at: helpers::optional_string(
             payload,
-            constants::field::PARENT_ACTION_REFERENCE_ID,
-        )?
-        .to_string(),
-        actor: parent_actor(payload)?,
-        policy_version: required_string(payload, constants::field::POLICY_VERSION)?.to_string(),
-        created_at: optional_string(payload, constants::field::PARENT_ACTION_CREATED_AT)
-            .unwrap_or_else(|| observed_at.to_string()),
-    })
-}
-
-fn parent_actor(payload: &LogFields) -> Result<ParentActorReference, &'static str> {
-    Ok(ParentActorReference {
-        actor_id: required_string(payload, constants::field::PARENT_ACTOR_ID)?.to_string(),
-        role: parent_actor_role(required_string(
-            payload,
-            constants::field::PARENT_ACTOR_ROLE,
-        )?)?,
-    })
-}
-
-fn parent_actor_role(value: &str) -> Result<ParentActorRole, &'static str> {
-    match value {
-        policy_constants::ACTOR_ROLE_PARENT => Ok(ParentActorRole::Parent),
-        policy_constants::ACTOR_ROLE_GUARDIAN => Ok(ParentActorRole::Guardian),
-        policy_constants::ACTOR_ROLE_SYSTEM => Ok(ParentActorRole::System),
-        _ => Err(constants::enforcement::REJECTION_PARENT_ACTION_REQUIRED),
+            EnforcementTimerTextRef(constants::field::REQUESTED_AT),
+        )
+        .map(|value| value.0)
+        .unwrap_or_else(|| observed_at.0.clone()),
     }
-}
-
-fn required_string<'a>(payload: &'a LogFields, field: &str) -> Result<&'a str, &'static str> {
-    match payload.get(field) {
-        Some(LogFieldValue::String(value)) if !value.trim().is_empty() => Ok(value.trim()),
-        _ => Err(constants::enforcement::REJECTION_PARENT_ACTION_REQUIRED),
-    }
-}
-
-fn optional_string(payload: &LogFields, field: &str) -> Option<String> {
-    match payload.get(field) {
-        Some(LogFieldValue::String(value)) if !value.trim().is_empty() => {
-            Some(value.trim().to_string())
-        }
-        _ => None,
-    }
-}
-
-fn required_process_id(payload: &LogFields) -> Result<u32, &'static str> {
-    match payload.get(constants::field::PROCESS_ID) {
-        Some(LogFieldValue::Number(value))
-            if value.is_finite()
-                && *value > 0.0
-                && value.fract() == 0.0
-                && *value <= f64::from(u32::MAX) =>
-        {
-            Ok(*value as u32)
-        }
-        _ => Err(constants::enforcement::REJECTION_PROCESS_ID_REQUIRED),
-    }
-}
-
-fn string_or_prefixed(payload: &LogFields, field: &str, prefix: &str, suffix: &str) -> String {
-    optional_string(payload, field).unwrap_or_else(|| prefixed_id(prefix, suffix))
-}
-
-fn prefixed_id(prefix: &str, suffix: &str) -> String {
-    let mut value = String::from(prefix);
-    value.push_str(suffix);
-    value
 }

@@ -1,5 +1,19 @@
 # Tracking Plan Coverage Audit
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `Tracking Plan Coverage Audit`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This file proves that the pasted scope from the planning chats was not lost.
 
 ## Attachment Map
@@ -32,39 +46,39 @@ This audit requires all of these to stay represented:
 
 ## Covered Pasted Scope
 
-- [x] Parent can know where child device was reported.
-- [x] Last-known/live/stale/offline states.
-- [x] Geofence home/school/activity/safe/restricted zones.
-- [x] Expected-place schedule: school/home/activity.
-- [x] Nearby-place intelligence: cinema, mall, hospital, bar, etc.
-- [x] AI analysis over structured evidence.
-- [x] Warning/urgent/critical notification policy.
-- [x] Parent acknowledgement.
-- [x] Holiday/exception state.
-- [x] False-alarm handling.
-- [x] Child check-in.
-- [x] Temporary live tracking.
-- [x] Missing device mode.
-- [x] Battery/connectivity status.
-- [x] Retention/delete/export controls.
-- [x] Android/iOS background permission proof.
-- [x] Desktop hint-only states.
-- [x] Platform extension checklists.
-- [x] Tests, Playwright, manual platform proof.
-- [x] Proof packs and merge gates.
-- [x] Browser-plan style README shape.
-- [x] Source index.
-- [x] Current snapshot.
-- [x] Full-scope plan.
-- [x] AI/safety analysis plan.
-- [x] Platform deep dive.
-- [x] Test blueprint.
-- [x] UI/UX guide.
-- [x] Implementation checklist.
-- [x] Coverage audit.
-- [x] Workpack structure.
-- [x] Progress reconciliation.
-- [x] Codex worker instructions.
+- [ ] Parent can know where child device was reported.
+- [ ] Last-known/live/stale/offline states.
+- [ ] Geofence home/school/activity/safe/restricted zones.
+- [ ] Expected-place schedule: school/home/activity.
+- [ ] Nearby-place intelligence: cinema, mall, hospital, bar, etc.
+- [ ] AI analysis over structured evidence.
+- [ ] Warning/urgent/critical notification policy.
+- [ ] Parent acknowledgement.
+- [ ] Holiday/exception state.
+- [ ] False-alarm handling.
+- [ ] Child check-in.
+- [ ] Temporary live tracking.
+- [ ] Missing device mode.
+- [ ] Battery/connectivity status.
+- [ ] Retention/delete/export controls.
+- [ ] Android/iOS background permission proof.
+- [ ] Desktop hint-only states.
+- [ ] Platform extension checklists.
+- [ ] Tests, Playwright, manual platform proof.
+- [ ] Proof packs and merge gates.
+- [ ] Browser-plan style README shape.
+- [ ] Source index.
+- [ ] Current snapshot.
+- [ ] Full-scope plan.
+- [ ] AI/safety analysis plan.
+- [ ] Platform deep dive.
+- [ ] Test blueprint.
+- [ ] UI/UX guide.
+- [ ] Implementation checklist.
+- [ ] Coverage audit.
+- [ ] Workpack structure.
+- [ ] Progress reconciliation.
+- [ ] Codex worker instructions.
 
 ## Consolidation Decisions
 

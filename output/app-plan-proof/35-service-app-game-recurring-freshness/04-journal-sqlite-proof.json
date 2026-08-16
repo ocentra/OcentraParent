@@ -1,8 +1,0 @@
-{
-  "workpack": "35-service-app-game-recurring-freshness",
-  "journal": "encrypted ActivityJournal",
-  "queryStore": "ActivityStore SQLite",
-  "crossRecordFrom": "output/app-game-plan-proof/35-service-app-game-recurring-freshness",
-  "runtimeRowsExpectedOnWindows": 2,
-  "foregroundRowsExpected": 0
-}

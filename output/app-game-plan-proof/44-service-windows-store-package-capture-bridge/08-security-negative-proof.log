@@ -1,7 +1,0 @@
-WP44 negative proof:
-- Store package manifest evidence remains inventory-only.
-- Inventory rows keep runtime state not claimed.
-- Inventory rows keep foreground state not claimed.
-- Service capture does not call policy evaluation.
-- Service capture does not dispatch adapters.
-- Raw manifest paths are converted to hashed source refs in core before journal events.

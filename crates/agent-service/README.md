@@ -18,6 +18,18 @@ development paths and orchestrates runtime commands.
   `localOcr` Activity Screen read-model rows with model/provider metadata, and
   drains processed queue records while keeping raw screenshot retention disabled
   by default.
+- Local JSON-backed screen parent settings persistence proof that reports a
+  disabled default, persists parent strict dry-run settings across reload, and
+  rejects raw image retention or unsafe policy/capture combinations before
+  persistence.
+- Screen settings WebSocket command handling for
+  `agent.screen-settings.get` and `agent.screen-settings.replace`, backed by
+  the same local JSON `ScreenSettingsRuntime` and rejecting raw-image retention
+  before persistence.
+- Env-gated screen live-view worker startup runtime that defaults disabled,
+  consumes protocol-owned live-view gate constants, and starts the worker only
+  after runtime, startup, deletion, platform prompt, relay/cache, physical
+  parity, privacy/legal, and unsafe-retention/control gates allow it.
 - V0.8 product-control spine runtime reports through
   `agent.enforcement.product-control-spine.get` without upgrading unsupported
   broad adapter claims.
@@ -46,19 +58,35 @@ development paths and orchestrates runtime commands.
 - Network flow read-model reports through
   `agent.network.flow.read-model.get`, backed by ActivityStore SQLite rows and
   local `ocentra-eventing` runtime delivery counts for stored network rows
-  without broker, family-hub, adapter, or host-filter claims.
-- Network product-readiness status reports through
-  `agent.network.product-readiness.status.get`, exposing row13a
-  live-capture/raw-custody status, row51a product-readiness status, and row52
-  platform-claim manifest entries from `ocentra-network-evidence` materializers.
-  The payload also carries row48 risk-budget refs/score breakdown and row49
-  performance benchmark metrics plus row33b local-AI runtime result status and
-  row10c broker/family-hub remote-delivery status. Row10d adds remote lifecycle
-  blocker refs for cross-process replay, remote retention/delete/export
-  propagation, family-hub delivery acknowledgements, and the follow-up proof
-  row, still without live capture, live model execution, live
-  broker/family-hub delivery, production SLO validation, policy execution,
-  adapter dispatch, host filtering, or enforcement-command claims.
+  without broker, family-hub, adapter, or host-filter claims. The same service
+  payload includes row51 stored-flow product-path proof counts and refs: stored
+  rows with a domain target derive row-scoped trigger, capture, ingest,
+  typed-event, policy-decision, action-result, retention, delete, export, and
+  portal read-model refs through `ocentra-network-evidence`, while tombstoned
+  rows and rows without a domain target do not invent policy/action refs.
+- Network remote delivery status reports through
+  `agent.network.remote-delivery.status.get`, derived from the row10t external
+  cross-process transport status identity over the local row10k
+  transport-dispatch state, row10l fixture transport proof, row10m delete/export
+  readiness proof, row10p provider/child readiness, row10q cross-process custody
+  readiness, row10r deterministic replay metadata through the row10s
+  cross-process replay status bridge, and row10t transport envelope/ack
+  metadata. The cached deterministic protocol snapshot carries row10b through
+  row10t refs, prepared candidate counts, blocked-dispatch refs, row10l fixture
+  dispatch/ack counts, delete/export readiness refs, provider/child readiness
+  refs, cross-process custody refs, replay/store/cursor refs, replay counts,
+  transport envelope/ack counts, duplicate rejection, and zero live dispatch/ack
+  counters without broker/family-hub transport, product
+  remote acknowledgement, provider or child-device delivery, actual remote
+  delete/export propagation, policy, adapter, exact content, or host-filter
+  claims.
+- Network live-capture status reports through
+  `agent.network.live-capture.status.get`, derived from row13 live-capture
+  proof-gate state and row03a raw-capture custody readiness refs. The
+  deterministic service snapshot exposes proof-ready, manual-required,
+  unavailable, and degraded platform rows plus zero driver, packet capture,
+  raw-PCAP-without-custody, content, policy, adapter, enforcement, netstat
+  substitution, remote upload, and host-filter claims.
 - App/game live process capture bridge rows through the existing activity
   capture journal/store path, exposing runtime-only app/game rows to the
   existing app-use/games read models without foreground, policy, or adapter
@@ -160,14 +188,24 @@ flowchart LR
 - Network runtime delivery output is service-local and read-model-count only;
   broker/family-hub delivery, cross-process durable replay/retention, policy
   execution, adapter execution, and host filtering remain separate gaps.
-- Network product-readiness status output is service-local status exposure only;
-  parent portal rendering now covers the row51c status card, row52a platform
-  claim manifest matrix, row51d risk/performance detail card, row10c/row10d
-  remote-delivery status card, and row33b local-AI runtime result status card.
-  Live local model execution, broker/family-hub delivery, cross-process remote
-  replay, remote retention/delete/export propagation, production SLO validation,
-  live capture execution, policy execution, adapter execution, and host
-  filtering remain separate gaps.
+- Network product-path bridge output is service-backed proof metadata only;
+  live capture drivers, local-AI model execution, full policy engine execution,
+  adapter mutation, exact URL/content claims, broker/family-hub delivery, and
+  host filtering remain separate gaps.
+- Network remote delivery status output is a read-only proof/status bridge;
+  row10l fixture transport, row10m delete/export readiness, row10p
+  provider/child readiness, row10q cross-process custody readiness, row10r
+  deterministic replay metadata through the row10s cross-process replay status
+  bridge, and row10t deterministic external cross-process transport envelope/ack
+  metadata are visible through the status bridge, but real broker or family-hub
+  transport, product remote acknowledgement, provider/child-device delivery,
+  actual remote delete/export propagation, product readiness, policy execution,
+  adapter execution, and host filtering remain separate gaps.
+- Network live-capture status output is a read-only proof/status bridge. Real
+  Npcap/libpcap invocation, packet capture, raw artifact creation, raw PCAP
+  without custody, exact URL/content/decrypted-payload visibility, netstat
+  substitution, policy execution, adapter execution, enforcement command
+  publication, and host filtering remain separate gaps.
 - App/game live process, optional foreground, Windows shortcut inventory,
   Windows packaged-app manifest capture, and Windows registry inventory capture
   have bounded service proof; subscribed foreground transitions, policy
@@ -180,6 +218,21 @@ flowchart LR
 - App/game source status rows are backend read-model summaries only; polished
   portal rendering, policy consumption, richer subscriptions, adapter
   execution, and broad blocking remain separate gaps.
+- App/game timer parent preference setup request persistence writes
+  service-local action-result, mutation receipt, child-runtime handoff, queue,
+  and dispatch readiness audit rows only; actual child runtime receipt,
+  provider delivery, durable production outbox runtime, adapter dispatch, broad
+  blocking, and platform enforcement remain separate gaps.
 - Screen service analysis proofs are backend/local proof hooks only; production
   OCR/VLM quality, authenticated-account surfaces, broader live trigger
   producers, retention UI, and enforcement remain separate gaps.
+- Screen service event bridge proofs map successful, capture/queue-only,
+  deletion-only, and degraded Activity Screen rows into the shared core
+  eventing runtime without raw-image escape or duplicate service event buses.
+- Screen settings persistence and WebSocket command handling are backend/runtime
+  proof only; parent portal form submit wiring, product retention-control UI,
+  raw screenshot retention
+  enablement, live view, and privacy/legal approval remain separate gaps.
+- Screen live-view worker startup is service-owned and env-gated, but platform
+  prompt screenshots, hosted relay infrastructure, physical-device parity,
+  privacy/legal approval, and product-complete live view remain separate gates.

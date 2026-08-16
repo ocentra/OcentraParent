@@ -1,9 +1,0 @@
-
-running 2 tests
-test network_event_runtime_remote_delivery_tests::network_runtime_remote_event_chain_journal_preserves_export_boundary_without_transport ... ok
-test network_event_runtime_remote_delivery_tests::network_runtime_remote_event_chain_journal_rejects_delivery_and_content_claims ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 254 filtered out; finished in 0.03s
-
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
-     Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_core-98ce409322ace2ff.exe)

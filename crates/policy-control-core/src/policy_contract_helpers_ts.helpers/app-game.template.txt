@@ -1,0 +1,57 @@
+export function generatedAppGameCategoryRiskPolicyRouteTargetMatchesFamily(
+  route: GeneratedAppGameCategoryRiskPolicyRouteLike
+): boolean {
+  switch (route.routeFamily) {
+    case 'nativeApp':
+      return route.targetKind === 'app-category';
+    case 'riskCandidate':
+      return route.targetKind === 'risk-app';
+    case 'nativeGame':
+      return route.targetKind === 'game-category';
+    case 'gameContext':
+      return ['multiplayer-game', 'ugc-game', 'purchase-capable-game', 'mature-game'].includes(route.targetKind);
+  }
+}
+
+export function generatedAppGameCategoryRiskPolicyRouteUsesCategoryProof(
+  route: GeneratedAppGameCategoryRiskPolicyRouteLike
+): boolean {
+  return (
+    route.categoryProof.proofKind === 'category-proof' &&
+    route.categoryProof.evidenceState === 'active' &&
+    route.supportingEvidence.length > 0
+  );
+}
+
+export function generatedAppGameCategoryRiskPolicyRouteActionMatchesCandidate(
+  route: GeneratedAppGameCategoryRiskPolicyRouteLike
+): boolean {
+  switch (route.candidateAction) {
+    case 'observe':
+      return route.requestedAction === 'observe' && route.policyAction === 'unknown';
+    case 'warn':
+      return route.requestedAction === 'warn' && route.policyAction === 'warn';
+    case 'askParent':
+      return route.requestedAction === 'ask-parent' && route.policyAction === 'ask-parent';
+    case 'manualReview':
+      return route.requestedAction === 'manual-required' && route.policyAction === 'ask-parent';
+  }
+}
+
+export function generatedAppGameCategoryRiskPolicyRouteKeepsSoftBoundary(
+  route: GeneratedAppGameCategoryRiskPolicyRouteLike
+): boolean {
+  return ['observe', 'warn', 'ask-parent', 'manual-required'].includes(route.requestedAction);
+}
+
+export function generatedAppGameCategoryRiskPolicyRouteManualReviewRequiresManualState(
+  route: GeneratedAppGameCategoryRiskPolicyRouteLike
+): boolean {
+  return route.candidateAction !== 'manualReview' || route.routingState === 'manual-required';
+}
+
+export function generatedAppGameCategoryRiskPolicyRouteLocalAiRequiresDigest(
+  route: GeneratedAppGameCategoryRiskPolicyRouteLike
+): boolean {
+  return route.sourceKind !== 'localAi' || route.aiDigestRef !== null;
+}

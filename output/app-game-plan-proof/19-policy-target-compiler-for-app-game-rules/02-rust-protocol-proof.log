@@ -1,6 +1,0 @@
-N/A for WP19.
-
-The new compiler shape is TypeScript parent-domain proof only. No Rust-facing
-service payload is introduced in this slice. Rust protocol parity remains
-required before an agent service, journal, WebSocket, or portal runtime consumes
-compiled app/game policy targets.

@@ -1,4 +1,12 @@
+mod normalization;
+mod validation;
+
 use serde::{Deserialize, Serialize};
+
+use self::{
+    normalization::{count_source, normalize_records, normalize_ref},
+    validation::reject_global_claims,
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkSignatureAlertSource {
@@ -122,9 +130,9 @@ pub enum NetworkSignatureAlertIngestionError {
 }
 
 pub fn ingest_network_signature_alerts(
-    input: NetworkSignatureAlertIngestionInput,
+    input: &NetworkSignatureAlertIngestionInput,
 ) -> Result<NetworkSignatureAlertIngestionProof, NetworkSignatureAlertIngestionError> {
-    reject_global_claims(&input)?;
+    reject_global_claims(input)?;
     if input.rows.is_empty() {
         return Err(NetworkSignatureAlertIngestionError::EmptyAlertRows);
     }
@@ -168,138 +176,4 @@ pub fn ingest_network_signature_alerts(
         live_snort_invoked: false,
         ips_prevention_claimed: false,
     })
-}
-
-fn normalize_records(
-    ingestion_run_ref: &str,
-    fixture_ref: &str,
-    rows: &[NetworkSignatureAlertFixtureRow],
-) -> Result<Vec<NetworkAnalyzerAlertRecord>, NetworkSignatureAlertIngestionError> {
-    let mut records = Vec::new();
-    let mut alert_refs = Vec::new();
-    for row in rows {
-        reject_row_claims(row)?;
-        let alert_ref = normalize_ref(&row.alert_ref)
-            .ok_or(NetworkSignatureAlertIngestionError::EmptyAlertRef)?;
-        if alert_refs.contains(&alert_ref) {
-            return Err(NetworkSignatureAlertIngestionError::DuplicateAlertRef);
-        }
-        alert_refs.push(alert_ref.clone());
-
-        let signature_id = normalize_ref(&row.signature_id)
-            .ok_or(NetworkSignatureAlertIngestionError::EmptySignatureId)?;
-        let signature_name = normalize_ref(&row.signature_name)
-            .ok_or(NetworkSignatureAlertIngestionError::EmptySignatureName)?;
-        let rule_source_ref = normalize_ref(&row.rule_source_ref)
-            .ok_or(NetworkSignatureAlertIngestionError::EmptyRuleSourceRef)?;
-        let flow_ref = normalize_ref(&row.flow_ref)
-            .ok_or(NetworkSignatureAlertIngestionError::EmptyFlowRef)?;
-        let evidence_ref = normalize_ref(&row.evidence_ref)
-            .ok_or(NetworkSignatureAlertIngestionError::EmptyEvidenceRef)?;
-        let custody_ref = normalize_ref(&row.custody_ref)
-            .ok_or(NetworkSignatureAlertIngestionError::EmptyCustodyRef)?;
-        let alert_state = alert_state(row.severity, row.known_false_positive);
-
-        records.push(NetworkAnalyzerAlertRecord {
-            alert_ref,
-            ingestion_run_ref: ingestion_run_ref.to_owned(),
-            fixture_ref: fixture_ref.to_owned(),
-            source: row.source,
-            signature_id,
-            signature_name,
-            rule_source_ref,
-            severity: row.severity,
-            observed_at_micros: row.observed_at_micros,
-            flow_ref,
-            evidence_ref,
-            custody_ref,
-            alert_state,
-            analyzer_alert_event_published: true,
-            detection_candidate: alert_state == NetworkSignatureAlertState::ReviewCandidate,
-            parent_review_candidate: alert_state == NetworkSignatureAlertState::ReviewCandidate,
-            false_positive: row.known_false_positive,
-            exact_url_available: false,
-            decrypted_payload_available: false,
-            page_content_available: false,
-            policy_authority: false,
-            adapter_authority: false,
-            enforcement_command_published: false,
-        });
-    }
-    Ok(records)
-}
-
-fn alert_state(
-    severity: NetworkSignatureAlertSeverity,
-    known_false_positive: bool,
-) -> NetworkSignatureAlertState {
-    if known_false_positive {
-        return NetworkSignatureAlertState::FalsePositiveNonEnforcing;
-    }
-    match severity {
-        NetworkSignatureAlertSeverity::High | NetworkSignatureAlertSeverity::Critical => {
-            NetworkSignatureAlertState::ReviewCandidate
-        }
-        NetworkSignatureAlertSeverity::Informational
-        | NetworkSignatureAlertSeverity::Low
-        | NetworkSignatureAlertSeverity::Medium => NetworkSignatureAlertState::AnalyzerEvidenceOnly,
-    }
-}
-
-fn reject_global_claims(
-    input: &NetworkSignatureAlertIngestionInput,
-) -> Result<(), NetworkSignatureAlertIngestionError> {
-    if input.live_suricata_invocation_claimed {
-        return Err(NetworkSignatureAlertIngestionError::LiveSuricataInvocationClaimRejected);
-    }
-    if input.live_snort_invocation_claimed {
-        return Err(NetworkSignatureAlertIngestionError::LiveSnortInvocationClaimRejected);
-    }
-    if input.ips_prevention_claimed {
-        return Err(NetworkSignatureAlertIngestionError::IpsPreventionClaimRejected);
-    }
-    if input.policy_authority_claimed {
-        return Err(NetworkSignatureAlertIngestionError::PolicyAuthorityClaimRejected);
-    }
-    if input.adapter_authority_claimed {
-        return Err(NetworkSignatureAlertIngestionError::AdapterAuthorityClaimRejected);
-    }
-    if input.enforcement_command_claimed {
-        return Err(NetworkSignatureAlertIngestionError::EnforcementCommandClaimRejected);
-    }
-    Ok(())
-}
-
-fn reject_row_claims(
-    row: &NetworkSignatureAlertFixtureRow,
-) -> Result<(), NetworkSignatureAlertIngestionError> {
-    if row.exact_url_claimed {
-        return Err(NetworkSignatureAlertIngestionError::ExactUrlClaimRejected);
-    }
-    if row.decrypted_payload_claimed {
-        return Err(NetworkSignatureAlertIngestionError::DecryptedPayloadClaimRejected);
-    }
-    if row.page_content_claimed {
-        return Err(NetworkSignatureAlertIngestionError::PageContentClaimRejected);
-    }
-    Ok(())
-}
-
-fn count_source(
-    records: &[NetworkAnalyzerAlertRecord],
-    source: NetworkSignatureAlertSource,
-) -> usize {
-    records
-        .iter()
-        .filter(|record| record.source == source)
-        .count()
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
 }

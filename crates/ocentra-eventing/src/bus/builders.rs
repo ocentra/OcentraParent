@@ -6,7 +6,7 @@ use std::{
 use tokio::sync::RwLock;
 
 use crate::{
-    queue::EventQueue, EventQueuePolicy, HandlerExecutionPolicy, JournalPolicy, RequestRegistry,
+    EventQueue, EventQueuePolicy, HandlerExecutionPolicy, JournalPolicy, RequestRegistry,
     SharedEventClock, SharedEventJournal,
 };
 

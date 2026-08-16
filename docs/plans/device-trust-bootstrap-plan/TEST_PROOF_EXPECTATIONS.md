@@ -1,0 +1,237 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `device-trust-bootstrap-plan`
+> Doc: `Device Trust Bootstrap Plan Test Proof Expectations`
+> Kind: command/test selector.
+> Read when: selected workpack asks which commands or proof artifacts are expected.
+> Stop rule: run focused commands first; do not jump to full validation unless required by the workpack or PR_READY.
+> Proves: command expectations only.
+> Does not prove: implementation completion without matching artifacts.
+
+<!-- /agent-capsule -->
+
+# Device Trust Bootstrap Plan Test Proof Expectations
+
+## Proof root
+
+```text
+output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/
+```
+
+This root is local generated evidence only. Do not commit files below it.
+
+## Test layout
+
+```text
+tests/device-trust-bootstrap-plan/<major-category>/
+```
+
+Major categories:
+
+- `unit`
+- `contract`
+- `integration`
+- `e2e`
+- `security`
+
+Current device-trust coverage starts in:
+
+- `tests/device-trust-bootstrap-plan/unit/local-key-sealing.test.mjs`
+- `tests/device-trust-bootstrap-plan/contract/parent-step-up-auth.test.mjs`
+- `tests/device-trust-bootstrap-plan/integration/recovery-re-pair-boundary.test.mjs`
+
+These plan-local tests currently prove document and route alignment only. They do not prove runtime key sealing, passkey ceremony, QR approval, recovery bundle execution, or child uninstall execution by themselves.
+
+The narrow Windows DPAPI adapter is separately covered by `crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs`. That proof requires a current authorized parent-device authority input whose trust subject and device reference exactly match the sealed context, and incorporates a machine-local Windows registry binding that is read at seal/unseal rather than serialized in the blob. It proves only the Windows adapter boundary: same-device unseal, different trusted-device rejection, revoked rejection, and persisted-blob round trip. It does not close WP02 or claim Android, Linux, macOS, iOS, recovery, or complete trust lifecycle coverage.
+
+Implementation-adjacent coverage currently lives in:
+
+- `packages/family-domain/tests/unit/household-authority.test.ts`
+- `packages/family-domain/tests/unit/setup-lifecycle.test.ts`
+- `packages/family-domain/tests/unit/invite-recovery-lifecycle.test.ts`
+- `packages/lan-domain/tests/unit/lan-pairing.test.ts`
+- `packages/lan-domain/tests/unit/household-device-spine.test.ts`
+- `packages/lan-domain/tests/unit/device-roles.test.ts`
+- `crates/agent-protocol/src/lan_pairing_tests.rs`
+- `crates/agent-service/src/lan_pairing_tests.rs`
+- `crates/agent-service/src/lan_pairing_multidevice_tests.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_cross_process.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_nonce_process.rs`
+- `crates/family-identity-core/tests/unit/trust_bootstrap_store_security.rs`
+
+WP01 parent-presence runtime custody:
+
+```powershell
+cargo test -p ocentra-family-identity-core --test unit trust_bootstrap
+cargo clippy -p ocentra-family-identity-core --tests -- -D warnings
+npm run lint:architecture -- --files crates/family-identity-core/src crates/family-identity-core/tests/unit
+```
+
+This focused proof covers explicit-path SQLite custody, durable challenge and nonce identity, opaque receipt generation/redaction, concurrent process consumption/issuance, restart replay rejection, exact integrity-critical SQLite object allowlisting before initialization, and fail-closed path cases. Malformed or executable extra objects must be rejected before initialization can repair them, and isolated trigger, view, virtual-table, and structural fixtures must prove the existing database bytes remain unchanged.
+
+On Windows, production custody requires retained handles for the final database file and every ancestor, all opened without delete sharing. A runtime probe must demonstrate that the active filesystem denies rename while such a handle is held; otherwise opening returns unavailable. The focused security test must prove both final-file and ancestor rename denial while custody is live.
+
+On Unix, production custody currently returns unavailable before creating or opening the database because this boundary cannot exclude same-user pathname substitution. The explicit debug-only custody seam may exercise owner-private `0600` creation, atomic first publication, restart, concurrency, and permissive-existing-file rejection, but those tests are not a production custody claim.
+
+Trust sealing must remain manual-required until the authority contract exposes a specifically authorized high-risk sealing action. `device_trust_ref` values must come from a CSPRNG and remain opaque and input-independent. Parent-presence decisions must be correlated and redacted, committed to a canonical transactional outbox with custody state, and delivered fail-closed into the owned `ocentra-eventing` hash-chained journal. Focused proof must cover accepted and rejected decisions, delivery failure, restart recovery, replay, and idempotent re-delivery. The no-claim boundary remains subscriber delivery, a broader event-bus runtime, and complete device-trust integration.
+
+Windows DPAPI adapter validation:
+
+**Windows-only proof label.** The commands below are a Windows-host proof
+requirement. On non-Windows hosts, the adapter is expected to return
+`PlatformUnavailable`; a passing compile or skipped `#[cfg(windows)]` test is
+not DPAPI proof. Record non-Windows execution as `unsupported-platform`
+coverage, not as same-device or persisted-blob validation.
+
+```powershell
+cargo check -p ocentra-storage-custody-core
+cargo test -p ocentra-family-identity-core --test unit trust_bootstrap_probes
+cargo clippy -p ocentra-storage-custody-core --lib -- -D warnings
+cargo clippy -p ocentra-family-identity-core --all-targets -- -D warnings
+npm run lint:architecture -- --files crates/storage-custody-core/src/windows_dpapi_key_sealing.rs crates/family-identity-core/src/trust_bootstrap.rs crates/family-identity-core/src/trust_bootstrap/current_authority.rs crates/family-identity-core/tests/unit/trust_bootstrap_probes.rs
+```
+
+The Windows adapter must fail closed when the local machine binding cannot be read; no roaming, plaintext, or portable-key fallback is permitted. The current sealing capability derives subject/device binding only from the verified parent ceremony, while unseal requires a current runtime-owned lifecycle authority source rather than a caller-deserialized snapshot.
+
+## Common commands
+
+Docs-only truth sync:
+
+```powershell
+$tests = Get-ChildItem tests/device-trust-bootstrap-plan -Recurse -Filter *.test.mjs |
+  Sort-Object FullName |
+  Select-Object -ExpandProperty FullName
+node --test $tests
+```
+
+Family authority and recovery:
+
+```powershell
+npm run test --workspace @ocentra-parent/family-domain -- tests/unit/household-authority.test.ts tests/unit/setup-lifecycle.test.ts tests/unit/invite-recovery-lifecycle.test.ts
+```
+
+LAN domain trust-adjacent contracts:
+
+```powershell
+npm run test --workspace @ocentra-parent/lan-domain -- tests/unit/lan-pairing.test.ts tests/unit/household-device-spine.test.ts tests/unit/device-roles.test.ts
+```
+
+Rust protocol and service LAN pairing seams:
+
+```powershell
+cargo test -p ocentra-parent-agent-protocol lan_pairing
+cargo test -p ocentra-parent-agent-service lan_pairing
+```
+
+Scoped architecture gates:
+
+```powershell
+npm run lint:architecture -- --files packages/family-domain/src packages/lan-domain/src tests/device-trust-bootstrap-plan docs/plans/device-trust-bootstrap-plan
+cargo lint-architecture crates/agent-protocol/src/lan_pairing.rs crates/agent-service/src/lan_pairing.rs
+```
+
+If the touched slice includes `packages/parent-domain` frontage or `tamper-uninstall-artifact-status`, run focused architecture gates there too.
+
+Run through `npm run agent:run --` when collecting proof if the logging/evidence wrapper is available.
+
+## Command ownership notes
+
+- `schema-domain` owns canonical trust/device/step-up/recovery/entitlement/tamper handoff shapes when contracts cross package/crate/app/plan boundaries.
+- `family-domain` proves household/role/action authorization helpers only. It is not a platform device-trust runtime.
+- `lan-domain` proves LAN pairing/selected-device contracts only. It is not the trust root.
+- `agent-protocol` and `agent-service` are protocol/service proof only when selected.
+- Setup, account, data custody, payment, package distribution, remote access, policy, and portal scopes run only when the selected workpack explicitly touches their typed handoff.
+- Plan-local tests prove route and document truth unless the selected workpack names real runtime behavior and proof artifacts.
+
+## Device Trust E2E meaning
+
+Do not use one proof family to claim the whole device-trust path. For this plan, E2E has separate meanings:
+
+```text
+trust source-of-truth E2E: actor/account/household/device registration -> trust state -> revocation/expiry/no-child-control boundaries.
+local key sealing E2E: trust subject -> platform store/wrapper -> sealed key lifecycle -> wrong user/device/key negatives -> no universal key.
+parent step-up E2E: parent account + household role + action -> platform approval assertion -> nonce/expiry/audit proof.
+phone QR approval E2E: desktop challenge -> phone approval -> action/household/parent/device/target binding -> replay/expiry rejection.
+entitlement-device binding E2E: signed entitlement snapshot -> trusted device binding -> expiry/revocation/replay checks -> no license-only unlock.
+recovery reset/re-pair E2E: encrypted recovery bundle -> wrong household/device/key negatives -> revocation preserved -> re-pair state.
+child tamper/uninstall E2E: parent-authorized request -> trust revocation -> package/runtime handoff -> residual/manual-required state.
+dependency adoption E2E: dependency candidate -> license/security/maintenance/supply-chain review -> adoption or rejection proof.
+route gate E2E: accepted proof roots + carried blockers -> adjacent handoffs -> route/index sync -> manual-required gap register.
+```
+
+A workpack can be complete for one tier while other tiers remain open. Record the non-claim instead of broad DONE.
+
+## Structured harness logging expectations
+
+Every device-trust proof slice must preserve product-safe logging and local harness logging.
+
+Product/runtime-safe logging and artifacts:
+
+```text
+redact protected auth material, sealed key bytes, recovery payloads, QR private values, entitlement signing material, private device identifiers beyond opaque refs, and support-private diagnostics unless explicitly selected for proof
+log trust subject, device role, actor role, trust state, sealed-key state, platform store, step-up state, QR challenge state, entitlement binding state, recovery state, tamper/uninstall state, revocation state, replay state, platform note, proof ref, manual-required note, and no-claim boundary when safe
+separate login/session, setup, LAN pairing, package install, license, trust, key sealing, step-up, QR approval, recovery, tamper/uninstall, and route-gate states
+never treat document tests, route tests, login logs, LAN logs, package logs, or license logs as trust proof without selected runtime proof or exact blocker
+do not claim an artifact was emitted, published, journaled, or logged when the domain only constructed and returned it
+```
+
+Local Codex/MCP/debug harness logging:
+
+```text
+prefer npm run agent:run -- <command> when available
+store raw stdout/stderr by artifact pointer instead of pasting terminal walls into plan docs
+write compact command summaries into 16-validation-commands.log
+include run id, command id, workpack id, owner module, trust subject, device role, platform, exit code, result, artifact pointer, diagnostics summary, blocker class, manual-required note, and no-claim note when available
+if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
+```
+
+## Host and platform proof expectations
+
+- Windows proof is expected where the touched runtime slice is Windows-relevant.
+- Android proof is expected where the touched runtime slice is Android-relevant, including Android Studio/emulator and the already-synced Samsung device when needed.
+- Linux proof is expected where the touched runtime slice is Linux-relevant, including WSL and Docker where appropriate.
+- Real iOS and macOS proof is an external-platform constraint from this Windows host. Record it as such when relevant; do not treat it as a local blocker.
+
+## Blocker classification
+
+When recording blocked validation or missing proof, classify each item as one of:
+
+- `real dependency blocker`
+- `external platform constraint`
+- `avoidable local execution gap`
+
+## Required proof states
+
+```text
+trust source-of-truth
+local key custody
+parent approval step
+phone approval bridge
+entitlement snapshot
+recovery/reset/re-pair
+child-device removal/tamper state
+dependency adoption review
+route gate
+```
+
+## Required negative states
+
+```text
+login alone not trust proof
+license alone not unlock proof
+LAN pairing not trust root
+package install/copy not trust proof
+wrong household/device blocked
+wrong key blocked
+revoked/expired state visible
+manual-required state visible
+surrogate proof not product proof
+```
+
+## No surrogate-green rule
+
+- Document assertions and route-alignment tests may prove plan honesty, but they do not close runtime workpacks.
+- Use local surrogates only when justified by the workpack risk surface and call them out explicitly in proof notes.
+- Prefer real contract, integration, and end-to-end behavior over surrogate-only coverage whenever the plan risk requires it.

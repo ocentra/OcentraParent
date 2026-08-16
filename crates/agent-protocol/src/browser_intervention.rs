@@ -9,6 +9,8 @@ use crate::{
     BrowserUnmanagedFallbackActionState,
 };
 
+pub const BROWSER_INTERVENTION_SCHEMA_VERSION: u16 = crate::BROWSER_INTERVENTION_SCHEMA_VERSION;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct BrowserInterventionRow {

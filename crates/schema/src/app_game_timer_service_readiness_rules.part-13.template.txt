@@ -1,0 +1,29 @@
+        !row.sourceFreshnessProofRequired &&
+        row.compilerDecisionProofRequired &&
+        !row.timerScheduled
+    ).length;
+
+export const appGameSourceGatedPolicyPreviewTimerStatusHasNoRuntimeClaimsGenerated = (status: TimerStatusLike) =>
+  !status.serviceRuntimeEventClaimed &&
+  !status.portalUiRendered &&
+  !status.policyEvaluatorRuntimeClaimed &&
+  !status.timerRuntimeClaimed &&
+  !status.timerScheduled &&
+  !status.adapterDispatchClaimed &&
+  !status.childDeliveryClaimed &&
+  !status.platformEnforcementClaimed &&
+  !status.rawPrivateSourceRowsIncluded;
+
+export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessMatchesStatusGenerated = (
+  timerStatusState: TimerStatusStateValue,
+  runtimeReadinessState: TimerRuntimeReadinessStateValue
+) =>
+  (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired &&
+    runtimeReadinessState ===
+      AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired) ||
+  (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired &&
+    runtimeReadinessState ===
+      AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness) ||
+  (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.CompilerDecisionProofRequired &&
+    runtimeReadinessState ===
+      AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedByCompilerDecision);

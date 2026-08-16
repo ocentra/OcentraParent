@@ -1,10 +1,10 @@
 use crate::{
-    DispatchMode, EventingError, JournalDispatchPhase, QueueDisposition, ReplayMode, ReplayRecord,
-    StoredEventEnvelope,
+    DispatchMode, EventingError, JournalAppend, JournalDispatchPhase, QueueDisposition, ReplayMode,
+    ReplayRecord, StoredEventEnvelope,
 };
 
 use super::{
-    reports::{empty_publish_report, DeadLetter, PublishReport},
+    reports::{dead_letter::DeadLetter, empty_publish_report, handler::PublishReport},
     EventBus,
 };
 
@@ -35,14 +35,14 @@ impl EventBus {
         &self,
         stored: &StoredEventEnvelope,
         phase: JournalDispatchPhase,
-    ) -> Result<(), EventingError> {
+    ) -> Result<Option<JournalAppend>, EventingError> {
         if !self.journal_policy.should_append(stored, phase) {
-            return Ok(());
+            return Ok(None);
         }
         if let Some(journal) = &self.event_journal {
-            journal.append_phase(stored, phase).await?;
+            return journal.append_phase(stored, phase).await.map(Some);
         }
-        Ok(())
+        Ok(None)
     }
 
     pub async fn replay_to_handlers(

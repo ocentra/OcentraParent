@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- Parent preference preflight rows require preference, frequency, and quiet-hours policy proof before delivery can be claimed.
-- Manual-required and unavailable rows stay blocked before preference preflight.
-- Parent preference UI, parent frequency controls, quiet-hours timers, provider delivery, receipt ingestion, credentials, cloud routing, retry workers, durable outbox storage, child delivery, and adapter dispatch remain false.

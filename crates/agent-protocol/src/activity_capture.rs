@@ -2,7 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::constants;
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ActivityObservationMode {
     #[serde(rename = "snapshot")]
     Snapshot,
@@ -14,15 +22,19 @@ pub enum ActivityObservationMode {
 
 impl ActivityObservationMode {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Snapshot => constants::activity_capture::OBSERVATION_MODE_SNAPSHOT,
-            Self::ActiveWindow => constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW,
-            Self::NetworkSnapshot => constants::activity_capture::OBSERVATION_MODE_NETWORK_SNAPSHOT,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                constants::activity_capture::OBSERVATION_MODE_SNAPSHOT,
+                constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW,
+                constants::activity_capture::OBSERVATION_MODE_NETWORK_SNAPSHOT,
+            ]
+        )
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ActivityCaptureCapabilityStatus {
     #[serde(rename = "available")]
     Available,
@@ -40,20 +52,22 @@ pub enum ActivityCaptureCapabilityStatus {
 
 impl ActivityCaptureCapabilityStatus {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Available => constants::activity_capture::CAPABILITY_STATUS_AVAILABLE,
-            Self::Unavailable => constants::activity_capture::CAPABILITY_STATUS_UNAVAILABLE,
-            Self::AccessDenied => constants::activity_capture::CAPABILITY_STATUS_ACCESS_DENIED,
-            Self::NoActiveWindow => constants::activity_capture::CAPABILITY_STATUS_NO_ACTIVE_WINDOW,
-            Self::NoNetworkObservations => {
-                constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS
-            }
-            Self::AdapterError => constants::activity_capture::CAPABILITY_STATUS_ADAPTER_ERROR,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                constants::activity_capture::CAPABILITY_STATUS_AVAILABLE,
+                constants::activity_capture::CAPABILITY_STATUS_UNAVAILABLE,
+                constants::activity_capture::CAPABILITY_STATUS_ACCESS_DENIED,
+                constants::activity_capture::CAPABILITY_STATUS_NO_ACTIVE_WINDOW,
+                constants::activity_capture::CAPABILITY_STATUS_NO_NETWORK_OBSERVATIONS,
+                constants::activity_capture::CAPABILITY_STATUS_ADAPTER_ERROR,
+            ]
+        )
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ActivityNetworkProtocol {
     #[serde(rename = "tcp")]
     Tcp,
@@ -63,14 +77,18 @@ pub enum ActivityNetworkProtocol {
 
 impl ActivityNetworkProtocol {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Tcp => constants::activity_capture::NETWORK_PROTOCOL_TCP,
-            Self::Udp => constants::activity_capture::NETWORK_PROTOCOL_UDP,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                constants::activity_capture::NETWORK_PROTOCOL_TCP,
+                constants::activity_capture::NETWORK_PROTOCOL_UDP,
+            ]
+        )
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ActivityNetworkTcpState {
     #[serde(rename = "closed")]
     Closed,
@@ -102,25 +120,29 @@ pub enum ActivityNetworkTcpState {
 
 impl ActivityNetworkTcpState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Closed => constants::activity_capture::TCP_STATE_CLOSED,
-            Self::Listen => constants::activity_capture::TCP_STATE_LISTEN,
-            Self::SynSent => constants::activity_capture::TCP_STATE_SYN_SENT,
-            Self::SynReceived => constants::activity_capture::TCP_STATE_SYN_RECEIVED,
-            Self::Established => constants::activity_capture::TCP_STATE_ESTABLISHED,
-            Self::FinWait1 => constants::activity_capture::TCP_STATE_FIN_WAIT_1,
-            Self::FinWait2 => constants::activity_capture::TCP_STATE_FIN_WAIT_2,
-            Self::CloseWait => constants::activity_capture::TCP_STATE_CLOSE_WAIT,
-            Self::Closing => constants::activity_capture::TCP_STATE_CLOSING,
-            Self::LastAck => constants::activity_capture::TCP_STATE_LAST_ACK,
-            Self::TimeWait => constants::activity_capture::TCP_STATE_TIME_WAIT,
-            Self::DeleteTcb => constants::activity_capture::TCP_STATE_DELETE_TCB,
-            Self::Unknown => constants::activity_capture::TCP_STATE_UNKNOWN,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                constants::activity_capture::TCP_STATE_CLOSED,
+                constants::activity_capture::TCP_STATE_LISTEN,
+                constants::activity_capture::TCP_STATE_SYN_SENT,
+                constants::activity_capture::TCP_STATE_SYN_RECEIVED,
+                constants::activity_capture::TCP_STATE_ESTABLISHED,
+                constants::activity_capture::TCP_STATE_FIN_WAIT_1,
+                constants::activity_capture::TCP_STATE_FIN_WAIT_2,
+                constants::activity_capture::TCP_STATE_CLOSE_WAIT,
+                constants::activity_capture::TCP_STATE_CLOSING,
+                constants::activity_capture::TCP_STATE_LAST_ACK,
+                constants::activity_capture::TCP_STATE_TIME_WAIT,
+                constants::activity_capture::TCP_STATE_DELETE_TCB,
+                constants::activity_capture::TCP_STATE_UNKNOWN,
+            ]
+        )
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ActivityDomainAttributionStatus {
     #[serde(rename = "domain-observed")]
     DomainObserved,
@@ -132,17 +154,19 @@ pub enum ActivityDomainAttributionStatus {
 
 impl ActivityDomainAttributionStatus {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::DomainObserved => {
-                constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_DOMAIN_OBSERVED
-            }
-            Self::IpOnly => constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_IP_ONLY,
-            Self::Unavailable => constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_UNAVAILABLE,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_DOMAIN_OBSERVED,
+                constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_IP_ONLY,
+                constants::activity_capture::DOMAIN_ATTRIBUTION_STATUS_UNAVAILABLE,
+            ]
+        )
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ActivityProcessAttributionStatus {
     #[serde(rename = "process-attributed")]
     ProcessAttributed,
@@ -152,11 +176,12 @@ pub enum ActivityProcessAttributionStatus {
 
 impl ActivityProcessAttributionStatus {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ProcessAttributed => {
-                constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED
-            }
-            Self::ProcessUnknown => constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_UNKNOWN,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_ATTRIBUTED,
+                constants::activity_capture::PROCESS_ATTRIBUTION_STATUS_UNKNOWN,
+            ]
+        )
     }
 }

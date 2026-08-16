@@ -1,6 +1,0 @@
-workpack=04-location-evidence-model
-proofState=contract-proof-complete
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Location evidence carries source, time, freshness, custody, retention, permission, confidence, reason, accuracy, and hint quality.

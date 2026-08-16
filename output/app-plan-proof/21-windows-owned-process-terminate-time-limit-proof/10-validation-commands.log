@@ -1,9 +1,0 @@
-node --check scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs
-PASS
-
-node scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs
-PASS
-
-Cross-recorded from app-game WP22. See:
-- output/app-game-plan-proof/22-windows-owned-process-terminate-time-limit-proof/10-validation-commands.log
-- test-results/v0-8-windows-app-time-limit-adapter-mvp/2026-06-03T10-00-40-723Z.json

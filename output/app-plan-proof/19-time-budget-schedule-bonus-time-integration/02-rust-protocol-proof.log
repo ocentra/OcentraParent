@@ -1,4 +1,0 @@
-N/A for app-plan WP19.
-
-The shared proof is TypeScript parent-domain contract proof only. No native app
-Rust protocol, service, WebSocket, or adapter files changed.

@@ -1,3 +1,0 @@
-
-> @ocentra-parent/text-domain@0.1.1 lint:exec
-> eslint --cache src tests && tsc -p tsconfig.json --noEmit

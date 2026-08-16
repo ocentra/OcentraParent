@@ -1,6 +1,15 @@
+mod status;
+mod validation;
+
 use serde::{Deserialize, Serialize};
 
-use crate::{NetworkCascadeNextCheck, NetworkCrossSliceEvidenceBundle, NetworkEvidenceGrade};
+use self::{
+    status::{privacy_mode_for, screen_summary_status},
+    validation::{normalize_ref, validate_screen_summary_trigger_input},
+};
+use crate::bundle::NetworkCrossSliceEvidenceBundle;
+use crate::cascade::NetworkCascadeNextCheck;
+use crate::dns::types::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkScreenSummaryTriggerStatus {
@@ -133,6 +142,7 @@ pub fn plan_network_screen_summary_trigger(
     } else {
         None
     };
+    drop(input);
 
     Ok(NetworkScreenSummaryTriggerPlan {
         status,
@@ -150,102 +160,4 @@ pub fn plan_network_screen_summary_trigger(
         adapter_action_authority: false,
         enforcement_command_published: false,
     })
-}
-
-fn screen_summary_status(
-    input: &NetworkScreenSummaryTriggerInput,
-    screen_summary_recommended: bool,
-) -> NetworkScreenSummaryTriggerStatus {
-    if !screen_summary_recommended {
-        return NetworkScreenSummaryTriggerStatus::NotRecommended;
-    }
-    if !input.screen_summary_enabled {
-        return NetworkScreenSummaryTriggerStatus::DisabledByParent;
-    }
-    if input.protected_surface_detected {
-        return NetworkScreenSummaryTriggerStatus::ProtectedSurfaceUnavailable;
-    }
-    if !input.debounce_clear {
-        return NetworkScreenSummaryTriggerStatus::Debounced;
-    }
-    if !input.queue_available {
-        return NetworkScreenSummaryTriggerStatus::QueueUnavailable;
-    }
-    if !input.encrypted_temporary_custody_available
-        || !input.delete_after_analysis_available
-        || !input.local_only_runtime_available
-    {
-        return NetworkScreenSummaryTriggerStatus::CustodyManualRequired;
-    }
-    NetworkScreenSummaryTriggerStatus::Queued
-}
-
-fn privacy_mode_for(
-    status: NetworkScreenSummaryTriggerStatus,
-    screen_summary_recommended: bool,
-) -> NetworkScreenSummaryPrivacyMode {
-    if !screen_summary_recommended {
-        return NetworkScreenSummaryPrivacyMode::NetworkOnly;
-    }
-    match status {
-        NetworkScreenSummaryTriggerStatus::Queued => {
-            NetworkScreenSummaryPrivacyMode::ActiveWindowScreenIfEnabled
-        }
-        _ => NetworkScreenSummaryPrivacyMode::ScreenManualRequired,
-    }
-}
-
-fn validate_screen_summary_trigger_input(
-    input: &NetworkScreenSummaryTriggerInput,
-) -> Result<(), NetworkScreenSummaryTriggerError> {
-    if normalize_ref(&input.queue_job_ref).is_none() {
-        return Err(NetworkScreenSummaryTriggerError::EmptyQueueJobRef);
-    }
-    if normalize_ref(&input.screen_queue_ref).is_none() {
-        return Err(NetworkScreenSummaryTriggerError::EmptyScreenQueueRef);
-    }
-    if normalize_ref(&input.parent_setting_ref).is_none() {
-        return Err(NetworkScreenSummaryTriggerError::EmptyParentSettingRef);
-    }
-    if normalize_ref(&input.retention_policy_ref).is_none() {
-        return Err(NetworkScreenSummaryTriggerError::EmptyRetentionPolicyRef);
-    }
-    validate_screen_summary_non_claims(input)?;
-    Ok(())
-}
-
-fn validate_screen_summary_non_claims(
-    input: &NetworkScreenSummaryTriggerInput,
-) -> Result<(), NetworkScreenSummaryTriggerError> {
-    if input.raw_image_retention_requested {
-        return Err(NetworkScreenSummaryTriggerError::RawImageRetentionRejected);
-    }
-    if input.remote_upload_requested {
-        return Err(NetworkScreenSummaryTriggerError::RemoteUploadRejected);
-    }
-    if input.screen_content_available {
-        return Err(NetworkScreenSummaryTriggerError::ScreenContentRejected);
-    }
-    if input.bundle.decrypted_payload_available {
-        return Err(NetworkScreenSummaryTriggerError::DecryptedPayloadRejected);
-    }
-    if input.policy_action_authority || input.bundle.policy_action_authority {
-        return Err(NetworkScreenSummaryTriggerError::PolicyAuthorityRejected);
-    }
-    if input.adapter_action_authority || input.bundle.adapter_action_authorized {
-        return Err(NetworkScreenSummaryTriggerError::AdapterAuthorityRejected);
-    }
-    if input.enforcement_command_published {
-        return Err(NetworkScreenSummaryTriggerError::EnforcementCommandRejected);
-    }
-    Ok(())
-}
-
-fn normalize_ref(value: &str) -> Option<String> {
-    let trimmed = value.trim();
-    if trimmed.is_empty() {
-        None
-    } else {
-        Some(trimmed.to_owned())
-    }
 }

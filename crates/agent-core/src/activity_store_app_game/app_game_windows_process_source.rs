@@ -2,8 +2,9 @@ use std::path::Path;
 
 use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
 use chrono::{DateTime, Utc};
-use ocentra_parent_agent_protocol::{
-    ActivityEvent, APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
     APP_GAME_CONFIDENCE_UNKNOWN, APP_GAME_EXECUTABLE_PATH_REF_PREFIX,
     APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX,
 };
@@ -30,7 +31,7 @@ impl From<AppGameJournalSqliteIngestError> for AppGameLiveProcessSnapshotError {
     }
 }
 
-pub(crate) fn live_windows_process_snapshot_records(
+pub fn live_windows_process_snapshot_records(
     observed_at: &str,
 ) -> Vec<WindowsProcessRuntimeRecord> {
     let mut system = System::new();
@@ -38,7 +39,7 @@ pub(crate) fn live_windows_process_snapshot_records(
     records_from_system(&system, observed_at)
 }
 
-pub(crate) fn live_windows_process_snapshot_record_for_pid(
+pub fn live_windows_process_snapshot_record_for_pid(
     observed_at: &str,
     process_id: u32,
 ) -> Option<WindowsProcessRuntimeRecord> {
@@ -51,7 +52,7 @@ pub(crate) fn live_windows_process_snapshot_record_for_pid(
         .map(|process| record_from_process(process, observed_at))
 }
 
-pub(crate) fn live_windows_process_snapshot_journal_events(
+pub fn live_windows_process_snapshot_journal_events(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -73,7 +74,7 @@ pub fn live_windows_process_snapshot_journal_events_with_limit(
     Ok(journal_events_from_records(device_id, platform, &records)?)
 }
 
-pub(crate) fn live_windows_process_snapshot_journal_event_for_pid(
+pub fn live_windows_process_snapshot_journal_event_for_pid(
     device_id: &str,
     platform: &str,
     observed_at: &str,
@@ -164,7 +165,8 @@ fn observed_at_suffix(observed_at: &str) -> String {
 
 fn executable_path_ref(path: Option<&Path>) -> Option<String> {
     path.map(|path| {
-        let digest = Sha256::digest(path.to_string_lossy().as_bytes());
+        let canonical_path = std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+        let digest = Sha256::digest(canonical_path.to_string_lossy().as_bytes());
         let mut path_ref = String::from(APP_GAME_EXECUTABLE_PATH_REF_PREFIX);
         path_ref.push_str(&BASE64_URL_SAFE_NO_PAD.encode(digest));
         path_ref

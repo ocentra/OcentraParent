@@ -1,0 +1,633 @@
+/* generated from crates/schema/src/parent_ui_bridge.rs */
+
+import { Schema } from 'effect';
+
+const brandedNonEmptyStringSchema = <Brand extends string>(brand: Brand) =>
+  Schema.String.pipe(Schema.minLength(1), Schema.brand(brand));
+
+export const GeneratedPortalRouteLiteral = {
+  Overview: 'overview',
+  Assistant: 'assistant',
+  Start: 'start',
+  Activity: 'activity',
+  Browser: 'browser',
+  BrowserSettings: 'browser-settings',
+  Policy: 'policy',
+  PolicyApps: 'policy-apps',
+  PolicyGames: 'policy-games',
+  PolicyScreen: 'policy-screen',
+  PolicyNetwork: 'policy-network',
+  PolicyTracking: 'policy-tracking',
+  PolicyRemoteScreen: 'policy-remote-screen',
+  RuleManagement: 'rule-management',
+  Schedules: 'schedules',
+  Approvals: 'approvals',
+  Enforcement: 'enforcement',
+  PrivacyDesign: 'privacy-design',
+  Memory: 'memory',
+  MemorySettings: 'memory-settings',
+  AiGuide: 'ai-guide',
+  AiRuntime: 'ai-runtime',
+  ApiProviders: 'api-providers',
+  ReportsGuide: 'reports-guide',
+  ScreenAnalysis: 'screen-analysis',
+  AppGameSessions: 'app-game-sessions',
+  NetworkActivity: 'network-activity',
+  Devices: 'devices',
+  LanPairing: 'lan-pairing',
+  CapabilityStatus: 'capability-status',
+  Notifications: 'notifications',
+  NotificationChannels: 'notification-channels',
+  DriveConnections: 'drive-connections',
+  ExportRetention: 'export-retention',
+  RemoteAccess: 'remote-access',
+  ReportCompiler: 'report-compiler',
+  AuditHistory: 'audit-history',
+  Subscription: 'subscription',
+  Entitlements: 'entitlements',
+  PlatformsInstall: 'platforms-install',
+  InstallUpdates: 'install-updates',
+  Diagnostics: 'diagnostics',
+  ProofPanels: 'proof-panels',
+  SettingsRules: 'settings-rules',
+  AppLayout: 'app-layout',
+  FrameTuner: 'frame-tuner',
+  Commands: 'commands',
+  Events: 'events',
+  Logs: 'logs',
+} as const;
+
+export type GeneratedPortalRoute =
+  (typeof GeneratedPortalRouteLiteral)[keyof typeof GeneratedPortalRouteLiteral];
+
+export const GeneratedPortalRoute = {
+  Overview: GeneratedPortalRouteLiteral.Overview,
+  Assistant: GeneratedPortalRouteLiteral.Assistant,
+  Start: GeneratedPortalRouteLiteral.Start,
+  Activity: GeneratedPortalRouteLiteral.Activity,
+  Browser: GeneratedPortalRouteLiteral.Browser,
+  BrowserSettings: GeneratedPortalRouteLiteral.BrowserSettings,
+  Policy: GeneratedPortalRouteLiteral.Policy,
+  PolicyApps: GeneratedPortalRouteLiteral.PolicyApps,
+  PolicyGames: GeneratedPortalRouteLiteral.PolicyGames,
+  PolicyScreen: GeneratedPortalRouteLiteral.PolicyScreen,
+  PolicyNetwork: GeneratedPortalRouteLiteral.PolicyNetwork,
+  PolicyTracking: GeneratedPortalRouteLiteral.PolicyTracking,
+  PolicyRemoteScreen: GeneratedPortalRouteLiteral.PolicyRemoteScreen,
+  RuleManagement: GeneratedPortalRouteLiteral.RuleManagement,
+  Schedules: GeneratedPortalRouteLiteral.Schedules,
+  Approvals: GeneratedPortalRouteLiteral.Approvals,
+  Enforcement: GeneratedPortalRouteLiteral.Enforcement,
+  PrivacyDesign: GeneratedPortalRouteLiteral.PrivacyDesign,
+  Memory: GeneratedPortalRouteLiteral.Memory,
+  MemorySettings: GeneratedPortalRouteLiteral.MemorySettings,
+  AiGuide: GeneratedPortalRouteLiteral.AiGuide,
+  AiRuntime: GeneratedPortalRouteLiteral.AiRuntime,
+  ApiProviders: GeneratedPortalRouteLiteral.ApiProviders,
+  ReportsGuide: GeneratedPortalRouteLiteral.ReportsGuide,
+  ScreenAnalysis: GeneratedPortalRouteLiteral.ScreenAnalysis,
+  AppGameSessions: GeneratedPortalRouteLiteral.AppGameSessions,
+  NetworkActivity: GeneratedPortalRouteLiteral.NetworkActivity,
+  Devices: GeneratedPortalRouteLiteral.Devices,
+  LanPairing: GeneratedPortalRouteLiteral.LanPairing,
+  CapabilityStatus: GeneratedPortalRouteLiteral.CapabilityStatus,
+  Notifications: GeneratedPortalRouteLiteral.Notifications,
+  NotificationChannels: GeneratedPortalRouteLiteral.NotificationChannels,
+  DriveConnections: GeneratedPortalRouteLiteral.DriveConnections,
+  ExportRetention: GeneratedPortalRouteLiteral.ExportRetention,
+  RemoteAccess: GeneratedPortalRouteLiteral.RemoteAccess,
+  ReportCompiler: GeneratedPortalRouteLiteral.ReportCompiler,
+  AuditHistory: GeneratedPortalRouteLiteral.AuditHistory,
+  Subscription: GeneratedPortalRouteLiteral.Subscription,
+  Entitlements: GeneratedPortalRouteLiteral.Entitlements,
+  PlatformsInstall: GeneratedPortalRouteLiteral.PlatformsInstall,
+  InstallUpdates: GeneratedPortalRouteLiteral.InstallUpdates,
+  Diagnostics: GeneratedPortalRouteLiteral.Diagnostics,
+  ProofPanels: GeneratedPortalRouteLiteral.ProofPanels,
+  SettingsRules: GeneratedPortalRouteLiteral.SettingsRules,
+  AppLayout: GeneratedPortalRouteLiteral.AppLayout,
+  FrameTuner: GeneratedPortalRouteLiteral.FrameTuner,
+  Commands: GeneratedPortalRouteLiteral.Commands,
+  Events: GeneratedPortalRouteLiteral.Events,
+  Logs: GeneratedPortalRouteLiteral.Logs,
+} as const;
+
+export const GeneratedPortalRouteHashPrefix = '#/' as const;
+export const GeneratedPortalRouteHashQuerySeparator = '?' as const;
+export type GeneratedPortalRouteHashPath =
+  `${typeof GeneratedPortalRouteHashPrefix}${GeneratedPortalRoute}`;
+export type GeneratedPortalRouteHashQueryPath =
+  `${typeof GeneratedPortalRouteHashPrefix}${GeneratedPortalRoute}${typeof GeneratedPortalRouteHashQuerySeparator}${string}`;
+
+export type GeneratedPortalConnectionState =
+  | 'disconnected'
+  | 'connecting'
+  | 'connected'
+  | 'error';
+
+export const GeneratedPortalConnectionState = {
+  Disconnected: 'disconnected',
+  Connecting: 'connecting',
+  Connected: 'connected',
+  Error: 'error',
+} as const;
+
+type GeneratedPortalRouteEventRole = 'portal' | 'agent-service' | 'cloud-relay';
+export type GeneratedPortalRouteEventPayloadRecord = Readonly<Record<string, unknown>>;
+
+export const GeneratedPortalActivityQuerySchemaVersion = 1 as const;
+
+export const GeneratedPortalActivityEventKind = __GENERATED_PORTAL_ACTIVITY_EVENT_KIND__;
+export type GeneratedPortalActivityEventKind =
+  (typeof GeneratedPortalActivityEventKind)[keyof typeof GeneratedPortalActivityEventKind];
+
+export type GeneratedPortalActivityReadModelState =
+  | 'ready'
+  | 'empty'
+  | 'unavailable'
+  | 'offline'
+  | 'stale'
+  | 'permission-required'
+  | 'scaffold-only';
+
+export type GeneratedPortalActivitySurfaceReadModelSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalActivityReportDocumentSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalActivityHistoricalReportListSnapshot = GeneratedPortalRouteEventPayloadRecord;
+
+export interface GeneratedPortalActivityIngestStatusSnapshot {
+  readonly schemaVersion: number;
+  readonly databaseReady: boolean;
+  readonly eventsIngested: number;
+  readonly eventsStored: number;
+  readonly duplicateEvents: number;
+  readonly lastEventId?: string | null;
+}
+
+export interface GeneratedPortalActivityRecentSummarySnapshot {
+  readonly schemaVersion: number;
+  readonly limit: number;
+  readonly returned: number;
+  readonly firstObservedAt?: string | null;
+  readonly lastObservedAt?: string | null;
+  readonly lastEventId?: string | null;
+  readonly mostRecentKind?: string | null;
+  readonly mostRecentObserver?: string | null;
+  readonly mostRecentSubjectKind?: string | null;
+  readonly mostRecentSubjectId?: string | null;
+  readonly mostRecentSubjectName?: string | null;
+}
+
+export type GeneratedPortalBrowserEvidenceReadModelSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalBrowserInventoryReadModelSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalBrowserManagedSessionStatusSnapshot = GeneratedPortalRouteEventPayloadRecord & {
+  readonly managedState?: string | null;
+  readonly capabilityStatus?: string | null;
+  readonly degradedReason?: string | null;
+  readonly browserFamily?: string | null;
+  readonly browserChannel?: string | null;
+  readonly browserVersion?: string | null;
+  readonly managedBrowserSessionId?: string | null;
+  readonly profilePathRef?: string | null;
+  readonly bridgeEndpointRef?: string | null;
+  readonly custodyLabel?: string | null;
+  readonly checkedAt?: string | null;
+};
+
+export type GeneratedPortalBrowserInterventionRowSnapshot = GeneratedPortalRouteEventPayloadRecord & {
+  readonly browserInterventionId?: string | null;
+  readonly decisionSource?: string | null;
+  readonly policyDecisionId?: string | null;
+  readonly interventionActionId?: string | null;
+  readonly interventionAuditId?: string | null;
+  readonly evidenceReferenceIds?: readonly string[];
+  readonly interventionAction?: string | null;
+  readonly interventionTargetType?: string | null;
+  readonly interventionTargetValue?: string | null;
+  readonly requestedUrl?: string | null;
+  readonly processId?: number | null;
+  readonly interventionMechanism?: string | null;
+  readonly interventionOutcome?: string | null;
+  readonly browserBoundaryState?: string | null;
+  readonly exactUrlClaimState?: string | null;
+  readonly unmanagedDetectionState?: string | null;
+  readonly unmanagedFallbackAction?: string | null;
+  readonly childDeliveryState?: string | null;
+  readonly reason?: string | null;
+  readonly custodyLabel?: string | null;
+};
+
+export type GeneratedPortalBrowserInterventionReadModelSnapshot = GeneratedPortalRouteEventPayloadRecord & {
+  readonly returned: number;
+  readonly latestObservedAt?: string | null;
+  readonly generatedAt?: string | null;
+  readonly latestEventId?: string | null;
+  readonly managedSessionInterventionCapability?: string | null;
+  readonly unmanagedBrowserEnforcement?: string | null;
+  readonly rows: readonly GeneratedPortalBrowserInterventionRowSnapshot[];
+};
+
+export type GeneratedPortalNetworkRemoteDeliveryStatusSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalNetworkLiveCaptureStatusSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalNetworkPlatformGateStatusSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export const GeneratedPortalNetworkRuntimeEventTypeSchema = brandedNonEmptyStringSchema(
+  'GeneratedPortalNetworkRuntimeEventType'
+);
+export type GeneratedPortalNetworkRuntimeEventType = typeof GeneratedPortalNetworkRuntimeEventTypeSchema.Type;
+export type GeneratedPortalNetworkRuntimeEventPayload = GeneratedPortalRouteEventPayloadRecord;
+
+export interface GeneratedPortalScreenSummaryPanelDetailSnapshot {
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface GeneratedPortalScreenSummaryPanelRowSnapshot {
+  readonly title: string;
+  readonly details: readonly GeneratedPortalScreenSummaryPanelDetailSnapshot[];
+}
+
+export interface GeneratedPortalScreenSummaryPanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly loadState: string;
+  readonly summaryDetails: readonly GeneratedPortalScreenSummaryPanelDetailSnapshot[];
+  readonly rows: readonly GeneratedPortalScreenSummaryPanelRowSnapshot[];
+  readonly emptyMessage: string;
+  readonly productClaim: string;
+}
+
+export interface GeneratedPortalLanAddDeviceScanSummarySnapshot {
+  readonly schemaVersion: number;
+  readonly sourceLabels: readonly string[];
+  readonly scannedDeviceCount: number;
+  readonly agentDeviceCount: number;
+  readonly passiveDeviceCount: number;
+  readonly infrastructureDeviceCount: number;
+  readonly unsupportedDeviceCount: number;
+}
+
+interface GeneratedPortalLanPairingDeviceRefSnapshot {
+  readonly deviceId: string;
+  readonly childProfileId?: string | null;
+  readonly label: string;
+  readonly platform: string;
+  readonly ipAddress?: string | null;
+  readonly macAddress?: string | null;
+  readonly hostname?: string | null;
+  readonly networkInterface?: string | null;
+  readonly agentStatus?: string | null;
+}
+
+interface GeneratedPortalLanServiceIdentityProbeEvidenceSnapshot {
+  readonly evidenceKind: string;
+  readonly value: string;
+}
+
+interface GeneratedPortalLanBrowserAddDeviceDiscoveryDeviceSnapshot {
+  readonly schemaVersion: number;
+  readonly discoveredAt: string;
+  readonly childDevice: GeneratedPortalLanPairingDeviceRefSnapshot;
+  readonly agentPeerId: string;
+  readonly routeId: string;
+  readonly networkMode: string;
+  readonly reachability: string;
+  readonly addressRef: string;
+  readonly discoveryStatus: string;
+  readonly discoveryState: string;
+  readonly evidenceSources: readonly string[];
+  readonly serviceIdentityProbeEvidence: readonly GeneratedPortalLanServiceIdentityProbeEvidenceSnapshot[];
+  readonly hintSources: readonly string[];
+}
+
+interface GeneratedPortalLanBrowserAddDevicePairingRequestSnapshot {
+  readonly schemaVersion: number;
+  readonly challengeId: string;
+  readonly childDeviceId: string;
+  readonly parentDeviceId: string;
+  readonly routeId: string;
+  readonly origin: string;
+  readonly pairingState: string;
+  readonly rejectionReason?: string | null;
+  readonly issuedAt: string;
+  readonly expiresAt: string;
+}
+
+export interface GeneratedPortalLanDiscoveryEvidenceRecordSnapshot {
+  readonly schemaVersion: number;
+  readonly evidenceId: string;
+  readonly source: string;
+  readonly evidenceKind: string;
+  readonly deviceId: string;
+  readonly value: string;
+  readonly normalizedValue: string;
+  readonly firstSeenAt: string;
+  readonly lastSeenAt: string;
+  readonly expiresAt: string | null;
+  readonly confidence: string;
+  readonly mergeKey: string;
+  readonly note: string | null;
+}
+
+export interface GeneratedPortalLanCanonicalHouseholdNetworkIdentitySnapshot {
+  readonly hostname?: string | null;
+  readonly ipAddresses: readonly string[];
+  readonly macAddress?: string | null;
+  readonly macVendor?: string | null;
+  readonly networkInterfaces: readonly string[];
+  readonly reachability: string;
+  readonly confidence: string;
+  readonly staleAt?: string | null;
+  readonly offlineAt?: string | null;
+  readonly evidenceRecords: readonly GeneratedPortalLanDiscoveryEvidenceRecordSnapshot[];
+}
+
+interface GeneratedPortalLanChildAgentInventoryPacketSnapshot {
+  readonly deviceName: string;
+  readonly platform: string;
+  readonly os: string;
+  readonly cpuModel?: string | null;
+  readonly cpuCores?: string | null;
+  readonly memoryTotal?: string | null;
+  readonly gpuModel?: string | null;
+  readonly gpuDriver?: string | null;
+  readonly gpuMemory?: string | null;
+  readonly nvidiaSmi?: string | null;
+  readonly networkInterfaces: readonly string[];
+  readonly capabilities: readonly string[];
+  readonly roleState: string;
+  readonly routeState: string;
+  readonly pairingTrustState: string;
+}
+
+export interface GeneratedPortalLanCanonicalHouseholdDeviceSnapshot {
+  readonly schemaVersion: number;
+  readonly canonicalDeviceId: string;
+  readonly displayName: string;
+  readonly classification: string;
+  readonly roleBadges: readonly string[];
+  readonly enrollable: boolean;
+  readonly discoveryState: string;
+  readonly trustState: string;
+  readonly routeId?: string | null;
+  readonly routeState: string;
+  readonly networkMode: string;
+  readonly sourceLabels: readonly string[];
+  readonly networkIdentity: GeneratedPortalLanCanonicalHouseholdNetworkIdentitySnapshot;
+  readonly childAgentInventory?: GeneratedPortalLanChildAgentInventoryPacketSnapshot | null;
+  readonly policyTargetSurfaces: readonly string[];
+}
+
+export interface GeneratedPortalLanTrustedDeviceRegistryEntrySnapshot {
+  readonly schemaVersion: number;
+  readonly pairingId: string;
+  readonly childDevice: GeneratedPortalLanPairingDeviceRefSnapshot;
+  readonly parentDevice: GeneratedPortalLanPairingDeviceRefSnapshot;
+  readonly routeId: string;
+  readonly origin: string;
+  readonly proofDigest: string;
+  readonly trustState: string;
+  readonly trustedAt: string;
+  readonly expiresAt: string;
+  readonly revokedAt: string | null;
+}
+
+export interface GeneratedPortalLanHouseholdDeviceDecisionSnapshot {
+  readonly schemaVersion: number;
+  readonly actionId: string;
+  readonly actionKind: string;
+  readonly canonicalDeviceId: string;
+  readonly childProfileId: string | null;
+  readonly displayName: string | null;
+  readonly deviceKind: string | null;
+  readonly parentActorId: string;
+  readonly decidedAt: string;
+  readonly revokedAt: string | null;
+}
+
+export interface GeneratedPortalLanSignedDiscoveryRelayAdapterRowSnapshot {
+  readonly schemaVersion: number;
+  readonly adapter: string;
+  readonly discoveryState: string;
+  readonly proofState: string;
+  readonly sourceConfidence: string;
+  readonly custodyLabel: string;
+  readonly runtimeOwner: string;
+  readonly evidenceLabel: string;
+  readonly requiredArtifactSummary?: string | null;
+}
+
+export interface GeneratedPortalLanSignedDiscoveryRelaySignedProofRowSnapshot {
+  readonly schemaVersion: number;
+  readonly check: string;
+  readonly discoveryState: string;
+  readonly responseState: string;
+  readonly rejectionReason?: string | null;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly evidenceLabel: string;
+}
+
+export interface GeneratedPortalLanSignedDiscoveryRelayRouteSafetyRowSnapshot {
+  readonly schemaVersion: number;
+  readonly check: string;
+  readonly routeId?: string | null;
+  readonly discoveryState: string;
+  readonly responseState: string;
+  readonly rejectionReason?: string | null;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly custodyLabel: string;
+  readonly evidenceLabel: string;
+}
+
+export interface GeneratedPortalLanSignedDiscoveryRelayCacheRowSnapshot {
+  readonly schemaVersion: number;
+  readonly check: string;
+  readonly decisionState: string;
+  readonly discoveryState: string;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly custodyLabel: string;
+  readonly evidenceLabel: string;
+}
+
+export interface GeneratedPortalLanSignedDiscoveryRelaySpineSummarySnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly adapterRows: readonly GeneratedPortalLanSignedDiscoveryRelayAdapterRowSnapshot[];
+  readonly signedProofRows: readonly GeneratedPortalLanSignedDiscoveryRelaySignedProofRowSnapshot[];
+  readonly routeSafetyRows: readonly GeneratedPortalLanSignedDiscoveryRelayRouteSafetyRowSnapshot[];
+  readonly relayCacheRows: readonly GeneratedPortalLanSignedDiscoveryRelayCacheRowSnapshot[];
+  readonly manualProofRequired: readonly string[];
+  readonly notImplemented: readonly string[];
+  readonly claimsProved: readonly string[];
+  readonly claimsNotProved: readonly string[];
+}
+
+export interface GeneratedPortalLanSelectedDeviceReadinessSnapshot {
+  readonly schemaVersion: number;
+  readonly selectedChildDeviceId?: string | null;
+  readonly routeId?: string | null;
+  readonly pairingId?: string | null;
+  readonly trustState: string;
+  readonly reachability: string;
+  readonly readyForControl: boolean;
+  readonly staleAt?: string | null;
+  readonly offlineAt?: string | null;
+}
+
+export interface GeneratedPortalLanDiscoveryEventRowSnapshot {
+  readonly schemaVersion: number;
+  readonly eventId: string;
+  readonly eventKind: string;
+  readonly occurredAt: string;
+  readonly previousEventId: string | null;
+  readonly scanSessionId: string | null;
+  readonly affectedDeviceId: string | null;
+  readonly evidenceId: string | null;
+  readonly summary: string;
+}
+
+export interface GeneratedPortalLanDiscoveryEventHistorySnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly state: string;
+  readonly latestEventId: string | null;
+  readonly latestObservedAt: string | null;
+  readonly rows: readonly GeneratedPortalLanDiscoveryEventRowSnapshot[];
+}
+
+export interface GeneratedPortalLanDiscoverySourceMatrixWorkpackRowSnapshot {
+  readonly workpackId: string;
+  readonly title: string;
+  readonly discoveryState: string;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly status: string;
+  readonly readModelVisible: boolean;
+  readonly requiredArtifactSummary?: string | null;
+}
+
+export interface GeneratedPortalLanDiscoverySourceMatrixSourceRowSnapshot {
+  readonly source: string;
+  readonly workpackId: string;
+  readonly status: string;
+  readonly authority: string;
+  readonly runtimePath: string;
+  readonly uiSurface: string;
+  readonly canConfirmChildAgent: boolean;
+  readonly canAssignChildProfile: boolean;
+  readonly canControlRoute: boolean;
+  readonly requiresSelectedInterface: boolean;
+  readonly persistsAcrossRestart: boolean;
+  readonly evidenceLabel: string;
+  readonly requiredArtifactSummary?: string | null;
+}
+
+export interface GeneratedPortalLanDiscoverySourceMatrixSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly workpackRows: readonly GeneratedPortalLanDiscoverySourceMatrixWorkpackRowSnapshot[];
+  readonly sourceRows: readonly GeneratedPortalLanDiscoverySourceMatrixSourceRowSnapshot[];
+  readonly claimsProved: readonly string[];
+  readonly claimsNotProved: readonly string[];
+}
+
+export interface GeneratedPortalLanAddDeviceReadModelSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly discoverySource: string;
+  readonly addDeviceState: string;
+  readonly localServiceDiscoveryState: string;
+  readonly physicalHouseholdLanState: string;
+  readonly cloudRelayState: string;
+  readonly scanSummary: GeneratedPortalLanAddDeviceScanSummarySnapshot;
+  readonly discoveredDevices: readonly GeneratedPortalLanBrowserAddDeviceDiscoveryDeviceSnapshot[];
+  readonly discoveryEventHistory: GeneratedPortalLanDiscoveryEventHistorySnapshot;
+  readonly canonicalHouseholdDevices: readonly GeneratedPortalLanCanonicalHouseholdDeviceSnapshot[];
+  readonly pairingRequests: readonly GeneratedPortalLanBrowserAddDevicePairingRequestSnapshot[];
+  readonly trustedDeviceRegistry: readonly GeneratedPortalLanTrustedDeviceRegistryEntrySnapshot[];
+  readonly householdDeviceDecisions: readonly GeneratedPortalLanHouseholdDeviceDecisionSnapshot[];
+  readonly signedDiscoveryRelaySpine: GeneratedPortalLanSignedDiscoveryRelaySpineSummarySnapshot | null;
+  readonly lanDiscoverySourceMatrix: GeneratedPortalLanDiscoverySourceMatrixSnapshot | null;
+  readonly trustedDeviceIds: readonly string[];
+  readonly revokedDeviceIds: readonly string[];
+  readonly selectedDeviceReadiness: GeneratedPortalLanSelectedDeviceReadinessSnapshot;
+  readonly controllerAuthority: string;
+  readonly observerAuthority: string;
+  readonly routeRequirementLabels: readonly string[];
+  readonly auditCheckLabels: readonly string[];
+  readonly honestNonClaims: readonly string[];
+}
+
+__PARENT_AGENT_PROTOCOL_BRIDGE_TYPES__
+
+__GENERATED_PORTAL_ACTIVITY_MEMORY_GRAPH_TYPES__
+
+export type GeneratedPortalSocialAlertReportReadModelSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalSocialAlertReportParentSurfaceReadModelSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalSocialParentNotificationDeliveryReadModelSnapshot = GeneratedPortalRouteEventPayloadRecord;
+export type GeneratedPortalSocialDashboardUxSnapshot = GeneratedPortalRouteEventPayloadRecord;
+
+export const GeneratedPortalSocialReadModelPayloadField = {
+  AlertReport: GeneratedPortalAgentProtocolField.BrowserSocialAlertReportReadModel,
+  AlertReportParentSurface: GeneratedPortalAgentProtocolField.BrowserSocialAlertReportParentSurfaceReadModel,
+  ParentNotificationDelivery: GeneratedPortalAgentProtocolField.BrowserSocialParentNotificationDeliveryReadModel,
+  Dashboard: GeneratedPortalAgentProtocolField.BrowserSocialDashboardReadModel,
+} as const;
+
+export type GeneratedPortalSocialReadModelPayloadFieldName =
+  (typeof GeneratedPortalSocialReadModelPayloadField)[keyof typeof GeneratedPortalSocialReadModelPayloadField];
+
+interface GeneratedPortalActivityEvidenceRefSnapshot {
+  readonly evidenceId: string;
+  readonly kind: string;
+  readonly digest?: string | null;
+  readonly uri?: string | null;
+}
+
+interface GeneratedParentActivityTrackingReadModelCountSnapshot {
+  readonly value: string;
+  readonly count: number;
+}
+
+interface GeneratedParentActivityTrackingReadModelRowSnapshot {
+  readonly schemaVersion: number;
+  readonly eventId: string;
+  readonly observedAt: string;
+  readonly deviceId: string;
+  readonly platform: string;
+  readonly observer: string;
+  readonly kind: string;
+  readonly subjectKind: string;
+  readonly subjectId: string;
+  readonly subjectDisplayName?: string | null;
+  readonly capabilityStatus?: string | null;
+  readonly queryVisibility: string;
+  readonly deletedAt?: string | null;
+  readonly evidenceReferenceIds: readonly string[];
+  readonly deletedEvidenceReferenceIds: readonly string[];
+  readonly evidence: readonly GeneratedPortalActivityEvidenceRefSnapshot[];
+}
+
+interface GeneratedParentActivityTrackingReadModelSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly custodyLabel: string;
+  readonly limit: number;
+  readonly returned: number;
+  readonly activeRows: number;
+  readonly tombstoneRows: number;
+  readonly capabilityStatus: string;
+  readonly latestEventId?: string | null;
+  readonly latestObservedAt?: string | null;
+  readonly latestActiveEventId?: string | null;
+  readonly latestActiveObservedAt?: string | null;
+  readonly latestTombstoneEventId?: string | null;
+  readonly latestTombstoneObservedAt?: string | null;
+  readonly activeKindCounts: readonly GeneratedParentActivityTrackingReadModelCountSnapshot[];
+  readonly activeDeviceCounts: readonly GeneratedParentActivityTrackingReadModelCountSnapshot[];
+  readonly activeCapabilityStatusCounts: readonly GeneratedParentActivityTrackingReadModelCountSnapshot[];
+  readonly deletedEvidenceReferenceIds: readonly string[];
+  readonly rows: readonly GeneratedParentActivityTrackingReadModelRowSnapshot[];
+}

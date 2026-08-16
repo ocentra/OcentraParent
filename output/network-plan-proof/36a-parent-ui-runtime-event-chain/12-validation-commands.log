@@ -1,5 +1,0 @@
-C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\sqlite3.exe C:\Users\sujan\AppData\Local\Temp\ocentra-parent-network-runtime-ui-FbHGar\activity.sqlite .read C:\Users\sujan\AppData\Local\Temp\ocentra-parent-network-runtime-ui-FbHGar\seed-network-runtime-ui.sql -> 0
-cmd /c npm run build:contracts -> 0
-cmd /c npm --workspace @ocentra-parent/portal run test -- live-activity-network-flow -> 0
-cargo build -p ocentra-parent-agent-service -> 0
-C:\Program Files\nodejs\node.exe E:\OcentraParentWorktrees\E-D\OcentraParent\node_modules\@playwright\test\cli.js test --config E:\OcentraParentWorktrees\E-D\OcentraParent\apps\portal\playwright.config.ts network-runtime-event-chain-proof.spec.ts --workers=1 -> 0

@@ -1,5 +1,20 @@
 # Current Eventing Snapshot
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Current Eventing Snapshot`
+> Kind: current snapshot; read for status/gap claims.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Current Product State
 
 Reusable Rust eventing now exists in `crates/ocentra-eventing` as generic
@@ -77,6 +92,12 @@ Current truth:
   service transport delivery are not implemented by the reusable crate. They
   must publish into a local bus on each side after typed transport/API
   boundaries.
+- Household AI Provider Mesh is consumer-layer work. The reusable eventing
+  crate supplies local bus semantics, typed envelopes, idempotency, TTL, retry,
+  dead-letter, aggregate ordering, request/response, journal/replay, and
+  topology proof. It does not provide cross-device transport, peer discovery,
+  provider trust, job authority, payload custody, policy behavior, or
+  enforcement behavior.
 - Network AI classification, policy decisions, enforcement commands, adapter
   side effects, audit storage, and portal rendering remain network/service/UI
   consumer work, not event bus responsibilities.
@@ -101,6 +122,15 @@ Vite/TypeScript UI
   -> Rust child-agent runtime
   -> child-agent event bus instance
   -> evidence, AI, policy, enforcement, audit, read-model events
+```
+
+Household mesh rule:
+
+```text
+ocentra-eventing is local runtime infrastructure only. Cross-device
+coordination is handled by a Household Mesh Bridge that converts selected local
+events into typed authenticated LAN messages and republishes validated incoming
+messages into the receiving runtime's local bus.
 ```
 
 Incorrect flow:

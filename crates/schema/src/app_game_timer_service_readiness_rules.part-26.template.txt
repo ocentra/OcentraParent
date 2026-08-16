@@ -1,0 +1,30 @@
+  }
+
+  if (
+    handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.BlockedBySourceFreshness
+  ) {
+    return AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedBySourceFreshness;
+  }
+
+  return AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedByCompilerDecision;
+};
+
+export const countAppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRowsGenerated = (
+  rows: readonly TimerServiceReadinessProtocolReadModelRowLike[]
+) => ({
+  protocolReadModelProofRequiredCount: rows.filter(
+    (row) =>
+      row.protocolReadModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.ProtocolReadModelProofRequired
+  ).length,
+  blockedBySourceFreshnessCount: rows.filter(
+    (row) =>
+      row.protocolReadModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedBySourceFreshness
+  ).length,
+  blockedByCompilerDecisionCount: rows.filter(
+    (row) =>
+      row.protocolReadModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedByCompilerDecision
+  ).length,

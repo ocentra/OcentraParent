@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "ocentra-enforcer": {
+      "command": "node",
+      "args": ["scripts/enforcer/ocentra-enforcer-mcp.mjs"],
+      "env": {
+        "OCENTRA_ENFORCER_HOME": "E:\\ocentra-enforcer"
+      }
+    }
+  }
+}

@@ -1,8 +1,0 @@
-cargo test -p ocentra-parent-agent-core store_package
-
-Result: PASS
-
-Covered contract:
-- AppX manifest source records map into existing Store/UWP inventory row contract.
-- Rows remain sourceKind=storePackage and runtime/foreground not-claimed.
-- Invalid manifest XML does not upgrade into an inventory claim.

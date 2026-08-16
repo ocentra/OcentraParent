@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Production Distribution And Support
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Production Distribution And Support
 
 ## Parent Outcome
@@ -37,6 +50,10 @@ dev-only repo when it claims consumer readiness.
 
 - Windows MSI/updater scaffolding exists.
 - Cross-platform package previews exist as CI mechanics.
+- Parent mobile Android/iOS scaffold package previews now exist separately from
+  child-agent Android/iOS previews. They remain CI/mechanical proof, not
+  signing, store, real-device, controller-authority, or child-agent parity
+  proof.
 - Parent desktop Tauri package proof exposes built-portal frontend state,
   Rust-service backend kind, package service-manager launch ownership, service
   health endpoint, runtime readiness, fixed port/process ownership,
@@ -133,11 +150,14 @@ dev-only repo when it claims consumer readiness.
 - `production-support-process-runtime-status-proof` adds parent-domain support
   process runtime status rows for support process requested, parent consent
   authorized, privacy/legal queued, redaction review running, backend-upload
-  failed, case resolution succeeded, and manual-required support process
-  states. It proves deterministic support-safe status metadata while preserving
-  real backend upload execution, public runtime execution, provider execution,
-  production SLA, remote support sessions, provider secrets, child activity
-  custody, and default Ocentra-hosted family data as explicit non-claims.
+  failed, case resolution succeeded, manual-required support process, incident
+  runtime requested, incident runtime authorized, incident runtime running,
+  incident runtime evidence-ready, and incident runtime manual-required states.
+  It proves deterministic support-safe status metadata while preserving real
+  incident runtime execution, real backend upload execution, public runtime
+  execution, provider execution, production SLA, remote support sessions,
+  provider secrets, child activity custody, and default Ocentra-hosted family
+  data as explicit non-claims.
 - `production-support-account-sla-status-proof` adds parent-domain production
   support account/SLA status rows for account lookup request/result boundaries,
   billing provider contact status, remote support request/session boundaries,
@@ -166,6 +186,38 @@ dev-only repo when it claims consumer readiness.
   account lookup execution, billing provider contact, remote support sessions,
   production SLA, default Ocentra-hosted family data, and child activity custody
   unclaimed.
+- `provider-secret-execution-readiness-proof` adds logging-domain
+  provider-secret execution readiness rows for execution boundary, backend
+  secret-store preflight, rotation preflight, revocation preflight, operator
+  approval, manual execution, and support-safe audit export states. It links
+  provider-secret custody status, backend secret-store preflight,
+  rotation/revocation preflight, operator approval, manual proof, and audit refs
+  while keeping backend secret store execution, rotation execution, revocation
+  execution, provider-secret delivery, support backend upload execution, account
+  lookup, billing provider contact, remote support sessions, production SLA,
+  default Ocentra-hosted family data, and child activity custody unclaimed.
+- `production-support-provider-secret-rotation-revocation-status-proof` adds
+  logging-domain provider-secret rotation and revocation status rows for
+  rotation requested, rotation preflight-ready, rotation manual-required,
+  revocation requested, revocation preflight-ready, revocation manual-required,
+  and audit-export-ready states. It links provider-secret custody status,
+  provider-secret execution readiness, backend secret-store preflight, operator
+  approval, manual proof, and audit refs while keeping backend secret store
+  execution, rotation execution, revocation execution, provider-secret delivery,
+  support backend upload execution, account lookup, billing provider contact,
+  remote support sessions, production SLA, default Ocentra-hosted family data,
+  and child activity custody unclaimed.
+- `production-support-backend-provider-runtime-readiness-proof` adds a
+  logging-domain readiness boundary that composes support backend upload
+  execution runtime, upload custody/audit, provider-secret execution readiness,
+  account/SLA, privacy/legal, and case-resolution proof refs. It proves only
+  support-safe status metadata for upload runtime linkage, provider-secret
+  preflight, billing provider, account lookup, legal disclosure, remote support,
+  SLA, and audit export rows while keeping real support backend upload
+  execution, provider-secret delivery/custody execution, account lookup,
+  billing provider contact, legal disclosure execution, remote support sessions,
+  production SLA, default Ocentra-hosted family data, and child activity custody
+  unclaimed.
 - `production-support-data-export-delete-lifecycle-proof` adds parent-domain
   and logging-domain export/delete runtime lifecycle rows for requested,
   authorized, queued, running, succeeded, failed, and manual-required export and
@@ -173,6 +225,15 @@ dev-only repo when it claims consumer readiness.
   status metadata and parent-owned local output/delete refs while preserving
   real backend upload execution, public runtime execution, provider execution,
   production SLA, remote support sessions, default Ocentra-hosted family data,
+  and child activity custody as explicit non-claims.
+- `production-support-delete-executor-proof` adds logging-domain delete
+  executor readiness/status rows for local export output, support backend
+  payload, status backend payload, public runtime payload, and legal disclosure
+  payload boundaries. It proves only source-backed delete-request,
+  authorization, redaction/audit, custody, source-proof, and manual-proof refs
+  while preserving real delete execution, durable queue execution, payload
+  deletion, provider execution, public runtime execution, legal execution,
+  backend upload execution, production SLA, default Ocentra-hosted family data,
   and child activity custody as explicit non-claims.
 - `production-support-publication-workflow-proof` adds parent-domain source
   contract rows for public privacy policy publication, privacy/legal disclosure
@@ -194,6 +255,15 @@ dev-only repo when it claims consumer readiness.
   support backend upload execution, account lookup execution, billing provider
   contact, production SLA, legal disclosure execution, remote support sessions,
   and child activity custody.
+- `production-support-public-surface-export-closure-proof` closes the package
+  export and documentation surface for existing public release status,
+  public-status freshness, public-docs freshness, support-publication runtime
+  readiness, support-publication status freshness, and public support contact
+  status contracts. It proves those source-contract modules are importable
+  through `@ocentra-parent/parent-domain` while preserving real public runtime,
+  publication runner, status backend, support backend upload, account lookup,
+  billing provider contact, legal disclosure, remote support, production SLA,
+  provider-secret custody, and child activity custody as non-claims.
 - `production-support-publication-execution-status-proof` adds parent-domain
   status rows for support runbook, incident status, public support contact,
   support backend upload, privacy/legal, and account/billing publication
@@ -238,6 +308,31 @@ dev-only repo when it claims consumer readiness.
   account lookup, billing provider contact, legal disclosure execution, remote
   support sessions, production SLA, provider-secret custody, status backend
   payload custody, and child activity custody as explicit non-claims.
+- `production-support-status-backend-dead-letter-proof` adds parent-domain
+  status backend dead-letter/manual-triage rows for support runbook, incident,
+  public support contact, support upload, privacy/legal, and account/billing
+  targets across requested, authorized, dead-lettered, triage-ready,
+  retry-blocked, failed, manual-required, and backend-unavailable labels. It
+  proves support-safe queue, dead-letter, retry, audit, and manual proof
+  references while preserving real status backend execution, durable queue
+  storage, retry worker execution, audit persistence, dead-letter payload
+  custody, public runtime execution, provider execution, support backend upload
+  execution, account lookup, billing provider contact, legal disclosure
+  execution, remote support sessions, production SLA, provider-secret custody,
+  and child activity custody as explicit non-claims.
+- `production-support-status-backend-runtime-execution-proof` adds
+  parent-domain status backend runtime execution rows for support runbook,
+  incident, public support contact, support upload, privacy/legal, and
+  account/billing targets across requested, authorized, queued, running,
+  runtime-evidence-ready, audit-ready, failed, manual-required, and
+  backend-unavailable labels. It proves support-safe queue, retry, audit,
+  dead-letter, runtime evidence, and manual proof references while preserving
+  real status backend execution, durable queue storage, retry worker execution,
+  audit persistence, dead-letter payload custody, public runtime execution,
+  provider execution, support backend upload execution, account lookup, billing
+  provider contact, legal disclosure execution, remote support sessions,
+  production SLA, provider-secret custody, status backend payload custody, and
+  child activity custody as explicit non-claims.
 - `production-support-status-backend-payload-custody-proof` adds
   logging-domain status backend payload custody rows for custody boundary,
   retention manual-required, delete request, deletion manual-required,
@@ -260,6 +355,47 @@ dev-only repo when it claims consumer readiness.
   execution, provider execution, account lookup, billing provider contact,
   legal disclosure execution, remote support sessions, production SLA,
   provider-secret custody, and child activity custody as explicit non-claims.
+- `production-support-status-backend-runtime-closure-proof` adds a parent-domain
+  closure contract that composes the status backend runtime execution,
+  queue/audit persistence, dead-letter, payload-custody, redaction-manifest,
+  and public-runtime follow-through proof refs. It proves only support-safe
+  status labels and source refs while preserving real status backend execution,
+  durable queue storage, retry-worker execution, audit persistence, dead-letter
+  payload custody, status backend payload custody, redaction manifest execution,
+  public runtime execution, provider execution, support backend upload
+  execution, account lookup, billing provider contact, legal disclosure
+  execution, remote support sessions, production SLA, provider-secret custody,
+  and child activity custody as explicit non-claims.
+- `production-support-status-backend-durable-queue-runtime-proof` adds a
+  parent-domain durable queue runtime boundary/readiness contract for status
+  backend queue storage, retry-worker, audit-persistence, dead-letter, runtime
+  execution, and runtime closure refs. It proves only support-safe boundary refs
+  while preserving real status backend execution, durable queue storage,
+  retry-worker execution, audit persistence, dead-letter payload custody, public
+  runtime execution, provider execution, support backend upload execution,
+  account lookup, billing provider contact, legal disclosure execution, remote
+  support sessions, production SLA, provider-secret custody, and child activity
+  custody as explicit non-claims.
+- `production-support-status-backend-execution-continuation-proof` adds a
+  parent-domain execution continuation boundary/readiness contract for the next
+  status-backend execution gap. It composes durable queue runtime, runtime
+  closure, logging-domain payload-custody, and redaction-manifest refs while
+  preserving real status backend execution, durable queue storage, retry-worker
+  execution, audit persistence, dead-letter payload custody, status-backend
+  payload custody, redaction-manifest execution, public runtime execution,
+  provider execution, support backend upload execution, account lookup, billing
+  provider contact, legal disclosure execution, remote support sessions,
+  production SLA, provider-secret custody, default hosted family data, and child
+  activity custody as explicit non-claims.
+- `production-support-proof-status-matrix-closure-proof` adds a parent-domain
+  proof/status matrix closure row set after PR534. It reconciles existing
+  status-backend runtime, public runtime/publication, privacy/legal disclosure,
+  provider-secret, export/delete lifecycle, and release-installer support proof
+  refs without duplicating the underlying proofs. It preserves real public
+  runtime, status backend execution, signing/store proof, updater execution,
+  support backend upload execution, account/billing provider execution, legal
+  disclosure execution, production SLA, provider-secret custody, and child
+  activity custody as explicit non-claims.
 - `production-support-privacy-legal-disclosure-status-proof` adds
   logging-domain privacy/legal disclosure status rows for disclosure requested,
   parent-authorized, legal-review queued, legal-review running,
@@ -274,8 +410,10 @@ dev-only repo when it claims consumer readiness.
 - `public-support-contact-status-proof` adds parent-domain public support
   contact/status boundary rows for public support contact, support status page
   contact, support runbook contact, incident status contact, backend-upload
-  support contact, and billing-support contact. It proves only source-contract
-  readiness and manual requirements while keeping public runtime execution,
+  support contact, and billing-support contact. It now carries explicit
+  status-boundary references for each contact surface and proves only
+  source-contract readiness, status-boundary handoff metadata, and manual
+  requirements while keeping public runtime execution,
   support backend upload execution, account lookup execution, billing provider
   contact, remote support sessions, production SLA, legal disclosure execution,
   provider secrets, and child activity custody unclaimed.
@@ -557,12 +695,14 @@ package/runtime proof.
 - [ ] Production support process runtime status proof. Current
       `production-support-process-runtime-status-proof` covers requested,
       authorized, queued, running, failed, succeeded, and manual-required
-      support process runtime status rows with support workflow, incident
-      status, backend upload status/runtime, case resolution, publication
-      runtime, custody, and documentation refs. Real backend upload execution,
-      public runtime execution, provider execution, production SLA, remote
-      support sessions, provider secrets, child activity custody, and default
-      Ocentra-hosted family data remain unclaimed.
+      support process runtime status rows plus incident runtime requested,
+      authorized, running, evidence-ready, and manual-required rows with
+      support workflow, incident status, status-backend runtime execution,
+      backend upload status/runtime, case resolution, publication runtime,
+      custody, and documentation refs. Real incident runtime execution, backend
+      upload execution, public runtime execution, provider execution,
+      production SLA, remote support sessions, provider secrets, child activity
+      custody, and default Ocentra-hosted family data remain unclaimed.
 - [ ] Production support account/SLA status proof. Current
       `production-support-account-sla-status-proof` covers account lookup
       request/result status, billing provider contact status, remote support
@@ -594,6 +734,17 @@ package/runtime proof.
       support backend upload execution, account lookup execution, billing
       provider contact, remote support sessions, production SLA, default
       Ocentra-hosted family data, and child activity custody unclaimed.
+- [ ] Production support provider-secret execution readiness proof. Current
+      `provider-secret-execution-readiness-proof` covers provider-secret
+      execution boundary, backend secret-store preflight, rotation preflight,
+      revocation preflight, operator approval, manual execution, and
+      support-safe audit export rows with custody/preflight/operator/manual/audit
+      refs. It remains deterministic logging contract proof only: backend secret
+      store execution, provider-secret rotation execution, provider-secret
+      revocation execution, provider-secret delivery, support backend upload
+      execution, account lookup execution, billing provider contact, remote
+      support sessions, production SLA, default Ocentra-hosted family data, and
+      child activity custody remain unimplemented or unclaimed.
 - [ ] Production support data export/delete runtime lifecycle proof. Current
       `production-support-data-export-delete-lifecycle-proof` covers
       parent-authorized export and delete requested, authorized, queued,
@@ -604,6 +755,17 @@ package/runtime proof.
       public runtime execution, provider execution, production SLA, remote
       support sessions, default Ocentra-hosted family data, and child activity
       custody unclaimed.
+- [ ] Production support delete executor proof. Current
+      `production-support-delete-executor-proof` covers delete executor
+      readiness/status rows for local export output, support backend payload,
+      status backend payload, public runtime payload, and legal disclosure
+      payload targets with delete-request, authorization, redaction/audit,
+      custody, source-proof, and manual-proof refs. It remains deterministic
+      logging contract proof only: real delete execution, durable queues,
+      payload deletion execution, provider execution, public runtime, legal
+      execution, backend upload execution, production SLA, default
+      Ocentra-hosted family data, and child activity custody remain
+      unimplemented or unclaimed.
 - [ ] Production support public publication workflow proof. Current
       `production-support-publication-workflow-proof` covers public privacy
       policy publication, privacy/legal disclosure execution, support runbook
@@ -623,6 +785,17 @@ package/runtime proof.
       upload execution, account lookup execution, billing provider contact,
       production SLA, legal disclosure execution, remote support sessions, and
       child activity custody unimplemented or unclaimed.
+- [ ] Production support public surface export closure proof. Current
+      `production-support-public-surface-export-closure-proof` verifies package
+      exports for public release status, public status freshness, public docs
+      freshness, support-publication runtime readiness, support-publication
+      status freshness, and public support contact status modules. It remains a
+      package surface/proof closure only: real public runtime execution,
+      publication runner execution, status backend execution, support backend
+      upload execution, account lookup, billing provider contact, legal
+      disclosure execution, remote support sessions, production SLA,
+      provider-secret custody, and child activity custody remain unimplemented
+      or unclaimed.
 - [ ] Production support publication execution status proof. Current
       `production-support-publication-execution-status-proof` covers support
       runbook, incident status, public support contact, support backend upload,
@@ -672,6 +845,33 @@ package/runtime proof.
       remote support sessions, production SLA, provider-secret custody, status
       backend payload custody, and child activity custody remain unimplemented
       or unclaimed.
+- [ ] Production support status backend dead-letter proof. Current
+      `production-support-status-backend-dead-letter-proof` covers support
+      runbook, incident, public support contact, support upload, privacy/legal,
+      and account/billing status backend dead-letter/manual-triage labels for
+      requested, authorized, dead-lettered, triage-ready, retry-blocked, failed,
+      manual-required, and backend-unavailable rows. It remains deterministic
+      contract/status proof only: real status backend execution, durable queue
+      storage, retry worker execution, audit persistence, dead-letter payload
+      custody, public runtime execution, provider execution, support backend
+      upload execution, account lookup, billing provider contact, legal
+      disclosure execution, remote support sessions, production SLA,
+      provider-secret custody, and child activity custody remain unimplemented
+      or unclaimed.
+- [ ] Production support status backend runtime execution proof. Current
+      `production-support-status-backend-runtime-execution-proof` covers
+      support runbook, incident, public support contact, support upload,
+      privacy/legal, and account/billing status backend runtime execution
+      labels for requested, authorized, queued, running,
+      runtime-evidence-ready, audit-ready, failed, manual-required, and
+      backend-unavailable rows. It remains deterministic contract/status proof
+      only: real status backend execution, durable queue storage, retry worker
+      execution, audit persistence, dead-letter payload custody, public runtime
+      execution, provider execution, support backend upload execution, account
+      lookup, billing provider contact, legal disclosure execution, remote
+      support sessions, production SLA, provider-secret custody, status backend
+      payload custody, and child activity custody remain unimplemented or
+      unclaimed.
 - [ ] Production support status backend payload custody proof. Current
       `production-support-status-backend-payload-custody-proof` covers status
       backend payload custody boundary, retention manual-required, delete
@@ -697,6 +897,57 @@ package/runtime proof.
       disclosure execution, remote support sessions, production SLA,
       provider-secret custody, and child activity custody remain unimplemented
       or unclaimed.
+- [ ] Production support status backend runtime closure proof. Current
+      `production-support-status-backend-runtime-closure-proof` composes the
+      status backend runtime execution, queue/audit persistence, dead-letter,
+      payload-custody, redaction-manifest, and public-runtime follow-through
+      proof refs into one support-safe closure read model. It remains
+      deterministic parent-domain contract proof only: real status backend
+      execution, durable queue storage, retry-worker execution, audit
+      persistence, dead-letter payload custody, status backend payload custody,
+      redaction manifest execution, public runtime execution, provider
+      execution, support backend upload execution, account lookup, billing
+      provider contact, legal disclosure execution, remote support sessions,
+      production SLA, provider-secret custody, and child activity custody
+      remain unimplemented or unclaimed.
+- [ ] Production support status backend durable queue runtime proof. Current
+      `production-support-status-backend-durable-queue-runtime-proof` covers
+      durable queue storage, retry-worker, audit-persistence, dead-letter,
+      runtime execution, and runtime closure refs for support runbook, incident,
+      public support contact, support upload, privacy/legal, and
+      account/billing status backend targets. It remains deterministic
+      contract/read-model proof only: real status backend execution, durable
+      queue storage, retry-worker execution, audit persistence, dead-letter
+      payload custody, public runtime execution, provider execution, support
+      backend upload execution, account lookup, billing provider contact, legal
+      disclosure execution, remote support sessions, production SLA,
+      provider-secret custody, and child activity custody remain unimplemented
+      or unclaimed.
+- [ ] Production support status backend execution continuation proof. Current
+      `production-support-status-backend-execution-continuation-proof` covers
+      execution preflight, runtime-worker-required, durable-storage-required,
+      payload-custody-required, redaction-manifest-required, manual-required,
+      and backend-unavailable rows for support runbook, incident, public
+      support contact, support upload, privacy/legal, and account/billing
+      status backend targets. It remains deterministic contract/read-model
+      proof only: real status backend execution, durable queue storage,
+      retry-worker execution, audit persistence, dead-letter payload custody,
+      status-backend payload custody, redaction-manifest execution, public
+      runtime execution, provider execution, support backend upload execution,
+      account lookup, billing provider contact, legal disclosure execution,
+      remote support sessions, production SLA, provider-secret custody, default
+      Ocentra-hosted family data, and child activity custody remain
+      unimplemented or unclaimed.
+- [ ] Production support proof/status matrix closure proof. Current
+      `production-support-proof-status-matrix-closure-proof` reconciles the
+      status-backend runtime, public runtime/publication, privacy/legal,
+      provider-secret, export/delete, and release-installer support proof refs
+      into one source-backed status pack after PR534. It remains deterministic
+      contract/read-model proof only: real public runtime, real status backend
+      execution, signing/store proof, updater execution, support backend upload
+      execution, account/billing provider execution, legal disclosure
+      execution, production SLA, provider-secret custody, and child activity
+      custody remain unimplemented, manual-required, or unclaimed.
 - [ ] Production support privacy/legal disclosure status proof. Current
       `production-support-privacy-legal-disclosure-status-proof` covers
       privacy/legal disclosure requested, parent-authorized, legal-review
@@ -709,11 +960,35 @@ package/runtime proof.
       production SLA, provider secrets, remote support transcripts, raw child
       activity custody, and raw support bundle payloads remain unimplemented or
       unclaimed.
+- [ ] Production support provider-secret rotation/revocation status proof.
+      Current
+      `production-support-provider-secret-rotation-revocation-status-proof`
+      covers rotation requested, rotation preflight-ready, rotation
+      manual-required, revocation requested, revocation preflight-ready,
+      revocation manual-required, and audit-export-ready rows with custody
+      status, execution readiness, backend secret-store preflight, operator
+      approval, manual proof, and audit refs. It remains deterministic logging
+      contract proof only: real backend secret store execution, rotation
+      execution, revocation execution, provider-secret delivery, support backend
+      upload execution, account lookup, billing provider contact, remote support
+      sessions, production SLA, default Ocentra-hosted family data, and child
+      activity custody remain unimplemented or unclaimed.
+- [ ] Production support backend provider runtime readiness proof. Current
+      `production-support-backend-provider-runtime-readiness-proof` composes
+      support backend upload execution runtime, upload custody/audit,
+      provider-secret execution readiness, account/SLA, privacy/legal, and case
+      resolution proof refs into support-safe upload/provider readiness rows. It
+      remains deterministic logging contract proof only: real support backend
+      upload execution, provider-secret delivery/custody execution, account
+      lookup, billing provider contact, legal disclosure execution, remote
+      support sessions, production SLA, default Ocentra-hosted family data, and
+      child activity custody remain unimplemented or unclaimed.
 - [ ] Public support contact/status boundary proof. Current
       `public-support-contact-status-proof` covers public support contact,
       support status page contact, support runbook contact, incident status
       contact, backend-upload support contact, and billing-support contact as
-      source-contract/manual-required rows. Public runtime execution, support
+      source-contract/manual-required rows with explicit status-boundary
+      references for each contact surface. Public runtime execution, support
       backend upload execution, account lookup execution, billing provider
       contact, remote support sessions, production SLA, legal disclosure
       execution, provider secrets, and child activity custody remain

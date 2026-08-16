@@ -1,5 +1,0 @@
-{
-  "status": "not-applicable",
-  "reason": "WP30 adds Rust protocol serialization parity only. It does not add live runtime source readers, classifier execution, service consumers, or platform adapters.",
-  "runtimeClaimMoved": false
-}

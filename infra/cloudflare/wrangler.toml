@@ -1,0 +1,64 @@
+name = "ocentra-parent-cloudflare-dev"
+main = "src/index.ts"
+compatibility_date = "2026-06-14"
+workers_dev = true
+
+[vars]
+ENVIRONMENT = "development"
+APP_ORIGIN = "http://localhost:3000"
+CORS_ALLOWED_ORIGINS = "http://localhost:3000"
+REQUEST_MAX_BYTES = "1048576"
+BILLING_ROUTE_KILL_SWITCH = "false"
+AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"
+ENTITLEMENT_SIGNING_KEY_REF = "manual-required-local-ref"
+
+[[d1_databases]]
+binding = "BILLING_D1"
+database_name = "ocentra-parent-billing-dev"
+database_id = "REPLACE_WITH_DEV_D1_ID"
+
+[[d1_databases]]
+binding = "ACCOUNT_IDENTITY_D1"
+database_name = "ocentra-parent-account-identity-dev"
+database_id = "REPLACE_WITH_DEV_ACCOUNT_IDENTITY_D1_ID"
+migrations_dir = "migrations/account-identity"
+
+[[kv_namespaces]]
+binding = "BILLING_RATE_LIMIT_KV"
+id = "REPLACE_WITH_DEV_RATE_LIMIT_KV_ID"
+
+[[kv_namespaces]]
+binding = "BILLING_CONFIG_KV"
+id = "REPLACE_WITH_DEV_CONFIG_KV_ID"
+
+[[queues.producers]]
+binding = "BILLING_RECONCILIATION_QUEUE"
+queue = "ocentra-parent-billing-reconciliation-dev"
+
+[[queues.producers]]
+binding = "BILLING_DEAD_LETTER_QUEUE"
+queue = "ocentra-parent-billing-dead-letter-dev"
+
+[[r2_buckets]]
+binding = "BILLING_AUDIT_R2"
+bucket_name = "ocentra-parent-billing-audit-dev"
+
+[[analytics_engine_datasets]]
+binding = "ANALYTICS"
+dataset = "ocentra_parent_cloudflare_dev"
+
+[[durable_objects.bindings]]
+name = "BILLING_DO"
+class_name = "BillingControlDO"
+
+[[durable_objects.bindings]]
+name = "REFERRAL_DO"
+class_name = "ReferralControlDO"
+
+[[durable_objects.bindings]]
+name = "ENTITLEMENT_SNAPSHOT_DO"
+class_name = "EntitlementSnapshotDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["BillingControlDO", "ReferralControlDO", "EntitlementSnapshotDO"]

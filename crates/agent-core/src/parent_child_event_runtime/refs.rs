@@ -46,13 +46,6 @@ pub(super) fn parent_child_correlation_id(input: &ParentChildRuntimeInput) -> St
     value
 }
 
-pub(super) fn parent_child_aggregate_key(event_ref: &str) -> String {
-    let mut value =
-        String::from(constants::parent_controller::AGGREGATE_PARENT_CHILD_RUNTIME_PREFIX);
-    value.push_str(event_ref);
-    value
-}
-
 pub(super) fn event_idempotency_key(input: &ParentChildRuntimeInput, event_type: &str) -> String {
     parent_child_idempotency_key(&event_ref(input, event_type))
 }

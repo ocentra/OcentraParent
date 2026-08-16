@@ -119,6 +119,7 @@ pub enum ParentControllerActionKind {
     Block,
     Ask,
     Review,
+    UpdateTrackingConfig,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -156,4 +157,5 @@ pub enum ParentProjectionKind {
     ParentIntentStatus,
     ChildCommandStatus,
     CapabilityState,
+    TrackingConfigState,
 }

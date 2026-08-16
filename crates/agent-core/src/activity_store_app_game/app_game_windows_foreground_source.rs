@@ -1,6 +1,7 @@
 use base64::prelude::{Engine as _, BASE64_URL_SAFE_NO_PAD};
-use ocentra_parent_agent_protocol::{
-    ActivityEvent, APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::{
+    APP_GAME_CAPABILITY_STATUS_AVAILABLE, APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS,
     APP_GAME_CONFIDENCE_UNKNOWN, APP_GAME_FOREGROUND_EVIDENCE_ID_PREFIX,
     APP_GAME_FOREGROUND_FOREGROUND, APP_GAME_TITLE_CAPTURE_TITLE_OMITTED,
     APP_GAME_TITLE_CAPTURE_TITLE_REF, APP_GAME_WINDOW_REF_PREFIX, APP_GAME_WINDOW_TITLE_REF_PREFIX,
@@ -28,21 +29,21 @@ impl From<AppGameJournalSqliteIngestError> for AppGameLiveForegroundWindowError 
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
-pub(crate) struct LiveWindowsForegroundWindowSnapshot {
+pub struct LiveWindowsForegroundWindowSnapshot {
     pub process_id: u64,
     pub process_name: String,
     pub window_id: String,
     pub window_title: String,
 }
 
-pub(crate) fn live_windows_foreground_window_record(
+pub fn live_windows_foreground_window_record(
     observed_at: &str,
 ) -> Option<WindowsForegroundWindowRecord> {
     active_window_snapshot()
         .map(|snapshot| live_windows_foreground_window_record_from_snapshot(observed_at, &snapshot))
 }
 
-pub(crate) fn live_windows_foreground_window_record_from_snapshot(
+pub fn live_windows_foreground_window_record_from_snapshot(
     observed_at: &str,
     snapshot: &LiveWindowsForegroundWindowSnapshot,
 ) -> WindowsForegroundWindowRecord {
@@ -62,7 +63,7 @@ pub fn live_windows_foreground_window_journal_event(
     )?))
 }
 
-pub(crate) fn live_windows_foreground_window_journal_event_from_snapshot(
+pub fn live_windows_foreground_window_journal_event_from_snapshot(
     device_id: &str,
     platform: &str,
     observed_at: &str,

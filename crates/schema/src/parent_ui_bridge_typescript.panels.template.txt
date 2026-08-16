@@ -1,0 +1,192 @@
+  readonly schemaVersion?: string | null;
+  readonly generatedAt?: string | null;
+  readonly custody?: string | null;
+  readonly limit?: number | null;
+  readonly returned: number;
+  readonly capabilityStatus?: string | null;
+  readonly previewId?: string | null;
+  readonly latestEventId?: string | null;
+  readonly latestObservedAt?: string | null;
+  readonly targetId?: string | null;
+  readonly targetType?: string | null;
+  readonly targetValue?: string | null;
+  readonly evidenceReferenceCount?: number | null;
+  readonly parentRuleContextReferenceCount?: number | null;
+  readonly parentRuleContextRefIds?: string | null;
+  readonly decisionId?: string | null;
+  readonly decisionAction?: string | null;
+  readonly reasonCodes?: string | null;
+  readonly ruleIds?: string | null;
+  readonly localAiResultId?: string | null;
+  readonly dryRun?: boolean | null;
+  readonly enforcementHandoffState?: string | null;
+  readonly policyPreviewSaveState?: string | null;
+  readonly policyPreviewManualReviewState?: string | null;
+  readonly policyPreviewTargetState?: string | null;
+  readonly policyPreviewTargetExplanationCode?: string | null;
+  readonly policyPreviewFindingKinds?: string | null;
+  readonly policySourceStatus?: string | null;
+  readonly policySourceSurface?: string | null;
+  readonly policyRequestOrigin?: string | null;
+  readonly policyAssistantConfirmationState?: string | null;
+  readonly policyRequestStatus?: string | null;
+  readonly policyApprovalId?: string | null;
+  readonly policyOverrideId?: string | null;
+  readonly policyReplayOfApprovalId?: string | null;
+  readonly policyReviewedByActorId?: string | null;
+  readonly policyReviewedByActorRole?: string | null;
+  readonly policyReviewedAt?: string | null;
+  readonly policyAuditReferenceId?: string | null;
+  readonly networkEvidenceGrade?: string | null;
+  readonly networkRequestedPolicyAction?: string | null;
+  readonly networkMappedPolicyAction?: string | null;
+  readonly networkPolicyMappingMode?: string | null;
+  readonly networkAdapterActionAuthorized?: boolean | null;
+  readonly networkEnforcementCommandAuthorized?: boolean | null;
+  readonly confirmationContext?: ParentPolicyPreviewConfirmationContext | null;
+}
+
+export interface ParentRouteLiveActivitySnapshot {
+  readonly recentSummary?: ParentUnknownRecord | null;
+  readonly ingestStatus?: ParentUnknownRecord | null;
+  readonly activityScreenReadModel?: ParentUnknownRecord | null;
+  readonly activityAppUseReadModel?: ParentUnknownRecord | null;
+  readonly activityBrowserReadModel?: ParentUnknownRecord | null;
+  readonly activityGamesReadModel?: ParentUnknownRecord | null;
+  readonly screenSummaryPanel?: ParentScreenSummaryPanelSnapshot | null;
+  readonly browserInventoryEvent?: ParentRouteEventSnapshot | null;
+  readonly browserInventoryReadModel?: ParentUnknownRecord | null;
+  readonly browserEvidenceEvent?: ParentRouteEventSnapshot | null;
+  readonly browserEvidenceReadModel?: ParentUnknownRecord | null;
+  readonly browserManagedEvent?: ParentRouteEventSnapshot | null;
+  readonly browserManagedStatus?: ParentUnknownRecord | null;
+  readonly localAiRuntimeStatusEvent?: ParentRouteEventSnapshot | null;
+  readonly lanAiJobEvent?: ParentRouteEventSnapshot | null;
+  readonly parentAssistantBoundaryEvent?: ParentRouteEventSnapshot | null;
+  readonly activityMemoryGraphReadModel?: ParentActivityMemoryGraphReadModelSnapshot | null;
+  readonly networkFlowEvent?: ParentRouteEventSnapshot | null;
+  readonly networkFlowReadModel?: ParentActivityNetworkFlowReadModelSnapshot | null;
+  readonly networkEvidenceSummary?: ParentNetworkEvidenceSummarySnapshot | null;
+  readonly networkRuntimeEventChainStream?: ParentNetworkRuntimeEventChainStreamSnapshot | null;
+  readonly lanPairingBrowserDiscoveryEvent?: ParentRouteEventSnapshot | null;
+  readonly lanAddDeviceReadModel?: ParentLanAddDeviceReadModelSnapshot | null;
+  readonly policyPreviewPanel?: ParentPolicyPreviewPanelSnapshot | null;
+  readonly appGameNotificationParentSurfacePanel?: ParentAppGameNotificationParentSurfacePanelSnapshot | null;
+  readonly appGamePolicyReadinessPanel?: ParentAppGamePanelSnapshot | null;
+  readonly appGamePlatformProofStatusPanel?: ParentAppGamePanelSnapshot | null;
+  readonly appGameChildRuntimeTransportReceiptPanel?: ParentAppGamePanelSnapshot | null;
+  readonly appGameAdapterDispatchPanel?: ParentAppGameAdapterDispatchPanelSnapshot | null;
+  readonly appGameTimerParentSurfacePanel?: ParentAppGameTimerParentSurfacePanelSnapshot | null;
+  readonly browserInterventionEvent?: ParentRouteEventSnapshot | null;
+  readonly browserInterventionReadModel?: ParentUnknownRecord | null;
+  readonly activityTrackingReadModelEvent?: ParentRouteEventSnapshot | null;
+  readonly activityTrackingReadModel?: ParentActivityTrackingReadModelResultSnapshot | null;
+  readonly activityTrackingPanel?: ParentTrackingStatusPanelSnapshot | null;
+  readonly activityTrackingRetentionSettingsWriteResult?: ParentUnknownRecord | null;
+}
+
+export interface ParentPolicyPreviewPanelDetailSnapshot {
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ParentPolicyPreviewPanelCardSnapshot {
+  readonly title: string;
+  readonly summary: string;
+  readonly details: readonly ParentPolicyPreviewPanelDetailSnapshot[];
+}
+
+export interface ParentPolicyPreviewActionSnapshot {
+  readonly action: ParentUiActionKind;
+  readonly label: string;
+  readonly payload?: ParentUiActionPayload | null;
+}
+
+export interface ParentPolicyPreviewAuthoringSnapshot {
+  readonly targetValue: string;
+  readonly requestedAction: string;
+  readonly stageAction: ParentPolicyPreviewActionSnapshot;
+  readonly confirmAction?: ParentPolicyPreviewActionSnapshot | null;
+  readonly cancelAction: ParentPolicyPreviewActionSnapshot;
+}
+
+export interface ParentPolicyPreviewPanelSnapshot {
+  readonly title: string;
+  readonly body: string;
+  readonly summary: string;
+  readonly summaryDetails: readonly ParentPolicyPreviewPanelDetailSnapshot[];
+  readonly cards: readonly ParentPolicyPreviewPanelCardSnapshot[];
+  readonly emptyMessage: string;
+  readonly productClaim: string;
+  readonly authoring?: ParentPolicyPreviewAuthoringSnapshot | null;
+}
+
+export interface ParentAppGamePanelDetailSnapshot {
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ParentAppGamePanelRowSnapshot {
+  readonly title: string;
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
+}
+
+export interface ParentAppGamePanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly loadState: string;
+  readonly summaryDetails: readonly ParentAppGamePanelDetailSnapshot[];
+  readonly rows: readonly ParentAppGamePanelRowSnapshot[];
+  readonly emptyMessage: string;
+  readonly productClaim: string;
+}
+
+export interface ParentAppGameActionRowSnapshot {
+  readonly title: string;
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
+  readonly actionLabel?: string | null;
+  readonly actionPayload?: ParentUnknownRecord | null;
+}
+
+export interface ParentAppGameAdapterDispatchPanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly preflightPanel: ParentAppGamePanelSnapshot;
+  readonly resultPanel: ParentAppGamePanelSnapshot;
+  readonly executeActionLabel?: string | null;
+}
+
+export interface ParentAppGameTimerParentSurfacePanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly loadState: string;
+  readonly summaryDetails: readonly ParentAppGamePanelDetailSnapshot[];
+  readonly parentActionRows: readonly ParentAppGamePanelRowSnapshot[];
+  readonly parentPreferenceSetupRows: readonly ParentAppGameActionRowSnapshot[];
+  readonly rows: readonly ParentAppGamePanelRowSnapshot[];
+  readonly emptyMessage: string;
+  readonly productClaim: string;
+}
+
+export interface ParentAppGameNotificationParentSurfacePanelRowSnapshot {
+  readonly key: string;
+  readonly title: string;
+  readonly details: readonly ParentAppGamePanelDetailSnapshot[];
+}
+
+export interface ParentAppGameNotificationParentSurfacePanelSnapshot {
+  readonly eyebrow: string;
+  readonly title: string;
+  readonly body: string;
+  readonly state: string;
+  readonly summary: string;
+  readonly productClaim: string;
+  readonly metrics: readonly ParentAppGamePanelDetailSnapshot[];
+  readonly rows: readonly ParentAppGameNotificationParentSurfacePanelRowSnapshot[];
+  readonly emptyMessage: string;
+}
+
+export interface ParentScreenSummaryPanelDetailSnapshot {

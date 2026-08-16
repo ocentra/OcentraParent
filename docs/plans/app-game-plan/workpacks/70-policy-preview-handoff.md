@@ -1,5 +1,19 @@
 # 70. Policy Preview Handoff
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `70. Policy Preview Handoff`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Owner And Branch
 
 - Owner/lane: `codex-c`
@@ -57,16 +71,16 @@ notifications, or dispatching adapters.
 
 ## DONE Checklist
 
-- [x] Hub lock covers implementation, test, package export, README, docs, and
+- [ ] Hub lock covers implementation, test, package export, README, docs, and
       proof paths.
-- [x] Existing app/game policy compiler and parent-domain policy primitives
+- [ ] Existing app/game policy compiler and parent-domain policy primitives
       inspected.
-- [x] TypeScript contract parses compiled decisions before building preview
+- [ ] TypeScript contract parses compiled decisions before building preview
       rows.
-- [x] Native app and native game rows remain separate product meanings while
+- [ ] Native app and native game rows remain separate product meanings while
       sharing the compiler evidence spine.
-- [x] Manual-required block-launch remains manual-required and
+- [ ] Manual-required block-launch remains manual-required and
       not-dispatched.
-- [x] Proof pack records no policy evaluator runtime, timer runtime, child
+- [ ] Proof pack records no policy evaluator runtime, timer runtime, child
       delivery, adapter dispatch, broad blocking, or platform enforcement
       claim.

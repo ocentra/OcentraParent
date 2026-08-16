@@ -1,9 +1,0 @@
-id=rolldown-linux-binding-probe
-command=wsl.exe sh -lc cd '/mnt/c/Users/sujan/.codex/worktrees/ocentra-parent-codex-a/OcentraParent' && if [ -d node_modules/@rolldown/binding-linux-x64-gnu ]; then echo present; else echo missing; fi
-exit=0
-
-[stdout]
-present
-
-[stderr]
-(empty)

@@ -1,5 +1,27 @@
 # Current App + Game Snapshot - 2026-06-02
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `Current App + Game Snapshot - 2026-06-02`
+> Kind: current snapshot; read for status/gap claims.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
+## Current code-first correction - 2026-08-15
+
+The authoritative current snapshot is [CODE_AUDIT.md](CODE_AUDIT.md): 220/220
+workpacks are mapped, 170 have no bounded Phase 1 writing gap, and 50 still
+need production code or expected tests. The June narrative below preserves
+historical implementation sequencing and removed TypeScript-owner references;
+it must not override the current tracked-source audit.
+
 ## Product Claim Boundary
 
 Current source proves a scoped app/game evidence and enforcement path. It does

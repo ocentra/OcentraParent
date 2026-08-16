@@ -1,9 +1,0 @@
-
-running 2 tests
-test network_product_readiness_status_service_tests::network_product_readiness_status_payload_serializes_materializer_outputs ... ok
-test network_product_readiness_status_service_tests::websocket_network_product_readiness_status_command_reports_payload ... ok
-
-test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 264 filtered out; finished in 0.00s
-
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.40s
-     Running unittests src\main.rs (target\debug\deps\ocentra_parent_agent_service-7d7b6baa09508943.exe)

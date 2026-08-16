@@ -1,5 +1,0 @@
-node scripts/test/screen-ai-winrt-ocr-worker-proof.mjs
-cmd /c npm run build --workspace @ocentra-parent/activity-domain
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-b\OcentraParent\output\ai-plan-proof\screen-winrt-ocr-worker\live-wikipedia-browser-ocr\capture (scope=selectedWindow; titleContains=Wikipedia)
-cargo run -p ocentra-parent-screen-capture-adapter --example screen_capture_real_proof -- C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-b\OcentraParent\output\ai-plan-proof\screen-winrt-ocr-worker\native-notepad-productivity-ocr\capture (scope=selectedWindow; titleContains=native-ocr-worker-proof-1780654940033.txt)

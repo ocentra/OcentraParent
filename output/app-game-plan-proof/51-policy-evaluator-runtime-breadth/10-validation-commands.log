@@ -1,5 +1,0 @@
-Validation run:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-time-budget-policy-runtime: PASS
-- node scripts/test/app-game-policy-evaluator-runtime-proof.mjs: PASS

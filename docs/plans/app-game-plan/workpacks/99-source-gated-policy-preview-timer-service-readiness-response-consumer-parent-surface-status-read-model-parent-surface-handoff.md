@@ -1,5 +1,19 @@
 # WP99 - Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Handoff
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `WP99 - Source-Gated Policy Preview Timer Service Readiness Response Consumer Parent-Surface Status Read-Model Parent-Surface Handoff`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Scope
 
 Add a parent-domain-only handoff that consumes WP98 response-consumer parent-surface status read-model rows and records which native app/native game rows still require future parent-surface proof before any parent-visible surface can render that status read-model.
@@ -13,11 +27,11 @@ Add a parent-domain-only handoff that consumes WP98 response-consumer parent-sur
 
 ## Implementation Checklist
 
-- [x] Add parent-domain parent-surface handoff schemas, builder, no-claim flags, and state rules.
-- [x] Add focused parser/builder tests using the real WP98 proof output.
-- [x] Add proof harness and app-game/app proof artifacts.
-- [x] Update feature/checklist/README docs with the no-claim decision.
-- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [ ] Add parent-domain parent-surface handoff schemas, builder, no-claim flags, and state rules.
+- [ ] Add focused parser/builder tests using the real WP98 proof output.
+- [ ] Add proof harness and app-game/app proof artifacts.
+- [ ] Update feature/checklist/README docs with the no-claim decision.
+- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
 
 ## Evidence
 

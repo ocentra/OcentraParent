@@ -5,7 +5,7 @@ Reusable Rust eventing primitives for Ocentra Parent runtime code.
 ## Phase 1 Proof
 
 The reusable event bus merge gate is `scripts/test/eventing-runtime-proof.mjs`.
-It writes
+When it passes, it writes
 `output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json` and
 proves the generic crate runtime, delivery-decision helper, metrics/testkit,
 queue/retry/timeout, request/response, journal/replay, lifecycle, source-safety,
@@ -13,12 +13,16 @@ topology, registry, fixture-parity, and compatibility rows without running
 network, portal, service, product runtime, external transport, external relay,
 decision-engine, AI, enforcement, or platform-adapter consumer proofs.
 
+That proof file is absent in this checkout, so treat the path above as the
+expected artifact location rather than current proof.
+
 The full event-plan merge readiness gate is
 `scripts/test/eventing-full-plan-proof.mjs`. That aggregate plan proof runs this
 generic crate proof plus consumer proofs that show parent/controller,
 child-agent, network, service, UI, command-boundary, and enforcement journal
 paths consume the eventing contracts without moving product behavior into this
-crate.
+crate. Do not treat the broader route as proved in this checkout unless the
+expected eventing-plan proof roots actually exist.
 
 ## Owns
 
@@ -74,10 +78,11 @@ crate.
 - Shared TypeScript/Rust branded scalar fixture parity for eventing identifiers:
   Effect Schema brands and Rust newtypes accept and reject the same canonical
   fixture values.
-- Durable `EventJournal` support with async NDJSON append, optional hash-chain
-  records, selected journaling by event type/namespace/allowlist, replay
-  cursors and filters, explicit projection-only replay mode, and journal
-  before/after dispatch policy hooks.
+- Durable `EventJournal` support with async NDJSON append, optional stable
+  SHA-256 hash-chain records, recovery/replay tamper verification, selected
+  journaling by event type/namespace/allowlist, replay cursors and filters,
+  explicit projection-only replay mode, and journal before/after dispatch
+  policy hooks.
 - Immutable handler-facing `EventContext<E>` accessors so handlers can inspect
   typed envelopes, payloads, and publishers without receiving mutable payload
   references or payload-carried completion/resource handles.

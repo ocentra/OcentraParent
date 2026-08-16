@@ -1,0 +1,53 @@
+name: CI Rust Agent Protocol
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-format:
+    name: 'Format: Rust Workspace'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Rust format
+        run: node scripts/ci/check-rust-format.mjs
+
+  protocol-check:
+    name: 'Check: Rust Agent Protocol'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [rust-format]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Protocol check
+        run: cargo check -p ocentra-parent-agent-protocol --all-targets
+
+  protocol-tests:
+    name: 'Unit: Rust Agent Protocol Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [protocol-check]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Protocol tests
+        run: cargo test -p ocentra-parent-agent-protocol --all-targets

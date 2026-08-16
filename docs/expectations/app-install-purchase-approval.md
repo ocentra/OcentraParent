@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: App Install And Purchase Approval Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # App Install And Purchase Approval Expectations
 
 Install and purchase approval is separate from app blocking. Platform stores
@@ -158,6 +171,48 @@ Expected contract families:
   execution, store integration, platform interception, platform adapter
   implementation, child-device delivery, runtime writer delivery, app blocking,
   child activity data custody, or Ocentra-hosted family data custody.
+- Provider/store API execution proof rows link product-claim provider/store
+  rows with platform limitation fallback rows into execution-ready,
+  manual-required, unavailable, and blocked-before-claim evidence states
+  without claiming product-claim approval, Google Play execution, Apple App
+  Store execution, Microsoft Store execution, billing/provider contact,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, child-device delivery, runtime writer/report
+  delivery, portal approval/report UI, app blocking, child activity data
+  custody, or Ocentra-hosted family data custody.
+- Platform adapter evidence gap proof rows link provider/store API execution
+  rows with platform proof-readiness rows into adapter-evidence-gap,
+  manual-adapter-evidence-required, platform-unavailable, and
+  blocked-before-claim states across Windows, macOS, Linux, Android, and iOS
+  without claiming real platform adapter evidence, platform adapter
+  implementation, product-claim approval, provider/store execution, portal UI,
+  child-device delivery, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
+- Windows package-source adapter evidence proof rows link platform adapter
+  evidence gap rows and package-source adapter execution rows to sanitized
+  Windows host command evidence for Microsoft Store package-source inspection
+  readiness when available, or keep the Windows row manual-required when the
+  host command/API is absent, without claiming Microsoft Store execution,
+  provider API execution, store integration, platform interception, production
+  platform adapter implementation, child-device delivery, portal UI, app
+  blocking, child activity data custody, or Ocentra-hosted family data custody.
+- Windows package-source runtime handoff proof rows consume those Windows
+  package-source adapter evidence rows into sanitized command/probe status,
+  package-source evidence refs, manual-required, unavailable, and
+  blocked-before-claim read-model rows without claiming runtime writer
+  execution or delivery, provider API execution, store integration, platform
+  interception, production platform adapter implementation, child-device
+  delivery, portal approval/report UI, app blocking, child activity data
+  custody, or Ocentra-hosted family data custody.
+- Provider/store platform evidence proof rows link provider/store execution
+  preflight rows with Windows package-source runtime handoff rows, record exact
+  missing provider/store, platform adapter, and child-device artifacts for each
+  platform/store row, and keep Windows/macOS manual-required, Linux unavailable,
+  and Android/iOS blocked-before-claim without claiming provider API execution,
+  store integration, platform interception, production platform adapter
+  implementation, runtime writer delivery, child-device delivery, portal
+  approval/report UI, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
 - Provider/store report status runtime proof rows link provider/store execution
   readiness rows to parent-owned runtime report writer receipts so store
   report statuses can be ready, manual-required, or unavailable without
@@ -178,6 +233,130 @@ Expected contract families:
   platform adapter implementation, child-device delivery, runtime report
   delivery, real interception, app blocking, child activity data custody, or
   Ocentra-hosted family data custody.
+- External runtime device delivery evidence proof rows link runtime writer
+  execution delivery receipts and child-device delivery runtime-writer envelope
+  rows into external runtime evidence-ready/manual-required rows without
+  claiming external runtime writer execution, external runtime writer delivery,
+  parent action runtime delivery, provider API execution, store integration,
+  platform interception, platform adapter implementation, child-device delivery,
+  runtime report delivery, real interception, app blocking, child activity data
+  custody, or Ocentra-hosted family data custody.
+- External runtime delivery handoff proof rows consume external runtime device
+  delivery evidence rows and record parent-owned handoff packet/queue refs
+  without claiming external runtime writer execution, external runtime writer
+  delivery, parent action runtime delivery, provider API execution, store
+  integration, platform interception, platform adapter implementation,
+  child-device delivery, runtime report delivery, real interception, app
+  blocking, child activity data custody, or Ocentra-hosted family data custody.
+- External runtime writer readiness proof rows consume external runtime device
+  delivery evidence rows and classify writer-handoff-ready/manual-required
+  states with preflight refs, readiness receipts, target refs, audit refs, and
+  report refs without claiming external runtime writer execution, external
+  runtime writer delivery, parent action runtime delivery, provider API
+  execution, store integration, platform interception, platform adapter
+  implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
+- External runtime writer transport preflight proof rows consume external
+  runtime writer readiness rows and classify transport-preflight-ready,
+  parent-owned queue-ref-ready, and manual-required states while requiring
+  external writer transport, queue, child-device transport, platform adapter,
+  and provider/store proof refs before any delivery claim without claiming
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity data custody,
+  or Ocentra-hosted family data custody.
+- External runtime writer delivery boundary proof rows consume external runtime
+  delivery handoff rows and record required external writer transport,
+  platform adapter, provider/store, and child-device delivery proof refs before
+  any external writer delivery claim without claiming external runtime writer
+  execution, external runtime writer delivery, parent action runtime delivery,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
+- External runtime writer delivery blocker proof rows consume delivery boundary
+  rows and record blocked-runtime-prerequisites-missing or manual-required
+  states with missing external writer transport, platform adapter execution,
+  provider/store execution, and child-device transport blockers before any
+  delivery attempt starts. They must not claim external runtime writer
+  execution, external runtime writer delivery, parent action runtime delivery,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
+- External runtime transport queue proof rows consume external runtime writer
+  delivery blocker rows and create parent-owned queue/dispatch guard entries
+  that keep dispatch blocked or manual-required until external writer
+  transport, child-device transport, provider/store execution, and platform
+  adapter proof refs are real. They must not claim external runtime writer
+  execution, external runtime writer delivery, parent action runtime delivery,
+  provider API execution, store integration, platform interception, platform
+  adapter implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
+- External runtime transport dispatch preflight proof rows consume transport
+  queue rows and create parent-owned withheld dispatch packets that stay
+  blocked or manual-required until external writer transport handler,
+  provider/store execution handler, platform adapter execution handler, and
+  child-device transport receipt proof refs are real. They must not claim
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity data custody,
+  or Ocentra-hosted family data custody.
+- Runtime delivery receipt boundary proof rows consume parent-owned withheld
+  dispatch preflight packets and create receipt-blocked or manual-required rows
+  that require external writer dispatch execution, provider/store execution
+  receipt, platform adapter execution receipt, and child-device transport
+  receipt proof refs before any receipt or delivery claim. They must not claim
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity data custody,
+  or Ocentra-hosted family data custody.
+- Runtime transport delivery execution proof rows consume runtime delivery
+  receipt boundary rows and create parent-owned transport execution attempt,
+  delivery result receipt, and child-device receipt handoff refs that stay
+  withheld or manual-required until external writer dispatch execution,
+  provider/store execution receipt, platform adapter execution receipt, and
+  child-device transport receipt proof refs are real. They must not claim
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity data custody,
+  or Ocentra-hosted family data custody.
+- External runtime writer transport execution proof rows consume runtime
+  transport delivery execution rows and create parent-owned external writer
+  transport packet, execution-status, and ack refs that stay blocked or
+  manual-required until an external writer dispatch executor, provider/store
+  execution receipt, platform adapter execution receipt, and child-device
+  transport receipt proof refs are real. They must not claim external runtime
+  writer execution, external runtime writer delivery, parent action runtime
+  delivery, provider API execution, store integration, platform interception,
+  platform adapter implementation, child-device delivery, runtime report
+  delivery, real interception, app blocking, child activity data custody, or
+  Ocentra-hosted family data custody.
+- Execution receipt gate proof rows consume external runtime writer transport
+  execution rows and classify the four required receipt families as blocked or
+  manual-required: external writer dispatch executor receipt, provider/store
+  execution receipt, platform adapter execution receipt, and child-device
+  transport receipt. They must not claim external runtime writer execution,
+  external runtime writer delivery, parent action runtime delivery, provider
+  API execution, store integration, platform interception, platform adapter
+  implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
+- Dispatch executor receipt proof rows consume execution receipt gate rows and
+  create parent-owned external writer dispatch executor handler, receipt
+  artifact, and audit artifact requirements while staying blocked or
+  manual-required. They must not claim external runtime writer execution,
+  external runtime writer delivery, parent action runtime delivery, provider
+  API execution, store integration, platform interception, platform adapter
+  implementation, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity data custody, or Ocentra-hosted
+  family data custody.
 - Provider/store execution preflight proof rows link provider/store execution
   readiness rows and runtime writer execution delivery receipts into
   parent-owned execution-ready, manual-required, and unavailable preflight states
@@ -268,6 +447,32 @@ Expected contract families:
   review-ready, manual-required, and unavailable states while product claims
   remain unapproved and portal approval UI, portal report UI, provider API
   execution, store integration, platform adapter implementation,
+  child-device delivery, runtime writer/report delivery, app blocking, child
+  activity custody, and Ocentra-hosted family data custody stay unclaimed.
+- Product-claim store upgrade readiness rows consume product-claim gate, portal
+  test readiness, and provider/store proof rows so upgrade readiness remains
+  blocked, manual-required, or unsupported before any product claim while
+  product claim approval, Google Play execution, Apple App Store execution,
+  Microsoft Store execution, billing/provider contact, provider API execution,
+  store integration, platform interception, platform adapter implementation,
+  runtime writer/report delivery, child-device delivery, portal approval/report
+  UI, app blocking, child activity custody, and Ocentra-hosted family data
+  custody stay unclaimed.
+- Product-claim platform preclaim rows consume portal-test readiness rows and
+  platform-proof readiness rows so product claims remain manual-required or
+  unsupported before any claim while product claim approval, portal
+  approval/report UI, Google Play execution, Apple App Store execution,
+  Microsoft Store execution, provider API execution, store integration,
+  platform adapter implementation, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity custody, and Ocentra-hosted family data
+  custody stay unclaimed.
+- Product-claim platform limitation fallback rows consume platform preclaim
+  rows, safe parent workflow rows, and platform limitation action rows so
+  parent-visible fallback workflow refs stay available while product claims
+  remain blocked or manual and product claim approval, portal approval/report
+  UI, Google Play execution, Apple App Store execution, Microsoft Store
+  execution, billing provider contact, provider API execution, store
+  integration, platform interception, platform adapter implementation,
   child-device delivery, runtime writer/report delivery, app blocking, child
   activity custody, and Ocentra-hosted family data custody stay unclaimed.
 
@@ -369,8 +574,32 @@ Expected contract families:
   delivery rows, missing runtime writer delivery/parent action readiness/
   envelope/receipt/audit/report coverage rejection, provider/store/platform/
   child delivery/report delivery/app-blocking/custody overclaim rejection, and
-  required non-claim coverage. Public package export visibility remains a
-  required follow-up once `packages/parent-domain/package.json` is available.
+  required non-claim coverage.
+- TypeScript schema tests and a proof harness for external runtime device
+  delivery evidence rows, missing runtime writer execution receipt/child
+  delivery envelope/audit/report coverage rejection, external runtime writer/
+  provider/store/platform/child delivery/report delivery/app-blocking/custody
+  overclaim rejection, public package export visibility, and required non-claim
+  coverage. Product checklist visibility is updated in the install/purchase
+  approval row.
+- TypeScript schema tests and a proof harness for external runtime delivery
+  handoff rows, missing source evidence/packet/queue/audit/report coverage
+  rejection, external runtime writer/provider/store/platform/child delivery/
+  report delivery/app-blocking/custody overclaim rejection, public package
+  export visibility, and required non-claim coverage. Product checklist
+  visibility is updated in the install/purchase approval row.
+- TypeScript schema tests and a proof harness for external runtime writer
+  readiness rows, missing source external runtime device delivery/writer/queue/
+  audit/report coverage rejection, external runtime writer/provider/store/
+  platform/child delivery/report delivery/app-blocking/custody overclaim
+  rejection, public package export visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for external runtime writer
+  delivery boundary rows, missing source handoff refs, missing required
+  external writer transport, platform adapter, provider/store, and child-device
+  delivery proof refs, external runtime writer/provider/store/platform/child
+  delivery/report delivery/app-blocking/custody overclaim rejection, public
+  package export visibility, and required non-claim coverage. Product checklist
+  visibility is updated in the install/purchase approval row.
 - TypeScript schema tests and a proof harness for provider/store execution
   preflight rows, missing provider/store readiness or runtime writer execution
   delivery receipt coverage rejection, provider/store execution/store
@@ -447,6 +676,25 @@ Expected contract families:
   manual evidence, audit, and report refs, product-claim approval/provider/
   portal/delivery/app-blocking/custody overclaim rejection, and required
   non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim store upgrade
+  readiness rows, product-claim gate linkage, portal test readiness linkage,
+  provider/store product-claim linkage, required portal/provider/child/platform/
+  runtime refs, product-claim approval/provider/store/platform/child delivery/
+  portal/runtime/app-blocking/custody overclaim rejection, public package export
+  visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim platform
+  preclaim rows, portal-test readiness linkage, platform-proof readiness
+  linkage, required portal/manual-platform/child/provider/platform/report refs,
+  product-claim approval, portal UI, provider/store/platform/child delivery/
+  runtime/app-blocking/custody overclaim rejection, public package export
+  visibility, and required non-claim coverage.
+- TypeScript schema tests and a proof harness for product-claim platform
+  limitation fallback rows, platform-preclaim linkage, safe-parent-workflow
+  linkage, platform-limitation-action linkage, required portal/manual-platform/
+  child/provider/platform/report refs, product-claim approval, portal UI,
+  provider/store/platform interception/adapter/child delivery/runtime/
+  app-blocking/custody overclaim rejection, public package export visibility,
+  and required non-claim coverage.
 - Platform proof for Google Play, Apple App Store, Microsoft Store, or other
   store hooks before claiming integration.
 - Portal tests for approval flow when UI exists.
@@ -545,6 +793,82 @@ Expected contract families:
   implementation, child-device delivery, runtime report delivery, real
   interception, app blocking, child activity custody, or Ocentra-hosted family
   data custody.
+- Do not treat external runtime device delivery evidence proof refs as external
+  runtime writer execution, external runtime writer delivery, parent action
+  runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime delivery handoff proof refs as external runtime
+  writer execution, external runtime writer delivery, parent action runtime
+  delivery, provider API execution, store integration, platform interception,
+  platform adapter implementation, child-device delivery, runtime report
+  delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime writer readiness proof refs as external runtime
+  writer execution, external runtime writer delivery, parent action runtime
+  delivery, provider API execution, store integration, platform interception,
+  platform adapter implementation, child-device delivery, runtime report
+  delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime writer transport preflight proof refs as
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime writer delivery boundary proof refs as external
+  runtime writer execution, external runtime writer delivery, parent action
+  runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime writer delivery blocker proof refs as external
+  runtime writer execution, external runtime writer delivery, parent action
+  runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime transport queue proof refs as external runtime
+  writer execution, external runtime writer delivery, parent action runtime
+  delivery, provider API execution, store integration, platform interception,
+  platform adapter implementation, child-device delivery, runtime report
+  delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat external runtime transport dispatch preflight proof refs as
+  external runtime writer execution, external runtime writer delivery, parent
+  action runtime delivery, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  report delivery, real interception, app blocking, child activity custody, or
+  Ocentra-hosted family data custody.
+- Do not treat runtime delivery receipt boundary proof refs as external runtime
+  writer execution, external runtime writer delivery, provider/store execution,
+  platform adapter execution, child-device transport receipt execution,
+  child-device delivery, runtime report delivery, real interception, app
+  blocking, child activity custody, or Ocentra-hosted family data custody.
+- Do not treat runtime transport delivery execution proof refs as external
+  runtime writer execution, external runtime writer delivery, provider/store
+  execution, platform adapter execution, child-device transport receipt
+  execution, child-device delivery, runtime report delivery, real interception,
+  app blocking, child activity custody, or Ocentra-hosted family data custody.
+- Do not treat external runtime writer transport execution proof refs as
+  external runtime writer execution, external runtime writer delivery,
+  provider/store execution, platform adapter execution, child-device transport
+  receipt execution, child-device delivery, runtime report delivery, real
+  interception, app blocking, child activity custody, or Ocentra-hosted family
+  data custody.
+- Do not treat execution receipt gate proof refs as accepted execution
+  receipts, external runtime writer execution, external runtime writer
+  delivery, provider/store execution, platform adapter execution, child-device
+  transport receipt execution, child-device delivery, runtime report delivery,
+  real interception, app blocking, child activity custody, or Ocentra-hosted
+  family data custody.
+- Do not treat dispatch executor receipt proof refs as an executed external
+  writer dispatch, external runtime writer execution, external runtime writer
+  delivery, provider/store execution, platform adapter execution, child-device
+  transport receipt execution, child-device delivery, runtime report delivery,
+  real interception, app blocking, child activity custody, or Ocentra-hosted
+  family data custody.
 - Do not treat provider/store execution preflight proof refs as Google Play,
   Apple App Store, Microsoft Store, billing provider execution/contact,
   provider API execution, store integration, platform interception, platform
@@ -603,6 +927,56 @@ Expected contract families:
   integration, platform adapter implementation, child-device delivery, runtime
   writer delivery, runtime report delivery, app blocking, child activity
   custody, Ocentra-hosted family data custody, or store integration proof.
+- Do not treat product-claim store upgrade readiness proof refs as product claim
+  approval, Google Play, Apple App Store, Microsoft Store, or billing provider
+  execution/contact, provider API execution, store integration, platform
+  interception, platform adapter implementation, runtime writer/report delivery,
+  child-device delivery, portal approval/report UI, app blocking, child activity
+  custody, Ocentra-hosted family data custody, or a product-claim upgrade.
+- Do not treat product-claim platform preclaim proof refs as product claim
+  approval, portal approval UI, portal report UI, Google Play execution, Apple
+  App Store execution, Microsoft Store execution, provider API execution, store
+  integration, platform adapter implementation, child-device delivery, runtime
+  writer/report delivery, app blocking, child activity custody,
+  Ocentra-hosted family data custody, or proof that platform/store claims are
+  product-ready.
+- Do not treat product-claim platform limitation fallback proof refs as product
+  claim approval, portal approval UI, portal report UI, Google Play execution,
+  Apple App Store execution, Microsoft Store execution, billing provider
+  contact, provider API execution, store integration, platform interception,
+  platform adapter implementation, child-device delivery, runtime writer/report
+  delivery, app blocking, child activity custody, Ocentra-hosted family data
+  custody, or proof that platform/store claims are product-ready.
+- Do not treat provider/store API execution proof refs as product claim
+  approval, Google Play, Apple App Store, Microsoft Store, or billing provider
+  execution/contact, provider API execution, store integration, platform
+  interception, platform adapter implementation, child-device delivery, runtime
+  writer/report delivery, portal approval/report UI, app blocking, child
+  activity custody, Ocentra-hosted family data custody, or proof that
+  platform/store claims are product-ready.
+- Do not treat platform adapter evidence gap proof refs as real platform
+  adapter evidence, platform adapter implementation, platform interception,
+  product claim approval, provider/store execution, portal approval/report UI,
+  child-device delivery, app blocking, child activity custody,
+  Ocentra-hosted family data custody, or proof that platform/store claims are
+  product-ready.
+- Do not treat Windows package-source adapter evidence proof refs as Microsoft
+  Store execution, provider/store execution, store integration, platform
+  interception, production platform adapter implementation, product-claim
+  approval, child-device delivery, portal approval/report UI, app blocking,
+  child activity custody, Ocentra-hosted family data custody, or proof that
+  Windows install/purchase product claims are ready.
+- Do not treat Windows package-source runtime handoff proof refs as runtime
+  writer execution, runtime writer delivery, provider/store execution, store
+  integration, platform interception, production platform adapter
+  implementation, child-device delivery, portal approval/report UI, app
+  blocking, child activity custody, Ocentra-hosted family data custody, or proof
+  that Windows install/purchase product claims are ready.
+- Do not treat provider/store platform evidence proof refs as provider/store
+  execution, store integration, production platform adapter execution, runtime
+  writer delivery, child-device delivery, portal approval/report UI, app
+  blocking, child activity custody, Ocentra-hosted family data custody, or proof
+  that app-install product claims are ready.
 
 ## Done Signal
 

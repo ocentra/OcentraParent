@@ -1,0 +1,46 @@
+export const AppGamePolicyCompileRequestSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    compileRequestId: AppGamePolicyCompileRequestIdSchema,
+    policyVersion: ParentPolicyVersionSchema,
+    ruleId: PolicyRuleIdSchema,
+    device: ParentDeviceReferenceSchema,
+    localUserRef: AppGamePolicyLocalUserRefSchema,
+    target: AppGamePolicyCompilerTargetSchema,
+    requestedAction: AppGamePolicyCompilerRequestedActionSchema,
+    policyAction: PolicyActionSchema,
+    scheduleRef: Schema.Union(PolicyScheduleIdSchema, Schema.Null),
+    evidence: Schema.Array(AppGamePolicyCompilerEvidenceSchema),
+    capabilityRefs: Schema.Array(AppGamePolicyCompilerCapabilityRefSchema),
+    authorityRefs: Schema.Array(AppGamePolicyCompilerAuthorityRefSchema),
+    requestedAt: ParentTimestampSchema,
+  })
+    .pipe(
+      Schema.filter(
+        (request) =>
+          appGamePolicyRequestHasFreshLocalEvidence(request) ||
+          'Expected app/game compiler evidence to be fresh and tied to the requested device and local user'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (request) =>
+          appGamePolicyTargetProofIsComplete(request) ||
+          'Expected app/game compiler targets to carry required identity, unknown-state, or category proof'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (request) =>
+          appGamePolicyRequestHasScheduleProof(request) ||
+          'Expected scheduled app/game compiler rules to carry schedule proof'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (request) =>
+          appGamePolicyRequestHasCapabilityRef(request) ||
+          'Expected app/game compiler requests to include capability refs'
+      )
+    )
+);

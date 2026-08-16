@@ -1,5 +1,9 @@
 use serde::{Deserialize, Serialize};
 
+mod artifacts;
+mod plan;
+mod validation;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkLiveCapturePlatform {
     WindowsNpcap,
@@ -110,18 +114,9 @@ pub enum NetworkLiveCaptureProofError {
 pub fn plan_network_live_capture_proof(
     input: NetworkLiveCaptureProofInput,
 ) -> Result<NetworkLiveCaptureProof, NetworkLiveCaptureProofError> {
-    validate_input(&input)?;
-
-    let missing_artifacts = missing_artifacts(&input);
-    let proof_state = if !input.platform_available {
-        NetworkLiveCaptureProofState::Unavailable
-    } else if input.adapter_degraded {
-        NetworkLiveCaptureProofState::Degraded
-    } else if missing_artifacts.is_empty() {
-        NetworkLiveCaptureProofState::ProofReady
-    } else {
-        NetworkLiveCaptureProofState::ManualRequired
-    };
+    validation::validate_input(&input)?;
+    let missing_artifacts = artifacts::missing_artifacts(&input);
+    let proof_state = plan::proof_state(&input, &missing_artifacts);
 
     Ok(NetworkLiveCaptureProof {
         capture_proof_ref: input.capture_proof_ref,
@@ -150,133 +145,4 @@ pub fn plan_network_live_capture_proof(
         adapter_authority: false,
         enforcement_commands_published: 0,
     })
-}
-
-fn validate_input(
-    input: &NetworkLiveCaptureProofInput,
-) -> Result<(), NetworkLiveCaptureProofError> {
-    if input.capture_proof_ref.trim().is_empty() {
-        return Err(NetworkLiveCaptureProofError::EmptyCaptureProofRef);
-    }
-    for artifact_ref in artifact_refs(input).into_iter().flatten() {
-        if artifact_ref.trim().is_empty() {
-            return Err(NetworkLiveCaptureProofError::EmptyArtifactRef);
-        }
-    }
-    validate_claims(input)
-}
-
-fn validate_claims(
-    input: &NetworkLiveCaptureProofInput,
-) -> Result<(), NetworkLiveCaptureProofError> {
-    if input.live_capture_execution_claimed {
-        return Err(NetworkLiveCaptureProofError::LiveCaptureExecutionClaimRejected);
-    }
-    if input.unbounded_capture_claimed {
-        return Err(NetworkLiveCaptureProofError::UnboundedCaptureClaimRejected);
-    }
-    if input.raw_pcap_without_custody_claimed {
-        return Err(NetworkLiveCaptureProofError::RawPcapWithoutCustodyClaimRejected);
-    }
-    if input.exact_url_claimed {
-        return Err(NetworkLiveCaptureProofError::ExactUrlClaimRejected);
-    }
-    if input.decrypted_payload_claimed {
-        return Err(NetworkLiveCaptureProofError::DecryptedPayloadClaimRejected);
-    }
-    if input.page_content_claimed {
-        return Err(NetworkLiveCaptureProofError::PageContentClaimRejected);
-    }
-    if input.private_message_claimed {
-        return Err(NetworkLiveCaptureProofError::PrivateMessageClaimRejected);
-    }
-    if input.search_query_claimed {
-        return Err(NetworkLiveCaptureProofError::SearchQueryClaimRejected);
-    }
-    if input.policy_authority_claimed {
-        return Err(NetworkLiveCaptureProofError::PolicyAuthorityClaimRejected);
-    }
-    if input.adapter_authority_claimed {
-        return Err(NetworkLiveCaptureProofError::AdapterAuthorityClaimRejected);
-    }
-    if input.enforcement_command_claimed {
-        return Err(NetworkLiveCaptureProofError::EnforcementCommandClaimRejected);
-    }
-    Ok(())
-}
-
-fn missing_artifacts(
-    input: &NetworkLiveCaptureProofInput,
-) -> Vec<NetworkLiveCaptureRequiredArtifact> {
-    let mut missing = Vec::new();
-    require(
-        input.driver_available && input.driver_proof_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::DriverProof,
-        &mut missing,
-    );
-    require(
-        input.interface_enumerated && input.interface_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::InterfaceEnumeration,
-        &mut missing,
-    );
-    require(
-        input.permission_granted && input.permission_proof_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::PermissionProof,
-        &mut missing,
-    );
-    require(
-        input.bounded_capture_succeeded && input.bounded_capture_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::BoundedCaptureProof,
-        &mut missing,
-    );
-    require(
-        input.clean_stop_succeeded && input.clean_stop_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::CleanStopProof,
-        &mut missing,
-    );
-    require(
-        input.quota_rotation_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::QuotaRotationProof,
-        &mut missing,
-    );
-    require(
-        input.retention_delete_export_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::RetentionDeleteExportProof,
-        &mut missing,
-    );
-    require(
-        input.custody_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::CustodyProof,
-        &mut missing,
-    );
-    require(
-        input.private_traffic_exclusion_ref.is_some(),
-        NetworkLiveCaptureRequiredArtifact::PrivateTrafficExclusionProof,
-        &mut missing,
-    );
-    missing
-}
-
-fn require(
-    condition: bool,
-    artifact: NetworkLiveCaptureRequiredArtifact,
-    missing: &mut Vec<NetworkLiveCaptureRequiredArtifact>,
-) {
-    if !condition {
-        missing.push(artifact);
-    }
-}
-
-fn artifact_refs(input: &NetworkLiveCaptureProofInput) -> [Option<&str>; 9] {
-    [
-        input.interface_ref.as_deref(),
-        input.driver_proof_ref.as_deref(),
-        input.permission_proof_ref.as_deref(),
-        input.bounded_capture_ref.as_deref(),
-        input.clean_stop_ref.as_deref(),
-        input.quota_rotation_ref.as_deref(),
-        input.retention_delete_export_ref.as_deref(),
-        input.custody_ref.as_deref(),
-        input.private_traffic_exclusion_ref.as_deref(),
-    ]
 }

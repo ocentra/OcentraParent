@@ -1,8 +1,0 @@
-Security/no-claim proof:
-
-- Source rows are exposed as evidence refs only.
-- Raw private source rows included: false.
-- Service runtime event claimed: false.
-- Portal UI rendered: false.
-- Policy evaluator, timer, adapter dispatch, child delivery, and platform enforcement claimed: false.
-- Manual-required source rows cannot produce preview decision refs.

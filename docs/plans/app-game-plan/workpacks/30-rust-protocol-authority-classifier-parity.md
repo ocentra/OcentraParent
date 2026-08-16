@@ -1,5 +1,19 @@
 # WP30 - Rust Protocol Authority Classifier Parity
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `WP30 - Rust Protocol Authority Classifier Parity`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Scope
 
 Mirror the existing `packages/parent-domain` app/game control authority,
@@ -45,19 +59,19 @@ It does not add:
 
 ## AI Worker Checklist
 
-- [x] Source docs read: app/game feature doc, app-game snapshot, app-plan
+- [ ] Source docs read: app/game feature doc, app-game snapshot, app-plan
       snapshot, parent-domain contracts, agent-protocol README, protocol/test/
       rust rules.
-- [x] Hub lock covered exact source, docs, workpack, and proof output paths.
-- [x] Existing TypeScript contracts inspected before Rust shapes were added.
-- [x] Rust protocol structs mirror existing field names with camelCase serde.
-- [x] Rust serialization tests prove approval authority/action result,
+- [ ] Hub lock covered exact source, docs, workpack, and proof output paths.
+- [ ] Existing TypeScript contracts inspected before Rust shapes were added.
+- [ ] Rust protocol structs mirror existing field names with camelCase serde.
+- [ ] Rust serialization tests prove approval authority/action result,
       platform authority matrix, and classifier result field names and key
       literals.
-- [x] Classifier protocol proof keeps `directActionRequested`,
+- [ ] Classifier protocol proof keeps `directActionRequested`,
       `rawScanIncluded`, and `contentClaimIncluded` false.
-- [x] Platform authority proof keeps manual-required broad blocking rows from
+- [ ] Platform authority proof keeps manual-required broad blocking rows from
       claiming adapter execution.
-- [x] No service, runtime, journal, portal, policy, classifier-provider, or
+- [ ] No service, runtime, journal, portal, policy, classifier-provider, or
       platform adapter claim was added.
-- [x] Product checklist was not edited; no product status moved.
+- [ ] Product checklist was not edited; no product status moved.

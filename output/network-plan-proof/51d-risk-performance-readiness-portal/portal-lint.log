@@ -1,3 +1,0 @@
-
-> @ocentra-parent/portal@0.1.1 lint:exec
-> eslint --cache src tests e2e playwright.config.ts && tsc -p tsconfig.json --noEmit

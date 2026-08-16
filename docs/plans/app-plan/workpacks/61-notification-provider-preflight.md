@@ -26,22 +26,44 @@ after WP59 scheduler linking without claiming delivery.
 - Policy evaluator execution, broad app blocking, adapter dispatch, or
   platform support.
 
+## Current Code and Test State (2026-08-15)
+
+- `app_game_child_ux_provider_preflight` validates one canonical scheduler row
+  against its persisted local-outbox source record and rejects identity,
+  evidence, and unsafe-claim mismatches.
+- Due-local rows become provider-adapter-required only when adapter,
+  credential, and smoke-proof requirement refs are present; manual and
+  unavailable scheduler rows remain blocked.
+- Focused Rust contract tests cover provider-required, manual, unavailable,
+  unpersisted, mismatched, claimed, and missing-requirement paths.
+- The shared WP61 bridge consumes and validates the complete WP59 read model,
+  requires each scheduled row to match the actual durable scheduler store,
+  generates deterministic adapter/credential/smoke requirement refs, and
+  retains manual/unavailable rows as blocked.
+- Focused tests reject unpersisted, tampered, duplicate, claimed, and mismatched
+  input. Historical `packages/parent-domain` and proof-harness paths remain
+  absent.
+
 ## Proof
 
-- Shared source:
-  `packages/parent-domain/src/app-game-notification-provider-preflight.ts`
-- Shared test:
-  `packages/parent-domain/tests/app-game-notification-provider-preflight.test.ts`
-- Harness:
-  `scripts/test/app-game-notification-provider-preflight-proof.mjs`
+- Current implementation:
+  `crates/app-game-core/src/app_game_child_ux_provider_preflight.rs`
+- Current types:
+  `crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs`
+- Current focused tests:
+  `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
+- Shared bridge:
+  `crates/app-game-core/src/app_game_notification_provider_preflight_bridge.rs`
+- Shared bridge tests:
+  `crates/app-game-core/tests/contract/app_game_notification_provider_preflight_bridge.rs`
 - Native app proof pack:
   `output/app-plan-proof/61-notification-provider-preflight/`
 
 ## Validation
 
-- [x] Cross-recorded from shared app/game WP61 proof.
+- [x] Shared app/game WP61 code/test checkpoint cross-recorded; retained proof remains open.
 - [x] Native app rows require provider adapter setup only after scheduler proof.
 - [x] Manual-required and unavailable rows remain blocked before provider
       preflight.
-- [x] Delivery/provider credential/runtime/UI/child/adapter/platform claims
+- [ ] Delivery/provider credential/runtime/UI/child/adapter/platform claims
       remain false.

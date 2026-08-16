@@ -1,0 +1,41 @@
+name: CI Preflight
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  workflow-topology:
+    name: 'Preflight: Workflow Topology'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Check main PR proof verifier syntax
+        run: node --check scripts/ci/verify-main-pr-proof.mjs
+
+      - name: Check CI topology contract
+        run: node --test tests/repo-tooling/workflow-ci-trigger.test.mjs
+
+  shared-contracts:
+    name: 'Preflight: Shared Contract Build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [workflow-topology]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts

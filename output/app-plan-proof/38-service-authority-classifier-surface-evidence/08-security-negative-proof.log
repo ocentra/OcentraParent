@@ -1,5 +1,0 @@
-WP38 native app security negative proof:
-- Does not expose raw app paths, scan payloads, prompt bodies, or model output text.
-- Adds no direct classifier execution path.
-- Adds no policy or adapter dispatch path.
-- Keeps provider-unavailable/manual-required rows as evidence refs only.

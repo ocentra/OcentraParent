@@ -1,0 +1,95 @@
+export function browserGamePolicyCompilerInputIsConsistentGenerated(
+  value: BrowserGamePolicyCompilerInputGenerated
+): boolean {
+  if (
+    value.rawGamePayloadIncluded ||
+    value.rawModelTextIncluded ||
+    value.activityDomainObjectIncluded ||
+    value.finalDecisionClaimedByInput ||
+    value.runtimeGateClaimedByInput ||
+    value.uiClaimedByInput ||
+    value.enforcementClaimedByInput ||
+    value.nativeGameControlClaimed ||
+    value.cloudFrameAnalysisClaimed
+  ) {
+    return false;
+  }
+
+  if (value.compilerMode === 'contract-only') {
+    return value.analysisRefs.length > 0 && value.parentRuleRefs.length > 0 && value.targetKind !== 'manual-required';
+  }
+
+  return value.analysisRefs.length === 0 || value.targetKind === 'manual-required';
+}
+
+export function browserGamePolicyDecisionCandidateIsConsistentGenerated(
+  value: BrowserGamePolicyDecisionCandidateGenerated
+): boolean {
+  if (
+    value.finalPolicyDecisionClaimed ||
+    value.runtimeGateExecutedClaimed ||
+    value.uiRenderedClaimed ||
+    value.enforcementClaimed ||
+    value.nativeGameControlClaimed ||
+    value.cloudFrameAnalysisClaimed ||
+    value.rawGamePayloadStored ||
+    value.rawModelTextUsed
+  ) {
+    return false;
+  }
+
+  switch (value.actionCandidate) {
+    case 'unknown-candidate':
+      return (
+        value.fallbackUsed &&
+        BrowserGamePolicyUnknownFallbackReasonsGenerated.some((reason) => value.reasonCodes.includes(reason))
+      );
+    case 'manual-review-candidate':
+      return value.fallbackUsed && value.reasonCodes.includes('manual-required');
+    case 'parent-review-candidate':
+      return value.parentApprovalRequired && value.reasonCodes.includes('parent-rule-match');
+    case 'allow-candidate':
+      return BrowserGamePolicyAllowReasonsGenerated.some((reason) => value.reasonCodes.includes(reason));
+    case 'time-limit-candidate':
+      return value.reasonCodes.includes('schedule-context') && value.reasonCodes.includes('parent-rule-match');
+    case 'warn-candidate':
+    case 'block-candidate':
+      return value.compilerMode === 'contract-only' && value.analysisRefs.length > 0;
+    default:
+      return false;
+  }
+}
+
+export function browserControlWritesToIsKnownGenerated(writesTo: string | null): boolean {
+  return writesTo === null || BrowserControlKnownWritesToPathsGenerated.has(String(writesTo));
+}
+
+export function browserControlConditionsAreMetGenerated(
+  conditions: readonly BrowserControlConditionGenerated[],
+  values: Record<string, BrowserControlFieldValueGenerated>
+): boolean {
+  return conditions.every((condition) => browserControlConditionIsMetGenerated(condition, values));
+}
+
+export function browserControlManifestVisibleSectionIdsGenerated(
+  manifest: BrowserControlManifestGenerated,
+  values: Record<string, BrowserControlFieldValueGenerated>
+): string[] {
+  return manifest.sections
+    .filter((section) => browserControlConditionsAreMetGenerated(section.visibleWhen, values))
+    .map((section) => section.sectionId);
+}
+
+export function browserControlManifestAllowsFieldGenerated(
+  manifest: BrowserControlManifestGenerated,
+  fieldId: string
+): boolean {
+  return manifest.sections.some((section) => section.fields.some((field) => field.fieldId === fieldId));
+}
+
+export function browserControlManifestAllowsWritesToGenerated(
+  manifest: BrowserControlManifestGenerated,
+  writesTo: string
+): boolean {
+  return manifest.sections.some((section) => section.fields.some((field) => field.writesTo === writesTo));
+}

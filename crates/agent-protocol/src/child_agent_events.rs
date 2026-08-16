@@ -92,6 +92,8 @@ impl ChildAgentEventContract for ChildRuntimeHealthUpdatedEvent {
 pub enum ChildCommandKind {
     ObserveNetwork,
     ApplyPolicy,
+    ApplyTrackingConfig,
+    BrowserActionIntentHandoff,
     ReportHealth,
     RefreshCapability,
 }

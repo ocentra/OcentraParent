@@ -1,0 +1,17 @@
+/* thin adapter over Rust-owned generated social audit explanation read-model value contracts */
+
+import * as Generated from './generated-social-audit-explanation-read-model-values';
+
+export const SocialAuditExplanationReadModelSchemaVersionSchema =
+  Generated.SocialAuditExplanationReadModelSchemaVersionSchema;
+export const SocialAuditExplanationEventIdSchema = Generated.SocialAuditExplanationEventIdSchema;
+export const SocialAuditExplanationSnapshotIdSchema = Generated.SocialAuditExplanationSnapshotIdSchema;
+export const SocialAuditExplanationSubjectKindSchema = Generated.SocialAuditExplanationSubjectKindSchema;
+export const SocialAuditExplanationStatusSchema = Generated.SocialAuditExplanationStatusSchema;
+export const SocialAuditExplanationDecisionStateSchema = Generated.SocialAuditExplanationDecisionStateSchema;
+export const SocialAuditExplanationEvidenceKindSchema = Generated.SocialAuditExplanationEvidenceKindSchema;
+export const SocialAuditExplanationAudienceSchema = Generated.SocialAuditExplanationAudienceSchema;
+export const SocialAuditExplanationReasonSchema = Generated.SocialAuditExplanationReasonSchema;
+
+export type SocialAuditExplanationEvidenceKind = Generated.SocialAuditExplanationEvidenceKind;
+export type SocialAuditExplanationSubjectKind = Generated.SocialAuditExplanationSubjectKind;

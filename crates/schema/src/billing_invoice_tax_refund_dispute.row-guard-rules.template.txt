@@ -1,0 +1,60 @@
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.invoiceVisibility !== 'manual-support-required' ||
+      row.failureState !== null ||
+      'Expected manual-support invoice states to carry explicit failure or support context'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.taxMode !== 'manual-support-required' ||
+      row.taxRegionState === 'manual-support-required' ||
+      'Expected manual tax handling to stay behind a manual-support region decision'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.recoveryState !== 'grace' ||
+      row.entitlementSideEffect === 'grace-paid-access' ||
+      'Expected grace recovery to preserve only explicit grace-paid access'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      !['cancelled', 'unpaid'].includes(row.recoveryState) ||
+      row.entitlementSideEffect === 'limit-paid-access' ||
+      row.entitlementSideEffect === 'revoke-paid-access' ||
+      row.entitlementSideEffect === 'manual-review-required' ||
+      'Expected cancelled and unpaid recovery states to limit, revoke, or manually review paid access'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.refundState !== 'refund-settled' ||
+      row.entitlementSideEffect === 'revoke-paid-access' ||
+      'Expected settled refunds to revoke paid-access entitlement'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.disputeState !== 'dispute-opened' ||
+      row.entitlementSideEffect !== 'retain-paid-access' ||
+      'Expected open disputes not to silently retain paid access'
+  )
+).pipe(
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.disputeState !== 'dispute-lost' ||
+      row.entitlementSideEffect === 'revoke-paid-access' ||
+      'Expected lost disputes to revoke paid-access entitlement'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      !['refund-requested', 'refund-issued', 'refund-denied'].includes(row.refundState) ||
+      row.entitlementSideEffect === 'retain-paid-access' ||
+      row.entitlementSideEffect === 'manual-review-required' ||
+      'Expected non-settled refunds to stay explicit without collapsing into full-refund revocation'
+  ),
+  Schema.filter(
+    (row: BillingInvoiceTaxRefundDisputeRowShape) =>
+      row.disputeState !== 'dispute-won' ||
+      row.entitlementSideEffect === 'retain-paid-access' ||
+      row.entitlementSideEffect === 'grace-paid-access' ||
+      'Expected won disputes to preserve or restore the paid-access path'
+  ),

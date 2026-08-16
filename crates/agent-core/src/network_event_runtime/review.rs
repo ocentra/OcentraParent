@@ -1,30 +1,22 @@
 use std::time::Duration;
 
 use ocentra_eventing::{
-    AggregateKey, DomainEvent, EventBus, EventContract, EventResponseContract, EventSubscriber,
-    EventType, EventingError, IdempotencyKey, RequestEvent, RequestId, RequestOptions,
-    SchemaVersion, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::DomainEvent,
+    envelope::EventContract, error::EventingError, ids::AggregateKey, ids::EventType,
+    ids::IdempotencyKey, ids::RequestId, ids::SchemaVersion, ids::SubscriberId, ids::TargetHandler,
+    request::RequestEvent, request::RequestOptions,
 };
 use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::NetworkInterventionState;
+use ocentra_parent_agent_protocol::network_flow::NetworkRuntimePhase;
 use serde::{Deserialize, Serialize};
 
-use crate::{
-    network_event_runtime_phase::NetworkRuntimePhase,
-    network_event_runtime_state::{
-        NetworkEvidenceGrade, NetworkInterventionState, NetworkRiskBudgetState,
-        NetworkRuntimeClaimBoundary,
-    },
-    NetworkObservation,
-};
+use crate::NetworkObservation;
 
 use super::{network_aggregate_key, network_event_metadata, NetworkRuntimeEventPayload};
 
-#[derive(Clone, Debug)]
-pub struct NetworkRuntimeReviewReport {
-    pub request_report: ocentra_eventing::RequestReport<NetworkRuntimeReviewResponse>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
-}
+pub type NetworkRuntimeReviewReport =
+    ocentra_parent_agent_protocol::network_flow::review::NetworkRuntimeReviewReport;
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 struct NetworkRuntimeReviewRequest {
@@ -36,7 +28,7 @@ impl DomainEvent for NetworkRuntimeReviewRequest {
     fn contract(&self) -> Result<EventContract, EventingError> {
         Ok(EventContract::new(
             EventType::parse(constants::network_flow::EVENT_NETWORK_REVIEW_REQUESTED)?,
-            SchemaVersion::new(constants::network_flow::EVENT_SCHEMA_VERSION)?,
+            SchemaVersion::new(constants::network_flow::REVIEW_EVENT_SCHEMA_VERSION)?,
         ))
     }
 
@@ -59,28 +51,20 @@ impl RequestEvent for NetworkRuntimeReviewRequest {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub struct NetworkRuntimeReviewResponse {
-    pub evidence_grade: NetworkEvidenceGrade,
-    pub risk_budget_state: NetworkRiskBudgetState,
-    pub intervention_state: NetworkInterventionState,
-    pub review_required: bool,
-    pub claim_boundary: NetworkRuntimeClaimBoundary,
-}
+pub type NetworkRuntimeReviewResponse =
+    ocentra_parent_agent_protocol::network_flow::review::NetworkRuntimeReviewResponse;
 
-impl NetworkRuntimeReviewResponse {
-    fn from_payload(payload: &NetworkRuntimeEventPayload) -> Self {
-        Self {
-            evidence_grade: payload.evidence_grade,
-            risk_budget_state: payload.risk_budget_state,
-            intervention_state: payload.intervention_state,
-            review_required: payload.intervention_state != NetworkInterventionState::DryRunOnly,
-            claim_boundary: payload.claim_boundary,
-        }
+fn network_runtime_review_response_from_payload(
+    payload: &NetworkRuntimeEventPayload,
+) -> NetworkRuntimeReviewResponse {
+    NetworkRuntimeReviewResponse {
+        evidence_grade: payload.evidence_grade,
+        risk_budget_state: payload.risk_budget_state,
+        intervention_state: payload.intervention_state,
+        review_required: payload.intervention_state != NetworkInterventionState::DryRunOnly,
+        claim_boundary: payload.claim_boundary,
     }
 }
-
-impl EventResponseContract for NetworkRuntimeReviewResponse {}
 
 pub async fn request_network_runtime_review_for_observation(
     observation: NetworkObservation,
@@ -95,7 +79,7 @@ pub async fn request_network_runtime_review_for_observation(
         ),
         |context| async move {
             context
-                .complete_request(NetworkRuntimeReviewResponse::from_payload(
+                .complete_request(network_runtime_review_response_from_payload(
                     &context.payload().payload,
                 ))
                 .await?;
@@ -105,7 +89,13 @@ pub async fn request_network_runtime_review_for_observation(
     .await?;
 
     let phase = NetworkRuntimePhase::PolicyEvaluationRequested;
-    let payload = NetworkRuntimeEventPayload::from_observation(phase, &observation, observed_at);
+    let decision = super::network_runtime_decision_from_observation(&observation);
+    let payload = super::network_runtime_event_payload_from_observation(
+        phase,
+        &observation,
+        observed_at,
+        decision,
+    );
     let request = NetworkRuntimeReviewRequest {
         request_id: RequestId::parse(network_review_request_id(&payload))?,
         payload,

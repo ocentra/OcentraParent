@@ -1,0 +1,30 @@
+  persistence: TimerSchedulerPersistenceLike
+) =>
+  !persistence.serviceRuntimeEventClaimed &&
+  !persistence.portalUiRendered &&
+  !persistence.policyEvaluatorRuntimeClaimed &&
+  !persistence.timerRuntimeClaimed &&
+  !persistence.timerScheduled &&
+  !persistence.schedulerPersistenceRuntimeClaimed &&
+  !persistence.durableSchedulerStorageClaimed &&
+  !persistence.auditRuntimeClaimed &&
+  !persistence.rollbackRuntimeClaimed &&
+  !persistence.adapterDispatchClaimed &&
+  !persistence.childDeliveryClaimed &&
+  !persistence.platformEnforcementClaimed &&
+  !persistence.rawPrivateSourceRowsIncluded;
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelMatchesHandoffGenerated = (
+  handoffState: TimerServiceReadinessHandoffStateValue,
+  readModelState: TimerServiceReadinessReadModelStateValue
+) =>
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.ServiceReadApiProofRequired &&
+    readModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.ServiceReadModelProofRequired) ||
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.BlockedBySourceFreshness &&
+    readModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedBySourceFreshness) ||
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessHandoffStateGenerated.BlockedByCompilerDecision &&

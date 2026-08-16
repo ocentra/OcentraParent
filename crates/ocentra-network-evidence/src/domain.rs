@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::NetworkEvidenceGrade;
+use crate::dns::types::NetworkEvidenceGrade;
 
 const DOMAIN_MAX_LEN: usize = 253;
 const LABEL_MAX_LEN: usize = 63;

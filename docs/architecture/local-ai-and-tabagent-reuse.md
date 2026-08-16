@@ -1,3 +1,17 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Local AI And TabAgent Reuse
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # Local AI And TabAgent Reuse
 
 Ocentra Parent's child-device agent should become a smart local safety agent, not a thin rule runner. TabAgent and TabAgentServer are reference systems for this direction because they already contain browser capture, native-host bridging, local model runtime, model cache, execution-provider, memory, and knowledge-graph ideas.
@@ -51,9 +65,9 @@ The reusable ideas map to Ocentra-owned boundaries:
 
 | Ocentra boundary                                                    | Owns                                                                                                                               |
 | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `@ocentra-parent/agent-protocol-domain` and `crates/agent-protocol` | Local AI request/result envelopes when the Rust service sends, receives, or journals them.                                         |
-| `@ocentra-parent/parent-domain`                                     | Family, parent, child profile, device, approval, and parent action references.                                                     |
-| `@ocentra-parent/activity-domain`                                   | Activity evidence references, observation context, local AI decision events, policy decision events, and enforcement audit events. |
+| `crates/schema`, `crates/parent-runtime-core`, and Rust domain/runtime crates | Local AI request/result DTOs, route snapshots, actions, read models, and parent-facing runtime state.                              |
+| `crates/agent-protocol`                                             | Rust transport/protocol mirror only when the Rust service sends, receives, or journals a transport-specific shape.                 |
+| Transitional TS edge/generated DTO surfaces                         | Temporary validation adapters or generated DTO imports; no product authority.                                                      |
 | Future local AI runtime crate/module                                | Provider lifecycle, model cache references, local model status, generation status, and degraded states.                            |
 | Future policy evaluator crate/module                                | Deterministic policy decisioning over parent rules, evidence, and local AI result.                                                 |
 | Future enforcement adapter crate/module                             | Platform-specific execution of typed policy decisions and rollback/unavailable reporting.                                          |
@@ -105,11 +119,12 @@ The local model should not receive raw unbounded data by default. The safety con
 
 ## Reuse Strategy
 
-- Start with Ocentra Parent-owned contracts for local AI input, local AI output, memory references, graph references, model status, and provider status.
+- Start with Rust-owned Ocentra Parent contracts for local AI input, local AI output, memory references, graph references, model status, and provider status.
 - Keep the provider/runtime adapter boundary explicit through
   [Local AI Provider Runtime Boundary](local-ai-provider-runtime-boundary.md)
   before model execution exists.
-- Add Rust parity structs before runtime code consumes those contracts.
+- Add Rust serialization, round-trip, and generated-artifact tests before
+  runtime or UI code consumes those contracts.
 - Integrate or extract TabAgentServer runtime pieces only after the contract boundary is explicit and tested.
 - Prefer a shared crate/workspace strategy for stable runtime pieces if TabAgent and Ocentra Parent will be co-developed.
 - Keep storage responsibilities separate: Ocentra Parent's evidence source of truth remains encrypted NDJSON plus SQLite ingest. TabAgent-style memory or graph indexes are derived local indexes, not a replacement for the evidence journal.
@@ -119,8 +134,8 @@ The local model should not receive raw unbounded data by default. The safety con
 
 ### Stage 1: V0.6 Contracts
 
-- Define local AI input/result, local model status, provider capability, memory reference, graph reference, policy decision, and enforcement audit event contracts.
-- Add parser tests and Rust parity tests before runtime code consumes the shapes.
+- Define local AI input/result, local model status, provider capability, memory reference, graph reference, policy decision, and enforcement audit event contracts in Rust first.
+- Add Rust serialization/round-trip tests and TS edge/generated validation tests before runtime code consumes the shapes.
 - Add reason code and degraded-state enums that distinguish unavailable model, invalid output, missing evidence, low confidence, and policy conflict.
 - Keep remote/API assistant contracts separate from child-device local AI
   contracts, and make data custody explicit before any remote model call exists.
@@ -164,8 +179,8 @@ The local model should not receive raw unbounded data by default. The safety con
 
 ## Validation Expectations
 
-- Contract parser tests for every local AI, model status, memory reference, graph reference, policy decision, and enforcement event shape.
-- Rust parity tests for every Rust-crossing shape.
+- Rust serialization and round-trip tests for every local AI, model status, memory reference, graph reference, policy decision, and enforcement event shape.
+- TypeScript parser tests only for generated validation or untrusted edge decoders.
 - Replay/integration tests that build AI context from real journal and SQLite evidence.
 - Provider lifecycle tests that exercise unavailable, loading, loaded, degraded, and failed states.
 - Dry-run evaluator tests for allow, warn, block, time-limit, ask-parent, unknown, low-confidence, missing evidence, and conflict cases.
@@ -179,14 +194,14 @@ The local model should not receive raw unbounded data by default. The safety con
 - Do not store derived memory without source evidence references.
 - Do not make model availability a reason to lose raw evidence.
 - Do not hide model calls inside capture, portal, or enforcement modules.
-- Do not copy broad TabAgentServer subsystems into Ocentra Parent without deleting unused surfaces and proving the contracts.
+- Do not copy broad TabAgentServer subsystems into Ocentra Parent without deleting unused surfaces and proving the Rust-owned contracts.
 
 ## First Useful Slice
 
 The first AI slice should prove a narrow, real path:
 
-1. Build local AI decision contracts with optional memory and graph reference fields.
-2. Build Rust parity structs and serializer tests.
+1. Build Rust-owned local AI decision contracts with optional memory and graph reference fields.
+2. Build serializer, round-trip, and generated DTO drift tests.
 3. Create a small safety context builder from real stored evidence and parent rules.
 4. Run a local provider adapter in dry-run mode, even if the provider is initially a limited local model path.
 5. Convert model output into a typed policy decision.

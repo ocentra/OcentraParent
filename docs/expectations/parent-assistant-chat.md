@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Parent Assistant Chat Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Parent Assistant Chat Expectations
 
 Parent assistant chat is a parent-facing workflow layer. It helps a parent ask
@@ -60,26 +73,30 @@ custody.
 
 ## Contract Ownership
 
-When implementation starts, use explicit Effect Schema contracts before runtime
-code depends on assistant shapes.
+When implementation starts, define Rust-owned contracts and route snapshots
+before runtime or UI code depends on assistant shapes. Effect Schema may remain
+only for untrusted TypeScript edges or generated validation edges.
 
-Preferred package boundary:
+Preferred ownership boundary:
 
-- Current scaffold: parent assistant contracts live in
-  `@ocentra-parent/parent-domain/parent-assistant` because they are parent,
-  family, child-scope, evidence, action-intent, and provider-status product
-  contracts.
-- Add `@ocentra-parent/assistant-domain` later only if assistant contracts
-  outgrow parent product ownership or need a cross-product package boundary.
-- Keep route ids, DOM ids, layout tokens, and static portal copy in
-  `@ocentra-parent/portal-domain` and `@ocentra-parent/text-domain`.
-- Put parent-agent WebSocket and HTTP command/event contracts in
-  `@ocentra-parent/agent-protocol-domain`.
-- Mirror Rust-crossing shapes in `crates/agent-protocol` only after the
-  TypeScript contract is explicit and test-backed.
-- Child-device feature requests must name the expected TypeScript contract,
-  Rust protocol mirror, platform scope, evidence source, failure state, and
-  validation gate.
+- Current TS scaffold names in `@ocentra-parent/ai-domain/parent-assistant`
+  are migration surfaces, not product truth.
+- Product assistant contracts belong in `crates/schema`,
+  `crates/parent-runtime-core`, or the owning Rust assistant/AI runtime crate
+  because they are parent, family, child-scope, evidence, action-intent, and
+  provider-status product contracts.
+- Add a Rust assistant runtime/domain crate later only if assistant behavior
+  outgrows parent runtime ownership or needs a cross-product Rust boundary.
+- Keep route ids, DOM ids, layout tokens, and static portal copy in generated
+  bridge DTOs plus pure presentation helpers.
+- Put parent UI actions and route snapshots in the Rust parent facade/bridge
+  path. Parent/child WebSocket or HTTP transport contracts belong in Rust
+  protocol/runtime crates, not TS package authority.
+- Mirror Rust-crossing transport shapes in `crates/agent-protocol` only when
+  the Rust-owned product contract is explicit and test-backed.
+- Child-device feature requests must name the expected Rust contract, generated
+  bridge/DTO shape when UI consumes it, platform scope, evidence source,
+  failure state, and validation gate.
 
 ## Data Structures
 
@@ -160,7 +177,7 @@ answers.
 The parent Rust app or local parent agent should expose typed commands and
 events to the portal.
 
-Current WebSocket command names:
+Current migration-era command names:
 
 - `agent.parent-assistant.thread.list`
 - `agent.parent-assistant.thread.create`
@@ -173,7 +190,7 @@ Current WebSocket command names:
 - `agent.parent-assistant.action.confirm`
 - `agent.parent-assistant.provider.status.get`
 
-Current WebSocket event names:
+Current migration-era event names:
 
 - `agent.parent-assistant.thread.updated`
 - `agent.parent-assistant.message.accepted`
@@ -187,12 +204,13 @@ Current WebSocket event names:
 
 Current scaffold behavior:
 
-- `@ocentra-parent/agent-protocol-domain` exposes the command and event names
-  plus parent-assistant payload field constants.
+- `@ocentra-parent/agent-protocol-domain` exposes migration-era command and
+  event names plus parent-assistant payload field constants; it must not remain
+  product authority once Rust-owned bridge/protocol replacements are live.
 - `crates/agent-protocol` mirrors the command/event names and serializable
   parent-assistant composer/action/scaffold status structs.
 - `crates/agent-service` accepts the parent-assistant commands over the real
-  WebSocket dispatcher and returns typed scaffold/degraded events with
+  Rust transport dispatcher and returns typed scaffold/degraded events with
   `assistantBackendState=scaffold-only` and
   `reason=parent-assistant-backend-not-connected`.
 - The scaffold is intentionally not a model answer, not child activity, and not
@@ -314,9 +332,12 @@ not stored by default. Child devices do not receive raw parent audio.
 
 ## Validation Gates
 
-- Effect Schema tests for every assistant, parent-agent, and child-device
-  contract.
-- Rust protocol parity tests for every Rust-crossing command/event/result.
+- Rust serialization, round-trip, and generated-artifact drift tests for every
+  assistant, parent-agent, and child-device product contract.
+- TypeScript parser tests only for generated validation or untrusted edge
+  decoders.
+- Rust protocol parity tests for every Rust-crossing transport
+  command/event/result.
 - Real local transport tests for thread create, message send, streaming, cancel,
   action preview, action confirm, provider degraded, and child offline states.
 - Stored-evidence integration tests that build assistant source refs from real
@@ -346,7 +367,8 @@ not stored by default. Child devices do not receive raw parent audio.
 ## Done Signal
 
 The assistant chat is ready for backend implementation when the portal can
-render the chat shell and scaffold states, the parent-agent contracts can create
-threads and process messages, child-device feature requests define the evidence
-and action-preview APIs, and validation proves that assistant output is cited,
-typed, custody-aware, and unable to bypass local child-device safety decisions.
+render Rust-owned snapshots for the chat shell and scaffold states, the parent
+runtime contracts can create threads and process messages, child-device feature
+requests define the evidence and action-preview APIs, and validation proves that
+assistant output is cited, typed, custody-aware, and unable to bypass local
+child-device safety decisions.

@@ -1,0 +1,22 @@
+export function capabilityStateForSectionGenerated(
+  sectionTitle: string,
+  sourceText: string
+): (typeof GeneratedBrowserControlFullCatalogCapabilityStateValues)[number] {
+  const status = effectStatusForSectionGenerated(sectionTitle, sourceText);
+  if (status === 'future-gap') {
+    return 'future-gap';
+  }
+  if (status === 'permission-required') {
+    return 'permission-required';
+  }
+  if (status === 'degraded') {
+    return 'degraded';
+  }
+  if (status === 'manual-required') {
+    return 'manual-required';
+  }
+  if (status === 'proof-required') {
+    return 'protected';
+  }
+  return 'available';
+}

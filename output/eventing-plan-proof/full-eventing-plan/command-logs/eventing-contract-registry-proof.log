@@ -1,2 +1,0 @@
-eventing-contract-registry-proof-ok:registry-type-exists,descriptor-type-exists,registry-uses-sorted-map,registry-rejects-duplicate-contracts,duplicate-error-is-explicit,markdown-renderer-exists,markdown-docs-example-generated,tests-prove-order-and-duplicates
-proof=output\eventing-plan-proof\72-contract-registry\proof-summary.json

@@ -1,0 +1,30 @@
+  !readModel.adapterDispatchClaimed &&
+  !readModel.childDeliveryClaimed &&
+  !readModel.platformEnforcementClaimed &&
+  !readModel.rawPrivateSourceRowsIncluded;
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelMatchesHandoffGenerated = (
+  handoffState: TimerServiceReadinessProtocolHandoffStateValue,
+  readModelState: TimerServiceReadinessProtocolReadModelStateValue
+) =>
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.ProtocolProofRequired &&
+    readModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.ProtocolReadModelProofRequired) ||
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.BlockedBySourceFreshness &&
+    readModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedBySourceFreshness) ||
+  (handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.BlockedByCompilerDecision &&
+    readModelState ===
+      AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.BlockedByCompilerDecision);
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateForHandoffGenerated = (
+  handoffState: TimerServiceReadinessProtocolHandoffStateValue
+): TimerServiceReadinessProtocolReadModelStateValue => {
+  if (
+    handoffState ===
+    AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoffStateGenerated.ProtocolProofRequired
+  ) {
+    return AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelStateGenerated.ProtocolReadModelProofRequired;

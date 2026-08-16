@@ -49,24 +49,24 @@ observable, and degraded-state aware under normal and stressed local conditions.
 
 Fill this before reporting `DONE` or PR-ready:
 
-- [x] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), [test blueprint](../v0-5-native-apps-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
-- [x] Confirm this is native/installed-app scope, not browser pages, browser games, or game-specific product semantics beyond the shared app/game evidence spine.
-- [x] Hub lock covers this workpack and exact implementation/docs paths.
-- [x] Existing app/game source layout inspected; no parallel app-control truth created.
-- [x] Before-state source snapshot recorded in `output/app-plan-proof/26-performance-and-service-health/00-source-snapshot.md`.
-- [x] Contracts updated first where this workpack changes behavior.
-- [x] Rust/service/portal parity is not changed by this row; the proof records generated-scale and existing portal intent smoke only.
-- [x] Raw evidence artifacts captured for inventory rows, runtime rows, foreground transitions, journal records, replay observations, policy compile parses, portal intent rows, and degraded adapter health.
-- [x] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented or explicitly marked manual-required with reason.
-- [x] Required fixtures are present or N/A with reason for inventory, runtime, foreground, session, policy, enforcement, UI, stale state, and manual-required state.
-- [x] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
-- [x] UI snapshots are not applicable because no UI source changed; `ui-not-applicable.md` records why.
-- [x] Security/no-claim negative proof captured for no live adapter execution, no live platform throughput claim, and no browser DOM render claim.
-- [x] Manual platform proof is recorded as not applicable because this row does not claim stronger-than-observe live platform support.
-- [x] Platform limitations use capability status language and keep unsupported live behavior manual-required or not-claimed.
-- [x] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
-- [x] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
-- [x] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
+- [ ] Confirm source docs read: [folder README](../README.md), [source index](../source-index.md), [current snapshot](../current-app-snapshot.md), [full scope plan](../v0-5-native-apps-full-scope-plan.md), [platform deep dive](../v0-5-native-apps-platform-deep-dive.md), [test blueprint](../v0-5-native-apps-test-blueprint.md), [UI/UX guide](../ui-ux-requirements-guide.md), [main checklist](../implementation-checklist.md), and this workpack.
+- [ ] Confirm this is native/installed-app scope, not browser pages, browser games, or game-specific product semantics beyond the shared app/game evidence spine.
+- [ ] Hub lock covers this workpack and exact implementation/docs paths.
+- [ ] Existing app/game source layout inspected; no parallel app-control truth created.
+- [ ] Before-state source snapshot recorded in `output/app-plan-proof/26-performance-and-service-health/00-source-snapshot.md`.
+- [ ] Contracts updated first where this workpack changes behavior.
+- [ ] Rust/service/portal parity is not changed by this row; the proof records generated-scale and existing portal intent smoke only.
+- [ ] Raw evidence artifacts captured for inventory rows, runtime rows, foreground transitions, journal records, replay observations, policy compile parses, portal intent rows, and degraded adapter health.
+- [ ] Tests/proof listed in this workpack and [test blueprint](../v0-5-native-apps-test-blueprint.md) are implemented or explicitly marked manual-required with reason.
+- [ ] Required fixtures are present or N/A with reason for inventory, runtime, foreground, session, policy, enforcement, UI, stale state, and manual-required state.
+- [ ] Validation command outputs saved in the proof pack and summarized in [main checklist](../implementation-checklist.md).
+- [ ] UI snapshots are not applicable because no UI source changed; `ui-not-applicable.md` records why.
+- [ ] Security/no-claim negative proof captured for no live adapter execution, no live platform throughput claim, and no browser DOM render claim.
+- [ ] Manual platform proof is recorded as not applicable because this row does not claim stronger-than-observe live platform support.
+- [ ] Platform limitations use capability status language and keep unsupported live behavior manual-required or not-claimed.
+- [ ] Evidence/proof artifact paths recorded in [main checklist](../implementation-checklist.md).
+- [ ] Feature/expectation/product-checklist/README update decision recorded in [main checklist](../implementation-checklist.md).
+- [ ] Known gaps, deferred items, and no-claim boundaries recorded before `DONE`.
 
 ## Manual-Required Gaps
 

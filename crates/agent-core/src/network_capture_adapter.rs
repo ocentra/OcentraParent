@@ -1,10 +1,10 @@
 #[cfg(windows)]
 use std::{collections::BTreeMap, process::Command};
 
+#[cfg(not(windows))]
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
 #[cfg(windows)]
 use ocentra_parent_agent_protocol::constants;
-#[cfg(not(windows))]
-use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
 #[cfg(windows)]
 use sysinfo::{ProcessesToUpdate, System};
 
@@ -17,7 +17,7 @@ pub fn platform_network_snapshot(limit: usize) -> Result<Vec<NetworkObservation>
     let output = Command::new(constants::activity_capture::NETSTAT_COMMAND)
         .args(constants::activity_capture::NETSTAT_ARGS)
         .output()
-        .map_err(|_| ())?;
+        .map_err(|_error| ())?;
     if !output.status.success() {
         return Err(());
     }

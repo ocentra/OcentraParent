@@ -1,4 +1,0 @@
-Not applicable for WP45.
-
-This workpack adds a core registry source only. It does not add portal UI,
-rendering, browser, or Playwright-owned behavior.

@@ -1,6 +1,0 @@
-checkedAt=2026-06-06T04:22:06.067Z
-asserted=no live driver invocation by custody status materializer
-asserted=no raw artifact creation by custody status materializer
-asserted=no remote upload and no raw PCAP without custody
-asserted=no exact URL, decrypted payload, page content, private message, or search query claim
-asserted=no policy authority, adapter authority, or enforcement command publication

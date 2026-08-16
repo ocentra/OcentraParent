@@ -1,2 +1,0 @@
-eventing-runtime-lifecycle-proof-ok:ordered-dispatch-api,typed-context-api,nested-publisher-api,detached-publish-api,panic-isolation,subscription-handle,registrar-lifecycle,no-hidden-global-bus,aggregate-ordering-test,nested-publish-test,panic-isolation-test,registrar-dispose-test
-proof=output\eventing-plan-proof\14-24-runtime-lifecycle\proof-summary.json

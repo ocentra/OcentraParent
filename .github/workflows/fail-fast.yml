@@ -2,6 +2,12 @@ name: Fail Fast
 
 on:
   workflow_call:
+    inputs:
+      docs_hub_only:
+        description: Run the lightweight docs/hub-only gate instead of full source validation.
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -14,20 +20,41 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
+
+      - uses: actions/checkout@v6
+        if: ${{ inputs.docs_hub_only }}
+        with:
+          submodules: false
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
+
+      - uses: ./.github/actions/setup-ci
+        if: ${{ inputs.docs_hub_only }}
+        with:
+          install-rust: 'false'
+
+      - name: Docs/Ledger-only format check
+        if: ${{ inputs.docs_hub_only }}
+        run: npx prettier --check docs *.md .gitmodules
 
       - name: Format check
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run format:check
 
       - name: Release version policy
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run release:version
 
       - name: Lint
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run lint
 
       - name: Type check
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run type-check
 
       - name: Rust check
+        if: ${{ !inputs.docs_hub_only }}
         run: cargo check --workspace

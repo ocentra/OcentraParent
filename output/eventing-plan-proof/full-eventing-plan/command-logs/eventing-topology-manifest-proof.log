@@ -1,2 +1,0 @@
-eventing-topology-manifest-proof-ok:manifest-type-exists,status-classification-exists,publisher-descriptor-exists,subscriber-descriptor-exists,family-variant-descriptor-exists,tests-cover-orphan-and-accepted-states,tests-cover-family-variants,generated-markdown-manifest-exists
-proof=output\eventing-plan-proof\70-topology-manifest\proof-summary.json

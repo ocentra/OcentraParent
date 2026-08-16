@@ -1,9 +1,0 @@
-
-running 1 test
-test tests::network_product_readiness_status_command_and_event_names_serialize_to_contract_shape ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 183 filtered out; finished in 0.00s
-
-   Compiling ocentra-parent-agent-protocol v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\agent-protocol)
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 15.78s
-     Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)

@@ -1,7 +1,0 @@
-cargo test -p ocentra-eventing journal_replay -> 0
-cargo test -p ocentra-parent-agent-core network_runtime_remote_delivery_status -> 0
-cargo test -p ocentra-parent-agent-core network_runtime_remote_event_chain_journal -> 0
-cargo build -p ocentra-parent-agent-core -> 0
-cmd /c npm run lint:schema-boundaries -> 0
-node scripts/check-source-shape.mjs -> 0
-git diff --check -> 0

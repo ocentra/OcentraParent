@@ -1,9 +1,8 @@
 use std::collections::BTreeSet;
 
-use ocentra_eventing::ReplayRecord;
+use ocentra_eventing::replay::ReplayRecord;
 use ocentra_parent_agent_protocol::constants;
 
-use super::prove_network_runtime_remote_delivery_status;
 use super::remote_delivery_event_chain_store::{
     exported_event_type_count, publish_network_runtime_remote_event_chain_store, source_component,
     unsupported_claim_counts,
@@ -12,6 +11,7 @@ use super::remote_delivery_receipt_ledger_types::{
     NetworkRuntimeRemoteDeliveryReceiptLedgerError,
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport, NetworkRuntimeRemoteDeliveryReceiptRecord,
 };
+use super::remote_delivery_status::prove_network_runtime_remote_delivery_status;
 
 pub async fn prove_network_runtime_remote_delivery_receipt_ledger() -> Result<
     NetworkRuntimeRemoteDeliveryReceiptLedgerReport,
@@ -66,23 +66,25 @@ pub async fn prove_network_runtime_remote_delivery_receipt_ledger() -> Result<
         receipt_correlation_mismatch_count: 0,
         broker_delivery_implemented: remote_delivery_status.external_transport_delivery_implemented,
         family_hub_delivery_implemented: remote_delivery_status.family_hub_delivery_implemented,
-        provider_delivery_implemented: remote_delivery_status.provider_delivery_implemented,
-        child_device_delivery_implemented: remote_delivery_status.child_device_delivery_implemented,
         remote_delivery_ack_implemented: false,
-        product_ready_claimed: remote_delivery_status.product_ready_claimed,
         policy_authority: remote_delivery_status.policy_authority,
         side_effect_authority: remote_delivery_status.side_effect_authority,
         enforcement_command_event_count: unsupported.enforcement_command_event_count,
         adapter_action_executed_count: unsupported.adapter_action_executed_count,
+        raw_pcap_available_count: unsupported.raw_pcap_available_count,
         exact_url_available_count: unsupported.exact_url_available_count,
         decrypted_payload_available_count: unsupported.decrypted_payload_available_count,
         page_content_available_count: unsupported.page_content_available_count,
+        video_content_available_count: unsupported.video_content_available_count,
+        private_message_content_available_count: unsupported
+            .private_message_content_available_count,
+        search_query_available_count: unsupported.search_query_available_count,
         remote_delivery_status,
         receipts,
     })
 }
 
-pub(super) fn receipt_records_from_projection(
+fn receipt_records_from_projection(
     records: &[ReplayRecord],
 ) -> Result<
     Vec<NetworkRuntimeRemoteDeliveryReceiptRecord>,
@@ -123,11 +125,14 @@ fn assert_receipt_ledger_matches_projection(
         return Err(NetworkRuntimeRemoteDeliveryReceiptLedgerError::ReceiptProjectionMismatch);
     }
     for (index, (record, receipt)) in records.iter().zip(receipts.iter()).enumerate() {
-        let expected_sequence = u64::try_from(index)
-            .map(|value| value.saturating_add(1))
-            .map_err(|_| {
-                NetworkRuntimeRemoteDeliveryReceiptLedgerError::ReceiptProjectionMismatch
-            })?;
+        let expected_sequence = match u64::try_from(index) {
+            Ok(value) => value.saturating_add(1),
+            Err(_) => {
+                return Err(
+                    NetworkRuntimeRemoteDeliveryReceiptLedgerError::ReceiptProjectionMismatch,
+                );
+            }
+        };
         if record.sequence != expected_sequence
             || receipt.sequence != record.sequence
             || receipt.event_id != record.envelope.event_id

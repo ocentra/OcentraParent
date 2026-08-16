@@ -1,8 +1,0 @@
-
-running 1 test
-test network_flow_tests::network_local_ai_runtime_result_status_serializes_no_claim_boundary ... ok
-
-test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 185 filtered out; finished in 0.00s
-
-    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
-     Running unittests src\lib.rs (target\debug\deps\ocentra_parent_agent_protocol-8fbcfdb9341ad4a5.exe)

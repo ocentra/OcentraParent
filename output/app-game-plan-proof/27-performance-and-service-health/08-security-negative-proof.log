@@ -1,8 +1,0 @@
-Security/no-claim proof:
-
-- Inventory scale proof remains presence evidence, not usage.
-- Runtime scale proof remains running evidence, not foreground.
-- Foreground scale proof remains focus evidence, not content knowledge.
-- Portal intent scale proof is not browser DOM rendering proof.
-- Degraded adapter/stale/live-source states stay parent-visible and cannot execute adapters.
-- Raw private paths are not emitted in generated scale proof rows.

@@ -1,5 +1,12 @@
 use std::{
+    collections::HashMap,
+    fmt::{Display, Formatter},
     net::{SocketAddr, TcpStream},
+    sync::{
+        atomic::{AtomicBool, AtomicU64, Ordering},
+        Arc, Mutex,
+    },
+    thread,
     time::Duration,
 };
 
@@ -8,9 +15,56 @@ use ocentra_parent_agent_protocol::{
     DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
     DeviceRuntimeSurface, LanPairingParentAuthority,
 };
+use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
+use ocentra_parent_runtime_core::parent_ui_bridge::{
+    dispatch_parent_ui_action, load_parent_route_snapshot, parent_agent_service_health_for_address,
+    parent_agent_service_health_timeout_ms,
+};
+use ocentra_schema::parent_ui_bridge::{
+    ParentRouteContext, ParentRouteId, ParentRouteSnapshot, ParentSubscriptionEvent,
+    ParentUiAction, ParentUiActionResult, PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX,
+    PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS,
+};
 use serde::Serialize;
+use tauri::{AppHandle, Emitter, State as TauriState};
 
-const SERVICE_CONNECT_TIMEOUT_MS: u64 = 250;
+use self::parent_route_subscription_delivery::{
+    deliver_parent_route_subscription_event, ParentRouteSubscriptionDeliveryState,
+};
+
+pub mod parent_route_subscription_delivery;
+
+// Compatibility/test-only raw socket probe; production readiness uses the typed health handshake.
+const LEGACY_SOCKET_CONNECT_TIMEOUT_MS: u64 = 250;
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentRouteSubscriptionId(pub String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentDesktopAgentAddress(pub String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentRouteSubscriptionEventName(pub String);
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct ParentDesktopCommandError(String);
+
+impl ParentDesktopCommandError {
+    fn from_tauri_error(error: tauri::Error) -> Self {
+        Self(error.to_string())
+    }
+}
+
+impl Display for ParentDesktopCommandError {
+    fn fmt(&self, formatter: &mut Formatter<'_>) -> std::fmt::Result {
+        formatter.write_str(&self.0)
+    }
+}
+
+impl std::error::Error for ParentDesktopCommandError {}
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -58,29 +112,176 @@ pub struct ParentDesktopPlatformProofState {
     artifact_proof_state: String,
 }
 
-#[tauri::command]
-fn parent_platform_proof_state() -> ParentDesktopPlatformProofState {
-    parent_platform_proof_state_for_address(configured_agent_address())
+#[derive(Clone, Default)]
+pub struct ParentRouteSubscriptionRegistry {
+    inner: Arc<ParentRouteSubscriptionRegistryInner>,
 }
 
-pub fn run() {
-    let result = tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![parent_platform_proof_state])
-        .run(tauri::generate_context!());
-    if let Err(error) = result {
-        panic!("{error}");
+#[derive(Default)]
+struct ParentRouteSubscriptionRegistryInner {
+    next_id: AtomicU64,
+    subscriptions: Mutex<HashMap<ParentRouteSubscriptionId, Arc<AtomicBool>>>,
+}
+
+impl ParentRouteSubscriptionRegistry {
+    pub fn register(&self) -> (ParentRouteSubscriptionId, Arc<AtomicBool>) {
+        let subscription_id = ParentRouteSubscriptionId(
+            self.inner
+                .next_id
+                .fetch_add(1, Ordering::SeqCst)
+                .to_string(),
+        );
+        let active = Arc::new(AtomicBool::new(true));
+        let mut subscriptions = self
+            .inner
+            .subscriptions
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        subscriptions.insert(subscription_id.clone(), Arc::clone(&active));
+        (subscription_id, active)
+    }
+
+    pub fn unregister(&self, subscription_id: &ParentRouteSubscriptionId) -> bool {
+        let removed = self
+            .inner
+            .subscriptions
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner())
+            .remove(subscription_id);
+
+        removed
+            .map(|active| {
+                active.store(false, Ordering::SeqCst);
+                true
+            })
+            .unwrap_or(false)
     }
 }
 
-fn configured_agent_address() -> String {
-    std::env::var(constants::env_var::AGENT_ADDR)
-        .unwrap_or_else(|_| constants::bind::DEFAULT_AGENT_ADDR.to_string())
+#[tauri::command]
+fn parent_platform_proof_state() -> ParentDesktopPlatformProofState {
+    let agent_address = configured_agent_address();
+    let service_is_healthy = parent_agent_service_health_for_address(agent_address.0.as_str());
+    parent_platform_proof_state_for_connection(agent_address, service_is_healthy)
 }
 
-fn parent_platform_proof_state_for_address(
-    agent_address: String,
+#[tauri::command]
+fn parent_load_route(
+    route: ParentRouteId,
+    context: Option<ParentRouteContext>,
+) -> ParentRouteSnapshot {
+    load_parent_route_snapshot(route, context.as_ref())
+}
+
+#[tauri::command]
+fn parent_dispatch(action: ParentUiAction) -> ParentUiActionResult {
+    dispatch_parent_ui_action(&action)
+}
+
+#[tauri::command]
+fn parent_subscribe_route(
+    app: AppHandle,
+    registry: TauriState<'_, ParentRouteSubscriptionRegistry>,
+    route: ParentRouteId,
+    context: Option<ParentRouteContext>,
+) -> Result<ParentRouteSubscriptionId, ParentDesktopCommandError> {
+    let registry = registry.inner().clone();
+    let (subscription_id, active) = registry.register();
+    spawn_parent_route_subscription(
+        app,
+        registry,
+        subscription_id.clone(),
+        route,
+        context,
+        active,
+    );
+    Ok(subscription_id)
+}
+
+#[tauri::command]
+fn parent_unsubscribe_route(
+    registry: TauriState<'_, ParentRouteSubscriptionRegistry>,
+    subscription_id: ParentRouteSubscriptionId,
+) -> bool {
+    registry.unregister(&subscription_id)
+}
+
+pub fn run() -> Result<(), ParentDesktopCommandError> {
+    tauri::Builder::default()
+        .manage(ParentRouteSubscriptionRegistry::default())
+        .invoke_handler(tauri::generate_handler![
+            parent_platform_proof_state,
+            parent_load_route,
+            parent_dispatch,
+            parent_subscribe_route,
+            parent_unsubscribe_route
+        ])
+        .run(tauri::generate_context!())
+        .map_err(ParentDesktopCommandError::from_tauri_error)
+}
+
+fn spawn_parent_route_subscription(
+    app: AppHandle,
+    registry: ParentRouteSubscriptionRegistry,
+    subscription_id: ParentRouteSubscriptionId,
+    route: ParentRouteId,
+    context: Option<ParentRouteContext>,
+    active: Arc<AtomicBool>,
+) {
+    thread::spawn(move || {
+        let mut load_state = ParentRouteSubscriptionLoadState::default();
+        let mut delivery_state = ParentRouteSubscriptionDeliveryState::new(
+            load_parent_route_snapshot(route.clone(), context.as_ref()),
+        );
+        while active.load(Ordering::SeqCst) {
+            thread::sleep(Duration::from_millis(
+                PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS,
+            ));
+            if !active.load(Ordering::SeqCst) {
+                break;
+            }
+            let event = load_state.load(route.clone(), context.as_ref());
+            if deliver_parent_route_subscription_event(&mut delivery_state, &event, |event| {
+                emit_parent_route_subscription_event(&app, &subscription_id, event)
+            })
+            .is_err()
+            {
+                break;
+            }
+        }
+        let _ = registry.unregister(&subscription_id);
+    });
+}
+
+fn emit_parent_route_subscription_event(
+    app: &AppHandle,
+    subscription_id: &ParentRouteSubscriptionId,
+    event: &ParentSubscriptionEvent,
+) -> Result<(), ParentDesktopCommandError> {
+    let event_name = parent_route_subscription_event_name(subscription_id);
+    app.emit(event_name.0.as_str(), event.clone())
+        .map_err(ParentDesktopCommandError::from_tauri_error)
+}
+
+fn configured_agent_address() -> ParentDesktopAgentAddress {
+    ParentDesktopAgentAddress(
+        std::env::var(constants::env_var::AGENT_ADDR)
+            .unwrap_or_else(|_| constants::bind::DEFAULT_AGENT_ADDR.to_string()),
+    )
+}
+
+pub fn parent_platform_proof_state_for_address(
+    agent_address: ParentDesktopAgentAddress,
 ) -> ParentDesktopPlatformProofState {
     let service_connects = agent_service_connects(&agent_address);
+    parent_platform_proof_state_for_connection(agent_address, service_connects)
+}
+
+fn parent_platform_proof_state_for_connection(
+    agent_address: ParentDesktopAgentAddress,
+    service_connects: bool,
+) -> ParentDesktopPlatformProofState {
+    let agent_address = agent_address.0;
     let service_state = if service_connects {
         constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
     } else {
@@ -112,8 +313,8 @@ fn parent_platform_proof_state_for_address(
         hmr_backend_state: constants::value::PARENT_DESKTOP_HMR_BACKEND_NOT_USED.to_string(),
         process_ownership_state: constants::value::PARENT_DESKTOP_PROCESS_OWNER_SHELL_ONLY
             .to_string(),
-        controller_route_state:
-            constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER.to_string(),
+        controller_route_state: constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER
+            .to_string(),
         observer_read_only_state: constants::value::PARENT_DESKTOP_OBSERVER_READ_ONLY.to_string(),
         source_custody_state: constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK
             .to_string(),
@@ -125,7 +326,7 @@ fn parent_platform_proof_state_for_address(
             constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_OWNER_PACKAGE_SERVICE.to_string(),
         service_launch_strategy_state:
             constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_STRATEGY_CONNECT_OR_DEGRADE.to_string(),
-        service_connect_timeout_ms: SERVICE_CONNECT_TIMEOUT_MS,
+        service_connect_timeout_ms: parent_agent_service_health_timeout_ms(),
         package_service_manager_state: constants::value::PARENT_DESKTOP_PACKAGE_SERVICE_AUTO_START
             .to_string(),
         package_health_probe_state: constants::value::PARENT_DESKTOP_PACKAGE_HEALTH_PROBE_REQUIRED
@@ -143,8 +344,8 @@ fn parent_platform_proof_state_for_address(
         signing_state: constants::value::PARENT_DESKTOP_SIGNING_MANUAL_REQUIRED.to_string(),
         notarization_state: constants::value::PARENT_DESKTOP_NOTARIZATION_MANUAL_REQUIRED
             .to_string(),
-        store_distribution_state: constants::value::PARENT_DESKTOP_STORE_DISTRIBUTION_MANUAL_REQUIRED
-            .to_string(),
+        store_distribution_state:
+            constants::value::PARENT_DESKTOP_STORE_DISTRIBUTION_MANUAL_REQUIRED.to_string(),
         support_diagnostics_state: constants::value::PARENT_DESKTOP_SUPPORT_DIAGNOSTICS_REDACTED
             .to_string(),
         support_redaction_state: constants::value::PARENT_DESKTOP_SUPPORT_OUTPUT_ALLOWED_FIELDS
@@ -159,20 +360,32 @@ fn parent_platform_proof_state_for_address(
     }
 }
 
-fn agent_service_connects(agent_address: &str) -> bool {
+pub fn agent_service_connects(agent_address: &ParentDesktopAgentAddress) -> bool {
     agent_address
+        .0
         .parse::<SocketAddr>()
         .ok()
         .and_then(|address| {
-            TcpStream::connect_timeout(&address, Duration::from_millis(SERVICE_CONNECT_TIMEOUT_MS))
-                .ok()
+            TcpStream::connect_timeout(
+                &address,
+                Duration::from_millis(LEGACY_SOCKET_CONNECT_TIMEOUT_MS),
+            )
+            .ok()
         })
         .is_some()
 }
 
+pub fn parent_route_subscription_event_name(
+    subscription_id: &ParentRouteSubscriptionId,
+) -> ParentRouteSubscriptionEventName {
+    let mut event_name = String::from(PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX);
+    event_name.push_str(subscription_id.0.as_str());
+    ParentRouteSubscriptionEventName(event_name)
+}
+
 fn parent_desktop_device_role_state() -> DeviceRoleRuntimeReadModel {
     DeviceRoleRuntimeReadModel {
-        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.to_string(),
+        schema_version: constants::lan_pairing::SCHEMA_VERSION_TEXT.into(),
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
@@ -196,188 +409,5 @@ fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     DeviceRuntimeRoleEntry {
         role,
         state: DeviceRuntimeRoleState::Implemented,
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::net::TcpListener;
-
-    #[test]
-    fn parent_platform_proof_state_uses_rust_service_connection_for_package_runtime() {
-        let state = parent_platform_proof_state_for_address(
-            constants::test_network::LOOPBACK_ANY_PORT.to_string(),
-        );
-
-        assert_eq!(
-            state.service_state,
-            constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
-        );
-        assert_eq!(state.service_health_endpoint, constants::endpoint::HEALTH);
-        assert_eq!(
-            state.runtime_readiness_state,
-            constants::value::PARENT_DESKTOP_RUNTIME_DEGRADED
-        );
-        assert_eq!(
-            state.backend_kind,
-            constants::value::PARENT_DESKTOP_BACKEND_RUST_SERVICE
-        );
-        assert_eq!(state.route_state, DeviceRuntimeRouteState::LocalNetwork);
-        assert_eq!(
-            state.route_source_state,
-            DeviceRuntimeRouteState::LocalNetwork
-        );
-        assert_eq!(
-            state.lan_ai_provider_state,
-            DeviceRuntimeAiProviderState::Degraded
-        );
-        assert_eq!(
-            state.degraded_source_state,
-            DeviceRuntimeAiProviderState::Degraded
-        );
-        assert_eq!(
-            state.activity_adapter_state,
-            constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
-        );
-        assert_eq!(
-            state.parent_assistant_provider_state,
-            DeviceRuntimeAiProviderState::Degraded
-        );
-        assert_eq!(
-            state.device_role_state.local_ai_runtime_claim,
-            DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton
-        );
-        assert_eq!(
-            state.package_frontend_state,
-            constants::value::PARENT_DESKTOP_FRONTEND_BUILT_PORTAL_DIST
-        );
-        assert_eq!(
-            state.hmr_backend_state,
-            constants::value::PARENT_DESKTOP_HMR_BACKEND_NOT_USED
-        );
-        assert_eq!(
-            state.process_ownership_state,
-            constants::value::PARENT_DESKTOP_PROCESS_OWNER_SHELL_ONLY
-        );
-        assert_eq!(
-            state.controller_route_state,
-            constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER
-        );
-        assert_eq!(
-            state.observer_read_only_state,
-            constants::value::PARENT_DESKTOP_OBSERVER_READ_ONLY
-        );
-        assert_eq!(
-            state.source_custody_state,
-            constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK
-        );
-        assert_eq!(
-            state.relay_route_state,
-            constants::value::PARENT_DESKTOP_RELAY_ROUTE_UNAVAILABLE
-        );
-        assert_eq!(
-            state.parent_cache_state,
-            constants::value::PARENT_DESKTOP_PARENT_CACHE_UNAVAILABLE
-        );
-        assert_eq!(
-            state.parent_storage_state,
-            constants::value::PARENT_DESKTOP_PARENT_STORAGE_UNAVAILABLE
-        );
-        assert_eq!(
-            state.service_launch_owner_state,
-            constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_OWNER_PACKAGE_SERVICE
-        );
-        assert_eq!(
-            state.service_launch_strategy_state,
-            constants::value::PARENT_DESKTOP_SERVICE_LAUNCH_STRATEGY_CONNECT_OR_DEGRADE
-        );
-        assert_eq!(state.service_connect_timeout_ms, SERVICE_CONNECT_TIMEOUT_MS);
-        assert_eq!(
-            state.package_service_manager_state,
-            constants::value::PARENT_DESKTOP_PACKAGE_SERVICE_AUTO_START
-        );
-        assert_eq!(
-            state.package_health_probe_state,
-            constants::value::PARENT_DESKTOP_PACKAGE_HEALTH_PROBE_REQUIRED
-        );
-        assert_eq!(
-            state.port_ownership_state,
-            constants::value::PARENT_DESKTOP_PORT_OWNERSHIP_FIXED_LOOPBACK
-        );
-        assert_eq!(
-            state.port_conflict_policy_state,
-            constants::value::PARENT_DESKTOP_PORT_CONFLICT_POLICY_NO_FOREIGN_RECLAIM
-        );
-        assert_eq!(
-            state.blank_window_regression_state,
-            constants::value::PARENT_DESKTOP_BLANK_WINDOW_GUARD_FRONTEND_DIST
-        );
-        assert_eq!(
-            state.package_preview_state,
-            constants::value::PARENT_DESKTOP_PACKAGE_PREVIEW_UNSIGNED
-        );
-        assert_eq!(
-            state.update_channel_state,
-            constants::value::PARENT_DESKTOP_UPDATE_CHANNEL_SCAFFOLD
-        );
-        assert_eq!(
-            state.rollback_state,
-            constants::value::PARENT_DESKTOP_ROLLBACK_UNAVAILABLE
-        );
-        assert_eq!(
-            state.signing_state,
-            constants::value::PARENT_DESKTOP_SIGNING_MANUAL_REQUIRED
-        );
-        assert_eq!(
-            state.notarization_state,
-            constants::value::PARENT_DESKTOP_NOTARIZATION_MANUAL_REQUIRED
-        );
-        assert_eq!(
-            state.store_distribution_state,
-            constants::value::PARENT_DESKTOP_STORE_DISTRIBUTION_MANUAL_REQUIRED
-        );
-        assert_eq!(
-            state.support_diagnostics_state,
-            constants::value::PARENT_DESKTOP_SUPPORT_DIAGNOSTICS_REDACTED
-        );
-        assert_eq!(
-            state.support_redaction_state,
-            constants::value::PARENT_DESKTOP_SUPPORT_OUTPUT_ALLOWED_FIELDS
-        );
-        assert_eq!(
-            state.platform_matrix_state,
-            constants::value::PARENT_DESKTOP_PLATFORM_MATRIX_SPLIT_PROOF_ROWS
-        );
-        assert_eq!(
-            state.release_branch_state,
-            constants::value::PARENT_DESKTOP_RELEASE_BRANCH_PRODUCTION_PROMOTION_REQUIRED
-        );
-        assert_eq!(
-            state.artifact_proof_state,
-            constants::value::PARENT_DESKTOP_ARTIFACT_PROOF_CI_PREVIEW
-        );
-    }
-
-    #[test]
-    fn parent_platform_proof_state_reports_ready_when_rust_service_socket_accepts() {
-        let listener =
-            TcpListener::bind((constants::test_network::LOOPBACK_IP, 0)).expect("bind listener");
-        let state = parent_platform_proof_state_for_address(
-            listener.local_addr().expect("listener address").to_string(),
-        );
-
-        assert_eq!(
-            state.service_state,
-            constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
-        );
-        assert_eq!(
-            state.runtime_readiness_state,
-            constants::value::PARENT_DESKTOP_RUNTIME_READY
-        );
-        assert_eq!(
-            state.activity_adapter_state,
-            constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
-        );
     }
 }

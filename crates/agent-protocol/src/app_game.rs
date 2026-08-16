@@ -367,6 +367,25 @@ pub struct AppGameEvidenceClaim {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AppGameProcessObservation {
+    pub schema_version: u16,
+    pub observed_at: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub process_name: String,
+    pub executable_path: Option<String>,
+    pub foreground_state: String,
+    pub observation_mode: String,
+    pub classification_state: String,
+    pub inventory_entry_id: Option<String>,
+    pub launcher_ref: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub confidence: f64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AppGameAiDigestReference {
     pub schema_version: u16,
     pub digest_ref: String,
@@ -582,6 +601,33 @@ pub struct AppGameInventoryCategoryCandidate {
     pub confidence: f64,
     pub catalog_ref: Option<String>,
     pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum AppGameRiskCategoryKind {
+    VpnProxy,
+    RemoteDesktop,
+    DownloadTorrent,
+    InstallerUpdater,
+    AiChatbot,
+    SocialVideoMessaging,
+    UnknownRisk,
+}
+
+impl AppGameRiskCategoryKind {
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "vpnProxy" => Some(Self::VpnProxy),
+            "remoteDesktop" => Some(Self::RemoteDesktop),
+            "downloadTorrent" => Some(Self::DownloadTorrent),
+            "installerUpdater" => Some(Self::InstallerUpdater),
+            "aiChatbot" => Some(Self::AiChatbot),
+            "socialVideoMessaging" => Some(Self::SocialVideoMessaging),
+            "unknownRisk" => Some(Self::UnknownRisk),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

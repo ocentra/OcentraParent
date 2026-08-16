@@ -12,11 +12,11 @@ Cross-record the shared app/game WP104 parent-domain service event handoff for n
 
 ## Implementation Checklist
 
-- [x] Cross-record parent-domain service event handoff schemas, builder, no-claim flags, and state rules.
-- [x] Cross-record focused parser/builder tests using the real WP103 proof output.
-- [x] Cross-record proof harness and app proof artifacts.
-- [x] Update feature/checklist/README docs with the no-claim decision.
-- [x] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
+- [ ] Cross-record parent-domain service event handoff schemas, builder, no-claim flags, and state rules.
+- [ ] Cross-record focused parser/builder tests using the real WP103 proof output.
+- [ ] Cross-record proof harness and app proof artifacts.
+- [ ] Update feature/checklist/README docs with the no-claim decision.
+- [ ] Leave `docs/product-capability-checklist.md` unchanged because no feature status moved.
 
 ## Evidence
 

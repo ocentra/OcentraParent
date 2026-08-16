@@ -1,5 +1,19 @@
 # 38 Local AI Resource Scheduler Priority Queue
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `38 Local AI Resource Scheduler Priority Queue`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 One-heavy-job scheduling, OCR/VLM rate limits, and policy-priority behavior are defined.
@@ -10,12 +24,12 @@ Capture MVP should define queue priority fields. Full scheduler proof belongs to
 
 ## Checklist
 
-- [x] Define AI job type and priority.
-- [x] Enforce one heavy job at a time on normal PCs.
-- [x] Prioritize policy-blocking jobs over background summaries.
-- [x] Add timeout and skipped/degraded states.
-- [x] Add max image pixels and OCR snippet limits.
-- [x] Report model/runtime queue status.
+- [ ] Define AI job type and priority.
+- [ ] Enforce one heavy job at a time on normal PCs.
+- [ ] Prioritize policy-blocking jobs over background summaries.
+- [ ] Add timeout and skipped/degraded states.
+- [ ] Add max image pixels and OCR snippet limits.
+- [ ] Report model/runtime queue status.
 
 ## Proof
 

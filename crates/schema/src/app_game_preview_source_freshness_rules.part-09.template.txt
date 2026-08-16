@@ -1,0 +1,30 @@
+
+  return null;
+}
+
+function sourceRowAdapterErrorFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
+  if (row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.AdapterError) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.AdapterError,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.AdapterErrorSourceStatus,
+    } as const;
+  }
+
+  return null;
+}
+
+function sourceRowManualRequiredFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {
+  if (
+    row.state === AppGameSourceFreshnessReadModelStateGenerated.ScaffoldOnly ||
+    row.capabilityStatus === AppGameSourceFreshnessCapabilityStatusGenerated.ManualRequired
+  ) {
+    return {
+      requirementState: AppGameSourceFreshnessRequirementStateGenerated.ManualRequired,
+      reasonCode: AppGameSourceFreshnessReasonCodeGenerated.ManualRequiredSourceStatus,
+    } as const;
+  }
+
+  return null;
+}
+
+function sourceRowNotClaimedFailureGenerated(row: SourceStatusRowLike): SourceFreshnessRequirementFailure | null {

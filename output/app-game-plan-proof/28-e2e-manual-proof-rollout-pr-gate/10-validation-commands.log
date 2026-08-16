@@ -1,7 +1,0 @@
-Validation run by final gate script:
-
-- git diff --check: PASS
-- cmd /c npm run lanes:guard: PASS
-- cmd /c npm run hub:guard: PASS
-
-Additional package/root validation should be recorded in the hub DONE/PR-ready report after this script runs.

@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-policy-compiler-runtime-proof tracking-location-policy: PASS
-- Compiler outputs parse through existing tracking policy schemas.
-- Parent policy remains final action authority; AI result rows remain evidence only.

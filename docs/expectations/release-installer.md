@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Release And Installer Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Release And Installer Expectations
 
 Release features are product features because parents need install/update paths that work.
@@ -316,6 +329,30 @@ Release features are product features because parents need install/update paths 
   execution, raw child activity custody, provider secrets, status backend
   payload custody, default Ocentra-hosted family data, or raw support bundle
   payloads.
+- `production-support-status-backend-dead-letter-proof` may prove support-safe
+  status backend dead-letter/manual-triage labels for support runbook,
+  incident, contact, upload, privacy/legal, account, and billing support targets
+  across requested, authorized, dead-lettered, triage-ready, retry-blocked,
+  failed, manual-required, and backend-unavailable states, but it must not
+  claim real status backend execution, durable queue storage, retry worker
+  execution, audit persistence, dead-letter payload custody, public runtime
+  execution, provider execution, support backend upload execution, account
+  lookup execution, billing provider contact execution, remote support session
+  execution, production SLA, legal disclosure execution, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
+- `production-support-status-backend-runtime-execution-proof` may prove
+  support-safe status backend runtime execution labels for support runbook,
+  incident, contact, upload, privacy/legal, account, and billing support targets
+  across requested, authorized, queued, running, runtime-evidence-ready,
+  audit-ready, failed, manual-required, and backend-unavailable states, but it
+  must not claim real status backend execution, durable queue storage, retry
+  worker execution, audit persistence, dead-letter payload custody, public
+  runtime execution, provider execution, support backend upload execution,
+  account lookup execution, billing provider contact execution, remote support
+  session execution, production SLA, legal disclosure execution, raw child
+  activity custody, provider secrets, status backend payload custody, default
+  Ocentra-hosted family data, or raw support bundle payloads.
 - `production-support-status-backend-payload-custody-proof` may prove
   support-safe status backend payload custody labels for custody boundary,
   retention manual-required, delete request, deletion manual-required,

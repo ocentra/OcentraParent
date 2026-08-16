@@ -1,0 +1,240 @@
+import {
+  GeneratedPolicyActionStrictnessRank,
+  type GeneratedAppGameCategoryRiskPolicyCandidateAction,
+  type GeneratedAppGameCategoryRiskPolicyRouteFamily,
+  type GeneratedAppGameCategoryRiskPolicyRouteSourceKind,
+  type GeneratedAppGameCategoryRiskPolicyRoutingState,
+  type GeneratedPolicyAction,
+  type GeneratedPolicyApprovalKind,
+  type GeneratedPolicyApprovalOrigin,
+  type GeneratedPolicyApprovalState,
+  type GeneratedPolicyAuthoritySource,
+  type GeneratedPolicyAuthorityState,
+  type GeneratedPolicyDecisionHandoffState,
+  type GeneratedPolicyOverrideState,
+  type GeneratedPolicyOverrideType,
+  type GeneratedPolicyPreviewBudgetBoundaryState,
+  type GeneratedPolicyPreviewConfirmationState,
+  type GeneratedPolicyScheduleBoundaryState,
+  type GeneratedPolicyScheduleBudgetCarryoverMode,
+  type GeneratedPolicyScheduleBudgetResetKind,
+  type GeneratedPolicyScheduleClockSource,
+  type GeneratedPolicyScheduleDstResolution,
+  type GeneratedPolicyScheduleDstTransition,
+  type GeneratedPolicyScheduleOfflineRecoveryState,
+} from './policy-control-helpers-contracts';
+
+export type GeneratedPolicyScheduleBudgetResetLike = {
+  readonly kind: GeneratedPolicyScheduleBudgetResetKind;
+  readonly localTime: string;
+  readonly day: string | null;
+};
+
+export type GeneratedPolicyScheduleBudgetCarryoverLike = {
+  readonly mode: GeneratedPolicyScheduleBudgetCarryoverMode;
+  readonly maxMinutes: number | null;
+};
+
+export type GeneratedPolicyScheduleTimeBudgetLike = {
+  readonly budgetWindowMinutes: number;
+  readonly gracePeriodMinutes: number;
+  readonly reset: GeneratedPolicyScheduleBudgetResetLike;
+  readonly effectiveFrom: string;
+  readonly effectiveUntil: string | null;
+  readonly carryover: GeneratedPolicyScheduleBudgetCarryoverLike;
+};
+
+export type GeneratedPolicyScheduleWindowLike = {
+  readonly days: ReadonlyArray<unknown>;
+  readonly startLocalTime: string;
+  readonly endLocalTime: string;
+};
+
+export type GeneratedPolicyScheduleLike = {
+  readonly windows: ReadonlyArray<GeneratedPolicyScheduleWindowLike>;
+  readonly timeBudget: GeneratedPolicyScheduleTimeBudgetLike;
+};
+
+export type GeneratedPolicyScheduleDstBoundaryLike = {
+  readonly transition: GeneratedPolicyScheduleDstTransition;
+  readonly localTime: string;
+  readonly offsetBeforeMinutes: number;
+  readonly offsetAfterMinutes: number;
+  readonly resolution: GeneratedPolicyScheduleDstResolution;
+};
+
+export type GeneratedPolicyScheduleClockSkewLike = {
+  readonly observedAt: string;
+  readonly allowedSkewMinutes: number;
+  readonly observedSkewMinutes: number;
+};
+
+export type GeneratedPolicyScheduleExceptionLike = {
+  readonly startsAt: string;
+  readonly expiresAt: string;
+};
+
+export type GeneratedPolicyScheduleExpiryLike = {
+  readonly expiresAt: string;
+  readonly expiredAt: string;
+};
+
+export type GeneratedPolicyScheduleOfflineRecoveryStatusLike = {
+  readonly state: GeneratedPolicyScheduleOfflineRecoveryState;
+  readonly recoveredAt: string | null;
+  readonly recoveredOfflineMinutes: number;
+};
+
+export type GeneratedPolicyScheduleTimeBudgetStatusLike = {
+  readonly budgetWindowMinutes: number;
+  readonly usedMinutes: number;
+  readonly remainingMinutes: number;
+  readonly carryoverMinutes: number;
+  readonly gracePeriodMinutes: number;
+  readonly resetAt: string;
+  readonly clockSource: GeneratedPolicyScheduleClockSource;
+  readonly offlineRecovery: GeneratedPolicyScheduleOfflineRecoveryStatusLike;
+  readonly bonusTimeMinutes: number | null;
+  readonly bonusTimeRemainingMinutes: number | null;
+  readonly bonusTimeExpiresAt: string | null;
+};
+
+export type GeneratedPolicyScheduleBoundaryLike = {
+  readonly evaluatedAt: string;
+  readonly localTime: string;
+  readonly state: GeneratedPolicyScheduleBoundaryState;
+  readonly dstBoundary: GeneratedPolicyScheduleDstBoundaryLike | null;
+  readonly clockSkew: GeneratedPolicyScheduleClockSkewLike | null;
+  readonly exception: GeneratedPolicyScheduleExceptionLike | null;
+  readonly expiry: GeneratedPolicyScheduleExpiryLike | null;
+  readonly timeBudget: GeneratedPolicyScheduleTimeBudgetStatusLike | null;
+};
+
+export type GeneratedPolicyDecisionLike = {
+  readonly action: GeneratedPolicyAction;
+  readonly dryRun: boolean;
+  readonly enforcementHandoffState: GeneratedPolicyDecisionHandoffState;
+  readonly localAiResultId: string | null;
+  readonly evidenceReferences: ReadonlyArray<unknown>;
+  readonly ruleIds: ReadonlyArray<string>;
+};
+
+export type GeneratedPolicyPreviewLike = {
+  readonly confirmationState: GeneratedPolicyPreviewConfirmationState;
+  readonly confirmedBy: unknown | null;
+  readonly confirmedAt: string | null;
+  readonly decision: GeneratedPolicyDecisionLike;
+};
+
+export type GeneratedPolicyAuthorityRequestLike<TDecision extends { readonly dryRun: boolean }> = {
+  readonly source: GeneratedPolicyAuthoritySource;
+  readonly decision: TDecision;
+};
+
+export type GeneratedPolicyAuthorityDecisionLike<TDecision> = {
+  readonly source: GeneratedPolicyAuthoritySource;
+  readonly state: GeneratedPolicyAuthorityState;
+  readonly decision: TDecision;
+};
+
+export type GeneratedPolicyApprovalRequestLike = {
+  readonly origin: GeneratedPolicyApprovalOrigin;
+  readonly kind: GeneratedPolicyApprovalKind;
+  readonly childProfile: {
+    readonly childProfileId: unknown;
+  };
+  readonly requestedAt: string;
+  readonly expiresAt: string;
+  readonly requestedBonusTimeMinutes: number | null;
+  readonly scheduleBoundary: GeneratedPolicyScheduleBoundaryLike | null;
+};
+
+export type GeneratedPolicyOverrideGrantLike = {
+  readonly overrideType: GeneratedPolicyOverrideType;
+  readonly state: GeneratedPolicyOverrideState;
+  readonly action: GeneratedPolicyAction;
+  readonly effectiveFrom: string;
+  readonly effectiveUntil: string;
+  readonly bonusTimeMinutes: number | null;
+};
+
+export type GeneratedPolicyApprovalResolutionLike = {
+  readonly approval: GeneratedPolicyApprovalRequestLike;
+  readonly state: GeneratedPolicyApprovalState;
+  readonly evaluatedAt: string;
+  readonly reviewedBy: {
+    readonly actorId: unknown;
+  } | null;
+  readonly reviewedAt: string | null;
+  readonly auditReferenceId: unknown | null;
+  readonly override: GeneratedPolicyOverrideGrantLike | null;
+  readonly replayOfApprovalId: unknown | null;
+};
+
+export type GeneratedAppGameCategoryRiskPolicyRouteLike = {
+  readonly routeFamily: GeneratedAppGameCategoryRiskPolicyRouteFamily;
+  readonly sourceKind: GeneratedAppGameCategoryRiskPolicyRouteSourceKind;
+  readonly targetKind: string;
+  readonly candidateAction: GeneratedAppGameCategoryRiskPolicyCandidateAction;
+  readonly requestedAction: string;
+  readonly policyAction: GeneratedPolicyAction;
+  readonly routingState: GeneratedAppGameCategoryRiskPolicyRoutingState;
+  readonly categoryProof: {
+    readonly proofKind: string;
+    readonly evidenceState: string;
+  };
+  readonly supportingEvidence: ReadonlyArray<unknown>;
+  readonly aiDigestRef: unknown;
+};
+
+export type GeneratedScreenAiStricterParentRuleInputLike = {
+  readonly sourceDecision: GeneratedPolicyDecisionLike;
+  readonly stricterParentRule: {
+    readonly enabled: boolean;
+    readonly action: GeneratedPolicyAction;
+  };
+  readonly expectedFinalAction: GeneratedPolicyAction;
+};
+
+export type GeneratedScreenAiStricterParentRuleProofLike = {
+  readonly finalAction: GeneratedPolicyAction;
+  readonly stricterParentRuleAction: GeneratedPolicyAction;
+  readonly finalDecision: GeneratedPolicyDecisionLike;
+  readonly sourceDecision: GeneratedPolicyDecisionLike;
+  readonly stricterParentRule: {
+    readonly ruleId: string;
+  };
+  readonly claimBoundaries: Readonly<Record<string, boolean>>;
+};
+
+export function compareGeneratedPolicyActionStrictness(
+  left: GeneratedPolicyAction,
+  right: GeneratedPolicyAction
+): number {
+  return GeneratedPolicyActionStrictnessRank[left] - GeneratedPolicyActionStrictnessRank[right];
+}
+
+export function selectGeneratedStricterPolicyAction(
+  parentRuleAction: GeneratedPolicyAction,
+  localAiAction: GeneratedPolicyAction
+): GeneratedPolicyAction {
+  return compareGeneratedPolicyActionStrictness(parentRuleAction, localAiAction) >= 0
+    ? parentRuleAction
+    : localAiAction;
+}
+
+/* __OCENTRA_POLICY_HELPER_SCHEDULE__ */
+
+/* __OCENTRA_POLICY_HELPER_PREVIEW__ */
+
+/* __OCENTRA_POLICY_HELPER_AUTHORITY__ */
+
+/* __OCENTRA_POLICY_HELPER_APP_GAME__ */
+
+/* __OCENTRA_POLICY_HELPER_SCREEN_AI__ */
+
+/* __OCENTRA_POLICY_HELPER_SCHEDULE_INTERNALS__ */
+
+/* __OCENTRA_POLICY_HELPER_APPROVAL_INTERNALS__ */
+
+/* __OCENTRA_POLICY_HELPER_VALIDATION_INTERNALS__ */

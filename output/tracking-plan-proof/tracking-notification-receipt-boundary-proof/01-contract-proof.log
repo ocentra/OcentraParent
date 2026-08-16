@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- tracking-notification-receipt-boundary-proof tracking-provider-notification-proof v0-8-notification-provider-status-boundary: PASS
-- Receipt boundary rows preserve provider proof refs, evidence refs, policy decision refs, notification status refs, reason refs, provider attempt refs, and audit refs.
-- The delivered provider status contract is cited as a future receipt-required coverage ref while actual receipt ingestion remains unclaimed.

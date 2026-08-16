@@ -1,5 +1,19 @@
 # WP12 iOS Background Region Significant-Change Adapter
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `tracking-plan`
+> Doc: `WP12 iOS Background Region Significant-Change Adapter`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Purpose
 
 Proof-gate iOS Always authorization, region monitoring, significant-change,
@@ -42,9 +56,9 @@ Proof root: `output/tracking-plan-proof/12-ios-background-region-significant-cha
       manual-required row now exists; real background delivery and relaunch proof
       remain pending.
 - [ ] Document App Store/privacy disclosure implications before release claims.
-- [x] Generate the iOS simulator/local and physical-device proof artifact plan
+- [ ] Generate the iOS simulator/local and physical-device proof artifact plan
       before device work.
-- [x] Route simulator package build/install/launch proof through the tracking
+- [ ] Route simulator package build/install/launch proof through the tracking
       proof harness while preserving Always/background/region behavior as
       physical-device manual-required.
 
@@ -66,7 +80,9 @@ terminated/relaunch, notification, entitlement, or physical-device proof.
 parent-domain read-model proof rows for Always authorization, region
 transitions, significant-change/visit events, and background
 terminated/relaunch gaps under this workpack root. Those rows attach simulator
-package/manual proof refs and keep Core Location background runtime,
+package/manual proof refs plus an explicit runtime artifact inventory for the
+missing Always authorization, region transition, significant-change, visit,
+background relaunch, and entitlement approval artifacts, and keep Core Location background runtime,
 entitlement, notification delivery, physical-device, authority, and
 product-ready claims false.
 `node scripts/test/tracking-ios-location-wp33-gate-proof.mjs` now wraps the same
@@ -74,6 +90,17 @@ WP12 background/region manual-required rows into the WP33 rollout gate artifact
 `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/27-ios-location-manual-required-proof.json`
 without claiming Always authorization, region monitoring, significant-change,
 visits, background delivery, entitlement, or physical-device behavior.
+`node scripts/test/tracking-ios-privacy-disclosure-release-proof.mjs` now records the
+WP12 App Store/privacy disclosure release gate. It writes parent-domain release
+gate rows for location-purpose copy, background-location copy, region-monitoring
+copy, notification copy, data-custody copy, App Store review evidence, and
+privacy nutrition label evidence under
+`output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/20-ios-privacy-disclosure-release-proof.json`
+and the WP33 companion artifact
+`output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/47-ios-privacy-disclosure-release-proof.json`.
+It blocks release/product-ready iOS tracking claims until disclosure, Apple
+review, entitlement, TestFlight/device, and runtime Core Location artifacts
+exist.
 
 ## Where We Want To Be
 
@@ -102,20 +129,22 @@ This workpack can be assigned independently, implemented against the owning doma
 ## Fill This Before Reporting DONE Or PR-ready
 
 - [ ] Workpack id and branch.
-- [x] Touched files: proof script, root script wiring, package-preview CI
+- [ ] Touched files: proof script, root script wiring, package-preview CI
       upload wiring, feature doc, checklist, and this workpack doc.
-- [x] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
+- [ ] Validation commands and results: `npm run test:tracking-plan-ios-simulator-proof`
       writes local proof; macOS package-preview runs it with
       `--require-simulator` after the real iOS simulator smoke.
-- [x] Proof artifacts under `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`.
-- [x] Product doc/checklist updates or reason none were needed: feature doc and
+- [ ] Proof artifacts under `output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/`.
+- [ ] Product doc/checklist updates or reason none were needed: feature doc and
       tracking checklist updated; central product checklist delta remains
       primary-owned through hub.
-- [x] Known gaps/manual-required states: Always authorization, region
+- [ ] Known gaps/manual-required states: Always authorization, region
       monitoring, significant-change, visits, background delivery, low-power,
       terminated/relaunch, notification delivery, physical-device, and
       authority proof remain unclaimed.
-- [x] Parent-domain manual-required proof added:
+- [ ] Parent-domain manual-required proof added:
       `test-results/tracking-ios-location-manual-required-proof/proof.json`.
-- [x] WP33 companion gate added:
+- [ ] WP33 companion gate added:
       `test-results/tracking-ios-location-wp33-gate-proof/proof.json`.
+- [ ] iOS privacy disclosure release gate proof added:
+      `test-results/tracking-ios-privacy-disclosure-release-proof/proof.json`.

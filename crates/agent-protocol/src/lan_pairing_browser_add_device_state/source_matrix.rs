@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use super::deserialize_lan_schema_version;
 use crate::{
     LanPairingProductionDiscoveryState, V09ProductionDiscoveryHouseholdProofState,
     V09ProductionDiscoveryHouseholdRuntimeOwner,
@@ -48,6 +49,16 @@ pub enum LanPlanWorkpackId {
     W19,
     #[serde(rename = "20")]
     W20,
+    #[serde(rename = "21")]
+    W21,
+    #[serde(rename = "22")]
+    W22,
+    #[serde(rename = "23")]
+    W23,
+    #[serde(rename = "24")]
+    W24,
+    #[serde(rename = "25")]
+    W25,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -63,16 +74,20 @@ pub enum LanDiscoverySourceKind {
     TargetedArpRefresh,
     BoundedArpSweep,
     PassiveArpListener,
+    PassiveDhcpListener,
     PassiveMdnsListener,
     PassiveSsdpListener,
+    PassiveWsDiscoveryListener,
     PassiveLlmnrListener,
     PassiveNetbiosListener,
+    PassiveSnmpResponseListener,
     MdnsDnsSdQuery,
     SsdpUpnpQuery,
     NetbiosNameCache,
     LlmnrNameQuery,
     ReverseDnsQuery,
     ServiceIdentityProbe,
+    PreviousScanSnapshot,
     OuiVendorLookup,
     MergeDeduplication,
     ExplainableClassification,
@@ -135,6 +150,7 @@ pub enum LanDiscoverySourceUiSurface {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanPlanWorkpackStatusRow {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub workpack_id: LanPlanWorkpackId,
     pub title: String,
@@ -149,6 +165,7 @@ pub struct LanPlanWorkpackStatusRow {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanDiscoverySourceRow {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub source: LanDiscoverySourceKind,
     pub workpack_id: LanPlanWorkpackId,
@@ -168,6 +185,7 @@ pub struct LanDiscoverySourceRow {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanDiscoverySourceMatrix {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub generated_at: String,
     pub workpack_rows: Vec<LanPlanWorkpackStatusRow>,

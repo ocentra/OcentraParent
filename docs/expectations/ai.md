@@ -1,13 +1,32 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: AI Feature Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # AI Feature Expectations
 
-AI is a child-device safety layer first. The normal safety evaluator runs locally
-on the child device against typed evidence and parent rules. Remote/API AI is not
-part of the normal child safety path and must not receive child activity by
-default. Any future remote assistant or report compiler must be explicitly
-parent-authorized, evidence-cited, data-custody reviewed, and outside blocking,
-timing, or ask-parent decisions.
+AI safety authority is local to the evidence-owning child agent. The normal
+safety evaluator runs against typed evidence and parent rules. AI execution may
+run on the same child device or on a trusted paired household AI provider, but
+the provider is worker-only and returns results for child-agent validation.
+Remote/API AI is not part of the normal child safety path and must not receive
+child activity by default. Any future remote assistant or report compiler must
+be explicitly parent-authorized, evidence-cited, data-custody reviewed, and
+outside blocking, timing, or ask-parent decisions.
 
-The parent portal does not run child-safety AI. It authors rules, approvals, and questions; the child-device agent validates local context, runs the local evaluator, and converts model output into typed decisions.
+The parent portal does not run child-safety AI. It authors rules, approvals, and
+questions; the child-device agent validates local context, owns the AI work
+ledger, validates provider results, and converts accepted AI output into typed
+policy inputs.
 
 AI classification is evidence, not household authority. Ocentra can provide local
 models, categories, confidence, and explanations, but parent-authored policy
@@ -101,6 +120,11 @@ V0.6 must define Effect Schema contracts in the owning domain packages before ru
 - `LocalAiSafetyResult`: schema version, action, confidence, unknown/degraded state, reason codes, explanation token or text reference, evidence references, parent rule references, optional memory/graph references, model runtime reference, prompt/template version, and expiry/timer fields when the action is time-based.
 - `LocalModelRuntimeStatus`: provider, model id, local path or opaque model reference, load state, capability flags, resource class, degraded state, last checked time, and unavailable reason.
 - `LocalProviderCapability`: available providers, hardware/resource constraints, supported tasks, privacy mode, and fallback order.
+- Household provider mesh contracts: provider advertisement, heartbeat,
+  capability snapshot, provider selection, AI work item, claim request, claim
+  decision, lease, result, result validation, dead letter, and mesh transport
+  envelope. These contracts must distinguish execution provider from policy
+  authority.
 - `LocalMemoryReference` and `LocalGraphReference`: reference id, reference type, source evidence references, source policy version or parent action when applicable, generated time, confidence, and derived-index version.
 - `LocalAiEvidenceContextBuildRequest`, `LocalAiEvidenceContext`, and
   `LocalAiEvidenceContextBuildResult`: request scope, evidence refs, parent rule
@@ -135,8 +159,10 @@ captured page/video/app/domain evidence
   -> optional local screen-analysis summaries
   -> parent rules and recent context
   -> optional evidence-backed memory and graph references
-  -> child-device local model
-  -> schema-valid AI safety result
+  -> child-owned AI work item
+  -> same-device model or trusted household provider
+  -> child-agent result validation
+  -> schema-valid child-accepted AI safety result
   -> deterministic policy evaluator
   -> dry-run result, parent approval path, or enforcement adapter
   -> auditable decision event
@@ -165,6 +191,11 @@ Acceptance for remote assistance:
 
 - Invalid AI input is rejected before model invocation.
 - Invalid model output is rejected before policy consumes it.
+- Provider results are rejected before policy consumes them unless the claim,
+  lease, provider, evidence refs, custody state, prompt/template version,
+  runtime refs, and child-agent authority all validate.
+- Expired lease, wrong-provider, duplicate, stale-provider, revoked-provider,
+  unsupported-capability, and custody-mismatch results are rejected.
 - Local model unavailable or overloaded returns an explicit degraded result.
 - Low-confidence or contradictory output returns unknown, warn, or ask-parent unless an explicit parent rule gives a stricter deterministic answer.
 - Missing evidence prevents AI from claiming content understanding.

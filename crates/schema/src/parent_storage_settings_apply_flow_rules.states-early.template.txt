@@ -1,0 +1,22 @@
+> = {
+  'manual-required': (card: GeneratedParentStorageModeCard) =>
+    card.manualRequiredVisible && card.uiState === 'manualRequired' && !card.applyBackAvailable,
+  'provider-disconnected': (card: GeneratedParentStorageModeCard) =>
+    card.providerStatus === 'disconnected' &&
+    card.disconnectVisible &&
+    card.uiState === 'remoteDisabled' &&
+    !card.applyBackAvailable,
+  'provider-error': (card: GeneratedParentStorageModeCard) =>
+    card.lastFailureAt !== null && card.providerStatus !== 'ready' && card.providerStatus !== 'disconnected',
+  'local-plus-encrypted-backup': (card: GeneratedParentStorageModeCard) =>
+    card.providerMode === 'local-folder' &&
+    card.providerStatus === 'ready' &&
+    card.encryptionStatus === 'encrypted-before-upload',
+  disabled: (card: GeneratedParentStorageModeCard) =>
+    (card.providerStatus === 'disabled' || card.providerStatus === 'not-configured') &&
+    !card.deleteVisible &&
+    !card.applyBackAvailable,
+};
+
+const parentStorageRestorePreviewChecksGenerated: Partial<
+  Record<

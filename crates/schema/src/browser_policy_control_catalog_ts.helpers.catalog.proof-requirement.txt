@@ -1,0 +1,19 @@
+export function proofRequirementForGenerated(sectionTitle: string, sourceText: string): string | null {
+  const searchable = `${sectionTitle} ${sourceText}`;
+  if (/Exact URL|active tab|page title|download source/iu.test(searchable)) {
+    return 'managed-browser-or-explicit-browser-integration';
+  }
+  if (/browser evidence|required proof|proof requirement/iu.test(searchable)) {
+    return 'schema-valid-evidence-ref-with-runtime-custody';
+  }
+  if (/Network/iu.test(searchable)) {
+    return 'network-evidence-must-not-be-treated-as-exact-url-or-tab-content';
+  }
+  if (/process|window|foreground/iu.test(searchable)) {
+    return 'process-or-window-evidence-only-with-no-url-claim';
+  }
+  if (/AI/iu.test(searchable)) {
+    return 'local-analysis-summary-and-evidence-refs-without-raw-browser-data-upload';
+  }
+  return null;
+}

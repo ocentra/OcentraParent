@@ -1,45 +1,58 @@
 import type { ReactElement } from 'react';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
-  PortalDetails,
-  PortalDom,
-  PortalRoute,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import {
-  createAppGameNotificationParentSurfacePanelIntent,
-  type AppGameNotificationParentSurfaceDetail,
-  type AppGameNotificationParentSurfacePanelIntent,
-  type AppGameNotificationParentSurfacePanelRow,
-} from './app-game-notification-parent-surface-panel';
+  isParentAppGameParentSurfaceRoute,
+  type ParentAppGameNotificationParentSurfacePanelRowSnapshot,
+  type ParentAppGameNotificationParentSurfacePanelSnapshot,
+  type ParentAppGamePanelDetailSnapshot,
+  type ParentRouteId,
+} from '../generated/parent-ui-bridge';
 
-export function shouldRenderAppGameNotificationParentSurfaceRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.AppGameSessions;
+const EmptyNotificationParentSurfacePanel: ParentAppGameNotificationParentSurfacePanelSnapshot = {
+  eyebrow: 'Rust-owned panel',
+  title: 'App/game notification parent surface',
+  body: 'Rust has not reported a notification parent-surface panel yet.',
+  state: 'unavailable',
+  summary: 'No notification rows reported',
+  productClaim: 'Provider delivery, preference mutation, child delivery, and runtime dispatch remain unclaimed.',
+  metrics: [
+    { label: PortalDetails.Status, value: 'unavailable' },
+    { label: 'Rows returned', value: '0' },
+    { label: 'Runtime reference', value: 'service event not reported' },
+  ],
+  rows: [],
+  emptyMessage: 'No app/game notification parent-surface panel has been reported yet.',
+};
+
+export function shouldRenderAppGameNotificationParentSurfaceRoute(route: ParentRouteId): boolean {
+  return isParentAppGameParentSurfaceRoute(route);
 }
 
 export function AppGameNotificationParentSurfaceRoutePanel({
-  readModel,
+  panel,
 }: {
-  readonly readModel: unknown;
+  readonly panel: ParentAppGameNotificationParentSurfacePanelSnapshot | null;
 }): ReactElement {
-  const intent = createAppGameNotificationParentSurfacePanelIntent(readModel);
+  const resolvedPanel = panel ?? EmptyNotificationParentSurfacePanel;
   return (
-    <section aria-label={intent.title} className={PortalDom.Classes.TrackingStatusOverlay}>
+    <section aria-label={resolvedPanel.title} className={PortalDom.Classes.TrackingStatusOverlay}>
       <div className={PortalDom.Classes.TrackingStatusOverlayContent}>
         <header className={PortalDom.Classes.TrackingStatusOverlayHeader}>
-          <p className={PortalDom.Classes.ProductEyebrow}>{intent.eyebrow}</p>
-          <h2>{intent.title}</h2>
-          <p>{intent.body}</p>
+          <p className={PortalDom.Classes.ProductEyebrow}>{resolvedPanel.eyebrow}</p>
+          <h2>{resolvedPanel.title}</h2>
+          <p>{resolvedPanel.body}</p>
         </header>
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <AppGameNotificationParentSurfaceSummaryCard intent={intent} />
-          {intent.rows.length === 0 ? (
-            <AppGameNotificationParentSurfaceEmptyCard intent={intent} />
+          <AppGameNotificationParentSurfaceSummaryCard panel={resolvedPanel} />
+          {resolvedPanel.rows.length === 0 ? (
+            <AppGameNotificationParentSurfaceEmptyCard panel={resolvedPanel} />
           ) : (
-            intent.rows.map((row) => <AppGameNotificationParentSurfaceRowCard key={row.key} row={row} />)
+            resolvedPanel.rows.map((row) => <AppGameNotificationParentSurfaceRowCard key={row.key} row={row} />)
           )}
         </div>
       </div>
@@ -48,18 +61,18 @@ export function AppGameNotificationParentSurfaceRoutePanel({
 }
 
 function AppGameNotificationParentSurfaceSummaryCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGameNotificationParentSurfacePanelIntent;
+  readonly panel: ParentAppGameNotificationParentSurfacePanelSnapshot;
 }): ReactElement {
   const details = [
-    { label: PortalDetails.Status, value: intent.state },
-    { label: PortalDetails.ProductClaim, value: intent.productClaim },
-    ...intent.metrics,
+    { label: PortalDetails.Status, value: panel.state },
+    { label: PortalDetails.ProductClaim, value: panel.productClaim },
+    ...panel.metrics,
   ];
   return (
     <article className={cardClassName()}>
-      <h2>{intent.summary}</h2>
+      <h2>{panel.summary}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         {details.map((detail) => (
           <AppGameNotificationParentSurfaceDetail key={`${detail.label}:${detail.value}`} detail={detail} />
@@ -70,19 +83,19 @@ function AppGameNotificationParentSurfaceSummaryCard({
 }
 
 function AppGameNotificationParentSurfaceEmptyCard({
-  intent,
+  panel,
 }: {
-  readonly intent: AppGameNotificationParentSurfacePanelIntent;
+  readonly panel: ParentAppGameNotificationParentSurfacePanelSnapshot;
 }): ReactElement {
   return (
     <article className={cardClassName()}>
-      <h2>{intent.emptyMessage}</h2>
+      <h2>{panel.emptyMessage}</h2>
       <dl className={PortalDom.Classes.TrackingStatusOverlayMeta}>
         <AppGameNotificationParentSurfaceDetail
-          detail={{ label: PortalDetails.RuntimeReference, value: intent.metrics[2]?.value ?? intent.state }}
+          detail={{ label: PortalDetails.RuntimeReference, value: panel.metrics[2]?.value ?? panel.state }}
         />
         <AppGameNotificationParentSurfaceDetail
-          detail={{ label: PortalDetails.ProductClaim, value: intent.productClaim }}
+          detail={{ label: PortalDetails.ProductClaim, value: panel.productClaim }}
         />
       </dl>
     </article>
@@ -92,7 +105,7 @@ function AppGameNotificationParentSurfaceEmptyCard({
 function AppGameNotificationParentSurfaceRowCard({
   row,
 }: {
-  readonly row: AppGameNotificationParentSurfacePanelRow;
+  readonly row: ParentAppGameNotificationParentSurfacePanelRowSnapshot;
 }): ReactElement {
   return (
     <article className={cardClassName()}>
@@ -109,7 +122,7 @@ function AppGameNotificationParentSurfaceRowCard({
 function AppGameNotificationParentSurfaceDetail({
   detail,
 }: {
-  readonly detail: AppGameNotificationParentSurfaceDetail;
+  readonly detail: ParentAppGamePanelDetailSnapshot;
 }): ReactElement {
   return (
     <div>

@@ -1,6 +1,0 @@
-{
-  "workpack": "40-app-game-boundary-read-model-event",
-  "nativeAppCrossRecord": true,
-  "journalSqliteProjectionChanged": false,
-  "usesExistingSharedAppGameProjection": true
-}

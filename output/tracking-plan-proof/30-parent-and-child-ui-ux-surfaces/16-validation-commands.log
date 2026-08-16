@@ -1,5 +1,0 @@
-C:\Users\sujan\AppData\Local\Android\Sdk\platform-tools\sqlite3.exe C:\Users\sujan\AppData\Local\Temp\ocentra-parent-tracking-hosted-ui-00Yu66\activity.sqlite .read C:\Users\sujan\AppData\Local\Temp\ocentra-parent-tracking-hosted-ui-00Yu66\seed-tracking.sql # exit 0
-cmd /c npm run build:contracts # exit 0
-cmd /c npm --workspace @ocentra-parent/portal run test -- tracking-status-panel # exit 0
-cargo build -p ocentra-parent-agent-service # exit 0
-C:\Program Files\nodejs\node.exe C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\node_modules\@playwright\test\cli.js test --config C:\Users\sujan\.codex\worktrees\ocentra-parent-codex-a\OcentraParent\apps\portal\playwright.config.ts tracking-hosted-ui-proof.spec.ts --workers=1 # exit 0

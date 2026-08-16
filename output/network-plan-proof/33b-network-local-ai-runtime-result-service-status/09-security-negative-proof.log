@@ -1,7 +1,0 @@
-checkedAt=2026-06-06T11:45:27.320Z
-asserted=no raw model output text is exposed
-asserted=no live local model execution proof claim
-asserted=no raw PCAP, exact URL from network-only evidence, page content, private message, search query, or decrypted payload claim
-asserted=no remote AI provider claim
-asserted=no policy authority, adapter authority, host filtering, or enforcement command publication claim
-asserted=no portal rendering claim

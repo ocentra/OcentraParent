@@ -25,11 +25,11 @@ blocking.
 
 ## DONE Checklist
 
-- [x] Cross-recorded from shared app/game WP54.
-- [x] App/Game Sessions renders service-backed native app/game readiness rows
+- [ ] Cross-recorded from shared app/game WP54.
+- [ ] App/Game Sessions renders service-backed native app/game readiness rows
       and evidence refs through a portal-domain intent.
-- [x] Parser failures and missing events remain visibly non-ready.
-- [x] Product checklist unchanged because no feature status moved and another
+- [ ] Parser failures and missing events remain visibly non-ready.
+- [ ] Product checklist unchanged because no feature status moved and another
       lane owns the central checklist lock.
-- [x] Live evaluator, authoring UI, persistence, notifications/child UX, broad
+- [ ] Live evaluator, authoring UI, persistence, notifications/child UX, broad
       app blocking, adapter dispatch, and platform support remain unclaimed.

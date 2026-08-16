@@ -1,5 +1,20 @@
 # V0.5 Screen Test Blueprint
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `V0.5 Screen Test Blueprint`
+> Kind: test blueprint reference; read only when local expectations route here.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Test Rule
 
 No fake-green testing. Tests must exercise real contracts, parsers, services, queues, local transports, UI paths, and platform proof where applicable.
@@ -108,7 +123,9 @@ playwright/
 - Browser URL/title/DOM answers policy question and no screenshot is captured.
 - Native game process starts and screen summary links to game/session evidence.
 - Launcher-only state does not count as active game proof.
-- Family AI hub route is selected before remote route for hard local cases.
+- Household provider route is selected before remote route for hard local cases,
+  and provider output is not policy-authoritative until the child agent accepts
+  it.
 - Browser-use trigger proof runs against controlled local social/video, education/video, social-feed, browser-game, shopping, and productivity fixtures.
 - App-use trigger proof runs against at least one real foreground app and one controlled unknown/game fixture.
 - Timed cadence proof uses a short test interval, records actual timestamps, and proves queue debounce/backpressure.

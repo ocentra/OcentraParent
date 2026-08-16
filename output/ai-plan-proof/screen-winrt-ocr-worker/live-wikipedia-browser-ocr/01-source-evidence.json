@@ -1,7 +1,0 @@
-{
-  "scenarioId": "live-wikipedia-browser-ocr",
-  "sourceKind": "live-browser-page",
-  "liveExternalUrl": true,
-  "url": "https://www.wikipedia.org/",
-  "title": "Wikipedia"
-}

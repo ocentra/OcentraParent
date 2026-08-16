@@ -1,5 +1,0 @@
-{
-  "workpack": "app-plan-wp11-category-risk-taxonomy",
-  "journalOrSqliteChanged": false,
-  "reason": "No evidence persistence, journal replay, SQLite read model, or service event path changed."
-}

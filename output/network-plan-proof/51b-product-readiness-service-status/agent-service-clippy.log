@@ -1,6 +1,0 @@
-    Checking ocentra-parent-agent-protocol v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\agent-protocol)
-    Checking ocentra-network-evidence v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\ocentra-network-evidence)
-    Checking ocentra-parent-agent-core v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\agent-core)
-    Checking ocentra-parent-screen-capture-adapter v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\screen-capture-adapter)
-    Checking ocentra-parent-agent-service v0.1.1 (E:\OcentraParentWorktrees\E-D\OcentraParent\crates\agent-service)
-    Finished `dev` profile [unoptimized + debuginfo] target(s) in 18.46s

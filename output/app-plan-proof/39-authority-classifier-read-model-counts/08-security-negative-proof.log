@@ -1,7 +1,0 @@
-Security and no-claim proof:
-
-- No raw native app executable path, content, or scan payload was added.
-- Count fields do not grant approval authority.
-- Count fields do not execute classifier output.
-- Count fields do not dispatch policy or adapter actions.
-- Count fields do not claim native platform support.

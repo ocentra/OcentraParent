@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Local AI Safety Evaluator
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Local AI Safety Evaluator
 
 ## Parent Outcome
@@ -11,6 +24,12 @@ confidence/degraded status.
 Child-safety AI runs in the child-device safety path. It consumes typed evidence
 and parent rules, produces typed results, and feeds deterministic policy. It
 does not directly enforce.
+
+AI safety authority is local to the evidence-owning child agent. AI execution
+may run on the same device or on a trusted paired household AI provider, but the
+provider is worker-only. The child agent owns evidence truth, AI work ledger,
+result validation, deterministic parent policy evaluation, enforcement handoff,
+audit, and read models.
 
 ## Roadmap And Expectations
 
@@ -46,6 +65,104 @@ claim needs proof, not slogans.
   parent/child jobs still share one lane, and tracked proof artifacts live under
   `output/ai-plan-proof/local-ai-runtime-provider-proof` and
   `output/ai-plan-proof/local-ai-provider-scheduler-proof`.
+- `crates/ocentra-eventing` is now the reusable Rust event bus. AI analysis
+  should consume typed evidence events and publish typed result/degraded events
+  for policy, action, audit, read-model, and deletion consumers instead of
+  depending on direct capture-to-AI or AI-to-policy calls.
+- `scripts/test/screen-ai-event-driven-runtime-proof.mjs` now proves the
+  screen successful path can publish a typed AI result event from a typed screen
+  evidence event and carry that result into policy/action/read-model/deletion
+  phases without direct AI-to-policy/action shortcuts. The screen-AI final path
+  now also requires service capture/analysis/policy/deletion producer,
+  bridge/subscriber, degraded portal/read-model, and service WinRT OCR policy
+  artifacts before passing. General physical household LAN execution and
+  production model-quality gates remain separate.
+- `scripts/test/screen-ai-household-mesh-proof.mjs` now proves the
+  screen-derived household provider worker boundary: child-owned work item,
+  provider claim/lease, no raw screenshot transfer, worker-only provider result,
+  child-agent validation before policy, and rejection of duplicate, expired,
+  wrong-provider, wrong-claim, evidence-mismatch, custody-mismatch, raw-transfer,
+  and provider-authority-invalid results.
+- `scripts/test/child-agent-ai-policy-authority-proof.mjs` now proves the
+  child-agent AI policy authority boundary over the existing household mesh and
+  event-driven runtime artifacts. Provider output is worker-only; the child
+  agent validates the local AI result, records the policy decision, owns
+  action/read-model/deletion event authority, and rejects provider-authored
+  policy/enforcement payloads plus policy decisions that do not cite the
+  accepted child-agent AI result.
+- `scripts/test/local-ai-policy-enforcement-consumption-proof.mjs` now composes
+  the child-agent authority, enforcement handoff guard, and Windows
+  action-dispatch artifacts to prove enforcement consumes policy decision refs
+  rather than raw AI output or raw screen pixels. This preserves the local
+  child-agent policy boundary and still does not claim broad/browser/network/
+  mobile enforcement, production model execution, or final product-complete
+  enforcement.
+- `scripts/test/household-mesh-event-bridge-proof.mjs` now proves the selected
+  event bridge boundary: local mesh events can be exported only as typed LAN
+  message envelopes, incoming LAN messages must authenticate and authorize
+  before local republish, remote peers cannot publish directly into another
+  runtime bus, and private local queue/capture internals plus raw screen
+  payloads are rejected before export or republish.
+- `HouseholdAiProviderAdvertisementHeartbeatProofSchema` and
+  `scripts/test/household-ai-provider-advertisement-heartbeat-proof.mjs` now
+  prove the household provider advertisement/heartbeat contract: fresh trusted
+  local providers with `screen-ai-analysis` capability can be represented as
+  eligible, while stale, offline, revoked, and unsupported provider
+  advertisements are rejected with reason refs. The proof rejects raw screenshot
+  and remote/API advertisement overclaims and keeps physical LAN execution,
+  provider gossip runtime, model execution/quality, policy authority, and
+  enforcement unclaimed.
+- `scripts/test/household-ai-provider-route-selection-proof.mjs` now proves
+  household AI provider route selection for the local mesh contract: trusted
+  parent desktop providers outrank laptop, child-desktop, and mobile providers;
+  stale, offline, revoked, degraded, unsupported, and custody-mismatched
+  providers are rejected; mobile providers stay dormant while desktop/laptop
+  capacity exists; and mobile is eligible only for explicit light fallback when
+  battery, thermal, and fallback policy allow it.
+- `scripts/test/lan-ai-household-route-metadata-proof.mjs` now proves the Rust
+  service `AgentLanAiJobSubmit` path emits household route metadata after the
+  normal LAN authorization checks: selected provider peer, route reason, claim
+  id, lease id, child-agent-only policy authority, no provider policy publish,
+  no raw screen transfer, and child-agent result validation. This is
+  service-event metadata proof only; it does not execute physical LAN sockets,
+  provider gossip, production models, policy authority, enforcement, or raw
+  screenshot transfer.
+- `scripts/test/lan-ai-provider-heartbeat-runtime-proof.mjs` now proves the
+  Rust service LAN AI provider route uses `LanPairingRuntime` heartbeat
+  reachability before completing screen-derived AI jobs. Stale heartbeat
+  degrades provider routing, offline heartbeat makes the provider unavailable,
+  job events remain degraded instead of completed, and provider-selection rows
+  stop selecting stale-heartbeat providers. This is service runtime state
+  proof only; it does not execute physical LAN sockets, mDNS/multicast provider
+  gossip, production models, policy authority, enforcement, or raw screenshot
+  transfer.
+- `HouseholdAiProviderClaimLeaseProofSchema` and
+  `scripts/test/household-ai-provider-claim-lease-proof.mjs` now prove the
+  household AI provider claim/lease lifecycle contract over a screen-derived
+  AI job: one active lease per job, duplicate claim rejection, lease expiry
+  requeue, max-attempt dead-letter, and idempotent duplicate message handling.
+  The proof keeps physical household LAN execution, model execution/quality,
+  provider policy authority, enforcement, raw screenshot transfer, and
+  remote/API AI unclaimed. Package export and parent-domain README updates
+  remain deferred while another lane owns those files.
+- The [Household AI Provider Mesh Plan](../plans/ai-plan/household-ai-provider-mesh-plan.md)
+  now defines trusted household AI providers, the Household Mesh Bridge,
+  provider advertisement/heartbeat, claim/lease, result validation, no raw
+  screenshot transfer by default, mobile dormant/fallback rules, and
+  child-agent-only policy authority. The branch now has contract/proof coverage
+  for advertisement/heartbeat eligibility, claim/lease lifecycle, result
+  validation, no-raw-transfer, route selection, and child-agent-only policy
+  authority; physical household LAN execution, provider gossip runtime,
+  production model execution/quality, portal UI, and enforcement remain product
+  gaps.
+- `scripts/test/eventing-household-mesh-consumer-proof.mjs` now proves the
+  Household Mesh Bridge eventing consumer boundary in `agent-core`: selected
+  local events export as typed authenticated LAN messages, incoming messages
+  validate before local republish, unselected or mismatched event/message refs
+  are rejected, direct remote publish into another runtime bus is rejected, raw
+  payload transfer is rejected, and child-agent-only AI policy authority is
+  preserved. This is bridge-boundary proof, not production provider execution or
+  model-quality proof.
 - `LocalAiRuntimeStatusSurfaceReadModelSchema` and
   `scripts/test/local-ai-runtime-status-read-model-proof.mjs` now project the
   existing provider proof rows into parent-facing runtime status rows. The proof
@@ -92,6 +209,14 @@ claim needs proof, not slogans.
   partial context with explicit missing evidence kinds. It consumes existing
   proof artifacts and does not create fresh capture, execute a model, prove
   model quality, render portal UI, dispatch enforcement, or use remote/API AI.
+- `scripts/test/local-ai-stored-evidence-integration-proof.mjs` now proves the
+  next integration step from stored context output into local AI analysis input:
+  the ready stored-evidence row becomes a schema-valid
+  `LocalAiEvaluationInput` and feeds `runLocalAiTextInferenceDryRun` while
+  preserving stored evidence refs, parent-rule refs, runtime refs, local-only
+  mode, and no raw prompt/model-output/screenshot retention. It does not create
+  fresh captures, execute a production model, prove model quality, render portal
+  UI, dispatch enforcement, or use remote/API AI.
 - `LocalAiParentRuleContextBuilderProofSchema` and
   `scripts/test/local-ai-parent-rule-context-builder-proof.mjs` now prove the
   parent-rule context builder path over the existing stored-evidence context
@@ -167,8 +292,12 @@ claim needs proof, not slogans.
   remain outside the child-safety decision path, preserve local AI and
   deterministic policy authority, degrade to a local-only fallback, and reject
   raw retention, policy-authority, enforcement, and remote-override overclaims.
-  This does not execute a remote provider, render portal UI, prove model
-  quality, or change local safety decisions.
+  `#/ai-runtime` now renders the service-reported parent-assistant boundary
+  event with provider route, parent authorization, custody, deletion/retention,
+  evidence summary, citation count, and the explicit
+  `remote-assistant-report-only-local-policy-authority` claim. This does not
+  execute a remote provider, prove model quality, or change local safety
+  decisions.
 - The service WinRT OCR policy proof now reruns the real Windows service
   OCR path over live public Wikipedia pixels and consumes that exact
   `localOcr` Activity Screen row through `PolicyDecisionSchema`, producing an
@@ -222,6 +351,12 @@ claim needs proof, not slogans.
   dry-run policy refs, local runtime refs, custody labels, and deleted-image
   reasons while still not claiming raw image display, remote/API AI, production
   portal runtime rendering, policy authority, or enforcement.
+- `packages/portal-domain/src/screen-summary-panel.ts` now renders the
+  service-backed Screen Analysis row as a parent decision explanation surface:
+  local AI evidence refs, dry-run policy decision refs, policy action, policy
+  reason codes, parent rule refs, parent explanation refs, explanation reasons,
+  OCR redaction snippets, and deleted-image custody remain visible while
+  enforcement handoff stays `not-claimed`.
 - `scripts/test/screen-summary-parent-explanation-service-read-model-proof.mjs`
   now starts the real Rust service against a seeded local ActivityStore and
   requests the Activity Screen read model over WebSocket. The service-backed row
@@ -239,6 +374,27 @@ claim needs proof, not slogans.
   verifier writes
   `output/screen-ai-pipeline-proof/final-product-path/proof-summary.json` and
   does not rerun live capture/model inference or claim remote/API AI.
+- `apps/portal/src/AiRuntimeRoutePanel.tsx` and
+  `packages/portal-domain/src/local-ai-runtime-panel.ts` now render the existing
+  `agent.local-ai.runtime.status.reported` and `agent.lan-ai.job.reported`
+  events on the `#/ai-runtime` product route. This closes the first AI
+  jobs/activity visibility surface for service-reported runtime/job rows only;
+  it does not claim model quality, physical LAN execution, policy authority, or
+  enforcement.
+- The `#/ai-runtime` household AI job card now surfaces provider source/trust,
+  capability flags, resource class, readiness, privacy/custody, routing state,
+  claim/lease refs, lease timestamps, execution state, and child-agent authority
+  markers from the same service-reported LAN AI job event. This closes the
+  household AI provider mesh surface for reported job/provider rows only; it
+  does not claim physical household LAN execution, production gossip, model
+  quality, policy authority, or enforcement.
+- The same `#/ai-runtime` route now renders a cited memory/graph evidence card
+  from the existing service-backed `agent.activity.memory_graph.reported` event.
+  The card preserves child-device custody, graph node/edge counts, omitted-edge
+  counts, degraded reasons, and source evidence refs. This closes the
+  memory/graph evidence portal surface for reported read-model rows only; it
+  does not claim production graph storage/index runtime, model quality, policy
+  authority, remote/API AI, or enforcement.
 - `ScreenAiStricterParentRuleProofSchema` and
   `scripts/test/screen-ai-stricter-parent-rule-proof.mjs` now consume the real
   service WinRT OCR policy decision and prove a stricter parent-authored screen
@@ -325,13 +481,17 @@ claim needs proof, not slogans.
 
 Ocentra needs production-installed local model artifacts behind the typed
 manifest boundary, production screen model/OCR quality beyond current local
-proof, confidence handling, authenticated-account social proof beyond
-public/live surface proof, production parent explanation portal rendering,
+proof, confidence handling, authenticated-account social proof beyond the
+operator-run public/live surface artifact gate, production parent explanation portal rendering,
 broader enforcement handoff, production browser-trigger producers, physical
 household family AI hub runtime/discovery beyond the loopback proof,
 production remote assistant provider execution and portal assistant UI,
-cloud-streamed frame proof, mobile browser parity, and validation against
-production external evidence variants.
+production memory/graph storage/index runtime,
+cloud-streamed frame proof,
+mobile browser parity, live service AI event consumers, degraded-result event
+flow, production household mesh transport over physical LAN, live provider
+advertisement/heartbeat gossip, live lease expiry and dead-letter handling, and
+validation against production external evidence variants.
 
 ## Checklist
 
@@ -340,6 +500,9 @@ production external evidence variants.
 - [x] One local AI runtime access lane per physical device, with child-safety
       priority and no duplicate same-device model load proof.
 - [x] Evidence context builder proof path.
+- [x] Stored-evidence integration proof path into local AI evaluation input and
+      dry-run result without raw retention, remote/API AI, policy authority, or
+      enforcement.
 - [x] Parent-rule context proof path.
 - [x] Parent-rule context builder proof path.
 - [x] Local text inference dry-run proof path without model-execution,
@@ -406,11 +569,64 @@ production external evidence variants.
 - [x] Screen AI model runtime flood-control/backpressure proof rejects duplicate
       active heavy runtimes, queue overflow, policy-eligible overload rows,
       remote provider fallback, and raw image retention.
+- [x] Screen successful-path AI event runtime proof publishes a typed AI result
+      event from typed screen evidence and carries it to policy/action/read-model
+      phases without direct AI-to-policy/action shortcuts.
+- [x] Screen household mesh provider proof validates child-owned claim/lease and
+      provider-result acceptance before policy without raw screenshot transfer
+      or provider policy/enforcement authority.
+- [x] Household Mesh Bridge proof validates selected-event export/import,
+      authenticated/authorized local republish, no direct remote bus publish,
+      and no private/raw screen payload transfer.
+- [x] Household AI provider advertisement/heartbeat proof validates fresh
+      trusted screen-capable local providers and rejects stale, offline,
+      revoked, unsupported, raw-payload, and remote/API advertisement overclaims
+      without physical LAN, gossip runtime, model, policy, or enforcement
+      claims.
+- [x] Household AI provider route selection proof validates desktop/laptop
+      preference, mobile dormant/fallback, stale/offline/revoked rejection,
+      degraded/unsupported rejection, and custody mismatch rejection without
+      claiming physical LAN routing, production model execution, portal UI,
+      policy authority, or enforcement.
+- [x] LAN AI service job events emit household route metadata, claim/lease ids,
+      child-agent-only authority, no raw screen transfer, and provider
+      policy-publish rejection fields after real service authorization tests,
+      without claiming physical LAN/gossip/model/enforcement execution.
+- [x] Household AI provider claim/lease lifecycle proof validates one active
+      lease per job, duplicate claim rejection, lease expiry requeue,
+      max-attempt dead-letter, and idempotent duplicate message handling without
+      physical LAN execution, model execution, model quality, provider policy
+      authority, enforcement, raw screenshot transfer, or remote/API AI claims.
+- [x] Child-agent AI policy authority proof validates provider worker-only
+      output, child-agent result validation, child-owned policy/action/read-model
+      authority, and provider policy/enforcement rejection without claiming
+      physical LAN execution, model quality, portal UI, or final enforcement.
+- [x] Policy-only enforcement consumption proof validates policy-decision refs
+      feed adapter handoff while raw AI output and raw pixels remain outside the
+      enforcement path.
+- [x] Live external operator artifact gate validates existing operator-run
+      YouTube, Vimeo, Facebook/social, browser-game, shopping,
+      school/productivity, native app, and protected-state artifacts with local
+      VLM analysis, policy dry-run rows, and raw-image deletion; it does not
+      rerun capture/model inference or claim authenticated-account social,
+      managed-browser trigger integration, or final product-complete pipeline
+      closure.
+- [x] AI jobs/activity portal surface renders existing local runtime status and
+      LAN AI job events on the `#/ai-runtime` route without model-quality,
+      physical LAN execution, policy-authority, or enforcement claims.
+- [x] Remote assistant boundary portal surface renders service-reported
+      parent-assistant answer/degraded/error events on `#/ai-runtime`, including
+      provider route, parent authorization, custody, deletion/retention,
+      evidence summary, citation count, and local-policy-authority-only
+      non-claims.
 
 Production-installed model artifacts, production model/OCR quality,
-authenticated-account social proof, physical household family AI hub
-runtime/discovery, and broad enforcement handoff remain in the Current Gap
-section above.
+authenticated-account social proof beyond the operator-run public/live artifact
+gate, physical household family AI hub runtime/discovery, production mesh bridge
+transport over real LAN, live provider advertisement/heartbeat gossip, lease
+expiry/dead-letter handling, live service AI event consumers, degraded-result
+event flow, production memory/graph storage/index runtime, and broad enforcement
+handoff remain in the Current Gap section above.
 
 ## Next AI Instructions
 

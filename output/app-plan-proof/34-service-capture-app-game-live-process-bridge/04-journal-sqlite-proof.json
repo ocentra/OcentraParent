@@ -1,9 +1,0 @@
-{
-  "workpack": "34-service-capture-app-game-live-process-bridge",
-  "journalSqliteStatus": "cross_recorded_from_app_game_wp34",
-  "assertions": {
-    "service_capture_ingests_app_game_runtime_row": true,
-    "app_game_read_model_running_now_returned": 1,
-    "foreground_now_returned": 0
-  }
-}

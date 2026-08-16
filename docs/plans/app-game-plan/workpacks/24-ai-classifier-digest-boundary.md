@@ -1,5 +1,19 @@
 # 24 AI Classifier Digest Boundary
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `24 AI Classifier Digest Boundary`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 AI consumes stored app/game evidence or structured digests and returns
@@ -26,13 +40,13 @@ lock. The proof harness still runs the existing activity-domain digest test.
 
 ## Tests And Proof
 
-- [x] Missing evidence refs rejected.
-- [x] Confidence outside `0..1` rejected.
-- [x] Block/terminate/hide/suspend/shield fields rejected.
-- [x] Duration field in AI output rejected.
-- [x] Raw OS scan result in AI output rejected.
-- [x] Provider unavailable and low-confidence fallback states are explicit.
-- [x] Proof artifacts recorded in
+- [ ] Missing evidence refs rejected.
+- [ ] Confidence outside `0..1` rejected.
+- [ ] Block/terminate/hide/suspend/shield fields rejected.
+- [ ] Duration field in AI output rejected.
+- [ ] Raw OS scan result in AI output rejected.
+- [ ] Provider unavailable and low-confidence fallback states are explicit.
+- [ ] Proof artifacts recorded in
       `output/app-game-plan-proof/24-ai-classifier-digest-boundary/`.
 
 ## Done Signal

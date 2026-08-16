@@ -1,0 +1,19 @@
+/* thin adapter over Rust-owned generated social policy compiler value contracts */
+
+import * as Generated from './generated-social-policy-compiler-values';
+
+export const SocialPolicyEvidenceRefsSchema = Generated.SocialPolicyEvidenceRefsSchema;
+export const SocialPolicySignalSetRefsSchema = Generated.SocialPolicySignalSetRefsSchema;
+export const SocialPolicyParentRuleRefsSchema = Generated.SocialPolicyParentRuleRefsSchema;
+export const SocialPolicyScheduleRefsSchema = Generated.SocialPolicyScheduleRefsSchema;
+export const SocialPolicyTimeBudgetRefsSchema = Generated.SocialPolicyTimeBudgetRefsSchema;
+export const SocialParentPolicyCompileRequestIdSchema = Generated.SocialParentPolicyCompileRequestIdSchema;
+export const SocialParentPolicyDecisionCandidateIdSchema = Generated.SocialParentPolicyDecisionCandidateIdSchema;
+export const SocialParentPolicyTargetKindSchema = Generated.SocialParentPolicyTargetKindSchema;
+export const SocialParentPolicyActionCandidateSchema = Generated.SocialParentPolicyActionCandidateSchema;
+export const SocialParentPolicyReasonCodeSchema = Generated.SocialParentPolicyReasonCodeSchema;
+export const SocialParentPolicyCompilerModeSchema = Generated.SocialParentPolicyCompilerModeSchema;
+export const SocialParentPolicyConfidenceSchema = Generated.SocialParentPolicyConfidenceSchema;
+export const SocialParentPolicyScheduleStateSchema = Generated.SocialParentPolicyScheduleStateSchema;
+export const SocialParentPolicyTimeBudgetStateSchema = Generated.SocialParentPolicyTimeBudgetStateSchema;
+export const SocialParentPolicyReasonCodesSchema = Generated.SocialParentPolicyReasonCodesSchema;

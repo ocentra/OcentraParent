@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Data Custody And Local-First Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Data Custody And Local-First Expectations
 
 Ocentra Parent is a local/LAN-first product. The child-device agent and the
@@ -178,6 +191,27 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   default Ocentra-hosted family data, or any claim that Ocentra-hosted services
   executed provider-secret custody, backend secret storage, rotation, or
   revocation.
+- `provider-secret-execution-readiness-proof` may summarize provider-secret
+  execution boundary, backend secret-store preflight, rotation preflight,
+  revocation preflight, operator approval, manual execution, and support-safe
+  audit export rows with custody status refs, preflight refs, operator approval
+  refs, manual proof refs, and audit refs, but it must not include raw child
+  activity, provider secrets, payment provider tokens, raw support bundle
+  payloads, account lookup results, billing provider contact records, support
+  backend payloads, remote support session transcripts, production SLA claims,
+  default Ocentra-hosted family data, or any claim that Ocentra-hosted services
+  executed backend secret storage, rotation, revocation, or provider-secret
+  delivery.
+- `production-support-provider-secret-rotation-revocation-status-proof` may
+  summarize provider-secret rotation and revocation requested, preflight-ready,
+  manual-required, and audit-export-ready status rows with custody status,
+  execution readiness, backend secret-store preflight, operator approval,
+  manual proof, and audit refs, but it must not include raw child activity,
+  provider secrets, payment provider tokens, raw support bundle payloads,
+  account lookup results, billing provider contact records, support backend
+  payloads, remote support session transcripts, production SLA claims, default
+  Ocentra-hosted family data, or any claim that Ocentra-hosted services executed
+  backend secret storage, rotation, revocation, or provider-secret delivery.
 - `production-support-data-export-delete-lifecycle-proof` may summarize
   parent-authorized local export/delete requested, authorized, queued, running,
   succeeded, failed, and manual-required lifecycle status rows with local queue,
@@ -186,14 +220,27 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   secrets, backend upload payloads, public runtime payloads, remote support
   transcripts, production SLA commitments, default Ocentra-hosted family data,
   or any claim that Ocentra-hosted services executed export/delete custody.
+- `production-support-delete-executor-proof` may summarize delete executor
+  readiness/status rows with delete-request, authorization, redaction/audit,
+  custody, source-proof, and manual-proof refs for local export output, support
+  backend payload, status backend payload, public runtime payload, and legal
+  disclosure payload targets, but it must not include raw child activity, raw
+  support bundle payloads, provider secrets, backend upload payloads, status
+  backend payloads, public runtime payloads, legal execution payloads, remote
+  support transcripts, production SLA commitments, durable queue payloads,
+  payload deletion execution, default Ocentra-hosted family data, or any claim
+  that Ocentra-hosted services executed export/delete custody.
 - `production-support-process-runtime-status-proof` may summarize support
   process requested, parent-consent authorized, privacy/legal queued, redaction
   review running, backend-upload failed, case-resolution succeeded, and
-  manual-required runtime status rows with support-safe status, audit, and
-  manual proof refs, but it must not include raw child activity, raw support
-  bundles, provider secrets, account lookup results, billing contact records,
-  backend upload payloads, public runtime payloads, remote support transcripts,
-  production SLA commitments, or default Ocentra-hosted family data.
+  manual-required runtime status rows plus incident runtime requested,
+  authorized, running, evidence-ready, and manual-required rows with
+  support-safe status, runtime evidence, audit, and manual proof refs, but it
+  must not include raw child activity, raw support bundles, provider secrets,
+  account lookup results, billing contact records, backend upload payloads,
+  public runtime payloads, incident runtime payloads, remote support
+  transcripts, production SLA commitments, or default Ocentra-hosted family
+  data.
 - `production-support-status-backend-public-runtime-followthrough-proof` may
   summarize status backend/public runtime follow-through rows with support-safe
   status labels, backend handoff refs, public runtime handoff refs, and manual
@@ -218,6 +265,25 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   payloads, audit persistence payloads, public runtime payloads, remote support
   transcripts, production SLA commitments, or default Ocentra-hosted family
   data.
+- `production-support-status-backend-dead-letter-proof` may summarize status
+  backend dead-letter rows with support-safe status labels, queue refs,
+  dead-letter refs, retry policy refs, audit refs, and manual proof refs, but
+  it must not include raw child activity, raw support bundles, provider secrets,
+  account lookup results, billing contact records, backend upload payloads,
+  status backend execution payloads, durable queue payloads, retry worker
+  payloads, audit persistence payloads, dead-letter payloads, public runtime
+  payloads, remote support transcripts, production SLA commitments, or default
+  Ocentra-hosted family data.
+- `production-support-status-backend-runtime-execution-proof` may summarize
+  status backend runtime execution rows with support-safe status labels, queue
+  refs, dead-letter refs, retry policy refs, audit refs, runtime evidence refs,
+  and manual proof refs, but it must not include raw child activity, raw support
+  bundles, provider secrets, account lookup results, billing contact records,
+  backend upload payloads, status backend execution payloads, durable queue
+  payloads, retry worker payloads, audit persistence payloads, dead-letter
+  payloads, status backend payloads, public runtime payloads, remote support
+  transcripts, production SLA commitments, or default Ocentra-hosted family
+  data.
 - `production-support-status-backend-payload-custody-proof` may summarize
   status backend payload custody rows with support-safe status target refs,
   queue refs, audit refs, redaction refs, custody refs, retention refs, delete
@@ -236,6 +302,40 @@ Remote access must not silently turn Ocentra into a family-data warehouse.
   production SLA commitments, durable status backend payload storage, payload
   deletion execution, retry worker execution, audit persistence execution, or
   default Ocentra-hosted family data.
+- `production-support-status-backend-runtime-closure-proof` may summarize
+  source-backed closure refs for status backend runtime execution,
+  queue/audit persistence, dead-letter, payload custody, redaction manifest,
+  and public-runtime follow-through rows, but it must not include raw child
+  activity, raw support bundles, provider secrets, account lookup results,
+  billing contact records, backend upload payloads, status backend payloads,
+  public runtime payloads, legal execution payloads, remote support transcripts,
+  production SLA commitments, durable queue payloads, retry worker payloads,
+  audit persistence payloads, dead-letter payloads, durable status backend
+  payload storage, payload deletion execution, retry worker execution, audit
+  persistence execution, or default Ocentra-hosted family data.
+- `production-support-status-backend-durable-queue-runtime-proof` may summarize
+  source-backed durable queue runtime boundary refs for queue storage,
+  retry-worker, audit-persistence, dead-letter, runtime execution, and runtime
+  closure rows, but it must not include raw child activity, raw support bundles,
+  provider secrets, account lookup results, billing contact records, backend
+  upload payloads, status backend payloads, public runtime payloads,
+  provider-secret payloads, legal execution payloads, remote support
+  transcripts, production SLA commitments, durable queue payloads, retry worker
+  payloads, audit persistence payloads, dead-letter payloads, durable queue
+  storage execution, retry worker execution, audit persistence execution, or
+  default Ocentra-hosted family data.
+- `production-support-status-backend-execution-continuation-proof` may
+  summarize source-backed execution continuation refs for durable queue runtime,
+  runtime closure, payload custody, redaction manifest, and manual proof rows,
+  but it must not include raw child activity, raw support bundles, provider
+  secrets, account lookup results, billing contact records, backend upload
+  payloads, status backend payloads, public runtime payloads, provider-secret
+  payloads, legal execution payloads, remote support transcripts, production
+  SLA commitments, durable queue payloads, retry worker payloads, audit
+  persistence payloads, dead-letter payloads, durable queue storage execution,
+  retry worker execution, audit persistence execution, redaction manifest
+  execution, status backend payload custody, default Ocentra-hosted family data,
+  or child activity custody.
 - `production-support-privacy-legal-disclosure-status-proof` may summarize
   parent-authorized privacy/legal disclosure requested, legal-review
   queued/running, parent-notification-ready, publication-ready, failed, and

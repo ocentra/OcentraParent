@@ -1,2 +1,0 @@
-eventing-family-variant-proof-ok:typed-family-enum-exists,tagged-serde-wrapper-exists,handler-matches-typed-variants,stored-decode-contract-mismatch-test,variants-register-distinct-contracts,no-json-shape-inspection,no-downcast-routing
-proof=output\eventing-plan-proof\75-family-variants\proof-summary.json
