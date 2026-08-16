@@ -64,6 +64,14 @@ fn receipt_is_coherent(
         || receipt.duplicates_created
         || !preflight_is_applicable(preflight)
         || has_duplicate_data_classes(&receipt.applied_sections, &receipt.rejected_sections)
+        || receipt
+            .applied_sections
+            .iter()
+            .any(|decision| decision.state != contracts::ExportImportSectionDecisionState::Accepted)
+        || receipt
+            .rejected_sections
+            .iter()
+            .any(|decision| decision.state == contracts::ExportImportSectionDecisionState::Accepted)
     {
         return false;
     }
