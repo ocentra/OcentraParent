@@ -128,8 +128,10 @@ remote-access-plan and policy-control-plane-plan:
   manual-required, so this path cannot unlock capabilities by itself.
 - WP06 now blocks confirmation-only restore and requires a verified parent
   `PairChildDevice` authority bound to the local household and target device
-  before applying a recovery preview. Encryption/key custody, revocation
-  preservation, and runtime proof remain manual-required.
+  before applying a recovery preview. An unavailable-by-default restore
+  executor keeps authority confirmation from claiming applied/partial state;
+  encryption/key custody, revocation preservation, and runtime proof remain
+  manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```

@@ -37,5 +37,7 @@ on the real signature/revocation provider and retained runtime proof; the
 unavailable default keeps capability unlock manual-required.
 
 WP06 now blocks the untrusted confirmation-only restore path and exposes a
-verified-parent re-pair gate; encrypted bundle/key custody, revocation
-preservation, and runtime proof remain open.
+verified-parent re-pair gate plus an unavailable-by-default restore executor;
+authority confirmation cannot claim applied/partial state until a real
+executor exists. Encrypted bundle/key custody, revocation preservation, and
+runtime proof remain open.

@@ -78,6 +78,38 @@ pub struct RestoreApplyRequest {
     pub confirmed: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RestoreExecutorOutcome {
+    Applied,
+    Partial,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RestoreExecutorFailure {
+    Unavailable,
+}
+
+pub trait RestoreExecutor {
+    fn execute_restore(
+        &mut self,
+        preflight: &contracts::ExportImportImportPreflight,
+        request: &RestoreApplyRequest,
+    ) -> Result<RestoreExecutorOutcome, RestoreExecutorFailure>;
+}
+
+#[derive(Debug, Default)]
+pub struct UnavailableRestoreExecutor;
+
+impl RestoreExecutor for UnavailableRestoreExecutor {
+    fn execute_restore(
+        &mut self,
+        _preflight: &contracts::ExportImportImportPreflight,
+        _request: &RestoreApplyRequest,
+    ) -> Result<RestoreExecutorOutcome, RestoreExecutorFailure> {
+        Err(RestoreExecutorFailure::Unavailable)
+    }
+}
+
 pub fn derive_export_bundle(
     request: ExportBundleBuildRequest,
     sections: Vec<ExportPayloadSectionInput>,
@@ -106,6 +138,23 @@ pub fn apply_restore_with_parent_authority(
     request: &RestoreApplyRequest,
     authority: &VerifiedHouseholdAuthority,
 ) -> contracts::ExportImportRestoreApplyResult {
+    let mut executor = UnavailableRestoreExecutor;
+    apply_restore_with_parent_authority_and_executor(
+        preflight,
+        context,
+        request,
+        authority,
+        &mut executor,
+    )
+}
+
+pub fn apply_restore_with_parent_authority_and_executor(
+    preflight: &contracts::ExportImportImportPreflight,
+    context: &ImportBundleContext,
+    request: &RestoreApplyRequest,
+    authority: &VerifiedHouseholdAuthority,
+    executor: &mut impl RestoreExecutor,
+) -> contracts::ExportImportRestoreApplyResult {
     let Some(identity_binding) = authority.identity_binding() else {
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     };
@@ -121,5 +170,8 @@ pub fn apply_restore_with_parent_authority(
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     }
 
-    export_import_backup_recovery_restore::apply_restore(preflight, request)
+    let Ok(outcome) = executor.execute_restore(preflight, request) else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    export_import_backup_recovery_restore::apply_restore_after_execution(preflight, outcome)
 }
