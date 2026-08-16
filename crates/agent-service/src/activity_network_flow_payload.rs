@@ -274,6 +274,15 @@ fn runtime_delivery_pairs(
             optional_usize(delivery.map(|value| value.dead_letters)),
         ),
         (
+            constants::field::NETWORK_RUNTIME_DURABLE_JOURNAL_STATE,
+            LogFieldValue::String(
+                delivery
+                    .map(|value| value.journal_state.as_str())
+                    .unwrap_or("unavailable-manual-required")
+                    .to_string(),
+            ),
+        ),
+        (
             constants::field::NETWORK_RUNTIME_MANUAL_REQUIRED_ROWS,
             optional_usize(delivery.map(|value| value.manual_required_rows)),
         ),

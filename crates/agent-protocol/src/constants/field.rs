@@ -507,6 +507,7 @@ pub const BROWSER_RUNTIME_READ_MODEL_PROJECTION_EVENTS: &str =
 pub const BROWSER_RUNTIME_STREAMED_EVENTS: &str = "browserRuntimeStreamedEvents";
 pub const NETWORK_RUNTIME_EVENT_CHAIN_STREAM: &str = "networkRuntimeEventChainStream";
 pub const NETWORK_RUNTIME_DEAD_LETTERS: &str = "networkRuntimeDeadLetters";
+pub const NETWORK_RUNTIME_DURABLE_JOURNAL_STATE: &str = "networkRuntimeDurableJournalState";
 pub const NETWORK_RUNTIME_DELIVERED_ROWS: &str = "networkRuntimeDeliveredRows";
 pub const NETWORK_RUNTIME_ENFORCEMENT_COMMAND_EVENTS: &str =
     "networkRuntimeEnforcementCommandEvents";

@@ -57,7 +57,10 @@ plan package. They are planning inputs, not implementation proof.
 | `crates/agent-protocol/src/constants/network_flow.rs`          | Rust protocol constants for network flow boundaries.                                      |
 | `crates/agent-core/src/network_capture*.rs`                    | Current network capture adapter foundation.                                               |
 | `crates/agent-core/src/activity_store_network_flow*.rs`        | Network flow journal/SQLite storage foundation.                                           |
-| `crates/agent-core/src/network_event_runtime*.rs`              | Production runtime spine, handler receipt, queue/idempotency, replay, and no-enforcement proof. |
+| `crates/agent-core/src/network_event_runtime*.rs`              | Runtime spine, handler receipt, queue/replay, no-enforcement proof, and journal-state boundary. |
+| `crates/agent-service/src/service_runtime.rs`                  | Service-lifetime startup owner for the shared network runtime spine.                         |
+| `crates/agent-service/src/network_runtime_delivery.rs`          | Shared-spine network delivery path and durable-journal readiness projection.                  |
+| `crates/agent-service/src/network_runtime_stream_payload.rs`   | Shared-spine runtime stream path and durable-journal readiness projection.                   |
 | `crates/agent-service/src/network_flow_digest*.rs`             | Service digest rollups and unusual indicators.                                            |
 | `crates/agent-service/src/activity_network_flow_payload.rs`    | Service payload boundary for activity network flow.                                       |
 | `crates/ocentra-network-evidence/src/*`                        | Parser, classifier, cascade, adapter-gate, performance, and platform-claim proof logic.  |

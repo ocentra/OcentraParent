@@ -123,6 +123,13 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 
 ## Open gaps / truth boundaries
 
+### Current code-drafted WP01 runtime slice — tests deferred
+
+- `agent-service` now owns one service-lifetime `NetworkRuntimeSpine`; network delivery and stream paths reuse its event bus instead of recreating a bus per observation.
+- The existing eventing API exposes journal capability, but no network-specific production durable-journal owner is available in this route. The runtime therefore reports `in-memory-manual-required` explicitly and does not claim durable replay or production custody.
+- Reports are scoped to the current publish event IDs under the spine chain lock; delivery and stream still republish read-model rows independently, and no deduplication/idempotency claim is made.
+- Required tests, proof artifacts, graph completion, live capture, transport, policy, enforcement, and platform readiness remain open.
+
 ### Real dependency blockers
 
 - Cross-plan rows that depend on browser exact-URL evidence, screen-summary fallback, AI runtime ownership, eventing semantics, LAN/family-hub delivery, or enforcement authority remain dependent on their owning plans.

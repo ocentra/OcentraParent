@@ -18925,12 +18925,12 @@
       "path": "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "code drafted; tests/validation/proof deferred; durable journal manual-required",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
