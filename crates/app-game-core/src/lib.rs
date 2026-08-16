@@ -47,6 +47,7 @@ pub mod app_game_policy_preview_handoff;
 pub mod app_game_policy_preview_handoff_generated_ts;
 pub mod app_game_policy_target_compiler;
 pub mod app_game_policy_target_compiler_generated_ts;
+pub mod app_game_risk_candidate_detection;
 pub mod app_game_source_freshness_preview_gate;
 pub mod app_game_source_gated_policy_preview;
 pub mod app_game_source_gated_policy_preview_timer_chain;
