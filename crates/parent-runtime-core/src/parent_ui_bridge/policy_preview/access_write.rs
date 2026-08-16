@@ -22,7 +22,7 @@ pub(super) fn policy_preview_access_write_authority_impl(
     if read_model.and_then(|value| value.policy_assistant_confirmation_state.as_deref())
         == Some("parent-confirmed")
     {
-        return "Parent-confirmed preview is visible, but the portal still has no typed write command."
+        return "Parent-confirmed preview is visible and the typed parent-confirmation request exists, but this does not prove downstream policy mutation, delivery, or active enforcement."
             .to_string();
     }
     if read_model.and_then(|value| value.policy_assistant_confirmation_state.as_deref())
@@ -30,5 +30,5 @@ pub(super) fn policy_preview_access_write_authority_impl(
     {
         return "Parent confirmation is required before any write.".to_string();
     }
-    "Preview-only route; no typed write command is exposed from this surface.".to_string()
+    "Preview-only route; typed parent confirmation is available only through the bounded staged request flow and does not prove downstream policy mutation, delivery, or active enforcement.".to_string()
 }
