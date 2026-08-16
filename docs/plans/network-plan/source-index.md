@@ -56,6 +56,7 @@ plan package. They are planning inputs, not implementation proof.
 | `crates/agent-protocol/tests/contract/network_eventing_contract.rs` | Payload mutation, version-skew, and shared-eventing contract tests.                  |
 | `crates/agent-protocol/src/constants/network_flow.rs`          | Rust protocol constants for network flow boundaries.                                      |
 | `crates/agent-core/src/network_capture*.rs`                    | Current network capture adapter foundation.                                               |
+| `crates/agent-service/src/activity_capture*.rs`                | Bounded recurring activity capture orchestration and event-batch ownership.                |
 | `crates/agent-core/src/activity_store_network_flow*.rs`        | Network flow journal/SQLite storage foundation.                                           |
 | `crates/agent-core/src/network_event_runtime*.rs`              | Runtime spine, handler receipt, queue/replay, no-enforcement proof, and journal-state boundary. |
 | `crates/agent-service/src/service_runtime.rs`                  | Service-lifetime startup owner for the shared network runtime spine.                         |

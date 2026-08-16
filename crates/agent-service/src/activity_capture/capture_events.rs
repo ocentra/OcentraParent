@@ -10,7 +10,7 @@ pub(super) use super::app_game::{CaptureLimit, ObservedAtText};
 use super::{app_game, ActivityCaptureError};
 
 pub(super) fn activity_capture_events(
-    observed_at: ObservedAtText,
+    observed_at: ObservedAtText<'_>,
     process_limit: CaptureLimit,
     network_limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
@@ -37,7 +37,7 @@ pub(super) fn activity_capture_events(
 }
 
 fn activity_capture_events_with_inventory(
-    observed_at: ObservedAtText,
+    observed_at: ObservedAtText<'_>,
     process_limit: CaptureLimit,
     network_limit: CaptureLimit,
     inventory_events: Vec<ActivityEvent>,
@@ -55,7 +55,7 @@ fn activity_capture_events_with_inventory(
 }
 
 fn activity_capture_events_with_inventory_sources(
-    observed_at: ObservedAtText,
+    observed_at: ObservedAtText<'_>,
     process_limit: CaptureLimit,
     network_limit: CaptureLimit,
     inventory_events: Vec<ActivityEvent>,

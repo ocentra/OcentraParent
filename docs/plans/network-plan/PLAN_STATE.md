@@ -130,6 +130,17 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - Reports are scoped to the current publish event IDs under the spine chain lock; delivery and stream still republish read-model rows independently, and no deduplication/idempotency claim is made.
 - Required tests, proof artifacts, graph completion, live capture, transport, policy, enforcement, and platform readiness remain open.
 
+### Current code-drafted WP07 resource-safety slice — tests deferred
+
+- The recurring `agent-service` activity-capture path now owns the observed-at
+  timestamp as a `String` for the duration of one capture batch instead of
+  leaking a `Box::leak` allocation on every interval.
+- Existing process/network snapshot limits remain the capture bounds; this
+  slice does not claim high-concurrency, soak, shutdown, deployment, or
+  platform-readiness completion.
+- Required tests, benchmarks, proof, rollout evidence, and graph completion
+  remain open.
+
 ### Real dependency blockers
 
 - Cross-plan rows that depend on browser exact-URL evidence, screen-summary fallback, AI runtime ownership, eventing semantics, LAN/family-hub delivery, or enforcement authority remain dependent on their owning plans.
