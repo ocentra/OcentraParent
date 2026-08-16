@@ -2,6 +2,21 @@
 
 > **2026-07-28 correction:** `infra/cloudflare` imports module-local generated billing contracts. This workpack remains open because it has no tracked account-storage proof bundle; restore the module dependency environment, then record the actual result.
 
+## Production reachability audit - 2026-08-16
+
+The retained store is not a production handoff. `createAccountIdentityStore`
+is only defined in `infra/cloudflare/src/storage/account-identity-store.ts`
+and imported by its unit tests; the Worker entrypoint and route manifest have
+no account-identity caller. `ACCOUNT_IDENTITY_D1` and its binding-specific
+migration are source/configuration surfaces with placeholder database IDs, not
+deployed authority. The reachable auth verifier has no provider-owned
+cryptographic issuer: local-safe-fixture is test/local-only and account
+adapter modes remain manual-required. Do not add a route or persistence caller
+until Account WP08 supplies the contract and an actual provider-owned verifier
+can issue the narrow verified mapping. This audit authorizes no production
+code edit; validation, migration, proof, and runtime/deployment claims remain
+deferred.
+
 ## Goal
 
 Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, and optional R2.
