@@ -18,6 +18,10 @@ pub(super) fn apply_browser_live_activity_impl(
         snapshot.browser_inventory_event = Some(inventory.event.clone());
         snapshot.browser_inventory_read_model = serde_json::to_value(&inventory.read_model).ok();
     }
+    if let Some(evidence) = input.browser_evidence_read_model_snapshot {
+        snapshot.browser_evidence_event = Some(evidence.event.clone());
+        snapshot.browser_evidence_read_model = serde_json::to_value(&evidence.read_model).ok();
+    }
     if !matches!(input.route, ParentRouteId::Browser) {
         return;
     }

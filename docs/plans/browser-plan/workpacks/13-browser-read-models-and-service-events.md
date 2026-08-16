@@ -35,6 +35,13 @@ This is code-drafted, unvalidated, and tests/proof/checklist-deferred. It does
 not add browser capture, active-tab focus authority, unmanaged exact-URL
 authority, intervention delivery, or enforcement.
 
+2026-08-16 browser-code-pass follow-up: the existing stored
+`BrowserEvidenceReadModel` event is now consumed by the Rust parent bridge on
+the Browser route and projected through the existing portal live-activity
+fields. Its active-state, proof-source, custody, and query-visibility values
+remain service-owned; no target-list evidence is promoted. This is
+code-drafted, unvalidated, and tests/proof/checklist-deferred.
+
 ## Where We Want To Be
 
 The Rust service emits typed, replayable browser status/read-model events that
@@ -54,6 +61,9 @@ portal, policy, and AI can consume without raw adapter access.
 ## Touched Paths
 
 - `crates/agent-protocol/src/browser_read_model.rs`
+- `crates/agent-protocol/src/constants/field.rs`
+- `crates/agent-service/src/activity_api.rs`
+- `crates/agent-service/src/browser_evidence_payload.rs`
 - `crates/agent-service/src/browser_payload.rs`
 - `crates/agent-service/src/browser_evidence_payload.rs`
 - `crates/agent-service/src/browser_runtime*.rs`

@@ -9,6 +9,7 @@ use super::snapshots_app_game::{
 };
 use super::snapshots_browser::{
     browser_activity_read_model_snapshot_from_result,
+    browser_evidence_read_model_snapshot_from_result,
     browser_intervention_read_model_snapshot_from_result,
     browser_inventory_read_model_snapshot_from_result, browser_managed_status_snapshot_from_result,
 };
@@ -29,7 +30,8 @@ use super::types::{
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
     AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
-    BrowserActivityReadModelAgentServiceSnapshot, BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserEvidenceReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot,
     BrowserInventoryReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
     GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, LanRuntimeReplaySnapshot,
     NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
@@ -209,6 +211,19 @@ pub(crate) fn load_browser_inventory_read_model_snapshot(
         AgentRoute::Localhost,
     )
     .and_then(browser_inventory_read_model_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_evidence_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserEvidenceReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentBrowserEvidenceRecentGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_evidence_read_model_snapshot_from_result)
     .map_err(AgentServiceError::from_display)
 }
 

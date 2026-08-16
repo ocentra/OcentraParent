@@ -46,3 +46,7 @@ pub(super) fn route_requires_browser_activity_read_model(route: &ParentRouteId) 
 pub(super) fn route_requires_browser_inventory_read_model(route: &ParentRouteId) -> bool {
     matches!(route, ParentRouteId::Browser)
 }
+
+pub(super) fn route_requires_browser_evidence_read_model(route: &ParentRouteId) -> bool {
+    matches!(route, ParentRouteId::Browser)
+}

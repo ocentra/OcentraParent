@@ -92,6 +92,7 @@ struct ParentRouteLiveActivitySnapshotInput<'a> {
     games_read_model_snapshot: Option<&'a GamesReadModelAgentServiceSnapshot>,
     browser_inventory_read_model_snapshot:
         Option<&'a BrowserInventoryReadModelAgentServiceSnapshot>,
+    browser_evidence_read_model_snapshot: Option<&'a BrowserEvidenceReadModelAgentServiceSnapshot>,
     browser_managed_status_snapshot: Option<&'a BrowserManagedStatusAgentServiceSnapshot>,
     browser_intervention_read_model_snapshot:
         Option<&'a BrowserInterventionReadModelAgentServiceSnapshot>,

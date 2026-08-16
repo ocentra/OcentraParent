@@ -37,6 +37,7 @@ pub(super) fn load_parent_route_snapshot_dependencies_impl(
     let app_game_required = route_requires_app_game_session_read_models(route);
     let browser_activity_required = route_requires_browser_activity_read_model(route);
     let browser_inventory_required = route_requires_browser_inventory_read_model(route);
+    let browser_evidence_required = route_requires_browser_evidence_read_model(route);
     let browser_required = route_requires_browser_read_models(route);
     ParentRouteSnapshotDependencies {
         network_flow_snapshot: loaded_network_flow_snapshot,
@@ -61,6 +62,11 @@ pub(super) fn load_parent_route_snapshot_dependencies_impl(
         },
         browser_inventory_read_model_snapshot: if browser_inventory_required {
             load_browser_inventory_read_model_snapshot(None).ok()
+        } else {
+            None
+        },
+        browser_evidence_read_model_snapshot: if browser_evidence_required {
+            load_browser_evidence_read_model_snapshot(None).ok()
         } else {
             None
         },

@@ -59,6 +59,13 @@ the existing portal live-activity state. This remains unvalidated with
 tests/proof/checklist deferred; it does not add exact URL, active-tab, page
 title, OS blocking, process termination, or enforcement authority.
 
+Code-pass note (2026-08-16): WP13 now also has a production-code draft for
+the stored `BrowserEvidenceReadModel` parent-bridge seam. The Browser route
+loads the existing evidence event and projects its typed rows, active-state,
+proof-source, custody, and query-visibility fields into the existing portal
+state. This remains unvalidated with tests/proof/checklist deferred and does
+not promote target-list evidence into known-active or add enforcement.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.

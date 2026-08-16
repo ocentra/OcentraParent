@@ -1899,6 +1899,8 @@ export interface ParentRouteLiveActivitySnapshot {
   readonly screenSummaryPanel?: ParentScreenSummaryPanelSnapshot | null;
   readonly browserInventoryEvent?: ParentRouteEventSnapshot | null;
   readonly browserInventoryReadModel?: ParentUnknownRecord | null;
+  readonly browserEvidenceEvent?: ParentRouteEventSnapshot | null;
+  readonly browserEvidenceReadModel?: ParentUnknownRecord | null;
   readonly browserManagedEvent?: ParentRouteEventSnapshot | null;
   readonly browserManagedStatus?: ParentUnknownRecord | null;
   readonly localAiRuntimeStatusEvent?: ParentRouteEventSnapshot | null;

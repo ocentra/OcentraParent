@@ -70,6 +70,7 @@ pub const BROWSER_CHANNEL: &str = "browserChannel";
 pub const BROWSER_MANAGED_STATUS_JSON: &str = "browserManagedStatusJson";
 pub const BROWSER_INTERVENTION_READ_MODEL_JSON: &str = "browserInterventionReadModelJson";
 pub const BROWSER_INVENTORY_READ_MODEL_JSON: &str = "browserInventoryReadModelJson";
+pub const BROWSER_EVIDENCE_READ_MODEL_JSON: &str = "browserEvidenceReadModelJson";
 pub const BROWSER_INVENTORY_ROW_ID: &str = "browserInventoryRowId";
 pub const BROWSER_INTERVENTION_ID: &str = "browserInterventionId";
 pub const BROWSER_INTERVENTION_ACTION_ID: &str = "browserInterventionActionId";
