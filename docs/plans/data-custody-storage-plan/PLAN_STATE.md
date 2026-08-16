@@ -84,6 +84,36 @@ proof remain open; source wiring alone is not lifecycle completion.
 - Default action: choose one workpack from [WORKPACK_INDEX.md](WORKPACK_INDEX.md), then choose required proof from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
 - Current limitation: this plan defines ownership, expected proof, and handoff boundaries. It does not claim implementation is complete.
 
+## Production-code reachability audit (2026-08-16, root `26e93c22e`)
+
+This pass inspected the mapped production owners and non-test callers. The
+shared custody workpacks have real Rust implementations, but their public
+derivation functions are not currently reached by a shipped custody entrypoint
+outside their internal proof/composition modules:
+
+```text
+WP01: crates/schema data-custody source-of-truth contract plus generated edge; no shipped runtime consumer found.
+WP02: schema/storage-custody-core key-custody derivation; no shipped key/decrypt runtime caller found; platform/provider owners remain required.
+WP03: schema/storage-custody-core sync/provider/tombstone derivation; no provider SDK/upload/delete/retrieval caller found.
+WP04: schema/storage-custody-core retention/delete state and tombstone store; no production creator routes a typed action into child publication.
+WP05: schema/storage-custody-core export/import/preflight/apply state machine; no provider or child filesystem restore executor caller found.
+WP06: schema/storage-custody-core report/query custody derivation; no report, notification, AI, or portal runtime consumer found.
+WP07: real child-service composition exists. ocentra-child-agent-service -> run_child_agent_service -> ChildAgentService::initialize_with_paths opens the journal/store and invokes journal.recover() plus ChildRuntimeTombstoneEventFlow::recover_pending() before readiness. No non-test caller invokes publish_action or publish_action_and_require_journal.
+WP08: schema/storage-custody-core parent-storage settings/apply derivation plus generated edge; no portal/desktop host/provider apply caller found.
+Migrated Data And AI UI: source-only and not executable custody scope.
+```
+
+The smallest honest production slice is therefore blocked on an upstream
+trusted custody-action producer/consumer handoff for WP07 publication. Wiring
+the existing public publish method from preflight or a synthetic service event
+would invent authority and is intentionally not performed. The child startup
+recovery path is source-present; restart validation, aggregate proof, and
+terminal delivery remain deferred.
+
+Graph truth is stale: `npm run graph:validate` reports that the checked-in
+graph differs from current plan/workpack source and requests bootstrap. No
+graph bootstrap or direct graph JSON edit was made in this code-only pass.
+
 ## What Is Already Present
 
 - `crates/storage-custody-core` already owns generic custody/delete/export decision logic.

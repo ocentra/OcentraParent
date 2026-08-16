@@ -83,6 +83,23 @@ The concrete child-service startup now invokes `journal.recover()` and
 aggregate route acceptance, or a claim that all downstream delivery paths are
 complete.
 
+## Production reachability audit (2026-08-16)
+
+The shipped binary `crates/child-runtime/src/bin/ocentra-child-agent-service.rs`
+calls `run_child_agent_service()`. Initialization reaches the durable journal
+and `RetentionDeleteTombstoneStore`, then invokes `journal.recover()` and
+`ChildRuntimeTombstoneEventFlow::recover_pending()` before readiness. This is a
+real fail-closed recovery path.
+
+Production search found no non-test caller of
+`ChildRuntimeTombstoneEventFlow::publish_action` or
+`publish_action_and_require_journal`, and no production constructor currently
+routes a trusted `StorageCustodyActionPlannedEvent` from the child runtime's
+preflight decision into that flow. The existing public methods are therefore
+not evidence of initial tombstone delivery. Adding a synthetic preflight or
+DTO caller would invent custody authority and is out of scope until the owning
+action-producer handoff exists.
+
 ## Validation expectations for this packet
 
 - Proof-root existence and file inventory checks
