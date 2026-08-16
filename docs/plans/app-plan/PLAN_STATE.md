@@ -34,6 +34,10 @@ category/risk compilation-to-time-budget handoff; restart/service scheduling
 and validation remain deferred.
 WP20 now has a Rust time-budget-to-child-notice bridge; live UI/service
 delivery and validation remain deferred.
+WP49 now consumes Rust risk detection into the service policy-readiness
+surface as an explicit manual-required category/risk routing row. Compiler
+service consumption remains deferred until a parent-authored rule/device/user
+context is available; no enforcement claim is made.
 WP15 now hydrates the existing portal app/game dashboard from the local
 agent-service app-use and games read models through the parent runtime bridge;
 the production slice is unvalidated and tests/proof/checklist closure remain

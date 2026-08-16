@@ -28,14 +28,23 @@ not-dispatched`.
   enforcement handoff.
 
 2026-08-16 app-plan-code-pass: the Rust route-to-compiler composition is
-code-drafted and unvalidated. Tests, proof, checklist closure, CI, and runtime
-service consumption are deferred.
+code-drafted and unvalidated. Agent-service now consumes the shared Rust risk
+detection boundary into the typed policy-readiness surface as a
+`categoryRiskRouting` row. Candidate rows remain `manual-required` because the
+live service read model has no parent-authored rule, device, or local-user
+context from which to build a compiler request. Tests, proof, checklist
+closure, CI, and compiler service consumption remain deferred.
 
 ## Production ownership
 
 - `crates/app-game-core/src/app_game_category_risk_policy_routing.rs`
 - `crates/app-game-core/src/app_game_category_risk_policy_routing_types.rs`
+- `crates/app-game-core/src/app_game_risk_candidate_detection.rs`
 - `crates/app-game-core/src/app_game_policy_target_compiler.rs`
+- `crates/agent-protocol/src/app_game_policy_readiness.rs`
+- `crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs`
+- `crates/agent-service/src/activity_api/app_game_policy_readiness_sources.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/app_game_readiness_labels.rs`
 
 ## Proof
 
@@ -55,7 +64,8 @@ output/app-plan-proof/49-category-risk-policy-routing
 - Risk candidates cannot request block-launch or other hard adapter actions.
 - Local AI category routes require digest refs and cannot dispatch adapters.
 - Stale category proof is rejected before compile-ready routing.
-- Runtime service consumption, portal rendering, child UX, notifications,
+- Compiler runtime service consumption, portal category/risk authoring,
+  child UX, notifications,
   platform adapters, and broad app blocking remain gaps.
 
 ## Product Doc Decision

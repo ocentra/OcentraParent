@@ -2502,9 +2502,14 @@
     "WP-app-plan-49-category-risk-policy-routing": {
       "planSlug": "app-plan",
       "roots": [
-        "packages/schema-domain/src/app-game-policy-target-compiler.ts",
-        "crates/schema/src/app_game_source_freshness_policy_consumption.rs",
-        "crates/schema/tests/contract/app_game_source_freshness_policy_consumption.rs"
+        "crates/app-game-core/src/app_game_category_risk_policy_routing.rs",
+        "crates/app-game-core/src/app_game_category_risk_policy_routing_types.rs",
+        "crates/app-game-core/src/app_game_policy_target_compiler.rs",
+        "crates/app-game-core/src/app_game_risk_candidate_detection.rs",
+        "crates/agent-protocol/src/app_game_policy_readiness.rs",
+        "crates/agent-service/src/activity_api/app_game_policy_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_policy_readiness_sources.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_readiness_labels.rs"
       ]
     },
     "WP-app-plan-53-notification-intent-contract": {

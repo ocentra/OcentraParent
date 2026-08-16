@@ -13,6 +13,7 @@ pub const APP_GAME_POLICY_READINESS_KIND_APPROVAL_ACTION_RESULT: &str = "approva
 pub const APP_GAME_POLICY_READINESS_KIND_PLATFORM_AUTHORITY: &str = "platformAuthority";
 pub const APP_GAME_POLICY_READINESS_KIND_AI_CLASSIFIER_CONTEXT: &str = "aiClassifierContext";
 pub const APP_GAME_POLICY_READINESS_KIND_CATEGORY_CANDIDATE: &str = "categoryCandidate";
+pub const APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING: &str = "categoryRiskRouting";
 pub const APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW: &str = "unknownReview";
 pub const APP_GAME_POLICY_READINESS_STATE_READY: &str = "ready";
 pub const APP_GAME_POLICY_READINESS_STATE_MISSING: &str = "missing";

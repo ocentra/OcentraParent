@@ -25,8 +25,8 @@ use ocentra_parent_agent_protocol::APP_GAME_POLICY_READINESS_STATUS_READY;
 use super::app_game_policy_readiness_sources::{
     ai_classifier_refs, app_game_boundary_row_count, approval_action_result_refs,
     approval_authority_refs, category_candidate_refs, category_candidate_row_count,
-    platform_authority_row_count, platform_authority_row_refs, policy_evidence_refs,
-    unknown_review_refs, unknown_review_row_count,
+    category_risk_routing, platform_authority_row_count, platform_authority_row_refs,
+    policy_evidence_refs, unknown_review_refs, unknown_review_row_count,
 };
 use crate::fields::fields_from_pairs;
 
@@ -123,6 +123,7 @@ fn readiness_rows(model: &AppGameServiceReadModel) -> Vec<AppGamePolicyReadiness
         model.evidence_claim_rows.len() as u64 + model.identity_rows.len() as u64;
     let has_policy_evidence =
         !model.evidence_claim_rows.is_empty() && !model.identity_rows.is_empty();
+    let (category_risk_routing_count, category_risk_routing_refs) = category_risk_routing(model);
     vec![
         readiness_row(
             PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_POLICY_EVIDENCE),
@@ -183,6 +184,16 @@ fn readiness_rows(model: &AppGameServiceReadModel) -> Vec<AppGamePolicyReadiness
             },
             category_candidate_row_count(model),
             category_candidate_refs(model),
+        ),
+        readiness_row(
+            PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_CATEGORY_RISK_ROUTING),
+            if category_risk_routing_count == 0 {
+                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_READY)
+            } else {
+                PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_STATE_MANUAL_REQUIRED)
+            },
+            category_risk_routing_count,
+            category_risk_routing_refs,
         ),
         readiness_row(
             PolicyReadinessTextRef(APP_GAME_POLICY_READINESS_KIND_UNKNOWN_REVIEW),
