@@ -5452,6 +5452,8 @@
       "roots": [
         "crates/agent-protocol/src/household_mesh.rs",
         "crates/agent-protocol/src/household_mesh/household_mesh_bridge_input.rs",
+        "crates/agent-core/src/household_mesh_event_bridge.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_validation_import.rs",
         "crates/agent-protocol/tests/contract/household_mesh.rs"
       ]
     },

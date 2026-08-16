@@ -88,6 +88,16 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 - `crates/ocentra-eventing` exists and the focused crate harnesses currently pass: `unit`, `contract`, `journal_replay`, `integration`, and `version_skew`.
 - `packages/event-domain` mirror tests and `type-check` pass in this checkout.
 - Focused downstream contract mirrors also pass: `@ocentra-parent/agent-protocol-domain` `network-runtime-events.test.ts` plus `contracts.test.ts`, and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
+- 2026-08-16 production-code pass: WP10 now has a code-drafted, unvalidated
+  structural household-mesh validator and fail-closed runtime authorization
+  boundary in `crates/agent-protocol/src/household_mesh.rs`,
+  `crates/agent-protocol/src/household_mesh/household_mesh_bridge_input.rs`,
+  `crates/agent-core/src/household_mesh_event_bridge.rs`, and
+  `crates/agent-core/src/household_mesh_bridge_runtime_validation_import.rs`.
+  Agent-core owns the private token and republish conversion; the resolver
+  remains unavailable until LAN/account/device authority composition exists.
+  Tests, validation, proof, checklist, and runtime integration remain
+  deferred.
 - A fresh WP13 regression proof now exists at `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json` plus `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
 - A fresh WP12 route-proof bundle is restored locally at `docs/proof/eventing-plan/`, `output/eventing-plan-proof/rollout-proof/`, and `test-results/eventing-rollout-proof/`.
 - A scoped 2026-06-17 WP11 regeneration pass now restores the eventing proof roots at `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.

@@ -17451,7 +17451,7 @@
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "open — code drafted; tests/validation/proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
