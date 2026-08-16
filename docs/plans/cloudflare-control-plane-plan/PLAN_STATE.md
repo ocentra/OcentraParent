@@ -1,5 +1,26 @@
 # Cloudflare Control Plane Plan State
 
+## Production billing read-model boundary - 2026-08-16
+
+- `infra/cloudflare/src/billing-binding-read-model.ts` now permits fixture
+  seeding and fixture fallback only when `ENVIRONMENT` is `local`, `test`, or
+  `development` and `AUTH_ADAPTER_MODE` is exactly `local-safe-fixture`.
+  Production, preview, and provider modes never create billing schema rows or
+  populate D1/KV/R2 from `fixtures.ts`.
+- Production reads require their owned D1/KV/R2 binding and durable row/object
+  where a single record is required. Missing billing status, referral, or
+  entitlement rows return a typed `billing-read-model-manual-required` error;
+  empty durable collections remain empty rather than becoming demo rows.
+- Production invoice-subject lookup now queries the stored invoice ledger; it
+  no longer scans the fixture-only demo subject list. License approval is
+  derived from the stored entitlement snapshot rather than a fixture account.
+- `infra/cloudflare/src/index.ts` maps this typed unavailable result to the
+  existing manual-required route shape with HTTP 503. Local-safe fixture mode
+  remains explicit for local/dev/test harnesses and cannot be selected by
+  production or preview environments.
+- This is a production-code draft only. No provider verification, migration,
+  deployment, tests, proof, or runtime readiness claim is made.
+
 ## Production reachability audit - 2026-08-16
 
 - WP06 source was re-audited after removal of the dead D1 adapter. The only
