@@ -560,7 +560,10 @@ fn preference_preflight_routes_due_manual_and_unavailable_without_runtime_claims
         unavailable.status,
         AppGameChildUxPreferencePreflightStatus::Unavailable
     );
-    assert!(unavailable.provider_channel.is_none());
+    assert_eq!(
+        unavailable.provider_channel,
+        Some(V3NotificationProviderChannel::InApp)
+    );
     assert!(unavailable.quiet_hours_requirement_refs.is_empty());
     Ok(())
 }

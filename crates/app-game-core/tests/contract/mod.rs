@@ -13,6 +13,9 @@ mod app_game_child_ux;
 #[path = "app_game_child_ux_outbox.rs"]
 mod app_game_child_ux_outbox;
 
+#[path = "app_game_child_ux_preference_status.rs"]
+mod app_game_child_ux_preference_status;
+
 #[path = "app_game_policy_evaluator_runtime.rs"]
 mod app_game_policy_evaluator_runtime;
 #[path = "app_game_policy_preview_handoff.rs"]
