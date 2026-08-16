@@ -126,6 +126,18 @@ pub struct AppGameChildUxInput {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct AppGameChildUxBudgetContext {
+    pub subject_kind: AppGameChildUxSubjectKind,
+    pub request_state: AppGameChildUxRequestState,
+    pub capability_state: AppGameChildUxCapabilityState,
+    pub policy_rule_ref: AppGamePolicyRuleRef,
+    pub evidence_refs: Vec<AppGamePolicyEvidenceRef>,
+    pub child_reason_refs: Vec<AppGameChildReasonRef>,
+    pub child_status_refs: Vec<AppGameChildStatusRef>,
+    pub adapter_action_ref: Option<AppGameChildAdapterActionRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AppGameChildUxNotice {
     pub state: AppGameChildUxNoticeState,
     pub text_token: AppGameChildUxTextToken,

@@ -2,8 +2,26 @@ use ocentra_eventing::error::EventingError;
 
 use crate::app_game_child_ux_resolve::resolve_notice;
 use crate::app_game_child_ux_types::{
-    AppGameChildUxAction, AppGameChildUxInput, AppGameChildUxNotice,
+    AppGameChildUxAction, AppGameChildUxBudgetContext, AppGameChildUxInput, AppGameChildUxNotice,
 };
+use crate::app_game_time_budget_types::AppGameTimeBudgetDecision;
+
+pub fn build_app_game_child_ux_notice_from_time_budget(
+    decision: &AppGameTimeBudgetDecision,
+    context: AppGameChildUxBudgetContext,
+) -> Result<AppGameChildUxNotice, EventingError> {
+    build_app_game_child_ux_notice(AppGameChildUxInput {
+        subject_kind: context.subject_kind,
+        runtime_decision: decision.runtime_decision.clone(),
+        request_state: context.request_state,
+        capability_state: context.capability_state,
+        policy_rule_ref: context.policy_rule_ref,
+        evidence_refs: context.evidence_refs,
+        child_reason_refs: context.child_reason_refs,
+        child_status_refs: context.child_status_refs,
+        adapter_action_ref: context.adapter_action_ref,
+    })
+}
 
 pub fn build_app_game_child_ux_notice(
     input: AppGameChildUxInput,
