@@ -11,7 +11,7 @@
 
 Purpose: define the child Linux package, service-manager lifecycle, and package proof boundary.
 
-Current status: `complete`.
+Current status: `production code drafted / test-deferred`.
 
 Proof root: `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/`
 
@@ -39,27 +39,22 @@ Proof root: `output/child-agent-runtime-distribution-plan-proof/04-child-linux-s
 
 ## Execution truth
 
-- A real Linux proof pack exists under `output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package/`.
-- The scoped proof runner and contract/test surface are live:
+- Production code is drafted in this pass: the Linux package builder, systemd unit, package name, install paths, and maintainer-service names now target the child-agent executable and child package identity.
+- Tests, validation, and proof are deferred; proof-root references do not establish completion in this phase.
+- Existing proof-runner and contract/test references remain deferred in this pass:
   - `packages/schema-domain/src/child-linux-service-package-proof.ts`
   - `packages/schema-domain/tests/proof/child-linux-service-package-proof.test.ts`
   - `scripts/test/child-linux-service-package-proof.mjs`
-- The current lane proved source-level Linux package truth from:
+- The source files targeted by this pass are:
   - `scripts/release/linux/build-agent-package.sh`
   - `scripts/release/linux/ocentra-parent-agent.service`
   - `scripts/smoke/linux-deb-smoke.sh`
-- `scripts/release/linux/build-agent-package.sh` now bootstraps Linux cargo into PATH for non-login bash before the version gate runs.
-- `cmd /c npm run release:package:linux` now passes in this Ubuntu 22.04 / glibc 2.35 WSL lane and builds the real child `.deb`, latest alias, checksum sidecars, and baseline metadata.
-- `bash scripts/smoke/linux-deb-smoke.sh target/release-packages/linux/ocentra-parent-agent-linux-amd64-v0.1.1.deb` now passes and proves checksum verification, extracted-binary health, `dpkg -i`, `dpkg -r`, and purge cleanup on the baseline host.
+- Package construction, installation, and runtime behavior are not validated in this pass.
 
-## Proved states
+## Intended source states (unvalidated)
 
 - Intended Linux distribution path is explicit as a direct unsigned `.deb` artifact with sha256 sidecars.
 - Linux support is explicitly bounded to Ubuntu 22.04 amd64 with glibc 2.35 baseline metadata.
-- Real package artifacts now exist in the workspace:
-  - `target/release-packages/linux/ocentra-parent-agent-linux-amd64-v0.1.1.deb`
-  - `target/release-packages/linux/ocentra-parent-agent-linux-amd64-latest.deb`
-  - `target/release-packages/linux/linux-baseline.json`
 - `systemd` service-manager wiring is explicit:
   - install path
   - enable path
@@ -67,9 +62,7 @@ Proof root: `output/child-agent-runtime-distribution-plan-proof/04-child-linux-s
   - stop path
   - disable path
   - daemon-reload cleanup path
-- `dpkg` install, remove, and purge executed successfully on the Ubuntu 22.04 baseline host.
-- Respawn claims are explicit only as `systemd` source proof and do not extend beyond that boundary.
-- Uninstall and daemon cleanup evidence exists for the negative path through `prerm` stop/disable hooks, `postrm` daemon-reload, and smoke-script remove/purge guards.
+- `dpkg` lifecycle, service health, respawn, and cleanup remain unvalidated.
 
 ## Manual-required states
 
@@ -97,4 +90,4 @@ Proof root: `output/child-agent-runtime-distribution-plan-proof/04-child-linux-s
 
 ## Closure truth
 
-WP04 is closed as a proof-boundary workpack. It is not a production release-readiness, signed-repository, generic-Linux, or installed-runtime-parity claim.
+WP04 remains production-code drafted. Tests, validation, package artifacts, and retained proof are deferred; this pass does not close the distribution or installed-runtime boundary.

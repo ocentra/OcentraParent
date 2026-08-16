@@ -3,19 +3,19 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>ca.ocentra.parent.agent</string>
+    <string>ca.ocentra.child.agent</string>
     <key>ProgramArguments</key>
     <array>
-      <string>/Library/Ocentra/Ocentra Parent Agent/bin/ocentra-parent-agent-service</string>
+      <string>/Library/Ocentra/Ocentra Child Agent/bin/ocentra-child-agent-service</string>
     </array>
     <key>RunAtLoad</key>
     <true />
     <key>KeepAlive</key>
     <true />
     <key>StandardOutPath</key>
-    <string>/Library/Logs/OcentraParentAgent.log</string>
+    <string>/Library/Logs/OcentraChildAgent.log</string>
     <key>StandardErrorPath</key>
-    <string>/Library/Logs/OcentraParentAgent.err.log</string>
+    <string>/Library/Logs/OcentraChildAgent.err.log</string>
     <key>EnvironmentVariables</key>
     <dict>
       <key>OCENTRA_PARENT_AGENT_ADDRESS</key>

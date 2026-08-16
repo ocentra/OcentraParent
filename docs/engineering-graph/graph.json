@@ -15429,7 +15429,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked / proof-present",
+        "statusText": "Production code drafted; expected tests, validation, and proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -15469,7 +15469,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package; checklist: reviewed evidence is not recorded",
+        "statusText": "Production code drafted; expected tests, validation, and proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15517,7 +15517,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package; checklist: reviewed evidence is not recorded",
+        "statusText": "Production code drafted; expected tests, validation, and proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15661,7 +15661,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn; checklist: reviewed evidence is not recorded",
+        "statusText": "Production manager configuration drafted; expected tests, validation, and proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,

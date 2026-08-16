@@ -11,12 +11,14 @@
 
 Purpose: define managed respawn and restart-survival behavior for the supported child platforms.
 
-Status: complete with proof under `output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn/`.
+Status: production manager configuration drafted; tests, validation, and proof deferred.
 
-Proof summary:
+The Windows, macOS, and Linux manager declarations now target the child-agent package identity. This pass does not claim managed respawn until the later platform lifecycle validation phase.
 
-- Windows WinSW, macOS launchd, and Linux systemd rows now prove managed respawn for kill, reboot, and service-manager restart paths.
-- Deliberate stop remains explicit/manual-required on supported desktop rows; teardown and stop-path evidence is recorded instead of being hidden behind generic respawn language.
+Deferred proof boundary:
+
+- Windows WinSW, macOS launchd, and Linux systemd declarations now target the child identity, but managed respawn for kill, reboot, and service-manager restart paths is unvalidated.
+- Deliberate stop, teardown, and stop-path behavior remain deferred to the later lifecycle-proof phase.
 - Android remains manual-required until real device lifecycle artifacts exist.
 - iOS remains unsupported for managed-service respawn and does not reuse desktop or Android proof.
 

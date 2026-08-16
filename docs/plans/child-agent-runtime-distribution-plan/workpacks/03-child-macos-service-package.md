@@ -37,9 +37,9 @@ Purpose: define the child macOS package, launchd lifecycle, notarization, and un
 
 Rust/shared owner truth remains upstream. This packet uses `schema-domain` only as a temporary thin/generated edge proof contract surface for the child macOS package boundary.
 
-WP03 now has a real proof root under `output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package/` and a real focused proof runner at `scripts/test/child-macos-service-package-proof.mjs`.
+Production code is drafted in this pass: the macOS package builder and launchd manifest now target the child-agent executable and child package identity. Tests, validation, and proof are deferred; the proof-root and proof-runner references do not establish completion in this phase.
 
-## Proved states
+## Intended source states (unvalidated)
 
 - child artifact mode is explicit `launchd-pkg-script`
 - child artifact state is explicit `pkg-script-defined`
@@ -78,4 +78,4 @@ WP03 does not claim:
 
 ## Closure truth
 
-WP03 is closed as a proof-boundary workpack. It is not a release-readiness or installed-runtime claim.
+WP03 remains production-code drafted. Tests, validation, signing, and retained proof are deferred; this pass does not close the package or installed-runtime boundary.

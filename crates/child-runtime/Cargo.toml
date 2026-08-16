@@ -10,6 +10,10 @@ workspace = true
 [lib]
 path = "src/lib.rs"
 
+[[bin]]
+name = "ocentra-child-agent-service"
+path = "src/bin/ocentra-child-agent-service.rs"
+
 [dependencies]
 ocentra-app-core = { path = "../app-core" }
 ocentra-app-game-core = { path = "../app-game-core" }
@@ -32,7 +36,7 @@ ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
 ocentra-storage-custody-core = { path = "../storage-custody-core" }
 ocentra-tracking-core = { path = "../tracking-core" }
 serde = { version = "1.0.228", features = ["derive"] }
-tokio = { version = "1.48.0", features = ["rt"] }
+tokio = { version = "1.48.0", features = ["macros", "rt-multi-thread", "signal"] }
 
 [dev-dependencies]
 ocentra-evidence = { path = "../ocentra-evidence" }

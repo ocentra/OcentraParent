@@ -27,9 +27,9 @@ version="${OCENTRA_PARENT_VERSION:-$(cd "$repo_root" && node scripts/release/val
 package_root="$repo_root/target/release-packages/linux"
 stage_parent="${OCENTRA_PARENT_LINUX_STAGE_PARENT:-${TMPDIR:-/tmp}}"
 stage_root=""
-package_name="ocentra-parent-agent-linux-amd64-v${version}.deb"
+package_name="ocentra-child-agent-linux-amd64-v${version}.deb"
 package_path="$package_root/$package_name"
-latest_name="ocentra-parent-agent-linux-amd64-latest.deb"
+latest_name="ocentra-child-agent-linux-amd64-latest.deb"
 latest_path="$package_root/$latest_name"
 baseline_id="${OCENTRA_PARENT_LINUX_BASELINE_ID:-ubuntu}"
 baseline_version="${OCENTRA_PARENT_LINUX_BASELINE_VERSION:-22.04}"
@@ -89,20 +89,20 @@ mkdir -p "$package_root"
 mkdir -p "$stage_parent"
 stage_root="$(mktemp -d "$stage_parent/ocentra-parent-linux-package.XXXXXX")"
 mkdir -p "$stage_root/DEBIAN"
-mkdir -p "$stage_root/opt/ocentra/ocentra-parent-agent/bin"
+mkdir -p "$stage_root/opt/ocentra/ocentra-child-agent/bin"
 mkdir -p "$stage_root/lib/systemd/system"
-mkdir -p "$stage_root/var/lib/ocentra/ocentra-parent-agent"
-mkdir -p "$stage_root/var/log/ocentra/ocentra-parent-agent"
+mkdir -p "$stage_root/var/lib/ocentra/ocentra-child-agent"
+mkdir -p "$stage_root/var/log/ocentra/ocentra-child-agent"
 
-(cd "$repo_root" && cargo build --release -p ocentra-parent-agent-service)
+(cd "$repo_root" && cargo build --release -p ocentra-child-runtime --bin ocentra-child-agent-service)
 
-install -m 0755 "$repo_root/target/release/ocentra-parent-agent-service" \
-  "$stage_root/opt/ocentra/ocentra-parent-agent/bin/ocentra-parent-agent-service"
+install -m 0755 "$repo_root/target/release/ocentra-child-agent-service" \
+  "$stage_root/opt/ocentra/ocentra-child-agent/bin/ocentra-child-agent-service"
 install -m 0644 "$repo_root/scripts/release/linux/ocentra-parent-agent.service" \
-  "$stage_root/lib/systemd/system/ocentra-parent-agent.service"
+  "$stage_root/lib/systemd/system/ocentra-child-agent.service"
 
 cat > "$stage_root/DEBIAN/control" <<CONTROL
-Package: ocentra-parent-agent
+Package: ocentra-child-agent
 Version: $version
 Section: utils
 Priority: optional
@@ -112,7 +112,7 @@ Depends: libc6 (>= $baseline_glibc_min)
 X-Ocentra-Linux-Baseline: $baseline_label
 X-Ocentra-Min-GLIBC: $baseline_glibc_min
 X-Ocentra-Build-GLIBC: $host_glibc
-Description: Headless local device agent for Ocentra Parent.
+Description: Headless local child agent for Ocentra Parent.
 CONTROL
 
 cat > "$stage_root/DEBIAN/postinst" <<'POSTINST'
@@ -120,8 +120,8 @@ cat > "$stage_root/DEBIAN/postinst" <<'POSTINST'
 set -e
 if command -v systemctl >/dev/null 2>&1; then
   systemctl daemon-reload
-  systemctl enable ocentra-parent-agent.service >/dev/null 2>&1 || true
-  systemctl restart ocentra-parent-agent.service >/dev/null 2>&1 || true
+  systemctl enable ocentra-child-agent.service >/dev/null 2>&1 || true
+  systemctl restart ocentra-child-agent.service >/dev/null 2>&1 || true
 fi
 POSTINST
 
@@ -129,8 +129,8 @@ cat > "$stage_root/DEBIAN/prerm" <<'PRERM'
 #!/usr/bin/env bash
 set -e
 if command -v systemctl >/dev/null 2>&1; then
-  systemctl stop ocentra-parent-agent.service >/dev/null 2>&1 || true
-  systemctl disable ocentra-parent-agent.service >/dev/null 2>&1 || true
+  systemctl stop ocentra-child-agent.service >/dev/null 2>&1 || true
+  systemctl disable ocentra-child-agent.service >/dev/null 2>&1 || true
 fi
 PRERM
 

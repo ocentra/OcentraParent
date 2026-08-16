@@ -1,9 +1,9 @@
 <service>
-  <id>OcentraParentUpdater</id>
-  <name>Ocentra Parent Updater</name>
-  <description>Signed background updater for the Ocentra Parent Agent.</description>
+  <id>OcentraChildUpdater</id>
+  <name>Ocentra Child Updater</name>
+  <description>Signed background updater for the Ocentra Child Agent.</description>
   <workingdirectory>%BASE%</workingdirectory>
-  <executable>%BASE%\ocentra-parent-agent-updater.exe</executable>
+  <executable>%BASE%\ocentra-child-agent-updater.exe</executable>
   <arguments>run-loop</arguments>
   <env
     name="OCENTRA_PARENT_UPDATE_MANIFEST_URL"

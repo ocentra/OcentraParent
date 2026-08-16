@@ -49,7 +49,7 @@ function Invoke-MsiInstall {
 
 $release = Invoke-RestMethod -Uri "https://api.github.com/repos/$Owner/$Repository/releases/latest"
 $manifestAsset = Get-ReleaseAsset -Release $release -Name 'latest-windows.json'
-$tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) "ocentra-parent-agent-$([Guid]::NewGuid().ToString('N'))"
+$tempRoot = Join-Path ([System.IO.Path]::GetTempPath()) "ocentra-child-agent-$([Guid]::NewGuid().ToString('N'))"
 $manifestPath = Join-Path $tempRoot 'latest-windows.json'
 
 New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
