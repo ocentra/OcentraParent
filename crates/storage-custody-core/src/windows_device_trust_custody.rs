@@ -150,6 +150,10 @@ impl WindowsDeviceTrustCustody {
         platform::unprotect(&r.ciphertext, &b).map(|_plaintext| ())
     }
     pub fn revoke_or_reset(&self, family: &str, account: &str, device: &str) -> Result<(), Error> {
+        // Local callers cannot revoke parent trust without the owning
+        // authenticated authority. Until that authority is available, keep
+        // the operation manual-required and preserve the sealed material.
+        platform::require_authenticated_parent_authority()?;
         let b = custody_binding([family, account, device, &self.install_generation])?;
         let binding_lock = self.binding_lock(&b);
         let _binding_guard = binding_lock

@@ -16759,7 +16759,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / Windows-only unmerged custody slice",
+        "statusText": "partial / Windows custody authority gate drafted; platform custody and proof remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true

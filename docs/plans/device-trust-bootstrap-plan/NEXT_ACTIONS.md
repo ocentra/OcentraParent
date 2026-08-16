@@ -19,3 +19,7 @@ WP01 now has crash-safe, process-serialized lifecycle-authority sidecar writes
 with fail-closed corruption and missing-authority handling. Platform custody,
 trusted ceremony issuance, and the broader lifecycle integration remain open;
 tests and proof are deferred.
+
+The WP02 Windows custody revoke/reset path now refuses local unauthenticated
+removal and preserves manual-required truth until a trusted parent authority
+provider and ceremony issuer are owned by the correct runtime.

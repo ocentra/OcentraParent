@@ -109,6 +109,9 @@ remote-access-plan and policy-control-plane-plan:
 - The merged Windows-only WP02 local-custody slice has a visible parent-desktop
   command and parent-runtime source/test vertical path; Android, Linux, iOS,
   and macOS custody implementations and their proof remain absent.
+- The Windows custody revoke/reset path now fails closed behind the same
+  authenticated-parent authority gate as sealing; no platform ceremony issuer
+  exists in this lane, so local revocation remains manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```
