@@ -17,6 +17,7 @@ pub enum ActivityCaptureError {
     Io,
     InvalidKeyLength,
     AppGameRuntime,
+    ScreenAiEventRuntime,
 }
 
 impl ActivityCaptureError {
@@ -41,6 +42,10 @@ impl ActivityCaptureError {
             (
                 ActivityCaptureError::AppGameRuntime,
                 constants::value::ACTIVITY_CAPTURE_APP_GAME_ERROR,
+            ),
+            (
+                ActivityCaptureError::ScreenAiEventRuntime,
+                "screen AI event runtime handoff failed",
             ),
         ];
 
