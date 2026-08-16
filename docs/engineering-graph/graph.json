@@ -20151,7 +20151,7 @@
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Open / partial reviewed slice; PR [#615](https://github.com/ocentra/OcentraParent/pull/615) merged, but the workpack is not closed",
+        "statusText": "Code drafted / unvalidated / tests deferred; open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

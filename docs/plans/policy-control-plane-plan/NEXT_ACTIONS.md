@@ -14,6 +14,7 @@
 - `workpacks/04-delivery-ack-audit.md` has an owner-surface closeout bundle built from the current delivery/source/event validation slice in `packages/policy-domain` and `crates/policy-control-core`.
 - `workpacks/01-policy-source-of-truth.md`, `workpacks/03-domain-policy-compilers.md`, `workpacks/04-delivery-ack-audit.md`, `workpacks/06-rollout-proof-and-route-gate.md`, `workpacks/07-schedule-time-budget-conflict-model.md`, and `workpacks/08-policy-event-model.md` now have closeout artifacts; the plan-local targets that remain open are WP02 and WP05.
 - WP02 still depends on rendered parent authoring/preview/conflict/approval surfaces outside this owner slice.
+- WP02 code pass checkpoint: Rust-owned authoring/action boundary and portal draft/confirm/cancel surface are drafted; validation and tests remain deferred, and no runtime completion claim is made.
 - WP05 still depends on parent confirmation, assistant/portal seams, child-agent validation, notification handoff, expiry/replay proof, and audit integration outside this owner slice.
 
 ## Ordered workpacks

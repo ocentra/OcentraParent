@@ -1395,6 +1395,23 @@ pub struct ParentPolicyPreviewPanelCardSnapshot {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewActionSnapshot {
+    pub action: ParentUiActionKind,
+    pub label: String,
+    pub payload: Option<Value>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentPolicyPreviewAuthoringSnapshot {
+    pub target_value: String,
+    pub requested_action: String,
+    pub confirm_action: Option<ParentPolicyPreviewActionSnapshot>,
+    pub cancel_action: ParentPolicyPreviewActionSnapshot,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ParentPolicyPreviewPanelSnapshot {
     pub title: String,
     pub body: String,
@@ -1403,6 +1420,7 @@ pub struct ParentPolicyPreviewPanelSnapshot {
     pub cards: Vec<ParentPolicyPreviewPanelCardSnapshot>,
     pub empty_message: String,
     pub product_claim: String,
+    pub authoring: Option<ParentPolicyPreviewAuthoringSnapshot>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

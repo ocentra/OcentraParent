@@ -129,6 +129,14 @@ projection. This closes only the assistant-draft preview-only evidence slice;
 the workpack remains open for authoring, save confirmation UX, accessibility,
 mobile, and opaque confirmed-request relay proof.
 
+## Production code pass status
+
+The Rust-owned parent UI bridge now carries an authoring snapshot with typed
+confirm and cancel action metadata, and the portal preview route renders a
+draft form that consumes those actions. This is code drafted only: validation
+and tests are intentionally deferred, and the action payload still requires
+the downstream confirmed-request relay to be validated before runtime claims.
+
 ## Failure
 
 Do not let the policy UI save ambiguous rules without preview, explanation, or conflict handling, and do not treat assistant-drafted text as applied policy.

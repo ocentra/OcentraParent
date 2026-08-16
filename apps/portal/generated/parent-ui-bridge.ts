@@ -1191,6 +1191,7 @@ export const ParentDevBridgeRoute = {
 export type ParentDevBridgeRouteName = (typeof ParentDevBridgeRoute)[keyof typeof ParentDevBridgeRoute];
 
 export const ParentUiActionPayloadField = {
+  PolicyRequestAssistantPreviewConfirmRequest: 'policyRequestAssistantPreviewConfirmRequest',
   PolicyRequestParentResolutionRequest: 'policyRequestParentResolutionRequest',
   ScreenSettingsRequest: 'screenSettingsRequest',
   ScreenSettingsResponse: 'screenSettingsResponse',
@@ -1909,6 +1910,19 @@ export interface ParentPolicyPreviewPanelCardSnapshot {
   readonly details: readonly ParentPolicyPreviewPanelDetailSnapshot[];
 }
 
+export interface ParentPolicyPreviewActionSnapshot {
+  readonly action: ParentUiActionKind;
+  readonly label: string;
+  readonly payload?: ParentUiActionPayload | null;
+}
+
+export interface ParentPolicyPreviewAuthoringSnapshot {
+  readonly targetValue: string;
+  readonly requestedAction: string;
+  readonly confirmAction?: ParentPolicyPreviewActionSnapshot | null;
+  readonly cancelAction: ParentPolicyPreviewActionSnapshot;
+}
+
 export interface ParentPolicyPreviewPanelSnapshot {
   readonly title: string;
   readonly body: string;
@@ -1917,6 +1931,7 @@ export interface ParentPolicyPreviewPanelSnapshot {
   readonly cards: readonly ParentPolicyPreviewPanelCardSnapshot[];
   readonly emptyMessage: string;
   readonly productClaim: string;
+  readonly authoring?: ParentPolicyPreviewAuthoringSnapshot | null;
 }
 
 export interface ParentAppGamePanelDetailSnapshot {

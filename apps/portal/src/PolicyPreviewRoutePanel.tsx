@@ -1,9 +1,10 @@
-import type { ReactElement } from 'react';
+import { useState, type ReactElement } from 'react';
 import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
 import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
 import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
   isParentPolicyPreviewRoute,
+  ParentUiActionPayloadField,
   type ParentPolicyPreviewPanelCardSnapshot,
   type ParentPolicyPreviewPanelDetailSnapshot,
   type ParentPolicyPreviewPanelSnapshot,
@@ -46,6 +47,7 @@ export function PolicyPreviewRoutePanel({
             {resolvePortalDevText(PortalDevTextToken.GetPolicyPreviewReadModel)}
           </button>
         </header>
+        <PolicyPreviewAuthoringSurface actions={actions} commandEnabled={commandEnabled} authoring={panel.authoring} />
         <div
           className={[PortalDom.Classes.ProductDashboard, PortalDom.Classes.TrackingStatusOverlayGrid].join(
             PortalDom.Classes.ClassNameSeparator
@@ -60,6 +62,92 @@ export function PolicyPreviewRoutePanel({
         </div>
       </div>
     </section>
+  );
+}
+
+function PolicyPreviewAuthoringSurface({
+  actions,
+  authoring,
+  commandEnabled,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly authoring: ParentPolicyPreviewPanelSnapshot['authoring'];
+  readonly commandEnabled: boolean;
+}): ReactElement | null {
+  if (authoring === null || authoring === undefined) {
+    return null;
+  }
+
+  return <PolicyPreviewAuthoringForm actions={actions} authoring={authoring} commandEnabled={commandEnabled} />;
+}
+
+function PolicyPreviewAuthoringForm({
+  actions,
+  authoring,
+  commandEnabled,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly authoring: NonNullable<ParentPolicyPreviewPanelSnapshot['authoring']>;
+  readonly commandEnabled: boolean;
+}): ReactElement {
+  const [targetValue, setTargetValue] = useState(authoring.targetValue);
+  const [requestedAction, setRequestedAction] = useState(authoring.requestedAction);
+
+  const cancelDraft = (): void => {
+    setTargetValue(authoring.targetValue);
+    setRequestedAction(authoring.requestedAction);
+    void actions.refreshRouteSnapshot?.();
+  };
+
+  const confirmDraft = (): void => {
+    if (!authoring.confirmAction || targetValue.trim().length === 0) {
+      return;
+    }
+    void actions.requestPolicyRequestAssistantPreviewConfirm?.({
+      ...authoring.confirmAction.payload,
+      [ParentUiActionPayloadField.PolicyRequestAssistantPreviewConfirmRequest]: JSON.stringify({
+        targetValue,
+        requestedAction,
+      }),
+    });
+  };
+
+  return (
+    <form
+      aria-label={authoring.confirmAction?.label ?? authoring.cancelAction.label}
+      className={PortalDom.Classes.ProductDashboard}
+      onSubmit={(event) => {
+        event.preventDefault();
+        confirmDraft();
+      }}
+    >
+      <label>
+        {PortalDetails.TargetValue}
+        <input
+          disabled={!commandEnabled}
+          value={targetValue}
+          onChange={(event) => setTargetValue(event.currentTarget.value)}
+        />
+      </label>
+      <label>
+        {PortalDetails.NetworkRequestedPolicyAction}
+        <input
+          disabled={!commandEnabled}
+          value={requestedAction}
+          onChange={(event) => setRequestedAction(event.currentTarget.value)}
+        />
+      </label>
+      <div>
+        {authoring.confirmAction ? (
+          <button disabled={!commandEnabled || targetValue.trim().length === 0} type={PortalDom.ButtonType.Submit}>
+            {authoring.confirmAction.label}
+          </button>
+        ) : null}
+        <button disabled={!commandEnabled} type={PortalDom.ButtonType.Button} onClick={cancelDraft}>
+          {authoring.cancelAction.label}
+        </button>
+      </div>
+    </form>
   );
 }
 
