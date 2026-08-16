@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::activity_surface::{
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel;
+use ocentra_parent_agent_protocol::app_game_notification_parent_surface_intent::AppGameNotificationParentSurfaceIntentReadModel;
 use ocentra_parent_agent_protocol::app_game_notification_readiness::{
     AppGameNotificationReadinessReadModel, AppGameNotificationReadinessRow,
 };

@@ -95,9 +95,64 @@ fn app_game_notification_rows(
         .map(|row| app_game_notification_row_snapshot(row, product_claim))
         .collect::<Vec<_>>();
     if let Some(status_read_models) = status_read_models {
-        append_notification_status_rows(&mut rows, status_read_models, product_claim);
+        if let Some(parent_surface_intent) = status_read_models.parent_surface_intent.as_ref() {
+            append_parent_surface_intent_rows(&mut rows, parent_surface_intent, product_claim);
+        } else {
+            append_notification_status_rows(&mut rows, status_read_models, product_claim);
+        }
     }
     rows
+}
+
+fn append_parent_surface_intent_rows(
+    rows: &mut Vec<ParentAppGameNotificationParentSurfacePanelRowSnapshot>,
+    read_model: &AppGameNotificationParentSurfaceIntentReadModel,
+    product_claim: &str,
+) {
+    rows.extend(read_model.rows.iter().map(|row| {
+        ParentAppGameNotificationParentSurfacePanelRowSnapshot {
+            key: row.surface_row_id.clone(),
+            title: "Notification parent-surface intent".to_string(),
+            details: vec![
+                app_game_detail("Surface status", row.parent_surface_status.clone()),
+                app_game_detail("Provider status", row.provider_status.clone()),
+                app_game_detail("Delivery result", row.delivery_result_state.clone()),
+                app_game_detail("Parent preference", row.parent_preference_state.clone()),
+                app_game_detail("Quiet hours", row.quiet_hours_decision.clone()),
+                app_game_detail("Provider channel", row.provider_channel.clone()),
+                app_game_detail("History visibility", row.history_visibility.clone()),
+                app_game_detail("Preference visibility", row.preference_visibility.clone()),
+                app_game_detail(
+                    "Source provider handoff row",
+                    row.source_provider_handoff_row_id.clone(),
+                ),
+                app_game_detail(
+                    "Source preference handoff row",
+                    row.source_preference_handoff_row_id.clone(),
+                ),
+                app_game_detail(
+                    "Scheduler ref",
+                    row.source_scheduler_entry_ref
+                        .clone()
+                        .unwrap_or_else(|| "not-observed".to_string()),
+                ),
+                app_game_detail(
+                    "Outbox ref",
+                    row.source_outbox_record_ref
+                        .clone()
+                        .unwrap_or_else(|| "not-observed".to_string()),
+                ),
+                app_game_detail("Drill-in refs", row.drill_in_refs.join(", ")),
+                app_game_detail("Audit refs", row.audit_refs.join(", ")),
+                app_game_detail("Manual proof", row.manual_proof_requirements.join(", ")),
+                app_game_detail(
+                    "Minimal payload boundary",
+                    row.minimal_surface_payload_boundary.clone(),
+                ),
+                app_game_detail("Product claim", product_claim),
+            ],
+        }
+    }));
 }
 
 fn append_notification_status_rows(

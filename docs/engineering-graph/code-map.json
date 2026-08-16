@@ -2614,6 +2614,7 @@
     "WP-app-plan-64-notification-provider-status-handoff": {
       "planSlug": "app-plan",
       "roots": [
+        "crates/agent-protocol/src/app_game_notification_parent_surface_intent.rs",
         "crates/agent-protocol/src/app_game_notification_status.rs",
         "crates/agent-protocol/src/notification_provider_status_boundary.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
@@ -2630,6 +2631,7 @@
     "WP-app-plan-65-notification-preference-status-handoff": {
       "planSlug": "app-plan",
       "roots": [
+        "crates/agent-protocol/src/app_game_notification_parent_surface_intent.rs",
         "crates/agent-protocol/src/app_game_notification_status.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
@@ -2645,14 +2647,23 @@
     "WP-app-plan-66-notification-parent-surface-intent": {
       "planSlug": "app-plan",
       "roots": [
+        "crates/agent-protocol/src/app_game_notification_parent_surface_intent.rs",
+        "crates/agent-protocol/src/app_game_notification_status.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
         "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
+        "crates/app-game-core/src/app_game_child_ux_provider_status.rs",
+        "crates/app-game-core/src/app_game_child_ux_preference_status.rs",
         "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
       ]
     },
     "WP-app-plan-67-notification-parent-surface-renderer": {
       "planSlug": "app-plan",
       "roots": [
+        "crates/agent-protocol/src/app_game_notification_parent_surface_intent.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/app_game.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_app_game.rs",
         "crates/parent-runtime-core/tests/integration/parent_ui_bridge/runtime_and_activity_tests.rs",
         "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
         "apps/portal/tests/unit/app-game-notification-parent-surface-panel.test.ts"
@@ -6376,6 +6387,7 @@
     "WP-app-game-plan-56-notification-service-read-model": {
       "planSlug": "app-game-plan",
       "roots": [
+        "crates/agent-protocol/src/app_game_notification_parent_surface_intent.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload",
         "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",

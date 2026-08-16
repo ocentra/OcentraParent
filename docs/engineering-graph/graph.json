@@ -12816,24 +12816,25 @@
       "title": "66 notification parent surface intent",
       "path": "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [],
+      "dependsOn": [
+        "WP-app-plan-64-notification-provider-status-handoff",
+        "WP-app-plan-65-notification-preference-status-handoff"
+      ],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/66-notification-parent-surface-intent; checklist: reviewed evidence is not recorded",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/66-notification-parent-surface-intent",
-          "checklist: reviewed evidence is not recorded"
+          "tests: deferred",
+          "proof: deferred",
+          "checklist: deferred"
         ],
-        "sourceStatusText": "Complete"
+        "sourceStatusText": "Code-drafted"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12860,24 +12861,22 @@
       "title": "67 notification parent surface renderer",
       "path": "docs/plans/app-plan/workpacks/67-notification-parent-surface-renderer.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-app-plan-66-notification-parent-surface-intent"],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/app-plan-proof/67-notification-parent-surface-renderer; checklist: reviewed evidence is not recorded",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
         "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/app-plan-proof/67-notification-parent-surface-renderer",
-          "checklist: reviewed evidence is not recorded"
+          "tests: deferred",
+          "proof: deferred",
+          "checklist: deferred"
         ],
-        "sourceStatusText": "Complete"
+        "sourceStatusText": "Code-drafted"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -30002,6 +30001,39 @@
         "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md"
       ],
       "reason": "Preference status handoff consumes the preference-preflight row and cannot claim parent preference runtime."
+    },
+    {
+      "from": "WP-app-plan-66-notification-parent-surface-intent",
+      "to": "WP-app-plan-64-notification-provider-status-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md",
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md"
+      ],
+      "reason": "The parent-surface intent joins the provider boundary before projecting any redacted surface row."
+    },
+    {
+      "from": "WP-app-plan-66-notification-parent-surface-intent",
+      "to": "WP-app-plan-65-notification-preference-status-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md",
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md"
+      ],
+      "reason": "The parent-surface intent joins the preference boundary without claiming preference mutation."
+    },
+    {
+      "from": "WP-app-plan-67-notification-parent-surface-renderer",
+      "to": "WP-app-plan-66-notification-parent-surface-intent",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/67-notification-parent-surface-renderer.md",
+        "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md"
+      ],
+      "reason": "The parent portal renderer consumes the joined intent rows and preserves the missing/legacy fallback."
     }
   ],
   "migration": {

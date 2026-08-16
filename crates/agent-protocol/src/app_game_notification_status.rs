@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::app_game_notification_parent_surface_intent::AppGameNotificationParentSurfaceIntentReadModel;
 use crate::notification_provider_status_boundary::V08NotificationProviderStatusBoundaryReadModel;
 
 pub const APP_GAME_NOTIFICATION_PREFERENCE_STATUS_SCHEMA_VERSION: u16 = 1;
@@ -52,6 +53,8 @@ pub enum AppGameNotificationProviderChannel {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AppGameNotificationPreferenceStatusEntry {
+    #[serde(default)]
+    pub readiness_ref: String,
     pub delivery_result_state: AppGameNotificationPreferenceDeliveryResultState,
     pub parent_preference_state: AppGameNotificationParentPreferenceState,
     pub quiet_hours_decision: AppGameNotificationQuietHoursDecision,
@@ -76,4 +79,6 @@ pub struct AppGameNotificationPreferenceStatusReadModel {
 pub struct AppGameNotificationStatusReadModels {
     pub provider_status_boundary: V08NotificationProviderStatusBoundaryReadModel,
     pub preference_status: AppGameNotificationPreferenceStatusReadModel,
+    #[serde(default)]
+    pub parent_surface_intent: Option<AppGameNotificationParentSurfaceIntentReadModel>,
 }
