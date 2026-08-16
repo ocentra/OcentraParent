@@ -30,9 +30,10 @@ This file is the short resume list for the next worker. It is derived from open 
 The 2026-08-15 code audit maps all 220 workpacks and leaves 33 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP61-WP65: provider/preference owners and receipt-backed status. WP59's
-   scheduler bridge and WP60's metadata-only audit-history bridge are
-   implemented and focused-green at `4cf6a11c9` and `bae505ce8`; production
+1. WP62-WP65: preference owners and receipt-backed status. WP59's scheduler
+   bridge, WP60's metadata-only audit-history bridge, and WP61's persisted
+   provider-preflight bridge are implemented and focused-green at `4cf6a11c9`,
+   `bae505ce8`, and `8355613d8`; production
    history persistence, retry/quiet-hours workers, and provider delivery remain
    later runtime boundaries.
 2. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large

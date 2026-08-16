@@ -6,10 +6,10 @@ Code-first detail: [CODE_AUDIT.md](CODE_AUDIT.md)
 ## Phase 1 totals
 
 - 95/95 graph-imported workpacks reviewed and mapped.
-- 80/95 have no remaining source/test-writing gap in their bounded scope.
-- 15/95 retain a concrete code or expected-test gap:
+- 81/95 have no remaining source/test-writing gap in their bounded scope.
+- 14/95 retain a concrete code or expected-test gap:
   `WP15`, `WP16`, `WP17`, `WP18`, `WP19`, `WP20`, `WP26`, `WP48`,
-  `WP49`, `WP61`, `WP62`, `WP63`, `WP64`,
+  `WP49`, `WP62`, `WP63`, `WP64`,
   `WP65`, and `WP102`.
 - Focused tests and Enforcer were not rerun for this inventory; proof was not
   regenerated. This is Phase 1 source/test-writing truth only.
@@ -62,7 +62,7 @@ Do not describe that chain as live policy/timer service execution.
 1. WP18/WP49 policy compiler and category/risk routing.
 2. WP16/WP17 durable review and live risk candidates.
 3. WP19/WP20 authoritative time-budget runtime and child UX.
-4. WP61-WP65 notification provider/preference/delivery status.
+4. WP62-WP65 notification preference/delivery status.
 5. WP15/WP48/WP63 parent inventory and freshness UI.
 6. WP26 performance harnesses.
 7. WP102 implement or explicitly merge/retire into WP103.

@@ -24,7 +24,7 @@
 - Phase 3 proof: not regenerated.
 
 The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
-WP26, WP48, WP49, WP61, WP62, WP63, WP64, WP65, and
+WP26, WP48, WP49, WP62, WP63, WP64, WP65, and
 WP102.
 
 ## Current ownership
@@ -72,7 +72,7 @@ not be promoted as runtime policy/timer support.
 1. WP18/WP49 compiler and category/risk routing.
 2. WP16/WP17 durable unknown/new-app review and live risk candidates.
 3. WP19/WP20 time-budget runtime composition and child UX.
-4. WP61-WP65 notification provider/preference pipeline.
+4. WP62-WP65 notification preference/status pipeline.
 5. WP15/WP48/WP63 parent inventory/freshness UI.
 6. WP26 load/performance harnesses.
 7. WP102 implement or explicitly merge/retire into WP103.

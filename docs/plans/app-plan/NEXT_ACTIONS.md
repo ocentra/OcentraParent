@@ -32,10 +32,11 @@ legacy package/script paths embedded in old workpack prose.
 3. **WP19 + WP20 — runtime and child UX**
    - Compose sessions, schedules, bonus/allow-once state, timer lifecycle, and
      child warning/request delivery with restart tests.
-4. **WP61-WP65 — notification provider/preference and delivery status**
-   - WP59's scheduler bridge and WP60's metadata-only audit-history bridge are
-     implemented and focused-green at `4cf6a11c9` and `bae505ce8`; implement
-     provider/preference preflight and real status producers next. Durable
+4. **WP62-WP65 — notification preference and delivery status**
+   - WP59's scheduler bridge, WP60's metadata-only audit-history bridge, and
+     WP61's persisted provider-preflight bridge are implemented and
+     focused-green at `4cf6a11c9`, `bae505ce8`, and `8355613d8`; implement
+     preference preflight and real status producers next. Durable
      history/query, quiet-hours, retry/dead-letter, and provider delivery remain
      separate runtime boundaries.
 5. **WP15 + WP48 + WP63 — parent product surface**

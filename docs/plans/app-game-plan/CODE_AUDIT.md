@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 168/220 have current production source plus the expected checked-in tests
+- 169/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 187/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 33/220 retain a concrete production-code or expected-test gap.
+- 188/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 32/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -98,7 +98,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP58 Notification Local Outbox Bridge | Rust readiness-row bridge, canonical `NotificationLocalOutboxRecord`, reused atomic WP121 store, deterministic JSONL, and focused service negative | **Complete for bounded Phase 1; Phase 2 passed** | Eligible rows append/reopen/replay idempotently and conflicts fail closed; manual/unavailable rows stay out. The false WP125 setup-outbox runtime claim is removed. Retained Phase 3 proof and real service composition/provider lifecycle remain later boundaries. |
 | WP59 Notification Scheduler Bridge | Rust WP58-to-scheduler bridge, canonical per-record scheduler route/store, and contract tests | **Complete for bounded Phase 1; Phase 2 green** | The bridge consumes and validates the WP58 read model, schedules only linked rows, retains manual/unavailable rows as blocked, round-trips deterministic scheduler JSONL, and proves atomic reopen/idempotency/conflict behavior at `4cf6a11c9`. Production quiet-hours/retry workers, provider delivery, receipts, and retained Phase 3 proof remain outside this bounded packet. |
 | WP60 Notification Audit-History Bridge | Rust WP58-to-audit-history bridge/read model plus focused contract tests | **Complete for bounded Phase 1; Phase 2 green** | The bridge validates WP58, records ordered queued/manual/unavailable metadata rows, preserves audit/evidence/policy refs even for blocked rows, round-trips deterministic JSONL, and rejects tampered refs/claims/identities at `bae505ce8`. Durable production history/query, provider delivery/receipts, retry/quiet-hours runtime, and retained proof remain outside this bounded packet. |
-| WP61 Notification Provider Preflight | Rust canonical per-record provider preflight + child-UX contract tests | **Incomplete** | Safe persisted-scheduler/source identity validation, provider-adapter/credential/smoke requirements, and claimed/mismatched negatives exist. No WP61 bridge consumes the complete WP59 scheduler read model, generates per-row requirements, or preserves manual/unavailable blocked rows as one read model. Provider execution/credential custody remain non-goals. |
+| WP61 Notification Provider Preflight | Rust persisted WP59 scheduler-store bridge, canonical per-record provider preflight, and focused contract tests | **Complete for bounded Phase 1; Phase 2 green** | The bridge consumes and validates the full WP59 read model, requires an exact durably persisted scheduler record, generates deterministic adapter/credential/smoke requirements, preserves blocked rows, and rejects unpersisted/tampered/duplicate inputs at `8355613d8`. Provider delivery, receipts, credential custody, runtime/UI/child/adapter/platform execution, and retained proof remain outside this bounded packet. |
 | WP62 Notification Preference Preflight | Rust notification-readiness/service/portal tests | **Incomplete** | No durable parent preference/quiet-hours/frequency owner and mutation/replay tests. |
 | WP63 Source Freshness Source Panel Polish | Rust notification-readiness/service/portal tests | **Incomplete** | No source-status panel/polish implementation and focused UI tests. |
 | WP64 Notification Provider Status Handoff | Rust notification-readiness/service/portal tests | **Incomplete** | No producer derives provider status from durable attempts/receipts with dedicated tests. |
@@ -264,7 +264,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP61-WP65: implement notification provider/preference ownership,
+1. WP62-WP65: implement notification provider/preference ownership,
    preflight, and receipt-backed status producers.
 2. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
    and hostile/oversized metadata tests.
@@ -286,6 +286,6 @@ helpers. It is not release-ready. The central unfinished chain is:
 `live evidence -> durable review/risk -> compiler/evaluator -> child UX/delivery
 -> notification delivery/history -> cross-platform runtime + tests -> complete parent UI`
 
-Phase 2 should run focused tests and Enforcer only after the 33 writing gaps are
+Phase 2 should run focused tests and Enforcer only after the 32 writing gaps are
 closed or explicitly retired. Phase 3 should then regenerate clean-checkout proof;
 historical ignored output is not a substitute.
