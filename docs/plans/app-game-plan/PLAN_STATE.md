@@ -29,6 +29,49 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 - This audit changes ownership/status routing only. It does not claim Phase 2
   focused tests/Enforcer, Phase 3 proof, or release readiness.
 
+## Combined-plan production reachability audit - 2026-08-16
+
+The source/test baseline above is not a live product-chain claim. A second,
+production-only trace was performed from the shipped agent-service entrypoint
+through parent composition and native execution. The index links 214 numeric
+workpacks while the executable graph imports 220; that six-row topology
+discrepancy remains stale and is not completion evidence.
+
+| Workpacks | Reachable production caller and material effect | Remaining production gap / authority boundary |
+| --- | --- | --- |
+| WP01-WP16 | `service_runtime` starts recurring Windows capture; agent-core sources inventory, process, foreground, launcher, and app/game observations; encrypted journal/SQLite and activity-surface read models persist and expose evidence. | Identity merge, richer subscriptions, dedicated portal evidence rows, and non-Windows acquisition are absent. Existing read models are evidence, not policy or control. |
+| WP17 | Rust typed unknown-candidate producer and Eventing request/response/expiry/replay lifecycle are callable only inside app-game-core. | No service composition feeds a parent approval request into child delivery or an adapter. |
+| WP18-WP20 | Rust game-budget, policy-target compiler, and time-budget evaluator compositions consume bounded stored summaries and remain dry-run. | No parent-authored live rule/context producer, service evaluator caller, scheduler/timer runtime, or enforcement handoff. |
+| WP21-WP22 | Controlled child-UX tokens/outbox contracts exist; the timer command path validates current session evidence and can attempt Windows termination by PID/name. | No child delivery/UI/provider runtime. Timer authority is narrow: executable path, process start time, and owner-SID hardening are not carried into this PID/name path; the authenticated native termination resolver is a separate unused path. |
+| WP23-WP28 | Proof, extension, install/store, performance, and rollout/reference packets have no shipped app/game control caller. | They remain proof/reference or missing-platform-owner work, not production implementation. |
+| WP29-WP31 | Rust protocol parity and journal/SQLite storage persist staged authority/classifier rows. | No live classifier execution, policy consumer, dedicated service event, or portal authority/classifier surface. |
+| WP32-WP48 | Existing service activity-surface composition carries staged evidence/identity/authority/classifier refs into app-use/games read models. | The refs are projection evidence; no trusted policy/compiler/evaluator caller or dedicated live portal consumer was found. |
+| WP49, WP177 | `app_game_policy_readiness_sources` calls risk detection and the protocol → service → parent-runtime readiness row path is reachable. | This is readiness/status only. It does not invoke the compiler/evaluator with parent-authored policy or authorize an adapter. |
+| WP51 | The evaluator is a Rust library consumed by app-game-core dry-run composition. | No external service/runtime caller supplies trusted policy context. |
+| WP52-WP54, WP56 | Policy-readiness, notification intent, portal, and notification service read-model builders are reachable projections. | No authority, provider delivery, child delivery, receipt, or enforcement effect follows from these rows. |
+| WP58-WP62, WP64-WP65 | Local outbox, scheduler, audit-history, provider/preference preflight, and status bridges validate and project persisted rows; missing or unsafe input remains manual-required/unavailable. | No production scheduler writer/runtime, provider credentials, preference mutation, delivery, receipt, or child runtime caller exists. |
+| WP63, WP66-WP70 | Source-freshness, parent-surface intent/renderer/read-model, and policy-preview handoffs are callable projections. | They do not create policy authority, live notification delivery, timer execution, or adapter execution. |
+| WP73-WP76 | Source-gated freshness/preview read models can consume the existing activity summaries. | No source-gated policy scheduler or evaluator execution consumes them. |
+| WP78-WP108 | Timer handoff, persistence, rollback, readiness, service event/read API, and parent-surface chains are implemented as typed/status projections. | No parent-authored policy-to-scheduler runtime or durable live timer delivery is wired through the chain. |
+| WP109-WP158 | Timer parent surfaces, child UX, preference/setup, local outbox, provider/preference and receipt handoff contracts are reachable where composed. | They stop at fail-closed/manual-required handoffs; child UI, provider runtime, service delivery, receipts, and native execution are absent. |
+| WP159-WP165 | Safety gates, rejection/readiness, dashboard detail, and count panels expose conservative status. | Static/readiness projections do not prove policy execution or native custody. |
+| WP166-WP176 | Portal action → parent-runtime → agent-service adapter-dispatch routing exists. Preflight can describe the scoped Windows timer; execute validates stored session evidence, while generic ProcessControl/TerminateProcess execution returns `ManualRequired`. | No trusted parent policy/compiler result reaches an authenticated native adapter. The scoped timer remains the separate PID/name path above; no broad app/game blocking or child-device adapter exists. |
+| WP178-WP180 | Host capability/readiness rows are generated from local capability probes. | They are capability/status projections, not a native provider or enforcement authority. |
+| WP181-WP222 | Android/Linux/physical-device, cross-platform preflight, child-delivery, and retained-proof packets have no shipped runtime caller in this tree. | Platform/provider ownership, delivery, receipt, rollback, and physical proof remain unimplemented or deferred. |
+
+The one real shipped chain is therefore `service_runtime` → Windows
+acquisition → encrypted journal/SQLite → agent-service read models →
+parent-runtime snapshot. The chain stops before a trusted parent-authored
+policy/compiler/schedule/approval producer, live child delivery, or
+authenticated native adapter. There is no legal source correction in this
+pass: adding another DTO, readiness row, proof bridge, or generic projection
+would create an unreachable seam. The next real implementation dependencies
+are, in order, compiler/evaluator context and service composition (WP19/WP51),
+approval/risk service composition (WP17/WP49), time-budget scheduling (WP20),
+child delivery/provider/receipt (WP21 and WP58-WP65), and only then authenticated
+adapter execution (WP166-WP176). Tests, Enforcer validation, proof, and CI
+remain deferred.
+
 ## Active production-code follow-up - 2026-08-16
 
 - WP58 now has a fail-closed production boundary in
