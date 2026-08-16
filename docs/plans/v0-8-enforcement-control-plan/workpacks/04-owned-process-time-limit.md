@@ -125,6 +125,13 @@ deferred; WP11 pre-action/post-action durable journal composition and concrete
 runtime composition are unfinished; missing local launcher/session authority
 fails closed/manual-required.
 
+The reachable service path is now explicitly fail-closed: `enforcement_command_execution/adapter_outcome.rs`
+returns `ManualRequired` for process termination instead of passing caller-shaped
+PID/name fields to raw `terminate_owned_process`. The authenticated executor in
+`crates/agent-core/src/authenticated_delivery_execution.rs` is not yet composed
+because the service payload lacks a canonical persisted grant, managed-target
+binding, trusted issuer, and WP11 durable-dispatch handoff.
+
 ### Active pre-dispatch contract packet
 
 `codex/v08-wp04-grant-handoff-contract` establishes only a typed authenticated

@@ -25,7 +25,7 @@ Use this index to open exactly one assigned workpack. Do not read every file in
 | checked | [07 Unmanaged Browser Fallback](workpacks/07-unmanaged-browser-fallback.md)                       | 1,781 | 5/5 checked; 0 open |
 | checked | [09 Timer Recovery And Rollback](workpacks/09-timer-recovery-and-rollback.md)                     | 1,667 | 5/5 checked; 0 open |
 | checked | [18 Proof Command And Matrix](workpacks/18-proof-command-and-matrix.md)                           | 1,592 | 5/5 checked; 0 open |
-| blocked | [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md)                        | 1,096 | 0/5 checked; production trusted-target/adapter-trace slice code-drafted and unvalidated; 5 open; WP11 durable-journal handoff, tests, proof, and runtime scheduling remain manual-required |
+| blocked | [04 Owned-Process Time Limit](workpacks/04-owned-process-time-limit.md)                        | 1,096 | 0/5 checked; reachable raw PID/name execution is fail-closed/manual-required; authenticated target/adapter-trace code remains uncalled until canonical grant/binding/issuer and WP11 durable-journal composition exist; 5 open |
 | open    | [05 App And Game Session Handoff](workpacks/05-app-game-session-handoff.md)                       | 1,126 | 0/5 checked; 5 open |
 | open    | [06 Managed Browser Session Control](workpacks/06-managed-browser-session-control.md)             | 1,127 | 0/5 checked; 5 open |
 | open    | [08 Network/Domain Report-Only Boundary](workpacks/08-network-domain-report-only-boundary.md)     | 1,190 | 0/5 checked; 5 open |
