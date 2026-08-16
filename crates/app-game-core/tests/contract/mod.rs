@@ -1,6 +1,9 @@
 #[path = "app_game_notification_parent_surface_intent.rs"]
 mod app_game_notification_parent_surface_intent;
 
+#[path = "app_game_notification_local_outbox_bridge.rs"]
+mod app_game_notification_local_outbox_bridge;
+
 #[path = "app_game_native_game_budget.rs"]
 mod app_game_native_game_budget;
 

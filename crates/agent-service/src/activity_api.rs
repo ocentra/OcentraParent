@@ -108,7 +108,6 @@ use self::app_game_notification_readiness_payload::{
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
 };
-use self::app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) struct ActivityEventId(pub(crate) &'static str);
@@ -281,14 +280,9 @@ pub async fn build_activity_app_game_notification_readiness_report(
         ),
         AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         async {
-            load_app_game_model().await.map(|model| {
-                let local_outbox_runtime_claimed =
-                    setup_outbox_has_records(&std::path::PathBuf::from(activity_db_path()));
-                app_game_notification_readiness_from_service_model(
-                    model,
-                    local_outbox_runtime_claimed,
-                )
-            })
+            load_app_game_model()
+                .await
+                .map(|model| app_game_notification_readiness_from_service_model(model, false))
         },
         app_game_notification_readiness_payload,
     )

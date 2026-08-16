@@ -237,10 +237,6 @@ mod clippy_linkage {
                 command_envelope(),
             )
             .await;
-        let _ = app_game_timer_parent_preference_setup_request_outbox::setup_outbox_has_records(
-            &store_path,
-        );
-
         assert_eq!(
             event.event,
             AgentEventName::AgentActivityAppGameTimerParentPreferenceSetupRequested
