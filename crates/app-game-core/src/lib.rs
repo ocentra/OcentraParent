@@ -32,6 +32,8 @@ mod app_game_notification_local_outbox_bridge_mapping;
 pub mod app_game_notification_local_outbox_bridge_types;
 mod app_game_notification_local_outbox_bridge_validation;
 pub mod app_game_notification_parent_surface_intent;
+pub mod app_game_notification_scheduler_bridge;
+pub mod app_game_notification_scheduler_bridge_types;
 pub mod app_game_policy_evaluator_runtime;
 pub mod app_game_policy_preview_handoff;
 pub mod app_game_policy_preview_handoff_generated_ts;
