@@ -5,7 +5,11 @@ mod app_game_category_risk_policy_routing_validation;
 #[path = "app_game_category_risk_policy_routing_types.rs"]
 pub mod types;
 
+use crate::app_game_policy_target_compiler::compile_app_game_policy_target;
 use crate::app_game_policy_target_compiler::references::AppGamePolicyEvidenceRef;
+use crate::app_game_policy_target_compiler::types::{
+    AppGamePolicyCompilation, AppGamePolicyCompilerContext,
+};
 use crate::app_game_policy_target_compiler::types::{
     AppGamePolicyCompileRequest, AppGamePolicyCompilerEvidence, AppGamePolicyCompilerEvidenceState,
     AppGamePolicyCompilerProofKind, AppGamePolicyCompilerRequestedAction,
@@ -50,6 +54,25 @@ pub fn route_app_game_category_risk_candidate(
             .map(|entry| entry.authority_ref.clone())
             .collect(),
     }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct AppGameCategoryRiskCompilation {
+    pub route: AppGameCategoryRiskRoute,
+    pub compilation: Option<AppGamePolicyCompilation>,
+}
+
+pub fn compile_app_game_category_risk_candidate(
+    request: &AppGameCategoryRiskRouteRequest,
+    context: AppGamePolicyCompilerContext,
+) -> AppGameCategoryRiskCompilation {
+    let route = route_app_game_category_risk_candidate(request);
+    let compilation = route
+        .compiler_request
+        .clone()
+        .map(|compiler_request| compile_app_game_policy_target(compiler_request, context));
+
+    AppGameCategoryRiskCompilation { route, compilation }
 }
 
 fn build_compiler_request(

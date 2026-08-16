@@ -14462,7 +14462,7 @@
       "path": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "partial",
+      "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "browser-plan",
