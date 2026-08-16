@@ -6864,11 +6864,13 @@
     "WP-app-game-plan-121-timer-parent-surface-child-ux-local-outbox-bridge": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/app-game-core/src/app_game_child_ux.rs",
-        "crates/app-game-core/src/app_game_child_ux_types.rs",
-        "crates/app-game-core/tests/contract/app_game_child_ux.rs",
-        "crates/agent-protocol/src/app_game_timer_parent_surface_read_model.rs",
-        "crates/agent-protocol/src/schema_domain_mirrors.rs"
+        "crates/app-game-core/src/app_game_child_ux_outbox.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_mapping.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_store.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_token.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_types.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_validation.rs",
+        "crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs"
       ]
     },
     "WP-app-game-plan-122-timer-parent-surface-child-ux-local-outbox-scheduler-bridge": {

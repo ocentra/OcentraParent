@@ -51,23 +51,24 @@ local outbox records.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX local outbox bridge.
-- Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
+- [x] Rust App/Game crate build and Clippy.
+- [x] Focused Rust child UX local-outbox bridge/store tests.
+- [x] Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1/2 Complete; Phase 3 Open
 
 The 2026-08-15 live-code audit invalidated the historical parent-domain
-completion claim. Current Rust can project timer action results into
-`AppGameTimerParentSurfaceChildUxLocalArtifactRecord` rows, and WP21 now owns a
-controlled-token child UX contract, but no current owner converts those records
-to `NotificationLocalOutboxRecord`, persists them durably, or proves restart and
-idempotent replay.
+completion claim. Commit `0e24e37ad` now supplies the current Rust owner:
+`ocentra-app-game-core` validates a WP21 controlled-token notice against its
+`AppGameTimerParentSurfaceChildUxLocalArtifactRecord`, creates the canonical
+agent-protocol `NotificationLocalOutboxRecord`, and persists it with an atomic,
+locked, restart-readable store.
 
-This workpack is active for a bounded Rust bridge and durable local store using
-the existing agent-protocol notification-outbox contract. The first slice must
-fail closed for manual-required/unavailable or unsafe inputs, queue only
-deliverable controlled-token records, preserve reference-only metadata, and
-prove reopen/idempotency behavior. Scheduler, provider, receipt, notification
-UI, child-device delivery, and adapter execution remain later workpacks.
+Four focused tests prove reopen, exact-replay idempotency, conflicting-id
+rejection, manual-required blocking, reference binding, and delivery-claim
+rejection. The full crate remains green at 83 contract plus 10 unit tests;
+Clippy, focused Enforcer, formatting, hub guard, and pre-commit also pass.
+Scheduler, service composition, provider/receipt runtime, notification UI,
+child-device delivery, retained proof, and adapter execution remain later
+workpacks/Phase 3, so this row is validation rather than DONE.
