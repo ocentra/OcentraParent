@@ -150,7 +150,7 @@ fn scheduled_row(
         scheduler_payload_preview: NotificationLocalOutboxPayloadPreview::from(
             source_record.envelope.provider_payload_preview.as_str(),
         ),
-        source_record,
+        source_record: source_record.clone(),
     })?;
     let AppGameChildUxSchedulerRoute::DueLocal(scheduler_record) = route else {
         return Err(invalid(INVALID_SOURCE_FIELD, &source.bridge_record_id));
@@ -160,6 +160,7 @@ fn scheduled_row(
         status: AppGameNotificationSchedulerBridgeStatus::Scheduled,
         source_bridge_record_id: source.bridge_record_id.clone(),
         source_entry_id: Some(source_entry_id),
+        source_outbox_record: Some(source_record),
         scheduler_record: Some(*scheduler_record),
         blocked_reason_refs: Vec::new(),
     })
@@ -175,6 +176,7 @@ fn blocked_row(
         status,
         source_bridge_record_id: source.bridge_record_id.clone(),
         source_entry_id: None,
+        source_outbox_record: None,
         scheduler_record: None,
         blocked_reason_refs: source.blocked_reason_refs.clone(),
     }

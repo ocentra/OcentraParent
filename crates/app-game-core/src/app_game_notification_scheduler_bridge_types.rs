@@ -1,8 +1,8 @@
 use ocentra_parent_agent_protocol::schema_domain_mirrors::{
     family::ParentTimestamp,
     notification::{
-        NotificationLocalOutboxEntryId, NotificationLocalOutboxReference,
-        NotificationLocalOutboxSchedulerRecord,
+        NotificationLocalOutboxEntryId, NotificationLocalOutboxRecord,
+        NotificationLocalOutboxReference, NotificationLocalOutboxSchedulerRecord,
     },
 };
 use serde::{Deserialize, Serialize};
@@ -28,6 +28,7 @@ pub struct AppGameNotificationSchedulerBridgeRow {
     pub status: AppGameNotificationSchedulerBridgeStatus,
     pub source_bridge_record_id: String,
     pub source_entry_id: Option<NotificationLocalOutboxEntryId>,
+    pub source_outbox_record: Option<NotificationLocalOutboxRecord>,
     pub scheduler_record: Option<NotificationLocalOutboxSchedulerRecord>,
     pub blocked_reason_refs: Vec<NotificationLocalOutboxReference>,
 }

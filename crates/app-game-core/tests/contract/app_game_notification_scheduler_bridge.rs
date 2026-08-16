@@ -57,6 +57,17 @@ fn scheduler_bridge_consumes_wp58_and_keeps_blocked_rows_unscheduled(
         NotificationLocalOutboxSchedulerState::DueLocal
     );
     assert_eq!(
+        model.rows[0]
+            .source_outbox_record
+            .as_ref()
+            .expect_value("scheduled source outbox record")
+            .entry_id,
+        model.rows[0]
+            .source_entry_id
+            .clone()
+            .expect_value("scheduled source entry id")
+    );
+    assert_eq!(
         model.rows[1].status,
         AppGameNotificationSchedulerBridgeStatus::ManualRequired
     );
@@ -70,6 +81,8 @@ fn scheduler_bridge_consumes_wp58_and_keeps_blocked_rows_unscheduled(
     );
     assert_eq!(model.rows[1].scheduler_record, None);
     assert_eq!(model.rows[2].scheduler_record, None);
+    assert_eq!(model.rows[1].source_outbox_record, None);
+    assert_eq!(model.rows[2].source_outbox_record, None);
     assert!(!model.provider_delivery_runtime_claimed);
     assert!(!model.provider_receipt_ingestion_claimed);
     assert!(!model.retry_worker_runtime_claimed);
