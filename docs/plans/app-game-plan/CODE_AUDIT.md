@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 158/220 have current production source plus the expected checked-in tests
+- 159/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 177/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 43/220 retain a concrete production-code or expected-test gap.
+- 178/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 42/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -61,7 +61,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP18 Native Game Budgets And Launcher Policy | Rust-owned native-game budget composition in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | Known games and parent-approved candidates count; launcher-only/unapproved candidates are excluded; incoherent/duplicate/bypass inputs fail closed; advisory signals never dispatch. Landed at `0ee4525d8`; persistence, service/portal/notification/adapter integration, retained proof, and Phase 3 remain open. |
 | WP19 Policy Target Compiler For App/Game Rules | Rust-owned compiler in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | All 25 target kinds and fail-closed identity/category/schedule/evidence/capability/authority paths are implemented and tested at `bf81b400d`; retained Phase 3 proof and downstream service consumption remain open. |
 | WP20 Time Budget, Schedule, And Bonus-Time Integration | Rust-owned stored-summary composition in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | Daily/weekly running-versus-foreground accounting, bound schedule evidence, bonus approval/audit refs, pending ask-parent state, active/recovered timer refs, and fail-closed malformed/bypass inputs landed at `b82cfc608`; service/portal/child/notification/timer-scheduler/adapter integration, retained proof, and Phase 3 remain open. |
-| WP21 Child-Facing App/Game Warning And Request UX | Current Rust/service/portal boundary; legacy TS owner removed | **Incomplete** | No live child warning/request overlay, delivery/persistence owner, or state-transition tests. |
+| WP21 Child-Facing App/Game Warning And Request UX | Rust controlled-token UX contract in `ocentra-app-game-core` + contract tests | **Complete for bounded Phase 1; Phase 2 green** | Limited, approval-needed, time-warning, request submitted/approved/denied, manual-required, and unavailable states are covered at `c9bb2e153`; 5 focused, 79 full contract, 10 unit, Clippy, focused Enforcer, and pre-commit passed. Live rendering/overlay, durable delivery/outbox, notification/service persistence, platform shield, adapter execution, and Phase 3 remain open. |
 | WP22 Windows Owned-Process Terminate Time-Limit Proof | Current Rust/service/portal boundary; legacy TS owner removed | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP23 Broad Blocking Proof Gates | Docs/proof/reference route (no product source required) | **Complete for bounded Phase 1 (no code required)** | Phase 2/3 validation or proof may remain; no product source/test-writing gap belongs to this packet. |
 | WP24 AI Classifier Digest Boundary | Current Rust/service/portal boundary; legacy TS owner removed | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
@@ -264,7 +264,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP21 and WP121-WP126: implement the actual child warning/request UX plus its
+1. WP121-WP126: carry the WP21 child warning/request contract through the
    durable outbox, scheduler, provider/preference preflight, and status producers.
 2. WP58-WP65: implement the notification outbox, scheduler, ordered history,
    provider/preference owners, and receipt-backed status producers.

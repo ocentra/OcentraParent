@@ -30,10 +30,10 @@ raw diagnostics, or hidden enforcement behavior.
 
 ## Tests And Proof
 
-- Text is parent-rule based, not AI-blame based.
-- Child UI does not leak private paths or diagnostics.
-- Ask-parent request carries evidence refs and child reason refs.
-- Manual-required/unavailable states are honest.
+- [x] Text is parent-rule based, not AI-blame based.
+- [x] Child UI contract cannot accept private paths, arbitrary copy, or diagnostics.
+- [x] Ask-parent request carries evidence refs and child reason/status refs.
+- [x] Manual-required/unavailable states are honest.
 
 ## Done Signal
 
@@ -41,17 +41,28 @@ Child UX is respectful, actionable, and consistent with actual capability state.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1/2 Complete; Phase 3 Open
 
 The 2026-08-15 code audit found that the historical TypeScript owners and tests
-below are no longer tracked. Current Rust has the WP17 approval lifecycle and
-WP51 runtime decisions, but no bounded child-facing contract that turns those
-states into controlled respectful copy tokens and an evidence-bound ask-parent
-action without accepting arbitrary diagnostics or private paths.
+below are no longer tracked. The current Rust owner is now
+`ocentra-app-game-core`: commit `c9bb2e153` adds a controlled-token child UX
+contract over the WP17 approval lifecycle and WP51 runtime decisions. It covers
+limited, approval-needed, time-warning, request submitted/approved/denied,
+manual-required, and unavailable states without accepting arbitrary copy,
+diagnostics, private paths, or adapter-action claims.
 
-This workpack is active for that `ocentra-app-game-core` contract and focused
-tests. Live child rendering, delivery/outbox, notifications, persistence,
-platform shield behavior, and adapter execution remain outside this slice.
+Verified on that code checkpoint:
+
+- focused child UX contract tests: 5/5 passed;
+- full `ocentra-app-game-core` contract target: 79/79 passed;
+- full crate unit target: 10/10 passed;
+- Clippy with `-D warnings`, focused Enforcer, Rust formatting, hub guard, and
+  pre-commit passed.
+
+Live child rendering/overlay, durable delivery/outbox, notifications, service
+persistence, screenshots, platform shield behavior, adapter execution, retained
+proof, and whole-plan gates remain open. Therefore the workpack is in validation,
+not DONE.
 
 ## Historical Contract Completion - 2026-06-03
 

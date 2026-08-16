@@ -20,9 +20,9 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
 
 - The executable graph imports **220** App + Game workpacks, not 214.
 - All **220/220** now have reviewed current code/test ownership.
-- **158** have current production source plus expected checked-in tests for their
+- **159** have current production source plus expected checked-in tests for their
   bounded scope; **19** are reviewed no-code coordination/proof/reference
-  packets; **43** retain a concrete production-code or expected-test gap.
+  packets; **42** retain a concrete production-code or expected-test gap.
 - The authoritative row-by-row source/test result is
   [CODE_AUDIT.md](CODE_AUDIT.md). It overrides historical checkbox, branch,
   removed-package, and ignored-proof wording for Phase 1 status.
@@ -90,7 +90,7 @@ packages/schema-domain:
 - Scoped owned-process time-limit dispatch, parent preference request
   persistence/outbox, adapter readiness/dispatch, platform status, receipt,
   parent-runtime, and portal surfaces are present with bounded tests.
-- These do not erase the 43 Phase 1 gaps or claim cross-platform/provider/child
+- These do not erase the 42 Phase 1 gaps or claim cross-platform/provider/child
   delivery and physical proof.
 
 ## Historical gap narrative
@@ -110,7 +110,7 @@ Phase 1 authority where they conflict with `CODE_AUDIT.md`.
 - Native game budget policy now has a Rust-owned `ocentra-app-game-core` composition over the WP19 compiler and WP51 evaluator. It counts known games and parent-approved launcher-game candidates, excludes launcher-only/unapproved candidates, rejects incoherent/duplicate/bypass inputs, preserves advisory rating/UGC/multiplayer/purchase signals, and stays dry-run with no adapter dispatch. Service persistence, portal authoring/preview UI, bonus-time integration, notifications, retained proof, and adapter execution remain open.
 - App/game policy target compiler now has parent-domain contract proof for app/game targets, identity/unknown/category/schedule/capability/authority proof, device/local-user/freshness rejection, dry-run-only decisions, and manual-required unproved block-launch. It does not yet provide Rust/service parity, runtime evaluator execution, portal rule authoring/preview UI, timer integration, notifications, rollback, or adapter execution.
 - App/game time-budget policy now has a Rust-owned `ocentra-app-game-core` composition from stored session summaries into the WP51 evaluator. It preserves daily/weekly scope, running versus foreground duration, bound schedule evidence, pending/approved bonus audit refs, effective budget math, and active/recovered timer refs while remaining dry-run. Service persistence, portal/child UX, notification delivery, timer scheduling/rollback, retained proof, and adapter execution remain open.
-- Child-facing app/game UX now has parent-domain/text-domain contract proof for respectful warning, approval-needed, time-limit, request submitted/approved/ denied, manual-required, and unavailable states with safe copy tokens, evidence refs, child reason/status refs, and no private diagnostics. It does not yet provide live child UI, native overlay rendering, portal preview screenshots, notification delivery, service persistence, Rust/WebSocket parity, adapter execution, or platform shield/block behavior.
+- Child-facing app/game UX now has a Rust-owned controlled-token contract in `ocentra-app-game-core` for respectful limited, approval-needed, time-warning, request submitted/approved/denied, manual-required, and unavailable states. It requires evidence plus child reason/status refs for ask-parent actions, accepts no arbitrary copy/private diagnostics, and never claims adapter dispatch. It does not yet provide live child UI, native overlay rendering, portal preview screenshots, durable delivery/outbox, notification delivery, service persistence, adapter execution, or platform shield/block behavior.
 
 ## Current proof interpretation
 
@@ -155,7 +155,7 @@ Checked generated handoff rows do not override the selected workpack proof root 
 - The six app/game capability, schema, and settings guides are reviewed
   no-code reference/control-routing packets. They do not claim product
   implementation or proof completion.
-- Forty-six implementation/test-writing gaps remain; select them through
+- Forty-two implementation/test-writing gaps remain; select them through
   `CODE_AUDIT.md` and `WORKPACK_INDEX.md`.
 
 ## Default no-read list
