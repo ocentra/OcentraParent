@@ -2550,8 +2550,8 @@
     "WP-app-plan-60-notification-audit-history-bridge": {
       "planSlug": "app-plan",
       "roots": [
-        "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
-        "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
+        "crates/app-game-core/src/app_game_notification_audit_history_bridge.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs"
       ]
     },
     "WP-app-plan-61-notification-provider-preflight": {
@@ -6363,8 +6363,8 @@
     "WP-app-game-plan-60-notification-audit-history-bridge": {
       "planSlug": "app-game-plan",
       "roots": [
-        "crates/app-game-core/src/app_game_notification_parent_surface_intent.rs",
-        "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
+        "crates/app-game-core/src/app_game_notification_audit_history_bridge.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs"
       ]
     },
     "WP-app-game-plan-61-notification-provider-preflight": {

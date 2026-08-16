@@ -73,7 +73,7 @@ complete. See [CODE_AUDIT.md](CODE_AUDIT.md) for exact evidence and gaps.
 | [56 notification service read model](workpacks/56-notification-service-read-model.md) | Complete |
 | [58 notification local outbox bridge](workpacks/58-notification-local-outbox-bridge.md) | **Complete for bounded Phase 1; Phase 2 passed; proof open** |
 | [59 notification scheduler bridge](workpacks/59-notification-scheduler-bridge.md) | **Bounded Phase 1 complete; focused Phase 2 green; proof open** |
-| [60 notification audit history bridge](workpacks/60-notification-audit-history-bridge.md) | **Incomplete** |
+| [60 notification audit history bridge](workpacks/60-notification-audit-history-bridge.md) | **Incomplete; former graph roots were unrelated parent-surface code** |
 | [61 notification provider preflight](workpacks/61-notification-provider-preflight.md) | **Incomplete** |
 | [62 notification preference preflight](workpacks/62-notification-preference-preflight.md) | **Incomplete** |
 | [63 source freshness source panel polish](workpacks/63-source-freshness-source-panel-polish.md) | **Incomplete** |

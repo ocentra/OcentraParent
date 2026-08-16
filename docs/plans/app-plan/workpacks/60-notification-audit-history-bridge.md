@@ -25,14 +25,22 @@ after local outbox linking.
 - Policy evaluator execution, broad app blocking, adapter dispatch, or platform
   support.
 
+## Current Code Audit (2026-08-15)
+
+The former graph roots point at the later app/game notification parent-surface
+intent, which does not consume WP58 or create audit-history entries. The named
+`packages/logging-domain` source/test owner and proof harness are absent. No
+current notification-specific queued/manual/unavailable audit-history read
+model, ref-preservation test, or deterministic JSONL handoff exists. Generic
+logging and enforcement history are separate owners and do not close WP60.
+
 ## Proof
 
-- Shared source:
-  `packages/logging-domain/src/notification-audit-history-handoff.ts`
-- Shared test:
-  `packages/logging-domain/tests/notification-audit-history-handoff.test.ts`
-- Harness:
-  `scripts/test/app-game-notification-audit-history-bridge-proof.mjs`
+- Planned shared source:
+  `crates/app-game-core/src/app_game_notification_audit_history_bridge.rs`
+- Planned shared test:
+  `crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs`
+- Historical `packages/logging-domain/...` and script harness routes are absent.
 - Native app proof pack:
   `output/app-plan-proof/60-notification-audit-history-bridge/`
 

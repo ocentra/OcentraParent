@@ -43,11 +43,27 @@ without claiming provider delivery, parent history UI, or production runtime.
 - Child-device delivery, policy evaluator execution, adapter dispatch, broad
   app/game blocking, or platform support.
 
+## Current Code Audit (2026-08-15)
+
+- The graph previously mapped this workpack to
+  `app_game_notification_parent_surface_intent`, but that later surface consumes
+  provider/preference status handoffs; it does not consume WP58 or create
+  notification audit-history rows.
+- The advertised `packages/logging-domain` source/test owner and proof harness
+  are absent from the tracked tree.
+- No current notification-specific typed read model maps linked WP58 rows to
+  queued audit entries while retaining manual/unavailable rows, source audit,
+  evidence, and policy refs. No deterministic audit-history JSONL test exists.
+- Generic logging NDJSON and enforcement audit-history code are separate owners
+  and do not satisfy this notification handoff.
+
 ## Proof
 
-- `packages/logging-domain/src/notification-audit-history-handoff.ts`
-- `packages/logging-domain/tests/notification-audit-history-handoff.test.ts`
-- `scripts/test/app-game-notification-audit-history-bridge-proof.mjs`
+- Planned current owner:
+  `crates/app-game-core/src/app_game_notification_audit_history_bridge.rs`
+- Planned focused test:
+  `crates/app-game-core/tests/contract/app_game_notification_audit_history_bridge.rs`
+- Historical `packages/logging-domain/...` and script harness routes are absent.
 - `test-results/app-game-notification-audit-history-bridge-proof/proof.json`
 - `output/app-game-plan-proof/60-notification-audit-history-bridge/`
 - `output/app-plan-proof/60-notification-audit-history-bridge/`
