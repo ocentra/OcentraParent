@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use ocentra_eventing::error::EventingError;
 
 use crate::app_game_notification_audit_history_bridge_types::{
@@ -12,6 +14,7 @@ use crate::app_game_notification_local_outbox_bridge_types::{
 
 const INVALID_CONTEXT_FIELD: &str = "app_game.notification_audit_history.context";
 const INVALID_SOURCE_FIELD: &str = "app_game.notification_audit_history.source_bridge";
+const INVALID_MODEL_FIELD: &str = "app_game.notification_audit_history.read_model";
 const AUDIT_ENTRY_PREFIX: &str = "app-game-notification-audit-history";
 
 pub fn build_app_game_notification_audit_history_bridge(
@@ -25,7 +28,7 @@ pub fn build_app_game_notification_audit_history_bridge(
         .iter()
         .map(|row| audit_entry(&options, &source, row))
         .collect::<Result<Vec<_>, _>>()?;
-    Ok(AppGameNotificationAuditHistoryReadModel {
+    let read_model = AppGameNotificationAuditHistoryReadModel {
         schema_version: source.schema_version,
         handoff_id: options.handoff_id,
         source_bridge_id: source.bridge_id,
@@ -52,7 +55,86 @@ pub fn build_app_game_notification_audit_history_bridge(
         child_delivery_claimed: false,
         adapter_dispatch_claimed: false,
         cloud_routing_claimed: false,
-    })
+    };
+    validate_app_game_notification_audit_history_read_model(&read_model)?;
+    Ok(read_model)
+}
+
+pub fn validate_app_game_notification_audit_history_read_model(
+    read_model: &AppGameNotificationAuditHistoryReadModel,
+) -> Result<(), EventingError> {
+    let mut entry_ids = HashSet::new();
+    let counts_match = read_model.queued_local_count
+        == count_entries(
+            &read_model.entries,
+            AppGameNotificationAuditHistoryStatus::QueuedLocal,
+        )
+        && read_model.manual_required_count
+            == count_entries(
+                &read_model.entries,
+                AppGameNotificationAuditHistoryStatus::ManualRequired,
+            )
+        && read_model.unavailable_count
+            == count_entries(
+                &read_model.entries,
+                AppGameNotificationAuditHistoryStatus::Unavailable,
+            );
+    let unsafe_claim = read_model.provider_delivery_runtime_claimed
+        || read_model.provider_receipt_ingestion_claimed
+        || read_model.retry_worker_runtime_claimed
+        || read_model.quiet_hours_timer_runtime_claimed
+        || read_model.production_durable_history_claimed
+        || read_model.parent_notification_history_ui_claimed
+        || read_model.child_delivery_claimed
+        || read_model.adapter_dispatch_claimed
+        || read_model.cloud_routing_claimed;
+    let dishonest_entry = read_model.entries.iter().any(|entry| {
+        if entry.audit_entry_id.trim().is_empty()
+            || !entry_ids.insert(entry.audit_entry_id.as_str())
+            || entry.source_bridge_record_id.trim().is_empty()
+            || entry.source_readiness_row_id.trim().is_empty()
+            || entry.source_reason.trim().is_empty()
+            || entry.audit_refs.is_empty()
+            || entry.policy_refs.is_empty()
+            || entry
+                .audit_refs
+                .iter()
+                .any(|reference| reference.as_str().trim().is_empty())
+            || entry
+                .policy_refs
+                .iter()
+                .any(|reference| reference.as_str().trim().is_empty())
+            || entry.provider_send_created
+        {
+            return true;
+        }
+        match entry.status {
+            AppGameNotificationAuditHistoryStatus::QueuedLocal => {
+                entry.source_entry_id.is_none()
+                    || entry.source_outbox_state.is_none()
+                    || entry.provider_channel.is_none()
+                    || !entry.blocked_reason_refs.is_empty()
+            }
+            AppGameNotificationAuditHistoryStatus::ManualRequired
+            | AppGameNotificationAuditHistoryStatus::Unavailable => {
+                entry.source_entry_id.is_some()
+                    || entry.source_outbox_state.is_some()
+                    || entry.provider_channel.is_some()
+                    || entry.blocked_reason_refs.is_empty()
+            }
+        }
+    });
+    if read_model.schema_version == 0
+        || read_model.handoff_id.trim().is_empty()
+        || read_model.source_bridge_id.trim().is_empty()
+        || read_model.recorded_at.as_str().trim().is_empty()
+        || !counts_match
+        || unsafe_claim
+        || dishonest_entry
+    {
+        return Err(invalid(INVALID_MODEL_FIELD, &read_model.handoff_id));
+    }
+    Ok(())
 }
 
 pub fn serialize_app_game_notification_audit_history_jsonl(
