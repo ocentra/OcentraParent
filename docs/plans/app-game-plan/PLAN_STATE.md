@@ -49,6 +49,17 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
   production history/query, provider delivery/receipts, and runtime composition
   remain open. It does not claim WP60 DONE.
 
+- WP64/WP65 now have an agent-service-owned composition boundary that loads and
+  verifies a service-owned WP59 scheduler bridge plus its private scheduler
+  proof store before invoking the Rust WP61/WP62 preflight builders. Only paired
+  verified rows reach provider/preference status read models; absent, malformed,
+  symlinked, or mismatched scheduler evidence yields explicit
+  invalid/manual-required or unavailable status. This is a consumer-only seam;
+  no production scheduler writer/runtime composition is claimed. Delivery,
+  preference mutation, timer execution, UI, child delivery, enforcement,
+  durability, tests, and proof remain open; these workpacks are code-drafted and
+  not DONE.
+
 ## Scope
 
 This folder is the shared native app and native game control plan. It exists because apps and games share the low-level evidence spine, but they do not share product meaning.

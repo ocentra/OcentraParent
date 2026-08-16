@@ -3154,16 +3154,19 @@
       "title": "64. Notification Provider Status Handoff",
       "path": "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
       "parent": "PLAN-app-game-plan",
-      "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [
+        "WP-app-game-plan-59-notification-scheduler-bridge",
+        "WP-app-game-plan-61-notification-provider-preflight"
+      ],
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "code drafted; tests/validation/proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -3190,16 +3193,19 @@
       "title": "65. Notification Preference Status Handoff",
       "path": "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
       "parent": "PLAN-app-game-plan",
-      "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [
+        "WP-app-game-plan-59-notification-scheduler-bridge",
+        "WP-app-game-plan-62-notification-preference-preflight"
+      ],
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "code drafted; tests/validation/proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
