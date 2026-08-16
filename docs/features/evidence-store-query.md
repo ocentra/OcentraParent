@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Evidence Store And Query
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Evidence Store And Query
 
 ## Parent Outcome
@@ -35,10 +48,13 @@ show the same parent value, but with local custody and evidence citations.
 - Local evidence and read-model direction exists.
 - Browser/app/network/screen evidence paths are represented through contracts
   and service/read-model proof.
-- Activity report persistence and family fanout proof is in progress/PR-ready.
+- Activity report persistence and family fanout proof exists for the
+  backend/read-model boundary.
 - Activity report history now loads saved JSON report documents through the
   Rust service store, filters by family/device scope and requested report
   window, and returns typed saved/degraded/storage-unavailable states.
+- Activity report source records, saved JSON metadata, and history rows now
+  carry typed custody/source labels and `rawChildEvidenceIncluded=false`.
 
 ## Current Gap
 
@@ -52,7 +68,9 @@ and retention/export controls.
 - [ ] Evidence ids and source ids for every observation.
 - [ ] Journal write and replay path.
 - [ ] SQLite/read-model query state.
-- [ ] Custody and retention labels.
+- [x] Custody/source labels for Activity report source records, saved metadata,
+      and history rows.
+- [ ] Retention labels.
 - [ ] Corruption/degraded/recovery state.
 - [ ] Report/history query coverage.
 - [ ] Parent-owned export/delete path.

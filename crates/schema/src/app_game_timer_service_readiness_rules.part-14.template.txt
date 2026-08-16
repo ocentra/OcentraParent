@@ -1,0 +1,30 @@
+export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateForStatusGenerated = (
+  timerStatusState: TimerStatusStateValue
+): TimerRuntimeReadinessStateValue => {
+  if (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.TimerRuntimeProofRequired) {
+    return AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired;
+  }
+
+  if (timerStatusState === AppGameSourceGatedPolicyPreviewTimerStatusStateGenerated.SourceFreshnessProofRequired) {
+    return AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness;
+  }
+
+  return AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedByCompilerDecision;
+};
+
+export const countAppGameSourceGatedPolicyPreviewTimerRuntimeReadinessRowsGenerated = (
+  rows: readonly TimerRuntimeReadinessRowLike[]
+) => ({
+  runtimeProofRequiredCount: rows.filter(
+    (row) =>
+      row.runtimeReadinessState ===
+      AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.RuntimeProofRequired
+  ).length,
+  blockedBySourceFreshnessCount: rows.filter(
+    (row) =>
+      row.runtimeReadinessState ===
+      AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness
+  ).length,
+  blockedByCompilerDecisionCount: rows.filter(
+    (row) =>
+      row.runtimeReadinessState ===

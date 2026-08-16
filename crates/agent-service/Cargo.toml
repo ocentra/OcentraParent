@@ -7,12 +7,131 @@ license.workspace = true
 [lints]
 workspace = true
 
+[lib]
+path = "src/lib.rs"
+
 [dependencies]
 axum = { version = "=0.8.7", features = ["ws"] }
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "std"] }
+base64 = "0.22.1"
 ocentra-parent-agent-core = { path = "../agent-core" }
+ocentra-app-game-core = { path = "../app-game-core" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-lan-core = { path = "../lan-core" }
+ocentra-parent-logging-core = { path = "../logging-core" }
+ocentra-child-runtime = { path = "../child-runtime" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
+ocentra-parent-runtime-core = { path = "../parent-runtime-core" }
+ocentra-parent-screen-capture-adapter = { path = "../screen-capture-adapter" }
+ocentra-screen-live-view-core = { path = "../screen-live-view-core" }
+ocentra-network-evidence = { path = "../ocentra-network-evidence" }
+ocentra-schema = { path = "../schema" }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.145"
+sha2 = "0.10.9"
 tokio = { version = "1.48.0", features = ["macros", "net", "process", "rt-multi-thread", "sync", "time"] }
 tower-http = { version = "0.6.7", features = ["cors"] }
+
+[dev-dependencies]
+ed25519-dalek = "2.2.0"
+
+[[test]]
+name = "activity_capture"
+path = "tests/unit/activity_capture.rs"
+
+[[test]]
+name = "activity_surface"
+path = "tests/unit/activity_surface.rs"
+
+[[test]]
+name = "app_game_activity_read_models"
+path = "tests/unit/app_game_activity_read_models.rs"
+
+[[test]]
+name = "app_game_timer_parent_pref_request"
+path = "tests/unit/app_game_timer_parent_pref_request.rs"
+
+[[test]]
+name = "app_game_timer_parent_surface"
+path = "tests/unit/app_game_timer_parent_surface.rs"
+
+[[test]]
+name = "browser_inventory_read_model"
+path = "tests/unit/browser_inventory_read_model.rs"
+
+[[test]]
+name = "browser_evidence_payload"
+path = "tests/unit/browser_evidence_payload.rs"
+
+[[test]]
+name = "browser_policy_api"
+path = "tests/unit/browser_policy_api.rs"
+
+[[test]]
+name = "browser_policy_compiler"
+path = "tests/unit/browser_policy_compiler.rs"
+
+[[test]]
+name = "browser_policy_manifest_patch"
+path = "tests/unit/browser_policy_manifest_patch.rs"
+
+[[test]]
+name = "browser_runtime_stream"
+path = "tests/unit/browser_runtime_stream.rs"
+
+[[test]]
+name = "browser_runtime_status"
+path = "tests/unit/browser_runtime_status.rs"
+
+[[test]]
+name = "enforcement_runtime"
+path = "tests/unit/enforcement_runtime.rs"
+
+[[test]]
+name = "dev_log"
+path = "tests/unit/dev_log.rs"
+
+[[test]]
+name = "lan_runtime"
+path = "tests/unit/lan_runtime.rs"
+
+[[test]]
+name = "lan_pairing"
+path = "tests/unit/lan_pairing.rs"
+
+[[test]]
+name = "lan_pairing_runtime_state"
+path = "tests/unit/lan_pairing_runtime_state.rs"
+
+[[test]]
+name = "lan_pairing_status_selection"
+path = "tests/unit/lan_pairing_status_selection.rs"
+
+[[test]]
+name = "local_ai_runtime"
+path = "tests/unit/local_ai_runtime.rs"
+
+[[test]]
+name = "network_bridge_runtime"
+path = "tests/unit/network_bridge_runtime.rs"
+
+[[test]]
+name = "policy_request_confirm"
+path = "tests/unit/policy_request_confirm.rs"
+
+[[test]]
+name = "parent_assistant_runtime_tests"
+path = "tests/unit/parent_assistant_runtime_tests.rs"
+
+[[test]]
+name = "screen_ai_runtime"
+path = "tests/unit/screen_ai_runtime.rs"
+
+[[test]]
+name = "social_activity_api"
+path = "tests/unit/social_activity_api.rs"
+
+[[test]]
+name = "tracking_read_model"
+path = "tests/unit/tracking_read_model.rs"

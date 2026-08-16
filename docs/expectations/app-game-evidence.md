@@ -1,3 +1,17 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: App And Game Evidence Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # App And Game Evidence Expectations
 
 Native app and game evidence is the product bridge between low-level process
@@ -5,6 +19,19 @@ capture and useful parent rules such as "games are limited to one hour." Browser
 games are covered by managed browser URL/tab evidence. Native games and launchers
 need process, window, install, launcher, and session evidence that the Rust agent
 stores locally before AI, policy, or enforcement uses it.
+
+Browser-game and cloud-gaming web planning lives in
+[V0.5 Browser Games Cloud Gaming And Game Portal Gating Plan](../plans/browser-plan/v0-5-browser-games-cloud-gaming-gating-plan.md).
+
+Shared native app/game implementation planning lives in
+[App + Game Plan](../plans/app-game-plan/README.md). That plan owns the shared
+evidence spine, native game slice, no-claim proof gates, and app/game workpack
+routing.
+
+Native app planning lives in
+[Native Apps Plan](../plans/app-plan/README.md). The app plan narrows the
+non-browser app side of this combined app/game expectation and keeps
+platform-specific authority tiers manual-required until proof exists.
 
 Detailed architecture and phased contract planning live in
 [App And Game Evidence Sessions Architecture](../architecture/app-game-evidence-sessions.md).
@@ -124,6 +151,25 @@ The common game-control path should be:
   OS or invent duration.
 - A parent game/category time-limit policy can consume a session summary and
   produce a dry-run decision before enforcement is enabled.
+- Source freshness readiness must gate policy preview output: stale, missing,
+  manual-required, unavailable, or not-claimed inventory/runtime/foreground/
+  launcher source rows cannot become preview-ready policy rows.
+- Source-gated policy preview read models must derive from source freshness
+  preview-gate rows, expose redacted evidence refs rather than raw private
+  source rows, and keep source-manual-required rows separate from
+  compiler-manual-required rows before any service runtime or portal renderer
+  claims exist.
+- Category, risk, and game-context candidates can route into parent policy
+  compiler targets only when active category proof, confidence/source
+  disclosure, and supporting evidence refs exist; local-AI routes cite digest
+  refs, manual-review routes stay manual-required, and no category/risk route
+  dispatches an adapter.
+- Policy readiness consumes only service-backed app/game `sourceStatusRows`.
+  Native app policy compile requires fresh inventory, runtime, and foreground
+  evidence; native game policy compile also requires fresh launcher evidence.
+  Stale, missing, permission-limited, unavailable, adapter-error,
+  manual-required, and not-claimed rows block policy compile without exposing
+  raw private source rows or calling adapters.
 - Enforcement, when enabled, records whether the game/app was terminated, already
   exited, unavailable, blocked, or left running in observe-only mode.
 

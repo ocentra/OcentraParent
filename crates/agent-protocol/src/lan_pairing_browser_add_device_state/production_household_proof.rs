@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use super::deserialize_lan_schema_version;
 use crate::{
     LanPairingProductionDiscoveryState, V09ProductionDiscoveryHouseholdProofState,
     V09ProductionDiscoveryHouseholdRuntimeOwner,
@@ -34,6 +35,7 @@ pub enum LanProductionHouseholdProofCapability {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanProductionHouseholdProofStatus {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub capability: LanProductionHouseholdProofCapability,
     pub discovery_state: LanPairingProductionDiscoveryState,
@@ -46,6 +48,7 @@ pub struct LanProductionHouseholdProofStatus {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct LanProductionHouseholdProofSummary {
+    #[serde(deserialize_with = "deserialize_lan_schema_version")]
     pub schema_version: u16,
     pub generated_at: String,
     pub status_rows: Vec<LanProductionHouseholdProofStatus>,

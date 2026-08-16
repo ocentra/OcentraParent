@@ -1,62 +1,217 @@
-use ocentra_parent_agent_protocol::{
-    AppGameSessionReport, AppGameSessionSummary, APP_GAME_CATALOG_NOT_LOADED,
-    APP_GAME_CLASSIFICATION_ADAPTER_ERROR, APP_GAME_CLASSIFICATION_PERMISSION_LIMITED,
-    APP_GAME_CLASSIFICATION_POSSIBLY_GAME, APP_GAME_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::app_game::{
+    AppGameServiceReadModel, AppGameSessionDailyRollup, AppGameSessionReport,
+    AppGameSessionSummary, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
 
-use crate::{
-    activity_store_app_game_observation::AppGameObservation,
-    activity_store_app_game_rows::app_game_rows, ActivityStoreError,
+pub mod app_game_journal_sqlite_ingest;
+pub mod app_game_session_rollups;
+mod app_game_session_time;
+pub mod app_game_sessionization;
+// WP06 stages the typed parser before live Windows source readers call it.
+pub mod app_game_windows_inventory;
+// WP41 adds a bounded live Windows shortcut inventory source.
+pub mod app_game_windows_inventory_source;
+// WP45 adds a bounded live Windows installed-app registry source.
+mod app_game_windows_registry_export;
+#[cfg(windows)]
+mod app_game_windows_registry_live;
+mod app_game_windows_registry_record;
+pub mod app_game_windows_registry_source;
+// WP07 stages Store/UWP package parsing before live package readers call it.
+pub mod app_game_windows_store_inventory;
+// WP43 adds a bounded live Windows packaged-app manifest source.
+pub mod app_game_windows_store_package_manifest;
+pub mod app_game_windows_store_package_source;
+// WP08 stages process runtime evidence before live process capture calls it.
+pub mod app_game_windows_process_runtime;
+// WP32 adds a real process snapshot source that feeds the staged runtime rows.
+pub mod app_game_windows_process_source;
+// WP09 stages foreground-window evidence before live window capture calls it.
+pub mod app_game_windows_foreground;
+// WP36 adds a real foreground-window source that feeds the staged rows.
+pub mod app_game_windows_foreground_source;
+// WP10 stages launcher evidence before live launcher manifest readers call it.
+pub mod app_game_windows_launcher;
+
+use crate::{activity_store_app_game_rows::app_game_rows, ActivityStoreError};
+
+use app_game_windows_foreground_source::{
+    live_windows_foreground_window_journal_event as live_windows_foreground_window_journal_event_impl,
+    AppGameLiveForegroundWindowError as AppGameLiveForegroundWindowErrorImpl,
 };
+use app_game_windows_inventory_source::{
+    live_windows_inventory_journal_events_from_roots as live_windows_inventory_journal_events_from_roots_impl,
+    live_windows_inventory_journal_events_with_limit as live_windows_inventory_journal_events_with_limit_impl,
+    AppGameLiveInventorySourceError as AppGameLiveInventorySourceErrorImpl,
+};
+use app_game_windows_process_source::{
+    live_windows_process_snapshot_journal_events_with_limit as live_windows_process_snapshot_journal_events_with_limit_impl,
+    AppGameLiveProcessSnapshotError as AppGameLiveProcessSnapshotErrorImpl,
+};
+use app_game_windows_registry_source::{
+    live_windows_registry_inventory_journal_events_from_roots as live_windows_registry_inventory_journal_events_from_roots_impl,
+    live_windows_registry_inventory_journal_events_with_limit as live_windows_registry_inventory_journal_events_with_limit_impl,
+    AppGameLiveRegistryInventorySourceError as AppGameLiveRegistryInventorySourceErrorImpl,
+};
+use app_game_windows_store_package_source::{
+    live_windows_store_package_journal_events_from_roots as live_windows_store_package_journal_events_from_roots_impl,
+    live_windows_store_package_journal_events_with_limit as live_windows_store_package_journal_events_with_limit_impl,
+    AppGameLiveStorePackageSourceError as AppGameLiveStorePackageSourceErrorImpl,
+};
+
+pub type AppGameLiveForegroundWindowError = AppGameLiveForegroundWindowErrorImpl;
+pub type AppGameLiveInventorySourceError = AppGameLiveInventorySourceErrorImpl;
+pub type AppGameLiveProcessSnapshotError = AppGameLiveProcessSnapshotErrorImpl;
+pub type AppGameLiveRegistryInventorySourceError = AppGameLiveRegistryInventorySourceErrorImpl;
+pub type AppGameLiveStorePackageSourceError = AppGameLiveStorePackageSourceErrorImpl;
+
+pub fn live_windows_foreground_window_journal_event(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+) -> Result<Option<ActivityEvent>, AppGameLiveForegroundWindowError> {
+    live_windows_foreground_window_journal_event_impl(device_id, platform, observed_at)
+}
+
+pub fn live_windows_inventory_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveInventorySourceError> {
+    live_windows_inventory_journal_events_with_limit_impl(device_id, platform, observed_at, limit)
+}
+
+pub fn live_windows_inventory_journal_events_from_roots(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    roots: &[std::path::PathBuf],
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveInventorySourceError> {
+    live_windows_inventory_journal_events_from_roots_impl(
+        device_id,
+        platform,
+        observed_at,
+        roots,
+        limit,
+    )
+}
+
+pub fn live_windows_process_snapshot_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveProcessSnapshotError> {
+    live_windows_process_snapshot_journal_events_with_limit_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+    )
+}
+
+pub fn live_windows_registry_inventory_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveRegistryInventorySourceError> {
+    live_windows_registry_inventory_journal_events_with_limit_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+    )
+}
+
+pub fn live_windows_registry_inventory_journal_events_from_roots(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    roots: &[std::path::PathBuf],
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveRegistryInventorySourceError> {
+    live_windows_registry_inventory_journal_events_from_roots_impl(
+        device_id,
+        platform,
+        observed_at,
+        roots,
+        limit,
+    )
+}
+
+pub fn live_windows_store_package_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveStorePackageSourceError> {
+    live_windows_store_package_journal_events_with_limit_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+    )
+}
+
+pub fn live_windows_store_package_journal_events_from_roots(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    roots: &[std::path::PathBuf],
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveStorePackageSourceError> {
+    live_windows_store_package_journal_events_from_roots_impl(
+        device_id,
+        platform,
+        observed_at,
+        roots,
+        limit,
+    )
+}
 
 pub(crate) fn app_game_session_report(
     connection: &Connection,
     limit: u64,
 ) -> Result<AppGameSessionReport, ActivityStoreError> {
-    let rows = app_game_rows(connection, limit)?;
-    let summaries = session_summaries_from_rows(rows, limit);
+    let summaries = app_game_session_summaries(connection, limit)?;
     Ok(report_from_summaries(limit, &summaries))
 }
 
-fn session_summaries_from_rows(
-    rows: Vec<crate::activity_store_app_game_rows::AppGameStoreRow>,
+pub(crate) fn app_game_session_daily_rollups(
+    connection: &Connection,
     limit: u64,
-) -> Vec<AppGameSessionSummary> {
-    let mut summaries = Vec::new();
-    for row in rows {
-        let observation = AppGameObservation::from_row(row);
-        upsert_summary(&mut summaries, observation);
-        if summaries.len() >= limit as usize {
-            break;
-        }
-    }
-    summaries
+) -> Result<Vec<AppGameSessionDailyRollup>, ActivityStoreError> {
+    let summaries = app_game_session_summaries(connection, limit)?;
+    Ok(app_game_session_rollups::daily_rollups_from_summaries(
+        &summaries,
+    ))
 }
 
-fn upsert_summary(summaries: &mut Vec<AppGameSessionSummary>, observation: AppGameObservation) {
-    match summaries
-        .iter_mut()
-        .find(|summary| summary.primary_process_identity == observation.process_identity)
-    {
-        Some(summary) => update_summary(summary, observation),
-        None => summaries.push(observation.into_summary()),
-    }
+pub(crate) fn app_game_service_read_model(
+    connection: &Connection,
+    limit: u64,
+    generated_at: &str,
+) -> Result<AppGameServiceReadModel, ActivityStoreError> {
+    app_game_journal_sqlite_ingest::read_model::app_game_journal_sqlite_read_model(
+        connection,
+        limit,
+        generated_at,
+    )
 }
 
-fn update_summary(summary: &mut AppGameSessionSummary, observation: AppGameObservation) {
-    summary.started_at = observation.observed_at;
-    summary.observation_count += 1;
-    summary.evidence_count += observation.evidence.len() as u64;
-    summary.evidence.extend(observation.evidence);
-    if is_stronger_classification(
-        &observation.classification_state,
-        &summary.classification_state,
-    ) {
-        summary.classification_state = observation.classification_state;
-        summary.display_name = observation.display_name;
-        summary.confidence = observation.confidence;
-    }
+pub(crate) fn app_game_session_summaries(
+    connection: &Connection,
+    limit: u64,
+) -> Result<Vec<AppGameSessionSummary>, ActivityStoreError> {
+    let rows = app_game_rows(connection, limit)?;
+    Ok(app_game_sessionization::session_summaries_from_rows(
+        rows, limit,
+    ))
 }
 
 fn report_from_summaries(limit: u64, summaries: &[AppGameSessionSummary]) -> AppGameSessionReport {
@@ -78,18 +233,5 @@ fn report_from_summaries(limit: u64, summaries: &[AppGameSessionSummary]) -> App
         most_recent_foreground_duration_ms: most_recent
             .map(|summary| summary.foreground_duration_ms),
         most_recent_evidence_count: most_recent.map(|summary| summary.evidence_count),
-    }
-}
-
-fn is_stronger_classification(candidate: &str, current: &str) -> bool {
-    classification_rank(candidate) > classification_rank(current)
-}
-
-fn classification_rank(value: &str) -> u8 {
-    match value {
-        APP_GAME_CLASSIFICATION_POSSIBLY_GAME => 2,
-        APP_GAME_CLASSIFICATION_PERMISSION_LIMITED => 1,
-        APP_GAME_CLASSIFICATION_ADAPTER_ERROR => 1,
-        _ => 0,
     }
 }

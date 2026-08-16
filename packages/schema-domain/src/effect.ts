@@ -1,8 +1,10 @@
+/* generic helper for Effect Schema parsing and branded string contracts */
+
 import * as Either from 'effect/Either';
 import * as ParseResult from 'effect/ParseResult';
-import * as Schema from 'effect/Schema';
+import * as EffectSchema from 'effect/Schema';
 
-export { Schema };
+export const Schema = EffectSchema;
 
 export type SchemaPath = Array<string | number>;
 
@@ -12,21 +14,29 @@ export interface SchemaIssue {
   readonly message: string;
 }
 
+type AnySchema = EffectSchema.Schema.Any;
+type ParseableSchema = EffectSchema.Schema.AnyNoContext;
+type TypeOf<S extends AnySchema> = EffectSchema.Schema.Type<S>;
+type EncodedOf<S extends AnySchema> = EffectSchema.Schema.Encoded<S>;
+type ContextOf<S extends AnySchema> = EffectSchema.Schema.Context<S>;
+
 export type SafeParseResult<T> =
   | { readonly success: true; readonly data: T }
   | { readonly success: false; readonly error: SchemaDecodeError };
 
-export type Infer<S extends Schema.Schema.AnyNoContext> = Schema.Schema.Type<S>;
+export type Infer<S extends AnySchema> = TypeOf<S>;
 
-export interface ParsedSchema<S extends Schema.Schema.AnyNoContext> extends Schema.Schema<
-  Schema.Schema.Type<S>,
-  Schema.Schema.Encoded<S>,
-  never
-> {
-  parse(input: unknown): Schema.Schema.Type<S>;
-  safeParse(input: unknown): SafeParseResult<Schema.Schema.Type<S>>;
-  partial(): ParsedSchema<Schema.Schema<Partial<Schema.Schema.Type<S>>, Partial<Schema.Schema.Encoded<S>>, never>>;
+export const NonEmptyStringSchema = Schema.String.pipe(Schema.minLength(1));
+
+export function brandedNonEmptyStringSchema<const Brand extends string>(brand: Brand) {
+  return NonEmptyStringSchema.pipe(Schema.brand(brand));
 }
+
+export type ParsedSchema<S extends AnySchema> = S & {
+  parse(input: unknown): TypeOf<S>;
+  safeParse(input: unknown): SafeParseResult<TypeOf<S>>;
+  partial(): ParsedSchema<EffectSchema.Schema<Partial<TypeOf<S>>, Partial<EncodedOf<S>>, ContextOf<S>>>;
+};
 
 export class SchemaDecodeError extends Error {
   readonly issues: SchemaIssue[];
@@ -69,10 +79,7 @@ function toDecodeError(error: ParseResult.ParseError): SchemaDecodeError {
   return new SchemaDecodeError(issues);
 }
 
-export function safeParseUnknown<S extends Schema.Schema.AnyNoContext>(
-  schema: S,
-  input: unknown
-): SafeParseResult<Schema.Schema.Type<S>> {
+export function safeParseUnknown<S extends ParseableSchema>(schema: S, input: unknown): SafeParseResult<TypeOf<S>> {
   const decoded = Schema.decodeUnknownEither(schema)(input, { errors: 'all' });
   if (Either.isRight(decoded)) {
     return { success: true, data: decoded.right };
@@ -80,7 +87,7 @@ export function safeParseUnknown<S extends Schema.Schema.AnyNoContext>(
   return { success: false, error: toDecodeError(decoded.left) };
 }
 
-export function parseUnknown<S extends Schema.Schema.AnyNoContext>(schema: S, input: unknown): Schema.Schema.Type<S> {
+export function parseUnknown<S extends ParseableSchema>(schema: S, input: unknown): TypeOf<S> {
   const parsed = safeParseUnknown(schema, input);
   if (parsed.success) {
     return parsed.data;
@@ -88,25 +95,32 @@ export function parseUnknown<S extends Schema.Schema.AnyNoContext>(schema: S, in
   throw parsed.error;
 }
 
-export function withParser<S extends Schema.Schema.AnyNoContext>(schema: S): ParsedSchema<S> {
+export function withParser<S extends AnySchema>(schema: S): ParsedSchema<S> {
   const parsedSchema = schema as unknown as ParsedSchema<S>;
+  const parseableSchema = schema as unknown as ParseableSchema;
   Object.defineProperties(parsedSchema, {
     parse: {
       configurable: true,
       value(input: unknown) {
-        return parseUnknown(schema, input);
+        return parseUnknown(parseableSchema, input) as TypeOf<S>;
       },
     },
     safeParse: {
       configurable: true,
       value(input: unknown) {
-        return safeParseUnknown(schema, input);
+        return safeParseUnknown(parseableSchema, input) as SafeParseResult<TypeOf<S>>;
       },
     },
     partial: {
       configurable: true,
       value() {
-        return withParser(Schema.partial(schema));
+        return withParser(
+          Schema.partial(parseableSchema) as unknown as EffectSchema.Schema<
+            Partial<TypeOf<S>>,
+            Partial<EncodedOf<S>>,
+            ContextOf<S>
+          >
+        );
       },
     },
   });

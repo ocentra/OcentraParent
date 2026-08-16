@@ -1,7 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LocalAiGenerationState,
-    LocalAiProviderSchedulerJobClass, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::lifecycle::LocalAiGenerationState;
+use ocentra_parent_agent_protocol::local_ai_runtime::scheduler::LocalAiProviderSchedulerJobClass;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 
 use crate::{
     event_builder::build_event, local_ai_chat_generation_request::parse_generation_request,
@@ -9,6 +12,7 @@ use crate::{
     local_ai_generation_payload::local_ai_chat_generation_payload,
     local_ai_provider_scheduler::local_ai_provider_scheduler,
     local_ai_runtime_config::LocalAiRuntimeConfigSnapshot,
+    local_ai_runtime_config_values::LocalAiUnavailableReason,
     local_ai_runtime_status::local_ai_runtime_status_for_model_from_config, time::timestamp_now,
 };
 
@@ -21,22 +25,24 @@ pub async fn build_local_ai_chat_generation_report(
     let result = match parse_generation_request(&command, &config) {
         Ok(request) => {
             let (runtime, _, _) = local_ai_runtime_status_for_model_from_config(
-                timestamp_now(),
+                timestamp_now::<String>(),
                 &config,
-                Some(&request.model_id),
+                Some(crate::local_ai_runtime_config_values::LocalAiRuntimeText(
+                    request.model_id.clone(),
+                )),
             );
             local_ai_provider_scheduler()
                 .run_generation_job(
                     LocalAiProviderSchedulerJobClass::ParentAssistant,
                     runtime,
-                    || run_local_ai_chat_generation(&command.message_id, request, &config),
+                    || run_local_ai_chat_generation(command.message_id.as_str(), request, &config),
                 )
                 .await
         }
         Err(reason) => crate::local_ai_chat_generation_runner::unavailable_result_for_command(
-            &command.message_id,
+            command.message_id.as_str(),
             &config,
-            reason,
+            LocalAiUnavailableReason(reason.0),
         ),
     };
     let severity = if result.generation_state == LocalAiGenerationState::Complete {

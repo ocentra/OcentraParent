@@ -6,6 +6,7 @@
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "noEmit": true,
+    "resolveJsonModule": true,
     "paths": {
       "@ocentra-parent/portal-assets/auth": ["../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-auth.ts"],
       "@ocentra-parent/portal-assets/avatars": [
@@ -14,14 +15,12 @@
       "@ocentra-parent/portal-assets/common": [
         "../../vendor/ocentra-parent-core-ui/shims/parent-portal-assets-common.ts"
       ],
-      "@ocentra-parent/vendor-schema/effect-builder": [
-        "../../vendor/ocentra-parent-core-ui/schema-domain/effect-builder.ts"
-      ],
+      "@ocentra-parent/vendor-schema/effect-builder": ["../../vendor/ocentra-parent-core-ui/shims/effect-builder.ts"],
       "@ocentra-parent/portal-content-schema": [
         "../../vendor/ocentra-parent-core-ui/parent-portal-content-domain/schemas/parent-portal-page-content-schema.ts"
       ]
     },
     "types": ["vite/client", "node", "@playwright/test"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts", "e2e/**/*.ts", "playwright.config.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tests/**/*.ts", "playwright.config.ts"]
 }

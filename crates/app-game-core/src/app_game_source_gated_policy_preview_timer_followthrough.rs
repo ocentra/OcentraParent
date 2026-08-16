@@ -1,0 +1,986 @@
+const PROTOCOL_READ_MODEL_PROOF_REQUIRED: &str = "protocol-read-model-proof-required";
+const PROTOCOL_COMMAND_HANDOFF_PROOF_REQUIRED: &str = "protocol-command-handoff-proof-required";
+const SERVICE_HANDLER_PROOF_REQUIRED: &str = "service-handler-proof-required";
+const SERVICE_READ_API_PROOF_REQUIRED: &str = "service-read-api-proof-required";
+const READ_API_RESPONSE_PROOF_REQUIRED: &str = "read-api-response-proof-required";
+const READ_API_RESPONSE_CONSUMER_PROOF_REQUIRED: &str = "read-api-response-consumer-proof-required";
+const PARENT_SURFACE_PROOF_REQUIRED: &str = "parent-surface-proof-required";
+const PARENT_SURFACE_READ_MODEL_PROOF_REQUIRED: &str = "parent-surface-read-model-proof-required";
+const PARENT_SURFACE_STATUS_PROOF_REQUIRED: &str = "parent-surface-status-proof-required";
+const PARENT_SURFACE_STATUS_READ_MODEL_PROOF_REQUIRED: &str =
+    "parent-surface-status-read-model-proof-required";
+const PARENT_SURFACE_STATUS_READ_MODEL_PARENT_SURFACE_PROOF_REQUIRED: &str =
+    "parent-surface-status-read-model-parent-surface-proof-required";
+const PARENT_SURFACE_STATUS_READ_MODEL_PARENT_SURFACE_READ_MODEL_PROOF_REQUIRED: &str =
+    "parent-surface-status-read-model-parent-surface-read-model-proof-required";
+const READY_FOR_PARENT_SURFACE_STATUS_READ_MODEL_PARENT_SURFACE_READ_MODEL: &str =
+    "ready-for-parent-surface-status-read-model-parent-surface-read-model-contract";
+const BLOCKED_BY_SOURCE_FRESHNESS: &str = "blocked-by-source-freshness";
+const BLOCKED_BY_COMPILER_DECISION: &str = "blocked-by-compiler-decision";
+
+const PROTOCOL_READ_MODEL_NON_CLAIMS: &[&str] = &[
+    "no-agent-protocol-contract-implemented",
+    "no-rust-protocol-mirrored",
+    "no-service-command-registered",
+    "no-service-event-emitted",
+    "no-service-read-api-implemented",
+    "no-service-read-model-event-emitted",
+    "no-portal-ui-rendered",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduled",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const PROTOCOL_COMMAND_HANDOFF_NON_CLAIMS: &[&str] = &[
+    "no-agent-protocol-command-implemented",
+    "no-agent-protocol-event-implemented",
+    "no-rust-protocol-mirrored",
+    "no-service-command-registered",
+    "no-service-handler-implemented",
+    "no-service-event-emitted",
+    "no-service-read-api-implemented",
+    "no-portal-ui-rendered",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduled",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const SERVICE_HANDLER_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registered",
+    "no-service-handler-implemented",
+    "no-service-event-emitted",
+    "no-service-read-api-implemented",
+    "no-agent-protocol-implemented",
+    "no-rust-protocol-mirrored",
+    "no-portal-ui-rendered",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduled",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const SERVICE_READ_API_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registered",
+    "no-service-handler-implemented",
+    "no-service-event-emitted",
+    "no-service-read-api-implemented",
+    "no-agent-protocol-implemented",
+    "no-rust-protocol-mirrored",
+    "no-portal-ui-rendered",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduled",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const READ_API_RESPONSE_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registered",
+    "no-service-handler-implemented",
+    "no-service-event-emitted",
+    "no-service-read-api-implemented",
+    "no-service-read-api-response-implemented",
+    "no-agent-protocol-implemented",
+    "no-rust-protocol-mirrored",
+    "no-portal-ui-rendered",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduled",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const READ_API_RESPONSE_CONSUMER_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registration",
+    "no-service-handler-implementation",
+    "no-service-read-api-implementation",
+    "no-service-read-api-response-implementation",
+    "no-service-read-api-response-consumer-implementation",
+    "no-service-event-emission",
+    "no-agent-protocol-implementation",
+    "no-rust-protocol-mirror",
+    "no-portal-ui-rendering",
+    "no-portal-response-consumer-rendering",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduling",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const RESPONSE_CONSUMER_PARENT_SURFACE_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registration",
+    "no-service-handler-implementation",
+    "no-service-read-api-implementation",
+    "no-service-read-api-response-implementation",
+    "no-service-read-api-response-consumer-implementation",
+    "no-service-event-emission",
+    "no-agent-protocol-implementation",
+    "no-rust-protocol-mirror",
+    "no-portal-ui-rendering",
+    "no-portal-response-consumer-rendering",
+    "no-parent-surface-rendering",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduling",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const RESPONSE_CONSUMER_PARENT_SURFACE_READ_MODEL_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registration",
+    "no-service-handler-implementation",
+    "no-service-read-api-implementation",
+    "no-service-read-api-response-implementation",
+    "no-service-read-api-response-consumer-implementation",
+    "no-parent-surface-read-model-implementation",
+    "no-service-event-emission",
+    "no-agent-protocol-implementation",
+    "no-rust-protocol-mirror",
+    "no-portal-ui-rendering",
+    "no-portal-response-consumer-rendering",
+    "no-parent-surface-rendering",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduling",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const RESPONSE_CONSUMER_PARENT_SURFACE_STATUS_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registration",
+    "no-service-handler-implementation",
+    "no-service-read-api-implementation",
+    "no-service-read-api-response-implementation",
+    "no-service-read-api-response-consumer-implementation",
+    "no-parent-surface-read-model-implementation",
+    "no-parent-surface-status-implementation",
+    "no-service-event-emission",
+    "no-agent-protocol-implementation",
+    "no-rust-protocol-mirror",
+    "no-portal-ui-rendering",
+    "no-portal-response-consumer-rendering",
+    "no-parent-surface-rendering",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduling",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const RESPONSE_CONSUMER_PARENT_SURFACE_STATUS_READ_MODEL_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registration",
+    "no-service-handler-implementation",
+    "no-service-read-api-implementation",
+    "no-service-read-api-response-implementation",
+    "no-service-read-api-response-consumer-implementation",
+    "no-parent-surface-read-model-implementation",
+    "no-parent-surface-status-implementation",
+    "no-parent-surface-status-read-model-implementation",
+    "no-service-event-emission",
+    "no-agent-protocol-implementation",
+    "no-rust-protocol-mirror",
+    "no-portal-ui-rendering",
+    "no-portal-response-consumer-rendering",
+    "no-parent-surface-rendering",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduling",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const RESPONSE_CONSUMER_PARENT_SURFACE_STATUS_READ_MODEL_PARENT_SURFACE_NON_CLAIMS: &[&str] = &[
+    "no-service-command-registration",
+    "no-service-handler-implementation",
+    "no-service-read-api-implementation",
+    "no-service-read-api-response-implementation",
+    "no-service-read-api-response-consumer-implementation",
+    "no-parent-surface-read-model-implementation",
+    "no-parent-surface-status-implementation",
+    "no-parent-surface-status-read-model-implementation",
+    "no-parent-surface-status-read-model-parent-surface-implementation",
+    "no-service-event-emission",
+    "no-agent-protocol-implementation",
+    "no-rust-protocol-mirror",
+    "no-portal-ui-rendering",
+    "no-portal-response-consumer-rendering",
+    "no-parent-surface-rendering",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduling",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+const RESPONSE_CONSUMER_PARENT_SURFACE_STATUS_READ_MODEL_PARENT_SURFACE_READ_MODEL_HANDOFF_NON_CLAIMS: &[&str] =
+    &[
+        "no-service-command-registration",
+        "no-service-handler-implementation",
+        "no-service-read-api-implementation",
+        "no-service-read-api-response-implementation",
+        "no-service-read-api-response-consumer-implementation",
+        "no-parent-surface-read-model-implementation",
+        "no-parent-surface-status-implementation",
+        "no-parent-surface-status-read-model-implementation",
+        "no-parent-surface-status-read-model-parent-surface-implementation",
+        "no-parent-surface-status-read-model-parent-surface-read-model-implementation",
+        "no-service-event-emission",
+        "no-agent-protocol-implementation",
+        "no-rust-protocol-mirror",
+        "no-portal-ui-rendering",
+        "no-portal-response-consumer-rendering",
+        "no-parent-surface-rendering",
+        "no-policy-evaluator-runtime",
+        "no-timer-runtime",
+        "no-timer-scheduling",
+        "no-scheduler-persistence-runtime",
+        "no-durable-scheduler-storage",
+        "no-audit-runtime",
+        "no-durable-audit-log",
+        "no-rollback-runtime",
+        "no-rollback-execution",
+        "no-adapter-dispatch",
+        "no-child-delivery",
+        "no-platform-enforcement",
+        "no-raw-private-source-rows",
+    ];
+
+const RESPONSE_CONSUMER_PARENT_SURFACE_STATUS_READ_MODEL_PARENT_SURFACE_READ_MODEL_NON_CLAIMS:
+    &[&str] = &[
+    "no-service-command-registration",
+    "no-service-handler-implementation",
+    "no-service-read-api-implementation",
+    "no-service-read-api-response-implementation",
+    "no-service-read-api-response-consumer-implementation",
+    "no-service-event-emission",
+    "no-agent-protocol-implementation",
+    "no-rust-protocol-mirror",
+    "no-portal-ui-rendering",
+    "no-portal-response-consumer-rendering",
+    "no-parent-surface-rendering",
+    "no-parent-surface-read-model-runtime",
+    "no-parent-surface-read-model-persistence",
+    "no-policy-evaluator-runtime",
+    "no-timer-runtime",
+    "no-timer-scheduling",
+    "no-scheduler-persistence-runtime",
+    "no-durable-scheduler-storage",
+    "no-audit-runtime",
+    "no-durable-audit-log",
+    "no-rollback-runtime",
+    "no-rollback-execution",
+    "no-adapter-dispatch",
+    "no-child-delivery",
+    "no-platform-enforcement",
+    "no-raw-private-source-rows",
+];
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelOptions {
+    pub schema_version: String,
+    pub read_model_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub protocol_summary_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRow {
+    pub schema_version: String,
+    pub row_id: String,
+    pub source_protocol_handoff_row_id: String,
+    pub target_domain: String,
+    pub protocol_read_model_state: String,
+    pub required_protocol_proof_refs: Vec<String>,
+    pub inherited_service_readiness_proof_refs: Vec<String>,
+    pub source_evidence_refs: Vec<String>,
+    pub service_read_api_ref: String,
+    pub protocol_summary_ref: String,
+    pub agent_protocol_contract_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub service_command_registered: bool,
+    pub service_event_emitted: bool,
+    pub service_read_api_implemented: bool,
+    pub service_read_model_event_emitted: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+    pub generated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModel {
+    pub schema_version: String,
+    pub read_model_id: String,
+    pub source_protocol_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub protocol_summary_ref: String,
+    pub rows: Vec<AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelRow>,
+    pub native_app_row_count: usize,
+    pub native_game_row_count: usize,
+    pub protocol_read_model_proof_required_count: usize,
+    pub blocked_by_source_freshness_count: usize,
+    pub blocked_by_compiler_decision_count: usize,
+    pub protocol_read_model_non_claims: Vec<String>,
+    pub agent_protocol_contract_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub service_command_registered: bool,
+    pub service_event_emitted: bool,
+    pub service_read_api_implemented: bool,
+    pub service_read_model_event_emitted: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffOptions {
+    pub schema_version: String,
+    pub command_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub protocol_command_refs: Vec<String>,
+    pub protocol_event_refs: Vec<String>,
+    pub service_handler_refs: Vec<String>,
+    pub command_summary_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffRow {
+    pub schema_version: String,
+    pub row_id: String,
+    pub source_protocol_read_model_row_id: String,
+    pub target_domain: String,
+    pub protocol_command_handoff_state: String,
+    pub required_protocol_proof_refs: Vec<String>,
+    pub required_agent_protocol_command_refs: Vec<String>,
+    pub required_agent_protocol_event_refs: Vec<String>,
+    pub required_service_handler_refs: Vec<String>,
+    pub inherited_service_readiness_proof_refs: Vec<String>,
+    pub source_evidence_refs: Vec<String>,
+    pub service_read_api_ref: String,
+    pub command_summary_ref: String,
+    pub agent_protocol_command_implemented: bool,
+    pub agent_protocol_event_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_event_emitted: bool,
+    pub service_read_api_implemented: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+    pub generated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoff {
+    pub schema_version: String,
+    pub command_handoff_id: String,
+    pub source_protocol_read_model_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub command_summary_ref: String,
+    pub rows: Vec<AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffRow>,
+    pub native_app_row_count: usize,
+    pub native_game_row_count: usize,
+    pub protocol_command_handoff_proof_required_count: usize,
+    pub blocked_by_source_freshness_count: usize,
+    pub blocked_by_compiler_decision_count: usize,
+    pub protocol_command_handoff_non_claims: Vec<String>,
+    pub agent_protocol_command_implemented: bool,
+    pub agent_protocol_event_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_event_emitted: bool,
+    pub service_read_api_implemented: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoffOptions {
+    pub schema_version: String,
+    pub service_handler_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub service_read_api_proof_refs: Vec<String>,
+    pub service_handler_summary_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoffRow {
+    pub schema_version: String,
+    pub row_id: String,
+    pub source_protocol_command_handoff_row_id: String,
+    pub target_domain: String,
+    pub service_handler_handoff_state: String,
+    pub inherited_protocol_proof_refs: Vec<String>,
+    pub inherited_agent_protocol_command_refs: Vec<String>,
+    pub inherited_agent_protocol_event_refs: Vec<String>,
+    pub required_service_handler_refs: Vec<String>,
+    pub required_service_read_api_proof_refs: Vec<String>,
+    pub inherited_service_readiness_proof_refs: Vec<String>,
+    pub source_evidence_refs: Vec<String>,
+    pub service_read_api_ref: String,
+    pub service_handler_summary_ref: String,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_event_emitted: bool,
+    pub service_read_api_implemented: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+    pub generated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoff {
+    pub schema_version: String,
+    pub service_handler_handoff_id: String,
+    pub source_protocol_command_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub service_handler_summary_ref: String,
+    pub rows: Vec<AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoffRow>,
+    pub native_app_row_count: usize,
+    pub native_game_row_count: usize,
+    pub service_handler_proof_required_count: usize,
+    pub blocked_by_source_freshness_count: usize,
+    pub blocked_by_compiler_decision_count: usize,
+    pub service_handler_handoff_non_claims: Vec<String>,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_event_emitted: bool,
+    pub service_read_api_implemented: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffOptions {
+    pub schema_version: String,
+    pub service_read_api_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub service_read_api_proof_refs: Vec<String>,
+    pub service_read_api_summary_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffRow {
+    pub schema_version: String,
+    pub row_id: String,
+    pub source_service_handler_handoff_row_id: String,
+    pub target_domain: String,
+    pub service_read_api_handoff_state: String,
+    pub inherited_protocol_proof_refs: Vec<String>,
+    pub inherited_agent_protocol_command_refs: Vec<String>,
+    pub inherited_agent_protocol_event_refs: Vec<String>,
+    pub inherited_service_handler_refs: Vec<String>,
+    pub required_service_read_api_proof_refs: Vec<String>,
+    pub inherited_service_readiness_proof_refs: Vec<String>,
+    pub source_evidence_refs: Vec<String>,
+    pub service_read_api_ref: String,
+    pub service_read_api_summary_ref: String,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_read_api_implemented: bool,
+    pub service_event_emitted: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+    pub generated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoff {
+    pub schema_version: String,
+    pub service_read_api_handoff_id: String,
+    pub source_service_handler_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub service_read_api_summary_ref: String,
+    pub rows: Vec<AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffRow>,
+    pub native_app_row_count: usize,
+    pub native_game_row_count: usize,
+    pub service_read_api_proof_required_count: usize,
+    pub blocked_by_source_freshness_count: usize,
+    pub blocked_by_compiler_decision_count: usize,
+    pub service_read_api_handoff_non_claims: Vec<String>,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_read_api_implemented: bool,
+    pub service_event_emitted: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoffOptions {
+    pub schema_version: String,
+    pub read_api_response_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub read_api_response_proof_refs: Vec<String>,
+    pub read_api_response_summary_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoffRow {
+    pub schema_version: String,
+    pub row_id: String,
+    pub source_read_api_handoff_row_id: String,
+    pub target_domain: String,
+    pub read_api_response_handoff_state: String,
+    pub inherited_protocol_proof_refs: Vec<String>,
+    pub inherited_agent_protocol_command_refs: Vec<String>,
+    pub inherited_agent_protocol_event_refs: Vec<String>,
+    pub inherited_service_handler_refs: Vec<String>,
+    pub inherited_service_read_api_proof_refs: Vec<String>,
+    pub required_read_api_response_proof_refs: Vec<String>,
+    pub inherited_service_readiness_proof_refs: Vec<String>,
+    pub source_evidence_refs: Vec<String>,
+    pub service_read_api_ref: String,
+    pub read_api_response_summary_ref: String,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_read_api_implemented: bool,
+    pub service_read_api_response_implemented: bool,
+    pub service_event_emitted: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+    pub generated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoff {
+    pub schema_version: String,
+    pub read_api_response_handoff_id: String,
+    pub source_read_api_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub read_api_response_summary_ref: String,
+    pub rows: Vec<AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoffRow>,
+    pub native_app_row_count: usize,
+    pub native_game_row_count: usize,
+    pub read_api_response_proof_required_count: usize,
+    pub blocked_by_source_freshness_count: usize,
+    pub blocked_by_compiler_decision_count: usize,
+    pub read_api_response_handoff_non_claims: Vec<String>,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_read_api_implemented: bool,
+    pub service_read_api_response_implemented: bool,
+    pub service_event_emitted: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffOptions
+{
+    pub schema_version: String,
+    pub read_api_response_consumer_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub read_api_response_consumer_proof_refs: Vec<String>,
+    pub read_api_response_consumer_summary_ref: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRow {
+    pub schema_version: String,
+    pub row_id: String,
+    pub source_read_api_response_handoff_row_id: String,
+    pub target_domain: String,
+    pub read_api_response_consumer_handoff_state: String,
+    pub inherited_protocol_proof_refs: Vec<String>,
+    pub inherited_agent_protocol_command_refs: Vec<String>,
+    pub inherited_agent_protocol_event_refs: Vec<String>,
+    pub inherited_service_handler_refs: Vec<String>,
+    pub inherited_service_read_api_proof_refs: Vec<String>,
+    pub inherited_read_api_response_proof_refs: Vec<String>,
+    pub required_read_api_response_consumer_proof_refs: Vec<String>,
+    pub inherited_service_readiness_proof_refs: Vec<String>,
+    pub source_evidence_refs: Vec<String>,
+    pub service_read_api_ref: String,
+    pub read_api_response_consumer_summary_ref: String,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_read_api_implemented: bool,
+    pub service_read_api_response_implemented: bool,
+    pub service_read_api_response_consumer_implemented: bool,
+    pub service_event_emitted: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub portal_response_consumer_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+    pub generated_at: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoff {
+    pub schema_version: String,
+    pub read_api_response_consumer_handoff_id: String,
+    pub source_read_api_response_handoff_id: String,
+    pub generated_at: String,
+    pub source_contract_refs: Vec<String>,
+    pub read_api_response_consumer_summary_ref: String,
+    pub rows:
+        Vec<AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffRow>,
+    pub native_app_row_count: usize,
+    pub native_game_row_count: usize,
+    pub read_api_response_consumer_proof_required_count: usize,
+    pub blocked_by_source_freshness_count: usize,
+    pub blocked_by_compiler_decision_count: usize,
+    pub read_api_response_consumer_handoff_non_claims: Vec<String>,
+    pub service_command_registered: bool,
+    pub service_handler_implemented: bool,
+    pub service_read_api_implemented: bool,
+    pub service_read_api_response_implemented: bool,
+    pub service_read_api_response_consumer_implemented: bool,
+    pub service_event_emitted: bool,
+    pub agent_protocol_implemented: bool,
+    pub rust_protocol_mirrored: bool,
+    pub portal_ui_rendered: bool,
+    pub portal_response_consumer_rendered: bool,
+    pub policy_evaluator_runtime_claimed: bool,
+    pub timer_runtime_claimed: bool,
+    pub timer_scheduled: bool,
+    pub scheduler_persistence_runtime_claimed: bool,
+    pub durable_scheduler_storage_claimed: bool,
+    pub audit_runtime_claimed: bool,
+    pub durable_audit_log_claimed: bool,
+    pub rollback_runtime_claimed: bool,
+    pub rollback_execution_claimed: bool,
+    pub adapter_dispatch_claimed: bool,
+    pub child_delivery_claimed: bool,
+    pub platform_enforcement_claimed: bool,
+    pub raw_private_source_rows_included: bool,
+}
+
+mod helpers;
+pub mod parent_surface;
+pub mod parent_surface_status;
+mod protocol;
+mod tail;
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_protocol_read_model(
+    options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModelOptions,
+    handoff: &crate::app_game_source_gated_policy_preview_timer_chain::AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolHandoff,
+) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModel {
+    protocol::build_app_game_source_gated_policy_preview_timer_service_readiness_protocol_read_model(
+        options, handoff,
+    )
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_protocol_command_handoff(
+    options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoffOptions,
+    read_model: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolReadModel,
+) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoff {
+    protocol::build_app_game_source_gated_policy_preview_timer_service_readiness_protocol_command_handoff(options, read_model)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_service_handler_handoff(
+    options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoffOptions,
+    protocol_command_handoff: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessProtocolCommandHandoff,
+) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoff {
+    protocol::build_app_game_source_gated_policy_preview_timer_service_readiness_service_handler_handoff(options, protocol_command_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_service_read_api_handoff(
+    options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoffOptions,
+    service_handler_handoff: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceHandlerHandoff,
+) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoff {
+    protocol::build_app_game_source_gated_policy_preview_timer_service_readiness_service_read_api_handoff(options, service_handler_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_read_api_response_handoff(
+    options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoffOptions,
+    service_read_api_handoff: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessServiceReadApiHandoff,
+) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoff {
+    protocol::build_app_game_source_gated_policy_preview_timer_service_readiness_read_api_response_handoff(options, service_read_api_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_read_api_response_consumer_handoff(
+    options: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoffOptions,
+    read_api_response_handoff: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseHandoff,
+) -> AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoff {
+    protocol::build_app_game_source_gated_policy_preview_timer_service_readiness_read_api_response_consumer_handoff(options, read_api_response_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_handoff(
+    options: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoffOptions,
+    read_api_response_consumer_handoff: &AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadApiResponseConsumerHandoff,
+) -> parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoff{
+    parent_surface::build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_handoff(options, read_api_response_consumer_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_read_model_handoff(
+    options: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoffOptions,
+    parent_surface_handoff: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceHandoff,
+) -> parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoff{
+    parent_surface::build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_read_model_handoff(options, parent_surface_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_handoff(
+    options: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoffOptions,
+    parent_surface_read_model_handoff: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceReadModelHandoff,
+) -> parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoff{
+    parent_surface::build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_handoff(options, parent_surface_read_model_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_handoff(
+    options: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelHandoffOptions,
+    parent_surface_status_handoff: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusHandoff,
+) -> parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelHandoff{
+    parent_surface_status::build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_handoff(options, parent_surface_status_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_parent_surface_handoff(
+    options: &parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceHandoffOptions,
+    parent_surface_status_read_model_handoff: &parent_surface::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelHandoff,
+) -> parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceHandoff{
+    parent_surface_status::build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_parent_surface_handoff(options, parent_surface_status_read_model_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_parent_surface_read_model_handoff(
+    options: &parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelHandoffOptions,
+    parent_surface_handoff: &parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceHandoff,
+) -> parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelHandoff{
+    tail::build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_parent_surface_read_model_handoff(options, parent_surface_handoff)
+}
+pub fn build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_parent_surface_read_model(
+    options: &parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelOptions,
+    handoff: &parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModelHandoff,
+) -> parent_surface_status::AppGameSourceGatedPolicyPreviewTimerServiceReadinessResponseConsumerParentSurfaceStatusReadModelParentSurfaceReadModel{
+    tail::build_app_game_source_gated_policy_preview_timer_service_readiness_response_consumer_parent_surface_status_read_model_parent_surface_read_model(options, handoff)
+}
+pub fn app_game_source_gated_policy_preview_timer_followthrough_typescript() -> &'static str {
+    tail::app_game_source_gated_policy_preview_timer_followthrough_typescript()
+}

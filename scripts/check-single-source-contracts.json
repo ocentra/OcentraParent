@@ -1,0 +1,810 @@
+{
+  "requiredMirrorRoots": ["crates/agent-protocol/src/constants"],
+  "contracts": [
+    {
+      "name": "network-evidence-drawer-proof",
+      "ownerPath": "scripts/test/fixtures/network-evidence-drawer-proof.json",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": [
+        "scripts/test/fixtures/network-evidence-drawer-proof.json",
+        "output/network-plan-proof/36-parent-ui-network-evidence-drawer/proof-summary.json",
+        "test-results/network-parent-ui-evidence-drawer-proof/proof.json"
+      ],
+      "values": [
+        {
+          "name": "eventId",
+          "jsonPath": "eventId"
+        },
+        {
+          "name": "evidenceId",
+          "jsonPath": "evidenceId"
+        },
+        {
+          "name": "journalEvidenceId",
+          "jsonPath": "journalEvidenceId"
+        },
+        {
+          "name": "evidenceDigest",
+          "jsonPath": "evidenceDigest"
+        },
+        {
+          "name": "journalEvidenceDigest",
+          "jsonPath": "journalEvidenceDigest"
+        }
+      ]
+    },
+    {
+      "name": "tracking-runtime-event-names",
+      "ownerPath": "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "mirrors": [
+        {
+          "path": "crates/agent-protocol/src/constants/tracking_runtime.rs",
+          "values": [
+            {
+              "name": "locationObserved",
+              "rustConst": "TRACKING_LOCATION_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "evidenceRecorded",
+              "rustConst": "TRACKING_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "aiAnalysisRequested",
+              "rustConst": "TRACKING_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "nearbyPlaceClassified",
+              "rustConst": "TRACKING_NEARBY_PLACE_CLASSIFIED_EVENT_TYPE"
+            },
+            {
+              "name": "geofenceTransitionDetected",
+              "rustConst": "TRACKING_GEOFENCE_TRANSITION_DETECTED_EVENT_TYPE"
+            },
+            {
+              "name": "expectedPlaceStateEvaluated",
+              "rustConst": "TRACKING_EXPECTED_PLACE_STATE_EVALUATED_EVENT_TYPE"
+            },
+            {
+              "name": "policyViolationDetected",
+              "rustConst": "TRACKING_POLICY_VIOLATION_DETECTED_EVENT_TYPE"
+            },
+            {
+              "name": "parentAcknowledgementRecorded",
+              "rustConst": "TRACKING_PARENT_ACKNOWLEDGEMENT_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "childCheckInRecorded",
+              "rustConst": "TRACKING_CHILD_CHECK_IN_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "parentNotificationRequested",
+              "rustConst": "PARENT_NOTIFICATION_REQUESTED_EVENT_TYPE"
+            }
+          ]
+        }
+      ],
+      "values": [
+        {
+          "name": "locationObserved",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.LocationObserved"
+        },
+        {
+          "name": "evidenceRecorded",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.EvidenceRecorded"
+        },
+        {
+          "name": "aiAnalysisRequested",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.AiAnalysisRequested"
+        },
+        {
+          "name": "nearbyPlaceClassified",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.NearbyPlaceClassified"
+        },
+        {
+          "name": "geofenceTransitionDetected",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.GeofenceTransitionDetected"
+        },
+        {
+          "name": "expectedPlaceStateEvaluated",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ExpectedPlaceStateEvaluated"
+        },
+        {
+          "name": "policyViolationDetected",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.PolicyViolationDetected"
+        },
+        {
+          "name": "parentAcknowledgementRecorded",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ParentAcknowledgementRecorded"
+        },
+        {
+          "name": "childCheckInRecorded",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ChildCheckInRecorded"
+        },
+        {
+          "name": "parentNotificationRequested",
+          "sourceObjectPath": "TrackingRuntimeEventNameLiteral.ParentNotificationRequested"
+        }
+      ]
+    },
+    {
+      "name": "tracking-config-update-event-types",
+      "ownerPath": "crates/agent-protocol/src/constants/tracking_config_update.rs",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": [
+        "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
+        "packages/portal-domain/src/generated-portal-contracts.ts"
+      ],
+      "values": [
+        {
+          "name": "parent",
+          "rustConst": "PARENT_EVENT_TYPE"
+        },
+        {
+          "name": "child",
+          "rustConst": "CHILD_EVENT_TYPE"
+        },
+        {
+          "name": "applied",
+          "rustConst": "APPLIED_EVENT_TYPE"
+        },
+        {
+          "name": "changeRequested",
+          "rustConst": "CHANGE_REQUESTED_EVENT_TYPE"
+        },
+        {
+          "name": "changeApproved",
+          "rustConst": "CHANGE_APPROVED_EVENT_TYPE"
+        },
+        {
+          "name": "changeRejected",
+          "rustConst": "CHANGE_REJECTED_EVENT_TYPE"
+        }
+      ]
+    },
+    {
+      "name": "child-domain-runtime-event-types",
+      "ownerPath": "packages/schema-domain/src/child-domain-runtime-events.ts",
+      "scanRoots": ["apps", "packages", "crates"],
+      "allowedPaths": [
+        "crates/agent-protocol/src/constants/screen_flow.rs",
+        "packages/portal-domain/src/generated-portal-contracts.ts",
+        "apps/portal/generated/parent-ui-bridge.ts"
+      ],
+      "mirrors": [
+        {
+          "path": "crates/agent-protocol/src/constants/child_domain_runtime.rs",
+          "values": [
+            {
+              "name": "appObserved",
+              "rustConst": "APP_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "appEvidenceRecorded",
+              "rustConst": "APP_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "appAiAnalysisRequested",
+              "rustConst": "APP_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "appPolicyEvaluationRequested",
+              "rustConst": "APP_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "appGameObserved",
+              "rustConst": "APP_GAME_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "appGameEvidenceRecorded",
+              "rustConst": "APP_GAME_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "appGameAiAnalysisRequested",
+              "rustConst": "APP_GAME_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "appGamePolicyEvaluationRequested",
+              "rustConst": "APP_GAME_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "browserObserved",
+              "rustConst": "BROWSER_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "browserEvidenceRecorded",
+              "rustConst": "BROWSER_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "browserAiAnalysisRequested",
+              "rustConst": "BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "browserPolicyEvaluationRequested",
+              "rustConst": "BROWSER_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "lanObserved",
+              "rustConst": "LAN_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "lanEvidenceRecorded",
+              "rustConst": "LAN_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "lanAiAnalysisRequested",
+              "rustConst": "LAN_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "lanPolicyEvaluationRequested",
+              "rustConst": "LAN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "networkObserved",
+              "rustConst": "NETWORK_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "networkEvidenceRecorded",
+              "rustConst": "NETWORK_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "networkAiAnalysisRequested",
+              "rustConst": "NETWORK_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "networkPolicyEvaluationRequested",
+              "rustConst": "NETWORK_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "screenObserved",
+              "rustConst": "SCREEN_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "screenEvidenceRecorded",
+              "rustConst": "SCREEN_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "screenAiAnalysisRequested",
+              "rustConst": "SCREEN_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "screenPolicyEvaluationRequested",
+              "rustConst": "SCREEN_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "screenLiveViewObserved",
+              "rustConst": "SCREEN_LIVE_VIEW_OBSERVED_EVENT_TYPE"
+            },
+            {
+              "name": "screenLiveViewEvidenceRecorded",
+              "rustConst": "SCREEN_LIVE_VIEW_EVIDENCE_RECORDED_EVENT_TYPE"
+            },
+            {
+              "name": "screenLiveViewAiAnalysisRequested",
+              "rustConst": "SCREEN_LIVE_VIEW_AI_ANALYSIS_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "screenLiveViewPolicyEvaluationRequested",
+              "rustConst": "SCREEN_LIVE_VIEW_POLICY_EVALUATION_REQUESTED_EVENT_TYPE"
+            },
+            {
+              "name": "aiAnalysisCompleted",
+              "rustConst": "AI_ANALYSIS_COMPLETED_EVENT_TYPE"
+            },
+            {
+              "name": "policyViolationDetected",
+              "rustConst": "POLICY_VIOLATION_DETECTED_EVENT_TYPE"
+            },
+            {
+              "name": "notificationRequested",
+              "rustConst": "NOTIFICATION_REQUESTED_EVENT_TYPE"
+            }
+          ]
+        }
+      ],
+      "values": [
+        {
+          "name": "appObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppObserved"
+        },
+        {
+          "name": "appEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppEvidenceRecorded"
+        },
+        {
+          "name": "appAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppAiAnalysisRequested"
+        },
+        {
+          "name": "appPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppPolicyEvaluationRequested"
+        },
+        {
+          "name": "appGameObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGameObserved"
+        },
+        {
+          "name": "appGameEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGameEvidenceRecorded"
+        },
+        {
+          "name": "appGameAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGameAiAnalysisRequested"
+        },
+        {
+          "name": "appGamePolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AppGamePolicyEvaluationRequested"
+        },
+        {
+          "name": "browserObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserObserved"
+        },
+        {
+          "name": "browserEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserEvidenceRecorded"
+        },
+        {
+          "name": "browserAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserAiAnalysisRequested"
+        },
+        {
+          "name": "browserPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.BrowserPolicyEvaluationRequested"
+        },
+        {
+          "name": "lanObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanObserved"
+        },
+        {
+          "name": "lanEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanEvidenceRecorded"
+        },
+        {
+          "name": "lanAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanAiAnalysisRequested"
+        },
+        {
+          "name": "lanPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.LanPolicyEvaluationRequested"
+        },
+        {
+          "name": "networkObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkObserved"
+        },
+        {
+          "name": "networkEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkEvidenceRecorded"
+        },
+        {
+          "name": "networkAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkAiAnalysisRequested"
+        },
+        {
+          "name": "networkPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NetworkPolicyEvaluationRequested"
+        },
+        {
+          "name": "screenObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenObserved"
+        },
+        {
+          "name": "screenEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenEvidenceRecorded"
+        },
+        {
+          "name": "screenAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenAiAnalysisRequested"
+        },
+        {
+          "name": "screenPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenPolicyEvaluationRequested"
+        },
+        {
+          "name": "screenLiveViewObserved",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewObserved"
+        },
+        {
+          "name": "screenLiveViewEvidenceRecorded",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewEvidenceRecorded"
+        },
+        {
+          "name": "screenLiveViewAiAnalysisRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewAiAnalysisRequested"
+        },
+        {
+          "name": "screenLiveViewPolicyEvaluationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.ScreenLiveViewPolicyEvaluationRequested"
+        },
+        {
+          "name": "aiAnalysisCompleted",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.AiAnalysisCompleted"
+        },
+        {
+          "name": "policyViolationDetected",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.PolicyViolationDetected"
+        },
+        {
+          "name": "notificationRequested",
+          "sourceObjectPath": "ChildDomainRuntimeEventTypeLiteral.NotificationRequested"
+        }
+      ]
+    },
+    {
+      "name": "app-game-android-usage-events-command-event-names",
+      "ownerPath": "crates/agent-protocol/src/constants/app_game_android_usage_events.rs",
+      "scanRoots": ["apps", "packages", "scripts", "crates"],
+      "values": [
+        {
+          "name": "capabilityGet",
+          "rustConst": "COMMAND_CAPABILITY_GET"
+        },
+        {
+          "name": "replayBoundaryGet",
+          "rustConst": "COMMAND_REPLAY_BOUNDARY_GET"
+        },
+        {
+          "name": "runtimePreflightGet",
+          "rustConst": "COMMAND_RUNTIME_PREFLIGHT_GET"
+        },
+        {
+          "name": "capabilityReported",
+          "rustConst": "EVENT_CAPABILITY_REPORTED"
+        },
+        {
+          "name": "replayBoundaryReported",
+          "rustConst": "EVENT_REPLAY_BOUNDARY_REPORTED"
+        },
+        {
+          "name": "runtimePreflightReported",
+          "rustConst": "EVENT_RUNTIME_PREFLIGHT_REPORTED"
+        }
+      ]
+    },
+    {
+      "name": "activity-event-kind-rust-constants",
+      "ownerPath": "crates/agent-protocol/src/constants/activity_event_kind.rs",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": [
+        "crates/agent-protocol/src/activity.rs",
+        "crates/agent-protocol/src/constants/activity_capture.rs",
+        "crates/agent-protocol/src/constants/activity_observer.rs",
+        "crates/agent-protocol/src/constants/activity_store.rs",
+        "crates/agent-protocol/src/constants/activity_subject_kind.rs",
+        "crates/agent-protocol/src/constants/activity_surface.rs",
+        "crates/agent-protocol/src/constants/browser.rs",
+        "crates/agent-protocol/src/constants/child_agent.rs",
+        "crates/agent-protocol/src/constants/enforcement.rs",
+        "crates/agent-protocol/src/constants/enforcement_broad_adapter_proof.rs",
+        "crates/agent-protocol/src/constants/field.rs",
+        "crates/agent-protocol/src/constants/host_identity.rs",
+        "crates/agent-protocol/src/constants/household_mesh.rs",
+        "crates/agent-protocol/src/constants/lan_pairing.rs",
+        "crates/agent-protocol/src/constants/local_ai_runtime.rs",
+        "crates/agent-protocol/src/constants/local_ai_runtime_provider_proof.rs",
+        "crates/agent-protocol/src/constants/network_flow.rs",
+        "crates/agent-protocol/src/constants/parent_assistant.rs",
+        "crates/agent-protocol/src/constants/parent_controller.rs",
+        "crates/agent-protocol/src/constants/policy.rs",
+        "crates/agent-protocol/src/constants/policy_control.rs",
+        "crates/agent-protocol/src/constants/v08_browser_domain_adapter_proof.rs",
+        "crates/agent-protocol/src/constants/v08_cross_platform_enforcement_capability_proof.rs",
+        "crates/agent-protocol/src/constants/v08_enforcement_integrity_runtime_audit.rs",
+        "crates/agent-protocol/src/constants/v08_enforcement_policy_dispatch.rs",
+        "crates/agent-protocol/src/constants/v08_enforcement_product_control_spine.rs",
+        "crates/agent-protocol/src/constants/v08_integrity_alert_status_bridge.rs",
+        "crates/agent-protocol/src/constants/v08_notification_provider_status_boundary.rs",
+        "crates/agent-protocol/src/constants/v08_os_adapter_product_proof.rs",
+        "crates/agent-protocol/src/constants/v08_supported_adapter_runtime_proof.rs",
+        "crates/agent-protocol/src/constants/value.rs",
+        "crates/agent-protocol/src/constants/windows_adapter_artifact_gate.rs",
+        "crates/agent-protocol/src/constants/windows_adapter_artifact_ingestion.rs",
+        "crates/agent-protocol/src/constants/windows_adapter_capability.rs",
+        "packages/schema-domain/src/evidence-kinds.ts",
+        "packages/schema-domain/src/generated-activity-event-kind.ts",
+        "packages/schema-domain/src/generated-evidence-kinds.ts",
+        "packages/portal-domain/src/generated-portal-contracts.ts"
+      ],
+      "values": [
+        {
+          "name": "process_observed",
+          "rustConst": "PROCESS_OBSERVED"
+        },
+        {
+          "name": "window_focused",
+          "rustConst": "WINDOW_FOCUSED"
+        },
+        {
+          "name": "domain_observed",
+          "rustConst": "DOMAIN_OBSERVED"
+        },
+        {
+          "name": "url_observed",
+          "rustConst": "URL_OBSERVED"
+        },
+        {
+          "name": "video_observed",
+          "rustConst": "VIDEO_OBSERVED"
+        },
+        {
+          "name": "browser_intervention_applied",
+          "rustConst": "BROWSER_INTERVENTION_APPLIED"
+        },
+        {
+          "name": "enforcement_audit_recorded",
+          "rustConst": "ENFORCEMENT_AUDIT_RECORDED"
+        },
+        {
+          "name": "device_idle_state_observed",
+          "rustConst": "DEVICE_IDLE_STATE_OBSERVED"
+        },
+        {
+          "name": "screen_analysis_summarized",
+          "rustConst": "SCREEN_ANALYSIS_SUMMARIZED"
+        },
+        {
+          "name": "location_observed",
+          "rustConst": "LOCATION_OBSERVED"
+        },
+        {
+          "name": "tracking_alert_evaluated",
+          "rustConst": "TRACKING_ALERT_EVALUATED"
+        },
+        {
+          "name": "tracking_geofence_transition_evaluated",
+          "rustConst": "TRACKING_GEOFENCE_TRANSITION_EVALUATED"
+        },
+        {
+          "name": "tracking_expected_place_evaluated",
+          "rustConst": "TRACKING_EXPECTED_PLACE_EVALUATED"
+        },
+        {
+          "name": "tracking_child_check_in_responded",
+          "rustConst": "TRACKING_CHILD_CHECK_IN_RESPONDED"
+        },
+        {
+          "name": "tracking_parent_notification_requested",
+          "rustConst": "TRACKING_PARENT_NOTIFICATION_REQUESTED"
+        },
+        {
+          "name": "tracking_retention_deleted",
+          "rustConst": "TRACKING_RETENTION_DELETED"
+        },
+        {
+          "name": "network_retention_deleted",
+          "rustConst": "NETWORK_RETENTION_DELETED"
+        }
+      ]
+    },
+    {
+      "name": "lan-pairing-protocol-constants",
+      "ownerPath": "crates/agent-protocol/src/constants/lan_pairing.rs",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": [
+        "crates/agent-protocol/src/transport.rs",
+        "packages/portal-domain/src/generated-portal-contracts.ts",
+        "apps/portal/generated/parent-ui-bridge.ts"
+      ],
+      "values": [
+        { "name": "proofSubmitCommand", "rustConst": "COMMAND_PROOF_SUBMIT" },
+        { "name": "routeSelectCommand", "rustConst": "COMMAND_ROUTE_SELECT" },
+        { "name": "routeRevokeCommand", "rustConst": "COMMAND_ROUTE_REVOKE" },
+        { "name": "statusGetCommand", "rustConst": "COMMAND_STATUS_GET" },
+        { "name": "runtimeEventChainStreamGetCommand", "rustConst": "COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET" },
+        { "name": "browserDiscoveryScanCommand", "rustConst": "COMMAND_BROWSER_DISCOVERY_SCAN" },
+        { "name": "addDeviceRequestCommand", "rustConst": "COMMAND_ADD_DEVICE_REQUEST" },
+        { "name": "signedChildAgentObserveCommand", "rustConst": "COMMAND_SIGNED_CHILD_AGENT_OBSERVE" },
+        { "name": "controllerLeaseRenewCommand", "rustConst": "COMMAND_CONTROLLER_LEASE_RENEW" },
+        { "name": "controllerLeaseReleaseCommand", "rustConst": "COMMAND_CONTROLLER_LEASE_RELEASE" },
+        { "name": "controllerLeaseTakeoverCommand", "rustConst": "COMMAND_CONTROLLER_LEASE_TAKEOVER" },
+        { "name": "lanAiProviderStatusGetCommand", "rustConst": "COMMAND_LAN_AI_PROVIDER_STATUS_GET" },
+        { "name": "lanAiJobSubmitCommand", "rustConst": "COMMAND_LAN_AI_JOB_SUBMIT" },
+        { "name": "statusReportedEvent", "rustConst": "EVENT_STATUS_REPORTED" },
+        { "name": "runtimeEventChainStreamReportedEvent", "rustConst": "EVENT_RUNTIME_EVENT_CHAIN_STREAM_REPORTED" },
+        { "name": "browserDiscoveryReportedEvent", "rustConst": "EVENT_BROWSER_DISCOVERY_REPORTED" },
+        { "name": "addDeviceReportedEvent", "rustConst": "EVENT_ADD_DEVICE_REPORTED" },
+        { "name": "signedChildAgentReportedEvent", "rustConst": "EVENT_SIGNED_CHILD_AGENT_REPORTED" },
+        { "name": "auditReportedEvent", "rustConst": "EVENT_AUDIT_REPORTED" },
+        { "name": "lanAiJobReportedEvent", "rustConst": "EVENT_LAN_AI_JOB_REPORTED" }
+      ]
+    },
+    {
+      "name": "sqlite-rust-constants",
+      "ownerPath": "crates/agent-protocol/src/constants/sqlite.rs",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "values": [
+        {
+          "name": "initialize_activity_store",
+          "rustConst": "INITIALIZE_ACTIVITY_STORE"
+        },
+        {
+          "name": "insert_activity_event",
+          "rustConst": "INSERT_ACTIVITY_EVENT"
+        },
+        {
+          "name": "count_activity_event_id",
+          "rustConst": "COUNT_ACTIVITY_EVENT_ID"
+        },
+        {
+          "name": "count_activity_events",
+          "rustConst": "COUNT_ACTIVITY_EVENTS"
+        },
+        {
+          "name": "last_activity_event_id",
+          "rustConst": "LAST_ACTIVITY_EVENT_ID"
+        },
+        {
+          "name": "select_recent_activity",
+          "rustConst": "SELECT_RECENT_ACTIVITY"
+        },
+        {
+          "name": "select_latest_enforcement_audit_activity",
+          "rustConst": "SELECT_LATEST_ENFORCEMENT_AUDIT_ACTIVITY"
+        },
+        {
+          "name": "select_policy_preview_activity",
+          "rustConst": "SELECT_POLICY_PREVIEW_ACTIVITY"
+        },
+        {
+          "name": "select_app_game_journal_activity",
+          "rustConst": "SELECT_APP_GAME_JOURNAL_ACTIVITY"
+        },
+        {
+          "name": "select_network_retention_deleted_activity",
+          "rustConst": "SELECT_NETWORK_RETENTION_DELETED_ACTIVITY"
+        },
+        {
+          "name": "select_latest_browser_activity",
+          "rustConst": "SELECT_LATEST_BROWSER_ACTIVITY"
+        },
+        {
+          "name": "select_recent_browser_activity",
+          "rustConst": "SELECT_RECENT_BROWSER_ACTIVITY"
+        },
+        {
+          "name": "select_recent_browser_intervention_activity",
+          "rustConst": "SELECT_RECENT_BROWSER_INTERVENTION_ACTIVITY"
+        },
+        {
+          "name": "select_recent_app_game_activity",
+          "rustConst": "SELECT_RECENT_APP_GAME_ACTIVITY"
+        },
+        {
+          "name": "select_recent_network_flow_activity",
+          "rustConst": "SELECT_RECENT_NETWORK_FLOW_ACTIVITY"
+        },
+        {
+          "name": "select_recent_tracking_activity",
+          "rustConst": "SELECT_RECENT_TRACKING_ACTIVITY"
+        },
+        {
+          "name": "select_recent_screen_analysis_activity",
+          "rustConst": "SELECT_RECENT_SCREEN_ANALYSIS_ACTIVITY"
+        },
+        {
+          "name": "delete_parent_rule_contexts",
+          "rustConst": "DELETE_PARENT_RULE_CONTEXTS"
+        },
+        {
+          "name": "upsert_parent_rule_context",
+          "rustConst": "UPSERT_PARENT_RULE_CONTEXT"
+        },
+        {
+          "name": "select_parent_rule_contexts",
+          "rustConst": "SELECT_PARENT_RULE_CONTEXTS"
+        },
+        {
+          "name": "initialize_activity_memory_graph_index",
+          "rustConst": "INITIALIZE_ACTIVITY_MEMORY_GRAPH_INDEX"
+        },
+        {
+          "name": "select_memory_graph_activity_for_index",
+          "rustConst": "SELECT_MEMORY_GRAPH_ACTIVITY_FOR_INDEX"
+        },
+        {
+          "name": "upsert_activity_memory_graph_derivation_run",
+          "rustConst": "UPSERT_ACTIVITY_MEMORY_GRAPH_DERIVATION_RUN"
+        },
+        {
+          "name": "upsert_activity_memory_graph_node",
+          "rustConst": "UPSERT_ACTIVITY_MEMORY_GRAPH_NODE"
+        },
+        {
+          "name": "upsert_activity_memory_graph_edge",
+          "rustConst": "UPSERT_ACTIVITY_MEMORY_GRAPH_EDGE"
+        },
+        {
+          "name": "delete_activity_memory_graph_citations_for_entry",
+          "rustConst": "DELETE_ACTIVITY_MEMORY_GRAPH_CITATIONS_FOR_ENTRY"
+        },
+        {
+          "name": "insert_activity_memory_graph_citation",
+          "rustConst": "INSERT_ACTIVITY_MEMORY_GRAPH_CITATION"
+        },
+        {
+          "name": "select_indexed_activity_memory_graph_edges",
+          "rustConst": "SELECT_INDEXED_ACTIVITY_MEMORY_GRAPH_EDGES"
+        },
+        {
+          "name": "select_indexed_activity_memory_graph_node",
+          "rustConst": "SELECT_INDEXED_ACTIVITY_MEMORY_GRAPH_NODE"
+        },
+        {
+          "name": "count_indexed_activity_memory_graph_edges",
+          "rustConst": "COUNT_INDEXED_ACTIVITY_MEMORY_GRAPH_EDGES"
+        },
+        {
+          "name": "count_indexed_activity_memory_graph_citations",
+          "rustConst": "COUNT_INDEXED_ACTIVITY_MEMORY_GRAPH_CITATIONS"
+        },
+        {
+          "name": "delete_activity_events_for_memory_graph_test",
+          "rustConst": "DELETE_ACTIVITY_EVENTS_FOR_MEMORY_GRAPH_TEST"
+        }
+      ]
+    },
+    {
+      "name": "tracking-retention-settings-write-rust-constants",
+      "ownerPath": "crates/agent-protocol/src/constants/tracking_retention_settings_write.rs",
+      "scanRoots": ["apps", "packages", "scripts", "crates", "docs", ".github"],
+      "allowedPaths": [
+        "packages/schema-domain/src/agent-tracking-retention-settings-write-command.ts",
+        "packages/portal-domain/src/generated-portal-contracts.ts",
+        "apps/portal/generated/parent-ui-bridge.ts"
+      ],
+      "values": [
+        {
+          "name": "command_id",
+          "rustConst": "COMMAND_ID"
+        },
+        {
+          "name": "event_id",
+          "rustConst": "EVENT_ID"
+        },
+        {
+          "name": "accepted_at",
+          "rustConst": "ACCEPTED_AT"
+        },
+        {
+          "name": "settings_kind_retention_window",
+          "rustConst": "SETTINGS_KIND_RETENTION_WINDOW"
+        },
+        {
+          "name": "write_state_accepted",
+          "rustConst": "WRITE_STATE_ACCEPTED"
+        },
+        {
+          "name": "write_state_rejected",
+          "rustConst": "WRITE_STATE_REJECTED"
+        },
+        {
+          "name": "mutation_proof_ref",
+          "rustConst": "MUTATION_PROOF_REF"
+        },
+        {
+          "name": "writer_intent_ref",
+          "rustConst": "WRITER_INTENT_REF"
+        },
+        {
+          "name": "read_model_proof_ref",
+          "rustConst": "READ_MODEL_PROOF_REF"
+        },
+        {
+          "name": "journal_read_model_proof_ref",
+          "rustConst": "JOURNAL_READ_MODEL_PROOF_REF"
+        },
+        {
+          "name": "local_service_state_snapshot_ref",
+          "rustConst": "LOCAL_SERVICE_STATE_SNAPSHOT_REF"
+        },
+        {
+          "name": "durable_settings_store_ref",
+          "rustConst": "DURABLE_SETTINGS_STORE_REF"
+        },
+        {
+          "name": "durable_settings_store_file_name",
+          "rustConst": "DURABLE_SETTINGS_STORE_FILE_NAME"
+        }
+      ]
+    }
+  ]
+}

@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Platform Deliverables Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Platform Deliverables Expectations
 
 Platform work is a product-deliverable matrix, not a single "cross-platform"
@@ -30,6 +43,28 @@ Use GitHub Actions and package-preview jobs to catch cross-platform drift early:
   Rust-service boundary, service-manager launch ownership, fixed loopback
   process ownership, connect-or-degrade state, support-safe diagnostics, and
   explicit preview/manual-required non-claims.
+- For V8 production release/support readiness proof, require the package-preview
+  matrix to name Windows MSI, Linux DEB, macOS PKG, Android APK, and iOS
+  simulator artifacts separately while keeping signing, store, real-device,
+  updater rollback, and production publishing claims manual-required or
+  promotion-required.
+- For V8 updater rollback and release-support runbook proof, require scaffold,
+  unsigned-preview, signature-required, and production update-channel rows
+  separately. CI/package preview may prove mechanics, but rollback execution,
+  rollback failure handling, signed channel proof, and production support
+  runbook publication stay manual-required until real platform evidence exists.
+- For `production-release-public-status-proof`, require public download,
+  release status, update status, account status, subscription status, and
+  support status surfaces to stay route-contract or manual-required until real
+  public runtime, backend, signing/store, updater execution, publishing
+  promotion, and support backend evidence exists.
+- For `production-release-public-runtime-handoff-proof`, require route/status
+  and backend adapter rows for public download, release status, update status,
+  account status, subscription status, support status, and their runtime
+  handoff destinations while keeping real public runtime, account/backend/
+  provider execution, signing/store proof, updater execution, production
+  publishing, support backend upload, and real device/store proof
+  manual-required or unimplemented.
 
 CI is not enough for:
 
@@ -75,6 +110,10 @@ deliverables planning pass:
   and support redaction, but signing, production updater rollback, store
   distribution, and production support remain manual-required until real
   artifacts and credentials prove them.
+- Updater rollback/runbook status proof may show Windows package-preview and
+  runbook mechanics, but it must keep signed-channel execution, rollback
+  execution smoke, rollback failure smoke, and production support escalation
+  manual-required.
 - Run Windows local tests before product checkpoint signoff. CI may supplement
   but must not replace the local PC proof.
 

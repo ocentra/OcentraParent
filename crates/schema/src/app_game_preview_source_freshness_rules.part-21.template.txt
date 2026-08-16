@@ -1,0 +1,30 @@
+  nativeGameRowCount: countAppGameSourceGatedPolicyPreviewRowsGenerated(
+    rows,
+    AppGamePolicyPreviewTargetDomainGenerated.NativeGame
+  ),
+  previewReadyVisibleCount: countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated(
+    rows,
+    AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.PreviewReadyVisible
+  ),
+  sourceManualRequiredVisibleCount: countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated(
+    rows,
+    AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.SourceManualRequiredVisible
+  ),
+  compilerManualRequiredVisibleCount: countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated(
+    rows,
+    AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.CompilerManualRequiredVisible
+  ),
+});
+
+export const appGameSourceGatedPolicyPreviewReadModelCountsMatchRowsGenerated = (
+  readModel: SourceGatedPolicyPreviewReadModelLike
+) =>
+  readModel.nativeAppRowCount ===
+    countAppGameSourceGatedPolicyPreviewRowsGenerated(
+      readModel.rows,
+      AppGamePolicyPreviewTargetDomainGenerated.NativeApp
+    ) &&
+  readModel.nativeGameRowCount ===
+    countAppGameSourceGatedPolicyPreviewRowsGenerated(
+      readModel.rows,
+      AppGamePolicyPreviewTargetDomainGenerated.NativeGame

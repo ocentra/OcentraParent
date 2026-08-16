@@ -2,6 +2,12 @@ name: Validate
 
 on:
   workflow_call:
+    inputs:
+      docs_hub_only:
+        description: Skip heavy validation for docs/hub-only changes while preserving required check names.
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -11,14 +17,21 @@ jobs:
   pre-ai-proof:
     name: Pre-AI Proof Matrix
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Check pre-AI proof matrix
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run test:pre-ai-proof
+
+      - name: Docs/hub-only Pre-AI skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Pre-AI proof matrix skipped for docs/hub-only change."
 
   validate:
     name: Full Validation Gate
@@ -27,14 +40,22 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Install Playwright Chromium
+        if: ${{ !inputs.docs_hub_only }}
         run: npx playwright install --with-deps chromium
 
       - name: Validate
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run validate
+
+      - name: Docs/hub-only validation skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Full validation skipped for docs/hub-only change."
 
   desktop-real-e2e:
     name: Real Portal To Rust E2E (${{ matrix.os }})
@@ -47,15 +68,23 @@ jobs:
         os: [windows-latest, ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Install Playwright Chromium
+        if: ${{ !inputs.docs_hub_only }}
         run: npx playwright install chromium
 
       - name: Install Playwright Linux dependencies
-        if: runner.os == 'Linux'
+        if: ${{ !inputs.docs_hub_only && runner.os == 'Linux' }}
         run: npx playwright install-deps chromium
 
       - name: Run real portal-to-Rust E2E
+        if: ${{ !inputs.docs_hub_only }}
         run: npm run test:e2e
+
+      - name: Docs/hub-only real portal E2E skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Real portal-to-Rust E2E skipped for docs/hub-only change."

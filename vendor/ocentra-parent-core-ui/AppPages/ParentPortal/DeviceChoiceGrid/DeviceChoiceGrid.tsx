@@ -39,12 +39,14 @@ export function DeviceChoiceGrid({
   disabled = false,
   deviceSelectionDisabled = false,
   showScopeSelector = true,
+  showAddControls = true,
   scopeValues,
   className,
   style,
   onChange,
   onScopeChange,
   onAddToPortal,
+  onEditDevice,
   scopeIcons,
   config: override,
 }: DeviceChoiceGridProps): ReactElement {
@@ -202,6 +204,13 @@ export function DeviceChoiceGrid({
 
   const canAddToPortal = (slot: DeviceSlot): boolean =>
     slot.status === 'available' && slot.device?.portalEligible !== false;
+
+  const editDevice = (slot: DeviceSlot) => {
+    if (disabled || slot.status === 'empty' || !slot.device) {
+      return;
+    }
+    onEditDevice?.(slot);
+  };
 
   const selectScope = (scopeValue: ScopeValue) => {
     if (!scope) {
@@ -401,9 +410,15 @@ export function DeviceChoiceGrid({
                   press={index === pressed}
                   shineOpacity={shineOpacity}
                   showAdd={
-                    currentScope === 'lan' && active && canAddToPortal(item) && !activePortalIds.includes(item.value)
+                    showAddControls &&
+                    currentScope === 'lan' &&
+                    active &&
+                    canAddToPortal(item) &&
+                    !activePortalIds.includes(item.value)
                   }
+                  showEdit={false}
                   onAddToPortal={addToPortal}
+                  onEditDevice={editDevice}
                   onHoverChange={setHovered}
                   onPressChange={setPressed}
                   onSelect={select}

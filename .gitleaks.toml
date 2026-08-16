@@ -1,0 +1,5 @@
+[allowlist]
+description = "Ocentra Parent repository false positives"
+regexes = [
+  '''package/barrel exports''',
+]

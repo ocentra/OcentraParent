@@ -1,0 +1,64 @@
+function artifactRequirementsAreHonest(
+  requirements: ReadonlyArray<ChildAndroidDeviceProofArtifactRequirementEvidence>
+): boolean {
+  const byRequirement = new Map(requirements.map((entry) => [entry.requirement, entry] as const));
+  return (
+    byRequirement.size === requirements.length &&
+    RequiredArtifactRequirements.every((requirement) =>
+      artifactRequirementIsHonest(byRequirement.get(requirement), requirement)
+    )
+  );
+}
+
+function artifactRequirementIsHonest(
+  evidence: ChildAndroidDeviceProofArtifactRequirementEvidence | undefined,
+  requirement: ChildAndroidDeviceProofArtifactRequirement
+): boolean {
+  const expected = RequirementExpectations[requirement];
+  return Boolean(
+    evidence &&
+    evidence.requirement === requirement &&
+    evidence.parentCapability === expected.parentCapability &&
+    evidence.parentCapabilityStatus === expected.parentCapabilityStatus &&
+    evidence.artifactClass === expected.artifactClass &&
+    evidence.artifactStatus === expected.artifactStatus &&
+    evidence.source === expected.source &&
+    artifactEvidenceReferenceIsHonest(evidence)
+  );
+}
+
+function artifactEvidenceReferenceIsHonest(evidence: ChildAndroidDeviceProofArtifactRequirementEvidence): boolean {
+  if (CiEvidenceStatuses.has(evidence.artifactStatus)) {
+    return evidence.evidencePath !== null && evidence.evidenceCapturedAt !== null;
+  }
+  return evidence.evidencePath === null && evidence.evidenceCapturedAt === null;
+}
+
+function manualEvidenceCustodyIsHonest(
+  status: ChildAndroidDeviceProofManualEvidenceCustody,
+  requirements: ReadonlyArray<ChildAndroidDeviceProofArtifactRequirementEvidence>
+): boolean {
+  const ciArtifactCount = requirements.filter((requirement) =>
+    CiEvidenceStatuses.has(requirement.artifactStatus)
+  ).length;
+  return (
+    status.custodyState === 'ci-artifacts-only' &&
+    status.requiredArtifactCount === RequiredArtifactRequirements.length &&
+    status.ciArtifactCount === ciArtifactCount &&
+    status.collectedDeviceArtifactCount === 0 &&
+    status.missingDeviceArtifactCount === RequiredArtifactRequirements.length - ciArtifactCount
+  );
+}
+
+function claimsStayInsideCiBoundary(
+  claimsProved: ReadonlyArray<ChildAndroidDeviceProofSummary>,
+  claimsNotProved: ReadonlyArray<ChildAndroidDeviceProofBoundary>
+): boolean {
+  return (
+    claimsProved.length === 1 &&
+    claimsProved[0] === 'debug APK, checksum, and package-local status bundles are CI/package proof only' &&
+    claimsNotProved.some((claim) => claim.includes('Android add-device/pairing readiness remains manual-required')) &&
+    claimsNotProved.some((claim) => claim.includes('Android child device readiness remains manual-required')) &&
+    claimsNotProved.some((claim) => claim.includes('Android child enforcement parity is not proved'))
+  );
+}

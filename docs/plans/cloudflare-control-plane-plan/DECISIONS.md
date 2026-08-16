@@ -1,0 +1,20 @@
+# Decisions
+
+Status: locked architecture decisions with truth-synced implementation and proof state.
+
+| ID | Status | Decision | Why it matters | Follow-up |
+| --- | --- | --- | --- | --- |
+| CFCP-001 | architecture-closed / runtime-present / proof-open | `infra/cloudflare/` is a separate repo-local module. | Shared Cloudflare scaffolding is bigger than payment. | Keep route, module, and source matrix synchronized. |
+| CFCP-002 | architecture-closed / runtime-present / proof-open | Cloudflare control plane is cross-cutting; payment depends on it but does not own it. | Prevents payment docs from becoming infra source of truth. | Payment WP00 must point at this plan's handoff proof. |
+| CFCP-003 | architecture-closed / runtime-present / proof-open | Worker entrypoint must include env validation, CORS fail-fast, request-size limits, kill switch, router dispatch, scheduled reconciliation hooks, redacted logging, and safe error handling. | Games inspection showed these are core shared runtime guards. | Prove or block each guard explicitly. |
+| CFCP-004 | architecture-closed / runtime-present / proof-open | Private routes require auth; Cloudflare cannot be naked. | Avoids secretless private API drift. | Auth boundary and route manifest must agree. |
+| CFCP-005 | architecture-closed / dependency-gated | Auth provider is an adapter; do not hardcode Firebase/Auth.js/Cloudflare Access until account plan decides it. | Parent account authority is not owned here. | Record exact account-plan blocker where unresolved. |
+| CFCP-006 | architecture-closed / runtime-present / proof-open | Route manifest and domain packages own endpoint paths and request/response schemas; no raw route strings in handlers. | Keeps consumer and worker contracts aligned. | Keep route docs and module docs synchronized. |
+| CFCP-007 | architecture-closed / runtime-present / proof-open | Durable Objects coordinate per-account or per-household state and idempotency. | Serialized writes and replay safety are shared needs. | Bindings and keying rules must stay explicit. |
+| CFCP-008 | architecture-closed / runtime-present / proof-open | D1 owns queryable ledgers. | Dashboards, support/admin, and reconciliation need queryable state. | D1 tables remain support-safe and redacted. |
+| CFCP-009 | architecture-closed / runtime-present / proof-open | KV owns rate limits, short-lived caches, and idempotency helpers where needed. | Games module used KV heavily; Parent only keeps the shared helper tier. | Keep KV scope narrow and privacy-safe. |
+| CFCP-010 | architecture-closed / runtime-present / proof-open | Queues own retry, dead-letter, provider polling, and reconciliation jobs. | Prevents synchronous provider truth assumptions. | Queue names and retry policy must be explicit. |
+| CFCP-011 | architecture-closed / runtime-present / proof-open | R2 is optional and limited to audit/export/support-safe artifacts; do not store child telemetry or raw child data. | Parent must not inherit game asset/archive habits blindly. | Keep R2 optional and redacted. |
+| CFCP-012 | architecture-closed / local-runtime-present / proof-open | Local development must run with Wrangler-local or Miniflare-compatible tests before payment starts. | Cloudflare foundation must be testable before consumer runtime work. | Local dev and seed flow need proof or blockers. |
+| CFCP-013 | architecture-closed / runtime-mostly-proven / proof-open | Test pyramid must include unit, integration, e2e, contract, security, and property/fuzz coverage, and the exact required assertions must be explicit. | Games module uses a much larger test matrix; Parent keeps the required minimum while preventing future scope drift. | Placeholder files are not proof, and spec completeness does not equal runtime readiness. |
+| CFCP-014 | architecture-closed / proof-open | `payment-subscription-plan` cannot execute runtime payment slices until this plan's handoff gate passes. | Consumer plans need a real shared module contract first. | Payment WP00 remains blocked until handoff proof exists. |

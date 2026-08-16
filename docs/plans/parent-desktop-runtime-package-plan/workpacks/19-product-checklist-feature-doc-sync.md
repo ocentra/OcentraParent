@@ -1,5 +1,19 @@
 # 19 Product Checklist And Feature Doc Sync
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `parent-desktop-runtime-package-plan`
+> Doc: `19 Product Checklist And Feature Doc Sync`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 Sources: [20-step plan](../parent-desktop-runtime-package-20-step-plan.md),
 [test blueprint](../parent-desktop-runtime-package-test-blueprint.md),
 [requirements guide](../runtime-package-requirements-guide.md), and
@@ -17,11 +31,11 @@ service, platform, signing, store, relay, and support status.
 
 ## Requirement Checklist
 
-- [x] Update `docs/features/production-distribution-support.md` when package
+- [ ] Update `docs/features/production-distribution-support.md` when package
       proof changes.
-- [x] Update `docs/features/child-agent-local-service.md` when service connection
+- [ ] Update `docs/features/child-agent-local-service.md` when service connection
       status changes.
-- [x] Update `docs/features/remote-lan-mobile-platforms.md` when route/platform
+- [ ] Update `docs/features/remote-lan-mobile-platforms.md` when route/platform
       status changes.
 - [ ] Update checklist rows when proof/status changes.
 - [ ] If locked, report exact desired checklist language.

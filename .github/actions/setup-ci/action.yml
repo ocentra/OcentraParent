@@ -10,6 +10,10 @@ inputs:
     description: Install the Rust toolchain pinned by rust-toolchain.toml.
     required: false
     default: 'true'
+  install-tauri-system-dependencies:
+    description: Install Linux system packages required to compile Tauri desktop targets.
+    required: false
+    default: 'true'
 
 runs:
   using: composite
@@ -20,6 +24,19 @@ runs:
         node-version: 22
         cache: npm
 
+    - name: Checkout Ocentra Enforcer safety-main
+      shell: bash
+      env:
+        OCENTRA_ENFORCER_HOME: ${{ runner.temp }}/ocentra-enforcer
+        OCENTRA_ENFORCER_REF: safety-main
+      run: |
+        rm -rf "$OCENTRA_ENFORCER_HOME"
+        git clone --depth 1 --branch "$OCENTRA_ENFORCER_REF" https://github.com/ocentra/ocentra-enforcer.git "$OCENTRA_ENFORCER_HOME"
+        npm ci --prefix "$OCENTRA_ENFORCER_HOME"
+        test -f "$OCENTRA_ENFORCER_HOME/scripts/rust-rules.mjs"
+        printf 'Ocentra Enforcer safety-main resolved to %s\n' "$(git -C "$OCENTRA_ENFORCER_HOME" rev-parse HEAD)"
+        printf 'OCENTRA_ENFORCER_HOME=%s\n' "$OCENTRA_ENFORCER_HOME" >> "$GITHUB_ENV"
+
     - name: Setup Rust
       if: inputs.install-rust == 'true'
       shell: bash
@@ -29,7 +46,7 @@ runs:
         rustup default "$rust_channel"
 
     - name: Install Linux Tauri system dependencies
-      if: runner.os == 'Linux' && inputs.install-rust == 'true'
+      if: runner.os == 'Linux' && inputs.install-rust == 'true' && inputs.install-tauri-system-dependencies == 'true'
       shell: bash
       run: |
         sudo apt-get update
@@ -38,11 +55,21 @@ runs:
           curl \
           file \
           libayatana-appindicator3-dev \
+          libclang-dev \
+          libdbus-1-dev \
+          libegl-dev \
+          libpipewire-0.3-dev \
           librsvg2-dev \
           libssl-dev \
           libwebkit2gtk-4.1-dev \
+          libwayland-dev \
+          libxcb1-dev \
           libxdo-dev \
-          wget
+          libxrandr-dev \
+          pkg-config \
+          wget \
+          imagemagick \
+          x11-apps
 
     - name: Install npm dependencies
       if: inputs.install-mode != 'skip'

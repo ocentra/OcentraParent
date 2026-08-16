@@ -43,6 +43,15 @@ pub const ACTIVITY_REPORT_SUMMARY_OFFLINE_SOURCE_IDS_LABEL: &str = ", offlineSou
 pub const ACTIVITY_REPORT_SUMMARY_STALE_SOURCE_IDS_LABEL: &str = ", staleSourceIds=";
 pub const ACTIVITY_REPORT_SUMMARY_UNREACHABLE_SOURCE_IDS_LABEL: &str = ", unreachableSourceIds=";
 pub const ACTIVITY_REPORT_SUMMARY_UNAVAILABLE_SOURCE_IDS_LABEL: &str = ", unavailableSourceIds=";
+pub const ACTIVITY_REPORT_SUMMARY_CUSTODY_LABEL: &str = ", custodyLabel=";
+pub const ACTIVITY_REPORT_SUMMARY_SOURCE_DATA_LABEL: &str = ", sourceLabel=";
+pub const ACTIVITY_REPORT_SUMMARY_RAW_CHILD_EVIDENCE_LABEL: &str = ", rawChildEvidenceIncluded=";
+pub const EVIDENCE_CUSTODY_ACTIVITY_SUMMARY: &str = "parent-owned-activity-summary";
+pub const EVIDENCE_CUSTODY_ACTIVITY_EVENT: &str = "parent-owned-activity-event";
+pub const EVIDENCE_CUSTODY_ACTIVITY_REPORT: &str = "parent-owned-activity-report";
+pub const EVIDENCE_SOURCE_ACTIVITY_QUERY_STORE_SUMMARY: &str = "activity-query-store-summary";
+pub const EVIDENCE_SOURCE_ACTIVITY_EVENT_CITATION: &str = "activity-event-citation";
+pub const EVIDENCE_SOURCE_SAVED_ACTIVITY_REPORT_HISTORY: &str = "saved-activity-report-history";
 pub const ACTIVITY_REPORT_SUMMARY_NONE: &str = "none";
 pub const PROMPT_SYSTEM: &str =
     "Answer as a parent-facing assistant. Cite the provided evidence. Do not enforce directly.";
@@ -52,15 +61,13 @@ pub const PROMPT_SEPARATOR: &str = "\n";
 pub const DEFAULT_PREVIEW_ID: &str = "parent-assistant-action-preview-local";
 pub const ACTION_PREVIEW_SUMMARY: &str =
     "Preview only. Child-agent contract approval is required before any action.";
-pub const ACTION_PREVIEW_POLICY_SUMMARY: &str =
-    "Policy suggestion preview only. Controller lease and child-agent contract execution are required before any rule changes.";
-pub const ACTION_PREVIEW_SCHEDULE_SUMMARY: &str =
-    "Schedule-change preview only. Controller lease and child-agent contract execution are required before any schedule changes.";
-pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str =
-    "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
+pub const ACTION_PREVIEW_POLICY_SUMMARY: &str = "Policy suggestion preview only. Controller lease and child-agent contract execution are required before any rule changes.";
+pub const ACTION_PREVIEW_SCHEDULE_SUMMARY: &str = "Schedule-change preview only. Controller lease and child-agent contract execution are required before any schedule changes.";
+pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str = "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
 pub const ACTION_PREVIEW_NONE_SUMMARY: &str = "No backend action is prepared from this answer.";
-pub const ACTION_PREVIEW_DRAFT_REASON: &str =
-    "Action preview is a draft only. Controller lease and child-agent contract are required before changes.";
+pub const ACTION_PREVIEW_DRAFT_REASON: &str = "Action preview is a draft only. Controller lease and child-agent contract are required before changes.";
+pub const ACTION_PREVIEW_AUDIT_REASON: &str =
+    "Preview generated from cited parent-owned evidence; child-agent validation is still required.";
 pub const THREAD_TITLE_DEFAULT: &str = "Parent Assistant local thread";
 pub const THREAD_STORAGE_DIR: &str = "parent-assistant-threads";
 pub const THREAD_STORAGE_FILE: &str = "threads.json";
@@ -74,6 +81,12 @@ pub const THREAD_STORAGE_UNAVAILABLE_REASON: &str = "parent-assistant-thread-sto
 pub const RUN_NOT_RUNNING_REASON: &str = "parent-assistant-run-not-running";
 pub const ACTION_CONFIRM_CONTRACT_REQUIRED_REASON: &str =
     "Controller lease and child-agent policy contract are required before applying this action.";
+pub const ACTION_CONFIRM_PREVIEW_REQUIRED_REASON: &str =
+    "Action confirmation rejected because no matching preview id was provided.";
+pub const ACTION_CONFIRM_RAW_PROSE_REJECTED_REASON: &str =
+    "Action confirmation rejected because raw assistant prose is not an executable action intent.";
+pub const ACTION_CONFIRM_AUDIT_REASON: &str =
+    "Parent confirmation cannot write policy until child-agent validation is wired.";
 pub const REQUIRED_CHILD_CONTRACT_POLICY_WRITE: &str = "child-agent-policy-write-contract";
 pub const QUESTION_POLICY_HINT: &str = "policy";
 pub const QUESTION_RULE_HINT: &str = "rule";
@@ -105,6 +118,16 @@ pub const API_PROVIDER_NOT_AUTHORIZED_REASON: &str = "api-ai-provider-not-author
 pub const API_PROVIDER_AUTHORIZED_UNAVAILABLE_REASON: &str =
     "api-ai-provider-adapter-not-configured";
 pub const API_PROVIDER_AUTHORIZED_DEGRADED_REASON: &str = "api-ai-provider-authorized-degraded";
+pub const PROVIDER_ROUTE_LOCAL_READY_REASON: &str =
+    "Local parent-assistant provider is configured and selected.";
+pub const PROVIDER_ROUTE_LOCAL_DEGRADED_REASON: &str = "Local parent-assistant provider is degraded; API AI remains optional and unavailable for safety decisions.";
+pub const PROVIDER_ROUTE_LOCAL_UNAVAILABLE_REASON: &str =
+    "Local parent-assistant provider is unavailable and no API provider is selected.";
+pub const PROVIDER_ROUTE_API_UNAVAILABLE_REASON: &str =
+    "API AI is parent-authorized but no configured API adapter is available.";
+pub const PROVIDER_ROUTE_API_DEGRADED_REASON: &str =
+    "API AI is parent-authorized but degraded; it remains outside child-safety decisions.";
+pub const PROVIDER_ROUTE_NONE_REASON: &str = "No parent-assistant provider is available; cited source refs remain available for degraded answers.";
 pub const LOCAL_PROVIDER_DEGRADED: &str = "local provider returned degraded output";
 pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
 pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";
@@ -118,6 +141,7 @@ pub const FIELD_THREAD: &str = "parentAssistantThread";
 pub const FIELD_THREAD_RESPONSE: &str = "parentAssistantThreadResponse";
 pub const FIELD_THREADS: &str = "parentAssistantThreads";
 pub const FIELD_PROVIDER_STATUS: &str = "parentAssistantProviderStatus";
+pub const FIELD_PROVIDER_ROUTE: &str = "parentAssistantProviderRoute";
 pub const FIELD_RUN_CANCEL_RESULT: &str = "parentAssistantRunCancelResult";
 pub const FIELD_ACTION_CONFIRM_RESULT: &str = "parentAssistantActionConfirmResult";
 pub const FIELD_THREAD_ID: &str = "assistantThreadId";

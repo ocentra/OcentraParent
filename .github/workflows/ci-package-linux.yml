@@ -1,0 +1,40 @@
+name: CI Package Linux
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-linux:
+    name: 'Preview: Linux DEB Smoke'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Record Linux package baseline
+        run: |
+          . /etc/os-release
+          echo "package-baseline=$PRETTY_NAME"
+          getconf GNU_LIBC_VERSION
+
+      - name: Build Linux DEB package
+        run: bash scripts/release/linux/build-agent-package.sh
+
+      - name: Smoke Linux DEB install and remove
+        run: bash scripts/smoke/linux-deb-smoke.sh target/release-packages/linux/ocentra-parent-agent-linux-amd64-latest.deb
+
+      - name: Upload Linux package preview
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-linux-amd64-preview
+          path: |
+            target/release-packages/linux/*.deb
+            target/release-packages/linux/*.sha256
+            target/release-packages/linux/linux-baseline.json
+            test-results/linux-package-smoke/*

@@ -1,6 +1,4 @@
-import { PARENT_PORTAL_CONTENT, type ParentPortalContent } from './parent-portal-data';
-
-export const PARENT_PORTAL_SERVICE_STATE = {
+const PARENT_PORTAL_SERVICE_STATE = {
   Empty: '',
   RowSource: {
     Api: 'api',
@@ -15,6 +13,10 @@ export const PARENT_PORTAL_SERVICE_STATE = {
     LanDiscovery: 'LAN discovery',
     DevicePairing: 'Device pairing',
     BrowserActivity: 'Browser activity',
+    BrowserInventory: 'Browser inventory',
+    ExactUrlCapability: 'Exact URL capability',
+    ActiveTabProof: 'Active tab proof',
+    UnmanagedFallback: 'Unmanaged fallback',
     ActivityReports: 'Activity reports',
     NetworkTracking: 'Network tracking',
     HouseholdSetup: 'Household setup',
@@ -51,6 +53,10 @@ export const PARENT_PORTAL_SERVICE_STATE = {
     Lan: 'LAN',
     CurrentDevice: 'Current device',
     Browser: 'Browser',
+    BrowserInventory: 'BROWSER INVENTORY',
+    ExactUrlCapability: 'BROWSER EXACT URL CAPABILITY',
+    ActiveTabProof: 'BROWSER ACTIVE TAB PROOF',
+    UnmanagedFallback: 'BROWSER UNMANAGED FALLBACK',
     Activity: 'Activity',
     Network: 'Network',
     FamilySettings: 'Family Settings',
@@ -92,6 +98,7 @@ export const PARENT_PORTAL_SERVICE_STATE = {
     Offline: 'offline',
     Reported: 'reported',
     Unavailable: 'unavailable',
+    NotClaimed: 'not-claimed',
     ManualRequired: 'manual-required',
     PermissionRequired: 'permission-required',
     ScaffoldOnly: 'scaffold-only',
@@ -103,24 +110,5 @@ export const PARENT_PORTAL_SERVICE_STATE = {
   },
 } as const;
 
-export const SERVICE_BACKED_CONTENT: ParentPortalContent = {
-  ...PARENT_PORTAL_CONTENT,
-  uiCopy: {
-    ...PARENT_PORTAL_CONTENT.uiCopy,
-    detailSnapshotLines: [
-      'Visible rows use real service events first, then honest manual-required or unavailable gaps.',
-      'State labels stay explicit: paired, pending, observer-only, controller, degraded, or backend-not-connected.',
-    ],
-  },
-  modes: {
-    ...PARENT_PORTAL_CONTENT.modes,
-    parentOverview: {
-      ...PARENT_PORTAL_CONTENT.modes.parentOverview,
-      rowSource: PARENT_PORTAL_SERVICE_STATE.RowSource.Api,
-    },
-    parentManage: {
-      ...PARENT_PORTAL_CONTENT.modes.parentManage,
-      rowSource: PARENT_PORTAL_SERVICE_STATE.RowSource.Api,
-    },
-  },
-};
+export { PARENT_PORTAL_SERVICE_STATE };
+export default PARENT_PORTAL_SERVICE_STATE;

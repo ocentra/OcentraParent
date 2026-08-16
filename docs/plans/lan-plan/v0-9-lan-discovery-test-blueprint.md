@@ -1,5 +1,19 @@
 # V0.9 LAN Discovery Test Blueprint
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `V0.9 LAN Discovery Test Blueprint`
+> Kind: test blueprint reference; read only when local expectations route here.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 This is the companion requirement blueprint for the
 [V0.9 LAN Discovery 20-Step Plan](v0-9-lan-discovery-20-step-plan.md). The
 20-step plan defines what to build. This blueprint defines the tests, fixtures,
@@ -12,8 +26,8 @@ Included:
 - Parent scanner.
 - Device evidence model.
 - Merge and classification engine.
-- Neighbor table, ARP, mDNS, SSDP, NetBIOS, LLMNR, reverse DNS, and bounded
-  service-enrichment discovery.
+- Neighbor table, ARP, DHCP, mDNS, SSDP, UPnP/WSD descriptor paths, NetBIOS,
+  LLMNR, reverse DNS, and bounded service-enrichment discovery.
 - Rust child-agent discovery, signed hello, and heartbeat.
 - Durable household device storage.
 - Parent-visible device inventory and evidence read models.
@@ -169,7 +183,9 @@ weak LAN evidence.
 
 Requirement: Scanner interface selection must ignore loopback, down,
 disconnected, VPN, Docker, Hyper-V, WSL, and link-local-only interfaces by
-default, while allowing explicit manual selection.
+default, while allowing explicit manual selection. The normalized interface map
+must preserve gateway, DNS, DHCP, broadcast, subnet, and IPv6-prefix fields
+when the platform exposes them.
 
 Proof: Unit tests cover each interface type, default route preference, Wi-Fi,
 Ethernet, and manual override.
@@ -231,6 +247,99 @@ Proof: Integration tests use local controlled servers for closed port, HTTP titl
 HTTPS certificate subject, timeout, max concurrency, and no link crawling.
 
 Acceptance: Service probing cannot become broad port scanning or page crawling.
+
+### LAN-TEST-037: Passive DHCP and fingerprint evidence
+
+Requirement: Passive DHCP evidence must be parsed as bounded identity input
+only, including hostname, vendor class, client id, and parameter-request
+fingerprint when present.
+
+Proof: Parser and integration fixtures cover normal DHCP lease traffic, missing
+options, malformed options, repeated leases, private/randomized MAC clients,
+and safe downgrade to unknown/manual-required when fingerprint evidence is thin.
+
+Acceptance: DHCP can strengthen or weaken classification confidence, but it
+cannot confirm child identity or overwrite a stronger manual/device record.
+
+### LAN-TEST-038: WS-Discovery and metadata safety
+
+Requirement: WS-Discovery probes and metadata parsing must remain bounded,
+sanitized, and explainable.
+
+Proof: Controlled UDP and HTTP fixtures cover Probe responses, Types, Scopes,
+XAddrs, missing metadata, malformed XML, timeout, and ONVIF/printer/camera
+examples.
+
+Acceptance: WSD can enrich printer, scanner, camera, and Windows-adjacent
+classification evidence without becoming a trust or assignment path.
+
+### LAN-TEST-039: Evidence-fusion classifier honesty
+
+Requirement: Classification and install-eligibility output must be explainable,
+weighted, and degradable.
+
+Proof: Merge/classifier tests cover router, extender/AP, Windows PC, Apple
+device with private MAC, Android phone, Android TV/Chromecast, smart TV,
+printer, NAS, camera, and generic IoT fixtures. Tests assert reasons,
+confidence, and installability state.
+
+Acceptance: The system never labels Windows, Android, iOS, or installable
+status from MAC vendor alone, and weak or contradictory evidence stays
+unknown/manual-required.
+
+### LAN-TEST-040: No child confirmation from weak service evidence
+
+Requirement: Open ports, banners, HTTP titles, redirects, TLS subjects, SSDP
+descriptors, DHCP fingerprints, and OUI/vendor hints must never confirm a
+child agent without signed/trusted proof.
+
+Proof: Contract, service, and UI tests feed plausible weak evidence into the
+pipeline and assert the device stays unconfirmed, non-enrollable, and visibly
+explained as weak/manual-required.
+
+Acceptance: Agentless discovery stays useful without pretending to be signed
+child identity.
+
+### LAN-TEST-041: Prior-scan continuity is weak evidence only
+
+Requirement: Persisted JSON or store-backed prior-scan snapshots may strengthen
+continuity, stale/offline state, and merge confidence, but they must remain
+historical weak evidence rather than identity truth.
+
+Proof: Store and merge tests cover same-device continuity across restart,
+changed hostname, changed IP, conflicting current scan, stale-only historical
+row, and a case where prior-scan history conflicts with stronger signed/manual
+current evidence.
+
+Acceptance: Prior scans help explain stable household devices, but they cannot
+silently resurrect revoked state, overwrite manual decisions, or auto-confirm a
+child device.
+
+### LAN-TEST-042: Bounded SNMP and WSD identity queries
+
+Requirement: Active WSD and SNMP identity queries must stay bounded,
+allow-list-driven, and non-authoritative.
+
+Proof: Integration fixtures cover WSD Probe/metadata responses, safe SNMP
+identity queries such as `sysDescr`, `sysObjectID`, and `sysName`, timeout,
+missing metadata, malformed payloads, and the rule that no credential or
+community brute force is allowed.
+
+Acceptance: WSD/SNMP can enrich routers, printers, NAS, cameras, and Windows
+adjacent devices, but they remain weak-to-strong evidence inputs rather than
+child confirmation paths.
+
+### LAN-TEST-043: IPv6 and mobile adapter honesty
+
+Requirement: IPv6 neighbor evidence and mobile-platform scanner capabilities
+must be represented honestly rather than implied.
+
+Proof: Adapter and contract tests cover IPv6/NDP evidence when the host
+provides it, degraded/manual-required states when it does not, Android
+multicast and TCP-probe boundaries, and iOS local-network/Bonjour boundaries.
+
+Acceptance: The product can say what it can and cannot observe on Windows,
+Android, and iOS without inventing parity it does not have.
 
 ## Child-Agent Requirements
 
@@ -459,14 +568,18 @@ agent confirmation, duplicate device cards, and ignored tests without a reason.
 The first implementation must not go below this baseline:
 
 - Unit: interface filtering, ARP parser, OUI lookup, evidence update, merge
-  scoring, classifier, child hello signature, heartbeat state.
-- Integration: scanner pipeline, controlled ARP sweep, controlled mDNS, controlled SSDP, SQLite
+  scoring, classifier, installability scorer, child hello signature, heartbeat
+  state.
+- Integration: scanner pipeline, controlled ARP sweep, controlled mDNS,
+  controlled SSDP/WSD, controlled DHCP/SNMP/service-probe responders, SQLite
   persistence, child hello endpoint.
 - Contract: device record JSON, child hello JSON, LAN event stream JSON.
 - E2E: first scan unknown devices, child agent confirms device, DHCP IP change,
-  IP reused by different device, randomized MAC, offline/online.
+  IP reused by different device, randomized MAC, offline/online, and weak
+  service evidence that stays unconfirmed.
 - Playwright: empty dashboard, progressive scan, evidence panel, assign unknown
-  device, confirmed agent badge, offline status, malicious or long hostname.
+  device, confirmed agent badge, offline status, malicious or long hostname,
+  and installability/classification explanations.
 
 ## Final Quality Bar
 
@@ -475,6 +588,8 @@ LAN discovery is not solid unless:
 - A device found by LAN scan is explainable.
 - A device confirmed by agent is cryptographically trusted.
 - A device guessed by heuristics is clearly marked as guessed.
+- A device marked installable or not installable is backed by an explicit path
+  or an explicit unknown/manual-required state.
 - A device assigned by a parent is preserved.
 - A bad packet cannot crash the scanner.
 - A DHCP change cannot corrupt inventory.

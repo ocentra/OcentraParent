@@ -1,0 +1,52 @@
+
+export const NetworkControlCapabilitySeeds: readonly NetworkControlCapabilitySeed[] = [
+  [
+    'ip-helper-endpoint-snapshot',
+    'ready',
+    'runtime-adapter-proof-required',
+    ['evidence.metadataScope', 'rules.allowedTargetTypes', 'reports.visibleFields'],
+  ],
+  [
+    'dns-client-cache',
+    'ready',
+    'runtime-adapter-proof-required',
+    ['dns.allowedAttributionSources', 'reports.visibleFields'],
+  ],
+  [
+    'windows-firewall-rule-control',
+    'manual-required',
+    'not-yet-proven',
+    ['rules.allowedActions', 'localNetwork.exceptionMode'],
+  ],
+  [
+    'windows-filtering-platform-observation',
+    'manual-required',
+    'not-yet-proven',
+    ['evidence.metadataScope', 'rules.allowedTargetTypes'],
+  ],
+  [
+    'windows-filtering-platform-enforcement',
+    'manual-required',
+    'not-yet-proven',
+    ['rules.allowedActions', 'evidence.requiredProof'],
+  ],
+  ['managed-resolver-enforcement', 'manual-required', 'not-yet-proven', ['dns.mode', 'dns.encryptedDnsHandling']],
+  [
+    'managed-browser-domain-join',
+    'ready-if-browser-capability-ready',
+    'browser-evidence-proof-required',
+    ['evidence.requiredProof', 'rules.allowedTargetTypes'],
+  ],
+  [
+    'router-network-control',
+    'not-implemented',
+    'not-yet-proven',
+    ['localNetwork.exceptionMode', 'rules.allowedActions'],
+  ],
+  [
+    'cloud-relay-network-authoring',
+    'authoring-only',
+    'relay-does-not-enforce-child-internet-traffic',
+    ['network.managementMode', 'custody.allowedUses'],
+  ],
+] as const;

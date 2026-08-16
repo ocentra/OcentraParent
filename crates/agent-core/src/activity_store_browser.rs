@@ -1,8 +1,13 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserEvidenceReadModel, BrowserFamily, BrowserQueryVisibilityLabel, BrowserTabEvidence,
-    LogFieldValue, LogFields, BROWSER_EVIDENCE_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::browser::BROWSER_EVIDENCE_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::browser::{
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserTabEvidence;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;
@@ -18,12 +23,12 @@ pub(crate) fn browser_evidence_read_model(
         .filter_map(browser_read_row_from_store)
         .collect::<Vec<_>>();
     let latest = read_rows.first();
-    let capability_status = latest.map(|row| row.evidence.capability_status.clone());
+    let capability_status = latest.map(|row| row.evidence.capability_status);
     let custody_label = latest
-        .map(|row| row.evidence.custody_label.clone())
+        .map(|row| row.evidence.custody_label)
         .unwrap_or(BrowserCustodyLabel::Unavailable);
     let query_visibility = latest
-        .map(|row| row.evidence.query_visibility.clone())
+        .map(|row| row.evidence.query_visibility)
         .unwrap_or(BrowserQueryVisibilityLabel::Unavailable);
     let latest_event_id = latest.map(|row| row.event_id.clone());
     let latest_observed_at = latest.map(|row| row.observed_at.clone());
@@ -120,12 +125,15 @@ fn browser_read_row_from_store(row: BrowserStoreRow) -> Option<BrowserReadRow> {
         tab_id: string_field(fields, constants::field::TAB_ID),
         target_id: string_field(fields, constants::field::TARGET_ID),
         active_state: active_state_field(fields)?,
+        active_proof_source: active_proof_source_field(fields)
+            .unwrap_or(BrowserActiveProofSource::TargetListOnly),
         url: string_field(fields, constants::field::URL)?,
         origin: string_field(fields, constants::field::ORIGIN)?,
         domain: string_field(fields, constants::field::DOMAIN)?,
         title: string_field(fields, constants::field::TITLE),
         capability_status: capability_status_field(fields)?,
-        degraded_reason: string_field(fields, constants::field::REASON),
+        degraded_reason: string_field(fields, constants::field::DEGRADED_REASON)
+            .or_else(|| string_field(fields, constants::field::REASON)),
         stale_at,
         custody_label: custody_label_field(fields).unwrap_or(BrowserCustodyLabel::ChildDeviceLocal),
         query_visibility: query_visibility_field(fields)
@@ -168,6 +176,11 @@ fn browser_channel_field(fields: &LogFields) -> Option<BrowserChannel> {
 fn active_state_field(fields: &LogFields) -> Option<BrowserActiveTabState> {
     string_field(fields, constants::field::ACTIVE_STATE)
         .and_then(|value| BrowserActiveTabState::from_protocol_str(&value))
+}
+
+fn active_proof_source_field(fields: &LogFields) -> Option<BrowserActiveProofSource> {
+    string_field(fields, constants::field::ACTIVE_PROOF_SOURCE)
+        .and_then(|value| BrowserActiveProofSource::from_protocol_str(&value))
 }
 
 fn capability_status_field(fields: &LogFields) -> Option<BrowserCapabilityStatus> {

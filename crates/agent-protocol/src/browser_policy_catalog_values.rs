@@ -149,6 +149,41 @@ pub enum BrowserPolicyManagedBrowserIntegrationMechanism {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyManagedPolicyWriterControl {
+    #[serde(rename = "disable-incognito")]
+    DisableIncognito,
+    #[serde(rename = "disable-guest-browsing")]
+    DisableGuestBrowsing,
+    #[serde(rename = "disable-profile-adding")]
+    DisableProfileAdding,
+    #[serde(rename = "limit-history-deletion")]
+    LimitHistoryDeletion,
+    #[serde(rename = "force-safe-search")]
+    ForceSafeSearch,
+    #[serde(rename = "force-restricted-mode")]
+    ForceRestrictedMode,
+    #[serde(rename = "url-allow-list")]
+    UrlAllowList,
+    #[serde(rename = "url-block-list")]
+    UrlBlockList,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyManagedPolicyWriterFallback {
+    #[serde(rename = "observe-only")]
+    ObserveOnly,
+    #[default]
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+    #[serde(rename = "degraded")]
+    Degraded,
+    #[serde(rename = "unsupported")]
+    Unsupported,
+    #[serde(rename = "not-claimed")]
+    NotClaimed,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum BrowserPolicyUnmanagedBrowserClassificationTarget {
     #[serde(rename = "known-browser")]
     KnownBrowser,
@@ -207,8 +242,42 @@ pub enum BrowserPolicyRuleAction {
     CloseTab,
     #[serde(rename = "close-browser")]
     CloseBrowser,
+    #[serde(rename = "terminate-process")]
+    TerminateProcess,
     #[serde(rename = "relaunch-managed")]
     RelaunchManaged,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyBrowserGamePolicyMode {
+    #[serde(rename = "allow")]
+    Allow,
+    #[default]
+    #[serde(rename = "observe")]
+    Observe,
+    #[serde(rename = "warn")]
+    Warn,
+    #[serde(rename = "parent-review")]
+    AskParent,
+    #[serde(rename = "limit")]
+    Limit,
+    #[serde(rename = "block")]
+    Block,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub enum BrowserPolicyBrowserGameApprovalMode {
+    #[serde(rename = "allow")]
+    Allow,
+    #[default]
+    #[serde(rename = "parent-review")]
+    AskParent,
+    #[serde(rename = "block")]
+    Block,
+    #[serde(rename = "manual-required")]
+    ManualRequired,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]

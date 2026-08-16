@@ -1,8 +1,33 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: App And Game Evidence Sessions Architecture
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # App And Game Evidence Sessions Architecture
 
 This plan defines the V0.5.2 bridge from low-level process/window capture to
 parent-usable native app and game evidence. It is a local device evidence plan,
 not an AI scanner and not a cloud activity store.
+
+Native app implementation planning lives in
+[Native Apps Plan](../plans/app-plan/README.md). That folder narrows the
+non-browser app side of this combined app/game architecture, adds
+authority-tier routing for platform control, and keeps this file as the shared
+source architecture.
+
+Shared native app/game implementation planning lives in
+[App + Game Plan](../plans/app-game-plan/README.md). That folder owns the
+combined evidence-spine workpacks, native game slice, app/game test blueprint,
+and proof-pack routing while this architecture remains the source contract.
 
 Browser games are covered by browser URL/tab evidence. This document covers
 native Windows apps, native games, launchers, Microsoft Store packages, and

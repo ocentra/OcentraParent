@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-01T15:26:00Z",
+  "discoverySource": "physical-household-lan",
+  "addDeviceState": "discovered",
+  "localServiceDiscoveryState": "pending",
+  "physicalHouseholdLanState": "discovered",
+  "cloudRelayState": "unavailable",
+  "scanSummary": {
+    "schemaVersion": 1,
+    "sourceLabels": ["mdns", "windows-neighbor-table"],
+    "scannedDeviceCount": 1,
+    "agentDeviceCount": 0,
+    "passiveDeviceCount": 1,
+    "infrastructureDeviceCount": 0,
+    "unsupportedDeviceCount": 1
+  },
+  "discoveredDevices": [
+    {
+      "schemaVersion": 1,
+      "discoveredAt": "2026-06-01T15:26:01Z",
+      "childDevice": {
+        "deviceId": "lan-device-acde48001122",
+        "childProfileId": null,
+        "label": "LAN 192.168.2.84",
+        "platform": "ios",
+        "ipAddress": "192.168.2.84",
+        "macAddress": "ac-de-48-00-11-22",
+        "hostname": "Family-iPad.local",
+        "networkInterface": "Wi-Fi",
+        "agentStatus": null,
+        "hardwareProfile": null
+      },
+      "agentPeerId": "portal-dev",
+      "routeId": "lan-route-discovery-only",
+      "networkMode": "local-network",
+      "reachability": "online",
+      "addressRef": "lan-address-ref-apple-neighbor",
+      "discoveryStatus": "mdns-passive",
+      "discoveryState": "discovered"
+    }
+  ],
+  "pairingRequests": [],
+  "trustedDeviceRegistry": [],
+  "householdDeviceDecisions": [],
+  "canonicalHouseholdDevices": [
+    {
+      "schemaVersion": 1,
+      "canonicalDeviceId": "lan-physical-mac-acde48001122",
+      "displayName": "LAN 192.168.2.84",
+      "classification": "unknown-lan-device",
+      "roleBadges": [],
+      "enrollable": false,
+      "discoveryState": "discovered",
+      "trustState": "unpaired",
+      "routeId": null,
+      "routeState": "unavailable",
+      "networkMode": "local-network",
+      "sourceLabels": ["mdns", "network-neighbor"],
+      "networkIdentity": {
+        "hostname": "Family-iPad.local",
+        "ipAddresses": ["192.168.2.84"],
+        "macAddress": "ac-de-48-00-11-22",
+        "macVendor": "Apple, Inc.",
+        "networkInterfaces": ["Wi-Fi"],
+        "reachability": "online",
+        "confidence": "mdns-advertisement",
+        "staleAt": null,
+        "offlineAt": null
+      },
+      "childAgentInventory": null,
+      "policyTargetSurfaces": ["devices", "network"]
+    }
+  ],
+  "trustedDeviceIds": [],
+  "revokedDeviceIds": [],
+  "selectedDeviceReadiness": {
+    "schemaVersion": 1,
+    "selectedChildDeviceId": null,
+    "routeId": null,
+    "pairingId": null,
+    "trustState": "unpaired",
+    "reachability": "online",
+    "readyForControl": false,
+    "staleAt": null,
+    "offlineAt": null
+  },
+  "controllerAuthority": "observer",
+  "observerAuthority": "observer",
+  "routeRequirementLabels": ["Passive LAN evidence does not grant control"],
+  "auditCheckLabels": ["Apple passive device has no child-agent proof"],
+  "honestNonClaims": ["no-child-agent-route"]
+}

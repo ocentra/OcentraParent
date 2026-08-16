@@ -1,8 +1,16 @@
 use std::path::{Path, PathBuf};
 
-use ocentra_parent_agent_protocol::{constants, BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_managed::{
+    BrowserUnmanagedDetectionConfidence, BrowserUnmanagedDetectionReason,
+    BrowserUnmanagedProcessKind,
+};
+use ocentra_parent_agent_protocol::constants;
 
-use crate::process_capture::ProcessObservation;
+use crate::{
+    browser_windows_inventory::windows_browser_executable_identity,
+    process_capture::ProcessObservation,
+};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct BrowserManagedExecutableIdentity {
@@ -15,8 +23,14 @@ pub struct BrowserManagedExecutableIdentity {
 pub struct BrowserUnmanagedProcessObservation {
     pub process_id: u32,
     pub process_name: String,
+    pub executable_path_ref: Option<String>,
+    pub signature_ref: Option<String>,
+    pub process_hash_ref: Option<String>,
     pub browser_family: BrowserFamily,
     pub browser_channel: BrowserChannel,
+    pub process_kind: BrowserUnmanagedProcessKind,
+    pub detection_confidence: BrowserUnmanagedDetectionConfidence,
+    pub detection_reason: BrowserUnmanagedDetectionReason,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -27,28 +41,19 @@ pub struct BrowserManagedInstallCandidate {
 }
 
 pub fn managed_browser_executable_identity(path: &Path) -> BrowserManagedExecutableIdentity {
-    let executable_name = executable_name_normalized(path);
-    let browser_channel = browser_channel_from_path(path);
-    match executable_name.as_str() {
-        constants::browser::EXECUTABLE_MSEDGE_WINDOWS
-        | constants::browser::EXECUTABLE_MSEDGE_LINUX
-        | constants::browser::EXECUTABLE_MICROSOFT_EDGE_LINUX => BrowserManagedExecutableIdentity {
-            browser_family: BrowserFamily::Edge,
-            browser_channel,
+    let identity = windows_browser_executable_identity(path);
+    if identity.supports_managed_cdp {
+        return BrowserManagedExecutableIdentity {
+            browser_family: identity.browser_family,
+            browser_channel: identity.browser_channel,
             supports_managed_cdp: true,
-        },
-        constants::browser::EXECUTABLE_CHROME_WINDOWS
-        | constants::browser::EXECUTABLE_CHROME_LINUX
-        | constants::browser::EXECUTABLE_GOOGLE_CHROME_LINUX => BrowserManagedExecutableIdentity {
-            browser_family: BrowserFamily::Chrome,
-            browser_channel,
-            supports_managed_cdp: true,
-        },
-        _ => BrowserManagedExecutableIdentity {
-            browser_family: BrowserFamily::Unknown,
-            browser_channel: BrowserChannel::Unknown,
-            supports_managed_cdp: false,
-        },
+        };
+    }
+
+    BrowserManagedExecutableIdentity {
+        browser_family: BrowserFamily::Unknown,
+        browser_channel: BrowserChannel::Unknown,
+        supports_managed_cdp: false,
     }
 }
 
@@ -94,62 +99,91 @@ fn unmanaged_browser_process(
     if managed_process_id == Some(observation.pid) {
         return None;
     }
-    let identity = managed_browser_executable_identity(Path::new(&observation.name));
-    if !identity.supports_managed_cdp {
-        return None;
-    }
+    let identity_path = observation
+        .executable_path
+        .as_deref()
+        .unwrap_or_else(|| Path::new(&observation.name));
+    let identity = windows_browser_executable_identity(identity_path);
+    let classification = unmanaged_process_classification(&identity, identity_path)?;
+    let executable_path_ref = observation
+        .executable_path
+        .as_ref()
+        .map(|_| constants::browser::INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED.to_string());
 
     Some(BrowserUnmanagedProcessObservation {
         process_id: observation.pid,
         process_name: observation.name.clone(),
+        executable_path_ref,
+        signature_ref: None,
+        process_hash_ref: None,
         browser_family: identity.browser_family,
         browser_channel: identity.browser_channel,
+        process_kind: classification.0,
+        detection_confidence: classification.1,
+        detection_reason: classification.2,
     })
 }
 
-fn executable_name_normalized(path: &Path) -> String {
-    normalized_component_names(path)
-        .last()
-        .cloned()
-        .unwrap_or_default()
+fn unmanaged_process_classification(
+    identity: &crate::browser_windows_inventory::BrowserWindowsExecutableIdentity,
+    identity_path: &Path,
+) -> Option<(
+    BrowserUnmanagedProcessKind,
+    BrowserUnmanagedDetectionConfidence,
+    BrowserUnmanagedDetectionReason,
+)> {
+    if identity.supports_managed_cdp {
+        return Some((
+            BrowserUnmanagedProcessKind::SupportedBrowser,
+            BrowserUnmanagedDetectionConfidence::High,
+            BrowserUnmanagedDetectionReason::SupportedBrowserOutsideManagedSession,
+        ));
+    }
+    let normalized_path = identity_path.to_string_lossy().to_ascii_lowercase();
+    if normalized_path.contains(constants::browser::PATH_SEGMENT_TOR_BROWSER_NORMALIZED) {
+        return Some((
+            BrowserUnmanagedProcessKind::TorPrivacyBrowser,
+            BrowserUnmanagedDetectionConfidence::High,
+            BrowserUnmanagedDetectionReason::TorPrivacyBrowserProcess,
+        ));
+    }
+    if normalized_path.contains(constants::browser::PATH_SEGMENT_PORTABLE_NORMALIZED) {
+        return Some((
+            BrowserUnmanagedProcessKind::PortableBrowser,
+            BrowserUnmanagedDetectionConfidence::Medium,
+            BrowserUnmanagedDetectionReason::PortableBrowserProcess,
+        ));
+    }
+    if normalized_path.contains(constants::browser::PATH_SEGMENT_WINDOWS_APPS_NORMALIZED) {
+        return Some((
+            BrowserUnmanagedProcessKind::PackagedBrowser,
+            BrowserUnmanagedDetectionConfidence::Medium,
+            BrowserUnmanagedDetectionReason::PackagedBrowserProcess,
+        ));
+    }
+    if identity.product_name != constants::browser::FAMILY_UNKNOWN {
+        return Some((
+            BrowserUnmanagedProcessKind::UnsupportedBrowser,
+            BrowserUnmanagedDetectionConfidence::Medium,
+            BrowserUnmanagedDetectionReason::UnsupportedBrowserProcess,
+        ));
+    }
+    if !browser_like_process_name(&normalized_path) {
+        return None;
+    }
+
+    Some((
+        BrowserUnmanagedProcessKind::UnknownBrowserLike,
+        BrowserUnmanagedDetectionConfidence::Low,
+        BrowserUnmanagedDetectionReason::BrowserLikeProcess,
+    ))
 }
 
-fn browser_channel_from_path(path: &Path) -> BrowserChannel {
-    let components = normalized_component_names(path);
-    if components
-        .iter()
-        .any(|name| name == constants::browser::PATH_SEGMENT_EDGE_BETA)
-        || components
-            .iter()
-            .any(|name| name == constants::browser::PATH_SEGMENT_CHROME_BETA)
-    {
-        return BrowserChannel::Beta;
-    }
-    if components
-        .iter()
-        .any(|name| name == constants::browser::PATH_SEGMENT_EDGE_DEV)
-        || components
-            .iter()
-            .any(|name| name == constants::browser::PATH_SEGMENT_CHROME_DEV)
-    {
-        return BrowserChannel::Dev;
-    }
-    if components
-        .iter()
-        .any(|name| name == constants::browser::PATH_SEGMENT_EDGE_SXS)
-        || components
-            .iter()
-            .any(|name| name == constants::browser::PATH_SEGMENT_CHROME_SXS)
-    {
-        return BrowserChannel::Canary;
-    }
-    BrowserChannel::Stable
-}
-
-fn normalized_component_names(path: &Path) -> Vec<String> {
-    path.to_string_lossy()
-        .split(['/', '\\'])
-        .filter(|component| !component.is_empty())
-        .map(str::to_ascii_lowercase)
-        .collect()
+fn browser_like_process_name(normalized_path: &str) -> bool {
+    normalized_path.contains(
+        constants::browser::PATH_SEGMENT_BROWSER
+            .to_ascii_lowercase()
+            .as_str(),
+    ) || normalized_path.contains(constants::browser::PATH_SEGMENT_CHROMIUM_NORMALIZED)
+        || normalized_path.contains(constants::browser::PATH_SEGMENT_WEBVIEW_NORMALIZED)
 }

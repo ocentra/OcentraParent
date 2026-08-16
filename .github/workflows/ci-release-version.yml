@@ -1,0 +1,23 @@
+name: CI Release Version
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  release-version:
+    name: 'Policy: Release Version'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Release version policy
+        run: npm run release:version

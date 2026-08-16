@@ -1,0 +1,95 @@
+export function optionsFromSourceTextGenerated(sourceText: string): BrowserControlFullCatalogOptionGenerated[] {
+  const explicit = explicitOptionLabelsGenerated(sourceText);
+  if (explicit.length > 0) {
+    return optionsGenerated(explicit);
+  }
+  return optionsGenerated(['Enabled', 'Disabled']);
+}
+
+export function selectionModeForGenerated(
+  sourceText: string,
+  settingOptions: readonly BrowserControlFullCatalogOptionGenerated[]
+): 'single' | 'multi' {
+  if (settingOptions.length <= 2 && settingOptions[0]?.value === 'enabled') {
+    return 'single';
+  }
+  const prefix = sourceText.split(':')[0]?.toLowerCase() ?? sourceText.toLowerCase();
+  return /targets|actions|approvals|reports|proof|custody|audit|budgets|choose covered browsers/u.test(prefix)
+    ? 'multi'
+    : 'single';
+}
+
+export function cardKindForGenerated(
+  selectionMode: 'single' | 'multi',
+  settingOptions: readonly BrowserControlFullCatalogOptionGenerated[]
+): (typeof GeneratedBrowserControlFullCatalogCardKindValues)[number] {
+  if (settingOptions.length <= 2 && settingOptions[0]?.value === 'enabled') {
+    return 'toggle';
+  }
+  if (selectionMode === 'multi') {
+    return settingOptions.length > 4 ? 'multi-choice-many' : 'multi-choice-normal';
+  }
+  return settingOptions.length > 4 ? 'single-choice-many' : 'single-choice-compact';
+}
+
+export function controlKindForGenerated(
+  sourceText: string,
+  selectionMode: 'single' | 'multi',
+  settingOptions: readonly BrowserControlFullCatalogOptionGenerated[]
+): (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number] {
+  const prefix = sourceText.split(':')[0]?.toLowerCase() ?? sourceText.toLowerCase();
+  const matchedRule = BrowserControlFullCatalogControlKindRulesGenerated.find((ruleCandidate) =>
+    ruleCandidate.pattern.test(prefix)
+  );
+  if (
+    matchedRule !== undefined &&
+    (matchedRule.resolve(sourceText) !== 'read-only-status' || settingOptions.length <= 2)
+  ) {
+    return matchedRule.resolve(sourceText);
+  }
+  if (settingOptions.length <= 2 && settingOptions[0]?.value === 'enabled') {
+    return 'toggle';
+  }
+  return selectionMode === 'multi' ? 'multi-choice' : 'single-choice';
+}
+
+export function layoutHintsForGenerated(
+  selectionMode: 'single' | 'multi',
+  settingOptions: readonly BrowserControlFullCatalogOptionGenerated[]
+) {
+  const manyOptions = settingOptions.length > 4;
+  return {
+    preferredColumnSpan: manyOptions ? 2 : 1,
+    collapsible: manyOptions || selectionMode === 'multi',
+    searchableOptions: manyOptions,
+    optionGroupCount: manyOptions ? Math.ceil(settingOptions.length / 4) : 1,
+    showAsMatrixWhenLarge: manyOptions && selectionMode === 'multi',
+    showSelectedCount: selectionMode === 'multi',
+  };
+}
+
+export function questionFromSourceTextGenerated(sourceText: string): string {
+  const trimmed = sourceText.replace(/\.$/u, '');
+  const colonIndex = trimmed.indexOf(':');
+  if (colonIndex !== -1) {
+    return `Choose ${lowerFirstGenerated(trimmed.slice(0, colonIndex))}.`;
+  }
+  if (
+    /^(enable|disable|allow|require|scan|detect|notify|ask|auto-classify|re-scan|show|hide|keep|redact|collect)/iu.test(
+      trimmed
+    )
+  ) {
+    return `${trimmed}?`;
+  }
+  return `Use ${lowerFirstGenerated(trimmed)}?`;
+}
+
+export function helperTextForGenerated(sectionTitle: string, sourceText: string): string {
+  if (proofRequirementForGenerated(sectionTitle, sourceText) !== null) {
+    return 'Exact browser evidence must stay proof-gated; Portal renders intent while runtime proves capability.';
+  }
+  if (effectStatusForSectionGenerated(sectionTitle, sourceText) !== 'needs-effect-wiring') {
+    return 'Render this with its capability state and fallback rather than claiming unsupported enforcement.';
+  }
+  return 'Portal renders authored intent; child runtime owns persistence, compile, evaluation, and audit.';
+}

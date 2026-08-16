@@ -1,0 +1,134 @@
+/* generated from crates/screen-ai-core/src/screen_ai_enforcement_handoff_guard.rs */
+
+type PolicyAction = 'time-limit' | 'block' | 'warn';
+
+type EvidenceReferenceKind =
+  | 'query-store-summary'
+  | 'local-ai-result'
+  | 'journal-event'
+  | 'activity-event'
+  | 'policy-decision';
+
+type ParentEvidenceReference = {
+  readonly evidenceReferenceId: string;
+  readonly kind: EvidenceReferenceKind;
+  readonly observedAt: string;
+};
+
+type PolicyTargetType = 'category' | 'app' | 'url';
+
+type PolicyTarget = {
+  readonly targetId: string;
+  readonly targetType: PolicyTargetType;
+  readonly targetValue: string;
+};
+
+type PolicyRuleActor = {
+  readonly actorId: string;
+  readonly role: string;
+};
+
+type PolicyRule = {
+  readonly ruleId: string;
+  readonly target: PolicyTarget;
+  readonly action: PolicyAction;
+  readonly scheduleId: string | null;
+  readonly priority: number;
+  readonly reasonCode: string;
+  readonly createdBy: PolicyRuleActor;
+  readonly enabled: boolean;
+  readonly effectiveFrom: string | null;
+  readonly effectiveUntil: string | null;
+};
+
+type EnforcementHandoffState = 'disabled' | 'handed-off' | 'manual-required';
+type ScreenAiEnforcementHandoffConfidenceState = 'high' | 'medium' | 'low' | 'unknown';
+type ScreenAiEnforcementHandoffMode = 'dry-run' | 'manual-required';
+
+type PolicyDecision = {
+  readonly schemaVersion: string;
+  readonly decisionId: string;
+  readonly action: PolicyAction;
+  readonly reasonCodes: readonly string[];
+  readonly evidenceReferences: readonly ParentEvidenceReference[];
+  readonly ruleIds: readonly string[];
+  readonly localAiResultId: string | null;
+  readonly dryRun: boolean;
+  readonly enforcementHandoffState: EnforcementHandoffState;
+  readonly expiresAt: string | null;
+};
+
+type ScreenAiEnforcementHandoffAuditEvent = {
+  readonly auditEventId: string;
+  readonly eventType: 'screen.enforcement.handoff.guard.accepted';
+  readonly emittedAt: string;
+  readonly evidenceReference: ParentEvidenceReference;
+};
+
+type ScreenAiEnforcementHandoffInputMaterial = {
+  readonly summaryReference: ParentEvidenceReference;
+  readonly localAiResultReference: ParentEvidenceReference;
+  readonly auditReference: ParentEvidenceReference;
+  readonly rawPixelsIncluded: false;
+  readonly rawModelTextIncluded: false;
+  readonly rawScreenshotRetained: false;
+  readonly localAiAuthorityClaimed: false;
+};
+
+export type ScreenAiEnforcementHandoffGuardInput = {
+  readonly schemaVersion: string;
+  readonly payloadId: string;
+  readonly generatedAt: string;
+  readonly sourcePolicyDecision: PolicyDecision;
+  readonly parentPolicyRule: PolicyRule;
+  readonly requestedAction: PolicyAction;
+  readonly confidenceState: ScreenAiEnforcementHandoffConfidenceState;
+  readonly handoffMode: ScreenAiEnforcementHandoffMode;
+  readonly inputMaterial: ScreenAiEnforcementHandoffInputMaterial;
+  readonly auditEvent: ScreenAiEnforcementHandoffAuditEvent;
+  readonly claimBoundary: string;
+};
+
+export type ScreenAiEnforcementHandoffGuardPayload = {
+  readonly schemaVersion: string;
+  readonly payloadId: string;
+  readonly generatedAt: string;
+  readonly sourcePolicyDecision: PolicyDecision;
+  readonly parentPolicyRule: PolicyRule;
+  readonly requestedAction: PolicyAction;
+  readonly confidenceState: ScreenAiEnforcementHandoffConfidenceState;
+  readonly handoffMode: ScreenAiEnforcementHandoffMode;
+  readonly summaryReference: ParentEvidenceReference;
+  readonly localAiResultReference: ParentEvidenceReference;
+  readonly auditReference: ParentEvidenceReference;
+  readonly auditEvent: ScreenAiEnforcementHandoffAuditEvent;
+  readonly rawPixelsIncluded: false;
+  readonly rawModelTextIncluded: false;
+  readonly rawScreenshotRetained: false;
+  readonly localAiAuthorityClaimed: false;
+  readonly claimBoundary: string;
+};
+
+export function buildScreenAiEnforcementHandoffGuardPayloadGenerated(
+  input: ScreenAiEnforcementHandoffGuardInput
+): ScreenAiEnforcementHandoffGuardPayload {
+  return {
+    schemaVersion: input.schemaVersion,
+    payloadId: input.payloadId,
+    generatedAt: input.generatedAt,
+    sourcePolicyDecision: input.sourcePolicyDecision,
+    parentPolicyRule: input.parentPolicyRule,
+    requestedAction: input.requestedAction,
+    confidenceState: input.confidenceState,
+    handoffMode: input.handoffMode,
+    summaryReference: input.inputMaterial.summaryReference,
+    localAiResultReference: input.inputMaterial.localAiResultReference,
+    auditReference: input.inputMaterial.auditReference,
+    auditEvent: input.auditEvent,
+    rawPixelsIncluded: false,
+    rawModelTextIncluded: false,
+    rawScreenshotRetained: false,
+    localAiAuthorityClaimed: false,
+    claimBoundary: input.claimBoundary,
+  };
+}

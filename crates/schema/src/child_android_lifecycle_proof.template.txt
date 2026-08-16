@@ -1,0 +1,3 @@
+/* Ownership marker only.
+   Generated child Android lifecycle proof TypeScript is assembled in
+   child_android_proof_contracts_ts.rs from the child_android_lifecycle_proof.*.template.txt fragments. */

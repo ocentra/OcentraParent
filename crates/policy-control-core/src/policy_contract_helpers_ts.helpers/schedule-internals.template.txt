@@ -1,0 +1,161 @@
+function validateGeneratedPolicyScheduleTimeBudget(timeBudget: GeneratedPolicyScheduleTimeBudgetLike): void {
+  assertGeneratedPositiveNumber(timeBudget.budgetWindowMinutes, 'timeBudget.budgetWindowMinutes');
+  assertGeneratedNonNegativeNumber(timeBudget.gracePeriodMinutes, 'timeBudget.gracePeriodMinutes');
+  parseGeneratedLocalTimeMinutes(timeBudget.reset.localTime, 'timeBudget.reset.localTime');
+
+  const effectiveFrom = parseGeneratedTimestampMillis(timeBudget.effectiveFrom, 'timeBudget.effectiveFrom');
+  if (timeBudget.effectiveUntil !== null) {
+    const effectiveUntil = parseGeneratedTimestampMillis(timeBudget.effectiveUntil, 'timeBudget.effectiveUntil');
+    assertGeneratedPolicyContract(
+      effectiveUntil > effectiveFrom,
+      'timeBudget.effectiveUntil must be after timeBudget.effectiveFrom'
+    );
+  }
+
+  if (timeBudget.reset.kind === 'weekly') {
+    assertGeneratedPolicyContract(timeBudget.reset.day !== null, 'weekly reset rules require timeBudget.reset.day');
+  } else {
+    assertGeneratedPolicyContract(timeBudget.reset.day === null, 'non-weekly reset rules cannot set timeBudget.reset.day');
+  }
+
+  switch (timeBudget.carryover.mode) {
+    case 'discard-unused':
+      assertGeneratedPolicyContract(
+        timeBudget.carryover.maxMinutes === null,
+        'discard-unused carryover cannot set timeBudget.carryover.maxMinutes'
+      );
+      return;
+    case 'carry-forward':
+      if (timeBudget.carryover.maxMinutes !== null) {
+        assertGeneratedPositiveNumber(timeBudget.carryover.maxMinutes, 'timeBudget.carryover.maxMinutes');
+      }
+      return;
+    case 'cap-carryover':
+      assertGeneratedPolicyContract(
+        timeBudget.carryover.maxMinutes !== null,
+        'cap-carryover requires timeBudget.carryover.maxMinutes'
+      );
+      assertGeneratedPositiveNumber(timeBudget.carryover.maxMinutes ?? 0, 'timeBudget.carryover.maxMinutes');
+      return;
+  }
+}
+
+function validateGeneratedPolicyScheduleTimeBudgetStatus(
+  timeBudget: GeneratedPolicyScheduleTimeBudgetStatusLike,
+  evaluatedAt: number
+): void {
+  assertGeneratedPositiveNumber(timeBudget.budgetWindowMinutes, 'timeBudget.budgetWindowMinutes');
+  assertGeneratedNonNegativeNumber(timeBudget.usedMinutes, 'timeBudget.usedMinutes');
+  assertGeneratedNonNegativeNumber(timeBudget.remainingMinutes, 'timeBudget.remainingMinutes');
+  assertGeneratedNonNegativeNumber(timeBudget.carryoverMinutes, 'timeBudget.carryoverMinutes');
+  assertGeneratedNonNegativeNumber(timeBudget.gracePeriodMinutes, 'timeBudget.gracePeriodMinutes');
+
+  const resetAt = parseGeneratedTimestampMillis(timeBudget.resetAt, 'timeBudget.resetAt');
+  assertGeneratedPolicyContract(resetAt > evaluatedAt, 'timeBudget.resetAt must be after evaluatedAt');
+
+  switch (timeBudget.offlineRecovery.state) {
+    case 'not-needed':
+      assertGeneratedPolicyContract(
+        timeBudget.offlineRecovery.recoveredAt === null,
+        'offline recovery state not-needed cannot include recoveredAt'
+      );
+      assertGeneratedPolicyContract(
+        timeBudget.offlineRecovery.recoveredOfflineMinutes === 0,
+        'offline recovery state not-needed cannot recover offline minutes'
+      );
+      break;
+    case 'recovered-from-device':
+    case 'recomputed-from-journal':
+      assertGeneratedPolicyContract(
+        timeBudget.offlineRecovery.recoveredAt !== null,
+        'recovered offline timer states require recoveredAt'
+      );
+      parseGeneratedTimestampMillis(timeBudget.offlineRecovery.recoveredAt ?? '', 'offlineRecovery.recoveredAt');
+      break;
+    case 'manual-required':
+      if (timeBudget.offlineRecovery.recoveredAt !== null) {
+        parseGeneratedTimestampMillis(timeBudget.offlineRecovery.recoveredAt, 'offlineRecovery.recoveredAt');
+      }
+      break;
+  }
+
+  assertGeneratedNonNegativeNumber(
+    timeBudget.offlineRecovery.recoveredOfflineMinutes,
+    'offlineRecovery.recoveredOfflineMinutes'
+  );
+
+  if (timeBudget.bonusTimeMinutes === null) {
+    assertGeneratedPolicyContract(
+      timeBudget.bonusTimeRemainingMinutes === null,
+      'timeBudget.bonusTimeRemainingMinutes requires bonusTimeMinutes'
+    );
+    assertGeneratedPolicyContract(
+      timeBudget.bonusTimeExpiresAt === null,
+      'timeBudget.bonusTimeExpiresAt requires bonusTimeMinutes'
+    );
+    return;
+  }
+
+  assertGeneratedPositiveNumber(timeBudget.bonusTimeMinutes, 'timeBudget.bonusTimeMinutes');
+  assertGeneratedPolicyContract(
+    timeBudget.bonusTimeRemainingMinutes !== null,
+    'timeBudget.bonusTimeRemainingMinutes is required when bonusTimeMinutes are active'
+  );
+  assertGeneratedNonNegativeNumber(timeBudget.bonusTimeRemainingMinutes ?? 0, 'timeBudget.bonusTimeRemainingMinutes');
+  assertGeneratedPolicyContract(
+    (timeBudget.bonusTimeRemainingMinutes ?? 0) <= timeBudget.bonusTimeMinutes,
+    'timeBudget.bonusTimeRemainingMinutes cannot exceed timeBudget.bonusTimeMinutes'
+  );
+  assertGeneratedPolicyContract(
+    timeBudget.bonusTimeExpiresAt !== null,
+    'timeBudget.bonusTimeExpiresAt is required when bonusTimeMinutes are active'
+  );
+  assertGeneratedPolicyContract(
+    parseGeneratedTimestampMillis(timeBudget.bonusTimeExpiresAt ?? '', 'timeBudget.bonusTimeExpiresAt') > evaluatedAt,
+    'timeBudget.bonusTimeExpiresAt must be after evaluatedAt while bonus time is active'
+  );
+}
+
+function validateGeneratedPolicyScheduleBoundaryOptionalSections(
+  boundary: GeneratedPolicyScheduleBoundaryLike,
+  evaluatedAt: number
+): void {
+  if (boundary.dstBoundary !== null) {
+    parseGeneratedLocalTimeMinutes(boundary.dstBoundary.localTime, 'dstBoundary.localTime');
+    assertGeneratedPolicyContract(
+      Number.isInteger(boundary.dstBoundary.offsetBeforeMinutes),
+      'dstBoundary.offsetBeforeMinutes must be an integer minute offset'
+    );
+    assertGeneratedPolicyContract(
+      Number.isInteger(boundary.dstBoundary.offsetAfterMinutes),
+      'dstBoundary.offsetAfterMinutes must be an integer minute offset'
+    );
+  }
+
+  if (boundary.clockSkew !== null) {
+    parseGeneratedTimestampMillis(boundary.clockSkew.observedAt, 'clockSkew.observedAt');
+    assertGeneratedNonNegativeNumber(boundary.clockSkew.allowedSkewMinutes, 'clockSkew.allowedSkewMinutes');
+    assertGeneratedPolicyContract(
+      Number.isFinite(boundary.clockSkew.observedSkewMinutes),
+      'clockSkew.observedSkewMinutes must be a finite number'
+    );
+  }
+
+  if (boundary.exception !== null) {
+    const startsAt = parseGeneratedTimestampMillis(boundary.exception.startsAt, 'exception.startsAt');
+    const expiresAt = parseGeneratedTimestampMillis(boundary.exception.expiresAt, 'exception.expiresAt');
+    assertGeneratedPolicyContract(expiresAt > startsAt, 'schedule exceptions must expire after they start');
+  }
+
+  if (boundary.expiry !== null) {
+    const expiresAt = parseGeneratedTimestampMillis(boundary.expiry.expiresAt, 'expiry.expiresAt');
+    const expiredAt = parseGeneratedTimestampMillis(boundary.expiry.expiredAt, 'expiry.expiredAt');
+    assertGeneratedPolicyContract(expiredAt >= expiresAt, 'expiry.expiredAt must be on or after expiry.expiresAt');
+    if (boundary.state !== 'expired') {
+      assertGeneratedPolicyContract(
+        evaluatedAt < expiresAt,
+        'non-expired schedule boundaries cannot be evaluated after expiry'
+      );
+    }
+  }
+}

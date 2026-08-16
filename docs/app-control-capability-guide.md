@@ -13,6 +13,11 @@ boundaries and let the parent choose the household rule posture. The important
 engineering rule is that the UI must not imply exact app knowledge or app control
 that the child-device agent cannot prove through the selected platform adapter.
 
+Native app implementation planning lives in
+[Native Apps Plan](plans/app-plan/README.md). That folder turns this capability
+guide into workpacks, proof gates, UI requirements, and platform authority-tier
+checklists without moving this guide out of its source location.
+
 Browser-specific URL, tab, download, and web-domain controls are covered by the
 browser capability guide. Game-specific title, launcher, and game-session
 details are covered by app/game evidence sessions and should later be refined in

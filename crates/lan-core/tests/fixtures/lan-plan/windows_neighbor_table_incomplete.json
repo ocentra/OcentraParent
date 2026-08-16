@@ -1,0 +1,13 @@
+[
+  {
+    "IPAddress": "192.168.2.50",
+    "LinkLayerAddress": "(incomplete)",
+    "State": "stale",
+    "InterfaceAlias": "Ethernet"
+  },
+  {
+    "IPAddress": "192.168.2.51",
+    "State": "reachable",
+    "InterfaceAlias": "Ethernet"
+  }
+]

@@ -1,0 +1,160 @@
+    idempotencyKey: EnforcementIdempotencyKeySchema,
+  })
+);
+
+export const EnforcementActionSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    actionId: EnforcementActionIdSchema,
+    intentId: EnforcementIntentIdSchema,
+    policyDecisionId: PolicyDecisionIdSchema,
+    policyAction: PolicyActionSchema,
+    adapterKind: EnforcementAdapterKindSchema,
+    platform: ParentPlatformSchema,
+    target: PolicyTargetSchema,
+    mode: EnforcementModeSchema,
+    capability: EnforcementCapabilityStatusSchema,
+    reasonCodes: Schema.Array(PolicyReasonCodeSchema),
+    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+    localAiResultId: Schema.Union(LocalAiResultReferenceIdSchema, Schema.Null),
+    parentApproval: Schema.Union(ParentActionReferenceSchema, Schema.Null),
+    dryRun: Schema.Boolean,
+    requestedAt: ParentTimestampSchema,
+    expiresAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+    rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
+  })
+);
+
+const EnforcementResultBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  resultId: EnforcementResultIdSchema,
+  actionId: EnforcementActionIdSchema,
+  status: EnforcementResultStatusSchema,
+  adapterResultCode: EnforcementAdapterResultCodeSchema,
+  startedAt: ParentTimestampSchema,
+  completedAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
+  rollbackState: EnforcementRollbackStateSchema,
+  unavailableReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
+  unavailableStatus: Schema.Union(EnforcementUnavailableStatusSchema, Schema.Null),
+  failedReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
+  nextCheckAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  capability: EnforcementCapabilityStatusSchema,
+});
+
+export const EnforcementResultSchema = withParser(
+  EnforcementResultBaseSchema.pipe(
+    Schema.filter(
+      (result) =>
+        enforcementUnavailableStatusIsConsistent(result) ||
+        'Expected unavailable enforcement results to include typed unavailable status'
+    )
+  )
+);
+
+const EnforcementAuditEventBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  auditEventId: EnforcementAuditEventIdSchema,
+  auditEventKind: EnforcementAuditEventKindSchema,
+  action: EnforcementActionSchema,
+  result: EnforcementResultSchema,
+  capability: EnforcementCapabilityStatusSchema,
+  unavailableStatus: Schema.Union(EnforcementUnavailableStatusSchema, Schema.Null),
+  policyVersion: ParentPolicyVersionSchema,
+  evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  actor: Schema.Union(ParentActorReferenceSchema, Schema.Null),
+  parentOverride: Schema.Union(ParentActionReferenceSchema, Schema.Null),
+  journalSequence: Schema.Union(EnforcementJournalSequenceSchema, Schema.Null),
+  observedAt: ParentTimestampSchema,
+});
+
+export const EnforcementAuditEventSchema = withParser(
+  EnforcementAuditEventBaseSchema.pipe(
+    Schema.filter(
+      (auditEvent) =>
+        enforcementAuditEventBoundaryIsConsistent(auditEvent) ||
+        'Expected enforcement audit events to mirror result capability and unavailable status'
+    )
+  )
+);
+
+const EnforcementTimerEventBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  timerEventId: EnforcementTimerEventIdSchema,
+  timerEventKind: EnforcementTimerEventKindSchema,
+  actionId: EnforcementActionIdSchema,
+  policyDecisionId: PolicyDecisionIdSchema,
+  evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+  scheduledAt: ParentTimestampSchema,
+  effectiveAt: Schema.Union(ParentTimestampSchema, Schema.Null),
+  rollbackToken: Schema.Union(EnforcementRollbackTokenSchema, Schema.Null),
+  recoveredAfterRestart: Schema.Boolean,
+  unavailableReason: Schema.Union(EnforcementUnavailableReasonSchema, Schema.Null),
+});
+
+export const EnforcementTimerEventSchema = withParser(
+  EnforcementTimerEventBaseSchema.pipe(
+    Schema.filter(
+      (timerEvent) =>
+        enforcementTimerUnavailableReasonIsConsistent(timerEvent) ||
+        'Expected unavailable and recovery-needed enforcement timer events to include typed unavailable reason'
+    )
+  )
+);
+
+const EnforcementActiveTimerStateBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  stateId: EnforcementTimerStateIdSchema,
+  action: EnforcementActionSchema,
+  result: EnforcementResultSchema,
+  auditEvent: EnforcementAuditEventSchema,
+  timerEvent: EnforcementTimerEventSchema,
+  storedAt: ParentTimestampSchema,
+});
+
+export const EnforcementActiveTimerStateSchema = withParser(
+  EnforcementActiveTimerStateBaseSchema.pipe(
+    Schema.filter(
+      (state) =>
+        enforcementActiveTimerStateIsConsistent(state) ||
+        'Expected active enforcement timer state to preserve action/result/audit/timer identity'
+    )
+  )
+);
+
+export type EnforcementCapabilityStatus = Infer<typeof EnforcementCapabilityStatusSchema>;
+export type EnforcementUnavailableStatus = Infer<typeof EnforcementUnavailableStatusSchema>;
+export type EnforcementIntent = Infer<typeof EnforcementIntentSchema>;
+export type EnforcementAction = Infer<typeof EnforcementActionSchema>;
+export type EnforcementResult = Infer<typeof EnforcementResultSchema>;
+export type EnforcementAuditEvent = Infer<typeof EnforcementAuditEventSchema>;
+export type EnforcementTimerEvent = Infer<typeof EnforcementTimerEventSchema>;
+export type EnforcementActiveTimerState = Infer<typeof EnforcementActiveTimerStateSchema>;
+
+export function enforcementCapabilityStatusReasonIsConsistent(
+  capability: GeneratedEnforcementCapabilityStatusLike
+): boolean {
+  if (
+    capability.capabilityState === 'unavailable' ||
+    capability.capabilityState === 'degraded' ||
+    capability.capabilityState === 'manual-required'
+  ) {
+    return capability.degradedReason !== null;
+  }
+
+  return true;
+}
+
+export function enforcementUnavailableStatusIsConsistent(result: GeneratedEnforcementResultLike): boolean {
+  if (result.status === 'unavailable') {
+    return result.unavailableStatus !== null;
+  }
+
+  return result.unavailableStatus === null;
+}
+
+export function enforcementCapabilityStatusesMatch(
+  left: GeneratedEnforcementCapabilityStatusLike,
+  right: GeneratedEnforcementCapabilityStatusLike
+): boolean {
+  return (

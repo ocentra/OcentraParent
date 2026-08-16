@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Platform Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Platform Expectations
 
 Platform claims must match real OS capabilities. Scaffolded support is not the same as product support.
@@ -43,6 +56,121 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Windows cloud relay, sync/export, and notifications must preserve local-first
   operation when remote services or providers fail, and must not require
   Ocentra-hosted storage of child activity data.
+- Windows app-install package-source capture status rows may classify local
+  package-source proof refs as captured, but provider/store integration and
+  platform adapter execution remain separate proof gates.
+- Windows app-install product-claim platform limitation fallback rows may expose
+  a parent-visible fallback workflow only; they do not prove Microsoft Store
+  integration, provider execution, platform interception, child delivery, app
+  blocking, or product-claim approval.
+- Windows app-install provider/store API execution proof rows may be
+  execution-ready only as a parent-domain evidence boundary that joins
+  provider/store product-claim proof with platform limitation fallback proof;
+  they do not prove Microsoft Store execution, provider credentials, billing
+  provider contact, store integration, platform interception, child delivery,
+  app blocking, or product-claim approval.
+- Windows app-install platform adapter evidence gap proof may be
+  adapter-evidence-gap only when provider/store API execution proof and
+  platform proof-readiness refs are attached; it does not prove real Windows
+  adapter evidence, Microsoft Store execution, provider credentials, child
+  delivery, app blocking, or product-claim approval.
+- Windows app-install external runtime device delivery evidence proof may link
+  parent-owned writer envelope, delivery result receipt, and child delivery
+  envelope refs only; it does not prove external writer execution/delivery,
+  Microsoft Store execution, provider credentials, platform adapter execution,
+  child-device delivery, app blocking, or product-claim approval.
+- Windows app-install external runtime delivery handoff proof may record
+  parent-owned handoff packet and queue refs only; it does not prove external
+  writer execution/delivery, Microsoft Store execution, provider credentials,
+  platform adapter execution, child-device delivery, app blocking, or
+  product-claim approval.
+- Windows app-install external runtime writer readiness proof may classify
+  parent-owned writer envelopes, delivery result receipts, target refs, audit
+  refs, and report refs as handoff-ready only; it does not prove external
+  writer execution/delivery, Microsoft Store execution, provider credentials,
+  platform adapter execution, child-device delivery, app blocking, or
+  product-claim approval.
+- Windows app-install external runtime writer transport preflight proof may
+  classify parent-owned transport and queue refs as ready for follow-up proof
+  only; it does not prove external writer execution/delivery, Microsoft Store
+  execution, provider credentials, platform adapter execution, child-device
+  delivery, app blocking, or product-claim approval.
+- Windows app-install external runtime writer delivery boundary proof may record
+  required external writer transport, platform adapter, provider/store, and
+  child-device delivery proof refs only; it does not prove external writer
+  execution/delivery, Microsoft Store execution, provider credentials, platform
+  adapter execution, child-device delivery, app blocking, or product-claim
+  approval.
+- Windows app-install external runtime writer delivery blocker proof may record
+  blocked-runtime-prerequisites-missing/manual-required rows for missing
+  external writer transport, platform adapter execution, provider/store
+  execution, and child-device transport. It still does not prove external
+  writer execution/delivery, Microsoft Store execution, provider credentials,
+  platform adapter execution, child-device delivery, app blocking, or
+  product-claim approval.
+- Windows app-install external runtime transport queue proof may classify
+  parent-owned queue and dispatch guard rows for follow-up runtime delivery
+  work only. It still does not prove external writer execution/delivery,
+  Microsoft Store execution, provider credentials, platform adapter execution,
+  child-device delivery, app blocking, or product-claim approval.
+- Windows app-install external runtime transport dispatch preflight proof may
+  classify parent-owned withheld dispatch packets for follow-up runtime delivery
+  work only. It still does not prove external writer execution/delivery,
+  Microsoft Store execution, provider credentials, platform adapter execution,
+  child-device delivery, app blocking, or product-claim approval.
+- Windows app-install runtime delivery receipt boundary proof may classify
+  receipt-blocked or manual-required rows from withheld dispatch packets for
+  follow-up runtime delivery work only. It still does not prove external writer
+  execution/delivery, Microsoft Store execution, provider credentials, platform
+  adapter execution, child-device transport receipt execution, child-device
+  delivery, app blocking, or product-claim approval.
+- Windows app-install runtime transport delivery execution proof may classify
+  parent-owned transport execution attempt, delivery result receipt, and
+  child-device receipt handoff refs as withheld/manual follow-up rows only. It
+  still does not prove external writer execution/delivery, Microsoft Store
+  execution, provider credentials, platform adapter execution, child-device
+  transport receipt execution, child-device delivery, app blocking, or
+  product-claim approval.
+- Windows app-install external runtime writer transport execution proof may
+  classify parent-owned external writer transport packets, execution-status
+  refs, and ack refs as blocked/manual follow-up rows only. It still does not
+  prove external writer execution/delivery, Microsoft Store execution, provider
+  credentials, platform adapter execution, child-device transport receipt
+  execution, child-device delivery, app blocking, or product-claim approval.
+- Windows app-install execution receipt gate proof may classify external writer
+  dispatch executor, provider/store execution, platform adapter execution, and
+  child-device transport receipt families as missing/manual follow-up rows
+  only. It still does not prove external writer execution/delivery, Microsoft
+  Store execution, provider credentials, production platform adapter execution,
+  child-device transport receipt execution, child-device delivery, app
+  blocking, or product-claim approval.
+- Windows app-install dispatch executor receipt proof may classify parent-owned
+  external writer dispatch executor handler, receipt artifact, and audit
+  artifact requirements as blocked/manual follow-up rows only. It still does
+  not prove external writer execution/delivery, Microsoft Store execution,
+  provider credentials, production platform adapter execution, child-device
+  transport receipt execution, child-device delivery, app blocking, or
+  product-claim approval.
+- Windows app-install package-source adapter evidence proof may attach
+  sanitized local host command evidence, such as `Get-AppxPackage`
+  availability and Microsoft Store package-source probe metadata, to move the
+  Windows row out of pure adapter-evidence-gap. It still does not prove
+  Microsoft Store execution, provider credentials, store integration, platform
+  interception, production adapter implementation, child delivery, app
+  blocking, or product-claim approval.
+- Windows app-install package-source runtime handoff proof may project that
+  sanitized command/probe status and package-source evidence refs into a typed
+  parent-domain read model. It still does not prove runtime writer execution or
+  delivery, Microsoft Store execution, provider credentials, store integration,
+  production adapter implementation, child-device delivery, app blocking, or
+  product-claim approval.
+- Windows app-install provider/store platform evidence proof may combine
+  provider/store execution preflight rows with package-source runtime handoff
+  rows to name missing Microsoft Store credential, provider response, production
+  platform adapter, platform policy, and child-device delivery receipt artifacts.
+  It still does not prove provider/store execution, store integration,
+  production adapter execution, runtime writer delivery, child-device delivery,
+  app blocking, or product-claim approval.
 - Validation needs real Windows adapter tests or guarded integration/manual evidence for each claimed OS capability, plus contract tests for every event shape crossing TypeScript and Rust.
 
 ## macOS
@@ -51,6 +179,15 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Capture/enforcement claims require real permission/API proof.
 - Do not assume Windows service behavior maps to launchd behavior without tests.
 - Network/domain observation claims require approved macOS APIs, permission behavior, installer behavior, and user-visible consent or management requirements to be documented.
+- macOS app-install package-source capture remains manual-required until host,
+  signing, receipt, and store-source proof is attached behind a platform
+  boundary.
+- macOS app-install provider/store API execution proof must remain
+  manual-required until Mac App Store credential, entitlement, provider contact,
+  and platform adapter evidence are attached.
+- macOS app-install platform adapter evidence gap proof must remain
+  manual-adapter-evidence-required until signing, receipt, entitlement, Mac App
+  Store, and adapter evidence are attached behind a platform boundary.
 - Do not claim process/window, network, enforcement, or background notification parity from the package scaffold alone.
 
 ## Linux
@@ -60,6 +197,14 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Service-manager package behavior must be tested separately.
 - Network/domain observation support must name the tested distro/service-manager assumptions and kernel or desktop APIs used.
 - CI package install proof is not enough to claim child-device monitoring support.
+- Linux app-install package-source capture must stay unavailable until a tested
+  distro/package-manager source path and limitation proof exists.
+- Linux app-install provider/store API execution proof must stay unavailable
+  until a tested distro/package-manager source path and provider/store evidence
+  exists.
+- Linux app-install platform adapter evidence gap proof must stay
+  platform-unavailable until a tested distro/package-manager source path and
+  platform adapter evidence exist.
 
 ## Android
 
@@ -69,6 +214,14 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Foreground service, notification permission, accessibility, VPN, DNS, device-owner, or managed-profile behavior must be named separately; one capability does not imply the others.
 - Network/domain visibility, enforcement, sync, and notifications must match Play policy and OS permission limits.
 - Parent-device Android app support and child-device Android agent support are separate claims.
+- Android app-install package-source capture is blocked until device-owner or
+  managed-profile proof exists; generic parent-device app support is not enough.
+- Android app-install provider/store API execution proof must stay
+  blocked-before-claim until device-owner or managed-profile proof plus Google
+  Play policy/API evidence and child-device delivery proof exist.
+- Android app-install platform adapter evidence gap proof must stay
+  blocked-before-claim until device-owner or managed-profile adapter proof,
+  Google Play policy/API evidence, and child-device delivery proof exist.
 
 ## iOS
 
@@ -78,6 +231,15 @@ behavior belongs behind platform adapters and must be proved per platform.
 - Family Controls, Screen Time APIs, Network Extension, notifications, and background execution require separate entitlement and review proof before product claims.
 - Parent-device iOS app support and child-device iOS agent support are separate claims.
 - If a capability cannot be implemented under approved APIs, document the limitation instead of implying parity.
+- iOS app-install package-source capture is blocked until Apple entitlement and
+  review proof exists; limitation rows should be explicit when APIs do not allow
+  parity.
+- iOS app-install provider/store API execution proof must stay
+  blocked-before-claim until Apple entitlement/review proof plus approved
+  App Store or Family Controls evidence and child-device delivery proof exist.
+- iOS app-install platform adapter evidence gap proof must stay
+  blocked-before-claim until Family Controls entitlement adapter proof, Apple
+  review evidence, App Store evidence, and child-device delivery proof exist.
 
 ## Web
 

@@ -1,13 +1,13 @@
-import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
 import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDetailValue,
-} from '@ocentra-parent/portal-domain/contracts';
-import { appendDetail } from './detail-list';
+  ParentAgentProtocolField,
+  decodeParentPortalDetailValue,
+  type ParentRouteEventSnapshot,
+  type ParentPortalDetailValue,
+} from '../generated/parent-ui-bridge';
+import { appendDetail, notReportedDetail, portalDetailFromValue as detailFromValue } from './detail-list';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function renderBrowserManagedStatus(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
@@ -15,7 +15,7 @@ export function renderBrowserManagedStatus(container: HTMLElement, liveActivity:
   panel.className = PortalDom.Classes.Summary;
 
   const title = document.createElement(PortalDom.Tags.HeadingTwo);
-  title.textContent = PortalText.Resolve(PortalTextToken.BrowserManagedStatus);
+  title.textContent = resolvePortalDevText(PortalDevTextToken.BrowserManagedStatus);
 
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
   appendDetail(metadata, PortalDetails.Status, eventStatus(liveActivity.browserManagedEvent));
@@ -57,31 +57,20 @@ export function renderBrowserManagedStatus(container: HTMLElement, liveActivity:
 function emptyMessage(): HTMLElement {
   const message = document.createElement(PortalDom.Tags.Paragraph);
   message.className = PortalDom.Classes.CommandResultEmpty;
-  message.textContent = PortalText.Resolve(PortalTextToken.NoBrowserManagedStatus);
+  message.textContent = resolvePortalDevText(PortalDevTextToken.NoBrowserManagedStatus);
   return message;
 }
 
-function eventStatus(event: AgentEventEnvelope | null): PortalDetailValue {
+function eventStatus(event: ParentRouteEventSnapshot | null): ParentPortalDetailValue {
   if (event === null) {
-    return notReported();
+    return notReportedDetail();
   }
-  return decodePortalDetailValue(event.severity);
+  return decodeParentPortalDetailValue(event.severity ?? resolvePortalDevText(PortalDevTextToken.NotReported));
 }
 
-function eventReason(event: AgentEventEnvelope | null): PortalDetailValue {
+function eventReason(event: ParentRouteEventSnapshot | null): ParentPortalDetailValue {
   if (event === null) {
-    return notReported();
+    return notReportedDetail();
   }
-  return detailFromValue(event.payload[AgentProtocolDefaults.Field.Reason]);
-}
-
-function detailFromValue(value: unknown): PortalDetailValue {
-  if (value === undefined || value === null) {
-    return notReported();
-  }
-  return decodePortalDetailValue(String(value));
-}
-
-function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+  return detailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
 }

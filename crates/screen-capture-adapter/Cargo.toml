@@ -1,0 +1,30 @@
+[package]
+name = "ocentra-parent-screen-capture-adapter"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+base64 = "0.22.1"
+ocentra-parent-agent-core = { path = "../agent-core" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+serde_json = "1.0.145"
+sha2 = "0.10.9"
+
+[target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
+xcap = { version = "0.9.6", default-features = false, features = ["wgc"] }
+
+[[test]]
+name = "security_window_title_query"
+path = "tests/security/window_title_query.rs"
+
+[[test]]
+name = "unit_screen_capture"
+path = "tests/unit/screen_capture.rs"
+
+[[test]]
+name = "unit_trigger_scheduler"
+path = "tests/unit/trigger_scheduler.rs"

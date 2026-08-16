@@ -1,26 +1,33 @@
-import type { BrowserInterventionReadModel, BrowserInterventionRow } from '@ocentra-parent/activity-domain/browser';
-import { AgentProtocolDefaults, type AgentEventEnvelope } from '@ocentra-parent/agent-protocol-domain/contracts';
-import type { LogFieldValue } from '@ocentra-parent/logging-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import type {
+  PortalBrowserInterventionReadModel,
+  PortalBrowserInterventionRow,
+} from '@ocentra-parent/portal-domain/live-activity-state';
 import {
-  PortalDetails,
-  PortalDom,
-  PortalText,
-  PortalTextToken,
-  decodePortalDetailValue,
-  type PortalDetailValue,
-  type PortalDisplayText,
-} from '@ocentra-parent/portal-domain/contracts';
-import { appendDetail } from './detail-list';
+  decodeParentPortalDetailValue,
+  ParentAgentProtocolField,
+  type ParentRouteEventSnapshot,
+  type ParentPortalDetailValue,
+} from '../generated/parent-ui-bridge';
+import {
+  appendDetail,
+  notReportedDetail,
+  portalDetailFromSequence as detailFromSequence,
+  portalDetailFromValue as detailFromValue,
+} from './detail-list';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 import type { PortalLiveActivityState } from './live-activity-state';
 
 export function renderBrowserIntervention(container: HTMLElement, liveActivity: PortalLiveActivityState): void {
-  const panel = panelWithTitle(PortalText.Resolve(PortalTextToken.BrowserIntervention));
+  const panel = panelWithTitle(resolvePortalDevText(PortalDevTextToken.BrowserIntervention));
   const metadata = document.createElement(PortalDom.Tags.DefinitionList);
 
   appendDetail(metadata, PortalDetails.Status, eventStatus(liveActivity.browserInterventionEvent));
   if (liveActivity.browserInterventionReadModel === null) {
     appendDetail(metadata, PortalDetails.Reason, eventReason(liveActivity.browserInterventionEvent));
-    panel.append(metadata, emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserIntervention)));
+    panel.append(metadata, emptyMessage(resolvePortalDevText(PortalDevTextToken.NoBrowserIntervention)));
     container.append(panel);
     return;
   }
@@ -28,7 +35,7 @@ export function renderBrowserIntervention(container: HTMLElement, liveActivity: 
   panel.append(metadata);
 
   if (liveActivity.browserInterventionReadModel.returned === 0) {
-    panel.append(emptyMessage(PortalText.Resolve(PortalTextToken.NoBrowserIntervention)));
+    panel.append(emptyMessage(resolvePortalDevText(PortalDevTextToken.NoBrowserIntervention)));
   }
 
   container.append(panel);
@@ -36,7 +43,7 @@ export function renderBrowserIntervention(container: HTMLElement, liveActivity: 
 
 function appendBrowserInterventionReadModelDetails(
   metadata: HTMLDListElement,
-  readModel: BrowserInterventionReadModel
+  readModel: PortalBrowserInterventionReadModel
 ): void {
   const latestRow = readModel.rows[0] ?? null;
   appendDetail(metadata, PortalDetails.RowsReturned, detailFromValue(readModel.returned));
@@ -60,17 +67,20 @@ function appendBrowserInterventionReadModelDetails(
 
 function appendBrowserInterventionDecisionDetails(
   metadata: HTMLDListElement,
-  latestRow: BrowserInterventionRow | null
+  latestRow: PortalBrowserInterventionRow | null
 ): void {
   appendDetail(metadata, PortalDetails.BrowserIntervention, detailFromValue(latestRow?.browserInterventionId));
   appendDetail(metadata, PortalDetails.DecisionSource, detailFromValue(latestRow?.decisionSource));
   appendDetail(metadata, PortalDetails.DecisionId, detailFromValue(latestRow?.policyDecisionId));
+  appendDetail(metadata, PortalDetails.InterventionActionId, detailFromValue(latestRow?.interventionActionId));
+  appendDetail(metadata, PortalDetails.InterventionAuditId, detailFromValue(latestRow?.interventionAuditId));
+  appendDetail(metadata, PortalDetails.EvidenceReferences, detailFromList(latestRow?.evidenceReferenceIds));
   appendDetail(metadata, PortalDetails.InterventionAction, detailFromValue(latestRow?.interventionAction));
 }
 
 function appendBrowserInterventionTargetDetails(
   metadata: HTMLDListElement,
-  latestRow: BrowserInterventionRow | null
+  latestRow: PortalBrowserInterventionRow | null
 ): void {
   appendDetail(metadata, PortalDetails.InterventionTargetType, detailFromValue(latestRow?.interventionTargetType));
   appendDetail(metadata, PortalDetails.InterventionTarget, detailFromValue(latestRow?.interventionTargetValue));
@@ -80,10 +90,15 @@ function appendBrowserInterventionTargetDetails(
 
 function appendBrowserInterventionStateDetails(
   metadata: HTMLDListElement,
-  latestRow: BrowserInterventionRow | null
+  latestRow: PortalBrowserInterventionRow | null
 ): void {
   appendDetail(metadata, PortalDetails.InterventionMechanism, detailFromValue(latestRow?.interventionMechanism));
   appendDetail(metadata, PortalDetails.InterventionOutcome, detailFromValue(latestRow?.interventionOutcome));
+  appendDetail(metadata, PortalDetails.BrowserBoundary, detailFromValue(latestRow?.browserBoundaryState));
+  appendDetail(metadata, PortalDetails.ExactUrlClaim, detailFromValue(latestRow?.exactUrlClaimState));
+  appendDetail(metadata, PortalDetails.UnmanagedDetection, detailFromValue(latestRow?.unmanagedDetectionState));
+  appendDetail(metadata, PortalDetails.UnmanagedFallbackAction, detailFromValue(latestRow?.unmanagedFallbackAction));
+  appendDetail(metadata, PortalDetails.InterventionChildDelivery, detailFromValue(latestRow?.childDeliveryState));
   appendDetail(metadata, PortalDetails.Reason, detailFromValue(latestRow?.reason));
   appendDetail(metadata, PortalDetails.Custody, detailFromValue(latestRow?.custodyLabel));
 }
@@ -106,27 +121,23 @@ function emptyMessage(messageText: PortalDisplayText): HTMLElement {
   return message;
 }
 
-function eventStatus(event: AgentEventEnvelope | null): PortalDetailValue {
+function eventStatus(event: ParentRouteEventSnapshot | null): ParentPortalDetailValue {
   if (event === null) {
-    return notReported();
+    return notReportedDetail();
   }
-  return decodePortalDetailValue(event.severity);
+  return decodeParentPortalDetailValue(event.severity ?? resolvePortalDevText(PortalDevTextToken.NotReported));
 }
 
-function eventReason(event: AgentEventEnvelope | null): PortalDetailValue {
+function eventReason(event: ParentRouteEventSnapshot | null): ParentPortalDetailValue {
   if (event === null) {
-    return notReported();
+    return notReportedDetail();
   }
-  return detailFromValue(event.payload[AgentProtocolDefaults.Field.Reason]);
+  return detailFromValue(event.payload?.[ParentAgentProtocolField.Reason]);
 }
 
-function detailFromValue(value: LogFieldValue | undefined): PortalDetailValue {
-  if (value === undefined || value === null) {
-    return notReported();
+function detailFromList(values: readonly unknown[] | undefined): ParentPortalDetailValue {
+  if (values === undefined || values.length === 0) {
+    return notReportedDetail();
   }
-  return decodePortalDetailValue(String(value));
-}
-
-function notReported(): PortalDetailValue {
-  return decodePortalDetailValue(PortalText.Resolve(PortalTextToken.NotReported));
+  return detailFromSequence(values);
 }

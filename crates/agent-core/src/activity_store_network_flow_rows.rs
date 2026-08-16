@@ -1,4 +1,6 @@
-use ocentra_parent_agent_protocol::{constants, ActivityEvidenceRef, LogFields};
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFields;
 use rusqlite::{params, Connection, Row};
 
 use crate::ActivityStoreError;
@@ -7,6 +9,7 @@ pub(crate) struct NetworkFlowStoreRow {
     pub event_id: String,
     pub observed_at: String,
     pub observer: String,
+    pub kind: String,
     pub fields: LogFields,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
@@ -21,6 +24,7 @@ pub(crate) fn network_flow_rows(
         params![
             constants::activity_event_kind::DOMAIN_OBSERVED,
             constants::activity_observer::WINDOWS_NETWORK,
+            constants::activity_event_kind::NETWORK_RETENTION_DELETED,
             limit as i64
         ],
         row_from_sqlite,
@@ -33,8 +37,8 @@ pub(crate) fn network_flow_rows(
 }
 
 fn row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<NetworkFlowStoreRow> {
-    let fields_json: String = row.get(3)?;
-    let evidence_json: String = row.get(4)?;
+    let fields_json: String = row.get(4)?;
+    let evidence_json: String = row.get(5)?;
     let fields = serde_json::from_str::<LogFields>(&fields_json).map_err(json_to_sqlite_error)?;
     let evidence = serde_json::from_str::<Vec<ActivityEvidenceRef>>(&evidence_json)
         .map_err(json_to_sqlite_error)?;
@@ -43,6 +47,7 @@ fn row_from_sqlite(row: &Row<'_>) -> rusqlite::Result<NetworkFlowStoreRow> {
         event_id: row.get(0)?,
         observed_at: row.get(1)?,
         observer: row.get(2)?,
+        kind: row.get(3)?,
         fields,
         evidence,
     })

@@ -1,11 +1,14 @@
-use ocentra_parent_agent_protocol::{
-    constants, BrowserBoundaryState, BrowserChannel, BrowserCustodyLabel,
-    BrowserExactUrlClaimState, BrowserFamily, BrowserInterventionAction,
+use ocentra_parent_agent_protocol::browser::{BrowserChannel, BrowserCustodyLabel, BrowserFamily};
+use ocentra_parent_agent_protocol::browser_intervention_values::{
+    BrowserBoundaryState, BrowserExactUrlClaimState, BrowserInterventionAction,
     BrowserInterventionCapabilityState, BrowserInterventionDecisionSource,
-    BrowserInterventionMechanism, BrowserInterventionOutcome, BrowserInterventionTargetType,
-    BrowserQueryVisibilityLabel, BrowserUnmanagedDetectionState, BrowserUnmanagedEnforcementState,
-    LogFieldValue, LogFields,
+    BrowserInterventionDeliveryState, BrowserInterventionMechanism, BrowserInterventionOutcome,
+    BrowserInterventionTargetType, BrowserUnmanagedDetectionState,
 };
+use ocentra_parent_agent_protocol::browser_managed::BrowserQueryVisibilityLabel;
+use ocentra_parent_agent_protocol::browser_unmanaged_enforcement::BrowserUnmanagedEnforcementState;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 pub(super) fn string_field(fields: &LogFields, key: &str) -> Option<String> {
     match fields.get(key) {
@@ -21,6 +24,18 @@ pub(super) fn u32_field(fields: &LogFields, key: &str) -> Option<u32> {
         }
         _ => None,
     }
+}
+
+pub(super) fn string_list_field(fields: &LogFields, key: &str) -> Vec<String> {
+    string_field(fields, key)
+        .map(|value| {
+            value
+                .split(constants::delimiter::LIST)
+                .filter(|item| !item.is_empty())
+                .map(ToOwned::to_owned)
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 pub(super) fn browser_family_field(fields: &LogFields) -> Option<BrowserFamily> {
@@ -105,6 +120,13 @@ pub(super) fn unmanaged_detection_state_field(
         constants::browser::INTERVENTION_FIELD_UNMANAGED_DETECTION_STATE,
     )
     .and_then(|value| BrowserUnmanagedDetectionState::from_protocol_str(&value))
+}
+
+pub(super) fn intervention_delivery_state_field(
+    fields: &LogFields,
+) -> Option<BrowserInterventionDeliveryState> {
+    string_field(fields, constants::field::CHILD_DELIVERY_STATE)
+        .and_then(|value| BrowserInterventionDeliveryState::from_protocol_str(&value))
 }
 
 pub(super) fn custody_label_field(fields: &LogFields) -> Option<BrowserCustodyLabel> {

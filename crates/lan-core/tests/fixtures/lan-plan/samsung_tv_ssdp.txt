@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+CACHE-CONTROL: max-age=1800
+DATE: Fri, 26 Jun 2026 12:00:00 GMT
+EXT:
+LOCATION: http://192.168.1.40:9197/device_description_tv.xml
+SERVER: Linux/5.4 UPnP/1.0 Samsung-DLNA/3.2
+ST: urn:schemas-upnp-org:device:MediaRenderer:1
+USN: uuid:4f8f8b66-3c2b-4f34-a8d7-1f3de8a9d001::urn:schemas-upnp-org:device:MediaRenderer:1
+BOOTID.UPNP.ORG: 1
+CONFIGID.UPNP.ORG: 1001
+SEARCHPORT.UPNP.ORG: 1900
+

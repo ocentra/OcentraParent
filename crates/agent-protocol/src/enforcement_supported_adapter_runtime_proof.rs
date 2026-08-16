@@ -2,7 +2,15 @@ use serde::{Deserialize, Serialize};
 
 use crate::{constants::v08_supported_adapter_runtime_proof as proof, ParentPlatform};
 
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08SupportedAdapterRuntimeBoundary {
     #[serde(rename = "windows-app-game-owned-process-time-limit")]
     WindowsAppGameOwnedProcessTimeLimit,
@@ -12,6 +20,12 @@ pub enum V08SupportedAdapterRuntimeBoundary {
     WindowsBroadInstalledAppBlockingManualGate,
     #[serde(rename = "windows-host-network-domain-blocking-manual-gate")]
     WindowsHostNetworkDomainBlockingManualGate,
+    #[serde(rename = "windows-broad-installed-app-artifact-status")]
+    WindowsBroadInstalledAppArtifactStatus,
+    #[serde(rename = "windows-host-network-domain-artifact-status")]
+    WindowsHostNetworkDomainArtifactStatus,
+    #[serde(rename = "windows-managed-browser-artifact-status")]
+    WindowsManagedBrowserArtifactStatus,
     #[serde(rename = "windows-managed-exact-active-tab-not-claimed")]
     WindowsManagedExactActiveTabNotClaimed,
     #[serde(rename = "windows-adapter-permission-dependency-degraded")]
@@ -28,24 +42,29 @@ pub enum V08SupportedAdapterRuntimeBoundary {
 
 impl V08SupportedAdapterRuntimeBoundary {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::WindowsAppGameOwnedProcessTimeLimit => proof::ENTRY_ID_APP_GAME_TIMER,
-            Self::WindowsNetworkFlowObservePolicyHandoff => proof::ENTRY_ID_NETWORK_OBSERVE,
-            Self::WindowsBroadInstalledAppBlockingManualGate => proof::ENTRY_ID_BROAD_APP_MANUAL,
-            Self::WindowsHostNetworkDomainBlockingManualGate => proof::ENTRY_ID_HOST_NETWORK_MANUAL,
-            Self::WindowsManagedExactActiveTabNotClaimed => {
-                proof::ENTRY_ID_EXACT_ACTIVE_TAB_NOT_CLAIMED
-            }
-            Self::WindowsAdapterPermissionDependencyDegraded => proof::ENTRY_ID_PERMISSION_DEGRADED,
-            Self::LinuxHostAdapterUnavailable => proof::ENTRY_ID_LINUX_UNAVAILABLE,
-            Self::MacosHostAdapterUnsupported => proof::ENTRY_ID_MACOS_UNSUPPORTED,
-            Self::AndroidMobileControlManualGate => proof::ENTRY_ID_ANDROID_MANUAL,
-            Self::IosMobileControlManualGate => proof::ENTRY_ID_IOS_MANUAL,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::ENTRY_ID_APP_GAME_TIMER,
+                proof::ENTRY_ID_NETWORK_OBSERVE,
+                proof::ENTRY_ID_BROAD_APP_MANUAL,
+                proof::ENTRY_ID_HOST_NETWORK_MANUAL,
+                proof::ENTRY_ID_BROAD_APP_ARTIFACT_STATUS,
+                proof::ENTRY_ID_HOST_NETWORK_ARTIFACT_STATUS,
+                proof::ENTRY_ID_MANAGED_BROWSER_ARTIFACT_STATUS,
+                proof::ENTRY_ID_EXACT_ACTIVE_TAB_NOT_CLAIMED,
+                proof::ENTRY_ID_PERMISSION_DEGRADED,
+                proof::ENTRY_ID_LINUX_UNAVAILABLE,
+                proof::ENTRY_ID_MACOS_UNSUPPORTED,
+                proof::ENTRY_ID_ANDROID_MANUAL,
+                proof::ENTRY_ID_IOS_MANUAL,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08SupportedAdapterCapability {
     #[serde(rename = "app-game-owned-process-time-limit")]
     AppGameOwnedProcessTimeLimit,
@@ -55,6 +74,12 @@ pub enum V08SupportedAdapterCapability {
     BroadInstalledAppBlocking,
     #[serde(rename = "host-network-domain-blocking")]
     HostNetworkDomainBlocking,
+    #[serde(rename = "broad-installed-app-artifact-status")]
+    BroadInstalledAppArtifactStatus,
+    #[serde(rename = "host-network-domain-artifact-status")]
+    HostNetworkDomainArtifactStatus,
+    #[serde(rename = "managed-browser-artifact-status")]
+    ManagedBrowserArtifactStatus,
     #[serde(rename = "managed-exact-active-tab-enforcement")]
     ManagedExactActiveTabEnforcement,
     #[serde(rename = "adapter-permission-dependency")]
@@ -67,20 +92,27 @@ pub enum V08SupportedAdapterCapability {
 
 impl V08SupportedAdapterCapability {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::AppGameOwnedProcessTimeLimit => proof::CAPABILITY_APP_GAME_TIMER,
-            Self::NetworkFlowObservePolicyHandoff => proof::CAPABILITY_NETWORK_OBSERVE,
-            Self::BroadInstalledAppBlocking => proof::CAPABILITY_BROAD_APP_BLOCKING,
-            Self::HostNetworkDomainBlocking => proof::CAPABILITY_HOST_NETWORK_BLOCKING,
-            Self::ManagedExactActiveTabEnforcement => proof::CAPABILITY_MANAGED_EXACT_ACTIVE_TAB,
-            Self::AdapterPermissionDependency => proof::CAPABILITY_PERMISSION_DEPENDENCY,
-            Self::DesktopHostPlatformAdapter => proof::CAPABILITY_DESKTOP_HOST,
-            Self::MobileChildControlAdapter => proof::CAPABILITY_MOBILE_CHILD_CONTROL,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::CAPABILITY_APP_GAME_TIMER,
+                proof::CAPABILITY_NETWORK_OBSERVE,
+                proof::CAPABILITY_BROAD_APP_BLOCKING,
+                proof::CAPABILITY_HOST_NETWORK_BLOCKING,
+                proof::CAPABILITY_BROAD_APP_ARTIFACT_STATUS,
+                proof::CAPABILITY_HOST_NETWORK_ARTIFACT_STATUS,
+                proof::CAPABILITY_MANAGED_BROWSER_ARTIFACT_STATUS,
+                proof::CAPABILITY_MANAGED_EXACT_ACTIVE_TAB,
+                proof::CAPABILITY_PERMISSION_DEPENDENCY,
+                proof::CAPABILITY_DESKTOP_HOST,
+                proof::CAPABILITY_MOBILE_CHILD_CONTROL,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08SupportedAdapterRuntimeState {
     #[serde(rename = "implemented-boundary")]
     ImplementedBoundary,
@@ -98,18 +130,22 @@ pub enum V08SupportedAdapterRuntimeState {
 
 impl V08SupportedAdapterRuntimeState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ImplementedBoundary => proof::STATE_IMPLEMENTED_BOUNDARY,
-            Self::ManualRequired => proof::STATE_MANUAL_REQUIRED,
-            Self::Unavailable => proof::STATE_UNAVAILABLE,
-            Self::NotClaimed => proof::STATE_NOT_CLAIMED,
-            Self::Unsupported => proof::STATE_UNSUPPORTED,
-            Self::Degraded => proof::STATE_DEGRADED,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::STATE_IMPLEMENTED_BOUNDARY,
+                proof::STATE_MANUAL_REQUIRED,
+                proof::STATE_UNAVAILABLE,
+                proof::STATE_NOT_CLAIMED,
+                proof::STATE_UNSUPPORTED,
+                proof::STATE_DEGRADED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum V08SupportedAdapterResult {
     #[serde(rename = "supported-boundary-proved")]
     SupportedBoundaryProved,
@@ -127,14 +163,17 @@ pub enum V08SupportedAdapterResult {
 
 impl V08SupportedAdapterResult {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::SupportedBoundaryProved => proof::RESULT_SUPPORTED_BOUNDARY_PROVED,
-            Self::ManualProofRequired => proof::RESULT_MANUAL_PROOF_REQUIRED,
-            Self::TargetUnavailable => proof::RESULT_TARGET_UNAVAILABLE,
-            Self::NotClaimed => proof::RESULT_NOT_CLAIMED,
-            Self::UnsupportedPlatform => proof::RESULT_UNSUPPORTED_PLATFORM,
-            Self::DegradedPermissionOrDependency => proof::RESULT_DEGRADED_PERMISSION_OR_DEPENDENCY,
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                proof::RESULT_SUPPORTED_BOUNDARY_PROVED,
+                proof::RESULT_MANUAL_PROOF_REQUIRED,
+                proof::RESULT_TARGET_UNAVAILABLE,
+                proof::RESULT_NOT_CLAIMED,
+                proof::RESULT_UNSUPPORTED_PLATFORM,
+                proof::RESULT_DEGRADED_PERMISSION_OR_DEPENDENCY,
+            ]
+        )
     }
 }
 

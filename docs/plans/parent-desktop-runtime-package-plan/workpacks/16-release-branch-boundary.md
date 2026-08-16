@@ -1,5 +1,19 @@
 # 16 Release Branch Boundary
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `parent-desktop-runtime-package-plan`
+> Doc: `16 Release Branch Boundary`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 Sources: [20-step plan](../parent-desktop-runtime-package-20-step-plan.md),
 [test blueprint](../parent-desktop-runtime-package-test-blueprint.md),
 [requirements guide](../runtime-package-requirements-guide.md), and
@@ -17,11 +31,11 @@ promotion boundaries.
 
 ## Requirement Checklist
 
-- [x] Keep production publishing out of `main`.
-- [x] Label PR/merge as CI/package preview events.
-- [x] Document explicit production promotion.
-- [x] Avoid release notes that claim store/signing without proof.
-- [x] Review workflow changes carefully.
+- [ ] Keep production publishing out of `main`.
+- [ ] Label PR/merge as CI/package preview events.
+- [ ] Document explicit production promotion.
+- [ ] Avoid release notes that claim store/signing without proof.
+- [ ] Review workflow changes carefully.
 
 ## Acceptance And Proof
 

@@ -1,0 +1,30 @@
+    ) &&
+  readModel.previewReadyVisibleCount ===
+    countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated(
+      readModel.rows,
+      AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.PreviewReadyVisible
+    ) &&
+  readModel.sourceManualRequiredVisibleCount ===
+    countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated(
+      readModel.rows,
+      AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.SourceManualRequiredVisible
+    ) &&
+  readModel.compilerManualRequiredVisibleCount ===
+    countAppGameSourceGatedPolicyPreviewProjectionStatesGenerated(
+      readModel.rows,
+      AppGameSourceGatedPolicyPreviewReadModelProjectionStateGenerated.CompilerManualRequiredVisible
+    );
+
+export const appGameSourceGatedPolicyPreviewReadModelHasNoRuntimeClaimsGenerated = (
+  readModel: SourceGatedPolicyPreviewReadModelLike
+) =>
+  !readModel.serviceRuntimeEventClaimed &&
+  !readModel.portalUiRendered &&
+  !readModel.policyEvaluatorRuntimeClaimed &&
+  !readModel.timerRuntimeClaimed &&
+  !readModel.adapterDispatchClaimed &&
+  !readModel.childDeliveryClaimed &&
+  !readModel.platformEnforcementClaimed &&
+  !readModel.rawPrivateSourceRowsIncluded;
+
+function parseTimestampMillisGenerated(value: unknown): number | null {

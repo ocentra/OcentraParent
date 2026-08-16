@@ -1,0 +1,40 @@
+
+function browserUrlIsValid(value: string): boolean {
+  return browserUrlParts(value) !== null;
+}
+
+function browserEvidenceUrlFieldsAreConsistent(value: {
+  readonly url: string;
+  readonly origin: string;
+  readonly domain: string;
+}): boolean {
+  const parts = browserUrlParts(value.url);
+  return parts !== null && value.url === parts.url && value.origin === parts.origin && value.domain === parts.domain;
+}
+
+function browserEvidenceActiveProofIsConsistent(value: {
+  readonly activeState: string;
+  readonly activeProofSource: string;
+}): boolean {
+  if (value.activeProofSource === 'target-list-only') {
+    return value.activeState === 'unknown';
+  }
+  return true;
+}
+
+function browserUnmanagedProcessEvidenceIsConsistent(value: {
+  readonly capabilityStatus: string;
+  readonly processKind: string;
+  readonly detectionReason: string;
+}): boolean {
+  if (value.capabilityStatus !== 'unmanaged-browser' && value.capabilityStatus !== 'unsupported-browser') {
+    return false;
+  }
+  if (value.processKind === 'supported-browser') {
+    return value.detectionReason === 'supported-browser-outside-managed-session';
+  }
+  if (value.processKind === 'unsupported-browser') {
+    return value.detectionReason === 'unsupported-browser-process';
+  }
+  return true;
+}

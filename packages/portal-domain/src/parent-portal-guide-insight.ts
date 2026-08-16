@@ -1,3 +1,5 @@
+import { PortalRoute } from './portal-contract-adapter';
+import { portalRouteHashPath } from './routes';
 import type { ParentPortalGuideTopic } from './parent-portal-guide-types';
 import { PARENT_PORTAL_NAV_LABELS } from './parent-portal-nav';
 
@@ -67,14 +69,14 @@ export const PARENT_PORTAL_INSIGHT_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Check AI status',
         body: 'Open Local AI for provider, model, cache, unavailable, and degraded states.',
         tone: 'cyan',
-        targetRoutePath: '#/ai-runtime',
+        targetRoutePath: portalRouteHashPath(PortalRoute.AiRuntime),
         targetNavLabel: 'AI SETUP',
       },
       {
         label: 'Open reports',
         body: 'Use reports for evidence-cited parent explanations and summaries.',
         tone: 'purple',
-        targetRoutePath: '#/activity',
+        targetRoutePath: portalRouteHashPath(PortalRoute.Activity),
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       },
     ],
@@ -141,21 +143,21 @@ export const PARENT_PORTAL_INSIGHT_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Open Reports',
         body: 'Choose daily, weekly, monthly, or incident summary.',
         tone: 'purple',
-        targetRoutePath: '#/activity',
+        targetRoutePath: portalRouteHashPath(PortalRoute.Activity),
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       },
       {
         label: 'Build report',
         body: 'Use the report compiler for stateless daily, weekly, monthly, or incident report generation.',
         tone: 'purple',
-        targetRoutePath: '#/report-compiler',
+        targetRoutePath: portalRouteHashPath(PortalRoute.ReportCompiler),
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.Activity,
       },
       {
         label: 'Connect storage',
         body: 'Use Drives if you want remote access, backup, or cross-device continuity.',
         tone: 'cyan',
-        targetRoutePath: '#/drive-connections',
+        targetRoutePath: portalRouteHashPath(PortalRoute.DriveConnections),
         targetNavLabel: 'DRIVES',
       },
     ],
@@ -211,14 +213,14 @@ export const PARENT_PORTAL_INSIGHT_GUIDES: readonly ParentPortalGuideTopic[] = [
         label: 'Review memory',
         body: 'Open Memory to inspect source refs and freshness.',
         tone: 'purple',
-        targetRoutePath: '#/memory',
+        targetRoutePath: portalRouteHashPath(PortalRoute.Memory),
         targetNavLabel: 'MEMORY',
       },
       {
         label: 'Revoke context',
         body: 'Remove stale or wrong family context before it affects explanations.',
         tone: 'gold',
-        targetRoutePath: '#/memory-settings',
+        targetRoutePath: portalRouteHashPath(PortalRoute.MemorySettings),
         targetNavLabel: PARENT_PORTAL_NAV_LABELS.MemorySet,
       },
     ],

@@ -70,6 +70,9 @@ export type LanDevice = {
   lanSourceProof?: string | undefined;
   lanWeakSourceProof?: string | undefined;
   parentDecision?: string | undefined;
+  householdName?: string | undefined;
+  detectedName?: string | undefined;
+  parentDeviceKind?: DeviceKind | undefined;
   auditLabel?: string | undefined;
   requirementLabel?: string | undefined;
   evidenceLabel?: string | undefined;
@@ -114,12 +117,14 @@ export type DeviceChoiceGridProps = {
   disabled?: boolean;
   deviceSelectionDisabled?: boolean;
   showScopeSelector?: boolean;
+  showAddControls?: boolean;
   scopeValues?: readonly ScopeValue[];
   className?: string;
   style?: CSSProperties;
   onChange?: (choice: DeviceSlot, index: number, row: number, column: number) => void;
   onScopeChange?: (scope: ScopeValue) => void;
   onAddToPortal?: (choice: DeviceSlot, portalIds: string[]) => void;
+  onEditDevice?: (choice: DeviceSlot) => void;
   scopeIcons?: Partial<Record<ScopeValue, DeviceChoiceGridScopeIcon>>;
   config?: DeepPartial<DeviceChoiceGridConfig>;
 };

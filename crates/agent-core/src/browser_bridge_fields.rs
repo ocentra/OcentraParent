@@ -1,9 +1,11 @@
-use ocentra_parent_agent_protocol::{constants, LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::browser_bridge_event::BrowserBridgeTargetObservation;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub(crate) struct NormalizedBrowserUrl {
+    pub(crate) url: String,
     origin: String,
     pub(crate) domain: String,
 }
@@ -29,24 +31,72 @@ pub(crate) fn insert_optional_text(fields: &mut LogFields, key: &str, value: &Op
 
 pub(crate) fn normalized_browser_url(url: &str) -> Option<NormalizedBrowserUrl> {
     let (scheme, remainder) = url.split_once(constants::browser::URL_SCHEME_SEPARATOR)?;
+    let scheme = scheme.to_ascii_lowercase();
     if scheme.is_empty() || remainder.is_empty() {
         return None;
     }
-    let authority = remainder
-        .split(constants::delimiter::SLASH)
-        .next()
-        .filter(|value| !value.is_empty())?;
-    let domain = authority
+    let (authority, suffix) = split_authority_and_suffix(remainder);
+    let authority = authority
         .rsplit(constants::delimiter::AT)
         .next()
         .filter(|value| !value.is_empty())?;
-    let mut origin = String::from(scheme);
+    let (authority, domain) = normalized_authority(authority)?;
+    let mut origin = scheme;
     origin.push_str(constants::browser::URL_SCHEME_SEPARATOR);
-    origin.push_str(authority);
+    origin.push_str(&authority);
+    let mut normalized_url = origin.clone();
+    normalized_url.push_str(suffix);
     Some(NormalizedBrowserUrl {
+        url: normalized_url,
         origin,
-        domain: domain.to_string(),
+        domain,
     })
+}
+
+fn split_authority_and_suffix(remainder: &str) -> (&str, &str) {
+    let authority = remainder
+        .split(constants::delimiter::SLASH)
+        .next()
+        .unwrap_or(remainder);
+    let suffix = remainder
+        .get(authority.len()..)
+        .unwrap_or(constants::value::EMPTY);
+    (authority, suffix)
+}
+
+fn normalized_authority(authority: &str) -> Option<(String, String)> {
+    let (host, port) = split_host_and_port(authority)?;
+    let domain = normalized_host(host)?;
+    let mut normalized = domain.clone();
+    if let Some(port) = port {
+        normalized.push(constants::delimiter::COLON);
+        normalized.push_str(port);
+    }
+    Some((normalized, domain))
+}
+
+fn split_host_and_port(authority: &str) -> Option<(&str, Option<&str>)> {
+    if authority.is_empty() {
+        return None;
+    }
+    if authority.matches(constants::delimiter::COLON).count() == 1 {
+        let (host, port) = authority.rsplit_once(constants::delimiter::COLON)?;
+        if !host.is_empty() && !port.is_empty() && port.chars().all(|value| value.is_ascii_digit())
+        {
+            return Some((host, Some(port)));
+        }
+    }
+    Some((authority, None))
+}
+
+fn normalized_host(host: &str) -> Option<String> {
+    let value = host
+        .trim_end_matches(constants::delimiter::DOT)
+        .to_ascii_lowercase();
+    if value.is_empty() || value.contains(constants::delimiter::SLASH) {
+        return None;
+    }
+    Some(value)
 }
 
 fn insert_identity_fields(
@@ -102,8 +152,17 @@ fn insert_target_fields(
         LogFieldValue::String(observation.active_state.as_protocol_str().to_string()),
     );
     fields.insert(
+        constants::field::ACTIVE_PROOF_SOURCE.to_string(),
+        LogFieldValue::String(
+            observation
+                .active_proof_source
+                .as_protocol_str()
+                .to_string(),
+        ),
+    );
+    fields.insert(
         constants::field::URL.to_string(),
-        LogFieldValue::String(observation.url.clone()),
+        LogFieldValue::String(normalized.url.clone()),
     );
     fields.insert(
         constants::field::ORIGIN.to_string(),
@@ -130,7 +189,12 @@ fn insert_state_fields(
     );
     fields.insert(
         constants::field::QUERY_VISIBILITY.to_string(),
-        LogFieldValue::String(constants::browser::QUERY_VISIBILITY_LIVE_LOCAL.to_string()),
+        LogFieldValue::String(observation.query_visibility.as_protocol_str().to_string()),
+    );
+    insert_optional_text(
+        fields,
+        constants::field::DEGRADED_REASON,
+        &observation.degraded_reason,
     );
     fields.insert(
         constants::field::FRESH_UNTIL.to_string(),

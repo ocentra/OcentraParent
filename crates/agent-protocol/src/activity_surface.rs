@@ -2,6 +2,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::ActivityEvidenceRef;
 
+#[path = "activity_surface/source_status.rs"]
+pub mod source_status;
+
+use source_status::ActivityAppGameSourceStatusRow;
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ActivitySurfaceScopeKind {
     #[serde(rename = "family")]
@@ -80,6 +85,28 @@ pub enum ActivitySavedReportState {
     ScaffoldOnly,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReportCustodyLabel {
+    #[serde(rename = "child-device-local-summary")]
+    ChildDeviceLocalSummary,
+    #[serde(rename = "parent-device-local-report-json")]
+    ParentDeviceLocalReportJson,
+    #[serde(rename = "parent-device-local-history")]
+    ParentDeviceLocalHistory,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ActivityReportSourceLabel {
+    #[serde(rename = "activity-query-store-summary")]
+    ActivityQueryStoreSummary,
+    #[serde(rename = "family-fanout-source-state")]
+    FamilyFanoutSourceState,
+    #[serde(rename = "saved-report-json")]
+    SavedReportJson,
+    #[serde(rename = "saved-report-history")]
+    SavedReportHistory,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivitySurfaceScope {
@@ -117,6 +144,12 @@ pub struct ActivityReportSourceState {
     pub state: ActivityReadModelState,
     pub reason: Option<String>,
     pub last_updated_at: Option<String>,
+    #[serde(default = "default_source_state_custody_label")]
+    pub custody_label: ActivityReportCustodyLabel,
+    #[serde(default = "default_source_state_source_label")]
+    pub source_label: ActivityReportSourceLabel,
+    #[serde(default)]
+    pub raw_child_evidence_included: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -138,6 +171,12 @@ pub struct ActivitySavedReportMetadata {
     pub saved_state: ActivitySavedReportState,
     pub saved_at: Option<String>,
     pub storage_reason: Option<String>,
+    #[serde(default = "default_saved_metadata_custody_label")]
+    pub custody_label: ActivityReportCustodyLabel,
+    #[serde(default = "default_saved_metadata_source_label")]
+    pub source_label: ActivityReportSourceLabel,
+    #[serde(default)]
+    pub raw_child_evidence_included: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -182,6 +221,36 @@ pub struct ActivityHistoricalReportListItem {
     pub saved_at: Option<String>,
     pub source_state_summary: ActivityReportSourceStateSummary,
     pub parsed_report: ActivityReportDocument,
+    #[serde(default = "default_history_item_custody_label")]
+    pub custody_label: ActivityReportCustodyLabel,
+    #[serde(default = "default_history_item_source_label")]
+    pub source_label: ActivityReportSourceLabel,
+    #[serde(default)]
+    pub raw_child_evidence_included: bool,
+}
+
+fn default_source_state_custody_label() -> ActivityReportCustodyLabel {
+    ActivityReportCustodyLabel::ChildDeviceLocalSummary
+}
+
+fn default_source_state_source_label() -> ActivityReportSourceLabel {
+    ActivityReportSourceLabel::ActivityQueryStoreSummary
+}
+
+fn default_saved_metadata_custody_label() -> ActivityReportCustodyLabel {
+    ActivityReportCustodyLabel::ParentDeviceLocalReportJson
+}
+
+fn default_saved_metadata_source_label() -> ActivityReportSourceLabel {
+    ActivityReportSourceLabel::SavedReportJson
+}
+
+fn default_history_item_custody_label() -> ActivityReportCustodyLabel {
+    ActivityReportCustodyLabel::ParentDeviceLocalHistory
+}
+
+fn default_history_item_source_label() -> ActivityReportSourceLabel {
+    ActivityReportSourceLabel::SavedReportHistory
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -206,7 +275,7 @@ pub struct ActivityTabReadModel<Row> {
     pub rows: Vec<Row>,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityScreenReadModelRow {
     pub row_id: String,
@@ -216,7 +285,40 @@ pub struct ActivityScreenReadModelRow {
     pub total_ms: u64,
     pub foreground_ms: u64,
     pub background_ms: u64,
+    pub capture_reason: String,
+    pub capture_scope: String,
+    pub capability_status: String,
+    pub queue_job_id: String,
+    pub model_runtime_ref: String,
+    pub model_id: String,
+    pub provider_kind: String,
+    pub prompt_or_template_version: String,
+    pub primary_category: Option<String>,
+    pub confidence: f64,
+    pub image_deletion_state: String,
+    pub raw_image_retained: bool,
+    pub policy_eligible: bool,
+    pub image_digest: String,
+    pub custody_state: String,
     pub evidence: Vec<ActivityEvidenceRef>,
+    pub policy_decision_ref: Option<String>,
+    pub policy_action: Option<String>,
+    #[serde(default)]
+    pub policy_reason_codes: Vec<String>,
+    #[serde(default)]
+    pub parent_rule_refs: Vec<String>,
+    #[serde(default)]
+    pub local_model_runtime_refs: Vec<String>,
+    #[serde(default)]
+    pub parent_explanation_refs: Vec<String>,
+    #[serde(default)]
+    pub explanation_reasons: Vec<String>,
+    #[serde(default)]
+    pub deletion_reasons: Vec<String>,
+    #[serde(default)]
+    pub ocr_text_snippets: Vec<String>,
+    #[serde(default)]
+    pub redaction_notes: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -226,8 +328,27 @@ pub struct ActivityAppUseReadModelRow {
     pub app_name: String,
     pub device_id: String,
     pub state: ActivityReadModelState,
+    pub product_kind: String,
+    pub classification_state: String,
+    pub inventory_state: String,
+    pub runtime_state: String,
+    pub foreground_state: String,
+    pub capability_status: String,
+    pub last_observed_at: Option<String>,
     pub total_ms: u64,
     pub launch_count: u64,
+    pub inventory_row_count: u64,
+    pub running_row_count: u64,
+    pub foreground_row_count: u64,
+    pub daily_rollup_count: u64,
+    pub evidence_claim_row_count: u64,
+    pub identity_row_count: u64,
+    pub approval_authority_row_count: u64,
+    pub approval_action_result_row_count: u64,
+    pub platform_authority_matrix_count: u64,
+    pub platform_authority_row_count: u64,
+    pub ai_classifier_result_row_count: u64,
+    pub source_status_rows: Vec<ActivityAppGameSourceStatusRow>,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 
@@ -250,8 +371,27 @@ pub struct ActivityGamesReadModelRow {
     pub display_name: String,
     pub device_id: String,
     pub state: ActivityReadModelState,
+    pub product_kind: String,
+    pub classification_state: String,
+    pub inventory_state: String,
+    pub runtime_state: String,
+    pub foreground_state: String,
+    pub capability_status: String,
+    pub last_observed_at: Option<String>,
     pub total_ms: u64,
     pub session_count: u64,
+    pub launcher_row_count: u64,
+    pub running_row_count: u64,
+    pub foreground_row_count: u64,
+    pub daily_rollup_count: u64,
+    pub evidence_claim_row_count: u64,
+    pub identity_row_count: u64,
+    pub approval_authority_row_count: u64,
+    pub approval_action_result_row_count: u64,
+    pub platform_authority_matrix_count: u64,
+    pub platform_authority_row_count: u64,
+    pub ai_classifier_result_row_count: u64,
+    pub source_status_rows: Vec<ActivityAppGameSourceStatusRow>,
     pub evidence: Vec<ActivityEvidenceRef>,
 }
 

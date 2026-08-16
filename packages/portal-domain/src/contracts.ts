@@ -1,10 +1,40 @@
-import { type DisplayText } from '@ocentra-parent/text-domain/contracts';
-import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/text-domain/portal-dev';
-import { type Infer, Schema, withParser } from '@ocentra-parent/schema-domain/effect';
-export { PortalCommandButtons, PortalOverviewCommands } from './commands';
-export { PortalDetails, PortalReadableValues } from './details';
-export { PortalDiagnostics } from './diagnostics';
-export {
+import { decodeDisplayText } from './display-text';
+import {
+  PortalAgentCommand,
+  type PortalAgentCommandName,
+  PortalAgentLanHouseholdActionDeviceKindField,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentLanIntentKind,
+  PortalAgentLanParentAuthority,
+  PortalAgentPeerDefaults,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
+  PortalConnectionState,
+  PortalRoute,
+  PortalRouteHashPrefix,
+  PortalRouteHashQuerySeparator,
+  PortalRouteLiteral,
+  PortalRouteSchema,
+} from './portal-contract-adapter';
+import {
+  decodePortalClipboardText,
+  decodePortalDetailValue,
+  decodeTrackingStatusProofArtifact,
+  type PortalDetailValue,
+  type TrackingStatusProofArtifact,
+} from './portal-contract-text-contracts';
+import { PortalFormatting } from './formatting';
+import { PortalBrowserInventoryFields, PortalDetails, PortalReadableValues } from './details';
+import { PortalDiagnostics } from './diagnostics';
+import { GeneratedPortalTrackingContracts } from './generated-portal-contracts';
+import {
+  createLocalAiRuntimePanelIntent,
+  type LocalAiRuntimePanelCard,
+  type LocalAiRuntimePanelDetail,
+  type LocalAiRuntimePanelIntent,
+} from './local-ai-runtime-panel';
+import {
   PortalFrameChromeNumberFields,
   PortalCarouselContentNumberFields,
   PortalCarouselFrameNumberFields,
@@ -38,9 +68,9 @@ export {
   type PortalFrameTargetValue,
   type PortalFrameTunerFrameSectionValue,
 } from './frame-tuner';
-export { PortalFrameColorFields, PortalFrameTunerFrameSections } from './frame-tuner-lists';
-export { PortalAssets, PortalExternalLinks, PortalUnifiedChrome } from './unified-chrome';
-export {
+import { PortalFrameColorFields, PortalFrameTunerFrameSections } from './frame-tuner-lists';
+import { PortalAssets, PortalExternalLinks, PortalUnifiedChrome } from './unified-chrome';
+import {
   createPortalAppLayoutButtonDraft,
   createPortalAppLayoutFoldoutDraft,
   defaultPortalAppLayoutContentDraft,
@@ -55,17 +85,16 @@ export {
   type PortalAppLayoutSurfaceKey,
   type PortalAppLayoutTone,
 } from './app-layout';
-export {
+import {
   PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
   type ParentAssistantPortalQuickAction,
   type ParentAssistantPortalQuickActionId,
 } from './parent-assistant-chat';
-export {
+import {
   PARENT_PORTAL_CONTENT,
   PARENT_PORTAL_ROUTE,
   PARENT_PORTAL_ROUTE_CONTEXT,
-  PARENT_PORTAL_ROWS,
   parentPortalRouteContext,
   type ParentPortalContent,
   type ParentPortalIconName,
@@ -76,12 +105,43 @@ export {
   type ParentPortalTabId,
   type ParentPortalTone,
 } from './parent-portal-data';
-export {
+import {
   PARENT_PORTAL_SERVICE_STATE,
   resolveParentPortalServiceState,
   type ParentPortalServiceState,
 } from './parent-portal-service-state';
-export {
+import { TrackingStatusProofArtifacts } from './tracking-status-proof-artifacts';
+import {
+  trackingFamilyDashboardHostedRollupProof,
+  trackingStatusLiveSummary,
+  trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
+  trackingUnsupportedManualPlatformProof,
+} from './tracking-status-panel';
+import type {
+  TrackingFamilyDashboardHostedRollupProof,
+  TrackingFamilyDashboardHostedRollupRow,
+  TrackingStatusLiveCitation,
+  TrackingStatusLiveProjectionInput,
+  TrackingStatusLiveSummary,
+  TrackingStatusProofRow,
+  TrackingStatusServiceDataCoverage,
+  TrackingUnsupportedManualPlatformProof,
+  TrackingUnsupportedManualPlatformRow,
+} from './tracking-status-panel';
+import {
+  TrackingEvidenceDrawerHostedUiProofDetails,
+  trackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerSourceCitation,
+} from './tracking-evidence-drawer-hosted-ui-proof';
+import {
+  trackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiRow,
+  type TrackingRetentionSettingsWritePreflight,
+} from './tracking-retention-settings-hosted-ui-proof';
+import {
   PARENT_PORTAL_NAV_LABELS,
   type ParentPortalHashRoutePath,
   type ParentPortalNavGroup,
@@ -90,60 +150,80 @@ export {
   type ParentPortalNavLabel,
   type ParentPortalNavSectionLabel,
 } from './parent-portal-nav';
-export {
-  PARENT_PORTAL_GUIDE_QUERY,
-  PARENT_PORTAL_GUIDE_TOPICS,
-  PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
-  PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
-  type ParentPortalGuideNote,
-  type ParentPortalGuidePage,
-  type ParentPortalGuideTopic,
-} from './parent-portal-guides';
-export {
+import {
   parseActivityMemoryGraphReadModel,
   type PortalActivityMemoryGraphEdge,
   type PortalActivityMemoryGraphNode,
   type PortalActivityMemoryGraphNodeId,
   type PortalActivityMemoryGraphReadModel,
 } from './activity-memory-graph';
-export {
-  PortalRoute,
+import {
+  PortalDevToolWindow,
+  PortalAiRuntimeRoutes,
   PortalRouteDescriptors,
+  PortalAppGameParentSurfaceRoutes,
+  PortalBrowserParentSurfaceRoutes,
+  PortalNetworkEvidenceDrawerRoutes,
   PortalRouteGroup,
   PortalRoutes,
-  PortalRouteSchema,
+  PortalScreenSettingsRoutes,
+  PortalScreenSummaryRoutes,
   PortalSidebarRouteDescriptors,
+  PortalTrackingStatusRoutes,
+  isPortalAiRuntimeRoute,
+  isPortalAppGameParentSurfaceRoute,
+  isPortalBrowserParentSurfaceRoute,
+  isPortalNetworkEvidenceDrawerRoute,
+  isPortalScreenSettingsRoute,
+  isPortalScreenSummaryRoute,
+  isPortalTrackingStatusRoute,
+  portalDevToolUrl,
+  portalRouteHashPath,
+  portalRouteHashPathWithQuery,
+  type PortalRouteHashPath,
+  type PortalRouteHashQueryPath,
   type PortalRouteDescriptor,
   type PortalRouteGroupValue,
 } from './routes';
+import {
+  DEFAULT_PORTAL_BACKGROUND_CONFIG,
+  DEFAULT_PORTAL_BACKGROUND_DARK_COLORS,
+  DEFAULT_PORTAL_BACKGROUND_LIGHT_COLORS,
+  PortalBackgroundRuntime,
+  normalizePortalBackgroundConfig,
+  portalBackgroundAppRenderConfig,
+  portalBackgroundRenderConfig,
+  type PortalBackgroundConfig,
+  type PortalBackgroundRenderConfig,
+  type PortalBackgroundThemeColors,
+} from './portal-background';
+import {
+  PORTAL_BACKGROUND_SVG_HEIGHT,
+  PORTAL_BACKGROUND_SVG_WIDTH,
+  portalBackgroundSvgContent,
+  portalBackgroundSvgMarkup,
+} from './portal-background-svg-markup';
+import {
+  BrowserChildInterventionPageDefaults,
+  BrowserChildInterventionPageSamples,
+  renderBrowserChildInterventionPage,
+  type BrowserChildInterventionPageAction,
+  type BrowserChildInterventionPageBackdrop,
+  type BrowserChildInterventionPageModel,
+  type BrowserChildInterventionPageTheme,
+} from './browser-child-intervention-page';
+import {
+  createSocialChildInterventionPageModels,
+  type SocialChildInterventionPageModelOptions,
+  type SocialChildInterventionPageModelResult,
+  type SocialChildInterventionRequestedUrlResolver,
+} from './social-child-intervention-page-model';
 
-const NonEmptyPortalText = Schema.String.pipe(Schema.minLength(1));
-
-export const PortalDetailValueSchema = withParser(NonEmptyPortalText.pipe(Schema.brand('PortalDetailValue')));
-export const PortalClipboardTextSchema = withParser(NonEmptyPortalText.pipe(Schema.brand('PortalClipboardText')));
-export type PortalDetailValue = Infer<typeof PortalDetailValueSchema>;
-export type PortalClipboardText = Infer<typeof PortalClipboardTextSchema>;
-export type PortalDisplayText = DisplayText;
-
-export const decodePortalDetailValue = PortalDetailValueSchema.parse;
-export const decodePortalClipboardText = PortalClipboardTextSchema.parse;
-
-export const PortalConnectionStateSchema = withParser(
-  Schema.Literal('disconnected', 'connecting', 'connected', 'error')
-);
-export type PortalConnectionState = Infer<typeof PortalConnectionStateSchema>;
-
-export const PortalConnectionState = {
-  Disconnected: PortalConnectionStateSchema.parse('disconnected'),
-  Connecting: PortalConnectionStateSchema.parse('connecting'),
-  Connected: PortalConnectionStateSchema.parse('connected'),
-  Error: PortalConnectionStateSchema.parse('error'),
-} as const;
-
-export const PortalDom = {
+const PortalDom = {
   RootSelector: '#app',
-  HashPrefix: '#/',
-  HashQuerySeparator: '?',
+  HashPrefix: PortalRouteHashPrefix,
+  HashQuerySeparator: PortalRouteHashQuerySeparator,
+  BackgroundDevToolHashFlag: 'bg-only=1',
   EmptyHashRoute: '',
   Ids: {
     AppLoading: 'app-loading',
@@ -232,6 +312,9 @@ export const PortalDom = {
     CommandResultTab: 'command-result-tab',
     CommandResultTabActive: 'command-result-tab-active',
     CopyResultButton: 'copy-result-button',
+    DeveloperRouteContent: 'portal-dev-route-content',
+    DeveloperRoutePanel: 'portal-dev-route-panel',
+    DeveloperRouteToolbar: 'portal-dev-route-toolbar',
     Header: 'header',
     Log: 'log',
     LogLevelPrefix: 'log-',
@@ -291,12 +374,18 @@ export const PortalDom = {
     ThemeToggle: 'theme-toggle',
     ThemeToggleButton: 'theme-toggle-button',
     ThemeToggleButtonActive: 'theme-toggle-button-active',
+    TrackingStatusOverlay: 'tracking-status-overlay',
+    TrackingStatusOverlayContent: 'tracking-status-overlay-content',
+    TrackingStatusOverlayGrid: 'tracking-status-overlay-grid',
+    TrackingStatusOverlayHeader: 'tracking-status-overlay-header',
+    TrackingStatusOverlayMeta: 'tracking-status-overlay-meta',
   },
   Attributes: {
     AriaCurrent: 'aria-current',
     AriaHidden: 'aria-hidden',
     AriaSelected: 'aria-selected',
     DataRouteId: 'data-ocentra-parent-route-id',
+    DataTrackingProof: 'data-ocentra-tracking-proof',
     DataTheme: 'data-theme',
     Page: 'page',
     True: 'true',
@@ -305,6 +394,17 @@ export const PortalDom = {
     Role: 'role',
     Tab: 'tab',
     TabList: 'tablist',
+    TrackingProofCitationDetail: 'service-backed-citation-detail',
+    TrackingProofChildCheckIn: 'child-check-in',
+    TrackingProofChildRuntimeUi: 'child-runtime-ui',
+    TrackingProofEvidenceDrawer: 'service-backed-evidence-drawer',
+    TrackingProofFamilyDashboard: 'family-dashboard-rollup',
+    TrackingProofNotificationParentSurfaceHistory: 'notification-parent-surface-history-ui',
+    TrackingProofParentActionReadiness: 'parent-action-readiness-ui',
+    TrackingProofMissingDevice: 'missing-device-ui',
+    TrackingProofReportPolicyConsumer: 'report-policy-consumer-ui',
+    TrackingProofReportExport: 'report-export-ui',
+    TrackingProofRetentionSettings: 'retention-settings-ui',
   },
   Events: {
     Click: 'click',
@@ -322,34 +422,232 @@ export const PortalDom = {
   },
 } as const;
 
-export const PortalTheme = {
+const PortalTheme = {
   Dark: 'dark',
   Light: 'light',
   LocalStorageKey: 'ocentra-parent-theme',
   MediaDark: '(prefers-color-scheme: dark)',
 } as const;
-export type PortalThemeValue = (typeof PortalTheme)[keyof Pick<typeof PortalTheme, 'Dark' | 'Light'>];
+type PortalThemeValue = (typeof PortalTheme)[keyof Pick<typeof PortalTheme, 'Dark' | 'Light'>];
 
-export const PortalClipboard = {
+const PortalClipboard = {
   CommandCopy: 'copy',
 } as const;
 
-export const PortalFormatting = {
-  EventDetailSeparator: ' | ',
-  CorrelationPrefix: 'correlation ',
-  EndpointSeparator: ':',
-  GraphEdgeSeparator: ' -> ',
+const PortalLanPairingScan = {
+  PendingIndicatorMs: 8000,
+  Text: {
+    HeaderTitle: decodeDisplayText('Local Area Network'),
+    Scan: decodeDisplayText('SCAN'),
+    Scanning: decodeDisplayText('SCANNING'),
+    ScanLocalAreaNetwork: decodeDisplayText('Scan Local Area Network'),
+    OpenLocalAreaNetworkGuide: decodeDisplayText('Open Local Area Network guide'),
+  },
 } as const;
 
-export const PortalTiming = {
+const PortalTiming = {
   CopyFeedbackMs: 1200,
 } as const;
 
-export const PortalEnvironment = {
+const PortalTrackingRetentionSettingsWriteDefaults = GeneratedPortalTrackingContracts.RetentionSettingsWrite.Defaults;
+
+const PortalEnvironment = {
   AgentWebSocketUrl: 'VITE_AGENT_WS_URL',
+  ParentDevBridgeUrl: 'VITE_PARENT_DEV_BRIDGE_URL',
+  BrowserParentExplanationProofBundle: 'VITE_BROWSER_PARENT_EXPLANATION_PROOF_BUNDLE',
+  SocialAuditExplanationProofBundle: 'VITE_SOCIAL_AUDIT_EXPLANATION_PROOF_BUNDLE',
 } as const;
 
-export const PortalText = {
-  Resolve: resolvePortalDevText,
-} as const;
-export const PortalTextToken = PortalDevTextToken;
+export {
+  PortalFormatting,
+  PortalBrowserInventoryFields,
+  PortalDetails,
+  PortalReadableValues,
+  PortalDiagnostics,
+  createLocalAiRuntimePanelIntent,
+  PortalFrameChromeNumberFields,
+  PortalCarouselContentNumberFields,
+  PortalCarouselFrameNumberFields,
+  PortalCarouselRailNumberFields,
+  PortalFrameContentBooleanFields,
+  PortalFrameContentNumberFields,
+  PortalFrameGeometryNumberFields,
+  PortalGoldenCardBooleanFields,
+  PortalGoldenCardContentNumberFields,
+  PortalGoldenCardFrameNumberFields,
+  PortalFrameInnerEdgeNumberFields,
+  PortalFrameInnerGapNumberFields,
+  PortalFrameInnerSegmentNumberFields,
+  PortalFrameInnerShapeNumberFields,
+  PortalFrameOuterEdgeNumberFields,
+  PortalFrameOuterGapNumberFields,
+  PortalFrameOuterSegmentNumberFields,
+  PortalFrameOuterShapeNumberFields,
+  PortalFrameShellNumberFields,
+  PortalFrameSlotNumberFields,
+  PortalFrameTuner,
+  portalFrameCssNumber,
+  portalFrameCssOpacity,
+  portalFrameCssPercent,
+  portalFrameCssPixel,
+  PortalFrameColorFields,
+  PortalFrameTunerFrameSections,
+  PortalAssets,
+  PortalExternalLinks,
+  PortalUnifiedChrome,
+  createPortalAppLayoutButtonDraft,
+  createPortalAppLayoutFoldoutDraft,
+  defaultPortalAppLayoutContentDraft,
+  defaultPortalAppLayoutSurfaceContent,
+  normalizePortalAppLayoutContentDraft,
+  normalizePortalAppLayoutSurfaceContentDraft,
+  PARENT_ASSISTANT_PORTAL_NEW_CHAT_ACTION,
+  PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  PARENT_PORTAL_CONTENT,
+  PARENT_PORTAL_ROUTE,
+  PARENT_PORTAL_ROUTE_CONTEXT,
+  parentPortalRouteContext,
+  PARENT_PORTAL_SERVICE_STATE,
+  resolveParentPortalServiceState,
+  TrackingStatusProofArtifacts,
+  trackingFamilyDashboardHostedRollupProof,
+  trackingStatusLiveSummary,
+  trackingStatusProofRows,
+  trackingStatusServiceDataCoverage,
+  trackingUnsupportedManualPlatformProof,
+  PortalTrackingRetentionSettingsWriteDefaults,
+  TrackingEvidenceDrawerHostedUiProofDetails,
+  trackingEvidenceDrawerHostedUiProof,
+  trackingRetentionSettingsHostedUiProof,
+  PARENT_PORTAL_NAV_LABELS,
+  parseActivityMemoryGraphReadModel,
+  PortalClipboard,
+  PortalAgentCommand,
+  PortalAgentLanHouseholdActionDeviceKindField,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentLanIntentKind,
+  PortalAgentLanParentAuthority,
+  PortalAgentPeerDefaults,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
+  PortalConnectionState,
+  PortalDevToolWindow,
+  PortalAiRuntimeRoutes,
+  PortalRouteDescriptors,
+  PortalAppGameParentSurfaceRoutes,
+  PortalBrowserParentSurfaceRoutes,
+  PortalNetworkEvidenceDrawerRoutes,
+  PortalRoute,
+  PortalRouteGroup,
+  PortalRouteLiteral,
+  PortalRouteSchema,
+  PortalRoutes,
+  PortalScreenSettingsRoutes,
+  PortalScreenSummaryRoutes,
+  PortalSidebarRouteDescriptors,
+  PortalTrackingStatusRoutes,
+  decodePortalClipboardText,
+  decodePortalDetailValue,
+  decodeTrackingStatusProofArtifact,
+  isPortalAiRuntimeRoute,
+  isPortalAppGameParentSurfaceRoute,
+  isPortalBrowserParentSurfaceRoute,
+  isPortalNetworkEvidenceDrawerRoute,
+  isPortalScreenSettingsRoute,
+  isPortalScreenSummaryRoute,
+  isPortalTrackingStatusRoute,
+  portalDevToolUrl,
+  portalRouteHashPath,
+  portalRouteHashPathWithQuery,
+  DEFAULT_PORTAL_BACKGROUND_CONFIG,
+  DEFAULT_PORTAL_BACKGROUND_DARK_COLORS,
+  DEFAULT_PORTAL_BACKGROUND_LIGHT_COLORS,
+  PortalBackgroundRuntime,
+  normalizePortalBackgroundConfig,
+  portalBackgroundAppRenderConfig,
+  portalBackgroundRenderConfig,
+  PORTAL_BACKGROUND_SVG_HEIGHT,
+  PORTAL_BACKGROUND_SVG_WIDTH,
+  portalBackgroundSvgContent,
+  portalBackgroundSvgMarkup,
+  BrowserChildInterventionPageDefaults,
+  BrowserChildInterventionPageSamples,
+  renderBrowserChildInterventionPage,
+  createSocialChildInterventionPageModels,
+  PortalDom,
+  PortalEnvironment,
+  PortalLanPairingScan,
+  PortalTheme,
+  PortalTiming,
+  type LocalAiRuntimePanelCard,
+  type LocalAiRuntimePanelDetail,
+  type LocalAiRuntimePanelIntent,
+  type PortalFrameCssStyle,
+  type PortalFrameCssValue,
+  type PortalFrameBooleanField,
+  type PortalFrameColorField,
+  type PortalFrameNumberField,
+  type PortalFrameTargetValue,
+  type PortalFrameTunerFrameSectionValue,
+  type PortalAppLayoutButtonDraft,
+  type PortalAppLayoutContentAreaKey,
+  type PortalAppLayoutContentDraft,
+  type PortalAppLayoutFoldoutDraft,
+  type PortalAppLayoutSurfaceContentDraft,
+  type PortalAppLayoutSurfaceKey,
+  type PortalAppLayoutTone,
+  type ParentAssistantPortalQuickAction,
+  type ParentAssistantPortalQuickActionId,
+  type ParentPortalContent,
+  type ParentPortalIconName,
+  type ParentPortalPageMode,
+  type ParentPortalRow,
+  type ParentPortalRowSource,
+  type ParentPortalRouteContext,
+  type ParentPortalTabId,
+  type ParentPortalTone,
+  type ParentPortalServiceState,
+  type TrackingFamilyDashboardHostedRollupProof,
+  type TrackingFamilyDashboardHostedRollupRow,
+  type TrackingStatusLiveCitation,
+  type TrackingStatusLiveProjectionInput,
+  type TrackingStatusLiveSummary,
+  type TrackingStatusProofRow,
+  type TrackingStatusServiceDataCoverage,
+  type TrackingUnsupportedManualPlatformProof,
+  type TrackingUnsupportedManualPlatformRow,
+  type TrackingEvidenceDrawerHostedUiProof,
+  type TrackingEvidenceDrawerSourceCitation,
+  type TrackingRetentionSettingsHostedUiProof,
+  type TrackingRetentionSettingsHostedUiRow,
+  type TrackingRetentionSettingsWritePreflight,
+  type ParentPortalHashRoutePath,
+  type ParentPortalNavGroup,
+  type ParentPortalNavGroupId,
+  type ParentPortalNavItem,
+  type ParentPortalNavLabel,
+  type ParentPortalNavSectionLabel,
+  type PortalActivityMemoryGraphEdge,
+  type PortalActivityMemoryGraphNode,
+  type PortalActivityMemoryGraphNodeId,
+  type PortalActivityMemoryGraphReadModel,
+  type PortalDetailValue,
+  type PortalAgentCommandName,
+  type PortalRouteHashPath,
+  type PortalRouteHashQueryPath,
+  type PortalRouteDescriptor,
+  type PortalRouteGroupValue,
+  type PortalBackgroundConfig,
+  type PortalBackgroundRenderConfig,
+  type PortalBackgroundThemeColors,
+  type BrowserChildInterventionPageAction,
+  type BrowserChildInterventionPageBackdrop,
+  type BrowserChildInterventionPageModel,
+  type BrowserChildInterventionPageTheme,
+  type SocialChildInterventionPageModelOptions,
+  type SocialChildInterventionPageModelResult,
+  type SocialChildInterventionRequestedUrlResolver,
+  type TrackingStatusProofArtifact,
+  type PortalThemeValue,
+};

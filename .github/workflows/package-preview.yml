@@ -2,6 +2,12 @@ name: Package Preview
 
 on:
   workflow_call:
+    inputs:
+      docs_hub_only:
+        description: Skip package previews for docs/hub-only changes while preserving required check names.
+        required: false
+        type: boolean
+        default: false
   workflow_dispatch:
 
 permissions:
@@ -14,32 +20,38 @@ jobs:
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Setup .NET for WiX
+        if: ${{ !inputs.docs_hub_only }}
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
 
       - name: Build preview Windows MSI
+        if: ${{ !inputs.docs_hub_only }}
         shell: pwsh
         env:
           OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY: 'true'
         run: ./scripts/release/windows/build-agent-package.ps1
 
       - name: Smoke Windows MSI install and uninstall
+        if: ${{ !inputs.docs_hub_only }}
         shell: pwsh
         run: ./scripts/smoke/windows-msi-smoke.ps1 -MsiPath ./target/release-packages/ocentra-parent-agent-windows-x64-latest.msi
 
       - name: Upload Windows MSI smoke logs
-        if: failure()
+        if: ${{ !inputs.docs_hub_only && failure() }}
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-windows-msi-smoke-logs
           path: target/release-packages/smoke/*.log
 
       - name: Upload Windows MSI preview
+        if: ${{ !inputs.docs_hub_only }}
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-windows-x64-preview
@@ -49,28 +61,38 @@ jobs:
             target/release-packages/latest-windows.json
             target/release-packages/install-ocentra-parent-agent-windows.ps1
 
+      - name: Docs/hub-only Windows MSI preview skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Windows MSI preview skipped for docs/hub-only change."
+
   linux-deb:
     name: Linux DEB Preview
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Record Linux package baseline
+        if: ${{ !inputs.docs_hub_only }}
         run: |
           . /etc/os-release
           echo "package-baseline=$PRETTY_NAME"
           getconf GNU_LIBC_VERSION
 
       - name: Build Linux DEB package
+        if: ${{ !inputs.docs_hub_only }}
         run: bash scripts/release/linux/build-agent-package.sh
 
       - name: Smoke Linux DEB install and remove
+        if: ${{ !inputs.docs_hub_only }}
         run: bash scripts/smoke/linux-deb-smoke.sh target/release-packages/linux/ocentra-parent-agent-linux-amd64-latest.deb
 
       - name: Upload Linux package preview
+        if: ${{ !inputs.docs_hub_only }}
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-linux-amd64-preview
@@ -80,22 +102,31 @@ jobs:
             target/release-packages/linux/linux-baseline.json
             test-results/linux-package-smoke/*
 
+      - name: Docs/hub-only Linux DEB preview skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Linux DEB preview skipped for docs/hub-only change."
+
   macos-pkg:
     name: macOS PKG Preview
     runs-on: macos-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Build macOS PKG package
+        if: ${{ !inputs.docs_hub_only }}
         run: bash scripts/release/macos/build-agent-package.sh
 
       - name: Smoke macOS PKG payload
+        if: ${{ !inputs.docs_hub_only }}
         run: bash scripts/smoke/macos-pkg-smoke.sh target/release-packages/macos/ocentra-parent-agent-macos-latest.pkg
 
       - name: Upload macOS package preview
+        if: ${{ !inputs.docs_hub_only }}
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-macos-preview
@@ -103,38 +134,51 @@ jobs:
             target/release-packages/macos/*.pkg
             target/release-packages/macos/*.sha256
 
+      - name: Docs/hub-only macOS PKG preview skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "macOS PKG preview skipped for docs/hub-only change."
+
   android-apk:
     name: Android APK Preview
     runs-on: ubuntu-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: actions/setup-java@v4
+        if: ${{ !inputs.docs_hub_only }}
         with:
           distribution: temurin
           java-version: '17'
 
       - uses: android-actions/setup-android@v3
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Setup Gradle cache
+        if: ${{ !inputs.docs_hub_only }}
         uses: gradle/actions/setup-gradle@v4
 
       - name: Install Android SDK packages
+        if: ${{ !inputs.docs_hub_only }}
         run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
 
       - name: Build Android APK
+        if: ${{ !inputs.docs_hub_only }}
         run: node scripts/release/android/build-agent-package.mjs
 
       - name: Enable KVM for Android emulator
+        if: ${{ !inputs.docs_hub_only }}
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
 
       - name: Smoke Android APK in emulator
+        if: ${{ !inputs.docs_hub_only }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
@@ -144,6 +188,7 @@ jobs:
           script: bash scripts/smoke/android-apk-smoke.sh target/release-packages/android/ocentra-parent-agent-android-debug-latest.apk
 
       - name: Upload Android package preview
+        if: ${{ !inputs.docs_hub_only }}
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-android-preview
@@ -151,25 +196,46 @@ jobs:
             target/release-packages/android/*.apk
             target/release-packages/android/*.sha256
 
+      - name: Docs/hub-only Android APK preview skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "Android APK preview skipped for docs/hub-only change."
+
   ios-simulator:
     name: iOS Simulator App Preview
     runs-on: macos-latest
     timeout-minutes: 25
     steps:
       - uses: actions/checkout@v6
+        if: ${{ !inputs.docs_hub_only }}
 
       - uses: ./.github/actions/setup-ci
+        if: ${{ !inputs.docs_hub_only }}
 
       - name: Build iOS simulator app
+        if: ${{ !inputs.docs_hub_only }}
         run: bash scripts/release/ios/build-simulator-app.sh
 
       - name: Smoke iOS simulator app install and launch
+        if: ${{ !inputs.docs_hub_only }}
         run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
 
+      - name: Write tracking iOS simulator proof
+        if: ${{ !inputs.docs_hub_only }}
+        run: npm run test:tracking-plan-ios-simulator-proof
+
       - name: Upload iOS simulator preview
+        if: ${{ !inputs.docs_hub_only }}
         uses: actions/upload-artifact@v6
         with:
           name: ocentra-parent-ios-simulator-preview
           path: |
             target/release-packages/ios/*.zip
             target/release-packages/ios/*.sha256
+            test-results/tracking-plan-ios-simulator-proof/**
+            output/tracking-plan-proof/11-ios-core-location-foreground-adapter/18-ios-simulator-proof.json
+            output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/18-ios-simulator-proof.json
+            output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/18-ios-simulator-proof.json
+
+      - name: Docs/hub-only iOS Simulator preview skip
+        if: ${{ inputs.docs_hub_only }}
+        run: echo "iOS Simulator preview skipped for docs/hub-only change."

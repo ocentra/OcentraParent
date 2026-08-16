@@ -34,6 +34,12 @@ pub(crate) fn browser_subject_id(domain: &str) -> String {
     subject_id
 }
 
+pub(crate) fn browser_tab_id(target_id: &str) -> String {
+    let mut tab_id = String::from(constants::browser::TAB_ID_PREFIX);
+    tab_id.push_str(target_id);
+    tab_id
+}
+
 fn bridge_id(
     prefix: &str,
     observation: &BrowserBridgeTargetObservation,

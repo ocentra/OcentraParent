@@ -5,3 +5,5 @@ pub const WINDOWS_NETWORK: &str = "windows-network";
 pub const MANAGED_BROWSER_BRIDGE: &str = "managed-browser-bridge";
 pub const BROWSER_EXTENSION: &str = "browser-extension";
 pub const LOCAL_AI: &str = "local-ai";
+pub const TRACKING_ENGINE: &str = "tracking-engine";
+pub const ANDROID_LOCATION: &str = "android-location";

@@ -1,22 +1,28 @@
 use serde::{Deserialize, Serialize};
 
+use crate::browser_policy_sections::{
+    BrowserPolicyAuditPlan, BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget,
+    BrowserPolicySchedule,
+};
 use crate::browser_policy_values::{
-    BrowserPolicyApprovalState, BrowserPolicyAuditState, BrowserPolicyCapabilityState,
-    BrowserPolicyDefaultPosture, BrowserPolicyDownloadState, BrowserPolicyEvidenceProofLevel,
-    BrowserPolicyExecutionMode, BrowserPolicyManagedBrowserMode, BrowserPolicyManagementMode,
-    BrowserPolicyProofFallback, BrowserPolicyReportState, BrowserPolicyRetentionState,
+    BrowserPolicyActionExecutionState, BrowserPolicyAiAuthority, BrowserPolicyApprovalState,
+    BrowserPolicyAuditState, BrowserPolicyCapabilityState, BrowserPolicyDefaultPosture,
+    BrowserPolicyDownloadState, BrowserPolicyEvidenceProofLevel, BrowserPolicyExecutionMode,
+    BrowserPolicyManagedBrowserMode, BrowserPolicyManagementMode, BrowserPolicyProofFallback,
+    BrowserPolicyReportState, BrowserPolicyRetentionState, BrowserPolicyTargetProofRequirement,
     BrowserPolicyUnmanagedBrowserMode, BrowserPolicyUrlTargetType,
 };
 use crate::{
     BrowserPolicyApprovalRequiredFor, BrowserPolicyApprovalUnansweredDefault,
-    BrowserPolicyAuditPlan, BrowserPolicyAuditRequiredField, BrowserPolicyBudgetCountingMode,
-    BrowserPolicyChildFacing, BrowserPolicyCustody, BrowserPolicyDownloadBlockedType,
-    BrowserPolicyEvidenceNeverCollect, BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks,
+    BrowserPolicyAuditRequiredField, BrowserPolicyBrowserGameApprovalMode,
+    BrowserPolicyBrowserGamePolicyMode, BrowserPolicyBudgetCountingMode, BrowserPolicyChildFacing,
+    BrowserPolicyCustody, BrowserPolicyDownloadBlockedType, BrowserPolicyEvidenceNeverCollect,
+    BrowserPolicyEvidenceUrlScope, BrowserPolicyFallbacks,
     BrowserPolicyManagedBrowserBridgeRequirement, BrowserPolicyManagedBrowserFamily,
     BrowserPolicyManagedBrowserIntegrationMechanism, BrowserPolicyManagedBrowserLaunchMode,
-    BrowserPolicyManagedBrowserProfileMode, BrowserPolicyPlatforms, BrowserPolicyPortalAi,
+    BrowserPolicyManagedBrowserProfileMode, BrowserPolicyManagedPolicyWriterControl,
+    BrowserPolicyManagedPolicyWriterFallback, BrowserPolicyPlatforms, BrowserPolicyPortalAi,
     BrowserPolicyReportVisibleField, BrowserPolicyRetentionExactUrl, BrowserPolicyRuleAction,
-    BrowserPolicyRuleActionPlan, BrowserPolicyRuleTarget, BrowserPolicySchedule,
     BrowserPolicyUnmanagedBrowserClassificationTarget,
 };
 
@@ -38,6 +44,8 @@ pub struct BrowserPolicyValue {
     pub evidence: BrowserPolicyEvidenceRequirement,
     pub rules: BrowserPolicyRules,
     pub budgets: BrowserPolicyBudgets,
+    #[serde(default)]
+    pub browser_games: BrowserPolicyBrowserGames,
     pub downloads: BrowserPolicyDownloads,
     pub approvals: BrowserPolicyApprovals,
     pub reports: BrowserPolicyReports,
@@ -82,6 +90,10 @@ pub struct BrowserPolicyManagedBrowser {
     pub bridge_requirements: Vec<BrowserPolicyManagedBrowserBridgeRequirement>,
     #[serde(default)]
     pub integration_mechanisms: Vec<BrowserPolicyManagedBrowserIntegrationMechanism>,
+    #[serde(default)]
+    pub policy_writer_controls: Vec<BrowserPolicyManagedPolicyWriterControl>,
+    #[serde(default)]
+    pub policy_writer_fallback: BrowserPolicyManagedPolicyWriterFallback,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -119,6 +131,10 @@ pub struct BrowserPolicyRules {
     pub items: Vec<BrowserPolicyRule>,
     #[serde(default)]
     pub entries: Vec<BrowserPolicyRule>,
+    #[serde(default)]
+    pub url_allow_list: Vec<String>,
+    #[serde(default)]
+    pub url_block_list: Vec<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -154,6 +170,39 @@ pub struct BrowserPolicyBudgets {
     pub default_daily_minutes: Option<u32>,
     #[serde(default)]
     pub counting_mode: BrowserPolicyBudgetCountingMode,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BrowserPolicyBrowserGames {
+    #[serde(default)]
+    pub educational_game_mode: BrowserPolicyBrowserGamePolicyMode,
+    #[serde(default = "default_unknown_game_mode")]
+    pub unknown_game_mode: BrowserPolicyBrowserGamePolicyMode,
+    #[serde(default)]
+    pub cloud_gaming_approval: BrowserPolicyBrowserGameApprovalMode,
+    #[serde(default)]
+    pub purchase_account_approval: BrowserPolicyBrowserGameApprovalMode,
+    #[serde(default = "default_unblocked_portal_mode")]
+    pub unblocked_portal_mode: BrowserPolicyBrowserGamePolicyMode,
+    #[serde(default)]
+    pub webgl_canvas_mode: BrowserPolicyBrowserGamePolicyMode,
+    #[serde(default = "default_browser_game_daily_minutes")]
+    pub default_daily_minutes: Option<u32>,
+}
+
+impl Default for BrowserPolicyBrowserGames {
+    fn default() -> Self {
+        Self {
+            educational_game_mode: BrowserPolicyBrowserGamePolicyMode::Allow,
+            unknown_game_mode: default_unknown_game_mode(),
+            cloud_gaming_approval: BrowserPolicyBrowserGameApprovalMode::AskParent,
+            purchase_account_approval: BrowserPolicyBrowserGameApprovalMode::AskParent,
+            unblocked_portal_mode: default_unblocked_portal_mode(),
+            webgl_canvas_mode: BrowserPolicyBrowserGamePolicyMode::Observe,
+            default_daily_minutes: default_browser_game_daily_minutes(),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -231,6 +280,12 @@ pub struct BrowserPolicyEffectiveRule {
     pub target_value: String,
     pub default_posture: BrowserPolicyDefaultPosture,
     pub evidence: BrowserPolicyEvidenceRequirement,
+    pub action: BrowserPolicyRuleAction,
+    pub target_proof_requirement: BrowserPolicyTargetProofRequirement,
+    pub capability_state: BrowserPolicyCapabilityState,
+    pub action_execution: BrowserPolicyActionExecutionState,
+    pub ai_authority: BrowserPolicyAiAuthority,
+    pub compile_note: String,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -262,4 +317,16 @@ fn default_discovery_enabled() -> bool {
 
 fn default_when_proof_unavailable() -> BrowserPolicyProofFallback {
     BrowserPolicyProofFallback::MarkUnavailable
+}
+
+fn default_unknown_game_mode() -> BrowserPolicyBrowserGamePolicyMode {
+    BrowserPolicyBrowserGamePolicyMode::AskParent
+}
+
+fn default_unblocked_portal_mode() -> BrowserPolicyBrowserGamePolicyMode {
+    BrowserPolicyBrowserGamePolicyMode::Warn
+}
+
+fn default_browser_game_daily_minutes() -> Option<u32> {
+    Some(30)
 }

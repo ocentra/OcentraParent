@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 2,
+  "claim": {
+    "schemaVersion": 2,
+    "messageKind": "hello",
+    "childDeviceId": "child-device-1",
+    "parentDeviceId": "parent-device-1",
+    "installId": "child-install-1",
+    "familyHash": "sha256:family-1",
+    "childProfileHash": "sha256:child-profile-1",
+    "platform": "windows",
+    "hostname": "GAMEDEV",
+    "agentVersion": "1.2.3",
+    "localIps": ["192.168.2.42"],
+    "macAddresses": ["54-27-1e-97-c3-31"],
+    "capabilities": ["child-agent-pairing-route", "future-safe-local-capability"],
+    "routeId": "lan-route-local-network",
+    "nonce": "nonce-hello-1",
+    "sequence": 1,
+    "issuedAt": "2026-05-23T14:40:00.000Z",
+    "expiresAt": "2099-05-23T14:45:00.000Z"
+  },
+  "publicKeyBase64": "6kpsY+KcUgq+9VB7Ey7F+ZVHdq6+vnuSQh7qaRRG0iw=",
+  "publicKeyId": "fe812c12f3ab4ce6ac5db69ac352f906",
+  "signatureBase64": "B61ALAV4F2uwn1LNF4ryHTHDNCdJ0Lvkj2bVw4Olros5rZRn7aeO21maoqA9kFGFzvfCzGtO9pbvUfCfyIOyBQ==",
+  "signatureAlgorithm": "ed25519"
+}

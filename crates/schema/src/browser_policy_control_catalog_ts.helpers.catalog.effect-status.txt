@@ -1,0 +1,29 @@
+export function effectStatusForSectionGenerated(
+  sectionTitle: string,
+  sourceText: string
+): (typeof GeneratedBrowserControlFullCatalogEffectStatusValues)[number] {
+  const searchable = `${sectionTitle} ${sourceText}`;
+  if (/Gaps To Decide Before UI Contracts/u.test(sectionTitle)) {
+    return 'future-gap';
+  }
+  if (/Never-Collect|Portal Display|Child-Facing|Report|Audit|Custody|Retention|Data Minimization/u.test(searchable)) {
+    return 'already-represented';
+  }
+  if (
+    /Exact URL|active tab|page title|download source|browser evidence|required proof|proof requirement/iu.test(
+      searchable
+    )
+  ) {
+    return 'proof-required';
+  }
+  if (/Private|Tor|permission|protected browser/iu.test(searchable)) {
+    return 'permission-required';
+  }
+  if (/Network|Capability Failure|Fallback|Degradation|Unmanaged Browser Recovery|degraded/iu.test(searchable)) {
+    return 'degraded';
+  }
+  if (/Platform|Setup|Provisioning|Managed Browser Operation|Notifications|manual/iu.test(searchable)) {
+    return 'manual-required';
+  }
+  return 'needs-effect-wiring';
+}

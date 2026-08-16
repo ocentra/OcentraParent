@@ -1,55 +1,153 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactElement } from 'react';
-import {
-  PortalDom,
-  PortalFrameTuner,
-  PortalRoute,
-  type PortalRoute as PortalRouteValue,
-  type PortalThemeValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { useMemo, type CSSProperties, type ReactElement } from 'react';
+import { PortalDom, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import { PortalFrameTuner } from '@ocentra-parent/portal-domain/frame-tuner';
+import { PortalRouteDescriptors } from '@ocentra-parent/portal-domain/routes';
+import { ParentRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
+import { usePortalAppBehavior, type PortalAppBehavior } from './portal-app-behavior';
 import type { PortalRenderActions } from './portal-actions';
-import { routeDescriptor } from './portal-route-descriptor';
-import { renderRouteContent } from './portal-route-content';
 import type { PortalRuntimeState } from './portal-state';
 import { ParentPortalRoute } from './ParentPortalRoute';
 import { PortalAuthDialog } from './PortalAuthDialog';
 import { PortalFrameBackdrop, PortalFrameBoundsOverlay } from './PortalFrameSurface';
 import { PortalFrameTunerRoute } from './PortalFrameTunerRoute';
+import { ScreenSummaryRoutePanel } from './ScreenSummaryRoutePanel';
 import { PortalSidebar } from './PortalSidebar';
 import { PortalUnifiedShell } from './PortalUnifiedChrome';
-import {
-  carouselStyle,
-  frameContentStyle,
-  frameContentTarget,
-  frameHostClassName,
-  goldenCardStyle,
-} from './portal-frame-layout';
-import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout';
-import { usePortalFrameLayout } from './use-portal-frame-layout';
+import { carouselStyle, frameContentStyle, frameHostClassName, goldenCardStyle } from './portal-frame-layout-style';
+import { frameContentTarget } from './portal-frame-layout-state';
+import { PortalRouteContentMount } from './portal-route-content';
+import type { PortalFrameContentTargetLayout, PortalFrameLayout } from './portal-frame-layout-types';
 
 type PortalAppProps = {
   readonly actions: PortalRenderActions;
   readonly rerender: () => void;
   readonly revision: number;
-  readonly route: PortalRouteValue;
+  readonly route: ParentRouteId;
   readonly state: PortalRuntimeState;
   readonly theme: PortalThemeValue;
+  readonly onThemeChange: (theme: PortalThemeValue) => void;
   readonly onProductSurfaceReady: () => void;
 };
 
-const PORTAL_HEADER_ROUTE_TRANSITION_MS = 1040;
-
 export function PortalApp(props: PortalAppProps): ReactElement {
-  const [authOpen, setAuthOpen] = useState(false);
-  const [headerRouteTransitionActive, setHeaderRouteTransitionActive] = useState(false);
-  const previousRouteRef = useRef<PortalRouteValue>(props.route);
-  const isFrameTuner = props.route === PortalRoute.FrameTuner;
-  const isDevProtocolRoute = props.route === PortalRoute.Commands || props.route === PortalRoute.Events;
-  const isProductRoute = !isFrameTuner && !isDevProtocolRoute;
-  const [frameLayout, setFrameLayout] = usePortalFrameLayout(!isFrameTuner && import.meta.env.DEV);
-  const routeFrameLayout = useMemo(
-    () => frameLayoutVisibleForProtocolRoute(frameLayout, isDevProtocolRoute),
-    [frameLayout, isDevProtocolRoute]
+  const behavior = usePortalAppBehavior({
+    actions: props.actions,
+    onProductSurfaceReady: props.onProductSurfaceReady,
+    route: props.route,
+    state: props.state,
+  });
+
+  if (behavior.isFrameTuner) {
+    return <PortalFrameTunerRoute layout={behavior.frameLayout} onLayoutChange={behavior.setFrameLayout} />;
+  }
+
+  if (behavior.isProductRoute) {
+    return <PortalProductRouteShell {...props} behavior={behavior} />;
+  }
+
+  return <PortalProtocolRouteShell {...props} behavior={behavior} />;
+}
+
+type PortalProductRouteShellProps = PortalAppProps & {
+  readonly behavior: PortalAppBehavior;
+};
+
+type PortalProtocolRouteShellProps = PortalAppProps & {
+  readonly behavior: PortalAppBehavior;
+};
+
+function PortalProductRouteShell({
+  actions,
+  behavior,
+  onProductSurfaceReady,
+  onThemeChange,
+  route,
+  state,
+  theme,
+}: PortalProductRouteShellProps): ReactElement {
+  const controls =
+    route === ParentRoute.Assistant
+      ? behavior.frameLayout.parentPortal.chatInterface
+      : behavior.frameLayout.parentPortal.mainApp;
+  return (
+    <>
+      <PortalUnifiedShell
+        onAuthOpen={behavior.openAuthDialog}
+        onThemeChange={onThemeChange}
+        routeTransitionActive={behavior.headerRouteTransitionActive}
+        theme={theme}
+      >
+        <ParentPortalRoute
+          actions={actions}
+          controls={controls}
+          lanPairingAutoScanSequence={behavior.lanPairingAutoScanSequence}
+          onProductSurfaceReady={onProductSurfaceReady}
+          route={route}
+          state={state}
+        />
+        {route === ParentRoute.ScreenAnalysis ? <ScreenSummaryRoutePanel panel={behavior.screenSummaryPanel} /> : null}
+      </PortalUnifiedShell>
+      <PortalAuthDialogMount open={behavior.authOpen} onClose={behavior.closeAuthDialog} />
+    </>
   );
+}
+
+function PortalProtocolRouteShell({
+  actions,
+  behavior,
+  onThemeChange,
+  route,
+  state,
+  rerender,
+  revision,
+  theme,
+}: PortalProtocolRouteShellProps): ReactElement {
+  const { appFrameStyle, appMainClassName, appMainStyle, mainContent } = usePortalProtocolFrameState(
+    behavior.routeFrameLayout
+  );
+  return (
+    <>
+      <PortalUnifiedShell
+        onAuthOpen={behavior.openAuthDialog}
+        onThemeChange={onThemeChange}
+        routeTransitionActive={behavior.headerRouteTransitionActive}
+        theme={theme}
+      >
+        <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
+          <PortalSidebar actions={actions} frameLayout={behavior.routeFrameLayout} route={route} state={state} />
+          <main aria-label={PortalFrameTuner.Text.TargetMain} className={appMainClassName} style={appMainStyle}>
+            <PortalFrameBackdrop
+              ariaLabel={PortalFrameTuner.Text.PreviewMain}
+              controls={behavior.routeFrameLayout.main}
+            />
+            <PortalFrameBoundsOverlay content={mainContent} />
+            <div className={PortalFrameTuner.Classes.FrameContent}>
+              <PageHeader route={route} />
+              <PortalRouteContentMount
+                actions={actions}
+                rerender={rerender}
+                revision={revision}
+                route={route}
+                state={state}
+                theme={theme}
+              />
+            </div>
+          </main>
+        </div>
+      </PortalUnifiedShell>
+      <PortalAuthDialogMount open={behavior.authOpen} onClose={behavior.closeAuthDialog} />
+    </>
+  );
+}
+
+type PortalProtocolFrameState = {
+  readonly appFrameStyle: CSSProperties;
+  readonly appMainClassName: string;
+  readonly appMainStyle: CSSProperties;
+  readonly mainContent: PortalFrameContentTargetLayout;
+};
+
+function usePortalProtocolFrameState(routeFrameLayout: PortalFrameLayout): PortalProtocolFrameState {
   const appFrameStyle = useMemo<CSSProperties>(
     () => ({
       columnGap: routeFrameLayout.shell.frameGap,
@@ -76,93 +174,20 @@ export function PortalApp(props: PortalAppProps): ReactElement {
     [routeFrameLayout.main, mainContent]
   );
   const appMainClassName = useMemo(() => frameHostClassName(PortalDom.Classes.AppMain, mainContent), [mainContent]);
-  useLayoutEffect(() => {
-    if (!isProductRoute) {
-      props.onProductSurfaceReady();
-    }
-  }, [isProductRoute, props.onProductSurfaceReady]);
-  useEffect(() => {
-    if (previousRouteRef.current === props.route) {
-      return;
-    }
-    previousRouteRef.current = props.route;
-    setHeaderRouteTransitionActive(true);
-    const timeout = window.setTimeout(() => setHeaderRouteTransitionActive(false), PORTAL_HEADER_ROUTE_TRANSITION_MS);
-    return () => window.clearTimeout(timeout);
-  }, [props.route]);
-  if (isFrameTuner) {
-    return <PortalFrameTunerRoute layout={frameLayout} onLayoutChange={setFrameLayout} />;
-  }
-  if (isProductRoute) {
-    const controls =
-      props.route === PortalRoute.Assistant ? frameLayout.parentPortal.chatInterface : frameLayout.parentPortal.mainApp;
-    return (
-      <>
-        <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)} routeTransitionActive={headerRouteTransitionActive}>
-          <ParentPortalRoute
-            actions={props.actions}
-            controls={controls}
-            onProductSurfaceReady={props.onProductSurfaceReady}
-            route={props.route}
-            state={props.state}
-          />
-        </PortalUnifiedShell>
-        {authOpen ? <PortalAuthDialog onClose={() => setAuthOpen(false)} /> : null}
-      </>
-    );
-  }
-  return (
-    <>
-      <PortalUnifiedShell onAuthOpen={() => setAuthOpen(true)} routeTransitionActive={headerRouteTransitionActive}>
-        <div className={PortalDom.Classes.AppFrame} style={appFrameStyle}>
-          <PortalSidebar
-            actions={props.actions}
-            frameLayout={routeFrameLayout}
-            route={props.route}
-            state={props.state}
-          />
-          <main aria-label={PortalFrameTuner.Text.TargetMain} className={appMainClassName} style={appMainStyle}>
-            <PortalFrameBackdrop ariaLabel={PortalFrameTuner.Text.PreviewMain} controls={routeFrameLayout.main} />
-            <PortalFrameBoundsOverlay content={mainContent} />
-            <div className={PortalFrameTuner.Classes.FrameContent}>
-              <PageHeader route={props.route} />
-              <RouteContentMount
-                actions={props.actions}
-                rerender={props.rerender}
-                revision={props.revision}
-                route={props.route}
-                state={props.state}
-                theme={props.theme}
-                onProductSurfaceReady={props.onProductSurfaceReady}
-              />
-            </div>
-          </main>
-        </div>
-      </PortalUnifiedShell>
-      {authOpen ? <PortalAuthDialog onClose={() => setAuthOpen(false)} /> : null}
-    </>
-  );
+  return { appFrameStyle, appMainClassName, appMainStyle, mainContent };
 }
 
-function frameLayoutVisibleForProtocolRoute(layout: PortalFrameLayout, isDevProtocolRoute: boolean): PortalFrameLayout {
-  if (!isDevProtocolRoute) {
-    return layout;
-  }
-  return {
-    ...layout,
-    content: {
-      sideTop: visibleContentTarget(layout.content.sideTop),
-      sideBottom: visibleContentTarget(layout.content.sideBottom),
-      main: visibleContentTarget(layout.content.main),
-    },
-  };
+function PortalAuthDialogMount({
+  onClose,
+  open,
+}: {
+  readonly onClose: () => void;
+  readonly open: boolean;
+}): ReactElement | null {
+  return open ? <PortalAuthDialog onClose={onClose} /> : null;
 }
 
-function visibleContentTarget(content: PortalFrameContentTargetLayout): PortalFrameContentTargetLayout {
-  return content.showContent ? content : { ...content, showContent: true };
-}
-
-function PageHeader({ route }: { readonly route: PortalRouteValue }): ReactElement {
+function PageHeader({ route }: { readonly route: ParentRouteId }): ReactElement {
   const descriptor = routeDescriptor(route);
   return (
     <header className={PortalDom.Classes.AppHeader}>
@@ -174,22 +199,10 @@ function PageHeader({ route }: { readonly route: PortalRouteValue }): ReactEleme
   );
 }
 
-function RouteContentMount(props: PortalAppProps): ReactElement {
-  const hostRef = useRef<HTMLElement | null>(null);
-  useLayoutEffect(() => {
-    const host = hostRef.current;
-    if (host === null) {
-      return;
-    }
-    clear(host);
-    renderRouteContent(host, props.route, props.state, props.actions, props.theme, props.rerender);
-    return () => clear(host);
-  }, [props.actions, props.rerender, props.revision, props.route, props.state, props.theme]);
-  return <section className={PortalDom.Classes.State} ref={hostRef} />;
-}
-
-function clear(element: HTMLElement): void {
-  while (element.firstChild !== null) {
-    element.firstChild.remove();
+function routeDescriptor(route: ParentRouteId) {
+  const descriptor = PortalRouteDescriptors.find((candidate) => candidate.route === route);
+  if (descriptor === undefined) {
+    return PortalRouteDescriptors[0]!;
   }
+  return descriptor;
 }

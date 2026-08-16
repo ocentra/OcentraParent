@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import type { DeviceChoiceGridConfig } from './DeviceChoiceGridConfig';
 import type { DeviceChoiceGridCellPosition, DeviceChoiceGridIds, DeviceSlot } from './DeviceChoiceGridTypes';
+import { DeviceKindIcon, DevicePlatformImage, getDeviceKind, getDevicePlatformIconHref } from './DeviceChoiceGridIcons';
 
 type DeviceChoiceGridCellProps = {
   active: boolean;
@@ -15,7 +16,9 @@ type DeviceChoiceGridCellProps = {
   press: boolean;
   shineOpacity: number;
   showAdd: boolean;
+  showEdit: boolean;
   onAddToPortal: (slot: DeviceSlot) => void;
+  onEditDevice: (slot: DeviceSlot) => void;
   onHoverChange: (index: number | null) => void;
   onPressChange: (index: number | null) => void;
   onSelect: (index: number) => void;
@@ -35,8 +38,10 @@ export function DeviceChoiceGridCell({
   press,
   shineOpacity,
   showAdd,
+  showEdit,
   index,
   onAddToPortal,
+  onEditDevice,
   onHoverChange,
   onPressChange,
   onSelect,
@@ -52,14 +57,26 @@ export function DeviceChoiceGridCell({
       : `Select ${item.label}`;
   const showLabel = !empty && item.label.trim().length > 0;
   const badgeLabel = item.badge?.trim() ?? '';
-  const showBadge = !empty && badgeLabel.length > 0;
+  const showBadge = false;
+  const showKindIcon = !empty;
+  const showPlatformIcon = showKindIcon && getDevicePlatformIconHref(item) !== null;
+  const iconSize = Math.max(14, Math.min(18, cellH * 0.36));
+  const statusDotX = position.x + 13;
+  const statusDotY = position.y + cellH / 2;
+  const iconX = position.x + 24;
+  const iconY = position.y + (cellH - iconSize) / 2;
+  const iconColor = active ? cfg.colors.selectedText : statusColor;
+  const labelInsetLeft = showKindIcon ? iconSize + 39 : 28;
   const estimatedLabelW = item.label.length * cfg.text.optionSize * 0.62;
   const estimatedBadgeW = badgeLabel.length * Math.max(8, cfg.text.optionSize * 0.72) * 0.62;
-  const labelW = cellW - 20;
+  const labelW = Math.max(24, cellW - labelInsetLeft - 14);
   const fittedLabelW = estimatedLabelW > labelW ? labelW : undefined;
   const fittedBadgeW = estimatedBadgeW > labelW ? labelW : undefined;
-  const labelX = position.x + cellW / 2;
-  const labelY = position.y + cellH / 2 + cfg.text.optionSize * (showBadge && cellH >= 36 ? 0.02 : 0.35);
+  const labelX = position.x + labelInsetLeft + labelW / 2;
+  const labelY = position.y + cellH / 2 + cfg.text.optionSize * (showBadge && cellH >= 36 ? 0.02 : 0.32);
+  const editButtonSize = Math.max(14, Math.min(17, cellH * 0.34));
+  const editButtonX = position.x + cellW - editButtonSize - 4;
+  const editButtonY = position.y + 4;
 
   return (
     <g
@@ -155,8 +172,8 @@ export function DeviceChoiceGridCell({
       />
       {!empty ? (
         <circle
-          cx={position.x + cellW - cfg.effects.statusDotInset}
-          cy={position.y + cfg.effects.statusDotInset}
+          cx={statusDotX}
+          cy={statusDotY}
           r={cfg.effects.statusDotR}
           fill={statusColor}
           opacity={cfg.opacity.statusDot}
@@ -196,6 +213,13 @@ export function DeviceChoiceGridCell({
           />
         </>
       ) : null}
+      {showKindIcon ? (
+        showPlatformIcon ? (
+          <DevicePlatformImage slot={item} x={iconX} y={iconY} size={iconSize} opacity={active ? 1 : 0.92} />
+        ) : (
+          <DeviceKindIcon kind={getDeviceKind(item)} x={iconX} y={iconY} size={iconSize} color={iconColor} />
+        )
+      ) : null}
       {showLabel ? (
         <text
           x={labelX}
@@ -234,6 +258,58 @@ export function DeviceChoiceGridCell({
         >
           {badgeLabel}
         </text>
+      ) : null}
+      {showEdit ? (
+        <g
+          role="button"
+          aria-label={`Edit ${item.label}`}
+          tabIndex={0}
+          onClick={(event) => {
+            event.stopPropagation();
+            onEditDevice(item);
+          }}
+          onKeyDown={(event) => {
+            if (event.key !== 'Enter' && event.key !== ' ') return;
+            event.preventDefault();
+            event.stopPropagation();
+            onEditDevice(item);
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          <title>Edit device name and type</title>
+          <rect
+            x={editButtonX - 2}
+            y={editButtonY - 2}
+            width={editButtonSize + 4}
+            height={editButtonSize + 4}
+            rx={5}
+            fill="rgba(2, 12, 22, 0.82)"
+            stroke={active ? cfg.colors.selectedText : statusColor}
+            strokeWidth={0.72}
+            opacity={0.9}
+          />
+          <path
+            d={`M${editButtonX + editButtonSize * 0.24} ${editButtonY + editButtonSize * 0.72}L${
+              editButtonX + editButtonSize * 0.32
+            } ${editButtonY + editButtonSize * 0.5}L${editButtonX + editButtonSize * 0.66} ${
+              editButtonY + editButtonSize * 0.16
+            }L${editButtonX + editButtonSize * 0.82} ${editButtonY + editButtonSize * 0.32}L${
+              editButtonX + editButtonSize * 0.48
+            } ${editButtonY + editButtonSize * 0.66}Z`}
+            fill="none"
+            stroke={active ? cfg.colors.selectedText : statusColor}
+            strokeWidth={1.15}
+            strokeLinejoin="round"
+          />
+          <path
+            d={`M${editButtonX + editButtonSize * 0.2} ${editButtonY + editButtonSize * 0.78}H${
+              editButtonX + editButtonSize * 0.56
+            }`}
+            stroke={active ? cfg.colors.selectedText : statusColor}
+            strokeWidth={1.05}
+            strokeLinecap="round"
+          />
+        </g>
       ) : null}
       {showAdd ? (
         <g

@@ -1,4 +1,6 @@
+import { PortalRoute } from './portal-contract-adapter';
 import { PortalFrameTuner } from './frame-tuner';
+import { portalRouteHashPath } from './routes';
 
 export type PortalAppLayoutSurfaceKey = (typeof PortalFrameTuner.AppSurface)[keyof typeof PortalFrameTuner.AppSurface];
 
@@ -70,23 +72,30 @@ function defaultChatSidePanelFoldouts(): readonly PortalAppLayoutFoldoutDraft[] 
         'today-report',
         'Today report',
         'Open stored activity and summary evidence.',
-        '#/overview',
+        portalRouteHashPath(PortalRoute.Overview),
         'today-report'
       ),
       button(
         'browser-state',
         'Browser state',
         'Supported browsers, unmanaged risk, web evidence.',
-        '#/browser',
+        portalRouteHashPath(PortalRoute.Browser),
         'browser-state',
         text.AppLayoutTone.Gold
       ),
-      button('rules', 'Rules', 'House rules, allow, ask, explain, block.', '#/policy', 'rules', text.AppLayoutTone.Red),
+      button(
+        'rules',
+        'Rules',
+        'House rules, allow, ask, explain, block.',
+        portalRouteHashPath(PortalRoute.Policy),
+        'rules',
+        text.AppLayoutTone.Red
+      ),
       button(
         'ai-setup',
         'AI setup',
         'Local AI, API providers, model state.',
-        '#/ai-runtime',
+        portalRouteHashPath(PortalRoute.AiRuntime),
         'ai-setup',
         text.AppLayoutTone.Purple
       ),
@@ -94,11 +103,17 @@ function defaultChatSidePanelFoldouts(): readonly PortalAppLayoutFoldoutDraft[] 
         'drives',
         'Drives',
         'Connect parent-owned exports and custody.',
-        '#/drive-connections',
+        portalRouteHashPath(PortalRoute.DriveConnections),
         'drives',
         text.AppLayoutTone.Gold
       ),
-      button('support-api', 'Support', 'Send a parent-authored support message.', '#/diagnostics', 'support-api'),
+      button(
+        'support-api',
+        'Support',
+        'Send a parent-authored support message.',
+        portalRouteHashPath(PortalRoute.Diagnostics),
+        'support-api'
+      ),
     ]),
   ];
 }
@@ -110,14 +125,14 @@ function defaultChatMainPanelTop(): readonly PortalAppLayoutFoldoutDraft[] {
         'what-happened-today',
         'What happened today?',
         'Ask MIA for a daily activity summary.',
-        '#/assistant',
+        portalRouteHashPath(PortalRoute.Assistant),
         'question'
       ),
       button(
         'open-browser-rules',
         'Open browser rules',
         'Ask MIA to prepare browser rule changes.',
-        '#/assistant',
+        portalRouteHashPath(PortalRoute.Assistant),
         'browser-state',
         text.AppLayoutTone.Gold
       ),
@@ -125,7 +140,7 @@ function defaultChatMainPanelTop(): readonly PortalAppLayoutFoldoutDraft[] {
         'change-rule',
         'Change a rule',
         'Ask MIA to guide a rule update.',
-        '#/assistant',
+        portalRouteHashPath(PortalRoute.Assistant),
         'rules',
         text.AppLayoutTone.Purple
       ),
@@ -133,7 +148,7 @@ function defaultChatMainPanelTop(): readonly PortalAppLayoutFoldoutDraft[] {
         'support-bundle',
         'Support message',
         'Ask MIA to draft a support message.',
-        '#/assistant',
+        portalRouteHashPath(PortalRoute.Assistant),
         'support-api',
         text.AppLayoutTone.Purple
       ),
@@ -144,8 +159,14 @@ function defaultChatMainPanelTop(): readonly PortalAppLayoutFoldoutDraft[] {
 function defaultChatMainPanelBottom(): readonly PortalAppLayoutFoldoutDraft[] {
   return [
     foldout('assistant-composer', 'Composer', text.AppLayoutTone.Cyan, [
-      button('message-mia', 'Message MIA', 'Typed parent question sent to AI.', '#/assistant', 'ai-guide'),
-      button('send', 'Send', 'Submit the current parent prompt.', '#/assistant', 'send'),
+      button(
+        'message-mia',
+        'Message MIA',
+        'Typed parent question sent to AI.',
+        portalRouteHashPath(PortalRoute.Assistant),
+        'ai-guide'
+      ),
+      button('send', 'Send', 'Submit the current parent prompt.', portalRouteHashPath(PortalRoute.Assistant), 'send'),
     ]),
   ];
 }
@@ -153,32 +174,65 @@ function defaultChatMainPanelBottom(): readonly PortalAppLayoutFoldoutDraft[] {
 function defaultMainSidePanelFoldouts(): readonly PortalAppLayoutFoldoutDraft[] {
   return [
     foldout('quick-glance', 'Quick glance', text.AppLayoutTone.Cyan, [
-      button('overview', 'Overview', 'Today control snapshot.', '#/overview', 'overview'),
+      button('overview', 'Overview', 'Today control snapshot.', portalRouteHashPath(PortalRoute.Overview), 'overview'),
     ]),
     foldout('guide', 'Guide', text.AppLayoutTone.Cyan, [
-      button('start', 'Start here', 'Setup and controls map.', '#/start', 'start'),
-      button('rules', 'Rules', 'Rules and policy guide.', '#/policy', 'rules', text.AppLayoutTone.Red),
-      button('memory', 'Memory', 'Cited local memory.', '#/memory', 'memory'),
-      button('ai', 'AI', 'Local AI and memory readiness.', '#/ai-runtime', 'ai-setup', text.AppLayoutTone.Purple),
-      button('reports', 'Reports', 'Stored reports and summaries.', '#/activity', 'reports'),
-      button('private', 'Private', 'Privacy and data custody guide.', '#/privacy-design', 'private'),
+      button('start', 'Start here', 'Setup and controls map.', portalRouteHashPath(PortalRoute.Start), 'start'),
+      button(
+        'rules',
+        'Rules',
+        'Rules and policy guide.',
+        portalRouteHashPath(PortalRoute.Policy),
+        'rules',
+        text.AppLayoutTone.Red
+      ),
+      button('memory', 'Memory', 'Cited local memory.', portalRouteHashPath(PortalRoute.Memory), 'memory'),
+      button(
+        'ai',
+        'AI',
+        'Local AI and memory readiness.',
+        portalRouteHashPath(PortalRoute.AiRuntime),
+        'ai-setup',
+        text.AppLayoutTone.Purple
+      ),
+      button(
+        'reports',
+        'Reports',
+        'Stored reports and summaries.',
+        portalRouteHashPath(PortalRoute.Activity),
+        'reports'
+      ),
+      button(
+        'private',
+        'Private',
+        'Privacy and data custody guide.',
+        portalRouteHashPath(PortalRoute.PrivacyDesign),
+        'private'
+      ),
     ]),
     foldout('manage', 'Manage', text.AppLayoutTone.Cyan, [
       button(
         'browser',
         'Browser state',
         'Supported browsers and web evidence.',
-        '#/browser-settings',
+        portalRouteHashPath(PortalRoute.BrowserSettings),
         'browser-state',
         text.AppLayoutTone.Gold
       ),
-      button('devices', 'Devices', 'Child devices and pairing.', '#/devices', 'devices'),
-      button('alerts', 'Alerts', 'Parent notification channels.', '#/notifications', 'alerts', text.AppLayoutTone.Red),
+      button('devices', 'Devices', 'Child devices and pairing.', portalRouteHashPath(PortalRoute.Devices), 'devices'),
+      button(
+        'alerts',
+        'Alerts',
+        'Parent notification channels.',
+        portalRouteHashPath(PortalRoute.Notifications),
+        'alerts',
+        text.AppLayoutTone.Red
+      ),
       button(
         'drives',
         'Drives',
         'Parent-owned exports and sync.',
-        '#/drive-connections',
+        portalRouteHashPath(PortalRoute.DriveConnections),
         'drives',
         text.AppLayoutTone.Gold
       ),
@@ -193,14 +247,14 @@ function defaultMainPanelTopFoldouts(): readonly PortalAppLayoutFoldoutDraft[] {
         'snapshot',
         'Today control snapshot',
         'Family state, active rules, and evidence.',
-        '#/overview',
+        portalRouteHashPath(PortalRoute.Overview),
         'overview'
       ),
       button(
         'control-map',
         'What parents control',
         'Browser, app, rules, schedules, AI, reports.',
-        '#/start',
+        portalRouteHashPath(PortalRoute.Start),
         'start',
         text.AppLayoutTone.Gold
       ),
@@ -208,7 +262,7 @@ function defaultMainPanelTopFoldouts(): readonly PortalAppLayoutFoldoutDraft[] {
         'data-custody',
         'Data custody',
         'Local evidence and parent-owned export boundaries.',
-        '#/privacy-design',
+        portalRouteHashPath(PortalRoute.PrivacyDesign),
         'private',
         text.AppLayoutTone.Purple
       ),
@@ -219,12 +273,18 @@ function defaultMainPanelTopFoldouts(): readonly PortalAppLayoutFoldoutDraft[] {
 function defaultMainPanelBottomFoldouts(): readonly PortalAppLayoutFoldoutDraft[] {
   return [
     foldout('bottom-actions', 'Bottom actions', text.AppLayoutTone.Cyan, [
-      button('open-assistant', 'AI assistant', 'Ask MIA instead of hunting settings.', '#/assistant', 'ai-guide'),
+      button(
+        'open-assistant',
+        'AI assistant',
+        'Ask MIA instead of hunting settings.',
+        portalRouteHashPath(PortalRoute.Assistant),
+        'ai-guide'
+      ),
       button(
         'open-settings',
         'Settings',
         'Open family settings controls.',
-        '#/settings-rules',
+        portalRouteHashPath(PortalRoute.SettingsRules),
         'settings',
         text.AppLayoutTone.Gold
       ),
@@ -253,7 +313,7 @@ export function createPortalAppLayoutButtonDraft(
     id: `${foldoutId}-button-${index + 1}`,
     label: `Button ${index + 1}`,
     detail: '',
-    routePath: '#/overview',
+    routePath: portalRouteHashPath(PortalRoute.Overview),
     icon: 'overview',
     tone,
   };

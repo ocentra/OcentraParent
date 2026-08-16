@@ -1,0 +1,172 @@
+    readonly actionId: string;
+    readonly policyDecisionId: string;
+  };
+  readonly result: {
+    readonly actionId: string;
+  };
+  readonly auditEvent: {
+    readonly action: {
+      readonly actionId: string;
+    };
+  };
+  readonly timerEvent: {
+    readonly actionId: string;
+    readonly policyDecisionId: string;
+  };
+};
+
+const EnforcementIntentIdSchema = brandedNonEmptyStringSchema('EnforcementIntentId');
+const EnforcementActionIdSchema = brandedNonEmptyStringSchema('EnforcementActionId');
+const EnforcementResultIdSchema = brandedNonEmptyStringSchema('EnforcementResultId');
+const EnforcementAuditEventIdSchema = brandedNonEmptyStringSchema('EnforcementAuditEventId');
+const EnforcementTimerEventIdSchema = brandedNonEmptyStringSchema('EnforcementTimerEventId');
+const EnforcementTimerStateIdSchema = brandedNonEmptyStringSchema('EnforcementTimerStateId');
+const EnforcementRollbackTokenSchema = brandedNonEmptyStringSchema('EnforcementRollbackToken');
+const EnforcementIdempotencyKeySchema = brandedNonEmptyStringSchema('EnforcementIdempotencyKey');
+const EnforcementStatusReasonSchema = brandedNonEmptyStringSchema('EnforcementStatusReason');
+const EnforcementJournalSequenceSchema = brandedNonEmptyStringSchema('EnforcementJournalSequence');
+
+const EnforcementIntentSourceSchema = withParser(
+  Schema.Literal('parent-portal', 'parent-rule', 'local-policy-evaluator', 'system-recovery')
+);
+
+export const EnforcementIntentSource = {
+  ParentPortal: EnforcementIntentSourceSchema.parse('parent-portal'),
+  ParentRule: EnforcementIntentSourceSchema.parse('parent-rule'),
+  LocalPolicyEvaluator: EnforcementIntentSourceSchema.parse('local-policy-evaluator'),
+  SystemRecovery: EnforcementIntentSourceSchema.parse('system-recovery'),
+} as const;
+
+export const EnforcementAdapterKindSchema = withParser(
+  Schema.Literal('process-control', 'network-control', 'managed-browser-control', 'timer-control')
+);
+
+export const EnforcementModeSchema = withParser(
+  Schema.Literal('terminate-process', 'block-process', 'temporary-block', 'time-limit', 'ask-parent', 'observe-only')
+);
+
+export const EnforcementCapabilityStateSchema = withParser(
+  Schema.Literal('supported', 'unavailable', 'degraded', 'dry-run', 'observe-only', 'manual-required')
+);
+
+const EnforcementUnavailableReasonSchema = withParser(
+  Schema.Literal(
+    'unsupported-platform',
+    'unsupported-action',
+    'missing-permission',
+    'missing-dependency',
+    'adapter-unavailable',
+    'adapter-error',
+    'manual-required'
+  )
+);
+
+const EnforcementPermissionStateSchema = withParser(
+  Schema.Literal('allowed', 'missing-permission', 'not-required', 'unknown')
+);
+
+const EnforcementDependencyStateSchema = withParser(Schema.Literal('installed', 'missing', 'not-required', 'unknown'));
+
+const EnforcementResultStatusSchema = withParser(
+  Schema.Literal(
+    'would-enforce',
+    'actually-enforced',
+    'unavailable',
+    'failed',
+    'expired',
+    'rolled-back',
+    'superseded',
+    'no-op'
+  )
+);
+
+const EnforcementRollbackStateSchema = withParser(
+  Schema.Literal('not-required', 'available', 'requested', 'completed', 'unavailable', 'failed')
+);
+
+const EnforcementAdapterResultCodeSchema = withParser(
+  Schema.Literal(
+    'process-terminated',
+    'process-already-exited',
+    'left-running-observe-only',
+    'dry-run-no-action',
+    'unsupported-platform',
+    'adapter-unavailable',
+    'adapter-failed',
+    'timer-expired',
+    'rollback-completed',
+    'no-op'
+  )
+);
+
+const EnforcementTimerEventKindSchema = withParser(
+  Schema.Literal(
+    'created',
+    'extended',
+    'expired',
+    'cancelled',
+    'restart-recovered',
+    'rollback-requested',
+    'rollback-completed',
+    'recovery-needed',
+    'unavailable'
+  )
+);
+
+const EnforcementAuditEventKindSchema = withParser(
+  Schema.Literal(
+    'attempted',
+    'succeeded',
+    'failed',
+    'rollback-requested',
+    'rollback-completed',
+    'expired',
+    'unavailable',
+    'cancelled'
+  )
+);
+
+const EnforcementCapabilityStatusBaseSchema = Schema.Struct({
+  schemaVersion: ParentContractSchemaVersionSchema,
+  platform: ParentPlatformSchema,
+  adapterKind: EnforcementAdapterKindSchema,
+  capabilityState: EnforcementCapabilityStateSchema,
+  permissionState: EnforcementPermissionStateSchema,
+  dependencyState: EnforcementDependencyStateSchema,
+  supportedActions: Schema.Array(EnforcementModeSchema),
+  degradedReason: Schema.Union(EnforcementStatusReasonSchema, Schema.Null),
+  lastCheckedAt: ParentTimestampSchema,
+});
+
+export const EnforcementCapabilityStatusSchema = withParser(
+  EnforcementCapabilityStatusBaseSchema.pipe(
+    Schema.filter(
+      (capability) =>
+        enforcementCapabilityStatusReasonIsConsistent(capability) ||
+        'Expected unavailable and degraded enforcement capabilities to include typed degraded reason'
+    )
+  )
+);
+
+export const EnforcementUnavailableStatusSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    capability: EnforcementCapabilityStatusSchema,
+    unavailableReason: EnforcementUnavailableReasonSchema,
+    retryable: Schema.Boolean,
+    checkedAt: ParentTimestampSchema,
+  })
+);
+
+export const EnforcementIntentSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    intentId: EnforcementIntentIdSchema,
+    source: EnforcementIntentSourceSchema,
+    actor: Schema.Union(ParentActorReferenceSchema, Schema.Null),
+    device: ParentDeviceReferenceSchema,
+    policyDecisionId: PolicyDecisionIdSchema,
+    target: PolicyTargetSchema,
+    requestedAction: PolicyActionSchema,
+    evidenceReferences: Schema.Array(ParentEvidenceReferenceSchema),
+    parentApproval: Schema.Union(ParentActionReferenceSchema, Schema.Null),

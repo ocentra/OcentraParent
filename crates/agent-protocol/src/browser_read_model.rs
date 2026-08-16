@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel, BrowserCustodyLabel,
-    BrowserFamily, BrowserQueryVisibilityLabel,
+    BrowserActiveProofSource, BrowserActiveTabState, BrowserCapabilityStatus, BrowserChannel,
+    BrowserCustodyLabel, BrowserFamily, BrowserQueryVisibilityLabel,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -24,6 +24,7 @@ pub struct BrowserTabEvidence {
     pub tab_id: Option<String>,
     pub target_id: Option<String>,
     pub active_state: BrowserActiveTabState,
+    pub active_proof_source: BrowserActiveProofSource,
     pub url: String,
     pub origin: String,
     pub domain: String,

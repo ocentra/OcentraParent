@@ -15,3 +15,17 @@ export function saveTheme(theme: PortalThemeValue): void {
 export function applyTheme(theme: PortalThemeValue): void {
   document.documentElement.setAttribute(PortalDom.Attributes.DataTheme, theme);
 }
+
+export function selectTheme(theme: PortalThemeValue): void {
+  saveTheme(theme);
+  applyTheme(theme);
+}
+
+export function themeToggleButtonClassName(active: boolean) {
+  if (!active) {
+    return PortalDom.Classes.ThemeToggleButton;
+  }
+  return [PortalDom.Classes.ThemeToggleButton, PortalDom.Classes.ThemeToggleButtonActive].join(
+    PortalDom.Classes.ClassNameSeparator
+  );
+}

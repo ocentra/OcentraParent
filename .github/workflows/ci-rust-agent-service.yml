@@ -1,0 +1,56 @@
+name: CI Rust Agent Service
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rust-format:
+    name: 'Format: Rust Workspace'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Rust format
+        run: node scripts/ci/check-rust-format.mjs
+
+  service-clippy:
+    name: 'Lint: Rust Agent Service Clippy'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [rust-format]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Service clippy
+        run: cargo clippy -p ocentra-parent-agent-service --all-targets -- -D warnings
+
+  service-tests:
+    name: 'Unit: Rust Agent Service Tests'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [service-clippy]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Service tests
+        run: cargo test -p ocentra-parent-agent-service --all-targets
+
+      - name: Logging core required recovery gate
+        run: cargo test -p ocentra-parent-logging-core --all-targets --all-features

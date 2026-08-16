@@ -1,3 +1,17 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Remote Capability Fabric V2 Plan
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # Remote Capability Fabric V2 Plan
 
 Status: second-pass architecture plan.
@@ -24,17 +38,18 @@ proof lessons, not the code or protocols.
 
 ## Current Ocentra Starting Point
 
-Ocentra already has several pieces that should become the base of the remote
-fabric:
+Ocentra already has several pieces that should inform the remote fabric. Some
+are TS migration surfaces and must not remain product authority:
 
-- `packages/agent-protocol-domain/src/primitives.ts`
-  already defines `AgentRoute` values for `localhost`, `local-network`, and
-  `cloud-relay`.
+- `packages/schema-domain/src/event-primitives.ts`
+  defines migration-era `AgentRoute` values for `localhost`, `local-network`,
+  and `cloud-relay`; new shared route truth belongs in Rust-owned contracts and
+  generated DTOs.
 - `crates/agent-protocol/src/transport.rs`
   mirrors those Rust route values.
-- `packages/agent-protocol-domain/src/defaults.ts`
-  already has route security policy defaults, including `cloud-relay` requiring
-  pairing and disallowing anonymous control.
+- `packages/schema-domain/src/agent-protocol-defaults.ts`
+  has migration-era route security policy defaults; Rust runtime/domain code
+  must own final policy defaults before product consumers depend on them.
 - `packages/parent-domain/src/lan-pairing-values.ts`
   already models trust state, reachability, controller lease rejection reasons,
   observer read-only state, and paired route behavior.
@@ -43,12 +58,12 @@ fabric:
 - `crates/agent-service/src/lan_pairing.rs`
   already routes LAN commands, validates target/origin/lease state, returns
   accepted/rejected audit events, and continues allowed commands.
-- `apps/portal/src/transport.ts`
-  already sends typed command envelopes over the portal WebSocket.
-- `apps/portal/src/portal-state.ts`
-  already selects localhost or local-network target based on the WebSocket URL.
+- `apps/portal` already has presentation routes and dev transport seams; the
+  product UI path must go through HostBridge into Rust, not a TS-owned
+  WebSocket state machine.
 - `packages/portal-domain/src/routes.ts`
-  already includes a `remote-access` route token.
+  includes a migration-era `remote-access` route token; final route IDs belong
+  in Rust-owned bridge schema and generated DTOs.
 
 The major gap is that these pieces are still LAN-shaped. The remote route,
 remote session, capability grants, relay lifecycle, and remote UI are not first
@@ -85,16 +100,12 @@ Use the existing `PortalRoute.RemoteAccess` token. The route exists today but is
 not rendered as its own product surface. The first UI pass should make it a real
 screen.
 
-Files to touch when implementation starts:
+Files to touch when implementation starts, after Rust-owned route/schema owners
+exist:
 
-- `packages/portal-domain/src/routes.ts`
-  - give `RemoteAccess` its own label and description tokens;
-  - stop reusing data-custody text for the route descriptor.
-- `packages/portal-domain/src/parent-portal-nav.ts`
-  - add `RemoteAccess` as a manage/support nav item, probably with the existing
-    `remote` icon name.
-- `packages/portal-domain/src/parent-portal-data.ts`
-  - make route context select a `remote-access` control id.
+- Rust-owned parent UI bridge schema and generated TS DTO output for route ID,
+  route snapshot, and action/result shape.
+- Pure presentation files for labels, nav placement, and rendering only.
 - `apps/portal/src/portal-route-content.ts`
   - render `RemoteAccess` instead of falling through to overview.
 - New portal modules:
@@ -175,19 +186,18 @@ The protocol can stay precise. The UI should be calm and decisive.
 
 ## Domain Model
 
-Keep the first V2 contracts in `@ocentra-parent/parent-domain` unless they grow
-large enough to justify a future `remote-domain`.
+Keep the first V2 shared product contracts in Rust-owned schema/runtime crates.
+`@ocentra-parent/schema-domain` and `@ocentra-parent/parent-domain` may only
+hold temporary edge decoders, generated DTO consumers, or migration shims until
+Rust-owned replacements are live.
 
-Recommended new files:
+Recommended new Rust-first owners:
 
-- `packages/parent-domain/src/remote-route.ts`
-- `packages/parent-domain/src/remote-capability.ts`
-- `packages/parent-domain/src/remote-session.ts`
-- `packages/parent-domain/src/remote-desktop.ts`
-- `packages/parent-domain/src/remote-audit.ts`
-- `packages/parent-domain/tests/remote-route.test.ts`
-- `packages/parent-domain/tests/remote-capability.test.ts`
-- `packages/parent-domain/tests/remote-session.test.ts`
+- `crates/schema` for cross-boundary route, capability, session, desktop, and
+  audit DTOs plus generated TypeScript.
+- `crates/parent-runtime-core` for parent-facing actions, route snapshots, and
+  read-model handoff.
+- the owning Rust remote/runtime crate when behavior becomes domain-specific.
 
 ### Route Contracts
 
@@ -391,12 +401,12 @@ Recommended new event names:
 
 Files:
 
-- `packages/agent-protocol-domain/src/contracts.ts`
-  adds command/event literals and exported constants.
-- `packages/agent-protocol-domain/src/security.ts`
-  either grows remote schemas or delegates to new `remote.ts`.
-- New `packages/agent-protocol-domain/src/remote.ts`
-  is preferable once schemas exceed a small patch.
+- `crates/schema` grows shared remote DTOs, action/result shapes, route
+  snapshots, constants, and generated TS output.
+- `crates/parent-runtime-core` wires parent UI actions into Rust snapshots and
+  results.
+- Temporary TS edge adapters may wrap generated DTOs only where an untrusted TS
+  boundary still needs validation.
 - `crates/agent-protocol/src/transport.rs`
   adds Rust protocol route/session types.
 - New `crates/agent-protocol/src/remote.rs`
@@ -421,8 +431,10 @@ Recommended service modules:
 - `crates/agent-service/src/remote_desktop_view.rs` later
 - `crates/agent-service/src/remote_input_control.rs` later
 
-`crates/agent-service/src/websocket.rs` should route remote commands before the
-generic command event builder, the same way LAN commands are routed today:
+Rust-owned service transport should route remote commands before the generic
+command event builder, the same way LAN commands are routed today. That may
+involve WebSocket on Rust parent/child transport, but product parent UI actions
+must enter through HostBridge:
 
 1. Parse command.
 2. Run LAN route guard if route is local-network.
@@ -498,7 +510,8 @@ be Rust-first:
 - optional hosted adapter later.
 
 Cloudflare can still be useful for account/control-plane/edge deployment, but
-the protocol source of truth should stay in Ocentra contracts and Rust structs.
+the protocol source of truth should stay in Rust-owned Ocentra contracts and
+Rust structs.
 
 ### Deployment Modes
 
@@ -550,7 +563,7 @@ sequenceDiagram
 
 Implementation path:
 
-- domain route/session contracts;
+- Rust-owned route/session contracts;
 - protocol command/event constants;
 - service remote route module;
 - local fake/dev relay harness;
@@ -680,8 +693,8 @@ permission/proof visible.
 
 Parent desktop:
 
-- `apps/parent-desktop` should remain a shell around the same portal/read-model
-  contracts.
+- `apps/parent-desktop` should remain a shell around HostBridge and
+  Rust-owned parent route snapshots/read models.
 - It should not execute child capture or policy work.
 - It can hold local credentials, device registry cache, and relay connection
   state only through typed service boundaries.
@@ -695,9 +708,9 @@ Parent mobile:
 - can request controller takeover if allowed;
 - can later display live view if platform and stream support exist.
 
-Existing parent-mobile contracts already encode observer/controller handoff and
-cloud relay not implemented. V2 should turn that "not implemented" into
-explicit remote route capability states.
+Existing parent-mobile migration contracts already encode observer/controller
+handoff and cloud relay not implemented. V2 should turn that "not implemented"
+into explicit Rust-owned remote route capability states.
 
 ## RustDesk Lessons By Layer
 
@@ -785,11 +798,9 @@ Goal: create the typed remote vocabulary.
 
 Files:
 
-- `packages/parent-domain/src/remote-route.ts`
-- `packages/parent-domain/src/remote-capability.ts`
-- `packages/parent-domain/src/remote-session.ts`
-- `packages/parent-domain/src/remote-audit.ts`
-- matching tests.
+- `crates/schema` remote DTO/action/snapshot owner.
+- generated TypeScript bridge DTO output.
+- matching Rust serialization/round-trip/drift tests.
 
 Proof:
 
@@ -804,8 +815,9 @@ Goal: portal and Rust service can speak remote intent language.
 
 Files:
 
-- `packages/agent-protocol-domain/src/remote.ts`
-- `packages/agent-protocol-domain/src/contracts.ts`
+- `crates/schema` remote DTO/action/snapshot owner.
+- `crates/parent-runtime-core` parent action/snapshot integration.
+- generated TypeScript DTO consumers or TS edge decoder only if still needed.
 - `crates/agent-protocol/src/remote.rs`
 - `crates/agent-protocol/src/constants/remote.rs`
 - Rust protocol tests.
@@ -822,10 +834,8 @@ Goal: make `#/remote-access` real.
 
 Files:
 
-- `packages/portal-domain/src/routes.ts`
-- `packages/portal-domain/src/parent-portal-nav.ts`
-- `packages/portal-domain/src/parent-portal-data.ts`
-- `apps/portal/src/portal-route-content.ts`
+- generated parent UI bridge DTO imports.
+- pure presentation labels/nav/rendering files.
 - `apps/portal/src/remote-access-route.ts`
 - `apps/portal/src/remote-device-route-panel.ts`
 - `apps/portal/src/remote-capability-panel.ts`

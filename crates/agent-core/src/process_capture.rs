@@ -1,14 +1,22 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityObservationMode, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LogFieldValue, LogFields, ACTIVITY_SCHEMA_VERSION,
+use std::path::PathBuf;
+
+use ocentra_parent_agent_protocol::activity::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityObserver, ActivitySource, ActivitySubject,
+    ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityObservationMode,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 use sysinfo::{ProcessesToUpdate, System};
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ProcessObservation {
     pub pid: u32,
     pub name: String,
+    pub executable_path: Option<PathBuf>,
 }
 
 pub fn collect_process_snapshot(limit: usize) -> Vec<ProcessObservation> {
@@ -20,6 +28,7 @@ pub fn collect_process_snapshot(limit: usize) -> Vec<ProcessObservation> {
         .map(|process| ProcessObservation {
             pid: process.pid().as_u32(),
             name: process.name().to_string_lossy().into_owned(),
+            executable_path: process.exe().map(std::path::Path::to_path_buf),
         })
         .collect::<Vec<_>>();
     observations.sort_by(|left, right| {

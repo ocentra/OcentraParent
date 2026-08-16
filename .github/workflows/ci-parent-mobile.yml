@@ -1,0 +1,84 @@
+name: CI Parent Mobile
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parent-mobile-contract-build:
+    name: 'Contract: Parent Mobile Shared Contract Build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+  parent-mobile-runtime-tests:
+    name: 'Proof: Parent Mobile Capability Contracts'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [parent-mobile-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Parent mobile capability contracts
+        run: npm run test:parent-mobile-package-source-artifact-proof
+
+  parent-mobile-package-source-proof:
+    name: 'Proof: Parent Mobile Package Source Artifact'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [parent-mobile-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Parent mobile package source artifact proof
+        run: npm run test:parent-mobile-package-source-artifact-proof
+
+  parent-mobile-shell-proof:
+    name: 'Proof: Parent Mobile Shell Runtime'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [parent-mobile-contract-build]
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Parent mobile shell runtime proof
+        run: npm run test:parent-mobile-package-source-artifact-proof
+
+      - name: Upload parent mobile proof artifacts
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-mobile-proof
+          path: |
+            .enforce/proofs/runs/**

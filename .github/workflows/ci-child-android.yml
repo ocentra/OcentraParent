@@ -1,0 +1,55 @@
+name: CI Child Android
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  child-android-contract-build:
+    name: 'Contract: Child Android Shared Contract Build'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+  child-android-proofs:
+    name: 'Proof: Child Android ${{ matrix.proof_name }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: [child-android-contract-build]
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - proof_name: Lifecycle
+            test_script: test:child-android-protocol-package-lifecycle-proof
+          - proof_name: Permission Capability
+            test_script: test:child-android-permission-capability-proof
+          - proof_name: Privileged Capability
+            test_script: test:child-android-privileged-capability-proof
+          - proof_name: Storage Protocol
+            test_script: test:child-android-storage-protocol-capability-proof
+          - proof_name: Service Protocol
+            test_script: test:child-android-service-protocol-capability-proof
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-tauri-system-dependencies: 'false'
+
+      - name: Build shared contracts
+        run: npm run build:contracts
+
+      - name: Android protocol and capability contract proof
+        run: npm run ${{ matrix.test_script }}

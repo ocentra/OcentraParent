@@ -1,14 +1,18 @@
 # @ocentra-parent/portal-domain
 
-Shared portal route, DOM, navigation, service-state row, and dev command
-contracts.
+Presentation helpers for the parent portal surface.
 
 ## Owns
 
-- Portal route ids and route groups.
-- DOM ids/test ids that cross source/test boundaries.
+- Portal route ids and route groups used by the shell.
+- DOM ids, labels, and presentation tokens that cross source and test
+  boundaries.
 - Parent portal nav and section descriptors.
-- Service-state display rows and dev command descriptors.
+- Shared detail labels and proof markers derived from Rust-owned state or read
+  models.
+- Thin UI intents and adapters that present Rust-owned data without claiming
+  business logic, state mutation, policy execution, route snapshots, or
+  enforcement.
 
 ## Must Not Own
 
@@ -16,6 +20,7 @@ contracts.
 - Runtime child-device state.
 - Policy evaluation, AI execution, or enforcement.
 - Evidence contracts.
+- TS-owned product truth or mutation logic.
 
 ## Flow
 
@@ -37,8 +42,10 @@ flowchart LR
 
 ## Gaps To Fill
 
-- Keep route/nav contracts aligned with real service-backed portal state.
+- Keep route and nav contracts aligned with real Rust-owned portal state.
+- Keep the remaining route and row helpers as transitional presentation
+  adapters only; do not treat them as product truth.
 - Rebuild the package after source changes; ignored `dist/` can make local UI
   behavior stale.
-- Add route contracts for new product areas only after the expectation docs
-  define the parent outcome.
+- Keep presentation helpers thin and side-effect free.
+- Add new package exports only when a real UI consumer needs them.

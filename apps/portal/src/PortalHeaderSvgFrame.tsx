@@ -1,8 +1,18 @@
-import { useLayoutEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-import { PortalDom, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/contracts';
+import {
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactElement,
+  type ReactNode,
+} from 'react';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import {
   getPictureViewerAnchoredFrame,
   getPictureViewerFrameGroupTransform,
+  getPictureViewerFramePoints,
   getPictureViewerFrameTransform,
   normalizePictureViewerFrameControls,
   pictureViewerDarkenHex,
@@ -15,6 +25,10 @@ import {
 type HeaderFrameSize = {
   readonly height: number;
   readonly width: number;
+};
+
+type PortalHeaderSvgFrameProps = {
+  readonly children?: ReactNode;
 };
 
 const initialHeaderFrameSize: HeaderFrameSize = {
@@ -152,6 +166,15 @@ function headerFrameControls(size: HeaderFrameSize) {
   };
 }
 
+function headerFrameFillPath(frame: PictureViewerFrameControls): string {
+  const points = getPictureViewerFramePoints(frame);
+  const firstPoint = points[0];
+  if (firstPoint === undefined) {
+    return '';
+  }
+  return `${points.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x} ${point.y}`).join(' ')} Z`;
+}
+
 function HeaderFrameLines({
   frame,
   segments,
@@ -198,10 +221,11 @@ function HeaderFrameLines({
   );
 }
 
-export function PortalHeaderSvgFrame(): ReactElement {
+export function PortalHeaderSvgFrame({ children }: PortalHeaderSvgFrameProps = {}): ReactElement {
   const [size, frameRef] = useMeasuredHeaderFrameSize();
   const frameControls = useMemo(() => headerFrameControls(size), [size]);
   const frameScale = headerFrameScale(size);
+  const frameLocalWidth = Math.max(1, size.width / frameScale);
   const outerFrame = useMemo(
     () =>
       getPictureViewerAnchoredFrame(
@@ -212,6 +236,16 @@ export function PortalHeaderSvgFrame(): ReactElement {
     [frameControls]
   );
   const outerSegments = useMemo(() => pictureViewerFrameSegments(outerFrame), [outerFrame]);
+  const outerFillPath = useMemo(() => headerFrameFillPath(outerFrame), [outerFrame]);
+  const outerFrameCssClipPath = `path("${outerFillPath}")`;
+  const blurSurfaceStyle = useMemo(
+    () =>
+      ({
+        clipPath: outerFrameCssClipPath,
+        WebkitClipPath: outerFrameCssClipPath,
+      }) satisfies CSSProperties,
+    [outerFrameCssClipPath]
+  );
 
   return (
     <span
@@ -228,10 +262,36 @@ export function PortalHeaderSvgFrame(): ReactElement {
         <g transform={`scale(${frameScale})`}>
           <g transform={getPictureViewerFrameGroupTransform(frameControls)}>
             <g transform={getPictureViewerFrameTransform(frameControls)}>
+              <foreignObject
+                height={headerFrame.frameHeight}
+                pointerEvents={PortalUnifiedChrome.Svg.PointerEventsNone}
+                width={frameLocalWidth}
+                x={0}
+                y={0}
+              >
+                <div className={PortalUnifiedChrome.Classes.OutlineHeaderFrameBlur} style={blurSurfaceStyle} />
+              </foreignObject>
+              <path
+                className={PortalUnifiedChrome.Classes.OutlineHeaderFrameFill}
+                d={outerFillPath}
+                pointerEvents={PortalUnifiedChrome.Svg.PointerEventsNone}
+              />
               <HeaderFrameLines frame={outerFrame} segments={outerSegments} />
             </g>
           </g>
         </g>
+        {children === undefined ? null : (
+          <foreignObject
+            className={PortalUnifiedChrome.Classes.OutlineHeaderFrameForeignObject}
+            height={size.height}
+            pointerEvents={PortalUnifiedChrome.Svg.PointerEventsNone}
+            width={size.width}
+            x={0}
+            y={0}
+          >
+            <div className={PortalUnifiedChrome.Classes.OutlineHeaderFrameContent}>{children}</div>
+          </foreignObject>
+        )}
       </svg>
     </span>
   );
