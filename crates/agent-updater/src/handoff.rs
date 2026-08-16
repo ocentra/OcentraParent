@@ -3,7 +3,8 @@ use ocentra_schema::setup_device_trust_handoff::{
     SetupDeviceTrustHandoffId, SetupDeviceTrustHandoffInstallPreconditionState,
     SetupDeviceTrustHandoffManualRequiredState, SetupDeviceTrustHandoffNoClaim,
     SetupDeviceTrustHandoffPlatform, SetupDeviceTrustHandoffResponse,
-    SetupDeviceTrustHandoffStatus,
+    SetupDeviceTrustHandoffSetupState, SetupDeviceTrustHandoffStatus,
+    SetupDeviceTrustHandoffTrustBootstrapState,
 };
 
 use crate::error::UpdaterError;
@@ -39,6 +40,7 @@ pub enum ChildPackageDistributionHandoffState {
     AwaitingSetup,
     AwaitingArtifactProof,
     ManualRequired,
+    RejectedInconsistent,
     UpdateCurrent,
     UpdateWouldInstall,
     UpdateInstallerCompleted,
@@ -76,6 +78,25 @@ pub fn consume_setup_device_trust_handoff(
                 ChildPackageDistributionHandoffState::ManualRequired
             }
             SetupDeviceTrustHandoffStatus::ReadyForChildPackageDistribution => update_state,
+        }
+    } else if response.manual_required_state != SetupDeviceTrustHandoffManualRequiredState::Not {
+        ChildPackageDistributionHandoffState::ManualRequired
+    } else if response.setup_state != SetupDeviceTrustHandoffSetupState::TrustBootstrapIssued
+        || response.trust_bootstrap_state
+            != SetupDeviceTrustHandoffTrustBootstrapState::BootstrapBoundToDevice
+    {
+        match (response.setup_state, response.trust_bootstrap_state) {
+            (
+                SetupDeviceTrustHandoffSetupState::ManualRequired
+                | SetupDeviceTrustHandoffSetupState::Expired,
+                _,
+            )
+            | (
+                _,
+                SetupDeviceTrustHandoffTrustBootstrapState::ManualRequired
+                | SetupDeviceTrustHandoffTrustBootstrapState::Expired,
+            ) => ChildPackageDistributionHandoffState::ManualRequired,
+            _ => ChildPackageDistributionHandoffState::RejectedInconsistent,
         }
     } else if response.install_precondition_state
         != SetupDeviceTrustHandoffInstallPreconditionState::ReadyForInstallHandoff
