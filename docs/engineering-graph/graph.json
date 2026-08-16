@@ -15757,7 +15757,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix; checklist: reviewed evidence is not recorded",
+        "statusText": "Code drafted / test-deferred — Windows child manifest/checksum/signature consumption implemented; platform matrix, tests, validation, proof, and checklist review remain deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15768,7 +15768,7 @@
           "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix",
           "checklist: reviewed evidence is not recorded"
         ],
-        "sourceStatusText": "complete"
+        "sourceStatusText": "code drafted / test-deferred"
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

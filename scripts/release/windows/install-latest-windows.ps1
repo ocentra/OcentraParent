@@ -3,6 +3,8 @@
 param(
   [string] $Owner = 'ocentra',
   [string] $Repository = 'OcentraParent',
+  [string] $ManifestVerifierPath = $env:OCENTRA_CHILD_UPDATE_VERIFIER_PATH,
+  [string] $UpdatePublicKeyBase64 = $env:OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64,
   [switch] $Quiet
 )
 
@@ -27,9 +29,31 @@ function Assert-FileHash {
     [Parameter(Mandatory = $true)] [string] $ExpectedSha256
   )
 
+  if ($ExpectedSha256 -notmatch '^[A-Fa-f0-9]{64}$') {
+    throw "Invalid SHA256 value for $Path."
+  }
   $actual = (Get-FileHash -Algorithm SHA256 -Path $Path).Hash.ToUpperInvariant()
   if ($actual -ne $ExpectedSha256.ToUpperInvariant()) {
     throw "SHA256 mismatch for $Path. Expected $ExpectedSha256 but found $actual."
+  }
+}
+
+function Assert-ManifestSignature {
+  param(
+    [Parameter(Mandatory = $true)] [string] $ManifestPath
+  )
+
+  if ([string]::IsNullOrWhiteSpace($ManifestVerifierPath) -or
+      -not (Test-Path -LiteralPath $ManifestVerifierPath -PathType Leaf)) {
+    throw 'A trusted child update manifest verifier executable is required.'
+  }
+  if ([string]::IsNullOrWhiteSpace($UpdatePublicKeyBase64)) {
+    throw 'OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64 is required to verify the release manifest.'
+  }
+
+  & $ManifestVerifierPath verify-manifest --manifest $ManifestPath --public-key-base64 $UpdatePublicKeyBase64 | Out-Host
+  if ($LASTEXITCODE -ne 0) {
+    throw "Release manifest signature verification failed with exit code $LASTEXITCODE."
   }
 }
 
@@ -56,12 +80,19 @@ New-Item -ItemType Directory -Path $tempRoot -Force | Out-Null
 
 try {
   Invoke-WebRequest -Uri $manifestAsset.browser_download_url -OutFile $manifestPath
+  Assert-ManifestSignature -ManifestPath $manifestPath
   $manifest = Get-Content -Raw -LiteralPath $manifestPath | ConvertFrom-Json
-  if ($null -eq $manifest.payload -or $null -eq $manifest.signature) {
-    throw 'Release manifest is not signed.'
+  if ($manifest.payload.product -ne 'Ocentra Child Agent' -or
+      $manifest.payload.package -ne 'ocentra-child-agent' -or
+      $manifest.payload.service.id -ne 'OcentraChildAgent' -or
+      $manifest.payload.service.updaterId -ne 'OcentraChildUpdater') {
+    throw 'Release manifest is not for the Ocentra Child Agent.'
   }
   if ($manifest.payload.installer.type -ne 'msi') {
     throw "Unsupported Windows installer type: $($manifest.payload.installer.type)"
+  }
+  if ($manifest.payload.artifact.name -notmatch '^[^\\/]+\.msi$') {
+    throw 'Release manifest artifact name is not a safe MSI file name.'
   }
 
   $artifactAsset = Get-ReleaseAsset -Release $release -Name $manifest.payload.artifact.name

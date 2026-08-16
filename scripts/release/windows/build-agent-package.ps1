@@ -79,20 +79,20 @@ function Get-UpdateSigningKey {
   if (-not [string]::IsNullOrWhiteSpace($SigningKeyBase64)) {
     return $SigningKeyBase64.Trim()
   }
-  if (-not [string]::IsNullOrWhiteSpace($env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64)) {
-    return $env:OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64.Trim()
+  if (-not [string]::IsNullOrWhiteSpace($env:OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64)) {
+    return $env:OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64.Trim()
   }
-  if ($AllowEphemeralSigningKey -or $env:OCENTRA_PARENT_ALLOW_EPHEMERAL_UPDATE_KEY -eq 'true') {
+  if ($AllowEphemeralSigningKey -or $env:OCENTRA_CHILD_ALLOW_EPHEMERAL_UPDATE_KEY -eq 'true') {
     return New-LocalUpdateSigningKey -KeyPath $KeyPath -Reason 'Generated an ephemeral preview update signing key.'
   }
   if ($env:GITHUB_ACTIONS -eq 'true') {
-    throw 'Missing OCENTRA_PARENT_UPDATE_SIGNING_KEY_BASE64. CI releases must use the production update signing key.'
+    throw 'Missing OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64. CI releases must use the production update signing key.'
   }
   if (Test-Path -LiteralPath $KeyPath) {
     return (Get-Content -Raw -LiteralPath $KeyPath).Trim()
   }
 
-  return New-LocalUpdateSigningKey -KeyPath $KeyPath -Reason 'Generated a local-only update signing key.'
+  throw 'Missing OCENTRA_CHILD_UPDATE_SIGNING_KEY_BASE64. Supply an external signing key or explicitly use -AllowEphemeralSigningKey for a non-production preview.'
 }
 
 function New-LocalUpdateSigningKey {
@@ -135,8 +135,8 @@ try {
   $LocalSigningKeyPath = Join-Path $OutputRoot 'local-dev-update-signing-key.base64.txt'
   $UpdateSigningKeyBase64 = Get-UpdateSigningKey -KeyPath $LocalSigningKeyPath
   $UpdatePublicKeyBase64 = Get-UpdatePublicKey -PrivateKeyBase64 $UpdateSigningKeyBase64
-  $previousPublicKey = $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64
-  $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 = $UpdatePublicKeyBase64
+  $previousPublicKey = $env:OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64
+  $env:OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64 = $UpdatePublicKeyBase64
 
   & cargo build --release -p ocentra-child-runtime --bin ocentra-child-agent-service
   Assert-Success 'Cargo child-agent service release build failed.'
@@ -244,9 +244,9 @@ try {
   Write-Host "Built $BootstrapPath"
 } finally {
   if ($null -eq $previousPublicKey) {
-    Remove-Item Env:\OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 -ErrorAction SilentlyContinue
+    Remove-Item Env:\OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64 -ErrorAction SilentlyContinue
   } else {
-    $env:OCENTRA_PARENT_UPDATE_PUBLIC_KEY_BASE64 = $previousPublicKey
+    $env:OCENTRA_CHILD_UPDATE_PUBLIC_KEY_BASE64 = $previousPublicKey
   }
   Pop-Location
 }

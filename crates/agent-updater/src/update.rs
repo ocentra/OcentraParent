@@ -1,8 +1,8 @@
-use std::env;
 use std::io::{stderr, Write};
-use std::path::PathBuf;
 use std::time::Duration;
+use std::{env, fs, path::PathBuf};
 
+use rand_core::{OsRng, RngCore};
 use semver::Version;
 use tokio::time::sleep;
 
@@ -45,10 +45,10 @@ pub async fn run_once(
         });
     }
 
-    let artifact_path = artifact_temp_path(&payload.artifact.name);
-    download_file(&payload.artifact.download_url, &artifact_path).await?;
-    assert_sha256_file(&artifact_path, &payload.artifact.sha256)?;
-    start_msi_upgrade(&artifact_path).await?;
+    let artifact = DownloadedArtifact::new(&payload.artifact.name)?;
+    download_file(&payload.artifact.download_url, &artifact.path).await?;
+    assert_sha256_file(&artifact.path, &payload.artifact.sha256)?;
+    start_msi_upgrade(&artifact.path).await?;
     Ok(UpdateOutcome::InstallerStarted {
         current: current.to_string(),
         latest: latest.to_string(),
@@ -92,8 +92,49 @@ fn trusted_public_key() -> Result<String, UpdaterError> {
     Ok(built_in.to_owned())
 }
 
-fn artifact_temp_path(name: &str) -> PathBuf {
-    env::temp_dir().join(name)
+struct DownloadedArtifact {
+    root: PathBuf,
+    path: PathBuf,
+}
+
+impl DownloadedArtifact {
+    fn new(name: &str) -> Result<Self, UpdaterError> {
+        let safe_name = name
+            .rsplit(['/', '\\'])
+            .next()
+            .filter(|candidate| *candidate == name)
+            .ok_or_else(|| {
+                UpdaterError::Policy("artifact name is not a safe file name".to_owned())
+            })?;
+        let mut random = [0_u8; 16];
+        for _ in 0..8 {
+            OsRng.fill_bytes(&mut random);
+            let suffix = random
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>();
+            let root = env::temp_dir().join(format!("ocentra-child-agent-update-{suffix}"));
+            match fs::create_dir(&root) {
+                Ok(()) => {
+                    return Ok(Self {
+                        path: root.join(safe_name),
+                        root,
+                    })
+                }
+                Err(error) if error.kind() == std::io::ErrorKind::AlreadyExists => continue,
+                Err(error) => return Err(error.into()),
+            }
+        }
+        Err(UpdaterError::Policy(
+            "could not allocate a unique updater-owned temporary directory".to_owned(),
+        ))
+    }
+}
+
+impl Drop for DownloadedArtifact {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.root);
+    }
 }
 
 fn initial_delay_seconds() -> u64 {

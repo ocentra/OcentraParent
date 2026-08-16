@@ -6,11 +6,11 @@
   <executable>%BASE%\ocentra-child-agent-updater.exe</executable>
   <arguments>run-loop</arguments>
   <env
-    name="OCENTRA_PARENT_UPDATE_MANIFEST_URL"
+    name="OCENTRA_CHILD_UPDATE_MANIFEST_URL"
     value="https://github.com/ocentra/OcentraParent/releases/latest/download/latest-windows.json"
   />
-  <env name="OCENTRA_PARENT_UPDATE_INITIAL_DELAY_SECONDS" value="120" />
-  <env name="OCENTRA_PARENT_UPDATE_INTERVAL_SECONDS" value="3600" />
+  <env name="OCENTRA_CHILD_UPDATE_INITIAL_DELAY_SECONDS" value="120" />
+  <env name="OCENTRA_CHILD_UPDATE_INTERVAL_SECONDS" value="3600" />
   <startmode>Automatic</startmode>
   <delayedAutoStart>true</delayedAutoStart>
   <onfailure action="restart" delay="60 sec" />
