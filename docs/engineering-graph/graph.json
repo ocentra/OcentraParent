@@ -349,7 +349,7 @@
       "metadata": {
         "planSlug": "tracking-plan",
         "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "workpackCount": 42,
+        "workpackCount": 43,
         "dependencyConfidence": "unreviewed"
       }
     },
@@ -24673,8 +24673,10 @@
       "title": "WP37 Tracking Event Journal Replay And Projection",
       "path": "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
       "parent": "PLAN-tracking-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "tracking-plan",
@@ -24684,13 +24686,16 @@
         "dependencyConfidence": "reviewed",
         "needsReview": false,
         "dependencyReview": {
-          "hardDependencies": [],
+          "hardDependencies": [
+            "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"
+          ],
           "evidence": [
             "docs/plans/tracking-plan/PLAN_STATE.md",
             "docs/plans/tracking-plan/CODE_AUDIT.md",
-            "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md"
+            "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
+            "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
           ],
-          "reason": "WP34-WP36 and the WP32 source inputs already exist as audited typed flows; no unsatisfied code-writing dependency remains for the next real WP37 composition slice. The review does not claim durable journal wiring, tests, proof, or completion."
+          "reason": "The source audit found that WP37 has no shipped owner for trusted tracking ingress, durable journal configuration, startup replay, or idempotent ActivityStore projection. WP40 is the explicit composition prerequisite; this review does not claim WP40 or WP37 implementation, tests, proof, or completion."
         }
       },
       "completion": {
@@ -24761,6 +24766,60 @@
         "references": {
           "implementation": [
             "docs/plans/tracking-plan/workpacks/39-tracking-portal-event-read-model-proof.md"
+          ],
+          "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
+          "proof": [],
+          "checklist": ["docs/plans/tracking-plan/implementation-checklist.md"],
+          "adr": []
+        }
+      }
+    },
+    {
+      "id": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "workpack",
+      "title": "WP40 Trusted Tracking Runtime Ingress And Journal Composition",
+      "path": "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+      "parent": "PLAN-tracking-plan",
+      "dependsOn": [
+        "WP-eventing-plan-06-journal-replay-and-lineage",
+        "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+        "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+        "WP-tracking-plan-36-tracking-detection-cascade-event-flow"
+      ],
+      "state": "blocked",
+      "lifecycleState": "planned",
+      "metadata": {
+        "planSlug": "tracking-plan",
+        "indexPath": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
+        "statusText": "open",
+        "sourceFormat": "linked-row",
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-eventing-plan-06-journal-replay-and-lineage",
+            "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+            "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+            "WP-tracking-plan-36-tracking-detection-cascade-event-flow"
+          ],
+          "evidence": [
+            "docs/plans/tracking-plan/PLAN_STATE.md",
+            "docs/plans/tracking-plan/CODE_AUDIT.md",
+            "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+            "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
+            "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md",
+            "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md",
+            "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+          ],
+          "reason": "WP40 must consume the generic Eventing journal/replay foundation, canonical tracking contracts, the existing process-local detection cascade, and the ActivityStore projection boundary. The packet is a planned route only and does not claim production code, tests, proof, or readiness."
+        }
+      },
+      "completion": {
+        "required": ["implementation", "tests", "proof", "checklist"],
+        "reviewed": {},
+        "references": {
+          "implementation": [
+            "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
           ],
           "tests": ["docs/plans/tracking-plan/TEST_PROOF_EXPECTATIONS.md"],
           "proof": [],
@@ -29740,6 +29799,12 @@
     },
     {
       "from": "PLAN-tracking-plan",
+      "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "contains",
+      "confidence": "structural"
+    },
+    {
+      "from": "PLAN-tracking-plan",
       "to": "WP-tracking-plan-device-location-tracking-capability-guide",
       "kind": "contains",
       "confidence": "structural"
@@ -29877,6 +29942,62 @@
       "confidence": "structural"
     },
     {
+      "from": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+      ],
+      "reason": "WP37 cannot be a legal implementation slice until the trusted shipped tracking ingress, durable journal composition, startup replay, and idempotent projection owner is implemented by WP40."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+      ],
+      "reason": "WP40 consumes the generic durable journal, recovery, and projection-only replay foundation owned by Eventing WP06."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md"
+      ],
+      "reason": "WP40 must project into the existing ActivityStore/SQLite read-model boundary owned by Tracking WP32."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md"
+      ],
+      "reason": "WP40 must preserve canonical tracking event contracts and identity from Tracking WP34."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-tracking-plan-36-tracking-detection-cascade-event-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP40 composes the existing typed process-local detection cascade owned by Tracking WP36 into the trusted durable runtime path."
+    },
+    {
       "from": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
       "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
       "kind": "depends_on",
@@ -30011,7 +30132,7 @@
   ],
   "migration": {
     "importedPlans": 23,
-    "importedWorkpacks": 679,
+    "importedWorkpacks": 680,
     "unindexedWorkpackArtifacts": [
       {
         "planId": "PLAN-account-identity-family-plan",
@@ -30334,7 +30455,7 @@
         "planId": "PLAN-tracking-plan",
         "reason": "Workpack dependencies were not promoted from prose; add a reviewed override or explicit dependency metadata.",
         "path": "docs/plans/tracking-plan/WORKPACK_INDEX.md",
-        "workpackCount": 42
+        "workpackCount": 43
       },
       {
         "scope": "PLAN-tracking-plan:unindexed-workpack-files",
