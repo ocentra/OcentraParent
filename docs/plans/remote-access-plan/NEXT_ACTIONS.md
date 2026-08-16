@@ -65,3 +65,25 @@ accepted/denied audit milestones. Continue with fresh follow-up CI/review,
 persistence/adapter ownership, relay/session integration, device-trust
 handoff, child/portal disclosure, audit custody, and generated proof before
 treating the workpack as complete.
+
+## Production-code audit boundary (2026-08-16)
+
+The shipped source audit found bounded contracts and fail-closed readiness
+seams, but no complete remote-access production path:
+
+- WP01/WP04 have typed capability/grant lifecycle code, yet no trusted
+  account/device producer, durable remote-access adapter, or persistence-backed
+  caller reaches it. Caller-shaped booleans/state fields are not authority.
+- WP02's agent-service entrypoint only evaluates environment-controlled
+  readiness and returns a worker record; it does not capture, relay, deliver,
+  or custody live frames. No synthetic environment bridge may be promoted.
+- WP03 remains deferred. WP05 lacks relay authentication, abuse controls,
+  limits, replay isolation, and redacted diagnostics. WP06 is proof/routing
+  only and has no production source.
+
+The next legal implementation must be owned by the account/device-trust and
+remote runtime composition: verify parent/device authority, construct the
+grant privately, persist it with crash/replay semantics, and invoke a real
+relay/session adapter. Preserve fail-closed unavailable/degraded behavior and
+do not claim live view, standing access, relay readiness, or revocation until
+that caller and owner exist.
