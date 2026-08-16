@@ -2,6 +2,12 @@
 
 pub mod app_game_category_risk_policy_routing;
 pub mod app_game_child_ux;
+pub mod app_game_child_ux_outbox;
+mod app_game_child_ux_outbox_mapping;
+pub mod app_game_child_ux_outbox_store;
+mod app_game_child_ux_outbox_token;
+pub mod app_game_child_ux_outbox_types;
+mod app_game_child_ux_outbox_validation;
 mod app_game_child_ux_request;
 mod app_game_child_ux_resolve;
 mod app_game_child_ux_runtime;

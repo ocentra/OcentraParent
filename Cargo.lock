@@ -2423,9 +2423,12 @@ dependencies = [
 name = "ocentra-app-game-core"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
+ "fs2",
  "ocentra-eventing",
  "ocentra-parent-agent-protocol",
  "serde",
+ "serde_json",
  "tokio",
 ]
 
