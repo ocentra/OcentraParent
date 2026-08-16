@@ -15468,7 +15468,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Composition/package code drafted; child Linux builder controls aligned; expected tests, validation, proof, and transport deferred",
+        "statusText": "Composition/package code drafted; child macOS identity and transport boundary aligned; expected tests, validation, proof, and transport deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15486,7 +15486,9 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md",
+            "scripts/release/macos/build-agent-package.sh",
+            "scripts/release/macos/ca.ocentra.parent.agent.plist"
           ],
           "tests": [
             "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -15516,7 +15518,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Composition/package code drafted; expected tests, validation, proof, and transport deferred",
+        "statusText": "Composition/package code drafted; child Linux builder controls aligned; expected tests, validation, proof, and transport deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
