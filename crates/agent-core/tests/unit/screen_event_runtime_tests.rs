@@ -25,10 +25,50 @@ use ocentra_parent_agent_core::screen_event_runtime_input::{
 
 static SCREEN_EVENT_RUNTIME_TEST_SEQUENCE: AtomicU64 = AtomicU64::new(0);
 
+fn screen_runtime_input() -> ScreenRuntimeInput {
+    ScreenRuntimeInput {
+        queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
+        screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
+        capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
+        capture_scope: constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW.to_string(),
+        image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
+        summary: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
+        model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
+        model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
+        prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
+            .to_string(),
+        policy_decision_ref: constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
+        policy_action: constants::activity_store::TEST_POLICY_ACTION_ALLOW.to_string(),
+        parent_rule_ref: constants::screen_flow::TEST_SCREEN_POLICY_RULE_REF.to_string(),
+        action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
+        deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
+        portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
+            .to_string(),
+    }
+}
+
+fn screen_runtime_degraded_input() -> ScreenRuntimeDegradedInput {
+    ScreenRuntimeDegradedInput {
+        queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
+        screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
+        capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
+        capture_scope: constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW.to_string(),
+        image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
+        summary: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
+        model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
+        model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
+        prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
+            .to_string(),
+        deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
+        portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
+            .to_string(),
+    }
+}
+
 #[tokio::test]
 async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
     let report = publish_screen_runtime_chain_for_input(
-        ScreenRuntimeInput::proof_fixture(),
+        screen_runtime_input(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
@@ -66,7 +106,7 @@ async fn screen_runtime_chain_publishes_uncoupled_lifecycle_flow() {
 
 #[tokio::test]
 async fn screen_capture_queue_events_publish_without_ai_policy_or_action_refs() {
-    let input = ScreenRuntimeCaptureInput::from(&ScreenRuntimeInput::proof_fixture());
+    let input = ScreenRuntimeCaptureInput::from(&screen_runtime_input());
     let report = publish_screen_capture_queue_events_for_input(
         input,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -100,7 +140,7 @@ async fn screen_capture_queue_events_publish_without_ai_policy_or_action_refs() 
 
 #[tokio::test]
 async fn screen_deletion_event_publishes_without_policy_or_action_claims() {
-    let input = ScreenRuntimeDeletionInput::from(&ScreenRuntimeInput::proof_fixture());
+    let input = ScreenRuntimeDeletionInput::from(&screen_runtime_input());
     let report = publish_screen_deletion_event_for_input(
         input,
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
@@ -146,7 +186,7 @@ async fn screen_deletion_delivery_is_handled_and_survives_journal_reopen() {
     .expect_value(constants::screen_flow::ERROR_SCREEN_RUNTIME_CHAIN_PUBLISHES);
     let report = spine
         .publish_deletion_event(
-            ScreenRuntimeDeletionInput::from(&ScreenRuntimeInput::proof_fixture()),
+            ScreenRuntimeDeletionInput::from(&screen_runtime_input()),
             constants::activity_store::TEST_FIRST_OBSERVED_AT,
         )
         .await
@@ -179,7 +219,7 @@ async fn screen_deletion_delivery_is_handled_and_survives_journal_reopen() {
 #[tokio::test]
 async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims() {
     let report = publish_screen_degraded_event_chain_for_input(
-        ScreenRuntimeDegradedInput::proof_fixture(),
+        screen_runtime_degraded_input(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
@@ -195,8 +235,6 @@ async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims()
         vec![
             ScreenRuntimePhase::CaptureObserved,
             ScreenRuntimePhase::QueueEncrypted,
-            ScreenRuntimePhase::AiAnalysisRequested,
-            ScreenRuntimePhase::AiAnalysisCompleted,
             ScreenRuntimePhase::DeletionCommitted,
             ScreenRuntimePhase::PortalReadModelUpdated,
         ]
@@ -210,12 +248,6 @@ async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims()
             && payload.policy_state == ScreenPolicyState::NotReady
             && payload.action_state == ScreenActionState::NotReady
     }));
-    let ai_completed = payload_for_phase(&payloads, ScreenRuntimePhase::AiAnalysisCompleted);
-    assert_eq!(ai_completed.ai_audit_state, ScreenAiAuditState::Completed);
-    assert_eq!(
-        ai_completed.deletion_proof_ref,
-        Some(constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string())
-    );
     let portal = payload_for_phase(&payloads, ScreenRuntimePhase::PortalReadModelUpdated);
     assert_eq!(portal.deletion_state, ScreenDeletionState::Committed);
     assert_eq!(
@@ -228,7 +260,7 @@ async fn screen_degraded_event_chain_publishes_without_policy_or_action_claims()
 #[tokio::test]
 async fn screen_runtime_chain_carries_refs_without_direct_ai_to_policy_shortcut() {
     let report = publish_screen_runtime_chain_for_input(
-        ScreenRuntimeInput::proof_fixture(),
+        screen_runtime_input(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await
@@ -280,7 +312,7 @@ async fn screen_runtime_chain_carries_refs_without_direct_ai_to_policy_shortcut(
 #[tokio::test]
 async fn screen_runtime_chain_keeps_raw_image_out_of_policy_portal_and_provider() {
     let report = publish_screen_runtime_chain_for_input(
-        ScreenRuntimeInput::proof_fixture(),
+        screen_runtime_input(),
         constants::activity_store::TEST_FIRST_OBSERVED_AT,
     )
     .await

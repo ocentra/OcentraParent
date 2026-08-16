@@ -1,6 +1,6 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
-use super::RestoreExecutorReceipt;
+use super::{RestoreApplyRequest, RestoreExecutorReceipt};
 
 pub(super) fn apply_restore_after_execution(
     preflight: &contracts::ExportImportImportPreflight,

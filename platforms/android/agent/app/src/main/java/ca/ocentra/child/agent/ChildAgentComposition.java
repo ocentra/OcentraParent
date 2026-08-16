@@ -22,7 +22,8 @@ public final class ChildAgentComposition implements AutoCloseable {
         UNAVAILABLE(0),
         READY(1),
         RECOVERY_PENDING(2),
-        REVOKED(3);
+        REVOKED(3),
+        TAMPER_MANUAL_REQUIRED(4);
 
         private final int nativeCode;
 
@@ -180,8 +181,14 @@ public final class ChildAgentComposition implements AutoCloseable {
     @Override
     public void close() {
         if (nativeHandle != 0L) {
-            nativeStop(nativeHandle);
+            boolean stopped = nativeStop(nativeHandle);
             nativeHandle = 0L;
+            if (!stopped) {
+                rustReadiness = RustReadiness.UNAVAILABLE;
+                readiness = Readiness.RUST_RUNTIME_MANUAL_REQUIRED;
+                failureReason = nativeFailureReason();
+                return;
+            }
         }
         readiness = Readiness.STOPPED;
     }
@@ -212,6 +219,10 @@ public final class ChildAgentComposition implements AutoCloseable {
             case REVOKED:
                 readiness = Readiness.RUST_RUNTIME_REVOKED;
                 failureReason = "Rust child-runtime trust is revoked";
+                break;
+            case TAMPER_MANUAL_REQUIRED:
+                readiness = Readiness.RUST_RUNTIME_MANUAL_REQUIRED;
+                failureReason = nativeFailureReason();
                 break;
             case UNAVAILABLE:
             default:

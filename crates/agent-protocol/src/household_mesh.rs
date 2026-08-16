@@ -90,27 +90,6 @@ pub struct HouseholdMeshTransportEnvelope {
 }
 
 impl HouseholdMeshTransportEnvelope {
-    #[cfg(any(test, feature = "test-support"))]
-    pub fn proof_fixture_for(local_event_ref: &str, lan_message_type: &str) -> Self {
-        Self {
-            schema_version: mesh::EVENT_SCHEMA_VERSION,
-            message_id: mesh::TEST_BRIDGE_INBOUND_MESSAGE_ID.to_string(),
-            idempotency_key: mesh::TEST_BRIDGE_IDEMPOTENCY_KEY.to_string(),
-            family_id: mesh::TEST_BRIDGE_FAMILY_ID.to_string(),
-            target_child_device_id: mesh::TEST_BRIDGE_TARGET_CHILD_DEVICE_ID.to_string(),
-            source_peer_id: mesh::TEST_BRIDGE_CHILD_AGENT_PEER_ID.to_string(),
-            local_event_ref: local_event_ref.to_string(),
-            lan_message_type: lan_message_type.to_string(),
-            bridge_state: HouseholdMeshBridgeState::ExportSelected,
-            authentication_state: HouseholdMeshAuthenticationState::PairedTrustedDevice,
-            policy_authority: HouseholdMeshPolicyAuthority::ChildAgentOnly,
-            direct_remote_publish_requested: false,
-            raw_payload_included: false,
-            sent_at_epoch_seconds: mesh::TEST_BRIDGE_SENT_AT_EPOCH_SECONDS,
-            stale_after_seconds: mesh::TEST_BRIDGE_STALE_AFTER_SECONDS,
-        }
-    }
-
     pub fn age_at_seconds(&self, received_at_epoch_seconds: u64) -> u64 {
         received_at_epoch_seconds.saturating_sub(self.sent_at_epoch_seconds)
     }

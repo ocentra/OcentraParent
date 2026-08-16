@@ -17,6 +17,7 @@ use crate::app_game_notification_local_outbox_bridge_types::{
     AppGameNotificationLocalOutboxBridgeReadModel, AppGameNotificationLocalOutboxBridgeRow,
     AppGameNotificationLocalOutboxBridgeStatus,
 };
+use crate::app_game_notification_scheduler_bridge_read_model_validation::validate_app_game_notification_scheduler_bridge_read_model;
 use crate::app_game_notification_scheduler_bridge_types::{
     AppGameNotificationSchedulerBridgeOptions, AppGameNotificationSchedulerBridgeReadModel,
     AppGameNotificationSchedulerBridgeRow, AppGameNotificationSchedulerBridgeStatus,

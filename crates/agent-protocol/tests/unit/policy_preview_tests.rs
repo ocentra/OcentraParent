@@ -188,6 +188,9 @@ fn policy_preview_read_model() -> PolicyPreviewReadModel {
                 adapter_action_authorized: false,
                 enforcement_command_authorized: false,
             }),
+            // This protocol fixture contains no request/source confirmation fields;
+            // production projection therefore emits no confirmation context.
+            confirmation_context: None,
         }],
     }
 }

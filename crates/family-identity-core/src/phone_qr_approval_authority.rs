@@ -115,13 +115,13 @@ fn validate_challenge_shape(
     {
         return Err(PhoneQrApprovalAuthorityFailure::InvalidChallengeShape);
     }
-    if !issued_at.is_before(&expires_at) || issued_at > observed_at {
+    if issued_at >= expires_at || issued_at > observed_at {
         return Err(PhoneQrApprovalAuthorityFailure::Expired);
     }
     if expires_at - issued_at > TimeDelta::seconds(MAX_PHONE_QR_APPROVAL_LIFETIME_SECONDS) {
         return Err(PhoneQrApprovalAuthorityFailure::InvalidChallengeShape);
     }
-    if !observed_at.is_before(&expires_at) {
+    if observed_at >= expires_at {
         return Err(PhoneQrApprovalAuthorityFailure::Expired);
     }
     Ok(())
@@ -167,7 +167,7 @@ fn validate_response_shape(
     if issued_at < challenge_issued_at
         || approved_at < challenge_issued_at
         || issued_at > approved_at
-        || !approved_at.is_before(&expires_at)
+        || approved_at >= expires_at
         || approved_at > observed_at
     {
         return Err(PhoneQrApprovalAuthorityFailure::Expired);

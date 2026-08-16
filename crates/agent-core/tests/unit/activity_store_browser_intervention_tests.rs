@@ -48,7 +48,7 @@ fn activity_store_reports_typed_browser_intervention_read_model_from_ingested_ev
     );
     assert_eq!(
         read_model.unmanaged_fallback_action,
-        BrowserUnmanagedFallbackActionState::OsBlockManualRequired
+        BrowserUnmanagedFallbackActionState::Unavailable
     );
     let row = &read_model.rows[0];
     assert_eq!(
@@ -301,7 +301,7 @@ fn activity_store_reports_empty_browser_intervention_readiness_without_rows() {
     );
     assert_eq!(
         read_model.unmanaged_fallback_action,
-        BrowserUnmanagedFallbackActionState::OsBlockManualRequired
+        BrowserUnmanagedFallbackActionState::Unavailable
     );
 }
 

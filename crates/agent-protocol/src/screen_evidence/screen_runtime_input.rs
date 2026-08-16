@@ -1,7 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-use crate::constants;
-
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ScreenRuntimeInput {
@@ -65,50 +63,6 @@ pub struct ScreenRuntimeDegradedInput {
     pub prompt_or_template_version: String,
     pub deletion_proof_ref: String,
     pub portal_read_model_ref: String,
-}
-
-impl ScreenRuntimeInput {
-    pub fn proof_fixture() -> Self {
-        Self {
-            queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-            screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
-            capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
-            capture_scope: constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW.to_string(),
-            image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
-            summary: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
-            model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
-            model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
-            prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
-                .to_string(),
-            policy_decision_ref: constants::activity_store::TEST_POLICY_DECISION_ID.to_string(),
-            policy_action: constants::activity_store::TEST_POLICY_ACTION_ALLOW.to_string(),
-            parent_rule_ref: constants::screen_flow::TEST_SCREEN_POLICY_RULE_REF.to_string(),
-            action_ref: constants::screen_flow::TEST_SCREEN_ACTION_REF.to_string(),
-            deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
-            portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
-                .to_string(),
-        }
-    }
-}
-
-impl ScreenRuntimeDegradedInput {
-    pub fn proof_fixture() -> Self {
-        Self {
-            queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-            screen_analysis_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
-            capture_reason: constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string(),
-            capture_scope: constants::activity_capture::OBSERVATION_MODE_ACTIVE_WINDOW.to_string(),
-            image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
-            summary: constants::activity_store::TEST_SCREEN_SUMMARY.to_string(),
-            model_runtime_ref: constants::activity_store::TEST_SCREEN_MODEL_RUNTIME_REF.to_string(),
-            model_id: constants::activity_store::TEST_SCREEN_MODEL_ID.to_string(),
-            prompt_or_template_version: constants::activity_store::TEST_SCREEN_TEMPLATE_VERSION
-                .to_string(),
-            deletion_proof_ref: constants::activity_store::TEST_SCREEN_DELETION_REASONS.to_string(),
-            portal_read_model_ref: constants::screen_flow::TEST_SCREEN_PORTAL_READ_MODEL_REF
-                .to_string(),
-        }
-    }
 }
 
 impl From<&ScreenRuntimeInput> for ScreenRuntimeCaptureInput {
