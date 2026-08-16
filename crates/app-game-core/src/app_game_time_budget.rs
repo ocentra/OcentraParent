@@ -1,11 +1,23 @@
 use ocentra_eventing::error::EventingError;
 
+use crate::app_game_category_risk_policy_routing::AppGameCategoryRiskCompilation;
 use crate::app_game_policy_evaluator_runtime::evaluate_app_game_policy_runtime;
 use crate::app_game_policy_evaluator_runtime::types::AppGamePolicyEvaluatorInput;
 use crate::app_game_time_budget_policy::runtime_policy_parts;
 use crate::app_game_time_budget_schedule::schedule_parts;
 use crate::app_game_time_budget_sessions::runtime_sessions;
 use crate::app_game_time_budget_types::{AppGameTimeBudgetDecision, AppGameTimeBudgetInput};
+
+pub fn evaluate_app_game_time_budget_from_category_risk_compilation(
+    category_risk: AppGameCategoryRiskCompilation,
+    mut input: AppGameTimeBudgetInput,
+) -> Result<Option<AppGameTimeBudgetDecision>, EventingError> {
+    let Some(compilation) = category_risk.compilation else {
+        return Ok(None);
+    };
+    input.compilation = compilation;
+    evaluate_app_game_time_budget(input).map(Some)
+}
 
 pub fn evaluate_app_game_time_budget(
     input: AppGameTimeBudgetInput,
