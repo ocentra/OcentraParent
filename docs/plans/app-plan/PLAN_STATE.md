@@ -24,9 +24,11 @@
 - Phase 3 proof: not regenerated.
 
 Code-pass note (2026-08-16): WP18/WP49 now have a Rust route-to-compiler draft,
-and WP16 now derives unknown candidates from Rust inventory evidence on
-`codex/app-plan-code-pass`. These slices are unvalidated with tests/proof/
-checklist closure deferred; no product completion claim is made.
+and WP16 now derives unknown candidates from Rust inventory evidence. WP17 now
+promotes explicit inventory risk categories and unknown-process rows into
+advisory Rust candidates on `codex/app-plan-code-pass`. These slices are
+unvalidated with tests/proof/checklist closure deferred; no product completion
+claim is made.
 
 The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
 WP26, WP48, WP49, WP62, WP63, WP64, WP65, and
