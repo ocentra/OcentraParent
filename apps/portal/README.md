@@ -1,49 +1,21 @@
 # Portal App
 
-Vite development portal for local and LAN parent visibility.
+Dev portal for local and LAN parent visibility.
 
-This is the fast HMR surface for proving parent workflows against the real Rust
-service. It is not allowed to become the source of truth for child-device
-capture, AI safety decisions, policy evaluation, timers, or enforcement.
-
-The product parent portal should become a packaged parent-owned desktop/mobile
-surface. Tauri is the preferred desktop-shell candidate unless a later
-architecture decision replaces it. `family.ocentra.ca` is for downloads, account,
-subscription, docs, status, and optional stateless report compilation, not for
-default custody of child activity data.
-
-```powershell
-cmd /c npm run dev:agent
-cmd /c npm run dev:portal
-```
-
-For cross-device LAN testing, run from the repo root:
-
-```powershell
-cmd /c npm run dev:lan
-```
-
-Run the real browser UI check from the repo root:
-
-```powershell
-cmd /c npm run playwright:install
-cmd /c npm run test:e2e --workspace @ocentra-parent/portal
-```
-
-The Playwright check starts the Rust agent and Vite portal on the scaffold smoke ports, verifies WebSocket connection state, clicks command buttons, checks rendered event output, and fails on browser console or page errors.
+This surface is presentation only. It consumes Rust-owned snapshots and actions
+through the HostBridge and the generated/thin parent UI bridge. It is not allowed to
+become the source of truth for child-device capture, AI safety decisions,
+policy evaluation, timers, enforcement, or product contracts.
 
 ## Ownership
 
 - Renders parent-facing surfaces for devices, activity, policy, data, AI, and
   account areas.
-- Sends typed intents and queries through `@ocentra-parent/agent-protocol-domain`.
+- Consumes Rust-owned snapshots and actions through the HostBridge and the
+  generated parent UI bridge.
 - Displays service-backed capability status, custody labels, evidence refs, and
   degraded states.
-- Displays LAN source-matrix diagnostics from the service-backed add-device read
-  model so workpack/source proof status is visible in Devices/LAN and
-  Activity/Network review.
-- Displays the tracking service read-model event as a narrow Policy Tracking
-  route summary; this is not full parent/child tracking UI proof.
+- Displays service-backed app/game policy readiness rows on App/Game Sessions.
 - Provides Playwright proof for real portal-to-Rust behavior.
 
 ## Must Not Own
@@ -53,7 +25,7 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 - Timer recovery.
 - OS enforcement adapters.
 - Child-device capture.
-- Unvalidated fake "normal" data paths.
+- Unvalidated fake normal data paths.
 
 ## Connected Docs
 
@@ -63,10 +35,11 @@ The Playwright check starts the Rust agent and Vite portal on the scaffold smoke
 
 ## Gaps To Fill
 
-- Complete first-run setup, child profiles, policy authoring, schedules,
-  reports, notifications, and AI action previews.
-- Keep replacing UI-check data with service-backed read models.
+- Keep replacing UI-check data with Rust-backed snapshots and actions.
 - Make every route label live/local/LAN/relay/cache/unavailable source state
   clearly.
-- Keep LAN source-matrix labels tied to service read models; do not add
-  portal-only completion claims for unimplemented discovery adapters.
+- Keep LAN source-matrix labels tied to service read models.
+- Render the dedicated App/Game Sessions source panel from the Rust-backed
+  intent seam.
+- Replace the Browser-route social dashboard unavailable shell with
+  service-backed social rows only after the runtime snapshot path exists.

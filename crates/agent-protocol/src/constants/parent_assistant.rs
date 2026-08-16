@@ -61,15 +61,13 @@ pub const PROMPT_SEPARATOR: &str = "\n";
 pub const DEFAULT_PREVIEW_ID: &str = "parent-assistant-action-preview-local";
 pub const ACTION_PREVIEW_SUMMARY: &str =
     "Preview only. Child-agent contract approval is required before any action.";
-pub const ACTION_PREVIEW_POLICY_SUMMARY: &str =
-    "Policy suggestion preview only. Controller lease and child-agent contract execution are required before any rule changes.";
-pub const ACTION_PREVIEW_SCHEDULE_SUMMARY: &str =
-    "Schedule-change preview only. Controller lease and child-agent contract execution are required before any schedule changes.";
-pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str =
-    "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
+pub const ACTION_PREVIEW_POLICY_SUMMARY: &str = "Policy suggestion preview only. Controller lease and child-agent contract execution are required before any rule changes.";
+pub const ACTION_PREVIEW_SCHEDULE_SUMMARY: &str = "Schedule-change preview only. Controller lease and child-agent contract execution are required before any schedule changes.";
+pub const ACTION_PREVIEW_TIME_LIMIT_SUMMARY: &str = "Time-limit preview only. Controller lease and child-agent contract execution are required before any limit changes.";
 pub const ACTION_PREVIEW_NONE_SUMMARY: &str = "No backend action is prepared from this answer.";
-pub const ACTION_PREVIEW_DRAFT_REASON: &str =
-    "Action preview is a draft only. Controller lease and child-agent contract are required before changes.";
+pub const ACTION_PREVIEW_DRAFT_REASON: &str = "Action preview is a draft only. Controller lease and child-agent contract are required before changes.";
+pub const ACTION_PREVIEW_AUDIT_REASON: &str =
+    "Preview generated from cited parent-owned evidence; child-agent validation is still required.";
 pub const THREAD_TITLE_DEFAULT: &str = "Parent Assistant local thread";
 pub const THREAD_STORAGE_DIR: &str = "parent-assistant-threads";
 pub const THREAD_STORAGE_FILE: &str = "threads.json";
@@ -83,6 +81,12 @@ pub const THREAD_STORAGE_UNAVAILABLE_REASON: &str = "parent-assistant-thread-sto
 pub const RUN_NOT_RUNNING_REASON: &str = "parent-assistant-run-not-running";
 pub const ACTION_CONFIRM_CONTRACT_REQUIRED_REASON: &str =
     "Controller lease and child-agent policy contract are required before applying this action.";
+pub const ACTION_CONFIRM_PREVIEW_REQUIRED_REASON: &str =
+    "Action confirmation rejected because no matching preview id was provided.";
+pub const ACTION_CONFIRM_RAW_PROSE_REJECTED_REASON: &str =
+    "Action confirmation rejected because raw assistant prose is not an executable action intent.";
+pub const ACTION_CONFIRM_AUDIT_REASON: &str =
+    "Parent confirmation cannot write policy until child-agent validation is wired.";
 pub const REQUIRED_CHILD_CONTRACT_POLICY_WRITE: &str = "child-agent-policy-write-contract";
 pub const QUESTION_POLICY_HINT: &str = "policy";
 pub const QUESTION_RULE_HINT: &str = "rule";
@@ -116,16 +120,14 @@ pub const API_PROVIDER_AUTHORIZED_UNAVAILABLE_REASON: &str =
 pub const API_PROVIDER_AUTHORIZED_DEGRADED_REASON: &str = "api-ai-provider-authorized-degraded";
 pub const PROVIDER_ROUTE_LOCAL_READY_REASON: &str =
     "Local parent-assistant provider is configured and selected.";
-pub const PROVIDER_ROUTE_LOCAL_DEGRADED_REASON: &str =
-    "Local parent-assistant provider is degraded; API AI remains optional and unavailable for safety decisions.";
+pub const PROVIDER_ROUTE_LOCAL_DEGRADED_REASON: &str = "Local parent-assistant provider is degraded; API AI remains optional and unavailable for safety decisions.";
 pub const PROVIDER_ROUTE_LOCAL_UNAVAILABLE_REASON: &str =
     "Local parent-assistant provider is unavailable and no API provider is selected.";
 pub const PROVIDER_ROUTE_API_UNAVAILABLE_REASON: &str =
     "API AI is parent-authorized but no configured API adapter is available.";
 pub const PROVIDER_ROUTE_API_DEGRADED_REASON: &str =
     "API AI is parent-authorized but degraded; it remains outside child-safety decisions.";
-pub const PROVIDER_ROUTE_NONE_REASON: &str =
-    "No parent-assistant provider is available; cited source refs remain available for degraded answers.";
+pub const PROVIDER_ROUTE_NONE_REASON: &str = "No parent-assistant provider is available; cited source refs remain available for degraded answers.";
 pub const LOCAL_PROVIDER_DEGRADED: &str = "local provider returned degraded output";
 pub const LOCAL_PROVIDER_BUSY: &str = "local provider is busy";
 pub const BACKEND_STATE_SCAFFOLD_ONLY: &str = "scaffold-only";

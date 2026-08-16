@@ -1,0 +1,30 @@
+  readonly timerScheduled: boolean;
+  readonly schedulerPersistenceRuntimeClaimed: boolean;
+  readonly durableSchedulerStorageClaimed: boolean;
+  readonly auditRuntimeClaimed: boolean;
+  readonly durableAuditLogClaimed: boolean;
+  readonly rollbackRuntimeClaimed: boolean;
+  readonly rollbackExecutionClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+type TimerServiceReadinessProtocolReadModelRowLike = {
+  readonly protocolReadModelState: TimerServiceReadinessProtocolReadModelStateValue;
+  readonly requiredProtocolProofRefs: readonly unknown[];
+  readonly agentProtocolContractImplemented: boolean;
+  readonly rustProtocolMirrored: boolean;
+  readonly serviceCommandRegistered: boolean;
+  readonly serviceEventEmitted: boolean;
+  readonly serviceReadApiImplemented: boolean;
+  readonly serviceReadModelEventEmitted: boolean;
+};
+
+type TimerServiceReadinessProtocolReadModelLike = {
+  readonly protocolReadModelProofRequiredCount: number;
+  readonly blockedBySourceFreshnessCount: number;
+  readonly blockedByCompilerDecisionCount: number;
+  readonly rows: readonly TimerServiceReadinessProtocolReadModelRowLike[];
+  readonly agentProtocolContractImplemented: boolean;

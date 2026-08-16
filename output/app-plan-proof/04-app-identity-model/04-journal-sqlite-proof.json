@@ -1,7 +1,0 @@
-{
-    "sharedAppGameProof":  "output/app-game-plan-proof/04-app-game-identity-model",
-    "workpack":  "04-app-identity-model",
-    "journalSqliteChanged":  false,
-    "status":  "not-applicable-for-reconciliation",
-    "reason":  "No new journal, SQLite, replay, or read-model persistence behavior was added by this reconciliation."
-}

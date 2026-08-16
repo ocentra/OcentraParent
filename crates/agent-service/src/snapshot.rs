@@ -1,13 +1,17 @@
 use std::env;
 
-use ocentra_parent_agent_protocol::{
-    constants, AgentIdentity, AgentLogEntry, AgentLogSnapshot, LogFieldValue, LogFields, LogLevel,
-    LogSource, LOG_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{
+    AgentIdentity, AgentLogEntry, AgentLogSnapshot, LogFieldValue, LogFields, LogLevel, LogSource,
 };
+use ocentra_parent_agent_protocol::LOG_SCHEMA_VERSION;
 
 use crate::time::timestamp_now;
 
 pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
+    let hostname = env::var(constants::env_var::COMPUTER_NAME)
+        .or_else(|_| env::var(constants::env_var::HOSTNAME))
+        .unwrap_or_else(|_| constants::value::UNKNOWN_HOST.to_string());
     let mut fields = LogFields::new();
     fields.insert(
         constants::field::CAPTURE_ENABLED.to_string(),
@@ -34,11 +38,12 @@ pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
         schema_version: LOG_SCHEMA_VERSION,
         agent: AgentIdentity {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            hostname: hostname(),
+            hostname,
             platform: env::consts::OS.to_string(),
             service_version: env!("CARGO_PKG_VERSION").to_string(),
         },
         entries: vec![AgentLogEntry {
+            schema_version: LOG_SCHEMA_VERSION,
             id: constants::event_id::DEV_LOCALHOST_API_READY.to_string(),
             timestamp: timestamp_now(),
             level: LogLevel::Info,
@@ -49,12 +54,6 @@ pub fn build_dev_log_snapshot() -> AgentLogSnapshot {
     }
 }
 
-fn hostname() -> String {
-    env::var(constants::env_var::COMPUTER_NAME)
-        .or_else(|_| env::var(constants::env_var::HOSTNAME))
-        .unwrap_or_else(|_| constants::value::UNKNOWN_HOST.to_string())
-}
-
 #[cfg(windows)]
 fn capture_enabled() -> bool {
     true
@@ -63,19 +62,4 @@ fn capture_enabled() -> bool {
 #[cfg(not(windows))]
 fn capture_enabled() -> bool {
     false
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{build_dev_log_snapshot, constants};
-
-    #[test]
-    fn build_dev_log_snapshot_uses_protocol_owned_constants() {
-        let snapshot = build_dev_log_snapshot();
-
-        assert_eq!(snapshot.agent.device_id, constants::peer::LOCAL_DEV_AGENT);
-        assert!(snapshot.entries[0]
-            .fields
-            .contains_key(constants::field::CAPTURE_ENABLED));
-    }
 }

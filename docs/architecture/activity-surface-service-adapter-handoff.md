@@ -1,16 +1,36 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Activity Surface Service Adapter Handoff
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Activity Surface Service Adapter Handoff
 
-The C-owned Activity UI consumes service-backed data without owning product
-data.
+The C-owned Activity UI consumes Rust-owned route snapshots and service-backed
+data without owning product data.
 
-Use `@ocentra-parent/agent-protocol-domain/activity-surface-adapter` to create Activity report, save/history, and tab read-model commands. Parse returned events through the same helper before rendering. The helper returns typed payloads or explicit adapter failure reasons; the UI should render those failure states instead of falling back to UI-check data.
+Current Rust-first ownership means Activity report, save/history, and tab
+read-model commands must be owned by `crates/schema`,
+`crates/parent-runtime-core`, or the relevant Rust domain/runtime crate before
+the UI consumes them. Any `@ocentra-parent/agent-protocol-domain` adapter is a
+temporary migration surface over generated Rust-owned DTOs, not product truth.
+The UI renders typed payloads or explicit adapter failure reasons and must not
+fall back to UI-check data.
 
 Runtime source of truth remains:
 
-1. Activity UI sends typed agent protocol command.
+1. Activity UI sends a generated Rust-owned action through HostBridge or the
+   dev bridge.
 2. Rust service reads the local Activity query store or saved report store.
 3. Rust service reports typed unavailable, empty, offline, or ready states.
-4. Portal renders the typed result; Vite does not invent product data.
+4. Portal renders the typed result; Vite/dev web does not invent product data.
 
 Current handoff proof:
 

@@ -41,7 +41,7 @@ pub fn encrypt_payload(
     let nonce = XChaCha20Poly1305::generate_nonce(&mut OsRng);
     let ciphertext = cipher
         .encrypt(&nonce, plaintext)
-        .map_err(|_| JournalError::Crypto)?;
+        .map_err(|_error| JournalError::Crypto)?;
     let digest = Sha256::digest(plaintext);
 
     Ok(EncryptedPayload {
@@ -65,7 +65,7 @@ pub fn decrypt_payload(
     let cipher = cipher_from_key(key);
     cipher
         .decrypt(XNonce::from_slice(&nonce_bytes), ciphertext_bytes.as_ref())
-        .map_err(|_| JournalError::Crypto)
+        .map_err(|_error| JournalError::Crypto)
 }
 
 fn cipher_from_key(key: &JournalKey) -> XChaCha20Poly1305 {

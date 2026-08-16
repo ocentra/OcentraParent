@@ -7,7 +7,15 @@ use crate::{
     V08EnforcementProductControlParentAction, V08EnforcementProductControlSurface,
 };
 
+macro_rules! protocol_str_lookup {
+    ($self:expr, [$($value:expr),+ $(,)?]) => {{
+        const VALUES: &[&str] = &[$($value),+];
+        VALUES[*$self as usize]
+    }};
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementPolicyDispatchSourceState {
     #[serde(rename = "ready")]
     Ready,
@@ -27,19 +35,23 @@ pub enum EnforcementPolicyDispatchSourceState {
 
 impl EnforcementPolicyDispatchSourceState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Ready => dispatch::SOURCE_READY,
-            Self::Unavailable => dispatch::SOURCE_UNAVAILABLE,
-            Self::Stale => "stale",
-            Self::Offline => "offline",
-            Self::Missing => "missing",
-            Self::WrongDevice => "wrong-device",
-            Self::WrongRoute => "wrong-route",
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                dispatch::SOURCE_READY,
+                "stale",
+                "offline",
+                "missing",
+                "wrong-device",
+                "wrong-route",
+                dispatch::SOURCE_UNAVAILABLE,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementPolicyDispatchProofLevel {
     #[serde(rename = "implemented")]
     Implemented,
@@ -57,18 +69,22 @@ pub enum EnforcementPolicyDispatchProofLevel {
 
 impl EnforcementPolicyDispatchProofLevel {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Implemented => dispatch::PROOF_IMPLEMENTED,
-            Self::ReportOnly => dispatch::PROOF_REPORT_ONLY,
-            Self::ManualRequired => dispatch::PROOF_MANUAL_REQUIRED,
-            Self::Scaffold => dispatch::PROOF_SCAFFOLD,
-            Self::Degraded => "degraded",
-            Self::Unavailable => "unavailable",
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                dispatch::PROOF_IMPLEMENTED,
+                dispatch::PROOF_REPORT_ONLY,
+                "degraded",
+                "unavailable",
+                dispatch::PROOF_MANUAL_REQUIRED,
+                dispatch::PROOF_SCAFFOLD,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementPolicyDispatchOutcomeState {
     #[serde(rename = "dispatch-ready")]
     DispatchReady,
@@ -88,19 +104,23 @@ pub enum EnforcementPolicyDispatchOutcomeState {
 
 impl EnforcementPolicyDispatchOutcomeState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::DispatchReady => dispatch::OUTCOME_DISPATCH_READY,
-            Self::ReportOnly => dispatch::OUTCOME_REPORT_ONLY,
-            Self::ManualRequired => dispatch::OUTCOME_MANUAL_REQUIRED,
-            Self::Rejected => dispatch::OUTCOME_REJECTED,
-            Self::DryRunOnly => "dry-run-only",
-            Self::Degraded => "degraded",
-            Self::Unavailable => "unavailable",
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                dispatch::OUTCOME_DISPATCH_READY,
+                "dry-run-only",
+                dispatch::OUTCOME_REPORT_ONLY,
+                dispatch::OUTCOME_MANUAL_REQUIRED,
+                "degraded",
+                "unavailable",
+                dispatch::OUTCOME_REJECTED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementPolicyDispatchRejectionReason {
     #[serde(rename = "none")]
     None,
@@ -130,24 +150,28 @@ pub enum EnforcementPolicyDispatchRejectionReason {
 
 impl EnforcementPolicyDispatchRejectionReason {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::None => dispatch::REJECTION_NONE,
-            Self::AdapterManualRequired => dispatch::REJECTION_ADAPTER_MANUAL_REQUIRED,
-            Self::BroadClaimNotProved => dispatch::REJECTION_BROAD_CLAIM_NOT_PROVED,
-            Self::MissingActor => "missing-actor",
-            Self::WrongDevice => "wrong-device",
-            Self::MissingPolicyDecision => "missing-policy-decision",
-            Self::StalePolicyVersion => "stale-policy-version",
-            Self::MissingScheduleOrBudget => "missing-schedule-or-budget",
-            Self::MissingEvidence => "missing-evidence",
-            Self::AdapterUnavailable => "adapter-unavailable",
-            Self::SourceNotReady => "source-not-ready",
-            Self::RouteNotAuthorized => "route-not-authorized",
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                dispatch::REJECTION_NONE,
+                "missing-actor",
+                "wrong-device",
+                "missing-policy-decision",
+                "stale-policy-version",
+                "missing-schedule-or-budget",
+                "missing-evidence",
+                dispatch::REJECTION_ADAPTER_MANUAL_REQUIRED,
+                "adapter-unavailable",
+                "source-not-ready",
+                "route-not-authorized",
+                dispatch::REJECTION_BROAD_CLAIM_NOT_PROVED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementPolicyDispatchApprovalState {
     #[serde(rename = "not-required")]
     NotRequired,
@@ -167,19 +191,23 @@ pub enum EnforcementPolicyDispatchApprovalState {
 
 impl EnforcementPolicyDispatchApprovalState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotRequired => dispatch::APPROVAL_NOT_REQUIRED,
-            Self::Pending => dispatch::APPROVAL_PENDING,
-            Self::ManualRequired => dispatch::APPROVAL_MANUAL_REQUIRED,
-            Self::Approved => "approved",
-            Self::Denied => "denied",
-            Self::Expired => "expired",
-            Self::OverrideActive => "override-active",
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                dispatch::APPROVAL_NOT_REQUIRED,
+                dispatch::APPROVAL_PENDING,
+                "approved",
+                "denied",
+                "expired",
+                "override-active",
+                dispatch::APPROVAL_MANUAL_REQUIRED,
+            ]
+        )
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementPolicyDispatchTimerState {
     #[serde(rename = "not-required")]
     NotRequired,
@@ -199,15 +227,18 @@ pub enum EnforcementPolicyDispatchTimerState {
 
 impl EnforcementPolicyDispatchTimerState {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotRequired => dispatch::TIMER_NOT_REQUIRED,
-            Self::Active => dispatch::TIMER_ACTIVE,
-            Self::RestartRecovered => dispatch::TIMER_RESTART_RECOVERED,
-            Self::RecoveryNeeded => dispatch::TIMER_RECOVERY_NEEDED,
-            Self::Expired => "expired",
-            Self::Cancelled => "cancelled",
-            Self::RollbackCompleted => "rollback-completed",
-        }
+        protocol_str_lookup!(
+            self,
+            [
+                dispatch::TIMER_NOT_REQUIRED,
+                dispatch::TIMER_ACTIVE,
+                dispatch::TIMER_RESTART_RECOVERED,
+                "expired",
+                "cancelled",
+                "rollback-completed",
+                dispatch::TIMER_RECOVERY_NEEDED,
+            ]
+        )
     }
 }
 

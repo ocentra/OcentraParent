@@ -1,0 +1,50 @@
+name: CI Static Analysis
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  codeql:
+    name: 'Security: CodeQL ${{ matrix.language_label }}'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - language: actions
+            language_label: GitHub Actions
+            build_mode: none
+            setup_rust: 'false'
+          - language: javascript-typescript
+            language_label: JavaScript/TypeScript
+            build_mode: none
+            setup_rust: 'false'
+          - language: rust
+            language_label: Rust
+            build_mode: none
+            setup_rust: 'true'
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+        with:
+          install-rust: ${{ matrix.setup_rust }}
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build_mode }}
+          config-file: ./.github/codeql/codeql-config.yml
+          queries: security-and-quality
+
+      - name: Analyze CodeQL
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}
+          upload: never

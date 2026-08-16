@@ -1,5 +1,20 @@
 # V0.5 Screen Intelligence Router Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-plan`
+> Doc: `V0.5 Screen Intelligence Router Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Core Decision
 
 Do not make VLM the first step. Screen intelligence should route through the cheapest safe evidence path that can answer the policy question.
@@ -11,7 +26,7 @@ browser/app/network evidence first
 managed-browser structured capture second
 cheap OCR third
 small local VLM only when needed
-big local/family hub VLM only for hard cases
+big local or household-provider VLM only for hard cases
 remote/API VLM disabled for raw screenshots by default
 ```
 
@@ -29,14 +44,14 @@ The first MVP focuses on capture and routing:
 - encrypted temporary queue;
 - deletion proof;
 - summary/read-model alignment;
-- AI job/result contract placeholders.
+- AI job/result contract rows must map every candidate run to a typed queue job identifier and explicit result status matrix (`accepted`, `denied`, `retry`, `manual-review`) before implementation.
 
 The second pass focuses on AI processing:
 
 - OCR engine selection;
 - selected local model image capability proof;
 - candidate VLM comparison;
-- family AI hub fallback;
+- household provider fallback with child-agent validation;
 - detector prompt quality proof;
 - model resource scheduling under load.
 
@@ -82,7 +97,7 @@ type ScreenAnalysisRoute =
   | 'selected_app_window_ocr'
   | 'selected_app_window_vlm'
   | 'full_screen_manual_required'
-  | 'family_ai_hub_required'
+  | 'household_provider_required'
   | 'parent_approved_remote_required'
   | 'unavailable';
 ```

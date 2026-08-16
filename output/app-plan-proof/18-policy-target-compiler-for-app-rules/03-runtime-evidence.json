@@ -1,6 +1,0 @@
-{
-  "workpack": "18-policy-target-compiler-for-app-rules",
-  "sharedProof": "output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules",
-  "runtimeEvidenceStatus": "not-applicable-contract-only",
-  "runtimeSourcesChanged": false
-}

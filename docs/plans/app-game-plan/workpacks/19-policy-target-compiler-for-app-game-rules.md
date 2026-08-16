@@ -1,5 +1,19 @@
 # 19 Policy Target Compiler For App/Game Rules
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `19 Policy Target Compiler For App/Game Rules`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 App/game rules compile only with identity, category, evidence, schedule,
@@ -30,7 +44,28 @@ authority.
 
 Use the standard checklist in [workpacks README](README.md).
 
-## Completion - 2026-06-03
+## Current status - Phase 1 and Phase 2 complete; Phase 3 open
+
+The 2026-08-15 implementation at commit `bf81b400d` replaces the generated-text-only
+Rust wrapper with a Rust-owned deterministic policy target compiler. It covers all
+25 declared app/game target kinds, keeps every result dry-run, rejects unbound or
+stale evidence, and leaves unproved hard actions manual-required without enabling
+an enforcement handoff.
+
+Checked-in contract tests cover the workpack's target-family matrix, identity,
+unknown/category, schedule, device/user/freshness, capability, authority, reference,
+and no-invented-authority conditions. Focused validation is green:
+
+- `cargo clippy -p ocentra-app-game-core --all-targets -- -D warnings`
+- `cargo test -p ocentra-app-game-core --test contract` (`46 passed`)
+- focused Enforcer `architecture-policy`, `source-shape`, `required-tests`,
+  `no-test-doubles`, and `no-naked-domain-strings`
+
+Phase 3 retained proof and plan-level precommit/CI remain open. Runtime/service
+consumption is deliberately not claimed here; it remains owned by the downstream
+consumption workpacks, including WP177.
+
+## Historical bounded contract slice - 2026-06-03
 
 - Owner/lane: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
@@ -42,7 +77,7 @@ Use the standard checklist in [workpacks README](README.md).
 - Test source:
   `packages/parent-domain/tests/app-game-policy-target-compiler.test.ts`
 
-Completed proof:
+The former TypeScript slice recorded:
 
 - Specific app/game targets require identity proof.
 - Unknown app/game targets compile only from unknown-state proof.
@@ -54,7 +89,11 @@ Completed proof:
   refs.
 - Unproved block-launch compiles to manual-required with disabled handoff.
 
-Deferred:
+That slice explicitly deferred:
 
 - Rust/service parity, runtime evaluator execution, portal authoring/preview UI,
   timers, notifications, rollback, and adapter execution.
+
+The removed `packages/parent-domain` files and ignored output root are
+historical evidence only; they do not satisfy the current Rust-first Phase 1
+implementation or test requirement.

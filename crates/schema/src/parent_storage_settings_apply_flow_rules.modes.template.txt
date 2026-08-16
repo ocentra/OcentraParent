@@ -1,0 +1,45 @@
+  const check = parentStorageApplyDecisionChecksGenerated[decision.applyState];
+  return check?.(decision) ?? true;
+}
+
+export function parentStorageDeleteActionRowIsHonestGenerated(row: GeneratedParentStorageDeleteActionRow): boolean {
+  return row.separateFromDisconnect && row.proofRequired && row.notes.trim().length > 0;
+}
+
+export function parentStorageDisconnectRowIsHonestGenerated(row: GeneratedParentStorageDisconnectRow): boolean {
+  return row.existingFilesMayRemain && row.providerDeleteRequestedSeparately && row.notes.trim().length > 0;
+}
+
+export function parentStorageClaimSafeCopyRowIsHonestGenerated(row: GeneratedParentStorageClaimSafeCopyRow): boolean {
+  return row.forbiddenWithoutState && row.statement.trim().length > 0 && row.notes.trim().length > 0;
+}
+
+export function parentStorageSettingsApplyFlowProofIsHonestGenerated(
+  proof: GeneratedParentStorageSettingsApplyFlowContractProof
+): boolean {
+  return (
+    GeneratedParentStorageModeLabels.includes(proof.modeCard.currentModeLabel) &&
+    GeneratedParentStorageNoClaims.every((nonClaim) => proof.noClaims.includes(nonClaim)) &&
+    hasExactCoverageGenerated(
+      proof.deleteActions.map((row) => row.actionKind),
+      GeneratedParentStorageDeleteActionKinds
+    ) &&
+    hasExactCoverageGenerated(
+      proof.claimSafeCopy.map((row) => row.copyKey),
+      GeneratedParentStorageCopyKeys
+    ) &&
+    parentStorageModeCardIsHonestGenerated(proof.modeCard) &&
+    parentStorageRestorePreviewIsHonestGenerated(proof.restorePreview) &&
+    parentStorageApplyDecisionIsHonestGenerated(proof.applyDecision) &&
+    proof.deleteActions.every((row) => parentStorageDeleteActionRowIsHonestGenerated(row)) &&
+    parentStorageDisconnectRowIsHonestGenerated(proof.disconnectAction) &&
+    proof.claimSafeCopy.every((row) => parentStorageClaimSafeCopyRowIsHonestGenerated(row))
+  );
+}
+
+function hasExactCoverageGenerated<T extends string>(values: readonly T[], expected: readonly T[]): boolean {
+  return values.length === expected.length && expected.every((value, index) => values[index] === value);
+}
+
+const parentStorageModeCardChecksGenerated: Partial<
+  Record<GeneratedParentStorageModeCard['currentModeLabel'], (card: GeneratedParentStorageModeCard) => boolean>

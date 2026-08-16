@@ -1,454 +1,4 @@
-﻿/* Clean app-shell pass after visual QA against the parent portal chrome. */
-.app-frame {
-  gap: 8px;
-  grid-template-columns: minmax(176px, 188px) minmax(0, 1fr);
-  padding: 8px;
-}
-
-.app-sidebar {
-  gap: 10px;
-  max-height: calc(100dvh - 16px);
-  min-height: calc(100dvh - 16px);
-  padding: 8px;
-  top: 8px;
-}
-
-.product-brand {
-  border-radius: 8px;
-  clip-path: none;
-  gap: 8px 10px;
-  grid-template-columns: 40px minmax(0, 1fr);
-  min-height: 92px;
-  padding: 9px;
-}
-
-.product-brand-mark {
-  border-radius: 8px;
-  height: 40px;
-  width: 40px;
-}
-
-.product-brand h1 {
-  font-size: 0.82rem;
-  letter-spacing: 0.04em;
-  line-height: 1.02;
-}
-
-.product-brand p {
-  font-size: 0.68rem;
-  line-height: 1.25;
-}
-
-.routes {
-  gap: 8px;
-  overflow: hidden;
-  padding: 0;
-}
-
-.route-group {
-  gap: 6px;
-}
-
-.route-group-label {
-  color: var(--app-warn);
-  font-size: 0.67rem;
-  letter-spacing: 0.05em;
-  padding: 0 2px;
-}
-
-.route-link {
-  background: linear-gradient(90deg, rgb(28 101 130 / 30%), transparent 62%), rgb(4 20 38 / 86%);
-  border: 1px solid rgb(71 202 255 / 28%);
-  border-radius: 8px;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 3%);
-  clip-path: none;
-  gap: 8px;
-  grid-template-columns: 34px minmax(0, 1fr);
-  min-height: 46px;
-  overflow: visible;
-  padding: 6px 8px;
-}
-
-.route-link::before {
-  background:
-    radial-gradient(circle at 52% 52%, #75efff 0 14%, transparent 15%),
-    linear-gradient(135deg, rgb(84 226 255 / 34%), rgb(71 242 154 / 14%));
-  border-color: rgb(84 226 255 / 38%);
-  border-radius: 7px;
-  clip-path: none;
-  height: 34px;
-  width: 34px;
-}
-
-.route-link::after {
-  background: transparent;
-  border-radius: 2px;
-  content: '';
-  height: 18px;
-  opacity: 0;
-  position: absolute;
-  right: -9px;
-  top: calc(50% - 9px);
-  transform: rotate(45deg);
-  width: 18px;
-}
-
-.route-link:hover {
-  background: linear-gradient(90deg, rgb(53 179 219 / 36%), transparent 70%), rgb(6 30 54 / 92%);
-  border-color: rgb(84 226 255 / 54%);
-}
-
-.route-link[aria-current='page'] {
-  background: linear-gradient(90deg, rgb(61 202 255 / 55%), rgb(31 109 144 / 88%)), rgb(5 39 68 / 96%);
-  border-color: rgb(98 230 255 / 90%);
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 10%) inset,
-    0 0 16px rgb(84 226 255 / 24%);
-  color: #ffffff;
-}
-
-.route-link[aria-current='page']::after {
-  background: rgb(84 226 255 / 88%);
-  opacity: 1;
-}
-
-.route-link-label {
-  align-self: center;
-  font-size: 0.82rem;
-  font-weight: 900;
-  letter-spacing: 0;
-  line-height: 1;
-  text-shadow: none;
-}
-
-.product-sidebar-panel {
-  border-radius: 8px;
-  clip-path: none;
-  padding: 9px;
-}
-
-.product-sidebar-panel strong {
-  font-size: 0.72rem;
-}
-
-.product-sidebar-panel p {
-  font-size: 0.68rem;
-  line-height: 1.25;
-}
-
-.app-main {
-  min-height: calc(100dvh - 16px);
-  padding: 12px;
-}
-
-.app-toolbar {
-  border-radius: 8px;
-  clip-path: none;
-  margin-bottom: 10px;
-  padding: 6px;
-}
-
-.page-header {
-  border-radius: 8px;
-  clip-path: none;
-  padding: 14px 16px;
-}
-
-.page-title {
-  font-size: clamp(1.24rem, 2vw, 1.75rem);
-  letter-spacing: 0;
-}
-
-.page-description {
-  font-size: 0.88rem;
-  line-height: 1.36;
-}
-
-.state {
-  gap: 10px;
-  grid-template-rows: auto minmax(0, 1fr);
-  height: 100%;
-  margin-top: 10px;
-  overflow: hidden;
-  padding: 0;
-}
-
-.state > .product-dashboard {
-  align-content: start;
-  align-items: start;
-  grid-column: 1 / -1;
-  height: 100%;
-  min-height: 0;
-  overflow: auto;
-  padding-right: 2px;
-}
-
-.product-shell-hero,
-.summary,
-.control-deck,
-.product-metric,
-.control-card {
-  border-radius: 8px;
-  clip-path: none;
-}
-
-.product-shell-hero::before,
-.control-deck::before,
-.summary::before {
-  content: none;
-}
-
-.product-shell-hero::after,
-.summary::after,
-.control-deck::after,
-.control-card::after,
-.product-metric::after {
-  border-radius: 8px;
-  clip-path: none;
-  inset: 5px;
-}
-
-.product-shell-hero,
-.control-deck,
-.summary {
-  padding: 14px;
-}
-
-.product-shell-hero .product-hero-copy h2,
-.control-deck-header > h2,
-.summary h2 {
-  background: transparent;
-  border: 0;
-  box-shadow: none;
-  clip-path: none;
-  color: var(--app-text);
-  display: block;
-  font-size: 0.95rem;
-  letter-spacing: 0;
-  margin: 0;
-  min-height: 0;
-  padding: 0;
-}
-
-.product-shell-hero .product-hero-copy h2 {
-  font-size: clamp(1.12rem, 1.8vw, 1.45rem);
-}
-
-.control-deck {
-  gap: 11px;
-}
-
-.control-deck-header {
-  align-items: start;
-  grid-template-columns: minmax(0, 0.38fr) minmax(0, 1fr);
-}
-
-.control-deck-intro {
-  font-size: 0.82rem;
-  line-height: 1.32;
-}
-
-.capability-grid {
-  gap: 10px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.control-card {
-  gap: 8px;
-  min-height: 132px;
-  padding: 11px;
-}
-
-.control-card-header {
-  gap: 8px;
-  grid-template-columns: 34px minmax(0, 1fr);
-}
-
-.control-card-glyph {
-  border-radius: 7px;
-  clip-path: none;
-  height: 34px;
-  width: 34px;
-}
-
-.control-card h2 {
-  font-size: 0.78rem;
-  line-height: 1.08;
-}
-
-.control-card-status {
-  border-radius: 4px;
-  font-size: 0.62rem;
-  padding: 5px 7px;
-}
-
-.control-card-body {
-  display: -webkit-box;
-  font-size: 0.78rem;
-  line-height: 1.32;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  overflow: hidden;
-}
-
-.control-card-tip {
-  background: rgb(1 10 20 / 94%);
-  border-color: rgb(84 226 255 / 34%);
-  border-radius: 7px;
-  bottom: 9px;
-  box-shadow: 0 12px 24px rgb(0 0 0 / 30%);
-  left: 9px;
-  margin: 0;
-  opacity: 0;
-  padding: 9px;
-  pointer-events: none;
-  position: absolute;
-  right: 9px;
-  transform: translateY(6px);
-  transition:
-    opacity 120ms ease,
-    transform 120ms ease;
-}
-
-.control-card:hover .control-card-tip,
-.control-card:focus-within .control-card-tip {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.control-card-tip-title {
-  font-size: 0.64rem;
-}
-
-.control-card-tip-body {
-  font-size: 0.74rem;
-  line-height: 1.28;
-}
-
-.summary {
-  height: auto;
-  min-height: 210px;
-  max-height: 100%;
-  overflow: auto;
-  padding: 14px;
-}
-
-.summary h2 {
-  margin-bottom: 10px;
-}
-
-dl {
-  gap: 6px 12px;
-  grid-template-columns: minmax(96px, 0.34fr) minmax(0, 1fr);
-}
-
-dt {
-  font-size: 0.74rem;
-}
-
-dd {
-  font-size: 0.82rem;
-}
-
-@media (min-width: 900px) {
-  .state {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .state > .product-dashboard {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 980px) {
-  .app-frame {
-    grid-template-columns: 1fr;
-    overflow: auto;
-  }
-
-  .app-sidebar,
-  .app-main {
-    max-height: none;
-    min-height: auto;
-    top: auto;
-  }
-
-  .routes {
-    display: flex;
-    gap: 8px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-  }
-
-  .route-group {
-    display: flex;
-    gap: 8px;
-  }
-
-  .route-group-label,
-  .product-sidebar-panel {
-    display: none;
-  }
-
-  .route-link {
-    min-width: 130px;
-  }
-
-  .state {
-    height: auto;
-    overflow: visible;
-  }
-}
-
-@media (max-width: 640px) {
-  .app-frame {
-    padding: 6px;
-  }
-
-  .app-main,
-  .app-sidebar {
-    padding: 8px;
-  }
-
-  .capability-grid,
-  .state > .product-dashboard {
-    grid-template-columns: 1fr;
-  }
-}
-
-:root[data-theme='light'] body {
-  background:
-    linear-gradient(90deg, rgb(8 126 164 / 9%) 1px, transparent 1px),
-    linear-gradient(rgb(8 126 164 / 8%) 1px, transparent 1px),
-    radial-gradient(circle at 50% -20rem, rgb(28 172 213 / 24%), transparent 38rem),
-    linear-gradient(135deg, #eef7fb, #f8fbff 48%, #dcebf3);
-  background-size:
-    58px 58px,
-    58px 58px,
-    auto,
-    auto;
-}
-
-:root[data-theme='light'] .app-main {
-  background:
-    linear-gradient(180deg, rgb(255 255 255 / 92%), rgb(232 243 250 / 88%)),
-    radial-gradient(circle at 52% -9rem, rgb(8 126 164 / 14%), transparent 28rem);
-}
-
-:root[data-theme='light'] .app-toolbar {
-  background: linear-gradient(90deg, rgb(255 255 255 / 94%), rgb(227 243 251 / 94%), rgb(255 255 255 / 94%));
-  border-color: rgb(8 126 164 / 24%);
-}
-
-:root[data-theme='light'] .page-header,
-:root[data-theme='light'] .control-deck,
-:root[data-theme='light'] .summary,
-:root[data-theme='light'] .control-card,
-:root[data-theme='light'] .product-metric {
-  background: linear-gradient(180deg, rgb(255 255 255 / 96%), rgb(227 241 249 / 96%)), #ffffff;
-  border-color: rgb(8 126 164 / 28%);
-  color: var(--app-text);
-}
+@import './app-shell-foundation.css';
 
 :root[data-theme='light'] .page-title,
 :root[data-theme='light'] .product-shell-hero .product-hero-copy h2,
@@ -753,8 +303,15 @@ dd {
 
 .control-deck {
   background:
-    linear-gradient(90deg, rgb(84 226 255 / 10%), transparent 44%),
-    linear-gradient(180deg, rgb(7 37 62 / 88%), rgb(2 13 28 / 90%)), var(--app-surface);
+    linear-gradient(90deg, rgb(84 226 255 / var(--portal-frame-glass-highlight-opacity)), transparent 44%),
+    linear-gradient(
+      180deg,
+      rgb(7 37 62 / var(--portal-frame-material-fill-alpha-strong)),
+      rgb(2 13 28 / var(--portal-frame-material-fill-alpha))
+    ),
+    var(--portal-frame-surface-fill);
+  -webkit-backdrop-filter: blur(var(--portal-frame-material-blur));
+  backdrop-filter: blur(var(--portal-frame-material-blur));
   border-color: rgb(84 226 255 / 38%);
   padding: 13px;
 }
@@ -776,8 +333,14 @@ dd {
 
 .control-card {
   background:
-    linear-gradient(90deg, rgb(84 226 255 / 9%), transparent 65%),
-    linear-gradient(180deg, rgb(5 31 53 / 92%), rgb(2 13 28 / 96%));
+    linear-gradient(90deg, rgb(84 226 255 / var(--portal-frame-glass-highlight-opacity)), transparent 65%),
+    linear-gradient(
+      180deg,
+      rgb(5 31 53 / var(--portal-frame-material-fill-alpha-strong)),
+      rgb(2 13 28 / var(--portal-frame-material-fill-alpha))
+    );
+  -webkit-backdrop-filter: blur(var(--portal-frame-material-blur));
+  backdrop-filter: blur(var(--portal-frame-material-blur));
   border-color: rgb(84 226 255 / 32%);
   min-height: 122px;
 }
@@ -791,6 +354,14 @@ dd {
 }
 
 .summary {
-  background: linear-gradient(180deg, rgb(6 33 55 / 90%), rgb(2 13 28 / 92%)), var(--app-surface);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(6 33 55 / var(--portal-frame-material-fill-alpha-strong)),
+      rgb(2 13 28 / var(--portal-frame-material-fill-alpha))
+    ),
+    var(--portal-frame-surface-fill);
+  -webkit-backdrop-filter: blur(var(--portal-frame-material-blur));
+  backdrop-filter: blur(var(--portal-frame-material-blur));
   border-color: rgb(84 226 255 / 30%);
 }

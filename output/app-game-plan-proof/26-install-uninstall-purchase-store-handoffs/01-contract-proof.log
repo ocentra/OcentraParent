@@ -1,8 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-install-store-handoff: PASS
-- Matrix rows: 6
-- Store/purchase context-only rows: 2
-- Evidence-backed approval handoff rows: 4
-- Tamper/uninstall handoff rows: 2

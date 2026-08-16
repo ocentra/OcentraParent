@@ -1,0 +1,31 @@
+{
+  "hexRadius": 38,
+  "gap": 4,
+  "hexStrokeWidth": 0.8,
+  "hexOpacity": 0.45,
+  "lightStrength": 1,
+  "blobBlur": 82,
+  "beamBlur": 28,
+  "themes": {
+    "dark": {
+      "bgBaseStart": "#07111f",
+      "bgBaseMid": "#0a1a2f",
+      "bgBaseEnd": "#081423",
+      "vignetteCenter": "#12325a",
+      "vignetteMid": "#0c2240",
+      "vignetteEdge": "#02070d",
+      "hexStroke": "#9fc6ea"
+    },
+    "light": {
+      "bgBaseStart": "#dcebfb",
+      "bgBaseMid": "#c5ddf7",
+      "bgBaseEnd": "#d7e8fb",
+      "vignetteCenter": "#074a92",
+      "vignetteMid": "#b8d6f4",
+      "vignetteEdge": "#b5d0eb",
+      "hexStroke": "#6a97c7"
+    }
+  },
+  "blobColors": ["#f3efb0", "#a9efd8", "#98ebee", "#dff1a6", "#b9efc2", "#93e7d6"],
+  "beamColors": ["#f4efad", "#9de9e9", "#b8edb1"]
+}

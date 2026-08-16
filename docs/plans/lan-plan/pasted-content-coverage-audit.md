@@ -1,5 +1,20 @@
 # Pasted Content Coverage Audit
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `Pasted Content Coverage Audit`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This audit records the final read-through of the LAN-plan pasted content. The
 source attachments were consolidated into repo-owned plan docs instead of
 copied as unmanaged notes.
@@ -8,7 +23,7 @@ copied as unmanaged notes.
 
 | Source Content                 | Source Theme                                                                                                                        | Covered By                                                                                                                                                                                                                | Coverage Notes                                                                                                                                                                 |
 | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Pasted LAN 20-step plan        | LAN discovery, household inventory, canonical device records, signed child-agent confirmation, parent assignment, and rollout proof | [README](README.md), [20-step plan](v0-9-lan-discovery-20-step-plan.md), [implementation checklist](implementation-checklist.md), [workpacks](workpacks/), [current snapshot](current-lan-snapshot.md)                    | Covered. The original roughly 20-step idea is normalized to the current 20 workpacks and tracked as source-matrix rows.                                                        |
+| Pasted LAN 20-step plan        | LAN discovery, household inventory, canonical device records, signed child-agent confirmation, parent assignment, and rollout proof | [README](README.md), [20-step plan](v0-9-lan-discovery-20-step-plan.md), [implementation checklist](implementation-checklist.md), [workpacks](workpacks/), [current snapshot](current-lan-snapshot.md)                    | Covered. The original roughly 20-step idea is normalized to 20 base workpacks plus active follow-on rows `21-25`, with the current authoritative model tracked as `01-25`.     |
 | Pasted LAN testing blueprint   | Fixture layout, property tests, parser tests, service integration, Playwright proof, manual proof, performance, and rollout gates   | [test blueprint](v0-9-lan-discovery-test-blueprint.md), [implementation checklist](implementation-checklist.md), [workpack 20](workpacks/20-proof-gates-fixtures-rollout.md), [current snapshot](current-lan-snapshot.md) | Covered. The implementation checklist now requires proof packs, command logs, raw evidence JSON, UI screenshots, security-negative proof, and manual physical LAN proof.       |
 | Pasted LAN UI/UX requirements  | Parent-visible LAN device states, evidence-first cards, activity/network diagnostics, target binding, and setup/pairing UX          | [UI/UX guide](ui-ux-requirements-guide.md), [implementation checklist](implementation-checklist.md), [current snapshot](current-lan-snapshot.md), [source index](source-index.md)                                         | Covered. UI guidance is treated as requirement/acceptance input, not as a claim that every screen is already implemented.                                                      |
 | User-provided live screenshots | Current Devices/LAN, Activity, Activity/Network, and Network policy surfaces                                                        | [current snapshot](current-lan-snapshot.md), [implementation checklist](implementation-checklist.md), proof screenshots under `output/playwright/lan-source-matrix-plan-completion/`                                      | Covered. Screenshots anchor where we are today and identify Activity/Network as the primary parent-visible diagnostic surface for LAN evidence and policy target verification. |
@@ -16,49 +31,51 @@ copied as unmanaged notes.
 
 ## Coverage Checklist
 
-- [x] The 20-step plan is represented as 20 workpack files.
-- [x] The implementation checklist tracks all 20 workpacks in one table.
-- [x] The source matrix carries all 20 workpack ids through
-      parent-domain, agent-protocol-domain, Rust protocol, Rust service state,
-      and portal diagnostics.
-- [x] The current snapshot records where we are, where we want to be, current
+- [ ] The original 20-step plan is represented as 20 base workpack files plus
+      active follow-on workpacks `21-25`.
+- [ ] The implementation checklist tracks all 25 authoritative workpack rows in
+      one table.
+- [ ] The source matrix carries all 25 workpack ids through the Rust-owned
+      source-matrix contract, Rust protocol/service/runtime state, and portal
+      diagnostics.
+- [ ] The current snapshot records where we are, where we want to be, current
       proof, current UI screenshots, and current gaps.
-- [x] The source index names owning feature docs, expectation docs, adjacent
+- [ ] The source index names owning feature docs, expectation docs, adjacent
       feature boundaries, TypeScript paths, Rust paths, portal paths, proof
       scripts, and test files.
-- [x] The UI/UX guide is treated as product requirement guidance, not as an
+- [ ] The UI/UX guide is treated as product requirement guidance, not as an
       already-complete implementation claim.
-- [x] Exact fixture/proof expectations are carried by the test blueprint,
+- [ ] Exact fixture/proof expectations are carried by the test blueprint,
       workpack 20, and the proof-pack checklist.
-- [x] Property-based test expectations for merge, evidence, parser robustness,
+- [ ] Property-based test expectations for merge, evidence, parser robustness,
       events, and presence state are carried by the test blueprint and proof
       gates.
-- [x] Proof matrix coverage is represented by source-matrix rows and proof JSON,
+- [ ] Proof matrix coverage is represented by source-matrix rows and proof JSON,
       not only by prose acceptance.
-- [x] Playwright UI proof is required for changed service-backed surfaces, with
+- [ ] Playwright UI proof is required for changed service-backed surfaces, with
       contract-fixture proof before backend proof where needed.
-- [x] Scan cadence, network-change triggers, selected-interface state, and
+- [ ] Scan cadence, network-change triggers, selected-interface state, and
       stale/offline transitions remain visible as open work where not yet
       implemented.
-- [x] Modular Rust ownership is recorded in the source index instead of being
+- [ ] Modular Rust ownership is recorded in the source index instead of being
       collapsed into one LAN service file.
-- [x] Android/iOS child-agent limits remain platform-specific/manual-required
+- [ ] Android/iOS child-agent limits remain platform-specific/manual-required
       until real devices, entitlements, signing, stores, and external transport
       proof exist.
-- [x] Coverage targets for core model/security/protocol parsers are required by
+- [ ] Coverage targets for core model/security/protocol parsers are required by
       the proof pack and validation gates.
-- [x] UI states keep discovered, assigned, confirmed, trusted, ignored, revoked,
+- [ ] UI states keep discovered, assigned, confirmed, trusted, ignored, revoked,
       stale, offline, LAN-seen, and agent-connected concepts separate.
-- [x] Evidence-first device cards and details must not show guessed owner or
+- [ ] Evidence-first device cards and details must not show guessed owner or
       child identity.
-- [x] Activity/Network diagnostics are the parent-visible place for route,
+- [ ] Activity/Network diagnostics are the parent-visible place for route,
       source, evidence, signed proof, parent decision, manual proof, and audit
       state.
-- [x] Policy Network target binding must come from service-backed target rows,
+- [ ] Policy Network target binding must come from service-backed target rows,
       not unsupported/passive/router rows.
-- [x] Weak-source fence is explicit: weak sources cannot confirm child-agent
+- [ ] Weak-source fence is explicit: weak sources cannot confirm child-agent
       identity, assign a child profile, or enable control.
-- [x] Manual-required physical proof remains explicit for the second child
+- [ ] Manual-required physical proof remains explicit for the second child
       device, signed hello/heartbeat, router/firewall reachability, and proof
       artifacts.
 
@@ -80,17 +97,17 @@ copied as unmanaged notes.
 
 ## Current Proof Coverage
 
-The source-matrix proof currently shows:
+The current generated source-matrix proof currently shows:
 
-- 2 implemented workpacks;
-- 10 partial workpacks;
-- 5 manual-required workpacks;
-- 3 not-implemented workpacks;
-- 9 implemented source rows;
-- 5 partial source rows;
-- 10 manual-required source rows;
-- 7 not-implemented source rows;
-- 21 weak sources that cannot confirm a child agent or assign a child profile.
+- 13 implemented workpacks;
+- 11 partial workpacks;
+- 1 manual-required workpack;
+- 14 implemented source rows;
+- 15 partial source rows;
+- 2 manual-required source rows;
+- 4 not-implemented source rows;
+- weak discovery, name-only, and presence-only sources remain fenced from child
+  confirmation and profile assignment.
 
 That is useful progress, but it is not the full LAN plan complete.
 
@@ -110,7 +127,8 @@ remaining LAN work.
 
 ## Consolidation Decisions
 
-- The LAN base split remains 20 workpacks.
+- The LAN base split remains 20 workpacks, with follow-on workpacks `21-25`
+  active in the current authoritative `01-25` execution model.
 - Source rows and workpack rows are the canonical progress ledger for LAN
   implementation status.
 - UI/UX pasted guidance stays in the LAN UI/UX guide and checklist gates rather

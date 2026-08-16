@@ -1,9 +1,0 @@
-{
-  "proofKind": "native-app-policy-action-non-execution-proof",
-  "generatedDate": "2026-06-03",
-  "policyChanged": false,
-  "approvalFlowChanged": false,
-  "enforcementResultChanged": false,
-  "adapterActionCalled": false,
-  "reason": "WP14 wires app-use service read-model rows only. App approval, policy target compiler, child request UX, and enforcement actions remain later workpacks."
-}

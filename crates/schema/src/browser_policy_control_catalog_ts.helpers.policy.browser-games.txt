@@ -1,0 +1,27 @@
+export function browserControlExactUrlPolicyIsHonestGenerated(policy: BrowserControlPolicyGenerated): boolean {
+  const authoredRules = [...policy.rules.items, ...policy.rules.entries];
+  if (!policy.rules.allowedTargetTypes.includes('exact-url') && !authoredRules.some(ruleUsesExactUrlTargetGenerated)) {
+    return true;
+  }
+  if (policy.evidence.proofFallback !== null) {
+    return true;
+  }
+  if (policy.evidence.whenProofUnavailable !== 'mark-unavailable') {
+    return true;
+  }
+  return (
+    (policy.managedBrowser.mode === 'required-for-exact-rules' ||
+      policy.managedBrowser.mode === 'required-for-all-browsing') &&
+    policy.evidence.requiredProof === 'fresh-managed-active-tab'
+  );
+}
+
+export function browserControlBrowserGameLimitIsConsistentGenerated(policy: BrowserControlPolicyGenerated): boolean {
+  const gameLimitSelected =
+    policy.browserGames.educationalGameMode === 'limit' ||
+    policy.browserGames.unknownGameMode === 'limit' ||
+    policy.browserGames.unblockedPortalMode === 'limit' ||
+    policy.browserGames.webglCanvasMode === 'limit';
+
+  return !gameLimitSelected || policy.browserGames.defaultDailyMinutes !== null || policy.fallbackPosture !== null;
+}

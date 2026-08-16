@@ -1,5 +1,13 @@
 # Tracking Plan
 
+> **2026-08-15 code-audit authority:** use `PLAN_STATE.md`,
+> `source-index.md`, `CODE_AUDIT.md`, and `WORKPACK_INDEX.md` for current
+> implementation ownership and Phase 1 status. Older sections below preserve
+> historical proof/checkpoint context; `packages/tracking-domain`, the
+> `codex/tracking-plan-full-continuation-a` branch, and the named
+> `scripts/test/tracking-*.mjs` commands are not present current execution
+> routes.
+
 This folder is the single working plan location for location evidence,
 geofence rules, expected-place schedules, device status, nearby-place
 intelligence, AI safety analysis, parent acknowledgements, alerts, escalation,
@@ -14,8 +22,12 @@ UI/UX requirements.
 - [V0.5 Location Test Blueprint](v0-5-location-test-blueprint.md)
 - [Tracking UI/UX Requirements Guide](ui-ux-requirements-guide.md)
 - [Tracking Proof Tiers](proof-tiers.md)
+- [Tracking And Eventing Real Test Matrix](event-driven-runtime-test-matrix.md)
 - [Tracking Plan Implementation Checklist](implementation-checklist.md)
 - [Pasted Content Coverage Audit](pasted-content-coverage-audit.md)
+- [Repo Organization Goal](repo-organization-goal.md)
+- [Repo Organization Movement Map](repo-organization-movement-map.md)
+- [Repo Domain Organization Cleanup Plan](../../architecture/repo-domain-organization-cleanup-plan.md)
 
 The `v0-5` filenames follow the planning draft. They are not a roadmap
 completion claim. The owning feature remains
@@ -43,18 +55,174 @@ Until the required tier exists, product claims remain manual-required,
 authority-required, or not-claimed.
 ```
 
+## Event-Driven Runtime Rule
+
+Tracking is not a polling-only feature and not a portal-owned workflow.
+
+Tracking runtime behavior must consume the reusable Rust eventing plan and crate
+instead of creating a private tracking bus. Parent tracking event contracts must
+live in the protocol/domain boundary before runtime publishers use them, and the
+portal may only send typed parent intents and render service read models.
+
+Tracking runtime and decisions are Rust-owned. TypeScript may own portal UI,
+read-model rendering, and protocol-facing schema mirrors, but it must not become
+the tracking runtime brain. For current Rust organization:
+
+- `crates/agent-core` owns tracking state helpers, local durable state,
+  projection/query helpers, and platform-neutral tracking runtime behavior that
+  should not live in WebSocket transport. Current tracking core code is grouped
+  under `crates/agent-core/src/tracking/` instead of root-level tracking files.
+- `crates/agent-protocol` owns Rust-crossing tracking structs, constants,
+  command names, event names, field names, and state labels.
+- `crates/agent-service` owns transport/orchestration only.
+- New Rust tracking tests should live under crate-level `tests/` folders when
+  the behavior is exposed through a public crate API. Existing private transport
+  seams may stay source-adjacent only until they are replaced with a real public
+  crate boundary.
+
+Tracking must also stay DRY with adjacent lanes. Do not duplicate generic
+eventing, journal, replay, evidence-ref, custody/retention, provider-status,
+read-model projection, LAN presence, network evidence, browser/app/game
+activity, notification-provider, or AI-provider machinery inside tracking.
+Tracking should add only tracking-specific evidence meaning, state machines,
+policy-evidence preparation, and safety boundaries, then consume shared
+infrastructure through typed contracts.
+
+The required event chain is:
+
+```text
+parent intent/config
+  -> validated Rust command
+  -> tracking config event
+  -> child-agent command event
+  -> tracking evidence event
+  -> detection/cascade event
+  -> AI/nearby-place analysis event when needed
+  -> policy decision event
+  -> live tracking / notification / escalation event
+  -> audit event
+  -> portal read-model event
+```
+
+Parent config chain:
+
+```text
+portal parent changes tracking config
+  -> local API validates request
+  -> parent_controller.parent_action.received
+  -> tracking.config.change_requested
+  -> policy.evaluation.requested
+  -> policy.decision.completed
+  -> tracking.config.change_approved or tracking.config.change_rejected
+  -> child_agent.command.forward_requested
+  -> child_agent.command.received
+  -> tracking.config.applied
+  -> audit.entry.committed
+  -> portal.read_model.updated
+```
+
+Tracking evidence chain:
+
+```text
+location.evidence.observed
+  -> geofence.transition.evaluated
+  -> expected_place.status.evaluated
+  -> nearby_place.analysis.requested if needed
+  -> nearby_place.analysis.completed
+  -> tracking.detection.completed
+  -> ai.analysis.requested if ambiguity/risk requires it
+  -> ai.analysis.completed
+  -> policy.evaluation.requested
+  -> policy.decision.completed
+  -> tracking.live_mode.start_requested or notification.intent.created or escalation.intent.created
+  -> child_agent.command.received if live mode/cadence changes
+  -> notification.dispatch.requested if parent must be informed
+  -> notification.dispatch.result_observed
+  -> audit.entry.committed
+  -> portal.read_model.updated
+```
+
+Tracking event work must coordinate with
+`docs/plans/eventing-plan/03-event-taxonomy-and-parent-integration.md` and
+`docs/plans/eventing-plan/05-implementation-workpacks.md`. It must not hide
+tracking behavior under generic `device.*` events once runtime code starts
+publishing location, geofence, nearby-place, live-tracking, retention,
+notification, or escalation behavior.
+
+Every tracking event chain must carry:
+
+- event id;
+- correlation id;
+- causation id;
+- child/profile/device aggregate key;
+- evidence refs;
+- policy/rule refs where applicable;
+- custody and retention state;
+- capability/provider state;
+- idempotency key for commands;
+- TTL/deadline for live tracking and notification/escalation;
+- audit refs;
+- uncertainty codes where location, nearby-place, or AI can overclaim.
+
+Must-not-shortcut rules:
+
+```text
+location says bad place -> notify/block directly
+AI says danger -> live track directly
+nearby-place says bar/shop/school -> accuse child directly
+portal button -> child-agent command directly
+weak/stale/offline sample -> critical alert directly
+replay event -> resend notification or restart live tracking
+```
+
+## Implementation-First Rule
+
+The continuation branch has useful proof accounting, but proof accounting is not
+implementation progress by itself. Future tracking implementation slices must
+use this order:
+
+```text
+PLAN -> CODE -> TEST -> RUN/FIX -> PROOF -> DOC
+```
+
+Do not add another `tracking-*-proof.ts`, `tracking-*-proof.test.ts`, aggregate
+proof, readiness proof, bridge proof, claim gate, artifact inventory proof, or
+proof JSON refresh unless real source behavior was implemented and tested first.
+The required test matrix is
+`docs/plans/tracking-plan/event-driven-runtime-test-matrix.md`; each future
+event-driven tracking workpack must state which matrix categories apply, which
+commands passed, and which CI/manual tiers remain.
+
+A tracking implementation handoff must name:
+
+```text
+Assigned workpack:
+Real source behavior added:
+Runtime/domain/service/UI files changed:
+Tests added/changed:
+Focused commands run:
+Proof artifact generated after tests:
+What this proves:
+What this does not prove:
+Docs/checklists updated:
+```
+
+If `Real source behavior added` is empty, do not call the work an
+implementation slice.
+
 ## How It Works
 
 ```mermaid
 flowchart TD
   FeatureDocs["Feature docs, expectations, tracking inventory, platform docs"] --> TrackingPlan["docs/plans/tracking-plan"]
   TrackingPlan --> SourceIndex["Source index and coverage audit"]
-  TrackingPlan --> Workpacks["33 base workpacks"]
+  TrackingPlan --> Workpacks["33 base workpacks plus event-driven runtime workpacks"]
   TrackingPlan --> PlatformDeepDive["Android, iOS, desktop, relay, permission proof"]
 
   Workpacks --> Contracts["TypeScript Effect Schema contracts"]
   Contracts --> RustProtocol["Rust protocol/service parity"]
-  RustProtocol --> Runtime["Runtime adapters and service paths"]
+  RustProtocol --> EventContracts["Tracking event constants and payload contracts"]
+  EventContracts --> Runtime["Runtime adapters, event chains, and service paths"]
 
   Runtime --> AndroidLoc["Android fused location/geofence/status"]
   Runtime --> IosLoc["iOS Core Location/region/status"]
@@ -70,7 +238,8 @@ flowchart TD
   LocationHints --> Journal
   StatusEvidence --> Journal
 
-  Journal --> ReadModels["Tracking read models and service events"]
+  Journal --> EventBus["Reusable ocentra-eventing runtime"]
+  EventBus --> ReadModels["Tracking read models and service events"]
   ReadModels --> Portal["Parent map/list/alert UI"]
 
   ReadModels --> GeofenceEngine["Geofence transition engine"]
@@ -119,6 +288,11 @@ flowchart TD
 - Runtime TypeScript contracts now exist for the focused tracking contract
   spine in `packages/activity-domain` and `packages/parent-domain`, with proof
   roots under `output/tracking-plan-proof/`.
+- The reusable Rust `crates/ocentra-eventing` crate now exists with its own
+  runtime proof path, but tracking has not yet consumed it through first-class
+  `tracking.*`, `location.*`, `geofence.*`, `expected_place.*`,
+  `nearby_place.*`, `notification.*`, or `escalation.*` contracts and ordered
+  runtime chains.
 - The proof-tier system in `proof-tiers.md` now separates P0/P1/P2 code
   readiness from P4/P5/P6 product claims. Missing physical-device or
   enrolled-device evidence is a `manual_required` or `authority_required`
@@ -149,6 +323,15 @@ flowchart TD
   proof through the existing Android artifact gate, and writes
   `output/tracking-plan-proof/pre-device-gap-closure/proof-summary.json` plus
   Android Studio, iOS simulator, WSL/local, and physical-device proof plans.
+- `scripts/test/tracking-plan-wsl-local-proof.mjs` now records P3 WSL/local
+  replay proof for the narrow tracking read-model proof stack. It captures the
+  WSL2/Ubuntu toolchain, the Windows-hosted linked-worktree Git mapping,
+  contract build output, service read-model proof, and Rust core tracking
+  read-model test under `output/tracking-plan-proof/wsl-local-replay/`, with
+  companion WP32/WP33 artifacts
+  `output/tracking-plan-proof/32-journal-sqlite-and-read-model-proof/19-wsl-local-replay-proof.json`
+  and
+  `output/tracking-plan-proof/33-proof-gates-fixtures-rollout-and-pr-gate/17-wsl-local-proof.json`.
 - WP33 tracked `proof-summary.json` records `minimumSeriousMvpAuditSummary`;
   the runtime proof also writes the full `minimumSeriousMvpAudit` into
   generated
@@ -156,10 +339,20 @@ flowchart TD
   These audits are first-checkpoint reconciliations only; they explicitly block
   product-complete, PR-ready, and full-scope claims until the remaining proof
   gaps are closed.
-- Android Studio/emulator, iOS simulator, WSL/local, physical-device,
-  authority-enrolled, provider runtime, alert delivery, full portal UI, and live
-  service-backed retention UI proof remain not product-complete until their
-  listed artifacts are collected.
+- The continuation branch has since added Android emulator foreground/background
+  and local-geofence artifacts, iOS simulator/package-routing artifacts,
+  hosted parent-route screenshot and accessibility artifacts, hosted
+  service-backed citation/evidence drawer/report/retention/notification/action
+  artifacts, WSL/local replay artifacts, and authority-enrollment
+  manual-required proof. These artifacts make the CI/local gates explicit, but
+  physical Android/iOS behavior, enrolled-device authority, provider delivery,
+  actual child-device delivery/runtime execution, production workers, and full
+  product parent/child UI remain not product-complete until their higher-tier
+  evidence exists.
+- The continuation branch is now classified as checkpoint/proof reconciliation
+  until the next implementation slice adds real event-driven source behavior.
+  Future proof refreshes must be receipts after real code and tests, not the
+  primary deliverable.
 
 ## Where We Want To Be
 
@@ -209,6 +402,31 @@ gate, and manual proof plans are in order before device work starts. It does
 not prove physical Android/iOS behavior, enrolled-device authority, hosted full
 UI accessibility, or production readiness.
 
+The WSL/local replay gate is a P3 local-machine proof only. Passing
+`npm run test:tracking-plan-wsl-local-proof` proves this Windows-hosted
+linked worktree can replay the narrow tracking read-model proof stack through
+WSL with an explicit Git mapping. It does not prove Android/iOS background
+delivery, mobile permission grants, enrolled-device authority, hosted full UI
+accessibility, notification/provider delivery, or production pilot readiness.
+
+## Organization Cleanup Is A First-Class Tracking Gate
+
+Tracking is also the first proof slice for the repo-wide domain/protocol/runtime
+organization cleanup in
+[Repo Domain Organization Cleanup Plan](../../architecture/repo-domain-organization-cleanup-plan.md).
+The A lane should keep tracking work on
+`codex/tracking-plan-full-continuation-a`, organize tracking before adding more
+feature behavior, and avoid PR-ready claims until the branch has a meaningful
+canonical-boundary cleanup with validation. A should start by reading the
+organization plan and producing a movement map, not by writing code. The cleanup
+target is contract-first ownership, not folder cosmetics: shared contracts in
+domain packages and protocol crates, reusable Rust logic in the correct crate,
+portal code as a consumer/projection layer, feature/package/crate-owned tests,
+feature-owned proof roots, and proof/tests that validate real canonical
+boundaries instead of duplicate local lookalikes. If tests, proofs, scripts, or
+contracts move, this tracking plan, the affected workpack docs, and checklist
+paths must move with them.
+
 ## Parallel Coordination Rules
 
 - Lock the workpack doc and exact implementation/docs paths before editing.
@@ -221,9 +439,10 @@ UI accessibility, or production readiness.
   `docs/device-location-tracking-capability-guide.md`,
   `docs/device-location-tracking-schema-proposal.md`, and
   `docs/tracking-control-settings-inventory.md` as source inputs.
-- Build TypeScript domain contracts first, Rust protocol/service parity second,
-  journal/read-model wiring third, portal consumption fourth, and real platform
-  proof only after those surfaces are aligned.
+- Build Rust runtime ownership first, Rust/TypeScript protocol parity second,
+  tracking event contracts third, journal/read-model/event-chain wiring fourth,
+  portal consumption fifth, and real platform proof only after those surfaces
+  are aligned.
 - Every worker report must name the workpack, touched paths, validation,
   product-doc updates, platform proof state, custody/retention proof, and
   manual-required gaps.
@@ -269,6 +488,12 @@ UI accessibility, or production readiness.
 | 31   | [Platform extension checklists and proof routing](workpacks/31-platform-extension-checklists-and-proof-routing.md)   | Android, iOS, desktop, managed-device, store/privacy, and manual proof extensions are routed without bloating base contracts.                                           |
 | 32   | [Journal SQLite and read-model proof](workpacks/32-journal-sqlite-and-read-model-proof.md)                           | Location/status/geofence/check-in evidence is journaled, replayed, queryable, deletable, and cited.                                                                     |
 | 33   | [Proof gates fixtures rollout and PR gate](workpacks/33-proof-gates-fixtures-rollout-and-pr-gate.md)                 | Test fixtures, platform manual proof, Playwright, retention proof, source audit, coverage audit, and implementation checklist block false claims.                       |
+| 34   | [Tracking event contracts and protocol constants](workpacks/34-tracking-event-contracts-and-protocol-constants.md)   | Tracking/location/geofence/expected-place/nearby-place/live-mode/notification/escalation event constants and schema-backed payloads exist before runtime publish.       |
+| 35   | [Parent tracking config command event flow](workpacks/35-parent-tracking-config-command-event-flow.md)               | Parent tracking config changes travel through validated Rust service, policy, child-agent command, audit, and portal projection instead of portal-local state.          |
+| 36   | [Tracking detection cascade event flow](workpacks/36-tracking-detection-cascade-event-flow.md)                       | Location evidence becomes ordered geofence/expected-place/nearby-place/AI/policy/live-mode/notification/audit/read-model events without unsafe shortcuts.               |
+| 37   | [Tracking event journal replay and projection](workpacks/37-tracking-event-journal-replay-and-projection.md)         | Tracking events are journaled and replayed into read models without re-executing notifications, live tracking, or child-agent commands.                                 |
+| 38   | [Tracking notification and escalation event flow](workpacks/38-tracking-notification-and-escalation-event-flow.md)   | Notification intent, provider dispatch result, receipt, quiet-hours retry, escalation, and manual-required state are modeled as policy-authorized events.               |
+| 39   | [Tracking portal event read model proof](workpacks/39-tracking-portal-event-read-model-proof.md)                     | Parent and child tracking UI surfaces render from service/event projections, not portal-owned business decisions.                                                       |
 
 ## Platform Extension Checklists
 
@@ -324,12 +549,12 @@ DESKTOP-08 desktop notification proof
 Checked items below mean planning/source artifacts exist. They do not mark the
 feature product-complete.
 
-- [x] Feature doc exists.
-- [x] Expectation doc exists.
-- [x] Capability guide exists.
-- [x] Schema proposal exists.
-- [x] Raw tracking settings inventory exists.
-- [x] First-class tracking plan folder exists.
+- [ ] Feature doc exists.
+- [ ] Expectation doc exists.
+- [ ] Capability guide exists.
+- [ ] Schema proposal exists.
+- [ ] Raw tracking settings inventory exists.
+- [ ] First-class tracking plan folder exists.
 - [ ] Location evidence contracts are not product-complete.
 - [ ] Geofence transition runtime proof is not product-complete.
 - [ ] Expected-place schedule engine is not product-complete.
@@ -337,20 +562,34 @@ feature product-complete.
 - [ ] Parent acknowledgement/exception system is not product-complete.
 - [ ] Android background permission proof is not complete.
 - [ ] iOS background/region proof is not complete.
-- [ ] Journal/SQLite/read-model proof is not product-complete. A P2 service
-      command/read-model proof exists for SQLite tracking rows and citation IDs,
-      and the parent portal consumes it as a narrow live summary. Deletion/tombstone
-      replay, richer read models, hosted portal proof, and platform replay proof
-      remain pending.
-- [x] Retention/delete/export P1 checkpoint proof exists: delete/export proof
+- [ ] Journal/SQLite/read-model proof has CI/local coverage but is not
+      product-complete. A P2 service command/read-model proof exists for SQLite
+      tracking rows and citation IDs, the parent portal consumes it as a narrow
+      live summary, hosted service-data/citation/evidence/report/retention rows
+      are screenshot/accessibility proved, and WSL/local replay artifacts exist.
+      Platform runtime, child-device delivery, provider delivery, production
+      workers, and product-ready claims remain pending.
+- [ ] Retention/delete/export P1 checkpoint proof exists: delete/export proof
       and UI-visible deleted-history hiding are fixture-proved. Product
       live-service retention settings remain pending.
-- [ ] Tracking UI/UX is not product-complete; a P1 parent portal fixture exists,
-      plus a narrow P2 service-read-model summary. Live parent/child UI,
-      screenshots, accessibility, richer service-data, and richer
-      service-backed evidence-citation proof remain pending.
-- [x] Pre-device proof gate exists and passed locally on 2026-06-03 through
+- [ ] Tracking UI/UX has hosted parent-route screenshot/accessibility coverage
+      but is not product-complete. The branch now covers the P1 fixture surface,
+      P2 service-read-model summary, service-backed citation detail, evidence
+      drawer, child-safe check-in, child-runtime disclosure/consent card, family
+      dashboard rollup, report/export, report/policy consumer, retention
+      settings, notification parent-surface, parent action readiness,
+      missing-device, unsupported/manual platform rows, parent overview/devices
+      shell screenshots, artifact inventory, and accessibility assertions.
+      Actual child-device delivery/runtime execution and full product
+      parent/child UI remain pending.
+- [ ] Pre-device proof gate exists and passed locally on 2026-06-03 through
       `node scripts/test/tracking-plan-pre-device-proof.mjs`; artifact root:
       `output/tracking-plan-proof/pre-device-gap-closure/`. This does not mark
-      Android Studio/emulator, iOS simulator, physical-device, authority,
-      hosted full UI accessibility, or production-pilot proof complete.
+      physical-device, authority, full product parent/child UI, provider
+      delivery, or production-pilot proof complete.
+- [ ] WSL/local replay proof exists and passed locally on 2026-06-04 through
+      `npm run test:tracking-plan-wsl-local-proof`; artifact root:
+      `output/tracking-plan-proof/wsl-local-replay/`. This does not mark
+      Android/iOS physical-device behavior, enrolled-device authority, provider
+      delivery, actual child-device runtime execution, full product parent/child
+      UI, or production-pilot proof complete.

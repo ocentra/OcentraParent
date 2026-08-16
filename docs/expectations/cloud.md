@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Cloud Feature Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Cloud Feature Expectations
 
 Cloud features support parent-away-from-home use cases without turning Ocentra
@@ -113,6 +126,24 @@ surfaces. The proof keeps cloud as an account/distribution status boundary only;
 it does not implement Stripe SDK code, billing provider logic, an account
 backend, portal UI, updater runtime, or child-activity custody.
 
+Current public release/status proof: `production-release-public-status-proof`
+defines parent-domain readiness rows for `family.ocentra.ca` public download,
+release status, update status, account status, subscription status, and support
+status surfaces. The proof keeps the public website runtime, account backend,
+billing provider runtime, production publishing, signing/store proof, updater
+execution, support backend upload, and child-activity custody unimplemented or
+manual-required.
+
+Current public runtime handoff proof:
+`production-release-public-runtime-handoff-proof` defines parent-domain
+route/status and backend adapter handoff rows for public download, release
+status, update status, account status, subscription status, and support status.
+The proof keeps cloud as an account/distribution/status handoff boundary only:
+public runtime, account backend, billing provider runtime, production
+publishing, signing/store proof, updater execution, support backend upload,
+real device/store proof, and child-activity custody remain unimplemented or
+manual-required.
+
 Current stateless report compiler proof:
 `stateless-report-compiler-status-proof` defines parent-domain request/status/
 result contracts for parent-authorized report compilation from parent-owned
@@ -183,6 +214,14 @@ evidence, child-device mutation, or Ocentra-hosted family-data custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   for account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries.
+- Parent-domain contract tests and `production-release-public-status-proof` for
+  public download, release/update status, account/subscription status, and
+  support status readiness rows before public runtime or backend code exists.
+- Parent-domain contract tests and
+  `production-release-public-runtime-handoff-proof` for public route/status and
+  backend adapter handoff rows before public website runtime, account backend,
+  billing provider runtime, updater execution, support upload, or production
+  publishing exists.
 - Parent-domain contract tests and `stateless-report-compiler-status-proof`
   for parent-authorized compiler request scope, status/result states,
   temporary TTL/deletion confirmation, redaction/minimization, audit refs, and

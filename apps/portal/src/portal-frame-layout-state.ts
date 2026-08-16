@@ -1,10 +1,9 @@
+import { PortalFrameTuner, type PortalFrameTargetValue } from '@ocentra-parent/portal-domain/frame-tuner';
 import {
-  PortalFrameTuner,
   defaultPortalAppLayoutSurfaceContent,
   normalizePortalAppLayoutContentDraft,
   type PortalAppLayoutSurfaceKey,
-  type PortalFrameTargetValue,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/app-layout';
 import {
   normalizePictureViewerFrameControls,
   type PictureViewerFrameSurfaceControls,
@@ -91,25 +90,7 @@ export function frameContentTarget(
 }
 
 export function resetPortalFrameTarget(layout: PortalFrameLayout, target: PortalFrameTargetValue): PortalFrameLayout {
-  if (target === PortalFrameTuner.FrameTarget.Main) {
-    return normalizePortalFrameLayout({
-      ...layout,
-      content: { ...layout.content, main: DEFAULT_PORTAL_FRAME_LAYOUT.content.main },
-      main: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.main),
-    });
-  }
-  if (target === PortalFrameTuner.FrameTarget.SideBottom) {
-    return normalizePortalFrameLayout({
-      ...layout,
-      content: { ...layout.content, sideBottom: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideBottom },
-      sideBottom: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideBottom),
-    });
-  }
-  return normalizePortalFrameLayout({
-    ...layout,
-    content: { ...layout.content, sideTop: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideTop },
-    sideTop: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideTop),
-  });
+  return normalizePortalFrameLayout(PORTAL_FRAME_TARGET_RESETTERS[target](layout));
 }
 
 export function resetPortalGoldenCard(layout: PortalFrameLayout): PortalFrameLayout {
@@ -241,6 +222,30 @@ function normalizeGoldenCardLayout(value: unknown): PortalGoldenCardLayout {
     titleOffsetY: numberAt(value, [key.TitleOffsetY], fallback.titleOffsetY),
   };
 }
+
+const PORTAL_FRAME_TARGET_RESETTERS: Record<PortalFrameTargetValue, (layout: PortalFrameLayout) => PortalFrameLayout> =
+  {
+    [PortalFrameTuner.FrameTarget.Main]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, main: DEFAULT_PORTAL_FRAME_LAYOUT.content.main },
+      main: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.main),
+    }),
+    [PortalFrameTuner.FrameTarget.SideBottom]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, sideBottom: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideBottom },
+      sideBottom: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideBottom),
+    }),
+    [PortalFrameTuner.FrameTarget.SideTop]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, sideTop: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideTop },
+      sideTop: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideTop),
+    }),
+    [PortalFrameTuner.FrameTarget.Side]: (layout) => ({
+      ...layout,
+      content: { ...layout.content, sideTop: DEFAULT_PORTAL_FRAME_LAYOUT.content.sideTop },
+      sideTop: cloneFrameControls(DEFAULT_PORTAL_FRAME_LAYOUT.sideTop),
+    }),
+  };
 
 function normalizeCarouselLayout(value: unknown): PortalCarouselLayout {
   const fallback = DEFAULT_PORTAL_FRAME_LAYOUT.carousel;

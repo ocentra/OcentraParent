@@ -1,6 +1,9 @@
 use serde::{Deserialize, Serialize};
 
-use crate::ActivityEvidenceRef;
+use crate::{
+    ActivityEvidenceRef, AppGameAiClassifierResult, AppGameControlActionResult,
+    AppGameControlApprovalAuthority, AppGamePlatformAuthorityMatrix,
+};
 
 pub const APP_GAME_SCHEMA_VERSION: u16 = 1;
 pub const APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS: &str = "unknownProcess";
@@ -53,7 +56,48 @@ pub const APP_GAME_OBSERVATION_MODE_FOREGROUND_WINDOW: &str = "foregroundWindow"
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT: &str = "processSnapshot";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_START: &str = "processStart";
 pub const APP_GAME_OBSERVATION_MODE_PROCESS_EXIT: &str = "processExit";
+pub const APP_GAME_OBSERVATION_MODE_INVENTORY_SCAN: &str = "inventoryScan";
 pub const APP_GAME_OBSERVATION_MODE_LAUNCHER_MANIFEST: &str = "launcherManifest";
+pub const APP_GAME_EVIDENCE_CLAIM_KIND_INVENTORY: &str = "inventory";
+pub const APP_GAME_EVIDENCE_CLAIM_KIND_RUNTIME: &str = "runtime";
+pub const APP_GAME_EVIDENCE_CLAIM_KIND_FOREGROUND: &str = "foreground";
+pub const APP_GAME_EVIDENCE_CLAIM_KIND_LAUNCHER: &str = "launcher";
+pub const APP_GAME_EVIDENCE_CLAIM_KIND_SESSION: &str = "session";
+pub const APP_GAME_EVIDENCE_CLAIM_KIND_CATALOG: &str = "catalog";
+pub const APP_GAME_EVIDENCE_CLAIM_KIND_AI_DIGEST: &str = "aiDigest";
+pub const APP_GAME_IDENTITY_STRENGTH_DISPLAY_NAME_ONLY: &str = "displayNameOnly";
+pub const APP_GAME_IDENTITY_STRENGTH_WEAK: &str = "weak";
+pub const APP_GAME_IDENTITY_STRENGTH_OBSERVED_PROCESS: &str = "observedProcess";
+pub const APP_GAME_IDENTITY_STRENGTH_CATALOG_MATCHED: &str = "catalogMatched";
+pub const APP_GAME_IDENTITY_STRENGTH_LAUNCHER_CLAIMED: &str = "launcherClaimed";
+pub const APP_GAME_IDENTITY_STRENGTH_PLATFORM_MANAGED: &str = "platformManaged";
+pub const APP_GAME_IDENTITY_STRENGTH_CHILD_GAME_PROOF: &str = "childGameProof";
+pub const APP_GAME_IDENTITY_CONFIDENCE_WEAK: &str = "weak";
+pub const APP_GAME_IDENTITY_CONFIDENCE_CANDIDATE: &str = "candidate";
+pub const APP_GAME_IDENTITY_CONFIDENCE_DETERMINISTIC: &str = "deterministic";
+pub const APP_GAME_IDENTITY_CONFIDENCE_PARENT_LABELED: &str = "parentLabeled";
+pub const APP_GAME_IDENTITY_CONFIDENCE_AI_ASSISTED: &str = "aiAssisted";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_PACKAGE_ID: &str = "packageId";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_BUNDLE_ID: &str = "bundleId";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_APP_USER_MODEL_ID: &str = "appUserModelId";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_DESKTOP_ENTRY_ID: &str = "desktopEntryId";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_APPLICATION_TOKEN_REF: &str = "applicationTokenRef";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_EXECUTABLE_PATH_REF: &str = "executablePathRef";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_PUBLISHER_SIGNATURE_REF: &str =
+    "publisherSignatureRef";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_FILE_HASH_REF: &str = "fileHashRef";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_LAUNCHER_APP_ID: &str = "launcherAppId";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_LAUNCHER_MANIFEST_ID: &str = "launcherManifestId";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_STORE_ID: &str = "storeId";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_CATALOG_REF: &str = "catalogRef";
+pub const APP_GAME_IDENTITY_DETERMINISTIC_REF_CHILD_GAME_EVIDENCE_CLAIM_ID: &str =
+    "childGameEvidenceClaimId";
+pub const APP_GAME_AI_ACTION_HINT_CLASSIFY_ONLY: &str = "classifyOnly";
+pub const APP_GAME_AI_ACTION_HINT_SUMMARIZE_EVIDENCE: &str = "summarizeEvidence";
+pub const APP_GAME_AI_ACTION_HINT_PARENT_REVIEW: &str = "parentReview";
+pub const APP_GAME_AI_ACTION_HINT_POLICY_DRAFT_PREVIEW: &str = "policyDraftPreview";
+pub const APP_GAME_AI_ACTION_HINT_ASK_PARENT_PREVIEW: &str = "askParentPreview";
+pub const APP_GAME_AI_ACTION_HINT_MARK_UNAVAILABLE: &str = "markUnavailable";
 pub const APP_GAME_SESSION_END_REASON_PROCESS_EXIT: &str = "processExit";
 pub const APP_GAME_SESSION_END_REASON_TIMEOUT_INFERRED: &str = "timeoutInferred";
 pub const APP_GAME_SESSION_END_REASON_DEVICE_SHUTDOWN: &str = "deviceShutdown";
@@ -98,6 +142,45 @@ pub const APP_GAME_INVENTORY_CATEGORY_GAME: &str = "game";
 pub const APP_GAME_INVENTORY_CATEGORY_LAUNCHER: &str = "launcher";
 pub const APP_GAME_INVENTORY_CATEGORY_UNKNOWN: &str = "unknown";
 pub const APP_GAME_SESSION_ID_PREFIX: &str = "app-game-session-";
+pub const APP_GAME_INVENTORY_ENTRY_ID_PREFIX: &str = "inventory-source-ref-sha256-";
+pub const APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX: &str = "runtime-evidence-process-";
+pub const APP_GAME_FOREGROUND_EVIDENCE_ID_PREFIX: &str = "foreground-evidence-window-";
+pub const APP_GAME_DESKTOP_ENTRY_ID_PREFIX: &str = "desktop-entry-ref-sha256-";
+pub const APP_GAME_EXECUTABLE_PATH_REF_PREFIX: &str = "path-ref-sha256-";
+pub const APP_GAME_WINDOW_REF_PREFIX: &str = "window-ref-sha256-";
+pub const APP_GAME_WINDOW_TITLE_REF_PREFIX: &str = "title-ref-sha256-";
+pub const APP_GAME_WINDOWS_SHORTCUT_EXTENSION: &str = "lnk";
+pub const APP_GAME_WINDOWS_APPX_MANIFEST_FILE_NAME: &str = "AppxManifest.xml";
+pub const APP_GAME_WINDOWS_PATH_WINDOWS_APPS: &str = "WindowsApps";
+pub const APP_GAME_WINDOWS_PATH_MICROSOFT: &str = "Microsoft";
+pub const APP_GAME_WINDOWS_PATH_WINDOWS: &str = "Windows";
+pub const APP_GAME_WINDOWS_PATH_START_MENU: &str = "Start Menu";
+pub const APP_GAME_WINDOWS_PATH_PROGRAMS: &str = "Programs";
+pub const APP_GAME_WINDOWS_REGISTRY_FILE_EXTENSION: &str = "reg";
+pub const APP_GAME_WINDOWS_REGISTRY_LOCAL_MACHINE_HIVE: &str = "HKEY_LOCAL_MACHINE";
+pub const APP_GAME_WINDOWS_REGISTRY_CURRENT_USER_HIVE: &str = "HKEY_CURRENT_USER";
+pub const APP_GAME_WINDOWS_REGISTRY_UNINSTALL_PATH: &str =
+    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+pub const APP_GAME_WINDOWS_REGISTRY_WOW6432_UNINSTALL_PATH: &str =
+    "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall";
+pub const APP_GAME_WINDOWS_REGISTRY_DISPLAY_NAME_VALUE: &str = "DisplayName";
+pub const APP_GAME_WINDOWS_REGISTRY_INSTALL_LOCATION_VALUE: &str = "InstallLocation";
+pub const APP_GAME_WINDOWS_REGISTRY_DISPLAY_ICON_VALUE: &str = "DisplayIcon";
+pub const APP_GAME_WINDOWS_REGISTRY_UNINSTALL_STRING_VALUE: &str = "UninstallString";
+pub const APP_GAME_WINDOWS_REGISTRY_QUIET_UNINSTALL_STRING_VALUE: &str = "QuietUninstallString";
+pub const APP_GAME_WINDOWS_REGISTRY_SYSTEM_COMPONENT_VALUE: &str = "SystemComponent";
+pub const APP_GAME_WINDOWS_REGISTRY_EXPORT_HEADER: &str = "Windows Registry Editor Version 5.00";
+pub const APP_GAME_WINDOWS_REGISTRY_DWORD_PREFIX: &str = "dword:";
+pub const APP_GAME_WINDOWS_REGISTRY_DWORD_ENABLED_VALUE: &str = "00000001";
+pub const APP_GAME_WINDOWS_REGISTRY_DWORD_ENABLED_TEXT: &str = "1";
+pub const APP_GAME_APPX_ELEMENT_APPLICATION: &str = "Application";
+pub const APP_GAME_APPX_ELEMENT_DISPLAY_NAME: &str = "DisplayName";
+pub const APP_GAME_APPX_ELEMENT_IDENTITY: &str = "Identity";
+pub const APP_GAME_APPX_ELEMENT_VISUAL_ELEMENTS: &str = "VisualElements";
+pub const APP_GAME_APPX_ATTRIBUTE_DISPLAY_NAME: &str = "DisplayName";
+pub const APP_GAME_APPX_ATTRIBUTE_ID: &str = "Id";
+pub const APP_GAME_APPX_ATTRIBUTE_NAME: &str = "Name";
+pub const APP_GAME_APPX_ATTRIBUTE_PUBLISHER: &str = "Publisher";
 pub const APP_GAME_JOURNAL_FIELD_ROW_KIND: &str = "appGameRowKind";
 pub const APP_GAME_JOURNAL_FIELD_ROW_JSON: &str = "appGameRowJson";
 pub const APP_GAME_JOURNAL_FIELD_CUSTODY_LABEL: &str = "appGameCustodyLabel";
@@ -107,6 +190,12 @@ pub const APP_GAME_JOURNAL_ROW_KIND_INVENTORY: &str = "inventory";
 pub const APP_GAME_JOURNAL_ROW_KIND_RUNTIME: &str = "runtime";
 pub const APP_GAME_JOURNAL_ROW_KIND_FOREGROUND: &str = "foreground";
 pub const APP_GAME_JOURNAL_ROW_KIND_LAUNCHER: &str = "launcher";
+pub const APP_GAME_JOURNAL_ROW_KIND_EVIDENCE_CLAIM: &str = "evidenceClaim";
+pub const APP_GAME_JOURNAL_ROW_KIND_IDENTITY: &str = "identity";
+pub const APP_GAME_JOURNAL_ROW_KIND_APPROVAL_AUTHORITY: &str = "approvalAuthority";
+pub const APP_GAME_JOURNAL_ROW_KIND_APPROVAL_ACTION_RESULT: &str = "approvalActionResult";
+pub const APP_GAME_JOURNAL_ROW_KIND_PLATFORM_AUTHORITY_MATRIX: &str = "platformAuthorityMatrix";
+pub const APP_GAME_JOURNAL_ROW_KIND_AI_CLASSIFIER_RESULT: &str = "aiClassifierResult";
 pub const APP_GAME_JOURNAL_CUSTODY_LOCAL_JOURNAL: &str = "localJournal";
 pub const APP_GAME_JOURNAL_CUSTODY_LOCAL_SQLITE: &str = "localSqlite";
 pub const APP_GAME_JOURNAL_REPLAY_STATE_STORED: &str = "stored";
@@ -114,7 +203,14 @@ pub const APP_GAME_JOURNAL_REPLAY_STATE_REPLAYED: &str = "replayed";
 pub const APP_GAME_JOURNAL_SOURCE_ID: &str = "app-game-journal-ingest";
 pub const APP_GAME_JOURNAL_INVENTORY_SUBJECT_ID: &str = "app-game-inventory";
 pub const APP_GAME_JOURNAL_LAUNCHER_SUBJECT_ID: &str = "app-game-launcher";
+pub const APP_GAME_JOURNAL_EVIDENCE_CLAIM_SUBJECT_ID: &str = "app-game-evidence-claim";
+pub const APP_GAME_JOURNAL_IDENTITY_SUBJECT_ID: &str = "app-game-identity";
+pub const APP_GAME_JOURNAL_AUTHORITY_SUBJECT_ID: &str = "app-game-authority";
+pub const APP_GAME_JOURNAL_CLASSIFIER_SUBJECT_ID: &str = "app-game-classifier";
 pub const APP_GAME_CONFIDENCE_UNKNOWN: f64 = 0.0;
+pub const APP_GAME_CONFIDENCE_OS_INSTALLED_RECORD: f64 = 0.84;
+pub const APP_GAME_CONFIDENCE_SHORTCUT_INVENTORY: f64 = 0.8;
+pub const APP_GAME_CONFIDENCE_STORE_PACKAGE_MANIFEST: f64 = 0.86;
 pub const APP_GAME_CONFIDENCE_FOREGROUND_CANDIDATE: f64 = 0.25;
 pub const APP_GAME_TEST_REGISTRY_SOURCE_REF: &str = "source-registry-native-app";
 pub const APP_GAME_TEST_SHORTCUT_SOURCE_REF: &str = "source-start-menu-shortcut";
@@ -145,10 +241,35 @@ pub const APP_GAME_TEST_STORE_APP_BUNDLE_ID: &str = "bundle-ref-ocentra-store-ap
 pub const APP_GAME_TEST_STORE_GAME_BUNDLE_ID: &str = "bundle-ref-ocentra-store-game";
 pub const APP_GAME_TEST_STORE_APP_USER_MODEL_ID: &str = "aumid-ref-ocentra-store-app";
 pub const APP_GAME_TEST_STORE_GAME_USER_MODEL_ID: &str = "aumid-ref-ocentra-store-game";
+pub const APP_GAME_TEST_STORE_APP_APPLICATION_ID: &str = "App";
+pub const APP_GAME_TEST_STORE_PACKAGE_MANIFEST_USER_MODEL_ID: &str =
+    "package-ref-ocentra-store-app!App";
+pub const APP_GAME_TEST_STORE_PACKAGE_MANIFEST_XML: &str = r#"<Package xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+  <Identity Name="package-ref-ocentra-store-app" Publisher="bundle-ref-ocentra-store-app" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>Ocentra Store App Fixture</DisplayName>
+  </Properties>
+  <Applications>
+    <Application Id="App">
+      <uap:VisualElements DisplayName="Ocentra Store App Fixture" />
+    </Application>
+  </Applications>
+</Package>"#;
 pub const APP_GAME_TEST_STORE_APP_STORE_ID: &str = "store-ref-ocentra-store-app";
 pub const APP_GAME_TEST_STORE_GAME_STORE_ID: &str = "store-ref-ocentra-store-game";
 pub const APP_GAME_TEST_STORE_APP_CATALOG_REF: &str = "catalog-ref-ocentra-store-app";
 pub const APP_GAME_TEST_STORE_GAME_CATALOG_REF: &str = "catalog-ref-ocentra-store-game";
+pub const APP_GAME_TEST_SHORTCUT_FILE_NAME: &str = "Ocentra Inventory Fixture.lnk";
+pub const APP_GAME_TEST_SECOND_SHORTCUT_FILE_NAME: &str = "Ocentra Game Fixture.lnk";
+pub const APP_GAME_TEST_LIVE_INVENTORY_SUFFIX: &str = "live-inventory";
+pub const APP_GAME_TEST_IDENTITY_ID: &str = "identity-ocentra-game";
+pub const APP_GAME_TEST_SECOND_IDENTITY_ID: &str = "identity-ocentra-game-second";
+pub const APP_GAME_TEST_MERGE_ID: &str = "identity-merge-ocentra-game";
+pub const APP_GAME_TEST_EVIDENCE_CLAIM_ID: &str = "claim-ocentra-inventory";
+pub const APP_GAME_TEST_AI_DIGEST_REF: &str = "digest-ref-app-game";
+pub const APP_GAME_TEST_AI_DIGEST: &str = "sha256:app-game-digest";
+pub const APP_GAME_TEST_UNAVAILABLE_REASON: &str = "provider-unavailable";
+pub const APP_GAME_TEST_PARENT_LABEL: &str = "Parent labeled game fixture";
 pub const APP_GAME_TEST_RUNTIME_EVIDENCE_ID: &str = "runtime-evidence-process-4242";
 pub const APP_GAME_TEST_RUNTIME_EXIT_EVIDENCE_ID: &str = "runtime-evidence-process-4242-exit";
 pub const APP_GAME_TEST_RUNTIME_LAUNCHER_EVIDENCE_ID: &str = "runtime-evidence-launcher-5150";
@@ -179,6 +300,117 @@ pub const APP_GAME_TEST_LAUNCHER_PROCESS_NAME: &str = "steam.exe";
 pub const APP_GAME_TEST_PERMISSION_PROCESS_NAME: &str = "private-process.exe";
 pub const APP_GAME_TEST_PUBLISHER_SIGNATURE_REF: &str = "signature-ref-ocentra-fixture";
 pub const APP_GAME_TEST_FILE_HASH_REF: &str = "hash-ref-ocentra-fixture";
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameIdentity {
+    pub schema_version: u16,
+    pub identity_id: String,
+    pub product_kind: String,
+    pub display_label: String,
+    pub parent_label: Option<String>,
+    pub confidence: String,
+    pub classification_state: String,
+    pub package_id: Option<String>,
+    pub bundle_id: Option<String>,
+    pub app_user_model_id: Option<String>,
+    pub desktop_entry_id: Option<String>,
+    pub application_token_ref: Option<String>,
+    pub executable_path_ref: Option<String>,
+    pub publisher_signature_ref: Option<String>,
+    pub file_hash_ref: Option<String>,
+    pub launcher_ref: Option<String>,
+    pub launcher_app_id: Option<String>,
+    pub launcher_manifest_id: Option<String>,
+    pub store_id: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub child_game_evidence_claim_id: Option<String>,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameIdentityMergeProof {
+    pub schema_version: u16,
+    pub merge_id: String,
+    pub target_identity: AppGameIdentity,
+    pub source_identity_ids: Vec<String>,
+    pub merge_confidence: f64,
+    pub display_label_matched: bool,
+    pub parent_label_changed: bool,
+    pub conflicting_file_hash_refs: bool,
+    pub shared_deterministic_refs: Vec<String>,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameEvidenceClaim {
+    pub schema_version: u16,
+    pub claim_id: String,
+    pub observed_at: String,
+    pub claim_kind: String,
+    pub observation_mode: String,
+    pub display_name: String,
+    pub identity_strength: String,
+    pub classification_state: String,
+    pub catalog_ready_state: String,
+    pub runtime_state: String,
+    pub foreground_state: String,
+    pub inventory_entry_id: Option<String>,
+    pub process_identity: Option<String>,
+    pub launcher_ref: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub confidence: f64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameProcessObservation {
+    pub schema_version: u16,
+    pub observed_at: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub process_name: String,
+    pub executable_path: Option<String>,
+    pub foreground_state: String,
+    pub observation_mode: String,
+    pub classification_state: String,
+    pub inventory_entry_id: Option<String>,
+    pub launcher_ref: Option<String>,
+    pub catalog_ref: Option<String>,
+    pub confidence: f64,
+    pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameAiDigestReference {
+    pub schema_version: u16,
+    pub digest_ref: String,
+    pub digest: Option<String>,
+    pub generated_at: String,
+    pub confidence: f64,
+    pub source_evidence_ids: Vec<String>,
+    pub source_session_ids: Vec<String>,
+    pub unavailable_reason: Option<String>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameAiClassificationDigest {
+    pub schema_version: u16,
+    pub digest_ref: String,
+    pub digest: Option<String>,
+    pub generated_at: String,
+    pub classification_state: String,
+    pub confidence: f64,
+    pub action_hints: Vec<String>,
+    pub source_evidence_ids: Vec<String>,
+    pub source_session_ids: Vec<String>,
+    pub unavailable_reason: Option<String>,
+}
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -256,11 +488,23 @@ pub struct AppGameServiceReadModel {
     pub foreground_now_returned: u64,
     pub launcher_returned: u64,
     pub daily_rollup_returned: u64,
+    pub evidence_claim_returned: u64,
+    pub identity_returned: u64,
+    pub approval_authority_returned: u64,
+    pub approval_action_result_returned: u64,
+    pub platform_authority_matrix_returned: u64,
+    pub ai_classifier_result_returned: u64,
     pub inventory_rows: Vec<AppGameInventoryEvidenceRow>,
     pub running_now_rows: Vec<AppGameRuntimeEvidenceRow>,
     pub foreground_now_rows: Vec<AppGameForegroundEvidenceRow>,
     pub launcher_rows: Vec<AppGameLauncherEvidenceRow>,
     pub daily_rollups: Vec<AppGameSessionDailyRollup>,
+    pub evidence_claim_rows: Vec<AppGameEvidenceClaim>,
+    pub identity_rows: Vec<AppGameIdentity>,
+    pub approval_authority_rows: Vec<AppGameControlApprovalAuthority>,
+    pub approval_action_result_rows: Vec<AppGameControlActionResult>,
+    pub platform_authority_matrices: Vec<AppGamePlatformAuthorityMatrix>,
+    pub ai_classifier_result_rows: Vec<AppGameAiClassifierResult>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -357,6 +601,33 @@ pub struct AppGameInventoryCategoryCandidate {
     pub confidence: f64,
     pub catalog_ref: Option<String>,
     pub evidence: Vec<ActivityEvidenceRef>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum AppGameRiskCategoryKind {
+    VpnProxy,
+    RemoteDesktop,
+    DownloadTorrent,
+    InstallerUpdater,
+    AiChatbot,
+    SocialVideoMessaging,
+    UnknownRisk,
+}
+
+impl AppGameRiskCategoryKind {
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "vpnProxy" => Some(Self::VpnProxy),
+            "remoteDesktop" => Some(Self::RemoteDesktop),
+            "downloadTorrent" => Some(Self::DownloadTorrent),
+            "installerUpdater" => Some(Self::InstallerUpdater),
+            "aiChatbot" => Some(Self::AiChatbot),
+            "socialVideoMessaging" => Some(Self::SocialVideoMessaging),
+            "unknownRisk" => Some(Self::UnknownRisk),
+            _ => None,
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

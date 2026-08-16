@@ -1,4 +1,0 @@
-{
-  "status": "not_applicable_in_this_slice",
-  "reason": "The shared WP09 slice does not add journal write or SQLite replay behavior. App journal/read-model ingest remains a later app-plan workpack."
-}

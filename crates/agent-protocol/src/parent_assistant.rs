@@ -6,12 +6,9 @@ use crate::{
     ParentDeviceReference, ParentEvidenceReference,
 };
 
-mod provider_route;
+pub mod provider_route;
 
-pub use provider_route::{
-    ParentAssistantProviderRoute, ParentAssistantProviderRoutingState,
-    ParentAssistantProviderSelection,
-};
+use provider_route::ParentAssistantProviderRoute;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ParentAssistantProviderState {
@@ -135,6 +132,18 @@ pub enum ParentAssistantActionConfirmState {
     Rejected,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ParentAssistantChildAgentValidationState {
+    #[serde(rename = "child-agent-contract-required")]
+    ChildAgentContractRequired,
+    #[serde(rename = "child-agent-offline")]
+    ChildAgentOffline,
+    #[serde(rename = "child-agent-unavailable")]
+    ChildAgentUnavailable,
+    #[serde(rename = "child-agent-degraded")]
+    ChildAgentDegraded,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentAssistantScope {
@@ -175,6 +184,14 @@ pub struct ParentAssistantActionPreviewResult {
     pub preview_state: ParentAssistantActionPreviewState,
     pub preview: ParentAssistantActionPreview,
     pub evidence_context: Vec<ParentAssistantEvidenceContext>,
+    pub preview_required: bool,
+    pub preview_satisfied: bool,
+    pub raw_assistant_prose_accepted: bool,
+    pub parent_confirmation_required: bool,
+    pub parent_confirmation_recorded: bool,
+    pub child_agent_validation_state: ParentAssistantChildAgentValidationState,
+    pub source_refs: Vec<ParentEvidenceReference>,
+    pub audit_reason: String,
     pub requires_controller_lease: bool,
     pub child_agent_contract_required: bool,
     pub enforcement_applied: bool,
@@ -309,6 +326,14 @@ pub struct ParentAssistantActionConfirmResult {
     pub preview_id: Option<String>,
     pub action_kind: ParentAssistantActionPreviewKind,
     pub confirm_state: ParentAssistantActionConfirmState,
+    pub preview_required: bool,
+    pub preview_satisfied: bool,
+    pub raw_assistant_prose_accepted: bool,
+    pub parent_confirmation_required: bool,
+    pub parent_confirmation_recorded: bool,
+    pub child_agent_validation_state: ParentAssistantChildAgentValidationState,
+    pub source_refs: Vec<ParentEvidenceReference>,
+    pub audit_reason: String,
     pub requires_controller_lease: bool,
     pub child_agent_contract_required: bool,
     pub enforcement_applied: bool,

@@ -1,5 +1,20 @@
 # V0.5 Browser URL And Video AI Intelligence Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `V0.5 Browser URL And Video AI Intelligence Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This document defines the browser-owned intelligence layer for URL, page, and
 video understanding. It belongs in the browser plan because it starts from
 managed browser evidence, but it crosses social/video, local AI, policy,
@@ -858,12 +873,15 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   tokens, evidence refs, post-analysis action linkage where applicable, and
   adapter proof before delivered checking, warning, block, or approval pages can
   be claimed. The contracts reject raw copy, shaming/surveillance copy claims,
-  visual-render claims, state/token mismatches, rendered page delivery without
-  adapter proof, and warning/block/approval states without matching
-  post-analysis actions. The activity-domain package subpath export is pending
-  the A-owned `packages/activity-domain/package.json` tracking export
-  coordination; no visual component, browser page renderer, runtime delivery,
-  enforcement, or product checklist update is claimed.
+  state/token mismatches, rendered page delivery without adapter proof, and
+  warning/block/approval states without matching post-analysis actions. The
+  rendered proof uses a real Chrome/Chromium CDP session, captures a live public
+  YouTube watch page before intervention, writes the shared child intervention
+  renderer HTML through the Rust child-agent file hook, serves it from
+  `/api/browser/intervention/page`, and captures checking, warning,
+  approval-required, limited, and blocked screenshots. No final policy
+  execution, unmanaged browser control, native/mobile blocking, connector
+  behavior, enforcement, or product checklist update is claimed.
 - AI-20 now has schema-backed parent explanation/audit UX contracts in
   `packages/activity-domain/src/browser-ai-parent-explanation-schemas.ts` and
   parent explanation text tokens in
@@ -875,10 +893,14 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   fields when applicable. They reject raw page content, raw prompt text, portal
   evaluation, policy authority, direct enforcement, hidden fallback, hidden child
   engagement, missing audit sections, and mismatched source evidence. The
-  activity-domain package subpath export is pending the A-owned
-  `packages/activity-domain/package.json` tracking export coordination; no parent
-  UI component, portal visual rendering, runtime delivery, enforcement, or
-  product checklist update is claimed.
+  rendered proof consumes the AI-19 live YouTube CDP child UX evidence JSON,
+  schema-decodes the parent explanation bundle, renders the Browser review
+  region on the real portal `#/browser` route, captures desktop and mobile
+  screenshots, and proves evidence/model/policy/action/child-delivery/audit
+  visibility without rendering the raw YouTube URL. Runtime service delivery of
+  parent explanation bundles, notification/report delivery, final policy
+  authority, browser mutation, remote AI, enforcement, raw page content, raw
+  prompt text, and product checklist update remain unclaimed.
 - AI-21 now extends deterministic YouTube URL parser coverage and adds a YouTube
   metadata adapter in `packages/activity-domain/src/browser-youtube-metadata.ts`.
   The parser recognizes managed exact YouTube watch, Shorts, embed, live,
@@ -929,23 +951,26 @@ This intelligence layer can be assigned as sub-workpacks under the browser plan:
   parent-approved remote route proofs with one visible/auditable result. Local,
   family-hub, and remote selections must match the selected route runtime;
   remote selections also require explicit parent approval and local safety
-  fallback. Metadata-only and no-AI fallbacks keep runtime refs null and expose
-  fallback action/reason labels. Decisions reject hidden fallback, claimed AI
-  analysis results, claimed policy decisions, disabled local safety, remote
-  default blocking, and remote outage disables local safety. Public
-  package/barrel exports remain pending source/package coordination; no model
-  execution, policy evaluator, UI, enforcement, runtime delivery, or product
+  fallback, and no selected local or family-hub route. Metadata-only and no-AI
+  fallbacks keep runtime refs null and expose fallback action/reason labels.
+  Decisions reject hidden fallback, claimed AI analysis results, claimed policy
+  decisions, disabled local safety, remote default blocking, remote outage
+  disables local safety, selected remote fallback while local or family hub is
+  already selected, and selected runtime mismatches. Activity-domain package
+  subpath exports and the AI-24 proof pack are present; no model execution,
+  provider call, policy evaluator, UI, enforcement, runtime delivery, or product
   checklist update is claimed.
 - AI-25 now adds a deterministic proof-gate script in
   `scripts/test/browser-url-video-ai-proof-gates.mjs`. The gate validates AI-01
   through AI-24 checklist status/owner/proof-directory references, required
   source/security/validation proof files, UI-not-applicable markers where
-  applicable, plan checkpoint mentions, and critical no-claim rollout guard
-  text. Its generated manifest records 18 contract-proof rows and six
-  partial/manual-required rows, with product rollout still
-  partial/manual-required. No runtime model execution, UI delivery, policy
-  authority, enforcement, package export completion, or product checklist update
-  is claimed.
+  applicable, rendered child/parent UI proof artifacts for AI-19 and AI-20, plan
+  checkpoint mentions, and critical no-claim rollout guard text. Its refreshed
+  generated manifest records 24 contract-proof rows and zero
+  partial/manual-required rows for AI-01 through AI-24. Browser AI proof-gate
+  coverage is complete, while product rollout remains unclaimed. No runtime
+  model execution, final policy authority, enforcement, or product checklist
+  update is claimed.
 
 If these become implementation assignments, create focused workpack files or
 worker messages before code changes. Do not mix all 25 into one PR.

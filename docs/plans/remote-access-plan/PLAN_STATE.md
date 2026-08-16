@@ -1,0 +1,160 @@
+# Remote Access Plan State
+
+Status: execution-grade live-view-first plan. Standing paired access is the current model; remote control is deferred to a later slice.
+
+Research status: current access model defined. This plan still needs focused proof work against screen capture, LAN transport, portal remote routes, local service capabilities, and RustDesk comparison docs before implementation claims, but repeated permission prompts are not part of the model.
+
+## Current ownership interpretation
+
+```text
+remote-access-plan:
+  Remote live-view capability authority, standing grant semantics, pairing/revocation/remove-device lifecycle, relay session semantics, abuse controls, and proof route.
+
+screen-plan:
+  Capture primitives, protected-surface behavior, screenshot custody, local screen retention settings, and screen-specific disclosure.
+
+lan-plan:
+  Local pairing, LAN transport, local peer discovery, and LAN-only proof.
+
+account-identity-family-plan:
+  Account, household, role, session, parent actor, selected-device, and authority proof.
+
+device-trust-bootstrap-plan:
+  Parent presence proof, trusted-device bootstrap, and step-up gating for remote grants.
+
+data-custody-storage-plan:
+  Retention, export, deletion, privacy, and custody for remote artifacts or diagnostics.
+
+portal-ux-household-surfaces-plan:
+  Rendered remote state, parent/child visible status, and UI proof once remote read models exist.
+
+eventing-plan:
+  Reusable idempotency, replay, journal, request/response, and audit mechanics.
+```
+
+## Current truth
+
+- `screen-plan` can own capture primitives, but not the remote session product.
+- `lan-plan` can own local transport, but not relay-backed remote access.
+- Initial pairing creates standing parent access until revoke or device removal.
+- Remote access requires account/household/device authority before pairing is opened.
+- Remote control is deferred; the current pass only proves live view and standing access.
+- Relay availability is not permission to retain raw screen/input/child-private data.
+- Support/admin remote access requires parent-visible grant and audit; no hidden support tunnel is in scope.
+
+## Production reachability audit (2026-08-16)
+
+This source audit is against consolidated root `bf5ba6ab1`. It counts only
+shipped callers with trusted account/device authority, real transport or
+execution, durable replay protection, and fail-closed state. Contracts,
+environment flags, proof/status projections, and focused tests do not satisfy
+that boundary. No new production slice was accepted.
+
+| Workpack | Actual production source/caller | Remaining production gap |
+| --- | --- | --- |
+| WP01 | `crates/schema/src/remote_capability_fabric.rs` defines the typed live-view contract. | No account/device-trust producer or remote-access service persists and consumes the grant. The schema is not a shipped authority path. |
+| WP02 | `crates/agent-service/src/service_runtime.rs` starts a live-view decision worker; `screen-live-view-core` evaluates readiness and returns a record. | The path is environment-flag driven and performs no capture, relay transport, frame delivery, cache custody, or parent/child disclosure handoff. It is a fail-closed readiness seam, not live view. |
+| WP03 | Deferred; shared `remote_access_session.rs` contains no-control decision fields only. | No remote input authority or execution caller is allowed in the current pass. |
+| WP04 | `crates/remote-access-core/src/remote_access_grant/` contains lifecycle/replay/revocation logic. `child-runtime` calls only the separate session evaluator. | No persistence/adapter service invokes the grant lifecycle. `RemoteAccessGrantContext` and `RemoteAccessSessionRequest` accept caller-shaped authority/state fields; no trusted account/device producer reaches them. |
+| WP05 | No relay security/abuse runtime owner is reachable. | No authenticated relay token/session, rate limit, backpressure, cross-household isolation, or redacted diagnostics path. |
+| WP06 | No production implementation; graph topology is `no-source`. | Rollout/proof routing cannot establish transport, pairing, standing access, revoke/remove, custody, or abuse readiness. |
+
+The first legal production unblock is an account/device-trust-owned producer
+and durable remote-access adapter that constructs grants from verified parent
+authority, persists replay state, and dispatches to a real relay/session
+owner. Until that composition exists, all live-view, standing-access, relay,
+and revocation claims remain manual-required/open; remote control remains
+deferred.
+
+Graph validation also reports checked-in graph/source drift with the same
+703-node count but differing source-derived content. This audit did not
+bootstrap or edit graph JSON.
+
+## Current coupling risks
+
+```text
+- Local screen proof is not remote access proof.
+- LAN pairing proof is not relay-backed remote access proof.
+- Relay route existence is not remote readiness.
+- UI-only proof is not remote product proof.
+- Live-view proof is not remote input/control proof.
+- Standing access without revoke/remove-device proof is unsafe.
+- Reconnect cannot resurrect revoked or removed grants.
+- Relay diagnostics must not retain raw screen/input/private payloads by default.
+```
+
+## Current proof interpretation
+
+```text
+output/remote-access-plan-proof/<workpack>/ is the deterministic proof root.
+Remote control WP03 is deferred and must not be consumed by current live-view readiness claims.
+Runtime rows remain open until selected code, tests, negative cases, redacted diagnostics, custody notes, rollback/teardown notes, validation logs, and proof bundles exist.
+```
+
+Open gaps:
+
+- No persistence-backed remote pairing/access runtime with adapter ownership, crash recovery, or durable audit custody.
+- No relay availability/fallback state machine.
+- No proof matrix for live view and standing access.
+- No retention/delete/export boundary for remote artifacts.
+- No child-visible disclosure state proof.
+- No relay abuse/load/replay/cross-household proof.
+
+## Latest selected slice (2026-08-09)
+
+WP01's Rust-owned view-only capability/grant/session contract was replayed on
+the consolidated E: branch. The focused contract target passed 3/3 tests,
+format and scoped architecture passed, and Enforcer guard passed. The tracked
+manifest is `docs/proof/remote-access-plan/slice-01-capability-fabric.md`.
+
+This is a validation slice only. It does not close the plan or claim pairing,
+standing access, relay/session runtime, device-trust integration,
+revoke/remove behavior, custody, portal disclosure, abuse controls, remote
+control, CI, review, or main merge.
+
+## Latest selected slice (2026-08-10)
+
+WP04 now has a Rust-owned pairing and standing-access lifecycle boundary in
+`crates/remote-access-core/src/remote_access_grant/`. The focused tests cover
+parent confirmation, child disclosure, paired/active/paused/stopped/reconnect
+states, route binding, current parent-authority rechecks, wrong
+actor/household/device/route rejection, explicitly parent-approved support
+access, support/admin hidden-access rejection, authorized household-actor
+revoke/remove, cross-actor non-terminal rejection, terminal reconnect denial,
+reconnect-pending bypass rejection, canonical parent-granted support
+authorization, typed device-trust handoff, explicit Denied/Failed terminal
+states, accepted-attempt replay across restore, redacted accepted/denied audit
+milestones, unique per-attempt audit keys, and validated serialization
+round-trips for early and late terminal states.
+
+The first PR CI run passed all product/build/security/E2E jobs but the
+mergeability gate held six review threads. The follow-up code repair consumes
+the canonical schema `RemoteActorRole`, encapsulates lifecycle mutation,
+validates deserialized state, and records the review findings in the durable
+proof manifest. This remains `validation`; follow-up CI, resolved review,
+persistence/adapter ownership, relay/session integration, device-trust
+handoff, child/portal disclosure, audit custody, and generated proof remain
+open.
+
+This is still `validation`, not `done`. Persistence adapters, relay/session
+integration, device-trust handoff, child/portal rendered disclosure, durable
+audit storage, generated proof output, CI, review, and main merge remain open.
+The durable local record is
+`docs/proof/remote-access-plan/slice-04-session-pairing-grants.md`.
+
+## HID Execution Guard
+
+- Scope and completion source:
+  - follow [PLAN_HID_MATRIX.md](../../PLAN_HID_MATRIX.md) execution slice, then this plan's assigned WORKPACK_INDEX.md and NEXT_ACTIONS.md.
+  - use `WORKPACK_FAMILIES.md` only when owner/proof family is unclear.
+  - do not mark this plan complete from checklist deltas alone.
+- Before any checked update, attach:
+  - a real test run log or explicit known blocker from the assigned implementation boundary,
+  - a proof manifest under `output/remote-access-plan-proof/<workpack>/`.
+- Required proof must include commands, pass/fail, negative cases, manual-required notes, redaction/custody notes, and no-control no-claim for the current live-view pass.
+- Failure rule: no PR-ready claim until replay/idempotency, authZ/replay, revocation/remove-device, relay degraded-state, custody, abuse, and rollback/teardown proofs are present for the assigned slice. No PR-ready claim may imply control in this pass.
+
+## HID execution blueprint
+
+Continue execution from: [PLAN_EXECUTION_BLUEPRINT.md](PLAN_EXECUTION_BLUEPRINT.md).
+Update this plan only via the blueprint and matching workpack checklist.

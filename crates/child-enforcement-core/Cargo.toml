@@ -1,0 +1,28 @@
+[package]
+name = "ocentra-child-enforcement-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-policy-control-core = { path = "../policy-control-core" }
+serde = { version = "1.0.228", features = ["derive"] }
+
+[[test]]
+name = "contract_artifact_status"
+path = "tests/contract/tamper_uninstall_artifact_status.rs"
+
+[[test]]
+name = "contract_v08_browser_enforcement_timer_recovery_proof_values"
+path = "tests/contract/v08_browser_enforcement_timer_recovery_proof_values.rs"
+
+[[test]]
+name = "security_action_decision"
+path = "tests/security/action_decision.rs"

@@ -1,5 +1,20 @@
 # V0.7 Local AI Runtime And Dry-Run Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `ai-plan`
+> Doc: `V0.7 Local AI Runtime And Dry-Run Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Goal
 
 Run local AI in a dry-run safety path where model availability, model output,
@@ -20,6 +35,11 @@ The runtime owns:
 - resource/backpressure status;
 - model cache status;
 - dry-run result journal.
+
+The runtime may execute AI locally or delegate execution to a trusted household
+provider through the Household Mesh Bridge. Delegation changes execution
+location only. It does not move evidence ownership, policy authority,
+enforcement authority, or audit ownership away from the child agent.
 
 The runtime does not own:
 
@@ -60,6 +80,20 @@ stored browser/app/game/network/screen/tracking evidence
 - failed;
 - disabled by parent;
 - disabled by platform.
+- provider-discovered;
+- provider-stale;
+- provider-offline;
+- provider-revoked;
+- claim-requested;
+- claim-granted;
+- claim-rejected;
+- lease-active;
+- lease-expired;
+- result-received;
+- result-accepted;
+- result-rejected;
+- mobile-dormant;
+- mobile-fallback-eligible.
 
 ## Validation
 
@@ -69,4 +103,10 @@ stored browser/app/game/network/screen/tracking evidence
 - Timeout/cancel tests.
 - Dry-run policy integration tests.
 - Journal/replay proof.
+- Same-device dry-run proof.
+- LAN provider route dry-run proof.
+- Claim/lease proof.
+- Expired lease rejection proof.
+- Wrong-provider result rejection proof.
+- Child-agent policy authority proof.
 - Portal degraded-state screenshot if UI changes.

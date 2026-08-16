@@ -1,7 +1,9 @@
-use ocentra_parent_agent_core::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, LogLevel,
-    PolicyPreviewReadModel,
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_protocol::activity::policy_preview::PolicyPreviewReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::{
+    AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::{
@@ -35,9 +37,9 @@ pub async fn build_policy_preview_read_model_report(
     }
 }
 
-async fn load_policy_preview_read_model() -> Option<PolicyPreviewReadModel> {
+pub(crate) async fn load_policy_preview_read_model() -> Option<PolicyPreviewReadModel> {
     let path = activity_db_path();
-    let generated_at = timestamp_now();
+    let generated_at: String = timestamp_now();
     tokio::task::spawn_blocking(move || {
         let store = ActivityStore::open(path).ok()?;
         store

@@ -1,0 +1,6 @@
+reverse-dns|Kid-Laptop.local.|2026-06-26T00:00:00Z|Wi-Fi
+reverse-dns|Kid-Laptop.local.|2026-06-26T00:05:00Z|Wi-Fi
+netbios|WORKSTATION-1|2026-06-26T00:10:00Z|Ethernet
+netbios|WORKSTATION-1|2026-06-26T00:15:00Z|Ethernet
+llmnr|Kid-Laptop.local.|2026-06-26T00:20:00Z|Wi-Fi
+llmnr|Kid-Laptop.local.|2026-06-26T00:25:00Z|Wi-Fi

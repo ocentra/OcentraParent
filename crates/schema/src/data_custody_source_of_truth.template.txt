@@ -1,0 +1,256 @@
+/* generated from crates/schema/src/data_custody_source_of_truth.rs */
+
+export const DataCustodySourceOfTruthContractRuntime = {
+  SchemaVersion: '__SCHEMA_VERSION__',
+} as const;
+
+export type GeneratedParentContractSchemaVersion = 'v0.6';
+export type GeneratedDataCustodySourceOfTruthKind = 'self' | 'derived-from-data-classes';
+export type GeneratedDataCustodyAuthority =
+  | 'ocentra-account-control-plane'
+  | 'payment-control-plane'
+  | 'billing-provider'
+  | 'household-control-plane'
+  | 'ocentra-routing-service'
+  | 'ocentra-report-status-runtime'
+  | 'support-system'
+  | 'public-release-pipeline'
+  | 'child-device'
+  | 'parent-device'
+  | 'parent-owned-storage'
+  | 'support-export-boundary';
+export type GeneratedDataCustodyDefaultLocation =
+  | 'ocentra-account-metadata-store'
+  | 'ocentra-billing-metadata-store'
+  | 'billing-provider-customer-record'
+  | 'ocentra-license-update-store'
+  | 'household-device-registry'
+  | 'ocentra-household-route-store'
+  | 'household-setup-draft-store'
+  | 'ocentra-notification-route-store'
+  | 'ocentra-short-lived-report-status-store'
+  | 'ocentra-support-case-store'
+  | 'public-release-surface'
+  | 'household-profile-store'
+  | 'household-rule-store'
+  | 'household-audit-store'
+  | 'child-device-encrypted-journal'
+  | 'child-device-local-query-store'
+  | 'child-device-sensitive-evidence-store'
+  | 'child-device-location-store'
+  | 'child-device-local-ai-store'
+  | 'parent-device-report-cache'
+  | 'parent-device-notification-history-cache'
+  | 'parent-assistant-ephemeral-context'
+  | 'parent-owned-encrypted-storage'
+  | 'provider-envelope-metadata'
+  | 'support-export-artifact'
+  | 'household-key-store';
+export type GeneratedDataCustodyExposure =
+  | 'none'
+  | 'allowed-references-only'
+  | 'redacted-metadata-only'
+  | 'minimal'
+  | 'derived-output-only'
+  | 'public';
+export type GeneratedDataCustodyOcentraHostingMode =
+  | 'forbidden'
+  | 'allowed-metadata-only'
+  | 'short-lived-status-only'
+  | 'public-release-only';
+export type GeneratedDataCustodyNonClaim =
+  | 'no-default-ocentra-child-activity-store'
+  | 'no-sqlite-truth-layer'
+  | 'no-provider-auto-apply'
+  | 'no-support-decrypt-default'
+  | 'no-ocentra-owned-parent-rules'
+  | 'no-raw-child-evidence-in-notifications'
+  | 'no-long-lived-hosted-reports';
+export type GeneratedDataCustodyClassId =
+  | 'account-identity-metadata'
+  | 'subscription-entitlement-metadata'
+  | 'billing-provider-identity-reference'
+  | 'license-download-update-metadata'
+  | 'household-device-registry'
+  | 'device-registration-pairing-route-metadata'
+  | 'setup-state-and-pairing-draft'
+  | 'minimal-notification-routing-metadata'
+  | 'short-lived-report-compiler-status'
+  | 'support-case-metadata'
+  | 'public-website-release-status'
+  | 'child-profile'
+  | 'parent-rules-and-approval-history'
+  | 'audit-log'
+  | 'evidence-journal-segments'
+  | 'sqlite-evidence-read-model-database'
+  | 'screenshots-and-screen-analysis-images'
+  | 'browser-url-history'
+  | 'network-app-game-evidence'
+  | 'location-tracking-evidence'
+  | 'local-ai-and-policy-decisions'
+  | 'generated-long-term-reports'
+  | 'parent-notification-history-cache'
+  | 'assistant-child-evidence-context'
+  | 'parent-owned-storage-contents'
+  | 'provider-sync-payloads'
+  | 'support-bundles-containing-raw-child-activity'
+  | 'universal-decrypt-keys';
+
+export const GeneratedDataCustodySourceOfTruthKinds = [
+  'self',
+  'derived-from-data-classes',
+] as const satisfies readonly GeneratedDataCustodySourceOfTruthKind[];
+export const GeneratedDataCustodyAuthorities = [
+  'ocentra-account-control-plane',
+  'payment-control-plane',
+  'billing-provider',
+  'household-control-plane',
+  'ocentra-routing-service',
+  'ocentra-report-status-runtime',
+  'support-system',
+  'public-release-pipeline',
+  'child-device',
+  'parent-device',
+  'parent-owned-storage',
+  'support-export-boundary',
+] as const satisfies readonly GeneratedDataCustodyAuthority[];
+export const GeneratedDataCustodyDefaultLocations = [
+  'ocentra-account-metadata-store',
+  'ocentra-billing-metadata-store',
+  'billing-provider-customer-record',
+  'ocentra-license-update-store',
+  'household-device-registry',
+  'ocentra-household-route-store',
+  'household-setup-draft-store',
+  'ocentra-notification-route-store',
+  'ocentra-short-lived-report-status-store',
+  'ocentra-support-case-store',
+  'public-release-surface',
+  'household-profile-store',
+  'household-rule-store',
+  'household-audit-store',
+  'child-device-encrypted-journal',
+  'child-device-local-query-store',
+  'child-device-sensitive-evidence-store',
+  'child-device-location-store',
+  'child-device-local-ai-store',
+  'parent-device-report-cache',
+  'parent-device-notification-history-cache',
+  'parent-assistant-ephemeral-context',
+  'parent-owned-encrypted-storage',
+  'provider-envelope-metadata',
+  'support-export-artifact',
+  'household-key-store',
+] as const satisfies readonly GeneratedDataCustodyDefaultLocation[];
+export const GeneratedDataCustodyExposures = [
+  'none',
+  'allowed-references-only',
+  'redacted-metadata-only',
+  'minimal',
+  'derived-output-only',
+  'public',
+] as const satisfies readonly GeneratedDataCustodyExposure[];
+export const GeneratedDataCustodyOcentraHostingModes = [
+  'forbidden',
+  'allowed-metadata-only',
+  'short-lived-status-only',
+  'public-release-only',
+] as const satisfies readonly GeneratedDataCustodyOcentraHostingMode[];
+export const GeneratedDataCustodyNonClaims = [
+  'no-default-ocentra-child-activity-store',
+  'no-sqlite-truth-layer',
+  'no-provider-auto-apply',
+  'no-support-decrypt-default',
+  'no-ocentra-owned-parent-rules',
+  'no-raw-child-evidence-in-notifications',
+  'no-long-lived-hosted-reports',
+] as const satisfies readonly GeneratedDataCustodyNonClaim[];
+export const GeneratedDataCustodyClassIds = [
+  'account-identity-metadata',
+  'subscription-entitlement-metadata',
+  'billing-provider-identity-reference',
+  'license-download-update-metadata',
+  'household-device-registry',
+  'device-registration-pairing-route-metadata',
+  'setup-state-and-pairing-draft',
+  'minimal-notification-routing-metadata',
+  'short-lived-report-compiler-status',
+  'support-case-metadata',
+  'public-website-release-status',
+  'child-profile',
+  'parent-rules-and-approval-history',
+  'audit-log',
+  'evidence-journal-segments',
+  'sqlite-evidence-read-model-database',
+  'screenshots-and-screen-analysis-images',
+  'browser-url-history',
+  'network-app-game-evidence',
+  'location-tracking-evidence',
+  'local-ai-and-policy-decisions',
+  'generated-long-term-reports',
+  'parent-notification-history-cache',
+  'assistant-child-evidence-context',
+  'parent-owned-storage-contents',
+  'provider-sync-payloads',
+  'support-bundles-containing-raw-child-activity',
+  'universal-decrypt-keys',
+] as const satisfies readonly GeneratedDataCustodyClassId[];
+
+export interface GeneratedDataCustodySourceOfTruth {
+  kind: GeneratedDataCustodySourceOfTruthKind;
+  sourceClassIds: readonly GeneratedDataCustodyClassId[];
+}
+
+export interface GeneratedDataCustodyHostingPolicy {
+  ocentraHostingMode: GeneratedDataCustodyOcentraHostingMode;
+  parentOwnedStorageAllowed: boolean;
+  providerMetadataAllowed: boolean;
+  supportExportParentInitiatedOnly: boolean;
+}
+
+export interface GeneratedDataCustodySourceOfTruthRow {
+  rowId: string;
+  classId: GeneratedDataCustodyClassId;
+  classLabel: string;
+  sourceOwner: string;
+  sourceOfTruth: GeneratedDataCustodySourceOfTruth;
+  custodyAuthority: GeneratedDataCustodyAuthority;
+  defaultLocation: GeneratedDataCustodyDefaultLocation;
+  ocentraHostedByDefault: boolean;
+  mustNeverBeHostedByDefault: boolean;
+  encryptedBeforeUpload: boolean;
+  mayAppearInReports: boolean;
+  mayAppearInNotifications: boolean;
+  reportExposure: GeneratedDataCustodyExposure;
+  notificationExposure: GeneratedDataCustodyExposure;
+  rawChildEvidenceAllowed: boolean;
+  derivedUseOnly: boolean;
+  sensitive: boolean;
+  hostingPolicy: GeneratedDataCustodyHostingPolicy;
+  notes: string;
+}
+
+export interface GeneratedDataCustodySourceOfTruthContractProof {
+  schemaVersion: typeof DataCustodySourceOfTruthContractRuntime.SchemaVersion;
+  contractVersion: GeneratedParentContractSchemaVersion;
+  matrixId: string;
+  rows: readonly GeneratedDataCustodySourceOfTruthRow[];
+  allowedOcentraHostedMetadata: readonly GeneratedDataCustodyClassId[];
+  mustNeverBeHostedByDefault: readonly GeneratedDataCustodyClassId[];
+  claimSafeLanguage: readonly string[];
+  nonClaims: readonly GeneratedDataCustodyNonClaim[];
+  accountControlPlaneSeparated: boolean;
+  providerOwnedBillingIdentitySeparated: boolean;
+  ocentraIsDefaultChildDataStore: boolean;
+  providerAutoApplyClaimed: boolean;
+  supportDecryptByDefaultClaimed: boolean;
+  sqliteAsTruthLayerClaimed: boolean;
+  rawChildActivityHostedByDefaultClaimed: boolean;
+  updatedAt: string;
+}
+
+export const GeneratedDataCustodyKnownGaps = [
+__KNOWN_GAPS__
+] as const;
+
+export const GeneratedDataCustodySourceOfTruthContractProof = __PROOF_JSON__ as const satisfies GeneratedDataCustodySourceOfTruthContractProof;

@@ -1,0 +1,30 @@
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedBySourceFreshness &&
+        !row.serviceReadinessProofRequired &&
+        !row.serviceReadApiProofRequired &&
+        !row.serviceReadApiImplemented
+    ).length &&
+  readModel.blockedByCompilerDecisionCount ===
+    readModel.rows.filter(
+      (row) =>
+        row.serviceReadinessReadModelState ===
+          AppGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelStateGenerated.BlockedByCompilerDecision &&
+        !row.serviceReadinessProofRequired &&
+        !row.serviceReadApiProofRequired &&
+        !row.serviceReadApiImplemented
+    ).length;
+
+export const appGameSourceGatedPolicyPreviewTimerServiceReadinessReadModelHasNoRuntimeClaimsGenerated = (
+  readModel: TimerServiceReadinessReadModelLike
+) =>
+  !readModel.serviceRuntimeEventClaimed &&
+  !readModel.serviceReadApiImplemented &&
+  !readModel.portalUiRendered &&
+  !readModel.policyEvaluatorRuntimeClaimed &&
+  !readModel.timerRuntimeClaimed &&
+  !readModel.timerScheduled &&
+  !readModel.schedulerPersistenceRuntimeClaimed &&
+  !readModel.durableSchedulerStorageClaimed &&
+  !readModel.auditRuntimeClaimed &&
+  !readModel.durableAuditLogClaimed &&
+  !readModel.rollbackRuntimeClaimed &&
+  !readModel.rollbackExecutionClaimed &&

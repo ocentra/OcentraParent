@@ -1,0 +1,29 @@
+[package]
+name = "ocentra-browser-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-evidence = { path = "../ocentra-evidence" }
+ocentra-eventing = { path = "../ocentra-eventing" }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+serde = { version = "1.0.228", features = ["derive"] }
+
+[[test]]
+name = "unit"
+path = "tests/unit/mod.rs"
+
+[[test]]
+name = "contract"
+path = "tests/contract/mod.rs"
+
+[[test]]
+name = "browser_generated_social"
+path = "tests/contract/browser_generated_social.rs"

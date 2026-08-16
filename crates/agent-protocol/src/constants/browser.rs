@@ -37,6 +37,160 @@ pub const CUSTODY_PARENT_OWNED_EXPORT: &str = "parent-owned-export";
 pub const CUSTODY_UNAVAILABLE: &str = "unavailable";
 pub const EVIDENCE_ID_PREFIX: &str = "browser-evidence-";
 pub const EVENT_ID_PREFIX: &str = "activity-browser-url-observed-";
+pub const EVENT_SCHEMA_VERSION: u16 = 1;
+pub const EVENT_BROWSER_EVIDENCE_OBSERVED: &str = "browser.evidence.observed";
+pub const EVENT_BROWSER_EVIDENCE_JOURNALED: &str = "browser.evidence.journaled";
+pub const EVENT_BROWSER_AI_ANALYSIS_REQUESTED: &str =
+    super::child_domain_runtime::BROWSER_AI_ANALYSIS_REQUESTED_EVENT_TYPE;
+pub const EVENT_BROWSER_AI_ANALYSIS_COMPLETED: &str = "browser.ai.analysis.completed";
+pub const EVENT_BROWSER_POLICY_EVALUATION_REQUESTED: &str =
+    super::child_domain_runtime::BROWSER_POLICY_EVALUATION_REQUESTED_EVENT_TYPE;
+pub const EVENT_BROWSER_POLICY_DECISION_COMPLETED: &str = "browser.policy.decision.completed";
+pub const EVENT_BROWSER_ACTION_INTENT_STATUS_REQUESTED: &str =
+    "browser.action-intent.status.requested";
+pub const EVENT_BROWSER_ACTION_INTENT_HANDOFF_REQUESTED: &str =
+    "browser.action-intent.handoff.requested";
+pub const EVENT_BROWSER_RUNTIME_STREAM_REPORT_REQUESTED: &str =
+    "browser.runtime.stream.report.requested";
+pub const EVENT_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_REQUESTED: &str =
+    "browser.social.provider-receipt.status.requested";
+pub const EVENT_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_REQUESTED: &str =
+    "browser.social.report-writer-delivery.status.requested";
+pub const EVENT_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_REQUESTED: &str =
+    "browser.social.parent-notification-delivery.status.requested";
+pub const EVENT_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_REQUESTED: &str =
+    "browser.social.alert-report.parent-surface.status.requested";
+pub const EVENT_BROWSER_INTERVENTION_COMMAND_ISSUED: &str = "browser.intervention.command.issued";
+pub const EVENT_BROWSER_INTERVENTION_RESULT_OBSERVED: &str = "browser.intervention.result.observed";
+pub const EVENT_BROWSER_AUDIT_ENTRY_COMMITTED: &str = "browser.audit.entry.committed";
+pub const EVENT_BROWSER_READ_MODEL_PROJECTED: &str = "browser.read-model.projected";
+pub const SUBSCRIBER_BROWSER_EVIDENCE_OBSERVER: &str = "browser-evidence-observer";
+pub const SUBSCRIBER_BROWSER_EVIDENCE_JOURNAL: &str = "browser-evidence-journal";
+pub const SUBSCRIBER_BROWSER_AI_REQUEST: &str = "browser-ai-request";
+pub const SUBSCRIBER_BROWSER_AI_COMPLETE: &str = "browser-ai-complete";
+pub const SUBSCRIBER_BROWSER_POLICY_REQUEST: &str = "browser-policy-request";
+pub const SUBSCRIBER_BROWSER_POLICY_DECISION: &str = "browser-policy-decision";
+pub const SUBSCRIBER_BROWSER_ACTION_INTENT_STATUS: &str = "browser-action-intent-status";
+pub const SUBSCRIBER_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-intent-handoff";
+pub const SUBSCRIBER_BROWSER_RUNTIME_STREAM_REPORT: &str = "browser-runtime-stream-report";
+pub const SUBSCRIBER_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
+    "browser-social-provider-receipt-status";
+pub const SUBSCRIBER_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS: &str =
+    "browser-social-report-writer-delivery-status";
+pub const SUBSCRIBER_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS: &str =
+    "browser-social-parent-notification-delivery-status";
+pub const SUBSCRIBER_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS: &str =
+    "browser-social-alert-report-parent-surface-status";
+pub const SUBSCRIBER_BROWSER_INTERVENTION_COMMAND: &str = "browser-intervention-command";
+pub const SUBSCRIBER_BROWSER_INTERVENTION_RESULT: &str = "browser-intervention-result";
+pub const SUBSCRIBER_BROWSER_AUDIT_ENTRY: &str = "browser-audit-entry";
+pub const SUBSCRIBER_BROWSER_READ_MODEL: &str = "browser-read-model";
+pub const TARGET_BROWSER_EVIDENCE_OBSERVER: &str = "browser-evidence-observer";
+pub const TARGET_BROWSER_EVIDENCE_JOURNAL: &str = "browser-evidence-journal";
+pub const TARGET_BROWSER_AI_ANALYZER: &str = "browser-ai-analyzer";
+pub const TARGET_BROWSER_POLICY_ENGINE: &str = "browser-policy-engine";
+pub const TARGET_BROWSER_ACTION_INTENT_STATUS: &str = "browser-action-intent-status";
+pub const TARGET_BROWSER_ACTION_INTENT_HANDOFF: &str = "browser-action-intent-handoff";
+pub const TARGET_BROWSER_RUNTIME_STREAM_REPORT: &str = "browser-runtime-stream-report";
+pub const TARGET_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS: &str =
+    "browser-social-provider-receipt-status";
+pub const TARGET_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS: &str =
+    "browser-social-report-writer-delivery-status";
+pub const TARGET_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS: &str =
+    "browser-social-parent-notification-delivery-status";
+pub const TARGET_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS: &str =
+    "browser-social-alert-report-parent-surface-status";
+pub const TARGET_BROWSER_INTERVENTION_ADAPTER: &str = "browser-intervention-adapter";
+pub const TARGET_BROWSER_AUDIT_WRITER: &str = "browser-audit-writer";
+pub const TARGET_BROWSER_READ_MODEL: &str = "browser-read-model";
+pub const RUNTIME_COMPONENT_BROWSER_SPINE: &str = "browser-event-runtime-spine";
+pub const RUNTIME_INSTANCE_LOCAL_BROWSER_RUNTIME: &str = "local-browser-runtime";
+pub const AGGREGATE_BROWSER_RUNTIME_PREFIX: &str = "browser-runtime-";
+pub const CORRELATION_BROWSER_RUNTIME_PREFIX: &str = "browser-runtime-correlation-";
+pub const IDEMPOTENCY_BROWSER_RUNTIME_PREFIX: &str = "browser-runtime-idempotency-";
+pub const IDEMPOTENCY_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
+    "browser-action-intent-status-idempotency-";
+pub const IDEMPOTENCY_BROWSER_ACTION_INTENT_HANDOFF_PREFIX: &str =
+    "browser-action-intent-handoff-idempotency-";
+pub const IDEMPOTENCY_BROWSER_RUNTIME_STREAM_REPORT_PREFIX: &str =
+    "browser-runtime-stream-report-idempotency-";
+pub const IDEMPOTENCY_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
+    "browser-social-provider-receipt-status-idempotency-";
+pub const IDEMPOTENCY_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX: &str =
+    "browser-social-report-writer-delivery-status-idempotency-";
+pub const IDEMPOTENCY_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX: &str =
+    "browser-social-parent-notification-delivery-status-idempotency-";
+pub const IDEMPOTENCY_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_PREFIX: &str =
+    "browser-social-alert-report-parent-surface-status-idempotency-";
+pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_PREFIX: &str =
+    "browser-action-intent-status-request-";
+pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_PREFIX: &str =
+    "browser-action-intent-handoff-request-";
+pub const REQUEST_BROWSER_RUNTIME_STREAM_REPORT_PREFIX: &str =
+    "browser-runtime-stream-report-request-";
+pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_PREFIX: &str =
+    "browser-social-provider-receipt-status-request-";
+pub const REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_PREFIX: &str =
+    "browser-social-report-writer-delivery-status-request-";
+pub const REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_PREFIX: &str =
+    "browser-social-parent-notification-delivery-status-request-";
+pub const REQUEST_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_PREFIX: &str =
+    "browser-social-alert-report-parent-surface-status-request-";
+pub const REQUEST_BROWSER_ACTION_INTENT_STATUS_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_ACTION_INTENT_HANDOFF_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_RUNTIME_STREAM_REPORT_TIMEOUT_MS: u64 = 250;
+pub const REQUEST_BROWSER_SOCIAL_PROVIDER_RECEIPT_STATUS_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_SOCIAL_REPORT_WRITER_DELIVERY_STATUS_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_SOCIAL_PARENT_NOTIFICATION_DELIVERY_STATUS_TIMEOUT_MS: u64 = 50;
+pub const REQUEST_BROWSER_SOCIAL_ALERT_REPORT_PARENT_SURFACE_STATUS_TIMEOUT_MS: u64 = 50;
+pub const TEST_BROWSER_RUNTIME_EVIDENCE_REF: &str = "browser-evidence-ref-test";
+pub const TEST_BROWSER_RUNTIME_JOURNAL_REF: &str = "browser-journal-ref-test";
+pub const TEST_BROWSER_RUNTIME_AI_REQUEST_REF: &str = "browser-ai-request-ref-test";
+pub const TEST_BROWSER_RUNTIME_AI_ANALYSIS_REF: &str = "browser-ai-analysis-ref-test";
+pub const TEST_BROWSER_RUNTIME_POLICY_EVALUATION_REF: &str = "browser-policy-evaluation-ref-test";
+pub const TEST_BROWSER_RUNTIME_POLICY_DECISION_REF: &str = "browser-policy-decision-ref-test";
+pub const TEST_BROWSER_RUNTIME_POLICY_PREVIEW_ID: &str = "browser-policy-preview-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_ID: &str = "browser-action-intent-test";
+pub const ACTION_INTENT_ID_PREFIX: &str = "browser-action-intent-";
+pub const ACTION_INTENT_OUTBOX_REF_PREFIX: &str = "browser-action-intent-outbox-";
+pub const ACTION_INTENT_HANDOFF_REF_PREFIX: &str = "browser-action-intent-handoff-";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_OUTBOX_REF: &str = "browser-action-intent-outbox-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_REF: &str =
+    "browser-action-intent-handoff-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_RESULT_REF: &str =
+    "browser-action-intent-durable-result-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_STORE_REF: &str =
+    "browser-action-intent-durable-store-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_READ_MODEL_REF: &str =
+    "browser-action-intent-handoff-read-model-test";
+pub const TEST_BROWSER_RUNTIME_ACTION_INTENT_HANDOFF_SUPPORT_STATUS_REF: &str =
+    "browser-action-intent-handoff-support-status-test";
+pub const ERROR_BROWSER_RUNTIME_ACTION_INTENT_DURABLE_HANDOFF: &str =
+    "browser action-intent durable handoff proof failed";
+pub const SOCIAL_PROVIDER_RECEIPT_STATE_PROVIDER_DISPATCH_REQUIRED: &str =
+    "provider-dispatch-required";
+pub const SOCIAL_PROVIDER_RECEIPT_STATE_MANUAL_REQUIRED: &str = "manual-receipt-required";
+pub const SOCIAL_PROVIDER_RECEIPT_RUNTIME_STATE_MANUAL_REQUIRED: &str = "manual-required";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_ATTEMPT_REF: &str =
+    "browser-social-provider-attempt-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_PROOF_REF: &str =
+    "browser-social-provider-receipt-proof-required-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_RESULT_REF: &str =
+    "browser-social-provider-receipt-durable-result-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE_STORE_REF: &str =
+    "browser-social-provider-receipt-durable-store-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_READ_MODEL_REF: &str =
+    "browser-social-provider-receipt-read-model-test";
+pub const TEST_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_SUPPORT_STATUS_REF: &str =
+    "browser-social-provider-receipt-support-status-test";
+pub const ERROR_BROWSER_RUNTIME_SOCIAL_PROVIDER_RECEIPT_DURABLE: &str =
+    "browser social provider receipt durable proof failed";
+pub const TEST_BROWSER_RUNTIME_INTERVENTION_COMMAND_REF: &str =
+    "browser-intervention-command-ref-test";
+pub const TEST_BROWSER_RUNTIME_INTERVENTION_RESULT_REF: &str =
+    "browser-intervention-result-ref-test";
+pub const TEST_BROWSER_RUNTIME_AUDIT_ENTRY_REF: &str = "browser-audit-entry-ref-test";
+pub const TEST_BROWSER_RUNTIME_READ_MODEL_REF: &str = "browser-read-model-ref-test";
 pub const EXACT_URL_CAPABILITY_MANAGED_EXACT_URL_AVAILABLE: &str = "managed-exact-url-available";
 pub const EXACT_URL_CAPABILITY_MANAGED_TARGET_LIST_ONLY: &str = "managed-target-list-only";
 pub const EXACT_URL_CAPABILITY_MANUAL_REQUIRED: &str = "manual-required";
@@ -169,6 +323,8 @@ pub const INVENTORY_RUNNING_STATE_RUNNING_UNKNOWN: &str = "running-unknown";
 pub const INVENTORY_RUNNING_STATE_UNKNOWN: &str = "unknown";
 pub const INVENTORY_REASON_MANAGED_TARGET_LIST_ACTIVE_TAB_UNPROVED: &str =
     "managed-target-list-active-tab-unproved";
+pub const INVENTORY_REASON_CROSS_PLATFORM_MANUAL_REQUIRED: &str =
+    "cross-platform-browser-manual-required";
 pub const INVENTORY_REASON_UNMANAGED_BROWSER_PROCESS_ONLY: &str = "unmanaged-browser-process-only";
 pub const INVENTORY_REASON_WINDOWS_BROWSER_PROCESS_UNSUPPORTED: &str =
     "windows-browser-process-unsupported";
@@ -176,11 +332,14 @@ pub const INVENTORY_REASON_WINDOWS_CHROMIUM_FORK_MANUAL_REQUIRED: &str =
     "windows-chromium-fork-manual-required";
 pub const INVENTORY_REASON_WINDOWS_MANAGED_PROFILE_REQUIRED: &str =
     "windows-managed-profile-required";
+pub const INVENTORY_REASON_WINDOWS_PACKAGE_MANUAL_REQUIRED: &str =
+    "windows-package-browser-manual-required";
 pub const INVENTORY_REASON_WINDOWS_UNSUPPORTED_LATER_ADAPTER: &str =
     "windows-unsupported-later-adapter";
 pub const INVENTORY_ROW_ID_EDGE_STABLE: &str = "browser-inventory-edge-stable";
 pub const INVENTORY_ROW_ID_MANAGED_CHROME: &str = "browser-inventory-chrome-managed";
 pub const INVENTORY_ROW_ID_PREFIX_WINDOWS: &str = "browser-inventory-windows";
+pub const INVENTORY_ROW_ID_PREFIX_PLATFORM: &str = "browser-inventory-platform";
 pub const INVENTORY_ROW_ID_UNKNOWN_BROWSER: &str = "browser-inventory-unknown-browser";
 pub const INVENTORY_ROW_ID_UNMANAGED_CHROME: &str = "browser-inventory-chrome-unmanaged";
 pub const MANAGEMENT_TIER_MANAGED: &str = "managed";
@@ -258,6 +417,7 @@ pub const PRODUCT_NAME_MICROSOFT_EDGE: &str = "Microsoft Edge";
 pub const PRODUCT_NAME_MOZILLA_FIREFOX: &str = "Mozilla Firefox";
 pub const PRODUCT_NAME_OPERA_BROWSER: &str = "Opera Browser";
 pub const PRODUCT_NAME_OPERA_GX_BROWSER: &str = "Opera GX Browser";
+pub const PRODUCT_NAME_SAFARI_BROWSER: &str = "Safari";
 pub const PRODUCT_NAME_TOR_BROWSER: &str = "Tor Browser";
 pub const PRODUCT_NAME_VIVALDI_BROWSER: &str = "Vivaldi Browser";
 pub const PROFILE_ID_DEV: &str = "managed-browser-profile-dev";
@@ -398,9 +558,28 @@ pub const DEVTOOLS_TEST_BROWSER_LIKE_PROCESS: &str = "embedded-browser-shell.exe
 pub const DEVTOOLS_TEST_BLANK_AND_INTERNAL_LIST_BODY: &str = r#"[{"id":"target-blank","type":"page","url":"about:blank","title":"Blank"},{"id":"target-internal","type":"page","url":"chrome://settings","title":"Settings"}]"#;
 pub const DEVTOOLS_TEST_EMPTY_LIST_BODY: &str = "[]";
 pub const DEVTOOLS_TEST_EXECUTABLE_PATH: &str = "browser.exe";
+pub const DEVTOOLS_TEST_EDGE_SHORTCUT_FILE_NAME: &str = "Microsoft Edge.lnk";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_APPLICATION_ID: &str = "App";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_DISPLAY_NAME: &str = "Microsoft Edge";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_NAME: &str = "Microsoft.MicrosoftEdge.Stable";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_USER_MODEL_ID: &str =
+    "Microsoft.MicrosoftEdge.Stable!App";
+pub const DEVTOOLS_TEST_EDGE_STORE_PACKAGE_MANIFEST_XML: &str = r#"<Package xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10">
+  <Identity Name="Microsoft.MicrosoftEdge.Stable" Publisher="CN=Microsoft Corporation" Version="1.0.0.0" />
+  <Properties>
+    <DisplayName>Microsoft Edge</DisplayName>
+  </Properties>
+  <Applications>
+    <Application Id="App">
+      <uap:VisualElements DisplayName="Microsoft Edge" />
+    </Application>
+  </Applications>
+</Package>"#;
 pub const DEVTOOLS_TEST_INVALID_JSON_BODY: &str = "{";
 pub const DEVTOOLS_TEST_INVALID_LIST_BODY: &str = r#"{"id":"not-array"}"#;
 pub const DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_DIR: &str = "windows-browser-inventory-test";
+pub const DEVTOOLS_TEST_WINDOWS_BROWSER_INVENTORY_SOURCE_DIR: &str =
+    "windows-browser-inventory-source-test";
 pub const DEVTOOLS_TEST_INSTALLED_BROWSER_DIR: &str = "managed-browser-discovery-test";
 pub const DEVTOOLS_TEST_UNMANAGED_PROCESS_ID: u32 = 5150;
 pub const DEVTOOLS_TEST_LIST_BODY: &str = r#"[{"id":"target-1","type":"page","url":"https://example.test/learn","title":"Example learning page"}]"#;
@@ -439,6 +618,11 @@ pub const EXECUTABLE_TOR_WINDOWS: &str = "tor.exe";
 pub const EXECUTABLE_VIVALDI_WINDOWS: &str = "vivaldi.exe";
 pub const INVENTORY_EXECUTABLE_PATH_REF_WINDOWS_REDACTED: &str =
     "windows-browser-executable-redacted";
+pub const INVENTORY_EXECUTABLE_PATH_REF_PLATFORM_REDACTED: &str =
+    "platform-browser-executable-redacted";
+pub const INVENTORY_FILE_HASH_REF_WINDOWS_REDACTED: &str = "windows-browser-file-hash-redacted";
+pub const INVENTORY_PUBLISHER_SIGNATURE_REF_WINDOWS_REDACTED: &str =
+    "windows-browser-publisher-signature-redacted";
 pub const PATH_SEGMENT_APPLICATION: &str = "Application";
 pub const PATH_SEGMENT_ARC: &str = "Arc";
 pub const PATH_SEGMENT_BRAVE_BROWSER: &str = "Brave-Browser";
@@ -472,14 +656,41 @@ pub const PATH_SEGMENT_OPERA_GX_STABLE: &str = "Opera GX Stable";
 pub const PATH_SEGMENT_OPERA_SOFTWARE: &str = "Opera Software";
 pub const PATH_SEGMENT_OPERA_STABLE: &str = "Opera Stable";
 pub const PATH_SEGMENT_PORTABLE_NORMALIZED: &str = "portable";
+pub const PATH_SEGMENT_PROGRAMS: &str = "Programs";
+pub const PATH_SEGMENT_START_MENU: &str = "Start Menu";
 pub const PATH_SEGMENT_TOR_BROWSER: &str = "Tor Browser";
 pub const PATH_SEGMENT_TOR_BROWSER_NORMALIZED: &str = "tor browser";
 pub const PATH_SEGMENT_USER_DATA: &str = "User Data";
 pub const PATH_SEGMENT_USER_DATA_NORMALIZED: &str = "user data";
 pub const PATH_SEGMENT_VIVALDI: &str = "Vivaldi";
 pub const PATH_SEGMENT_WEBVIEW_NORMALIZED: &str = "webview";
+pub const PATH_SEGMENT_WINDOWS: &str = "Windows";
 pub const PATH_SEGMENT_WINDOWS_APPS: &str = "WindowsApps";
 pub const PATH_SEGMENT_WINDOWS_APPS_NORMALIZED: &str = "windowsapps";
+pub const PACKAGE_FRAGMENT_ARC: &str = "arc";
+pub const PACKAGE_FRAGMENT_BRAVE: &str = "brave";
+pub const PACKAGE_FRAGMENT_CHROME: &str = "chrome";
+pub const PACKAGE_FRAGMENT_CHROMIUM: &str = "chromium";
+pub const PACKAGE_FRAGMENT_DUCKDUCKGO: &str = "duckduckgo";
+pub const PACKAGE_FRAGMENT_EDGE: &str = "edge";
+pub const PACKAGE_FRAGMENT_FIREFOX: &str = "firefox";
+pub const PACKAGE_FRAGMENT_MICROSOFT_EDGE: &str = "microsoftedge";
+pub const PACKAGE_FRAGMENT_OPERA: &str = "opera";
+pub const PACKAGE_FRAGMENT_TOR: &str = "tor";
+pub const PACKAGE_FRAGMENT_VIVALDI: &str = "vivaldi";
+pub const PACKAGE_SCAN_LIMIT_BROWSER_DISCOVERY: usize = 128;
+pub const SHORTCUT_LINK_FLAGS_HAS_LINK_INFO: u32 = 0x0000_0002;
+pub const SHORTCUT_LINK_FLAGS_OFFSET: usize = 0x0000_0014;
+pub const SHORTCUT_LINK_HEADER_SIZE: u32 = 0x0000_004c;
+pub const SHORTCUT_LINK_INFO_FLAGS_OFFSET: usize = 0x0000_0008;
+pub const SHORTCUT_LINK_INFO_HEADER_SIZE: u32 = 0x0000_001c;
+pub const SHORTCUT_LINK_INFO_LOCAL_BASE_PATH_FLAG: u32 = 0x0000_0001;
+pub const SHORTCUT_LINK_INFO_LOCAL_BASE_PATH_OFFSET: usize = 0x0000_0010;
+pub const SHORTCUT_LINK_INFO_MIN_SIZE: usize = 0x0000_001c;
+pub const SHORTCUT_LINK_INFO_SECTION_OFFSET: usize = 0x0000_004c;
+pub const SHORTCUT_LINK_INFO_SIZE_OFFSET: usize = 0x0000_0000;
+pub const SHORTCUT_SCAN_LIMIT_BROWSER_DISCOVERY: usize = 128;
+pub const WINDOWS_SHORTCUT_EXTENSION: &str = "lnk";
 pub const PATH_SEPARATOR_COLON: &str = ":";
 pub const PATH_SEPARATOR_FORWARD: &str = "/";
 pub const PATH_SEPARATOR_BACKSLASH: &str = "\\";

@@ -3,6 +3,7 @@ use serde::{Deserialize, Serialize};
 use crate::constants;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiProviderPrivacyMode {
     #[serde(rename = "local-only")]
     LocalOnly,
@@ -10,13 +11,12 @@ pub enum LocalAiProviderPrivacyMode {
 
 impl LocalAiProviderPrivacyMode {
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::LocalOnly => constants::local_ai_runtime::PRIVACY_MODE_LOCAL_ONLY,
-        }
+        constants::local_ai_runtime::PRIVACY_MODE_LOCAL_ONLY
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiAdapterBoundary {
     #[serde(rename = "status-only")]
     StatusOnly,
@@ -27,20 +27,19 @@ pub enum LocalAiAdapterBoundary {
 }
 
 impl LocalAiAdapterBoundary {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::local_ai_runtime::ADAPTER_BOUNDARY_STATUS_ONLY,
+        constants::local_ai_runtime::ADAPTER_BOUNDARY_LOCAL_ADAPTER_UNAVAILABLE,
+        constants::local_ai_runtime::ADAPTER_BOUNDARY_LOCAL_ADAPTER_READY,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::StatusOnly => constants::local_ai_runtime::ADAPTER_BOUNDARY_STATUS_ONLY,
-            Self::LocalAdapterUnavailable => {
-                constants::local_ai_runtime::ADAPTER_BOUNDARY_LOCAL_ADAPTER_UNAVAILABLE
-            }
-            Self::LocalAdapterReady => {
-                constants::local_ai_runtime::ADAPTER_BOUNDARY_LOCAL_ADAPTER_READY
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiExecutionState {
     #[serde(rename = "disabled")]
     Disabled,
@@ -53,17 +52,20 @@ pub enum LocalAiExecutionState {
 }
 
 impl LocalAiExecutionState {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        constants::local_ai_runtime::EXECUTION_STATE_DISABLED,
+        constants::local_ai_runtime::EXECUTION_STATE_DRY_RUN_READY,
+        constants::local_ai_runtime::EXECUTION_STATE_RUNNING,
+        constants::local_ai_runtime::EXECUTION_STATE_FAILED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Disabled => constants::local_ai_runtime::EXECUTION_STATE_DISABLED,
-            Self::DryRunReady => constants::local_ai_runtime::EXECUTION_STATE_DRY_RUN_READY,
-            Self::Running => constants::local_ai_runtime::EXECUTION_STATE_RUNNING,
-            Self::Failed => constants::local_ai_runtime::EXECUTION_STATE_FAILED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiProviderSource {
     #[serde(rename = "unavailable")]
     Unavailable,
@@ -76,19 +78,20 @@ pub enum LocalAiProviderSource {
 }
 
 impl LocalAiProviderSource {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE,
+        constants::local_ai_runtime::PROVIDER_SOURCE_LOCAL_CONFIG,
+        constants::local_ai_runtime::PROVIDER_SOURCE_LOCAL_MODEL_CACHE,
+        constants::local_ai_runtime::PROVIDER_SOURCE_OS_CAPABILITY_PROBE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Unavailable => constants::local_ai_runtime::PROVIDER_SOURCE_UNAVAILABLE,
-            Self::LocalConfig => constants::local_ai_runtime::PROVIDER_SOURCE_LOCAL_CONFIG,
-            Self::LocalModelCache => constants::local_ai_runtime::PROVIDER_SOURCE_LOCAL_MODEL_CACHE,
-            Self::OsCapabilityProbe => {
-                constants::local_ai_runtime::PROVIDER_SOURCE_OS_CAPABILITY_PROBE
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiAdapterProbeState {
     #[serde(rename = "probe-unavailable")]
     ProbeUnavailable,
@@ -99,16 +102,19 @@ pub enum LocalAiAdapterProbeState {
 }
 
 impl LocalAiAdapterProbeState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::local_ai_runtime::ADAPTER_PROBE_STATE_UNAVAILABLE,
+        constants::local_ai_runtime::ADAPTER_PROBE_STATE_READY,
+        constants::local_ai_runtime::ADAPTER_PROBE_STATE_FAILED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ProbeUnavailable => constants::local_ai_runtime::ADAPTER_PROBE_STATE_UNAVAILABLE,
-            Self::ProbeReady => constants::local_ai_runtime::ADAPTER_PROBE_STATE_READY,
-            Self::ProbeFailed => constants::local_ai_runtime::ADAPTER_PROBE_STATE_FAILED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiProviderConfigurationState {
     #[serde(rename = "local-provider-unconfigured")]
     LocalProviderUnconfigured,
@@ -119,22 +125,19 @@ pub enum LocalAiProviderConfigurationState {
 }
 
 impl LocalAiProviderConfigurationState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED,
+        constants::local_ai_runtime::PROVIDER_CONFIGURATION_CONFIGURED,
+        constants::local_ai_runtime::PROVIDER_CONFIGURATION_INVALID,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::LocalProviderUnconfigured => {
-                constants::local_ai_runtime::PROVIDER_CONFIGURATION_UNCONFIGURED
-            }
-            Self::LocalProviderConfigured => {
-                constants::local_ai_runtime::PROVIDER_CONFIGURATION_CONFIGURED
-            }
-            Self::LocalProviderConfigInvalid => {
-                constants::local_ai_runtime::PROVIDER_CONFIGURATION_INVALID
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiAdapterReadinessState {
     #[serde(rename = "adapter-not-ready")]
     AdapterNotReady,
@@ -145,13 +148,13 @@ pub enum LocalAiAdapterReadinessState {
 }
 
 impl LocalAiAdapterReadinessState {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY,
+        constants::local_ai_runtime::ADAPTER_READINESS_STATE_READY,
+        constants::local_ai_runtime::ADAPTER_READINESS_STATE_INVALID,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::AdapterNotReady => constants::local_ai_runtime::ADAPTER_READINESS_STATE_NOT_READY,
-            Self::AdapterReady => constants::local_ai_runtime::ADAPTER_READINESS_STATE_READY,
-            Self::AdapterReadinessInvalid => {
-                constants::local_ai_runtime::ADAPTER_READINESS_STATE_INVALID
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }

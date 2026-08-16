@@ -1,4 +1,4 @@
-use ocentra_parent_agent_protocol::{
+use ocentra_parent_agent_protocol::activity_capture::{
     ActivityCaptureCapabilityStatus, ActivityDomainAttributionStatus, ActivityNetworkProtocol,
     ActivityNetworkTcpState, ActivityProcessAttributionStatus,
 };

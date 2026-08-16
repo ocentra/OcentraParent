@@ -1,0 +1,30 @@
+  maxSourceAgeMs: number
+) => {
+  const observedAtMs = parseTimestampMillisGenerated(row.lastObservedAt);
+  const evaluatedAtMs = parseTimestampMillisGenerated(evaluatedAt);
+
+  if (observedAtMs === null || evaluatedAtMs === null) {
+    return false;
+  }
+
+  return Math.max(0, evaluatedAtMs - observedAtMs) <= maxSourceAgeMs;
+};
+
+export const appGameSourceFreshnessRowHasEvidenceGenerated = (row: SourceStatusRowLike) =>
+  row.rowCount === 0 || row.evidence.length > 0;
+
+export const appGameSourceFreshnessRequirementIsSatisfiedGenerated = (result: RequirementResultLike) =>
+  result.requirementState === AppGameSourceFreshnessRequirementStateGenerated.Satisfied &&
+  result.reasonCode === null &&
+  result.sourceEvidenceRefs.length > 0;
+
+export const appGameSourceFreshnessReadinessIsPolicyReadyGenerated = (readiness: SourceFreshnessReadinessLike) =>
+  readiness.policyCompileAllowed &&
+  readiness.directAdapterCallRequested === false &&
+  readiness.rawPrivateSourceRowsIncluded === false &&
+  readiness.policyEvidenceRefs.length > 0 &&
+  readiness.requirementResults.every(appGameSourceFreshnessRequirementIsSatisfiedGenerated);
+
+export const appGameSourceFreshnessRequirementFailureGenerated = (
+  row: SourceStatusRowLike,
+  evaluatedAt: unknown,

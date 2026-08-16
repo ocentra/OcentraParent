@@ -1,9 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, EnforcementPolicyDispatchReadModel, LogFieldValue, LogFields,
-    V08EnforcementProductControlSpineReadModel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::enforcement_policy_dispatch::EnforcementPolicyDispatchReadModel;
+use ocentra_parent_agent_protocol::enforcement_product_control_spine::V08EnforcementProductControlSpineReadModel;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogFields;
 
-use crate::fields::fields_from_pairs;
+use crate::{fields::fields_from_pairs, json_contract::serialize_json_string};
 
 pub(crate) fn enforcement_product_control_spine_payload(
     read_model: &V08EnforcementProductControlSpineReadModel,
@@ -23,13 +24,13 @@ pub(crate) fn enforcement_product_control_spine_payload(
         ),
         (
             constants::field::ENFORCEMENT_PRODUCT_CONTROL_SPINE_READ_MODEL,
-            LogFieldValue::String(read_model_json(read_model)),
+            read_model_json(read_model),
         ),
     ])
 }
 
-fn read_model_json(read_model: &V08EnforcementProductControlSpineReadModel) -> String {
-    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+fn read_model_json(read_model: &V08EnforcementProductControlSpineReadModel) -> LogFieldValue {
+    LogFieldValue::String(serialize_json_string(read_model).0)
 }
 
 pub(crate) fn enforcement_policy_dispatch_payload(
@@ -46,11 +47,13 @@ pub(crate) fn enforcement_policy_dispatch_payload(
         ),
         (
             constants::field::ENFORCEMENT_POLICY_DISPATCH_READ_MODEL,
-            LogFieldValue::String(policy_dispatch_read_model_json(read_model)),
+            policy_dispatch_read_model_json(read_model),
         ),
     ])
 }
 
-fn policy_dispatch_read_model_json(read_model: &EnforcementPolicyDispatchReadModel) -> String {
-    serde_json::to_string(read_model).expect(constants::error::AGENT_EVENT_SERIALIZES)
+fn policy_dispatch_read_model_json(
+    read_model: &EnforcementPolicyDispatchReadModel,
+) -> LogFieldValue {
+    LogFieldValue::String(serialize_json_string(read_model).0)
 }

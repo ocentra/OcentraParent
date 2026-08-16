@@ -1,14 +1,16 @@
 # Ocentra Parent Desktop
 
-This workspace is the production desktop shell for the parent portal. The Vite portal remains the fast HMR surface for development, while this Tauri app embeds the same built UI for desktop distribution.
+This workspace is the production desktop shell for the parent portal. The Vite portal remains the fast HMR surface for development, while this Tauri app embeds the built UI for desktop distribution and talks to the Rust parent runtime through the Tauri bridge.
 
-The desktop shell does not execute child-device capture, policy enforcement, or AI model work. It connects to the local Ocentra Parent agent through the typed portal WebSocket path and displays only the read models the service exposes.
+The desktop shell does not execute child-device capture, policy enforcement, or AI model work. It uses Rust-owned bridge commands and displays only the read models and snapshots the service exposes.
 
 Parent mobile runtime proof uses the same contract boundary as a shell wrapper:
 Android and iOS package mechanics may prove launch scaffolds, but parent mobile
 remains observer/request-first, routes assistant/report work to LAN service
 providers when available, exposes stale/offline cache and parent-owned storage
-states as unavailable custody paths, and never runs local model execution by
+states as unavailable custody paths, records per-route status reasons and
+selected route state, keeps package lifecycle manual-required until real
+install/update/uninstall proof exists, and never runs local model execution by
 default.
 
 Useful commands:
@@ -19,7 +21,7 @@ cmd /c npm run tauri:dev --workspace @ocentra-parent/parent-desktop
 cmd /c npm run tauri:build --workspace @ocentra-parent/parent-desktop
 ```
 
-For parallel worker demos, keep running the lane-specific Rust agent and Vite portal ports from the hub assignment, then use the Vite URL for visual HMR validation.
+For parallel worker demos, keep running the lane-specific Rust agent and portal dev services from the hub assignment, then use the portal dev URL for visual HMR validation.
 
 ## Runtime Package Proof
 
@@ -49,6 +51,11 @@ runtime boundary used by smoke tests:
   version/commit/platform/package/service/route fields, and the platform matrix
   keeps parent desktop, Android parent mobile, iOS parent mobile, Android child
   agent, iOS child agent, signing, store, cache/storage, and relay rows split;
+- parent mobile route-status proof: Android/iOS shell rows keep local service,
+  LAN service, cloud relay, parent cache, parent-owned storage, degraded LAN AI,
+  unavailable LAN AI, package lifecycle, and observer/request-first boundaries
+  explicit without upgrading parent mobile UX, controller authority, cloud relay,
+  store signing, or child mobile agent claims;
 - port conflict policy: package/runtime proof records fixed Ocentra Parent ports
   and does not reclaim unrelated processes.
 

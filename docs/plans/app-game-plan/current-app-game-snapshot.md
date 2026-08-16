@@ -1,5 +1,27 @@
 # Current App + Game Snapshot - 2026-06-02
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `Current App + Game Snapshot - 2026-06-02`
+> Kind: current snapshot; read for status/gap claims.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
+## Current code-first correction - 2026-08-15
+
+The authoritative current snapshot is [CODE_AUDIT.md](CODE_AUDIT.md): 220/220
+workpacks are mapped, 170 have no bounded Phase 1 writing gap, and 50 still
+need production code or expected tests. The June narrative below preserves
+historical implementation sequencing and removed TypeScript-owner references;
+it must not override the current tracked-source audit.
+
 ## Product Claim Boundary
 
 Current source proves a scoped app/game evidence and enforcement path. It does
@@ -12,6 +34,22 @@ Proved today:
   authority schemas now exist as TypeScript contract proof.
 - App/game layered identity and identity-merge schemas now exist as TypeScript
   contract proof.
+- Rust protocol parity now mirrors the app/game evidence claim, AI digest
+  reference, AI classification digest, layered identity, and identity-merge
+  shapes from `packages/activity-domain` with serialization proof.
+- Rust protocol parity now also mirrors the parent-domain app/game approval
+  authority/action-result, platform authority matrix, and AI classifier result
+  boundary shapes with serialization proof and no live adapter claim.
+- App/game journal/SQLite ingest now stores and projects the newly mirrored
+  evidence claim, identity, approval authority, approval action-result,
+  platform authority matrix, and AI classifier result protocol rows through
+  staged encrypted-journal replay with no-use, manual-required, and
+  AI-cannot-enforce rejection guards.
+- App/game service read models now preserve refs for those staged
+  evidence-claim, identity, approval authority/action-result, platform
+  authority matrix, and AI classifier result rows in the existing app-use/games
+  evidence vectors, without adding live classifier execution, policy
+  consumption, dedicated portal rows, or adapter execution.
 - App/game inventory evidence rows now exist as TypeScript contract proof with
   source, custody, category candidates, stale/permission-limited states, and
   no-use guards.
@@ -61,6 +99,21 @@ Proved today:
   through typed app-use and games activity-surface DTOs with product,
   classification, inventory, runtime, foreground, capability, last-observed,
   source-count, and evidence-ref fields.
+- A real `sysinfo` live process snapshot source now feeds runtime-only app/game
+  rows through core encrypted-journal replay, SQLite projection, and the
+  service activity-capture journal/store path.
+- The service startup activity-capture path now repeats bounded live process
+  capture on a protocol-owned cadence, and focused proof shows two capture
+  cycles append two queryable app/game runtime rows while foreground stays
+  unclaimed.
+- A live active-window foreground source now feeds app/game foreground records
+  and journal events through core encrypted-journal replay and SQLite
+  projection with opaque window/title refs, without title/content capture,
+  service capture, policy, or adapter claims.
+- The service activity-capture path can now append that app/game foreground
+  event on the same bounded cadence when the active-window source is available,
+  proving optional foreground rows through the existing journal/store/read-model
+  path without content, policy, adapter, or platform support claims.
 - Native game budget policy contracts now provide dry-run proof for known-game
   counts, launcher-only exclusion, parent-approved launcher-game candidate
   inclusion, advisory rating/UGC/multiplayer/purchase signals, and
@@ -125,15 +178,15 @@ Not proved today:
   launcher manifest crawling.
 - Live Microsoft Store/UWP/AppX/MSIX package enumeration, Store API integration,
   install approval, purchase approval, or package-wide blocking.
-- Live Windows process polling, process start/exit subscription, executable
-  metadata collection, publisher/signature/hash collection, or portal runtime
-  dashboard rows for the new WP08 contract. Journal replay and service
-  read-model exposure are currently staged fixture proof, not live source
-  wiring.
-- Live Windows foreground-window polling, active-window subscription, or portal
-  foreground dashboard rows for the new WP09 contract. Journal replay and
-  service read-model exposure are currently staged fixture proof, not live
-  source wiring.
+- Live Windows process start/exit subscription, executable metadata collection,
+  publisher/signature/hash collection, or portal runtime dashboard rows for the
+  new WP08 contract. Bounded live process polling now feeds the service
+  journal/store path, but richer source subscriptions and metadata crawling
+  remain gaps.
+- Subscribed foreground transition events or dedicated portal foreground source
+  rows for the WP09 contract. Core foreground-source proof and bounded service
+  capture now exist, but subscription-style transitions and portal rendering are
+  not wired.
 - Product-complete native game catalog, live launcher disambiguation, and live
   game budget product behavior beyond WP18 dry-run contract proof.
 - Runtime app/game policy target evaluation beyond WP19 dry-run contract proof.
@@ -144,9 +197,11 @@ Not proved today:
 - Live category/risk classification, catalog enrichment, policy compiler
   routing, service/read-model parity, and portal category/risk rows for the new
   WP12 contract.
-- Live AI classifier provider execution, model quality, runtime service events,
-  policy evaluator consumption, portal classifier rows, and adapter enforcement
-  for the WP24 classifier boundary.
+- Live AI classifier provider execution, model quality, runtime classifier
+  service events, policy evaluator consumption, portal classifier rows, and
+  adapter enforcement for the WP24 classifier boundary. WP31 stores/projections
+  staged classifier result rows, and WP38 carries their refs through app-use/
+  games evidence vectors; neither executes a provider or feeds policy.
 - Broad app/game blocking outside scoped owned-process proof.
 - Broad-blocking gate contracts now make no-claim/manual-required platform
   requirements explicit, but they do not implement AppLocker/App Control, MDM,
@@ -186,9 +241,9 @@ app/game contract stack from this plan:
 
 - launcher evidence live source adapters beyond the staged launcher row/parser
   proof;
-- foreground evidence rows beyond the staged foreground-window parser proof,
-  including live capture, encrypted journal-file replay, and portal foreground
-  rows;
+- foreground evidence rows beyond the staged foreground-window parser, core
+  active-window source proof, and bounded service capture bridge, including
+  dedicated portal foreground rows;
 - runtime-fed native app and native game category quality beyond the WP12
   category/risk taxonomy contract proof;
 - rating, UGC, multiplayer, and purchase signals;
@@ -229,16 +284,17 @@ proof that broad app/game blocking works.
 `crates/agent-core` currently has SQLite-backed app/game observation and
 deterministic sessionization helpers, typed Windows installed-record and
 Store/UWP package adapter/parser proof, staged Windows process runtime parser
-proof, staged Windows foreground-window parser proof, staged Windows launcher
-evidence parser proof, and scoped Windows owned-process time-limit helpers.
+proof, staged Windows foreground-window parser proof, core live active-window
+foreground source proof, staged Windows launcher evidence parser proof, and
+scoped Windows owned-process time-limit helpers.
 This is a strong base for workpacks 11, 12, 13, 14, and 21, but it is not the same
 as:
 
 - live Windows installed app inventory crawling;
 - live UWP/AppX package inventory enumeration;
 - live Windows process runtime polling or subscribed process start/exit events;
-- live Windows foreground-window polling or subscribed foreground transition
-  events;
+- subscribed foreground transition events and dedicated portal foreground source
+  rows;
 - live launcher manifest adapters;
 - dedicated portal dashboard rendering for replayed app/game rows;
 - foreground app evidence adapters;
@@ -277,22 +333,35 @@ Missing portal states include:
 - Runtime evidence contracts and Rust runtime-row parity are present, a staged
   Windows process runtime parser proof exists, staged journal/SQLite replay
   proof now projects running-now rows, and service activity-surface read models
-  now expose typed runtime state, but live process capture, executable metadata
-  crawling, and dedicated portal runtime rows are not implemented yet.
+  now expose typed runtime state. Bounded live process capture now refreshes
+  that same service path, but executable metadata crawling, richer
+  subscriptions, and dedicated portal runtime rows are not implemented yet.
 - Foreground evidence contracts and Rust foreground-row parity are present, a
-  staged Windows foreground-window parser proof exists, staged journal/SQLite
-  replay proof now projects foreground-now rows, and service activity-surface
-  read models now expose typed foreground state, but live foreground capture,
-  dedicated portal foreground rows, and content-aware claims are not
-  implemented.
-- Rust protocol parity has not yet mirrored the WP01 evidence claim, AI digest,
-  app/game control authority schemas, WP04 identity schemas, or WP24
-  parent-domain classifier boundary.
+  staged Windows foreground-window parser proof exists, core live active-window
+  source proof now emits foreground rows and journal events with opaque
+  window/title refs, journal/SQLite replay now projects foreground-now rows, the
+  bounded service capture bridge can append optional foreground rows, and
+  service activity-surface read models expose typed foreground state. Dedicated
+  portal foreground rows, subscribed foreground transitions, and content-aware
+  claims are not implemented.
+- Rust protocol parity now mirrors the WP01 evidence claim, AI digest
+  reference/classification digest, WP04 identity/identity-merge shapes, the
+  app/game control authority/action-result schemas, the platform authority
+  matrix, and the WP24 parent-domain classifier boundary. WP31 adds staged
+  journal/SQLite storage and read-model projection for evidence claim,
+  identity, authority, action-result, platform authority matrix, and classifier
+  result rows. WP38 carries those staged row refs through existing app-use/games
+  service read-model evidence vectors. Live source subscriptions, classifier
+  execution, dedicated classifier service events, policy runtime, portal
+  authority/classifier rows, and adapter execution remain incomplete.
 - Journal and SQLite ingest now covers staged app/game inventory, runtime,
-  foreground, launcher, and daily rollup rows, and the service now maps those
-  rows into app-use and games activity-surface read models. It does not yet
-  store the WP01 evidence-claim or authority proof shapes, and it is not yet
-  wired to live source subscriptions or dedicated portal dashboard rows.
+  foreground, launcher, daily rollup, evidence-claim, identity, approval
+  authority, approval action-result, platform authority matrix, and AI
+  classifier result rows. The service still maps only the established app-use
+  and games activity-surface rows, but those rows now retain staged
+  authority/classifier storage refs in their evidence vectors. The new
+  authority/classifier rows are not yet wired to live source subscriptions,
+  dedicated service events, policy consumers, or portal dashboard rows.
 - Portal App/Game Sessions dashboard rows now consume the app-use and games
   activity-surface DTOs through a shared dashboard intent, but approval,
   policy, game-budget, live source, and platform-authority surfaces remain
@@ -349,7 +418,8 @@ Missing portal states include:
 - WP02/WP03 reconcile routing and snapshot docs only. They do not change product
   checklist status and do not claim runtime completion.
 - WP04 adds TypeScript identity model proof only. It does not add runtime
-  identity merge, inventory adapters, Rust parity, or portal identity rows.
+  identity merge, inventory adapters, or portal identity rows. Rust parity for
+  the WP04 identity shapes is covered by WP29.
 - WP05 adds TypeScript inventory evidence row proof only. It does not add
   platform adapters, journal ingest, Rust parity, or portal inventory rows.
 - WP06 adds Rust inventory-row parity and a typed Windows installed inventory
@@ -429,10 +499,79 @@ Missing portal states include:
   uninstall, and tamper candidate rows. It does not add store integration,
   approval UI, platform adapter execution, uninstall blocking, or anti-tamper
   behavior.
-- Next implementation work should either add dedicated portal dashboard
-  consumption of the service rows, live Windows inventory source readers, or
-  mirror the remaining WP01/WP04 TypeScript shapes into Rust protocol before
-  service/runtime consumers depend on them.
+- WP29 adds Rust protocol parity for the activity-domain WP01 evidence claim,
+  AI digest reference/classification digest, and WP04 identity/identity-merge
+  shapes. It does not add service storage, journal/SQLite ingest for those
+  shapes, live adapters, portal identity rows, policy runtime, or product
+  status movement.
+- WP30 adds Rust protocol parity for parent-domain app/game approval authority,
+  approval request/decision/action result, platform authority matrix, and
+  WP24 classifier result boundary shapes. It does not add service storage,
+  live classifier/provider execution, policy evaluator consumption, portal
+  authority/classifier rows, adapter execution, or product status movement.
+- WP31 adds staged encrypted-journal and SQLite read-model projection for the
+  newly mirrored evidence claim, identity, approval authority/action result,
+  platform authority matrix, and classifier result protocol rows. It does not
+  add live source adapters, live classifier/provider execution, dedicated
+  service events, portal authority/classifier rows, policy evaluator
+  consumption, adapter execution, or product status movement.
+- WP32 adds a real `sysinfo` process snapshot source in `agent-core` that reads
+  the current local process table into app/game runtime records, hashes
+  executable paths into opaque refs, and preserves runtime-only/no-foreground
+  boundaries. It does not add journal subscription, service events, portal
+  source freshness, policy consumption, or adapter execution.
+- WP33 adds a core bridge from live process snapshots into app/game runtime
+  journal events, encrypted-journal replay, and SQLite read-model rows. It does
+  not add service polling/subscription, portal source freshness, foreground
+  capture, policy consumption, or adapter execution.
+- WP34 wires those bounded live process app/game runtime journal events into the
+  existing `agent-service` activity-capture journal/store path, proves the
+  service store projects a runtime row into the app/game read model, and keeps
+  recurring polling, foreground source, portal freshness, policy, and adapter
+  execution out of scope.
+- WP35 adds a recurring bounded service capture cadence for that same live
+  process journal bridge and proves two capture cycles refresh app/game runtime
+  rows through the existing journal/store/read-model path without foreground,
+  policy, or adapter claims.
+- WP36 adds a core live active-window foreground source that maps foreground
+  metadata into foreground rows and journal events with opaque window/title refs,
+  while leaving service capture, portal UI, policy, and adapters out of scope.
+- WP37 wires that foreground source into the bounded service capture event list,
+  proving optional foreground rows through the existing journal/store/read-model
+  path while leaving portal UI, policy, adapters, and platform support out of
+  scope.
+- WP38 carries staged evidence-claim, identity, approval authority/action-result,
+  platform authority matrix, and AI classifier result row refs through the
+  existing service app-use/games evidence vectors. It does not add live
+  classifier/provider execution, dedicated authority/classifier service events,
+  policy consumption, portal rows, adapter execution, or product status
+  movement.
+- WP39 adds explicit staged boundary row counts for evidence claim, identity,
+  approval authority/action-result, platform authority matrix/rows, and AI
+  classifier result rows to the existing service app-use/games read-model
+  payloads. It does not add live classifier/provider execution, dedicated
+  authority/classifier event streams, policy consumption, portal rows, adapter
+  execution, or product status movement.
+- WP40 adds a dedicated app/game boundary read-model command/event and payload
+  parser for staged evidence-claim, identity, approval authority/action-result,
+  platform authority matrix/rows, and AI classifier result counts plus citation
+  refs. It does not add portal rows, policy consumption, live provider
+  execution, adapter execution, or product status movement.
+- WP41 adds a bounded core live Windows shortcut inventory source that reads
+  Start Menu `.lnk` entries from provided or platform-discovered roots, hashes
+  path-derived source and desktop-entry refs, and replays inventory-only journal
+  events into SQLite rows. It does not add registry crawling, Store package
+  enumeration, service capture, portal source freshness, policy consumption, or
+  adapter execution.
+- WP42 wires that live Windows shortcut inventory source into the bounded
+  service activity-capture event list, proving inventory-only rows through the
+  existing encrypted journal/store/read-model path while leaving registry
+  crawling, Store package enumeration, portal source freshness, policy
+  consumption, adapters, and platform support out of scope.
+- Next implementation work should either add portal rows for the newly projected
+  boundary event, polish portal source freshness states, add policy/runtime
+  consumers for those protocol structs, or expand live inventory source coverage
+  only with no-claim proof gates.
 
 ## Enhancement Rule
 

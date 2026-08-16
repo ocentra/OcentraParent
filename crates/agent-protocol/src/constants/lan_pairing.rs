@@ -2,16 +2,22 @@ pub const COMMAND_PROOF_SUBMIT: &str = "agent.lan-pairing.proof.submit";
 pub const COMMAND_ROUTE_SELECT: &str = "agent.lan-pairing.route.select";
 pub const COMMAND_ROUTE_REVOKE: &str = "agent.lan-pairing.route.revoke";
 pub const COMMAND_STATUS_GET: &str = "agent.lan-pairing.status.get";
+pub const COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET: &str = "agent.lan.runtime.event-chain.stream.get";
 pub const COMMAND_BROWSER_DISCOVERY_SCAN: &str = "agent.lan-pairing.browser-discovery.scan";
 pub const COMMAND_ADD_DEVICE_REQUEST: &str = "agent.lan-pairing.add-device.request";
+pub const COMMAND_SIGNED_CHILD_AGENT_OBSERVE: &str = "agent.lan-pairing.signed-child-agent.observe";
 pub const COMMAND_CONTROLLER_LEASE_RENEW: &str = "agent.lan-pairing.controller-lease.renew";
 pub const COMMAND_CONTROLLER_LEASE_RELEASE: &str = "agent.lan-pairing.controller-lease.release";
 pub const COMMAND_CONTROLLER_LEASE_TAKEOVER: &str = "agent.lan-pairing.controller-lease.takeover";
 pub const COMMAND_LAN_AI_PROVIDER_STATUS_GET: &str = "agent.lan-ai.provider.status.get";
 pub const COMMAND_LAN_AI_JOB_SUBMIT: &str = "agent.lan-ai.job.submit";
+pub const LAN_WEBSOCKET_COMMAND_MAX_BYTES: usize = 65_536;
 pub const EVENT_STATUS_REPORTED: &str = "agent.lan-pairing.status.reported";
+pub const EVENT_RUNTIME_EVENT_CHAIN_STREAM_REPORTED: &str =
+    "agent.lan.runtime.event-chain.stream.reported";
 pub const EVENT_BROWSER_DISCOVERY_REPORTED: &str = "agent.lan-pairing.browser-discovery.reported";
 pub const EVENT_ADD_DEVICE_REPORTED: &str = "agent.lan-pairing.add-device.reported";
+pub const EVENT_SIGNED_CHILD_AGENT_REPORTED: &str = "agent.lan-pairing.signed-child-agent.reported";
 pub const EVENT_AUDIT_REPORTED: &str = "agent.lan-pairing.audit.reported";
 pub const EVENT_LAN_AI_JOB_REPORTED: &str = "agent.lan-ai.job.reported";
 pub const DEVICE_ROLES_ENV: &str = "OCENTRA_PARENT_DEVICE_ROLES";
@@ -19,14 +25,22 @@ pub const DEVICE_SURFACE_ENV: &str = "OCENTRA_PARENT_DEVICE_SURFACE";
 pub const LAN_AI_PROVIDER_OPT_IN_ENV: &str = "OCENTRA_PARENT_LAN_AI_PROVIDER_OPT_IN";
 pub const LAN_AI_PROVIDER_BUSY_ENV: &str = "OCENTRA_PARENT_LAN_AI_PROVIDER_BUSY";
 pub const LAN_AI_PROVIDER_CAPABILITIES_ENV: &str = "OCENTRA_PARENT_LAN_AI_PROVIDER_CAPABILITIES";
+pub const LAN_ALLOW_WSD_IDENTITY_QUERY_ENV: &str = "OCENTRA_PARENT_LAN_ALLOW_WSD_IDENTITY_QUERY";
+pub const LAN_ALLOW_SNMP_IDENTITY_QUERY_ENV: &str = "OCENTRA_PARENT_LAN_ALLOW_SNMP_IDENTITY_QUERY";
 pub const LOCAL_CHILD_DEVICE_ID_ENV: &str = "OCENTRA_PARENT_AGENT_LAN_CHILD_DEVICE_ID";
+pub const SIGNED_CHILD_AGENT_PARENT_DEVICE_ID_ENV: &str =
+    "OCENTRA_PARENT_AGENT_LAN_PARENT_DEVICE_ID";
+pub const SIGNED_CHILD_AGENT_FAMILY_HASH_ENV: &str = "OCENTRA_PARENT_AGENT_LAN_FAMILY_HASH";
+pub const SIGNED_CHILD_AGENT_ROUTE_ID_ENV: &str = "OCENTRA_PARENT_AGENT_LAN_ROUTE_ID";
 pub const SUPPORTED_WEBSOCKET_COMMANDS: &[&str] = &[
     COMMAND_PROOF_SUBMIT,
     COMMAND_ROUTE_SELECT,
     COMMAND_ROUTE_REVOKE,
     COMMAND_STATUS_GET,
+    COMMAND_RUNTIME_EVENT_CHAIN_STREAM_GET,
     COMMAND_BROWSER_DISCOVERY_SCAN,
     COMMAND_ADD_DEVICE_REQUEST,
+    COMMAND_SIGNED_CHILD_AGENT_OBSERVE,
     COMMAND_CONTROLLER_LEASE_RENEW,
     COMMAND_CONTROLLER_LEASE_RELEASE,
     COMMAND_CONTROLLER_LEASE_TAKEOVER,
@@ -107,8 +121,29 @@ pub const SECOND_CHILD_DEVICE_ID: &str = "child-device-2";
 pub const LOCAL_AGENT_DEVICE_ID: &str = "local-dev-agent";
 pub const LOCAL_AGENT_LABEL: &str = "local-dev-agent";
 pub const LOCAL_AGENT_STATUS: &str = "ocentra-local-service";
+pub const SERVICE_IDENTITY_PROBE_AGENT_STATUS: &str = "ocentra-service-identity-probe";
 pub const LAN_SCAN_SOURCE_LOCAL_SERVICE: &str = "local-service";
+pub const LAN_SCAN_SOURCE_SERVICE_IDENTITY_PROBE: &str = "service-identity-probe";
+pub const LAN_SCAN_SOURCE_ALLOWED_SNMP_RESPONSE: &str = "allowed-snmp-response";
+pub const LAN_SCAN_SOURCE_MDNS_DNS_SD: &str = "mdns-dns-sd";
+pub const LAN_SCAN_SOURCE_SSDP_UPNP: &str = "ssdp-upnp";
 pub const LAN_SCAN_SOURCE_WINDOWS_NEIGHBOR: &str = "windows-neighbor-table";
+pub const LAN_SCAN_SOURCE_LINUX_PROC_NET_ARP: &str = "linux-proc-net-arp";
+pub const LAN_SCAN_SOURCE_LINUX_IP_NEIGH: &str = "linux-ip-neigh";
+pub const LAN_SCAN_SOURCE_MACOS_ARP: &str = "macos-arp";
+pub const LAN_SCAN_SOURCE_PREVIOUS_SCAN_SNAPSHOT: &str = "previous-scan-snapshot";
+pub const LAN_SCAN_SOURCE_DNS_CACHE: &str = "dns-cache";
+pub const LAN_SCAN_SOURCE_NETBIOS: &str = "netbios";
+pub const LAN_SCAN_SOURCE_LLMNR: &str = "llmnr";
+pub const PASSIVE_DISCOVERY_RUNTIME_STARTED_SUMMARY: &str = "passive discovery runtime started";
+pub const PASSIVE_DISCOVERY_HEARTBEAT_LOST_SUMMARY: &str = "provider heartbeat lost";
+pub const PASSIVE_DISCOVERY_INTERFACE_DOWN_PREFIX: &str = "network interface down: ";
+pub const PASSIVE_DISCOVERY_INTERFACE_UP_PREFIX: &str = "network interface up: ";
+pub const PASSIVE_DISCOVERY_WIFI_SSID_CHANGED_PREFIX: &str = "wifi ssid changed: ";
+pub const PASSIVE_DISCOVERY_IP_ADDRESS_CHANGED_PREFIX: &str = "ip address changed: ";
+pub const PASSIVE_DISCOVERY_DEFAULT_GATEWAY_CHANGED_PREFIX: &str = "default gateway changed: ";
+pub const PASSIVE_DISCOVERY_VALUE_CHANGE_SEPARATOR: &str = " -> ";
+pub const PASSIVE_DISCOVERY_NONE: &str = "none";
 pub const TEST_LAN_IP: &str = "192.168.2.42";
 pub const TEST_LAN_MAC: &str = "54-27-1e-97-c3-31";
 pub const TEST_ROUTER_IP: &str = "192.168.2.1";
@@ -126,14 +161,37 @@ pub const CANONICAL_DEVICE_ID_PREFIX: &str = "lan-physical-device-";
 pub const LAN_EVIDENCE_ID_PREFIX: &str = "lan-evidence-";
 pub const LAN_EVIDENCE_KEY_IP_PREFIX: &str = "ip:";
 pub const LAN_EVIDENCE_KEY_MAC_PREFIX: &str = "mac:";
+pub const LAN_EVIDENCE_KEY_VENDOR_PREFIX: &str = "vendor:";
 pub const LAN_EVIDENCE_KEY_HOSTNAME_PREFIX: &str = "hostname:";
+pub const LAN_EVIDENCE_KEY_DNS_CACHE_PREFIX: &str = "dns-cache:";
+pub const LAN_EVIDENCE_KEY_NETBIOS_PREFIX: &str = "netbios:";
+pub const LAN_EVIDENCE_KEY_LLMNR_PREFIX: &str = "llmnr:";
 pub const LAN_EVIDENCE_KEY_INTERFACE_PREFIX: &str = "interface:";
 pub const LAN_EVIDENCE_KEY_AGENT_PREFIX: &str = "agent:";
 pub const LAN_EVIDENCE_KEY_TRUSTED_PREFIX: &str = "trusted:";
 pub const LAN_EVIDENCE_KEY_ROUTE_PREFIX: &str = "route:";
 pub const LAN_EVIDENCE_KEY_ROUTER_PREFIX: &str = "router:";
+pub const LAN_EVIDENCE_KEY_PREVIOUS_SCAN_PREFIX: &str = "previous-scan:";
 pub const LAN_EVIDENCE_KEY_PARENT_DECISION_PREFIX: &str = "parent-decision:";
+pub const LAN_EVIDENCE_KEY_SERVICE_PROBE_PREFIX: &str = "service-probe:";
+pub const LAN_PREVIOUS_SCAN_CONTINUITY_VALUE: &str = "historical-identity-continuity";
+pub const LAN_PREVIOUS_SCAN_CONTINUITY_NOTE: &str =
+    "previous scan continuity hint informed current LAN identity fields";
+pub const LAN_SERVICE_PROBE_HINT_NOTE: &str =
+    "service probe is a low-authority hint and does not confirm child-agent identity";
+pub const LAN_VENDOR_UNKNOWN_PREFIX_NOTE: &str =
+    "vendor prefix is not present in the current local OUI catalog";
+pub const LAN_VENDOR_LOCAL_ADMINISTERED_NOTE: &str =
+    "locally administered MAC may be randomized/private and cannot raise identity confidence";
+pub const LAN_VENDOR_REJECT_MULTICAST_NOTE: &str =
+    "multicast or broadcast MAC is rejected as a device identity key";
+pub const LAN_VENDOR_REJECT_MALFORMED_NOTE: &str =
+    "malformed MAC is rejected as a device identity key";
+pub const LAN_PREVIOUS_SCAN_AGENT_TRUTH_REUSE_WINDOW_SECONDS: i64 = 600;
+pub const LAN_ACTIVE_IPV4_SWEEP_MAX_HOSTS: u32 = 254;
+pub const LAN_ACTIVE_IPV4_SWEEP_MAX_CONCURRENCY: usize = 24;
 pub const REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS: &str = "householdDeviceDecisions";
+pub const REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES: &str = "knownHouseholdDevices";
 pub const HOUSEHOLD_ACTION_ID_FIELD: &str = "householdActionId";
 pub const HOUSEHOLD_ACTION_KIND_FIELD: &str = "householdActionKind";
 pub const HOUSEHOLD_DECISION_ACTION_KIND_FIELD: &str = "actionKind";
@@ -144,6 +202,7 @@ pub const HOUSEHOLD_ACTION_REVOKED_AT_FIELD: &str = "revokedAt";
 pub const HOUSEHOLD_ACTION_ASSIGN: &str = "assign";
 pub const HOUSEHOLD_ACTION_RENAME: &str = "rename";
 pub const HOUSEHOLD_ACTION_IGNORE: &str = "ignore";
+pub const HOUSEHOLD_ACTION_REVOKE: &str = "revoke";
 pub const HOUSEHOLD_ACTION_RESTORE: &str = "restore";
 pub const HOUSEHOLD_ACTION_TRUST: &str = "trust";
 pub const HOUSEHOLD_DEVICE_KIND_MOBILE: &str = "mobile";
@@ -191,8 +250,13 @@ pub const SIGNED_DISCOVERY_RELAY_ADAPTER_SIGNED_CHILD_AGENT_HELLO: &str =
     "signed-child-agent-hello";
 pub const SIGNED_DISCOVERY_RELAY_CUSTODY_NO_CHILD_DATA: &str = "no-ocentra-child-data-custody";
 pub const SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_CUSTODY: &str = "selected-route-custody";
+pub const SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_STALE: &str =
+    "stale-selected-device-rejected";
+pub const SIGNED_DISCOVERY_RELAY_ROUTE_CHECK_SELECTED_OFFLINE: &str =
+    "offline-selected-device-rejected";
 pub const PRODUCTION_PROOF_CAPABILITY_SIGNED_HELLO: &str = "signed-lan-hello";
 pub const PRODUCTION_PROOF_CAPABILITY_SIGNED_HEARTBEAT: &str = "signed-lan-heartbeat";
+pub const SIGNED_CHILD_AGENT_SIGNATURE_ALGORITHM_ED25519: &str = "ed25519";
 pub const PRODUCTION_PROOF_CAPABILITY_PASSIVE_NEIGHBOR: &str = "passive-neighbor-discovery";
 pub const PRODUCTION_PROOF_CAPABILITY_ROUTER_NEIGHBOR: &str = "router-neighbor-discovery";
 pub const PRODUCTION_PROOF_CAPABILITY_MDNS: &str = "mdns-name-discovery";
@@ -215,10 +279,8 @@ pub const PRODUCTION_PROOF_CAPABILITY_STORE_SIGNING: &str = "store-signing";
 pub const PRODUCTION_PROOF_STATE_CI_MECHANICAL: &str = "ci-mechanical-proof";
 pub const PRODUCTION_PROOF_STATE_MANUAL_REQUIRED: &str = "manual-required";
 pub const PRODUCTION_PROOF_STATE_NOT_IMPLEMENTED: &str = "not-implemented";
-pub const PRODUCTION_PROOF_LABEL_SIGNED_HELLO: &str =
-    "signed LAN hello is manual-required until a second installed child agent signs a family-scoped hello";
-pub const PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT: &str =
-    "signed LAN heartbeat is manual-required until a second installed child agent emits a signed heartbeat";
+pub const PRODUCTION_PROOF_LABEL_SIGNED_HELLO: &str = "signed LAN hello is manual-required until a second installed child agent signs a family-scoped hello";
+pub const PRODUCTION_PROOF_LABEL_SIGNED_HEARTBEAT: &str = "signed LAN heartbeat is manual-required until a second installed child agent emits a signed heartbeat";
 pub const PRODUCTION_PROOF_LABEL_PASSIVE_NEIGHBOR: &str =
     "Windows neighbor table scan feeds passive LAN evidence into the read model";
 pub const PRODUCTION_PROOF_LABEL_ROUTER_NEIGHBOR: &str =
@@ -257,10 +319,8 @@ pub const PRODUCTION_PROOF_LABEL_IOS_PARITY: &str =
     "iOS child-agent parity is manual-required until entitlement and device artifacts exist";
 pub const PRODUCTION_PROOF_LABEL_STORE_SIGNING: &str =
     "store signing remains manual-required until signing and store artifacts exist";
-pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HELLO: &str =
-    "Attach signed hello payload, nonce, signature, family hash, route id, and service log from a second physical child agent.";
-pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HEARTBEAT: &str =
-    "Attach signed heartbeat payload, expiry/replay evidence, route id, and service log from a second physical child agent.";
+pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HELLO: &str = "Attach signed hello payload, nonce, signature, family hash, route id, and service log from a second physical child agent.";
+pub const PRODUCTION_PROOF_ARTIFACT_SIGNED_HEARTBEAT: &str = "Attach signed heartbeat payload, expiry/replay evidence, route id, and service log from a second physical child agent.";
 pub const PRODUCTION_PROOF_ARTIFACT_MDNS: &str =
     "Attach captured mDNS/DNS-SD discovery packet or parser fixture from the household LAN.";
 pub const PRODUCTION_PROOF_ARTIFACT_SSDP: &str =
@@ -273,22 +333,16 @@ pub const PRODUCTION_PROOF_ARTIFACT_ANDROID_PARITY: &str =
     "Attach real Android child-agent device proof, permissions, package, and transport artifacts.";
 pub const PRODUCTION_PROOF_ARTIFACT_IOS_PARITY: &str =
     "Attach real iOS entitlement, device, package, and transport artifacts.";
-pub const PRODUCTION_PROOF_ARTIFACT_STORE_SIGNING: &str =
-    "Attach signing, Play/TestFlight/App Store, installer, and checksum artifacts before release claims.";
+pub const PRODUCTION_PROOF_ARTIFACT_STORE_SIGNING: &str = "Attach signing, Play/TestFlight/App Store, installer, and checksum artifacts before release claims.";
 pub const PRODUCTION_PROOF_CLAIM_PASSIVE_NEIGHBOR: &str =
     "passive Windows neighbor evidence is represented in typed LAN read-model state";
-pub const PRODUCTION_PROOF_CLAIM_REGISTRY_ROUTE: &str =
-    "trusted registry, route custody, stale/offline, and parent decisions are represented in typed LAN read-model state";
-pub const PRODUCTION_PROOF_NON_CLAIM_PHYSICAL: &str =
-    "physical household LAN readiness remains manual-required until two physical child-agent hosts and router/firewall artifacts are attached";
-pub const PRODUCTION_PROOF_NON_CLAIM_SIGNED: &str =
-    "signed LAN hello and heartbeat remain manual-required until a second installed child agent signs them";
+pub const PRODUCTION_PROOF_CLAIM_REGISTRY_ROUTE: &str = "trusted registry, route custody, stale/offline, and parent decisions are represented in typed LAN read-model state";
+pub const PRODUCTION_PROOF_NON_CLAIM_PHYSICAL: &str = "physical household LAN readiness remains manual-required until two physical child-agent hosts and router/firewall artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_SIGNED: &str = "signed LAN hello and heartbeat remain manual-required until a second installed child agent signs them";
 pub const PRODUCTION_PROOF_NON_CLAIM_CLOUD: &str =
     "cloud relay routing storage and authentication are not implemented in this LAN proof";
-pub const PRODUCTION_PROOF_NON_CLAIM_ANDROID: &str =
-    "Android child-agent parity remains manual-required until real device permission and transport artifacts are attached";
-pub const PRODUCTION_PROOF_NON_CLAIM_IOS: &str =
-    "iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_ANDROID: &str = "Android child-agent parity remains manual-required until real device permission and transport artifacts are attached";
+pub const PRODUCTION_PROOF_NON_CLAIM_IOS: &str = "iOS child-agent parity remains manual-required until entitlement device and transport artifacts are attached";
 pub const PRODUCTION_PROOF_NON_CLAIM_STORE: &str =
     "store signing remains manual-required until signing store and release artifacts are attached";
 pub const SIGNED_DISCOVERY_RELAY_NON_CLAIM_PARENT_STORAGE: &str =
@@ -299,18 +353,13 @@ pub const LAN_SOURCE_MATRIX_CLAIM_WEAK_SOURCES: &str =
     "weak LAN discovery sources cannot confirm child identity or assign child profiles";
 pub const LAN_SOURCE_MATRIX_NON_CLAIM_PACKET_MODE: &str =
     "packet-mode ARP sweep and passive listeners remain gated until packet driver artifacts exist";
-pub const LAN_SOURCE_MATRIX_NON_CLAIM_PHYSICAL: &str =
-    "physical household LAN completion remains manual-required until real two-host proof is attached";
-pub const LAN_SOURCE_MATRIX_NON_CLAIM_MDNS_SSDP: &str =
-    "mDNS/SSDP advertisement and responder behavior remains manual-required until fixtures and LAN captures exist";
-pub const LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE: &str =
-    "Attach packet-driver or controlled packet IO proof with selected interface, subnet cap, timing, and malformed packet fixtures.";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_PHYSICAL: &str = "physical household LAN completion remains manual-required until real two-host proof is attached";
+pub const LAN_SOURCE_MATRIX_NON_CLAIM_MDNS_SSDP: &str = "mDNS/SSDP advertisement and responder behavior remains manual-required until fixtures and LAN captures exist";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PACKET_MODE: &str = "Attach packet-driver or controlled packet IO proof with selected interface, subnet cap, timing, and malformed packet fixtures.";
 pub const LAN_SOURCE_MATRIX_ARTIFACT_MDNS_SSDP: &str =
     "Attach mDNS/DNS-SD and SSDP/UPnP fixtures or LAN captures with sanitized host/service names.";
-pub const LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD: &str =
-    "Attach signed child-agent hello and heartbeat payloads with nonce, family hash, route id, and replay rejection logs.";
-pub const LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL: &str =
-    "Attach two physical child-agent host proof, router/firewall reachability, screenshots, and generated proof JSON.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_SIGNED_CHILD: &str = "Attach signed child-agent hello and heartbeat payloads with nonce, family hash, route id, and replay rejection logs.";
+pub const LAN_SOURCE_MATRIX_ARTIFACT_PHYSICAL: &str = "Attach two physical child-agent host proof, router/firewall reachability, screenshots, and generated proof JSON.";
 pub const LAN_SOURCE_MATRIX_TITLE_01: &str = "Contract boundary and Effect schemas";
 pub const LAN_SOURCE_MATRIX_TITLE_02: &str = "Evidence model and device record";
 pub const LAN_SOURCE_MATRIX_TITLE_03: &str = "Interface detection";
@@ -331,12 +380,46 @@ pub const LAN_SOURCE_MATRIX_TITLE_17: &str = "Parent and child mDNS advertisemen
 pub const LAN_SOURCE_MATRIX_TITLE_18: &str = "Signed child hello and heartbeat";
 pub const LAN_SOURCE_MATRIX_TITLE_19: &str = "Assignment, revocation, and audit";
 pub const LAN_SOURCE_MATRIX_TITLE_20: &str = "Proof gates, fixtures, and rollout";
+pub const LAN_SOURCE_MATRIX_TITLE_21: &str = "Rust-Owned Contract Boundary And Domain Schemas";
+pub const LAN_SOURCE_MATRIX_TITLE_22: &str = "Current State And Gap Map";
+pub const LAN_SOURCE_MATRIX_TITLE_23: &str = "Pairing And Route Proof";
+pub const LAN_SOURCE_MATRIX_TITLE_24: &str = "Portal UX And First-Run Handoff";
+pub const LAN_SOURCE_MATRIX_TITLE_25: &str = "Rollout Checklist And PR Gate";
 pub const LAN_SOURCE_MATRIX_WORKPACK_ID_SIGNED_CHILD_HELLO: &str = "18";
+pub const MDNS_PARENT_SERVICE_TYPE: &str = "_ocentra-parent._tcp.local";
+pub const MDNS_CHILD_SERVICE_TYPE: &str = "_ocentra-agent._tcp.local";
+pub const MDNS_TXT_KEY_SCHEMA_VERSION: &str = "schema-version";
+pub const MDNS_TXT_KEY_PROTOCOL_VERSION: &str = "protocol-version";
+pub const MDNS_TXT_KEY_FAMILY_HASH: &str = "family-hash";
+pub const MDNS_TXT_KEY_PAIRING_STATE: &str = "pairing-state";
+pub const MDNS_TXT_KEY_LIFECYCLE_STATE: &str = "lifecycle-state";
+pub const MDNS_TXT_KEY_SUPPORT_STATE: &str = "support-state";
+pub const MDNS_TXT_KEY_CONFIRMATION_STATE: &str = "confirmation-state";
+pub const MDNS_TXT_KEY_OPAQUE_DEVICE_ID: &str = "opaque-device-id";
+pub const MDNS_TXT_KEY_PLATFORM: &str = "platform";
+pub const MDNS_TXT_KEY_AGENT_VERSION: &str = "agent-version";
+pub const MDNS_TXT_KEY_FIELD: &str = "lan.mdns_txt_key";
+pub const MDNS_TXT_VALUE_FIELD: &str = "lan.mdns_txt_value";
+pub const MDNS_ADVERTISEMENT_ID_FIELD: &str = "lan.mdns_advertisement_id";
+pub const MDNS_PROTOCOL_VERSION_FIELD: &str = "lan.mdns_protocol_version";
+pub const MDNS_FAMILY_HASH_FIELD: &str = "lan.mdns_family_hash";
+pub const MDNS_OPAQUE_DEVICE_ID_FIELD: &str = "lan.mdns_opaque_device_id";
+pub const MDNS_PLATFORM_FIELD: &str = "lan.mdns_platform";
+pub const MDNS_AGENT_VERSION_FIELD: &str = "lan.mdns_agent_version";
+pub const MDNS_TXT_VALUE_HINT_ONLY: &str = "hint-only";
+pub const MDNS_TXT_VALUE_SUPPORTED: &str = "supported";
+pub const MDNS_TXT_VALUE_DEGRADED: &str = "degraded";
+pub const MDNS_TXT_VALUE_UNSUPPORTED_PLATFORM: &str = "unsupported-platform";
+pub const MDNS_TXT_VALUE_START: &str = "start";
+pub const MDNS_TXT_VALUE_UPDATE: &str = "update";
+pub const MDNS_TXT_VALUE_STOP: &str = "stop";
 pub const NETWORK_NEIGHBOR_LABEL_PREFIX: &str = "LAN ";
 pub const NETWORK_NEIGHBOR_UNKNOWN_HOSTNAME: &str = "unknown-host";
 pub const PLATFORM_UNKNOWN: &str = "unknown";
 pub const PLATFORM_ROUTER: &str = "router";
 pub const PLATFORM_WINDOWS: &str = "windows";
+pub const PLATFORM_LINUX: &str = "linux";
+pub const PLATFORM_MACOS: &str = "macos";
 pub const CHILD_AGENT_CAPABILITY_DIRECT_WEBSOCKET: &str = "direct-websocket";
 pub const CHILD_AGENT_CAPABILITY_DEVICE_INVENTORY: &str = "device-inventory";
 pub const CHILD_AGENT_CAPABILITY_PAIRING_ROUTE: &str = "pairing-route";
@@ -354,11 +437,28 @@ pub const POWERSHELL_NO_PROFILE_ARG: &str = "-NoProfile";
 pub const POWERSHELL_EXECUTION_POLICY_ARG: &str = "-ExecutionPolicy";
 pub const POWERSHELL_BYPASS_ARG: &str = "Bypass";
 pub const POWERSHELL_COMMAND_ARG: &str = "-Command";
-pub const POWERSHELL_LAN_NEIGHBOR_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; $cache = @{}; try { Get-DnsClientCache | Where-Object { $_.Data -match '^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$' -and $_.Entry } | ForEach-Object { $cache[$_.Data] = $_.Entry } } catch {}; Get-NetNeighbor -AddressFamily IPv4 | Where-Object { $_.IPAddress -and $_.LinkLayerAddress } | ForEach-Object { [pscustomobject]@{ IPAddress = $_.IPAddress; LinkLayerAddress = $_.LinkLayerAddress; State = $_.State; InterfaceAlias = $_.InterfaceAlias; Hostname = $cache[$_.IPAddress] } } | ConvertTo-Json -Compress";
-pub const POWERSHELL_LOCAL_NETWORK_IDENTITY_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-NetIPConfiguration | Where-Object { $_.IPv4Address -and $_.NetAdapter.Status -eq 'Up' -and $_.InterfaceAlias -notlike 'vEthernet*' -and $_.InterfaceAlias -notlike 'Loopback*' } | ForEach-Object { [pscustomobject]@{ IPAddress = $_.IPv4Address.IPAddress; InterfaceAlias = $_.InterfaceAlias; MacAddress = $_.NetAdapter.MacAddress } } | Select-Object -First 1 | ConvertTo-Json -Compress";
+pub const POWERSHELL_LAN_NEIGHBOR_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; $cache = @{}; try { Get-DnsClientCache | Where-Object { $_.Data -match '^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$' -and $_.Entry } | ForEach-Object { $cache[$_.Data] = $_.Entry } } catch {}; Get-NetNeighbor -AddressFamily IPv4,IPv6 | Where-Object { $_.IPAddress -and $_.LinkLayerAddress } | ForEach-Object { [pscustomobject]@{ IPAddress = $_.IPAddress; LinkLayerAddress = $_.LinkLayerAddress; State = $_.State; InterfaceAlias = $_.InterfaceAlias; Hostname = $cache[$_.IPAddress] } } | ConvertTo-Json -Compress";
+pub const POWERSHELL_LOCAL_NETWORK_IDENTITY_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; $configs = Get-CimInstance Win32_NetworkAdapterConfiguration | Where-Object { $_.IPEnabled }; $profiles = @{}; try { Get-NetConnectionProfile | ForEach-Object { if ($_.InterfaceAlias -and $_.Name) { $profiles[$_.InterfaceAlias] = $_.Name } } } catch {}; Get-NetIPConfiguration | Where-Object { $_.IPv4Address -and $_.NetAdapter.Status -eq 'Up' } | ForEach-Object { $ipv4 = $_.IPv4Address | Select-Object -First 1; $gateway = $_.IPv4DefaultGateway | Select-Object -First 1; $ipv6Prefixes = @($_.IPv6Address | Where-Object { $_.IPAddress -and $_.PrefixLength -and $_.IPAddress -notlike 'fe80*' } | ForEach-Object { \"$($_.IPAddress)/$($_.PrefixLength)\" }); $config = $configs | Where-Object { $_.IPAddress -contains $ipv4.IPAddress } | Select-Object -First 1; $wifiSsid = $null; if ($_.InterfaceAlias -match '(?i)wi-?fi|wlan|wireless') { $wifiSsid = $profiles[$_.InterfaceAlias] }; [pscustomobject]@{ IPAddress = $ipv4.IPAddress; PrefixLength = $ipv4.PrefixLength; InterfaceAlias = $_.InterfaceAlias; MacAddress = $_.NetAdapter.MacAddress; DefaultGateway = $gateway.NextHop; WifiSsid = $wifiSsid; DnsServers = @($config.DNSServerSearchOrder | Where-Object { $_ }); DhcpServer = $config.DHCPServer; Ipv6Prefixes = $ipv6Prefixes } } | ConvertTo-Json -Compress";
 pub const POWERSHELL_CPU_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-CimInstance Win32_Processor | Select-Object -First 1 Name,NumberOfCores,NumberOfLogicalProcessors | ConvertTo-Json -Compress";
 pub const POWERSHELL_GPU_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-CimInstance Win32_VideoController | Select-Object Name,DriverVersion,AdapterRAM | ConvertTo-Json -Compress";
 pub const POWERSHELL_COMPUTER_SYSTEM_COMMAND: &str = "[Console]::OutputEncoding=[Text.UTF8Encoding]::UTF8; Get-CimInstance Win32_ComputerSystem | Select-Object TotalPhysicalMemory,Manufacturer,Model,Name | ConvertTo-Json -Compress";
+pub const LAN_NETWORK_INVENTORY_COMMAND_TIMEOUT_MS: u64 = 3000;
+pub const IP_EXE: &str = "ip";
+pub const IP_JSON_ARG: &str = "-j";
+pub const IP_ADDR_ARG: &str = "addr";
+pub const IP_NEIGH_ARG: &str = "neigh";
+pub const IP_ROUTE_ARG: &str = "route";
+pub const IP_SHOW_ARG: &str = "show";
+pub const IP_UP_ARG: &str = "up";
+pub const IP_DEFAULT_ARG: &str = "default";
+pub const REGISTRY_FILE_DEFAULT_SEGMENT: &str = "default";
+pub const LINUX_PROC_NET_ARP_PATH: &str = "/proc/net/arp";
+pub const LINUX_RESOLV_CONF_PATH: &str = "/etc/resolv.conf";
+pub const PING_EXE: &str = "ping";
+pub const PING_WINDOWS_COUNT_ARG: &str = "-n";
+pub const PING_WINDOWS_TIMEOUT_ARG: &str = "-w";
+pub const PING_LINUX_COUNT_ARG: &str = "-c";
+pub const PING_LINUX_TIMEOUT_ARG: &str = "-W";
 pub const NBTSTAT_EXE: &str = "nbtstat";
 pub const NBTSTAT_CACHE_ARG: &str = "-c";
 pub const NBTSTAT_ADAPTER_STATUS_ARG: &str = "-A";
@@ -373,8 +473,26 @@ pub const HARDWARE_VALUE_SEPARATOR: &str = " | ";
 pub const JSON_KEY_IP_ADDRESS: &str = "IPAddress";
 pub const JSON_KEY_LINK_LAYER_ADDRESS: &str = "LinkLayerAddress";
 pub const JSON_KEY_STATE: &str = "State";
+pub const JSON_KEY_DST: &str = "dst";
+pub const JSON_KEY_DEV: &str = "dev";
+pub const JSON_KEY_LLADDR: &str = "lladdr";
+pub const JSON_KEY_LOWER_STATE: &str = "state";
+pub const JSON_KEY_IFNAME: &str = "ifname";
+pub const JSON_KEY_ADDRESS: &str = "address";
+pub const JSON_KEY_ADDR_INFO: &str = "addr_info";
+pub const JSON_KEY_LOCAL: &str = "local";
+pub const JSON_KEY_FAMILY: &str = "family";
+pub const JSON_KEY_SCOPE: &str = "scope";
+pub const JSON_KEY_GATEWAY: &str = "gateway";
+pub const JSON_KEY_PREFIXLEN: &str = "prefixlen";
 pub const JSON_KEY_INTERFACE_ALIAS: &str = "InterfaceAlias";
 pub const JSON_KEY_HOSTNAME: &str = "Hostname";
+pub const JSON_KEY_DEFAULT_GATEWAY: &str = "DefaultGateway";
+pub const JSON_KEY_DNS_SERVERS: &str = "DnsServers";
+pub const JSON_KEY_DHCP_SERVER: &str = "DhcpServer";
+pub const JSON_KEY_IPV6_PREFIXES: &str = "Ipv6Prefixes";
+pub const JSON_KEY_WIFI_SSID: &str = "WifiSsid";
+pub const JSON_KEY_PREFIX_LENGTH: &str = "PrefixLength";
 pub const JSON_KEY_NAME: &str = "Name";
 pub const JSON_KEY_NUMBER_OF_CORES: &str = "NumberOfCores";
 pub const JSON_KEY_NUMBER_OF_LOGICAL_PROCESSORS: &str = "NumberOfLogicalProcessors";
@@ -394,6 +512,13 @@ pub const WINDOWS_NEIGHBOR_STATE_STALE_NUMBER: &str = "4";
 pub const WINDOWS_NEIGHBOR_STATE_REACHABLE: &str = "reachable";
 pub const WINDOWS_NEIGHBOR_STATE_PERMANENT: &str = "permanent";
 pub const WINDOWS_NEIGHBOR_STATE_STALE: &str = "stale";
+pub const LINUX_NEIGHBOR_STATE_REACHABLE: &str = "reachable";
+pub const LINUX_NEIGHBOR_STATE_PERMANENT: &str = "permanent";
+pub const LINUX_NEIGHBOR_STATE_STALE: &str = "stale";
+pub const LINUX_NEIGHBOR_STATE_DELAY: &str = "delay";
+pub const LINUX_NEIGHBOR_STATE_PROBE: &str = "probe";
+pub const LINUX_NEIGHBOR_STATE_FAILED: &str = "failed";
+pub const LINUX_NEIGHBOR_STATE_INCOMPLETE: &str = "incomplete";
 pub const CPU_CORES_LABEL: &str = " cores";
 pub const CPU_LOGICAL_SEPARATOR: &str = " / ";
 pub const CPU_LOGICAL_LABEL: &str = " logical";
@@ -430,6 +555,9 @@ pub const OBSERVER_RULE_QUERY_INTENT_ID: &str = "intent-observer-rule-query";
 pub const OBSERVER_RULE_UPDATE_INTENT_ID: &str = "intent-observer-rule-update";
 pub const OLD_CONTROLLER_AFTER_TAKEOVER_INTENT_ID: &str = "intent-old-controller-after-takeover";
 pub const LAN_AI_JOB_ID: &str = "lan-ai-job-1";
+pub const LAN_AI_CLAIM_ID_PREFIX: &str = "lan-ai-claim-";
+pub const LAN_AI_LEASE_ID_PREFIX: &str = "lan-ai-lease-";
+pub const LAN_AI_MAX_LEASE_ATTEMPTS: usize = 3;
 pub const SELECT_INTENT_ID: &str = "intent-select-1";
 pub const SECOND_SELECT_INTENT_ID: &str = "intent-select-2";
 pub const SELECT_BACK_INTENT_ID: &str = "intent-select-back";
@@ -446,6 +574,7 @@ pub const EXPIRED_AT: &str = "2026-05-23T14:39:00.000Z";
 pub const CONTROLLER_LEASE_EXPIRES_AT: &str = "2099-05-23T14:44:00.000Z";
 pub const CONTROLLER_LEASE_EXPIRED_AT: &str = "2026-05-23T14:38:00.000Z";
 pub const OBSERVED_AT: &str = "2026-05-23T14:41:00.000Z";
+pub const REGISTRY_FILE_STEM_FALLBACK: &str = "lan-pairing-registry";
 pub const REGISTRY_FILE_PREFIX: &str = "ocentra-parent-lan-registry-";
 pub const REGISTRY_FILE_EXTENSION: &str = "json";
 pub const RAW_MARKER_ACTIVITY_SQLITE: &str = "activity.sqlite";

@@ -1,0 +1,31 @@
+
+const gameTargetKinds = new Set<AppGamePolicyTargetKindValue>([
+  AppGamePolicyTargetKind.SpecificGame,
+  AppGamePolicyTargetKind.LauncherGameId,
+  AppGamePolicyTargetKind.StoreGameId,
+  AppGamePolicyTargetKind.GameCategory,
+  AppGamePolicyTargetKind.UnknownGame,
+  AppGamePolicyTargetKind.NewGame,
+  AppGamePolicyTargetKind.LauncherGameCandidate,
+  AppGamePolicyTargetKind.MultiplayerGame,
+  AppGamePolicyTargetKind.UgcGame,
+  AppGamePolicyTargetKind.PurchaseCapableGame,
+  AppGamePolicyTargetKind.MatureGame,
+  AppGamePolicyTargetKind.AllGames,
+]);
+
+export const appGamePolicyPreviewTargetDomainForKindGenerated = (targetKind: AppGamePolicyTargetKindValue) =>
+  gameTargetKinds.has(targetKind)
+    ? AppGamePolicyPreviewTargetDomainGenerated.NativeGame
+    : AppGamePolicyPreviewTargetDomainGenerated.NativeApp;
+
+export function appGamePolicyPreviewStatusForOutcomeGenerated(
+  outcomeState: AppGamePolicyCompilerOutcomeStateValue
+): AppGamePolicyPreviewStatusValue {
+  switch (outcomeState) {
+    case AppGamePolicyCompilerOutcomeState.DryRunReady:
+      return AppGamePolicyPreviewStatusGenerated.PreviewReady;
+    case AppGamePolicyCompilerOutcomeState.ManualRequired:
+      return AppGamePolicyPreviewStatusGenerated.ManualRequired;
+    case AppGamePolicyCompilerOutcomeState.Rejected:
+      return AppGamePolicyPreviewStatusGenerated.Rejected;

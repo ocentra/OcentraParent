@@ -1,5 +1,20 @@
 # V0.5 Social Platform Account Feed And Gating Plan
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `browser-plan`
+> Doc: `V0.5 Social Platform Account Feed And Gating Plan`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This document defines the browser-plan-owned social media control and detection
 path. It belongs in this folder when the source surface is a managed browser,
 browser URL/page/video evidence, unmanaged browser bypass, or browser policy
@@ -1229,7 +1244,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   surface hints and distinguishes dynamic feeds, short-video feed surfaces, and
   exact single-short-video routes. It rejects feed content semantics,
   recommendation semantics, message content, AI decisions, policy decisions,
-  native app control, connector access, and enforcement. Package subpath exports are now present; no feed content parser,
+  native app control, connector access, and enforcement. The live proof now
+  drives Playwright against real public Reddit, Twitch, TikTok, Instagram, and
+  YouTube Shorts routes, persists screenshots plus redacted URL/title hashes,
+  and parses the route-only captures through the classifier without storing page
+  body, DOM, feed content, messages, credentials, or recommendation semantics.
+  Package subpath exports are now present; no feed content parser,
   recommender analysis, policy evaluator, runtime gate, UI, native app support,
   connector, or enforcement is claimed.
 - SOCIAL-09 now adds bounded video/social metadata extractor contracts in
@@ -1239,7 +1259,11 @@ worker messages before code changes. Do not mix all 24 into one PR.
   category, and restriction signals. Metadata can be available, partial, or
   manual-required, while page body capture, transcript text, message content,
   feed content semantics, content semantics, AI decisions, policy decisions,
-  native app control, connector access, and enforcement are rejected. Package subpath exports are now present; no network
+  native app control, connector access, and enforcement are rejected. The live
+  proof now captures real public YouTube Shorts, Vimeo, Reddit, and Instagram
+  route surfaces, persists screenshots plus redacted URL/title/meta hashes, and
+  parses bounded refs through the extractor without storing raw title text, meta
+  values, page body, DOM, transcript text, or feed content. Package subpath exports are now present; no network
   fetcher, transcript parser, feed content parser, AI analysis, policy
   evaluator, runtime gate, UI, native app support, connector, or enforcement is
   claimed.
@@ -1253,7 +1277,10 @@ worker messages before code changes. Do not mix all 24 into one PR.
   page, feed, message, transcript, screenshot, native, and connector state;
   results reject final policy actions, enforcement, raw model text/content
   storage, native app control, connector claims, and inconsistent degraded
-  states. Package subpath exports are now present; no AI model execution, runtime provider selection, SOCIAL-11
+  states. The live-evidence proof consumes SOCIAL-09 public social/video
+  metadata proof refs and emits degraded `model-unavailable` input/result rows
+  without executing a model or claiming provider selection. Package subpath
+  exports are now present; no AI model execution, runtime provider selection, SOCIAL-11
   risk/benefit signal model, policy evaluator, runtime gate, UI, native app
   support, connector, or enforcement is claimed.
 - SOCIAL-11 now adds social risk/benefit signal model contracts in
@@ -1263,18 +1290,32 @@ worker messages before code changes. Do not mix all 24 into one PR.
   manual-required/unavailable states. Signal sets copy provenance from typed
   SOCIAL-10 AI analysis results while rejecting raw message/feed/page/model use,
   account identity verification claims, final policy decisions, connector/native
-  claims, and enforcement. Package subpath exports are now present; no policy compiler, runtime gate, UI, native app
+  claims, and enforcement. The live-evidence proof consumes SOCIAL-10 degraded
+  AI result refs and emits unavailable risk/benefit signal sets without
+  classifying content or claiming final policy/enforcement authority. Package subpath exports are now present; no policy compiler, runtime gate, UI, native app
   support, connector, or enforcement is claimed.
 - SOCIAL-12 now adds parent-domain social policy compiler contracts in
   `social-policy-compiler-values.ts` and `social-policy-compiler.ts`. The
-  compiler consumes parent-owned social evidence, signal-set, parent-rule, and
-  schedule refs and produces decision candidates for allow, warn, parent-review,
-  block, manual-review, or unknown outcomes. Inputs reject raw signal payloads,
+  compiler consumes parent-owned social evidence, signal-set, parent-rule,
+  schedule, and time-budget refs and produces decision candidates for allow,
+  warn, parent-review, block, manual-review, or unknown outcomes. Inputs reject raw signal payloads,
   raw model text, activity-domain object transfer, UI/runtime/enforcement,
   native app, and connector claims. Decision candidates remain non-final and
   non-enforcing while validating fallback and parent-approval reason
   requirements. Package subpath exports are now present; no runtime policy gate, UI, native app support, connector, or
   enforcement is claimed.
+- `social-policy-schedule-time-budget-proof` now makes SOCIAL-12 schedule and
+  time-budget context explicit with required refs and states for contract-only
+  candidates. Manual-required or unavailable schedule/time-budget states remain
+  non-final fallbacks; no runtime policy gate, applied schedule, applied budget,
+  browser mutation, or enforcement is claimed.
+- `social-policy-live-evidence-compiler-proof` now consumes SOCIAL-11
+  live-evidence signal refs and emits non-final SOCIAL-12 parent-domain
+  manual-review candidates. It proves the compiler boundary rejects final
+  policy, runtime gate, UI, enforcement, native app, connector, raw signal
+  payload, and raw model text claims while leaving runtime policy execution,
+  applied schedules, applied budgets, browser mutation, and enforcement
+  unclaimed.
 - SOCIAL-13 now adds managed-browser account creation gate contracts in
   `packages/activity-domain/src/browser-social-account-creation-gate.ts`. Gate
   plans require matching route-only account-flow evidence and sanitized
@@ -1296,8 +1337,13 @@ worker messages before code changes. Do not mix all 24 into one PR.
   The contracts reject browser navigation block execution, redirects, CSS/DOM
   hiding, tab closing, applied time limits, child/parent UI, final policy
   decisions, feed/video content capture, recommendation modeling, native app
-  control, connector claims, and enforcement. Package subpath exports are now present; no runtime route gate, UI, native
-  app support, connector, or enforcement is claimed.
+  control, connector claims, and enforcement. Live proof now runs
+  `scripts/test/social-feed-video-live-route-gate-proof.mjs` against real public
+  Reddit, Twitch, TikTok, Instagram, YouTube, and Vimeo surfaces, writes
+  screenshots plus redacted proof JSON, validates five route-gate candidate
+  plans through the built contracts, and records the YouTube short redirect as a
+  non-planned live capture. Package subpath exports are now present; no runtime
+  route gate, UI, native app support, connector, or enforcement is claimed.
 - SOCIAL-15 now adds unmanaged social bypass detector contracts in
   `packages/activity-domain/src/browser-social-unmanaged-bypass-detector-values.ts`
   and `packages/activity-domain/src/browser-social-unmanaged-bypass-detector.ts`.
@@ -1319,8 +1365,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   platform proof exists. It rejects native route proof, per-video/per-reel
   blocking, message content, account identity, accessibility content capture,
   device-owner enrollment, VPN content inspection, runtime adapter, connector,
-  UI, and enforcement claims. Package subpath exports are now present; no Android native app implementation, connector,
-  UI, or enforcement is claimed.
+  UI, and enforcement claims. The real host proof now records adb present, one
+  booted Android emulator, known social package-id visibility queried only, and
+  YouTube present on that emulator without persisting the raw installed package
+  list. Package subpath exports are now present; no Android native app
+  implementation, connector, UI, native route/content proof, or enforcement is
+  claimed.
 - SOCIAL-17 now adds iOS Screen Time/ManagedSettings social capability matrix
   contracts in
   `packages/parent-domain/src/social-ios-screen-time-capability-matrix-values.ts`
@@ -1348,6 +1398,12 @@ worker messages before code changes. Do not mix all 24 into one PR.
   capture, account identity verification, policy decisions, AI runtime, UI,
   native app control, connector implementation, and enforcement. Package subpath exports are now present; no
   connector runtime, token store, provider API, UI, or enforcement is claimed.
+  `social-platform-connector-authorization-proof` captures live public
+  Google/YouTube supervision, Meta Family Center, and TikTok Family Pairing
+  pages with Playwright screenshots and parses those proof refs through the
+  five-row connector boundary while keeping connector implementation, token
+  storage, OAuth, provider API calls, raw account/message/feed capture, UI
+  delivery, native app control, policy execution, and enforcement unclaimed.
 - SOCIAL-19 now adds parent-domain social decision memory-cache contracts in
   `packages/parent-domain/src/social-decision-memory-cache-values.ts` and
   `packages/parent-domain/src/social-decision-memory-cache.ts`. The initial
@@ -1362,28 +1418,39 @@ worker messages before code changes. Do not mix all 24 into one PR.
   account/video/message storage, connector data storage, UI, native app
   control, and enforcement. Package subpath exports are now present; no runtime cache, activity-domain export, UI,
   connector, native app control, policy execution, or enforcement is claimed.
+- `social-decision-memory-live-evidence-proof` now consumes SOCIAL-12
+  live-evidence policy candidate refs and emits a bounded ref-only SOCIAL-19
+  memory snapshot with account miss, video fresh-hit, and channel stale-hit
+  entries. It validates schema acceptance plus negative rejection for final
+  policy, runtime cache store, AI cache, raw content, connector data, UI,
+  native app, and enforcement claims while leaving runtime cache persistence,
+  activity-domain exports, connector/native runtime, policy execution, and
+  enforcement unclaimed.
 - SOCIAL-20 now adds parent-domain parent social dashboard UX contracts in
   `packages/parent-domain/src/social-dashboard-ux-values.ts` and
-  `packages/parent-domain/src/social-dashboard-ux.ts`. The snapshot covers
-  account approval queue, feed/video gates, native app capability, connector
-  boundaries, decision memory, and manual-required gaps as section/action/status
-  contracts. It rejects rendered portal UI, notification delivery, runtime data
-  fetch, policy decisions, native app control, connector authorization, and
-  enforcement. This row intentionally avoids apps/portal, portal-domain, and
-  text-domain rendered UI because those areas are active in other lanes. Package subpath exports are now present; no rendered
-  dashboard, UI proof, runtime fetch, notification, connector authorization, or
+  `packages/parent-domain/src/social-dashboard-ux.ts`, plus text-domain copy
+  tokens in `packages/text-domain/src/social-dashboard-ux-text.ts`. The
+  snapshot covers account approval queue, feed/video gates, native app
+  capability, connector boundaries, decision memory, settings/custody, and
+  manual-required gaps as section/action/status contracts. The real Browser
+  route now requests the service-backed social dashboard read-model and captures
+  desktop/mobile screenshots for the seven-row parent social snapshot. Package
+  subpath exports are now present; no settings mutation, notification delivery,
+  connector authorization, native app control, final policy execution, or
   enforcement is claimed.
 - SOCIAL-21 now adds parent-domain child approval/block UX contracts in
   `packages/parent-domain/src/social-child-approval-block-ux-values.ts` and
-  `packages/parent-domain/src/social-child-approval-block-ux.ts`. The snapshot
-  covers approval-request pending, blocked social route candidate, warning
-  social route candidate, manual-review required, time-limit candidate, and
-  native-app unavailable states as child-facing state/action contracts. It
-  rejects rendered child UI, notification delivery, browser navigation block
-  execution, block page rendering, applied time limits, final policy decisions,
-  connector authorization, native app control, and enforcement. Package subpath exports are now present; no rendered
-  child UI, notification, browser block page, final policy execution, connector,
-  native app control, or enforcement is claimed.
+  `packages/parent-domain/src/social-child-approval-block-ux.ts`, plus
+  text-domain copy tokens in
+  `packages/text-domain/src/social-child-approval-block-ux-text.ts`. The
+  snapshot covers approval-request pending, blocked social route candidate,
+  warning social route candidate, manual-review required, time-limit candidate,
+  and native-app unavailable states as child-facing state/action contracts. The
+  current proof maps those states into the shared child intervention renderer,
+  serves them through the Rust child-agent endpoint, and captures screenshots.
+  Package subpath exports are now present; no notification delivery, browser
+  navigation block execution, applied time limits, final policy decisions,
+  connector authorization, native app control, or enforcement is claimed.
 - SOCIAL-22 now adds parent-domain social audit/explanation read-model
   contracts in
   `packages/parent-domain/src/social-audit-explanation-read-model-values.ts`
@@ -1391,32 +1458,82 @@ worker messages before code changes. Do not mix all 24 into one PR.
   snapshot covers account approval, feed/video gate, native-app gap, connector
   boundary, decision memory, and manual-required gap rows with evidence links,
   policy refs, parent approval refs, memory refs, manual gap refs, and audit
-  refs. It rejects runtime audit store claims, rendered explanation UI,
+  refs. The Rust service now answers the social audit/explanation read-model
+  command with a schema-backed event consumed by the Browser route, and
+  desktop/mobile screenshots prove the rendered parent explanation panel.
+  Package subpath exports are now present; no logging-domain runtime store,
   notification delivery, raw account/video/message content, connector
-  authorization, native app control, final policy decisions, and enforcement.
-  Package subpath exports are now present; no
-  logging-domain runtime store, portal UI, notification, connector, native app
-  control, final policy execution, or enforcement is claimed.
+  authorization, native app control, final policy execution, or enforcement is
+  claimed.
 - SOCIAL-23 now adds `scripts/test/social-platform-account-feed-proof-artifacts.mjs`,
   a proof artifact gate that verifies SOCIAL-01 through SOCIAL-22 checklist
   ownership, proof directory references, required proof files, social workpack
   README references, and feature/expectation coverage. It emits
   `test-results/social-platform-account-feed-proof-artifacts/proof.json` and
   `output/browser-plan-proof/social-23-tests-fixtures-playwright-manual-proof/01-social-proof-artifact-manifest.md`.
-  The manifest records one scaffold-proof row and 21 partial/manual-required
-  rows. Playwright stays manual-required because no rendered social UI exists in
-  this slice. No screenshot, runtime connector, native app control, final policy
-  execution, enforcement, or product checklist claim is made.
+  The manifest records rendered parent dashboard, child intervention, and parent
+  explanation proof coverage while the overall rollout stays partial.
+  `social-source-custody-mutation-proof` now adds a Rust service WebSocket
+  command/event proof for runtime custody mutation by applying a redacted-ref
+  source custody settings snapshot. No runtime connector, native app control,
+  final policy execution, enforcement, or product checklist claim is made.
 - SOCIAL-24 now adds `scripts/test/social-platform-account-feed-rollout-gate.mjs`,
   a rollout/manual-required label gate that verifies SOCIAL-01 through SOCIAL-23
   checklist labels and required no-claim guard text. It emits
   `test-results/social-platform-account-feed-rollout-gate/proof.json` and
   `output/browser-plan-proof/social-24-rollout-manual-required-labels/01-rollout-manual-required-labels.md`.
-  The manifest records one scaffold-proof row and 22 partial/manual-required
-  rows. SOCIAL rollout state: partial/manual-required. Product checklist upgrade
-  is not claimed. No rendered social UI, Playwright screenshots,
+  SOCIAL rollout state: partial/manual-required. Product checklist upgrade is
+  not claimed. Service-backed dashboard and explanation read-model delivery plus
+  child-agent-served intervention rendering are present, including the
+  settings/custody dashboard row and runtime custody mutation proof, but
   connector/native runtime, final policy execution, enforcement, release
-  readiness, or product completion claim is made.
+  readiness, and product completion remain unclaimed.
+- `social-alert-report-intent-proof` now adds parent-domain social alert/report
+  intent contracts and focused tests for high-risk signal, account approval,
+  feed/video gate, weekly summary, manual-required, and unavailable states. It
+  links dashboard panel refs, social explanation refs, evidence refs, policy
+  refs, audit refs, optional parent report/action refs, and local-outbox refs
+  without claiming raw account/video/message content, screenshots, provider
+  delivery, report delivery, parent notification UI, final policy decisions, or
+  enforcement.
+- `social-report-writer-delivery-proof` now adds parent-domain social report
+  writer delivery-readiness contracts and focused tests. It links social report
+  intents into parent-owned report artifact and receipt rows while preserving
+  explicit non-claims for external runtime report delivery, provider dispatch,
+  provider receipt ingestion, raw social content, final policy execution, and
+  enforcement.
+- `social-applied-schedule-time-budget-proof` now adds parent-domain
+  schedule/time-budget application-readiness contracts and focused tests. It
+  links SOCIAL-12 compiler candidates into parent-owned schedule and budget
+  evaluation rows plus a runtime handoff ref while preserving explicit
+  non-claims for runtime-applied schedules, runtime time-budget application,
+  browser gate execution, final policy execution, and enforcement.
+- `social-parent-sensitivity-settings-proof` now adds parent-domain Parent sensitivity settings
+  contracts and focused tests for high-risk alerts,
+  feed/video review, account-flow review, connector data use, native-app gap
+  review, and weekly summary sensitivity rows. Contract-only policy candidate
+  input requires source/privacy refs, AI aggregate refs, dashboard refs,
+  evidence refs, schedule refs, and time-budget refs; manual/unavailable rows
+  stay out of policy input. The proof does not claim raw content custody,
+  connector API calls, runtime settings UI, final policy decisions, or
+  enforcement.
+- `social-video-source-custody-settings-proof` now adds activity-domain social
+  source custody settings contracts and focused tests for enabled redacted-ref
+  use, parent-review connector refs, disabled/manual-required/unavailable
+  source states, retention labels, and manual proof requirements. Contract-only
+  policy candidate input requires source/privacy evidence refs and enabled
+  custody state; parent-review, disabled, manual-required, and unavailable rows
+  stay out of policy input. The proof does not claim raw message/video custody,
+  screenshots, connector tokens/API calls, runtime settings UI, runtime custody
+  mutation, final policy decisions, or enforcement.
+- `social-source-custody-mutation-proof` now adds agent-protocol-domain and Rust
+  protocol/service proof for service-backed source custody mutation. The command
+  `agent.browser.social-source-custody.mutation.apply` returns
+  `agent.browser.social-source-custody.mutation.applied` with a redacted-ref
+  settings snapshot, `serviceMutationExecuted=true`, and
+  `runtimeCustodyMutationApplied=true` while preserving no raw content custody,
+  no connector API calls, no final policy decision, no enforcement, and no
+  product completion claim.
 
 ## 21. Must-Not-Claim List
 

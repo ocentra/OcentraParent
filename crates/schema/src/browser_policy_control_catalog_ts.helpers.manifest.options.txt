@@ -1,0 +1,198 @@
+function explicitOptionLabelsGenerated(sourceText: string): string[] {
+  const colonIndex = sourceText.indexOf(':');
+  if (colonIndex === -1) {
+    return [];
+  }
+  const suffix = sourceText
+    .slice(colonIndex + 1)
+    .replace(/warn\/ask/giu, 'warn, ask')
+    .replace(/\.$/u, '');
+  return uniqueGenerated(
+    suffix
+      .split(/,|;|\bor\b/u)
+      .map((part) => cleanOptionLabelGenerated(part))
+      .filter((part) => part.length > 0)
+  );
+}
+
+function numericOrDurationControlGenerated(
+  sourceText: string
+): (typeof GeneratedBrowserControlFullCatalogControlKindValues)[number] {
+  return /minutes|seconds|days/u.test(sourceText.toLowerCase()) ? 'number' : 'duration';
+}
+
+function optionsGenerated(labels: readonly string[]): BrowserControlFullCatalogOptionGenerated[] {
+  return labels.map((label) => {
+    const value = slugGenerated(label);
+    return {
+      optionId: `browser-catalog-option-${value}`,
+      label,
+      value,
+      originalSourceText: label,
+      meaning: null,
+      defaultSelected: false,
+    };
+  });
+}
+
+function ruleGenerated(description: string): BrowserControlFullCatalogRuleGenerated {
+  return {
+    ruleId: `browser-catalog-rule-${slugGenerated(description)}`,
+    description,
+  };
+}
+
+function ruleUsesExactUrlTargetGenerated(rule: BrowserControlRuleGenerated): boolean {
+  return rule.targetType === 'exact-url' || rule.target?.kind === 'exact-url';
+}
+
+function manifestSectionGenerated(
+  sectionId: string,
+  title: string,
+  description: string,
+  visibleWhen: readonly BrowserControlConditionGenerated[],
+  fields: readonly ReturnType<typeof manifestFieldGenerated>[]
+) {
+  return {
+    sectionId,
+    title,
+    description,
+    visibleWhen,
+    fields,
+  };
+}
+
+function manifestOptionGenerated(optionId: string, label: string, value: string) {
+  return {
+    optionId,
+    label,
+    value,
+    description: null,
+  };
+}
+
+function manifestOptionsGenerated(fieldId: string, values: readonly string[]) {
+  return values.map((value) => manifestOptionGenerated(`${fieldId}.${value}`, value, value));
+}
+
+function manifestConditionGenerated(
+  kind: 'equals' | 'notEquals' | 'includes',
+  writesTo: string,
+  expectedValue: BrowserControlFieldValueGenerated
+) {
+  return {
+    kind,
+    writesTo,
+    expectedValue,
+    capabilityId: null,
+    capabilityState: null,
+    defaultPosture: null,
+  };
+}
+
+function equalsManifestConditionGenerated(writesTo: string, expectedValue: BrowserControlFieldValueGenerated) {
+  return manifestConditionGenerated('equals', writesTo, expectedValue);
+}
+
+function notEqualsManifestConditionGenerated(writesTo: string, expectedValue: BrowserControlFieldValueGenerated) {
+  return manifestConditionGenerated('notEquals', writesTo, expectedValue);
+}
+
+function includesManifestConditionGenerated(writesTo: string, expectedValue: string) {
+  return manifestConditionGenerated('includes', writesTo, expectedValue);
+}
+
+function manifestFieldGenerated(
+  controlKind: string,
+  fieldId: string,
+  writesTo: string,
+  label: string,
+  defaultValue: BrowserControlFieldValueGenerated,
+  optionValues: readonly string[],
+  visibleWhen: readonly BrowserControlConditionGenerated[]
+) {
+  return {
+    fieldId,
+    label,
+    description: null,
+    controlKind,
+    writesTo,
+    defaultValue,
+    options: manifestOptionsGenerated(fieldId, optionValues),
+    visibleWhen,
+    enabledWhen: [],
+    required: true,
+  };
+}
+
+function manifestBooleanFieldGenerated(
+  fieldId: string,
+  writesTo: string,
+  label: string,
+  defaultValue: boolean,
+  visibleWhen: readonly BrowserControlConditionGenerated[]
+) {
+  return manifestFieldGenerated('boolean', fieldId, writesTo, label, defaultValue, [], visibleWhen);
+}
+
+function manifestNumberFieldGenerated(
+  fieldId: string,
+  writesTo: string,
+  label: string,
+  defaultValue: number,
+  visibleWhen: readonly BrowserControlConditionGenerated[]
+) {
+  return manifestFieldGenerated('number', fieldId, writesTo, label, defaultValue, [], visibleWhen);
+}
+
+function manifestSelectFieldGenerated(
+  fieldId: string,
+  writesTo: string,
+  label: string,
+  defaultValue: string,
+  optionValues: readonly string[],
+  visibleWhen: readonly BrowserControlConditionGenerated[]
+) {
+  return manifestFieldGenerated('single-choice', fieldId, writesTo, label, defaultValue, optionValues, visibleWhen);
+}
+
+function manifestMultiSelectFieldGenerated(
+  fieldId: string,
+  writesTo: string,
+  label: string,
+  defaultValue: readonly string[],
+  optionValues: readonly string[],
+  visibleWhen: readonly BrowserControlConditionGenerated[]
+) {
+  return manifestFieldGenerated('multi-choice', fieldId, writesTo, label, defaultValue, optionValues, visibleWhen);
+}
+
+function cleanOptionLabelGenerated(value: string): string {
+  return titleizeGenerated(value.trim().replace(/\.$/u, '').replace(/\s+/gu, ' '));
+}
+
+function titleizeGenerated(value: string): string {
+  return value
+    .split(/[\s-]+/u)
+    .filter((part) => part.length > 0)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(' ');
+}
+
+function slugGenerated(value: string): string {
+  const normalized = value
+    .toLowerCase()
+    .replace(/&/gu, ' and ')
+    .replace(/[^a-z0-9]+/gu, '-')
+    .replace(/^-+|-+$/gu, '')
+    .replace(/-{2,}/gu, '-');
+  return normalized.length > 0 ? normalized : 'option';
+}
+
+function lowerFirstGenerated(value: string): string {
+  return `${value.charAt(0).toLowerCase()}${value.slice(1)}`;
+}
+
+function uniqueGenerated(values: readonly string[]): string[] {
+  return [...new Set(values)];
+}

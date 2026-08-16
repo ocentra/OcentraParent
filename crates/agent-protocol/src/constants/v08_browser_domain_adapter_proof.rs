@@ -116,8 +116,7 @@ pub const COMMAND_UNMANAGED_BROWSER_PROOF: &str =
     "node scripts/test/windows-managed-unmanaged-browser-enforcement-proof.mjs";
 pub const COMMAND_APP_TIME_LIMIT_PROOF: &str =
     "node scripts/test/v0-8-windows-app-time-limit-adapter-mvp.mjs";
-pub const COMMAND_BROWSER_POLICY_ROLLBACK_TEST: &str =
-    "cargo test -p ocentra-parent-agent-service browser_policy_rollback_restores_earlier_persisted_revision";
+pub const COMMAND_BROWSER_POLICY_ROLLBACK_TEST: &str = "cargo test -p ocentra-parent-agent-service browser_policy_rollback_restores_earlier_persisted_revision";
 
 pub const ARTIFACT_MANAGED_BROWSER_PROOF: &str =
     "test-results/managed-browser-intervention-proof/proof.json";
@@ -125,8 +124,7 @@ pub const ARTIFACT_UNMANAGED_BROWSER_PROOF: &str =
     "test-results/windows-managed-unmanaged-browser-enforcement-proof/proof.json";
 pub const ARTIFACT_APP_TIME_LIMIT_PROOF: &str =
     "test-results/v0-8-windows-app-time-limit-adapter-mvp/proof.json";
-pub const ARTIFACT_BROWSER_POLICY_ROLLBACK_TEST: &str =
-    "crates/agent-service/src/browser_policy_api_tests.rs";
+pub const ARTIFACT_BROWSER_POLICY_ROLLBACK_TEST: &str = "crates/agent-protocol/tests/unit/mod.rs";
 pub const ARTIFACT_UNMANAGED_WARN_EVENT: &str = "unmanaged browser warning no-op service event";
 
 pub const REQUIREMENT_ACTIVE_TAB: &str = "managed active-tab evidence";
@@ -176,84 +174,49 @@ pub const REQUIREMENT_WINDOWS_APP_CONTROL_IDENTITY_FAILURE: &str =
     "policy target identity failure event";
 pub const REQUIREMENT_WINDOWS_APP_CONTROL_AUDIT_FAILURE: &str = "audit failure event";
 
-pub const CLAIM_MANAGED_INTERVENTION: &str =
-    "Managed browser intervention state is limited to the Ocentra-owned managed-session boundary and does not prove exact active-tab URL enforcement.";
-pub const CLAIM_MANAGED_EXACT_URL: &str =
-    "Managed exact URL enforcement remains manual-required because a command target string is not foreground active-tab proof.";
-pub const CLAIM_UNMANAGED_TERMINATE: &str =
-    "Unmanaged browser terminate proof is process-only with pid/name guardrails and is not exact URL, tab, title, page, download, or intent evidence.";
-pub const CLAIM_UNMANAGED_WARN: &str =
-    "Unmanaged browser warn behavior is a degraded no-op boundary until notification delivery and browser integration exist.";
-pub const CLAIM_UNMANAGED_EXACT_EVIDENCE: &str =
-    "Unmanaged browser exact URL, active tab, title, page, download source, HTTPS content, and intent evidence remain not-claimed.";
-pub const CLAIM_NETWORK_FILTER_MANUAL: &str =
-    "Network/domain blocking remains manual-required and is not proved by domain observation or browser policy records.";
-pub const CLAIM_NETWORK_ADAPTER_UNAVAILABLE: &str =
-    "The current Windows service boundary can report network/domain adapter unavailable states but does not perform host filtering.";
-pub const CLAIM_AUDIT_VISIBILITY: &str =
-    "Audit visibility is limited to existing enforcement journal and browser policy event seams; it is not proof of broad app/domain enforcement.";
-pub const CLAIM_RESTART_RECOVERY: &str =
-    "Restart recovery visibility is limited to app time-limit state recovery and cannot upgrade browser/domain blocking support.";
-pub const CLAIM_BROWSER_POLICY_ROLLBACK: &str =
-    "Browser policy rollback visibility proves stored policy revision rollback only and does not prove host-level browser/domain enforcement rollback.";
-pub const CLAIM_LINUX_ADAPTER: &str =
-    "Linux browser/domain adapter behavior is unavailable in this proof and cannot inherit Windows managed browser behavior.";
-pub const CLAIM_MACOS_ADAPTER: &str =
-    "macOS browser/domain adapter behavior is unavailable in this proof and cannot inherit Windows managed browser behavior.";
-pub const CLAIM_ANDROID_ADAPTER: &str =
-    "Android browser/domain control is manual-required and is not implied by desktop managed-browser or network-domain proof.";
-pub const CLAIM_IOS_ADAPTER: &str =
-    "iOS browser/domain control is manual-required and cannot be inferred from desktop or Android proofs.";
-pub const CLAIM_WINDOWS_APP_CONTROL_READINESS: &str =
-    "Windows AppLocker/App Control readiness can be represented only as a detect/manual setup state until host policy artifacts exist.";
-pub const CLAIM_WINDOWS_APP_CONTROL_AUDIT_ONLY: &str =
-    "Audit-only AppLocker/App Control state is visible as a readiness/audit proof state and does not block launch.";
-pub const CLAIM_WINDOWS_APP_CONTROL_ENFORCED: &str =
-    "Enforced AppLocker/App Control mode remains manual-required until real policy create/update, refresh, audit, and rollback artifacts prove launch prevention.";
-pub const CLAIM_WINDOWS_APP_CONTROL_MANUAL_REQUIRED: &str =
-    "Manual-required AppLocker/App Control setup is represented separately from unavailable and enforced states.";
-pub const CLAIM_WINDOWS_APP_CONTROL_UNAVAILABLE: &str =
-    "Unavailable AppLocker/App Control state records when the host cannot provide a policy adapter or permission path.";
-pub const CLAIM_WINDOWS_APP_CONTROL_FAILED: &str =
-    "Failed AppLocker/App Control state is parent-visible as a policy/audit failure without claiming a blocking result.";
+pub const CLAIM_MANAGED_INTERVENTION: &str = "Managed browser intervention state is limited to the Ocentra-owned managed-session boundary and does not prove exact active-tab URL enforcement.";
+pub const CLAIM_MANAGED_EXACT_URL: &str = "Managed exact URL enforcement remains manual-required because a command target string is not foreground active-tab proof.";
+pub const CLAIM_UNMANAGED_TERMINATE: &str = "Unmanaged browser terminate proof is process-only with pid/name guardrails and is not exact URL, tab, title, page, download, or intent evidence.";
+pub const CLAIM_UNMANAGED_WARN: &str = "Unmanaged browser warn behavior is a degraded no-op boundary until notification delivery and browser integration exist.";
+pub const CLAIM_UNMANAGED_EXACT_EVIDENCE: &str = "Unmanaged browser exact URL, active tab, title, page, download source, HTTPS content, and intent evidence remain not-claimed.";
+pub const CLAIM_NETWORK_FILTER_MANUAL: &str = "Network/domain blocking remains manual-required and is not proved by domain observation or browser policy records.";
+pub const CLAIM_NETWORK_ADAPTER_UNAVAILABLE: &str = "The current Windows service boundary can report network/domain adapter unavailable states but does not perform host filtering.";
+pub const CLAIM_AUDIT_VISIBILITY: &str = "Audit visibility is limited to existing enforcement journal and browser policy event seams; it is not proof of broad app/domain enforcement.";
+pub const CLAIM_RESTART_RECOVERY: &str = "Restart recovery visibility is limited to app time-limit state recovery and cannot upgrade browser/domain blocking support.";
+pub const CLAIM_BROWSER_POLICY_ROLLBACK: &str = "Browser policy rollback visibility proves stored policy revision rollback only and does not prove host-level browser/domain enforcement rollback.";
+pub const CLAIM_LINUX_ADAPTER: &str = "Linux browser/domain adapter behavior is unavailable in this proof and cannot inherit Windows managed browser behavior.";
+pub const CLAIM_MACOS_ADAPTER: &str = "macOS browser/domain adapter behavior is unavailable in this proof and cannot inherit Windows managed browser behavior.";
+pub const CLAIM_ANDROID_ADAPTER: &str = "Android browser/domain control is manual-required and is not implied by desktop managed-browser or network-domain proof.";
+pub const CLAIM_IOS_ADAPTER: &str = "iOS browser/domain control is manual-required and cannot be inferred from desktop or Android proofs.";
+pub const CLAIM_WINDOWS_APP_CONTROL_READINESS: &str = "Windows AppLocker/App Control readiness can be represented only as a detect/manual setup state until host policy artifacts exist.";
+pub const CLAIM_WINDOWS_APP_CONTROL_AUDIT_ONLY: &str = "Audit-only AppLocker/App Control state is visible as a readiness/audit proof state and does not block launch.";
+pub const CLAIM_WINDOWS_APP_CONTROL_ENFORCED: &str = "Enforced AppLocker/App Control mode remains manual-required until real policy create/update, refresh, audit, and rollback artifacts prove launch prevention.";
+pub const CLAIM_WINDOWS_APP_CONTROL_MANUAL_REQUIRED: &str = "Manual-required AppLocker/App Control setup is represented separately from unavailable and enforced states.";
+pub const CLAIM_WINDOWS_APP_CONTROL_UNAVAILABLE: &str = "Unavailable AppLocker/App Control state records when the host cannot provide a policy adapter or permission path.";
+pub const CLAIM_WINDOWS_APP_CONTROL_FAILED: &str = "Failed AppLocker/App Control state is parent-visible as a policy/audit failure without claiming a blocking result.";
 
-pub const FALLBACK_MANAGED_INTERVENTION: &str =
-    "Return manual-required when managed browser launch, active-tab, exact URL, rollback, or audit proof is missing.";
-pub const FALLBACK_MANAGED_EXACT_URL: &str =
-    "Return manual-required until live active-tab, exact URL apply, rollback, and custody artifacts exist.";
-pub const FALLBACK_UNMANAGED_TERMINATE: &str =
-    "Reject missing pid or process-name mismatch; keep URL certainty unclaimed without browser integration.";
+pub const FALLBACK_MANAGED_INTERVENTION: &str = "Return manual-required when managed browser launch, active-tab, exact URL, rollback, or audit proof is missing.";
+pub const FALLBACK_MANAGED_EXACT_URL: &str = "Return manual-required until live active-tab, exact URL apply, rollback, and custody artifacts exist.";
+pub const FALLBACK_UNMANAGED_TERMINATE: &str = "Reject missing pid or process-name mismatch; keep URL certainty unclaimed without browser integration.";
 pub const FALLBACK_UNMANAGED_WARN: &str =
     "Return a degraded no-op instead of claiming warning delivery or URL-aware browser control.";
 pub const FALLBACK_UNMANAGED_EXACT_EVIDENCE: &str =
     "Do not infer browser content from process names or command targets.";
-pub const FALLBACK_NETWORK_FILTER_MANUAL: &str =
-    "Return manual-required until host DNS/VPN/filter apply, rollback, and custody evidence exists.";
+pub const FALLBACK_NETWORK_FILTER_MANUAL: &str = "Return manual-required until host DNS/VPN/filter apply, rollback, and custody evidence exists.";
 pub const FALLBACK_NETWORK_ADAPTER_UNAVAILABLE: &str =
     "Return unavailable when the host filter adapter is absent or unsupported.";
 pub const FALLBACK_AUDIT_VISIBILITY: &str =
     "Return unavailable when the local audit store or event payload cannot be read.";
 pub const FALLBACK_RESTART_RECOVERY: &str =
     "Return unavailable when persisted timer state is missing or incompatible.";
-pub const FALLBACK_BROWSER_POLICY_ROLLBACK: &str =
-    "Return manual-required for managed exact URL, network/domain, or unmanaged browser rollback until host artifacts exist.";
-pub const FALLBACK_LINUX_ADAPTER: &str =
-    "Report unavailable until Linux-specific browser/domain apply, rollback, and audit proof exists.";
-pub const FALLBACK_MACOS_ADAPTER: &str =
-    "Report unavailable until macOS-specific browser/domain permissions, apply, rollback, and audit proof exists.";
-pub const FALLBACK_ANDROID_ADAPTER: &str =
-    "Return manual-required until real Android package, permission, VPN/DNS, device-owner, and lifecycle artifacts exist.";
-pub const FALLBACK_IOS_ADAPTER: &str =
-    "Return manual-required until approved entitlement, signing, install, and device evidence exists.";
-pub const FALLBACK_WINDOWS_APP_CONTROL_READINESS: &str =
-    "Return manual-required when edition, permission, policy provider, or identity-target proof is missing.";
-pub const FALLBACK_WINDOWS_APP_CONTROL_AUDIT_ONLY: &str =
-    "Keep prevention false and surface audit-only status until enforce-mode apply and rollback proof exists.";
-pub const FALLBACK_WINDOWS_APP_CONTROL_ENFORCED: &str =
-    "Do not claim launch blocking from requested policy state; require host apply and rollback proof.";
-pub const FALLBACK_WINDOWS_APP_CONTROL_MANUAL_REQUIRED: &str =
-    "Show manual setup rather than silently downgrading to process termination or browser-domain blocking.";
-pub const FALLBACK_WINDOWS_APP_CONTROL_UNAVAILABLE: &str =
-    "Return unavailable and keep unmanaged fallback manual when policy provider or service permission is absent.";
-pub const FALLBACK_WINDOWS_APP_CONTROL_FAILED: &str =
-    "Record failure and rollback/manual setup requirements; do not treat failed apply as enforcement.";
+pub const FALLBACK_BROWSER_POLICY_ROLLBACK: &str = "Return manual-required for managed exact URL, network/domain, or unmanaged browser rollback until host artifacts exist.";
+pub const FALLBACK_LINUX_ADAPTER: &str = "Report unavailable until Linux-specific browser/domain apply, rollback, and audit proof exists.";
+pub const FALLBACK_MACOS_ADAPTER: &str = "Report unavailable until macOS-specific browser/domain permissions, apply, rollback, and audit proof exists.";
+pub const FALLBACK_ANDROID_ADAPTER: &str = "Return manual-required until real Android package, permission, VPN/DNS, device-owner, and lifecycle artifacts exist.";
+pub const FALLBACK_IOS_ADAPTER: &str = "Return manual-required until approved entitlement, signing, install, and device evidence exists.";
+pub const FALLBACK_WINDOWS_APP_CONTROL_READINESS: &str = "Return manual-required when edition, permission, policy provider, or identity-target proof is missing.";
+pub const FALLBACK_WINDOWS_APP_CONTROL_AUDIT_ONLY: &str = "Keep prevention false and surface audit-only status until enforce-mode apply and rollback proof exists.";
+pub const FALLBACK_WINDOWS_APP_CONTROL_ENFORCED: &str = "Do not claim launch blocking from requested policy state; require host apply and rollback proof.";
+pub const FALLBACK_WINDOWS_APP_CONTROL_MANUAL_REQUIRED: &str = "Show manual setup rather than silently downgrading to process termination or browser-domain blocking.";
+pub const FALLBACK_WINDOWS_APP_CONTROL_UNAVAILABLE: &str = "Return unavailable and keep unmanaged fallback manual when policy provider or service permission is absent.";
+pub const FALLBACK_WINDOWS_APP_CONTROL_FAILED: &str = "Record failure and rollback/manual setup requirements; do not treat failed apply as enforcement.";

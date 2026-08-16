@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Browser And Web Control
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Browser And Web Control
 
 ## Parent Outcome
@@ -18,9 +31,9 @@ Blocking requires typed policy decisions and adapter proof.
   [policy](../expectations/policy.md),
   [enforcement](../expectations/enforcement.md).
 - Supporting docs:
-  [raw 1,057-setting inventory](../browser-control-1057-settings-inventory.md)
+  [raw 1,057-setting inventory](../plans/browser-plan/workpacks/browser-control-1057-settings-inventory.md)
   and
-  [questionnaire forest v1](../browser-policy-questionnaire-forest-v1.md).
+  [questionnaire forest v1](../plans/browser-plan/workpacks/browser-policy-questionnaire-forest-v1.md).
 - Working plan:
   [browser plan](../plans/browser-plan/README.md), including the
   [source index](../plans/browser-plan/source-index.md),
@@ -103,6 +116,306 @@ control while being more honest about managed versus unmanaged sources.
   keeps managed, unmanaged, active-tab, exact-URL, stale, degraded, and custody
   labels separate; it does not upgrade portal UI, SQLite inventory storage, or
   real browser/platform proof claims.
+- Browser-plan WP05 now projects Android physical owned-shell proof into a
+  requested-URL custody read model. The accepted row requires physical install,
+  explicit launch, UI-tree, screenshot, WebView/BROWSABLE declaration, and
+  local proof-page evidence, stores only a requested-URL ref, and keeps exact
+  URL policy, active-tab proof, physical Device Owner/Browser Role, final policy
+  execution, and enforcement unclaimed.
+- Browser-plan WP13 now also has a protocol-domain parser for the browser
+  runtime event-chain stream. It validates known browser runtime event types,
+  Rust phase names, event type/phase consistency, stream counts, no AI-authority
+  overclaim, and no hidden intervention execution.
+- Browser-plan WP13 portal state consumption now uses that shared typed browser
+  runtime stream parser instead of a loose local JSON entry parser. The portal
+  live-activity adapter rejects event type/phase drift, AI-authority overclaim,
+  and count drift before exposing the stream as state. No new visual surface,
+  AI execution, policy execution, browser mutation, child intervention
+  execution, or enforcement is claimed by this proof.
+- Browser-plan WP13 now carries browser read-model context through the event
+  chain payload itself: capability status, custody label, query visibility, and
+  degraded reason. The protocol parser rejects unsupported exact URL context and
+  unavailable context without a degraded reason before the portal exposes the
+  stream as state. This is event-chain context only; it does not execute AI,
+  execute policy, mutate the browser, execute child intervention, or enforce.
+- Browser-plan WP13 now also proves bridge-disconnected rows as explicit stale
+  browser runtime/read-model state and unsupported later-adapter rows as
+  unsupported/manual-required stream rows. Those rows stay parent-visible,
+  exact URL rows remain zero, and dispatch/adapter/child-intervention/
+  enforcement counters remain zero.
+- Browser-plan WP13 now carries dry-run policy/action handoff context through
+  the same event chain: policy preview id, parent action-intent id, `dryRun`,
+  and `adapterDispatchClaimed`. The protocol parser rejects dry-run rows that
+  try to claim adapter dispatch or hidden intervention refs, and service
+  read-model rows remain non-dispatching. This is event-chain visibility only;
+  it does not publish portal business events, execute final policy actions,
+  mutate the browser, execute child intervention, or enforce.
+- Browser-plan WP13 now also maps those dry-run policy decision events into
+  prepared local action-intent outbox candidates with source event, policy
+  preview, action intent, outbox, and handoff refs. Dispatch attempts, adapter
+  execution, browser mutation, child intervention, and enforcement remain zero.
+- Browser-plan WP13 now also derives pending action-intent subscriber status
+  from the existing browser runtime event-chain stream. The projection accepts
+  only dry-run policy-decision events with policy preview and parent
+  action-intent refs, preserves event/evidence refs, and keeps dispatch, adapter
+  execution, child intervention execution, and enforcement at zero without
+  adding a new command family or generic event bus.
+- Browser-plan WP13 now also proves a named Rust event-bus subscriber for
+  browser action-intent status. The runtime publishes
+  `browser.action-intent.status.requested`, the
+  `browser-action-intent-status` subscriber completes the typed eventing
+  request/response path, and dry-run rows return pending candidates while
+  manual-required rows return none. Dispatch, adapter execution, browser
+  mutation, child intervention execution, and enforcement remain zero.
+- Browser-plan WP13 now also proves a named Rust event-bus subscriber for
+  browser action-intent handoff preparation. The runtime publishes
+  `browser.action-intent.handoff.requested`, the
+  `browser-action-intent-handoff` subscriber completes the typed eventing
+  request/response path, and dry-run rows return prepared local outbox/handoff
+  refs while manual-required rows return none. Dispatch, adapter execution,
+  browser mutation, child intervention execution, and enforcement remain zero.
+- Browser-plan WP13 now also records service-side social provider receipt
+  status from the named `browser.social.provider-receipt.status.requested`
+  subscriber. Store-backed dry-run policy preview rows become
+  provider-dispatch-required receipt boundary rows, manual-required browser
+  evidence stays manual-receipt-required, and public stream fields remain
+  deferred until protocol field ownership is clear.
+- Browser-plan WP13 now also has durable social provider receipt read-model
+  proof for the named receipt subscriber. The durable row preserves the request
+  event, parent action-intent, provider attempt, receipt proof, durable result,
+  durable store, read-model, support-status, source, and evidence refs, rejects
+  duplicate request event ids, and keeps provider receipt ingestion, provider
+  dispatch, parent notification UI delivery, report delivery, final policy
+  execution, connector/native runtime, and enforcement unclaimed.
+- Browser-plan WP13 now also carries those durable social provider receipt refs
+  through the service-side browser runtime report. Provider-dispatch-required
+  rows record durable result, durable store, read-model, and support-status refs;
+  manual-required rows keep durable rows empty. Public protocol/portal stream
+  fields remain deferred while the shared protocol defaults file is owned by
+  another active lane, so this does not claim provider delivery, receipt
+  ingestion, parent notification UI delivery, report delivery, final policy
+  execution, browser mutation, child intervention, unmanaged exact URL support,
+  or enforcement.
+- Browser-plan WP13 now adds Rust service payload fields for the social provider
+  receipt status path. The service event payload can expose receipt boundary
+  rows, provider-dispatch-required rows, manual-receipt-required rows, provider
+  attempt refs, receipt proof refs, durable result/store refs, read-model refs,
+  and support-status refs while keeping manual-required durable refs empty.
+  TypeScript defaults/parser and portal consumption remain sequenced behind the
+  active protocol-domain lock, so provider delivery, receipt ingestion runtime,
+  parent notification UI delivery, report delivery, final policy execution,
+  browser mutation, child intervention, unmanaged exact URL support, and
+  enforcement remain unclaimed.
+- Browser-plan WP13 now also has a parent-domain receipt ingestion readiness
+  boundary for the social provider receipt chain. Provider-dispatch-required
+  receipt rows become ingestion-contract-required rows that require webhook
+  contract, provider credential, and durable receipt store proof before any
+  provider receipt can be observed. Manual-required and unavailable rows remain
+  explicit, and provider delivery, receipt ingestion runtime, webhook runtime,
+  credentials, observed provider receipts, cloud routing, parent notification
+  UI delivery, report delivery, final policy execution, connector/native
+  runtime, browser mutation, child intervention, unmanaged exact URL support,
+  and enforcement remain unclaimed.
+- Browser-plan WP13 now also has TypeScript protocol and portal-domain state
+  coverage for the social provider receipt service stream fields. The shared
+  stream parser accepts provider-dispatch-required receipt refs and
+  manual-receipt-required rows, rejects durable/provider refs on manual rows or
+  incomplete dispatch rows, and the portal-domain projection exposes a
+  parent-visible receipt-boundary status without reading raw log fields.
+  Provider delivery, receipt ingestion runtime, webhook runtime, credentials,
+  observed provider receipts, cloud routing, parent notification UI delivery,
+  report delivery, final policy execution, connector/native runtime, browser
+  mutation, child intervention, unmanaged exact URL support, and enforcement
+  remain unclaimed.
+- Browser-plan WP13 now also projects those parsed social provider receipt
+  stream fields into a portal-domain receipt ingestion readiness status.
+  Provider-dispatch-required rows become ingestion-contract-required because
+  webhook contract, provider credential proof, durable receipt store proof, and
+  observed provider receipt ingestion are still unavailable. Manual receipt rows
+  stay manual-required. Provider delivery, receipt ingestion runtime, webhook
+  runtime, credentials, observed provider receipts, cloud routing, parent
+  notification UI delivery, report delivery, final policy execution,
+  connector/native runtime, browser mutation, child intervention, unmanaged
+  exact URL support, and enforcement remain unclaimed.
+- Browser-plan WP13 now also carries the parsed social provider receipt stream
+  status and receipt ingestion readiness status into the portal live activity
+  state. The app state derives both parent-visible status intents from the
+  shared protocol parser and portal-domain projections, rejects dishonest
+  receipt rows before projection, and does not add a visual surface or direct
+  raw receipt-field parser. Provider delivery, receipt ingestion runtime,
+  webhook runtime, credentials, observed provider receipts, report delivery,
+  final policy execution, browser mutation, child intervention, unmanaged exact
+  URL support, and enforcement remain unclaimed.
+- Browser-plan WP13 now renders those live-activity social provider receipt
+  stream and receipt ingestion readiness statuses in the existing Browser route
+  social alert/report panel. The proof uses the real portal E2E harness with
+  Rust agent service plus Vite portal and captures desktop/mobile screenshots
+  of the parent-visible Browser route cards. Provider delivery, receipt
+  ingestion runtime, webhook runtime, credentials, observed provider receipts,
+  report delivery, final policy execution, browser mutation, child
+  intervention, unmanaged exact URL support, and enforcement remain unclaimed.
+- Browser-plan WP13 now connects social provider receipt ingestion readiness
+  into the parent-domain social report writer delivery proof. Provider-dispatch,
+  manual-receipt, and provider-unavailable rows stay manual-required or
+  unavailable until webhook, credential, durable receipt, and observed provider
+  receipt proofs exist. This is report-writer readiness only; it does not claim
+  external runtime report delivery, provider delivery, provider receipt
+  ingestion runtime, final policy execution, connector/native runtime, browser
+  mutation, child intervention, unmanaged exact URL support, or enforcement.
+- Browser-plan WP13 `social-parent-notification-delivery-readiness-proof` now
+  carries social report writer delivery readiness into a parent-domain parent
+  notification/report delivery readiness boundary. A parent-owned report
+  artifact can become a parent-visible report status row, while
+  receipt-ingestion-backed rows remain manual-required or unavailable. Parent
+  notification UI delivery, external runtime report delivery, provider
+  dispatch/receipt ingestion, final policy execution, connector/native runtime,
+  browser mutation, child intervention, unmanaged exact URL support, and
+  enforcement remain unclaimed.
+- Browser-plan WP13 now also carries that parent-notification/report delivery
+  readiness through a named Rust service-backed WebSocket read model and the
+  existing Browser route social alert/report panel. The portal can request
+  `agent.browser.social-parent-notification-delivery.read-model.get`, parse the
+  schema-backed reported event, and render parent-report-ready,
+  manual-required, and unavailable rows with desktop/mobile E2E screenshots.
+  The Rust service now publishes the local
+  `browser.social.parent-notification-delivery.status.requested` eventing
+  request and completes it through `ocentra-eventing` before reporting the same
+  portal read model. This still does not claim parent notification UI delivery,
+  external runtime report delivery, provider delivery or receipt ingestion,
+  final policy execution, browser mutation, child intervention, unmanaged exact
+  URL support, or enforcement.
+- Browser-plan SOCIAL-23/SOCIAL-24 now also aligns social alert/report
+  parent-surface intent with the shared notification handoff pattern already
+  used by app/game notifications. The parent-domain surface rows combine
+  provider status with preference/quiet-hours status, preserve notification,
+  preference, quiet-hours, audit, and manual-proof refs, and keep parent
+  notification/preference/history UI, provider delivery, child delivery,
+  quiet-hours timer runtime, report delivery execution, final policy execution,
+  connector/native runtime, browser mutation, unmanaged exact URL support, and
+  enforcement unclaimed.
+- Browser-plan WP13 now projects that named subscriber status through the
+  service-backed browser runtime event-chain stream payload. Current
+  store-backed browser rows still report zero pending candidates because the
+  browser evidence read model does not yet persist policy preview or parent
+  action-intent refs; a dry-run action-intent input can project one pending
+  candidate through the same service payload. Dispatch, adapter execution,
+  browser mutation, child intervention execution, final policy execution, and
+  enforcement remain unclaimed.
+- Browser-plan WP13 now also has TypeScript protocol and portal state coverage
+  for those service action-intent counters. The shared parser accepts pending
+  candidate counts but rejects nonzero dispatch, adapter execution, child
+  intervention execution, or enforcement counters before portal live-activity
+  state exposes the stream. This is parser/state proof only; it adds no visual
+  portal surface, browser mutation, child intervention execution, final policy
+  execution, or enforcement.
+- Browser-plan WP13 now also registers the service-side
+  `browser.runtime.stream.report.requested` request route in the reusable
+  eventing topology and delivery-decision reports. The route is local
+  in-process and keeps the existing portal WebSocket command; external
+  transport, adapter dispatch, browser mutation, child intervention execution,
+  final policy execution, and enforcement remain unclaimed.
+- Browser-plan WP13 now also has service-side handoff ref proof for the same
+  action-intent path. The service asks the named
+  `browser.action-intent.handoff.requested` subscriber and records prepared
+  local outbox/handoff refs in report state for store-backed dry-run policy
+  preview rows. The existing service-backed browser runtime event-chain stream
+  now carries prepared handoff candidate counts plus local outbox/handoff refs
+  through Rust protocol fields, the shared TypeScript parser, and portal
+  live-activity state. Dispatch, adapter execution, browser mutation, child
+  intervention execution, final policy execution, and enforcement remain
+  zero/unclaimed.
+- Browser-plan WP13 now also has durable handoff result/read-model proof for
+  the named browser action-intent handoff subscriber. The durable row preserves
+  the request event, policy preview, parent action-intent, local outbox,
+  handoff, durable result, durable store, read-model, and support-status refs,
+  rejects duplicate request event ids, and keeps external transport, dispatch,
+  browser mutation, child intervention execution, final policy execution, and
+  enforcement unclaimed.
+- Browser-plan WP13 now also exposes public browser action-intent child-status
+  no-observation fields through the service stream: accepted row count plus child
+  command, child accepted-event, and parent read-model refs. The current runtime
+  reports zero/empty values, the shared parser rejects mismatched child-status
+  counts, and fixture-backed child acceptance refs remain test-only until a real
+  child transport/status read model exists.
+- Browser-plan WP03 now carries publisher-signature and file-hash evidence refs
+  through activity-domain inventory contracts, Rust protocol, and service
+  payload/read-model proof. Contract tests cover mixed managed, unmanaged, and
+  unsupported catalog rows and reject empty identity refs. This does not upgrade
+  live OS scanning, live signature/hash extraction, portal dashboard rendering,
+  exact URL evidence, or blocking claims.
+- Browser-plan WP03 now has a completion proof gate that verifies the inventory
+  contract/Rust/service proof pack, the WP04 live Windows inventory proof, and
+  the WP14 parent portal Browser-route inventory screenshot/Playwright proof.
+  The inventory model is complete as a parent-visible model while exact URL,
+  known active tab, blocking, enforcement, `.lnk` parsing, AppX/MSIX, and
+  non-Windows adapters remain separate proof gates.
+- Browser-plan WP04 default-root service proof now feeds the service inventory
+  read-model scan with default Windows candidate roots and live Windows
+  uninstall registry DisplayIcon/InstallLocation entries before process
+  observations. Fixture proof shows a default-root Edge install becomes a
+  managed candidate row with exact URL still unavailable, and focused Rust tests
+  prove registry-source ingestion through the browser-owned candidate path
+  helper, without Rust `.lnk` binary parsing, AppX/MSIX, UI, or enforcement
+  claims.
+- Browser-plan WP04 live Windows inventory proof now captures real local
+  Windows known-path, registry uninstall, Start Menu shortcut, running-process,
+  file-hash, and Authenticode status evidence for Chrome, Edge, and Firefox
+  using redacted path refs only. This improves manual platform evidence for
+  inventory discovery while still making no exact URL/tab, page content,
+  AppLocker/App Control, blocking, rollback, or enforcement claim.
+- Browser-plan WP04 now also enumerates Windows Store package manifests as
+  package-ref-only browser inventory rows. The Rust service path can consume
+  AppX/MSIX package evidence, and the live Windows proof captured store-package
+  rows with no executable path, exact URL/tab, browser content, AppLocker/App
+  Control, blocking, rollback, or enforcement claim.
+- Browser-plan WP04 now parses Start Menu `.lnk` files in the Rust browser
+  inventory path. The parser extracts Shell Link local target paths, feeds them
+  through existing browser executable normalization, and preserves the same
+  no-claim boundary for exact URL/tab, browser content, blocking, rollback, and
+  enforcement.
+- Browser-plan WP04 now has a completion proof gate that verifies live Windows
+  inventory evidence, Browser-route portal/read-model consumption, and WP20
+  AppLocker/App Control state artifacts together. It completes the inventory
+  adapter row without upgrading product claims: exact URL/tab, browser content,
+  AppLocker/WDAC policy creation/apply/rollback execution, launch prevention,
+  and enforcement remain unclaimed.
+- Browser-plan WP05 now has the missing manual platform proof artifact required
+  by its matrix proof gate. The gate verifies the platform matrix and
+  manual-required/unsupported boundaries, but macOS, Linux, Android, and iOS
+  support remain partial until real host/device artifacts prove those platform
+  adapters.
+- Browser-plan WP05 now has Android owned browser shell proof on a disposable
+  emulator: build/install/launch, Device Owner enrollment, persistent routing
+  policy mutation, and Browser Role implicit VIEW routing to the owned shell.
+  This does not upgrade product status: exact URL policy, active-tab proof,
+  silent Device Owner default-browser assignment, physical-device behavior,
+  final policy execution, browser blocking, and broad enforcement remain
+  unclaimed.
+- Browser-plan WP05 now also has physical Android host evidence from an
+  explicit `ANDROID_SERIAL` run against the available Samsung Galaxy S9
+  (`star2qltecs`, `SM_G965W`). That proof filters out emulator evidence and
+  captures package/default VIEW handler query evidence plus UI-tree/logcat
+  hashes without persisting the raw device serial. This upgrades only physical
+  Android package/default-handler visibility; Device Owner/Browser Role
+  behavior, exact URL policy, active-tab proof, final policy execution, browser
+  blocking, Play signing, release readiness, and broad enforcement remain
+  unclaimed.
+- Browser-plan WP05 now also has a typed physical Android owned-shell current
+  runtime projection. It consumes the real owned-shell proof artifact and
+  accepts the Samsung Galaxy S9 row only when install, explicit launch, UI-tree,
+  and screenshot evidence are present. The same read model keeps emulator
+  Browser Role routing emulator-scoped and emits a manual-required row for
+  physical Device Owner, physical Browser Role routing, exact URL, active tab,
+  VPN/DNS, UsageStats, Accessibility, final policy execution, and enforcement.
+- Browser-plan WP05 now adds Windows managed-CDP proof for an
+  Ocentra-launched temporary managed browser profile. The proof launches real
+  Edge/Chrome-family browser infrastructure on Windows, connects through
+  loopback CDP, observes the exact local proof URL, captures a screenshot, and
+  deletes the temporary profile while preserving no-raw-path, no-raw-CDP, and
+  no-page-content boundaries. This upgrades only the Windows local managed-launch,
+  bridge-custody, and exact-local-URL proof boundary; exact active-tab
+  enforcement, final policy execution, browser blocking, and non-Windows
+  managed CDP support remain unclaimed.
 - Browser-plan WP14 now surfaces the browser inventory read model in the parent
   portal route through service-backed inventory, exact URL capability, active-tab
   proof, and unmanaged fallback rows. The visible route shows inventory, exact
@@ -129,9 +442,14 @@ control while being more honest about managed versus unmanaged sources.
   Chrome/Firefox/Edge managed-browser proof harness. The harness proves block,
   warning, approval-hold, and checking-hold pages for site, video, social
   signup, social short-video, browser-game, game-purchase, and cloud-gaming
-  targets while keeping unmanaged browser exact URL evidence, broad OS browser
-  blocking, native app/game control, cloud-streamed frame analysis, and final
-  child UX polish unclaimed.
+  targets. After PR399, the composited blocker proof also loads a real YouTube
+  target, captures the viewport through CDP, writes the shared child
+  intervention renderer output to
+  `OCENTRA_PARENT_MANAGED_BROWSER_INTERVENTION_HTML_PATH`, and serves the child
+  page from the Rust child-agent `/api/browser/intervention/page` endpoint while
+  keeping unmanaged browser exact URL evidence, broad OS browser blocking,
+  native app/game control, cloud-streamed frame analysis, final policy
+  execution, and final child UX polish unclaimed.
 - Browser-plan WP18 now carries unmanaged browser detection as process-only
   evidence through TypeScript contracts, Rust protocol/runtime status, service
   inventory read models, and portal status parsing. Supported, unsupported,
@@ -199,8 +517,10 @@ upgrade exact URL, unmanaged exact evidence, or host domain blocking claims.
 Policy dispatch and supported-adapter runtime proof preserve the report-only or
 not-claimed boundary, not active tab enforcement. The integrity runtime audit
 adds proof that dry-run, observe-only, rejected, unavailable, and manual-required
-states stay non-executing, but it still does not prove managed exact URL or
-active-tab enforcement.
+states stay non-executing. WP05 now proves a Windows local Ocentra-launched
+managed browser can reach an exact local proof URL through CDP, but it still
+does not prove exact active-tab enforcement, final policy execution, browser
+blocking, or non-Windows managed CDP support.
 Timer recovery and unmanaged fallback now have focused V0.8 proof, including
 parent-visible next-check/failure states and process-scoped fallback outcomes,
 but that proof does not upgrade exact page evidence, host domain blocking,
@@ -219,11 +539,11 @@ budget evaluator behavior, but release performance remains manual-required until
 hardware-specific runs, portal stress timing, URL/video provider behavior, local
 AI queue behavior, browser-game runtime signals, and cloud-gaming heuristics are
 separately measured through real runtime artifacts.
-Browser evidence artifact coverage is now indexed, but missing or partial rows
-remain gaps: bridge disconnect stale proof, unsupported/later-adapter proof,
-macOS/Linux/Android/iOS matrices, URL/video model/provider classification,
-social parent-decision/audit flow, browser-game runtime signals, and
-cloud-gaming session heuristics are not upgraded by the manifest.
+Browser evidence artifact coverage is now indexed, and bridge-disconnect stale
+plus unsupported/later-adapter runtime rows now have service/read-model/protocol
+proof. Missing or partial rows remain gaps for real cross-platform browser
+matrices, URL/video model/provider classification, social parent-decision/audit
+flow, browser-game runtime signals, and cloud-gaming session heuristics.
 Browser-plan WP24 now records the base workpack rollout gate. It closes the
 base browser-plan proof/checklist path only; AI, social/video, and browser-game
 enhancement tracks remain open/manual-required until their separate contracts,
@@ -240,13 +560,29 @@ platforms, and unknown/manual-required platforms through route surface kinds,
 route source kinds, custody labels, pattern refs, evidence refs, confidence, and
 status. They do not store raw domains, URLs, paths, page bodies, claim live URL
 parsing, runtime detection, AI classification, policy decisions, native game
-control, cloud-frame analysis, or enforcement.
+control, cloud-frame analysis, or enforcement. The live route proof fetches real
+public CrazyGames, Poki, Coolmath Games, Xbox Cloud Gaming, itch.io HTML5
+catalog, and Chess.com play surfaces, stores only response metadata plus hashed
+origin/path/body refs, parses six route contracts plus a reviewed catalog, and
+rejects raw-data/runtime/parser/AI/policy/native/cloud-frame/enforcement
+overclaims.
 Browser-game/cloud-gaming GAME-03 now adds parent-domain portal pattern library
 contracts. Entries model known-game, educational, UGC, indie, classic archive,
 school, and unknown portal families through route kinds, signal kinds, pattern
 fingerprints, evidence refs, confidence, and review states. They do not store
 raw domains, URLs, page titles, page bodies, claim runtime detection, AI
 classification, policy decisions, cloud-gaming ownership, or enforcement.
+GAME-03 also now includes live public-surface proof in
+`output/browser-plan-proof/game-03-known-game-portal-pattern-library/05-live-pattern-library-proof.json`
+and
+`test-results/browser-game-portal-pattern-library-live-evidence-proof/proof.json`.
+The proof fetches real CrazyGames, Poki, Coolmath Games, itch.io HTML5,
+Internet Archive MS-DOS games, and Chess.com play surfaces; stores only response
+metadata plus hashed origin/path/body refs; parses six reviewed portal pattern
+rows plus a reviewed library; and rejects 17 overclaims. It does not claim a
+runtime portal detector, URL parser, AI classifier, UI, final policy, product
+checklist update, release readiness, cloud-frame analysis, native game control,
+or enforcement.
 Browser-game/cloud-gaming GAME-04 now adds parent-domain cloud-gaming pattern
 library contracts. Entries model cloud-gaming platforms, cloud PC platforms,
 mobile cloud-game portals, browser-embedded cloud-game surfaces, native launcher
@@ -255,55 +591,88 @@ signal kinds, pattern fingerprints, evidence refs, confidence, and review
 states. They do not store raw cloud domains, URLs, titles, stream frames, claim
 runtime detection, inspect cloud-streamed frames, claim per-game cloud-title
 certainty, control native launchers or games, make final policy decisions, or
-enforce actions.
+enforce actions. GAME-04 also now includes live public-surface proof in
+`output/browser-plan-proof/game-04-cloud-gaming-pattern-library/06-live-cloud-pattern-proof.json`
+and
+`test-results/browser-game-cloud-pattern-library-live-evidence-proof/proof.json`.
+The proof fetches real Xbox Cloud Gaming, NVIDIA GeForce Now, Amazon Luna,
+Boosteroid, PlayStation Plus games catalog, Shadow cloud PC, and now.gg
+surfaces; stores only response metadata plus hashed origin/path/body refs;
+parses seven reviewed cloud pattern rows plus a reviewed library; and rejects 20
+overclaims. It does not claim a runtime detector, cloud-frame analyzer, native
+launcher controller, UI, final policy, product checklist update, release
+readiness, native game control, or enforcement.
 Browser-game/cloud-gaming GAME-05 now adds a parent-domain redacted URL-shape
 parser. It accepts unknown input, uses URL parsing only transiently, emits shape
 and fingerprint fields, and does not store raw URLs, domains, paths, queries, or
-fragments. It does not navigate browsers, claim runtime detection, run AI
-classification, decide policy, inspect cloud frames, control native games, or
-enforce actions.
+fragments. The live proof fetches real public CrazyGames, Poki, Coolmath Games,
+Chess.com play, Xbox Cloud Gaming play/cloud, and NVIDIA GeForce Now route
+surfaces; stores only response metadata plus hashed origin/path/body refs;
+parses seven URL-shape rows; and rejects 16 overclaims. It does not navigate
+browsers, claim runtime detection, run AI classification, decide policy, inspect
+cloud frames, control native games, or enforce actions.
 Browser-game/cloud-gaming GAME-06 now adds parent-domain runtime signal detector
 contracts. Signal rows model shape-only canvas, WebGL, Gamepad API, fullscreen,
 pointer-lock, audio, animation-loop, iframe surface, cloud-streaming, and
 unknown/manual-required states through fingerprints and evidence refs. They do
 not store raw runtime data, instrument browsers, execute runtime detection, run
 AI, decide policy, inspect cloud frames, control native games, or enforce
-actions.
+actions. The live Playwright proof opens real public Poki, Coolmath Games,
+Chess.com play, and Xbox Cloud Gaming pages in Chromium; stores only response
+metadata, hashed origin/path refs, shape booleans, and fingerprints; parses 12
+runtime signal rows plus a detection bundle; and rejects 27 overclaims.
 Browser-game/cloud-gaming GAME-07 now adds parent-domain metadata extractor
 contracts. Field rows model redacted title, description, genre, age-rating,
 publisher, thumbnail, educational subject, cloud platform title, and
 unknown/manual-required metadata shapes through fingerprints and evidence refs.
 They do not store raw metadata, scrape runtime DOM, call platform APIs, run AI,
 decide policy, inspect cloud frames, control native games, or enforce actions.
+The live proof fetches real public Poki, Coolmath Games, Chess.com play,
+PlayStation Plus games catalog, and Xbox Cloud Gaming pages; stores only
+response metadata, hashed origin/path/body refs, metadata shape booleans, length
+buckets, and value hashes; parses 15 metadata field rows plus an extraction
+bundle; and rejects 27 overclaims.
 Browser-game/cloud-gaming GAME-08 now adds parent-domain hidden analysis profile
-safety contracts. Profile and loader rows model Ocentra-owned isolated profiles,
-bounded retention, proof-backed metadata-only/analysis-ready states,
-disabled-policy, proof-missing, manual-required, and unavailable states. They do
-not reuse child cookies or sessions, share child storage, store or capture raw
-URL/page/game/frame payloads, instrument browsers, control hidden native
-surfaces, run AI, decide policy, render UI, inspect cloud frames, control native
-games, or enforce actions.
+safety contracts plus a live public safety-shape proof. Profile and loader rows
+model Ocentra-owned isolated profiles, bounded retention, proof-backed
+metadata-only/analysis-ready states, disabled-policy, proof-missing,
+manual-required, and unavailable states. The live proof fetches real public
+Poki, Coolmath Games, Chess.com play, PlayStation Plus games catalog, and Xbox
+Cloud Gaming pages; stores only response metadata, hashed origin/path/body refs,
+profile fingerprints, loader proof refs, and no-capture safety flags; validates
+10 profile rows plus 10 planned/proof-backed loader results; and rejects 40
+overclaims. It does not reuse child cookies or sessions, share child storage,
+store or capture raw URL/page/game/frame payloads, instrument browsers, control
+hidden native surfaces, run AI, decide policy, render UI, inspect cloud frames,
+control native games, or enforce actions.
 Browser-game/cloud-gaming GAME-09 now adds parent-domain educational classifier
-contracts for browser games. The classifier uses evidence refs for school URLs,
-teacher/parent allowlists, metadata, AI classification refs, parent approval,
-homework context, school platforms, platform self-labels, and manual-required
-states, then returns candidate gate inputs only. It does not treat platform
-labels as authority and does not claim raw page/game/model capture, final policy
-decisions, runtime gates, UI rendering, native game control, cloud-frame
-analysis, or enforcement.
+contracts plus a live public candidate-shape proof. The live proof fetches real
+public Code.org Minecraft, Chess.com play, Coolmath Run 3, Poki Subway Surfers,
+and Xbox Cloud Gaming pages; stores only response metadata, hashed
+origin/path/body refs, evidence refs, classifier candidate rows, and
+no-authority flags; validates 9 evidence rows plus 5 educational,
+entertainment, misleading-claim, and manual-required candidate results; and
+rejects 23 overclaims. It does not treat platform labels as authority and does
+not claim raw page/game/model capture, final policy decisions, runtime gates, UI
+rendering, native game control, cloud-frame analysis, or enforcement.
 Browser-game/cloud-gaming GAME-10 now adds parent-domain AI analysis contracts
-for browser games. Inputs consume typed evidence refs only for browser
-evidence, URL shape, runtime signals, metadata, screen summaries, parent rules,
-recent activity, memory, task, and custody labels. Results model game
-classification, educational check, risk classification, cloud-gaming detection,
-UGC risk, purchase risk, and policy-support outputs as candidate-only signals,
-recommended policy input, confidence, uncertainty, summary refs, model runtime
-refs, prompt template version, expiry, and degraded/manual states. They do not
+plus a live public AI-analysis shape proof. Inputs consume typed evidence refs
+only for browser evidence, URL shape, runtime signals, metadata, screen
+summaries, parent rules, recent activity, memory, task, and custody labels.
+Results model game classification, educational check, risk classification,
+cloud-gaming detection, UGC risk, purchase risk, and policy-support outputs as
+candidate-only signals, recommended policy input, confidence, uncertainty,
+summary refs, model runtime refs, prompt template version, expiry, and
+degraded/manual states. The live proof fetches real public Poki Subway Surfers,
+Code.org Minecraft, Chess.com play, Xbox Cloud Gaming, and Roblox discover
+pages; stores only response metadata, hashed origin/path/body refs, typed
+evidence refs, candidate policy inputs, and no-authority flags; validates 5
+inputs plus 5 candidate-only results; and rejects 28 overclaims. It does not
 store raw URLs, page body, game payloads, screen frames, model text, execute
 account/purchase flows, control native games, inspect cloud frames, render UI,
 make final policy/runtime decisions, or enforce actions.
 Browser-game/cloud-gaming GAME-11 now adds parent-domain browser-game
-risk/benefit signal contracts. The signal set covers evidence-backed risk rows
+risk/benefit signal contracts plus a live public signal-shape proof. The signal set covers evidence-backed risk rows
 for violence, horror, adult themes, addictive loops, multiplayer/contact, chat,
 purchase, loot box/random item, UGC, privacy, unblocked-bypass, and unknown
 risk; and benefit rows for educational value, homework relevance, skill
@@ -311,37 +680,53 @@ building, creativity, problem solving, parent-approved game, neutral, and
 unknown benefit. It returns candidate recommended policy inputs only and rejects
 raw game payloads, chat content, page body, raw model text, account/purchase
 execution, cloud-frame analysis, native game control, final policy decisions,
-runtime gate execution, and enforcement.
+runtime gate execution, and enforcement. The live proof fetches real public
+Poki Subway Surfers, Code.org Minecraft, Chess.com play, Xbox Cloud Gaming, and
+Roblox Discover pages; stores only response hashes and evidence refs; validates
+5 signal sets with 7 risk signals and 8 benefit signals; and rejects 30
+overclaims.
 Browser-game/cloud-gaming GAME-12 now adds parent-domain memory/cache contracts
-for browser-game decision refs. Cache keys are schema-backed refs or hashes for
-canonical URL, platform game, domain path, cloud title, parent decision, game
-category, policy version, child profile, parent rule set, and evidence. Fresh
-hits can feed policy input only when bounded TTL, required subject keys,
-evidence refs, and decision refs are present; stale, miss, and manual-required
-rows cannot drive policy input. It does not store raw URLs, raw game IDs, raw
-cloud titles, raw game payloads, raw model text, or claim runtime cache store,
-AI cache, UI, native game control, cloud-frame analysis, final policy, or
-enforcement.
+for browser-game decision refs plus a live public memory/cache shape proof.
+Cache keys are schema-backed refs or hashes for canonical URL, platform game,
+domain path, cloud title, parent decision, game category, policy version, child
+profile, parent rule set, and evidence. Fresh hits can feed policy input only
+when bounded TTL, required subject keys, evidence refs, and decision refs are
+present; stale, miss, and manual-required rows cannot drive policy input. The
+live proof fetches real public Poki Subway Surfers, Code.org Minecraft,
+Chess.com play, Xbox Cloud Gaming, and Roblox Discover pages; stores only
+response hashes, cache-key refs, evidence refs, snapshots, and no-authority
+flags; validates 5 snapshots with 15 entries; and rejects 20 overclaims. It
+does not store raw URLs, raw game IDs, raw cloud titles, raw game payloads, raw
+model text, or claim runtime cache store, AI cache, UI, native game control,
+cloud-frame analysis, final policy, or enforcement.
 Browser-game/cloud-gaming GAME-13 now adds parent-domain browser-game
-account/signup/purchase gate contracts. The contracts cover account creation,
-login, secondary account, purchase, subscription, loot box/random item, virtual
-currency, download/install, wallet/gambling-like payment, cloud-gaming start,
-and unknown-game start approval states as evidence-backed request/decision
-candidates only. They reject raw URLs/titles/account identifiers, credentials,
-form submission, account creation, purchase/payment execution, launcher
-downloads, notifications, rendered UI, child notification, final policy
-decisions, runtime gate execution, native game control, cloud-frame analysis,
-and enforcement.
+account/signup/purchase gate contracts plus a live public account/purchase
+route proof. The contracts cover account creation, login, secondary account,
+purchase, subscription, loot box/random item, virtual currency,
+download/install, wallet/gambling-like payment, cloud-gaming start, and
+unknown-game start approval states as evidence-backed request/decision
+candidates only. The live proof fetches real public Roblox login, Roblox
+subscription, Steam app purchase, Xbox Cloud Gaming, Code.org sign-in, and
+PlayStation store pages; stores only response hashes, evidence refs, request
+and decision refs, and no-authority flags; validates 6 approval requests plus
+6 candidate decisions; and rejects 38 overclaims. They reject raw
+URLs/titles/account identifiers, credentials, form submission, account creation,
+purchase/payment execution, launcher downloads, notifications, rendered UI,
+child notification, final policy decisions, runtime gate execution, native game
+control, cloud-frame analysis, and enforcement.
 Browser-game/cloud-gaming GAME-14 now adds parent-domain cloud-gaming gate
-contracts. The contracts cover known cloud domains, streaming session routes,
-gamepad/fullscreen/high-bandwidth/low-latency signal refs, optional platform
-title/rating metadata refs, unknown cloud-game approval, mature cloud-game
-block candidates, school-night blocks, time-budget candidates, manual-required
-content-frame gaps, and unavailable platform proof states while rejecting raw
-cloud titles, raw stream frames, cloud-streamed frame analysis, per-game cloud
-title claims, native game/launcher control, game chat content, account/purchase
-flows, notifications, rendered UI, child notification, final policy decisions,
-runtime gate execution, and enforcement.
+contracts plus a live public cloud-gaming route proof. The contracts cover known
+cloud domains, streaming session routes, gamepad/fullscreen/high-bandwidth/
+low-latency signal refs, optional platform title/rating metadata refs, unknown
+cloud-game approval, mature cloud-game block candidates, school-night blocks,
+time-budget candidates, manual-required content-frame gaps, and unavailable
+platform proof states. The proof fetches real Xbox Cloud Gaming, GeForce Now,
+Amazon Luna, Boosteroid, PlayStation Plus, Shadow cloud PC, and now.gg surfaces
+while storing only response hashes, evidence refs, request/decision refs, and
+no-authority flags. It rejects raw URLs/titles/stream frames, cloud-streamed
+frame analysis, per-game cloud title claims, native game/launcher control, game
+chat content, account/purchase flows, notifications, rendered UI, child
+notification, final policy decisions, runtime gate execution, and enforcement.
 Browser-game/cloud-gaming GAME-15 now adds parent-domain unblocked-site
 detection contracts. The detection models managed routes/pages, search intent,
 portal indexes, iframe embeds, proxy/mirror routes, hidden game origins, school
@@ -353,68 +738,114 @@ URLs, raw page body, raw search queries, captured iframe content, exact
 unmanaged URLs, native game control, cloud-frame analysis, account/purchase
 flows, rendered UI, final policy/runtime decisions, or enforcement.
 Browser-game/cloud-gaming GAME-16 now adds parent-domain UGC/multiplayer/chat
-risk contracts. The assessment covers UGC pages, experience pages, lobbies,
-profile/friends/message routes, launch prompts, and web-to-app launch surfaces,
-then returns candidate controls for approved experiences, parent approval, chat
-blocking where capability refs exist, time limits, purchase approval, unknown
-UGC blocking, manual review, or unknown state. It does not read chat content,
+risk contracts and a live public route-metadata proof. The assessment covers UGC
+pages, experience pages, lobbies, profile/friends/message routes, launch
+prompts, and web-to-app launch surfaces, then returns candidate controls for
+approved experiences, parent approval, chat blocking where capability refs
+exist, time limits, purchase approval, unknown UGC blocking, manual review, or
+unknown state. The live proof fetches real Roblox Discover, Scratch Games Explore,
+Minecraft Marketplace, Chess.com online play, Steam Community chat, Rec Room,
+and Xbox Cloud Gaming surfaces while persisting only response hashes, evidence
+refs, risk row refs, and no-authority flags. It does not read chat content,
 store profile/account/experience identifiers, execute web-to-app launches or
 purchases, control native games, claim final policy/runtime/UI delivery, or
 enforce actions.
 Browser-game/cloud-gaming GAME-17 now adds parent-domain candidate-only policy
-compiler contracts for browser-game evidence, analysis, mobile capability,
-parent rule, and schedule refs. These candidates are not final policy decisions,
-runtime gate executions, UI delivery, native game control, cloud-frame analysis,
-or enforcement.
+compiler contracts plus a live public compiler-shape proof for browser-game
+evidence, analysis, mobile capability, parent rule, and schedule refs. The live
+proof fetches real Code.org Minecraft, Poki Subway Surfers, Roblox Discover,
+Coolmath Run, Hooda unblocked games, Rec Room, and Internet Archive MS-DOS game
+surfaces while persisting only response hashes, evidence refs, compiler input
+refs, candidate decision refs, and no-authority flags. These candidates are not
+final policy decisions, runtime gate executions, UI delivery, native game
+control, cloud-frame analysis, or enforcement.
 Browser-game/cloud-gaming GAME-18 now adds parent-domain managed browser-game
-hold/block adapter contracts that link policy candidate refs, child UX refs,
-managed intervention adapter proof refs, and audit refs for hold, approval,
-block, and warn paths. Candidate-only allow/time-limit, manual-required cloud,
-and unavailable native/unmanaged rows remain non-executing, and the contracts
-reject raw URL/page/game payloads, child cookie/session reuse, unmanaged exact
-URL claims, browser mutation, rendered child pages, notification delivery,
-final policy decisions, applied time limits, cloud-frame analysis, native game
-control, and enforcement.
+hold/block adapter contracts plus live public proof for adapter plan shapes. The
+proof covers real Scratch games, Roblox Discover, Hooda unblocked games, Poki
+Subway Surfers, Code.org Minecraft, Coolmath Run, Xbox Cloud Gaming, and Steam
+Store surfaces with only response hashes, evidence refs, adapter plan refs, and
+no-authority flags persisted. Managed hold, approval, block, warning,
+candidate-only allow/time-limit, manual-required cloud, and unavailable native
+rows parse while raw URL/page/game payloads, child cookie/session reuse,
+unmanaged exact URL claims, browser mutation, rendered child pages,
+notification delivery, final policy decisions, applied time limits,
+cloud-frame analysis, native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-19 now adds parent-domain child checking/block
-UX contracts for browser games. The contracts cover unknown-game checking,
-parent approval, blocked candidates, educational allowed messaging, time-limit
-candidates, cloud-gaming manual-required state, and native game control
-unavailable state while rejecting raw child copy, rendered child UI,
-notification delivery, runtime browser blocking, block-page rendering, applied
-time limits, final policy decisions, cloud-frame analysis, native game control,
-and enforcement.
+UX contracts plus live public proof for child UX surface rows. The proof covers
+real Scratch games, Roblox Discover, Hooda unblocked games, Code.org Minecraft,
+Coolmath Run, Xbox Cloud Gaming, and Steam Store surfaces with only response
+hashes, evidence refs, child UX surface refs, and no-authority flags persisted.
+Checking, approval, blocked, educational allowed, time-limit, cloud-gaming
+manual-required, and native unavailable rows parse while raw child copy,
+rendered child UI, notification delivery, runtime browser blocking, block-page
+rendering, applied time limits, final policy decisions, cloud-frame analysis,
+native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-20 now adds parent-domain parent dashboard UX
-contracts for browser-game review surfaces. The contracts cover detected game
-review, unknown-game approval queue, cloud-gaming approval, educational-game
-allowlist, game time-budget candidates, mobile/native capability gaps, and
-manual-required gaps while rejecting rendered portal UI, notification delivery,
-runtime data fetch, final policy decisions, cloud-frame analysis, native game
-control, and enforcement.
+contracts plus live public proof for dashboard panel rows. The proof covers real
+Scratch games, Roblox Discover, Xbox Cloud Gaming, Code.org Minecraft, Coolmath
+Run, Steam Store, and Rec Room surfaces with only response hashes, evidence
+refs, dashboard panel refs, and no-authority flags persisted. Detected-game,
+approval queue, cloud approval, educational allowlist, time-budget,
+mobile/native gap, and manual-required gap panels parse while rendered portal
+UI, notification delivery, runtime data fetch, final policy decisions,
+cloud-frame analysis, native game control, and enforcement are rejected.
 Browser-game/cloud-gaming GAME-21 now adds parent-domain journal/SQLite
-read-model contracts for browser-game proof refs. The snapshot indexes managed
-browser evidence journal replay, app-game session report proof, adapter audit
+read-model contracts and a live public evidence-backed read-model shape proof
+for browser-game proof refs. The snapshot indexes managed browser evidence
+journal replay, app-game session report proof, adapter audit
 refs, manual-required cloud rows, and unavailable native/unmanaged rows while
 rejecting raw URL/page/game/title/account/purchase storage, child session reuse,
 cloud title certainty, browser mutation, rendered UI, final policy decisions,
-and enforcement.
-Browser-game/cloud-gaming GAME-22 now adds a proof artifact gate that checks
-GAME-01 through GAME-21 proof-pack coverage and marks Playwright
-manual-required because this slice does not render browser-game UI. This does
-not claim screenshots, runtime browser-game detection, cloud-streamed frame
-analysis, native game control, final policy execution, enforcement, or product
-checklist status.
+and enforcement. The live proof stores only response hashes, origin/path hashes,
+source refs, and no-claim flags; it does not claim a runtime SQLite query,
+rendered browser-game UI, Playwright screenshot, product checklist upgrade, or
+release readiness.
+Browser-game/cloud-gaming GAME-22 now adds a proof artifact gate plus live
+rendered child intervention proof. The proof opens real public Roblox,
+Coolmath Games, Scratch, Xbox Cloud Gaming, and Steam Store surfaces through
+Playwright, captures live backdrops, renders the shared
+BrowserChildInterventionPage, serves it through the Rust child-agent
+`/api/browser/intervention/page` endpoint, and stores screenshots plus hash-only
+proof JSON. This does not claim final policy decisions, product runtime
+browser-game detection, notification or approval delivery, cloud-streamed frame
+analysis, native game control, enforcement, or product checklist status.
 Browser-game/cloud-gaming GAME-23 now adds parent-domain Android/iOS capability
-matrix contracts for mobile browser-game surfaces. Android and iOS rows remain
-manual-required, token-limited, entitlement-required, app-level, or domain-level
-only until real device/platform proof exists, and they do not claim exact game
-content, cloud-streamed frame analysis, native game control, UI delivery, or
-enforcement.
+matrix contracts and real Android host/emulator proof for mobile browser-game
+surfaces. The proof builds the Android agent APK, boots or reuses an Android 15
+emulator, installs and launches the package, observes the running agent status
+through UIAutomator tree evidence, hashes UI/package/device evidence, and queries known
+browser package targets without storing a raw package list. Android and iOS rows
+remain manual-required, token-limited, entitlement-required, app-level, or
+domain-level only until owned-browser-shell, iOS entitlement, and device-owner
+proof exists, and they do not claim exact game content, cloud-streamed frame
+analysis, native game control, UI delivery, or enforcement.
 Browser-game/cloud-gaming GAME-24 now labels the game track
 partial/manual-required through the rollout gate. Product checklist upgrade is
-not claimed. GAME-01 is scaffold-proof-present and GAME-02 through GAME-24 are
-partial/manual-required. Route, runtime, metadata, AI, memory, UI,
-cloud-streamed frame-analysis, native-control, and enforcement proof still need
-separate release-grade artifacts before product completion can be claimed.
+not claimed. GAME-01 is scaffold-proof-present, GAME-02 is
+live-route-proof-present, GAME-03 is live-portal-pattern-proof-present, GAME-04
+is live-cloud-pattern-proof-present, and GAME-05 is live-url-shape-proof-present.
+GAME-06 is live-runtime-signal-shape-proof-present. GAME-07 is
+live-metadata-shape-proof-present. GAME-08 is
+live-hidden-analysis-profile-safety-proof-present. GAME-09 is
+live-educational-classifier-proof-present. GAME-10 is
+live-ai-analysis-proof-present. GAME-11 is
+live-riskbenefit-signal-proof-present. GAME-12 is
+live-memory-cache-proof-present. GAME-13 is
+live-account-purchase-gate-proof-present. GAME-14 is
+live-cloud-gaming-gate-proof-present. GAME-15 is
+live-unblocked-site-detection-proof-present. GAME-16 is
+live-ugc-multiplayer-chat-risk-proof-present. GAME-17 is
+live-policy-compiler-proof-present. GAME-18 is
+live-hold-block-adapter-proof-present. GAME-19 is
+live-child-checking-block-ux-proof-present. GAME-20 is
+live-parent-dashboard-ux-proof-present. GAME-21 is
+live-journal-sqlite-read-model-proof-present. GAME-22 is
+live-rendered-child-intervention-proof-present. GAME-23 is
+live-android-ios-host-proof-present. GAME-24 is partial/manual-required. Final
+policy decisions, parent dashboard runtime UI, notification or approval
+delivery, cloud-streamed frame-analysis, native-control, owned-browser-shell
+support, iOS entitlement proof, and enforcement proof still need separate
+release-grade artifacts before product completion can be claimed.
 Browser AI enhancement rows AI-01 and AI-02 now add plan linkage and
 schema-backed URL shape classification contracts. These contracts classify URL
 shape, platform, and stable ids only from exact managed-browser URL evidence and
@@ -553,7 +984,7 @@ post-analysis actions where applicable, and require adapter proof before claimin
 delivered checking, warning, block, or approval pages. They reject raw
 child-facing copy, shaming/surveillance copy claims, visual-render claims,
 state/token mismatches, rendered child pages without adapter proof, and
-warning/block/approval states without matching post-analysis actions. Activity-domain and text-domain package subpath exports are now present; no visual UI, browser page renderer, runtime delivery, enforcement, or product checklist upgrade is claimed.
+warning/block/approval states without matching post-analysis actions. Activity-domain and text-domain package subpath exports are present. The endpoint-backed rendered proof now decodes checking, warning, approval-required, limited, and blocked snapshots, renders them with the shared child intervention page, serves them from the Rust child-agent `/api/browser/intervention/page` endpoint, and captures real Chrome screenshots after a live YouTube CDP capture. Final policy execution, unmanaged browser control, native/mobile blocking, connector behavior, enforcement, and product checklist upgrade remain unclaimed.
 AI-20 now adds browser AI parent explanation/audit UX contracts and text-domain
 parent explanation tokens. Explanation bundles link evidence, AI analysis,
 policy decision, post-analysis action, child UX snapshot, memory/cache refs,
@@ -561,42 +992,62 @@ graph refs, and audit refs while making evidence, model runtime, prompt version,
 policy rule, action, child experience, child-saw-page, degraded/manual fallback,
 and audit visibility explicit. They reject raw page content, raw prompt text,
 portal evaluation, policy authority, direct enforcement, hidden fallback, hidden
-child engagement, missing audit sections, and mismatched source evidence. Activity-domain and text-domain package subpath exports are now present; no parent UI component, portal visual rendering, runtime delivery, enforcement, or product checklist upgrade is claimed.
-AI-21 now extends deterministic YouTube parser coverage and adds a YouTube
-metadata adapter. Managed exact YouTube watch, Shorts, embed, live, channel, and
-playlist URLs can produce schema-backed shape rows, and exact YouTube video,
-short, channel, or playlist classifications can produce metadata evidence with
-title, description, platform ids, channel name, thumbnail refs, duration, publish
-date, captions/transcript availability, category/rating/restricted signals, and
-degraded reasons. Unmanaged or non-YouTube classifications are rejected, and the
-adapter does not capture page body, transcript text, content semantics authority,
-AI decisions, policy decisions, or policy authority. Activity-domain package subpath exports are now present; no network fetcher,
-transcript parser, hidden page load, AI execution, policy evaluator,
-enforcement, or product checklist upgrade is claimed.
+child engagement, missing audit sections, and mismatched source evidence.
+Activity-domain and text-domain package subpath exports are now present. The
+AI-20 rendered proof consumes the live AI-19 YouTube CDP child UX evidence JSON,
+passes a schema-decoded parent explanation bundle through a dedicated proof-only
+Vite env var, renders the Browser review region on the real portal `#/browser`
+route, and captures desktop/mobile Playwright screenshots while keeping raw URL,
+page content, prompt text, final policy authority, browser mutation, enforcement,
+runtime service delivery, remote AI, and product checklist upgrade unclaimed.
+AI-21 now extends deterministic YouTube parser coverage, adds a YouTube metadata
+adapter, and has a live proof harness against a real public YouTube watch page
+plus YouTube oEmbed metadata. Managed exact YouTube watch, Shorts, embed, live,
+channel, and playlist URLs can produce schema-backed shape rows, and exact
+YouTube video, short, channel, or playlist classifications can produce metadata
+evidence with title, description, platform ids, channel name, thumbnail refs,
+duration, publish date, captions/transcript availability, category/rating/
+restricted signals, and degraded reasons. The live proof persists only status
+codes, marker booleans, public platform id, hashes, lengths, and no-claim flags;
+it does not persist raw watch-page HTML, raw page body, transcript text, cookies,
+tokens, local storage, or raw title/description strings. Unmanaged or
+non-YouTube classifications are rejected, and the adapter does not claim content
+semantics authority, AI decisions, policy decisions, or policy authority.
+Activity-domain package subpath exports are now present; no production metadata
+fetcher/scheduler, transcript parser, hidden page load, AI execution, policy
+evaluator, UI, enforcement, or product checklist upgrade is claimed.
 AI-22 now extends deterministic Vimeo parser coverage and adds a Vimeo/generic
 video metadata adapter. Managed exact Vimeo page and player URLs with numeric
 video ids can produce schema-backed shape rows, and exact managed Vimeo video or
 generic web schema.org VideoObject rows can produce metadata evidence with
 title, description, platform video id, channel name, thumbnail refs, duration,
 publish date, captions/transcript availability, category/rating/restricted
-signals, and degraded reasons. Unmanaged classifications and generic
-OpenGraph-only rows are rejected, and the adapter does not capture page body,
-transcript text, content semantics authority, AI decisions, policy decisions, or
-policy authority. Activity-domain package subpath exports are now present; no network fetcher, transcript parser, hidden page load, AI
-execution, policy evaluator, enforcement, or product checklist upgrade is
+signals, and degraded reasons. Live proof now fetches real public Vimeo page
+and player surfaces plus a real public generic VideoObject page, exercises the
+built activity-domain parser/adapter, and persists only statuses, hosts, hashes,
+lengths, platform ids, and no-claim flags. Unmanaged classifications and
+generic OpenGraph-only rows are rejected, and the adapter does not capture page
+body, transcript text, content semantics authority, AI decisions, policy
+decisions, or policy authority. Activity-domain package subpath exports are now
+present; no production network fetcher, transcript parser, hidden page load, AI
+execution, policy evaluator, UI, enforcement, or product checklist upgrade is
 claimed.
-AI-23 now extends deterministic dynamic feed/social URL handling. The URL shape
-contract can represent social post, messaging, upload/post, and livestream route
-targets alongside social feed, and the parser recognizes visible route shapes
-for Instagram, TikTok, Facebook, Twitch, X/Twitter, Reddit, and Discord only
-from managed exact URL evidence. Dynamic feeds and social route rows carry
-dynamic-feed or social-route reasons with medium/low confidence; exact
-reels/status/posts carry post ids where visible. Unmanaged social rows remain
-unknown/non-exact, dynamic-feed TTL stale memory rows cannot drive policy input,
-and parser rows keep content semantics, AI decisions, and policy decisions
-false. Activity-domain package subpath exports are now present; no account identity proof, feed recommendation analysis,
-messaging/contact analysis, upload monitoring, livestream content analysis, UI,
-enforcement, or product checklist upgrade is claimed.
+AI-23 now extends deterministic dynamic feed/social URL handling with live route
+proof. The URL shape contract can represent social post, messaging,
+upload/post, and livestream route targets alongside social feed, and the parser
+recognizes visible route shapes for Instagram, TikTok, Facebook, Twitch,
+X/Twitter, Reddit, and Discord only from managed exact URL evidence. The live
+proof fetches real public route surfaces for those platforms and persists only
+response statuses, content types, lengths, route/path/query/body hashes, title
+hashes/lengths, redirect host/path hashes, typed classifications, and no-claim
+flags. Dynamic feeds and social route rows carry dynamic-feed or social-route
+reasons with medium/low confidence; exact reels/status/posts carry post ids
+where visible. Unmanaged social rows remain unknown/non-exact, dynamic-feed TTL
+stale memory rows cannot drive policy input, and parser rows keep content
+semantics, AI decisions, and policy decisions false. Activity-domain package
+subpath exports are now present; no account identity proof, feed recommendation
+analysis, messaging/contact analysis, upload monitoring, livestream content
+analysis, UI, enforcement, or product checklist upgrade is claimed.
 AI-24 now adds provider degraded/fallback decision contracts for the browser AI
 route chain. Decisions can select child-device local AI, family AI hub, or
 parent-approved remote AI only when the selected route and runtime match the
@@ -613,6 +1064,16 @@ mentions, and no-claim rollout guard text. It emits JSON and Markdown proof
 showing 18 contract-proof rows and six partial/manual-required rows. This closes
 the AI enhancement proof index for the current D-lane slice while keeping
 runtime model execution, UI delivery, policy authority, enforcement, and product checklist completion unclaimed.
+The screen-AI browser trigger proof now adds an activity-domain contract plus
+`scripts/test/screen-ai-browser-trigger-proof.mjs` for managed-browser URL,
+browser-video, social-feed, and cloud-game trigger rows. The proof composes
+typed browser AI input/result rows with screen-analysis result rows and the
+parent-domain local-AI context builder, producing two ready local-AI contexts,
+one social manual-required context, and one cloud-game unavailable context at
+`test-results/screen-ai-browser-trigger-proof/proof.json`. It does not claim
+portal UI, broad browser enforcement, authenticated-account social proof,
+cloud-frame analysis, mobile browser parity, remote AI, or product checklist
+completion.
 SOCIAL-01 now adds the social platform account/feed workpack README under the
 browser plan. It gives managed-browser social account, feed, short-video,
 livestream, messaging-route, upload/post, and bypass rows a proof-root map while
@@ -691,14 +1152,21 @@ route-only account-flow evidence, sanitized form-shape evidence, and
 policy/approval refs. The plans keep account navigation/submission actions as
 candidates and reject runtime browser pause/block, child/parent UI, final policy,
 credential, form submission, account creation, native app, connector,
-enforcement, and product checklist claims.
+enforcement, and product checklist claims. The live proof now captures public
+Facebook signup, Pinterest login, Reddit register, and Instagram signup surfaces
+with Playwright, persists screenshots plus route-only proof JSON, and avoids raw
+DOM, field values, credentials, form submission, and account creation claims.
 SOCIAL-14 now adds managed-browser feed/short/video route gate-plan contracts
 from typed feed classification, bounded metadata evidence, and
 policy/approval/time-limit refs. The plans keep route allow/warn/parent-review/
 block/limit/manual/unknown actions as candidates and reject browser block,
 redirect, CSS/DOM hide, tab close, applied time limit, UI, final policy,
 content capture, recommendation modeling, native app, connector, enforcement,
-and product checklist claims.
+and product checklist claims. SOCIAL-14 live proof now drives Playwright against
+real public Reddit, Twitch, TikTok, Instagram, YouTube, and Vimeo surfaces,
+persists screenshots plus hashes/statuses only, and validates five route-gate
+plans through the built activity-domain contracts while keeping the YouTube
+redirect/non-match as an explicit non-planned live capture.
 SOCIAL-15 now adds unmanaged social bypass detector contracts from redacted
 unmanaged/browser-like process evidence. The evidence is bypass-only and
 managed-browser-required, rejecting exact URLs, social route/account/feed/video/
@@ -729,31 +1197,130 @@ exist; stale, miss, and manual-required rows cannot. This does not claim a
 runtime cache store, AI cache, activity-domain export, raw content storage, UI,
 native control, enforcement, or product checklist status.
 SOCIAL-20 now adds parent-domain parent social dashboard UX section contracts
-for account approvals, feed/video gates, native app capability, connector
-boundaries, decision memory, and manual-required gaps. This does not claim a
-rendered portal dashboard, runtime data fetch, notification, connector
-authorization, native control, enforcement, or product checklist status.
-SOCIAL-21 now adds parent-domain child approval/block UX state contracts for
-approval pending, blocked route candidates, warnings, manual review, time-limit
-candidates, and native-app unavailable states. This does not claim rendered
-child UI, notifications, browser block execution, block-page rendering, applied
-time limits, final policy execution, native control, enforcement, or product
-checklist status.
-SOCIAL-22 now adds parent-domain social audit/explanation read-model contracts
-for account approval, feed/video gate, native-app gap, connector boundary,
-decision memory, and manual-required gap rows. This does not claim a runtime
-audit store, rendered explanation UI, notifications, raw account/video/message
-content, connector authorization, native control, final policy execution,
-enforcement, or product checklist status.
+and text-domain copy tokens for account approvals, feed/video gates, native app
+capability, connector boundaries, decision memory, and manual-required gaps.
+The real Browser route now requests a service-backed Rust WebSocket
+`agent.browser.social-dashboard.read-model.reported` event, parses the
+schema-backed social dashboard snapshot, renders six honest parent rows, and
+captures desktop/mobile Playwright proof. The rows remain parent-review,
+manual-required, or contract-only status only. This does not claim social
+runtime data fetch, notification delivery, connector authorization, native app
+control, final policy execution, enforcement, product checklist completion, or
+release readiness.
+SOCIAL-21 now maps parent-domain child approval/block UX state contracts to the
+shared PR399 child intervention renderer and Rust child-agent
+`/api/browser/intervention/page` endpoint. Proof covers approval-hold, block,
+warn, parent-review/manual-required, time-limit candidate, and native-app
+unavailable social states rendered from the endpoint with no-store caching,
+ask-parent bridge payload, and screenshots. This does not claim browser
+navigation block execution, notification delivery, applied time limits, final
+policy execution, native control, enforcement, or product checklist status.
+SOCIAL-22 now renders the parent-domain social audit/explanation read-model
+contracts in the real Browser route from the service-backed Rust WebSocket
+`agent.browser.social-audit-explanation.read-model.reported` event, with a
+dedicated proof bundle retained only as fallback evidence. The proof captures
+desktop/mobile Playwright screenshots for account approval, feed/video gate,
+native-app gap, connector boundary, decision memory, and manual-required gap
+rows. This does not claim a runtime audit store, notifications, raw
+account/video/message content, connector authorization, native control, final
+policy execution, enforcement, or product checklist status.
 SOCIAL-23 now adds a social proof artifact gate that checks SOCIAL-01 through
-SOCIAL-22 proof-pack coverage and marks Playwright manual-required because this
-slice does not render social UI. This does not claim screenshots, runtime
-connector behavior, native control, final policy execution, enforcement, or
-product checklist status.
+SOCIAL-22 proof-pack coverage. SOCIAL-20 now has rendered parent Browser-route
+screenshots for a service-backed six-row social dashboard snapshot, SOCIAL-21
+has child-agent-served social intervention page screenshots, and SOCIAL-22 has
+Browser-route social explanation screenshots from a schema-decoded proof bundle.
+The social track remains partial/manual-required because runtime connector
+behavior, native control, final policy execution, enforcement, and product
+checklist status remain manual-required.
 SOCIAL-24 now labels the social track partial/manual-required through the
-rollout gate. Product checklist upgrade is not claimed. Rendered social UI,
-Playwright screenshots, connector/native runtime, final policy execution, and
-enforcement remain unclaimed.
+rollout gate. Product checklist upgrade is not claimed. Parent social dashboard
+rows can now come from the local Rust service snapshot path, child social
+intervention states can render through the child-agent page endpoint, and social
+explanation rows can render through the service-backed Browser route read-model
+with proof-bundle fallback. Connector/native runtime, final policy execution,
+enforcement, and product readiness remain unclaimed.
+SOCIAL-23/SOCIAL-24 now also include Browser-route evidence for the
+service-backed parent notification/report delivery readiness projection. This
+improves parent-visible status coverage but keeps the social track
+partial/manual-required because provider delivery, provider receipt ingestion,
+parent notification UI delivery, final policy execution, connector/native
+runtime, and enforcement remain unclaimed.
+WP13 now registers the browser action-intent status request event in the
+reusable Rust eventing topology manifest. The event is covered by the
+browser-runtime-spine publisher and browser-action-intent-status subscriber,
+but this is topology proof only: no external transport, adapter dispatch,
+browser mutation, child intervention execution, final policy execution, or
+enforcement is claimed.
+WP13 now also registers the existing ordered browser runtime event chain in the
+same reusable Rust eventing topology manifest. The ten current phases from
+browser evidence observed through read-model projected are covered by the
+browser-runtime-spine publisher and their named subscribers/targets. This is
+chain topology proof only: it adds no external transport, adapter dispatch,
+browser mutation, child intervention execution, final policy execution, or
+enforcement.
+WP13 now adds a browser runtime delivery-decision proof using the reusable Rust
+eventing delivery decision API. The browser runtime chain is local-service
+ready, the browser action-intent status subscriber is local-in-process ready,
+the browser action-intent handoff subscriber is local-in-process ready, the
+browser social-provider receipt status subscriber is local-in-process ready, the
+browser social parent-notification delivery status subscriber is local-in-process
+ready, and external transport remains manual-required until custody/auth/
+encryption/retention/replay/delete/offset/dedupe/transport artifacts exist. This
+adds no external transport, relay delivery, adapter dispatch, browser mutation,
+child intervention execution, final policy execution, or enforcement.
+WP13 now also carries browser action-intent child-status refs through the
+service-backed parent-child event path. A dry-run handoff candidate produces
+parent-child command, child accepted-event, and parent read-model refs in the
+public browser runtime stream, while non-candidate rows remain zero/empty and
+the service does not call the fixture-backed child-status proof. This adds no
+adapter dispatch, browser mutation, child intervention execution, final policy
+execution, unmanaged exact URL support, or enforcement.
+WP13 now also registers the service stream request
+`browser.runtime.stream.report.requested` in the reusable Rust event topology
+and delivery-decision proof. The route stays local in-process from the browser
+runtime spine to the stream report subscriber, and the public portal WebSocket
+command/event names remain unchanged.
+WP13 now also registers the internal service read-model request
+`browser.social.parent-notification-delivery.status.requested` in the reusable
+Rust delivery-decision proof. The route stays local in-process from the browser
+runtime spine to the social parent-notification delivery status subscriber, and
+the public portal WebSocket command/event names remain unchanged.
+WP13 now also separates the social report-writer delivery source from the
+parent-notification projection. The parent-notification subscriber first asks
+the local `browser.social.report-writer-delivery.status.requested` eventing
+request, then derives parent-visible notification rows from the returned
+report-writer delivery row refs. This removes the duplicated service-side
+report-writer truth while keeping the same public portal command/event and
+without claiming parent notification UI delivery, external report delivery,
+provider delivery/receipt ingestion, final policy execution, browser mutation,
+child intervention execution, unmanaged exact URL support, or enforcement.
+The same report-writer status request and the social alert/report
+parent-surface status request are now registered in the browser runtime
+delivery-decision proof as seventh and eighth local-ready routes, keeping both
+internal event handoffs visible to the shared `ocentra-eventing` route audit.
+WP13 Browser-route proof now renders a parent-visible browser action-intent
+stream status card from the existing parsed runtime stream, next to the social
+provider receipt stream and receipt ingestion readiness cards. The proof uses
+the real Rust agent service plus Vite portal E2E, captures desktop/mobile
+screenshots, and keeps action adapter dispatch, browser mutation, child
+intervention execution, final policy execution, unmanaged exact URL support,
+and enforcement unclaimed. The focused action-intent projection lives in
+`portal-domain`; the route imports that focused source directly while C owns the
+shared barrel/package export files.
+
+- Browser-plan WP13 now also carries social alert/report parent-surface status
+  through a service-backed local eventing request and the existing Browser route
+  social alert/report panel. The Rust service publishes
+  `browser.social-alert-report.parent-surface.status.requested`, completes it
+  through `ocentra-eventing` after asking the local provider-status and
+  preference-status handoff subscribers, reports
+  `agent.browser.social-alert-report.parent-surface.read-model.reported`, and
+  the portal renders provider/preference-derived manual-action-required plus
+  unavailable-visible parent-surface rows with desktop/mobile screenshots. This remains
+  parent-visible status only and does not claim parent notification UI
+  delivery, preference UI delivery, history UI, provider delivery/receipt
+  ingestion, provider credentials, cloud routing, adapter dispatch, final policy
+  execution, browser mutation, unmanaged exact URL support, or enforcement.
 
 ## Checklist
 

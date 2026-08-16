@@ -2,14 +2,29 @@ node_modules/
 dist/
 coverage/
 .turbo/
+.codebase-memory/
+.tmp/
+apps/portal/generated/
+packages/portal-domain/src/generated-portal-contracts.ts
 .wix/
 target/
+
+# Docs and proof writeups are useful working material, but they should not
+# block code validation or CI on formatting drift.
+**/*.md
+
+tmp/
+output/
+test-results/
+infra/cloudflare/.wrangler/tmp/
 package-lock.json
 *.wxs
 .gitleaks.toml
+tools/ocentra-ledger/
 
 # Generated raw review inventories should remain byte-for-byte stable.
 docs/*-settings-inventory.md
+docs/engineering-graph/graph.json
 
 # Native platform build outputs
 platforms/android/**/.gradle/

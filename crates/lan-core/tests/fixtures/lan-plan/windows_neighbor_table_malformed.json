@@ -1,0 +1,25 @@
+[
+  {
+    "IPAddress": "8.8.8.8",
+    "LinkLayerAddress": "00-11-22-33-44-55",
+    "State": "reachable",
+    "InterfaceAlias": "Ethernet"
+  },
+  {
+    "IPAddress": "192.168.2.50",
+    "LinkLayerAddress": "00-00-00-00-00-00",
+    "State": "reachable",
+    "InterfaceAlias": "Ethernet"
+  },
+  {
+    "IPAddress": "not-an-ip",
+    "LinkLayerAddress": "00-11-22-33-44-56",
+    "State": "reachable",
+    "InterfaceAlias": "Ethernet"
+  },
+  {
+    "LinkLayerAddress": "00-11-22-33-44-57",
+    "State": "reachable",
+    "InterfaceAlias": "Ethernet"
+  }
+]

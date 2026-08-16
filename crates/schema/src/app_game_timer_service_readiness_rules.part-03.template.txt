@@ -1,0 +1,30 @@
+  readonly auditProofRequired: boolean;
+  readonly rollbackProofRequired: boolean;
+  readonly timerScheduled: boolean;
+};
+
+type TimerRuntimeReadinessLike = {
+  readonly runtimeProofRequiredCount: number;
+  readonly blockedBySourceFreshnessCount: number;
+  readonly blockedByCompilerDecisionCount: number;
+  readonly rows: readonly TimerRuntimeReadinessRowLike[];
+  readonly serviceRuntimeEventClaimed: boolean;
+  readonly portalUiRendered: boolean;
+  readonly policyEvaluatorRuntimeClaimed: boolean;
+  readonly timerRuntimeClaimed: boolean;
+  readonly timerScheduled: boolean;
+  readonly schedulerPersistenceClaimed: boolean;
+  readonly auditRuntimeClaimed: boolean;
+  readonly rollbackRuntimeClaimed: boolean;
+  readonly adapterDispatchClaimed: boolean;
+  readonly childDeliveryClaimed: boolean;
+  readonly platformEnforcementClaimed: boolean;
+  readonly rawPrivateSourceRowsIncluded: boolean;
+};
+
+type TimerRuntimeReadinessProofRefsLike = {
+  readonly timerRuntimeProofRef: string;
+  readonly schedulerPersistenceProofRef: string;
+  readonly auditProofRef: string;
+  readonly rollbackProofRef: string;
+};

@@ -1,0 +1,30 @@
+
+export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRequiredProofRefsGenerated = (
+  refs: TimerSchedulerPersistenceProofRefsLike,
+  schedulerPersistenceState: TimerSchedulerPersistenceStateValue,
+  inheritedProofRefs: readonly string[]
+) =>
+  schedulerPersistenceState ===
+  AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.SchedulerPersistenceProofRequired
+    ? [
+        refs.serviceTimerRuntimeProofRef,
+        refs.schedulerPersistenceProofRef,
+        refs.schedulerStateStoreProofRef,
+        refs.auditProofRef,
+        refs.rollbackProofRef,
+      ]
+    : [...inheritedProofRefs];
+
+export const appGameSourceGatedPolicyPreviewTimerSchedulerPersistenceCountsMatchGenerated = (
+  persistence: TimerSchedulerPersistenceLike
+) =>
+  persistence.schedulerPersistenceProofRequiredCount ===
+    persistence.rows.filter(
+      (row) =>
+        row.schedulerPersistenceState ===
+          AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.SchedulerPersistenceProofRequired &&
+        row.serviceTimerRuntimeProofRequired &&
+        row.schedulerPersistenceProofRequired &&
+        row.schedulerStateStoreProofRequired &&
+        row.auditProofRequired &&
+        row.rollbackProofRequired &&

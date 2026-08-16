@@ -1,4 +1,12 @@
-import { PortalRoute, type PortalRoute as PortalRouteValue } from './routes';
+import { PortalRoute, type PortalRoute as PortalRouteValue } from './portal-contract-adapter';
+import {
+  generatedParentPortalManageLaneForRoute,
+  generatedParentPortalRouteState,
+  type GeneratedParentPortalManageLane,
+  type GeneratedParentPortalPageMode,
+} from './portal-route-state.generated';
+import { portalRouteHashPath } from './routes';
+import { PortalRoutes } from './routes';
 import {
   PARENT_PORTAL_NAV_LABELS,
   PARENT_PORTAL_NAV_GROUPS,
@@ -8,8 +16,9 @@ import {
   type ParentPortalNavItem,
   type ParentPortalNavLabel,
 } from './parent-portal-nav';
-import { PARENT_PORTAL_GUIDE_TOPICS, type ParentPortalGuideTopic } from './parent-portal-guides';
-import { PARENT_PORTAL_MANAGE_QUICK_CONTROLS, PARENT_PORTAL_MANAGE_ROWS } from './parent-portal-manage-data';
+import type { ParentPortalGuideTopic } from './parent-portal-guide-types';
+import { PARENT_PORTAL_GUIDE_TOPICS } from './parent-portal-guides';
+import { PARENT_PORTAL_MANAGE_QUICK_CONTROLS } from './parent-portal-manage-data';
 
 export type ParentPortalTone = 'cyan' | 'gold' | 'purple' | 'red' | 'muted';
 export type ParentPortalTabId = 'overall' | 'controls' | 'aiStatus' | 'routines' | 'support';
@@ -46,8 +55,9 @@ export type ParentPortalIconName =
   | 'ai-memory'
   | 'account'
   | 'enforcement';
-export type ParentPortalRowSource = 'api' | 'fallbackRows' | 'aiBenchmarkRows';
-export type ParentPortalPageMode = 'parentOverview' | 'parentManage' | 'parentGuide';
+export type ParentPortalRowSource = 'api' | 'aiBenchmarkRows';
+export type ParentPortalPageMode = GeneratedParentPortalPageMode;
+export type ParentPortalManageLane = GeneratedParentPortalManageLane;
 
 export type ParentPortalRow = {
   label: string;
@@ -104,7 +114,6 @@ export type ParentPortalContent = {
     routePath: ParentPortalHashRoutePath;
   }>;
   guideTopics: readonly ParentPortalGuideTopic[];
-  fallbackRows: ParentPortalRow[];
   aiBenchmarkRows: ParentPortalRow[];
   distributionLabels: string[];
   season: {
@@ -172,6 +181,7 @@ export type ParentPortalRouteContext = {
   readonly pageMode: ParentPortalPageMode;
   readonly navLabel: ParentPortalNavLabel;
   readonly selectedControlId: string;
+  readonly manageLane: ParentPortalManageLane | null;
 };
 
 export const PARENT_PORTAL_ROUTE = {
@@ -179,8 +189,8 @@ export const PARENT_PORTAL_ROUTE = {
   PageMode: 'parentOverview',
   EmptyTimestamp: '',
   HashRoutes: {
-    Assistant: '#/assistant',
-    Overview: '#/overview',
+    Assistant: portalRouteHashPath(PortalRoute.Assistant),
+    Overview: portalRouteHashPath(PortalRoute.Overview),
   },
   StatusText: {
     Local: 'LOCAL',
@@ -190,59 +200,78 @@ export const PARENT_PORTAL_ROUTE = {
   },
 } as const;
 
-export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteValue, ParentPortalRouteContext>>> = {
-  [PortalRoute.Overview]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.Overview, 'activity-store'),
-  [PortalRoute.Assistant]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.AiSetup, 'ai-runtime'),
-  [PortalRoute.Start]: routeContext('parentOverview', PARENT_PORTAL_NAV_LABELS.StartHere, 'setup-overall'),
-  [PortalRoute.Activity]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
-  [PortalRoute.Browser]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Web, 'managed-web'),
-  [PortalRoute.BrowserSettings]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Browser, 'browser-settings'),
-  [PortalRoute.Policy]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.RulesGuide, 'rules-policy'),
-  [PortalRoute.PolicyApps]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Apps, 'policy-apps'),
-  [PortalRoute.PolicyGames]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Games, 'policy-games'),
-  [PortalRoute.PolicyScreen]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Screen, 'screen-analysis'),
-  [PortalRoute.PolicyNetwork]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Network, 'network-activity'),
-  [PortalRoute.PolicyTracking]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Tracking, 'policy-tracking'),
-  [PortalRoute.PolicyRemoteScreen]: routeContext(
-    'parentManage',
-    PARENT_PORTAL_NAV_LABELS.RemoteScreen,
-    'policy-remote-screen'
-  ),
-  [PortalRoute.RuleManagement]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.RuleSet, 'rules-management'),
-  [PortalRoute.Schedules]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Schedules, 'schedules-budgets'),
-  [PortalRoute.Approvals]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Approvals, 'approvals'),
-  [PortalRoute.Enforcement]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Enforce, 'enforcement-readiness'),
-  [PortalRoute.PrivacyDesign]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.Private, 'privacy-design'),
-  [PortalRoute.Memory]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.MemoryGuide, 'memory-citations'),
-  [PortalRoute.MemorySettings]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AiMemory, 'memory-settings'),
-  [PortalRoute.AiGuide]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.Ai, 'local-ai-evidence'),
-  [PortalRoute.AiRuntime]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AiMemory, 'ai-runtime'),
-  [PortalRoute.ApiProviders]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.AiMemory, 'api-providers'),
-  [PortalRoute.ReportsGuide]: routeContext('parentGuide', PARENT_PORTAL_NAV_LABELS.ReportsGuide, 'reports-summaries'),
-  [PortalRoute.ScreenAnalysis]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
-  [PortalRoute.AppGameSessions]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'app-game-sessions'),
-  [PortalRoute.NetworkActivity]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
-  [PortalRoute.Devices]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
-  [PortalRoute.LanPairing]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
-  [PortalRoute.CapabilityStatus]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
-  [PortalRoute.Notifications]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Portal, 'notifications'),
-  [PortalRoute.NotificationChannels]: routeContext(
-    'parentManage',
-    PARENT_PORTAL_NAV_LABELS.Portal,
-    'notification-channels'
-  ),
-  [PortalRoute.DriveConnections]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.DataPrivacy, 'drive-exports'),
-  [PortalRoute.ExportRetention]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.DataPrivacy, 'export-retention'),
-  [PortalRoute.RemoteAccess]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.DataPrivacy, 'remote-access'),
-  [PortalRoute.ReportCompiler]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Activity, 'reports-settings'),
-  [PortalRoute.AuditHistory]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.DataPrivacy, 'audit-history'),
-  [PortalRoute.Subscription]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Account, 'subscription-plans'),
-  [PortalRoute.Entitlements]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Account, 'entitlements'),
-  [PortalRoute.PlatformsInstall]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
-  [PortalRoute.InstallUpdates]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Devices, 'lan-pairing'),
-  [PortalRoute.Diagnostics]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Account, 'support-api-status'),
-  [PortalRoute.SettingsRules]: routeContext('parentManage', PARENT_PORTAL_NAV_LABELS.Portal, 'family-settings'),
+const PARENT_PORTAL_ROUTE_NAV_LABELS: Readonly<Record<PortalRouteValue, ParentPortalNavLabel>> = {
+  [PortalRoute.Overview]: PARENT_PORTAL_NAV_LABELS.Overview,
+  [PortalRoute.Assistant]: PARENT_PORTAL_NAV_LABELS.AiSetup,
+  [PortalRoute.Start]: PARENT_PORTAL_NAV_LABELS.StartHere,
+  [PortalRoute.Activity]: PARENT_PORTAL_NAV_LABELS.Activity,
+  [PortalRoute.Browser]: PARENT_PORTAL_NAV_LABELS.Web,
+  [PortalRoute.BrowserSettings]: PARENT_PORTAL_NAV_LABELS.Browser,
+  [PortalRoute.Policy]: PARENT_PORTAL_NAV_LABELS.RulesGuide,
+  [PortalRoute.PolicyApps]: PARENT_PORTAL_NAV_LABELS.Apps,
+  [PortalRoute.PolicyGames]: PARENT_PORTAL_NAV_LABELS.Games,
+  [PortalRoute.PolicyScreen]: PARENT_PORTAL_NAV_LABELS.Screen,
+  [PortalRoute.PolicyNetwork]: PARENT_PORTAL_NAV_LABELS.Network,
+  [PortalRoute.PolicyTracking]: PARENT_PORTAL_NAV_LABELS.Tracking,
+  [PortalRoute.PolicyRemoteScreen]: PARENT_PORTAL_NAV_LABELS.RemoteScreen,
+  [PortalRoute.RuleManagement]: PARENT_PORTAL_NAV_LABELS.RuleSet,
+  [PortalRoute.Schedules]: PARENT_PORTAL_NAV_LABELS.Schedules,
+  [PortalRoute.Approvals]: PARENT_PORTAL_NAV_LABELS.Approvals,
+  [PortalRoute.Enforcement]: PARENT_PORTAL_NAV_LABELS.Enforce,
+  [PortalRoute.PrivacyDesign]: PARENT_PORTAL_NAV_LABELS.Private,
+  [PortalRoute.Memory]: PARENT_PORTAL_NAV_LABELS.MemoryGuide,
+  [PortalRoute.MemorySettings]: PARENT_PORTAL_NAV_LABELS.AiMemory,
+  [PortalRoute.AiGuide]: PARENT_PORTAL_NAV_LABELS.Ai,
+  [PortalRoute.AiRuntime]: PARENT_PORTAL_NAV_LABELS.AiMemory,
+  [PortalRoute.ApiProviders]: PARENT_PORTAL_NAV_LABELS.AiMemory,
+  [PortalRoute.ReportsGuide]: PARENT_PORTAL_NAV_LABELS.ReportsGuide,
+  [PortalRoute.ScreenAnalysis]: PARENT_PORTAL_NAV_LABELS.Activity,
+  [PortalRoute.AppGameSessions]: PARENT_PORTAL_NAV_LABELS.Activity,
+  [PortalRoute.NetworkActivity]: PARENT_PORTAL_NAV_LABELS.Activity,
+  [PortalRoute.Devices]: PARENT_PORTAL_NAV_LABELS.Devices,
+  [PortalRoute.LanPairing]: PARENT_PORTAL_NAV_LABELS.Devices,
+  [PortalRoute.CapabilityStatus]: PARENT_PORTAL_NAV_LABELS.Devices,
+  [PortalRoute.Notifications]: PARENT_PORTAL_NAV_LABELS.Portal,
+  [PortalRoute.NotificationChannels]: PARENT_PORTAL_NAV_LABELS.Portal,
+  [PortalRoute.DriveConnections]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
+  [PortalRoute.ExportRetention]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
+  [PortalRoute.RemoteAccess]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
+  [PortalRoute.ReportCompiler]: PARENT_PORTAL_NAV_LABELS.Activity,
+  [PortalRoute.AuditHistory]: PARENT_PORTAL_NAV_LABELS.DataPrivacy,
+  [PortalRoute.Subscription]: PARENT_PORTAL_NAV_LABELS.Account,
+  [PortalRoute.Entitlements]: PARENT_PORTAL_NAV_LABELS.Account,
+  [PortalRoute.PlatformsInstall]: PARENT_PORTAL_NAV_LABELS.Devices,
+  [PortalRoute.InstallUpdates]: PARENT_PORTAL_NAV_LABELS.Devices,
+  [PortalRoute.Diagnostics]: PARENT_PORTAL_NAV_LABELS.Diagnostics,
+  [PortalRoute.ProofPanels]: PARENT_PORTAL_NAV_LABELS.ProofPanels,
+  [PortalRoute.SettingsRules]: PARENT_PORTAL_NAV_LABELS.Portal,
+  [PortalRoute.AppLayout]: PARENT_PORTAL_NAV_LABELS.AppLayout,
+  [PortalRoute.Commands]: PARENT_PORTAL_NAV_LABELS.Commands,
+  [PortalRoute.Events]: PARENT_PORTAL_NAV_LABELS.Events,
+  [PortalRoute.Logs]: PARENT_PORTAL_NAV_LABELS.Logs,
+  [PortalRoute.FrameTuner]: PARENT_PORTAL_NAV_LABELS.AppLayout,
 } as const;
+
+export const PARENT_PORTAL_ROUTE_CONTEXT: Readonly<Partial<Record<PortalRouteValue, ParentPortalRouteContext>>> =
+  Object.fromEntries(
+    PortalRoutes.flatMap((route) => {
+      const routeState = generatedParentPortalRouteState(route);
+      const navLabel = PARENT_PORTAL_ROUTE_NAV_LABELS[route];
+      return routeState === null || navLabel === undefined
+        ? []
+        : [
+            [
+              route,
+              {
+                pageMode: routeState.pageMode,
+                navLabel,
+                selectedControlId: routeState.selectedControlId,
+                manageLane: routeState.manageLane,
+              },
+            ],
+          ];
+    })
+  ) as Readonly<Partial<Record<PortalRouteValue, ParentPortalRouteContext>>>;
 
 export function parentPortalRouteContext(route: PortalRouteValue): ParentPortalRouteContext {
   return (
@@ -251,108 +280,9 @@ export function parentPortalRouteContext(route: PortalRouteValue): ParentPortalR
   );
 }
 
-export const PARENT_PORTAL_ROWS: ParentPortalRow[] = [
-  {
-    label: 'Supported Browsers',
-    order: 1,
-    signalScore: 4928,
-    readyCount: 24,
-    gapCount: 0,
-    primaryArea: 'Managed Web',
-    trend: 'Local',
-    tone: 'gold',
-  },
-  {
-    label: 'Unsupported Browsers',
-    order: 2,
-    signalScore: 3640,
-    readyCount: 18,
-    gapCount: 2,
-    primaryArea: 'Browser Gap',
-    trend: 'Review',
-    tone: 'cyan',
-  },
-  {
-    label: 'Block or Allow',
-    order: 3,
-    signalScore: 3215,
-    readyCount: 16,
-    gapCount: 3,
-    primaryArea: 'Policy Action',
-    trend: 'Ready',
-    tone: 'red',
-  },
-  {
-    label: 'App Sessions',
-    order: 4,
-    signalScore: 2980,
-    readyCount: 14,
-    gapCount: 4,
-    primaryArea: 'APP AND GAME SESSIONS',
-    trend: '+2',
-    tone: 'purple',
-  },
-  {
-    label: 'Screen Analysis',
-    order: 5,
-    signalScore: 2865,
-    readyCount: 12,
-    gapCount: 5,
-    primaryArea: 'SCREEN ANALYSIS',
-    trend: '+1',
-    tone: 'cyan',
-  },
-  {
-    label: 'Rule Builder',
-    order: 6,
-    signalScore: 2754,
-    readyCount: 10,
-    gapCount: 6,
-    primaryArea: 'Family Rules',
-    trend: 'Draft',
-    tone: 'gold',
-  },
-  {
-    label: 'Device Pairing',
-    order: 7,
-    signalScore: 2645,
-    readyCount: 8,
-    gapCount: 7,
-    primaryArea: 'Child Device',
-    trend: 'Local',
-    tone: 'purple',
-  },
-  {
-    label: 'Drive Exports',
-    order: 8,
-    signalScore: 2523,
-    readyCount: 6,
-    gapCount: 8,
-    primaryArea: 'Parent Owned',
-    trend: 'Opt in',
-    tone: 'cyan',
-  },
-  {
-    label: 'Notifications',
-    order: 9,
-    signalScore: 2400,
-    readyCount: 4,
-    gapCount: 1,
-    primaryArea: 'Parent Alerts',
-    trend: 'Opt in',
-    tone: 'red',
-  },
-  {
-    label: 'Private by Design',
-    order: 10,
-    signalScore: 2320,
-    readyCount: 4,
-    gapCount: 0,
-    primaryArea: 'Data Custody',
-    trend: 'Local',
-    tone: 'gold',
-  },
-];
+export function parentPortalManageLaneForRoute(route: PortalRouteValue): ParentPortalManageLane | null {
+  return generatedParentPortalManageLaneForRoute(route);
+}
 
 export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
   tabs: [
@@ -422,7 +352,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Browser',
       subcategory: 'Supported browsers',
       controlCode: 1,
-      routePath: '#/browser',
+      routePath: portalRouteHashPath(PortalRoute.Browser),
     },
     {
       id: 'browser-gap',
@@ -434,7 +364,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Browser',
       subcategory: 'Unsupported browsers',
       controlCode: 2,
-      routePath: '#/browser',
+      routePath: portalRouteHashPath(PortalRoute.Browser),
     },
     {
       id: 'policy-action',
@@ -446,7 +376,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Policy',
       subcategory: 'Block or allow',
       controlCode: 3,
-      routePath: '#/policy',
+      routePath: portalRouteHashPath(PortalRoute.Policy),
     },
     {
       id: 'activity-store',
@@ -458,7 +388,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Activity',
       subcategory: 'Recent events',
       controlCode: 4,
-      routePath: '#/activity',
+      routePath: portalRouteHashPath(PortalRoute.Activity),
     },
     {
       id: 'drive-exports',
@@ -470,7 +400,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Support',
       subcategory: 'Connect your drives',
       controlCode: 5,
-      routePath: '#/drive-connections',
+      routePath: portalRouteHashPath(PortalRoute.DriveConnections),
     },
     {
       id: 'privacy-design',
@@ -482,7 +412,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Privacy',
       subcategory: 'Data custody',
       controlCode: 6,
-      routePath: '#/privacy-design',
+      routePath: portalRouteHashPath(PortalRoute.PrivacyDesign),
     },
     {
       id: 'memory-citations',
@@ -494,7 +424,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Memory',
       subcategory: 'Local knowledge',
       controlCode: 7,
-      routePath: '#/memory',
+      routePath: portalRouteHashPath(PortalRoute.Memory),
     },
     {
       id: 'notifications',
@@ -506,7 +436,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Devices',
       subcategory: 'Parent alerts',
       controlCode: 8,
-      routePath: '#/notifications',
+      routePath: portalRouteHashPath(PortalRoute.Notifications),
     },
     {
       id: 'family-settings',
@@ -518,7 +448,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Devices',
       subcategory: 'Family defaults',
       controlCode: 9,
-      routePath: '#/settings-rules',
+      routePath: portalRouteHashPath(PortalRoute.SettingsRules),
     },
     {
       id: 'api-providers',
@@ -530,19 +460,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'AI',
       subcategory: 'External AI setup',
       controlCode: 10,
-      routePath: '#/api-providers',
-    },
-    {
-      id: 'device-pairing',
-      order: 11,
-      name: 'Device Pairing',
-      matches: 'Trusted',
-      growth: 'Per child',
-      tone: 'cyan',
-      category: 'Devices',
-      subcategory: 'Pairing and status',
-      controlCode: 11,
-      routePath: '#/devices',
+      routePath: portalRouteHashPath(PortalRoute.ApiProviders),
     },
   ],
   quickControls: [
@@ -555,7 +473,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Browser',
       subcategory: 'Supported browsers',
       controlCode: 1,
-      routePath: '#/browser',
+      routePath: portalRouteHashPath(PortalRoute.Browser),
     },
     ...PARENT_PORTAL_MANAGE_QUICK_CONTROLS,
     {
@@ -567,7 +485,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Policy',
       subcategory: 'Rules and approvals',
       controlCode: 3,
-      routePath: '#/policy',
+      routePath: portalRouteHashPath(PortalRoute.Policy),
     },
     {
       id: 'local-ai',
@@ -578,7 +496,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'AI',
       subcategory: 'Evidence summaries',
       controlCode: 6,
-      routePath: '#/ai-runtime',
+      routePath: portalRouteHashPath(PortalRoute.AiRuntime),
     },
     {
       id: 'local-ai-hub',
@@ -589,7 +507,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'AI',
       subcategory: 'Local hub',
       controlCode: 6,
-      routePath: '#/ai-runtime',
+      routePath: portalRouteHashPath(PortalRoute.AiRuntime),
     },
     {
       id: 'privacy-design',
@@ -600,7 +518,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Privacy',
       subcategory: 'Data custody',
       controlCode: 6,
-      routePath: '#/privacy-design',
+      routePath: portalRouteHashPath(PortalRoute.PrivacyDesign),
     },
     {
       id: 'memory-citations',
@@ -611,7 +529,7 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Memory',
       subcategory: 'Freshness gated',
       controlCode: 7,
-      routePath: '#/memory',
+      routePath: portalRouteHashPath(PortalRoute.Memory),
     },
     {
       id: 'support-exports',
@@ -622,11 +540,10 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       category: 'Support',
       subcategory: 'Diagnostics and drives',
       controlCode: 8,
-      routePath: '#/diagnostics',
+      routePath: portalRouteHashPath(PortalRoute.Diagnostics),
     },
   ],
   guideTopics: PARENT_PORTAL_GUIDE_TOPICS,
-  fallbackRows: [...PARENT_PORTAL_ROWS, ...PARENT_PORTAL_MANAGE_ROWS],
   aiBenchmarkRows: [
     {
       label: 'Local Models',
@@ -718,21 +635,21 @@ export const PARENT_PORTAL_CONTENT: ParentPortalContent = {
       defaultTab: 'overall',
       selectedControlId: 'managed-web',
       title: 'Parent Command Deck',
-      routeLabel: '#/overview',
-      rowSource: 'fallbackRows',
+      routeLabel: portalRouteHashPath(PortalRoute.Overview),
+      rowSource: 'api',
     },
     parentManage: {
       defaultTab: 'controls',
       selectedControlId: 'managed-web',
       title: 'Control Detail',
-      routeLabel: '#/browser',
-      rowSource: 'fallbackRows',
+      routeLabel: portalRouteHashPath(PortalRoute.Browser),
+      rowSource: 'api',
     },
     parentGuide: {
       defaultTab: 'aiStatus',
       selectedControlId: 'api-providers',
       title: 'AI',
-      routeLabel: '#/ai-runtime',
+      routeLabel: portalRouteHashPath(PortalRoute.AiRuntime),
       rowSource: 'aiBenchmarkRows',
     },
   },
@@ -743,5 +660,5 @@ function routeContext(
   navLabel: ParentPortalNavLabel,
   selectedControlId: string
 ): ParentPortalRouteContext {
-  return { pageMode, navLabel, selectedControlId };
+  return { pageMode, navLabel, selectedControlId, manageLane: null };
 }

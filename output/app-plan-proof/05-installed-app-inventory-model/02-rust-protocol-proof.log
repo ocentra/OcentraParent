@@ -1,3 +1,0 @@
-WP05 Rust protocol proof reconciliation
-Shared proof: output/app-game-plan-proof/05-inventory-evidence-model
-Result: covered where the shared workpack changed Rust protocol or parser parity. N/A for docs-only or TypeScript-only shared workpacks.

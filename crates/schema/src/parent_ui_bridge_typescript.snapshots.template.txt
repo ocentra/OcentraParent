@@ -1,0 +1,363 @@
+export type ParentRouteSubscriptionEventName = ReturnType<typeof parentRouteSubscriptionEventName>;
+export type ParentDevBridgeUrl = Parameters<typeof parentDevBridgeDispatchUnavailableMessage>[0];
+
+export interface ParentRouteContext {
+  readonly selectedChildDeviceId?: string | null;
+}
+
+export interface ParentPortalRowSnapshot {
+  readonly label: string;
+  readonly order: number;
+  readonly signalScore: number;
+  readonly readyCount: number;
+  readonly gapCount: number;
+  readonly primaryArea: string;
+  readonly trend: string;
+  readonly tone: ParentPortalTone;
+}
+
+export interface ParentPortalShellStatusCardSnapshot {
+  readonly id: string;
+  readonly label: string;
+  readonly value: string;
+  readonly detail: string;
+  readonly tone: ParentPortalTone;
+}
+
+export interface ParentPortalShellStatusSnapshot {
+  readonly routeLabel: string;
+  readonly parentAccessState: ParentPortalParentAccessState;
+  readonly globalConnectionState: string;
+  readonly routeCapabilityState: string;
+  readonly dataSourceLabel: string;
+  readonly cards: readonly ParentPortalShellStatusCardSnapshot[];
+}
+
+export interface ParentCommandResultDetailSnapshot {
+  readonly label: string;
+  readonly value: string;
+}
+
+export interface ParentCommandResultProjectionSnapshot {
+  readonly projectionKind: string;
+  readonly details: readonly ParentCommandResultDetailSnapshot[];
+}
+
+export interface ParentRouteEventSnapshot {
+  readonly event?: string | null;
+  readonly eventId?: string | null;
+  readonly correlationId?: string | null;
+  readonly sentAt?: string | null;
+  readonly sourcePeerId?: string | null;
+  readonly sourceRole?: 'portal' | 'agent-service' | 'cloud-relay' | null;
+  readonly targetPeerId?: string | null;
+  readonly targetRole?: 'portal' | 'agent-service' | 'cloud-relay' | null;
+  readonly severity?: string | null;
+  readonly payload?: ParentUnknownRecord | null;
+  readonly snapshot?: ParentUnknownRecord | null;
+  readonly commandResultProjection?: ParentCommandResultProjectionSnapshot | null;
+}
+
+export interface ParentLanAddDeviceScanSummarySnapshot {
+  readonly schemaVersion: number;
+  readonly sourceLabels: readonly string[];
+  readonly scannedDeviceCount: number;
+  readonly agentDeviceCount: number;
+  readonly passiveDeviceCount: number;
+  readonly infrastructureDeviceCount: number;
+  readonly unsupportedDeviceCount: number;
+}
+
+export interface ParentLanPairingDeviceRefSnapshot {
+  readonly deviceId: string;
+  readonly childProfileId?: string | null;
+  readonly label: string;
+  readonly platform: string;
+  readonly ipAddress?: string | null;
+  readonly macAddress?: string | null;
+  readonly hostname?: string | null;
+  readonly networkInterface?: string | null;
+  readonly agentStatus?: string | null;
+}
+
+export interface ParentLanServiceIdentityProbeEvidenceSnapshot {
+  readonly evidenceKind: string;
+  readonly value: string;
+}
+
+export interface ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot {
+  readonly schemaVersion: number;
+  readonly discoveredAt: string;
+  readonly childDevice: ParentLanPairingDeviceRefSnapshot;
+  readonly agentPeerId: string;
+  readonly routeId: string;
+  readonly networkMode: string;
+  readonly reachability: string;
+  readonly addressRef: string;
+  readonly discoveryStatus: string;
+  readonly discoveryState: string;
+  readonly evidenceSources: readonly string[];
+  readonly serviceIdentityProbeEvidence: readonly ParentLanServiceIdentityProbeEvidenceSnapshot[];
+  readonly hintSources: readonly string[];
+}
+
+export interface ParentLanBrowserAddDevicePairingRequestSnapshot {
+  readonly schemaVersion: number;
+  readonly challengeId: string;
+  readonly childDeviceId: string;
+  readonly parentDeviceId: string;
+  readonly routeId: string;
+  readonly origin: string;
+  readonly pairingState: string;
+  readonly rejectionReason?: string | null;
+  readonly issuedAt: string;
+  readonly expiresAt: string;
+}
+
+export interface ParentLanDiscoveryEvidenceRecordSnapshot {
+  readonly schemaVersion: number;
+  readonly evidenceId: string;
+  readonly source: string;
+  readonly evidenceKind: string;
+  readonly deviceId: string;
+  readonly value: string;
+  readonly normalizedValue: string;
+  readonly firstSeenAt: string;
+  readonly lastSeenAt: string;
+  readonly expiresAt?: string | null;
+  readonly confidence: string;
+  readonly mergeKey: string;
+  readonly note?: string | null;
+}
+
+export interface ParentLanCanonicalHouseholdNetworkIdentitySnapshot {
+  readonly hostname?: string | null;
+  readonly ipAddresses: readonly string[];
+  readonly macAddress?: string | null;
+  readonly macVendor?: string | null;
+  readonly networkInterfaces: readonly string[];
+  readonly reachability: string;
+  readonly confidence: string;
+  readonly staleAt?: string | null;
+  readonly offlineAt?: string | null;
+  readonly evidenceRecords: readonly ParentLanDiscoveryEvidenceRecordSnapshot[];
+}
+
+export interface ParentLanChildAgentInventoryPacketSnapshot {
+  readonly deviceName: string;
+  readonly platform: string;
+  readonly os: string;
+  readonly cpuModel?: string | null;
+  readonly cpuCores?: string | null;
+  readonly memoryTotal?: string | null;
+  readonly gpuModel?: string | null;
+  readonly gpuDriver?: string | null;
+  readonly gpuMemory?: string | null;
+  readonly nvidiaSmi?: string | null;
+  readonly networkInterfaces: readonly string[];
+  readonly capabilities: readonly string[];
+  readonly roleState: string;
+  readonly routeState: string;
+  readonly pairingTrustState: string;
+}
+
+export interface ParentLanCanonicalHouseholdDeviceSnapshot {
+  readonly schemaVersion: number;
+  readonly canonicalDeviceId: string;
+  readonly displayName: string;
+  readonly classification: string;
+  readonly roleBadges: readonly string[];
+  readonly enrollable: boolean;
+  readonly discoveryState: string;
+  readonly trustState: string;
+  readonly routeId?: string | null;
+  readonly routeState: string;
+  readonly networkMode: string;
+  readonly sourceLabels: readonly string[];
+  readonly networkIdentity: ParentLanCanonicalHouseholdNetworkIdentitySnapshot;
+  readonly childAgentInventory?: ParentLanChildAgentInventoryPacketSnapshot | null;
+  readonly policyTargetSurfaces: readonly string[];
+}
+
+export interface ParentLanTrustedDeviceRegistryEntrySnapshot {
+  readonly schemaVersion: number;
+  readonly pairingId: string;
+  readonly childDevice: ParentLanPairingDeviceRefSnapshot;
+  readonly parentDevice: ParentLanPairingDeviceRefSnapshot;
+  readonly routeId: string;
+  readonly origin: string;
+  readonly proofDigest: string;
+  readonly trustState: string;
+  readonly trustedAt: string;
+  readonly expiresAt: string;
+  readonly revokedAt?: string | null;
+}
+
+export interface ParentLanHouseholdDeviceDecisionSnapshot {
+  readonly schemaVersion: number;
+  readonly actionId: string;
+  readonly actionKind: string;
+  readonly canonicalDeviceId: string;
+  readonly childProfileId: string | null;
+  readonly displayName: string | null;
+  readonly deviceKind: string | null;
+  readonly parentActorId: string;
+  readonly decidedAt: string;
+  readonly revokedAt: string | null;
+}
+
+export interface ParentLanSignedDiscoveryRelayAdapterRowSnapshot {
+  readonly schemaVersion: number;
+  readonly adapter: string;
+  readonly discoveryState: string;
+  readonly proofState: string;
+  readonly sourceConfidence: string;
+  readonly custodyLabel: string;
+  readonly runtimeOwner: string;
+  readonly evidenceLabel: string;
+  readonly requiredArtifactSummary?: string | null;
+}
+
+export interface ParentLanSignedDiscoveryRelaySignedProofRowSnapshot {
+  readonly schemaVersion: number;
+  readonly check: string;
+  readonly discoveryState: string;
+  readonly responseState: string;
+  readonly rejectionReason?: string | null;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly evidenceLabel: string;
+}
+
+export interface ParentLanSignedDiscoveryRelayRouteSafetyRowSnapshot {
+  readonly schemaVersion: number;
+  readonly check: string;
+  readonly routeId?: string | null;
+  readonly discoveryState: string;
+  readonly responseState: string;
+  readonly rejectionReason?: string | null;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly custodyLabel: string;
+  readonly evidenceLabel: string;
+}
+
+export interface ParentLanSignedDiscoveryRelayCacheRowSnapshot {
+  readonly schemaVersion: number;
+  readonly check: string;
+  readonly decisionState: string;
+  readonly discoveryState: string;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly custodyLabel: string;
+  readonly evidenceLabel: string;
+}
+
+export interface ParentLanSignedDiscoveryRelaySpineSummarySnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly adapterRows: readonly ParentLanSignedDiscoveryRelayAdapterRowSnapshot[];
+  readonly signedProofRows: readonly ParentLanSignedDiscoveryRelaySignedProofRowSnapshot[];
+  readonly routeSafetyRows: readonly ParentLanSignedDiscoveryRelayRouteSafetyRowSnapshot[];
+  readonly relayCacheRows: readonly ParentLanSignedDiscoveryRelayCacheRowSnapshot[];
+  readonly manualProofRequired: readonly string[];
+  readonly notImplemented: readonly string[];
+  readonly claimsProved: readonly string[];
+  readonly claimsNotProved: readonly string[];
+}
+
+export interface ParentLanSelectedDeviceReadinessSnapshot {
+  readonly schemaVersion: number;
+  readonly selectedChildDeviceId?: string | null;
+  readonly routeId?: string | null;
+  readonly pairingId?: string | null;
+  readonly trustState: string;
+  readonly reachability: string;
+  readonly readyForControl: boolean;
+  readonly staleAt?: string | null;
+  readonly offlineAt?: string | null;
+}
+
+export interface ParentLanDiscoveryEventRowSnapshot {
+  readonly schemaVersion: number;
+  readonly eventId: string;
+  readonly eventKind: string;
+  readonly occurredAt: string;
+  readonly previousEventId?: string | null;
+  readonly scanSessionId?: string | null;
+  readonly affectedDeviceId?: string | null;
+  readonly evidenceId?: string | null;
+  readonly summary: string;
+}
+
+export interface ParentLanDiscoveryEventHistorySnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly state: string;
+  readonly latestEventId?: string | null;
+  readonly latestObservedAt?: string | null;
+  readonly rows: readonly ParentLanDiscoveryEventRowSnapshot[];
+}
+
+export interface ParentLanDiscoverySourceMatrixWorkpackRowSnapshot {
+  readonly workpackId: string;
+  readonly title: string;
+  readonly discoveryState: string;
+  readonly proofState: string;
+  readonly runtimeOwner: string;
+  readonly status: string;
+  readonly readModelVisible: boolean;
+  readonly requiredArtifactSummary?: string | null;
+}
+
+export interface ParentLanDiscoverySourceMatrixSourceRowSnapshot {
+  readonly source: string;
+  readonly workpackId: string;
+  readonly status: string;
+  readonly authority: string;
+  readonly runtimePath: string;
+  readonly uiSurface: string;
+  readonly canConfirmChildAgent: boolean;
+  readonly canAssignChildProfile: boolean;
+  readonly canControlRoute: boolean;
+  readonly requiresSelectedInterface: boolean;
+  readonly persistsAcrossRestart: boolean;
+  readonly evidenceLabel: string;
+  readonly requiredArtifactSummary?: string | null;
+}
+
+export interface ParentLanDiscoverySourceMatrixSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly workpackRows: readonly ParentLanDiscoverySourceMatrixWorkpackRowSnapshot[];
+  readonly sourceRows: readonly ParentLanDiscoverySourceMatrixSourceRowSnapshot[];
+  readonly claimsProved: readonly string[];
+  readonly claimsNotProved: readonly string[];
+}
+
+export interface ParentLanAddDeviceReadModelSnapshot {
+  readonly schemaVersion: number;
+  readonly generatedAt: string;
+  readonly discoverySource: string;
+  readonly addDeviceState: string;
+  readonly localServiceDiscoveryState: string;
+  readonly physicalHouseholdLanState: string;
+  readonly cloudRelayState: string;
+  readonly scanSummary: ParentLanAddDeviceScanSummarySnapshot;
+  readonly discoveredDevices: readonly ParentLanBrowserAddDeviceDiscoveryDeviceSnapshot[];
+  readonly discoveryEventHistory: ParentLanDiscoveryEventHistorySnapshot;
+  readonly canonicalHouseholdDevices: readonly ParentLanCanonicalHouseholdDeviceSnapshot[];
+  readonly pairingRequests: readonly ParentLanBrowserAddDevicePairingRequestSnapshot[];
+  readonly trustedDeviceRegistry: readonly ParentLanTrustedDeviceRegistryEntrySnapshot[];
+  readonly householdDeviceDecisions: readonly ParentLanHouseholdDeviceDecisionSnapshot[];
+  readonly signedDiscoveryRelaySpine?: ParentLanSignedDiscoveryRelaySpineSummarySnapshot | null;
+  readonly lanDiscoverySourceMatrix?: ParentLanDiscoverySourceMatrixSnapshot | null;
+  readonly trustedDeviceIds: readonly string[];
+  readonly revokedDeviceIds: readonly string[];
+  readonly selectedDeviceReadiness: ParentLanSelectedDeviceReadinessSnapshot;
+  readonly controllerAuthority: string;
+  readonly observerAuthority: string;
+  readonly routeRequirementLabels: readonly string[];
+  readonly auditCheckLabels: readonly string[];
+  readonly honestNonClaims: readonly string[];
+}

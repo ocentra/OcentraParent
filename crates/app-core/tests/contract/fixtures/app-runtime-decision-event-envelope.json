@@ -1,0 +1,37 @@
+{
+  "contract": {
+    "eventType": "app.runtime.decision-recorded",
+    "schemaVersion": 2
+  },
+  "eventId": "event-app-runtime-decision-1",
+  "correlationId": "correlation-app-runtime-decision-1",
+  "causationId": null,
+  "aggregateKey": "app.aggregate.child-device-1",
+  "idempotencyKey": "app.runtime.decision-recorded:app.runtime-decision-1",
+  "source": {
+    "custody": "local-only",
+    "role": "parent",
+    "service": "app-core",
+    "component": "runtime-decision",
+    "instanceId": "app-core-test"
+  },
+  "observedAt": "2026-07-23T00:00:00Z",
+  "targetHandler": null,
+  "priority": "normal",
+  "deadline": null,
+  "payload": {
+    "aggregate_id": "app.aggregate.child-device-1",
+    "decision_id": "app.runtime-decision-1",
+    "input": {
+      "capability_state": "supported",
+      "foreground_state": "foreground",
+      "classification_state": "inventory-only"
+    },
+    "decision": {
+      "observation_intent": "InventoryObservationOnly",
+      "runtime_action_state": "record-inventory",
+      "ai_handoff_state": "not-required",
+      "policy_handoff_state": "do-not-publish"
+    }
+  }
+}

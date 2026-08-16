@@ -1,16 +1,23 @@
 use serde::{Deserialize, Serialize};
 
-use crate::{
+use crate::local_ai_runtime_boundary::{
     LocalAiAdapterBoundary, LocalAiAdapterProbeState, LocalAiAdapterReadinessState,
     LocalAiExecutionState, LocalAiProviderConfigurationState, LocalAiProviderPrivacyMode,
     LocalAiProviderSource,
 };
 
 use super::{
-    LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiModelCacheCorruptionReasonCode,
-    LocalAiModelCacheHealth, LocalAiModelCacheState, LocalAiModelCacheStorageErrorCode,
-    LocalAiModelCacheUnavailableReason, LocalAiModelDownloadStatus, LocalAiModelLoadState,
-    LocalAiModelManifestIntegrityState, LocalAiModelSourcePolicy, LocalAiResourceClass,
+    cache::{
+        LocalAiModelCacheHealth, LocalAiModelCacheState, LocalAiModelDownloadStatus,
+        LocalAiModelManifestIntegrityState, LocalAiModelSourcePolicy,
+    },
+    cache_reasons::{
+        LocalAiModelCacheCorruptionReasonCode, LocalAiModelCacheStorageErrorCode,
+        LocalAiModelCacheUnavailableReason,
+    },
+    lifecycle::{
+        LocalAiCapabilityFlag, LocalAiDegradedState, LocalAiModelLoadState, LocalAiResourceClass,
+    },
 };
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]

@@ -5,16 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Ocentra Parent</title>
+    <script>
+      (() => {
+        try {
+          const savedTheme = window.localStorage.getItem('ocentra-parent-theme');
+          document.documentElement.setAttribute('data-theme', savedTheme === 'light' ? 'light' : 'dark');
+        } catch {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
+    <link rel="stylesheet" href="/src/styles/portal-theme-tokens.css" />
     <style>
       #app-loading {
         --app-loading-fade-duration: 680ms;
         position: fixed;
         inset: 0;
-        background:
-          radial-gradient(circle at 50% -18rem, rgb(0 119 154 / 58%), transparent 39rem),
-          radial-gradient(circle at 10% 8rem, rgb(0 208 170 / 22%), transparent 30rem),
-          radial-gradient(circle at 86% 18rem, rgb(76 93 255 / 20%), transparent 28rem),
-          linear-gradient(135deg, #020814, #05243d 52%, #020814);
+        background: transparent;
         z-index: 9999;
         display: flex;
         align-items: center;
@@ -25,28 +32,41 @@
         color-scheme: dark;
         contain: paint;
       }
+      #portal-background-boot {
+        position: fixed;
+        inset: 0;
+        opacity: 1;
+        overflow: hidden;
+        pointer-events: none;
+        transition: opacity var(--app-loading-fade-duration) cubic-bezier(0.22, 1, 0.36, 1);
+        z-index: 9998;
+      }
+      #portal-background-boot.hide {
+        opacity: 0;
+      }
+      #app {
+        position: relative;
+        z-index: 1;
+      }
+      :root[data-theme='light'] #app-loading {
+        color-scheme: light;
+      }
       #app-loading.hide {
         opacity: 0;
       }
       #app-loading.hidden {
         visibility: hidden;
       }
-      #app-loading::before {
-        position: absolute;
-        inset: 0;
-        content: '';
-        background-image:
-          linear-gradient(rgb(117 222 255 / 8%) 1px, transparent 1px),
-          linear-gradient(90deg, rgb(117 222 255 / 7%) 1px, transparent 1px);
-        background-size: 3.75rem 3.75rem;
-        mask-image: linear-gradient(to bottom, rgb(0 0 0 / 64%), transparent 78%);
-        pointer-events: none;
-      }
       #app-loading .loader-wrap {
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
+        opacity: 0;
+        transition: opacity 160ms ease;
+      }
+      :root[data-portal-bg-boot-ready='true'] #app-loading .loader-wrap {
+        opacity: 1;
       }
       #app-loading .loader-spinner {
         position: absolute;
@@ -147,6 +167,10 @@
     </style>
   </head>
   <body>
+    <script type="module">
+      import { mountPortalBackgroundBootLayer } from '/src/portal-background-boot.ts';
+      mountPortalBackgroundBootLayer();
+    </script>
     <div id="app-loading" aria-hidden="true">
       <div class="loader-wrap">
         <div class="loader-spinner" aria-hidden="true">
@@ -160,12 +184,7 @@
     </div>
     <main id="app"></main>
     <script type="module">
-      const routePath = window.location.pathname.replace(/\/$/u, '');
-      if (routePath === '/tempscratchpadproof') {
-        await import('/src/temp-scratchpad-proof/main.tsx');
-      } else {
-        await import('/src/main.ts');
-      }
+      await import('/src/main.ts');
     </script>
   </body>
 </html>

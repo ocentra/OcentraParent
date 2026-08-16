@@ -1,5 +1,19 @@
 # TabAgent Source Index
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `ai-plan`
+> Doc: `TabAgent Source Index`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+
+<!-- /agent-capsule -->
+
 TabAgent and TabAgentServer are inspected reference systems only. They do not
 define Ocentra Parent contracts, policy, custody, storage, or UI behavior.
 
@@ -63,9 +77,20 @@ define Ocentra Parent contracts, policy, custody, storage, or UI behavior.
 
 - [ ] Confirm each candidate file is still present before extracting logic.
 - [ ] Map every reused idea to an Ocentra TypeScript contract first.
-- [ ] Add Rust parity before Rust runtime consumes the contract.
-- [ ] Prove local route status, unavailable, timeout, and invalid payload cases.
+- [ ] Add Rust parity before Rust runtime consumes extracted TabAgent contract
+      logic.
+- [ ] Prove local route status, unavailable, timeout, and invalid payload cases
+      for any extracted TabAgent route logic.
 - [ ] Prove model cache corruption never deletes or corrupts evidence.
 - [ ] Prove memory/graph refs without source evidence are rejected.
 - [ ] Document every copied/extracted module with source, license, changed
       ownership, and deleted unused behavior.
+
+Current reconciliation note: the candidate file list was rechecked against
+`E:\Desktop\TabAgent` on the unified screen-AI branch and all indexed files are
+present. Ocentra has translated the reference ideas into local AI runtime,
+provider scheduler, model artifact manifest, memory/graph, context-builder,
+remote boundary, and screen mesh proof contracts. No TabAgent code has been
+copied or extracted in this branch, so copied-module license/ownership notes
+plus extraction-specific Rust parity and route proofs remain open until an
+actual extraction happens.

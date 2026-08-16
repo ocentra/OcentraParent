@@ -1,0 +1,136 @@
+.header {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.headerTitle {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.status,
+.jsonStatus,
+.colorLabel,
+.rangeValue {
+  color: var(--portal-outline-header-text);
+  font-size: 10px;
+}
+
+.editor {
+  display: grid;
+  gap: 9px;
+  margin-top: 10px;
+}
+
+.actions,
+.jsonActions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.column {
+  display: grid;
+  gap: 6px;
+}
+
+.columnTitle,
+.jsonSummary {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.json {
+  border-top: 1px solid color-mix(in srgb, var(--portal-outline-header-connector-stroke) 28%, transparent);
+  padding-top: 8px;
+}
+
+.jsonSummary {
+  cursor: pointer;
+}
+
+.jsonActions {
+  margin: 8px 0;
+}
+
+.jsonError {
+  color: color-mix(in srgb, var(--portal-outline-header-connector-stroke) 72%, var(--portal-app-background));
+  font-size: 10px;
+}
+
+.jsonTextarea {
+  background: var(--portal-frame-scrim-fill);
+  border: 1px solid color-mix(in srgb, var(--portal-outline-header-connector-stroke) 28%, transparent);
+  border-radius: 8px;
+  color: var(--portal-outline-header-text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10px;
+  line-height: 1.4;
+  min-height: 128px;
+  padding: 10px;
+  resize: vertical;
+  width: 100%;
+}
+
+.colorLabel {
+  align-items: center;
+  display: grid;
+  font-size: 11px;
+  gap: 8px;
+  grid-template-columns: auto 34px;
+}
+
+.colorInput {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  height: 24px;
+  padding: 0;
+  width: 34px;
+}
+
+.rangeLabel {
+  display: grid;
+  gap: 4px;
+}
+
+.rangeValue {
+  font-size: 11px;
+}
+
+.rangeInput {
+  width: 100%;
+}
+
+.button {
+  background: color-mix(in srgb, var(--portal-outline-header-text) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--portal-outline-header-connector-stroke) 28%, transparent);
+  border-radius: 8px;
+  color: var(--portal-outline-header-text);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.buttonActive {
+  background: linear-gradient(
+    180deg,
+    var(--portal-outline-header-connector-stroke),
+    color-mix(in srgb, var(--portal-outline-header-connector-stroke) 42%, var(--portal-app-background))
+  );
+  border-color: var(--portal-outline-header-connector-stroke);
+  color: var(--portal-app-background);
+  font-weight: 800;
+}

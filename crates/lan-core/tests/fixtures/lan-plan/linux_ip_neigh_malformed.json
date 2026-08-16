@@ -1,0 +1,14 @@
+[
+  {
+    "dst": "not-an-ip",
+    "lladdr": "00:11:22:33:44:55",
+    "state": ["REACHABLE"],
+    "dev": "eth0"
+  },
+  {
+    "dst": "192.168.2.51",
+    "lladdr": "00:00:00:00:00:00",
+    "state": ["REACHABLE"],
+    "dev": "eth0"
+  }
+]

@@ -1,28 +1,23 @@
-use ocentra_parent_agent_core::{
-    app_time_limit_target_from_action, cancelled_timer_outcome,
-    expire_app_time_limit_for_owned_process, expired_timer_outcome,
-    restart_recovered_timer_outcome,
-};
-use ocentra_parent_agent_protocol::{
-    constants, AgentCommandEnvelope, AgentCommandName, AgentEventEnvelope, AgentEventName,
-    EnforcementActiveTimerState, LogFieldValue, LogFields, LogLevel,
-};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::logging::LogLevel;
+use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
+
+#[path = "enforcement_timer_api/app_game_session_rejection.rs"]
+mod app_game_session_rejection;
+#[path = "enforcement_timer_api/command.rs"]
+mod command;
+#[path = "enforcement_timer_api/rejection.rs"]
+mod rejection;
+#[path = "enforcement_timer_api/state_error.rs"]
+mod state_error;
+#[path = "enforcement_timer_api/validation.rs"]
+mod validation;
 
 use crate::{
-    enforcement_api::EnforcementJournalPaths,
-    enforcement_timer_payload::{
-        parse_parent_override_payload, parse_timer_expiry_payload, parse_timer_recovery_payload,
-        EnforcementTimerCommandPayload,
-    },
-    enforcement_timer_report::{
-        record_timer_activity, timer_report_payload, unavailable_timer_payload,
-    },
-    enforcement_timer_state_file::{
-        read_active_timer_state, remove_active_timer_state, store_active_timer_state_for_outcome,
-    },
-    event_builder::build_event,
-    fields::fields_from_pairs,
-    time::timestamp_now,
+    enforcement_api::EnforcementJournalPaths, event_builder::build_event, fields::fields_from_pairs,
 };
 
 pub async fn build_enforcement_timer_report(command: AgentCommandEnvelope) -> AgentEventEnvelope {
@@ -36,7 +31,7 @@ pub(crate) async fn build_enforcement_timer_report_with_paths(
 ) -> AgentEventEnvelope {
     let target = command.source.clone();
     let correlation_id = command.message_id.clone();
-    match execute_timer_command(command, paths).await {
+    match command::execute_timer_command(command, paths).await {
         Ok(payload) => build_event(
             constants::event_id::ENFORCEMENT_TIMER_REPORTED,
             &correlation_id,
@@ -46,7 +41,7 @@ pub(crate) async fn build_enforcement_timer_report_with_paths(
             payload,
             None,
         ),
-        Err(reason) => build_event(
+        Err(error) => build_event(
             constants::event_id::COMMAND_REJECTED,
             &correlation_id,
             target,
@@ -54,109 +49,13 @@ pub(crate) async fn build_enforcement_timer_report_with_paths(
             LogLevel::Warn,
             fields_from_pairs(vec![(
                 constants::field::REASON,
-                LogFieldValue::String(reason.to_string()),
+                LogFieldValue::String(
+                    rejection::timer_command_rejection_reason(&error)
+                        .0
+                        .to_string(),
+                ),
             )]),
             None,
         ),
-    }
-}
-
-async fn execute_timer_command(
-    command: AgentCommandEnvelope,
-    paths: EnforcementJournalPaths,
-) -> Result<LogFields, &'static str> {
-    let observed_at = timestamp_now();
-    match command.command {
-        AgentCommandName::AgentEnforcementTimerRecover => {
-            let request = parse_timer_recovery_payload(&command, &observed_at);
-            recover_timer(request, paths).await
-        }
-        AgentCommandName::AgentEnforcementTimerExpire => {
-            let request = parse_timer_expiry_payload(&command, &observed_at)?;
-            expire_timer(request, paths).await
-        }
-        AgentCommandName::AgentEnforcementOverrideCancel => {
-            let request = parse_parent_override_payload(&command, &observed_at)?;
-            cancel_timer(request, paths).await
-        }
-        _ => Err(constants::enforcement::REJECTION_COMMAND_PAYLOAD_INVALID),
-    }
-}
-
-async fn recover_timer(
-    request: EnforcementTimerCommandPayload,
-    paths: EnforcementJournalPaths,
-) -> Result<LogFields, &'static str> {
-    let Some(state) = read_active_timer_state(&paths.timer_state_path).await? else {
-        return Ok(unavailable_timer_payload(
-            constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED,
-        ));
-    };
-    validate_expected_action(&request, &state)?;
-    let mut outcome = restart_recovered_timer_outcome(&state, request.transition_ids.clone());
-    outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
-    let status = record_timer_activity(&request, &outcome, &paths).await?;
-    let active_state = store_active_timer_state_for_outcome(
-        &outcome,
-        &paths.timer_state_path,
-        &request.transition_ids.observed_at,
-    )
-    .await?;
-    timer_report_payload(&outcome, &status, active_state.as_ref())
-}
-
-async fn expire_timer(
-    request: EnforcementTimerCommandPayload,
-    paths: EnforcementJournalPaths,
-) -> Result<LogFields, &'static str> {
-    let Some(state) = read_active_timer_state(&paths.timer_state_path).await? else {
-        return Ok(unavailable_timer_payload(
-            constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED,
-        ));
-    };
-    validate_expected_action(&request, &state)?;
-    let target = app_time_limit_target_from_action(&state.action, request.process_id)
-        .map_err(|error| error.as_protocol_str())?;
-    let adapter_outcome =
-        expire_app_time_limit_for_owned_process(target, &request.transition_ids.observed_at);
-    let mut outcome =
-        expired_timer_outcome(&state, request.transition_ids.clone(), adapter_outcome);
-    outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
-    let status = record_timer_activity(&request, &outcome, &paths).await?;
-    remove_active_timer_state(&paths.timer_state_path).await?;
-    timer_report_payload(&outcome, &status, None)
-}
-
-async fn cancel_timer(
-    request: EnforcementTimerCommandPayload,
-    paths: EnforcementJournalPaths,
-) -> Result<LogFields, &'static str> {
-    let Some(state) = read_active_timer_state(&paths.timer_state_path).await? else {
-        return Ok(unavailable_timer_payload(
-            constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_REQUIRED,
-        ));
-    };
-    validate_expected_action(&request, &state)?;
-    let parent_override = request
-        .parent_override
-        .clone()
-        .ok_or(constants::enforcement::REJECTION_PARENT_ACTION_REQUIRED)?;
-    let mut outcome =
-        cancelled_timer_outcome(&state, request.transition_ids.clone(), parent_override);
-    outcome.audit_event.journal_sequence = Some(outcome.audit_event.audit_event_id.clone());
-    let status = record_timer_activity(&request, &outcome, &paths).await?;
-    remove_active_timer_state(&paths.timer_state_path).await?;
-    timer_report_payload(&outcome, &status, None)
-}
-
-fn validate_expected_action(
-    request: &EnforcementTimerCommandPayload,
-    state: &EnforcementActiveTimerState,
-) -> Result<(), &'static str> {
-    match request.expected_action_id.as_deref() {
-        Some(action_id) if action_id != state.action.action_id.as_str() => {
-            Err(constants::enforcement::REJECTION_ACTIVE_TIMER_STATE_MISMATCH)
-        }
-        _ => Ok(()),
     }
 }

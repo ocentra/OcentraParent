@@ -1,8 +1,10 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityIngestStatus, ActivityRecentSummary, LogFieldValue, LogFields,
-};
+use ocentra_parent_agent_protocol::activity_query::{ActivityIngestStatus, ActivityRecentSummary};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
 
 use crate::fields::fields_from_pairs;
+
+struct OptionalActivityText<'a>(Option<&'a str>);
 
 pub fn ingest_status_payload(status: &ActivityIngestStatus) -> LogFields {
     fields_from_pairs(vec![
@@ -24,7 +26,7 @@ pub fn ingest_status_payload(status: &ActivityIngestStatus) -> LogFields {
         ),
         (
             constants::field::LAST_EVENT_ID,
-            optional_string(&status.last_event_id),
+            optional_text(&OptionalActivityText(status.last_event_id.as_deref())),
         ),
     ])
 }
@@ -41,50 +43,54 @@ pub fn recent_summary_payload(summary: &ActivityRecentSummary) -> LogFields {
         ),
         (
             constants::field::FIRST_OBSERVED_AT,
-            optional_string(&summary.first_observed_at),
+            optional_text(&OptionalActivityText(summary.first_observed_at.as_deref())),
         ),
         (
             constants::field::LAST_OBSERVED_AT,
-            optional_string(&summary.last_observed_at),
+            optional_text(&OptionalActivityText(summary.last_observed_at.as_deref())),
         ),
         (
             constants::field::LAST_EVENT_ID,
-            optional_string(&summary.last_event_id),
+            optional_text(&OptionalActivityText(summary.last_event_id.as_deref())),
         ),
         (
             constants::field::MOST_RECENT_KIND,
-            optional_enum(
+            optional_text(&OptionalActivityText(
                 summary
                     .most_recent_kind
                     .as_ref()
                     .map(|kind| kind.as_protocol_str()),
-            ),
+            )),
         ),
         (
             constants::field::MOST_RECENT_OBSERVER,
-            optional_enum(
+            optional_text(&OptionalActivityText(
                 summary
                     .most_recent_observer
                     .as_ref()
                     .map(|observer| observer.as_protocol_str()),
-            ),
+            )),
         ),
         (
             constants::field::MOST_RECENT_SUBJECT_KIND,
-            optional_enum(
+            optional_text(&OptionalActivityText(
                 summary
                     .most_recent_subject_kind
                     .as_ref()
                     .map(|kind| kind.as_protocol_str()),
-            ),
+            )),
         ),
         (
             constants::field::MOST_RECENT_SUBJECT_ID,
-            optional_string(&summary.most_recent_subject_id),
+            optional_text(&OptionalActivityText(
+                summary.most_recent_subject_id.as_deref(),
+            )),
         ),
         (
             constants::field::MOST_RECENT_SUBJECT_NAME,
-            optional_string(&summary.most_recent_subject_name),
+            optional_text(&OptionalActivityText(
+                summary.most_recent_subject_name.as_deref(),
+            )),
         ),
     ])
 }
@@ -96,15 +102,8 @@ pub fn activity_store_error_payload() -> LogFields {
     )])
 }
 
-fn optional_string(value: &Option<String>) -> LogFieldValue {
-    match value {
-        Some(text) => LogFieldValue::String(text.clone()),
-        None => LogFieldValue::Null(()),
-    }
-}
-
-fn optional_enum(value: Option<&str>) -> LogFieldValue {
-    match value {
+fn optional_text(value: &OptionalActivityText<'_>) -> LogFieldValue {
+    match value.0 {
         Some(text) => LogFieldValue::String(text.to_string()),
         None => LogFieldValue::Null(()),
     }

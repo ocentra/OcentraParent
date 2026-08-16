@@ -1,0 +1,560 @@
+{
+  "schemaVersion": 1,
+  "workpackReviews": [
+    {
+      "id": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "hardDependencies": [
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+      ],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/policy-control-plane-plan/PLAN_HEALTH.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "WP01 has contract-only policy source APIs with caller-supplied authority and no non-test durable source registration/query caller. Production authority requires the Cloudflare WP06 durable identity boundary (which consumes Account Identity WP08) plus Device Trust WP01 trusted-device context and WP03 parent step-up context. This review records hard prerequisites only; it does not claim any owner workpack, policy code, tests, proof, or readiness complete."
+    },
+    {
+      "id": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "hardDependencies": ["WP-policy-control-plane-plan-01-policy-source-of-truth"],
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "The deterministic compiler contracts cannot become a shipped production composition until Policy WP01 owns an authoritative source registration and active-version query boundary. This review does not claim compiler callers, persistence, delivery, tests, proof, or readiness complete."
+    },
+    {
+      "id": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+      "hardDependencies": ["WP-policy-control-plane-plan-03-domain-policy-compilers"],
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/PLAN_STATE.md",
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "Removing fabricated AI policy authority has no separate code-writing prerequisite, but the product handoff explicitly delegates policy authority to the Policy compiler contract; keep that exact owner dependency visible."
+    },
+    {
+      "id": "WP-eventing-plan-09-network-consumer-event-chain",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/eventing-plan/PLAN_STATE.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP09 is the smallest legal production foundation for the missing network consumer chain. Its reviewed roots cover capture ingestion, ActivityStore/runtime, and agent-service delivery/read-model ownership; fixture/prove/TEST network_event_runtime files are not shipped production topology. No separate hard code-writing prerequisite is recorded. The open implementation boundary is ingestion-time capture publish, deterministic identity/idempotency, a network-owned durable journal, startup replay/recovery, and removal of read-time side effects. AI, policy, enforcement, audit, and portal consumers remain downstream blocked/fail-closed. Tests, proof, CI, review, and merge remain open; READY scheduling does not claim completion or unblock Network WP04."
+    },
+    {
+      "id": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "hardDependencies": [
+        "WP-eventing-plan-09-network-consumer-event-chain",
+        "WP-ai-plan-07-ai-job-queue-contract",
+        "WP-ai-plan-19-ai-result-journal-sqlite-ingest",
+        "WP-policy-control-plane-plan-05-ask-parent-overrides",
+        "WP-policy-control-plane-plan-08-policy-event-model",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+        "WP-data-custody-storage-plan-06-report-query-custody",
+        "WP-portal-ux-household-surfaces-plan-09-browser-app-and-network-surfaces",
+        "WP-portal-ux-household-surfaces-plan-12-reports-notifications-and-custody"
+      ],
+      "evidence": [
+        "docs/plans/network-plan/PLAN_STATE.md",
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md",
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md",
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/12-reports-notifications-and-custody.md"
+      ],
+      "reason": "The shipped-call audit found real ActivityStore observation persistence, but no typed durable NetworkCascadeObligation, cascade table, or shipped composition owner. The apparent cascade is agent-service NetworkRuntimeDelivery OnceCell plus agent-core NetworkRuntimeSpine/EventBus::new, read-time republish, and refs.rs phase-reference manufacturing. WP04 therefore requires these direct owner handoffs for legal composition: Eventing WP09 network consumer chain; AI WP07 job queue and WP19 result journal; Policy WP05 ask-parent overrides and WP08 event model; Custody WP04 tombstone and WP06 report custody; Portal WP09 network surfaces and WP12 reports/notifications/custody. These dependencies do not claim any owner complete and prevent WP04 from remaining READY while shipped owners and proof are absent."
+    },
+    {
+      "id": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "hardDependencies": ["WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition"],
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+      ],
+      "reason": "The source audit found that WP37 has no shipped owner for trusted tracking ingress, durable journal configuration, startup replay, or idempotent ActivityStore projection. WP40 is the explicit composition prerequisite; this review does not claim WP40 or WP37 implementation, tests, proof, or completion."
+    },
+    {
+      "id": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "hardDependencies": [
+        "WP-eventing-plan-06-journal-replay-and-lineage",
+        "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+        "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+        "WP-tracking-plan-36-tracking-detection-cascade-event-flow"
+      ],
+      "evidence": [
+        "docs/plans/tracking-plan/PLAN_STATE.md",
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
+        "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md",
+        "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP40 must consume the generic Eventing journal/replay foundation, canonical tracking contracts, the existing process-local detection cascade, and the ActivityStore projection boundary. The packet is a planned route only and does not claim production code, tests, proof, or readiness."
+    }
+  ],
+  "edges": [
+    {
+      "from": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "Policy source registration needs the durable Cloudflare identity/household persistence and migration boundary; Cloudflare WP06 already consumes the canonical Account Identity WP08 handoff, so no redundant direct Account WP08 edge is added here."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "Policy-changing source registration requires the trusted-device source context owned by Device Trust WP01; policy contracts or caller-provided device identifiers cannot substitute for that owner."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "Policy-changing source registration requires parent step-up authorization owned by Device Trust WP03; receipt-shaped contract tests do not establish a trusted policy-change authority."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
+      ],
+      "reason": "Domain compilers must consume the active authoritative policy source owned by WP01; deterministic compiler library code alone cannot establish a production source-to-compiler path."
+    },
+    {
+      "from": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
+      "to": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/CODE_AUDIT.md",
+        "docs/plans/tracking-plan/workpacks/37-tracking-event-journal-replay-and-projection.md",
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md"
+      ],
+      "reason": "WP37 cannot be a legal implementation slice until the trusted shipped tracking ingress, durable journal composition, startup replay, and idempotent projection owner is implemented by WP40."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md"
+      ],
+      "reason": "WP40 consumes the generic durable journal, recovery, and projection-only replay foundation owned by Eventing WP06."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-tracking-plan-32-journal-sqlite-and-read-model-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/32-journal-sqlite-and-read-model-proof.md"
+      ],
+      "reason": "WP40 must project into the existing ActivityStore/SQLite read-model boundary owned by Tracking WP32."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-tracking-plan-34-tracking-event-contracts-and-protocol-constants",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/34-tracking-event-contracts-and-protocol-constants.md"
+      ],
+      "reason": "WP40 must preserve canonical tracking event contracts and identity from Tracking WP34."
+    },
+    {
+      "from": "WP-tracking-plan-40-trusted-tracking-runtime-ingress-and-journal-composition",
+      "to": "WP-tracking-plan-36-tracking-detection-cascade-event-flow",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/tracking-plan/workpacks/40-trusted-tracking-runtime-ingress-and-journal-composition.md",
+        "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
+      ],
+      "reason": "WP40 composes the existing typed process-local detection cascade owned by Tracking WP36 into the trusted durable runtime path."
+    },
+    {
+      "from": "WP-screen-ai-pipeline-plan-04-ai-result-to-policy-gate",
+      "to": "WP-policy-control-plane-plan-03-domain-policy-compilers",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/screen-ai-pipeline-plan/workpacks/04-ai-result-to-policy-gate.md",
+        "docs/plans/policy-control-plane-plan/workpacks/03-domain-policy-compilers.md"
+      ],
+      "reason": "Screen AI owns the schema-valid handoff, while Policy owns the compiler/authority boundary; the handoff cannot claim policy authority without that owning contract."
+    },
+    {
+      "from": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "to": "WP-policy-control-plane-plan-04-delivery-ack-audit",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": ["docs/PLAN_CODE_STATUS_MATRIX.md", "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md"],
+      "reason": "Delivery identity and audit boundary precede ask-parent delivery wiring."
+    },
+    {
+      "from": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "to": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md",
+        "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md"
+      ],
+      "reason": "Enforcement-specific durable journal work consumes the generic Eventing journal/replay/idempotency handoff."
+    },
+    {
+      "from": "WP-v0-8-enforcement-control-plan-04-owned-process-time-limit",
+      "to": "WP-v0-8-enforcement-control-plan-11-audit-journal-events",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/04-owned-process-time-limit.md",
+        "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
+      ],
+      "reason": "Trusted owned-process dispatch must consume the enforcement-specific durable journal and authority boundary first."
+    },
+    {
+      "from": "WP-app-game-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-game-plan-59-notification-scheduler-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/59-notification-scheduler-bridge.md"
+      ],
+      "reason": "Provider status handoff consumes the scheduler bridge before projecting provider state."
+    },
+    {
+      "from": "WP-app-game-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-game-plan-61-notification-provider-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/61-notification-provider-preflight.md"
+      ],
+      "reason": "Provider status handoff preserves and classifies the provider-preflight result."
+    },
+    {
+      "from": "WP-app-game-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-game-plan-59-notification-scheduler-bridge",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/59-notification-scheduler-bridge.md"
+      ],
+      "reason": "Preference status handoff consumes the scheduler bridge before projecting preference state."
+    },
+    {
+      "from": "WP-app-game-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-game-plan-62-notification-preference-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-game-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-game-plan/workpacks/62-notification-preference-preflight.md"
+      ],
+      "reason": "Preference status handoff consumes the preference-preflight result."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "Cloudflare WP06 consumes the Account WP08 canonical identity handoff."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "Cloudflare WP06 requires the module dependency environment established by WP01."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "Cloudflare WP08 runner proof follows the WP06 storage binding and migration handoff."
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "to": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
+      ],
+      "reason": "Cloudflare WP08 runner execution requires the module dependency environment established by WP01."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-eventing-plan-09-network-consumer-event-chain",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md"
+      ],
+      "reason": "Network cascade composition needs one reusable observation-to-read-model event authority chain with policy and enforcement boundaries."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-ai-plan-07-ai-job-queue-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md"
+      ],
+      "reason": "Network evidence must enter a bounded, leased, idempotent AI job contract rather than call a worker directly."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-ai-plan-19-ai-result-journal-sqlite-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md"
+      ],
+      "reason": "AI results and policy decisions need a durable journal and SQLite read-model handoff instead of read-time manufactured refs."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md"
+      ],
+      "reason": "Network-triggered parent requests must use policy-owned approval, expiry, replay, scope, audit, and notification handoff semantics."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-policy-control-plane-plan-08-policy-event-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
+      ],
+      "reason": "Network policy handoff needs authoritative policy event family, causation, idempotency, replay, audit, rollback, and manual-required states."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Network-derived outputs must honor tombstone ordering, replay protection, redaction, and no-resurrection semantics."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-data-custody-storage-plan-06-report-query-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md"
+      ],
+      "reason": "Network reports and notification candidates need governed source refs, redaction, stale/deleted states, and query custody."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-portal-ux-household-surfaces-plan-09-browser-app-and-network-surfaces",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md"
+      ],
+      "reason": "The parent network surface must render metadata-only evidence with explicit unknown and degraded states."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-portal-ux-household-surfaces-plan-12-reports-notifications-and-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/12-reports-notifications-and-custody.md"
+      ],
+      "reason": "Parent reports and alerts need truthful custody, retention, export/delete, and queued/failed/manual-required delivery states."
+    }
+  ],
+  "stateOverrides": [
+    {
+      "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
+      "state": "validation",
+      "reason": "The runtime-decision contract slice is code/test/proof/CI/main-merge verified, but the workpack's broader identity, inventory, runtime, session, policy, authority, action, enforcement, platform, and AI checklist remains open.",
+      "statusText": "Validation — contract/runtime-decision slice is verified; the broader App WP01 checklist and product paths remain open.",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/01-contract-boundary-and-effect-schemas.md",
+        "docs/plans/app-plan/implementation-checklist.md",
+        "docs/proof/app-plan/slice-01-app-runtime-decision.md"
+      ]
+    },
+    {
+      "id": "WP-remote-access-plan-01-remote-capability-fabric",
+      "state": "validation",
+      "reason": "Rust-owned view-only capability contract and focused negative tests are current; relay, pairing lifecycle, device-trust integration, custody, CI, review, and main merge remain open.",
+      "statusText": "Validation — view-only capability contract and focused tests are current; runtime lifecycle and integration remain open.",
+      "evidence": ["docs/proof/remote-access-plan/slice-01-capability-fabric.md"]
+    },
+    {
+      "id": "WP-remote-access-plan-04-session-pairing-grants",
+      "state": "validation",
+      "reason": "The Rust-owned pairing and standing-grant lifecycle now has focused transition, disclosure, wrong-context, revoke/remove, reconnect-denial, support-boundary, and serialization tests; persistence adapters, relay/session integration, device-trust handoff, generated proof, CI, review, and main merge remain open.",
+      "statusText": "Validation — pairing/standing-grant lifecycle code and focused tests are current; runtime integrations and acceptance gates remain open.",
+      "evidence": [
+        "crates/remote-access-core/src/remote_access_grant",
+        "crates/remote-access-core/tests/unit/grant.rs",
+        "docs/proof/remote-access-plan/slice-04-session-pairing-grants.md"
+      ]
+    },
+    {
+      "id": "WP-device-trust-bootstrap-plan-08-open-source-dependency-adoption",
+      "state": "validation",
+      "reason": "Dependency matrix decisions and the trust-root boundary test are current; runtime library adoption, platform ceremony, CI, review, and main merge remain open.",
+      "statusText": "Validation — dependency/security review and boundary test are current; runtime adoption remains open.",
+      "evidence": ["docs/proof/device-trust-bootstrap-plan/slice-08-dependency-adoption.md"]
+    },
+    {
+      "id": "WP-network-plan-08-control-catalog-reference-routing",
+      "state": "validation",
+      "reason": "Reference-routing contract and exact-source boundary test are current; no network runtime implementation claim, CI, review, or main merge.",
+      "statusText": "Validation — catalog routing and no-default-read boundary are current; runtime work remains separate.",
+      "evidence": ["docs/proof/network-plan/slice-08-control-catalog-routing.md"]
+    }
+  ],
+  "proofOverrides": [
+    {
+      "id": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "proof": [
+        "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md",
+        "docs/proof/eventing-plan/wp06-01-journal-replay-proof.md",
+        "docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md",
+        "docs/proof/eventing-plan/wp06-16-validation-commands.md"
+      ],
+      "reason": "The retained WP06 handoff, journal/replay, topology/lineage, and validation records are the durable proof bundle named by the workpack.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
+      "satisfiesExpected": true
+    },
+    {
+      "id": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
+      "proof": ["docs/proof/eventing-plan"],
+      "reason": "The durable eventing plan manifest explicitly records WP11 proof roots and validation; the generic plan root is not inferred for siblings.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+    },
+    {
+      "id": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
+      "proof": ["docs/proof/eventing-plan"],
+      "reason": "The durable eventing plan manifest explicitly records the WP12 route-proof bundle and its validation; the generic plan root is not inferred for siblings.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+    },
+    {
+      "id": "WP-eventing-plan-13-test-folder-layout-regression-audit",
+      "proof": ["docs/proof/eventing-plan"],
+      "reason": "The durable eventing plan manifest explicitly records the WP13 regression audit and proof roots; the generic plan root is not inferred for siblings.",
+      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
+    }
+  ],
+  "completionEvidenceOverrides": [
+    {
+      "id": "WP-eventing-plan-06-journal-replay-and-lineage",
+      "implementation": [
+        "crates/ocentra-eventing/src/journal",
+        "crates/ocentra-eventing/src/replay",
+        "crates/ocentra-eventing/src/topology.rs",
+        "crates/ocentra-eventing/src/bus/journaling.rs",
+        "crates/agent-protocol/src/enforcement.rs",
+        "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal"
+      ],
+      "tests": [
+        "crates/ocentra-eventing/tests/journal_replay",
+        "crates/ocentra-eventing/tests/contract/topology_manifest.rs",
+        "crates/ocentra-eventing/tests/contract/compatibility_matrix.rs",
+        "crates/ocentra-eventing/tests/unit/production_shutdown.rs",
+        "crates/agent-protocol/tests/contract/enforcement_audit_boundary_tests.rs",
+        "crates/agent-service/tests/enforcement_eventing_journal.rs",
+        "crates/agent-service/tests/unit/enforcement_runtime.rs"
+      ],
+      "proof": [
+        "docs/proof/eventing-plan/wp06-00-enforcement-wp11-handoff.md",
+        "docs/proof/eventing-plan/wp06-01-journal-replay-proof.md",
+        "docs/proof/eventing-plan/wp06-02-topology-lineage-proof.md",
+        "docs/proof/eventing-plan/wp06-16-validation-commands.md"
+      ],
+      "checklist": ["docs/plans/eventing-plan/implementation-checklist.md"],
+      "reason": "Reviewed code, test, durable proof, and checklist paths for the workpack explicitly named done by the Eventing index. This does not promote enforcement WP11 or WP04.",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/06-journal-replay-and-lineage.md",
+        "docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"
+      ]
+    }
+  ],
+  "ambiguities": [
+    {
+      "scope": "all imported workpacks",
+      "reason": "Prose dependency language is not promoted to a hard edge without a reviewed override.",
+      "nextAction": "Add a reviewed edge here with evidence, or add explicit dependency metadata to the owning workpack."
+    }
+  ]
+}

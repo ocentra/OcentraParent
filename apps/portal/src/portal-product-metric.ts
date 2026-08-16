@@ -1,8 +1,9 @@
-import { PortalDom, type PortalDetailValue, type PortalDisplayText } from '@ocentra-parent/portal-domain/contracts';
-
+import { type ParentPortalDetailValue } from '../generated/parent-ui-bridge';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
 export function productMetric(
   labelText: PortalDisplayText,
-  valueText: PortalDetailValue,
+  valueText: ParentPortalDetailValue,
   metaText: PortalDisplayText
 ): HTMLElement {
   const metric = document.createElement(PortalDom.Tags.Division);

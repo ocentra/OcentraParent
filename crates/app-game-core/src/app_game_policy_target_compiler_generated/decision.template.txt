@@ -1,0 +1,65 @@
+export const AppGamePolicyCompiledDecisionSchema = withParser(
+  Schema.Struct({
+    schemaVersion: ParentContractSchemaVersionSchema,
+    compiledDecisionId: AppGamePolicyCompiledDecisionIdSchema,
+    request: AppGamePolicyCompileRequestSchema,
+    policyTarget: PolicyTargetSchema,
+    policyDecision: PolicyDecisionSchema,
+    outcomeState: AppGamePolicyCompilerOutcomeStateSchema,
+    rejectionReason: AppGamePolicyCompilerRejectionReasonSchema,
+    capabilityRefs: Schema.Array(AppGamePolicyCapabilityRefSchema),
+    authorityRefs: Schema.Array(AppGamePolicyAuthorityRefSchema),
+    auditRefs: Schema.Array(AppGamePolicyAuditRefSchema),
+    compiledAt: ParentTimestampSchema,
+  })
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          appGamePolicyCompiledDecisionCarriesProofRefs(decision) ||
+          'Expected compiled app/game policy decisions to remain dry-run and carry evidence, rule, and capability refs'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          decision.policyDecision.ruleIds.includes(decision.request.ruleId) ||
+          'Expected compiled app/game policy decisions to cite the source rule'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          decision.policyDecision.action === decision.request.policyAction ||
+          'Expected compiled app/game policy decision action to match the requested policy action'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          appGamePolicyCapabilityRefsKeepNonReadyStatesExplicit(decision) ||
+          'Expected manual-required or unsupported app/game capability refs to avoid dry-run-ready output'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          decision.request.requestedAction === AppGamePolicyCompilerRequestedAction.BlockLaunch ||
+          appGamePolicyHardActionProofIsComplete(decision.request) ||
+          decision.outcomeState !== AppGamePolicyCompilerOutcomeState.DryRunReady ||
+          'Expected hard app/game actions to avoid dry-run-ready output without authority and capability proof'
+      )
+    )
+    .pipe(
+      Schema.filter(
+        (decision) =>
+          appGamePolicyBlockLaunchWithoutProofIsManualRequired(decision) ||
+          'Expected unproved app/game block-launch actions to compile as manual-required'
+      )
+    )
+);
+
+export type AppGamePolicyTargetKind = Infer<typeof AppGamePolicyTargetKindSchema>;
+export type AppGamePolicyCompilerTarget = Infer<typeof AppGamePolicyCompilerTargetSchema>;
+export type AppGamePolicyCompilerEvidence = Infer<typeof AppGamePolicyCompilerEvidenceSchema>;
+export type AppGamePolicyCompileRequest = Infer<typeof AppGamePolicyCompileRequestSchema>;
+export type AppGamePolicyCompiledDecision = Infer<typeof AppGamePolicyCompiledDecisionSchema>;

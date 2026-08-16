@@ -1,143 +1,20 @@
-use ocentra_parent_agent_protocol::ActivityCaptureCapabilityStatus;
+use crate::{ScreenCaptureAttempt, ScreenCaptureWindowTitleQuery};
 
-use crate::{
-    degraded_capture, CapturedScreenImage, ScreenCaptureAttempt, ScreenCaptureMetadata,
-    ScreenCaptureScope,
-};
+#[path = "desktop_xcap_display.rs"]
+mod display;
+#[path = "desktop_xcap_window.rs"]
+mod window;
 
 pub(super) fn capture_active_window_png() -> ScreenCaptureAttempt {
-    capture_window_png(
-        |window| {
-            matches!(window.is_focused(), Ok(true)) && !matches!(window.is_minimized(), Ok(true))
-        },
-        ScreenCaptureScope::ActiveWindow,
-    )
+    window::capture_active_window_png()
 }
 
-pub(super) fn capture_window_title_contains_png(title_contains: &str) -> ScreenCaptureAttempt {
-    capture_window_png(
-        |window| {
-            !matches!(window.is_minimized(), Ok(true))
-                && window
-                    .title()
-                    .is_ok_and(|title| title.contains(title_contains))
-        },
-        ScreenCaptureScope::SelectedWindow,
-    )
+pub(super) fn capture_window_title_contains_png(
+    title_query: &ScreenCaptureWindowTitleQuery,
+) -> ScreenCaptureAttempt {
+    window::capture_window_title_contains_png(title_query)
 }
 
 pub(super) fn capture_primary_display_png() -> ScreenCaptureAttempt {
-    let monitors = match xcap::Monitor::all() {
-        Ok(monitors) => monitors,
-        Err(_) => {
-            return degraded_capture(
-                ActivityCaptureCapabilityStatus::AdapterError,
-                ScreenCaptureScope::PrimaryDisplay,
-            );
-        }
-    };
-
-    let Some(monitor) = monitors
-        .iter()
-        .find(|monitor| matches!(monitor.is_primary(), Ok(true)))
-        .or_else(|| monitors.first())
-    else {
-        return degraded_capture(
-            ActivityCaptureCapabilityStatus::NoActiveWindow,
-            ScreenCaptureScope::PrimaryDisplay,
-        );
-    };
-
-    let image = match monitor.capture_image() {
-        Ok(image) => image,
-        Err(_) => {
-            return degraded_capture(
-                ActivityCaptureCapabilityStatus::AccessDenied,
-                ScreenCaptureScope::PrimaryDisplay,
-            );
-        }
-    };
-
-    let width = image.width();
-    let height = image.height();
-    let png_bytes = match encode_png(image) {
-        Ok(png_bytes) => png_bytes,
-        Err(_) => {
-            return degraded_capture(
-                ActivityCaptureCapabilityStatus::AdapterError,
-                ScreenCaptureScope::PrimaryDisplay,
-            );
-        }
-    };
-
-    ScreenCaptureAttempt::Captured(CapturedScreenImage {
-        metadata: ScreenCaptureMetadata {
-            status: ActivityCaptureCapabilityStatus::Available,
-            scope: ScreenCaptureScope::PrimaryDisplay,
-            pid: None,
-            app_name: None,
-            title: None,
-            window_id: None,
-            monitor_id: monitor.id().ok(),
-            monitor_name: monitor.name().ok(),
-        },
-        width,
-        height,
-        png_bytes,
-    })
-}
-
-fn capture_window_png(
-    matches_window: impl Fn(&xcap::Window) -> bool,
-    scope: ScreenCaptureScope,
-) -> ScreenCaptureAttempt {
-    let windows = match xcap::Window::all() {
-        Ok(windows) => windows,
-        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AdapterError, scope),
-    };
-
-    let Some(window) = windows.into_iter().find(matches_window) else {
-        return degraded_capture(ActivityCaptureCapabilityStatus::NoActiveWindow, scope);
-    };
-
-    let image = match window.capture_image() {
-        Ok(image) => image,
-        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AccessDenied, scope),
-    };
-
-    let width = image.width();
-    let height = image.height();
-    let png_bytes = match encode_png(image) {
-        Ok(png_bytes) => png_bytes,
-        Err(_) => return degraded_capture(ActivityCaptureCapabilityStatus::AdapterError, scope),
-    };
-
-    ScreenCaptureAttempt::Captured(CapturedScreenImage {
-        metadata: ScreenCaptureMetadata {
-            status: ActivityCaptureCapabilityStatus::Available,
-            scope,
-            pid: window.pid().ok(),
-            app_name: window.app_name().ok(),
-            title: window.title().ok(),
-            window_id: window.id().ok(),
-            monitor_id: window
-                .current_monitor()
-                .ok()
-                .and_then(|monitor| monitor.id().ok()),
-            monitor_name: window
-                .current_monitor()
-                .ok()
-                .and_then(|monitor| monitor.name().ok()),
-        },
-        width,
-        height,
-        png_bytes,
-    })
-}
-
-fn encode_png(image: xcap::image::RgbaImage) -> Result<Vec<u8>, xcap::image::ImageError> {
-    let mut writer = std::io::Cursor::new(Vec::new());
-    let dynamic_image = xcap::image::DynamicImage::ImageRgba8(image);
-    dynamic_image.write_to(&mut writer, xcap::image::ImageFormat::Png)?;
-    Ok(writer.into_inner())
+    display::capture_primary_display_png()
 }

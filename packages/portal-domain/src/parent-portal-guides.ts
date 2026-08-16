@@ -1,10 +1,4 @@
-export type { ParentPortalGuideNote, ParentPortalGuidePage, ParentPortalGuideTopic } from './parent-portal-guide-types';
 import { PARENT_PORTAL_CONTROL_GUIDES } from './parent-portal-guide-controls';
-export {
-  PARENT_PORTAL_GUIDE_QUERY,
-  PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
-  PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
-} from './parent-portal-guide-controls';
 import { PARENT_PORTAL_INSIGHT_GUIDES } from './parent-portal-guide-insight';
 import { PARENT_PORTAL_OPERATION_GUIDES } from './parent-portal-guide-operations';
 import { PARENT_PORTAL_PRIVACY_GUIDES } from './parent-portal-guide-privacy';

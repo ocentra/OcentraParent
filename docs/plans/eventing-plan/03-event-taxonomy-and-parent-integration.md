@@ -1,5 +1,20 @@
 # Event Taxonomy And Parent Integration
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Event Taxonomy And Parent Integration`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 This document names the Parent event families that should eventually consume the
 reusable eventing crate. It is not the implementation source for event constants.
 When code starts, Parent event names that cross Rust service or protocol
@@ -189,6 +204,64 @@ ai.provider.unavailable
 ```
 
 AI events must cite evidence refs and cannot issue enforcement commands.
+
+The household AI provider mesh expands the broad `ai.*` namespace into exact
+families before implementation.
+
+Provider events:
+
+```text
+ai.provider.advertised
+ai.provider.heartbeat.observed
+ai.provider.capability.updated
+ai.provider.selected
+ai.provider.rejected
+ai.provider.stale
+ai.provider.unavailable
+```
+
+Work lifecycle events:
+
+```text
+ai.work.queued
+ai.work.route_selection.requested
+ai.work.route_selected
+ai.work.claim.requested
+ai.work.claim.granted
+ai.work.claim.rejected
+ai.work.lease.created
+ai.work.lease.renewed
+ai.work.lease.expired
+ai.work.started
+ai.work.progress.reported
+ai.work.completed
+ai.work.failed
+ai.work.timed_out
+ai.work.canceled
+ai.work.requeued
+ai.work.dead_lettered
+```
+
+Result events:
+
+```text
+ai.result.received
+ai.result.validation.requested
+ai.result.accepted
+ai.result.rejected
+ai.result.journaled
+ai.result.projected
+```
+
+Required household mesh event-family rows:
+
+| Event Family      | Aggregate Key                          | Causation Required                              | Idempotency Required                         | Dispatch Mode                       | Journal Mode                           | Replay Mode     | Allowed Next Event                                             |
+| ----------------- | -------------------------------------- | ----------------------------------------------- | -------------------------------------------- | ----------------------------------- | -------------------------------------- | --------------- | -------------------------------------------------------------- |
+| `ai.provider.*`   | provider peer id or physical device id | yes for updates after discovery                 | yes for heartbeat/capability update          | latest-state projection by provider | after validation, selected events only | projection-only | `ai.work.route_selection.requested`, portal, audit             |
+| `ai.work.*`       | AI work job id                         | yes from evidence bundle or parent/manual input | yes using dedupe key                         | aggregate-ordered for same job      | before claim and after terminal states | projection-only | `ai.work.claim.*`, `ai.result.*`, audit, portal                |
+| `ai.work.claim.*` | AI work job id                         | yes from queued or route-selected work          | yes using job id, provider peer id, claim id | aggregate-ordered                   | before lease grant/reject              | projection-only | `ai.work.lease.*`, `ai.work.started`, audit, portal            |
+| `ai.work.lease.*` | AI work job id                         | yes from claim grant or renewal request         | yes using job id, claim id, lease owner      | aggregate-ordered                   | before provider execution or requeue   | projection-only | `ai.work.started`, `ai.work.requeued`, `ai.work.dead_lettered` |
+| `ai.result.*`     | AI work job id                         | yes from work completion or LAN result received | yes using job id, claim id, result id        | aggregate-ordered                   | before policy request                  | projection-only | `policy.evaluation.requested`, audit, portal                   |
 
 ### Policy
 
