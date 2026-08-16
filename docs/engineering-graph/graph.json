@@ -10965,12 +10965,12 @@
       "path": "docs/plans/app-plan/workpacks/16-new-app-and-unknown-app-approval-flow.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "**Incomplete**",
+        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
