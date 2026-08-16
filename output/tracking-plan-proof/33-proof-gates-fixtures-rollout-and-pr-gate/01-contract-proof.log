@@ -1,6 +1,0 @@
-workpack=33-proof-gates-fixtures-rollout-and-pr-gate
-proofState=contract-proof-partial
-activity-domain tracking tests passed
-parent-domain tracking-location-policy tests passed
-schema-boundary guard passed
-Focused proof scripts and minimum-MVP audit metadata exist with P1 UI artifact citations plus P2 tracking service read-model and narrow portal-consumption proof; full platform/UI/root-gate proof remains pending.

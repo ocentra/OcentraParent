@@ -1,0 +1,39 @@
+name: CI Package iOS
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package-ios:
+    name: 'Preview: Child iOS Simulator Smoke'
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Build iOS simulator app
+        run: bash scripts/release/ios/build-simulator-app.sh
+
+      - name: Smoke iOS simulator app install and launch
+        run: bash scripts/smoke/ios-simulator-smoke.sh target/ios-derived-data/Build/Products/Debug-iphonesimulator/OcentraParentAgent.app
+
+      - name: Write tracking iOS simulator proof
+        run: npm run test:tracking-plan-ios-simulator-proof
+
+      - name: Upload iOS simulator preview
+        uses: actions/upload-artifact@v6
+        with:
+          name: ocentra-parent-ios-simulator-preview
+          path: |
+            target/release-packages/ios/*.zip
+            target/release-packages/ios/*.sha256
+            test-results/tracking-plan-ios-simulator-proof/**
+            output/tracking-plan-proof/11-ios-core-location-foreground-adapter/18-ios-simulator-proof.json
+            output/tracking-plan-proof/12-ios-background-region-significant-change-adapter/18-ios-simulator-proof.json
+            output/tracking-plan-proof/31-platform-extension-checklists-and-proof-routing/18-ios-simulator-proof.json

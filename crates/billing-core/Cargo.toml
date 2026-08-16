@@ -1,0 +1,19 @@
+[package]
+name = "ocentra-billing-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ocentra-eventing = { path = "../ocentra-eventing" }
+serde = { version = "1.0.228", features = ["derive"] }
+
+[[test]]
+name = "unit"
+path = "tests/unit/mod.rs"

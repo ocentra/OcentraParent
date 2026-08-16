@@ -1,0 +1,27 @@
+export function runtimeOwnerForSectionGenerated(
+  sectionTitle: string,
+  sourceText: string
+): (typeof GeneratedBrowserControlFullCatalogRuntimeOwnerValues)[number] {
+  const searchable = `${sectionTitle} ${sourceText}`;
+  if (/Portal Display|Child-Facing|Report/iu.test(searchable)) {
+    return 'portal-only';
+  }
+  if (/Audit|Custody|Retention|Never-Collect|Data Minimization/iu.test(searchable)) {
+    return 'parent-owned-storage';
+  }
+  if (/AI/iu.test(searchable)) {
+    return 'local-ai-runtime';
+  }
+  if (
+    /Platform|Setup|Provisioning|Managed Browser Operation|Private|Tor|Network|Capability Failure/iu.test(searchable)
+  ) {
+    return 'os-adapter';
+  }
+  if (/manual|permission/iu.test(searchable)) {
+    return 'manual-proof';
+  }
+  if (/policy value|protocol|patch|replace|rollback/iu.test(searchable)) {
+    return 'agent-protocol';
+  }
+  return 'child-agent';
+}

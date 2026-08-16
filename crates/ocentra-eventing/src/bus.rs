@@ -1,33 +1,38 @@
 use std::{
     collections::BTreeMap,
-    future::Future,
+    future::{ready, Future},
     sync::{Arc, Mutex},
 };
 
 use tokio::sync::{RwLock, Semaphore};
 
+use crate::queue::policy::NoSubscriberQueuePolicy;
 use crate::{
-    queue::EventQueue, AggregateKey, DomainEvent, EventQueuePolicy, EventType, EventingError,
-    HandlerExecutionPolicy, JournalPolicy, RequestRegistry, SharedEventClock, SharedEventJournal,
-    StoredEventEnvelope,
+    AggregateKey, DomainEvent, EventQueue, EventType, EventingError, ExpectValue,
+    HandlerExecutionPolicy, JournalMode, JournalPolicy, RequestRegistry, SharedEventClock,
+    SharedEventJournal, StoredEventEnvelope,
 };
 
+mod active_dispatch;
+mod aggregate_gate;
+mod builders;
 mod dispatch;
 mod journaling;
 mod lifecycle;
 mod publish;
-mod publisher;
-mod reports;
-mod subscriber;
+pub mod publisher;
+mod queue_drain;
+pub mod reports;
+pub mod subscriber;
 
-use subscriber::{insert_subscriber, record_for, SubscriberRecord};
+use subscriber::{insert_subscriber, record_for, remove_subscriber, SubscriberRecord};
 
-pub use publisher::{EventContext, EventPublisher};
-pub use reports::{
-    dead_letter_recorded_event_type, DeadLetter, DeadLetterEvent, DeadLetterReason,
-    EventTraceFields, HandlerOutcome, HandlerReport, PublishReport, QueueDrainReport,
-};
-pub use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport, UnsubscribeReport};
+use active_dispatch::ActiveDispatchTracker;
+
+use publisher::{EventContext, EventPublisher};
+use reports::dead_letter::DeadLetter;
+use reports::handler::{EventMetricsSnapshot, HandlerReport, PublishReport, QueueDrainReport};
+use subscriber::{EventSubscriber, SubscriptionHandle, SubscriptionReport};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DispatchMode {
@@ -69,6 +74,7 @@ pub struct EventBusShutdownReport {
     pub queued_expired_count: usize,
     pub queued_dead_lettered_count: usize,
     pub queued_dropped_count: usize,
+    pub in_flight_dispatch_count: usize,
     pub pending_request_count: usize,
     pub completed_request_count: usize,
     pub timed_out_request_count: usize,
@@ -86,96 +92,34 @@ pub struct EventBus {
     journal_policy: JournalPolicy,
     event_journal: Option<SharedEventJournal>,
     clock: SharedEventClock,
-    shutdown: Arc<Mutex<bool>>,
+    shutdown: Arc<Mutex<EventBusLifecycleState>>,
+    active_dispatches: ActiveDispatchTracker,
 }
 
 impl EventBus {
-    pub fn new() -> Self {
-        Self {
-            registry: Arc::new(Mutex::new(BTreeMap::new())),
-            stored_journal: Arc::new(RwLock::new(Vec::new())),
-            dead_letters: Arc::new(RwLock::new(Vec::new())),
-            aggregate_gates: Arc::new(Mutex::new(BTreeMap::new())),
-            handler_policy: HandlerExecutionPolicy::default(),
-            queue: EventQueue::new(EventQueuePolicy::default()),
-            requests: RequestRegistry::default(),
-            journal_policy: JournalPolicy::default(),
-            event_journal: None,
-            clock: crate::SystemEventClock::shared(),
-            shutdown: Arc::new(Mutex::new(false)),
-        }
+    /// Exposes the configured journal phase so a caller that treats a journal
+    /// receipt as an authorization boundary can reject ambiguous two-phase
+    /// delivery before it emits an event.
+    pub fn journal_mode(&self) -> JournalMode {
+        self.journal_policy.mode
     }
 
-    pub fn with_clock(clock: SharedEventClock) -> Self {
-        Self {
-            clock,
-            ..Self::new()
-        }
+    pub fn journal_covers_event_type(&self, event_type: &EventType) -> bool {
+        self.journal_policy.covers_event_type(event_type)
     }
 
-    pub fn with_handler_policy(policy: HandlerExecutionPolicy) -> Self {
-        Self {
-            handler_policy: policy,
-            ..Self::new()
-        }
+    pub fn has_production_durable_journal(&self) -> bool {
+        self.event_journal
+            .as_ref()
+            .is_some_and(|journal| journal.is_production_durable())
     }
 
-    pub fn with_handler_policy_and_clock(
-        policy: HandlerExecutionPolicy,
-        clock: SharedEventClock,
-    ) -> Self {
-        Self {
-            handler_policy: policy,
-            clock,
-            ..Self::new()
-        }
-    }
-
-    pub fn with_queue_policy(policy: EventQueuePolicy) -> Self {
-        Self {
-            queue: EventQueue::new(policy),
-            ..Self::new()
-        }
-    }
-
-    pub fn with_queue_policy_and_clock(policy: EventQueuePolicy, clock: SharedEventClock) -> Self {
-        Self {
-            queue: EventQueue::new(policy),
-            clock,
-            ..Self::new()
-        }
-    }
-
-    pub fn with_policies(
-        handler_policy: HandlerExecutionPolicy,
-        queue_policy: EventQueuePolicy,
-    ) -> Self {
-        Self {
-            handler_policy,
-            queue: EventQueue::new(queue_policy),
-            ..Self::new()
-        }
-    }
-
-    pub fn with_policies_and_clock(
-        handler_policy: HandlerExecutionPolicy,
-        queue_policy: EventQueuePolicy,
-        clock: SharedEventClock,
-    ) -> Self {
-        Self {
-            handler_policy,
-            queue: EventQueue::new(queue_policy),
-            clock,
-            ..Self::new()
-        }
-    }
-
-    pub fn with_journal(policy: JournalPolicy, journal: SharedEventJournal) -> Self {
-        Self {
-            journal_policy: policy,
-            event_journal: Some(journal),
-            ..Self::new()
-        }
+    /// Returns the configured behavior when no subscriber is present. Callers
+    /// that make publication an authorization boundary can reject queueing,
+    /// because a later subscriber would otherwise observe an event after the
+    /// authorization attempt has already failed.
+    pub fn no_subscriber_queue_policy(&self) -> NoSubscriberQueuePolicy {
+        self.queue.policy().no_subscriber()
     }
 
     pub async fn subscribe<E, F, Fut>(
@@ -192,8 +136,14 @@ impl EventBus {
             subscriber_id: subscriber.id.clone(),
             event_type: subscriber.event_type.clone(),
             target_handler: subscriber.target_handler.clone(),
+            drain_report: empty_queue_drain_report(),
         };
-        self.insert_subscriber(record_for(subscriber, handler)?)?;
+        self.insert_subscriber(record_for(&subscriber, handler)?)?;
+        let drain_report = self.drain_after_subscribe(&report).await?;
+        let report = SubscriptionReport {
+            drain_report,
+            ..report
+        };
         Ok(report)
     }
 
@@ -211,9 +161,28 @@ impl EventBus {
             subscriber_id: subscriber.id.clone(),
             event_type: subscriber.event_type.clone(),
             target_handler: subscriber.target_handler.clone(),
+            drain_report: empty_queue_drain_report(),
         };
-        self.insert_subscriber(record_for(subscriber, handler)?)?;
+        self.insert_subscriber(record_for(&subscriber, handler)?)?;
+        let drain_report = self.drain_after_subscribe(&report).await?;
+        let report = SubscriptionReport {
+            drain_report,
+            ..report
+        };
         Ok(SubscriptionHandle::new(Arc::clone(&self.registry), report))
+    }
+
+    pub async fn subscribe_sync<E, F>(
+        &self,
+        subscriber: EventSubscriber,
+        handler: F,
+    ) -> Result<SubscriptionReport, EventingError>
+    where
+        E: DomainEvent,
+        F: Fn(EventContext<E>) -> Result<(), EventingError> + Send + Sync + 'static,
+    {
+        self.subscribe::<E, _, _>(subscriber, move |context| ready(handler(context)))
+            .await
     }
 
     fn insert_subscriber(&self, record: SubscriberRecord) -> Result<(), EventingError> {
@@ -221,24 +190,85 @@ impl EventBus {
         insert_subscriber(&self.registry, record)
     }
 
+    pub async fn metrics_snapshot(&self) -> EventMetricsSnapshot {
+        let subscription_count = self
+            .registry
+            .lock()
+            .expect_value("event registry lock")
+            .values()
+            .map(Vec::len)
+            .sum();
+        EventMetricsSnapshot {
+            subscription_count,
+            stored_event_count: self.stored_journal.read().await.len(),
+            dead_letter_count: self.dead_letters.read().await.len(),
+            queue: self.queue.metrics(),
+            requests: self.requests.metrics(),
+        }
+    }
+
+    async fn drain_after_subscribe(
+        &self,
+        report: &SubscriptionReport,
+    ) -> Result<QueueDrainReport, EventingError> {
+        match self
+            .drain_queued_for_event_unchecked(DispatchMode::Sequential, &report.event_type)
+            .await
+        {
+            Ok(drain_report) => Ok(drain_report),
+            Err(error) => {
+                remove_subscriber(&self.registry, &report.event_type, &report.subscriber_id);
+                Err(error)
+            }
+        }
+    }
+
     fn ensure_active(&self) -> Result<(), EventingError> {
-        if *self.shutdown.lock().expect("event bus shutdown lock") {
+        if *self.shutdown.lock().expect_value("event bus shutdown lock")
+            != EventBusLifecycleState::Active
+        {
             return Err(EventingError::BusShutdown);
         }
         Ok(())
     }
 
-    fn is_shutdown(&self) -> bool {
-        *self.shutdown.lock().expect("event bus shutdown lock")
+    fn begin_shutdown(&self) -> bool {
+        let mut shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
+        match *shutdown {
+            EventBusLifecycleState::Active => {
+                *shutdown = EventBusLifecycleState::ShuttingDown;
+                false
+            }
+            EventBusLifecycleState::ShuttingDown | EventBusLifecycleState::Shutdown => true,
+        }
     }
 
     fn mark_shutdown(&self) {
-        *self.shutdown.lock().expect("event bus shutdown lock") = true;
+        *self.shutdown.lock().expect_value("event bus shutdown lock") =
+            EventBusLifecycleState::Shutdown;
+    }
+
+    fn rollback_shutdown(&self) {
+        let mut shutdown = self.shutdown.lock().expect_value("event bus shutdown lock");
+        if *shutdown == EventBusLifecycleState::ShuttingDown {
+            *shutdown = EventBusLifecycleState::Active;
+        }
     }
 }
 
-impl Default for EventBus {
-    fn default() -> Self {
-        Self::new()
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum EventBusLifecycleState {
+    Active,
+    ShuttingDown,
+    Shutdown,
+}
+
+fn empty_queue_drain_report() -> QueueDrainReport {
+    QueueDrainReport {
+        queued_before: 0,
+        dispatched_count: 0,
+        expired_count: 0,
+        remaining_count: 0,
+        dispatch_reports: Vec::new(),
     }
 }

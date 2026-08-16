@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Billing And Subscription Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Billing And Subscription Expectations
 
 Billing features should gate paid product value without breaking local child
@@ -255,6 +268,19 @@ Any feature that can be disabled for billing must define its degraded local beha
   references, and reject provider contact execution, account lookup execution,
   entitlement override runtime, refund/credit runtime, support backend upload,
   portal admin UI, and child activity custody.
+- `production-support-account-sla-status-proof` proves account lookup request
+  and result boundaries, billing provider contact status, remote support
+  request/session status, and production SLA status remain source-contract,
+  manual-required, or not-implemented only; it rejects account lookup execution,
+  billing provider contact execution, provider secrets, support backend upload
+  execution, remote support sessions, production SLA commitments, and child
+  activity custody.
+- `production-support-legal-provider-readiness-proof` proves billing provider
+  contact and account lookup remain manual-required support boundaries inside a
+  broader legal/provider readiness matrix; it rejects billing provider contact
+  execution, account lookup execution, provider secret custody, payment provider
+  tokens, support backend upload execution, remote support sessions, production
+  SLA commitments, public runtime execution, and child activity custody.
 - Endpoint-domain contract tests and `billing-account-endpoint-contract-proof`
   prove account, entitlement, subscription, device-limit, download, update, and
   release-status route boundaries before provider/backend code exists.

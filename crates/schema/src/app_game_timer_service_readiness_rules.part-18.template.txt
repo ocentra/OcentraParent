@@ -1,0 +1,30 @@
+
+  if (
+    runtimeReadinessState ===
+    AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness
+  ) {
+    return AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedBySourceFreshness;
+  }
+
+  return AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedByCompilerDecision;
+};
+
+export const countAppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceRowsGenerated = (
+  rows: readonly TimerSchedulerPersistenceRowLike[]
+) => ({
+  schedulerPersistenceProofRequiredCount: rows.filter(
+    (row) =>
+      row.schedulerPersistenceState ===
+      AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.SchedulerPersistenceProofRequired
+  ).length,
+  blockedBySourceFreshnessCount: rows.filter(
+    (row) =>
+      row.schedulerPersistenceState ===
+      AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedBySourceFreshness
+  ).length,
+  blockedByCompilerDecisionCount: rows.filter(
+    (row) =>
+      row.schedulerPersistenceState ===
+      AppGameSourceGatedPolicyPreviewTimerSchedulerPersistenceStateGenerated.BlockedByCompilerDecision
+  ).length,
+});

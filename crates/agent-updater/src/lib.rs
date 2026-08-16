@@ -3,6 +3,7 @@ pub mod cli;
 pub mod constants;
 pub mod crypto;
 pub mod error;
+pub mod handoff;
 pub mod hash;
 pub mod installer;
 pub mod manifest;

@@ -1,0 +1,36 @@
+/* thin adapter over Rust-generated app-game preview/source-freshness rules */
+
+import {
+  AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated,
+  AppGamePolicyPreviewNoRuntimeClaimStatesGenerated,
+  AppGamePolicyPreviewStatusGenerated,
+  AppGamePolicyPreviewTargetDomainGenerated,
+} from './generated-app-game-preview-source-freshness-values';
+import {
+  appGamePolicyPreviewReadModelCountsMatchRowsGenerated,
+  appGamePolicyPreviewRowHasNoRuntimeClaimsGenerated,
+  appGamePolicyPreviewRowHasProofRefsGenerated,
+  appGamePolicyPreviewRowIsDryRunOnlyGenerated,
+  appGamePolicyPreviewStatusForOutcomeGenerated,
+  appGamePolicyPreviewStatusMatchesOutcomeGenerated,
+  appGamePolicyPreviewTargetDomainForKindGenerated,
+  countAppGamePolicyPreviewReadModelRowsGenerated,
+  countAppGamePolicyPreviewRowsGenerated,
+  countAppGamePolicyPreviewStatusesGenerated,
+} from './generated-app-game-preview-source-freshness-rules';
+
+export const AppGamePolicyPreviewTargetDomain = AppGamePolicyPreviewTargetDomainGenerated;
+export const AppGamePolicyPreviewStatus = AppGamePolicyPreviewStatusGenerated;
+export const AppGamePolicyPreviewNoRuntimeClaimStates = AppGamePolicyPreviewNoRuntimeClaimStatesGenerated;
+export const AppGamePolicyPreviewNoRuntimeClaimFlags = AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated;
+
+export const appGamePolicyPreviewTargetDomainForKind = appGamePolicyPreviewTargetDomainForKindGenerated;
+export const appGamePolicyPreviewStatusForOutcome = appGamePolicyPreviewStatusForOutcomeGenerated;
+export const appGamePolicyPreviewStatusMatchesOutcome = appGamePolicyPreviewStatusMatchesOutcomeGenerated;
+export const appGamePolicyPreviewRowIsDryRunOnly = appGamePolicyPreviewRowIsDryRunOnlyGenerated;
+export const appGamePolicyPreviewRowHasNoRuntimeClaims = appGamePolicyPreviewRowHasNoRuntimeClaimsGenerated;
+export const appGamePolicyPreviewRowHasProofRefs = appGamePolicyPreviewRowHasProofRefsGenerated;
+export const appGamePolicyPreviewReadModelCountsMatchRows = appGamePolicyPreviewReadModelCountsMatchRowsGenerated;
+export const countAppGamePolicyPreviewRows = countAppGamePolicyPreviewRowsGenerated;
+export const countAppGamePolicyPreviewStatuses = countAppGamePolicyPreviewStatusesGenerated;
+export const countAppGamePolicyPreviewReadModelRows = countAppGamePolicyPreviewReadModelRowsGenerated;

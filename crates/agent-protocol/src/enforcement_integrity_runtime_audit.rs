@@ -1,8 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    ParentPlatform, V08IntegrityAlertStatusBridgeReadModel,
-    V08NotificationProviderStatusBoundaryReadModel,
+    integrity_alert_status_bridge::V08IntegrityAlertStatusBridgeReadModel,
+    notification_provider_status_boundary::V08NotificationProviderStatusBoundaryReadModel,
+    ParentPlatform,
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -27,7 +28,7 @@ pub enum V08EnforcementIntegrityRuntimeAuditSurface {
     MobileChildControl,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08EnforcementIntegrityRuntimeAuditResult {
     #[serde(rename = "succeeded")]
     Succeeded,
@@ -137,7 +138,7 @@ pub enum V08EnforcementIntegrityRuntimeAuditChildState {
     NotClaimed,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08EnforcementIntegrityRuntimeAuditIntegrityState {
     #[serde(rename = "running")]
     Running,

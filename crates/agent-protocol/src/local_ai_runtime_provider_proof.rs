@@ -7,6 +7,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiRuntimeProviderProofRequirement {
     #[serde(rename = "one-ai-provider-role-per-physical-device")]
     OneAiProviderRolePerPhysicalDevice,
@@ -27,29 +28,24 @@ pub enum LocalAiRuntimeProviderProofRequirement {
 }
 
 impl LocalAiRuntimeProviderProofRequirement {
+    const PROTOCOL_STRINGS: [&'static str; 8] = [
+        proof_constants::REQUIREMENT_ONE_PROVIDER_ROLE,
+        proof_constants::REQUIREMENT_SHARED_PARENT_CHILD_PROVIDER,
+        proof_constants::REQUIREMENT_SINGLE_RUNTIME_LANE,
+        proof_constants::REQUIREMENT_CHILD_SAFETY_PRIORITY,
+        proof_constants::REQUIREMENT_LIFECYCLE,
+        proof_constants::REQUIREMENT_PARENT_ASSISTANT_SUBMIT,
+        proof_constants::REQUIREMENT_NO_DUPLICATE_MODEL_LOAD,
+        proof_constants::REQUIREMENT_STATUS_CONTRACT_HARDENING,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::OneAiProviderRolePerPhysicalDevice => {
-                proof_constants::REQUIREMENT_ONE_PROVIDER_ROLE
-            }
-            Self::SharedParentChildProvider => {
-                proof_constants::REQUIREMENT_SHARED_PARENT_CHILD_PROVIDER
-            }
-            Self::SingleLocalRuntimeLane => proof_constants::REQUIREMENT_SINGLE_RUNTIME_LANE,
-            Self::ChildSafetyPriority => proof_constants::REQUIREMENT_CHILD_SAFETY_PRIORITY,
-            Self::QueuedDegradedUnavailableLifecycle => proof_constants::REQUIREMENT_LIFECYCLE,
-            Self::ParentAssistantSubmitsWhenAllowed => {
-                proof_constants::REQUIREMENT_PARENT_ASSISTANT_SUBMIT
-            }
-            Self::NoDuplicateLocalModelLoad => proof_constants::REQUIREMENT_NO_DUPLICATE_MODEL_LOAD,
-            Self::ProviderStatusContractHardening => {
-                proof_constants::REQUIREMENT_STATUS_CONTRACT_HARDENING
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum LocalAiRuntimeProviderProofStatus {
     #[serde(rename = "proved")]
     Proved,
@@ -62,13 +58,15 @@ pub enum LocalAiRuntimeProviderProofStatus {
 }
 
 impl LocalAiRuntimeProviderProofStatus {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        proof_constants::PROOF_STATUS_PROVED,
+        proof_constants::PROOF_STATUS_DEGRADED,
+        proof_constants::PROOF_STATUS_UNAVAILABLE,
+        proof_constants::PROOF_STATUS_NOT_CLAIMED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Proved => proof_constants::PROOF_STATUS_PROVED,
-            Self::Degraded => proof_constants::PROOF_STATUS_DEGRADED,
-            Self::Unavailable => proof_constants::PROOF_STATUS_UNAVAILABLE,
-            Self::NotClaimed => proof_constants::PROOF_STATUS_NOT_CLAIMED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 

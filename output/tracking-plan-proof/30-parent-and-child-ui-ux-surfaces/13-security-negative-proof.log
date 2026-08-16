@@ -1,8 +1,0 @@
-checkedAt=2026-06-05T06:59:35.467Z
-asserted=no browser console or page errors
-asserted=no product-ready or physical-device-proved route copy
-asserted=manual proof required and physical device proof required labels visible
-asserted=child check-in copy and actions visible without child-device delivery claim
-asserted=child runtime UI disclosure, safe/help response, and location-share consent copy visible
-asserted=hosted proof only boundary visible for child runtime UI
-asserted=productClaimReady=false

@@ -1,7 +1,0 @@
-Security/no-claim proof:
-
-- Category/risk rows are policy inputs, not source truth.
-- Risk candidates cannot request block-launch or other hard adapter actions.
-- Local AI category routes require a digest ref and cannot dispatch adapters.
-- Stale category proof is rejected before compile-ready routing.
-- adapterDispatchState remains not-dispatched for every valid route.

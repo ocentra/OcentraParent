@@ -10,6 +10,12 @@ Scoped Windows owned-process time-limit proof exists, and policy foundations
 exist. Native app budgets must be wired to replayable app sessions rather than
 portal refresh or guessed runtime state.
 
+Code-pass status (2026-08-16): Rust app-game-core already evaluates stored
+session summaries with schedule, bonus, and timer state. This pass adds the
+missing category/risk compilation handoff. The slice is code-drafted and
+unvalidated; service scheduling, restart/runtime wiring, tests, proof, and
+adapter execution remain deferred.
+
 ## Where We Want To Be
 
 Schedules, time budgets, bonus time, and approvals consume session summaries
@@ -26,10 +32,13 @@ with evidence refs. Dry-run and manual-required modes are visible and auditable.
 
 ## Touched Paths
 
-- `packages/parent-domain/src/policy.ts`
-- `packages/parent-domain/src/enforcement-policy-dispatch.ts`
-- `crates/agent-core/src/enforcement_app_time_limit*`
-- app/session read-model paths when assigned.
+- `crates/app-game-core/src/app_game_time_budget.rs`
+- `crates/app-game-core/src/app_game_time_budget_types.rs`
+- `crates/app-game-core/src/app_game_policy_evaluator_runtime.rs`
+- `crates/app-game-core/src/app_game_category_risk_policy_routing.rs`
+
+The package-domain and enforcement-adapter paths above are historical routing
+references. This code pass does not claim native adapter execution.
 
 ## Tests And Proof
 
@@ -67,7 +76,7 @@ Fill this before reporting `DONE` or PR-ready:
 Time-budget policy can be proof-complete in dry-run before enforcement is
 available on a platform.
 
-## Completion - 2026-06-03
+## Historical completion note - 2026-06-03
 
 - Owner: `codex-c`
 - Branch: `codex/app-game-read-model-service-events`
@@ -86,10 +95,8 @@ Completed:
 - Covered the native app target view through all-native-apps, native-app,
   app-category, risk-app, and native-app-session inputs.
 
-Deferred:
-
-- WP17 live risk app detection remains open because `packages/activity-domain`
-  was locked by `codex-a` during this pass.
-- Native app runtime evaluator execution, service persistence, portal app
-  budget authoring/preview UI, notification delivery, child request UX,
-  adapter execution, and broad installed-app blocking remain later work.
+Current deferred work remains native app runtime evaluator/service persistence,
+restart and scheduler consumption, portal app budget authoring/preview UI,
+notification delivery, child request UX, adapter execution, and broad
+installed-app blocking. The historical TypeScript proof does not close these
+Rust production/runtime gaps.

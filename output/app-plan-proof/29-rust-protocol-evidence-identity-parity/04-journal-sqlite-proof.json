@@ -1,5 +1,0 @@
-{
-  "appPlanWorkpack": "29-rust-protocol-evidence-identity-parity",
-  "journalOrSqliteChanged": false,
-  "remainingGap": "Store the mirrored evidence claim, digest, identity, and identity-merge rows before native app UI or policy depends on them."
-}

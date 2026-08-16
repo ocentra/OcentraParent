@@ -1,11 +1,27 @@
+use ocentra_eventing::envelope::{DomainEvent, EventContract};
+use ocentra_eventing::error::EventingError;
+use ocentra_eventing::ids::{AggregateKey, EventType, IdempotencyKey, SchemaVersion};
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    constants::enforcement as enforcement_constants, ParentActorReference, ParentDeviceReference,
-    ParentEvidenceReference, PolicyAction, PolicyTarget,
+    activity::policy::{
+        ParentActorReference, ParentEvidenceReference, PolicyAction, PolicyTarget, PolicyTargetType,
+    },
+    activity::policy_context::ParentDeviceReference,
+    constants::enforcement as enforcement_constants,
 };
 
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ParentActionReference {
+    pub action_reference_id: String,
+    pub actor: ParentActorReference,
+    pub policy_version: String,
+    pub created_at: String,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum ParentPlatform {
     #[serde(rename = "windows")]
     Windows,
@@ -20,18 +36,21 @@ pub enum ParentPlatform {
 }
 
 impl ParentPlatform {
+    const PROTOCOL_STRINGS: [&'static str; 5] = [
+        enforcement_constants::PLATFORM_WINDOWS,
+        enforcement_constants::PLATFORM_LINUX,
+        enforcement_constants::PLATFORM_MACOS,
+        enforcement_constants::PLATFORM_ANDROID,
+        enforcement_constants::PLATFORM_IOS,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Windows => enforcement_constants::PLATFORM_WINDOWS,
-            Self::Linux => enforcement_constants::PLATFORM_LINUX,
-            Self::Macos => enforcement_constants::PLATFORM_MACOS,
-            Self::Android => enforcement_constants::PLATFORM_ANDROID,
-            Self::Ios => enforcement_constants::PLATFORM_IOS,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementIntentSource {
     #[serde(rename = "parent-portal")]
     ParentPortal,
@@ -44,19 +63,20 @@ pub enum EnforcementIntentSource {
 }
 
 impl EnforcementIntentSource {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        enforcement_constants::INTENT_SOURCE_PARENT_PORTAL,
+        enforcement_constants::INTENT_SOURCE_PARENT_RULE,
+        enforcement_constants::INTENT_SOURCE_LOCAL_POLICY_EVALUATOR,
+        enforcement_constants::INTENT_SOURCE_SYSTEM_RECOVERY,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ParentPortal => enforcement_constants::INTENT_SOURCE_PARENT_PORTAL,
-            Self::ParentRule => enforcement_constants::INTENT_SOURCE_PARENT_RULE,
-            Self::LocalPolicyEvaluator => {
-                enforcement_constants::INTENT_SOURCE_LOCAL_POLICY_EVALUATOR
-            }
-            Self::SystemRecovery => enforcement_constants::INTENT_SOURCE_SYSTEM_RECOVERY,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementAdapterKind {
     #[serde(rename = "process-control")]
     ProcessControl,
@@ -69,19 +89,20 @@ pub enum EnforcementAdapterKind {
 }
 
 impl EnforcementAdapterKind {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        enforcement_constants::ADAPTER_KIND_PROCESS_CONTROL,
+        enforcement_constants::ADAPTER_KIND_NETWORK_CONTROL,
+        enforcement_constants::ADAPTER_KIND_MANAGED_BROWSER_CONTROL,
+        enforcement_constants::ADAPTER_KIND_TIMER_CONTROL,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ProcessControl => enforcement_constants::ADAPTER_KIND_PROCESS_CONTROL,
-            Self::NetworkControl => enforcement_constants::ADAPTER_KIND_NETWORK_CONTROL,
-            Self::ManagedBrowserControl => {
-                enforcement_constants::ADAPTER_KIND_MANAGED_BROWSER_CONTROL
-            }
-            Self::TimerControl => enforcement_constants::ADAPTER_KIND_TIMER_CONTROL,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementMode {
     #[serde(rename = "terminate-process")]
     TerminateProcess,
@@ -98,19 +119,22 @@ pub enum EnforcementMode {
 }
 
 impl EnforcementMode {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        enforcement_constants::MODE_TERMINATE_PROCESS,
+        enforcement_constants::MODE_BLOCK_PROCESS,
+        enforcement_constants::MODE_TEMPORARY_BLOCK,
+        enforcement_constants::MODE_TIME_LIMIT,
+        enforcement_constants::MODE_ASK_PARENT,
+        enforcement_constants::MODE_OBSERVE_ONLY,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::TerminateProcess => enforcement_constants::MODE_TERMINATE_PROCESS,
-            Self::BlockProcess => enforcement_constants::MODE_BLOCK_PROCESS,
-            Self::TemporaryBlock => enforcement_constants::MODE_TEMPORARY_BLOCK,
-            Self::TimeLimit => enforcement_constants::MODE_TIME_LIMIT,
-            Self::AskParent => enforcement_constants::MODE_ASK_PARENT,
-            Self::ObserveOnly => enforcement_constants::MODE_OBSERVE_ONLY,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementCapabilityState {
     #[serde(rename = "supported")]
     Supported,
@@ -127,19 +151,22 @@ pub enum EnforcementCapabilityState {
 }
 
 impl EnforcementCapabilityState {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        enforcement_constants::CAPABILITY_SUPPORTED,
+        enforcement_constants::CAPABILITY_UNAVAILABLE,
+        enforcement_constants::CAPABILITY_DEGRADED,
+        enforcement_constants::CAPABILITY_DRY_RUN,
+        enforcement_constants::CAPABILITY_OBSERVE_ONLY,
+        enforcement_constants::CAPABILITY_MANUAL_REQUIRED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Supported => enforcement_constants::CAPABILITY_SUPPORTED,
-            Self::Unavailable => enforcement_constants::CAPABILITY_UNAVAILABLE,
-            Self::Degraded => enforcement_constants::CAPABILITY_DEGRADED,
-            Self::DryRun => enforcement_constants::CAPABILITY_DRY_RUN,
-            Self::ObserveOnly => enforcement_constants::CAPABILITY_OBSERVE_ONLY,
-            Self::ManualRequired => enforcement_constants::CAPABILITY_MANUAL_REQUIRED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementUnavailableReason {
     #[serde(rename = "unsupported-platform")]
     UnsupportedPlatform,
@@ -158,20 +185,23 @@ pub enum EnforcementUnavailableReason {
 }
 
 impl EnforcementUnavailableReason {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        enforcement_constants::UNAVAILABLE_UNSUPPORTED_PLATFORM,
+        enforcement_constants::UNAVAILABLE_UNSUPPORTED_ACTION,
+        enforcement_constants::UNAVAILABLE_MISSING_PERMISSION,
+        enforcement_constants::UNAVAILABLE_MISSING_DEPENDENCY,
+        enforcement_constants::UNAVAILABLE_ADAPTER_UNAVAILABLE,
+        enforcement_constants::UNAVAILABLE_ADAPTER_ERROR,
+        enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::UnsupportedPlatform => enforcement_constants::UNAVAILABLE_UNSUPPORTED_PLATFORM,
-            Self::UnsupportedAction => enforcement_constants::UNAVAILABLE_UNSUPPORTED_ACTION,
-            Self::MissingPermission => enforcement_constants::UNAVAILABLE_MISSING_PERMISSION,
-            Self::MissingDependency => enforcement_constants::UNAVAILABLE_MISSING_DEPENDENCY,
-            Self::AdapterUnavailable => enforcement_constants::UNAVAILABLE_ADAPTER_UNAVAILABLE,
-            Self::AdapterError => enforcement_constants::UNAVAILABLE_ADAPTER_ERROR,
-            Self::ManualRequired => enforcement_constants::UNAVAILABLE_MANUAL_REQUIRED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementPermissionState {
     #[serde(rename = "allowed")]
     Allowed,
@@ -184,17 +214,20 @@ pub enum EnforcementPermissionState {
 }
 
 impl EnforcementPermissionState {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        enforcement_constants::PERMISSION_ALLOWED,
+        enforcement_constants::PERMISSION_MISSING,
+        enforcement_constants::PERMISSION_NOT_REQUIRED,
+        enforcement_constants::PERMISSION_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Allowed => enforcement_constants::PERMISSION_ALLOWED,
-            Self::MissingPermission => enforcement_constants::PERMISSION_MISSING,
-            Self::NotRequired => enforcement_constants::PERMISSION_NOT_REQUIRED,
-            Self::Unknown => enforcement_constants::PERMISSION_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementDependencyState {
     #[serde(rename = "installed")]
     Installed,
@@ -207,17 +240,20 @@ pub enum EnforcementDependencyState {
 }
 
 impl EnforcementDependencyState {
+    const PROTOCOL_STRINGS: [&'static str; 4] = [
+        enforcement_constants::DEPENDENCY_INSTALLED,
+        enforcement_constants::DEPENDENCY_MISSING,
+        enforcement_constants::DEPENDENCY_NOT_REQUIRED,
+        enforcement_constants::DEPENDENCY_UNKNOWN,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Installed => enforcement_constants::DEPENDENCY_INSTALLED,
-            Self::Missing => enforcement_constants::DEPENDENCY_MISSING,
-            Self::NotRequired => enforcement_constants::DEPENDENCY_NOT_REQUIRED,
-            Self::Unknown => enforcement_constants::DEPENDENCY_UNKNOWN,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementResultStatus {
     #[serde(rename = "would-enforce")]
     WouldEnforce,
@@ -238,21 +274,24 @@ pub enum EnforcementResultStatus {
 }
 
 impl EnforcementResultStatus {
+    const PROTOCOL_STRINGS: [&'static str; 8] = [
+        enforcement_constants::RESULT_WOULD_ENFORCE,
+        enforcement_constants::RESULT_ACTUALLY_ENFORCED,
+        enforcement_constants::RESULT_UNAVAILABLE,
+        enforcement_constants::RESULT_FAILED,
+        enforcement_constants::RESULT_EXPIRED,
+        enforcement_constants::RESULT_ROLLED_BACK,
+        enforcement_constants::RESULT_SUPERSEDED,
+        enforcement_constants::RESULT_NO_OP,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::WouldEnforce => enforcement_constants::RESULT_WOULD_ENFORCE,
-            Self::ActuallyEnforced => enforcement_constants::RESULT_ACTUALLY_ENFORCED,
-            Self::Unavailable => enforcement_constants::RESULT_UNAVAILABLE,
-            Self::Failed => enforcement_constants::RESULT_FAILED,
-            Self::Expired => enforcement_constants::RESULT_EXPIRED,
-            Self::RolledBack => enforcement_constants::RESULT_ROLLED_BACK,
-            Self::Superseded => enforcement_constants::RESULT_SUPERSEDED,
-            Self::NoOp => enforcement_constants::RESULT_NO_OP,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementRollbackState {
     #[serde(rename = "not-required")]
     NotRequired,
@@ -269,19 +308,22 @@ pub enum EnforcementRollbackState {
 }
 
 impl EnforcementRollbackState {
+    const PROTOCOL_STRINGS: [&'static str; 6] = [
+        enforcement_constants::ROLLBACK_NOT_REQUIRED,
+        enforcement_constants::ROLLBACK_AVAILABLE,
+        enforcement_constants::ROLLBACK_REQUESTED,
+        enforcement_constants::ROLLBACK_COMPLETED,
+        enforcement_constants::ROLLBACK_UNAVAILABLE,
+        enforcement_constants::ROLLBACK_FAILED,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::NotRequired => enforcement_constants::ROLLBACK_NOT_REQUIRED,
-            Self::Available => enforcement_constants::ROLLBACK_AVAILABLE,
-            Self::Requested => enforcement_constants::ROLLBACK_REQUESTED,
-            Self::Completed => enforcement_constants::ROLLBACK_COMPLETED,
-            Self::Unavailable => enforcement_constants::ROLLBACK_UNAVAILABLE,
-            Self::Failed => enforcement_constants::ROLLBACK_FAILED,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementAdapterResultCode {
     #[serde(rename = "process-terminated")]
     ProcessTerminated,
@@ -306,25 +348,26 @@ pub enum EnforcementAdapterResultCode {
 }
 
 impl EnforcementAdapterResultCode {
+    const PROTOCOL_STRINGS: [&'static str; 10] = [
+        enforcement_constants::ADAPTER_PROCESS_TERMINATED,
+        enforcement_constants::ADAPTER_PROCESS_ALREADY_EXITED,
+        enforcement_constants::ADAPTER_LEFT_RUNNING_OBSERVE_ONLY,
+        enforcement_constants::ADAPTER_DRY_RUN_NO_ACTION,
+        enforcement_constants::ADAPTER_UNSUPPORTED_PLATFORM,
+        enforcement_constants::ADAPTER_UNAVAILABLE,
+        enforcement_constants::ADAPTER_FAILED,
+        enforcement_constants::ADAPTER_TIMER_EXPIRED,
+        enforcement_constants::ADAPTER_ROLLBACK_COMPLETED,
+        enforcement_constants::ADAPTER_NO_OP,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::ProcessTerminated => enforcement_constants::ADAPTER_PROCESS_TERMINATED,
-            Self::ProcessAlreadyExited => enforcement_constants::ADAPTER_PROCESS_ALREADY_EXITED,
-            Self::LeftRunningObserveOnly => {
-                enforcement_constants::ADAPTER_LEFT_RUNNING_OBSERVE_ONLY
-            }
-            Self::DryRunNoAction => enforcement_constants::ADAPTER_DRY_RUN_NO_ACTION,
-            Self::UnsupportedPlatform => enforcement_constants::ADAPTER_UNSUPPORTED_PLATFORM,
-            Self::AdapterUnavailable => enforcement_constants::ADAPTER_UNAVAILABLE,
-            Self::AdapterFailed => enforcement_constants::ADAPTER_FAILED,
-            Self::TimerExpired => enforcement_constants::ADAPTER_TIMER_EXPIRED,
-            Self::RollbackCompleted => enforcement_constants::ADAPTER_ROLLBACK_COMPLETED,
-            Self::NoOp => enforcement_constants::ADAPTER_NO_OP,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementTimerEventKind {
     #[serde(rename = "created")]
     Created,
@@ -347,22 +390,25 @@ pub enum EnforcementTimerEventKind {
 }
 
 impl EnforcementTimerEventKind {
+    const PROTOCOL_STRINGS: [&'static str; 9] = [
+        enforcement_constants::TIMER_CREATED,
+        enforcement_constants::TIMER_EXTENDED,
+        enforcement_constants::TIMER_EXPIRED,
+        enforcement_constants::TIMER_CANCELLED,
+        enforcement_constants::TIMER_RESTART_RECOVERED,
+        enforcement_constants::TIMER_ROLLBACK_REQUESTED,
+        enforcement_constants::TIMER_ROLLBACK_COMPLETED,
+        enforcement_constants::TIMER_RECOVERY_NEEDED,
+        enforcement_constants::TIMER_UNAVAILABLE,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Created => enforcement_constants::TIMER_CREATED,
-            Self::Extended => enforcement_constants::TIMER_EXTENDED,
-            Self::Expired => enforcement_constants::TIMER_EXPIRED,
-            Self::Cancelled => enforcement_constants::TIMER_CANCELLED,
-            Self::RestartRecovered => enforcement_constants::TIMER_RESTART_RECOVERED,
-            Self::RollbackRequested => enforcement_constants::TIMER_ROLLBACK_REQUESTED,
-            Self::RollbackCompleted => enforcement_constants::TIMER_ROLLBACK_COMPLETED,
-            Self::RecoveryNeeded => enforcement_constants::TIMER_RECOVERY_NEEDED,
-            Self::Unavailable => enforcement_constants::TIMER_UNAVAILABLE,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum EnforcementAuditEventKind {
     #[serde(rename = "attempted")]
     Attempted,
@@ -383,27 +429,20 @@ pub enum EnforcementAuditEventKind {
 }
 
 impl EnforcementAuditEventKind {
-    pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::Attempted => enforcement_constants::AUDIT_ATTEMPTED,
-            Self::Succeeded => enforcement_constants::AUDIT_SUCCEEDED,
-            Self::Failed => enforcement_constants::AUDIT_FAILED,
-            Self::RollbackRequested => enforcement_constants::AUDIT_ROLLBACK_REQUESTED,
-            Self::RollbackCompleted => enforcement_constants::AUDIT_ROLLBACK_COMPLETED,
-            Self::Expired => enforcement_constants::AUDIT_EXPIRED,
-            Self::Unavailable => enforcement_constants::AUDIT_UNAVAILABLE,
-            Self::Cancelled => enforcement_constants::AUDIT_CANCELLED,
-        }
-    }
-}
+    const PROTOCOL_STRINGS: [&'static str; 8] = [
+        enforcement_constants::AUDIT_ATTEMPTED,
+        enforcement_constants::AUDIT_SUCCEEDED,
+        enforcement_constants::AUDIT_FAILED,
+        enforcement_constants::AUDIT_ROLLBACK_REQUESTED,
+        enforcement_constants::AUDIT_ROLLBACK_COMPLETED,
+        enforcement_constants::AUDIT_EXPIRED,
+        enforcement_constants::AUDIT_UNAVAILABLE,
+        enforcement_constants::AUDIT_CANCELLED,
+    ];
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ParentActionReference {
-    pub action_reference_id: String,
-    pub actor: ParentActorReference,
-    pub policy_version: String,
-    pub created_at: String,
+    pub fn as_protocol_str(&self) -> &'static str {
+        Self::PROTOCOL_STRINGS[*self as usize]
+    }
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -508,6 +547,120 @@ pub struct EnforcementAuditEvent {
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct EnforcementAuditJournalEvent {
+    pub audit_event_id: String,
+    pub action_id: String,
+    pub intent_id: String,
+    pub result_id: String,
+    pub policy_decision_id: String,
+    pub policy_version: String,
+    pub policy_action: PolicyAction,
+    pub target_id: String,
+    pub target_type: PolicyTargetType,
+    pub adapter_kind: EnforcementAdapterKind,
+    pub platform: ParentPlatform,
+    pub audit_event_kind: EnforcementAuditEventKind,
+    #[serde(default)]
+    pub provenance: EnforcementAuditJournalProvenance,
+    pub result_status: EnforcementResultStatus,
+    pub adapter_result_code: EnforcementAdapterResultCode,
+    pub capability_state: EnforcementCapabilityState,
+    pub evidence_references: Vec<ParentEvidenceReference>,
+    pub actor: Option<ParentActorReference>,
+    pub parent_override: Option<ParentActionReference>,
+    pub unavailable_status: Option<EnforcementUnavailableStatus>,
+    pub rollback_state: EnforcementRollbackState,
+    pub dry_run: bool,
+    pub reason_codes: Vec<String>,
+    pub reason: Option<String>,
+    pub requested_at: String,
+    pub started_at: Option<String>,
+    pub completed_at: Option<String>,
+    pub journal_sequence: Option<String>,
+    pub device_id: Option<String>,
+    pub source_peer_id: Option<String>,
+    pub target_route: Option<String>,
+    pub observed_at: String,
+}
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum EnforcementAuditJournalProvenance {
+    /// Journal records written before provenance was introduced. Projection
+    /// consumers may derive only the safe legacy accepted-intent shape.
+    #[default]
+    Legacy,
+    RejectedIntent,
+    AcceptedIntent,
+    AdapterResult,
+}
+
+impl From<&EnforcementAuditEvent> for EnforcementAuditJournalEvent {
+    fn from(audit: &EnforcementAuditEvent) -> Self {
+        Self {
+            audit_event_id: audit.audit_event_id.clone(),
+            action_id: audit.action.action_id.clone(),
+            intent_id: audit.action.intent_id.clone(),
+            result_id: audit.result.result_id.clone(),
+            policy_decision_id: audit.action.policy_decision_id.clone(),
+            policy_version: audit.policy_version.clone(),
+            policy_action: audit.action.policy_action,
+            target_id: audit.action.target.target_id.clone(),
+            target_type: audit.action.target.target_type,
+            adapter_kind: audit.action.adapter_kind,
+            platform: audit.action.platform,
+            audit_event_kind: audit.audit_event_kind,
+            provenance: EnforcementAuditJournalProvenance::AdapterResult,
+            result_status: audit.result.status,
+            adapter_result_code: audit.result.adapter_result_code,
+            capability_state: audit.capability.capability_state,
+            evidence_references: audit.evidence_references.clone(),
+            actor: audit.actor.clone(),
+            parent_override: audit.parent_override.clone(),
+            unavailable_status: audit.unavailable_status.clone(),
+            rollback_state: audit.result.rollback_state,
+            dry_run: audit.action.dry_run,
+            reason_codes: audit.action.reason_codes.clone(),
+            reason: audit
+                .result
+                .failed_reason
+                .clone()
+                .or_else(|| audit.result.unavailable_reason.clone()),
+            requested_at: audit.action.requested_at.clone(),
+            started_at: Some(audit.result.started_at.clone()),
+            completed_at: audit.result.completed_at.clone(),
+            journal_sequence: audit.journal_sequence.clone(),
+            device_id: None,
+            source_peer_id: None,
+            target_route: None,
+            observed_at: audit.observed_at.clone(),
+        }
+    }
+}
+
+impl DomainEvent for EnforcementAuditJournalEvent {
+    fn contract(&self) -> Result<EventContract, EventingError> {
+        Ok(EventContract::new(
+            EventType::parse(enforcement_constants::EVENT_AUDIT_JOURNAL_RECORDED)?,
+            SchemaVersion::new(enforcement_constants::EVENT_SCHEMA_VERSION)?,
+        ))
+    }
+
+    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
+        let mut value = String::from(enforcement_constants::EVENTING_AGGREGATE_AUDIT_PREFIX);
+        value.push_str(&self.action_id);
+        AggregateKey::parse(value)
+    }
+
+    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
+        let mut value = String::from(enforcement_constants::EVENTING_IDEMPOTENCY_AUDIT_PREFIX);
+        value.push_str(&self.audit_event_id);
+        IdempotencyKey::parse(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EnforcementTimerEvent {
     pub schema_version: String,
     pub timer_event_id: String,
@@ -532,4 +685,20 @@ pub struct EnforcementActiveTimerState {
     pub audit_event: EnforcementAuditEvent,
     pub timer_event: EnforcementTimerEvent,
     pub stored_at: String,
+    #[serde(default)]
+    pub app_game_session: Option<AppGameTimerSessionBinding>,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppGameTimerSessionBinding {
+    pub session_id: String,
+    pub runtime_evidence_id: String,
+    pub process_identity: String,
+    pub process_id: u64,
+    pub process_name: String,
+    pub classification_state: String,
+    pub last_observed_at: String,
+    pub running_duration_ms: u64,
+    pub foreground_duration_ms: u64,
 }

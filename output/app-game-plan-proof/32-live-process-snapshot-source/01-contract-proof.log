@@ -1,4 +1,0 @@
-N/A for TypeScript contract changes.
-
-WP32 uses the existing app/game runtime evidence contract and adds Rust core
-source production only. No TypeScript domain package changed in this slice.

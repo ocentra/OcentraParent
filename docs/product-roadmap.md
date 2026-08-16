@@ -1,3 +1,17 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Ocentra Parent Product Roadmap
+> Kind: repo documentation; read only when routed by root AGENTS, docs indexes, feature route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # Ocentra Parent Product Roadmap
 
 This roadmap describes the product we are building, the order we intend to build
@@ -24,6 +38,22 @@ claimed as done unless the checklist, expectation docs, proof record, and module
 README agree on the status. Runtime claims also follow the
 [real evidence proof expectations](expectations/real-evidence-proof.md) and the
 [pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
+
+## Current Architecture Authority
+
+Current parent architecture is Rust-first. Product flow is TSX UI through
+HostBridge into the Rust parent app facade, Rust event bus/domain, Rust read
+models, then back through HostBridge to TSX UI. Vite/web is a development and
+HMR surface only. WebSocket remains valid for dev transport or Rust-owned
+parent/child LAN/WAN runtime concerns, but it is not the product `TSX UI <->
+parent Rust` path.
+
+Rust owns schema truth, contracts, actions, route snapshots, read models,
+projections, business logic, policy, activity, tracking, network, browser,
+enforcement, logging, and mobile bridge shapes. TypeScript owns presentation,
+generated bridge DTO consumption, thin adapters, and minimal local visual state.
+Older roadmap bullets that name TypeScript domain packages, Effect Schema,
+WebSocket, or Vite as product authority are scaffold history or migration debt.
 
 ## Product Goal
 
@@ -168,11 +198,15 @@ current worker checkpoint records, not from stale proof-spine wording.
 Completed foundation:
 
 - Repository scaffold with TypeScript workspaces, Rust crates, platform package scaffolds, validation gates, security scans, pre-commit hooks, and CI.
-- Local Rust agent service and Vite portal using fixed ports.
+- Local Rust agent service, Rust parent runtime direction, and Vite dev portal
+  using fixed ports for development visibility.
 - Loopback and LAN development modes with origin checks.
-- WebSocket intent/event protocol between portal and agent.
-- TypeScript domain contracts using Effect Schema.
-- Rust protocol parity for shared contracts.
+- Dev WebSocket intent/event protocol between portal and agent.
+- Historical TypeScript domain contracts using Effect Schema, now migration
+  debt unless they are presentation helpers, generated DTO consumers, thin
+  adapters, or temporary edge decoders.
+- Rust-owned contract/schema direction with parity and generated bridge DTO
+  checks for shared product contracts.
 - Encrypted append-only activity journal.
 - Journal rotation and replay validation.
 - Windows MSI, updater scaffold, package-preview workflow, and production-branch release separation.
@@ -189,7 +223,7 @@ Current local slice:
   reference proof; it must not be described as real blocking until an OS adapter
   path and product proof exist.
 - V0.9 LAN work now includes controller lease/write-authority, observer
-  read-only behavior, selected-device state, direct WebSocket routing, and LAN
+  read-only behavior, selected-device state, Rust-owned LAN routing, and LAN
   AI provider pool proof for opt-in, capability advertisement, result,
   rejection, busy, unavailable, and degraded states. The current hardening proof
   also covers trusted selected-route recovery after restart and explicit
@@ -270,7 +304,7 @@ Next product checkpoint:
 The storage architecture is:
 
 ```text
-capture -> encrypted NDJSON journal -> SQLite query store -> local AI/policy/enforcement -> local API -> portal/reports
+capture -> encrypted NDJSON journal -> SQLite query store -> local AI/policy/enforcement -> Rust read models -> HostBridge -> TSX UI/reports
 ```
 
 Rules:
@@ -278,7 +312,8 @@ Rules:
 - The encrypted journal is the required source of truth on every platform.
 - SQLite is the default query/index store on every platform.
 - Query stores are rebuildable from the journal.
-- Portal code talks to typed service/query APIs, not directly to SQLite files.
+- Portal code talks to HostBridge or explicit dev transports, not directly to
+  SQLite files.
 - Portal code authors rules, approvals, and visibility requests; child-device agents validate and execute them.
 - Portal code must not run OS commands, capture adapters, AI safety evaluation, policy evaluation, enforcement, timers, or scripts.
 - Parent-authored rules decide household outcomes. Product defaults and category
@@ -332,8 +367,9 @@ Validation expectations:
   [real evidence proof expectations](expectations/real-evidence-proof.md).
 - Completed runtime claims are mapped in
   [pre-AI proof matrix](expectations/pre-ai-proof-matrix.json).
-- TypeScript contracts use Effect Schema.
-- Rust protocol structs mirror shared contract shape.
+- Rust owns product contracts and schema truth.
+- TypeScript uses generated bridge DTOs and Effect Schema only at untrusted or
+  generated validation edges.
 - No Zod.
 - No naked domain strings.
 - No app/runtime inline string literals.
@@ -352,7 +388,7 @@ Create the repo, contracts, and runtime boundaries that make future product code
 
 Expectation links:
 
-- [V0.1 milestone expectations](expectations/roadmap-v0-1-foundation-and-evidence-contracts.md)
+- [V0.1 milestone expectations](roadmaps/roadmap-v0-1-foundation-and-evidence-contracts.md)
 - [Feature request expectations](expectations/feature-request.md)
 - [Universal done definition](expectations/universal-done.md)
 - [Code quality expectations](expectations/code-quality.md)
@@ -365,7 +401,7 @@ Deliverables:
 
 - Workspace scaffold.
 - Rust agent crates.
-- Vite portal.
+- Vite dev portal, not product runtime.
 - Local and LAN dev scripts.
 - Fixed ports.
 - CI, hooks, security scan, dependency policy, SBOM.
@@ -378,7 +414,8 @@ Acceptance:
 
 - Full validation passes.
 - CI runs package previews.
-- Contract tests prove TypeScript and Rust shape parity.
+- Contract tests prove Rust-owned shape, generated TypeScript DTO, and edge
+  decoder parity.
 - README explains product intent and local dev loop.
 
 Status:
@@ -393,7 +430,7 @@ Make the agent able to write and query trusted local facts before capture or blo
 
 Expectation links:
 
-- [V0.2 milestone expectations](expectations/roadmap-v0-2-trusted-local-evidence-store.md)
+- [V0.2 milestone expectations](roadmaps/roadmap-v0-2-trusted-local-evidence-store.md)
 - [Data custody and local-first expectations](expectations/data-custody.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
@@ -433,7 +470,7 @@ Start observing useful local activity without blocking, AI, or invasive content 
 
 Expectation links:
 
-- [V0.3 milestone expectations](expectations/roadmap-v0-3-windows-process-window-activity-capture.md)
+- [V0.3 milestone expectations](roadmaps/roadmap-v0-3-windows-process-window-activity-capture.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
@@ -475,7 +512,7 @@ Observe network/domain activity enough to answer what services and sites are bei
 
 Expectation links:
 
-- [V0.4 milestone expectations](expectations/roadmap-v0-4-windows-network-domain-observation.md)
+- [V0.4 milestone expectations](roadmaps/roadmap-v0-4-windows-network-domain-observation.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Network flow evidence expectations](expectations/network-flow-evidence.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -516,7 +553,7 @@ Turn dev protocol proof into a usable local parent visibility surface.
 
 Expectation links:
 
-- [V0.5 milestone expectations](expectations/roadmap-v0-5-live-activity-portal.md)
+- [V0.5 milestone expectations](roadmaps/roadmap-v0-5-live-activity-portal.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Contract feature expectations](expectations/contracts.md)
@@ -552,7 +589,7 @@ path for this milestone.
 
 Expectation links:
 
-- [V0.5.1 milestone expectations](expectations/roadmap-v0-5-1-browser-url-tab-evidence-capture.md)
+- [V0.5.1 milestone expectations](roadmaps/roadmap-v0-5-1-browser-url-tab-evidence-capture.md)
 - [Browser URL and tab evidence expectations](expectations/browser-evidence.md)
 - [Browser URL and tab evidence capture architecture](architecture/browser-url-tab-evidence-capture.md)
 - [Capture feature expectations](expectations/capture.md)
@@ -607,7 +644,7 @@ does not invent duration.
 
 Expectation links:
 
-- [V0.5.2 milestone expectations](expectations/roadmap-v0-5-2-app-game-evidence-sessions.md)
+- [V0.5.2 milestone expectations](roadmaps/roadmap-v0-5-2-app-game-evidence-sessions.md)
 - [App and game evidence expectations](expectations/app-game-evidence.md)
 - [App and game evidence sessions architecture](architecture/app-game-evidence-sessions.md)
 - [Capture feature expectations](expectations/capture.md)
@@ -653,7 +690,7 @@ schema-valid summaries and evidence references.
 
 Expectation links:
 
-- [V0.5.3 milestone expectations](expectations/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md)
+- [V0.5.3 milestone expectations](roadmaps/roadmap-v0-5-3-local-screen-evidence-analysis-queue.md)
 - [Screen evidence analysis expectations](expectations/screen-evidence.md)
 - [Local screen evidence analysis queue architecture](architecture/local-screen-evidence-analysis-queue.md)
 - [Capture feature expectations](expectations/capture.md)
@@ -703,7 +740,7 @@ Define the child-device local AI decision boundary before enforcing anything.
 
 Expectation links:
 
-- [V0.6 milestone expectations](expectations/roadmap-v0-6-local-ai-safety-decision-contracts.md)
+- [V0.6 milestone expectations](roadmaps/roadmap-v0-6-local-ai-safety-decision-contracts.md)
 - [AI feature expectations](expectations/ai.md)
 - [Local AI and TabAgent reuse architecture](architecture/local-ai-and-tabagent-reuse.md)
 - [Policy feature expectations](expectations/policy.md)
@@ -747,7 +784,7 @@ Run local AI against captured activity and parent rules, then produce typed poli
 
 Expectation links:
 
-- [V0.7 milestone expectations](expectations/roadmap-v0-7-local-ai-policy-evaluator.md)
+- [V0.7 milestone expectations](roadmaps/roadmap-v0-7-local-ai-policy-evaluator.md)
 - [AI feature expectations](expectations/ai.md)
 - [Local AI and TabAgent reuse architecture](architecture/local-ai-and-tabagent-reuse.md)
 - [Policy feature expectations](expectations/policy.md)
@@ -787,7 +824,7 @@ Start enforcing simple local decisions after policy evaluation is trusted.
 
 Expectation links:
 
-- [V0.8 milestone expectations](expectations/roadmap-v0-8-enforcement-adapters.md)
+- [V0.8 milestone expectations](roadmaps/roadmap-v0-8-enforcement-adapters.md)
 - [Enforcement feature expectations](expectations/enforcement.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -828,7 +865,7 @@ Let a parent device configure and observe another child device on the same local
 
 Expectation links:
 
-- [V0.9 milestone expectations](expectations/roadmap-v0-9-lan-pairing-multi-device-local-control.md)
+- [V0.9 milestone expectations](roadmaps/roadmap-v0-9-lan-pairing-multi-device-local-control.md)
 - [LAN pairing expectations](expectations/lan-pairing.md)
 - [Contract feature expectations](expectations/contracts.md)
 - [Portal feature expectations](expectations/portal.md)
@@ -860,7 +897,7 @@ Ship a usable Windows-first local product for a parent to install and observe ac
 
 Expectation links:
 
-- [V1.0 milestone expectations](expectations/roadmap-v1-0-local-mvp.md)
+- [V1.0 milestone expectations](roadmaps/roadmap-v1-0-local-mvp.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Portal feature expectations](expectations/portal.md)
@@ -902,13 +939,12 @@ Purpose:
 
 Support the parent-away-from-home use case without making Ocentra the family-data
 store. V2 is the remote capability fabric milestone: remote health, route
-status, rule/query/approval relay, report access, screen visibility, and the
-remote desktop/control horizon all attach to one typed route, session,
-capability, custody, and audit model.
+status, rule/query/approval relay, report access, and live screen view all
+attach to one typed route, session, capability, custody, and audit model.
 
 Expectation links:
 
-- [V2 milestone expectations](expectations/roadmap-v2-parent-owned-remote-access-cloud-relay.md)
+- [V2 milestone expectations](roadmaps/roadmap-v2-parent-owned-remote-access-cloud-relay.md)
 - [Data custody and local-first expectations](expectations/data-custody.md)
 - [Cloud feature expectations](expectations/cloud.md)
 - [Sync and export expectations](expectations/sync-export.md)
@@ -935,8 +971,8 @@ Deliverables:
 - Stateless report compile contract where remote compilation exists.
 - Conflict handling.
 - Direct-first and forced-relay proof modes.
-- Remote desktop capability taxonomy, with view-only live screen and remote
-  input/control modeled separately before implementation.
+- Remote capability taxonomy, with view-only live screen as the current pass
+  and remote input/control kept as a deferred capability family.
 - `family.ocentra.ca` download/account/subscription/status surface.
 - Packaged parent portal direction, with Tauri as preferred desktop candidate.
 
@@ -950,7 +986,7 @@ Acceptance:
 - Device rule updates, approval decisions, and visibility requests are authenticated and auditable.
 - Ocentra-hosted infrastructure does not retain child activity evidence or
   generated reports by default.
-- Remote desktop and remote control are represented as explicit staged
+- Remote view is current, and remote input/control are represented as staged
   capability families rather than a separate utility outside the Ocentra
   contracts.
 
@@ -962,7 +998,7 @@ Notify parents when attention is needed.
 
 Expectation links:
 
-- [V3 milestone expectations](expectations/roadmap-v3-notifications.md)
+- [V3 milestone expectations](roadmaps/roadmap-v3-notifications.md)
 - [Notification feature expectations](expectations/notifications.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -994,7 +1030,7 @@ creating default Ocentra custody of child data.
 
 Expectation links:
 
-- [V4 milestone expectations](expectations/roadmap-v4-parent-owned-reports-optional-assistant.md)
+- [V4 milestone expectations](roadmaps/roadmap-v4-parent-owned-reports-optional-assistant.md)
 - [Data custody and local-first expectations](expectations/data-custody.md)
 - [AI feature expectations](expectations/ai.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -1028,7 +1064,7 @@ Make policy management usable for non-technical parents.
 
 Expectation links:
 
-- [V5 milestone expectations](expectations/roadmap-v5-parent-policy-product.md)
+- [V5 milestone expectations](roadmaps/roadmap-v5-parent-policy-product.md)
 - [Policy feature expectations](expectations/policy.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Family setup expectations](expectations/family-setup.md)
@@ -1072,7 +1108,7 @@ Extend child-device support beyond Windows.
 
 Expectation links:
 
-- [V6 milestone expectations](expectations/roadmap-v6-mobile-agents.md)
+- [V6 milestone expectations](roadmaps/roadmap-v6-mobile-agents.md)
 - [Platform expectations](expectations/platforms.md)
 - [Capture feature expectations](expectations/capture.md)
 - [Evidence storage expectations](expectations/evidence-storage.md)
@@ -1105,7 +1141,7 @@ Turn the product into a sellable service.
 
 Expectation links:
 
-- [V7 milestone expectations](expectations/roadmap-v7-subscription-monetization.md)
+- [V7 milestone expectations](roadmaps/roadmap-v7-subscription-monetization.md)
 - [Billing and subscription expectations](expectations/billing.md)
 - [Portal feature expectations](expectations/portal.md)
 - [Cloud feature expectations](expectations/cloud.md)
@@ -1134,7 +1170,7 @@ Make the product reliable, secure, supportable, and maintainable.
 
 Expectation links:
 
-- [V8 milestone expectations](expectations/roadmap-v8-production-hardening.md)
+- [V8 milestone expectations](roadmaps/roadmap-v8-production-hardening.md)
 - [Release and installer expectations](expectations/release-installer.md)
 - [Sync and export expectations](expectations/sync-export.md)
 - [Static analysis and security expectations](expectations/static-analysis-security.md)

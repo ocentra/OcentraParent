@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Social And Video Control Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Social And Video Control Expectations
 
 Social and video control is a first-class product area. It must not be hidden
@@ -168,6 +181,10 @@ states. They must not claim native social route proof, per-video or per-reel
 blocking, message content, account identity, accessibility content capture,
 device-owner enrollment, VPN content inspection, runtime adapters, connector
 authority, UI delivery, or enforcement until platform proof exists.
+Host/device proof may query only the known public social package ids needed for
+the matrix and must not persist raw installed package lists, UI trees, logcat,
+content, account identity, native route state, device-owner enrollment, runtime
+adapter behavior, connector authority, UI delivery, or enforcement.
 
 iOS Screen Time/ManagedSettings social capability matrix contracts may
 represent FamilyControls authorization, application-token selection,
@@ -204,9 +221,18 @@ Parent social dashboard UX contracts may represent dashboard sections, sort
 order, statuses, actions, severities, source evidence refs, and manual-required
 gaps for account approval queues, feed/video gates, native app capability,
 connector boundaries, and decision memory. These contracts must not claim
-rendered portal UI, notification delivery, runtime data fetch, policy decisions,
-connector authorization, native app control, or enforcement until the actual
-portal surface and runtime data path are implemented and tested.
+notification delivery, policy decisions, connector authorization, native app
+control, or enforcement. The current rendered parent portal proof covers the
+service-backed Browser-route social dashboard snapshot only; it does not prove
+connector/native runtime, policy execution, notifications, or enforcement.
+
+Parent-owned social notification/report delivery readiness may record
+local delivery result refs only for report-ready rows that already have
+parent-owned report artifact and receipt refs. Manual-required and unavailable rows must keep
+local delivery result refs empty. This local result proof does not prove
+external provider delivery, parent notification UI delivery, cloud routing,
+final policy execution, connector/native runtime, browser mutation, child
+intervention execution, or enforcement.
 
 Child approval/block UX contracts may represent child-facing states and actions
 for approval pending, blocked route candidates, warning candidates, manual
@@ -214,7 +240,11 @@ review, time-limit candidates, and native-app unavailable states. These
 contracts must not claim rendered child UI, notification delivery, browser
 navigation block execution, block-page rendering, applied time limits, final
 policy decisions, connector authorization, native app control, or enforcement
-until actual child surfaces and runtime actions are implemented and tested.
+from contracts alone. Current proof covers child-agent-served intervention
+pages for the mapped social states only; browser navigation block execution,
+notification delivery, applied limits, final policy execution, connector/native
+runtime, and enforcement remain unclaimed until separately implemented and
+tested.
 
 Social audit/explanation read-model contracts may represent parent-readable and
 audit-log rows for account approval, feed/video gates, native-app gaps,
@@ -223,20 +253,123 @@ evidence refs, policy refs, parent approval refs, decision-memory refs, manual
 gap refs, and audit refs. They must not claim runtime audit stores, rendered
 explanation UI, notification delivery, raw account/video/message content,
 connector authorization, native app control, final policy decisions, or
-enforcement until logging, UI, notification, policy, connector, native, and
-adapter proof exists.
+enforcement from contracts alone. Current proof covers the service-backed
+Browser-route explanation read-model and rendered explanation panel only; a
+runtime audit store, notification delivery, connector/native runtime, final
+policy execution, and enforcement remain unclaimed until separately implemented
+and tested.
+
+Social alert/report intent read-model contracts may represent parent-visible
+local-outbox alert intent rows and manual-required report rows from bounded
+evidence, policy, dashboard, explanation, audit, and parent-action refs. The
+service-backed Browser-route proof may claim only that the real portal rendered
+the Rust service read model for the captured alert/report rows. It must not
+claim provider dispatch, provider receipt, parent notification UI delivery,
+report delivery, final policy execution, or enforcement from this proof.
+
+Social alert/report local outbox bridge contracts may serialize only
+local-outbox-eligible social alert/report intents into the shared
+parent-owned `NotificationLocalOutboxRecord` JSONL schema and reread those
+records through the same parser. Manual-required and unavailable rows may appear
+in the bridge read model but must not produce queued JSONL records. This bridge
+must not claim provider dispatch, provider receipt, scheduler runtime, parent
+notification UI delivery, report delivery execution, final policy execution,
+connector/native runtime, or enforcement.
+
+Social alert/report parent-surface intent contracts may project provider-status
+and preference/quiet-hours status handoff rows into parent-visible
+manual-action-required and unavailable-visible surface intent rows with
+notification status refs, preference status refs, quiet-hours state, audit refs,
+and manual proof requirements. They may prepare data for a future authenticated
+parent notification surface, but must not claim rendered parent notification,
+preference, frequency-control, or notification-history UI, provider dispatch,
+provider receipt, child delivery, quiet-hours timer execution, report delivery
+execution, final policy execution, connector/native runtime, or enforcement.
+
+Service-backed social alert/report parent-surface read models may expose those
+manual-action-required and unavailable-visible rows through the Rust WebSocket
+command/event path and the existing Browser route only as status projection.
+The service path must use the shared local eventing request/subscriber pattern
+and must derive the parent-surface projection from provider-status and
+preference-status handoff subscribers rather than a narrower duplicate row
+source. It must preserve no-claim fields for parent notification UI delivery,
+preference UI delivery, notification history UI, provider delivery, provider
+receipt ingestion, provider credentials, cloud routing, child delivery,
+quiet-hours timer runtime, retry-worker runtime, production durable outbox
+storage, adapter dispatch, report delivery execution, final policy execution,
+connector/native runtime, browser mutation, unmanaged exact URL support, and
+enforcement.
 
 Social proof artifact gates may verify checklist ownership, proof folders,
 required source/security/validation/UI-marker files, README references, and
-feature/expectation coverage. They must not claim Playwright or screenshot proof
-when the current rows are contract-only, and they must not claim runtime
-connector behavior, native app control, final policy execution, enforcement, or
+feature/expectation coverage. They may cite rendered Playwright/screenshot
+proof only for the exact UI route and state actually captured. They must not
+claim runtime connector behavior, native app control, final policy execution,
+enforcement, or product completion from contract-only rows or unavailable-state
+shells.
+
+Social alert/report scheduler bridge rows may move parent-owned local outbox
+records into the existing notification local outbox scheduler JSONL schema only
+when the source row is already linked. Manual-required and unavailable rows must
+remain visible but unscheduled. The bridge may prove quiet-hours/preference
+handoff readiness and audit refs only; it must not claim provider delivery,
+receipt ingestion, quiet-hours timer execution, retry worker execution,
+parent/child notification UI delivery, report delivery execution, final policy
+execution, connector/native runtime, enforcement, or product completion.
+
+Social alert/report preference preflight rows may consume social alert/report
+scheduler bridge rows and require parent notification preference,
+frequency-control, and quiet-hours policy proof before delivery can be claimed.
+Manual-required and unavailable rows must stay blocked. This preflight must not
+claim parent notification preference UI, notification history UI, quiet-hours
+timer execution, provider delivery, child delivery, report delivery execution,
+final policy execution, connector/native runtime, enforcement, or product
+completion.
+
+Social alert/report preference-status handoff rows may project those preference
+preflight rows into the existing V3 notification rule/provider/retry preference
+and quiet-hours status entries. Scheduled and manual-required rows must remain
+manual-required until parent preference and quiet-hours proof exists;
+unavailable rows must remain disabled/not-sent. The handoff must not claim
+parent notification preference UI, notification history UI, parent notification
+UI, quiet-hours timer execution, provider delivery, child delivery, report
+delivery execution, final policy execution, connector/native runtime,
+enforcement, or product completion.
+
+Social alert/report audit-history bridge rows may map social local outbox rows
+into the existing logging-domain notification audit-history handoff. Linked
+rows may become queued audit-history entries; manual-required and unavailable
+rows must become blocked/manual entries. This bridge must preserve redaction-safe
+payload fields and no Ocentra-hosted child data custody. It must not claim
+provider delivery, receipt ingestion, credentials, parent notification history
+UI, child delivery, retry or quiet-hours runtime execution, report delivery
+execution, final policy execution, connector/native runtime, enforcement, or
 product completion.
 
+Social alert/report provider dispatch execution rows may prepare a local
+redaction-safe dispatch packet only when a parsed provider receipt-boundary row
+is `provider-dispatch-required` and a matching parsed
+`NotificationLocalOutboxRecord` exists. Manual-required and provider-unavailable
+rows must remain packetless and visible. This local packet boundary must not
+claim external provider delivery, delivered notification receipts, provider
+webhook runtime, provider credentials, cloud routing, parent notification UI
+delivery, child delivery, report delivery execution, final policy execution,
+connector/native runtime, enforcement, or product completion.
+
 Rollout/manual-required gates may label rows as partial/manual-required only.
-They must preserve product completion as unclaimed until rendered UI,
-notification delivery, connector/native runtime, final policy execution,
-enforcement, release readiness, and product checklist upgrade proof exists.
+They must preserve product completion as unclaimed until notification delivery,
+connector/native runtime, final policy execution, enforcement, release
+readiness, and product checklist upgrade proof exists.
+
+Managed-browser social policy execution may be claimed only for an
+Ocentra-managed browser session when a non-final social policy decision
+candidate is chained to real child-agent intervention endpoint evidence, a
+managed target ref, live-surface capture before mutation, browser mutation,
+child intervention execution, and screenshot refs. It must preserve no-claim
+boundaries for unmanaged browsers, broad OS enforcement, external provider
+delivery, connector/native runtime, Apple platform support, raw URL custody,
+raw page custody, and product completion. Current proof:
+`social-managed-browser-policy-execution-proof`.
 
 Social AI analysis contracts may consume typed social route, metadata, feed,
 account-flow, account-identity, screen-summary, parent-rule, and memory refs to

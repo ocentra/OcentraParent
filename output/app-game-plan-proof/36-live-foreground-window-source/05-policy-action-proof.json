@@ -1,9 +1,0 @@
-{
-  "workpack": "WP36 live foreground window source",
-  "policyDecisionAdded": false,
-  "policyRuntimeConsumerAdded": false,
-  "adapterActionAdded": false,
-  "broadBlockingClaimAdded": false,
-  "dryRunOnly": true,
-  "reason": "WP36 proves a core foreground evidence source and journal projection only."
-}

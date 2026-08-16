@@ -1,4 +1,0 @@
-Native app WP31 is cross-recorded from shared app/game WP31.
-
-No native-app-only TypeScript contracts were added. Existing shared app/game
-contracts remain the contract authority.

@@ -1,5 +1,19 @@
 # 07 Passive Discovery Listeners
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `lan-plan`
+> Doc: `07 Passive Discovery Listeners`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 [test blueprint](../v0-9-lan-discovery-test-blueprint.md),
 [UI/UX guide](../ui-ux-requirements-guide.md), and
@@ -7,9 +21,15 @@ Sources: [20-step plan](../v0-9-lan-discovery-20-step-plan.md),
 
 ## Where We Are
 
-Current proof separates passive LAN neighbors from child-agent targets, but
-production passive listening for ARP, mDNS, SSDP, LLMNR, NetBIOS, and Ocentra
-announcements is not complete.
+Current proof now covers passive ARP weak hints via OS neighbor collectors,
+passive DHCP, mDNS, SSDP, WS-Discovery, LLMNR, and NetBIOS packet ingestion,
+plus Ocentra beacon observations recorded through the signed child
+hello or heartbeat path. Allowed SNMP response payloads now also feed the same
+bounded passive history path through both lan-core and agent-service runtime
+tests, and the fixture-backed native UDP/DHCP packet path now preserves
+explicit passive `observed_at` timestamps instead of inventing test-time wall
+clock values. A real long-running DHCP listener and broader packet/platform
+proof are still open.
 
 ## Where We Want To Be
 
@@ -20,13 +40,14 @@ triggers.
 
 ## Requirement Checklist
 
-- [ ] Listen for ARP, mDNS, SSDP, LLMNR, NetBIOS, and Ocentra agent beacons
-      where the platform allows.
-- [ ] Use passive evidence to update last-seen and candidate identity only.
-- [ ] Trigger rescan on Wi-Fi SSID change, default gateway change, IP change,
+- [x] Listen for ARP, mDNS, SSDP, LLMNR, NetBIOS, and Ocentra agent beacons
+      where the platform allows. Current local proof also covers allowed SNMP
+      response history bridging on the existing passive path.
+- [x] Use passive evidence to update last-seen and candidate identity only.
+- [x] Trigger rescan on Wi-Fi SSID change, default gateway change, IP change,
       interface up/down, app resume, and child heartbeat loss.
-- [ ] Keep passive listeners bounded and stoppable with service lifecycle.
-- [ ] Record source and trigger reason for passive updates.
+- [x] Keep passive listeners bounded and stoppable with service lifecycle.
+- [x] Record source and trigger reason for passive updates.
 
 ## Acceptance And Proof
 
@@ -34,6 +55,12 @@ triggers.
 - Presence tests prove passive return can restore stale/offline state without
   creating duplicate cards.
 - Security tests cover malformed and oversized passive payloads.
+- Local rerun commands:
+  `cargo test -p ocentra-lan-core passive_discovery -- --nocapture`;
+  `cargo test -p ocentra-lan-core read_model -- --nocapture`;
+  `cargo test -p ocentra-parent-agent-service scan_history -- --nocapture`;
+  `cargo lint-architecture crates/lan-core/src/network_inventory/passive_discovery.rs crates/lan-core/tests/unit/network_inventory_passive_discovery.rs`
+- Proof note: `output/lan-plan-proof/07-passive-discovery-listeners/01-local-validation.md`
 
 ## Parallel Ownership Notes
 

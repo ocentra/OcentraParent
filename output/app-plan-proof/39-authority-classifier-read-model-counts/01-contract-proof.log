@@ -1,5 +1,0 @@
-Contract proof:
-
-- Shared app/game app-use and games read-model schemas expose staged boundary count fields.
-- Native app rows inherit the app-use read-model path.
-- No native-app-only command or event was added.

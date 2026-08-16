@@ -1,0 +1,68 @@
+/* generated from crates/schema/src/evidence_kinds_ts.rs */
+
+import { type Infer, Schema, withParser } from './effect';
+import { ActivityEventKindLiteral } from './generated-activity-event-kind';
+
+function defineLiteralKindGroup<const TLiteral extends Record<string, string>>(literal: TLiteral) {
+  const schema = withParser(
+    Schema.Literal(...(Object.values(literal) as [TLiteral[keyof TLiteral], ...TLiteral[keyof TLiteral][]]))
+  );
+  const parsed = Object.fromEntries(Object.entries(literal).map(([key, value]) => [key, schema.parse(value)])) as {
+    readonly [K in keyof TLiteral]: TLiteral[K];
+  };
+
+  return {
+    literal,
+    schema,
+    parsed,
+  } as const;
+}
+
+const ActivityObserverDefinition = defineLiteralKindGroup({
+  AgentService: 'agent-service',
+  WindowsProcess: 'windows-process',
+  WindowsWindow: 'windows-window',
+  WindowsNetwork: 'windows-network',
+  ManagedBrowserBridge: 'managed-browser-bridge',
+  BrowserExtension: 'browser-extension',
+  LocalAi: 'local-ai',
+} as const);
+
+const ActivityEventKindDefinition = defineLiteralKindGroup(ActivityEventKindLiteral);
+
+const ActivitySubjectKindDefinition = defineLiteralKindGroup({
+  Process: 'process',
+  Window: 'window',
+  Domain: 'domain',
+  Url: 'url',
+  Video: 'video',
+  Device: 'device',
+  Intervention: 'intervention',
+} as const);
+
+const ActivityEvidenceKindDefinition = defineLiteralKindGroup({
+  JournalEntry: 'journal-entry',
+  Screenshot: 'screenshot',
+  StorageObject: 'storage-object',
+  LocalDbRow: 'local-db-row',
+} as const);
+
+export const ActivityObserverLiteral = ActivityObserverDefinition.literal;
+export const ActivityEventKindLiteral = ActivityEventKindDefinition.literal;
+export const ActivitySubjectKindLiteral = ActivitySubjectKindDefinition.literal;
+export const ActivityEvidenceKindLiteral = ActivityEvidenceKindDefinition.literal;
+
+export const ActivityObserverSchema = ActivityObserverDefinition.schema;
+export const ActivityEventKindSchema = ActivityEventKindDefinition.schema;
+export const ActivitySubjectKindSchema = ActivitySubjectKindDefinition.schema;
+export const ActivityEvidenceKindSchema = ActivityEvidenceKindDefinition.schema;
+
+export type ActivityObserver = Infer<typeof ActivityObserverSchema>;
+export type ActivityEventKind = Infer<typeof ActivityEventKindSchema>;
+export type ActivitySubjectKind = Infer<typeof ActivitySubjectKindSchema>;
+export type ActivityEvidenceKind = Infer<typeof ActivityEvidenceKindSchema>;
+
+export const ActivityObserver = ActivityObserverDefinition.parsed;
+export const ActivityEventKind = ActivityEventKindDefinition.parsed;
+export const ActivitySubjectKind = ActivitySubjectKindDefinition.parsed;
+export const ActivityEvidenceKind = ActivityEvidenceKindDefinition.parsed;

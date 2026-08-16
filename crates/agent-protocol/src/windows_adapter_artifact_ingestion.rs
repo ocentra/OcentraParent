@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
 
 use crate::{
-    WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
+    windows_adapter_artifact_gate::{
+        WindowsAdapterArtifactEvidence, WindowsAdapterArtifactGateProof, WindowsAdapterArtifactKind,
+    },
     WindowsAdapterCapabilitySurface,
 };
 

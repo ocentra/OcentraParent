@@ -1,8 +1,0 @@
-See shared proof:
-output/app-game-plan-proof/19-policy-target-compiler-for-app-game-rules/08-security-negative-proof.log
-
-App-side no-claim boundary:
-- app target compilation does not prove live app blocking;
-- risk/app/category labels do not enforce directly;
-- manual-required block-launch cannot call adapters;
-- wrong device, wrong local user, and stale evidence are rejected.

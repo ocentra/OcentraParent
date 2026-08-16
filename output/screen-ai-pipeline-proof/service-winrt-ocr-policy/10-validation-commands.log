@@ -1,7 +1,0 @@
-node --check scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs
-node scripts/test/screen-ai-service-winrt-ocr-policy-proof.mjs
-
-Executed by proof:
-cmd /c npm run build --workspace @ocentra-parent/activity-domain
-cmd /c npm run build --workspace @ocentra-parent/parent-domain
-node scripts/test/screen-ai-service-winrt-ocr-proof.mjs

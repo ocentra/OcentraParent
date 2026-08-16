@@ -1,5 +1,0 @@
-workpack=18-child-check-in-flow
-No Zod, manual brands, test doubles, app string literals, or schema-boundary violations were introduced.
-Negative tests reject precise coordinates from LAN/Wi-Fi/IP/manual/unknown hint-only tracking sources.
-AI location analysis contracts use evidence only and cannot trigger alerts directly or become final authority.
-Remote AI data is disabled unless the route is parent-approved remote.

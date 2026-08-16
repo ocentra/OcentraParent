@@ -37,6 +37,7 @@ pub struct EventTopologyFamilyVariant {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventTopologySubscriberTarget {
     pub subscriber_id: SubscriberId,
     pub target_handler: TargetHandler,
@@ -62,17 +63,18 @@ impl EventTopologyStatus {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EventTopologyEntry {
     pub contract: EventContract,
-    pub rust_type: String,
+    rust_type: EventTopologyRustType,
     pub publishers: Vec<SourceComponent>,
     pub subscribers: Vec<EventTopologySubscriberTarget>,
     pub families: Vec<EventNamespace>,
     pub status: EventTopologyStatus,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EventTopologyManifest {
     entries: Vec<EventTopologyEntry>,
 }
@@ -113,7 +115,7 @@ impl EventTopologyManifest {
                 );
                 EventTopologyEntry {
                     contract: EventContract::new(event_type.clone(), descriptor.schema_version()),
-                    rust_type: descriptor.rust_type().to_string(),
+                    rust_type: EventTopologyRustType::from_static(descriptor.rust_type()),
                     status: status_for(event_type, &publishers, &subscribers, &accepted),
                     publishers,
                     subscribers,
@@ -156,10 +158,30 @@ impl EventTopologyManifest {
             markdown.push_str(" | ");
             markdown.push_str(entry.status.as_str());
             markdown.push_str(" | ");
-            markdown.push_str(&escape_cell(&entry.rust_type));
+            markdown.push_str(&escape_cell(entry.rust_type.as_str()));
             markdown.push_str(" |\n");
         }
         markdown
+    }
+}
+
+impl EventTopologyEntry {
+    pub fn rust_type(&self) -> &str {
+        self.rust_type.as_str()
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(transparent)]
+struct EventTopologyRustType(String);
+
+impl EventTopologyRustType {
+    fn from_static(value: &'static str) -> Self {
+        Self(String::from(value))
+    }
+
+    fn as_str(&self) -> &str {
+        &self.0
     }
 }
 

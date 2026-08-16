@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Reports, Notifications, And Sync
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Reports, Notifications, And Sync
 
 ## Parent Outcome
@@ -17,7 +30,7 @@ parent-selected storage unless a remote path is explicitly authorized.
 - Expectations: [notifications](../expectations/notifications.md),
   [sync/export](../expectations/sync-export.md),
   [data custody](../expectations/data-custody.md),
-  [roadmap V4](../expectations/roadmap-v4-parent-owned-reports-optional-assistant.md).
+  [roadmap V4](../roadmaps/roadmap-v4-parent-owned-reports-optional-assistant.md).
 - Modules: `packages/activity-domain`, `packages/parent-domain`,
   `packages/logging-domain`, `crates/agent-service`.
 
@@ -152,6 +165,15 @@ custody.
   AI scheduling, emergency auto-contact, provider delivery, receipt ingestion,
   credentials, cloud routing, parent notification UI, child-device delivery,
   production workers, and physical-device proof unclaimed.
+- Tracking notification parent-surface history intent proof now joins tracking
+  provider-notification, receipt boundary, and preference preflight rows into
+  redacted parent history/preference intent rows for a future parent surface.
+  It preserves provider, receipt, preference, quiet-hours, evidence, policy,
+  notification-status, audit, manual-proof, and authenticated drill-in refs
+  while keeping rendered notification UI, parent preference mutation, provider
+  delivery, receipt ingestion runtime, credentials, cloud routing,
+  child-device delivery, physical-device proof, authority proof, retry workers,
+  durable production history/outbox storage, and adapter dispatch unclaimed.
 - Parent-owned sync/export manifest contract proof now represents export
   manifest data classes, export formats, encryption metadata, retention/delete
   policy, connector status, sync cursor states, conflict records, import
@@ -264,6 +286,13 @@ not claim provider delivery, receipt ingestion, credentials, cloud routing,
 parent notification UI/history/preferences, child-device delivery,
 physical-device proof, production retry workers, production quiet-hours timers,
 durable production outbox storage, or adapter dispatch.
+The tracking notification parent-surface history intent proof adds redacted
+future history/preference intent rows over tracking provider-notification,
+receipt boundary, and preference preflight rows. It does not claim rendered
+tracking notification UI, preference mutation, provider delivery, receipt
+ingestion runtime, credentials, production retry/quiet-hours workers, durable
+production history/outbox storage, child-device delivery, physical-device
+proof, authority proof, or adapter dispatch.
 The tracking escalation readiness proof adds deterministic tracking-policy
 read-model rows for acknowledgement cancellation, child check-in resolution,
 urgent second-guardian manual readiness, critical multi-channel manual
@@ -392,6 +421,12 @@ delivery, policy writes, or child-device enforcement.
       provider delivery, receipts, credentials, runtime, parent UI,
       child-device delivery, physical-device proof, durable outbox storage, and
       adapter dispatch remain false.
+- [x] Tracking notification parent-surface history intent proof exists with
+      tracking provider, receipt, and preference rows becoming redacted future
+      parent history/preference rows, while rendered UI, preference mutation,
+      provider delivery, receipt runtime, credentials, production storage,
+      child-device delivery, physical-device proof, authority, and adapter
+      dispatch remain false.
 - [ ] Retention/delete controls.
 
 ## Next AI Instructions

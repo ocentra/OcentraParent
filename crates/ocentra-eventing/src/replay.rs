@@ -1,13 +1,10 @@
 use serde::{Deserialize, Serialize};
-use tokio::{
-    fs::File,
-    io::{AsyncBufReadExt, BufReader},
-};
 
 use crate::{
-    CorrelationId, EventType, EventingError, NdjsonEventJournal, NdjsonJournalEntry,
-    StoredEventEnvelope,
+    CorrelationId, EventType, NdjsonEventJournal, NdjsonJournalEntry, StoredEventEnvelope,
 };
+
+mod read;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -96,66 +93,4 @@ pub struct ReplayReadReport {
     pub skipped_count: usize,
 }
 
-impl NdjsonEventJournal {
-    pub async fn replay_projection(
-        &self,
-        filter: ReplayFilter,
-    ) -> Result<ReplayReadReport, EventingError> {
-        self.read(filter, ReplayMode::ProjectionOnly).await
-    }
-
-    pub async fn replay_action_records(
-        &self,
-        filter: ReplayFilter,
-    ) -> Result<ReplayReadReport, EventingError> {
-        self.read(filter, ReplayMode::ActionHandlersAllowed).await
-    }
-
-    async fn read(
-        &self,
-        filter: ReplayFilter,
-        mode: ReplayMode,
-    ) -> Result<ReplayReadReport, EventingError> {
-        let file = File::open(self.path())
-            .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
-        let mut lines = BufReader::new(file).lines();
-        let mut line_number = 0_usize;
-        let mut records = Vec::new();
-        let mut skipped_count = 0_usize;
-        let mut last_sequence = filter.cursor.next_sequence.saturating_sub(1);
-
-        while let Some(line) = lines
-            .next_line()
-            .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?
-        {
-            line_number += 1;
-            if line.trim().is_empty() {
-                skipped_count += 1;
-                continue;
-            }
-            let entry: NdjsonJournalEntry =
-                serde_json::from_str(&line).map_err(|error| EventingError::JournalCorruptLine {
-                    line: line_number,
-                    reason: error.to_string(),
-                })?;
-            last_sequence = last_sequence.max(entry.append.sequence);
-            if filter.matches(&entry) {
-                records.push(ReplayRecord {
-                    sequence: entry.append.sequence,
-                    envelope: entry.envelope,
-                });
-            } else {
-                skipped_count += 1;
-            }
-        }
-
-        Ok(ReplayReadReport {
-            mode,
-            cursor: ReplayCursor::after(last_sequence),
-            records,
-            skipped_count,
-        })
-    }
-}
+impl NdjsonEventJournal {}

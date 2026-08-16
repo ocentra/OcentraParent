@@ -1,15 +1,20 @@
-use ocentra_parent_agent_protocol::{
-    constants::enforcement as enforcement_constants, policy_constants, EnforcementAction,
-    EnforcementAdapterKind, EnforcementCapabilityState, EnforcementCapabilityStatus,
-    EnforcementDependencyState, EnforcementMode, EnforcementPermissionState,
-    EnforcementResultStatus, EnforcementRollbackState, EnforcementUnavailableReason,
-    ParentPlatform, PolicyTargetType,
+use ocentra_parent_agent_protocol::activity::policy::PolicyTargetType;
+use ocentra_parent_agent_protocol::constants::enforcement as enforcement_constants;
+use ocentra_parent_agent_protocol::enforcement::{
+    EnforcementAction, EnforcementAdapterKind, EnforcementAdapterResultCode,
+    EnforcementCapabilityState, EnforcementCapabilityStatus, EnforcementDependencyState,
+    EnforcementMode, EnforcementPermissionState, EnforcementResultStatus, EnforcementRollbackState,
+    EnforcementUnavailableReason, ParentPlatform,
 };
+use ocentra_parent_agent_protocol::policy_constants;
 
 use crate::enforcement_adapter::{
     terminate_owned_process, unavailable_adapter_outcome, EnforcementAdapterOutcome,
     OwnedProcessTerminationTarget,
 };
+
+#[path = "enforcement_app_time_limit_platform.rs"]
+mod enforcement_app_time_limit_platform;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct AppTimeLimitAdapterTarget {
@@ -119,7 +124,10 @@ fn time_limit_outcome_from_process_outcome(
     outcome: EnforcementAdapterOutcome,
     completed_at: &str,
 ) -> EnforcementAdapterOutcome {
-    if outcome.status == EnforcementResultStatus::ActuallyEnforced {
+    if outcome.status == EnforcementResultStatus::ActuallyEnforced
+        || (outcome.status == EnforcementResultStatus::NoOp
+            && outcome.adapter_result_code == EnforcementAdapterResultCode::ProcessAlreadyExited)
+    {
         return EnforcementAdapterOutcome {
             status: EnforcementResultStatus::Expired,
             adapter_result_code: outcome.adapter_result_code,
@@ -136,11 +144,5 @@ fn time_limit_outcome_from_process_outcome(
 
 #[cfg(not(windows))]
 fn current_platform() -> ParentPlatform {
-    match std::env::consts::OS {
-        enforcement_constants::PLATFORM_LINUX => ParentPlatform::Linux,
-        enforcement_constants::PLATFORM_MACOS => ParentPlatform::Macos,
-        enforcement_constants::PLATFORM_ANDROID => ParentPlatform::Android,
-        enforcement_constants::PLATFORM_IOS => ParentPlatform::Ios,
-        _ => ParentPlatform::Linux,
-    }
+    enforcement_app_time_limit_platform::current_platform()
 }

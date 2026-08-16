@@ -1,5 +1,19 @@
 # 61. Notification Provider Preflight
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `61. Notification Provider Preflight`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Goal
 
 Bridge app/game notification scheduler rows into an explicit provider-adapter
@@ -30,11 +44,33 @@ before any delivery can be claimed.
 - Child-device delivery, policy evaluator execution, adapter dispatch, broad
   app/game blocking, or platform support.
 
+## Current Code and Test State (2026-08-15)
+
+- `app_game_child_ux_provider_preflight` validates one canonical scheduler row
+  against its persisted local-outbox record, rejects identity/evidence/unsafe
+  claim mismatches, and maps due/manual/unavailable states without delivery.
+- Existing contract tests cover provider-adapter-required, manual,
+  unavailable, unpersisted, mismatched, claimed, and missing-requirement cases.
+- `app_game_notification_provider_preflight_bridge` now consumes and validates
+  the complete WP59 read model, requires each scheduled row to match the actual
+  durable scheduler store, and generates deterministic adapter, credential,
+  and smoke-proof requirement refs.
+- Manual-required and unavailable WP59 rows remain present and blocked. Focused
+  tests reject unpersisted, tampered, duplicate, claimed, and mismatched input.
+- The advertised `packages/parent-domain` source/test owner and proof harness
+  are absent. Current ownership is Rust `app-game-core` plus the canonical
+  agent-protocol scheduler schema.
+
 ## Proof
 
-- `packages/parent-domain/src/app-game-notification-provider-preflight.ts`
-- `packages/parent-domain/tests/app-game-notification-provider-preflight.test.ts`
-- `scripts/test/app-game-notification-provider-preflight-proof.mjs`
+- `crates/app-game-core/src/app_game_child_ux_provider_preflight.rs`
+- `crates/app-game-core/src/app_game_child_ux_provider_preflight_types.rs`
+- `crates/app-game-core/src/app_game_notification_provider_preflight_bridge.rs`
+- `crates/app-game-core/src/app_game_notification_provider_preflight_bridge_types.rs`
+- `crates/app-game-core/src/app_game_notification_scheduler_bridge_read_model_validation.rs`
+- `crates/app-game-core/tests/contract/app_game_child_ux_outbox.rs`
+- `crates/app-game-core/tests/contract/app_game_notification_provider_preflight_bridge.rs`
+- Historical `packages/parent-domain/...` and script harness routes are absent.
 - `test-results/app-game-notification-provider-preflight-proof/proof.json`
 - `output/app-game-plan-proof/61-notification-provider-preflight/`
 - `output/app-plan-proof/61-notification-provider-preflight/`
@@ -47,7 +83,7 @@ before any delivery can be claimed.
       source scheduler/outbox/decision/provider/reason refs.
 - [x] Manual-required and unavailable rows remain blocked before provider
       preflight.
-- [x] Proof pack records no provider delivery, no receipt ingestion, no
+- [ ] Proof pack records no provider delivery, no receipt ingestion, no
       credentials, no retry-worker/quiet-hours timer runtime, no parent UI, no
       child delivery, no adapter dispatch, and no durable production outbox
       claim.

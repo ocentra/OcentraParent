@@ -1,7 +1,0 @@
-{
-    "sharedAppGameProof":  "output/app-game-plan-proof/05-inventory-evidence-model",
-    "workpack":  "05-installed-app-inventory-model",
-    "journalSqliteChanged":  false,
-    "status":  "not-applicable-for-reconciliation",
-    "reason":  "No new journal, SQLite, replay, or read-model persistence behavior was added by this reconciliation."
-}

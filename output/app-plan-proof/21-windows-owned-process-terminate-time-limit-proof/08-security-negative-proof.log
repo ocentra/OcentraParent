@@ -1,8 +1,0 @@
-security-negative-proof=pass
-
-Native app no-claim boundaries:
-- Owned-process time-limit proof is scoped to the process started by the proof harness.
-- Stale action mismatch rejects before adapter execution.
-- Dry-run does not terminate.
-- Broad app/package blocking remains manual-required.
-- No AppLocker, App Control, install blocking, launch allowlist, or cross-platform enforcement claim is made.

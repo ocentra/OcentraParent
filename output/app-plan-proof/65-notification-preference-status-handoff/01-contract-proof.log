@@ -1,6 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-notification-preference-status-handoff app-game-notification-preference-preflight v3-notification-rule-provider-retry-contract: PASS
-- Preference-preflight rows become manual-required or not-sent V3 notification status entries.
-- The existing V3 retry/preference coverage is referenced, but no provider adapter delivery or parent preference UI is claimed.

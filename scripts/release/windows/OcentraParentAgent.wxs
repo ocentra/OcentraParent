@@ -1,29 +1,29 @@
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Package
-    Name="Ocentra Parent Agent"
+    Name="Ocentra Child Agent"
     Manufacturer="Ocentra"
     Version="$(var.ProductVersion)"
     UpgradeCode="0143F5A1-4C10-4C0F-97BE-55EDAF5012BB"
     Scope="perMachine"
     InstallerVersion="500"
   >
-    <SummaryInformation Description="Ocentra Parent Agent Windows service installer" />
-    <MajorUpgrade DowngradeErrorMessage="A newer version of Ocentra Parent Agent is already installed." />
+    <SummaryInformation Description="Ocentra Child Agent Windows service installer" />
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Ocentra Child Agent is already installed." />
     <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
 
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="OcentraProgramFilesFolder" Name="Ocentra">
-        <Directory Id="INSTALLFOLDER" Name="Ocentra Parent Agent" />
+        <Directory Id="INSTALLFOLDER" Name="Ocentra Child Agent" />
       </Directory>
     </StandardDirectory>
 
     <StandardDirectory Id="CommonAppDataFolder">
       <Directory Id="OcentraProgramDataFolder" Name="Ocentra">
-        <Directory Id="AGENTDATAFOLDER" Name="Ocentra Parent Agent" />
+        <Directory Id="AGENTDATAFOLDER" Name="Ocentra Child Agent" />
       </Directory>
     </StandardDirectory>
 
-    <Feature Id="AgentFeature" Title="Ocentra Parent Agent" Level="1">
+    <Feature Id="AgentFeature" Title="Ocentra Child Agent" Level="1">
       <ComponentGroupRef Id="AgentProgramFiles" />
       <ComponentRef Id="AgentProgramDataDirectory" />
     </Feature>
@@ -35,7 +35,7 @@
         <File
           Id="AgentServiceExecutableFile"
           Source="$(var.AgentBinaryPath)"
-          Name="ocentra-parent-agent-service.exe"
+          Name="ocentra-child-agent-service.exe"
           KeyPath="yes"
         />
       </Component>
@@ -44,15 +44,15 @@
         <File
           Id="AgentServiceWrapperFile"
           Source="$(var.ServiceWrapperPath)"
-          Name="OcentraParentAgentService.exe"
+          Name="OcentraChildAgentService.exe"
           KeyPath="yes"
         />
         <ServiceInstall
-          Id="OcentraParentAgentServiceInstall"
+          Id="OcentraChildAgentServiceInstall"
           Type="ownProcess"
-          Name="OcentraParentAgent"
-          DisplayName="Ocentra Parent Agent"
-          Description="Headless local device agent for Ocentra Parent."
+          Name="OcentraChildAgent"
+          DisplayName="Ocentra Child Agent"
+          Description="Headless local child agent for Ocentra Parent."
           Start="auto"
           ErrorControl="normal"
           Account="LocalSystem"
@@ -66,8 +66,8 @@
           />
         </ServiceInstall>
         <ServiceControl
-          Id="OcentraParentAgentServiceControl"
-          Name="OcentraParentAgent"
+          Id="OcentraChildAgentServiceControl"
+          Name="OcentraChildAgent"
           Start="install"
           Stop="both"
           Remove="uninstall"
@@ -79,7 +79,7 @@
         <File
           Id="AgentServiceWrapperConfigFile"
           Source="$(var.ServiceConfigPath)"
-          Name="OcentraParentAgentService.xml"
+          Name="OcentraChildAgentService.xml"
           KeyPath="yes"
         />
       </Component>
@@ -88,7 +88,7 @@
         <File
           Id="AgentUpdaterExecutableFile"
           Source="$(var.UpdaterBinaryPath)"
-          Name="ocentra-parent-agent-updater.exe"
+          Name="ocentra-child-agent-updater.exe"
           KeyPath="yes"
         />
       </Component>
@@ -97,15 +97,15 @@
         <File
           Id="AgentUpdaterServiceWrapperFile"
           Source="$(var.ServiceWrapperPath)"
-          Name="OcentraParentUpdaterService.exe"
+          Name="OcentraChildUpdaterService.exe"
           KeyPath="yes"
         />
         <ServiceInstall
-          Id="OcentraParentUpdaterServiceInstall"
+          Id="OcentraChildUpdaterServiceInstall"
           Type="ownProcess"
-          Name="OcentraParentUpdater"
-          DisplayName="Ocentra Parent Updater"
-          Description="Signed background updater for the Ocentra Parent Agent."
+          Name="OcentraChildUpdater"
+          DisplayName="Ocentra Child Updater"
+          Description="Signed background updater for the Ocentra Child Agent."
           Start="auto"
           ErrorControl="normal"
           Account="LocalSystem"
@@ -119,8 +119,8 @@
           />
         </ServiceInstall>
         <ServiceControl
-          Id="OcentraParentUpdaterServiceControl"
-          Name="OcentraParentUpdater"
+          Id="OcentraChildUpdaterServiceControl"
+          Name="OcentraChildUpdater"
           Start="install"
           Stop="both"
           Remove="uninstall"
@@ -132,7 +132,7 @@
         <File
           Id="AgentUpdaterServiceWrapperConfigFile"
           Source="$(var.UpdaterConfigPath)"
-          Name="OcentraParentUpdaterService.xml"
+          Name="OcentraChildUpdaterService.xml"
           KeyPath="yes"
         />
       </Component>
@@ -142,10 +142,10 @@
   <Fragment>
     <Component Id="AgentProgramDataDirectory" Directory="AGENTDATAFOLDER" Guid="413DF832-1B07-4E61-81BD-2AC01856ECEB">
       <CreateFolder />
-      <RemoveFolder Id="RemoveAgentProgramDataDirectory" On="uninstall" />
+      <!-- Keep service-owned removal-state.json and audit custody for parent/admin review. -->
       <RegistryValue
         Root="HKLM"
-        Key="Software\Ocentra\Ocentra Parent Agent"
+        Key="Software\Ocentra\Ocentra Child Agent"
         Name="ProgramData"
         Type="integer"
         Value="1"

@@ -29,6 +29,7 @@ export type ParentPortalActivityStateLike = {
   readonly activityReportHistory?: ActivityAdapterResultLike | null;
   readonly activityScreenReadModel?: ActivityAdapterResultLike | null;
   readonly activityAppUseReadModel?: ActivityAdapterResultLike | null;
+  readonly activityAppGamePlatformExtensionReadModel?: ActivityAdapterResultLike | null;
   readonly activityBrowserReadModel?: ActivityAdapterResultLike | null;
   readonly activityGamesReadModel?: ActivityAdapterResultLike | null;
   readonly activityNetworkReadModel?: ActivityAdapterResultLike | null;
@@ -67,6 +68,7 @@ export type ParentPortalActivityUiIntent = {
   readonly reportHistory: Record<string, unknown> | null;
   readonly screenReadModel: Record<string, unknown> | null;
   readonly appUseReadModel: Record<string, unknown> | null;
+  readonly appGamePlatformExtensionReadModel: Record<string, unknown> | null;
   readonly browserReadModel: Record<string, unknown> | null;
   readonly gamesReadModel: Record<string, unknown> | null;
   readonly networkReadModel: Record<string, unknown> | null;
@@ -81,6 +83,9 @@ export function createParentPortalActivityUiIntent(
   const reportHistory = parentPortalActivityAdapterRecord(activityState?.activityReportHistory);
   const screenReadModel = parentPortalActivityAdapterRecord(activityState?.activityScreenReadModel);
   const appUseReadModel = parentPortalActivityAdapterRecord(activityState?.activityAppUseReadModel);
+  const appGamePlatformExtensionReadModel = parentPortalActivityAdapterRecord(
+    activityState?.activityAppGamePlatformExtensionReadModel
+  );
   const browserReadModel = parentPortalActivityAdapterRecord(activityState?.activityBrowserReadModel);
   const gamesReadModel = parentPortalActivityAdapterRecord(activityState?.activityGamesReadModel);
   const networkReadModel = parentPortalActivityAdapterRecord(activityState?.activityNetworkReadModel);
@@ -89,6 +94,7 @@ export function createParentPortalActivityUiIntent(
     reportHistory,
     screenReadModel,
     appUseReadModel,
+    appGamePlatformExtensionReadModel,
     browserReadModel,
     gamesReadModel,
     networkReadModel,
@@ -104,10 +110,15 @@ export function createParentPortalActivityUiIntent(
     reportHistory,
     screenReadModel,
     appUseReadModel,
+    appGamePlatformExtensionReadModel,
     browserReadModel,
     gamesReadModel,
     networkReadModel,
-    appGameDashboard: createParentPortalAppGameDashboardIntent(appUseReadModel, gamesReadModel),
+    appGameDashboard: createParentPortalAppGameDashboardIntent(
+      appUseReadModel,
+      gamesReadModel,
+      appGamePlatformExtensionReadModel
+    ),
   };
 }
 
@@ -199,7 +210,8 @@ function matchingCanonicalDeviceSlot(devices: Map<string, DeviceSlot>, slot: Dev
     if (samePhysicalDeviceValue(slot.device?.mac, existing.device?.mac)) return existing;
     if (
       (slotHasAgentFacet(slot) || slotHasAgentFacet(existing)) &&
-      samePhysicalDeviceValue(slot.device?.ip, existing.device?.ip)
+      samePhysicalDeviceValue(slot.device?.ip, existing.device?.ip) &&
+      !conflictingPhysicalMac(slot.device?.mac, existing.device?.mac)
     ) {
       return existing;
     }
@@ -284,9 +296,6 @@ function pendingServiceScan(
 function lanDeviceSlots(readModel: Record<string, unknown>): readonly DeviceSlot[] {
   const devices = new Map<string, DeviceSlot>();
   collectCanonicalLanDevices(readModel, devices);
-  if (devices.size > 0) {
-    return Array.from(devices.values()).map((slot, slotIndex) => ({ ...slot, slotIndex }));
-  }
   collectDiscoveredLanDevices(readModel, devices);
   collectTrustedLanDevices(readModel, devices);
   collectPairingRequestDevices(readModel, devices);
@@ -308,6 +317,7 @@ function collectCanonicalLanDevices(readModel: Record<string, unknown>, devices:
     const discoveryState = stringValue(item?.['discoveryState']);
     const trustState = stringValue(item?.['trustState']);
     const routeId = stringValue(item?.['routeId']);
+    const evidence = lanDeviceEvidence(readModel, deviceId, routeId);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: stringValue(item?.['displayName']) || deviceId,
@@ -328,14 +338,15 @@ function collectCanonicalLanDevices(readModel: Record<string, unknown>, devices:
       gpuDriver: stringValue(childAgentInventory?.['gpuDriver']),
       gpuMemory: stringValue(childAgentInventory?.['gpuMemory']),
       nvidiaSmi: stringValue(childAgentInventory?.['nvidiaSmi']),
-      state: canonicalLanDeviceState(classification, reachability, discoveryState, trustState),
       routeId,
       routeState: stringValue(item?.['routeState']),
       trustState,
       discoveryState,
       sourceConfidence: stringValue(networkIdentity?.['confidence']),
       evidenceLabel: firstString(item?.['sourceLabels']),
-      ...lanDeviceEvidence(readModel, deviceId, routeId),
+      ...evidence,
+      state: evidence.state || canonicalLanDeviceState(classification, reachability, discoveryState, trustState),
+      preferState: evidence.preferState === true,
     });
   }
 }
@@ -368,6 +379,7 @@ function collectDiscoveredLanDevices(readModel: Record<string, unknown>, devices
     const hardwareProfile = recordValue(childDevice?.['hardwareProfile']);
     const routeId = stringValue(item?.['routeId']);
     const discoveryState = stringValue(item?.['discoveryState']);
+    const evidence = lanDeviceEvidence(readModel, deviceId, routeId);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: stringValue(childDevice?.['label']) || deviceId,
@@ -386,12 +398,13 @@ function collectDiscoveredLanDevices(readModel: Record<string, unknown>, devices
       gpuDriver: stringValue(hardwareProfile?.['gpuDriver']),
       gpuMemory: stringValue(hardwareProfile?.['gpuMemory']),
       nvidiaSmi: stringValue(hardwareProfile?.['nvidiaSmi']),
-      state: lanDiscoveryDeviceState(item, childDevice),
       routeId,
       discoveryState,
       sourceConfidence: stringValue(item?.['discoveryStatus']),
       evidenceLabel: stringValue(item?.['addressRef']),
-      ...lanDeviceEvidence(readModel, deviceId, routeId),
+      ...evidence,
+      state: evidence.state || lanDiscoveryDeviceState(item, childDevice),
+      preferState: evidence.preferState === true,
     });
   }
 }
@@ -441,10 +454,12 @@ function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: M
     const hardwareProfile = recordValue(childDevice?.['hardwareProfile']);
     const routeId = stringValue(item?.['routeId']);
     const trustState = stringValue(item?.['trustState']);
+    const existingSlot = selectedLanDeviceSlot(devices, deviceId, routeId);
+    const evidence = lanDeviceEvidence(readModel, deviceId, routeId);
     upsertLanDeviceSlot(devices, {
-      deviceId,
-      label: stringValue(childDevice?.['label']) || deviceId,
-      platform: normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
+      deviceId: existingSlot?.value || deviceId,
+      label: stringValue(childDevice?.['label']) || existingSlot?.label || deviceId,
+      platform: existingSlot?.device?.platform || normalizeDevicePlatform(stringValue(childDevice?.['platform'])),
       ip: stringValue(childDevice?.['ipAddress']),
       mac: stringValue(childDevice?.['macAddress']),
       hostname: stringValue(childDevice?.['hostname']),
@@ -459,10 +474,11 @@ function collectTrustedLanDevices(readModel: Record<string, unknown>, devices: M
       gpuDriver: stringValue(hardwareProfile?.['gpuDriver']),
       gpuMemory: stringValue(hardwareProfile?.['gpuMemory']),
       nvidiaSmi: stringValue(hardwareProfile?.['nvidiaSmi']),
-      state: revokedAt ? 'revoked' : trustState || 'paired',
       routeId,
       trustState,
-      ...lanDeviceEvidence(readModel, deviceId, routeId),
+      ...evidence,
+      state: evidence.state || (revokedAt ? 'revoked' : trustState || 'paired'),
+      preferState: evidence.preferState === true,
     });
   }
 }
@@ -473,13 +489,16 @@ function collectPairingRequestDevices(readModel: Record<string, unknown>, device
     const item = recordValue(pairingRequest);
     const deviceId = stringValue(item?.['childDeviceId']);
     if (!deviceId) continue;
+    const routeId = stringValue(item?.['routeId']);
+    const evidence = lanDeviceEvidence(readModel, deviceId, routeId);
     upsertLanDeviceSlot(devices, {
       deviceId,
       label: activityDeviceShortLabel(deviceId, devices.size),
       platform: 'unknown',
-      state: stringValue(item?.['pairingState']) || 'manual-required',
-      routeId: stringValue(item?.['routeId']),
-      ...lanDeviceEvidence(readModel, deviceId, stringValue(item?.['routeId'])),
+      routeId,
+      ...evidence,
+      state: evidence.state || stringValue(item?.['pairingState']) || 'manual-required',
+      preferState: evidence.preferState === true,
     });
   }
 }
@@ -488,21 +507,43 @@ function collectSelectedLanDevice(readModel: Record<string, unknown>, devices: M
   const selected = recordValue(readModel['selectedDeviceReadiness']);
   const deviceId = stringValue(selected?.['selectedChildDeviceId']);
   if (!deviceId) return;
+  const routeId = stringValue(selected?.['routeId']);
+  const existingSlot = selectedLanDeviceSlot(devices, deviceId, routeId);
+  const evidence = lanDeviceEvidence(readModel, deviceId, routeId);
   upsertLanDeviceSlot(devices, {
-    deviceId,
-    label: devices.get(deviceId)?.label || activityDeviceShortLabel(deviceId, devices.size),
-    platform: devices.get(deviceId)?.device?.platform || 'unknown',
-    state:
-      selected?.['readyForControl'] === true
-        ? 'ready'
-        : stringValue(selected?.['reachability']) || stringValue(selected?.['trustState']) || 'unavailable',
-    routeId: stringValue(selected?.['routeId']),
+    deviceId: existingSlot?.value || deviceId,
+    label: existingSlot?.label || activityDeviceShortLabel(deviceId, devices.size),
+    platform: existingSlot?.device?.platform || 'unknown',
+    routeId,
     trustState: stringValue(selected?.['trustState']),
     readinessState:
       selected?.['readyForControl'] === true ? 'ready-for-control' : stringValue(selected?.['reachability']),
-    ...lanDeviceEvidence(readModel, deviceId, stringValue(selected?.['routeId'])),
+    ...evidence,
+    state:
+      evidence.state ||
+      (selected?.['readyForControl'] === true
+        ? 'ready'
+        : stringValue(selected?.['reachability']) || stringValue(selected?.['trustState']) || 'unavailable'),
     preferState: true,
   });
+}
+
+function selectedLanDeviceSlot(
+  devices: Map<string, DeviceSlot>,
+  deviceId: string,
+  routeId: string
+): DeviceSlot | undefined {
+  const direct = devices.get(deviceId);
+  if (direct) {
+    return direct;
+  }
+  for (const slot of devices.values()) {
+    if (!slotHasAgentFacet(slot)) continue;
+    if (samePhysicalDeviceValue(slot.device?.routeId, routeId)) {
+      return slot;
+    }
+  }
+  return undefined;
 }
 
 type LanDeviceEvidenceInput = {
@@ -538,6 +579,8 @@ type LanDeviceEvidenceInput = {
   readonly auditLabel?: string | undefined;
   readonly requirementLabel?: string | undefined;
   readonly evidenceLabel?: string | undefined;
+  readonly state?: string | undefined;
+  readonly preferState?: boolean | undefined;
 };
 
 function lanDeviceEvidence(
@@ -588,12 +631,14 @@ function lanDeviceEvidence(
     parentDecision: lanHouseholdDecisionLabel(decision),
     householdName: stringValue(decision?.['displayName']),
     parentDeviceKind: normalizedLanDeviceKindValue(stringValue(decision?.['deviceKind'])),
-    auditLabel: firstString(readModel['auditCheckLabels']),
-    requirementLabel: firstString(readModel['routeRequirementLabels']),
+    auditLabel: lanEvidenceSummary(readModel['auditCheckLabels']),
+    requirementLabel: lanEvidenceSummary(readModel['routeRequirementLabels']),
     evidenceLabel:
       stringValue(routeSafetyRow?.['evidenceLabel']) ||
       stringValue(signedProofRow?.['evidenceLabel']) ||
       stringValue(adapterRow?.['evidenceLabel']),
+    state: lanHouseholdDecisionState(decision),
+    preferState: lanHouseholdDecisionState(decision).length > 0,
   });
 }
 
@@ -670,6 +715,18 @@ function lanHouseholdDecisionLabel(decision: Record<string, unknown> | null): st
   if (revokedAt && actionKind) return `${actionKind} revoked`;
   if (actionKind && displayName) return `${actionKind}: ${displayName}`;
   return actionKind || displayName;
+}
+
+function lanHouseholdDecisionState(decision: Record<string, unknown> | null): string {
+  if (!decision) return '';
+  const actionKind = stringValue(decision['actionKind']);
+  if (actionKind === 'revoke' || stringValue(decision['revokedAt'])) {
+    return 'revoked';
+  }
+  if (actionKind === 'ignore') {
+    return 'ignored';
+  }
+  return '';
 }
 
 function lanEvidenceSummary(value: unknown): string {
@@ -779,6 +836,7 @@ function upsertLanDeviceSlot(
   const slotValue = mergedLanDeviceSlotValue(existing, input);
   const incomingHasAgentFacet = hasAgentFacet(input);
   const existingHasAgentFacet = existing ? slotHasAgentFacet(existing) : false;
+  const preserveCanonicalIdentity = !!existing && hasCanonicalLanPhysicalSlotValue(existing.value);
   const portalEligible = (input.portalEligible ?? incomingHasAgentFacet) || existing?.device?.portalEligible === true;
   const householdName = input.householdName || existing?.device?.householdName;
   const detectedName = detectedLanDeviceName(input) || existing?.device?.detectedName;
@@ -786,10 +844,16 @@ function upsertLanDeviceSlot(
   if (existing && existing.value !== slotValue) {
     devices.delete(existing.value);
   }
-  const state =
-    input.preferState ||
-    !existing ||
-    activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
+  const preserveCanonicalState =
+    !!existing &&
+    hasCanonicalLanPhysicalSlotValue(existing.value) &&
+    !incomingHasAgentFacet &&
+    input.preferState !== true;
+  const state = preserveCanonicalState
+    ? stringValue(existing.badge) || input.state
+    : input.preferState ||
+        !existing ||
+        activityDeviceStateRank(input.state) >= activityDeviceStateRank(stringValue(existing.badge))
       ? input.state
       : stringValue(existing.badge);
   const status = activityDeviceChoiceStatus(state);
@@ -809,12 +873,16 @@ function upsertLanDeviceSlot(
       name: slotLabel,
       ip: input.ip || existing?.device?.ip,
       mac: input.mac || existing?.device?.mac,
-      hostname:
-        existingHasAgentFacet && !incomingHasAgentFacet
-          ? existing?.device?.hostname || input.hostname
-          : input.hostname || existing?.device?.hostname,
+      hostname: preferredLanHostname(
+        existing?.device?.hostname,
+        input.hostname,
+        existingHasAgentFacet,
+        incomingHasAgentFacet
+      ),
       networkInterface: input.networkInterface || existing?.device?.networkInterface,
-      agentStatus: input.agentStatus || existing?.device?.agentStatus,
+      agentStatus: preserveCanonicalIdentity
+        ? nonEmptyString(existing?.device?.agentStatus) || nonEmptyString(input.agentStatus)
+        : nonEmptyString(input.agentStatus) || nonEmptyString(existing?.device?.agentStatus),
       manufacturer: input.manufacturer || existing?.device?.manufacturer,
       model: input.model || existing?.device?.model,
       cpuModel: input.cpuModel || existing?.device?.cpuModel,
@@ -877,7 +945,9 @@ function matchingPhysicalDeviceSlot(
   for (const slot of devices.values()) {
     if (samePhysicalDeviceValue(input.mac, slot.device?.mac)) return slot;
     if (!hasAgentFacet(input) && !slotHasAgentFacet(slot)) continue;
-    if (samePhysicalDeviceValue(input.ip, slot.device?.ip)) return slot;
+    if (samePhysicalDeviceValue(input.ip, slot.device?.ip) && !conflictingPhysicalMac(input.mac, slot.device?.mac)) {
+      return slot;
+    }
   }
   return undefined;
 }
@@ -888,13 +958,47 @@ function samePhysicalDeviceValue(left: string | undefined, right: string | undef
   return !!normalizedLeft && normalizedLeft === normalizedRight;
 }
 
+function conflictingPhysicalMac(left: string | undefined, right: string | undefined): boolean {
+  const normalizedLeft = left?.trim().toLowerCase();
+  const normalizedRight = right?.trim().toLowerCase();
+  return !!normalizedLeft && !!normalizedRight && normalizedLeft !== normalizedRight;
+}
+
 function mergedLanDeviceSlotValue(
   existing: DeviceSlot | undefined,
   input: { readonly deviceId: string } & LanAgentFacetInput
 ): string {
   if (!existing) return input.deviceId;
+  if (hasCanonicalLanPhysicalSlotValue(existing.value)) return existing.value;
   if (hasAgentFacet(input)) return input.deviceId;
   return existing.value;
+}
+
+function hasCanonicalLanPhysicalSlotValue(value: string | undefined): boolean {
+  return typeof value === 'string' && value.startsWith('lan-physical-');
+}
+
+function nonEmptyString(value: string | undefined): string | undefined {
+  return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+function preferredLanHostname(
+  existingHostname: string | undefined,
+  incomingHostname: string | undefined,
+  existingHasAgentFacet: boolean,
+  incomingHasAgentFacet: boolean
+): string | undefined {
+  const incomingWeak =
+    incomingHostname === undefined ||
+    incomingHostname.length === 0 ||
+    incomingHostname.toLowerCase() === 'unknown-host';
+  if (existingHasAgentFacet && !incomingHasAgentFacet) {
+    return existingHostname || incomingHostname;
+  }
+  if (incomingWeak) {
+    return existingHostname || incomingHostname;
+  }
+  return incomingHostname || existingHostname;
 }
 
 function mergedLanDeviceLabel(
@@ -1141,6 +1245,7 @@ function activityDeviceStateRank(state: string): number {
     case 'manual-required':
     case 'rejected':
     case 'expired':
+    case 'ignored':
     case 'revoked':
     case 'error':
       return 1;

@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
+use crate::dns::types::NetworkEvidenceGrade;
 use crate::process_support::{
     matched_app_inventory, matched_process_snapshot, non_empty_option,
     validate_process_correlation_input,
 };
-use crate::NetworkEvidenceGrade;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum NetworkProcessCorrelationState {

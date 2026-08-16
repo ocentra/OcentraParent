@@ -184,12 +184,7 @@
     </div>
     <main id="app"></main>
     <script type="module">
-      const routePath = window.location.pathname.replace(/\/$/u, '');
-      if (routePath === '/tempscratchpadproof') {
-        await import('/src/temp-scratchpad-proof/main.tsx');
-      } else {
-        await import('/src/main.ts');
-      }
+      await import('/src/main.ts');
     </script>
   </body>
 </html>

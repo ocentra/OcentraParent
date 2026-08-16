@@ -3,15 +3,171 @@
   "private": true,
   "version": "0.1.1",
   "type": "module",
-  "description": "Portal route, DOM, and development UI contracts.",
+  "description": "Presentation helpers for the parent portal surface.",
   "exports": {
+    "./app-layout": {
+      "import": "./dist/app-layout.js",
+      "types": "./dist/app-layout.d.ts"
+    },
+    "./browser-child-intervention-page": {
+      "import": "./dist/browser-child-intervention-page.js",
+      "types": "./dist/browser-child-intervention-page.d.ts"
+    },
+    "./command-results": {
+      "import": "./dist/command-results.js",
+      "types": "./dist/command-results.d.ts"
+    },
+    "./commands": {
+      "import": "./dist/commands.js",
+      "types": "./dist/commands.d.ts"
+    },
     "./contracts": {
       "import": "./dist/contracts.js",
       "types": "./dist/contracts.d.ts"
     },
+    "./details": {
+      "import": "./dist/details.js",
+      "types": "./dist/details.d.ts"
+    },
+    "./display-text": {
+      "import": "./dist/display-text.js",
+      "types": "./dist/display-text.d.ts"
+    },
+    "./dev-logger": {
+      "import": "./dist/dev-logger.js",
+      "types": "./dist/dev-logger.d.ts"
+    },
+    "./diagnostics": {
+      "import": "./dist/diagnostics.js",
+      "types": "./dist/diagnostics.d.ts"
+    },
+    "./formatting": {
+      "import": "./dist/formatting.js",
+      "types": "./dist/formatting.d.ts"
+    },
+    "./frame-tuner": {
+      "import": "./dist/frame-tuner.js",
+      "types": "./dist/frame-tuner.d.ts"
+    },
+    "./hosted-portal-distribution": {
+      "import": "./dist/hosted-portal-distribution.js",
+      "types": "./dist/hosted-portal-distribution.d.ts"
+    },
+    "./live-activity-state": {
+      "import": "./dist/live-activity-state.js",
+      "types": "./dist/live-activity-state.d.ts"
+    },
+    "./local-ai-runtime-panel": {
+      "import": "./dist/local-ai-runtime-panel.js",
+      "types": "./dist/local-ai-runtime-panel.d.ts"
+    },
+    "./live-activity-lan-add-device": {
+      "import": "./dist/live-activity-lan-add-device.js",
+      "types": "./dist/live-activity-lan-add-device.d.ts"
+    },
+    "./manage-target-selection": {
+      "import": "./dist/manage-target-selection.js",
+      "types": "./dist/manage-target-selection.d.ts"
+    },
+    "./network-evidence-drawer": {
+      "import": "./dist/network-evidence-drawer.js",
+      "types": "./dist/network-evidence-drawer.d.ts"
+    },
     "./package-info": {
       "import": "./dist/package-info.js",
       "types": "./dist/package-info.d.ts"
+    },
+    "./parent-assistant-chat": {
+      "import": "./dist/parent-assistant-chat.js",
+      "types": "./dist/parent-assistant-chat.d.ts"
+    },
+    "./parent-portal-data": {
+      "import": "./dist/parent-portal-data.js",
+      "types": "./dist/parent-portal-data.d.ts"
+    },
+    "./parent-portal-guide-controls": {
+      "import": "./dist/parent-portal-guide-controls.js",
+      "types": "./dist/parent-portal-guide-controls.d.ts"
+    },
+    "./parent-portal-nav": {
+      "import": "./dist/parent-portal-nav.js",
+      "types": "./dist/parent-portal-nav.d.ts"
+    },
+    "./parent-portal-service-state": {
+      "import": "./dist/parent-portal-service-state.js",
+      "types": "./dist/parent-portal-service-state.d.ts"
+    },
+    "./portal-background": {
+      "import": "./dist/portal-background.js",
+      "types": "./dist/portal-background.d.ts"
+    },
+    "./portal-background-svg-markup": {
+      "import": "./dist/portal-background-svg-markup.js",
+      "types": "./dist/portal-background-svg-markup.d.ts"
+    },
+    "./routes": {
+      "import": "./dist/routes.js",
+      "types": "./dist/routes.d.ts"
+    },
+    "./screen-summary-panel": {
+      "import": "./dist/screen-summary-panel.js",
+      "types": "./dist/screen-summary-panel.d.ts"
+    },
+    "./setup-first-run-panel": {
+      "import": "./dist/setup-first-run-panel.js",
+      "types": "./dist/setup-first-run-panel.d.ts"
+    },
+    "./social-child-intervention-page-model": {
+      "import": "./dist/social-child-intervention-page-model.js",
+      "types": "./dist/social-child-intervention-page-model.d.ts"
+    },
+    "./social-read-model-events": {
+      "import": "./dist/social-read-model-events.js",
+      "types": "./dist/social-read-model-events.d.ts"
+    },
+    "./tracking-child-check-in-proof": {
+      "import": "./dist/tracking-child-check-in-proof.js",
+      "types": "./dist/tracking-child-check-in-proof.d.ts"
+    },
+    "./tracking-evidence-drawer-hosted-ui-proof": {
+      "import": "./dist/tracking-evidence-drawer-hosted-ui-proof.js",
+      "types": "./dist/tracking-evidence-drawer-hosted-ui-proof.d.ts"
+    },
+    "./tracking-missing-device-hosted-ui-proof": {
+      "import": "./dist/tracking-missing-device-hosted-ui-proof.js",
+      "types": "./dist/tracking-missing-device-hosted-ui-proof.d.ts"
+    },
+    "./tracking-notification-parent-surface-hosted-ui-proof": {
+      "import": "./dist/tracking-notification-parent-surface-hosted-ui-proof.js",
+      "types": "./dist/tracking-notification-parent-surface-hosted-ui-proof.d.ts"
+    },
+    "./tracking-parent-action-readiness-hosted-ui-proof": {
+      "import": "./dist/tracking-parent-action-readiness-hosted-ui-proof.js",
+      "types": "./dist/tracking-parent-action-readiness-hosted-ui-proof.d.ts"
+    },
+    "./tracking-report-export-hosted-ui-proof": {
+      "import": "./dist/tracking-report-export-hosted-ui-proof.js",
+      "types": "./dist/tracking-report-export-hosted-ui-proof.d.ts"
+    },
+    "./tracking-report-policy-consumer-hosted-ui-proof": {
+      "import": "./dist/tracking-report-policy-consumer-hosted-ui-proof.js",
+      "types": "./dist/tracking-report-policy-consumer-hosted-ui-proof.d.ts"
+    },
+    "./tracking-retention-settings-hosted-ui-proof": {
+      "import": "./dist/tracking-retention-settings-hosted-ui-proof.js",
+      "types": "./dist/tracking-retention-settings-hosted-ui-proof.d.ts"
+    },
+    "./tracking-status-panel": {
+      "import": "./dist/tracking-status-panel.js",
+      "types": "./dist/tracking-status-panel.d.ts"
+    },
+    "./tracking-status-proof-artifacts": {
+      "import": "./dist/tracking-status-proof-artifacts.js",
+      "types": "./dist/tracking-status-proof-artifacts.d.ts"
+    },
+    "./unified-chrome": {
+      "import": "./dist/unified-chrome.js",
+      "types": "./dist/unified-chrome.d.ts"
     }
   },
   "scripts": {
@@ -22,9 +178,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ocentra-parent/agent-protocol-domain": "file:../agent-protocol-domain",
-    "@ocentra-parent/parent-domain": "file:../parent-domain",
-    "@ocentra-parent/schema-domain": "file:../schema-domain",
-    "@ocentra-parent/text-domain": "file:../text-domain"
+    "@ocentra-parent/logging-domain": "file:../logging-domain"
   }
 }

@@ -1,18 +1,23 @@
 use std::{
-    collections::hash_map::DefaultHasher,
-    hash::{Hash, Hasher},
     path::{Path, PathBuf},
-    sync::{Arc, Mutex},
+    sync::{atomic::AtomicBool, Arc, Mutex},
 };
 
+#[cfg(debug_assertions)]
+use std::sync::atomic::AtomicU64;
+
 use serde::{Deserialize, Serialize};
-use tokio::{fs::OpenOptions, io::AsyncWriteExt, sync::Semaphore};
+use tokio::sync::Semaphore;
 
-use crate::{EventingError, JournalHash, StoredEventEnvelope};
+use crate::{ExpectValue, JournalDispatchPhase, JournalHash, StoredEventEnvelope};
 
-use super::{EventJournal, JournalAppend, JournalAppendFuture, SharedEventJournal};
+use super::{JournalAppend, SharedEventJournal};
 
-const JOURNAL_HASH_PREFIX: &str = "journal-hash:";
+#[path = "ndjson_io.rs"]
+mod ndjson_io;
+#[path = "ndjson_state.rs"]
+mod ndjson_state;
+use self::ndjson_state::NdjsonJournalState;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum JournalHashChain {
@@ -56,6 +61,12 @@ pub struct NdjsonEventJournal {
     options: NdjsonJournalOptions,
     state: Arc<Mutex<NdjsonJournalState>>,
     append_gate: Arc<Semaphore>,
+    sync_failure_for_debug: Arc<AtomicBool>,
+    synchronization_completion_sync_failure_for_debug: Arc<AtomicBool>,
+    partial_write_failure_for_debug: Arc<AtomicBool>,
+    directory_sync_failure_for_debug: Arc<AtomicBool>,
+    #[cfg(debug_assertions)]
+    recovery_count_for_debug: Arc<AtomicU64>,
 }
 
 impl NdjsonEventJournal {
@@ -69,6 +80,12 @@ impl NdjsonEventJournal {
             options,
             state: Arc::new(Mutex::new(NdjsonJournalState::default())),
             append_gate: Arc::new(Semaphore::new(1)),
+            sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            synchronization_completion_sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            partial_write_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            directory_sync_failure_for_debug: Arc::new(AtomicBool::new(false)),
+            #[cfg(debug_assertions)]
+            recovery_count_for_debug: Arc::new(AtomicU64::new(0)),
         }
     }
 
@@ -80,57 +97,40 @@ impl NdjsonEventJournal {
         Arc::new(self)
     }
 
-    async fn append_entry(
-        &self,
-        envelope: &StoredEventEnvelope,
-    ) -> Result<JournalAppend, EventingError> {
+    /// Validates and loads the durable journal state before a service reports
+    /// readiness. Corrupt or non-retryable journal state is returned to the
+    /// owning service instead of being hidden behind a later append.
+    pub async fn recover(&self) -> Result<(), crate::EventingError> {
         let _append_permit = Arc::clone(&self.append_gate)
             .acquire_owned()
             .await
-            .expect("journal append gate remains open");
-        let append = {
-            let mut state = self.state.lock().expect("journal state lock");
-            state.next_sequence += 1;
-            let previous_hash = previous_hash(&self.options, &state);
-            let current_hash =
-                current_hash(&self.options, state.next_sequence, &previous_hash, envelope)?;
-            JournalAppend {
-                sequence: state.next_sequence,
-                previous_hash,
-                current_hash,
-            }
-        };
-        self.write_entry(&append, envelope).await?;
-        self.state.lock().expect("journal state lock").previous_hash = append.current_hash.clone();
-        Ok(append)
+            .expect_value("journal append gate remains open");
+        let _append_file_lock = self.acquire_append_file_lock().await?;
+        self.prepare_append_state().await
     }
 
-    async fn write_entry(
-        &self,
-        append: &JournalAppend,
-        envelope: &StoredEventEnvelope,
-    ) -> Result<(), EventingError> {
-        let entry = NdjsonJournalEntry {
-            append: append.clone(),
-            envelope: envelope.clone(),
-        };
-        let mut line = serde_json::to_vec(&entry).map_err(EventingError::journal_encode)?;
-        line.push(b'\n');
-        let mut file = OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&self.path)
-            .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
-        file.write_all(&line)
-            .await
-            .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
-        if self.options.flush == JournalFlushPolicy::Always {
-            file.flush()
-                .await
-                .map_err(|error| EventingError::journal_io(self.path_string(), error))?;
-        }
-        Ok(())
+    #[cfg(debug_assertions)]
+    pub fn inject_next_sync_failure_for_debug(&self) {
+        self.sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_synchronization_completion_sync_failure_for_debug(&self) {
+        self.synchronization_completion_sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_partial_write_failure_for_debug(&self) {
+        self.partial_write_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    #[cfg(debug_assertions)]
+    pub fn inject_next_directory_sync_failure_for_debug(&self) {
+        self.directory_sync_failure_for_debug
+            .store(true, std::sync::atomic::Ordering::Release);
     }
 
     pub(crate) fn path_string(&self) -> String {
@@ -138,67 +138,61 @@ impl NdjsonEventJournal {
     }
 }
 
-impl EventJournal for NdjsonEventJournal {
-    fn append<'a>(&'a self, envelope: &'a StoredEventEnvelope) -> JournalAppendFuture<'a> {
-        Box::pin(async move { self.append_entry(envelope).await })
-    }
-}
-
-#[derive(Default, Debug)]
-struct NdjsonJournalState {
-    next_sequence: u64,
-    previous_hash: Option<JournalHash>,
-}
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NdjsonJournalEntry {
     pub append: JournalAppend,
+    #[serde(default = "default_journal_phase")]
+    pub phase: JournalDispatchPhase,
     pub envelope: StoredEventEnvelope,
 }
 
-#[derive(Serialize)]
-struct JournalHashInput<'a> {
-    sequence: u64,
-    previous_hash: Option<&'a JournalHash>,
-    envelope: &'a StoredEventEnvelope,
+/// A post-fsync V3 acknowledgement.  Event lines are deliberately written as
+/// buffered because their own serialization happens before fsync.  This
+/// separate line is emitted only after that fsync succeeds, so recovery can
+/// distinguish a persisted event from a durably completed publication.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct NdjsonJournalSynchronizationCompletion {
+    pub sequence: u64,
+    pub entry_hash: Option<JournalHash>,
+    pub synchronization_hash: JournalHash,
 }
 
-fn previous_hash(
-    options: &NdjsonJournalOptions,
-    state: &NdjsonJournalState,
-) -> Option<JournalHash> {
-    match options.hash_chain {
-        JournalHashChain::Disabled => None,
-        JournalHashChain::Enabled => state.previous_hash.clone(),
+/// A separately synchronized activation for a V3 completion marker. Recovery
+/// accepts a completion only after this record exists, so a marker that
+/// survives a reported marker-fsync error remains fail-closed.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct NdjsonJournalSynchronizationActivation {
+    pub activation: bool,
+    pub sequence: u64,
+    pub entry_hash: Option<JournalHash>,
+    pub synchronization_hash: JournalHash,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum NdjsonJournalRecord {
+    Entry(Box<NdjsonJournalEntry>),
+    SynchronizationCompletion(NdjsonJournalSynchronizationCompletion),
+    SynchronizationActivation(NdjsonJournalSynchronizationActivation),
+}
+
+impl NdjsonJournalRecord {
+    pub fn parse(line: &str, line_number: usize) -> Result<Self, crate::EventingError> {
+        serde_json::from_str(line).map_err(|error| crate::EventingError::JournalCorruptLine {
+            line: line_number,
+            reason: error.to_string(),
+        })
     }
-}
 
-fn current_hash(
-    options: &NdjsonJournalOptions,
-    sequence: u64,
-    previous_hash: &Option<JournalHash>,
-    envelope: &StoredEventEnvelope,
-) -> Result<Option<JournalHash>, EventingError> {
-    match options.hash_chain {
-        JournalHashChain::Disabled => Ok(None),
-        JournalHashChain::Enabled => {
-            hash_entry(sequence, previous_hash.as_ref(), envelope).map(Some)
+    pub fn entry(self) -> Option<NdjsonJournalEntry> {
+        match self {
+            Self::Entry(entry) => Some(*entry),
+            Self::SynchronizationCompletion(_) | Self::SynchronizationActivation(_) => None,
         }
     }
 }
 
-fn hash_entry(
-    sequence: u64,
-    previous_hash: Option<&JournalHash>,
-    envelope: &StoredEventEnvelope,
-) -> Result<JournalHash, EventingError> {
-    let input = JournalHashInput {
-        sequence,
-        previous_hash,
-        envelope,
-    };
-    let bytes = serde_json::to_vec(&input).map_err(EventingError::journal_encode)?;
-    let mut hasher = DefaultHasher::new();
-    bytes.hash(&mut hasher);
-    JournalHash::parse(format!("{JOURNAL_HASH_PREFIX}{:016x}", hasher.finish()))
+fn default_journal_phase() -> JournalDispatchPhase {
+    JournalDispatchPhase::AfterDispatch
 }

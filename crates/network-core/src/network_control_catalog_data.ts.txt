@@ -1,0 +1,1 @@
+/* generated from crates/network-core/src/network_control_catalog_data.ts.txt */

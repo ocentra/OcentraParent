@@ -1,0 +1,29 @@
+  }
+}
+
+export const appGamePolicyPreviewStatusMatchesOutcomeGenerated = (row: PreviewRowLike) =>
+  row.previewStatus === appGamePolicyPreviewStatusForOutcomeGenerated(row.outcomeState);
+
+export const appGamePolicyPreviewRowIsDryRunOnlyGenerated = (row: PreviewRowLike) =>
+  row.dryRun && row.enforcementHandoffState === 'disabled';
+
+export const appGamePolicyPreviewRowHasNoRuntimeClaimsGenerated = (row: PreviewRowLike) =>
+  row.policyEvaluatorRuntimeClaimState ===
+    AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.policyEvaluatorRuntimeClaimState &&
+  row.timerRuntimeClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.timerRuntimeClaimState &&
+  row.adapterDispatchState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.adapterDispatchState &&
+  row.childDeliveryClaimState === AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.childDeliveryClaimState &&
+  row.platformEnforcementClaimState ===
+    AppGamePolicyPreviewNoRuntimeClaimStatesGenerated.platformEnforcementClaimState &&
+  row.policyEvaluatorRuntimeClaimed ===
+    AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.policyEvaluatorRuntimeClaimed &&
+  row.timerRuntimeClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.timerRuntimeClaimed &&
+  row.adapterDispatchClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.adapterDispatchClaimed &&
+  row.childDeliveryClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.childDeliveryClaimed &&
+  row.platformEnforcementClaimed === AppGamePolicyPreviewNoRuntimeClaimFlagsGenerated.platformEnforcementClaimed;
+
+export const appGamePolicyPreviewRowHasProofRefsGenerated = (row: PreviewRowLike) =>
+  row.evidenceReferences.length > 0 &&
+  row.ruleRefs.length > 0 &&
+  row.capabilityRefs.length > 0 &&
+  row.auditRefs.length > 0;

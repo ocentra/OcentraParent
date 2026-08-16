@@ -1,0 +1,30 @@
+        row.runtimeReadinessState ===
+          AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedBySourceFreshness &&
+        !row.timerRuntimeProofRequired &&
+        !row.schedulerPersistenceProofRequired &&
+        !row.auditProofRequired &&
+        !row.rollbackProofRequired &&
+        !row.timerScheduled
+    ).length &&
+  readiness.blockedByCompilerDecisionCount ===
+    readiness.rows.filter(
+      (row) =>
+        row.runtimeReadinessState ===
+          AppGameSourceGatedPolicyPreviewTimerRuntimeReadinessStateGenerated.BlockedByCompilerDecision &&
+        !row.timerRuntimeProofRequired &&
+        !row.schedulerPersistenceProofRequired &&
+        !row.auditProofRequired &&
+        !row.rollbackProofRequired &&
+        !row.timerScheduled
+    ).length;
+
+export const appGameSourceGatedPolicyPreviewTimerRuntimeReadinessHasNoRuntimeClaimsGenerated = (
+  readiness: TimerRuntimeReadinessLike
+) =>
+  !readiness.serviceRuntimeEventClaimed &&
+  !readiness.portalUiRendered &&
+  !readiness.policyEvaluatorRuntimeClaimed &&
+  !readiness.timerRuntimeClaimed &&
+  !readiness.timerScheduled &&
+  !readiness.schedulerPersistenceClaimed &&
+  !readiness.auditRuntimeClaimed &&

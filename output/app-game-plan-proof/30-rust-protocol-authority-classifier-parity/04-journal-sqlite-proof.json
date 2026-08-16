@@ -1,5 +1,0 @@
-{
-  "status": "not-applicable",
-  "reason": "WP30 does not add journal or SQLite storage for authority, platform-authority, or classifier result rows.",
-  "storageClaimMoved": false
-}

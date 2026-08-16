@@ -1,0 +1,129 @@
+export type ParentChildDeviceId = NonNullable<ParentRouteContext['selectedChildDeviceId']>;
+export type ParentUiDisplayText = ParentPortalRowSnapshot['label'];
+export type ParentRouteSummaryState = ParentPortalRowSnapshot['trend'];
+export type ParentPortalShellStatusCardId = ParentPortalShellStatusCardSnapshot['id'];
+export type ParentRouteEventId = NonNullable<ParentRouteEventSnapshot['eventId']>;
+export type ParentRouteEventName = NonNullable<ParentRouteEventSnapshot['event']>;
+export type ParentRouteEventSeverity = NonNullable<ParentRouteEventSnapshot['severity']>;
+export type ParentRouteTimestamp = ParentRouteSnapshot['generatedAt'];
+export type ParentRouteAgentEndpoint = ParentRouteSnapshot['agentEndpoint'];
+export type ParentPortalDetailValue = string;
+export type ParentPortalClipboardText = string;
+export type ParentTrackingStatusProofArtifact = string;
+
+function parseParentUiBridgeNonEmptyText(value: string, field: string): string {
+  if (value.trim().length === 0) {
+    throw new TypeError(`${field} must be non-empty`);
+  }
+  return value;
+}
+
+export function decodeParentPortalDetailValue(value: string): ParentPortalDetailValue {
+  return parseParentUiBridgeNonEmptyText(value, 'ParentPortalDetailValue');
+}
+
+export function decodeParentPortalClipboardText(value: string): ParentPortalClipboardText {
+  return parseParentUiBridgeNonEmptyText(value, 'ParentPortalClipboardText');
+}
+
+export function decodeParentTrackingStatusProofArtifact(
+  value: string
+): ParentTrackingStatusProofArtifact {
+  return parseParentUiBridgeNonEmptyText(value, 'ParentTrackingStatusProofArtifact');
+}
+
+export type ParentUiActionKind =
+  | 'refresh-route'
+  | 'reconnect'
+  | 'agent-command-requested'
+  | 'policy-preview-authoring-draft-staged'
+  | 'policy-preview-authoring-draft-cancelled'
+  | 'policy-request-assistant-preview-confirm-requested'
+  | 'policy-request-parent-resolution-requested'
+  | 'lan-pairing-browser-discovery-scan-requested'
+  | 'network-flow-read-model-refresh-requested'
+  | 'tracking-retention-settings-write-requested'
+  | 'screen-settings-get-requested'
+  | 'screen-settings-replace-requested'
+  | 'app-game-adapter-dispatch-execute-requested'
+  | 'app-game-timer-parent-preference-setup-requested';
+
+export const ParentUiActionKind = {
+  RefreshRoute: 'refresh-route',
+  Reconnect: 'reconnect',
+  AgentCommandRequested: 'agent-command-requested',
+  PolicyPreviewAuthoringDraftStaged: 'policy-preview-authoring-draft-staged',
+  PolicyPreviewAuthoringDraftCancelled: 'policy-preview-authoring-draft-cancelled',
+  PolicyRequestAssistantPreviewConfirmRequested: 'policy-request-assistant-preview-confirm-requested',
+  PolicyRequestParentResolutionRequested: 'policy-request-parent-resolution-requested',
+  LanPairingBrowserDiscoveryScanRequested: 'lan-pairing-browser-discovery-scan-requested',
+  NetworkFlowReadModelRefreshRequested: 'network-flow-read-model-refresh-requested',
+  TrackingRetentionSettingsWriteRequested: 'tracking-retention-settings-write-requested',
+  ScreenSettingsGetRequested: 'screen-settings-get-requested',
+  ScreenSettingsReplaceRequested: 'screen-settings-replace-requested',
+  AppGameAdapterDispatchExecuteRequested: 'app-game-adapter-dispatch-execute-requested',
+  AppGameTimerParentPreferenceSetupRequested: 'app-game-timer-parent-preference-setup-requested',
+} as const;
+
+export type ParentScreenSettingsServiceBridgeAction =
+  | typeof ParentUiActionKind.ScreenSettingsGetRequested
+  | typeof ParentUiActionKind.ScreenSettingsReplaceRequested;
+export type ParentScreenSettingsServiceCommandDraft = { readonly action: ParentScreenSettingsServiceBridgeAction; readonly payload: ParentUiActionPayload; readonly requestId: ParentScreenSettingsServiceRequestId };
+
+export function parentScreenSettingsRequestId(sequence: number): ParentScreenSettingsServiceRequestId {
+  return `${ParentScreenSettingsCommandRuntime.RequestIdPrefix}${sequence}` as ParentScreenSettingsServiceRequestId;
+}
+
+export function parentScreenSettingsGetCommandDraft(sequence: number): ParentScreenSettingsServiceCommandDraft {
+  const requestId = parentScreenSettingsRequestId(sequence);
+  const kind = ParentScreenSettingsUpdateKind.Get;
+  const request = { schemaVersion: ParentScreenSettingsCommandRuntime.SchemaVersion, requestId, kind };
+  return { action: ParentUiActionKind.ScreenSettingsGetRequested, payload: parentScreenSettingsCommandPayload(request, kind), requestId };
+}
+
+export function parentScreenSettingsReplaceCommandDraft(input: { readonly baseSettingVersion: number | null; readonly sequence: number; readonly setting: unknown; }): ParentScreenSettingsServiceCommandDraft {
+  const requestId = parentScreenSettingsRequestId(input.sequence);
+  const kind = ParentScreenSettingsUpdateKind.Replace;
+  const request = { schemaVersion: ParentScreenSettingsCommandRuntime.SchemaVersion, requestId, kind, baseSettingVersion: input.baseSettingVersion, setting: input.setting };
+  return { action: ParentUiActionKind.ScreenSettingsReplaceRequested, payload: parentScreenSettingsCommandPayload(request, kind), requestId };
+}
+
+function parentScreenSettingsCommandPayload(request: unknown, kind: ParentScreenSettingsUpdateKind): ParentUiActionPayload {
+  return { [ParentUiActionPayloadField.ScreenSettingsRequest]: JSON.stringify(request), [ParentUiActionPayloadField.ScreenSettingsUpdateKind]: kind };
+}
+
+export interface ParentUiAction {
+  readonly action: ParentUiActionKind;
+  readonly route: ParentRouteId;
+  readonly command?: string | null;
+  readonly payload: ParentUiActionPayload;
+}
+
+export interface ParentUiActionResult {
+  readonly schemaVersion: number;
+  readonly accepted: boolean;
+  readonly connectionState: ParentBridgeConnectionState;
+  readonly message: string;
+  readonly snapshot: ParentRouteSnapshot | null;
+  readonly events: readonly ParentRouteEventSnapshot[];
+}
+
+export type ParentUiActionCommand = NonNullable<ParentUiAction['command']>;
+export type ParentUiActionResultMessage = ParentUiActionResult['message'];
+
+export interface ParentSubscriptionEvent {
+  readonly schemaVersion: number;
+  readonly route: ParentRouteId;
+  readonly snapshot: ParentRouteSnapshot;
+  readonly events?: readonly ParentRouteEventSnapshot[] | null;
+}
+
+export interface HostBridge {
+  loadRoute(route: ParentRouteId, context?: ParentRouteContext): Promise<ParentRouteSnapshot>;
+  dispatch(action: ParentUiAction): Promise<ParentUiActionResult>;
+  subscribe(
+    route: ParentRouteId,
+    context: ParentRouteContext,
+    onEvent: (event: ParentSubscriptionEvent) => void
+  ): Promise<() => void>;
+}

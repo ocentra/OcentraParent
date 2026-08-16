@@ -1,0 +1,24 @@
+name: CI Parent Desktop Tauri
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  parent-desktop-tauri:
+    name: 'Smoke: Parent Desktop Tauri'
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-ci
+
+      - name: Parent desktop type check
+        run: npm run type-check --workspace @ocentra-parent/parent-desktop
+
+      - name: Parent desktop build
+        run: npm run build --workspace @ocentra-parent/parent-desktop

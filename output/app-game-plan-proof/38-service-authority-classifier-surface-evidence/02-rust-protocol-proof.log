@@ -1,5 +1,0 @@
-WP38 Rust protocol proof:
-- No agent-protocol schema change was required.
-- Existing protocol rows from WP29-WP31 remain the source of truth.
-- Service read models now transport row refs through existing `ActivityEvidenceRef` values with `LocalDbRow` kind.
-- No classifier/provider runtime, policy decision, or adapter execution protocol is introduced.

@@ -1,5 +1,0 @@
-workpack=22-local-parent-defined-place-database
-activity-domain tracking local place store test passed
-store boundary is parent-device-local
-remoteSyncDefault is disabled
-ocentraHostedDefaultStorage is false

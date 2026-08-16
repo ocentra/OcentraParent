@@ -1,124 +1,21 @@
 use ocentra_eventing::{
-    AggregateKey, CorrelationId, DomainEvent, EventBus, EventContract, EventId, EventMetadata,
-    EventSource, EventSubscriber, EventType, EventingError, IdempotencyKey, RecordedAt,
-    RuntimeInstanceId, SchemaVersion, SourceComponent, SourceService, SubscriberId, TargetHandler,
+    bus::subscriber::EventSubscriber, bus::EventBus, envelope::EventMetadata,
+    envelope::EventSource, error::EventingError, ids::CorrelationId, ids::EventId, ids::EventType,
+    ids::RecordedAt, ids::RuntimeInstanceId, ids::SourceComponent, ids::SourceService,
+    ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent, ChildCommandKind,
-    ChildCommandReceivedEvent, ChildRuntimeHealthUpdatedEvent, ParentActionReceivedEvent,
-    ParentChildCommandForwardRequestedEvent, ParentChildCommandForwardedEvent,
-    ParentCommandValidatedEvent, ParentControllerActionKind, ParentControllerSource,
-    ParentReadModelProjectedEvent,
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::transport::{
+    ParentChildRuntimeEventPayload, ParentChildRuntimePhase, ParentChildRuntimeReport,
 };
-use serde::{Deserialize, Serialize};
-
-use crate::ParentChildRuntimePhase;
 
 mod build;
 mod refs;
 
 use build::runtime_events_for_input;
-use refs::{parent_child_aggregate_key, parent_child_idempotency_key};
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct ParentChildRuntimeInput {
-    pub parent_intent_ref: String,
-    pub parent_profile_ref: String,
-    pub device_ref: String,
-    pub observed_at: String,
-    pub action_kind: ParentControllerActionKind,
-    pub source: ParentControllerSource,
-    pub child_command_kind: ChildCommandKind,
-}
-
-impl ParentChildRuntimeInput {
-    pub fn validated_review_fixture() -> Self {
-        Self {
-            parent_intent_ref: constants::parent_controller::TEST_PARENT_INTENT_REF.to_string(),
-            parent_profile_ref: constants::parent_controller::TEST_PARENT_PROFILE_REF.to_string(),
-            device_ref: constants::parent_controller::TEST_DEVICE_REF.to_string(),
-            observed_at: constants::activity_store::TEST_FIRST_OBSERVED_AT.to_string(),
-            action_kind: ParentControllerActionKind::Review,
-            source: ParentControllerSource::PortalTypedIntent,
-            child_command_kind: ChildCommandKind::ObserveNetwork,
-        }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum ParentChildRuntimeEventPayload {
-    ParentActionReceived(ParentActionReceivedEvent),
-    ParentCommandValidated(ParentCommandValidatedEvent),
-    ParentChildCommandForwardRequested(ParentChildCommandForwardRequestedEvent),
-    ParentChildCommandForwarded(ParentChildCommandForwardedEvent),
-    ChildCommandReceived(ChildCommandReceivedEvent),
-    ChildCommandAccepted(ChildCommandAcceptedEvent),
-    ChildCapabilityStateUpdated(ChildCapabilityStateUpdatedEvent),
-    ChildRuntimeHealthUpdated(ChildRuntimeHealthUpdatedEvent),
-    ParentReadModelProjected(ParentReadModelProjectedEvent),
-}
-
-impl ParentChildRuntimeEventPayload {
-    pub fn phase(&self) -> ParentChildRuntimePhase {
-        match self {
-            Self::ParentActionReceived(_) => ParentChildRuntimePhase::ParentActionReceived,
-            Self::ParentCommandValidated(_) => ParentChildRuntimePhase::ParentCommandValidated,
-            Self::ParentChildCommandForwardRequested(_) => {
-                ParentChildRuntimePhase::ParentChildCommandForwardRequested
-            }
-            Self::ParentChildCommandForwarded(_) => {
-                ParentChildRuntimePhase::ParentChildCommandForwarded
-            }
-            Self::ChildCommandReceived(_) => ParentChildRuntimePhase::ChildCommandReceived,
-            Self::ChildCommandAccepted(_) => ParentChildRuntimePhase::ChildCommandAccepted,
-            Self::ChildCapabilityStateUpdated(_) => {
-                ParentChildRuntimePhase::ChildCapabilityStateUpdated
-            }
-            Self::ChildRuntimeHealthUpdated(_) => {
-                ParentChildRuntimePhase::ChildRuntimeHealthUpdated
-            }
-            Self::ParentReadModelProjected(_) => ParentChildRuntimePhase::ParentReadModelProjected,
-        }
-    }
-
-    fn event_ref(&self) -> &str {
-        match self {
-            Self::ParentActionReceived(event) => &event.parent_action_event_ref,
-            Self::ParentCommandValidated(event) => &event.command_validated_event_ref,
-            Self::ParentChildCommandForwardRequested(event) => &event.forward_requested_event_ref,
-            Self::ParentChildCommandForwarded(event) => &event.forwarded_event_ref,
-            Self::ChildCommandReceived(event) => &event.command_received_event_ref,
-            Self::ChildCommandAccepted(event) => &event.command_accepted_event_ref,
-            Self::ChildCapabilityStateUpdated(event) => &event.capability_state_event_ref,
-            Self::ChildRuntimeHealthUpdated(event) => &event.runtime_health_event_ref,
-            Self::ParentReadModelProjected(event) => &event.read_model_projected_event_ref,
-        }
-    }
-}
-
-impl DomainEvent for ParentChildRuntimeEventPayload {
-    fn contract(&self) -> Result<EventContract, EventingError> {
-        Ok(EventContract::new(
-            EventType::parse(self.phase().event_type())?,
-            SchemaVersion::new(self.phase().schema_version())?,
-        ))
-    }
-
-    fn aggregate_key(&self) -> Result<AggregateKey, EventingError> {
-        AggregateKey::parse(parent_child_aggregate_key(self.event_ref()))
-    }
-
-    fn idempotency_key(&self) -> Result<IdempotencyKey, EventingError> {
-        IdempotencyKey::parse(parent_child_idempotency_key(self.event_ref()))
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct ParentChildRuntimeReport {
-    pub publish_reports: Vec<ocentra_eventing::PublishReport>,
-    pub stored_events: Vec<ocentra_eventing::StoredEventEnvelope>,
-    pub dead_letters: Vec<ocentra_eventing::DeadLetter>,
-}
+pub(crate) type ParentChildRuntimeInput =
+    ocentra_parent_agent_protocol::transport::parent_child_runtime_input::ParentChildRuntimeInput;
 
 pub async fn publish_parent_child_runtime_for_validated_intent(
     input: ParentChildRuntimeInput,
@@ -180,20 +77,20 @@ fn parent_child_event_metadata(
 }
 
 fn parent_child_event_source(phase: ParentChildRuntimePhase) -> Result<EventSource, EventingError> {
-    let component = if phase.runtime_role() == ocentra_eventing::RuntimeRole::ChildAgent {
+    let component = if phase.is_child_agent_phase() {
         constants::child_agent::RUNTIME_COMPONENT_CHILD_AGENT
     } else {
         constants::parent_controller::RUNTIME_COMPONENT_PARENT_CHILD_SPINE
     };
-    let instance = if phase.runtime_role() == ocentra_eventing::RuntimeRole::ChildAgent {
+    let instance = if phase.is_child_agent_phase() {
         constants::child_agent::RUNTIME_INSTANCE_LOCAL_CHILD_AGENT
     } else {
         constants::parent_controller::RUNTIME_INSTANCE_LOCAL_PARENT_CONTROLLER
     };
 
     Ok(EventSource::new(
-        phase.custody(),
-        phase.runtime_role(),
+        phase.custody()?,
+        phase.runtime_role()?,
         SourceService::parse(constants::peer::LOCAL_DEV_AGENT)?,
         SourceComponent::parse(component)?,
         RuntimeInstanceId::parse(instance)?,

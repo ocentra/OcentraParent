@@ -1,0 +1,1 @@
+mod generated_bridge_contracts;

@@ -1,5 +1,19 @@
 # 67. Notification Parent Surface Renderer
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `67. Notification Parent Surface Renderer`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Goal
 
 Render the WP66 app/game notification parent-surface intent read model in the
@@ -41,14 +55,14 @@ are visible without claiming notification delivery or preference mutation.
 
 ## Validation
 
-- [x] Schema-backed parent-surface intent rows render status, drill-in,
+- [ ] Schema-backed parent-surface intent rows render status, drill-in,
       scheduler/outbox, preference, quiet-hours, and manual-proof refs.
-- [x] Missing or invalid service input renders an explicit empty state instead
+- [ ] Missing or invalid service input renders an explicit empty state instead
       of inventing rows.
-- [x] The panel is gated to the App/Game Sessions route.
-- [x] Proof pack records no live service event, no parent preference mutation,
+- [ ] The panel is gated to the App/Game Sessions route.
+- [ ] Proof pack records no live service event, no parent preference mutation,
       no provider delivery, no receipt ingestion, no credentials, no production
       runtime, no child delivery, no adapter dispatch, no broad blocking, no
       mobile UI, and no platform support.
-- [x] Product checklist unchanged because this renderer proof does not move
+- [ ] Product checklist unchanged because this renderer proof does not move
       feature status and runtime/provider/platform gaps remain.

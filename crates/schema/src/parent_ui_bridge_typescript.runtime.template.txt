@@ -1,0 +1,191 @@
+export type ParentBridgeConnectionState = 'disconnected' | 'connecting' | 'connected' | 'error';
+
+export const ParentBridgeConnectionState = {
+  Disconnected: 'disconnected',
+  Connecting: 'connecting',
+  Connected: 'connected',
+  Error: 'error',
+} as const;
+
+export type ParentRouteDataSource = 'host-bridge' | 'rust-read-model' | 'dev-diagnostics' | 'unavailable';
+
+export const ParentRouteDataSource = {
+  HostBridge: 'host-bridge',
+  RustReadModel: 'rust-read-model',
+  DevDiagnostics: 'dev-diagnostics',
+  Unavailable: 'unavailable',
+} as const;
+
+export type ParentPortalTone = 'cyan' | 'gold' | 'purple' | 'red' | 'muted';
+
+export const ParentPortalTone = {
+  Cyan: 'cyan',
+  Gold: 'gold',
+  Purple: 'purple',
+  Red: 'red',
+  Muted: 'muted',
+} as const;
+
+export type ParentPortalParentAccessState =
+  | 'active-controller'
+  | 'observer-only'
+  | 'unauthenticated'
+  | 'proof-missing';
+
+export const ParentPortalParentAccessState = {
+  ActiveController: 'active-controller',
+  ObserverOnly: 'observer-only',
+  Unauthenticated: 'unauthenticated',
+  ProofMissing: 'proof-missing',
+} as const;
+
+export type ParentUnknownRecord = Record<string, unknown>;
+export type ParentUiActionPayloadValue = string | number | boolean | null;
+export type ParentUiActionPayload = Record<string, ParentUiActionPayloadValue>;
+
+__PARENT_AGENT_PROTOCOL_BRIDGE_TYPES__
+
+__PARENT_ACTIVITY_MEMORY_GRAPH_TYPES__
+
+export const ParentBridgeCommand = {
+  LoadRoute: '__PARENT_BRIDGE_COMMAND_LOAD_ROUTE__',
+  Dispatch: '__PARENT_BRIDGE_COMMAND_DISPATCH__',
+  Subscribe: '__PARENT_BRIDGE_COMMAND_SUBSCRIBE__',
+  Unsubscribe: '__PARENT_BRIDGE_COMMAND_UNSUBSCRIBE__',
+} as const;
+
+export type ParentBridgeCommandName = (typeof ParentBridgeCommand)[keyof typeof ParentBridgeCommand];
+
+export const ParentDevBridgeRoute = {
+  LoadRoute: '__PARENT_DEV_BRIDGE_ROUTE_LOAD_ROUTE__',
+  Dispatch: '__PARENT_DEV_BRIDGE_ROUTE_DISPATCH__',
+} as const;
+
+export type ParentDevBridgeRouteName = (typeof ParentDevBridgeRoute)[keyof typeof ParentDevBridgeRoute];
+
+export const ParentUiActionPayloadField = {
+  PolicyPreviewAuthoringDraft: 'policyPreviewAuthoringDraft',
+  PolicyPreviewAuthoringHandle: 'policyPreviewAuthoringHandle',
+  PolicyRequestAssistantPreviewConfirmRequest: 'policyRequestAssistantPreviewConfirmRequest',
+  PolicyRequestParentResolutionRequest: 'policyRequestParentResolutionRequest',
+  ScreenSettingsRequest: 'screenSettingsRequest',
+  ScreenSettingsResponse: 'screenSettingsResponse',
+  ScreenSettingsUpdateKind: 'screenSettingsUpdateKind',
+} as const;
+
+export const ParentScreenSettingsCommandRuntime = { SchemaVersion: __PARENT_SCREEN_SETTINGS_COMMAND_SCHEMA_VERSION__, RequestIdPrefix: '__PARENT_SCREEN_SETTINGS_REQUEST_ID_PREFIX__' } as const;
+
+export const ParentScreenSettingsUpdateKind = { Get: '__PARENT_SCREEN_SETTINGS_UPDATE_KIND_GET__', Replace: '__PARENT_SCREEN_SETTINGS_UPDATE_KIND_REPLACE__' } as const;
+
+export type ParentScreenSettingsUpdateKind =
+  (typeof ParentScreenSettingsUpdateKind)[keyof typeof ParentScreenSettingsUpdateKind];
+export type ParentScreenSettingsServiceRequestId =
+  `${typeof ParentScreenSettingsCommandRuntime.RequestIdPrefix}${number}`;
+
+export const ParentHostBridgeRuntime = {
+  SchemaVersion: __PARENT_UI_BRIDGE_SCHEMA_VERSION__,
+  DevRouteSubscriptionPollMs: __PARENT_ROUTE_SUBSCRIPTION_POLL_INTERVAL_MS__,
+  RouteHashPrefix: '__PARENT_ROUTE_HASH_PREFIX__',
+  RouteHashQuerySeparator: '__PARENT_ROUTE_HASH_QUERY_SEPARATOR__',
+  RouteSubscriptionEventPrefix: '__PARENT_ROUTE_SUBSCRIPTION_EVENT_PREFIX__',
+  UrlPathSeparator: '/',
+  PostMethod: 'POST',
+  JsonContentTypeHeader: 'content-type',
+  JsonContentType: 'application/json',
+  StringType: 'string',
+  TypeofUndefined: '__PARENT_TYPEOF_UNDEFINED__',
+  DevBridgeUrlEnvKey: '__PARENT_DEV_BRIDGE_URL_ENV_KEY__',
+  TauriCoreModule: '@tauri-apps/api/core',
+  TauriEventModule: '@tauri-apps/api/event',
+  TauriInternalWindowKey: '__PARENT_TAURI_INTERNAL_WINDOW_KEY__',
+  EmptyText: '',
+  AgentEndpointPending: 'host-bridge://pending',
+  AgentEndpointDevWeb: 'host-bridge://dev-web',
+  SeasonLabelLocal: 'LOCAL',
+  RouteCapabilityAvailable: 'available',
+  RouteCapabilityUnavailable: 'unavailable',
+  ParentAccessProofMissing: 'proof-missing',
+  HouseholdUnavailable: 'unavailable',
+  ChildDeviceUnavailable: 'unavailable',
+  UiBridgeCardId: 'ui-bridge',
+  ProductRuntimeCardId: 'product-runtime',
+  RouteCapabilityCardId: 'route-capability',
+  UiBridgeLabel: 'UI bridge',
+  ProductRuntimeLabel: 'Product runtime',
+  RouteCapabilityLabel: 'Route capability',
+  UiBridgeConnected: 'connected',
+  ManualRequired: 'manual-required',
+  BridgeConnectedDetail: 'The TSX shell is running without a Tauri host.',
+  LaunchDesktopDetail: 'Launch the desktop app to load Rust-owned route snapshots.',
+  DiagnosticsChromeOnlyDetail: 'Diagnostics chrome only.',
+  NoProductReadModelDetail: 'No product read model is attached.',
+  NoLiveSnapshotDetail: 'No live parent-route snapshot is currently available.',
+  HostBridgeEventId: 'host-bridge-event',
+  HostBridgePeerId: 'host-bridge',
+  PortalRole: 'portal',
+  InfoSeverity: 'info',
+  PrimaryAreaBridge: 'Bridge',
+  PrimaryAreaRuntime: 'Runtime',
+  PrimaryAreaRoute: 'Route',
+} as const;
+
+export type ParentRouteHashPath = `${typeof ParentHostBridgeRuntime.RouteHashPrefix}${ParentRouteId}`;
+export type ParentRouteHashQueryPath =
+  `${typeof ParentHostBridgeRuntime.RouteHashPrefix}${ParentRouteId}${typeof ParentHostBridgeRuntime.RouteHashQuerySeparator}${string}`;
+
+export function parentRouteHashPath(route: ParentRouteId): ParentRouteHashPath {
+  return `${ParentHostBridgeRuntime.RouteHashPrefix}${route}`;
+}
+
+export function parentRouteHashPathWithQuery(
+  route: ParentRouteId,
+  query: string
+): ParentRouteHashQueryPath {
+  return `${ParentHostBridgeRuntime.RouteHashPrefix}${route}${ParentHostBridgeRuntime.RouteHashQuerySeparator}${query}`;
+}
+
+export function parentRouteFromHashPath(routeHash: string): ParentRouteId | null {
+  const hashWithoutPrefix = routeHash.startsWith(ParentHostBridgeRuntime.RouteHashPrefix)
+    ? routeHash.slice(ParentHostBridgeRuntime.RouteHashPrefix.length)
+    : routeHash;
+  const normalizedHash = hashWithoutPrefix.startsWith(ParentHostBridgeRuntime.UrlPathSeparator)
+    ? hashWithoutPrefix.slice(ParentHostBridgeRuntime.UrlPathSeparator.length)
+    : hashWithoutPrefix;
+  const route =
+    normalizedHash.split(ParentHostBridgeRuntime.RouteHashQuerySeparator)[0] ??
+    ParentHostBridgeRuntime.EmptyText;
+  return isParentRoute(route) ? route : null;
+}
+
+export function isParentRoute(value: string): value is ParentRouteId {
+  return ParentRoutes.some((route) => route === value);
+}
+
+export function parentRouteSubscriptionEventName(
+  subscriptionId: string
+): string {
+  return `${ParentHostBridgeRuntime.RouteSubscriptionEventPrefix}${subscriptionId}`;
+}
+
+export function parentDevBridgeHttpError(
+  route: ParentDevBridgeRouteName,
+  status: number
+): string {
+  return `parent dev bridge ${route} failed with ${status}`;
+}
+
+export function parentDevBridgeDispatchUnavailableMessage(
+  parentDevBridgeUrl: string
+): string {
+  return `Dev web bridge could not reach ${parentDevBridgeUrl}. Launch the desktop app to load Rust-owned route snapshots.`;
+}
+
+export function parentDevBridgeUnavailableDetail(parentDevBridgeUrl: string): string {
+  return `The Rust-owned dev bridge at ${parentDevBridgeUrl} is unavailable.`;
+}
+
+export function presentationOnlyDevWebHostBridgeMessage(): string {
+  return 'Dev web host bridge is presentation-only. Launch the desktop app for product data and actions.';
+}
+
+export type ParentRouteSubscriptionId = Parameters<typeof parentRouteSubscriptionEventName>[0];

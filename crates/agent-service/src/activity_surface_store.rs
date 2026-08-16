@@ -1,15 +1,22 @@
 use std::path::PathBuf;
 
-use ocentra_parent_agent_core::ActivityStore;
-use ocentra_parent_agent_protocol::{
-    constants, ActivityNetworkFlowReadModel, AppGameServiceReadModel, BrowserEvidenceReadModel,
-    ScreenEvidenceRecentSummary,
-};
+use ocentra_parent_agent_core::activity_store::ActivityStore;
+use ocentra_parent_agent_protocol::app_game::AppGameServiceReadModel;
+use ocentra_parent_agent_protocol::browser_read_model::BrowserEvidenceReadModel;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::network_flow::ActivityNetworkFlowReadModel;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenEvidenceRecentSummary;
 
 use crate::{activity_store_path::activity_db_path, time::timestamp_now};
 
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ActivitySurfaceDeviceRefText(pub(crate) String);
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(crate) struct ActivityStorePath(pub(crate) PathBuf);
+
 pub(crate) struct ActivitySurfaceStoreSnapshot {
-    pub(crate) device_id: String,
+    pub(crate) device_id: ActivitySurfaceDeviceRefText,
     pub(crate) recent_returned: u64,
     pub(crate) last_event_id: Option<String>,
     pub(crate) last_observed_at: Option<String>,
@@ -20,15 +27,15 @@ pub(crate) struct ActivitySurfaceStoreSnapshot {
 }
 
 pub(crate) async fn local_store_snapshot() -> Option<ActivitySurfaceStoreSnapshot> {
-    local_store_snapshot_from_path(activity_db_path()).await
+    local_store_snapshot_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn local_store_snapshot_from_path(
-    path: PathBuf,
+    path: ActivityStorePath,
 ) -> Option<ActivitySurfaceStoreSnapshot> {
     tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(path).ok()?;
-        let generated_at = timestamp_now();
+        let store = ActivityStore::open(path.0).ok()?;
+        let generated_at: String = timestamp_now();
         let recent = store
             .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
             .ok()?;
@@ -57,7 +64,9 @@ pub(crate) async fn local_store_snapshot_from_path(
             )
             .ok()?;
         Some(ActivitySurfaceStoreSnapshot {
-            device_id: constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+            device_id: ActivitySurfaceDeviceRefText(
+                constants::activity_surface::DEFAULT_DEVICE_ID.to_string(),
+            ),
             recent_returned: recent.returned,
             last_event_id: recent.last_event_id,
             last_observed_at: recent.last_observed_at,
@@ -72,27 +81,15 @@ pub(crate) async fn local_store_snapshot_from_path(
     .flatten()
 }
 
-#[cfg(test)]
-pub(crate) async fn load_recent_summary_from_path(
-    path: PathBuf,
-) -> Option<ocentra_parent_agent_protocol::ActivityRecentSummary> {
-    with_store(path, |store| {
-        store
-            .recent_summary(constants::activity_store::DEFAULT_RECENT_LIMIT)
-            .ok()
-    })
-    .await
-}
-
 pub(crate) async fn load_browser_model() -> Option<BrowserEvidenceReadModel> {
-    load_browser_model_from_path(activity_db_path()).await
+    load_browser_model_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_browser_model_from_path(
-    path: PathBuf,
+    path: ActivityStorePath,
 ) -> Option<BrowserEvidenceReadModel> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .browser_evidence_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -104,14 +101,14 @@ pub(crate) async fn load_browser_model_from_path(
 }
 
 pub(crate) async fn load_network_model() -> Option<ActivityNetworkFlowReadModel> {
-    load_network_model_from_path(activity_db_path()).await
+    load_network_model_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_network_model_from_path(
-    path: PathBuf,
+    path: ActivityStorePath,
 ) -> Option<ActivityNetworkFlowReadModel> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .network_flow_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -123,14 +120,14 @@ pub(crate) async fn load_network_model_from_path(
 }
 
 pub(crate) async fn load_app_game_model() -> Option<AppGameServiceReadModel> {
-    load_app_game_model_from_path(activity_db_path()).await
+    load_app_game_model_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_app_game_model_from_path(
-    path: PathBuf,
+    path: ActivityStorePath,
 ) -> Option<AppGameServiceReadModel> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .app_game_service_read_model(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -142,14 +139,14 @@ pub(crate) async fn load_app_game_model_from_path(
 }
 
 pub(crate) async fn load_screen_summary() -> Option<ScreenEvidenceRecentSummary> {
-    load_screen_summary_from_path(activity_db_path()).await
+    load_screen_summary_from_path(ActivityStorePath(activity_db_path().into())).await
 }
 
 pub(crate) async fn load_screen_summary_from_path(
-    path: PathBuf,
+    path: ActivityStorePath,
 ) -> Option<ScreenEvidenceRecentSummary> {
     with_store(path, |store| {
-        let generated_at = timestamp_now();
+        let generated_at: String = timestamp_now();
         store
             .screen_evidence_recent_summary(
                 constants::activity_store::DEFAULT_RECENT_LIMIT,
@@ -160,13 +157,13 @@ pub(crate) async fn load_screen_summary_from_path(
     .await
 }
 
-async fn with_store<T, F>(path: PathBuf, read: F) -> Option<T>
+async fn with_store<T, F>(path: ActivityStorePath, read: F) -> Option<T>
 where
     T: Send + 'static,
     F: FnOnce(ActivityStore) -> Option<T> + Send + 'static,
 {
     tokio::task::spawn_blocking(move || {
-        let store = ActivityStore::open(path).ok()?;
+        let store = ActivityStore::open(path.0).ok()?;
         read(store)
     })
     .await

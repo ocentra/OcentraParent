@@ -1,0 +1,23 @@
+
+export function buildNetworkControlEffectivePolicyPlan(
+  policy: NetworkControlPolicyValue,
+  catalog = BaselineNetworkControlCatalog
+): NetworkControlEffectivePolicy['plans'] {
+  const settingMetadata = new Map(
+    networkControlCatalogSettings(catalog).map((setting) => [String(setting.settingId), setting] as const)
+  );
+  return policy.settings.map((policySetting) => {
+    const setting = settingMetadata.get(String(policySetting.settingId));
+    if (setting === undefined) {
+      throw new Error(`Unknown network control setting id: ${String(policySetting.settingId)}`);
+    }
+    return {
+      settingId: setting.settingId,
+      writesTo: setting.writesTo,
+      effectStatus: setting.effectStatus,
+      runtimeOwner: setting.runtimeOwner,
+      capabilityState: setting.capabilityState,
+      fallback: setting.unsafeOrUnsupportedFallback,
+    };
+  });
+}

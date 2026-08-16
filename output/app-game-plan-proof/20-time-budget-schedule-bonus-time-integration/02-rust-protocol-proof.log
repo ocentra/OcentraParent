@@ -1,8 +1,0 @@
-N/A for WP20.
-
-This workpack is TypeScript parent-domain contract proof only. No Rust protocol
-payloads, `crates/agent-protocol` structs, `agent-core` runtime helpers, or
-`agent-service` WebSocket/read-model paths were changed.
-
-Rust/service parity remains a later work item before this budget decision shape
-can cross the runtime boundary.

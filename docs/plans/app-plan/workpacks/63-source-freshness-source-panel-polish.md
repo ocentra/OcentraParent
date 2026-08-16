@@ -13,9 +13,13 @@ source freshness with fresh/manual/evidence counts.
 
 - Add a split source-panel helper for app/game source status rows.
 - Expose `sourcePanelSections` from the portal dashboard intent.
+- Render the typed source-panel sections in the existing app/game dashboard
+  side-panel stack alongside capability and evidence panels.
 - Prove app-use and game source sections in the portal intent test.
 - Keep SVG rendering and route E2E assertions as a follow-up because those files
-  are currently owned by another hub lane.
+  are now production-drafted here; route/E2E validation remains deferred.
+
+Code-pass status: code-drafted; unvalidated; tests/proof/checklist deferred.
 
 ## Proof
 

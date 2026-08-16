@@ -1,7 +1,7 @@
-use crate::{DispatchMode, EventingError};
+use crate::{DispatchMode, EventingError, ExpectValue};
 
 use super::{
-    reports::{DeadLetter, DeadLetterReason},
+    reports::dead_letter::{DeadLetter, DeadLetterReason},
     EventBus, EventBusClearReport, EventBusShutdownReport, ShutdownMode,
 };
 
@@ -10,11 +10,19 @@ impl EventBus {
         &self,
         mode: ShutdownMode,
     ) -> Result<EventBusShutdownReport, EventingError> {
-        if self.is_shutdown() {
+        if self.begin_shutdown() {
             return Ok(empty_shutdown_report(mode, true));
         }
 
-        let mut report = self.shutdown_queue(mode).await?;
+        let mut report = match self.shutdown_queue(mode).await {
+            Ok(report) => report,
+            Err(error) => {
+                self.rollback_shutdown();
+                return Err(error);
+            }
+        };
+        report.in_flight_dispatch_count = self.active_dispatches.active_count();
+        self.active_dispatches.wait_for_idle().await;
         report.subscription_count = self.clear_subscriptions_for_shutdown();
         report.aggregate_gate_count = self.clear_aggregate_gates_for_shutdown();
         let request_report = self.requests.cancel_for_shutdown();
@@ -39,7 +47,7 @@ impl EventBus {
         } else {
             None
         };
-        let remaining_queued = self.queue.take_queued();
+        let remaining_queued = self.queue.take_all_queued();
         let mut report = empty_shutdown_report(mode, false);
         report.queued_dispatched_count = drain.as_ref().map_or(0, |drain| drain.dispatched_count);
         report.queued_expired_count = drain.as_ref().map_or(0, |drain| drain.expired_count);
@@ -57,26 +65,32 @@ impl EventBus {
         Ok(report)
     }
 
-    async fn dead_letter_shutdown_queue(&self, queued: Vec<crate::queue::QueuedEnvelope>) {
-        let mut dead_letters = self.dead_letters.write().await;
-        for queued in queued {
-            dead_letters.push(DeadLetter::for_queue(
-                &queued.stored,
-                DeadLetterReason::Shutdown,
-                EventingError::BusShutdown,
-            ));
-        }
+    async fn dead_letter_shutdown_queue(&self, queued: Vec<crate::QueuedEnvelope>) {
+        let dead_letters = queued
+            .into_iter()
+            .map(|queued| {
+                DeadLetter::for_queue(
+                    &queued.stored,
+                    DeadLetterReason::Shutdown,
+                    EventingError::BusShutdown,
+                )
+            })
+            .collect::<Vec<_>>();
+        self.record_dead_letters(dead_letters).await;
     }
 
     fn clear_subscriptions_for_shutdown(&self) -> usize {
-        let mut registry = self.registry.lock().expect("event registry lock");
+        let mut registry = self.registry.lock().expect_value("event registry lock");
         let subscription_count = registry.values().map(Vec::len).sum();
         registry.clear();
         subscription_count
     }
 
     fn clear_aggregate_gates_for_shutdown(&self) -> usize {
-        let mut aggregate_gates = self.aggregate_gates.lock().expect("aggregate gate lock");
+        let mut aggregate_gates = self
+            .aggregate_gates
+            .lock()
+            .expect_value("aggregate gate lock");
         let aggregate_gate_count = aggregate_gates.len();
         aggregate_gates.clear();
         aggregate_gate_count
@@ -84,7 +98,7 @@ impl EventBus {
 
     pub async fn clear_for_test(&self) -> EventBusClearReport {
         let subscription_count = {
-            let mut registry = self.registry.lock().expect("event registry lock");
+            let mut registry = self.registry.lock().expect_value("event registry lock");
             let subscription_count = registry.values().map(Vec::len).sum();
             registry.clear();
             subscription_count
@@ -102,7 +116,10 @@ impl EventBus {
             dead_letter_count
         };
         let aggregate_gate_count = {
-            let mut aggregate_gates = self.aggregate_gates.lock().expect("aggregate gate lock");
+            let mut aggregate_gates = self
+                .aggregate_gates
+                .lock()
+                .expect_value("aggregate gate lock");
             let aggregate_gate_count = aggregate_gates.len();
             aggregate_gates.clear();
             aggregate_gate_count
@@ -124,7 +141,6 @@ impl EventBus {
         }
     }
 }
-
 fn empty_shutdown_report(mode: ShutdownMode, already_shutdown: bool) -> EventBusShutdownReport {
     EventBusShutdownReport {
         mode,
@@ -136,6 +152,7 @@ fn empty_shutdown_report(mode: ShutdownMode, already_shutdown: bool) -> EventBus
         queued_expired_count: 0,
         queued_dead_lettered_count: 0,
         queued_dropped_count: 0,
+        in_flight_dispatch_count: 0,
         pending_request_count: 0,
         completed_request_count: 0,
         timed_out_request_count: 0,

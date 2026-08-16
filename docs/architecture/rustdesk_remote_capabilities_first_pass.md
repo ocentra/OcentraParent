@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: RustDesk Remote Capabilities First Pass
+> Kind: architecture/reference documentation; read only when selected by plan route, source router, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # RustDesk Remote Capabilities First Pass
 
 Status: first-pass research and product direction note.
@@ -103,8 +116,9 @@ RustDesk's own README names the useful split:
 - `flutter`: desktop and mobile UI.
 
 Ocentra should not copy that structure exactly. It should keep Rust-first
-runtime/service code and contract-first TypeScript/Rust domain boundaries, but
-the responsibility split is valuable.
+runtime/service code and Rust-owned contracts, with TypeScript limited to
+presentation, generated DTO consumption, thin adapters, and edge validation
+where needed. The responsibility split is valuable.
 
 ## Core Borrowable Ideas
 
@@ -179,8 +193,8 @@ Ocentra direction:
 - Remote capability should not be blocked by "same LAN only" once V2 starts.
 - Route choice should be observable and testable, not hidden inside transport
   code.
-- Every route decision should be owned by domain contracts before Rust service
-  implementation.
+- Every route decision should be owned by Rust domain/schema contracts before
+  Rust service implementation.
 
 ### 4. Capability-Scoped Sessions
 
@@ -301,10 +315,11 @@ inherit that surface.
 Cleaner Ocentra choices:
 
 - Rust service first for runtime behavior.
-- TypeScript domain packages for contracts and parser tests.
-- Rust protocol crate mirrors for service boundaries.
-- Tauri or existing portal direction for parent UI where appropriate.
-- Effect Schema for runtime validation.
+- Rust-owned schema/runtime crates for product contracts, parser/serde tests,
+  route snapshots, and actions.
+- Rust protocol crate mirrors only for transport-specific service boundaries.
+- Tauri/HostBridge for product parent UI and Vite only for dev/HMR.
+- Effect Schema only for untrusted TS edges or generated validation edges.
 - No copied protobuf schema.
 - No generic remote-desktop permission model as the first product model.
 - No direct child evidence custody in Ocentra-hosted cloud by default.
@@ -400,26 +415,24 @@ remote capability proof.
 
 Start with existing boundaries:
 
-- `@ocentra-parent/parent-domain`
-  owns product-level remote route, session, heartbeat, capability, custody,
-  selected-device, and conflict states.
-- `@ocentra-parent/agent-protocol-domain`
-  owns WebSocket command/event contracts for parent-child remote intents.
-- `@ocentra-parent/endpoint-domain`
-  owns endpoint paths, route IDs, headers, and query brands.
-- `@ocentra-parent/logging-domain`
-  owns redacted remote route, relay, session, and audit log shapes.
-- `@ocentra-parent/portal-domain`
-  owns portal route IDs, DOM IDs, and command descriptors.
-- `@ocentra-parent/text-domain`
-  owns display text tokens for route/session/capability states.
-- `@ocentra-parent/activity-domain`
-  owns activity/report query contracts, not transport routing.
+- `crates/schema`
+  owns cross-boundary remote route, session, heartbeat, capability, custody,
+  selected-device, conflict, action/result, and generated UI DTO shapes.
+- `crates/parent-runtime-core`
+  owns the parent facade, HostBridge action handling, route snapshots, and
+  parent-facing read models.
 - `crates/agent-protocol`
-  mirrors Rust-facing protocol constants and structs.
+  mirrors transport-specific Rust command/event contracts for parent/child
+  remote intents only where Rust transport needs them.
+- Rust endpoint/logging/activity/domain crates
+  own product endpoint policy, proof log shape, activity/report query behavior,
+  and transport/runtime decisions.
+- TypeScript packages
+  keep only generated DTO imports, TS edge decoders, pure presentation labels,
+  DOM IDs, thin adapters, or dev/proof helpers.
 - `crates/agent-service`
-  owns runtime validation, route handling, local service behavior, and WebSocket
-  execution.
+  owns runtime validation, route handling, local service behavior, and any
+  Rust-owned parent/child transport execution.
 - `crates/agent-core`
   can own reusable route registry, queue, and persistence helpers if they become
   cross-service primitives.
@@ -503,7 +516,7 @@ When this moves from research to implementation, avoid a weak "remote status
 only" slice that cannot grow. The first slice should be narrow but structurally
 real:
 
-- typed remote route/session/capability contracts;
+- typed Rust-owned remote route/session/capability contracts;
 - real Rust parser/validation;
 - real local two-service proof;
 - deterministic relay simulation or local relay process;

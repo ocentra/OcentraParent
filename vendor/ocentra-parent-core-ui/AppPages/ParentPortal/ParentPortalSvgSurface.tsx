@@ -1,4 +1,3 @@
-// @ts-nocheck
 import {
   useCallback,
   useEffect,
@@ -70,36 +69,43 @@ import type {
   ParentPortalAppGameDashboardRow,
   ParentPortalAppGameDashboardTone,
 } from './app-game-dashboard-intent';
+import type { ParentPortalAppGameSourcePanelSection } from './app-game-source-panel-intent';
 import { WeeklySchedulerScratchPage } from './WeeklySchedulerScratchPage';
 import { AnimatedSidebarIconButton } from './AnimatedSidebarIconButton';
 import { ChatBubbleSvg, estimateChatBubbleHeight } from './ParentPortalChatBubble';
-import { defaultChatBubbleConfig as defaultRulesBubbleConfig, RulesBubbleSvgFrame } from './ParentPortalRulesBubble';
+import {
+  PortalAgentCommand as AgentCommand,
+  type PortalAgentCommandName as AgentCommandName,
+  PortalAgentLanHouseholdActionDeviceKindField,
+  PortalAgentLanHouseholdActionKind,
+  PortalAgentLanHouseholdDeviceKindValues,
+  PortalAgentLanIntentKind,
+  PortalAgentLanParentAuthority,
+  PortalAgentPeerDefaults,
+  PortalAgentProtocolField,
+  PortalAgentTargetDefaults,
+  PortalLanPairingScan,
+  type PortalRouteEventId as AgentEventId,
+} from '@ocentra-parent/portal-domain/contracts';
 import {
   PARENT_ASSISTANT_PORTAL_QUICK_ACTIONS,
+  type ParentAssistantPortalQuickActionId,
+} from '@ocentra-parent/portal-domain/parent-assistant-chat';
+import {
   PARENT_PORTAL_GUIDE_QUERY,
   PARENT_PORTAL_POLICY_GUIDE_TAB_PAGES,
   PARENT_PORTAL_POLICY_GUIDE_TOPIC_IDS,
-  PortalAssets,
-  PortalLanPairingScan,
-  PortalUnifiedChrome,
-  type ParentAssistantPortalQuickActionId,
-} from '@ocentra-parent/portal-domain/contracts';
+} from '@ocentra-parent/portal-domain/parent-portal-guide-controls';
+import { parentPortalManageLaneForRoute } from '@ocentra-parent/portal-domain/parent-portal-data';
 import {
-  BrowserPolicyDefaultAnswers,
-  browserPolicyQuestionState,
-  browserPolicyVisibleQuestions,
-  type BrowserPolicyAnswerMap,
-} from '@ocentra-parent/parent-domain/browser-control-manifest';
-import {
-  LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD,
-  LAN_HOUSEHOLD_DEVICE_KIND_VALUES,
-} from '@ocentra-parent/parent-domain/lan-pairing';
-import {
-  AgentCommand,
-  AgentProtocolDefaults,
-  type AgentCommandName,
-  type AgentEventId,
-} from '@ocentra-parent/agent-protocol-domain/contracts';
+  defaultManageTargetSelection,
+  readStoredManageTargetSelection,
+  withManageTargetSelectionDevice,
+  writeStoredManageTargetSelection,
+  type ManageTargetSelection,
+} from '@ocentra-parent/portal-domain/manage-target-selection';
+import { portalRouteFromHashPath } from '@ocentra-parent/portal-domain/routes';
+import { PortalAssets, PortalUnifiedChrome } from '@ocentra-parent/portal-domain/unified-chrome';
 import { ParentPortalPanelFrame } from './ParentPortalPanelFrame';
 import {
   AccountProfileIcon,
@@ -136,7 +142,7 @@ import {
   UpdatesSyncDocumentIcon,
   WebGlobeIcon,
   parentNavIconAssetUrls,
-} from '../../Common/NavSvgIcons';
+} from '../../Common/NavSvgIcons/ParentNavSvgIcons';
 import { ScopeToggle } from './ScopeToggle/ScopeToggle';
 import { BrowserRulesQuestionnaire, type BrowserRulesQuestion } from './BrowserRulesQuestionnaire';
 import './ParentPortalSvgSurface.css';
@@ -445,18 +451,18 @@ function assistantIconForQuickAction(id: AssistantQuickActionId): AssistantQuick
 
 function assistantThreadCreatePayload(): Record<string, string> {
   return {
-    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: 'freeform',
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+    [PortalAgentProtocolField.ParentAssistantStarterCategory]: 'freeform',
+    [PortalAgentProtocolField.ParentAssistantInputSource]: 'quick-action',
   };
 }
 
 function assistantQuickActionCommandPayload(action: AssistantQuickAction): Record<string, string> {
   return {
-    [AgentProtocolDefaults.Field.ParentAssistantQuickActionId]: action.id,
-    [AgentProtocolDefaults.Field.ParentAssistantStarterCategory]: action.id,
-    [AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId]: action.starterPromptTemplateId,
-    [AgentProtocolDefaults.Field.ParentAssistantInputText]: action.prompt,
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: 'quick-action',
+    [PortalAgentProtocolField.ParentAssistantQuickActionId]: action.id,
+    [PortalAgentProtocolField.ParentAssistantStarterCategory]: action.id,
+    [PortalAgentProtocolField.ParentAssistantPromptTemplateId]: action.starterPromptTemplateId,
+    [PortalAgentProtocolField.ParentAssistantInputText]: action.prompt,
+    [PortalAgentProtocolField.ParentAssistantInputSource]: 'quick-action',
   };
 }
 
@@ -467,13 +473,13 @@ function assistantMessageCommandPayload(
   inputSource: 'typed' | 'choice'
 ): Record<string, string> {
   const payload: Record<string, string> = {
-    [AgentProtocolDefaults.Field.ParentAssistantInputText]: prompt,
-    [AgentProtocolDefaults.Field.ParentAssistantInputSource]: inputSource,
+    [PortalAgentProtocolField.ParentAssistantInputText]: prompt,
+    [PortalAgentProtocolField.ParentAssistantInputSource]: inputSource,
   };
   if (action) {
-    payload[AgentProtocolDefaults.Field.ParentAssistantQuickActionId] = action.id;
-    payload[AgentProtocolDefaults.Field.ParentAssistantStarterCategory] = action.id;
-    payload[AgentProtocolDefaults.Field.ParentAssistantPromptTemplateId] =
+    payload[PortalAgentProtocolField.ParentAssistantQuickActionId] = action.id;
+    payload[PortalAgentProtocolField.ParentAssistantStarterCategory] = action.id;
+    payload[PortalAgentProtocolField.ParentAssistantPromptTemplateId] =
       choice?.promptTemplateId ?? action.starterPromptTemplateId;
   }
   return payload;
@@ -723,33 +729,6 @@ function truncateTextForWidth(text: string, width: number, fontSize: number, fac
   if (text.length <= maxChars) return text;
   if (maxChars <= 3) return text.slice(0, maxChars);
   return `${text.slice(0, maxChars - 3).trimEnd()}...`;
-}
-
-function wrapSvgTextLines(text: string, width: number, fontSize: number, maxLines: number, factor = 0.56): string[] {
-  const words = text.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return [''];
-  const maxChars = Math.max(8, Math.floor(width / Math.max(1, fontSize * factor)));
-  const lines: string[] = [];
-  let current = '';
-  for (const word of words) {
-    const next = current ? `${current} ${word}` : word;
-    if (next.length <= maxChars) {
-      current = next;
-      continue;
-    }
-    if (current) {
-      lines.push(current);
-    }
-    current = word;
-    if (lines.length === maxLines - 1) break;
-  }
-  if (current && lines.length < maxLines) {
-    lines.push(current);
-  }
-  if (lines.length > 0 && lines.join(' ').length < text.length) {
-    lines[lines.length - 1] = truncateTextForWidth(lines[lines.length - 1], width, fontSize, factor);
-  }
-  return lines.slice(0, maxLines);
 }
 
 function compactControlStatLabel(value: string): string {
@@ -1267,6 +1246,13 @@ function initialNavItemForContext(
   }
   return navItems.find((item) => item.label === initialNavLabel);
 }
+
+const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
+  'lan-pairing',
+  'capability-status',
+  'platforms-install',
+  'install-updates',
+]);
 
 function deviceOpsNavItemForRoute(navItems: NavItem[], routePath: string): NavItem | undefined {
   if (!MANAGE_DEVICE_OPS_ROUTE_KEYS.has(assetKey(routePath))) return undefined;
@@ -2203,7 +2189,6 @@ function ParentPortalSectionFrame({
     footer: footerRect,
     headerH: resolvedHeaderH,
   } = parentPortalFrameRects(x, y, w, h, footerH, headerH, bodyInset);
-  const cut = Math.max(6, Math.min(cfg.chrome.panelCut, 12));
   const interactive = Boolean(onSelect);
   const active = selected || hovered;
   const headerInset = Math.max(48, Math.min(76, w * 0.045));
@@ -3858,13 +3843,7 @@ type ManageControlSpec = {
 };
 
 type ManageLaneId = 'portal' | 'childPolicy' | 'deviceOps';
-type ManageScopeId = 'global' | 'perDevice';
-
-type ManageTargetSelection = {
-  readonly scope: ManageScopeId;
-  readonly device: string;
-  readonly browser: string;
-};
+type ManageScopeId = ManageTargetSelection['scope'];
 
 type ManageTargetChoice = {
   readonly label: string;
@@ -3908,78 +3887,11 @@ const MANAGE_LANES: readonly {
   { id: 'deviceOps', label: 'DEVICE', detail: '', tone: 'purple' },
 ];
 
-const MANAGE_ROUTE_KEYS = new Set([
-  'activity',
-  'browser-settings',
-  'policy-apps',
-  'policy-games',
-  'policy-screen',
-  'policy-network',
-  'policy-tracking',
-  'policy-remote-screen',
-  'rule-management',
-  'schedules',
-  'approvals',
-  'enforcement',
-  'screen-analysis',
-  'app-game-sessions',
-  'network-activity',
-  'memory-settings',
-  'ai-runtime',
-  'api-providers',
-  'remote-access',
-  'subscription',
-  'platforms-install',
-  'devices',
-  'lan-pairing',
-  'capability-status',
-  'notifications',
-  'notification-channels',
-  'drive-connections',
-  'export-retention',
-  'report-compiler',
-  'audit-history',
-  'entitlements',
-  'install-updates',
-  'diagnostics',
-  'settings-rules',
-]);
-
-const MANAGE_DEVICE_OPS_ROUTE_KEYS = new Set([
-  'devices',
-  'lan-pairing',
-  'capability-status',
-  'remote-access',
-  'platforms-install',
-  'install-updates',
-]);
-
-const MANAGE_CHILD_POLICY_ROUTE_KEYS = new Set([
-  'activity',
-  'browser-settings',
-  'policy-apps',
-  'policy-games',
-  'policy-screen',
-  'policy-network',
-  'policy-tracking',
-  'policy-remote-screen',
-  'rule-management',
-  'schedules',
-  'approvals',
-  'enforcement',
-  'screen-analysis',
-  'app-game-sessions',
-  'network-activity',
-  'report-compiler',
-  'ai-runtime',
-  'memory-settings',
-]);
-
-function manageLaneForRouteKey(routeKey: string): ManageLaneId | null {
-  if (MANAGE_DEVICE_OPS_ROUTE_KEYS.has(routeKey)) return 'deviceOps';
-  if (MANAGE_CHILD_POLICY_ROUTE_KEYS.has(routeKey)) return 'childPolicy';
-  if (MANAGE_ROUTE_KEYS.has(routeKey)) return 'portal';
-  return null;
+function manageLaneForRoutePath(routePath: string | undefined): ManageLaneId | null {
+  if (typeof routePath !== 'string') return null;
+  const route = portalRouteFromHashPath(routePath);
+  if (route === null) return null;
+  return parentPortalManageLaneForRoute(route);
 }
 
 function guideRoutePathForManageKey(activeNavLabel: string, selectedControlName: string): string {
@@ -4112,7 +4024,7 @@ function manageLaneForKey(activeNavLabel: string, selectedControlName: string): 
 }
 
 function manageLaneForControl(control: ControlArea | QuickControl): ManageLaneId {
-  const routeLane = manageLaneForRouteKey(assetKey(control.routePath));
+  const routeLane = manageLaneForRoutePath(control.routePath);
   if (routeLane) return routeLane;
   return manageLaneForKey(
     control.name,
@@ -4198,7 +4110,9 @@ function uniqueManageDeviceChoices(choices: readonly string[]): readonly string[
 }
 
 function manageDefaultDeviceSelection(spec: ManageControlSpec, runtimeSlots: readonly DeviceSlot[] = []): string {
-  return manageDeviceChoices(spec.devices, runtimeSlots)[0] ?? '';
+  void spec;
+  void runtimeSlots;
+  return '';
 }
 
 function manageInitialScopeForSpec(
@@ -4247,12 +4161,67 @@ function reportPlanSeatSlots(planSeatLimit: number): DeviceSlot[] {
   return slots;
 }
 
-function reportSelectedSlotValue(slots: readonly DeviceSlot[], device: string): string | undefined {
-  return slots.find((slot) => slot.label === device || slot.device?.name === device)?.value;
+function reportSelectedSlot(slots: readonly DeviceSlot[], selection: ManageTargetSelection): DeviceSlot | undefined {
+  return slots.find((slot) => slotMatchesManageTargetSelection(slot, selection));
 }
 
-function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], device: string): boolean {
-  return Boolean(reportSelectedSlotValue(slots, device));
+function selectedDeviceIdentity(slot: DeviceSlot | null | undefined): string {
+  return slot?.device?.name ?? slot?.label ?? '';
+}
+
+function reportSelectedSlotValue(slots: readonly DeviceSlot[], selection: ManageTargetSelection): string | undefined {
+  return reportSelectedSlot(slots, selection)?.value;
+}
+
+function storedManageTargetSelectionSlot(
+  slots: readonly DeviceSlot[],
+  selection: ManageTargetSelection
+): DeviceSlot | null {
+  if (selection.scope !== 'perDevice' || reportSelectedSlot(slots, selection)) return null;
+  const deviceId = selection.deviceId.trim();
+  const deviceLabel = selection.device.trim();
+  if (deviceId.length === 0 && deviceLabel.length === 0) return null;
+  const slotValue =
+    deviceId.length > 0 ? deviceId : `stored-manage-target-${assetKey(deviceLabel) || slots.length + 1}`;
+  const deviceName = deviceLabel.length > 0 ? deviceLabel : deviceId;
+  return {
+    value: slotValue,
+    label: deviceName,
+    status: 'offline',
+    slotIndex: slots.length,
+    device: {
+      id: slotValue,
+      name: deviceName,
+      status: 'offline',
+      portalEligible: true,
+    },
+  };
+}
+
+function withStoredManageTargetSelectionSlot(
+  slots: readonly DeviceSlot[],
+  selection: ManageTargetSelection
+): readonly DeviceSlot[] {
+  const storedSlot = storedManageTargetSelectionSlot(slots, selection);
+  return storedSlot ? [...slots, storedSlot] : slots;
+}
+
+function slotMatchesManageTargetSelection(slot: DeviceSlot, selection: ManageTargetSelection): boolean {
+  return (
+    (selection.deviceId.length > 0 && slot.value === selection.deviceId) ||
+    (selection.device.length > 0 && (slot.label === selection.device || slot.device?.name === selection.device))
+  );
+}
+
+function reportDeviceSelectionAvailable(slots: readonly DeviceSlot[], selection: ManageTargetSelection): boolean {
+  return Boolean(reportSelectedSlot(slots, selection));
+}
+
+function selectedManageTargetSelectionForSlot(
+  selection: ManageTargetSelection,
+  slot: DeviceSlot | null | undefined
+): ManageTargetSelection {
+  return withManageTargetSelectionDevice(selection, slot?.value ?? '', selectedDeviceIdentity(slot));
 }
 
 type ManageDeviceGridConfigOverride = NonNullable<DeviceChoiceGridProps['config']>;
@@ -4512,10 +4481,14 @@ function lanPairingDeviceSource(slot: DeviceSlot): string {
 
 function lanPairingDeviceControlState(slot: DeviceSlot): string {
   const state = slot.device?.sourceState || slot.badge || slot.status;
-  if (lanPairingDeviceIsInfrastructure(slot) || slot.status === 'unsupported') return 'Visible only';
+  if (lanPairingDeviceIsInfrastructure(slot)) return 'Visible only';
+  if (state === 'ignored') return 'Ignored';
+  if (state === 'revoked') return 'Revoked';
   if (state === 'manual-required') return 'Manual required';
+  if (state === 'stale') return 'Stale';
   if (state === 'unavailable' || state === 'degraded') return lanPairingHumanLabel(state);
-  if (slot.status === 'offline') return 'Offline';
+  if (slot.status === 'offline' || state === 'offline') return 'Offline';
+  if (slot.status === 'unsupported') return 'Visible only';
   if (slot.status === 'connected' && lanPairingDeviceHasAgent(slot)) return 'Policy target';
   if (lanPairingDeviceHasAgent(slot)) return 'Setup needed';
   return 'Visible only';
@@ -4833,7 +4806,7 @@ function LanPairingDeviceEditDialog({
               onChange={(event) => onDeviceKindChange(event.currentTarget.value as DeviceKind)}
               style={fieldStyle}
             >
-              {LAN_HOUSEHOLD_DEVICE_KIND_VALUES.map((kind) => (
+              {PortalAgentLanHouseholdDeviceKindValues.map((kind) => (
                 <option key={`lan-device-kind:${kind}`} value={kind}>
                   {lanPairingDeviceKindOptionLabel(kind)}
                 </option>
@@ -4896,21 +4869,21 @@ function lanPairingActionButtonsFor(slot: DeviceSlot | null): readonly LanPairin
       'Trust',
       'cyan',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Trust)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Trust)
     ),
     lanPairingActionButton(
       'ignore',
       'Ignore',
       'gold',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Ignore)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Ignore)
     ),
     lanPairingActionButton(
       'restore',
       'Restore',
       'purple',
       AgentCommand.LanPairingAddDeviceRequest,
-      lanPairingHouseholdActionCommandPayload(slot, AgentProtocolDefaults.LanHouseholdActionKind.Restore)
+      lanPairingHouseholdActionCommandPayload(slot, PortalAgentLanHouseholdActionKind.Restore)
     ),
     lanPairingActionButton(
       'revoke',
@@ -4956,12 +4929,12 @@ function lanPairingAddDeviceCommandPayload(slot: DeviceSlot | null): Record<stri
   const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   const origin = typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin;
   return {
-    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
-    [AgentProtocolDefaults.Field.LanParentDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
-    [AgentProtocolDefaults.Field.Origin]: origin,
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.StaleAt]: expiresAt,
+    [PortalAgentProtocolField.LanChildDeviceId]: childDeviceId,
+    [PortalAgentProtocolField.LanParentDeviceId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanRouteId]: routeId,
+    [PortalAgentProtocolField.Origin]: origin,
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.StaleAt]: expiresAt,
   };
 }
 
@@ -4980,27 +4953,27 @@ function lanPairingHouseholdActionCommandPayload(
   const canonicalDeviceId = slot.device?.id || slot.value;
   if (override.requiresRoute !== false && !basePayload) return null;
   if (!canonicalDeviceId) return null;
-  const issuedAt = basePayload?.[AgentProtocolDefaults.Field.StartedAt] ?? new Date().toISOString();
+  const issuedAt = basePayload?.[PortalAgentProtocolField.StartedAt] ?? new Date().toISOString();
   const payload: Record<string, string> = {
     ...(basePayload ?? {}),
-    [AgentProtocolDefaults.Field.Origin]:
-      basePayload?.[AgentProtocolDefaults.Field.Origin] ??
+    [PortalAgentProtocolField.Origin]:
+      basePayload?.[PortalAgentProtocolField.Origin] ??
       (typeof window === 'undefined' ? 'http://127.0.0.1:4678' : window.location.origin),
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanHouseholdActionKind]: actionKind,
-    [AgentProtocolDefaults.Field.LanCanonicalDeviceId]: canonicalDeviceId,
-    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.LanHouseholdActionId]: `lan-ui-${actionKind}-${Date.now()}`,
+    [PortalAgentProtocolField.LanHouseholdActionKind]: actionKind,
+    [PortalAgentProtocolField.LanCanonicalDeviceId]: canonicalDeviceId,
+    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanHouseholdActionDisplayName]: override.displayName || lanPairingDeviceName(slot),
   };
   if (slot.device?.childProfileId) {
-    payload[AgentProtocolDefaults.Field.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
+    payload[PortalAgentProtocolField.LanHouseholdActionChildProfileId] = slot.device.childProfileId;
   }
   if (override.deviceKind) {
-    payload[LAN_HOUSEHOLD_ACTION_DEVICE_KIND_FIELD] = override.deviceKind;
+    payload[PortalAgentLanHouseholdActionDeviceKindField] = override.deviceKind;
   }
-  if (actionKind === AgentProtocolDefaults.LanHouseholdActionKind.Ignore) {
-    payload[AgentProtocolDefaults.Field.LanHouseholdActionRevokedAt] = issuedAt;
+  if (actionKind === PortalAgentLanHouseholdActionKind.Ignore) {
+    payload[PortalAgentProtocolField.LanHouseholdActionRevokedAt] = issuedAt;
   }
   return payload;
 }
@@ -5016,21 +4989,21 @@ function lanPairingRouteIntentCommandPayload(slot: DeviceSlot | null): Record<st
   const staleAt = slot.device?.expiresAt || new Date(Date.now() + 5 * 60 * 1000).toISOString();
   const leaseExpiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
   return {
-    [AgentProtocolDefaults.Field.LanIntentId]: `lan-ui-intent-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanIntentKind]: AgentProtocolDefaults.LanIntentKind.ConfigurationUpdate,
-    [AgentProtocolDefaults.Field.LanChildDeviceId]: childDeviceId,
-    [AgentProtocolDefaults.Field.LanRouteId]: routeId,
-    [AgentProtocolDefaults.Field.LanPairingId]: pairingId,
-    [AgentProtocolDefaults.Field.LanProofDigest]: proofDigest,
-    [AgentProtocolDefaults.Field.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
-    [AgentProtocolDefaults.Field.StartedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.StaleAt]: staleAt,
-    [AgentProtocolDefaults.Field.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
-    [AgentProtocolDefaults.Field.LanControllerDeviceId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanParentActorId]: AgentProtocolDefaults.Peer.PortalDev.peerId,
-    [AgentProtocolDefaults.Field.LanParentAuthority]: AgentProtocolDefaults.LanParentAuthority.ActiveController,
-    [AgentProtocolDefaults.Field.LanControllerLeaseIssuedAt]: issuedAt,
-    [AgentProtocolDefaults.Field.LanControllerLeaseExpiresAt]: leaseExpiresAt,
+    [PortalAgentProtocolField.LanIntentId]: `lan-ui-intent-${Date.now()}`,
+    [PortalAgentProtocolField.LanIntentKind]: PortalAgentLanIntentKind.ConfigurationUpdate,
+    [PortalAgentProtocolField.LanChildDeviceId]: childDeviceId,
+    [PortalAgentProtocolField.LanRouteId]: routeId,
+    [PortalAgentProtocolField.LanPairingId]: pairingId,
+    [PortalAgentProtocolField.LanProofDigest]: proofDigest,
+    [PortalAgentProtocolField.Origin]: slot.device?.origin || lanPairingPortalOrigin(),
+    [PortalAgentProtocolField.StartedAt]: issuedAt,
+    [PortalAgentProtocolField.StaleAt]: staleAt,
+    [PortalAgentProtocolField.LanControllerLeaseId]: `lan-ui-lease-${Date.now()}`,
+    [PortalAgentProtocolField.LanControllerDeviceId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanParentActorId]: PortalAgentPeerDefaults.PortalDev.peerId,
+    [PortalAgentProtocolField.LanParentAuthority]: PortalAgentLanParentAuthority.ActiveController,
+    [PortalAgentProtocolField.LanControllerLeaseIssuedAt]: issuedAt,
+    [PortalAgentProtocolField.LanControllerLeaseExpiresAt]: leaseExpiresAt,
   };
 }
 
@@ -5918,7 +5891,6 @@ function ParentPortalAppGameDashboardPanel({
   const compact = w < 860;
   const headerH = 72;
   const bodyY = y + headerH;
-  const bodyH = Math.max(1, h - headerH);
   const metricColumns = w > 1220 ? 5 : w > 900 ? 4 : 2;
   const metricRows = Math.ceil(Math.min(dashboard.metrics.length, compact ? 6 : 10) / metricColumns);
   const metricGap = 8;
@@ -5937,7 +5909,7 @@ function ParentPortalAppGameDashboardPanel({
   const visibleRowCount = Math.max(1, Math.floor(Math.max(1, lowerH - 32) / (rowCardH + rowGap)) * rowsColumns);
   const visibleRows = dashboard.rows.slice(0, visibleRowCount);
   const sideX = x + rowsW + 14;
-  const sidePanelH = compact ? 0 : (lowerH - 10) / 2;
+  const sidePanelH = compact ? 0 : (lowerH - 20) / 3;
   const summaryLines = wrapCardText(dashboard.summary, w - 24, 12, 2);
 
   return (
@@ -6018,6 +5990,15 @@ function ParentPortalAppGameDashboardPanel({
             y={lowerY + sidePanelH + 10}
             w={sideW}
             h={sidePanelH}
+            title="SOURCE FRESHNESS"
+            rows={appGameSourcePanelMetrics(dashboard.sourcePanelSections)}
+            cfg={cfg}
+          />
+          <ParentPortalAppGameDashboardMetricList
+            x={sideX}
+            y={lowerY + (sidePanelH + 10) * 2}
+            w={sideW}
+            h={sidePanelH}
             title="EVIDENCE DRAWER"
             rows={dashboard.evidenceRows}
             cfg={cfg}
@@ -6026,6 +6007,23 @@ function ParentPortalAppGameDashboardPanel({
       )}
     </g>
   );
+}
+
+function appGameSourcePanelMetrics(
+  sections: readonly ParentPortalAppGameSourcePanelSection[]
+): readonly ParentPortalAppGameDashboardMetric[] {
+  return sections.flatMap((section) => [
+    {
+      label: section.title,
+      value: section.subtitle,
+      tone: section.tone,
+    },
+    {
+      label: `${section.title} evidence`,
+      value: `${section.evidenceCount} refs; ${section.manualRequiredCount} manual-required`,
+      tone: section.evidenceCount > 0 ? 'cyan' : 'gold',
+    },
+  ]);
 }
 
 function ParentPortalAppGameDashboardMetricCard({
@@ -7221,6 +7219,12 @@ function managePolicyAreaIcon(activeNavLabel: string, selectedControlName: strin
 }
 
 function manageWorkspaceTargetOptions(kind: ManageWorkspaceKind): readonly ManageWorkspaceTargetOption[] {
+  if (kind === 'account') {
+    return [
+      { id: 'family', label: 'Family', detail: 'Family plan, support, and gate defaults.', tone: 'cyan' },
+      { id: 'perDevice', label: 'Per Device', detail: 'Child seat, entitlement, and support scope.', tone: 'gold' },
+    ];
+  }
   if (kind === 'policy') {
     return [
       { id: 'family', label: 'Family', detail: 'Family default policy.', tone: 'cyan' },
@@ -7249,6 +7253,17 @@ function manageWorkspaceTargetLabel(target: ManageWorkspaceTarget): string {
   return 'Family';
 }
 
+function sharedWorkspaceTargetForOptions(
+  targetOptions: readonly ManageWorkspaceTargetOption[],
+  sharedTargetSelection: ManageTargetSelection
+): ManageWorkspaceTarget {
+  const defaultTarget = targetOptions[0]?.id ?? 'family';
+  if (!targetOptions.some((option) => option.id === 'perDevice')) {
+    return defaultTarget;
+  }
+  return sharedTargetSelection.scope === 'perDevice' ? 'perDevice' : defaultTarget;
+}
+
 function manageWorkspaceSummary(
   kind: ManageWorkspaceKind,
   activeTab: string,
@@ -7264,9 +7279,10 @@ function manageWorkspaceSummary(
     return 'Parent profile defaults, privacy posture, login protection, and console preferences.';
   }
   if (kind === 'account') {
-    if (activeTab === 'access') return 'Entitlements, grace mode, seat limits, and feature gates.';
-    if (activeTab === 'support') return 'Send a parent-authored support message from this screen.';
-    return 'Trial, plan cards, device seats, external AI credits, and upgrade/downgrade intent.';
+    const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
+    if (activeTab === 'access') return `Review ${target} entitlements, grace mode, seat limits, and feature gates.`;
+    if (activeTab === 'support') return `Send a parent-authored support message for the ${target} account scope.`;
+    return `Review ${target} trial posture, plan cards, device seats, external AI credits, and upgrade intent.`;
   }
   if (kind === 'data') {
     const target = manageWorkspaceTargetLabel(workspaceTarget).toLowerCase();
@@ -7940,7 +7956,7 @@ function manageWorkspaceCards(
       {
         label: 'Scope',
         value: 'View only',
-        body: 'Remote input/control remains a separate later capability, not part of the live-view stub.',
+        body: 'Remote input/control remains a separate later capability, not part of the live-view display boundary.',
         tone: 'purple',
       },
     ];
@@ -8032,7 +8048,7 @@ function manageWorkspaceCards(
       {
         label: 'Fallback',
         value: 'Explain',
-        body: 'Unsupported enforcement should become visible advice, not fake success.',
+        body: 'Unsupported enforcement should become visible advice, not an unverified success claim.',
         tone: 'purple',
       },
     ];
@@ -8915,7 +8931,7 @@ function managePolicySettingRows(
       },
       {
         label: 'Unavailable adapter',
-        value: 'No fake success',
+        value: 'No adapter success claim',
         body: 'Adapter-unavailable states remain visible and cannot be hidden by portal UI.',
         tone: 'red',
       },
@@ -9204,6 +9220,14 @@ const POLICY_FIRST_PASS_COMMON_OPTIONS = {
 } as const;
 
 const POLICY_FIRST_PASS_AREA_TARGETS = {
+  Browser: [
+    { value: 'site-domain', label: 'Site domain' },
+    { value: 'page-title', label: 'Page title' },
+    { value: 'navigation-route', label: 'Navigation route' },
+    { value: 'tab-session', label: 'Tab/session' },
+    { value: 'download-target', label: 'Download target' },
+    { value: 'unknown-site', label: 'Unknown site' },
+  ],
   Apps: [
     { value: 'installed-apps', label: 'Installed apps' },
     { value: 'running-processes', label: 'Running processes' },
@@ -9255,6 +9279,13 @@ const POLICY_FIRST_PASS_AREA_TARGETS = {
 } as const satisfies Record<string, readonly BrowserRulesChoiceOption[]>;
 
 const POLICY_FIRST_PASS_AREA_PROOF = {
+  Browser: [
+    { value: 'url-title', label: 'URL/title' },
+    { value: 'history-row', label: 'History row' },
+    { value: 'page-snapshot', label: 'Page snapshot' },
+    { value: 'network-trace', label: 'Network trace' },
+    { value: 'block-signal', label: 'Block signal' },
+  ],
   Apps: [
     { value: 'process-window', label: 'Process + window' },
     { value: 'install-records', label: 'Install records' },
@@ -9506,71 +9537,67 @@ function BrowserRulesGridGuide({
   onEnforcementChange: (value: string) => void;
   onInfoClick?: () => void;
 }) {
+  const questionDefinitions = useMemo(() => policyFirstPassRuleQuestions('Browser'), []);
   const [collapsedBubbleIds, setCollapsedBubbleIds] = useState<readonly string[]>([]);
   const [bubbleEnforcementChoices, setBubbleEnforcementChoices] = useState<Record<string, string>>({});
-  const [draftSingleChoices, setDraftSingleChoices] = useState<Record<string, string>>({});
-  const [draftMultiSelections, setDraftMultiSelections] = useState<Record<string, readonly string[]>>({});
-  const answers: BrowserPolicyAnswerMap = useMemo(() => {
-    const merged: Record<string, readonly string[]> = { ...BrowserPolicyDefaultAnswers };
+  const [singleChoices, setSingleChoices] = useState<Record<string, string>>({ 1: 'on', 5: 'ask-parent' });
+  const [multiSelections, setMultiSelections] = useState<Record<string, readonly string[]>>({
+    2: ['observe', 'ask-parent', 'limit', 'block'],
+    3: questionDefinitions[2]?.options.slice(0, 3).map((option) => option.value) ?? [],
+    4: questionDefinitions[3]?.options.slice(0, 2).map((option) => option.value) ?? [],
+  });
 
-    Object.entries(draftSingleChoices).forEach(([questionId, value]) => {
-      if (value.length > 0) merged[questionId] = [value];
+  useEffect(() => {
+    setCollapsedBubbleIds([]);
+    setBubbleEnforcementChoices({});
+    setSingleChoices({ 1: 'on', 5: 'ask-parent' });
+    setMultiSelections({
+      2: ['observe', 'ask-parent', 'limit', 'block'],
+      3: questionDefinitions[2]?.options.slice(0, 3).map((option) => option.value) ?? [],
+      4: questionDefinitions[3]?.options.slice(0, 2).map((option) => option.value) ?? [],
     });
-    Object.entries(draftMultiSelections).forEach(([questionId, selected]) => {
-      if (selected.length > 0) merged[questionId] = selected;
-    });
+  }, [questionDefinitions]);
 
-    return merged as BrowserPolicyAnswerMap;
-  }, [draftMultiSelections, draftSingleChoices]);
-  const visibleQuestions = browserPolicyVisibleQuestions(answers, 'rules');
-  const toggleCollapsedBubble = (id: string, collapsed: boolean) => {
-    setCollapsedBubbleIds((current) => {
-      const hasId = current.includes(id);
-      if (collapsed && !hasId) return [...current, id];
-      if (!collapsed && hasId) return current.filter((currentId) => currentId !== id);
-      return current;
-    });
-  };
-  const setQuestionEnforcementChoice = (id: string, nextValue: string) => {
-    setBubbleEnforcementChoices((current) => ({ ...current, [id]: nextValue }));
-    onEnforcementChange(nextValue);
-  };
-  const setQuestionAnswer = (id: string, multiSelect: boolean, selected: readonly string[]) => {
-    if (multiSelect) {
-      setDraftMultiSelections((current) => ({ ...current, [id]: selected }));
-      return;
-    }
-
-    setDraftSingleChoices((current) => ({ ...current, [id]: selected[0] ?? '' }));
-    if (id === '1.1') {
-      setCollapsedBubbleIds([]);
-    }
-  };
-  const questions: readonly BrowserRulesQuestion[] = visibleQuestions.map((question) => {
-    const state = browserPolicyQuestionState(question, answers);
-    const selected = answers[question.id] ?? [];
+  const policyOff = singleChoices[1] === 'off';
+  const questions: readonly BrowserRulesQuestion[] = questionDefinitions.map((question) => {
     const multiSelect = question.selectionMode === 'multi';
-    const questionDisabled = disabled === true || state.disabled || state.readonly;
-    const rootOff = answers['1.1']?.[0] === 'off';
+    const selected = multiSelect ? (multiSelections[question.id] ?? []) : [singleChoices[question.id] ?? ''];
+    const questionDisabled = disabled === true || (policyOff && question.id !== '1');
     return {
       id: question.id,
       header: `${question.id}. ${question.title}`,
       title: question.id,
       kind: 'multi',
       disabled: questionDisabled,
-      enforcementDisabled: question.id === '1.1' ? rootOff : questionDisabled,
+      enforcementDisabled: question.id === '1' ? policyOff : questionDisabled,
       multiSelect,
       selected,
-      options: question.options.map((option) => ({
-        value: option.id,
-        label: option.label,
-      })),
+      options: question.options,
       collapsed: collapsedBubbleIds.includes(question.id),
-      onCollapsedChange: (nextCollapsed) => toggleCollapsedBubble(question.id, nextCollapsed),
-      onMultiChange: (nextSelected) => setQuestionAnswer(question.id, multiSelect, nextSelected),
+      onCollapsedChange: (nextCollapsed) => {
+        setCollapsedBubbleIds((current) => {
+          const hasId = current.includes(question.id);
+          if (nextCollapsed && !hasId) return [...current, question.id];
+          if (!nextCollapsed && hasId) return current.filter((currentId) => currentId !== question.id);
+          return current;
+        });
+      },
+      onMultiChange: (nextSelected) => {
+        if (multiSelect) {
+          setMultiSelections((current) => ({ ...current, [question.id]: nextSelected }));
+          return;
+        }
+        setSingleChoices((current) => ({ ...current, [question.id]: nextSelected[0] ?? '' }));
+        if (question.id === '1') {
+          setCollapsedBubbleIds([]);
+        }
+      },
       enforcementValue:
-        question.id === '1.1' && rootOff ? 'observe' : (bubbleEnforcementChoices[question.id] ?? enforcementChoice),
-      onEnforcementChange: (nextValue) => setQuestionEnforcementChoice(question.id, nextValue),
+        question.id === '1' && policyOff ? 'observe' : (bubbleEnforcementChoices[question.id] ?? enforcementChoice),
+      onEnforcementChange: (nextValue) => {
+        setBubbleEnforcementChoices((current) => ({ ...current, [question.id]: nextValue }));
+        onEnforcementChange(nextValue);
+      },
     };
   });
 
@@ -9588,47 +9615,6 @@ function BrowserRulesGridGuide({
   );
 }
 
-const BROWSER_POLICY_SCHEDULE_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-const BROWSER_POLICY_SCHEDULE_HOURS = [
-  '00',
-  '01',
-  '02',
-  '03',
-  '04',
-  '05',
-  '06',
-  '07',
-  '08',
-  '09',
-  '10',
-  '11',
-  '12',
-  '13',
-  '14',
-  '15',
-  '16',
-  '17',
-  '18',
-  '19',
-  '20',
-  '21',
-  '22',
-  '23',
-] as const;
-const BROWSER_POLICY_SCHEDULE_LAYOUT = {
-  boardInset: 8,
-  boardPad: 8,
-  legendHeight: 32,
-  dayLabelWidth: 60,
-  minCellSize: 44,
-  maxFitCellSize: 72,
-  maxZoomedCellSize: 92,
-  scrollBarSize: 16,
-  zoomMin: 0.72,
-  zoomMax: 1.72,
-  zoomStep: 0.16,
-} as const;
-const BROWSER_POLICY_SCHEDULE_MODES = ['Default rules', 'Allow exception', 'Ask parent', 'Limit', 'Block'] as const;
 const BROWSER_POLICY_APPROVAL_ROWS = [
   ['Unknown site', 'Ask', 'Yes', 'Deny', 'Once', 'Full'],
   ['Blocked site', 'Ask', 'Yes', 'Wait', 'Session', 'Full'],
@@ -9724,14 +9710,6 @@ const POLICY_BUDGET_ROWS_BY_AREA = {
   ],
 } as const;
 const BROWSER_POLICY_BUDGET_COLUMNS = ['Budget', 'What counts', 'Cap', 'Schedule link', 'Override'] as const;
-const BROWSER_POLICY_AUDIT_ROWS = [
-  ['Effective policy', 'Family + override', 'Before apply', 'Pass / conflict'],
-  ['Rule vs schedule', 'Action windows', 'Before apply', 'No overlap'],
-  ['Budget proof', 'Cap + evidence path', 'Before apply', 'Timer ready'],
-  ['Approval expiry', 'Ask result fallback', 'On request', 'Typed outcome'],
-  ['Capability state', 'Adapter support', 'Before enforce', 'Ready / unavailable'],
-  ['Audit custody', 'Event refs only', 'After apply', 'Retained'],
-] as const;
 const BROWSER_POLICY_AUDIT_COLUMNS = ['Check', 'Verifies', 'When', 'Result'] as const;
 const BROWSER_POLICY_MATRIX_COLORS = {
   defaultRules: '#37d7ff',
@@ -10046,532 +10024,6 @@ function BrowserPolicyBudgetMatrix({
   );
 }
 
-function BrowserPolicyScheduleMatrix({
-  policyAreaLabel,
-  x,
-  y,
-  w,
-  h,
-  disabled,
-  cfg,
-}: {
-  policyAreaLabel: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  disabled?: boolean;
-  cfg: ParentPortalSvgControls;
-}) {
-  void policyAreaLabel;
-  const [scheduleScrollX, setScheduleScrollX] = useState(0);
-  const [scheduleScrollY, setScheduleScrollY] = useState(0);
-  const [scheduleZoom, setScheduleZoom] = useState(1);
-  const [schedulePanDrag, setSchedulePanDrag] = useState<{
-    readonly clientX: number;
-    readonly clientY: number;
-    readonly scrollX: number;
-    readonly scrollY: number;
-  } | null>(null);
-  const boardX = x + BROWSER_POLICY_SCHEDULE_LAYOUT.boardInset;
-  const boardY = y + 10;
-  const availableBoardW = Math.max(1, w - BROWSER_POLICY_SCHEDULE_LAYOUT.boardInset * 2);
-  const availableBoardH = Math.max(1, h - 20);
-  const boardPad = BROWSER_POLICY_SCHEDULE_LAYOUT.boardPad;
-  const legendH = BROWSER_POLICY_SCHEDULE_LAYOUT.legendHeight;
-  const labelW = BROWSER_POLICY_SCHEDULE_LAYOUT.dayLabelWidth;
-  const scrollBarSize = BROWSER_POLICY_SCHEDULE_LAYOUT.scrollBarSize;
-  const availableBodyW = Math.max(1, availableBoardW - labelW - scrollBarSize - boardPad * 2);
-  const availableBodyH = Math.max(1, availableBoardH - legendH - scrollBarSize - boardPad * 2);
-  const fitCellSize = clampValue(
-    Math.min(
-      availableBodyW / BROWSER_POLICY_SCHEDULE_HOURS.length,
-      availableBodyH / (BROWSER_POLICY_SCHEDULE_DAYS.length + 1)
-    ),
-    BROWSER_POLICY_SCHEDULE_LAYOUT.minCellSize,
-    BROWSER_POLICY_SCHEDULE_LAYOUT.maxFitCellSize
-  );
-  const cellSize = Math.round(
-    clampValue(
-      fitCellSize * scheduleZoom,
-      BROWSER_POLICY_SCHEDULE_LAYOUT.minCellSize,
-      BROWSER_POLICY_SCHEDULE_LAYOUT.maxZoomedCellSize
-    )
-  );
-  const hourContentW = BROWSER_POLICY_SCHEDULE_HOURS.length * cellSize;
-  const dayContentH = BROWSER_POLICY_SCHEDULE_DAYS.length * cellSize;
-  const maxBodyViewportW = Math.max(1, availableBoardW - labelW - scrollBarSize - boardPad * 2);
-  const maxBodyViewportH = Math.max(1, availableBoardH - legendH - cellSize - scrollBarSize - boardPad * 2);
-  const bodyViewportW = Math.min(hourContentW, maxBodyViewportW);
-  const bodyViewportH = Math.min(dayContentH, maxBodyViewportH);
-  const needsScheduleScrollX = hourContentW > bodyViewportW;
-  const needsScheduleScrollY = dayContentH > bodyViewportH;
-  const boardW = Math.min(
-    availableBoardW,
-    labelW + bodyViewportW + (needsScheduleScrollY ? scrollBarSize : 0) + boardPad * 2
-  );
-  const boardH = Math.min(
-    availableBoardH,
-    legendH + cellSize + bodyViewportH + (needsScheduleScrollX ? scrollBarSize : 0) + boardPad * 2
-  );
-  const labelX = boardX + boardPad;
-  const bodyX = labelX + labelW;
-  const headerY = boardY + boardPad + legendH;
-  const bodyY = headerY + cellSize;
-  const scrollTrackY = bodyY + bodyViewportH + 5;
-  const verticalTrackX = bodyX + bodyViewportW + 5;
-  const maxScheduleScrollX = Math.max(0, hourContentW - bodyViewportW);
-  const maxScheduleScrollY = Math.max(0, dayContentH - bodyViewportH);
-  const effectiveScheduleScrollX = clampValue(scheduleScrollX, 0, maxScheduleScrollX);
-  const effectiveScheduleScrollY = clampValue(scheduleScrollY, 0, maxScheduleScrollY);
-  const scrollStep = cellSize * 4;
-  const verticalScrollStep = cellSize * 3;
-  const zoomControlsW = 92;
-  const showZoomControls = boardW >= 520;
-  const legendWidth = boardW - boardPad * 2 - (showZoomControls ? zoomControlsW + 10 : 0);
-  const updateScheduleScrollX = (nextValue: number) => {
-    setScheduleScrollX(clampValue(nextValue, 0, maxScheduleScrollX));
-  };
-  const updateScheduleScrollY = (nextValue: number) => {
-    setScheduleScrollY(clampValue(nextValue, 0, maxScheduleScrollY));
-  };
-  const updateScheduleZoom = (nextValue: number) => {
-    setScheduleZoom(
-      clampValue(nextValue, BROWSER_POLICY_SCHEDULE_LAYOUT.zoomMin, BROWSER_POLICY_SCHEDULE_LAYOUT.zoomMax)
-    );
-  };
-  const scrollThumbW =
-    maxScheduleScrollX > 0 ? Math.max(32, (bodyViewportW / hourContentW) * bodyViewportW) : bodyViewportW;
-  const scrollThumbX =
-    maxScheduleScrollX > 0
-      ? bodyX + (effectiveScheduleScrollX / maxScheduleScrollX) * Math.max(1, bodyViewportW - scrollThumbW)
-      : bodyX;
-  const scrollThumbH =
-    maxScheduleScrollY > 0 ? Math.max(32, (bodyViewportH / dayContentH) * bodyViewportH) : bodyViewportH;
-  const scrollThumbY =
-    maxScheduleScrollY > 0
-      ? bodyY + (effectiveScheduleScrollY / maxScheduleScrollY) * Math.max(1, bodyViewportH - scrollThumbH)
-      : bodyY;
-  const modeColor = (mode: string) =>
-    mode === 'Default rules'
-      ? BROWSER_POLICY_MATRIX_COLORS.defaultRules
-      : mode === 'Allow exception'
-        ? BROWSER_POLICY_MATRIX_COLORS.allow
-        : mode === 'Limit'
-          ? BROWSER_POLICY_MATRIX_COLORS.limit
-          : mode === 'Ask parent'
-            ? BROWSER_POLICY_MATRIX_COLORS.ask
-            : mode === 'Block'
-              ? BROWSER_POLICY_MATRIX_COLORS.block
-              : cfg.colors.mutedText;
-  const modeForCell = (dayIndex: number, timeIndex: number) => {
-    void dayIndex;
-    void timeIndex;
-    return 'Default rules';
-  };
-
-  return (
-    <g
-      opacity={disabled ? 0.46 : 1}
-      onWheel={(event) => {
-        event.preventDefault();
-        if (event.ctrlKey) {
-          updateScheduleZoom(
-            scheduleZoom +
-              (event.deltaY > 0 ? -BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep : BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep)
-          );
-          return;
-        }
-        updateScheduleScrollX(effectiveScheduleScrollX + event.deltaX);
-        updateScheduleScrollY(effectiveScheduleScrollY + event.deltaY);
-      }}
-    >
-      <rect
-        x={boardX}
-        y={boardY}
-        width={boardW}
-        height={boardH}
-        rx={5}
-        fill={PARENT_PORTAL_GLASS.panelFill}
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.9}
-      />
-      <g transform={`translate(${boardX + boardPad}, ${boardY + 6})`}>
-        {BROWSER_POLICY_SCHEDULE_MODES.map((mode, index) => {
-          const color = modeColor(mode);
-          const slotW = Math.max(88, legendWidth / BROWSER_POLICY_SCHEDULE_MODES.length);
-          const square = 10;
-          const textMaxW = Math.max(46, slotW - square - 14);
-          const isDefaultMode = mode === 'Default rules';
-          return (
-            <g key={`browser-policy-schedule-mode:${mode}`} transform={`translate(${index * slotW}, 0)`}>
-              <rect
-                x={2}
-                y={6}
-                width={square}
-                height={square}
-                rx={2}
-                fill={isDefaultMode ? 'rgba(5, 20, 36, 0.62)' : colorAlpha(color, '58')}
-                stroke={isDefaultMode ? cfg.colors.panelStroke : color}
-                strokeWidth={0.85}
-              />
-              <text
-                x={square + 7}
-                y={14.5}
-                fontSize={fitSingleLineTextSize(mode, textMaxW, 7.2, 9.6, 0.55)}
-                fontWeight={840}
-                fill={cfg.colors.bodyText}
-              >
-                {truncateTextForWidth(mode, textMaxW, 9.6, 0.55)}
-              </text>
-            </g>
-          );
-        })}
-      </g>
-      {showZoomControls ? (
-        <g transform={`translate(${boardX + boardW - boardPad - zoomControlsW}, ${boardY + 5})`}>
-          {[
-            [
-              '-',
-              () => updateScheduleZoom(scheduleZoom - BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep),
-              'Zoom schedule out',
-            ],
-            [
-              'FIT',
-              () => {
-                updateScheduleZoom(1);
-                updateScheduleScrollX(0);
-                updateScheduleScrollY(0);
-              },
-              'Fit schedule grid',
-            ],
-            ['+', () => updateScheduleZoom(scheduleZoom + BROWSER_POLICY_SCHEDULE_LAYOUT.zoomStep), 'Zoom schedule in'],
-          ].map(([label, onClick, ariaLabel], index) => (
-            <g
-              key={`browser-policy-schedule-zoom:${label}`}
-              role="button"
-              aria-label={ariaLabel}
-              tabIndex={0}
-              onClick={(event) => {
-                event.stopPropagation();
-                onClick();
-              }}
-              onKeyDown={(event) => {
-                if (event.key !== 'Enter' && event.key !== ' ') return;
-                event.preventDefault();
-                event.stopPropagation();
-                onClick();
-              }}
-              style={{ cursor: 'pointer' }}
-            >
-              <rect
-                x={index * 30}
-                y={0}
-                width={index === 1 ? 32 : 24}
-                height={20}
-                rx={5}
-                fill="rgba(5, 21, 38, 0.76)"
-                stroke={cfg.colors.cyan}
-                strokeWidth={0.8}
-              />
-              <text
-                x={index * 30 + (index === 1 ? 16 : 12)}
-                y={13.5}
-                textAnchor="middle"
-                fontSize={index === 1 ? 8.4 : 12}
-                fontWeight={920}
-                fill={cfg.colors.bodyText}
-              >
-                {label}
-              </text>
-            </g>
-          ))}
-        </g>
-      ) : null}
-      <rect
-        x={bodyX}
-        y={headerY}
-        width={bodyViewportW}
-        height={cellSize}
-        fill="rgba(5, 22, 39, 0.72)"
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.7}
-      />
-      <rect
-        x={labelX}
-        y={bodyY}
-        width={labelW}
-        height={bodyViewportH}
-        fill="rgba(5, 22, 39, 0.72)"
-        stroke={cfg.colors.panelStroke}
-        strokeWidth={0.7}
-      />
-      <rect
-        x={bodyX}
-        y={bodyY}
-        width={bodyViewportW}
-        height={bodyViewportH}
-        fill="rgba(2, 16, 30, 0.68)"
-        stroke={cfg.colors.cyan}
-        strokeWidth={0.75}
-      />
-      <svg x={bodyX} y={headerY} width={bodyViewportW} height={cellSize} overflow="hidden">
-        <g transform={`translate(${-effectiveScheduleScrollX}, 0)`}>
-          {BROWSER_POLICY_SCHEDULE_HOURS.map((hour, index) => (
-            <g key={`browser-policy-schedule-header-cell:${hour}`}>
-              <rect
-                x={index * cellSize + 1}
-                y={1}
-                width={cellSize - 2}
-                height={cellSize - 2}
-                rx={5}
-                fill="rgba(8, 26, 47, 0.68)"
-                stroke={cfg.colors.panelStroke}
-                strokeWidth={0.72}
-              />
-              <text
-                key={`browser-policy-schedule-time:${hour}`}
-                x={index * cellSize + cellSize / 2}
-                y={cellSize / 2 + 4}
-                textAnchor="middle"
-                fontSize={11.5}
-                fontWeight={860}
-                fill={cfg.colors.bodyText}
-              >
-                {hour}
-              </text>
-            </g>
-          ))}
-        </g>
-      </svg>
-      <svg x={labelX} y={bodyY} width={labelW} height={bodyViewportH} overflow="hidden">
-        <g transform={`translate(0, ${-effectiveScheduleScrollY})`}>
-          {BROWSER_POLICY_SCHEDULE_DAYS.map((day, dayIndex) => (
-            <g key={`browser-policy-schedule-day-label:${day}`}>
-              <rect
-                x={2}
-                y={dayIndex * cellSize + 1}
-                width={labelW - 4}
-                height={cellSize - 2}
-                rx={5}
-                fill="rgba(8, 26, 47, 0.62)"
-                stroke={cfg.colors.panelStroke}
-                strokeWidth={0.68}
-              />
-              <text
-                x={labelW / 2}
-                y={dayIndex * cellSize + cellSize / 2 + 4}
-                textAnchor="middle"
-                fontSize={12.2}
-                fontWeight={900}
-                fill={cfg.colors.mutedText}
-              >
-                {day}
-              </text>
-            </g>
-          ))}
-        </g>
-      </svg>
-      <svg x={bodyX} y={bodyY} width={bodyViewportW} height={bodyViewportH} overflow="hidden">
-        <g transform={`translate(${-effectiveScheduleScrollX}, ${-effectiveScheduleScrollY})`}>
-          {BROWSER_POLICY_SCHEDULE_DAYS.map((day, dayIndex) => (
-            <g key={`browser-policy-schedule-day:${day}`}>
-              {BROWSER_POLICY_SCHEDULE_HOURS.map((hour, timeIndex) => {
-                const mode = modeForCell(dayIndex, timeIndex);
-                const color = modeColor(mode);
-                const isDefaultMode = mode === 'Default rules';
-                return (
-                  <g key={`browser-policy-schedule-cell:${day}:${hour}`}>
-                    <rect
-                      x={timeIndex * cellSize + 1}
-                      y={dayIndex * cellSize + 1}
-                      width={cellSize - 2}
-                      height={cellSize - 2}
-                      rx={5}
-                      fill={
-                        isDefaultMode
-                          ? PARENT_PORTAL_GLASS.panelFillSoft
-                          : colorAlpha(color, mode === 'Block' ? '36' : '45')
-                      }
-                      stroke={isDefaultMode ? cfg.colors.panelStroke : color}
-                      strokeWidth={isDefaultMode ? 0.7 : 0.76}
-                    />
-                  </g>
-                );
-              })}
-            </g>
-          ))}
-        </g>
-      </svg>
-      <rect
-        x={bodyX}
-        y={bodyY}
-        width={bodyViewportW}
-        height={bodyViewportH}
-        fill="transparent"
-        onPointerDown={(event) => {
-          event.preventDefault();
-          event.currentTarget.setPointerCapture?.(event.pointerId);
-          setSchedulePanDrag({
-            clientX: event.clientX,
-            clientY: event.clientY,
-            scrollX: effectiveScheduleScrollX,
-            scrollY: effectiveScheduleScrollY,
-          });
-        }}
-        onPointerMove={(event) => {
-          if (!schedulePanDrag) return;
-          event.preventDefault();
-          updateScheduleScrollX(schedulePanDrag.scrollX - (event.clientX - schedulePanDrag.clientX));
-          updateScheduleScrollY(schedulePanDrag.scrollY - (event.clientY - schedulePanDrag.clientY));
-        }}
-        onPointerUp={(event) => {
-          event.currentTarget.releasePointerCapture?.(event.pointerId);
-          setSchedulePanDrag(null);
-        }}
-        onPointerLeave={() => setSchedulePanDrag(null)}
-        style={{ cursor: schedulePanDrag ? 'grabbing' : 'grab' }}
-      />
-      {maxScheduleScrollX > 0 ? (
-        <g transform={`translate(0, ${scrollTrackY})`}>
-          <rect
-            x={bodyX}
-            y={0}
-            width={bodyViewportW}
-            height={7}
-            rx={3.5}
-            fill="rgba(8, 24, 42, 0.7)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.7}
-          />
-          <rect
-            x={scrollThumbX}
-            y={1}
-            width={scrollThumbW}
-            height={5}
-            rx={2.5}
-            fill={colorAlpha(cfg.colors.cyan, '70')}
-            stroke={cfg.colors.cyan}
-            strokeWidth={0.6}
-          />
-          <g
-            role="button"
-            aria-label="Scroll schedule left"
-            onClick={() => updateScheduleScrollX(effectiveScheduleScrollX - scrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={boardX + 4}
-              y={-4}
-              width={22}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${boardX + 17} 0 L ${boardX + 11} 3.5 L ${boardX + 17} 7`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-          <g
-            role="button"
-            aria-label="Scroll schedule right"
-            onClick={() => updateScheduleScrollX(effectiveScheduleScrollX + scrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={boardX + boardW - 26}
-              y={-4}
-              width={22}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${boardX + boardW - 17} 0 L ${boardX + boardW - 11} 3.5 L ${boardX + boardW - 17} 7`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-        </g>
-      ) : null}
-      {maxScheduleScrollY > 0 ? (
-        <g>
-          <rect
-            x={verticalTrackX}
-            y={bodyY}
-            width={7}
-            height={bodyViewportH}
-            rx={3.5}
-            fill="rgba(8, 24, 42, 0.7)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.7}
-          />
-          <rect
-            x={verticalTrackX + 1}
-            y={scrollThumbY}
-            width={5}
-            height={scrollThumbH}
-            rx={2.5}
-            fill={colorAlpha(cfg.colors.cyan, '70')}
-            stroke={cfg.colors.cyan}
-            strokeWidth={0.6}
-          />
-          <g
-            role="button"
-            aria-label="Scroll schedule up"
-            onClick={() => updateScheduleScrollY(effectiveScheduleScrollY - verticalScrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={verticalTrackX - 6}
-              y={bodyY - 18}
-              width={15}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${verticalTrackX - 1.5} ${bodyY - 8} L ${verticalTrackX + 1.5} ${bodyY - 13} L ${verticalTrackX + 4.5} ${bodyY - 8}`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-          <g
-            role="button"
-            aria-label="Scroll schedule down"
-            onClick={() => updateScheduleScrollY(effectiveScheduleScrollY + verticalScrollStep)}
-            style={{ cursor: 'pointer' }}
-          >
-            <rect
-              x={verticalTrackX - 6}
-              y={boardY + boardH - 18}
-              width={15}
-              height={15}
-              rx={4}
-              fill="rgba(5, 21, 38, 0.76)"
-              stroke={cfg.colors.cyan}
-            />
-            <path
-              d={`M ${verticalTrackX - 1.5} ${boardY + boardH - 13} L ${verticalTrackX + 1.5} ${boardY + boardH - 8} L ${verticalTrackX + 4.5} ${boardY + boardH - 13}`}
-              fill="none"
-              stroke={cfg.colors.bodyText}
-              strokeWidth={1.3}
-            />
-          </g>
-        </g>
-      ) : null}
-    </g>
-  );
-}
-
 function BrowserPolicyApprovalsMatrix({
   policyAreaLabel,
   x,
@@ -10777,674 +10229,6 @@ function BrowserPolicyAuditMatrix({
   );
 }
 
-type BrowserPolicyForestNodeId = 'g0' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8' | 'c9' | 'c10' | 'c11';
-
-type BrowserPolicyForestNode = {
-  readonly id: BrowserPolicyForestNodeId;
-  readonly title: string;
-  readonly subtitle: string;
-  readonly status: string;
-  readonly x: number;
-  readonly y: number;
-  readonly w: number;
-  readonly h: number;
-  readonly parentId?: BrowserPolicyForestNodeId;
-};
-
-const BROWSER_POLICY_FOREST_COPY = {
-  title: 'Browser Policy Forest',
-  rootTitle: 'G0 Master Gate',
-  rootSubtitle: 'Control, default action, enforcement',
-  disabledTitle: 'Browser control is off',
-  disabledBody: 'Policy cards stay quiet. Reports and history remain available for review.',
-  selected: 'Selected card',
-  guide: 'i',
-  details: 'Choices',
-} as const;
-
-const BROWSER_POLICY_FOREST_BASE_NODES = [
-  ['c1', 'C1 Browser Path', 'How should the child browse?'],
-  ['c2', 'C2 Coverage', 'Which browsers and platforms count?'],
-  ['c3', 'C3 Web Rules', 'Targets, actions, and conflicts'],
-  ['c10', 'C10 Privacy / Reports', 'Parent detail, retention, custody'],
-] as const;
-
-const BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT = {
-  minBodyHeight: 220,
-  bodyPadX: 14,
-  subtitleY: 24,
-  detailsY: 46,
-  controlStartY: 60,
-  controlGapY: 64,
-  staticStartY: 64,
-} as const;
-
-function BrowserPolicyDecisionForestPrototype({
-  x,
-  y,
-  w,
-  h,
-  disabled,
-  enforcementChoice,
-  onEnforcementChange,
-  onInfoClick,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  disabled?: boolean;
-  enforcementChoice: string;
-  onEnforcementChange: (value: string) => void;
-  onInfoClick?: () => void;
-}) {
-  const [controlEnabled, setControlEnabled] = useState(true);
-  const [defaultAction, setDefaultAction] = useState<'warn' | 'ask' | 'limit' | 'block'>('warn');
-  const [browserPath, setBrowserPath] = useState<'any' | 'prefer-managed' | 'managed-exact' | 'managed-all'>('any');
-  const [targets, setTargets] = useState<readonly string[]>(['domain', 'category']);
-  const [selectedNodeId, setSelectedNodeId] = useState<BrowserPolicyForestNodeId>('g0');
-  const localEnforcementChoice = enforcementChoice === 'enforce' ? 'enforce' : 'observe';
-  const rootStatus = controlEnabled
-    ? `${browserForestTitleize(defaultAction)} / ${browserForestTitleize(localEnforcementChoice)}`
-    : 'Off';
-  const detailW = Math.min(380, Math.max(310, w * 0.3));
-  const detailGap = 14;
-  const mapX = x + 8;
-  const mapY = y + 8;
-  const mapW = Math.max(1, w - detailW - detailGap - 18);
-  const panelX = mapX + mapW + detailGap;
-  const panelY = mapY;
-  const panelH = Math.max(1, h - 16);
-  const nodeH = 62;
-  const gap = 10;
-  const baseW = Math.max(118, (mapW - gap * 3) / 4);
-  const rootW = Math.min(340, Math.max(260, mapW * 0.36));
-  const rootX = mapX + mapW / 2 - rootW / 2;
-  const rootY = mapY + 18;
-  const row1Y = rootY + 108;
-  const row2Y = row1Y + 112;
-  const row3Y = row2Y + 96;
-  const baseNodes: BrowserPolicyForestNode[] = controlEnabled
-    ? BROWSER_POLICY_FOREST_BASE_NODES.map(([id, title, subtitle], index) => ({
-        id,
-        title,
-        subtitle,
-        status: browserForestNodeStatus(id, defaultAction, browserPath, targets),
-        x: mapX + index * (baseW + gap),
-        y: row1Y,
-        w: baseW,
-        h: nodeH,
-        parentId: 'g0',
-      }))
-    : [];
-  const dependentDefinitions = controlEnabled
-    ? [
-        ...(targets.includes('search') || targets.includes('video')
-          ? [['c4', 'C4 Search / Video', 'Safe search, channels, platforms', 'c3'] as const]
-          : []),
-        ...(targets.includes('downloads') ? [['c5', 'C5 Downloads', 'Risk, type, quarantine', 'c3'] as const] : []),
-        ...(defaultAction === 'limit' ? [['c6', 'C6 Time / Schedule', 'Budgets and end behavior', 'g0'] as const] : []),
-        ...(defaultAction === 'ask' ? [['c7', 'C7 Approval', 'Requests, timeout, scope', 'g0'] as const] : []),
-        ...(targets.includes('exact') ||
-        targets.includes('search') ||
-        targets.includes('video') ||
-        targets.includes('downloads')
-          ? [['c9', 'C9 Evidence / Proof', 'Fresh URL, source, weak proof', 'c3'] as const]
-          : []),
-        ...(browserPath === 'managed-exact' || browserPath === 'managed-all'
-          ? [
-              ['c8', 'C8 Bypass', 'Unmanaged and private browsers', 'c1'] as const,
-              ['c11', 'C11 Fallback', 'Missing capability behavior', 'c1'] as const,
-            ]
-          : []),
-      ]
-    : [];
-  const dependentW = Math.max(126, Math.min(184, (mapW - gap * 3) / 4));
-  const dependentNodes: BrowserPolicyForestNode[] = dependentDefinitions.map(
-    ([id, title, subtitle, parentId], index) => ({
-      id,
-      title,
-      subtitle,
-      status: browserForestNodeStatus(id, defaultAction, browserPath, targets),
-      x: mapX + (index % 4) * (dependentW + gap),
-      y: row2Y + Math.floor(index / 4) * (nodeH + gap),
-      w: dependentW,
-      h: nodeH,
-      parentId,
-    })
-  );
-  const rootNode: BrowserPolicyForestNode = {
-    id: 'g0',
-    title: BROWSER_POLICY_FOREST_COPY.rootTitle,
-    subtitle: BROWSER_POLICY_FOREST_COPY.rootSubtitle,
-    status: rootStatus,
-    x: rootX,
-    y: rootY,
-    w: rootW,
-    h: 72,
-  };
-  const nodes = [rootNode, ...baseNodes, ...dependentNodes];
-  const selectedNode = nodes.find((node) => node.id === selectedNodeId) ?? rootNode;
-  const clickable = !disabled;
-  const setTarget = (target: string) => {
-    setTargets((current) =>
-      current.includes(target) ? current.filter((value) => value !== target) : [...current, target]
-    );
-  };
-
-  return (
-    <g>
-      <rect x={x} y={y} width={w} height={h} rx={7} fill="rgba(1, 10, 20, 0.72)" stroke="#29e6ff" strokeWidth={0.8} />
-      <rect
-        x={mapX}
-        y={mapY}
-        width={mapW}
-        height={panelH}
-        rx={7}
-        fill="rgba(2, 20, 36, 0.48)"
-        stroke="#1fbdd7"
-        strokeWidth={0.7}
-        opacity={0.76}
-      />
-      <text x={mapX + 12} y={mapY + 22} fontSize={13} fontWeight={950} fill="#c8f4ff">
-        {BROWSER_POLICY_FOREST_COPY.title}
-      </text>
-      {onInfoClick ? (
-        <g role="button" tabIndex={0} onClick={onInfoClick} style={{ cursor: 'pointer' }}>
-          <circle
-            cx={mapX + mapW - 18}
-            cy={mapY + 18}
-            r={9}
-            fill="rgba(51, 211, 255, 0.16)"
-            stroke="#9bf3ff"
-            strokeWidth={1}
-          />
-          <text x={mapX + mapW - 18} y={mapY + 22} textAnchor="middle" fontSize={12} fontWeight={950} fill="#dffbff">
-            {BROWSER_POLICY_FOREST_COPY.guide}
-          </text>
-        </g>
-      ) : null}
-      {nodes
-        .filter((node) => node.parentId !== undefined)
-        .map((node) => {
-          const parent = nodes.find((candidate) => candidate.id === node.parentId);
-          if (parent === undefined) return null;
-          return (
-            <BrowserPolicyForestConnector
-              key={`${parent.id}-${node.id}`}
-              fromX={parent.x + parent.w / 2}
-              fromY={parent.y + parent.h}
-              toX={node.x + node.w / 2}
-              toY={node.y}
-            />
-          );
-        })}
-      {nodes.map((node) => (
-        <BrowserPolicyForestNodeCard
-          key={node.id}
-          node={node}
-          active={node.id === selectedNode.id}
-          disabled={!controlEnabled && node.id !== 'g0'}
-          onClick={() => {
-            if (!clickable) return;
-            setSelectedNodeId(node.id);
-          }}
-        />
-      ))}
-      {!controlEnabled ? (
-        <g>
-          <rect
-            x={mapX + 28}
-            y={row1Y + 18}
-            width={mapW - 56}
-            height={74}
-            rx={7}
-            fill="rgba(2, 8, 16, 0.66)"
-            stroke="#ffd36a"
-            strokeWidth={0.9}
-          />
-          <text x={mapX + mapW / 2} y={row1Y + 46} textAnchor="middle" fontSize={15} fontWeight={950} fill="#ffd36a">
-            {BROWSER_POLICY_FOREST_COPY.disabledTitle}
-          </text>
-          <text x={mapX + mapW / 2} y={row1Y + 70} textAnchor="middle" fontSize={12} fontWeight={760} fill="#b7dff1">
-            {BROWSER_POLICY_FOREST_COPY.disabledBody}
-          </text>
-        </g>
-      ) : null}
-      <BrowserPolicyForestDetailPanel
-        x={panelX}
-        y={panelY}
-        w={detailW}
-        h={panelH}
-        node={selectedNode}
-        controlEnabled={controlEnabled}
-        defaultAction={defaultAction}
-        enforcementChoice={localEnforcementChoice}
-        browserPath={browserPath}
-        targets={targets}
-        disabled={disabled}
-        onControlEnabledChange={setControlEnabled}
-        onDefaultActionChange={setDefaultAction}
-        onEnforcementChange={onEnforcementChange}
-        onBrowserPathChange={setBrowserPath}
-        onTargetToggle={setTarget}
-        onInfoClick={onInfoClick}
-      />
-    </g>
-  );
-}
-
-function BrowserPolicyForestConnector({
-  fromX,
-  fromY,
-  toX,
-  toY,
-}: {
-  fromX: number;
-  fromY: number;
-  toX: number;
-  toY: number;
-}) {
-  const midY = fromY + Math.max(12, (toY - fromY) * 0.45);
-  return (
-    <path
-      d={`M ${fromX} ${fromY} V ${midY} H ${toX} V ${toY}`}
-      fill="none"
-      stroke="#caa94d"
-      strokeWidth={1.1}
-      strokeLinecap="round"
-      opacity={0.86}
-      filter="url(#parentPortalGlow)"
-    />
-  );
-}
-
-function BrowserPolicyForestNodeCard({
-  node,
-  active,
-  disabled,
-  onClick,
-}: {
-  node: BrowserPolicyForestNode;
-  active: boolean;
-  disabled: boolean;
-  onClick: () => void;
-}) {
-  const stroke = active ? '#ffd36a' : disabled ? '#35616c' : '#29e6ff';
-  const fill = active
-    ? colorAlpha(cfg.colors.cyan, '2e')
-    : disabled
-      ? PARENT_PORTAL_GLASS.panelFillSoft
-      : PARENT_PORTAL_GLASS.panelFill;
-  const text = disabled ? '#6f91a0' : '#e7fbff';
-  const status = disabled ? 'Disabled' : node.status;
-  return (
-    <g
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      onClick={disabled ? undefined : onClick}
-      style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
-      opacity={disabled ? 0.72 : 1}
-    >
-      <rect
-        x={node.x}
-        y={node.y}
-        width={node.w}
-        height={node.h}
-        rx={8}
-        fill={fill}
-        stroke={stroke}
-        strokeWidth={active ? 1.25 : 0.82}
-        filter={active ? 'url(#parentPortalGlow)' : undefined}
-      />
-      <path
-        d={`M ${node.x + 10} ${node.y + 12} H ${node.x + node.w - 10}`}
-        stroke="#86f6ff"
-        strokeWidth={0.8}
-        opacity={active ? 0.58 : 0.28}
-      />
-      <text x={node.x + 12} y={node.y + 25} fontSize={11.8} fontWeight={950} fill={text}>
-        {truncateTextForWidth(node.title, node.w - 24, 11.8, 0.56)}
-      </text>
-      <text x={node.x + 12} y={node.y + 43} fontSize={9.7} fontWeight={720} fill={disabled ? '#5f7f8c' : '#aee6f4'}>
-        {truncateTextForWidth(node.subtitle, node.w - 24, 9.7, 0.55)}
-      </text>
-      <text
-        x={node.x + 12}
-        y={node.y + node.h - 9}
-        fontSize={9.4}
-        fontWeight={900}
-        fill={active ? '#ffd36a' : '#70dfff'}
-      >
-        {truncateTextForWidth(status, node.w - 24, 9.4, 0.56)}
-      </text>
-    </g>
-  );
-}
-
-function BrowserPolicyForestDetailPanel({
-  x,
-  y,
-  w,
-  h,
-  node,
-  controlEnabled,
-  defaultAction,
-  enforcementChoice,
-  browserPath,
-  targets,
-  disabled,
-  onControlEnabledChange,
-  onDefaultActionChange,
-  onEnforcementChange,
-  onBrowserPathChange,
-  onTargetToggle,
-  onInfoClick,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  node: BrowserPolicyForestNode;
-  controlEnabled: boolean;
-  defaultAction: 'warn' | 'ask' | 'limit' | 'block';
-  enforcementChoice: string;
-  browserPath: 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all';
-  targets: readonly string[];
-  disabled?: boolean;
-  onControlEnabledChange: (enabled: boolean) => void;
-  onDefaultActionChange: (value: 'warn' | 'ask' | 'limit' | 'block') => void;
-  onEnforcementChange: (value: string) => void;
-  onBrowserPathChange: (value: 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all') => void;
-  onTargetToggle: (value: string) => void;
-  onInfoClick?: () => void;
-}) {
-  const panelPad = BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.bodyPadX;
-  const bodyHeight = Math.max(
-    BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.minBodyHeight,
-    h - defaultRulesBubbleConfig.header.height
-  );
-  return (
-    <RulesBubbleSvgFrame
-      x={x}
-      y={y}
-      width={w}
-      bodyHeight={bodyHeight}
-      variant="incoming"
-      headerLabel={node.title}
-      showInfo={onInfoClick !== undefined}
-      infoLabel={BROWSER_POLICY_FOREST_COPY.selected}
-      disabled={disabled}
-      onInfoClick={onInfoClick}
-    >
-      {(slot) => {
-        const contentX = slot.bodyContentX + panelPad;
-        const contentW = Math.max(1, slot.bodyContentW - panelPad * 2);
-        const contentTopY = slot.bodyContentY;
-        const startY = contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlStartY;
-        return (
-          <g>
-            <text
-              x={contentX}
-              y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.subtitleY}
-              fontSize={11}
-              fontWeight={760}
-              fill="#aee6f4"
-            >
-              {truncateTextForWidth(node.subtitle, contentW, 11, 0.55)}
-            </text>
-            <text
-              x={contentX}
-              y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.detailsY}
-              fontSize={10.2}
-              fontWeight={950}
-              fill="#70dfff"
-            >
-              {BROWSER_POLICY_FOREST_COPY.details}
-            </text>
-            {node.id === 'g0' ? (
-              <>
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY}
-                  w={contentW}
-                  label="Browser control"
-                  options={[
-                    ['off', 'Off'],
-                    ['on', 'On'],
-                  ]}
-                  selected={controlEnabled ? 'on' : 'off'}
-                  disabled={disabled}
-                  onSelect={(value) => onControlEnabledChange(value === 'on')}
-                />
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlGapY}
-                  w={contentW}
-                  label="Default action"
-                  options={[
-                    ['warn', 'Warn'],
-                    ['ask', 'Ask parent'],
-                    ['limit', 'Limit'],
-                    ['block', 'Block'],
-                  ]}
-                  selected={defaultAction}
-                  disabled={disabled || !controlEnabled}
-                  onSelect={(value) => onDefaultActionChange(value as 'warn' | 'ask' | 'limit' | 'block')}
-                />
-                <BrowserPolicyForestChipRow
-                  x={contentX}
-                  y={startY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.controlGapY * 2}
-                  w={contentW}
-                  label="Enforcement"
-                  options={[
-                    ['observe', 'Observe / dry-run'],
-                    ['enforce', 'Enforce'],
-                  ]}
-                  selected={enforcementChoice}
-                  disabled={disabled || !controlEnabled}
-                  onSelect={onEnforcementChange}
-                />
-              </>
-            ) : node.id === 'c1' ? (
-              <BrowserPolicyForestChipRow
-                x={contentX}
-                y={startY}
-                w={contentW}
-                label="Browse path"
-                options={[
-                  ['any', 'Any browser'],
-                  ['prefer-managed', 'Prefer managed'],
-                  ['managed-exact', 'Managed for exact URL'],
-                  ['managed-all', 'Managed only'],
-                ]}
-                selected={browserPath}
-                disabled={disabled || !controlEnabled}
-                onSelect={(value) =>
-                  onBrowserPathChange(value as 'any' | 'prefer-managed' | 'managed-exact' | 'managed-all')
-                }
-              />
-            ) : node.id === 'c3' ? (
-              <BrowserPolicyForestChipRow
-                x={contentX}
-                y={startY}
-                w={contentW}
-                label="Rule targets"
-                options={[
-                  ['domain', 'Domain/site'],
-                  ['category', 'Category'],
-                  ['exact', 'Exact URL'],
-                  ['search', 'Search'],
-                  ['video', 'Video/channel'],
-                  ['downloads', 'Downloads'],
-                ]}
-                selected={targets.join(',')}
-                multiSelected={targets}
-                disabled={disabled || !controlEnabled}
-                onSelect={onTargetToggle}
-              />
-            ) : (
-              <BrowserPolicyForestStaticChoices
-                x={contentX}
-                y={contentTopY + BROWSER_POLICY_FOREST_DETAIL_BUBBLE_LAYOUT.staticStartY}
-                w={contentW}
-                nodeId={node.id}
-              />
-            )}
-          </g>
-        );
-      }}
-    </RulesBubbleSvgFrame>
-  );
-}
-
-function BrowserPolicyForestChipRow({
-  x,
-  y,
-  w,
-  label,
-  options,
-  selected,
-  multiSelected,
-  disabled,
-  onSelect,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  label: string;
-  options: readonly (readonly [string, string])[];
-  selected: string;
-  multiSelected?: readonly string[];
-  disabled?: boolean;
-  onSelect: (value: string) => void;
-}) {
-  const chipGap = 6;
-  const chipH = 30;
-  const chipW = Math.max(72, Math.min(146, (w - chipGap * 1) / 2));
-  return (
-    <g opacity={disabled ? 0.48 : 1}>
-      <text x={x} y={y} fontSize={10.3} fontWeight={950} fill="#9befff">
-        {label}
-      </text>
-      {options.map(([value, optionLabel], index) => {
-        const col = index % 2;
-        const row = Math.floor(index / 2);
-        const chipX = x + col * (chipW + chipGap);
-        const chipY = y + 10 + row * (chipH + chipGap);
-        const active = multiSelected === undefined ? selected === value : multiSelected.includes(value);
-        return (
-          <g
-            key={value}
-            role="button"
-            tabIndex={disabled ? -1 : 0}
-            onClick={disabled ? undefined : () => onSelect(value)}
-            style={{ cursor: disabled ? 'not-allowed' : 'pointer' }}
-          >
-            <rect
-              x={chipX}
-              y={chipY}
-              width={chipW}
-              height={chipH}
-              rx={6}
-              fill={active ? '#8fe7ff' : PARENT_PORTAL_GLASS.cardFill}
-              stroke={active ? '#f5fdff' : '#5c7b96'}
-              strokeWidth={active ? 1.2 : 0.78}
-              filter={active ? 'url(#parentPortalGlow)' : undefined}
-            />
-            <text
-              x={chipX + chipW / 2}
-              y={chipY + 19}
-              textAnchor="middle"
-              fontSize={10.4}
-              fontWeight={950}
-              fill={active ? '#06131e' : '#d8f7ff'}
-            >
-              {truncateTextForWidth(optionLabel, chipW - 12, 10.4, 0.56)}
-            </text>
-          </g>
-        );
-      })}
-    </g>
-  );
-}
-
-function BrowserPolicyForestStaticChoices({
-  x,
-  y,
-  w,
-  nodeId,
-}: {
-  x: number;
-  y: number;
-  w: number;
-  nodeId: BrowserPolicyForestNodeId;
-}) {
-  const rows = browserForestStaticChoices(nodeId);
-  return (
-    <g>
-      {rows.map((row, index) => (
-        <g key={row}>
-          <rect
-            x={x}
-            y={y + index * 34}
-            width={w}
-            height={26}
-            rx={5}
-            fill="rgba(5, 23, 39, 0.62)"
-            stroke="#426f87"
-            strokeWidth={0.75}
-          />
-          <text x={x + 10} y={y + index * 34 + 17} fontSize={10.6} fontWeight={820} fill="#d8f7ff">
-            {truncateTextForWidth(row, w - 20, 10.6, 0.56)}
-          </text>
-        </g>
-      ))}
-    </g>
-  );
-}
-
-function browserForestNodeStatus(
-  id: BrowserPolicyForestNodeId,
-  defaultAction: string,
-  browserPath: string,
-  targets: readonly string[]
-) {
-  if (id === 'c1') return browserForestTitleize(browserPath);
-  if (id === 'c2') return 'Mainstream + risky';
-  if (id === 'c3') return `${targets.length} targets`;
-  if (id === 'c4') return 'Search/video active';
-  if (id === 'c5') return 'Download active';
-  if (id === 'c6') return 'Limit path';
-  if (id === 'c7') return 'Ask path';
-  if (id === 'c8') return 'Bypass visible';
-  if (id === 'c9') return 'Proof required';
-  if (id === 'c10') return 'Domain summary';
-  if (id === 'c11') return 'Fallback required';
-  return browserForestTitleize(defaultAction);
-}
-
-function browserForestStaticChoices(id: BrowserPolicyForestNodeId) {
-  if (id === 'c2') return ['Desktop mainstream', 'Alternate browsers', 'Mobile/browser-like', 'Risky or unknown'];
-  if (id === 'c4') return ['Safe search', 'Search terms', 'Video category', 'Channel / video URL'];
-  if (id === 'c5') return ['Observe downloads', 'Ask risky downloads', 'Block risky downloads', 'Quarantine/delete'];
-  if (id === 'c6') return ['Schedule', 'Budget type', 'When budget ends', 'What time counts'];
-  if (id === 'c7') return ['Ask triggers', 'If no answer', 'Approve scope', 'Override expiry'];
-  if (id === 'c8') return ['Bypass types', 'Bypass action', 'Escalation', 'Safe close'];
-  if (id === 'c9') return ['Proof source', 'Freshness', 'If proof missing', 'Never network-only exact URL'];
-  if (id === 'c10') return ['Parent report detail', 'Redaction', 'Retention', 'Audit / custody'];
-  if (id === 'c11') return ['Failure case', 'Fallback action', 'Manual unavailable', 'Rollback'];
-  return ['Choose a node to configure.'];
-}
-
-function browserForestTitleize(value: string) {
-  return value
-    .split(/[-\s]+/u)
-    .filter((part) => part.length > 0)
-    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
-    .join(' ');
-}
-
 function ManageWorkspacePanel({
   x,
   y,
@@ -11458,6 +10242,9 @@ function ManageWorkspacePanel({
   activeNavLabel,
   selectedControlName,
   runtimeDeviceSlots,
+  sharedTargetSelection,
+  onSharedTargetChange,
+  activityState,
   cfg,
 }: {
   x: number;
@@ -11472,6 +10259,9 @@ function ManageWorkspacePanel({
   activeNavLabel: string;
   selectedControlName: string;
   runtimeDeviceSlots: readonly DeviceSlot[];
+  sharedTargetSelection: ManageTargetSelection;
+  onSharedTargetChange?: (selection: ManageTargetSelection) => void;
+  activityState?: ParentPortalActivityState | null;
   cfg: ParentPortalSvgControls;
 }) {
   const tabs = manageWorkspaceTabs(kind);
@@ -11479,12 +10269,20 @@ function ManageWorkspacePanel({
   const workspaceScopeValues = targetOptions.some((option) => option.id === 'portal')
     ? FAMILY_DEVICE_SCOPE_VALUES
     : undefined;
-  const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() => targetOptions[0]?.id ?? 'family');
-  const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>();
+  const workspaceSelectionSlots = useMemo(
+    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, sharedTargetSelection),
+    [runtimeDeviceSlots, sharedTargetSelection]
+  );
+  const [workspaceTarget, setWorkspaceTarget] = useState<ManageWorkspaceTarget>(() =>
+    sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection)
+  );
+  const [workspaceSelectedDeviceValue, setWorkspaceSelectedDeviceValue] = useState<string | undefined>(() =>
+    reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection)
+  );
   useEffect(() => {
-    setWorkspaceTarget(targetOptions[0]?.id ?? 'family');
-    setWorkspaceSelectedDeviceValue(undefined);
-  }, [targetOptions]);
+    setWorkspaceTarget(sharedWorkspaceTargetForOptions(targetOptions, sharedTargetSelection));
+    setWorkspaceSelectedDeviceValue(reportSelectedSlotValue(workspaceSelectionSlots, sharedTargetSelection));
+  }, [activeNavLabel, kind, selectedControlName, sharedTargetSelection, targetOptions, workspaceSelectionSlots]);
   const activeTab =
     tabs.find((tab) => tab.id === activeTabId) ?? tabs.find((tab) => tab.id === defaultTabId) ?? tabs[0];
   const activeTabKey = activeTab?.id ?? defaultTabId;
@@ -11492,7 +10290,6 @@ function ManageWorkspacePanel({
   const activeTarget = targetOptions.find((option) => option.id === workspaceTarget) ?? targetOptions[0] ?? null;
   const workspaceTargetKey = activeTarget?.id ?? 'family';
   const targetColor = toneColor(activeTarget?.tone ?? activeTab?.tone ?? 'cyan', cfg);
-  const hasTargetSelector = targetOptions.length > 0;
   const policyAreaLabel = kind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : '';
   const policyAreaActive = kind === 'policy';
   const policyRulesChoiceMode = policyAreaActive && activeTabKey === 'rules';
@@ -11509,21 +10306,18 @@ function ManageWorkspacePanel({
   const [policySecondaryChoice, setPolicySecondaryChoice] = useState(policySecondaryOptions[0]?.value ?? '');
   const [browserRulesEnforcementChoice, setBrowserRulesEnforcementChoice] = useState('observe');
   useEffect(() => {
-    setWorkspaceSelectedDeviceValue(undefined);
-  }, [kind, activeNavLabel, selectedControlName]);
-  useEffect(() => {
     setPolicyPrimaryChoice(policyPrimaryOptions[0]?.value ?? '');
   }, [policyPrimaryOptions]);
   useEffect(() => {
     setPolicySecondaryChoice(policySecondaryOptions[0]?.value ?? '');
   }, [policySecondaryOptions]);
-  const targetSurfaceEnabled = hasTargetSelector;
+  const targetSurfaceEnabled = targetOptions.length > 0;
   const workspaceSlots = useMemo(
     () =>
-      runtimeDeviceSlots.length > 0
-        ? runtimeDeviceSlots
+      workspaceSelectionSlots.length > 0
+        ? workspaceSelectionSlots
         : reportPlanSeatSlots(ACTIVITY_REPORT_BASIC_CHILD_DEVICE_SEATS),
-    [runtimeDeviceSlots]
+    [workspaceSelectionSlots]
   );
   const workspacePortalIds = useMemo(
     () => workspaceSlots.filter((slot) => slot.device).map((slot) => slot.value),
@@ -11562,11 +10356,7 @@ function ManageWorkspacePanel({
     width: workspaceAvailableW,
     height: workspaceSelectorH,
   };
-  const firstWorkspaceSelectableSlot = workspaceSlots.find((slot) => slot.device && slot.status !== 'empty');
-  const workspaceSelectedValue =
-    workspaceTargetKey === 'perDevice'
-      ? (workspaceSelectedDeviceValue ?? firstWorkspaceSelectableSlot?.value)
-      : undefined;
+  const workspaceSelectedValue = workspaceTargetKey === 'perDevice' ? (workspaceSelectedDeviceValue ?? '') : '';
   const workspaceSelectedSlot = workspaceSlots.find((slot) => slot.value === workspaceSelectedValue) ?? null;
   const workspaceSelectedLabel = workspaceSelectedSlot?.label ?? null;
   const tabColumns = compact ? Math.min(3, tabs.length) : Math.min(tabs.length, kind === 'ai' ? 4 : tabs.length);
@@ -11579,24 +10369,13 @@ function ManageWorkspacePanel({
   const tabsY = targetSurfaceEnabled ? workspaceDividerY + 16 : y;
   const bodyY = tabsY + tabAreaH - 1;
   const bodyH = Math.max(1, y + h - bodyY - 8);
-  const targetSelectorY = bodyY + (compact ? 46 : 48);
-  const targetSelectorH = compact ? 30 : 34;
-  const targetSelectorX = workspaceBodyX + (compact ? 22 : 96);
-  const targetSelectorMaxW = Math.max(1, workspaceBodyX + workspaceBodyW - targetSelectorX - 22);
-  const targetSelectorW = hasTargetSelector
-    ? Math.min(targetSelectorMaxW, targetOptions.length * (compact ? 142 : 178))
-    : 0;
-  const targetOptionW = targetSelectorW / Math.max(1, targetOptions.length);
   const summaryBaseY = targetSurfaceEnabled
     ? kind === 'policy'
       ? bodyY + (compact ? 92 : 88)
       : bodyY + 24
-    : hasTargetSelector
-      ? targetSelectorY + targetSelectorH + (compact ? 16 : 18)
-      : bodyY + 24;
+    : bodyY + 24;
   const summary = manageWorkspaceSummary(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
   const summaryLines = policyCustomSurfaceMode ? [] : wrapCardText(summary, workspaceBodyW - 42, 12.2, compact ? 2 : 1);
-  const hasInlineTargetSelector = hasTargetSelector && !targetSurfaceEnabled;
   const bodyHeaderH = targetSurfaceEnabled
     ? kind === 'policy'
       ? policyCustomSurfaceMode
@@ -11609,13 +10388,9 @@ function ManageWorkspacePanel({
       : compact
         ? 68
         : 58
-    : hasInlineTargetSelector
-      ? compact
-        ? 124
-        : 122
-      : compact
-        ? 76
-        : 64;
+    : compact
+      ? 76
+      : 64;
   const cards = manageWorkspaceCards(kind, activeTabKey, activeNavLabel, selectedControlName, workspaceTargetKey);
   const supportContactFormEnabled = kind === 'account' && activeTabKey === 'support';
   const policyRows =
@@ -11640,8 +10415,10 @@ function ManageWorkspacePanel({
     : workspaceBodyX + 22 + policyChoiceW + policyChoiceGap;
   const policySecondaryY = policyChoicesStacked ? policyChoiceBarY + 58 : policyChoiceBarY;
   const policyChoiceDisabled = workspaceTargetKey === 'perDevice' && !workspaceSelectedSlot;
-  const browserRulesChoiceTop = bodyY + 16;
-  const policyRowsTop = bodyY + bodyHeaderH + 10;
+  const policyContentTop = bodyY + bodyHeaderH + 10;
+  const policySurfaceTop = policyContentTop;
+  const browserRulesChoiceTop = policySurfaceTop;
+  const policyRowsTop = policySurfaceTop;
   const policyRowGap = 10;
   const policyRowColumns = workspaceBodyW > 1060 ? 2 : 1;
   const policyRowW = Math.max(1, (workspaceBodyW - 28 * 2 - policyRowGap * (policyRowColumns - 1)) / policyRowColumns);
@@ -11676,13 +10453,18 @@ function ManageWorkspacePanel({
                   const nextTarget =
                     nextScopeValue === 'parent' ? 'perDevice' : nextScopeValue === 'portal' ? 'portal' : 'family';
                   setWorkspaceTarget(nextTarget);
-                  if (nextTarget !== 'perDevice') {
-                    setWorkspaceSelectedDeviceValue(undefined);
-                  }
+                  const nextSelection = workspaceSelectedSlot
+                    ? selectedManageTargetSelectionForSlot(sharedTargetSelection, workspaceSelectedSlot)
+                    : sharedTargetSelection;
+                  onSharedTargetChange?.({
+                    ...nextSelection,
+                    scope: nextTarget === 'perDevice' ? 'perDevice' : 'global',
+                  });
                 }}
                 onChange={(choice) => {
                   setWorkspaceTarget('perDevice');
                   setWorkspaceSelectedDeviceValue(choice.value);
+                  onSharedTargetChange?.(selectedManageTargetSelectionForSlot(sharedTargetSelection, choice));
                 }}
                 config={manageDeviceGridConfig(workspaceAvailableW, workspaceSelectorH, {
                   statusOrder: {
@@ -11917,127 +10699,6 @@ function ManageWorkspacePanel({
           </foreignObject>
         </g>
       ) : null}
-      {hasInlineTargetSelector ? (
-        <g role="radiogroup" aria-label={`${manageWorkspaceTitle(kind)} target selector`}>
-          {!compact ? (
-            <text x={workspaceBodyX + 22} y={targetSelectorY + 22} fontSize={11.4} fontWeight={950} fill={activeColor}>
-              SCOPE
-            </text>
-          ) : null}
-          <rect
-            x={targetSelectorX - 3}
-            y={targetSelectorY - 3}
-            width={targetSelectorW + 6}
-            height={targetSelectorH + 6}
-            rx={9}
-            fill="rgba(2, 12, 22, 0.7)"
-            stroke={targetColor}
-            strokeWidth={0.9}
-            opacity={0.88}
-          />
-          <rect
-            x={targetSelectorX}
-            y={targetSelectorY}
-            width={targetSelectorW}
-            height={targetSelectorH}
-            rx={7}
-            fill="rgba(6, 24, 37, 0.68)"
-            stroke={cfg.colors.panelStroke}
-            strokeWidth={0.72}
-            opacity={0.96}
-          />
-          {targetOptions.map((option, index) => {
-            const selected = option.id === workspaceTargetKey;
-            const optionColor = toneColor(option.tone, cfg);
-            const optionX = targetSelectorX + index * targetOptionW;
-            const labelSize = compact ? 10.8 : 12.3;
-            const detailSize = compact ? 7.8 : 8.9;
-            return (
-              <g
-                key={`manage-workspace-target:${kind}:${option.id}`}
-                className="parent-portal-svg-clickable"
-                role="radio"
-                tabIndex={0}
-                aria-label={`Use ${option.label}`}
-                aria-checked={selected}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setWorkspaceTarget(option.id);
-                }}
-                onKeyDown={(event) => {
-                  if (event.key !== 'Enter' && event.key !== ' ') return;
-                  event.preventDefault();
-                  event.stopPropagation();
-                  setWorkspaceTarget(option.id);
-                }}
-              >
-                <rect
-                  x={optionX}
-                  y={targetSelectorY - 2}
-                  width={targetOptionW}
-                  height={targetSelectorH + 4}
-                  fill="transparent"
-                />
-                {index > 0 ? (
-                  <path
-                    d={`M ${optionX} ${targetSelectorY + 5} V ${targetSelectorY + targetSelectorH - 5}`}
-                    stroke={cfg.colors.panelStroke}
-                    strokeWidth={0.8}
-                    opacity={0.55}
-                  />
-                ) : null}
-                {selected ? (
-                  <>
-                    <rect
-                      x={optionX + 4}
-                      y={targetSelectorY + 4}
-                      width={targetOptionW - 8}
-                      height={targetSelectorH - 8}
-                      rx={5}
-                      fill={colorAlpha(optionColor, '44')}
-                      stroke={optionColor}
-                      strokeWidth={1.05}
-                      filter="url(#parentPortalGlow)"
-                    />
-                    <path
-                      d={`M ${optionX + 15} ${targetSelectorY + 9} H ${optionX + targetOptionW - 15}`}
-                      stroke={cfg.colors.bodyText}
-                      strokeWidth={0.9}
-                      strokeLinecap="round"
-                      opacity={0.24}
-                    />
-                  </>
-                ) : null}
-                <text
-                  x={optionX + targetOptionW / 2}
-                  y={targetSelectorY + (compact ? 16 : 17)}
-                  textAnchor="middle"
-                  fontSize={labelSize}
-                  fontWeight={950}
-                  fill={selected ? cfg.colors.bodyText : cfg.colors.mutedText}
-                  pointerEvents="none"
-                >
-                  {truncateTextForWidth(option.label, targetOptionW - 16, labelSize, 0.58)}
-                </text>
-                {!compact ? (
-                  <text
-                    x={optionX + targetOptionW / 2}
-                    y={targetSelectorY + 28}
-                    textAnchor="middle"
-                    fontSize={detailSize}
-                    fontWeight={760}
-                    fill={selected ? optionColor : cfg.colors.mutedText}
-                    opacity={selected ? 0.9 : 0.58}
-                    pointerEvents="none"
-                  >
-                    {truncateTextForWidth(option.detail, targetOptionW - 18, detailSize, 0.54)}
-                  </text>
-                ) : null}
-              </g>
-            );
-          })}
-        </g>
-      ) : null}
       {summaryLines.map((line, index) => (
         <text
           key={`manage-workspace-summary:${kind}:${activeTabKey}:${workspaceTargetKey}:${index}`}
@@ -12159,7 +10820,7 @@ function ManageWorkspacePanel({
           const valueSize = fitSingleLineTextSize(card.value, cardW - 30, 12, 16, 0.58);
           const bodyLines = wrapCardText(card.body, cardW - 30, 10.2, cardH > 86 ? 2 : 1);
           return (
-            <g key={`manage-workspace-card:${kind}:${activeTabKey}:${workspaceTargetKey}:${card.label}`}>
+            <g key={`manage-workspace-card:${kind}:${activeTabKey}:${workspaceTargetKey}:${index}:${card.label}`}>
               <rect
                 x={cardX}
                 y={cardY}
@@ -12305,15 +10966,16 @@ function ManageTargetPanel({
           aria-pressed={targetSelection.scope === option.scope}
           onClick={(event) => {
             event.stopPropagation();
+            const selectedSlot = runtimeDeviceSlots
+              ? reportSelectedSlot(runtimeDeviceSlots, targetSelection)
+              : undefined;
+            const nextSelection =
+              option.scope === 'perDevice' && selectedSlot
+                ? selectedManageTargetSelectionForSlot(targetSelection, selectedSlot)
+                : targetSelection;
             onTargetChange({
-              ...targetSelection,
+              ...nextSelection,
               scope: option.scope,
-              device:
-                option.scope === 'perDevice'
-                  ? (deviceChoices.find((device) => device === targetSelection.device) ??
-                    deviceChoices[0] ??
-                    targetSelection.device)
-                  : targetSelection.device,
             });
           }}
           onKeyDown={(event) => {
@@ -12378,7 +11040,16 @@ function ManageTargetPanel({
                 selected={targetSelection.device === choice}
                 tone={index === 1 ? 'gold' : index === 2 ? 'purple' : 'cyan'}
                 themeColor={themeColor}
-                onSelect={() => onTargetChange({ ...targetSelection, device: choice, scope: 'perDevice' })}
+                onSelect={() => {
+                  const selectedSlot = runtimeDeviceSlots?.find(
+                    (slot) => slot.label === choice || slot.device?.name === choice
+                  );
+                  onTargetChange(
+                    selectedSlot
+                      ? selectedManageTargetSelectionForSlot(targetSelection, selectedSlot)
+                      : { ...targetSelection, scope: 'perDevice', device: choice, deviceId: '' }
+                  );
+                }}
                 cfg={cfg}
               />
             );
@@ -12549,18 +11220,30 @@ function ManageControlPanel({
   );
   const lanPairingPortalIds = useMemo(() => createParentPortalLanPairingPortalIds(lanPairingSlots), [lanPairingSlots]);
   const firstLanPairingSelectableSlot = lanPairingSlots.find((slot) => slot.status !== 'empty') ?? null;
+  const preferredLanPairingSelectedSlot = useMemo(
+    () => reportSelectedSlot(lanPairingSlots, targetSelection) ?? firstLanPairingSelectableSlot,
+    [firstLanPairingSelectableSlot, lanPairingSlots, targetSelection]
+  );
   useEffect(() => {
-    if (!isLanPairingPanel || !firstLanPairingSelectableSlot) return;
+    if (!isLanPairingPanel || !preferredLanPairingSelectedSlot) return;
     if (lanPairingSelectedSlot && lanPairingSlots.some((slot) => slot.value === lanPairingSelectedSlot.value)) return;
-    setLanPairingSelectedSlot(firstLanPairingSelectableSlot);
-  }, [firstLanPairingSelectableSlot, isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots]);
+    setLanPairingSelectedSlot(preferredLanPairingSelectedSlot);
+  }, [isLanPairingPanel, lanPairingSelectedSlot, lanPairingSlots, preferredLanPairingSelectedSlot]);
+  useEffect(() => {
+    if (!isLanPairingPanel || !lanPairingSelectedSlot) return;
+    const selectedDeviceId = lanPairingSelectedSlot.value;
+    const selectedDevice = selectedDeviceIdentity(lanPairingSelectedSlot);
+    if (!selectedDevice) return;
+    if (targetSelection.scope === 'perDevice' && targetSelection.deviceId === selectedDeviceId) return;
+    onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, lanPairingSelectedSlot));
+  }, [isLanPairingPanel, lanPairingSelectedSlot, onTargetChange, targetSelection]);
   const openLanPairingDeviceEditDialog = useCallback(
     (choice: DeviceSlot) => {
       setLanPairingSelectedSlot(choice);
       setLanPairingEditSlot(choice);
       setLanPairingHouseholdNameDraft(lanPairingHouseholdNameDraftFor(choice));
       setLanPairingDeviceKindDraft(lanPairingDeviceKindDraftFor(choice));
-      onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+      onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
       setLastAction(`${choice.label} edit`);
       setSyncStatus('Editing device identity');
     },
@@ -12571,7 +11254,7 @@ function ManageControlPanel({
     const nextName = lanPairingHouseholdNameDraft.trim() || lanPairingDeviceName(lanPairingEditSlot);
     const payload = lanPairingHouseholdActionCommandPayload(
       lanPairingEditSlot,
-      AgentProtocolDefaults.LanHouseholdActionKind.Rename,
+      PortalAgentLanHouseholdActionKind.Rename,
       {
         displayName: nextName,
         deviceKind: lanPairingDeviceKindDraft,
@@ -12711,17 +11394,21 @@ function ManageControlPanel({
   );
   const reportScopeValue = targetSelection.scope === 'perDevice' ? 'device' : 'family';
   const reportFamilyScope = reportScopeValue !== 'device';
-  const reportSlots = runtimeDeviceSlots;
+  const reportSelectionSlots = useMemo(
+    () => withStoredManageTargetSelectionSlot(runtimeDeviceSlots, targetSelection),
+    [runtimeDeviceSlots, targetSelection]
+  );
+  const reportSlots = useMemo(
+    () => (reportSelectionSlots.length > 0 ? reportSelectionSlots : reportPlanSeatSlots(reportPlanSeatLimit)),
+    [reportPlanSeatLimit, reportSelectionSlots]
+  );
   const reportPortalIds = useMemo(
     () => reportSlots.filter((slot) => slot.device).map((slot) => slot.value),
     [reportSlots]
   );
-  const firstReportSelectableSlot = reportSlots.find((slot) => slot.device && slot.status !== 'empty');
   const reportSelectedValue =
-    reportScopeValue === 'device'
-      ? (reportSelectedSlotValue(reportSlots, targetSelection.device) ?? firstReportSelectableSlot?.value)
-      : undefined;
-  const reportSelectedSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
+    reportScopeValue === 'device' ? (reportSelectedSlotValue(reportSlots, targetSelection) ?? '') : '';
+  const reportSelectedDeviceSlot = reportSlots.find((slot) => slot.value === reportSelectedValue) ?? null;
   const activityReportFiles = activityUiIntent.reportFiles;
   const activityReportSelectedFile =
     activityReportFiles.find((file) => file.id === activityReportSelectedFileId) ?? activityReportFiles[0] ?? null;
@@ -12852,7 +11539,7 @@ function ManageControlPanel({
   );
   const activityReportViewerTarget =
     activityReportViewerReport?.targetLabel ??
-    (reportFamilyScope ? 'Family' : (reportSelectedSlot?.label ?? 'Select a device'));
+    (reportFamilyScope ? 'Family' : (reportSelectedDeviceSlot?.label ?? 'Select a device'));
   const activityReportViewerState = activityReportViewerReport?.saved
     ? `Saved JSON: ${activityReportViewerReport.fileName}`
     : activityReportViewerReport
@@ -12874,7 +11561,7 @@ function ManageControlPanel({
   const activityMonitorRows = activityRowsFromReadModels(
     effectiveActivityManageTabId,
     reportScopeValue,
-    reportSelectedSlot,
+    reportSelectedDeviceSlot,
     activityReportFrequencyLabel,
     activityReportOverrideLabel,
     syncStatus,
@@ -12910,18 +11597,20 @@ function ManageControlPanel({
                 onChange={(choice) => {
                   setLanPairingSelectedSlot(choice);
                   if (choice.status === 'unsupported') {
-                    onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                    onTargetChange?.({
+                      ...selectedManageTargetSelectionForSlot(targetSelection, choice),
+                    });
                     setLastAction(`${choice.label} cannot run the child agent`);
                     setSyncStatus('Unsupported LAN device');
                     return;
                   }
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   setLastAction(`${choice.label} selected`);
                   setSyncStatus('Draft changed');
                 }}
                 onAddToPortal={(choice) => {
                   setLanPairingSelectedSlot(choice);
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   const payload = lanPairingAddDeviceCommandPayload(choice);
                   if (!payload) {
                     setLastAction(`${choice.label} has no controllable LAN route`);
@@ -13345,16 +12034,12 @@ function ManageControlPanel({
                 scopeIcons={FAMILY_DEVICE_SCOPE_ICONS}
                 onScopeChange={(nextScopeValue) => {
                   const nextScope = nextScopeValue === 'parent' ? 'perDevice' : 'global';
-                  onTargetChange?.({
-                    ...targetSelection,
-                    scope: nextScope,
-                    device: targetSelection.device,
-                  });
+                  onTargetChange?.({ ...targetSelection, scope: nextScope });
                   setLastAction(nextScope === 'perDevice' ? 'Per-device reports selected' : 'Family reports selected');
                   setSyncStatus('Report scope changed');
                 }}
                 onChange={(choice) => {
-                  onTargetChange?.({ ...targetSelection, scope: 'perDevice', device: choice.label });
+                  onTargetChange?.(selectedManageTargetSelectionForSlot(targetSelection, choice));
                   setLastAction(`${choice.label} report target`);
                   setSyncStatus('Report target changed');
                 }}
@@ -14015,6 +12700,9 @@ function ManageControlPanel({
           activeNavLabel={activeNavLabel}
           selectedControlName={selectedControlName}
           runtimeDeviceSlots={runtimeDeviceSlots}
+          sharedTargetSelection={targetSelection}
+          onSharedTargetChange={onTargetChange}
+          activityState={activityState}
           cfg={cfg}
         />
       ) : (
@@ -14086,8 +12774,8 @@ function ManageControlPanel({
                 <text x={x + 18} y={scheduleY} fontSize={10} fontWeight={950} fill={color}>
                   WHEN THIS APPLIES
                 </text>
-                {schedules.slice(0, compact ? 3 : 6).map((item, index) => {
-                  const chipW = compact ? (leftW - 48) / 3 : (leftW - 68) / 6;
+                {schedules.slice(0, 6).map((item, index) => {
+                  const chipW = (leftW - 68) / 6;
                   return (
                     <ManagePill
                       key={`${spec.title}:schedule:${item.label}`}
@@ -14858,9 +13546,9 @@ function AssistantChatBubbleBody({ text, choices, choiceColumnCount, choiceActio
             gap: 7,
           }}
         >
-          {choices.map((choice) => (
+          {choices.map((choice, index) => (
             <button
-              key={choice.label}
+              key={`${choice.label}:${index}`}
               type="button"
               aria-label={`Ask MIA about ${choiceActionLabel}: ${choice.label}`}
               onClick={(event) => {
@@ -17411,9 +16099,7 @@ function MainBoard({
   mainY: number;
   mainH: number;
 }) {
-  const activeTabConfig = tabs.find((tab) => tab.id === activeTab) ?? tabs[0];
   const detail = detailForNav(activeNavLabel, tabDetails[activeTab]);
-  const rankingTitle = activeTab === 'overall' ? 'PARENT CONTROL SNAPSHOT' : activeTabConfig.title;
   const activeNavKey = assetKey(activeNavLabel);
   const guideOverviewMode = activeNavKey.includes('start-here');
   const guideEligible = activeNavGroupId === 'guide';
@@ -17565,6 +16251,12 @@ function MainBoard({
   const activeFrameTitle =
     manageWorkspaceKind === 'policy' ? managePolicyAreaLabel(activeNavLabel, selectedControlName) : activeFrameRawTitle;
   const manageWorkspaceFullFrameMode = Boolean(manageWorkspaceKind);
+  const manageWorkspaceSupportsPerDevice = useMemo(
+    () =>
+      manageWorkspaceKind !== null &&
+      manageWorkspaceTargetOptions(manageWorkspaceKind).some((option) => option.id === 'perDevice'),
+    [manageWorkspaceKind]
+  );
   const manageWorkspaceHeaderIcon =
     manageWorkspaceKind === 'portal'
       ? PortalGatewayIcon
@@ -17587,11 +16279,12 @@ function MainBoard({
     () => manageBrowserTargetsForKey(activeNavLabel, selectedControlName),
     [activeNavLabel, selectedControlName]
   );
-  const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(() => ({
-    scope: 'perDevice',
-    device: '',
-    browser: 'Chrome',
-  }));
+  const [manageTargetSelection, setManageTargetSelection] = useState<ManageTargetSelection>(
+    () => readStoredManageTargetSelection() ?? defaultManageTargetSelection()
+  );
+  useEffect(() => {
+    writeStoredManageTargetSelection(manageTargetSelection);
+  }, [manageTargetSelection]);
   const manageTargetContextKey = `${manageMode ? 'manage' : 'browse'}:${activeNavLabel}:${selectedControlName}:${
     manageCurrentSpec?.title ?? ''
   }:${manageLane}`;
@@ -17600,32 +16293,63 @@ function MainBoard({
     if (!manageMode || !manageCurrentSpec) return;
     const contextChanged = previousManageTargetContextKeyRef.current !== manageTargetContextKey;
     previousManageTargetContextKeyRef.current = manageTargetContextKey;
-    const defaultScope = isReportsManageTitle(manageCurrentSpec.title)
-      ? 'global'
-      : manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
+    const defaultScope = manageInitialScopeForSpec(manageLane, manageCurrentSpec, manageRuntimeDeviceSlots);
     const defaultDevice = isLanPairingManageTitle(manageCurrentSpec.title)
       ? ''
       : manageDefaultDeviceSelection(manageCurrentSpec, manageRuntimeDeviceSlots);
+    const defaultDeviceId = defaultDevice;
     const defaultBrowser = manageBrowserTargets[0]?.label ?? 'All targets';
     setManageTargetSelection((current) => {
-      const nextScope = contextChanged ? defaultScope : current.scope;
-      const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current.device);
+      const preservePerDeviceReportScope =
+        isReportsManageTitle(manageCurrentSpec.title) &&
+        current.scope === 'perDevice' &&
+        (current.deviceId.length > 0 || current.device.length > 0);
+      const preservePerDeviceWorkspaceScope =
+        manageWorkspaceSupportsPerDevice &&
+        current.scope === 'perDevice' &&
+        (current.deviceId.length > 0 || current.device.length > 0);
+      const nextScope =
+        contextChanged && (preservePerDeviceReportScope || preservePerDeviceWorkspaceScope)
+          ? 'perDevice'
+          : contextChanged
+            ? defaultScope
+            : current.scope;
+      const deviceChoicesAvailable =
+        manageDeviceChoices(manageCurrentSpec.devices, manageRuntimeDeviceSlots).length > 0;
+      const currentSelectedSlot = reportSelectedSlot(manageRuntimeDeviceSlots, current);
+      const currentDeviceAvailable = reportDeviceSelectionAvailable(manageRuntimeDeviceSlots, current);
       const nextDevice =
-        isLanPairingManageTitle(manageCurrentSpec.title) || nextScope !== 'perDevice'
+        nextScope !== 'perDevice'
           ? defaultDevice
-          : currentDeviceAvailable
-            ? current.device
-            : defaultDevice;
+          : currentSelectedSlot
+            ? selectedDeviceIdentity(currentSelectedSlot)
+            : currentDeviceAvailable || (current.device.length > 0 && !deviceChoicesAvailable)
+              ? current.device
+              : defaultDevice;
+      const nextDeviceId =
+        nextScope !== 'perDevice'
+          ? defaultDeviceId
+          : currentSelectedSlot
+            ? currentSelectedSlot.value
+            : currentDeviceAvailable || (current.deviceId.length > 0 && !deviceChoicesAvailable)
+              ? current.deviceId
+              : defaultDevice;
       const nextBrowser =
         !contextChanged && manageBrowserTargets.some((target) => target.label === current.browser)
           ? current.browser
           : defaultBrowser;
-      if (current.scope === nextScope && current.device === nextDevice && current.browser === nextBrowser) {
+      if (
+        current.scope === nextScope &&
+        current.device === nextDevice &&
+        current.deviceId === nextDeviceId &&
+        current.browser === nextBrowser
+      ) {
         return current;
       }
       return {
         scope: nextScope,
         device: nextDevice,
+        deviceId: nextDeviceId,
         browser: nextBrowser,
       };
     });
@@ -17636,6 +16360,7 @@ function MainBoard({
     manageMode,
     manageRuntimeDeviceSlots,
     manageTargetContextKey,
+    manageWorkspaceSupportsPerDevice,
   ]);
   const controlBrowserMode = !guideMode && !manageMode && (tableVariant === 'controls' || aiBrowserMode);
   const expandedControlCategory =
@@ -17672,8 +16397,7 @@ function MainBoard({
       : controlBrowserMode
         ? `control:${normalizeSelectionId(selectedControlId)}`
         : `row:${selectedRowId}`;
-  const managePortalSection =
-    manageMode && (assetKey(activeNavItem?.sectionLabel) === 'portal' || manageWorkspaceFullFrameMode);
+  const managePortalSection = manageMode && (manageLane === 'portal' || manageWorkspaceFullFrameMode);
   const lanPairingDeviceGridMode =
     manageMode && manageCurrentSpec ? isLanPairingManageTitle(manageCurrentSpec.title) : false;
   const activityManageGridMode =
@@ -17917,7 +16641,7 @@ function MainBoard({
         onAgentCommand?.(
           lanPairingDeviceGridMode ? AgentCommand.LanPairingBrowserDiscoveryScan : AgentCommand.LanPairingStatusGet,
           {
-            [AgentProtocolDefaults.Field.LanRouteId]: AgentProtocolDefaults.Target.LocalNetworkWindowsAgent.route,
+            [PortalAgentProtocolField.LanRouteId]: PortalAgentTargetDefaults.LocalNetworkWindowsAgent.route,
           }
         );
       }}
@@ -18637,7 +17361,7 @@ export function ParentPortalSvgSurface({
   const [assistantMode, setAssistantMode] = useState(assistantRouteActive);
   const [assistantActionsVisible, setAssistantActionsVisible] = useState(() => cfg.canvas.width >= 1000);
   const [selectedAssistantActionId, setSelectedAssistantActionId] = useState<AssistantQuickActionId | null>(null);
-  const [selectedAssistantChoice, setSelectedAssistantChoice] = useState<AssistantQuickChoice | null>(null);
+  const [, setSelectedAssistantChoice] = useState<AssistantQuickChoice | null>(null);
   const [assistantThreadSequence, setAssistantThreadSequence] = useState(0);
   const [assistantActionSequence, setAssistantActionSequence] = useState(0);
   const [assistantRouteTransition, setAssistantRouteTransition] = useState<'opening' | 'closing' | null>(null);
@@ -19020,7 +17744,7 @@ export function ParentPortalSvgSurface({
               height={82}
               rx={6}
               fill="rgba(3, 7, 18, 0.66)"
-              stroke={error ? cfg.colors.red : cfg.colors.cyan}
+              stroke={cfg.colors.red}
               strokeWidth={1.2}
             />
             <text

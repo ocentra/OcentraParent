@@ -1,27 +1,40 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityEvent, ActivityEventKind,
-    ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver, ActivitySource, ActivitySubject,
-    ActivitySubjectKind, LocalAiChatGenerationResult, LocalAiGenerationState, LogFieldValue,
-    ScreenAnalysisResult, ACTIVITY_SCHEMA_VERSION, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_CATEGORY_UNKNOWN, SCREEN_CUSTODY_JOURNAL, SCREEN_DELETION_DELETED,
-    SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
-    SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE, SCREEN_SERVICE_ANALYSIS_EVENT_ID_PREFIX,
-    SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_MODEL_ID,
-    SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_RUNTIME_REF,
-    SCREEN_SERVICE_ANALYSIS_SOURCE_ID, SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID,
-    SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE, SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION,
-    SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
+use ocentra_parent_agent_protocol::activity::{
+    ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef, ActivityObserver,
+    ActivitySource, ActivitySubject, ActivitySubjectKind,
 };
+use ocentra_parent_agent_protocol::activity_capture::ActivityCaptureCapabilityStatus;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::local_ai_runtime::{
+    generation::LocalAiChatGenerationResult, lifecycle::LocalAiGenerationState,
+};
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::screen_evidence::{
+    ScreenAnalysisResult, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW, SCREEN_CUSTODY_JOURNAL,
+    SCREEN_DELETION_DELETED, SCREEN_PROVIDER_LOCAL_OCR, SCREEN_PROVIDER_LOCAL_VISION,
+    SCREEN_SERVICE_ANALYSIS_EVENT_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX,
+    SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX, SCREEN_SERVICE_ANALYSIS_SOURCE_ID,
+};
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
 
 use crate::fields::fields_from_pairs;
 
 use super::{
-    adapter::parsed_generation_output, queue::QueuedScreenImage, ScreenAiAnalysisCycleClock,
+    config::ScreenOcrRedactionPolicy, queue::QueuedScreenImage, ScreenAiAnalysisCycleClock,
     ScreenAiAnalysisCycleOutcome,
 };
 
+#[path = "event_record/parsed_fields.rs"]
+mod parsed_fields;
+#[path = "event_record/policy_refs.rs"]
+mod policy_refs;
+#[path = "event_record/redaction_fields.rs"]
+mod redaction_fields;
+
+use parsed_fields::parsed_fields_from_generation;
+use redaction_fields::screen_analysis_redaction_fields;
+
 #[derive(Clone, Debug)]
-pub(super) struct ScreenAiAnalysisEventRecord {
+pub(crate) struct ScreenAiAnalysisEventRecord {
     queue_job_id: String,
     image_digest: String,
     timestamp: String,
@@ -36,108 +49,99 @@ pub(super) struct ScreenAiAnalysisEventRecord {
     capture_reason: String,
     capture_scope: String,
     capability_status: String,
+    policy_decision_ref: Option<String>,
+    policy_action: Option<String>,
+    policy_reason_codes: Vec<String>,
+    parent_rule_refs: Vec<String>,
+    parent_explanation_refs: Vec<String>,
+    explanation_reasons: Vec<String>,
+    deletion_reasons: Vec<String>,
+    ocr_text_snippets: Vec<String>,
+    redaction_notes: Vec<String>,
 }
 
-pub(super) fn analysis_event_record(
+pub(super) struct ScreenAnalysisFieldEntry {
+    pub(super) key: &'static str,
+    pub(super) value: LogFieldValue,
+}
+
+pub(crate) fn analysis_event_record(
     image: &QueuedScreenImage,
     metadata: Option<&ScreenAnalysisResult>,
     clock: &ScreenAiAnalysisCycleClock,
     generation: &LocalAiChatGenerationResult,
+    redaction_policy: &ScreenOcrRedactionPolicy,
 ) -> ScreenAiAnalysisEventRecord {
-    let parsed = parsed_generation_output(generation);
-    let (
-        summary,
-        category,
-        confidence,
-        policy_eligible,
-        provider_kind,
-        model_runtime_ref,
-        model_id,
-        template_version,
-    ) = match parsed {
-        Some(output) => {
-            let policy_eligible = output.policy_eligible
-                && output.confidence
-                    >= ocentra_parent_agent_protocol::SCREEN_POLICY_CONFIDENCE_READY;
-            (
-                output.summary,
-                output.primary_category,
-                output.confidence,
-                policy_eligible,
-                output.provider_kind,
-                output.model_runtime_ref,
-                output.model_id,
-                output.prompt_or_template_version,
-            )
-        }
-        None if generation.generation_state == LocalAiGenerationState::Complete => (
-            SCREEN_SERVICE_ANALYSIS_SUMMARY_INVALID.to_string(),
-            SCREEN_CATEGORY_UNKNOWN.to_string(),
-            SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
-            false,
-            SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE.to_string(),
-            SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
-            SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
-            SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string(),
-        ),
-        None => (
-            SCREEN_SERVICE_ANALYSIS_SUMMARY_UNAVAILABLE.to_string(),
-            SCREEN_CATEGORY_UNKNOWN.to_string(),
-            SCREEN_SERVICE_UNAVAILABLE_CONFIDENCE,
-            false,
-            SCREEN_PROVIDER_LOCAL_VISION_UNAVAILABLE.to_string(),
-            SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
-            SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
-            SCREEN_SERVICE_ANALYSIS_TEMPLATE_VERSION.to_string(),
-        ),
-    };
+    let parsed = parsed_fields_from_generation(generation, redaction_policy);
+    let policy = policy_refs::service_policy_refs(image, parsed.policy_eligible);
     ScreenAiAnalysisEventRecord {
         queue_job_id: image.queue_job_id.clone(),
         image_digest: image.image_digest.clone(),
         timestamp: clock.timestamp.clone(),
-        summary,
-        primary_category: category,
-        confidence,
-        policy_eligible,
-        provider_kind,
-        model_runtime_ref,
-        model_id,
-        prompt_or_template_version: template_version,
-        capture_reason: capture_reason(metadata).to_string(),
-        capture_scope: capture_scope(metadata).to_string(),
+        summary: parsed.summary,
+        primary_category: parsed.category,
+        confidence: parsed.confidence,
+        policy_eligible: parsed.policy_eligible,
+        provider_kind: parsed.provider_kind,
+        model_runtime_ref: parsed.model_runtime_ref,
+        model_id: parsed.model_id,
+        prompt_or_template_version: parsed.template_version,
+        capture_reason: metadata
+            .map(|result| result.capture_reason.clone())
+            .unwrap_or_else(|| {
+                constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE.to_string()
+            }),
+        capture_scope: metadata
+            .map(|result| result.capture_scope.clone())
+            .unwrap_or_else(|| SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string()),
         capability_status: metadata
-            .map(|result| result.capability_status.as_str())
-            .unwrap_or(ActivityCaptureCapabilityStatus::Available.as_protocol_str())
-            .to_string(),
+            .map(|result| result.capability_status.clone())
+            .unwrap_or_else(|| {
+                ActivityCaptureCapabilityStatus::Available
+                    .as_protocol_str()
+                    .to_string()
+            }),
+        policy_decision_ref: policy.policy_decision_ref,
+        policy_action: policy.policy_action,
+        policy_reason_codes: policy.policy_reason_codes,
+        parent_rule_refs: policy.parent_rule_refs,
+        parent_explanation_refs: policy.parent_explanation_refs,
+        explanation_reasons: policy.explanation_reasons,
+        deletion_reasons: policy.deletion_reasons,
+        ocr_text_snippets: parsed.ocr_text_snippets,
+        redaction_notes: parsed.redaction_notes,
     }
 }
 
-pub(super) fn outcome_for_generation(
-    queue_job_id: &str,
+pub(crate) fn outcome_for_generation(
+    image: &QueuedScreenImage,
     generation: &LocalAiChatGenerationResult,
     event_record: &ScreenAiAnalysisEventRecord,
 ) -> ScreenAiAnalysisCycleOutcome {
-    if is_recorded_provider_kind(&event_record.provider_kind) {
+    if event_record.provider_kind == SCREEN_PROVIDER_LOCAL_VISION
+        || event_record.provider_kind == SCREEN_PROVIDER_LOCAL_OCR
+    {
         return ScreenAiAnalysisCycleOutcome::Recorded {
-            queue_job_id: queue_job_id.to_string(),
+            queue_job_id: image.queue_job_id.clone(),
             provider_kind: event_record.provider_kind.clone(),
         };
     }
     if generation.generation_state == LocalAiGenerationState::Complete {
         return ScreenAiAnalysisCycleOutcome::InvalidOutput {
-            queue_job_id: queue_job_id.to_string(),
+            queue_job_id: image.queue_job_id.clone(),
         };
     }
     ScreenAiAnalysisCycleOutcome::ProviderUnavailable {
-        queue_job_id: queue_job_id.to_string(),
+        queue_job_id: image.queue_job_id.clone(),
     }
 }
 
-fn is_recorded_provider_kind(provider_kind: &str) -> bool {
-    provider_kind == SCREEN_PROVIDER_LOCAL_VISION || provider_kind == SCREEN_PROVIDER_LOCAL_OCR
-}
-
-pub(super) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> ActivityEvent {
+pub(crate) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> ActivityEvent {
+    let prefixed_id = |prefix: &'static str, value: &String| {
+        let mut id = String::from(prefix);
+        id.push_str(value);
+        id
+    };
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
         event_id: prefixed_id(
@@ -157,7 +161,12 @@ pub(super) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> Act
             subject_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
             display_name: None,
         },
-        fields: fields_from_pairs(screen_analysis_fields(record)),
+        fields: fields_from_pairs(
+            screen_analysis_fields(record)
+                .into_iter()
+                .map(|entry| (entry.key, entry.value))
+                .collect(),
+        ),
         evidence: vec![ActivityEvidenceRef {
             evidence_id: prefixed_id(
                 SCREEN_SERVICE_ANALYSIS_EVIDENCE_ID_PREFIX,
@@ -170,16 +179,36 @@ pub(super) fn screen_analysis_event(record: &ScreenAiAnalysisEventRecord) -> Act
     }
 }
 
-fn screen_analysis_fields(
+fn screen_analysis_fields(record: &ScreenAiAnalysisEventRecord) -> Vec<ScreenAnalysisFieldEntry> {
+    let mut fields = base_screen_analysis_fields(record);
+    fields.extend(policy_refs::screen_analysis_policy_fields(record));
+    fields.extend(screen_analysis_redaction_fields(record));
+    fields
+}
+
+fn base_screen_analysis_fields(
     record: &ScreenAiAnalysisEventRecord,
-) -> Vec<(&'static str, LogFieldValue)> {
+) -> Vec<ScreenAnalysisFieldEntry> {
+    let string_field = |key: &'static str, value: String| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::String(value),
+    };
+    let static_string_field = |key: &'static str, value: &'static str| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::String(value.to_string()),
+    };
+    let number_field = |key: &'static str, value: f64| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::Number(value),
+    };
+    let bool_field = |key: &'static str, value: bool| ScreenAnalysisFieldEntry {
+        key,
+        value: LogFieldValue::Boolean(value),
+    };
     vec![
         string_field(
             constants::field::SCREEN_ANALYSIS_RESULT_ID,
-            prefixed_id(
-                SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX,
-                &record.queue_job_id,
-            ),
+            String::from(SCREEN_SERVICE_ANALYSIS_RESULT_ID_PREFIX) + &record.queue_job_id,
         ),
         string_field(
             constants::field::SCREEN_QUEUE_JOB_ID,
@@ -191,7 +220,7 @@ fn screen_analysis_fields(
             record.primary_category.clone(),
         ),
         number_field(constants::field::SCREEN_CONFIDENCE, record.confidence),
-        string_field(
+        static_string_field(
             constants::field::SCREEN_IMAGE_DELETION_STATE,
             SCREEN_DELETION_DELETED,
         ),
@@ -228,165 +257,9 @@ fn screen_analysis_fields(
             constants::field::SCREEN_IMAGE_DIGEST,
             record.image_digest.clone(),
         ),
-        string_field(
+        static_string_field(
             constants::field::SCREEN_CUSTODY_STATE,
             SCREEN_CUSTODY_JOURNAL,
         ),
     ]
-}
-
-fn capture_reason(metadata: Option<&ScreenAnalysisResult>) -> &str {
-    metadata
-        .map(|result| result.capture_reason.as_str())
-        .unwrap_or(constants::activity_capture::SCREEN_TRIGGER_TIMED_CADENCE)
-}
-
-fn capture_scope(metadata: Option<&ScreenAnalysisResult>) -> &str {
-    metadata
-        .map(|result| result.capture_scope.as_str())
-        .unwrap_or(SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW)
-}
-
-fn prefixed_id(prefix: &str, value: &str) -> String {
-    let mut id = String::from(prefix);
-    id.push_str(value);
-    id
-}
-
-fn string_field(key: &'static str, value: impl Into<String>) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::String(value.into()))
-}
-
-fn number_field(key: &'static str, value: f64) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Number(value))
-}
-
-fn bool_field(key: &'static str, value: bool) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Boolean(value))
-}
-
-#[cfg(test)]
-mod tests {
-    use serde_json::{Map, Value};
-
-    use ocentra_parent_agent_protocol::{
-        SCREEN_CATEGORY_SCHOOL, SCREEN_POLICY_CONFIDENCE_READY, SCREEN_PROVIDER_LOCAL_OCR,
-        SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
-        SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE, SCREEN_SERVICE_ANALYSIS_PROVIDER_ID,
-        SCREEN_WINRT_OCR_MODEL_ID, SCREEN_WINRT_OCR_RUNTIME_REF, SCREEN_WINRT_OCR_TEMPLATE_VERSION,
-    };
-
-    use super::*;
-
-    #[test]
-    fn local_ocr_analysis_event_is_recorded_with_runtime_metadata() {
-        let image = queued_image();
-        let generation = complete_generation(local_ocr_output_text());
-        let clock = ScreenAiAnalysisCycleClock::from_parts(
-            7,
-            constants::activity_store::TEST_SECOND_OBSERVED_AT.to_string(),
-        );
-
-        let record = analysis_event_record(&image, None, &clock, &generation);
-        let outcome = outcome_for_generation(&image.queue_job_id, &generation, &record);
-        let event = screen_analysis_event(&record);
-
-        assert_eq!(
-            outcome,
-            ScreenAiAnalysisCycleOutcome::Recorded {
-                queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-                provider_kind: SCREEN_PROVIDER_LOCAL_OCR.to_string()
-            }
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_PROVIDER_KIND),
-            SCREEN_PROVIDER_LOCAL_OCR
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_MODEL_RUNTIME_REF),
-            SCREEN_WINRT_OCR_RUNTIME_REF
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_MODEL_ID),
-            SCREEN_WINRT_OCR_MODEL_ID
-        );
-        assert_eq!(
-            string_value(&event, constants::field::SCREEN_TEMPLATE_VERSION),
-            SCREEN_WINRT_OCR_TEMPLATE_VERSION
-        );
-    }
-
-    fn queued_image() -> QueuedScreenImage {
-        QueuedScreenImage {
-            queue_job_id: constants::activity_store::TEST_SCREEN_QUEUE_JOB_ID.to_string(),
-            custody_state: ocentra_parent_agent_protocol::SCREEN_CUSTODY_TEMP_QUEUE.to_string(),
-            image_digest: constants::activity_store::TEST_SCREEN_IMAGE_DIGEST.to_string(),
-            image_bytes: constants::activity_store::TEST_SCREEN_PLAINTEXT_MARKER
-                .as_bytes()
-                .to_vec(),
-        }
-    }
-
-    fn local_ocr_output_text() -> String {
-        let mut output = Map::new();
-        output.insert(
-            constants::field::SCREEN_SUMMARY.to_string(),
-            Value::from(constants::activity_store::TEST_SCREEN_SUMMARY),
-        );
-        output.insert(
-            constants::field::SCREEN_PRIMARY_CATEGORY.to_string(),
-            Value::from(SCREEN_CATEGORY_SCHOOL),
-        );
-        output.insert(
-            constants::field::SCREEN_CONFIDENCE.to_string(),
-            Value::from(SCREEN_POLICY_CONFIDENCE_READY),
-        );
-        output.insert(
-            constants::field::SCREEN_POLICY_ELIGIBLE.to_string(),
-            Value::from(true),
-        );
-        output.insert(
-            constants::field::SCREEN_PROVIDER_KIND.to_string(),
-            Value::from(SCREEN_PROVIDER_LOCAL_OCR),
-        );
-        output.insert(
-            constants::field::SCREEN_MODEL_RUNTIME_REF.to_string(),
-            Value::from(SCREEN_WINRT_OCR_RUNTIME_REF),
-        );
-        output.insert(
-            constants::field::SCREEN_MODEL_ID.to_string(),
-            Value::from(SCREEN_WINRT_OCR_MODEL_ID),
-        );
-        output.insert(
-            constants::field::SCREEN_TEMPLATE_VERSION.to_string(),
-            Value::from(SCREEN_WINRT_OCR_TEMPLATE_VERSION),
-        );
-        Value::Object(output).to_string()
-    }
-
-    fn complete_generation(output_text: String) -> LocalAiChatGenerationResult {
-        LocalAiChatGenerationResult {
-            local_ai_result_id: constants::activity_store::TEST_SCREEN_RESULT_ID.to_string(),
-            runtime_reference_id: SCREEN_SERVICE_ANALYSIS_RUNTIME_REF.to_string(),
-            provider_id: SCREEN_SERVICE_ANALYSIS_PROVIDER_ID.to_string(),
-            model_id: SCREEN_SERVICE_ANALYSIS_MODEL_ID.to_string(),
-            model_reference: SCREEN_SERVICE_ANALYSIS_MODEL_REFERENCE.to_string(),
-            generation_state: LocalAiGenerationState::Complete,
-            output_text: Some(output_text),
-            prompt_char_count: 1,
-            max_output_tokens: constants::local_ai_runtime::DEFAULT_GENERATION_MAX_TOKENS,
-            timeout_ms: SCREEN_SERVICE_ANALYSIS_DEFAULT_ADAPTER_TIMEOUT_MS,
-            duration_ms: 1,
-            exit_code: Some(0),
-            stderr_byte_size: 0,
-            unavailable_reason: None,
-        }
-    }
-
-    fn string_value<'a>(event: &'a ActivityEvent, field: &str) -> &'a str {
-        match event.fields.get(field) {
-            Some(LogFieldValue::String(value)) => value,
-            _ => unreachable!(),
-        }
-    }
 }

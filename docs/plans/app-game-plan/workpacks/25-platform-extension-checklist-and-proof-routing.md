@@ -1,5 +1,20 @@
 # 25 Platform Extension Checklist And Proof Routing
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `25 Platform Extension Checklist And Proof Routing`
+> Kind: proof reference; read only when validating matching claim.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 macOS, iOS, Android, and Linux app/game work routes to explicit extension
@@ -15,10 +30,10 @@ checklists without bloating the base MVP or overclaiming support.
 
 ## Tests And Proof
 
-- [x] Extension row names platform and authority tier.
-- [x] Manual proof is attached before status moves.
-- [x] No platform row says simply unsupported when a more precise status exists.
-- [x] Cross-plan handoffs are linked.
+- [ ] Extension row names platform and authority tier.
+- [ ] Manual proof is attached before status moves.
+- [ ] No platform row says simply unsupported when a more precise status exists.
+- [ ] Cross-plan handoffs are linked.
 
 ## Current Proof - 2026-06-03
 

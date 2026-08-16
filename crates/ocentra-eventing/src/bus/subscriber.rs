@@ -9,10 +9,11 @@ use std::{
 };
 
 use crate::{
-    DomainEvent, EventType, EventingError, StoredEventEnvelope, SubscriberId, TargetHandler,
+    DomainEvent, EventType, EventingError, ExpectValue, StoredEventEnvelope, SubscriberId,
+    TargetHandler,
 };
 
-use super::{EventContext, EventPublisher};
+use super::{EventContext, EventPublisher, QueueDrainReport};
 
 type HandlerFuture = Pin<Box<dyn Future<Output = Result<(), EventingError>> + Send>>;
 type StoredHandler = dyn Fn(StoredEventEnvelope, EventPublisher) -> HandlerFuture + Send + Sync;
@@ -35,7 +36,7 @@ impl EventSubscriber {
 }
 
 #[derive(Clone)]
-pub(super) struct SubscriberRecord {
+pub(crate) struct SubscriberRecord {
     pub(super) id: SubscriberId,
     pub(super) event_type: EventType,
     pub(super) target_handler: TargetHandler,
@@ -47,6 +48,7 @@ pub struct SubscriptionReport {
     pub subscriber_id: SubscriberId,
     pub event_type: EventType,
     pub target_handler: TargetHandler,
+    pub drain_report: QueueDrainReport,
 }
 
 pub struct SubscriptionHandle {
@@ -103,7 +105,7 @@ pub struct UnsubscribeReport {
 }
 
 pub(super) fn record_for<E, F, Fut>(
-    subscriber: EventSubscriber,
+    subscriber: &EventSubscriber,
     handler: F,
 ) -> Result<SubscriberRecord, EventingError>
 where
@@ -130,26 +132,25 @@ pub(super) fn insert_subscriber(
     registry: &Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     record: SubscriberRecord,
 ) -> Result<(), EventingError> {
-    let mut registry = registry.lock().expect("event registry lock");
+    let mut registry = registry.lock().expect_value("event registry lock");
     let subscribers = registry.entry(record.event_type.clone()).or_default();
+    let subscriber_id = record.id.clone();
     if subscribers
         .iter()
         .any(|subscriber| subscriber.id == record.id)
     {
-        return Err(EventingError::DuplicateSubscriber {
-            subscriber_id: record.id.clone(),
-        });
+        return Err(EventingError::DuplicateSubscriber { subscriber_id });
     }
     subscribers.push(record);
     Ok(())
 }
 
-fn remove_subscriber(
+pub(super) fn remove_subscriber(
     registry: &Arc<Mutex<BTreeMap<EventType, Vec<SubscriberRecord>>>>,
     event_type: &EventType,
     subscriber_id: &SubscriberId,
 ) -> bool {
-    let mut registry = registry.lock().expect("event registry lock");
+    let mut registry = registry.lock().expect_value("event registry lock");
     let Some(subscribers) = registry.get_mut(event_type) else {
         return false;
     };

@@ -1,5 +1,19 @@
 # 66. Notification Parent Surface Intent
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `66. Notification Parent Surface Intent`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Goal
 
 Combine app/game notification provider-status and preference-status handoff rows
@@ -45,17 +59,17 @@ provider/preference proof internals.
 
 ## Validation
 
-- [x] Provider-status and preference-status handoff read models parse before
+- [ ] Provider-status and preference-status handoff read models parse before
       mapping.
-- [x] Source family refs and row counts must match before parent-surface intent
+- [ ] Source family refs and row counts must match before parent-surface intent
       rows are produced.
-- [x] Manual provider/preference rows become parent-surface
+- [ ] Manual provider/preference rows become parent-surface
       `manual-action-required` rows with history/preference setup visibility.
-- [x] Unavailable provider/preference rows remain visible as unavailable or
+- [ ] Unavailable provider/preference rows remain visible as unavailable or
       disabled rows without delivery claims.
-- [x] Proof pack records no rendered UI, no parent preference mutation, no
+- [ ] Proof pack records no rendered UI, no parent preference mutation, no
       provider delivery, no receipt ingestion, no credentials, no production
       runtime, no child delivery, no adapter dispatch, no broad blocking, and no
       platform support.
-- [x] Product checklist unchanged because this parent-surface intent does not
+- [ ] Product checklist unchanged because this parent-surface intent does not
       move feature status and provider/runtime/UI/platform gaps remain.

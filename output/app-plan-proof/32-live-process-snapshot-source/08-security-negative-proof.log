@@ -1,6 +1,0 @@
-Security/no-claim proof:
-
-- Native app runtime evidence remains separate from foreground evidence.
-- Unknown process rows do not become known apps without deterministic refs.
-- Executable paths are stored as opaque refs, not raw paths.
-- No policy action or platform adapter execution is called.

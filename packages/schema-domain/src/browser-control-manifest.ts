@@ -1,0 +1,35 @@
+import {
+  BrowserControlFieldOptionSchema as GeneratedBrowserControlFieldOptionSchema,
+  BrowserControlConditionSchema as GeneratedBrowserControlConditionSchema,
+  BrowserControlAuthoringFieldSchema as GeneratedBrowserControlAuthoringFieldSchema,
+  BrowserControlAuthoringSectionSchema as GeneratedBrowserControlAuthoringSectionSchema,
+  BrowserControlAuthoringManifestSchema as GeneratedBrowserControlAuthoringManifestSchema,
+  BrowserControlManifestDefaults as GeneratedBrowserControlManifestDefaults,
+  decodeBrowserControlAuthoringManifest as GenerateddecodeBrowserControlAuthoringManifest,
+  browserControlVisibleSectionIds as GeneratedbrowserControlVisibleSectionIds,
+  browserControlManifestAllowsField as GeneratedbrowserControlManifestAllowsField,
+  browserControlManifestAllowsWritesTo as GeneratedbrowserControlManifestAllowsWritesTo,
+} from './generated-browser-control-manifest';
+import type {
+  BrowserControlFieldOption as GeneratedBrowserControlFieldOption,
+  BrowserControlCondition as GeneratedBrowserControlCondition,
+  BrowserControlAuthoringField as GeneratedBrowserControlAuthoringField,
+  BrowserControlAuthoringSection as GeneratedBrowserControlAuthoringSection,
+  BrowserControlAuthoringManifest as GeneratedBrowserControlAuthoringManifest,
+} from './generated-browser-control-manifest';
+
+export const BrowserControlFieldOptionSchema = GeneratedBrowserControlFieldOptionSchema;
+export const BrowserControlConditionSchema = GeneratedBrowserControlConditionSchema;
+export const BrowserControlAuthoringFieldSchema = GeneratedBrowserControlAuthoringFieldSchema;
+export const BrowserControlAuthoringSectionSchema = GeneratedBrowserControlAuthoringSectionSchema;
+export const BrowserControlAuthoringManifestSchema = GeneratedBrowserControlAuthoringManifestSchema;
+export const BrowserControlManifestDefaults = GeneratedBrowserControlManifestDefaults;
+export const decodeBrowserControlAuthoringManifest = GenerateddecodeBrowserControlAuthoringManifest;
+export const browserControlVisibleSectionIds = GeneratedbrowserControlVisibleSectionIds;
+export const browserControlManifestAllowsField = GeneratedbrowserControlManifestAllowsField;
+export const browserControlManifestAllowsWritesTo = GeneratedbrowserControlManifestAllowsWritesTo;
+export type BrowserControlFieldOption = GeneratedBrowserControlFieldOption;
+export type BrowserControlCondition = GeneratedBrowserControlCondition;
+export type BrowserControlAuthoringField = GeneratedBrowserControlAuthoringField;
+export type BrowserControlAuthoringSection = GeneratedBrowserControlAuthoringSection;
+export type BrowserControlAuthoringManifest = GeneratedBrowserControlAuthoringManifest;

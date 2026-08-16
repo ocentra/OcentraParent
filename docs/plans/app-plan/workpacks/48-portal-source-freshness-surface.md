@@ -9,6 +9,9 @@ The shared App/Game Sessions dashboard now renders service-backed native
 app/game `sourceStatusRows` as source row counts, fresh source counts, and
 source-kind evidence drawer summaries.
 
+Code-pass status: the existing intent and dashboard render path is now mapped
+to its actual vendor portal owners; validation and proof remain deferred.
+
 ## Implementation
 
 - Consume app-use and games read-model `sourceStatusRows` in the portal

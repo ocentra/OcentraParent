@@ -1,9 +1,31 @@
 # Type Safety, Validation, And Ownership
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Type Safety, Validation, And Ownership`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 The reusable Rust eventing system must be stronger than the Games TypeScript
 bus. It should preserve the same workflow value, but it must use Rust's type
 system, ownership model, and validation boundaries to prevent raw-string,
 unvalidated-payload, shared-mutable-state, and borrow/await bugs.
+
+Current parent architecture is Rust-first. For Parent product surfaces,
+canonical contracts, schemas, route snapshots, action handling, read models,
+and business logic belong in `crates/schema` or the owning Rust domain/runtime
+crate. TypeScript may keep generated bridge DTO consumers, thin adapters,
+presentation helpers, or temporary edge decoders; it must not be described as
+the product contract owner.
 
 ## Effect-Schema-Like Rule For Rust
 
@@ -243,14 +265,17 @@ validated types before live dispatch.
 
 When TypeScript and Rust both represent the same Parent event family:
 
-- TypeScript owns Effect Schema parser/brand helpers in the appropriate domain
-  package;
-- Rust owns matching newtypes and serde validation in protocol/event crates;
-- fixtures prove TypeScript encoded JSON is accepted by Rust and Rust encoded
-  JSON is accepted by TypeScript;
+- Rust owns the canonical DTO/event shape, newtypes, serde validation, and
+  route/action/read-model semantics in `crates/schema` or the owning Rust
+  domain/runtime crate;
+- TypeScript owns only generated bridge DTO consumers, thin adapters, or
+  temporary edge decoders for untrusted TS edges;
+- fixtures or generated-artifact checks prove Rust encoded JSON is accepted by
+  TypeScript consumers when needed, and temporary TypeScript edge input is
+  accepted by Rust only after Rust-owned validation;
 - raw strings remain only at the external boundary and are decoded immediately;
-- code generation is allowed only if generated values pass the same decode
-  helpers instead of weakening brands.
+- code generation is preferred for cross-boundary DTOs and must preserve Rust
+  field names, discriminants, nullability, enum values, and version semantics.
 
 ## Required Proof
 

@@ -1,7 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, ChildCapabilityState, ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent,
+use ocentra_parent_agent_protocol::child_agent::child_agent_events::{
+    ChildCapabilityState, ChildCapabilityStateUpdatedEvent, ChildCommandAcceptedEvent,
     ChildCommandDecision, ChildCommandReceivedEvent, ChildRuntimeHealthState,
-    ChildRuntimeHealthUpdatedEvent, ParentActionReceivedEvent, ParentChildCommandDeliveryState,
+    ChildRuntimeHealthUpdatedEvent,
+};
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::parent_controller_events::{
+    ParentActionReceivedEvent, ParentChildCommandDeliveryState,
     ParentChildCommandForwardRequestedEvent, ParentChildCommandForwardedEvent,
     ParentChildCommandTransportBoundary, ParentCommandValidatedEvent, ParentCommandValidationState,
     ParentProjectionKind, ParentReadModelProjectedEvent,

@@ -1,13 +1,29 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvent, ActivityEventKind, ActivityEvidenceKind, ActivityEvidenceRef,
-    ActivityObserver, ActivitySource, ActivitySubject, ActivitySubjectKind, LogFieldValue,
-    ScreenAnalysisQueueJob, ACTIVITY_SCHEMA_VERSION, SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW,
-    SCREEN_CATEGORY_UNKNOWN, SCREEN_CUSTODY_JOURNAL, SCREEN_CUSTODY_TEMP_QUEUE,
-    SCREEN_DELETION_DELETED, SCREEN_EVIDENCE_SCHEMA_VERSION, SCREEN_IMAGE_FORMAT_PNG,
-    SCREEN_PROVIDER_SERVICE_METADATA, SCREEN_QUEUE_STATUS_QUEUED, SCREEN_SERVICE_ADAPTER_ID,
-    SCREEN_SERVICE_LOCAL_USER_REF, SCREEN_SERVICE_METADATA_CONFIDENCE,
-    SCREEN_SERVICE_MODEL_RUNTIME_REF, SCREEN_SERVICE_PARENT_SETTING_REF,
-};
+use ocentra_parent_agent_protocol::activity::ActivityEvent;
+use ocentra_parent_agent_protocol::activity::ActivityEventKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceKind;
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::activity::ActivityObserver;
+use ocentra_parent_agent_protocol::activity::ActivitySource;
+use ocentra_parent_agent_protocol::activity::ActivitySubject;
+use ocentra_parent_agent_protocol::activity::ActivitySubjectKind;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::LogFieldValue;
+use ocentra_parent_agent_protocol::screen_evidence::ScreenAnalysisQueueJob;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CATEGORY_UNKNOWN;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_JOURNAL;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_CUSTODY_TEMP_QUEUE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_DELETION_REQUIRED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_IMAGE_FORMAT_PNG;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_PROVIDER_SERVICE_METADATA;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_QUEUE_STATUS_QUEUED;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_ADAPTER_ID;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_LOCAL_USER_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_METADATA_CONFIDENCE;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_MODEL_RUNTIME_REF;
+use ocentra_parent_agent_protocol::screen_evidence::SCREEN_SERVICE_PARENT_SETTING_REF;
+use ocentra_parent_agent_protocol::ACTIVITY_SCHEMA_VERSION;
+use ocentra_parent_agent_protocol::SCREEN_EVIDENCE_SCHEMA_VERSION;
 use ocentra_parent_screen_capture_adapter::CapturedScreenImage;
 
 use crate::{
@@ -16,6 +32,24 @@ use crate::{
 
 const DEFAULT_MAX_RETRY_COUNT: u64 = 0;
 const DEFAULT_SETTING_VERSION: u64 = 1;
+
+#[derive(Clone, Copy)]
+pub(crate) struct ScreenIdPrefix(pub(crate) &'static str);
+
+#[derive(Clone)]
+pub(crate) struct ScreenText(pub(crate) String);
+
+impl ScreenText {
+    pub(crate) fn from_display(value: impl std::fmt::Display) -> Self {
+        Self(value.to_string())
+    }
+}
+
+#[derive(Clone)]
+struct ScreenFieldEntry {
+    key: &'static str,
+    value: LogFieldValue,
+}
 
 pub(crate) struct ScreenAiServiceCaptureIds {
     pub(crate) queue_job_id: String,
@@ -26,18 +60,18 @@ pub(crate) struct ScreenAiServiceCaptureIds {
 
 impl ScreenAiServiceCaptureIds {
     pub(crate) fn new(
-        queue_job_id_prefix: &str,
-        result_id_prefix: &str,
-        event_id_prefix: &str,
-        evidence_id_prefix: &str,
+        queue_job_id_prefix: ScreenIdPrefix,
+        result_id_prefix: ScreenIdPrefix,
+        event_id_prefix: ScreenIdPrefix,
+        evidence_id_prefix: ScreenIdPrefix,
         epoch_seconds: u64,
         sequence_index: u64,
     ) -> Self {
         Self {
-            queue_job_id: suffixed_id(queue_job_id_prefix, epoch_seconds, sequence_index),
-            result_id: suffixed_id(result_id_prefix, epoch_seconds, sequence_index),
-            event_id: suffixed_id(event_id_prefix, epoch_seconds, sequence_index),
-            evidence_id: suffixed_id(evidence_id_prefix, epoch_seconds, sequence_index),
+            queue_job_id: suffixed_id(queue_job_id_prefix, epoch_seconds, sequence_index).0,
+            result_id: suffixed_id(result_id_prefix, epoch_seconds, sequence_index).0,
+            event_id: suffixed_id(event_id_prefix, epoch_seconds, sequence_index).0,
+            evidence_id: suffixed_id(evidence_id_prefix, epoch_seconds, sequence_index).0,
         }
     }
 }
@@ -45,7 +79,7 @@ impl ScreenAiServiceCaptureIds {
 pub(crate) fn screen_queue_job(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
-    image_digest: &str,
+    image_digest: &ScreenText,
 ) -> ScreenAnalysisQueueJob {
     ScreenAnalysisQueueJob {
         schema_version: SCREEN_EVIDENCE_SCHEMA_VERSION,
@@ -54,7 +88,8 @@ pub(crate) fn screen_queue_job(
         not_before: record.clock.timestamp.clone(),
         expires_at: record
             .clock
-            .expires_after_seconds(record.temporary_image_ttl_seconds),
+            .expires_after_seconds(record.temporary_image_ttl_seconds)
+            .0,
         last_attempt_at: None,
         capture_reason: record.capture_reason.to_string(),
         capture_scope: SCREEN_CAPTURE_SCOPE_ACTIVE_WINDOW.to_string(),
@@ -65,8 +100,8 @@ pub(crate) fn screen_queue_job(
         parent_setting_ref: SCREEN_SERVICE_PARENT_SETTING_REF.to_string(),
         setting_version: DEFAULT_SETTING_VERSION,
         related_evidence_refs: Vec::new(),
-        encrypted_image_ref: record.paths.queue_dir.to_string_lossy().to_string(),
-        image_digest: image_digest.to_string(),
+        encrypted_image_ref: format!("screen-evidence:{}", ids.queue_job_id),
+        image_digest: image_digest.0.clone(),
         image_byte_size: record.image.png_bytes.len() as u64,
         image_format: SCREEN_IMAGE_FORMAT_PNG.to_string(),
         status: SCREEN_QUEUE_STATUS_QUEUED.to_string(),
@@ -76,7 +111,7 @@ pub(crate) fn screen_queue_job(
         unavailable_reason: None,
         deletion_required: true,
         deleted_at: None,
-        deletion_status: SCREEN_DELETION_DELETED.to_string(),
+        deletion_status: SCREEN_DELETION_REQUIRED.to_string(),
         deletion_proof_ref: None,
         custody_state: SCREEN_CUSTODY_TEMP_QUEUE.to_string(),
     }
@@ -86,7 +121,7 @@ pub(crate) fn screen_analysis_event(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: &str,
+    image_digest: &ScreenText,
 ) -> ActivityEvent {
     let evidence = screen_analysis_evidence(ids, job, image_digest);
     ActivityEvent {
@@ -103,23 +138,28 @@ pub(crate) fn screen_analysis_event(
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Device,
             subject_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
-            display_name: record.image.metadata.title.clone(),
+            display_name: None,
         },
-        fields: fields_from_pairs(screen_analysis_fields(record, ids, job, image_digest)),
+        fields: fields_from_pairs(
+            screen_analysis_fields(record, ids, job, image_digest)
+                .into_iter()
+                .map(|entry| (entry.key, entry.value))
+                .collect(),
+        ),
         evidence,
     }
 }
 
 fn screen_analysis_evidence(
     ids: &ScreenAiServiceCaptureIds,
-    job: &ScreenAnalysisQueueJob,
-    image_digest: &str,
+    _job: &ScreenAnalysisQueueJob,
+    image_digest: &ScreenText,
 ) -> Vec<ActivityEvidenceRef> {
     vec![ActivityEvidenceRef {
         evidence_id: ids.evidence_id.clone(),
         kind: ActivityEvidenceKind::Screenshot,
-        digest: Some(image_digest.to_string()),
-        uri: Some(job.encrypted_image_ref.clone()),
+        digest: Some(image_digest.0.clone()),
+        uri: None,
     }]
 }
 
@@ -127,10 +167,10 @@ fn screen_analysis_fields(
     record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-    image_digest: &str,
-) -> Vec<(&'static str, LogFieldValue)> {
+    image_digest: &ScreenText,
+) -> Vec<ScreenFieldEntry> {
     let mut fields = Vec::new();
-    fields.extend(screen_analysis_identity_fields(record, ids, job));
+    fields.extend(screen_analysis_identity_fields(ids, job));
     fields.extend(screen_analysis_model_fields(record));
     fields.extend(screen_analysis_capture_fields(
         job,
@@ -141,101 +181,121 @@ fn screen_analysis_fields(
 }
 
 fn screen_analysis_identity_fields(
-    record: &ScreenAiServiceCaptureRecord<'_>,
     ids: &ScreenAiServiceCaptureIds,
     job: &ScreenAnalysisQueueJob,
-) -> Vec<(&'static str, LogFieldValue)> {
+) -> Vec<ScreenFieldEntry> {
     vec![
         string_field(
-            constants::field::SCREEN_ANALYSIS_RESULT_ID,
-            ids.result_id.clone(),
+            ScreenFieldKey(constants::field::SCREEN_ANALYSIS_RESULT_ID),
+            ScreenText(ids.result_id.clone()),
         ),
         string_field(
-            constants::field::SCREEN_QUEUE_JOB_ID,
-            job.queue_job_id.clone(),
+            ScreenFieldKey(constants::field::SCREEN_QUEUE_JOB_ID),
+            ScreenText(job.queue_job_id.clone()),
         ),
-        string_field(constants::field::SCREEN_SUMMARY, record.summary),
         string_field(
-            constants::field::SCREEN_PRIMARY_CATEGORY,
-            SCREEN_CATEGORY_UNKNOWN,
+            ScreenFieldKey(constants::field::SCREEN_SUMMARY),
+            ScreenText(constants::activity_surface::SUMMARY_READY.to_string()),
+        ),
+        string_field(
+            ScreenFieldKey(constants::field::SCREEN_PRIMARY_CATEGORY),
+            ScreenText(SCREEN_CATEGORY_UNKNOWN.to_string()),
         ),
     ]
 }
 
 fn screen_analysis_model_fields(
     record: &ScreenAiServiceCaptureRecord<'_>,
-) -> Vec<(&'static str, LogFieldValue)> {
+) -> Vec<ScreenFieldEntry> {
     vec![
         number_field(
-            constants::field::SCREEN_CONFIDENCE,
+            ScreenFieldKey(constants::field::SCREEN_CONFIDENCE),
             SCREEN_SERVICE_METADATA_CONFIDENCE,
         ),
         string_field(
-            constants::field::SCREEN_IMAGE_DELETION_STATE,
-            SCREEN_DELETION_DELETED,
+            ScreenFieldKey(constants::field::SCREEN_IMAGE_DELETION_STATE),
+            ScreenText(SCREEN_DELETION_REQUIRED.to_string()),
         ),
-        bool_field(constants::field::SCREEN_POLICY_ELIGIBLE, false),
-        string_field(
-            constants::field::SCREEN_MODEL_RUNTIME_REF,
-            SCREEN_SERVICE_MODEL_RUNTIME_REF,
-        ),
-        string_field(constants::field::SCREEN_MODEL_ID, record.model_id),
-        string_field(
-            constants::field::SCREEN_PROVIDER_KIND,
-            SCREEN_PROVIDER_SERVICE_METADATA,
+        bool_field(
+            ScreenFieldKey(constants::field::SCREEN_POLICY_ELIGIBLE),
+            false,
         ),
         string_field(
-            constants::field::SCREEN_TEMPLATE_VERSION,
-            record.template_version,
+            ScreenFieldKey(constants::field::SCREEN_MODEL_RUNTIME_REF),
+            ScreenText(SCREEN_SERVICE_MODEL_RUNTIME_REF.to_string()),
+        ),
+        string_field(
+            ScreenFieldKey(constants::field::SCREEN_MODEL_ID),
+            ScreenText(record.model_id.to_string()),
+        ),
+        string_field(
+            ScreenFieldKey(constants::field::SCREEN_PROVIDER_KIND),
+            ScreenText(SCREEN_PROVIDER_SERVICE_METADATA.to_string()),
+        ),
+        string_field(
+            ScreenFieldKey(constants::field::SCREEN_TEMPLATE_VERSION),
+            ScreenText(record.template_version.to_string()),
         ),
     ]
 }
 
 fn screen_analysis_capture_fields(
     job: &ScreenAnalysisQueueJob,
-    image_digest: &str,
+    image_digest: &ScreenText,
     image: &CapturedScreenImage,
-) -> Vec<(&'static str, LogFieldValue)> {
+) -> Vec<ScreenFieldEntry> {
     vec![
         string_field(
-            constants::field::SCREEN_CAPTURE_REASON,
-            job.capture_reason.clone(),
+            ScreenFieldKey(constants::field::SCREEN_CAPTURE_REASON),
+            ScreenText(job.capture_reason.clone()),
         ),
         string_field(
-            constants::field::SCREEN_CAPTURE_SCOPE,
-            job.capture_scope.clone(),
+            ScreenFieldKey(constants::field::SCREEN_CAPTURE_SCOPE),
+            ScreenText(job.capture_scope.clone()),
         ),
         string_field(
-            constants::field::CAPABILITY_STATUS,
-            image.metadata.status.as_protocol_str(),
+            ScreenFieldKey(constants::field::CAPABILITY_STATUS),
+            ScreenText(image.metadata.status.as_protocol_str().to_string()),
         ),
         string_field(
-            constants::field::SCREEN_IMAGE_DIGEST,
-            image_digest.to_string(),
+            ScreenFieldKey(constants::field::SCREEN_IMAGE_DIGEST),
+            ScreenText(image_digest.0.clone()),
         ),
         string_field(
-            constants::field::SCREEN_CUSTODY_STATE,
-            SCREEN_CUSTODY_JOURNAL,
+            ScreenFieldKey(constants::field::SCREEN_CUSTODY_STATE),
+            ScreenText(SCREEN_CUSTODY_JOURNAL.to_string()),
         ),
     ]
 }
 
-fn suffixed_id(prefix: &str, epoch_seconds: u64, tick_index: u64) -> String {
-    let mut id = String::from(prefix);
+fn suffixed_id(prefix: ScreenIdPrefix, epoch_seconds: u64, tick_index: u64) -> ScreenText {
+    let mut id = String::from(prefix.0);
     id.push_str(&epoch_seconds.to_string());
     id.push(constants::delimiter::HYPHEN);
     id.push_str(&tick_index.to_string());
-    id
+    ScreenText(id)
 }
 
-fn string_field(key: &'static str, value: impl Into<String>) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::String(value.into()))
+fn string_field(key: ScreenFieldKey, value: ScreenText) -> ScreenFieldEntry {
+    ScreenFieldEntry {
+        key: key.0,
+        value: LogFieldValue::String(value.0),
+    }
 }
 
-fn number_field(key: &'static str, value: f64) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Number(value))
+fn number_field(key: ScreenFieldKey, value: f64) -> ScreenFieldEntry {
+    ScreenFieldEntry {
+        key: key.0,
+        value: LogFieldValue::Number(value),
+    }
 }
 
-fn bool_field(key: &'static str, value: bool) -> (&'static str, LogFieldValue) {
-    (key, LogFieldValue::Boolean(value))
+fn bool_field(key: ScreenFieldKey, value: bool) -> ScreenFieldEntry {
+    ScreenFieldEntry {
+        key: key.0,
+        value: LogFieldValue::Boolean(value),
+    }
 }
+
+#[derive(Clone, Copy)]
+struct ScreenFieldKey(&'static str);

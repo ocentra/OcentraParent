@@ -1,4 +1,0 @@
-WP45 native app Rust protocol proof:
-- protocol constants own registry paths, value names, dword/export tokens, and confidence
-- core source uses those constants for Windows registry evidence parsing
-- no new WebSocket command or event is introduced by this workpack

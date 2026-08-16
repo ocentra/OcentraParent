@@ -1,7 +1,0 @@
-{
-  "workpack": "Native app WP37 service foreground capture bridge",
-  "policyDecisionAdded": false,
-  "policyRuntimeConsumerAdded": false,
-  "adapterActionAdded": false,
-  "broadBlockingClaimAdded": false
-}

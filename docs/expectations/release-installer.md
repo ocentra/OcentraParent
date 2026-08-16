@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Release And Installer Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Release And Installer Expectations
 
 Release features are product features because parents need install/update paths that work.
@@ -47,6 +60,19 @@ Release features are product features because parents need install/update paths 
   provider runtime, production publishing, signing/store proof, updater
   execution, support upload, production SLA, legal execution, and child-activity
   custody unclaimed.
+- `production-release-public-docs-freshness-proof` may prove privacy policy,
+  retention policy, export/delete process, support runbook, incident status
+  disclosure, and legal disclosure freshness rows while keeping public
+  publication execution, legal disclosure execution, support backend upload,
+  account lookup execution, billing provider contact, remote support sessions,
+  production SLA, and child-activity custody unclaimed.
+- V8 public support contact/status proof that names public support contact,
+  support status page contact, support runbook contact, incident status
+  contact, backend-upload support contact, and billing-support contact while
+  keeping public runtime execution, support backend upload execution, account
+  lookup execution, billing provider contact, remote support sessions,
+  production SLA, legal disclosure execution, provider secrets, and
+  child-activity custody unclaimed.
 - V8 production support backend upload status proof that records
   parent-initiated and parent-consented queued, running, succeeded, failed,
   manual-required, backend-unavailable, and provider-unavailable rows, with
@@ -77,6 +103,60 @@ Release features are product features because parents need install/update paths 
   account lookup, billing provider contact, remote support sessions, production
   SLA execution, child-activity custody, provider secrets, remote transcripts,
   and default Ocentra-hosted family data unclaimed.
+- V8 production incident/support status proof that records support incident
+  intake, parent consent, privacy/legal disclosure, data export request, delete
+  request, incident publication, and case resolution handoff rows while keeping
+  public publication, legal execution, support backend upload execution, account
+  lookup, billing provider contact, remote support sessions, production SLA,
+  provider secrets, and child-activity custody unclaimed.
+- V8 production support publication runtime readiness proof that records public
+  runtime, support runbook publication runner, incident status publication
+  runner, support upload publication runtime, privacy/legal publication runtime,
+  and public support contact runtime readiness rows while keeping real public
+  runtime execution, publication runner execution, support backend upload
+  execution, account lookup, billing provider contact, remote support sessions,
+  production SLA, legal disclosure execution, provider secrets, and
+  child-activity custody unclaimed.
+- V8 production support publication execution status proof that records support
+  runbook, incident status, public support contact, support backend upload,
+  privacy/legal, and account/billing publication execution status labels across
+  requested, queued, running, succeeded, failed, and manual-required rows while
+  keeping real public runtime execution, publication runner execution, status
+  backend execution, support backend upload execution, account lookup, billing
+  provider contact, remote support sessions, production SLA, legal disclosure
+  execution, provider secrets, and child-activity custody unclaimed.
+- V8 production support privacy/legal disclosure status proof that records
+  disclosure requested, parent-authorized, legal-review queued,
+  legal-review running, parent-notification-ready, publication-ready, failed,
+  and manual-required rows while keeping legal disclosure execution, public
+  runtime execution, support backend upload execution, account lookup, billing
+  provider contact, remote support sessions, production SLA, provider secrets,
+  remote support transcripts, and child-activity custody unclaimed.
+- V8 production support legal/provider readiness proof that records
+  privacy/legal review, data export/delete runtime, provider-secret custody,
+  billing provider contact, remote-support legal/session boundary, and
+  production SLA legal boundary rows while keeping real legal execution, export
+  or delete runtime, provider secret custody, billing provider contact
+  execution, account lookup execution, remote support sessions, production SLA
+  commitments, support backend upload execution, public runtime execution, and
+  child-activity custody unclaimed.
+- V8 production support provider-secret custody status proof that records
+  custody-boundary recorded, provider-secret absent, backend secret store
+  manual-required, rotation manual-required, revocation manual-required, and
+  support-safe audit export readiness rows while keeping real provider-secret
+  custody, backend secret store execution, rotation execution, revocation
+  execution, support backend upload execution, account lookup execution, billing
+  provider contact, remote support sessions, production SLA, default
+  Ocentra-hosted family data, and child-activity custody unclaimed.
+- V8 production support status backend payload custody proof that records
+  status payload custody-boundary, retention manual-required, delete request,
+  deletion manual-required, audit-export-ready, and backend-unavailable rows
+  while keeping real status backend execution, durable status backend payload
+  storage, payload deletion execution, retry worker execution, audit
+  persistence, public runtime execution, provider execution, support backend
+  upload execution, account lookup execution, billing provider contact, remote
+  support sessions, production SLA, default Ocentra-hosted family data, and
+  child-activity custody unclaimed.
 
 ## Acceptance
 
@@ -152,6 +232,12 @@ Release features are product features because parents need install/update paths 
   runtime execution, account backend runtime, billing provider runtime,
   signing/store proof, updater execution, support upload, production SLA, legal
   execution, or child-activity custody.
+- `public-support-contact-status-proof` may prove public support contact/status
+  source-contract rows across publication, runtime handoff, docs, incident,
+  backend upload, and billing-support boundaries, but it must not claim public
+  runtime execution, support backend upload execution, account lookup
+  execution, billing provider contact, remote support sessions, production SLA,
+  legal disclosure execution, provider secrets, or child-activity custody.
 - `production-support-backend-upload-status-proof` may prove support upload
   status/read-model rows for queued, running, succeeded, failed,
   manual-required, backend-unavailable, and provider-unavailable states, but it
@@ -182,6 +268,146 @@ Release features are product features because parents need install/update paths 
   execution, raw child activity custody, provider secrets, remote support
   transcripts, default Ocentra-hosted family data, or raw support bundle
   payloads.
+- `production-incident-support-status-proof` may prove production
+  incident/support status rows for parent consent, privacy/legal disclosure,
+  export/delete request status, incident publication status, and case resolution
+  handoff, but it must not claim real public publication, legal execution,
+  support backend upload execution, account lookup execution, billing provider
+  contact, remote support session execution, production SLA, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
+- `production-support-publication-runtime-readiness-proof` may prove
+  source-backed runtime readiness rows for public runtime, support runbook
+  publication runner, incident status publication runner, support upload
+  publication runtime, privacy/legal publication runtime, and public support
+  contact runtime handoffs, but it must not claim real public runtime execution,
+  publication runner execution, support backend upload execution, account lookup
+  execution, billing provider contact, remote support session execution,
+  production SLA, legal disclosure execution, raw child activity custody,
+  provider secrets, default Ocentra-hosted family data, or raw support bundle
+  payloads.
+- `production-support-publication-execution-status-proof` may prove
+  source-contract status labels for support/publication execution targets across
+  requested, queued, running, succeeded, failed, and manual-required states, but
+  it must not claim real public runtime execution, publication runner execution,
+  status backend execution, support backend upload execution, account lookup
+  execution, billing provider contact execution, remote support session
+  execution, production SLA, legal disclosure execution, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
+- `production-support-status-backend-public-runtime-followthrough-proof` may
+  prove status backend/public runtime follow-through labels for support status,
+  runbook, incident, contact, upload, account, and billing support targets
+  across requested, queued, running, succeeded, failed, and manual-required
+  states, but it must not claim real public runtime execution, status backend
+  execution, support backend upload execution, account lookup execution, billing
+  provider contact execution, remote support session execution, production SLA,
+  legal disclosure execution, raw child activity custody, provider secrets,
+  public runtime payload custody, default Ocentra-hosted family data, or raw
+  support bundle payloads.
+- `production-support-status-backend-execution-queue-proof` may prove
+  support-safe status backend execution queue labels for support runbook,
+  incident, contact, upload, privacy/legal, account, and billing support targets
+  across requested, authorized, queued, running, succeeded, failed,
+  manual-required, and backend-unavailable states, but it must not claim real
+  status backend execution, durable queue execution, retry worker execution,
+  audit persistence, public runtime execution, provider execution, support
+  backend upload execution, account lookup execution, billing provider contact
+  execution, remote support session execution, production SLA, legal disclosure
+  execution, raw child activity custody, provider secrets, status backend
+  payload custody, default Ocentra-hosted family data, or raw support bundle
+  payloads.
+- `production-support-status-backend-queue-audit-persistence-proof` may prove
+  support-safe queue audit persistence labels for support runbook, incident,
+  contact, upload, privacy/legal, account, and billing support targets across
+  requested, authorized, queued, retry-scheduled, audit-ready, failed,
+  manual-required, and backend-unavailable states, but it must not claim real
+  status backend execution, durable queue storage, retry worker execution, audit
+  persistence, public runtime execution, provider execution, support backend
+  upload execution, account lookup execution, billing provider contact
+  execution, remote support session execution, production SLA, legal disclosure
+  execution, raw child activity custody, provider secrets, status backend
+  payload custody, default Ocentra-hosted family data, or raw support bundle
+  payloads.
+- `production-support-status-backend-dead-letter-proof` may prove support-safe
+  status backend dead-letter/manual-triage labels for support runbook,
+  incident, contact, upload, privacy/legal, account, and billing support targets
+  across requested, authorized, dead-lettered, triage-ready, retry-blocked,
+  failed, manual-required, and backend-unavailable states, but it must not
+  claim real status backend execution, durable queue storage, retry worker
+  execution, audit persistence, dead-letter payload custody, public runtime
+  execution, provider execution, support backend upload execution, account
+  lookup execution, billing provider contact execution, remote support session
+  execution, production SLA, legal disclosure execution, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
+- `production-support-status-backend-runtime-execution-proof` may prove
+  support-safe status backend runtime execution labels for support runbook,
+  incident, contact, upload, privacy/legal, account, and billing support targets
+  across requested, authorized, queued, running, runtime-evidence-ready,
+  audit-ready, failed, manual-required, and backend-unavailable states, but it
+  must not claim real status backend execution, durable queue storage, retry
+  worker execution, audit persistence, dead-letter payload custody, public
+  runtime execution, provider execution, support backend upload execution,
+  account lookup execution, billing provider contact execution, remote support
+  session execution, production SLA, legal disclosure execution, raw child
+  activity custody, provider secrets, status backend payload custody, default
+  Ocentra-hosted family data, or raw support bundle payloads.
+- `production-support-status-backend-payload-custody-proof` may prove
+  support-safe status backend payload custody labels for custody boundary,
+  retention manual-required, delete request, deletion manual-required,
+  audit-export-ready, and backend-unavailable states, but it must not claim
+  real status backend execution, durable status backend payload storage,
+  payload deletion execution, retry worker execution, audit persistence, public
+  runtime execution, provider execution, support backend upload execution,
+  account lookup execution, billing provider contact execution, remote support
+  session execution, production SLA, legal disclosure execution, raw child
+  activity custody, provider secrets, default Ocentra-hosted family data, or raw
+  support bundle payloads.
+- `production-support-status-backend-redaction-manifest-proof` may prove
+  support-safe status backend redaction manifest labels for redaction-ready and
+  manual-required states, but it must not claim real status backend execution,
+  status backend payload custody, durable payload storage, payload deletion,
+  retry worker execution, audit persistence execution, public runtime
+  execution, provider execution, support backend upload execution, account
+  lookup execution, billing provider contact execution, remote support session
+  execution, production SLA, legal disclosure execution, raw child activity
+  custody, provider secrets, default Ocentra-hosted family data, or raw support
+  bundle payloads.
+- `production-support-privacy-legal-disclosure-status-proof` may prove
+  support-safe privacy/legal disclosure status labels for requested,
+  parent-authorized, legal-review queued/running, parent-notification-ready,
+  publication-ready, failed, and manual-required states, but it must not claim
+  legal disclosure execution, public runtime execution, support backend upload
+  execution, account lookup execution, billing provider contact execution,
+  remote support session execution, production SLA, raw child activity custody,
+  provider secrets, remote support transcripts, default Ocentra-hosted family
+  data, or raw support bundle payloads.
+- `production-support-account-sla-status-proof` may prove account lookup,
+  billing provider contact, remote support request/session, and production SLA
+  status rows as manual-required or not-implemented support boundaries, but it
+  must not claim account lookup execution, billing provider contact execution,
+  remote support sessions, production SLA commitments, support backend upload
+  execution, `family.ocentra.ca` runtime, provider secrets, or child-activity
+  custody.
+- `production-support-legal-provider-readiness-proof` may prove
+  privacy/legal-review, data export/delete runtime, provider-secret custody,
+  billing-provider contact, remote-support legal/session boundary, and
+  production SLA legal-boundary rows as source-contract, manual-required, or
+  not-implemented support boundaries, but it must not claim legal disclosure
+  execution, export/delete runtime execution, provider secret custody, billing
+  provider contact execution, account lookup execution, remote support sessions,
+  production SLA commitments, support backend upload execution, public runtime
+  execution, or child-activity custody.
+- `production-support-provider-secret-custody-status-proof` may prove
+  provider-secret custody-boundary recorded, provider-secret absent, backend
+  secret store manual-required, rotation manual-required, revocation
+  manual-required, and support-safe audit export readiness rows, but it must not
+  claim provider-secret custody, backend secret store execution, rotation
+  execution, revocation execution, support backend upload execution, account
+  lookup execution, billing provider contact execution, remote support sessions,
+  production SLA commitments, default Ocentra-hosted family data, or
+  child-activity custody.
 - Parent-facing install flow is understandable for non-technical users.
 - `mobile-child-agent-capability-proof` package/runtime hooks may reference
   Android debug APK/checksum and iOS simulator/Xcode artifacts, but Play

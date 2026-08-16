@@ -1,11 +1,11 @@
 use serde::{Deserialize, Serialize};
 
+use crate::compatibility_markdown::escape_cell;
+
 const MATRIX_TITLE: &str = "# Eventing Compatibility Matrix";
 const MATRIX_HEADER: &str =
     "| Semantic Id | Source Semantic | Rust Surface | Status | Proof | Note |";
 const MATRIX_SEPARATOR: &str = "| --- | --- | --- | --- | --- | --- |";
-const CELL_ESCAPE_TARGET: &str = "|";
-const CELL_ESCAPE_REPLACEMENT: &str = "\\|";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "kebab-case")]
@@ -25,17 +25,17 @@ impl EventCompatibilityStatus {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EventCompatibilityEntry {
-    pub semantic_id: String,
-    pub source_semantic: String,
-    pub rust_surface: String,
-    pub status: EventCompatibilityStatus,
-    pub proof_artifact: String,
-    pub compatibility_note: String,
+    semantic_id: CompatibilityCell,
+    source_semantic: CompatibilityCell,
+    rust_surface: CompatibilityCell,
+    status: EventCompatibilityStatus,
+    proof_artifact: CompatibilityCell,
+    compatibility_note: CompatibilityCell,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EventCompatibilityMatrix {
     entries: Vec<EventCompatibilityEntry>,
 }
@@ -56,7 +56,7 @@ impl EventCompatibilityMatrix {
     pub fn entry(&self, semantic_id: &str) -> Option<&EventCompatibilityEntry> {
         self.entries
             .iter()
-            .find(|entry| entry.semantic_id == semantic_id)
+            .find(|entry| entry.semantic_id.as_str() == semantic_id)
     }
 
     pub fn compatible_entries(&self) -> Vec<&EventCompatibilityEntry> {
@@ -80,17 +80,17 @@ impl EventCompatibilityMatrix {
         markdown.push('\n');
         for entry in &self.entries {
             markdown.push_str("| ");
-            markdown.push_str(&escape_cell(&entry.semantic_id));
+            markdown.push_str(&escape_cell(entry.semantic_id.as_str()));
             markdown.push_str(" | ");
-            markdown.push_str(&escape_cell(&entry.source_semantic));
+            markdown.push_str(&escape_cell(entry.source_semantic.as_str()));
             markdown.push_str(" | ");
-            markdown.push_str(&escape_cell(&entry.rust_surface));
+            markdown.push_str(&escape_cell(entry.rust_surface.as_str()));
             markdown.push_str(" | ");
             markdown.push_str(entry.status.as_str());
             markdown.push_str(" | ");
-            markdown.push_str(&escape_cell(&entry.proof_artifact));
+            markdown.push_str(&escape_cell(entry.proof_artifact.as_str()));
             markdown.push_str(" | ");
-            markdown.push_str(&escape_cell(&entry.compatibility_note));
+            markdown.push_str(&escape_cell(entry.compatibility_note.as_str()));
             markdown.push_str(" |\n");
         }
         markdown
@@ -105,15 +105,53 @@ impl EventCompatibilityMatrix {
 }
 
 impl EventCompatibilityEntry {
+    pub fn semantic_id(&self) -> &str {
+        self.semantic_id.as_str()
+    }
+
+    pub fn source_semantic(&self) -> &str {
+        self.source_semantic.as_str()
+    }
+
+    pub fn rust_surface(&self) -> &str {
+        self.rust_surface.as_str()
+    }
+
+    pub fn status(&self) -> EventCompatibilityStatus {
+        self.status
+    }
+
+    pub fn proof_artifact(&self) -> &str {
+        self.proof_artifact.as_str()
+    }
+
+    pub fn compatibility_note(&self) -> &str {
+        self.compatibility_note.as_str()
+    }
+
     fn from_row(row: &CompatibilityRow) -> Self {
         Self {
-            semantic_id: String::from(row.semantic_id),
-            source_semantic: String::from(row.source_semantic),
-            rust_surface: String::from(row.rust_surface),
+            semantic_id: CompatibilityCell::from_static(row.semantic_id),
+            source_semantic: CompatibilityCell::from_static(row.source_semantic),
+            rust_surface: CompatibilityCell::from_static(row.rust_surface),
             status: row.status,
-            proof_artifact: String::from(row.proof_artifact),
-            compatibility_note: String::from(row.compatibility_note),
+            proof_artifact: CompatibilityCell::from_static(row.proof_artifact),
+            compatibility_note: CompatibilityCell::from_static(row.compatibility_note),
         }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
+#[serde(transparent)]
+struct CompatibilityCell(String);
+
+impl CompatibilityCell {
+    fn from_static(value: &'static str) -> Self {
+        Self(String::from(value))
+    }
+
+    fn as_str(&self) -> &str {
+        &self.0
     }
 }
 
@@ -130,10 +168,12 @@ const LINEAGE_ROWS: &[CompatibilityRow] = &[
     CompatibilityRow {
         semantic_id: "class-backed-contracts",
         source_semantic: "Class-backed contracts expose canonical static event types",
-        rust_surface: "DomainEvent::contract plus EventContractRegistry descriptors",
-        status: EventCompatibilityStatus::Compatible,
+        rust_surface:
+            "Payload-derived DomainEvent::contract plus EventContractRegistry descriptors",
+        status: EventCompatibilityStatus::IntentionalDeviation,
         proof_artifact: "output/eventing-plan-proof/72-contract-registry/proof-summary.json",
-        compatibility_note: "Event type and schema version are validated before registration",
+        compatibility_note:
+            "Payload-derived contracts support Rust enum variants; stored decode rejects mismatches",
     },
     CompatibilityRow {
         semantic_id: "event-args-metadata",
@@ -232,7 +272,3 @@ const LINEAGE_ROWS: &[CompatibilityRow] = &[
         compatibility_note: "Broker delivery is P6 and cannot redefine local dispatch semantics",
     },
 ];
-
-fn escape_cell(value: &str) -> String {
-    value.replace(CELL_ESCAPE_TARGET, CELL_ESCAPE_REPLACEMENT)
-}

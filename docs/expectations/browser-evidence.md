@@ -1,3 +1,17 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Browser URL And Tab Evidence Expectations
+> Kind: expectation/acceptance documentation; read only when selected by feature doc, plan route, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 # Browser URL And Tab Evidence Expectations
 
 Browser evidence is the product bridge between low-level device observation and
@@ -313,17 +327,20 @@ Browser evidence must not record unless a later milestone explicitly approves it
   runtime signals, UI delivery, or enforcement.
 - Browser-game proof artifact gates may verify checklist ownership, proof
   folders, required source/security/validation/UI-marker files, README
-  references, feature coverage, and expectation boundary text. They must not
-  claim Playwright or screenshot proof when the current rows are contract-only,
-  and they must not claim runtime browser-game detection, cloud-streamed frame
-  analysis, native game control, final policy execution, enforcement, or
+  references, feature coverage, expectation boundary text, and rendered child
+  intervention screenshots only when the proof opens real public browser-game,
+  cloud-gaming, or game-store surfaces and serves the shared child intervention
+  page through the Rust child-agent endpoint. They must not claim final policy
+  decisions, product runtime browser-game detection, notification or approval
+  delivery, cloud-streamed frame analysis, native game control, enforcement, or
   product completion.
 - Browser-game rollout gates may label rows as complete,
   partial/manual-required, or open/manual-required only. GAME rollout state:
   partial/manual-required means product completion is unclaimed; missing route,
-  runtime, metadata, AI, memory, child/parent UI, cloud-streamed frame-analysis,
-  native game control, and enforcement proof must stay open/manual-required
-  until separate artifacts exist.
+  runtime, metadata, AI, memory, parent dashboard runtime UI, notification or
+  approval delivery, cloud-streamed frame-analysis, native game control, and
+  enforcement proof must stay open/manual-required until separate artifacts
+  exist.
 - A browser evidence artifact manifest that points to managed profile,
   intervention, unmanaged Windows, policy dry-run, performance, screenshot, and
   manual-required proof paths. The manifest must classify rows as
@@ -337,6 +354,17 @@ Browser evidence must not record unless a later milestone explicitly approves it
 ## MVP Managed Browser Procedure
 
 The Windows Rust agent should follow this procedure for browser URL/tab evidence:
+
+WP05 proof status: `scripts/test/browser-platform-windows-managed-cdp-proof.mjs`
+now proves the local Windows managed-browser procedure through a temporary
+Ocentra-owned profile and loopback CDP endpoint for a local proof page. The
+artifact records that a real Chromium-family browser launched, `/json/version`
+and `/json/list` responded, the exact local managed proof URL was observed, a
+CDP screenshot was captured, and the temporary profile was removed. This is not
+yet a product-complete active-tab enforcement, final policy execution, browser
+blocking, or non-Windows support claim, and the artifact must not persist raw
+executable paths, raw profile paths, raw CDP payloads, raw page content, or
+browser secrets.
 
 1. Inventory installed browsers.
 
@@ -429,7 +457,23 @@ The Windows Rust agent should follow this procedure for browser URL/tab evidence
    cannot be relied on for exact URL capture unless they are inside the managed
    browser boundary. Product behavior should be explicit: Ocentra-managed
    browser sessions provide exact URLs; unmanaged browser sessions are bypass
-   evidence and, in enforcement mode, may be blocked or terminated.
+   evidence only. Android default-browser evidence must distinguish Device Owner
+   persistent preferred activity policy mutation from Browser Role/default
+   browser routing. Browser Role proof may show implicit VIEW routing to the
+   owned shell, but it does not prove exact active-tab custody, final policy
+   execution, broad content filtering, or silent default-browser assignment on a
+   physical child device.
+   Physical Android owned-shell current-runtime rows may be accepted only when
+   the proof has install, explicit launch, UI-tree, and screenshot evidence from
+   the physical target. Those rows still must not claim physical Device Owner,
+   physical Browser Role routing, exact URL policy, active-tab proof, VPN/DNS,
+   UsageStats, Accessibility, final policy execution, or enforcement.
+   Physical Android owned-shell requested-URL custody rows may be accepted only
+   when the same physical proof also has WebView/BROWSABLE declaration and
+   local proof-page evidence. These rows may store a requested-URL ref only;
+   they must not persist the raw URL or claim exact URL policy, active-tab
+   custody, physical Device Owner/Browser Role routing, final policy execution,
+   or enforcement.
 
 8. Hand off stored evidence to portal, policy, and AI consumers.
 

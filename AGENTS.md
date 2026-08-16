@@ -1,116 +1,138 @@
-# Ocentra Parent Agent Guide
+# Ocentra Parent Agent Bootloader
 
-This repo follows Ocentra-style scaffold discipline. Keep changes narrow, contract-first, and validated.
+This file is intentionally short. It is a router, not the full rulebook. Do
+not scan the repo or the docs tree broadly.
 
-## Ocentra AI Rule Map
+## Classify before reading
 
-Before coding, read `.ocentra-ai/rules/ocentra-parent-rules.mdc`. It routes work to granular rule files for tests, domain boundaries, protocol/WebSocket, Rust service, portal, logging/redaction, localhost security, source shape, and validation.
+Load `.ocentra-ai/rules/ocentra-parent-rules.mdc` as the repo rule layer, then
+continue through the smallest route below.
 
-## Product Feature Doc Protocol
+Read `docs/agent/TASK_ROUTER.md`, then pick the smallest matching route. A
+route is both a read list and a no-read boundary.
 
-Before starting product, feature, roadmap, policy, UI, AI, platform, enforcement, remote, or reporting work, use the focused product-doc path. Do not bulk-read every roadmap, checkpoint, and expectation file.
+Use high-information-density routing: identify `Context -> Goal -> Scope ->
+Definitions -> Rules -> Deliverables -> Validation -> Failure conditions`.
+Plan folders own the lower-level decision tree; root only gets you to the
+correct forest path.
 
-Minimum reading path:
+## Two-stage decision forest
 
-1. Read `docs/feature-list.md` and identify the single feature doc that owns the work.
-2. Read only that `docs/features/*.md` file, plus any second feature doc if the task clearly crosses a second feature boundary.
-3. Read the expectation files linked by the feature doc that match the files you will touch.
-4. Read the relevant milestone section in `docs/product-roadmap.md` only when the task changes milestone scope, status, order, or completion claims.
-5. Read the relevant rows in `docs/product-capability-checklist.md` before and after the work when the task changes feature status, proof, or gaps.
-6. Read the README for each touched app/package/crate/platform area before editing that area.
+Stage 1, choose lane role:
 
-Context hygiene:
+| If this session is...     | Primary decision                                                                     | Next file                                |
+| ------------------------- | ------------------------------------------------------------------------------------ | ---------------------------------------- |
+| Main/primary coordinator  | Integrate, review, assign, PR, merge, roadmap state                                  | `docs/agent/PRIMARY_COORDINATOR_FLOW.md` |
+| Dedicated worker lane     | Ack hub mail, lock scope, execute one assignment, report semantic state              | `docs/agent/WORKER_LANE_FLOW.md`         |
+| Fresh or resumed worktree | Establish branch/lane/session/dirty-state before touching files                      | `docs/agent/WORKTREE_LANE_START.md`      |
+| Read-only duplicate lane  | Inspect only; do not ack, edit, lock, heartbeat, or report unless retargeted by user | `docs/agent/HUB_LEDGER_MESSAGING.md`     |
 
-- Do not load all files under `docs/expectations`, `docs/features`, or `docs/checkpoints`.
-- Do not open historical checkpoint files unless the feature doc, checklist, roadmap, or hub assignment names them as current proof.
-- Do not use old checkpoint wording to override the current `docs/feature-list.md`, `docs/product-capability-checklist.md`, or `docs/product-roadmap.md`.
-- If no feature doc owns the task, create or update the missing feature doc before making broad implementation claims.
+Stage 2, choose work route:
 
-Before reporting `DONE`, update the documentation layer that changed:
+| If you are...                          | Your job shape                                                                        | Read next                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Primary coordinator or main lane       | Inspect hub/lane state, review worker diffs, create/merge PRs, update roadmap state   | `docs/agent/PRIMARY_COORDINATOR_FLOW.md`                                       |
+| Worker lane with hub mail              | Ack assignment, lock paths, do the assigned plan/workpack only, report through Ledger | `docs/agent/WORKER_LANE_FLOW.md`                                               |
+| New or resumed worktree                | Establish lane identity, branch, inbox, dirty state, and safe ownership before work   | `docs/agent/WORKTREE_LANE_START.md`                                            |
+| Product/feature/plan worker            | Choose exactly one owning plan, then one workpack/checklist/proof path                | `docs/agent/PLAN_WORKER_FLOW.md` then `docs/PLAN_INDEX.md`                     |
+| Source or contract worker              | Preserve domain boundaries, schema ownership, source shape, and real tests            | `docs/agent/SOURCE_BOUNDARY_FLOW.md`                                           |
+| Test/proof/CI worker                   | Select validation by touched risk surface, not by habit                               | `docs/agent/VALIDATION_FLOW.md` and `docs/agent/TEST_PROOF_DECISION_MATRIX.md` |
+| DONE, PR_READY, PR, or merge readiness | Prove scope, tests, proof artifacts, gaps, and commit state                           | `docs/agent/PR_DONE_FLOW.md`                                                   |
+| Release/package worker                 | Keep package preview, production branch, tags, and installer claims honest            | `docs/agent/RELEASE_FLOW.md`                                                   |
 
-- update the owning `docs/features/*.md` checklist/current-state/gap when implementation changes status or proof;
-- update `docs/product-capability-checklist.md` when a feature moves status, gains proof, or gains a new gap;
-- update `docs/product-roadmap.md` when milestone order, scope, or completion changes;
-- update expectation docs when the acceptance contract changes;
-- update the touched module README when ownership, flow, or module gaps change;
-- update `README.md` only when user-facing positioning changes;
-- update `docs/competitor-capability-map.md` only when competitor parity, rejection, or tracking changes.
+Stage 3, stop when routed:
 
-Every worker `DONE` or PR-ready report must say which feature doc and checklist row were updated, or explicitly say that no product-doc update was needed and why.
+- When a plan is selected, open that plan's `AGENTS.md` and obey its local tree.
+- When a workpack is selected, open only that workpack plus the exact checklist/proof/test files it names.
+- When a source boundary is selected, inspect only the owning package/crate and its nearest README/rules.
+- When a validation boundary is selected, choose tests from the touched risk, not from habit.
+- When no route owns the task, stop and update/create the missing route before broad implementation claims.
 
-Before editing or committing, run `npm run lanes:status`, `npm run lanes:guard`, `npm run hub:status`, and `npm run hub:guard` from the checkout you are using. Each active worktree lane must be claimed in `C:\Users\sujan\.codex\ocentra-parent-worktrees.json` with the lane owner, thread label, branch, task, and next action. Cross-chat instructions, reports, and file locks live under `C:\Users\sujan\.codex\ocentra-parent-hub`. The pre-commit hook runs both guards automatically.
+## Hard context rules
 
-When starting in a worker lane, run `npm run hub:inbox` and acknowledge the latest hub instruction with `npm run hub:ack` before committing. Before starting or resuming assigned work, report `STARTED` back to the hub so the primary coordinator has a timestamped handoff. Before editing files, claim your intended ownership with `npm run hub:lock -- --paths "path/or/package,other/path" --reason "short scope"`. Report progress back to the hub with `npm run hub:report -- --summary "short status" --details "validation, blockers, touched files"`. When work is done, verify it, run the lint/tests requested in the hub mail, make a local commit on the worker branch, push that branch when ready for review, and report `DONE` with exact validation, commit state, touched packages/files, known gaps/risks, and detailed scope of what changed. If the user or primary asks the worker to prepare or create a PR, the worker may open the PR and include the same detailed scope in the PR body. Workers must not merge PRs or push directly to `main` unless the user explicitly asks for that exact action. Keep `hub:report` semantic: `STARTED`, meaningful progress, `BLOCKED`, and `DONE`. Use `npm run hub:heartbeat -- --state idle --note "waiting for instruction"` for per-minute liveness or idle notes instead of overwriting work state. Keep hub reports short unless the hub mail specifically asks for detail.
+- Do not read all `docs/plans`, all `docs/features`, all `docs/expectations`, all
+  checkpoints, or the full source tree.
+- Docs must specify expected outcomes, ownership boundaries, schema/protocol
+  shapes, proof, validation, and failure conditions. Do not add implementation
+  code recipes or tell future agents exact code to write unless a tiny snippet is
+  strictly needed to define an interface or artifact shape.
+- Do not read a plan's full `implementation-checklist.md` unless a route index or
+  workpack names the exact section/row you need.
+- Do not read every workpack in a plan. Use that plan's `WORKPACK_INDEX.md` and
+  open only the assigned workpack.
+- Do not choose tests from memory or convenience. Use
+  `docs/agent/TEST_PROOF_DECISION_MATRIX.md` only after the route/workpack is
+  known, then run the smallest validation set that covers the touched risk.
+- Do not treat old checkpoint wording as current truth. Current truth is the
+  owning feature doc, `docs/product-capability-checklist.md`, the selected
+  plan's `PLAN_STATE.md`, and the current workpack.
 
-When a worker lane should receive follow-up work from the primary hub without another manual prompt, leave `npm run hub:watch -- --interval-ms 5000` running in that worker checkout. Use `--ack` only when the worker intentionally accepts displayed messages as read. Per-minute worker heartbeat automations are standing mailbox checks; do not delete, pause, or replace them just because there is no unread mail or active assignment. Those automations should write liveness with `npm run hub:heartbeat`; they should not use `npm run hub:report` for routine idle/waiting checks.
+## Engineering graph control plane
 
-When the primary hub should notice worker reports without manual polling, leave `npm run hub:watch -- --reports --interval-ms 5000` running in the primary checkout. To inspect worker liveness separately from semantic reports, run `npm run hub:heartbeats` or read `C:\Users\sujan\.codex\ocentra-parent-hub\worker-heartbeats.ndjson`.
+The repo-owned graph at `docs/engineering-graph/graph.json` coordinates plan
+and workpack state; it does not replace the detailed Markdown plans, proof
+requirements, tests, ADRs, or these agent rules.
 
-Repo-local Codex hooks live in `.codex/hooks.json` and route through `npm run --silent hub:hook` to `scripts/dev/codex-hub-hook.mjs`. They inject hub context on session start and user prompts, record the active Codex `session_id` for the current lane, remind dirty worker lanes to lock files after tool use, and continue worker turns at stop time when unread hub messages or unguarded dirty paths still need attention. If the primary or a worker chat gets too long, start a new chat in the same worktree; the hook will identify the lane, show already acknowledged hub messages and latest reports, and prevent repeating completed inbox setup. If the Codex Hooks settings page asks for trust review, review and enable the project hooks before relying on automatic hub context.
+Before planned work, run `npm run graph:validate`, then query `npm run
+graph:report` for the joined workpack-state and live implementation/test
+topology (use `--json` for machine consumption), or use `npm run graph:ready`
+and `npm run graph:inspect <id>`. Do not start a graph-blocked workpack. When
+asked “where are we?”, query the report; use `graph:status` and `graph:code`
+for focused views;
+when asked “what is next?”, query graph ready/why; when asked to continue, take
+only legal READY work in the requested scope. A workpack becomes DONE only
+when its graph completion contract validates implementation, required tests,
+proof, checklist, and any required ADR evidence. Do not edit graph state to
+claim completion; update source plans/workpacks and rebuild with
+`npm run graph:bootstrap -- --write`.
 
-The primary coordinator should read this guide, `.ocentra-ai/rules/ocentra-parent-rules.mdc`, `docs/architecture/worktree-lanes.md`, `docs/architecture/primary-coordinator-reminder.md`, and `docs/product-roadmap.md` before assigning or integrating roadmap work. On every coordination pass, check hub status, lane status, primary/worktree Git status, open PRs/checks, and GitHub Actions state when relevant. Tell workers to pull or rebase latest `main` before starting assigned work. Review worker `DONE` reports by inspecting the branch diff and validation before asking for fixes or creating a PR. Create a PR only after local validation is acceptable and the branch is pushed; the PR body must include detailed scope covering what changed, touched packages/files, validation, known gaps/risks, and the roadmap slice completed. Merge only after PR CI is green and the reviewed diff is acceptable, then pull latest `main`, update roadmap/lane/hub state, and tell active workers to rebase or pull latest `main` before continuing. Post-merge hub reports must include the same detailed scope plus PR/merge state. Workers resolve conflicts on their own branches after fetching/rebasing latest `main`; primary resolves only conflicts it owns during integration and must keep the worker informed.
+For a complete handoff table across every imported plan/workpack, use
+`npm run graph:matrix` (or `--json` for a dashboard). It includes derived
+state, exact reviewed code/test topology where mapped, completion gaps,
+dependencies, blockers, and unlocks. `npm run graph:next` reports READY work;
+if none exists it reports only an explicitly labelled validation/review queue,
+never permission to bypass the READY gate.
 
-When writing or changing tests, also read `.ocentra-ai/rules/ocentra-parent-test-rules.mdc`. Test doubles are forbidden; tests must use real contracts, parsers, services, transports, or UI paths.
+## Before editing
 
-When changing multiple layers, use `.ocentra-ai/skills/ocentra-parent-rule-router/SKILL.md` as the lookup workflow instead of loading every rule file at once.
+State the lane/mode, plan, feature doc, assigned workpack, files you intend to
+edit, and validation you expect to run. Claim ownership through the hub/ledger
+when working in a lane.
 
-Local dev ports default to fixed values: Rust agent on `127.0.0.1:4477`, Vite portal on `127.0.0.1:4478`. Worker lanes that need visible demos can set `OCENTRA_PARENT_AGENT_PORT` and `OCENTRA_PARENT_PORTAL_PORT` before `npm run dev`, `npm run dev:agent`, `npm run dev:portal`, or `npm run dev:lan`; for example codex-b uses agent `4677` and portal `4678`. LAN dev uses the same selected ports with explicit `npm run dev:lan` binding and origin allowlists. Use managed scripts; they reclaim only stale Ocentra Parent processes and must not take over Ocentra Games editor ports.
+## Architecture hard gate: no barrels / no re-exports
 
-## Non-Negotiable Boundaries
+The repository bans TypeScript/JavaScript re-exports and Rust public re-exports.
 
-- Do not put shared API paths, route ids, event names, log shapes, policy ids, or device identifiers directly in app or crate code.
-- Add shared TypeScript contracts under `packages/*-domain`.
-- Add Rust-facing protocol shapes under `crates/agent-protocol` only after the TypeScript contract is explicit and test-backed.
-- Use Effect Schema for TypeScript runtime validation.
-- Do not add Zod.
-- Do not create manual `string & { readonly __brand: ... }` aliases.
-- Branded strings must come from Effect Schema brands and decode helpers.
-- App/runtime source must not contain inline string literals. Text, ids, routes, fields, commands, and events live in domain packages.
-- App/runtime TypeScript source must not annotate values as raw `string`; use a branded domain type or keep external input as `unknown` until parsed.
-- Rust service/core source must not contain inline string literals. Runtime strings live in `crates/agent-protocol` constants.
-- Do not create god files or god classes. Source shape validation warns on file-size advisory bands and near function/class/export/type limits, then fails past the hard limit.
-- Do not use mocks, fakes, stubs, spies, MSW, Nock, Sinon, `vi.mock`, `vi.fn`, or equivalent test doubles. Tests must exercise real domain contracts, parsers, services, and local transports.
-- Every source workspace and Rust crate needs tests from the beginning.
-- Rust service code should stay async and use Tokio's multithreaded runtime unless a specific boundary requires otherwise.
-- Do not add core recorder, blocking, AI, notification delivery, or product portal UI code during scaffold-only tasks.
-- Dev portal screens are allowed only when they prove local protocol and runtime visibility.
+Forbidden TypeScript/JavaScript:
 
-## Package Responsibilities
+- `export * from "..."`;
+- `export * as X from "..."`;
+- `export { X } from "..."`;
+- `export type { X } from "..."`;
+- `export { default as X } from "..."`.
 
-| Package                                 | Owns                                                                          |
-| --------------------------------------- | ----------------------------------------------------------------------------- |
-| `@ocentra-parent/schema-domain`         | Shared Effect Schema wrappers and decode helpers.                             |
-| `@ocentra-parent/endpoint-domain`       | API path, route id, header, query, and endpoint brands.                       |
-| `@ocentra-parent/agent-protocol-domain` | WebSocket command/event contracts shared by portal and Rust.                  |
-| `@ocentra-parent/text-domain`           | Schema-backed display text tokens.                                            |
-| `@ocentra-parent/portal-domain`         | Portal routes, DOM constants, and dev command button contracts.               |
-| `@ocentra-parent/parent-domain`         | Parent/family/device product contracts when implementation starts.            |
-| `@ocentra-parent/activity-domain`       | Device activity event schemas and query contracts when implementation starts. |
-| `@ocentra-parent/logging-domain`        | Operational app/service logging contracts shared by TypeScript and Rust.      |
+Forbidden Rust:
 
-## Validation
+- `pub use ...`;
+- `pub(crate) use ...`;
+- `pub(super) use ...`;
+- `pub(in ...) use ...`.
 
-Run:
+Required validation before claiming completion when the touched scope includes
+TypeScript/JavaScript or Rust source:
 
-```powershell
-npm run validate
-```
+- `npm run lint:architecture -- --files <touched-file-or-dir> [more files or dirs]` or `npm run lint:architecture -- --base <base> --head <head>`.
 
-The root gate runs release version alignment, schema-boundary checks, Turbo lint/type-check/test tasks, Rust format, Rust clippy, Rust workspace checks/tests, integration smoke, local portal smoke, and Playwright UI coverage against the real Rust service. CI also runs dependency policy, SBOM generation, and package install/launch smoke checks.
+Use directory paths to run the same architecture gate per module, crate, or domain before escalating to repo-wide validation.
 
-The pre-commit hook is intentionally lighter than the root gate. It runs lane/hub guards plus fast local source validation, but it does not run package lint/type-check tasks, TypeScript/Rust unit suites, real-service smoke tests, portal Playwright E2E, production build, or package previews on every local commit. Use `npm run test:local`, `npm run precommit:full`, `npm run validate`, `npm run ci:local`, or focused scripts such as `npm run test:e2e` when those heavier checks are needed before PR-ready handoff or integration.
+For a full debt sweep instead of focused change validation:
 
-`main` is a CI and package-preview branch. It must not publish GitHub Releases. Production installer publishing belongs to the `production` branch workflow and only runs when the aligned version tag is missing. Package-preview jobs should stay honest about platform scope: build and smoke-check real Windows/Linux/macOS/mobile artifacts, but do not claim signing, stores, device-owner policy, or iOS Family Controls until those credentials and entitlements are actually wired.
+- `npm run lint:architecture:all`.
 
-ESLint includes local Ocentra Parent rules. Editors with ESLint enabled should report app string literals, raw app `string` annotations, manual brands, and naked domain string aliases before validation runs.
+Do not add inline lint disables, bypass knobs, or new barrel-like export shims.
 
-`scripts/check-source-shape.mjs` enforces source file/function/class/export budgets. File-size warnings begin at 250-line advisory bands; function/class/export/type warnings remain near the configured hard limit. Treat warnings as a request to split ownership before adding more behavior.
+## Before DONE or PR_READY
 
-`scripts/check-no-test-doubles.mjs` rejects fake-green testing patterns in app, package, and crate source. Build real seams and test real boundaries instead of replacing behavior.
-
-## Testing Standard
-
-- Tests specify behavior.
-- Weak tests are not useful.
-- Prefer flat test files with one top-level module description.
-- Add tests for every contract, parser, path helper, Rust protocol conversion, and local transport loop once those exist.
+Run the route in `docs/agent/PR_DONE_FLOW.md`. Reports must include the exact
+plan, workpack, checklist rows, proof artifacts, validation commands, commit
+state, and remaining gaps. Pre-commit passing alone is not enough.

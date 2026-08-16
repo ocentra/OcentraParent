@@ -1,16 +1,10 @@
-import {
-  PortalDevToolWindow,
-  PortalDom,
-  PortalRoute,
-  PortalText,
-  PortalTextToken,
-  portalDevToolUrl,
-  type PortalDevToolUrl,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDevTextToken, resolvePortalDevText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDevToolWindow, portalDevToolUrl } from '@ocentra-parent/portal-domain/routes';
 import { WebviewWindow, getAllWebviewWindows } from '@tauri-apps/api/webviewWindow';
+import { ParentHostBridgeRuntime, ParentRoute } from '../generated/parent-ui-bridge';
 
 export async function openPortalFrameTunerWindow(): Promise<void> {
-  const url = portalDevToolUrl(window.location.origin, window.location.pathname, PortalRoute.FrameTuner);
+  const url = portalDevToolUrl(window.location.origin, window.location.pathname, ParentRoute.FrameTuner);
   if (!isTauriRuntime()) {
     openBrowserFrameTunerWindow(url);
     return;
@@ -29,7 +23,7 @@ export async function openPortalFrameTunerWindow(): Promise<void> {
       decorations: true,
       height: PortalDevToolWindow.FrameTunerHeight,
       resizable: true,
-      title: PortalText.Resolve(PortalTextToken.FrameTuner),
+      title: resolvePortalDevText(PortalDevTextToken.FrameTuner),
       url,
       width: PortalDevToolWindow.FrameTunerWidth,
     });
@@ -42,10 +36,13 @@ export async function openPortalFrameTunerWindow(): Promise<void> {
 }
 
 function isTauriRuntime(): boolean {
-  return typeof window !== PortalDom.Runtime.Undefined && PortalDevToolWindow.TauriInternalKey in window;
+  return (
+    typeof window !== ParentHostBridgeRuntime.TypeofUndefined &&
+    ParentHostBridgeRuntime.TauriInternalWindowKey in window
+  );
 }
 
-function openBrowserFrameTunerWindow(url: PortalDevToolUrl): void {
+function openBrowserFrameTunerWindow(url: ReturnType<typeof portalDevToolUrl>): void {
   const popup = window.open(url, PortalDevToolWindow.FrameTunerLabel, PortalDevToolWindow.PopupFeatures);
   if (popup === null) {
     window.location.hash = PortalDevToolWindow.FrameTunerHash;

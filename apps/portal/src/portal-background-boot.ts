@@ -1,9 +1,5 @@
-import {
-  PortalBackgroundRuntime,
-  PortalDom,
-  PortalTheme,
-  type PortalThemeValue,
-} from '@ocentra-parent/portal-domain/contracts';
+import { PortalDom, PortalTheme, type PortalThemeValue } from '@ocentra-parent/portal-domain/contracts';
+import { PortalBackgroundRuntime } from '@ocentra-parent/portal-domain/portal-background';
 import {
   loadPortalBackgroundConfig,
   portalBackgroundRenderConfig,

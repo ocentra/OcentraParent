@@ -1,41 +1,28 @@
 use ocentra_eventing::{
-    decide_event_delivery_route, EventDeliveryBackpressurePolicy, EventDeliveryDecisionError,
-    EventDeliveryDecisionInput, EventDeliveryDecisionProof, EventDeliveryDecisionState,
-    EventDeliveryRouteKind, EventDeliverySubscriberFilter, EventNamespace, EventType,
-    EventingError, SourceComponent, SubscriberId, TargetHandler,
+    delivery::decide_event_delivery_route, delivery::validation::EventDeliveryBackpressurePolicy,
+    delivery::validation::EventDeliveryDecisionError,
+    delivery::validation::EventDeliveryDecisionInput,
+    delivery::validation::EventDeliveryDecisionState, delivery::validation::EventDeliveryRouteKind,
+    delivery::validation::EventDeliverySubscriberFilter, error::EventingError, ids::EventNamespace,
+    ids::EventType, ids::SourceComponent, ids::SubscriberId, ids::TargetHandler,
 };
-use ocentra_parent_agent_protocol::{
-    constants, ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
+use ocentra_parent_agent_protocol::activity_capture::{
+    ActivityCaptureCapabilityStatus, ActivityNetworkProtocol, ActivityNetworkTcpState,
 };
+use ocentra_parent_agent_protocol::constants;
 
-use crate::NetworkObservation;
+use crate::network_capture::NetworkObservation;
 
-use super::{
+use super::queue::{
     queue_network_runtime_flow_overflow_dead_letters,
-    queue_network_runtime_flow_rejects_duplicate_idempotency, NetworkRuntimeEventPayload,
+    queue_network_runtime_flow_rejects_duplicate_idempotency,
 };
+use super::NetworkRuntimeEventPayload;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum NetworkRuntimeBrokerDeliverySemantics {
-    EffectivelyOnceThroughIdempotency,
-}
-
-#[derive(Clone, Debug)]
-pub struct NetworkRuntimeBrokerDeliverySemanticsReport {
-    pub delivery_decision: EventDeliveryDecisionProof,
-    pub delivery_semantics: NetworkRuntimeBrokerDeliverySemantics,
-    pub replay_plan_ref: SourceComponent,
-    pub dropped_event_audit_ref: SourceComponent,
-    pub adapter_action_ledger_ref: SourceComponent,
-    pub queued_duplicate_rejected: bool,
-    pub completed_duplicate_rejected: bool,
-    pub dropped_event_dead_letter_count: usize,
-    pub duplicate_stored_event_count: usize,
-    pub enforcement_command_event_count: usize,
-    pub adapter_action_executed_count: usize,
-    pub broker_delivery_implemented: bool,
-    pub family_hub_delivery_implemented: bool,
-}
+pub type NetworkRuntimeBrokerDeliverySemantics =
+    ocentra_parent_agent_protocol::network_flow::broker_delivery::NetworkRuntimeBrokerDeliverySemantics;
+pub type NetworkRuntimeBrokerDeliverySemanticsReport =
+    ocentra_parent_agent_protocol::network_flow::broker_delivery::NetworkRuntimeBrokerDeliverySemanticsReport;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum NetworkRuntimeBrokerDeliveryProofError {
@@ -50,7 +37,7 @@ pub async fn prove_network_runtime_broker_delivery_semantics(
     let delivery_decision = decide_event_delivery_route(broker_delivery_input()?)
         .map_err(NetworkRuntimeBrokerDeliveryProofError::DeliveryDecision)?;
     if delivery_decision.decision_state
-        != EventDeliveryDecisionState::BrokerRouteRequirementsSatisfied
+        != EventDeliveryDecisionState::ExternalTransportRouteRequirementsSatisfied
     {
         return Err(NetworkRuntimeBrokerDeliveryProofError::BrokerRequirementsNotSatisfied);
     }
@@ -106,11 +93,11 @@ pub async fn prove_network_runtime_broker_delivery_semantics(
         duplicate_stored_event_count: duplicate_report.stored_events.len(),
         enforcement_command_event_count,
         adapter_action_executed_count,
-        broker_delivery_implemented: delivery_decision.broker_delivery_implemented,
-        family_hub_delivery_implemented: delivery_decision.family_hub_delivery_implemented,
+        external_transport_delivery_implemented: delivery_decision
+            .external_transport_delivery_implemented,
+        external_relay_delivery_implemented: delivery_decision.external_relay_delivery_implemented,
         delivery_decision,
-        delivery_semantics:
-            NetworkRuntimeBrokerDeliverySemantics::EffectivelyOnceThroughIdempotency,
+        delivery_semantics: NetworkRuntimeBrokerDeliverySemantics::LocalIdempotencyQueueProof,
     })
 }
 
@@ -118,7 +105,7 @@ fn broker_delivery_input() -> Result<EventDeliveryDecisionInput, EventingError> 
     let flow_event_type = EventType::parse(constants::network_flow::EVENT_NETWORK_FLOW_OBSERVED)?;
     let event_namespace = EventNamespace::from_event_type(&flow_event_type)?;
     Ok(EventDeliveryDecisionInput {
-        route_kind: EventDeliveryRouteKind::BrokerBacked,
+        route_kind: EventDeliveryRouteKind::ExternalTransport,
         event_namespace: event_namespace.clone(),
         publisher_component: source_component(
             constants::network_flow::RUNTIME_COMPONENT_NETWORK_SPINE,
@@ -156,13 +143,13 @@ fn broker_delivery_input() -> Result<EventDeliveryDecisionInput, EventingError> 
         deletion_plan_ref: component_ref(constants::network_flow::TEST_BROKER_DELETION_PLAN_REF)?,
         offset_policy_ref: component_ref(constants::network_flow::TEST_BROKER_OFFSET_POLICY_REF)?,
         dedupe_policy_ref: component_ref(constants::network_flow::TEST_BROKER_DEDUPE_POLICY_REF)?,
-        broker_config_ref: component_ref(constants::network_flow::TEST_BROKER_CONFIG_REF)?,
-        family_hub_identity_ref: None,
-        family_hub_relay_policy_ref: None,
-        broker_delivery_claimed: false,
-        family_hub_delivery_claimed: false,
-        policy_authority_claimed: false,
-        adapter_authority_claimed: false,
+        transport_config_ref: component_ref(constants::network_flow::TEST_BROKER_CONFIG_REF)?,
+        relay_identity_ref: None,
+        relay_policy_ref: None,
+        external_transport_delivery_claimed: false,
+        external_relay_delivery_claimed: false,
+        decision_authority_claimed: false,
+        side_effect_authority_claimed: false,
     })
 }
 
@@ -175,12 +162,12 @@ fn component_ref(value: &str) -> Result<Option<SourceComponent>, EventingError> 
 }
 
 fn decode_payloads(
-    stored_events: &[ocentra_eventing::StoredEventEnvelope],
+    stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
 ) -> Result<Vec<NetworkRuntimeEventPayload>, EventingError> {
     stored_events
         .iter()
         .map(|event| {
-            let envelope: ocentra_eventing::EventEnvelope<NetworkRuntimeEventPayload> =
+            let envelope: ocentra_eventing::envelope::EventEnvelope<NetworkRuntimeEventPayload> =
                 event.decode()?;
             Ok(envelope.payload)
         })
@@ -188,7 +175,7 @@ fn decode_payloads(
 }
 
 fn count_event_type(
-    stored_events: &[ocentra_eventing::StoredEventEnvelope],
+    stored_events: &[ocentra_eventing::envelope::StoredEventEnvelope],
     event_type: &str,
 ) -> usize {
     stored_events

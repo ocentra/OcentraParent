@@ -1,0 +1,24 @@
+[package]
+name = "ocentra-parent-dev-bridge"
+version = "0.1.1"
+edition = "2021"
+license = "UNLICENSED"
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[dependencies]
+axum = { version = "=0.8.7", features = ["json"] }
+ocentra-parent-agent-protocol = { path = "../agent-protocol" }
+ocentra-parent-logging-core = { path = "../logging-core" }
+ocentra-parent-runtime-core = { path = "../parent-runtime-core" }
+ocentra-schema = { path = "../schema" }
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.48.0", features = ["macros", "net", "rt"] }
+tower-http = { version = "0.6.7", features = ["cors"] }
+
+[[test]]
+name = "unit"
+path = "tests/unit/main.rs"
+
+[workspace]

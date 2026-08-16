@@ -1,19 +1,35 @@
-use std::sync::Arc;
-
-use tokio::{sync::Semaphore, task::JoinHandle};
+use tokio::task::JoinHandle;
 
 use crate::{
-    queue::NoSubscriberQueueDecision, AggregateKey, DomainEvent, EventEnvelope, EventMetadata,
-    EventingError, JournalDispatchPhase, QueueDisposition, RequestCompletionReport, RequestEvent,
-    RequestId, RequestOptions, RequestReport, StoredEventEnvelope,
+    DomainEvent, EventMetadata, EventingError, JournalAppend, RequestCompletionReport,
+    RequestEvent, RequestId, RequestOptions, RequestReport, StoredEventEnvelope,
 };
 
 use super::{
-    dispatch::{dispatch_concurrent, dispatch_sequential},
-    reports::{dead_letters_for, empty_publish_report, DeadLetter, DeadLetterReason},
-    DispatchMode, EventBus, EventPublisher, HandlerOutcome, HandlerReport, PublishReport,
-    QueueDrainReport, SubscriberRecord,
+    reports::dead_letter::DeadLetter, DispatchMode, EventBus, PublishReport, SubscriberRecord,
 };
+
+mod flow;
+mod request;
+
+pub(crate) enum DispatchStoredError {
+    BeforeDispatch(EventingError),
+    AfterDispatch(EventingError),
+}
+
+impl DispatchStoredError {
+    fn into_error(self) -> EventingError {
+        match self {
+            Self::BeforeDispatch(error) | Self::AfterDispatch(error) => error,
+        }
+    }
+}
+
+impl From<EventingError> for DispatchStoredError {
+    fn from(error: EventingError) -> Self {
+        Self::BeforeDispatch(error)
+    }
+}
 
 impl EventBus {
     pub async fn publish<E>(
@@ -24,8 +40,7 @@ impl EventBus {
     where
         E: DomainEvent,
     {
-        self.publish_with_mode(event, metadata, DispatchMode::Sequential)
-            .await
+        flow::publish_with_mode(self, event, metadata, DispatchMode::Sequential).await
     }
 
     pub async fn publish_and_wait<E>(
@@ -49,7 +64,9 @@ impl EventBus {
         E: DomainEvent,
     {
         let bus = self.clone();
-        tokio::spawn(async move { bus.publish_with_mode(event, metadata, dispatch_mode).await })
+        tokio::spawn(
+            async move { flow::publish_with_mode(&bus, event, metadata, dispatch_mode).await },
+        )
     }
 
     pub async fn publish_request<E>(
@@ -61,24 +78,7 @@ impl EventBus {
     where
         E: RequestEvent,
     {
-        self.ensure_active()?;
-        let request_id = event.request_id()?;
-        let receiver = self.requests.register(request_id.clone())?;
-        let publish_report = self.publish(event, metadata).await?;
-        let payload = tokio::select! {
-            payload = receiver => payload.ok(),
-            _ = self.clock.sleep(options.timeout()) => None,
-        };
-        let Some(payload) = payload else {
-            self.requests.timeout(&request_id);
-            return Err(EventingError::RequestTimedOut { request_id });
-        };
-        let response = payload.decode::<E::Response>(&request_id)?;
-        Ok(RequestReport {
-            request_id,
-            response,
-            publish_report,
-        })
+        request::publish_request(self, event, metadata, options).await
     }
 
     pub async fn publish_with_mode<E>(
@@ -90,102 +90,30 @@ impl EventBus {
     where
         E: DomainEvent,
     {
-        self.ensure_active()?;
-        let stored = EventEnvelope::from_event(event, metadata)?.store()?;
-        if stored.is_deadline_expired(self.clock.now()) {
-            return self
-                .dead_letter_expired_deadline(stored, dispatch_mode)
-                .await;
-        }
-        let subscribers = self.subscribers_for(&stored);
-        if subscribers.is_empty() {
-            return self
-                .publish_without_subscribers(stored, dispatch_mode)
-                .await;
-        }
-        self.dispatch_stored(
-            stored,
-            subscribers,
+        flow::publish_with_mode(self, event, metadata, dispatch_mode).await
+    }
+
+    /// Publishes only after the selected before-dispatch journal append passes
+    /// the caller's durable-receipt predicate. This is an authorization-boundary
+    /// API: a failed predicate prevents every subscriber from observing the event.
+    pub async fn publish_with_mode_and_before_dispatch_receipt_validator<E>(
+        &self,
+        event: E,
+        metadata: EventMetadata,
+        dispatch_mode: DispatchMode,
+        validator: fn(&JournalAppend) -> Result<(), EventingError>,
+    ) -> Result<PublishReport, EventingError>
+    where
+        E: DomainEvent,
+    {
+        flow::publish_with_mode_and_before_dispatch_receipt_validator(
+            self,
+            event,
+            metadata,
             dispatch_mode,
-            self.queue.report(QueueDisposition::Dispatched),
-            true,
+            validator,
         )
         .await
-    }
-
-    pub async fn drain_queued(
-        &self,
-        dispatch_mode: DispatchMode,
-    ) -> Result<QueueDrainReport, EventingError> {
-        self.ensure_active()?;
-        self.drain_queued_unchecked(dispatch_mode).await
-    }
-
-    pub(super) async fn drain_queued_unchecked(
-        &self,
-        dispatch_mode: DispatchMode,
-    ) -> Result<QueueDrainReport, EventingError> {
-        let queued = self.queue.take_queued();
-        let queued_before = queued.len();
-        let mut expired_count = 0_usize;
-        let mut dispatch_reports = Vec::new();
-
-        for queued_envelope in queued {
-            let now = self.clock.now();
-            if queued_envelope.stored.is_deadline_expired(now) {
-                expired_count += 1;
-                let dead_letter = DeadLetter::for_queue(
-                    &queued_envelope.stored,
-                    DeadLetterReason::DeadlineExpired,
-                    EventingError::EventDeadlineExpired {
-                        event_type: queued_envelope.stored.contract.event_type.clone(),
-                    },
-                );
-                self.queue
-                    .mark_completed(queued_envelope.stored.idempotency_key.clone());
-                self.dead_letters.write().await.push(dead_letter);
-                continue;
-            }
-            if queued_envelope.is_expired(now, self.queue.policy().ttl()) {
-                expired_count += 1;
-                let dead_letter = DeadLetter::for_queue(
-                    &queued_envelope.stored,
-                    DeadLetterReason::QueueExpired,
-                    EventingError::NoSubscriber {
-                        event_type: queued_envelope.stored.contract.event_type.clone(),
-                    },
-                );
-                self.queue
-                    .mark_completed(queued_envelope.stored.idempotency_key.clone());
-                self.dead_letters.write().await.push(dead_letter);
-                continue;
-            }
-
-            let subscribers = self.subscribers_for(&queued_envelope.stored);
-            if subscribers.is_empty() {
-                self.queue.requeue(queued_envelope);
-                continue;
-            }
-
-            let report = self
-                .dispatch_stored(
-                    queued_envelope.stored,
-                    subscribers,
-                    dispatch_mode,
-                    self.queue.report(QueueDisposition::Dispatched),
-                    false,
-                )
-                .await?;
-            dispatch_reports.push(report);
-        }
-
-        Ok(QueueDrainReport {
-            queued_before,
-            dispatched_count: dispatch_reports.len(),
-            expired_count,
-            remaining_count: self.queue.report(QueueDisposition::Dispatched).queued_count,
-            dispatch_reports,
-        })
     }
 
     pub async fn journal(&self) -> Vec<StoredEventEnvelope> {
@@ -205,186 +133,5 @@ impl EventBus {
         E: RequestEvent,
     {
         self.requests.complete(request_id, response)
-    }
-
-    async fn publish_without_subscribers(
-        &self,
-        stored: StoredEventEnvelope,
-        dispatch_mode: DispatchMode,
-    ) -> Result<PublishReport, EventingError> {
-        match self
-            .queue
-            .enqueue_no_subscriber(stored.clone(), self.clock.now())?
-        {
-            NoSubscriberQueueDecision::Dispatch(queue_report)
-            | NoSubscriberQueueDecision::Queued(queue_report) => {
-                self.record_stored_snapshot(&stored).await;
-                self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-                    .await?;
-                self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-                    .await?;
-                Ok(empty_publish_report(
-                    &stored,
-                    dispatch_mode,
-                    queue_report,
-                    0,
-                ))
-            }
-            NoSubscriberQueueDecision::DeadLetter(queue_report, reason, error) => {
-                self.record_stored_snapshot(&stored).await;
-                self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-                    .await?;
-                let dead_letter = DeadLetter::for_queue(&stored, reason, error);
-                self.queue.mark_completed(stored.idempotency_key.clone());
-                self.dead_letters.write().await.push(dead_letter);
-                self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-                    .await?;
-                Ok(empty_publish_report(
-                    &stored,
-                    dispatch_mode,
-                    queue_report,
-                    1,
-                ))
-            }
-        }
-    }
-
-    async fn dead_letter_expired_deadline(
-        &self,
-        stored: StoredEventEnvelope,
-        dispatch_mode: DispatchMode,
-    ) -> Result<PublishReport, EventingError> {
-        self.record_stored_snapshot(&stored).await;
-        self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-            .await?;
-        let dead_letter = DeadLetter::for_queue(
-            &stored,
-            DeadLetterReason::DeadlineExpired,
-            EventingError::EventDeadlineExpired {
-                event_type: stored.contract.event_type.clone(),
-            },
-        );
-        self.queue.mark_completed(stored.idempotency_key.clone());
-        self.dead_letters.write().await.push(dead_letter);
-        self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-            .await?;
-        Ok(empty_publish_report(
-            &stored,
-            dispatch_mode,
-            self.queue
-                .report(QueueDisposition::DeadLetteredDeadlineExpired),
-            1,
-        ))
-    }
-
-    pub(super) async fn dispatch_stored(
-        &self,
-        stored: StoredEventEnvelope,
-        subscribers: Vec<SubscriberRecord>,
-        dispatch_mode: DispatchMode,
-        queue_report: crate::QueueReport,
-        write_journal: bool,
-    ) -> Result<PublishReport, EventingError> {
-        let reservation = self.queue.reserve_dispatch(&stored)?;
-        if write_journal {
-            self.record_stored_snapshot(&stored).await;
-        }
-        self.append_journal_phase(&stored, JournalDispatchPhase::BeforeDispatch)
-            .await?;
-        let handler_reports = self
-            .dispatch(stored.clone(), subscribers.clone(), dispatch_mode)
-            .await;
-        reservation.complete();
-        let dead_letters = dead_letters_for(&stored, &handler_reports);
-        if !dead_letters.is_empty() {
-            self.dead_letters.write().await.extend(dead_letters.clone());
-        }
-        self.append_journal_phase(&stored, JournalDispatchPhase::AfterDispatch)
-            .await?;
-        Ok(PublishReport {
-            event_id: stored.event_id,
-            event_type: stored.contract.event_type,
-            dispatch_mode,
-            queue_report,
-            subscriber_count: subscribers.len(),
-            handled_count: handler_reports
-                .iter()
-                .filter(|report| report.outcome == HandlerOutcome::Handled)
-                .count(),
-            dead_letter_count: dead_letters.len(),
-            handler_reports,
-        })
-    }
-
-    pub(super) fn subscribers_for(&self, stored: &StoredEventEnvelope) -> Vec<SubscriberRecord> {
-        let registry = self.registry.lock().expect("event registry lock");
-        let subscribers = registry
-            .get(&stored.contract.event_type)
-            .cloned()
-            .unwrap_or_default();
-        match &stored.target_handler {
-            Some(target) => subscribers
-                .into_iter()
-                .filter(|subscriber| &subscriber.target_handler == target)
-                .collect(),
-            None => subscribers,
-        }
-    }
-
-    async fn dispatch(
-        &self,
-        stored: StoredEventEnvelope,
-        subscribers: Vec<SubscriberRecord>,
-        dispatch_mode: DispatchMode,
-    ) -> Vec<HandlerReport> {
-        match dispatch_mode {
-            DispatchMode::Sequential => {
-                dispatch_sequential(
-                    stored,
-                    subscribers,
-                    EventPublisher::new(self.clone()),
-                    self.handler_policy.clone(),
-                    self.clock.clone(),
-                )
-                .await
-            }
-            DispatchMode::Concurrent => {
-                dispatch_concurrent(
-                    stored,
-                    subscribers,
-                    EventPublisher::new(self.clone()),
-                    self.handler_policy.clone(),
-                    self.clock.clone(),
-                )
-                .await
-            }
-            DispatchMode::OrderedByAggregateKey => {
-                let aggregate_gate = self.aggregate_gate(&stored.aggregate_key);
-                let _aggregate_permit = aggregate_gate
-                    .acquire_owned()
-                    .await
-                    .expect("aggregate ordering gate remains open");
-                dispatch_sequential(
-                    stored,
-                    subscribers,
-                    EventPublisher::new(self.clone()),
-                    self.handler_policy.clone(),
-                    self.clock.clone(),
-                )
-                .await
-            }
-        }
-    }
-
-    fn aggregate_gate(&self, aggregate_key: &AggregateKey) -> Arc<Semaphore> {
-        let mut gates = self
-            .aggregate_gates
-            .lock()
-            .expect("event aggregate gate map");
-        Arc::clone(
-            gates
-                .entry(aggregate_key.clone())
-                .or_insert_with(|| Arc::new(Semaphore::new(1))),
-        )
     }
 }

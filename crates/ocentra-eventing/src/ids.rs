@@ -5,6 +5,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::EventingError;
 
+mod validation;
+
 static EVENT_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 static REQUEST_ID_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 
@@ -15,12 +17,15 @@ const EVENT_TYPE_LABEL: &str = "event_type";
 const EVENT_NAMESPACE_LABEL: &str = "event_namespace";
 const EVENT_ID_LABEL: &str = "event_id";
 const CORRELATION_ID_LABEL: &str = "correlation_id";
+const CAUSATION_ID_LABEL: &str = "causation_id";
 const REQUEST_ID_LABEL: &str = "request_id";
 const JOURNAL_HASH_LABEL: &str = "journal_hash";
 const AGGREGATE_KEY_LABEL: &str = "aggregate_key";
 const IDEMPOTENCY_KEY_LABEL: &str = "idempotency_key";
 const SUBSCRIBER_ID_LABEL: &str = "subscriber_id";
 const TARGET_HANDLER_LABEL: &str = "target_handler";
+const EVENT_CUSTODY_LABEL: &str = "event_custody";
+const RUNTIME_ROLE_LABEL: &str = "runtime_role";
 const SOURCE_SERVICE_LABEL: &str = "source_service";
 const SOURCE_COMPONENT_LABEL: &str = "source_component";
 const RUNTIME_INSTANCE_ID_LABEL: &str = "runtime_instance_id";
@@ -34,7 +39,7 @@ macro_rules! text_identifier {
 
         impl $name {
             pub fn parse(value: impl Into<String>) -> Result<Self, EventingError> {
-                validate_text($label, value.into()).map(Self)
+                validation::validate_text($label, value.into()).map(Self)
             }
 
             pub fn as_str(&self) -> &str {
@@ -62,12 +67,15 @@ text_identifier!(EventType, EVENT_TYPE_LABEL);
 text_identifier!(EventNamespace, EVENT_NAMESPACE_LABEL);
 text_identifier!(EventId, EVENT_ID_LABEL);
 text_identifier!(CorrelationId, CORRELATION_ID_LABEL);
+text_identifier!(CausationId, CAUSATION_ID_LABEL);
 text_identifier!(RequestId, REQUEST_ID_LABEL);
 text_identifier!(JournalHash, JOURNAL_HASH_LABEL);
 text_identifier!(AggregateKey, AGGREGATE_KEY_LABEL);
 text_identifier!(IdempotencyKey, IDEMPOTENCY_KEY_LABEL);
 text_identifier!(SubscriberId, SUBSCRIBER_ID_LABEL);
 text_identifier!(TargetHandler, TARGET_HANDLER_LABEL);
+text_identifier!(EventCustody, EVENT_CUSTODY_LABEL);
+text_identifier!(RuntimeRole, RUNTIME_ROLE_LABEL);
 text_identifier!(SourceService, SOURCE_SERVICE_LABEL);
 text_identifier!(SourceComponent, SOURCE_COMPONENT_LABEL);
 text_identifier!(RuntimeInstanceId, RUNTIME_INSTANCE_ID_LABEL);
@@ -89,20 +97,11 @@ impl EventId {
 
 impl EventNamespace {
     pub fn from_event_type(event_type: &EventType) -> Result<Self, EventingError> {
-        let namespace = event_type
-            .as_str()
-            .split('.')
-            .next()
-            .ok_or_else(|| EventingError::empty_value(EVENT_NAMESPACE_LABEL))?;
-        Self::parse(namespace)
+        validation::event_namespace_from_event_type(event_type)
     }
 
     pub fn matches_event_type(&self, event_type: &EventType) -> bool {
-        event_type.as_str() == self.as_str()
-            || event_type
-                .as_str()
-                .strip_prefix(self.as_str())
-                .is_some_and(|suffix| suffix.starts_with('.'))
+        validation::event_namespace_matches_event_type(self, event_type)
     }
 }
 
@@ -127,6 +126,7 @@ impl RecordedAt {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
+#[serde(try_from = "u16", into = "u16")]
 pub struct SchemaVersion(u16);
 
 impl SchemaVersion {
@@ -142,9 +142,16 @@ impl SchemaVersion {
     }
 }
 
-fn validate_text(field: &'static str, value: String) -> Result<String, EventingError> {
-    if value.trim().is_empty() {
-        return Err(EventingError::empty_value(field));
+impl TryFrom<u16> for SchemaVersion {
+    type Error = EventingError;
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        Self::new(value)
     }
-    Ok(value)
+}
+
+impl From<SchemaVersion> for u16 {
+    fn from(value: SchemaVersion) -> Self {
+        value.0
+    }
 }

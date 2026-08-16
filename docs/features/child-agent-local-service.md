@@ -1,3 +1,16 @@
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Doc: Child Agent Local Service
+> Kind: feature documentation; read only when selected by FEATURE_ROUTE_INDEX, PLAN_INDEX, or assigned workpack.
+> Read when: Only when this exact doc is named by the active route, index, feature doc, or assigned workpack.
+> Stop rule: Do not continue into sibling docs, broad folders, source trees, or historical checkpoints unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the owning feature/plan/checklist/proof route that makes the claim current.
+
+<!-- /agent-capsule -->
+
 # Child Agent Local Service
 
 ## Parent Outcome
@@ -158,6 +171,10 @@ the generic eventing delivery decision proof now makes broker/family-hub deliver
 requirements explicit without implementing the transport; the open eventing gap
 is broker-backed/family-hub delivery, physical child-device runtime
 installation, and broad runtime adoption. The
+reusable event bus itself is now tracked by the phase-1 proof pack
+`output/eventing-plan-proof/reusable-eventing-runtime/proof-summary.json`;
+network/service/portal/parent-child integration remains consumer work layered on
+that bus. The
 initial UI typed-intent proof keeps the Vite/TypeScript portal as a view/input
 surface while Rust remains the business event publisher. The initial AI and
 portal direct-enforcement negative proof now rejects portal-side enforcement

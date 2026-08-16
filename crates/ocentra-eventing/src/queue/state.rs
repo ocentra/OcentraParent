@@ -4,13 +4,24 @@ use std::{
     time::Duration,
 };
 
+use crate::bus::reports::dead_letter::DeadLetterReason;
+use crate::queue::policy::{EventQueuePolicy, QueueReport};
 use crate::{
-    DeadLetterReason, EventClockInstant, EventingError, IdempotencyKey, StoredEventEnvelope,
+    EventClockInstant, EventId, EventType, EventingError, IdempotencyKey, StoredEventEnvelope,
 };
 
-use super::{
-    EventQueuePolicy, NoSubscriberQueuePolicy, QueueDisposition, QueueOverflowPolicy, QueueReport,
-};
+#[path = "state/dispatch.rs"]
+mod dispatch;
+#[path = "state/enqueue.rs"]
+mod enqueue;
+#[path = "state/read.rs"]
+mod read;
+#[path = "state/report.rs"]
+mod report;
+#[path = "state/write.rs"]
+mod write;
+
+const COMPLETED_IDEMPOTENCY_RETENTION_LIMIT: usize = 4096;
 
 #[derive(Clone)]
 pub(crate) struct EventQueue {
@@ -29,172 +40,20 @@ impl EventQueue {
     pub(crate) fn policy(&self) -> &EventQueuePolicy {
         &self.policy
     }
-
-    pub(crate) fn report(&self, disposition: QueueDisposition) -> QueueReport {
-        let queued_count = self.state.lock().expect("event queue lock").queued.len();
-        QueueReport {
-            disposition,
-            queued_count,
-            capacity: self.policy.capacity(),
-        }
-    }
-
-    pub(crate) fn enqueue_no_subscriber(
-        &self,
-        stored: StoredEventEnvelope,
-        now: EventClockInstant,
-    ) -> Result<NoSubscriberQueueDecision, EventingError> {
-        match self.policy.no_subscriber() {
-            NoSubscriberQueuePolicy::DispatchWithoutSubscribers => Ok(
-                NoSubscriberQueueDecision::Dispatch(self.report(QueueDisposition::Dispatched)),
-            ),
-            NoSubscriberQueuePolicy::DeadLetter => Ok(NoSubscriberQueueDecision::DeadLetter(
-                self.report(QueueDisposition::DeadLetteredNoSubscriber),
-                DeadLetterReason::NoSubscriber,
-                EventingError::NoSubscriber {
-                    event_type: stored.contract.event_type.clone(),
-                },
-            )),
-            NoSubscriberQueuePolicy::Queue => self.try_enqueue(stored, now),
-        }
-    }
-
-    pub(crate) fn reserve_dispatch(
-        &self,
-        stored: &StoredEventEnvelope,
-    ) -> Result<DispatchReservation, EventingError> {
-        if !self.policy.idempotency_registry_enabled() {
-            return Ok(DispatchReservation::new(self.clone(), None));
-        }
-        let mut state = self.state.lock().expect("event queue lock");
-        let key = stored.idempotency_key.clone();
-        if state.completed_keys.contains(&key) || state.queued_keys.contains(&key) {
-            return Err(EventingError::DuplicateIdempotencyKey {
-                idempotency_key: key,
-            });
-        }
-        if !state.in_flight_keys.insert(key.clone()) {
-            return Err(EventingError::DuplicateInFlight {
-                idempotency_key: key,
-            });
-        }
-        Ok(DispatchReservation::new(self.clone(), Some(key)))
-    }
-
-    pub(crate) fn take_queued(&self) -> Vec<QueuedEnvelope> {
-        let mut state = self.state.lock().expect("event queue lock");
-        let queued = state.queued.drain(..).collect::<Vec<_>>();
-        state.queued_keys.clear();
-        queued
-    }
-
-    pub(crate) fn requeue(&self, queued: QueuedEnvelope) {
-        let mut state = self.state.lock().expect("event queue lock");
-        state
-            .queued_keys
-            .insert(queued.stored.idempotency_key.clone());
-        state.queued.push_back(queued);
-    }
-
-    pub(crate) fn mark_completed(&self, key: IdempotencyKey) {
-        let mut state = self.state.lock().expect("event queue lock");
-        state.in_flight_keys.remove(&key);
-        state.completed_keys.insert(key);
-    }
-
-    pub(crate) fn release_in_flight(&self, key: &IdempotencyKey) {
-        let mut state = self.state.lock().expect("event queue lock");
-        state.in_flight_keys.remove(key);
-    }
-
-    pub(crate) fn clear_for_test(&self) -> EventQueueClearReport {
-        let mut state = self.state.lock().expect("event queue lock");
-        let report = EventQueueClearReport {
-            queued_event_count: state.queued.len(),
-            queued_idempotency_key_count: state.queued_keys.len(),
-            in_flight_idempotency_key_count: state.in_flight_keys.len(),
-            completed_idempotency_key_count: state.completed_keys.len(),
-        };
-        state.queued.clear();
-        state.queued_keys.clear();
-        state.in_flight_keys.clear();
-        state.completed_keys.clear();
-        report
-    }
-
-    fn try_enqueue(
-        &self,
-        stored: StoredEventEnvelope,
-        now: EventClockInstant,
-    ) -> Result<NoSubscriberQueueDecision, EventingError> {
-        let Some(capacity) = self.policy.capacity() else {
-            return Err(EventingError::InvalidQueuePolicy {
-                reason: String::from("queue capacity is not configured"),
-            });
-        };
-        let mut state = self.state.lock().expect("event queue lock");
-        let key = stored.idempotency_key.clone();
-        if self.policy.idempotency_registry_enabled()
-            && (state.completed_keys.contains(&key)
-                || state.queued_keys.contains(&key)
-                || state.in_flight_keys.contains(&key))
-        {
-            return Err(EventingError::DuplicateIdempotencyKey {
-                idempotency_key: key,
-            });
-        }
-        if state.queued.len() >= capacity {
-            return self.overflow_decision(stored, state.queued.len(), capacity);
-        }
-        if self.policy.idempotency_registry_enabled() {
-            state.queued_keys.insert(key);
-        }
-        state.queued.push_back(QueuedEnvelope {
-            stored,
-            enqueued_at: now,
-        });
-        Ok(NoSubscriberQueueDecision::Queued(QueueReport {
-            disposition: QueueDisposition::QueuedNoSubscriber,
-            queued_count: state.queued.len(),
-            capacity: self.policy.capacity(),
-        }))
-    }
-
-    fn overflow_decision(
-        &self,
-        stored: StoredEventEnvelope,
-        queued_count: usize,
-        capacity: usize,
-    ) -> Result<NoSubscriberQueueDecision, EventingError> {
-        match self.policy.overflow() {
-            QueueOverflowPolicy::RejectPublish => Err(EventingError::QueueCapacityExceeded {
-                event_type: stored.contract.event_type.clone(),
-                capacity,
-            }),
-            QueueOverflowPolicy::DeadLetterRejected => Ok(NoSubscriberQueueDecision::DeadLetter(
-                QueueReport {
-                    disposition: QueueDisposition::DeadLetteredQueueOverflow,
-                    queued_count,
-                    capacity: self.policy.capacity(),
-                },
-                DeadLetterReason::QueueOverflow,
-                EventingError::QueueCapacityExceeded {
-                    event_type: stored.contract.event_type.clone(),
-                    capacity,
-                },
-            )),
-        }
-    }
 }
 
 #[derive(Default)]
 struct EventQueueState {
     queued: VecDeque<QueuedEnvelope>,
+    queued_event_ids: BTreeSet<EventId>,
+    in_flight_event_ids: BTreeSet<EventId>,
     queued_keys: BTreeSet<IdempotencyKey>,
     in_flight_keys: BTreeSet<IdempotencyKey>,
     completed_keys: BTreeSet<IdempotencyKey>,
+    completed_key_order: VecDeque<IdempotencyKey>,
 }
 
+#[derive(Clone)]
 pub(crate) struct QueuedEnvelope {
     pub(crate) stored: StoredEventEnvelope,
     enqueued_at: EventClockInstant,
@@ -204,17 +63,22 @@ impl QueuedEnvelope {
     pub(crate) fn is_expired(&self, now: EventClockInstant, ttl: Option<Duration>) -> bool {
         ttl.is_some_and(|ttl| now.duration_since(self.enqueued_at) >= ttl)
     }
+
+    fn matches_event_type(&self, event_type: &EventType) -> bool {
+        &self.stored.contract.event_type == event_type
+    }
 }
 
 pub(crate) enum NoSubscriberQueueDecision {
     Dispatch(QueueReport),
     Queued(QueueReport),
+    QueuedWithDeadLetter(
+        QueueReport,
+        Box<QueuedEnvelope>,
+        DeadLetterReason,
+        EventingError,
+    ),
     DeadLetter(QueueReport, DeadLetterReason, EventingError),
-}
-
-pub(crate) struct DispatchReservation {
-    queue: EventQueue,
-    key: Option<IdempotencyKey>,
 }
 
 pub(crate) struct EventQueueClearReport {
@@ -224,22 +88,10 @@ pub(crate) struct EventQueueClearReport {
     pub(crate) completed_idempotency_key_count: usize,
 }
 
-impl DispatchReservation {
-    fn new(queue: EventQueue, key: Option<IdempotencyKey>) -> Self {
-        Self { queue, key }
-    }
-
-    pub(crate) fn complete(mut self) {
-        if let Some(key) = self.key.take() {
-            self.queue.mark_completed(key);
-        }
-    }
-}
-
-impl Drop for DispatchReservation {
-    fn drop(&mut self) {
-        if let Some(key) = self.key.take() {
-            self.queue.release_in_flight(&key);
+fn trim_completed_keys(state: &mut EventQueueState) {
+    while state.completed_key_order.len() > COMPLETED_IDEMPOTENCY_RETENTION_LIMIT {
+        if let Some(expired) = state.completed_key_order.pop_front() {
+            state.completed_keys.remove(&expired);
         }
     }
 }

@@ -1,5 +1,0 @@
-Security/no-claim proof:
-
-- Provider preflight rows require adapter implementation, credentials, and provider smoke proof before delivery can be claimed.
-- Manual-required and unavailable rows stay blocked before provider preflight.
-- Provider delivery, receipt ingestion, credentials, cloud routing, retry workers, quiet-hours timers, parent UI, child delivery, durable outbox storage, and adapter dispatch remain false.

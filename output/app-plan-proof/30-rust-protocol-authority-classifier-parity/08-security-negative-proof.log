@@ -1,5 +1,0 @@
-PASS: Native app no-claim security boundary preserved.
-
-- No direct classifier action is consumed by policy/runtime code.
-- No raw OS scan rows are exposed.
-- No platform adapter support or broad app blocking is claimed.

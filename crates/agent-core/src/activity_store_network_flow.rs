@@ -1,8 +1,11 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityEvidenceRef, ActivityNetworkEndpoint, ActivityNetworkFlowCounters,
-    ActivityNetworkFlowObservation, ActivityNetworkFlowReadModel, LogFieldValue, LogFields,
-    NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE, NETWORK_FLOW_SCHEMA_VERSION,
+use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
+use ocentra_parent_agent_protocol::network_flow::{
+    ActivityNetworkEndpoint, ActivityNetworkFlowCounters, ActivityNetworkFlowObservation,
+    ActivityNetworkFlowReadModel, NETWORK_FLOW_CUSTODY_CHILD_DEVICE_QUERY_STORE,
 };
+use ocentra_parent_agent_protocol::NETWORK_FLOW_SCHEMA_VERSION;
 use rusqlite::Connection;
 
 use crate::{

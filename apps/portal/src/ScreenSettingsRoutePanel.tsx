@@ -1,27 +1,34 @@
 import type { ReactElement } from 'react';
 import {
-  screenControlSettingsPortalProof,
-  type ScreenControlSettingsPortalGate,
-  type ScreenControlSettingsPortalMetric,
-} from '@ocentra-parent/parent-domain/screen-control-settings-portal-proof';
-import {
-  PortalDetails,
-  PortalDom,
-  PortalRoute,
-  type PortalDisplayText,
-  type PortalRoute as PortalRouteValue,
-} from '@ocentra-parent/portal-domain/contracts';
+  parentScreenControlSettingsPortalProof as screenControlSettingsPortalProof,
+  type ParentScreenControlSettingsPortalGate as ScreenControlSettingsPortalGate,
+  type ParentScreenControlSettingsPortalMetric as ScreenControlSettingsPortalMetric,
+} from '../generated/parent-ui-screen-bridge';
+import { PortalDom } from '@ocentra-parent/portal-domain/contracts';
+import { type PortalDisplayText } from '@ocentra-parent/portal-domain/display-text';
+import { PortalDetails } from '@ocentra-parent/portal-domain/details';
+import { isParentScreenSettingsRoute, type ParentRouteId } from '../generated/parent-ui-bridge';
+import type { PortalRenderActions } from './portal-actions';
+import { ScreenOptionalVisibilityCapabilityStatusCard } from './ScreenOptionalVisibilityCapabilityStatusCard';
 import { ScreenSettingsWritableControls } from './ScreenSettingsWritableControls';
 
 type ScreenSettingsDetailValue =
   | ScreenControlSettingsPortalMetric[keyof ScreenControlSettingsPortalMetric]
   | ScreenControlSettingsPortalGate[keyof ScreenControlSettingsPortalGate];
 
-export function shouldRenderScreenSettingsRoute(route: PortalRouteValue): boolean {
-  return route === PortalRoute.SettingsRules || currentHash() === screenSettingsRouteHash();
+export function shouldRenderScreenSettingsRoute(route: ParentRouteId): boolean {
+  return isParentScreenSettingsRoute(route);
 }
 
-export function ScreenSettingsRoutePanel(): ReactElement {
+export function ScreenSettingsRoutePanel({
+  actions,
+  commandEnabled,
+  serviceResponseSnapshot,
+}: {
+  readonly actions: PortalRenderActions;
+  readonly commandEnabled: boolean;
+  readonly serviceResponseSnapshot: unknown | null;
+}): ReactElement {
   const proof = screenControlSettingsPortalProof();
   return (
     <section aria-label={proof.title} className={PortalDom.Classes.TrackingStatusOverlay}>
@@ -36,7 +43,12 @@ export function ScreenSettingsRoutePanel(): ReactElement {
             PortalDom.Classes.ClassNameSeparator
           )}
         >
-          <ScreenSettingsWritableControls />
+          <ScreenSettingsWritableControls
+            actions={actions}
+            commandEnabled={commandEnabled}
+            serviceResponseSnapshot={serviceResponseSnapshot}
+          />
+          <ScreenOptionalVisibilityCapabilityStatusCard />
           {proof.metrics.map((metric) => (
             <ScreenSettingsMetricCard key={metric.label} metric={metric} />
           ))}
@@ -93,15 +105,4 @@ function ScreenSettingsDetail({
 
 function screenSettingsCardClassName() {
   return [PortalDom.Classes.Summary, PortalDom.Classes.ProductStatusCard].join(PortalDom.Classes.ClassNameSeparator);
-}
-
-function screenSettingsRouteHash() {
-  return [PortalDom.HashPrefix, PortalRoute.SettingsRules].join(PortalDom.EmptyHashRoute);
-}
-
-function currentHash() {
-  if (typeof window === PortalDom.Runtime.Undefined) {
-    return PortalDom.EmptyHashRoute;
-  }
-  return window.location.hash;
 }

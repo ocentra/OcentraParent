@@ -1,10 +1,15 @@
-use ocentra_parent_agent_protocol::{
-    constants, ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
+use ocentra_parent_agent_protocol::activity_surface::{
+    ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
     ActivityNetworkReadModel, ActivityReadModelState, ActivityScreenReadModel,
-    ActivitySurfaceRequest, ActivitySurfaceScopeKind, ACTIVITY_SURFACE_SCHEMA_VERSION,
+    ActivitySurfaceRequest, ActivitySurfaceScopeKind,
 };
+use ocentra_parent_agent_protocol::constants;
+use ocentra_parent_agent_protocol::ACTIVITY_SURFACE_SCHEMA_VERSION;
 
 use crate::time::timestamp_now;
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub(super) struct GeneratedAtText(pub(crate) String);
 
 pub(crate) fn request_targets_remote_device(request: &ActivitySurfaceRequest) -> bool {
     request.scope.scope_kind == ActivitySurfaceScopeKind::Device
@@ -14,13 +19,13 @@ pub(crate) fn request_targets_remote_device(request: &ActivitySurfaceRequest) ->
 
 pub(crate) fn empty_screen_read_model(
     request: ActivitySurfaceRequest,
-    generated_at: String,
+    generated_at: GeneratedAtText,
 ) -> ActivityScreenReadModel {
     ActivityScreenReadModel {
         schema_version: ACTIVITY_SURFACE_SCHEMA_VERSION,
         request,
         state: ActivityReadModelState::Empty,
-        generated_at,
+        generated_at: generated_at.0,
         summary: constants::activity_surface::SUMMARY_EMPTY.to_string(),
         rows: Vec::new(),
     }

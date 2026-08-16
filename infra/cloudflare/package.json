@@ -1,0 +1,39 @@
+{
+  "name": "@ocentra-parent/cloudflare-control-plane",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --local",
+    "dev:remote": "wrangler dev",
+    "login": "wrangler login",
+    "seed:local": "tsx scripts/seed-local.ts",
+    "seed:products:local": "tsx scripts/seed-products-local.ts",
+    "seed:referrals:local": "tsx scripts/seed-referrals-local.ts",
+    "seed:test-accounts:local": "tsx scripts/seed-test-accounts-local.ts",
+    "proof:logger-ready": "npm --prefix ../.. --workspace @ocentra-parent/logging-domain run build",
+    "proof:local-dev": "npm run proof:logger-ready && tsx scripts/local-dev-proof.ts",
+    "test": "npm run test:logger-ready && tsx scripts/test-runner.ts",
+    "test:unit": "tsx scripts/test-runner.ts --type=unit",
+    "test:integration": "npm run test:logger-ready && tsx scripts/test-runner.ts --type=integration",
+    "test:local-dev-workflow": "npm run test:logger-ready && node --import tsx --test tests/integration/local-dev-seeding-workflow.test.ts",
+    "test:logger-ready": "npm run proof:logger-ready",
+    "test:e2e": "tsx scripts/test-runner.ts --type=e2e",
+    "test:contract": "tsx scripts/test-runner.ts --type=contract",
+    "test:security": "tsx scripts/test-runner.ts --type=security",
+    "test:property": "tsx scripts/test-runner.ts --type=property",
+    "test:fuzz": "tsx scripts/test-runner.ts --type=fuzz",
+    "test:all-cloudflare": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:contract && npm run test:security && npm run test:property && npm run test:fuzz",
+    "deploy:dev": "wrangler deploy --env development",
+    "deploy": "wrangler deploy --config wrangler.production.toml --env production",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@ocentra-parent/logging-domain": "file:../../packages/logging-domain",
+    "@cloudflare/workers-types": "^5.20260722.1",
+    "@types/node": "^24.6.0",
+    "tsx": "^4.20.6",
+    "typescript": "^6.0.2",
+    "wrangler": "^4.84.1"
+  }
+}

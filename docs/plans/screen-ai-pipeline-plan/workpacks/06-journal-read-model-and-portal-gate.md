@@ -1,5 +1,19 @@
 # 06 - Journal Read Model And Portal Gate
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `screen-ai-pipeline-plan`
+> Doc: `06 - Journal Read Model And Portal Gate`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Target State
 
 Journal, SQLite read model, and parent portal show the complete trigger,
@@ -7,12 +21,12 @@ capture, AI, policy, action/dry-run, and deletion chain.
 
 ## Checklist
 
-- [x] Journal entry contains trigger ref.
-- [x] Journal entry contains capture ref.
-- [x] Journal entry contains AI result ref.
-- [x] Journal entry contains policy decision ref.
-- [x] Read model replays the chain.
-- [x] Portal screenshot shows explanation.
+- [ ] Journal entry contains trigger ref.
+- [ ] Journal entry contains capture ref.
+- [ ] Journal entry contains AI result ref.
+- [ ] Journal entry contains policy decision ref.
+- [ ] Read model replays the chain.
+- [ ] Portal screenshot shows explanation.
 
 ## Proof
 

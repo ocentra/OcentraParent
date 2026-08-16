@@ -6,6 +6,7 @@ use crate::{
 };
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum WindowsAdapterArtifactKind {
     #[serde(rename = "same-identity-app-package-evidence")]
     SameIdentityAppPackageEvidence,
@@ -24,28 +25,23 @@ pub enum WindowsAdapterArtifactKind {
 }
 
 impl WindowsAdapterArtifactKind {
+    const PROTOCOL_STRINGS: [&'static str; 7] = [
+        artifact_gate_constants::ARTIFACT_KIND_SAME_IDENTITY_APP,
+        artifact_gate_constants::ARTIFACT_KIND_APPLY_RESULT,
+        artifact_gate_constants::ARTIFACT_KIND_ROLLBACK_RESULT,
+        artifact_gate_constants::ARTIFACT_KIND_AUDIT_CUSTODY_EVENT,
+        artifact_gate_constants::ARTIFACT_KIND_MANAGED_BROWSER_EXACT_URL,
+        artifact_gate_constants::ARTIFACT_KIND_NETWORK_FILTER_APPLY,
+        artifact_gate_constants::ARTIFACT_KIND_NETWORK_FILTER_ROLLBACK,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::SameIdentityAppPackageEvidence => {
-                artifact_gate_constants::ARTIFACT_KIND_SAME_IDENTITY_APP
-            }
-            Self::AdapterApplyResult => artifact_gate_constants::ARTIFACT_KIND_APPLY_RESULT,
-            Self::AdapterRollbackResult => artifact_gate_constants::ARTIFACT_KIND_ROLLBACK_RESULT,
-            Self::AuditCustodyEvent => artifact_gate_constants::ARTIFACT_KIND_AUDIT_CUSTODY_EVENT,
-            Self::ManagedBrowserExactUrlEvidence => {
-                artifact_gate_constants::ARTIFACT_KIND_MANAGED_BROWSER_EXACT_URL
-            }
-            Self::NetworkDomainFilterApply => {
-                artifact_gate_constants::ARTIFACT_KIND_NETWORK_FILTER_APPLY
-            }
-            Self::NetworkDomainFilterRollback => {
-                artifact_gate_constants::ARTIFACT_KIND_NETWORK_FILTER_ROLLBACK
-            }
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[repr(u8)]
 pub enum WindowsAdapterArtifactGateDecision {
     #[serde(rename = "refused-missing-artifacts")]
     RefusedMissingArtifacts,
@@ -56,16 +52,14 @@ pub enum WindowsAdapterArtifactGateDecision {
 }
 
 impl WindowsAdapterArtifactGateDecision {
+    const PROTOCOL_STRINGS: [&'static str; 3] = [
+        artifact_gate_constants::DECISION_REFUSED_MISSING_ARTIFACTS,
+        artifact_gate_constants::DECISION_REFUSED_UNSUPPORTED_SURFACE,
+        artifact_gate_constants::DECISION_READY_FOR_MANUAL_REVIEW,
+    ];
+
     pub fn as_protocol_str(&self) -> &'static str {
-        match self {
-            Self::RefusedMissingArtifacts => {
-                artifact_gate_constants::DECISION_REFUSED_MISSING_ARTIFACTS
-            }
-            Self::RefusedUnsupportedSurface => {
-                artifact_gate_constants::DECISION_REFUSED_UNSUPPORTED_SURFACE
-            }
-            Self::ReadyForManualReview => artifact_gate_constants::DECISION_READY_FOR_MANUAL_REVIEW,
-        }
+        Self::PROTOCOL_STRINGS[*self as usize]
     }
 }
 

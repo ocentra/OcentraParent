@@ -1,8 +1,0 @@
-{
-  "workpack": "WP37 service foreground capture bridge",
-  "policyDecisionAdded": false,
-  "policyRuntimeConsumerAdded": false,
-  "adapterActionAdded": false,
-  "broadBlockingClaimAdded": false,
-  "reason": "WP37 wires service evidence capture only."
-}

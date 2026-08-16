@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use super::PolicyRule;
+use super::policy::PolicyRule;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

@@ -1,5 +1,20 @@
 # Implementation Workpacks
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `eventing-plan`
+> Doc: `Implementation Workpacks`
+> Kind: plan reference document; read only when routed by AGENTS, DOC_INDEX, or workpack.
+> Read when: Only when named by the plan route, selected workpack, or index row.
+> Stop rule: Do not continue into broader docs unless this file gives an explicit next path.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: If this file changes status or claims, update the assigned workpack, checklist row, and proof path.
+> Snippet rule: fenced blocks in this document are contract/artifact/command examples only. They are not instructions to copy implementation code unless the surrounding section explicitly says the snippet is the public contract shape.
+
+<!-- /agent-capsule -->
+
 No workpack is complete until implementation, tests, validation output, and
 proof artifacts exist. A code sketch or plan does not count as proof.
 
@@ -125,6 +140,21 @@ nextAction
 61. Portal/UI cannot publish enforcement command.
 62. Network event proof artifacts linked back to eventing plan.
 
+### LAN / Household Mesh Consumer Integration
+
+79. Household mesh bridge boundary decision.
+80. Typed LAN message envelope for selected event export/import.
+81. Provider advertisement and heartbeat event contracts.
+82. AI work claim/lease/result event contracts.
+83. Child-agent-owned AI work ledger integration.
+84. Mesh bridge incoming-message validation and local republish proof.
+85. Mesh event topology proof: no remote direct publish into local bus.
+86. Cross-device idempotency and stale/duplicate message proof.
+87. Policy authority proof: provider cannot publish policy/enforcement events.
+
+These are consumer-layer workpacks. They do not change the generic crate proof
+tier and must not be marked complete until focused product proofs exist.
+
 ### Type Safety And Ownership Hardening
 
 63. Type-safety and validation source gate.
@@ -150,9 +180,9 @@ nextAction
 
 ## Main Gates
 
-- [x] Eventing plan folder exists.
-- [x] Ocentra Games eventing semantics are indexed.
-- [x] Pasted planning inputs are indexed.
+- [ ] Eventing plan folder exists.
+- [ ] Ocentra Games eventing semantics are indexed.
+- [ ] Pasted planning inputs are indexed.
 - [ ] Reusable `crates/ocentra-eventing` exists.
 - [ ] Workspace includes `crates/ocentra-eventing`.
 - [ ] Core event types, runtime newtypes, and validation errors are
@@ -187,6 +217,12 @@ nextAction
 - [ ] Vite/TypeScript UI has no business-event publishing path.
 - [ ] Network plan Workpack 10 is updated from plan dependency to implementation
       proof.
+- [ ] Household mesh bridge is implemented as consumer-layer transport and
+      validation, not as a shared LAN event bus.
+- [ ] Mesh bridge selected-event export/import proof exists.
+- [ ] Cross-device AI claim/lease/idempotency proof exists.
+- [ ] Provider-result validation proof exists before policy consumption.
+- [ ] Provider-cannot-publish-policy/enforcement proof exists.
 
 ## Merge-Blocking Failures
 
@@ -217,6 +253,9 @@ nextAction
 - request completion can resolve twice;
 - enforcement command can run before journaled policy decision;
 - AI or UI can publish enforcement command directly;
+- household mesh work exposes `ocentra-eventing` as a LAN-wide shared bus;
+- remote peers can publish directly into another runtime's local bus;
+- AI provider result can reach policy before child-agent validation;
 - tests use mocks, fakes, stubs, spies, or weak existence assertions.
 
 ## Worker Instruction

@@ -1,5 +1,19 @@
 # 68. Notification Live Parent Surface Read Model
 
+<!-- agent-capsule -->
+
+> Agent Capsule
+> Plan: `app-game-plan`
+> Doc: `68. Notification Live Parent Surface Read Model`
+> Kind: assigned workpack; read only when selected by hub or WORKPACK_INDEX.
+> Read when: Only when this exact workpack is assigned or selected from WORKPACK_INDEX.md.
+> Stop rule: Do not open sibling workpacks. Do not move product status unless this workpack and proof rows say so.
+> Proves: only the local scope, status, route, or contract stated by this file and its named proof/checklist rows.
+> Does not prove: sibling plan completion, implementation correctness, product status, PR readiness, or broad DONE unless routed proof says so.
+> Proof rule: Before DONE, select tests in TEST_PROOF_EXPECTATIONS.md and update proof/checklist rows.
+
+<!-- /agent-capsule -->
+
 ## Goal
 
 Wire the live app/game notification-readiness service event into the Portal
@@ -48,7 +62,7 @@ adapter dispatch.
 - `packages/portal-domain/src/commands.ts`
 - `packages/portal-domain/tests/app-game-notification-parent-surface-panel.test.ts`
 - `apps/portal/src/live-activity-state.ts`
-- `apps/portal/src/event-results.ts`
+- `packages/portal-domain/src/command-results.ts`
 - `apps/portal/tests/app-game-notification-parent-surface-panel.test.ts`
 - `scripts/test/app-game-notification-live-parent-surface-proof.mjs`
 - `test-results/app-game-notification-live-parent-surface-proof/proof.json`
@@ -57,14 +71,14 @@ adapter dispatch.
 
 ## Validation
 
-- [x] Portal overview commands request the existing service notification
+- [ ] Portal overview commands request the existing service notification
       readiness read model.
-- [x] Portal live state derives a parent-surface read model only from the
+- [ ] Portal live state derives a parent-surface read model only from the
       validated service readiness event.
-- [x] Portal-domain projection maps manual-required and unavailable readiness
+- [ ] Portal-domain projection maps manual-required and unavailable readiness
       rows into schema-backed parent-surface setup rows.
-- [x] Scheduler/outbox runtime refs remain `not reported` because the readiness
+- [ ] Scheduler/outbox runtime refs remain `not reported` because the readiness
       event does not prove those runtime outputs.
-- [x] Provider delivery, receipt ingestion, preference mutation, child delivery,
+- [ ] Provider delivery, receipt ingestion, preference mutation, child delivery,
       scheduler/outbox runtime, adapter dispatch, broad blocking, mobile UI, and
       platform support remain explicit non-claims.

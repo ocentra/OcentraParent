@@ -1,7 +1,0 @@
-Contract proof:
-
-- cmd /c npm run build --workspace @ocentra-parent/parent-domain: PASS
-- cmd /c npm run test --workspace @ocentra-parent/parent-domain -- app-game-policy-preview-handoff app-game-policy-target-compiler: PASS
-- node import @ocentra-parent/parent-domain/app-game-policy-preview-handoff: PASS
-- Existing compiled app/game policy decisions become preview-ready or manual-required handoff rows.
-- Invalid rows claiming evaluator runtime, timer runtime, adapter dispatch, child delivery, or platform enforcement are rejected.

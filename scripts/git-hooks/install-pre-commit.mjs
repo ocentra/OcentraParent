@@ -4,30 +4,30 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const hook = `#!/bin/sh
-node scripts/security/scan-staged-secrets.mjs
+node scripts/enforcer/run-ocentra-enforcer.mjs check secrets --staged
 if [ $? -ne 0 ]; then
   echo "[security] Pre-commit hook rejected this commit due to secret detection."
   exit 1
 fi
 
 if [ "$OCENTRA_PARENT_SKIP_LANE_GUARD" != "1" ]; then
-  echo "[lanes] Checking Ocentra Parent worktree lane ownership..."
-  node scripts/dev/worktree-lanes.mjs guard
+  echo "[enforcer] Checking coordination lane ownership..."
+  node scripts/enforcer/run-ocentra-enforcer.mjs coordination hub:guard
   if [ $? -ne 0 ]; then
     echo ""
-    echo "[lanes] Pre-commit hook rejected this commit because the checkout is not claimed correctly."
-    echo "[lanes] Run npm run lanes:status and npm run lanes:claim for this branch, or set OCENTRA_PARENT_SKIP_LANE_GUARD=1 only for deliberate emergency bypass."
+    echo "[enforcer] Pre-commit hook rejected this commit because the checkout is not claimed correctly."
+    echo "[ledger] Run npm run ledger:doctor, npm run hub:inbox, and npm run hub:lock for this branch, or set OCENTRA_PARENT_SKIP_LANE_GUARD=1 only for deliberate emergency bypass."
     exit 1
   fi
 fi
 
 if [ "$OCENTRA_PARENT_SKIP_HUB_GUARD" != "1" ]; then
-  echo "[hub] Checking Ocentra Parent hub mailbox and file locks..."
-  node scripts/dev/hub-mailbox.mjs guard
+  echo "[enforcer] Checking coordination inbox and file claims..."
+  node scripts/enforcer/run-ocentra-enforcer.mjs coordination hub:guard
   if [ $? -ne 0 ]; then
     echo ""
-    echo "[hub] Pre-commit hook rejected this commit because the lane has unread hub messages or files outside its hub lock."
-    echo "[hub] Run npm run hub:inbox, npm run hub:ack, and npm run hub:lock, or set OCENTRA_PARENT_SKIP_HUB_GUARD=1 only for deliberate emergency bypass."
+    echo "[enforcer] Pre-commit hook rejected this commit because the lane has unread coordination messages or files outside its Enforcer claim."
+    echo "[ledger] Run npm run hub:inbox, npm run hub:ack, and npm run hub:lock, or set OCENTRA_PARENT_SKIP_HUB_GUARD=1 only for deliberate emergency bypass."
     exit 1
   fi
 fi

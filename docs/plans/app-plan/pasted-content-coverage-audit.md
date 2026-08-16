@@ -14,67 +14,67 @@ unmanaged notes.
 
 ## Coverage Checklist
 
-- [x] Native app inventory is evidence, not current use.
-- [x] Running process evidence proves process use, not foreground use.
-- [x] Foreground evidence proves active use, not content.
-- [x] AI classification is evidence, not authority.
-- [x] Parent policy decides actions.
-- [x] Enforcement requires platform adapter proof and authority-tier proof.
-- [x] App-specific scope is separated from browser games/web apps and
+- [ ] Native app inventory is evidence, not current use.
+- [ ] Running process evidence proves process use, not foreground use.
+- [ ] Foreground evidence proves active use, not content.
+- [ ] AI classification is evidence, not authority.
+- [ ] Parent policy decides actions.
+- [ ] Enforcement requires platform adapter proof and authority-tier proof.
+- [ ] App-specific scope is separated from browser games/web apps and
       game-specific native game/launcher product work.
-- [x] Existing app/game feature docs remain source-of-truth inputs.
-- [x] Current code ownership is mapped to existing `packages/activity-domain`,
+- [ ] Existing app/game feature docs remain source-of-truth inputs.
+- [ ] Current code ownership is mapped to existing `packages/activity-domain`,
       `packages/parent-domain`, `crates/agent-protocol`, `crates/agent-core`,
       `crates/agent-service`, and `apps/portal` paths.
-- [x] Current app/game contracts and scoped owned-process time-limit proof are
+- [ ] Current app/game contracts and scoped owned-process time-limit proof are
       recorded as existing state, not blank-state work.
-- [x] App identity uses layered fields and does not rely on display name alone.
-- [x] Inventory sources include Windows registry, Start Menu, AppX/UWP, known
+- [ ] App identity uses layered fields and does not rely on display name alone.
+- [ ] Inventory sources include Windows registry, Start Menu, AppX/UWP, known
       paths, executable metadata, macOS bundles, Linux desktop/package sources,
       Android packages, iOS tokens/MDM, and parent catalog.
-- [x] Runtime sources include process snapshots, process start/exit,
+- [ ] Runtime sources include process snapshots, process start/exit,
       foreground window, UsageStats/UsageEvents, DeviceActivity, accessibility,
       and managed-device state.
-- [x] App session summaries remain derived read models backed by evidence refs.
-- [x] App categories and risk labels are source/confidence-bearing policy
+- [ ] App session summaries remain derived read models backed by evidence refs.
+- [ ] App categories and risk labels are source/confidence-bearing policy
       inputs, not hidden decisions.
-- [x] New/unknown app approval is represented as a policy/approval flow where
+- [ ] New/unknown app approval is represented as a policy/approval flow where
       adapter proof exists and report/ask/manual-required where it does not.
-- [x] Risk app types include VPN/proxy, remote desktop, torrent/download,
+- [ ] Risk app types include VPN/proxy, remote desktop, torrent/download,
       installer/updater, AI/chatbot, messaging/social/video, and unknown risk.
-- [x] Windows enforcement is separated into observe, warn, owned-process
+- [ ] Windows enforcement is separated into observe, warn, owned-process
       terminate/time-limit, AppLocker/App Control proof, and strict allowlist
       proof.
-- [x] macOS is represented through app bundles, LaunchServices/Spotlight,
+- [ ] macOS is represented through app bundles, LaunchServices/Spotlight,
       NSWorkspace, Accessibility, code signature, LaunchAgent/LaunchDaemon,
       PPPC, MDM, Parental Controls payloads, System Extensions, and Endpoint
       Security proof paths.
-- [x] iOS/iPadOS is represented through FamilyControls, FamilyActivityPicker,
+- [ ] iOS/iPadOS is represented through FamilyControls, FamilyActivityPicker,
       DeviceActivity, ManagedSettings, MDM installed-app query, supervised
       restrictions, App Lock, and store/signing/entitlement proof paths.
-- [x] Android is represented through package visibility, UsageStats,
+- [ ] Android is represented through package visibility, UsageStats,
       UsageEvents, Accessibility, Device Owner/Profile Owner/DPC,
       `setApplicationHidden`, `setPackagesSuspended`, `setUninstallBlocked`,
       managed configurations, and lock task mode proof paths.
-- [x] Linux is represented through desktop entries, package managers, Flatpak,
+- [ ] Linux is represented through desktop entries, package managers, Flatpak,
       Snap, AppImage, procfs, cgroups/systemd, X11/Wayland matrices,
       AppArmor/SELinux, and distro-specific proof paths.
-- [x] Platform-specific items are extension checklists like browser-plan
+- [ ] Platform-specific items are extension checklists like browser-plan
       enhancement checklists, not base MVP workpacks.
-- [x] Proof expectations include contract, Rust, fixture, security, persistence,
+- [ ] Proof expectations include contract, Rust, fixture, security, persistence,
       UI, manual platform, performance, and rollout gates.
-- [x] The test blueprint names required unit, integration, contract, security,
+- [ ] The test blueprint names required unit, integration, contract, security,
       platform/manual, E2E, Playwright, performance, and CI gates.
-- [x] The test blueprint records the minimum serious MVP test set and the
+- [ ] The test blueprint records the minimum serious MVP test set and the
       merge-blocking failures that prevent `DONE`, PR-ready, or merge claims.
-- [x] Required fixtures are listed for inventory, runtime, sessions, policy, and
+- [ ] Required fixtures are listed for inventory, runtime, sessions, policy, and
       UI states.
-- [x] Manual tests require explicit platform tags such as Windows, macOS, Linux,
+- [ ] Manual tests require explicit platform tags such as Windows, macOS, Linux,
       Android Device Owner, iOS FamilyControls, MDM, Endpoint Security,
       AppLocker, and App Control.
-- [x] Platform-specific no-claim gates are recorded for Windows, macOS, Linux,
+- [ ] Platform-specific no-claim gates are recorded for Windows, macOS, Linux,
       Android, and iOS/iPadOS.
-- [x] Product copy must not use bare "unsupported" as the final platform claim;
+- [ ] Product copy must not use bare "unsupported" as the final platform claim;
       it must name observe-only, permission-required, managed-device-required,
       admin/root-required, system-extension-required, supervised-device-required,
       manual-required, or not-claimed with proof needed to move up.
