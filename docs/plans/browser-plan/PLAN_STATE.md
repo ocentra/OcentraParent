@@ -66,6 +66,15 @@ proof-source, custody, and query-visibility fields into the existing portal
 state. This remains unvalidated with tests/proof/checklist deferred and does
 not promote target-list evidence into known-active or add enforcement.
 
+Code-pass audit note (2026-08-16): no further legal Browser production slice
+was found after WP18 and the WP13 evidence bridge. WP11 has no focus/activation
+provider beyond target-list-only evidence; WP21 has only the managed native-host
+validator and no extension package or host registration owner; WP20 has
+representation only and requires real Windows AppLocker/WDAC authority; WP22
+has fixture budget evaluation but no runtime health producer or bridge owner.
+The remaining numbered workpack rows are validation, proof, manual-platform, or
+documentation gaps unless one of those external authorities is added.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.

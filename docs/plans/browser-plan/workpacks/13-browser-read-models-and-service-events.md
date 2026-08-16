@@ -65,7 +65,6 @@ portal, policy, and AI can consume without raw adapter access.
 - `crates/agent-service/src/activity_api.rs`
 - `crates/agent-service/src/browser_evidence_payload.rs`
 - `crates/agent-service/src/browser_payload.rs`
-- `crates/agent-service/src/browser_evidence_payload.rs`
 - `crates/agent-service/src/browser_runtime*.rs`
 - `packages/agent-protocol-domain/src/browser-policy-adapter.ts`
 - `crates/parent-runtime-core/src/agent_service_client/snapshots_browser.rs`
