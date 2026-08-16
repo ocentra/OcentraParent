@@ -21,9 +21,9 @@ const apkSource = join(
   'debug',
   'app-debug.apk'
 );
-const apkName = `ocentra-parent-agent-android-debug-v${version}.apk`;
+const apkName = `ocentra-child-agent-android-debug-v${version}.apk`;
 const apkPath = join(packageRoot, apkName);
-const latestPath = join(packageRoot, 'ocentra-parent-agent-android-debug-latest.apk');
+const latestPath = join(packageRoot, 'ocentra-child-agent-android-debug-latest.apk');
 
 mkdirSync(packageRoot, { recursive: true });
 runGradle();

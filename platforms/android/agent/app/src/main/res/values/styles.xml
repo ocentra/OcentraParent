@@ -1,3 +1,3 @@
 <resources>
-    <style name="OcentraParentTheme" parent="android:style/Theme.Material.Light.NoActionBar" />
+    <style name="OcentraChildTheme" parent="android:style/Theme.Material.Light.NoActionBar" />
 </resources>

@@ -3,11 +3,13 @@ plugins {
 }
 
 android {
+    // Legacy capability sources remain in ca.ocentra.parent.agent; the APK
+    // identity and declared child entrypoint are owned by the child package.
     namespace = 'ca.ocentra.parent.agent'
     compileSdk = 35
 
     defaultConfig {
-        applicationId = 'ca.ocentra.parent.agent'
+        applicationId = 'ca.ocentra.child.agent'
         minSdk = 26
         targetSdk = 35
         versionCode = 2

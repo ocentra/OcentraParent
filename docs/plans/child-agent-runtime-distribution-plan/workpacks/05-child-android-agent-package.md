@@ -35,19 +35,25 @@ Purpose: define the child Android package, install proof, and device-owner gap p
 
 ## Execution truth
 
-Status: complete for the Android contract/proof boundary; real device/runtime/authority evidence remains manual-required.
+Status: production code drafted / test-deferred.
 
-## Checklist truth
+The Android package now owns a `ca.ocentra.child.agent` identity, a child
+activity/foreground-service entrypoint, and an app-private `child-runtime/`
+composition directory. Existing parent-package Android capability adapters are
+deliberately retained behind the child shell. The Android package does not
+embed or invoke the Rust child-runtime crate because no JNI or native runtime
+bridge exists in this platform owner. External transport, device authority,
+install/runtime lifecycle, and store readiness remain open.
 
-- [x] Debug APK plus checksum prove the child-agent artifact state as `debug-apk-built`.
-- [x] The chosen Android mode is explicit as `debug-apk-sideload`.
-- [x] Install truth is explicit as `manual-install-proof-required`.
-- [x] Launch truth is explicit as `manual-launch-proof-required`.
-- [x] Removal truth is explicit as `manual-removal-proof-required`.
-- [x] Device-owner authority truth is explicit as `manual-required`.
-- [x] Managed-profile authority truth is explicit as `manual-required`.
-- [x] Device-owner claims are rejected without enrollment evidence.
-- [x] Managed-profile claims are rejected without enrollment evidence.
-- [x] Package-local Android proof cannot claim LAN/WebSocket transport or enforcement parity.
-- [x] The device gate requires separate install, launch, and removal artifacts before readiness can rise.
-- [x] Real proof-root artifacts exist under `output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package/`.
+## Code-drafted boundary
+
+- The package identity and launcher now target the child agent.
+- `ChildAgentCompositionService` owns the Android lifecycle entrypoint.
+- `ChildAgentComposition` owns the composition directory and reports typed
+  `RUST_RUNTIME_MANUAL_REQUIRED` readiness until a JNI/native bridge exists.
+- Existing parent-package capability/proof adapters remain explicitly declared
+  as legacy platform components behind the child shell; their proof route
+  remains deferred and does not define child runtime readiness.
+
+Tests, validation, proof, device-owner/managed-profile evidence, and release
+readiness are deferred to the later global validation phase.

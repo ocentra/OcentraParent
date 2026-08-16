@@ -1,14 +1,13 @@
 # Android Platform
 
-Android package scaffold and future Android child-agent/parent-mobile proof
-area.
+Android child-agent package and platform composition area.
 
 ## Owns
 
 - Android package mechanics.
-- Android foreground/service scaffold.
+- Android child-agent foreground/service composition entrypoint.
 - Android proof artifacts for install, launch, permissions, and lifecycle.
-- Future Android-specific child-agent and parent-mobile wrappers.
+- Android-specific child-agent and parent-mobile wrappers.
 - Android parent mobile scaffold app under `platforms/android/parent`.
 
 ## Must Not Own
@@ -36,14 +35,19 @@ area.
 - [Mobile agents expectations](../../docs/expectations/roadmap-v6-mobile-agents.md)
 - [Android proof checkpoint](../../docs/checkpoints/child-android-device-proof-artifact-gate-2026-06-01.md)
 
-## Current Proof
+## Current Implementation Boundary
 
-- `mobile-child-agent-capability-proof` aggregates Android child-agent package,
-  service, storage/protocol, permission, privileged, and device-gate proof rows.
-- Current aggregate state is scaffold/manual-required/not-implemented: foreground
-  service runtime, notifications, UsageStats, Accessibility, VPN/DNS, Device
-  Owner, managed profile, Play signing, device proof, and external transport are
-  not promoted to product support.
+- The `ca.ocentra.child.agent` package now launches a child-owned composition
+  activity and foreground service.
+- The service owns an app-private `child-runtime/` composition directory and
+  typed health/readiness state. Existing parent-package Android capability
+  adapters remain deliberately declared behind the child shell.
+- The Android composition reports the Rust `ocentra-child-runtime` native
+  bridge as manual-required and does not claim network/LAN transport, Device
+  Owner, managed profile, UsageStats, Accessibility, VPN/DNS, Play signing, or
+  device runtime support.
+- `mobile-child-agent-capability-proof` remains a later validation route for
+  install, launch, permission, lifecycle, and authority gaps.
 - `parent-mobile-service-bridge-proof` and
   `parent-mobile-controller-observer-handoff-proof` cover Android parent mobile
   separately from Android child-agent support. The parent-mobile proof exposes
@@ -93,7 +97,8 @@ area.
 
 ## Gaps To Fill
 
-- Child-agent runtime parity is manual-required.
+- Rust/native child-runtime bridge and external transport remain
+  manual-required.
 - Store/signing and policy proof are incomplete.
 - Android parent app and Android child agent must stay separate in source,
   package artifacts, docs, and UI.
