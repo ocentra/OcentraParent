@@ -32,6 +32,8 @@ claim is made. WP17 detection-to-route/compiler consumption is also drafted;
 runtime service wiring and validation remain deferred. WP19 now has a Rust
 category/risk compilation-to-time-budget handoff; restart/service scheduling
 and validation remain deferred.
+WP20 now has a Rust time-budget-to-child-notice bridge; live UI/service
+delivery and validation remain deferred.
 
 The 15 source/test-writing gaps are WP15, WP16, WP17, WP18, WP19, WP20,
 WP26, WP48, WP49, WP62, WP63, WP64, WP65, and
