@@ -15518,7 +15518,7 @@
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Composition/package code drafted; child Linux builder controls aligned; expected tests, validation, proof, and transport deferred",
+        "statusText": "Composition/package code drafted; child Linux identity and transport boundary aligned; expected tests, validation, proof, and transport deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
@@ -15537,7 +15537,8 @@
         "references": {
           "implementation": [
             "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md",
-            "scripts/release/linux/build-agent-package.sh"
+            "scripts/release/linux/build-agent-package.sh",
+            "scripts/release/linux/ocentra-parent-agent.service"
           ],
           "tests": [
             "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"

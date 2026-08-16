@@ -39,7 +39,7 @@ Proof root: `output/child-agent-runtime-distribution-plan-proof/04-child-linux-s
 
 ## Execution truth
 
-- Production code is drafted in this pass: the Linux package builder, systemd unit, package name, install paths, and maintainer-service names now target the child composition executable and child package identity. Linux builder overrides are child-owned (`OCENTRA_CHILD_LINUX_*`); legacy parent-scoped inputs are rejected before packaging. Network transport remains an explicit downstream gap.
+- Production code is drafted in this pass: the Linux package builder, systemd unit, package name, install paths, and maintainer-service names now target the child composition executable and child package identity. Linux builder overrides are child-owned (`OCENTRA_CHILD_LINUX_*`); legacy parent-scoped inputs are rejected before packaging. The systemd unit does not export a parent transport address because network transport remains an explicit downstream gap.
 - Tests, validation, and proof are deferred; proof-root references do not establish completion in this phase.
 - Existing proof-runner and contract/test references remain deferred in this pass:
   - `packages/schema-domain/src/child-linux-service-package-proof.ts`
