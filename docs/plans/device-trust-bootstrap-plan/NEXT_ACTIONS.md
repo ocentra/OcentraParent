@@ -12,3 +12,10 @@
 WP08's review matrix and boundary test are current, but this workpack remains
 research-level. Continue with the runtime-owned gaps in WP02/WP03/WP04/WP06
 before treating any dependency candidate as an adopted trust-root component.
+
+## Production-code checkpoint (2026-08-16)
+
+WP01 now has crash-safe, process-serialized lifecycle-authority sidecar writes
+with fail-closed corruption and missing-authority handling. Platform custody,
+trusted ceremony issuance, and the broader lifecycle integration remain open;
+tests and proof are deferred.

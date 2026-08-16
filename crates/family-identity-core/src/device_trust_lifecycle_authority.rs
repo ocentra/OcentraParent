@@ -1,9 +1,12 @@
 use std::{
     collections::BTreeMap,
-    fs,
+    fs::{self, OpenOptions},
+    io,
     path::{Path, PathBuf},
 };
 
+use atomicwrites::{AllowOverwrite, AtomicFile};
+use fs2::FileExt;
 use sha2::{Digest, Sha256};
 
 use rusqlite::OptionalExtension;
@@ -18,25 +21,37 @@ use crate::{
 
 pub(crate) struct ExternalLifecycleAuthority {
     path: PathBuf,
+    lock_path: PathBuf,
     values: BTreeMap<String, u64>,
 }
 
 impl ExternalLifecycleAuthority {
     pub(crate) fn open(database_path: &Path) -> Result<Self, DeviceTrustLifecycleError> {
         let path = database_path.with_extension("authority.json");
-        let values = if path.exists() {
-            let json = fs::read_to_string(&path)
-                .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-            serde_json::from_str(&json).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?
-        } else if database_path.exists() {
-            return Err(DeviceTrustLifecycleError::Unavailable);
-        } else {
-            BTreeMap::new()
+        let lock_path = database_path.with_extension("authority.lock");
+        let lock = open_lock(&lock_path)?;
+        lock.lock_exclusive()
+            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+        let values = load_values(&path, database_path.exists());
+        let values = match values {
+            Ok(values) => values,
+            Err(error) => {
+                let _unlock_result = FileExt::unlock(&lock);
+                return Err(error);
+            }
         };
-        let authority = Self { path, values };
+        let authority = Self {
+            path,
+            lock_path,
+            values,
+        };
         if !authority.path.exists() {
-            authority.persist()?;
+            if let Err(error) = authority.persist() {
+                let _unlock_result = FileExt::unlock(&lock);
+                return Err(error);
+            }
         }
+        FileExt::unlock(&lock).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
         Ok(authority)
     }
 
@@ -47,9 +62,23 @@ impl ExternalLifecycleAuthority {
         device_ref: &str,
         generation: u64,
     ) -> Result<(), DeviceTrustLifecycleError> {
-        self.values
-            .insert(Self::key(family_id, trust_subject, device_ref), generation);
-        self.persist()
+        let lock = open_lock(&self.lock_path)?;
+        lock.lock_exclusive()
+            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+        let mut values = match load_values(&self.path, true) {
+            Ok(values) => values,
+            Err(error) => {
+                let _unlock_result = FileExt::unlock(&lock);
+                return Err(error);
+            }
+        };
+        values.insert(Self::key(family_id, trust_subject, device_ref), generation);
+        let result = persist_values(&self.path, &values);
+        if result.is_ok() {
+            self.values = values;
+        }
+        let unlock_result = FileExt::unlock(&lock);
+        result.and_then(|_| unlock_result.map_err(|_error| DeviceTrustLifecycleError::Unavailable))
     }
 
     pub(crate) fn matches(
@@ -59,23 +88,23 @@ impl ExternalLifecycleAuthority {
         device_ref: &str,
         generation: u64,
     ) -> bool {
-        self.read_values().and_then(|values| {
+        let lock = open_lock(&self.lock_path).ok();
+        let Some(lock) = lock else {
+            return false;
+        };
+        if lock.lock_shared().is_err() {
+            return false;
+        }
+        let matches = load_values(&self.path, true).ok().and_then(|values| {
             values
                 .get(&Self::key(family_id, trust_subject, device_ref))
                 .copied()
-        }) == Some(generation)
-    }
-
-    fn read_values(&self) -> Option<BTreeMap<String, u64>> {
-        fs::read_to_string(&self.path)
-            .ok()
-            .and_then(|json| serde_json::from_str(&json).ok())
+        }) == Some(generation);
+        matches && FileExt::unlock(&lock).is_ok()
     }
 
     fn persist(&self) -> Result<(), DeviceTrustLifecycleError> {
-        let json = serde_json::to_vec(&self.values)
-            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-        fs::write(&self.path, json).map_err(|_error| DeviceTrustLifecycleError::Unavailable)
+        persist_values(&self.path, &self.values)
     }
 
     fn key(family_id: &str, trust_subject: &str, device_ref: &str) -> String {
@@ -88,6 +117,56 @@ impl ExternalLifecycleAuthority {
         hasher.update(device_ref.as_bytes());
         hex_encode(&hasher.finalize())
     }
+}
+
+fn open_lock(path: &Path) -> Result<fs::File, DeviceTrustLifecycleError> {
+    OpenOptions::new()
+        .create(true)
+        .read(true)
+        .write(true)
+        .truncate(false)
+        .open(path)
+        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)
+}
+
+fn load_values(
+    path: &Path,
+    database_exists: bool,
+) -> Result<BTreeMap<String, u64>, DeviceTrustLifecycleError> {
+    match fs::read_to_string(path) {
+        Ok(json) => {
+            serde_json::from_str(&json).map_err(|_error| DeviceTrustLifecycleError::Unavailable)
+        }
+        Err(error) if error.kind() == io::ErrorKind::NotFound && !database_exists => {
+            Ok(BTreeMap::new())
+        }
+        Err(_error) => Err(DeviceTrustLifecycleError::Unavailable),
+    }
+}
+
+fn persist_values(
+    path: &Path,
+    values: &BTreeMap<String, u64>,
+) -> Result<(), DeviceTrustLifecycleError> {
+    AtomicFile::new(path, AllowOverwrite)
+        .write(|file| {
+            serde_json::to_writer(&mut *file, values).map_err(io::Error::other)?;
+            file.sync_all()
+        })
+        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+    sync_parent_directory(path)
+}
+
+#[cfg(not(windows))]
+fn sync_parent_directory(path: &Path) -> Result<(), DeviceTrustLifecycleError> {
+    fs::File::open(path.parent().unwrap_or_else(|| Path::new(".")))
+        .and_then(|directory| directory.sync_all())
+        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)
+}
+
+#[cfg(windows)]
+fn sync_parent_directory(_path: &Path) -> Result<(), DeviceTrustLifecycleError> {
+    Ok(())
 }
 
 pub(crate) fn redacted_binding(family_id: &str, trust_subject: &str, device_ref: &str) -> String {

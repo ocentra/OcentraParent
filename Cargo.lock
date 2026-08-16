@@ -2619,8 +2619,10 @@ dependencies = [
 name = "ocentra-family-identity-core"
 version = "0.1.1"
 dependencies = [
+ "atomicwrites",
  "chrono",
  "ed25519-dalek",
+ "fs2",
  "getrandom 0.3.4",
  "ocentra-eventing",
  "ocentra-schema",

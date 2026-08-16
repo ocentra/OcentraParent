@@ -101,7 +101,7 @@ remote-access-plan and policy-control-plane-plan:
 ## Current coupling risks
 
 ```text
-- A partial parent-presence custody repository now exists in `crates/family-identity-core`. Production custody deliberately returns unavailable on every platform until a trusted custody provider can exclude same-user challenge-store writers. The broader device-trust runtime state machine remains open.
+- A partial parent-presence custody repository now exists in `crates/family-identity-core`. Production custody deliberately returns unavailable on every platform until a trusted custody provider can exclude same-user challenge-store writers. Its lifecycle authority sidecar now uses a process lock, reload-before-update, and atomic synchronized persistence; the broader device-trust runtime state machine remains open.
 - `family-domain` contains trust-adjacent authority helpers but not platform key sealing, QR approval runtime, recovery bundle runtime, or trust-root state machine.
 - `lan-domain` and LAN Rust seams contain pairing/selected-device proof consumers, but LAN pairing is not trust root proof.
 - Current plan-local tests prove document and route shape only, not runtime trust.

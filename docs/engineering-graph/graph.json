@@ -16719,7 +16719,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / runtime-proof-present",
+        "statusText": "partial / production sidecar durability drafted; runtime proof present",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
