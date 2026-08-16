@@ -7,6 +7,9 @@ mod app_game_native_game_budget;
 #[path = "app_game_category_risk_policy_routing.rs"]
 mod app_game_category_risk_policy_routing;
 
+#[path = "app_game_child_ux.rs"]
+mod app_game_child_ux;
+
 #[path = "app_game_policy_evaluator_runtime.rs"]
 mod app_game_policy_evaluator_runtime;
 #[path = "app_game_policy_preview_handoff.rs"]

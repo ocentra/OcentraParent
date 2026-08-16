@@ -1,6 +1,11 @@
 #![forbid(unsafe_code)]
 
 pub mod app_game_category_risk_policy_routing;
+pub mod app_game_child_ux;
+mod app_game_child_ux_request;
+mod app_game_child_ux_resolve;
+mod app_game_child_ux_runtime;
+pub mod app_game_child_ux_types;
 pub mod app_game_native_game_budget;
 mod app_game_native_game_budget_accounting;
 pub mod app_game_native_game_budget_types;
