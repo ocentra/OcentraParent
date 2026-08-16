@@ -13,8 +13,5 @@ pub(crate) fn top_level_unmanaged_fallback_action(
     ) {
         return row.unmanaged_fallback_action;
     }
-    super::activity_store_browser_intervention_fallback_enforcement::fallback_action_for_unmanaged_enforcement(
-        &row.unmanaged_browser_enforcement,
-    )
-    .unwrap_or(BrowserUnmanagedFallbackActionState::OsBlockManualRequired)
+    BrowserUnmanagedFallbackActionState::Unavailable
 }

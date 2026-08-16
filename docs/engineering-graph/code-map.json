@@ -1411,8 +1411,11 @@
     "WP-browser-plan-19-unmanaged-fallback-ux-and-actions": {
       "planSlug": "browser-plan",
       "roots": [
+        "crates/agent-core/src/activity_store_browser_intervention.rs",
         "crates/agent-core/src/activity_store_browser_intervention_fallback.rs",
+        "crates/agent-core/src/activity_store_browser_intervention_fallback_action.rs",
         "crates/agent-core/src/activity_store_browser_intervention_fallback_enforcement.rs",
+        "crates/agent-core/src/activity_store_browser_intervention_fallback_top_level.rs",
         "crates/agent-core/tests/unit/activity_store_browser_intervention_tests.rs",
         "apps/portal/src/browser-intervention-panel.ts",
         "apps/portal/tests/browser/browser-intervention-panel.test.ts"
