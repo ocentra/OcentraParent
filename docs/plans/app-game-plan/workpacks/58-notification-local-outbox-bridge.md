@@ -53,6 +53,28 @@ delivery/runtime support.
 - `packages/parent-domain/package.json` and `packages/parent-domain/README.md`
   updates, because E-B owns those locks during this slice.
 
+## Current Code Audit (2026-08-15)
+
+- The Rust notification-readiness contract and projection expose eligible
+  intent rows, but there is no production `AppGameNotificationIntent` to
+  `NotificationLocalOutboxRecord` append boundary.
+- `build_activity_app_game_notification_readiness_report` currently derives
+  `local_outbox_runtime_claimed` from
+  `setup_outbox_has_records(activity_db_path)`. That helper reads the separate
+  WP125 parent-preference setup outbox, not an app/game notification outbox.
+  Any non-empty setup record can therefore create a false WP58 runtime claim.
+- The focused service regression proves only that the unrelated setup-outbox
+  file flips the Boolean. It does not prove eligible intent mapping, typed
+  append, reopen, idempotency/conflict handling, manual/unavailable exclusion,
+  or dead-letter behavior.
+- The named proof script, generated proof root, and test-results artifact are
+  absent from the tracked checkout. They cannot support the historical DONE
+  wording.
+- WP121 supplies a typed atomic child-UX local-outbox store and canonical
+  `NotificationLocalOutboxRecord` use, but it does not consume the general
+  WP53/WP56 notification-readiness rows. WP58 must reuse that canonical storage
+  truth or a shared owner rather than create a second JSONL format.
+
 ## Proof
 
 - `scripts/test/app-game-notification-local-outbox-bridge-proof.mjs`
@@ -64,7 +86,7 @@ delivery/runtime support.
 
 - [ ] Hub lock covers bridge source/test, proof harness, proof roots, product
       docs, and workpack docs.
-- [ ] Existing app/game notification intent contract and notification local
+- [x] Existing app/game notification intent contract and notification local
       outbox adapter proof inspected and reused.
 - [ ] Eligible app/game notification intents become existing local outbox
       records and round-trip through JSONL parsing.

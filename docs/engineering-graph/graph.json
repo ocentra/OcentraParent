@@ -2975,15 +2975,15 @@
       "path": "docs/plans/app-game-plan/workpacks/58-notification-local-outbox-bridge.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "draft",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

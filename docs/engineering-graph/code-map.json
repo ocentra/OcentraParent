@@ -6322,8 +6322,11 @@
       "planSlug": "app-game-plan",
       "roots": [
         "crates/agent-protocol/src/app_game_notification_readiness.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/src/activity_api/app_game_timer_parent_preference_setup_request_outbox.rs",
         "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
+        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
+        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs"
       ]
     },
     "WP-app-game-plan-59-notification-scheduler-bridge": {
