@@ -27,12 +27,11 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open Phase 1 work by dependency impact
 
-The 2026-08-15 code audit maps all 220 workpacks and leaves 38 source/test
+The 2026-08-15 code audit maps all 220 workpacks and leaves 37 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP125-WP126: carry the verified child warning/request outbox through
-   preference preflight and preference-status production. WP124 provider status
-   is complete for bounded Phase 1/2.
+1. WP126: carry the verified WP125 preference preflight into an honest
+   preference-status producer. WP124-WP125 are complete for bounded Phase 1/2.
 2. WP58-WP65: notification outbox, scheduler, history, provider/preference
    owners, and receipt-backed status.
 3. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large

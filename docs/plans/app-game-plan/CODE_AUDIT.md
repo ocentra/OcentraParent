@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 163/220 have current production source plus the expected checked-in tests
+- 164/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 182/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 38/220 retain a concrete production-code or expected-test gap.
+- 183/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 37/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -157,7 +157,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP122 Timer Parent-Surface Child UX Local Outbox Scheduler Bridge | Rust shared scheduler contract + projection/proof store | **Complete for bounded Phase 1; Phase 2 green** | Deterministic `queued-local` → `due-local` projection, manual/unsafe blocking, source/reference preservation, atomic proof persistence, reopen, exact replay, and conflicting-id rejection landed at `b2455cbae`; focused tests, full App/Game tests, dual-crate Clippy, focused Enforcer, and pre-commit passed. Production scheduler execution, service composition, provider/preference/receipt/UI delivery, and Phase 3 remain open. |
 | WP123 Timer Parent-Surface Child UX Local Outbox Provider Preflight | Rust provider-preflight contract + projection | **Complete for bounded Phase 1; Phase 2 green** | Persisted/bound `due-local` rows become provider-adapter-required with adapter, credential, smoke-proof, scheduler, outbox, evidence, policy, and audit refs; manual/dead-letter rows stay blocked and unsafe/mismatched inputs fail closed at `3f81b0200`. Three focused, 89 contract, 10 unit, Clippy, focused Enforcer, and pre-commit passed. Provider runtime, credentials, receipts, UI/child delivery, and Phase 3 remain open. |
 | WP124 Timer Parent-Surface Child UX Local Outbox Provider Status Handoff | Rust WP123 preflight → canonical V0.8 provider-status handoff | **Complete for bounded Phase 1; Phase 2 green** | Rust maps honest provider-required/manual and unavailable preflight rows into identity-bound V0.8 status entries, preserves source/proof/audit/preference refs, keeps all delivery/runtime claims false, and rejects claimed or incomplete inputs at `dc99eb608`. Three focused cases, 92 contract, 10 unit, Clippy, focused Enforcer, and pre-commit passed. Provider execution/receipts/credentials/retry/quiet-hours/UI/child delivery and Phase 3 remain open. |
-| WP125 Timer Parent-Surface Child UX Local Outbox Preference Preflight | WP122 Rust scheduler + planned Rust preference-preflight projection | **Incomplete; active** | The removed parent-domain claim and broad timer/portal map do not contain a producer. No current Rust boundary maps honest persisted due-local rows to explicit preference/frequency/quiet-hours requirements or proves blocked and malformed paths; that bounded slice is active. |
+| WP125 Timer Parent-Surface Child UX Local Outbox Preference Preflight | Rust WP122 scheduler → preference-preflight projection | **Complete for bounded Phase 1; Phase 2 green** | Honest persisted due-local rows become parent-preference-required with distinct preference/frequency/quiet-hours requirements; manual/dead-letter rows stay blocked and unpersisted, mismatched, claimed, or duplicate inputs fail closed at `e550e55c2`. Two focused cases, 94 contract, 10 unit, Clippy, seven focused Enforcer checks, and pre-commit passed. Preference mutation, quiet-hours execution, provider delivery/receipts, UI/child delivery, and Phase 3 remain open. |
 | WP126 Timer Parent-Surface Child UX Local Outbox Preference Status Handoff | Rust timer service/read model + parent-runtime/portal tests | **Incomplete** | No durable preference-status producer for the child-UX surface. |
 | WP127 Timer Parent-Surface Child UX Local Outbox Parent Surface Intent | Rust timer service/read model + parent-runtime/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP128 Timer Parent-Surface Child UX Local Outbox Parent Surface Live Visibility | Rust timer service/read model + parent-runtime/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
@@ -264,9 +264,8 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP125-WP126: carry the verified child warning/request outbox through
-   preference preflight and preference-status producers; WP124 provider status
-   is complete for bounded Phase 1/2.
+1. WP126: carry the verified WP125 preference preflight into an honest
+   preference-status producer; WP124-WP125 are complete for bounded Phase 1/2.
 2. WP58-WP65: implement the notification outbox, scheduler, ordered history,
    provider/preference owners, and receipt-backed status producers.
 3. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels

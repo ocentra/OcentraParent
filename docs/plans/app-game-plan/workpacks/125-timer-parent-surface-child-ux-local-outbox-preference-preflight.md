@@ -58,19 +58,21 @@ preference and quiet-hours preflight rows without claiming UI or delivery.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
 
-## Current Status - Phase 1 Active
+## Current Status - Phase 1/2 Complete; Phase 3 Open
 
-The 2026-08-15 live-code audit invalidated the historical `parent-domain`
-completion claim. That package is absent, and the broad timer service/portal
-files previously mapped by the graph contain no child-UX preference-preflight
-producer. WP122's persisted scheduler record is the current Rust source
-boundary; existing notification preference/status fixtures do not implement
-this conversion.
+Commit `e550e55c2` adds the Rust-owned preference-preflight projection in
+`ocentra-app-game-core`. Honest persisted `due-local` scheduler rows become
+parent-preference-required rows with distinct parent preference, notification
+frequency, and quiet-hours requirements. Manual and dead-letter scheduler rows
+remain explicitly manual-required or unavailable without exposing provider or
+outbox identity as ready input.
 
-This workpack is active for a bounded `ocentra-app-game-core` projection. Honest
-persisted `due-local` rows must become parent-preference-required rows with
-distinct preference, frequency, and quiet-hours setup requirements. Manual,
-dead-letter, unpersisted, mismatched, and already-claimed rows must fail closed
-or remain explicitly blocked. Preference mutation, quiet-hours execution,
-provider delivery, receipts, cloud routing, parent UI, child delivery, adapter
-dispatch, and enforcement remain unclaimed.
+The projection preserves scheduler, outbox, provider-channel, reason, severity,
+evidence, policy, and audit references and keeps preference mutation,
+frequency-control UI, quiet-hours runtime, provider delivery/receipts/
+credentials, cloud routing, parent UI, child delivery, adapter dispatch, and
+enforcement unclaimed. Two focused contract tests cover ready/manual/unavailable
+routing plus unpersisted, mismatched, claimed, and duplicate-requirement failures.
+The complete App/Game contract suite (94 tests), unit suite (10 tests), crate
+Clippy, seven focused Enforcer checks, formatting, diff hygiene, hub guard, and
+pre-commit passed. Retained Phase 3 proof and whole-plan gates remain open.
