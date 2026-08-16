@@ -47,13 +47,13 @@ proof-inventory wrappers report only real blocking gaps
 Current status:
 
 ```text
-the portal dev-log consumer slice is proved locally: bridge-first routing, compatibility fallback, parent scope definitions, snapshot-language separation, focused portal logging tests, and the canonical WP03 proof root are present in this checkout
+the portal dev-log consumer slice is proved locally: bridge-first routing, compatibility fallback, parent scope definitions, snapshot-language separation, focused portal logging tests, and the canonical WP03 proof root are present in this checkout. Source inspection also confirms the live Rust callers: app::health, service_runtime::run_agent_service, and activity_capture route through agent-service::dev_log into logging-core::DevLogger, with core redaction and locked/synced NDJSON append.
 ```
 
 Expected result:
 
 ```text
-WP03 stays partial until the remaining Rust-side agent-service mapping row is closed by its owning slice or reduced to a narrower no-claim boundary
+WP03 stays partial because its focused validation/proof rows remain deferred and the separate root dev-log-routing check is outside this slice; there is no missing production agent-service-to-logging-core mapping in the current source
 ```
 
 ### 3. Root Dev-Log-Routing Handoff For Full WP06 Closeout

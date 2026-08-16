@@ -46,13 +46,13 @@ The boxes column mirrors the current checklist completion count from `CHECKLIST_
 Current audit note:
 
 ```text
-WP03, WP06, WP07, WP08, and WP10 now have canonical proof roots in this checkout. WP03 is still only partial-proof because the portal dev-log consumer slice is proved while the agent-service-to-logging-core row remains intentionally open outside this delegated boundary. WP06 is partial-proof because logging-owned proof-inventory checker/query behavior is real, but one root routing check still fails outside this delegated boundary. WP08 is honest partial-proof because its canonical root proves the portal dev logger path, the logging-domain source/context storage/query path, and the agent-service startup/dev-log path without claiming repo-wide instrumentation adoption. WP07 and WP10 have proof roots, but checklist closeout remains intentionally open.
+WP03, WP06, WP07, WP08, and WP10 now have canonical proof roots in this checkout. WP03 is still only partial-proof because focused validation/proof closeout remains deferred and one root routing check is outside this delegated boundary; source inspection confirms its agent-service-to-logging-core mapping is live through app::health, service_runtime::run_agent_service, and activity_capture. WP06 is partial-proof because logging-owned proof-inventory checker/query behavior is real, but one root routing check still fails outside this delegated boundary. WP08 is honest partial-proof because its canonical root proves the portal dev logger path, the logging-domain source/context storage/query path, and the agent-service startup/dev-log path without claiming repo-wide instrumentation adoption. WP07 and WP10 have proof roots, but checklist closeout remains intentionally open.
 ```
 
 Default order:
 
 ```text
-remaining proof-inventory restoration or claim reduction -> WP03 Rust-side follow-through -> owning-slice dev-log-routing closure
+remaining proof-inventory restoration or claim reduction -> deferred WP03 focused validation/proof -> owning-slice dev-log-routing closure
 ```
 
 Allowed parallelism:
