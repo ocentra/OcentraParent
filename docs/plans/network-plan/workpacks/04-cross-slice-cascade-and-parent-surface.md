@@ -33,3 +33,10 @@ Failure conditions:
 - Do not send raw packet payloads to AI.
 - Do not let parent UI imply exact content from network metadata.
 - Do not turn notification candidate rows into delivered notifications without notification-provider proof.
+
+Current production truth (2026-08-16):
+
+- The shipped read path retains real ActivityStore observations and runtime-delivery state.
+- The former product-path caller, payload fields, service bridge, and disconnected evidence pipeline were deleted because they manufactured AI, policy, adapter, custody, export, and portal references from one observation rather than consuming authoritative owners.
+- Tests/support that import or bless those deleted APIs are invalidated and must be deleted or rewritten during the test phase.
+- WP04 remains open until shipped owner-backed cascade, AI queue, policy request, notification, custody, and parent-surface behavior exists; deterministic builders or test-created references do not close it.

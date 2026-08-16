@@ -589,12 +589,12 @@ The proof pack must contain or explicitly mark N/A for each applicable item:
       contracts, not a private network bus. E-D proves this through the
       `agent-core` typed network runtime event chain and
       `network-end-to-end-pipeline-proof.mjs`.
-      Row51 now also proves
-      `captured_network_metadata_drives_product_path_payload_without_content_or_enforcement_claims`:
-      captured network metadata events carry durable local-DB evidence refs
-      through the real ActivityStore into service product-path policy, action,
-      retention, delete/export, and read-model refs without content or
-      enforcement claims.
+      The former Row51 product-path assertion was invalidated on 2026-08-16:
+      it derived downstream policy, action, retention, delete/export, and portal
+      references instead of consuming authoritative records. That production
+      bridge/pipeline is deleted, and its test must be removed or rewritten in
+      the test phase. Real ActivityStore observation and runtime-delivery refs
+      remain; no cross-slice product path is claimed.
 - [ ] Network event scalars use validated Rust newtypes and matching
       TypeScript Effect Schema brands where cross-language contracts exist.
       E-D proof includes Rust protocol network event contracts plus

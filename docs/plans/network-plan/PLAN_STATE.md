@@ -117,23 +117,23 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - `crates/network-core` owns network domain/runtime decisions; it does not create a second schema truth.
 - `crates/agent-protocol` owns real Rust network contracts, status payload shapes, constants, and protocol tests.
 - `crates/agent-core` owns real network capture, ActivityStore network rows, runtime chain, queue, replay, and remote-delivery proof logic with tests.
-- `crates/agent-service` owns real network payload, digest, runtime-delivery, remote-delivery, and platform-gate bridge code with tests. The former product-path proof builder is disconnected from the shipped read API because it fabricated downstream refs rather than loading authoritative records.
-- `crates/ocentra-network-evidence` owns real packet, DNS, domain, classifier, cascade, adapter-gate, performance, and platform-claim proof logic with tests.
+- `crates/agent-service` owns real network payload, digest, runtime-delivery, remote-delivery, and platform-gate bridge code with tests. The fabricated product-path bridge and its payload fields were deleted; the shipped read path exposes only real observation/runtime-delivery state.
+- `crates/ocentra-network-evidence` owns real packet, DNS, domain, classifier, adapter-gate, performance, and platform-claim helpers. Its disconnected synthetic product-path pipeline was deleted; surviving deterministic helper modules still do not prove a shipped cascade.
 - `apps/portal` owns real service-backed network read-model parsing, drawer projection, refresh routing, and e2e proof fixtures.
 
 ## Open gaps / truth boundaries
 
-### 2026-08-16 WP04 synthetic product-path safety cut — code incomplete
+### 2026-08-16 WP04 synthetic product-path removal — code incomplete
 
-- Commit `3971ad5da` removes the production read API call to
-  `prove_network_product_path_for_read_model` and passes `None` through the
-  existing optional product-path payload boundary.
+- Commit `3971ad5da` first stopped the shipped read API from invoking the
+  fabricated product-path helper. Commit `9e9f9ac51` then deleted the optional
+  product-path payload fields, bridge, and disconnected evidence pipeline.
 - Real stored network observations and real runtime-delivery/journal reporting
   remain reachable. AI, policy, adapter, retention, deletion, export, and portal
-  refs/counters are now absent instead of being derived from one observation ID.
-- The disconnected builder modules and tests that assert their fabricated
-  references remain scheduled for deletion/rewrite in the code/test phases.
-- This is a fail-honest safety cut only. It does not complete WP04 or establish
+  refs/counters are no longer fabricated from one observation ID.
+- Test/support files that import or assert the deleted APIs remain scheduled for
+  delete/rewrite in the test phase; they are not production evidence.
+- This is a fail-honest removal only. It does not complete WP04 or establish
   a live analyzer, AI queue, policy decision, notification delivery, adapter
   action, custody lifecycle, or parent-surface product path.
 

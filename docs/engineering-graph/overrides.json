@@ -18,7 +18,7 @@
         "docs/plans/network-plan/PLAN_STATE.md",
         "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md"
       ],
-      "reason": "The source audit found no hard code-writing prerequisite for removing fabricated product-path references; the implementation lane must establish the real network cascade and parent-surface owner rather than preserve documentation-only refs."
+      "reason": "The fabricated product-path caller, payload, bridge, and pipeline are removed. No separate hard prerequisite blocks a real WP04 implementation, but READY authorizes only shipped owner-backed cascade and parent-surface composition; deterministic helpers, injected refs, and invalidated fake-path tests do not count."
     },
     {
       "id": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
