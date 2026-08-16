@@ -59,8 +59,9 @@ without claiming provider delivery, parent history UI, or production runtime.
 
 ## Current production-code pass (2026-08-16)
 
-- `1eb82bba0` adds a Rust-owned fail-closed validator for the projected audit
-  history read model. It rejects unsafe delivery/runtime claims, count drift,
+- Consolidated commit `ef0646c62` adds a Rust-owned fail-closed validator for
+  the projected audit history read model; status/doc consolidation is recorded
+  at `1d999636b`. It rejects unsafe delivery/runtime claims, count drift,
   duplicate or empty entry identities, malformed source/ref context, provider
   send claims, and status/blocked-row shape mismatches before the bridge returns
   the model.

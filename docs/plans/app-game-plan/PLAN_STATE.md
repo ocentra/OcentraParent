@@ -42,6 +42,13 @@ Generated from the existing `app-game-plan` docs. This is the default resume/sta
   service composition, UI, child delivery, and adapter dispatch remain outside
   WP58.
 
+- WP60 now has a consolidated Rust-owned fail-closed validator for the projected
+  notification audit-history read model in
+  `crates/app-game-core/src/app_game_notification_audit_history_bridge.rs`.
+  This is code-drafted and unvalidated: tests, retained proof, durable
+  production history/query, provider delivery/receipts, and runtime composition
+  remain open. It does not claim WP60 DONE.
+
 ## Scope
 
 This folder is the shared native app and native game control plan. It exists because apps and games share the low-level evidence spine, but they do not share product meaning.
