@@ -61,9 +61,10 @@ function main() {
     portalLoggerText.includes('DevLogEndpoint.Write') &&
     portalLoggerText.includes('resolvePortalCompatibilityUrl(') &&
     portalLoggerText.includes('sendPortalCompatibilityLog(');
+  const bridgeDispatchOffset = portalLoggerText.indexOf('await sendPortalBridgeMessage(');
+  const compatibilityDispatchOffset = portalLoggerText.indexOf('await sendPortalCompatibilityLog(');
   const portalPrefersBridgeBeforeCompatibility =
-    portalLoggerText.includes('if (await sendPortalBridgeMessage(') &&
-    portalLoggerText.includes('return sendPortalCompatibilityLog(');
+    bridgeDispatchOffset >= 0 && compatibilityDispatchOffset > bridgeDispatchOffset;
   const bridgeServerImplementsReceiver = bridgeServerText.includes("case '/__logs__':");
 
   if (contractsText.includes('DevLogEndpoint') && contractsText.includes('Write:')) {
