@@ -1,5 +1,6 @@
 use ocentra_parent_agent_protocol::activity_surface::{
-    ActivityAppUseReadModel, ActivityGamesReadModel, ActivityScreenReadModel,
+    ActivityAppUseReadModel, ActivityBrowserReadModel, ActivityGamesReadModel,
+    ActivityScreenReadModel,
 };
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameAdapterDispatchPreflightReadModel;
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
@@ -92,6 +93,10 @@ pub(crate) struct GamesReadModelAgentServiceSnapshot {
 pub(crate) struct BrowserManagedStatusAgentServiceSnapshot {
     pub(crate) event: ParentRouteEventSnapshot,
     pub(crate) status: BrowserManagedSessionStatus,
+}
+
+pub(crate) struct BrowserActivityReadModelAgentServiceSnapshot {
+    pub(crate) read_model: ActivityBrowserReadModel,
 }
 
 pub(crate) struct BrowserInterventionReadModelAgentServiceSnapshot {

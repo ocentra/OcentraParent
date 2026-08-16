@@ -1,4 +1,5 @@
 use super::*;
+use ocentra_parent_agent_protocol::activity_surface::ActivityBrowserReadModel;
 use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionReadModel;
 use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
 
@@ -30,6 +31,20 @@ pub(crate) fn browser_managed_status_snapshot_from_result(
     )?)
     .map_err(|error| format!("agent-service browser managed status parse failed: {error}"))?;
     Ok(BrowserManagedStatusAgentServiceSnapshot { event, status })
+}
+
+pub(crate) fn browser_activity_read_model_snapshot_from_result(
+    result: AgentServiceCommandResult,
+) -> Result<BrowserActivityReadModelAgentServiceSnapshot, String> {
+    let read_model = super::snapshots_tracking::activity_surface_snapshot_from_result::<
+        ActivityBrowserReadModel,
+    >(
+        result,
+        AgentEventName::AgentActivityBrowserReadModelReported,
+        constants::activity_surface::READ_MODEL_BROWSER,
+        "browser",
+    )?;
+    Ok(BrowserActivityReadModelAgentServiceSnapshot { read_model })
 }
 
 pub(crate) fn browser_intervention_read_model_snapshot_from_result(

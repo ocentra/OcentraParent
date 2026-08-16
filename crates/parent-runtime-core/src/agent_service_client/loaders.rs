@@ -8,6 +8,7 @@ use super::snapshots_app_game::{
     app_game_timer_parent_surface_snapshot_from_result,
 };
 use super::snapshots_browser::{
+    browser_activity_read_model_snapshot_from_result,
     browser_intervention_read_model_snapshot_from_result,
     browser_managed_status_snapshot_from_result,
 };
@@ -28,11 +29,11 @@ use super::types::{
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
     AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
-    BrowserInterventionReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
-    GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, LanRuntimeReplaySnapshot,
-    NetworkFlowAgentServiceSnapshot, NetworkRuntimeEventChainAgentServiceSnapshot,
-    PolicyPreviewAgentServiceSnapshot, ScreenReadModelAgentServiceSnapshot,
-    TrackingReadModelAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserManagedStatusAgentServiceSnapshot, GamesReadModelAgentServiceSnapshot,
+    LanAgentServiceSnapshot, LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
+    NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
+    ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 use super::*;
 
@@ -181,6 +182,19 @@ pub(crate) fn load_browser_managed_status_snapshot(
         AgentRoute::Localhost,
     )
     .and_then(browser_managed_status_snapshot_from_result)
+    .map_err(AgentServiceError::from_display)
+}
+
+pub(crate) fn load_browser_activity_read_model_snapshot(
+    _context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserActivityReadModelAgentServiceSnapshot> {
+    send_agent_command(
+        AgentCommandName::AgentActivityBrowserReadModelGet,
+        LogFields::new(),
+        None,
+        AgentRoute::Localhost,
+    )
+    .and_then(browser_activity_read_model_snapshot_from_result)
     .map_err(AgentServiceError::from_display)
 }
 

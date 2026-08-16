@@ -31,8 +31,9 @@ use crate::agent_service_client::types::{
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
     AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
-    BrowserInterventionReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
-    GamesReadModelAgentServiceSnapshot, LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
+    BrowserActivityReadModelAgentServiceSnapshot, BrowserInterventionReadModelAgentServiceSnapshot,
+    BrowserManagedStatusAgentServiceSnapshot, GamesReadModelAgentServiceSnapshot,
+    LanRuntimeReplaySnapshot, NetworkFlowAgentServiceSnapshot,
     NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
     ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
@@ -47,10 +48,10 @@ use crate::agent_service_client::{
     load_app_game_platform_proof_status_read_model_snapshot,
     load_app_game_policy_readiness_read_model_snapshot,
     load_app_game_timer_parent_surface_read_model_snapshot,
-    load_browser_intervention_read_model_snapshot, load_browser_managed_status_snapshot,
-    load_lan_runtime_event_chain_replay_events, load_network_flow_read_model_snapshot,
-    load_network_runtime_event_chain_stream_snapshot, load_policy_preview_read_model_snapshot,
-    load_tracking_read_model_snapshot,
+    load_browser_activity_read_model_snapshot, load_browser_intervention_read_model_snapshot,
+    load_browser_managed_status_snapshot, load_lan_runtime_event_chain_replay_events,
+    load_network_flow_read_model_snapshot, load_network_runtime_event_chain_stream_snapshot,
+    load_policy_preview_read_model_snapshot, load_tracking_read_model_snapshot,
 };
 
 use self::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
@@ -87,6 +88,7 @@ struct ParentRouteLiveActivitySnapshotInput<'a> {
     tracking_read_model_snapshot: Option<&'a TrackingReadModelAgentServiceSnapshot>,
     screen_read_model_snapshot: Option<&'a ScreenReadModelAgentServiceSnapshot>,
     app_use_read_model_snapshot: Option<&'a AppUseReadModelAgentServiceSnapshot>,
+    browser_activity_read_model_snapshot: Option<&'a BrowserActivityReadModelAgentServiceSnapshot>,
     games_read_model_snapshot: Option<&'a GamesReadModelAgentServiceSnapshot>,
     browser_managed_status_snapshot: Option<&'a BrowserManagedStatusAgentServiceSnapshot>,
     browser_intervention_read_model_snapshot:

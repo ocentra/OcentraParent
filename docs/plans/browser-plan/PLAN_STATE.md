@@ -45,6 +45,13 @@ route predicate keeps browser state off unrelated snapshots. This remains
 unvalidated with tests/proof/checklist deferred; it does not claim active-tab
 focus, unmanaged exact-URL authority, OS blocking, or action delivery.
 
+Code-pass note (2026-08-16): WP13 now has a production-code draft for the
+typed `ActivityBrowserReadModel` parent-bridge seam. The Activity and Browser
+routes load the existing agent-service read model and project it through the
+existing portal live-activity adapter shape. This remains unvalidated with
+tests/proof/checklist deferred; it does not add capture, focus proof,
+unmanaged exact-URL authority, intervention delivery, or enforcement.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.

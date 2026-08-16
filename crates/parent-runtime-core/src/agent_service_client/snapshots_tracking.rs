@@ -127,7 +127,7 @@ pub(super) fn activity_games_read_model_snapshot_from_result(
     Ok(GamesReadModelAgentServiceSnapshot { read_model })
 }
 
-fn activity_surface_snapshot_from_result<T>(
+pub(super) fn activity_surface_snapshot_from_result<T>(
     result: AgentServiceCommandResult,
     expected_event: AgentEventName,
     expected_kind: &str,

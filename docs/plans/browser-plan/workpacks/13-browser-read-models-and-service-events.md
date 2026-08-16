@@ -28,6 +28,13 @@ active-tab, and unmanaged fallback boundaries. This does not yet expose a
 portal UI command, SQLite inventory row store, or full
 inventory/session/evidence/intervention reconciliation stream.
 
+2026-08-16 browser-code-pass: the existing typed `ActivityBrowserReadModel`
+service event is now consumed by the Rust parent bridge on the Activity and
+Browser routes and projected through the existing portal live-activity field.
+This is code-drafted, unvalidated, and tests/proof/checklist-deferred. It does
+not add browser capture, active-tab focus authority, unmanaged exact-URL
+authority, intervention delivery, or enforcement.
+
 ## Where We Want To Be
 
 The Rust service emits typed, replayable browser status/read-model events that
@@ -51,6 +58,18 @@ portal, policy, and AI can consume without raw adapter access.
 - `crates/agent-service/src/browser_evidence_payload.rs`
 - `crates/agent-service/src/browser_runtime*.rs`
 - `packages/agent-protocol-domain/src/browser-policy-adapter.ts`
+- `crates/parent-runtime-core/src/agent_service_client/snapshots_browser.rs`
+- `crates/parent-runtime-core/src/agent_service_client/loaders.rs`
+- `crates/parent-runtime-core/src/agent_service_client/types.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_requirements.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies/load.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot.rs`
+- `crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/browser.rs`
+- `crates/schema/src/parent_ui_bridge.rs`
+- `apps/portal/generated/parent-ui-bridge.ts`
 
 ## Tests And Proof
 
