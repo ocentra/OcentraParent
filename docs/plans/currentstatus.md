@@ -546,14 +546,15 @@ This file currently covers these **19** plans:
 ### Network Plan
 
 - plan status: **in-progress**
-- primary Rust crates: `network-core`, `ocentra-network-evidence`
-- primary TS domains/apps: `network-domain`, `evidence-domain`, `capability-domain`
+- primary Rust crates: `network-core`, `agent-protocol`, `agent-core`, `agent-service`, `ocentra-network-evidence`
+- primary TS domains/apps: `portal-domain`, `apps/portal` (projection/read-model consumers only)
 - read if working this plan: [AGENTS](network-plan/AGENTS.md), [PLAN_STATE](network-plan/PLAN_STATE.md), [NEXT_ACTIONS](network-plan/NEXT_ACTIONS.md), [WORKPACK_INDEX](network-plan/WORKPACK_INDEX.md)
 - test/proof route for this plan: selected `network-plan/workpacks/*.md`, then later-phase [TEST_PROOF_DECISION_MATRIX](../agent/TEST_PROOF_DECISION_MATRIX.md)
 
 | workpack(s)                                                       | status | code        | test        | location crate                             | location domain/app                                  |
 | ----------------------------------------------------------------- | ------ | ----------- | ----------- | ------------------------------------------ | ---------------------------------------------------- |
-| 01-04 contracts/capture/classification/cross-slice parent surface | open   | in-progress | in-progress | `network-core`, `ocentra-network-evidence` | `network-domain`, `evidence-domain`, `portal-domain` |
+| 01-03 contracts/capture/classification                              | open    | in-progress | in-progress | `network-core`, `agent-protocol`, `agent-core`, `agent-service`, `ocentra-network-evidence` | `portal-domain` |
+| 04 cross-slice cascade and parent surface                            | blocked | incomplete  | deferred    | `agent-service`, `agent-core`, `ocentra-network-evidence` | `portal-domain`, `apps/portal` |
 | 05 intervention adapter proof gates                               | open   | in-progress | in-progress | `ocentra-network-evidence`, `agent-protocol`, `agent-service` | `agent-protocol-domain`, `portal-domain`, `apps/portal` |
 | 06 analyzer AI audit and risk budget                              | open   | partial     | partial     | `network-core`, `child-ai-core`            | `network-domain`, `ai-domain`                        |
 | 07 performance/security/rollout                                   | open   | partial     | partial     | `network-core`                             | `network-domain`                                     |
@@ -569,6 +570,7 @@ This file currently covers these **19** plans:
 - The runtime seam now carries explicit observation, AI handoff, and policy handoff semantics and downgrades degraded inputs to observe-only so it stays aligned with the existing owner path.
 - The 2026-08-16 production audit found that the former product-path bridge fabricated analyzer, AI, policy, adapter, custody, export, and portal refs from one observation. The shipped caller was first disabled, then the bridge, payload fields, and disconnected evidence pipeline were deleted in `9e9f9ac51`.
 - The portal drawer remains a real service-backed projection of stored network observations and runtime-delivery state. It must render unavailable/not-reported for downstream facets until authoritative AI, policy, notification, adapter, and custody owners supply real records.
+- A shipped-call audit found no typed durable `NetworkCascadeObligation`, durable cascade table, or composition owner: the apparent cascade is `NetworkRuntimeDelivery`/`NetworkRuntimeSpine`, read-time republish, and manufactured phase refs. WP04 is blocked behind direct Eventing, AI, Policy, Custody, and Portal owner handoffs.
 - `ocentra-network-evidence` Android VpnService and Apple Network Extension proof-gate planners are now surfaced through new `agent-protocol` command/event/status contracts, `agent-service` websocket bridges, and `agent-protocol-domain` parser/default seams instead of stopping below the service boundary.
 - `portal-domain` live activity state, command surfaces, and diagnostics export now carry the Android VpnService and Apple Network Extension gate-status results alongside the existing Windows/Linux network gate statuses, while keeping the scope to the existing developer/live-activity seams and not widening into new drawer UI.
 - `network-core` and `ocentra-network-evidence` still leave most of the full plan-owned chain partial.
@@ -578,6 +580,7 @@ This file currently covers these **19** plans:
 - Partial crate-level/downstream coverage exists, but not enough to call the network plan closed.
 - `crates/network-core/tests/unit/network_flow.rs` and `crates/network-core/tests/unit/runtime_flow.rs` now cover the protocol-owned event chain seam, degraded-input downgrade behavior, and wrapper-helper parity with the full network runtime chain.
 - Tests that imported or asserted the deleted network product-path bridge/payload/pipeline are invalidated debt. They must be deleted or rewritten against shipped authoritative owners in the test phase and do not count as coverage now.
+- WP04 tests remain deferred; this status refresh adds no production/test code, test pass, proof, CI, or completion claim.
 - Any Rust/TS contract test that requires the orphaned network product-path field constants is invalidated with the removed producer and must be deleted or rewritten with the dead contract cleanup.
 - Portal tests may retain real observation/runtime-delivery projection assertions, but any case that injects product-path refs without a shipped authoritative producer must be rewritten; static refs and fallback precedence are not product-path proof.
 - `crates/agent-protocol/src/network_android_vpn_service_gate_status_tests.rs`, `crates/agent-protocol/src/network_apple_network_extension_gate_status_tests.rs`, and `crates/agent-protocol/src/tests.rs` now cover the new Rust protocol status shapes plus Android/Apple command/event serialization.

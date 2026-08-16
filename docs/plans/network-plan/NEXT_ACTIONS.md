@@ -30,7 +30,7 @@ This file is the short resume list for the next worker. It is derived from open 
 3. [WP08 Control Catalog Reference Routing](workpacks/08-control-catalog-reference-routing.md) - keep the 363-setting catalog honest as a generated reference surface, not a runtime-complete control surface.
 4. [WP02 Passive Capture And Parsing](workpacks/02-passive-capture-and-parsing.md) - regenerate real proof only from the current Rust/TS surfaces, not from stale planned artifact paths.
 5. [WP03 Classification And Correlation](workpacks/03-classification-and-correlation.md) - keep classifier/correlation claims tied to real evidence refs, typed tests, and negative cases.
-6. [WP04 Cross Slice Cascade And Parent Surface](workpacks/04-cross-slice-cascade-and-parent-surface.md) - the fabricated production bridge/pipeline is deleted; in the later test phase delete or rewrite every fake-path test, then implement only shipped owner-backed cascade/AI/policy/notification/custody handoffs.
+6. [WP04 Cross Slice Cascade And Parent Surface](workpacks/04-cross-slice-cascade-and-parent-surface.md) - **blocked** after the shipped-call audit found no durable cascade/composition owner; first wait for the direct Eventing WP09, AI WP07/WP19, Policy WP05/WP08, Custody WP04/WP06, and Portal WP09/WP12 handoffs, then delete or rewrite invalidated tests in the test phase.
 7. [WP05 Intervention Adapter Proof Gates](workpacks/05-intervention-adapter-proof-gates.md) - Windows, Android, and Linux proof are expected locally where relevant; macOS/iOS real proof remains external-platform constrained from this host.
 8. [WP06 Analyzer AI Audit And Risk Budget](workpacks/06-analyzer-ai-audit-and-risk-budget.md) - keep AI/risk claims fixture-backed unless real runtime execution artifacts are attached.
 9. [WP07 Performance Security Rollout](workpacks/07-performance-security-rollout.md) - treat monitoring, metrics, tracing, alerting, and rollout claims as open until focused evidence exists.
@@ -39,6 +39,15 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ### Real dependency blockers
 
+- Network WP04 has no typed durable `NetworkCascadeObligation`, durable cascade
+  table, or shipped composition owner. Do not treat `NetworkRuntimeDelivery`,
+  `NetworkRuntimeSpine`, read-time republish, or `refs.rs` phase refs as a
+  cascade implementation.
+- Direct owner prerequisites are graph-routed as Eventing WP09 network
+  consumer event chain; AI WP07 job queue and WP19 result journal; Policy WP05
+  ask-parent overrides and WP08 event model;
+  Custody WP04 tombstone and WP06 report custody; and Portal WP09 network
+  surfaces and WP12 reports/notifications/custody.
 - Browser exact-URL or managed-browser authority rows owned by `browser-plan`.
 - Cross-slice screen fallback rows owned by `screen-plan`.
 - AI runtime/provider ownership rows owned by `ai-plan`.
@@ -75,6 +84,7 @@ Before reporting `DONE` or `PR_READY`, update the workpack, checklist row(s), pr
 - [ ] Repair plan-level truth docs before updating any workpack progress rows.
 - [ ] Remove source-index drift and architecture-ban re-export drift from the canonical network surface before calling WP01 truthful.
 - [ ] Update one assigned workpack and matching checklist/proof rows before reporting progress.
+- [ ] Keep Network WP04 blocked until every direct shipped owner handoff and independent proof is present; no owner is marked done by this route.
 - [ ] Record failure conditions, skipped checks, and evidence path in PLAN_STATE/TEST_PROOF_EXPECTATIONS for every claimed progress.
 
 ## Latest checkpoint — 2026-08-09

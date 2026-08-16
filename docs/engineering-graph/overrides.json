@@ -41,12 +41,31 @@
     },
     {
       "id": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-eventing-plan-09-network-consumer-event-chain",
+        "WP-ai-plan-07-ai-job-queue-contract",
+        "WP-ai-plan-19-ai-result-journal-sqlite-ingest",
+        "WP-policy-control-plane-plan-05-ask-parent-overrides",
+        "WP-policy-control-plane-plan-08-policy-event-model",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+        "WP-data-custody-storage-plan-06-report-query-custody",
+        "WP-portal-ux-household-surfaces-plan-09-browser-app-and-network-surfaces",
+        "WP-portal-ux-household-surfaces-plan-12-reports-notifications-and-custody"
+      ],
       "evidence": [
         "docs/plans/network-plan/PLAN_STATE.md",
-        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md"
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md",
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md",
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/12-reports-notifications-and-custody.md"
       ],
-      "reason": "The fabricated product-path caller, payload, bridge, and pipeline are removed. No separate hard prerequisite blocks a real WP04 implementation, but READY authorizes only shipped owner-backed cascade and parent-surface composition; deterministic helpers, injected refs, and invalidated fake-path tests do not count."
+      "reason": "The shipped-call audit found real ActivityStore observation persistence, but no typed durable NetworkCascadeObligation, cascade table, or shipped composition owner. The apparent cascade is agent-service NetworkRuntimeDelivery OnceCell plus agent-core NetworkRuntimeSpine/EventBus::new, read-time republish, and refs.rs phase-reference manufacturing. WP04 therefore requires these direct owner handoffs for legal composition: Eventing WP09 network consumer chain; AI WP07 job queue and WP19 result journal; Policy WP05 ask-parent overrides and WP08 event model; Custody WP04 tombstone and WP06 report custody; Portal WP09 network surfaces and WP12 reports/notifications/custody. These dependencies do not claim any owner complete and prevent WP04 from remaining READY while shipped owners and proof are absent."
     },
     {
       "id": "WP-tracking-plan-37-tracking-event-journal-replay-and-projection",
@@ -309,6 +328,105 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
       ],
       "reason": "Cloudflare WP08 runner execution requires the module dependency environment established by WP01."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-eventing-plan-09-network-consumer-event-chain",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md"
+      ],
+      "reason": "Network cascade composition needs one reusable observation-to-read-model event authority chain with policy and enforcement boundaries."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-ai-plan-07-ai-job-queue-contract",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/ai-plan/workpacks/07-ai-job-queue-contract.md"
+      ],
+      "reason": "Network evidence must enter a bounded, leased, idempotent AI job contract rather than call a worker directly."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-ai-plan-19-ai-result-journal-sqlite-ingest",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/ai-plan/workpacks/19-ai-result-journal-sqlite-ingest.md"
+      ],
+      "reason": "AI results and policy decisions need a durable journal and SQLite read-model handoff instead of read-time manufactured refs."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-policy-control-plane-plan-05-ask-parent-overrides",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/policy-control-plane-plan/workpacks/05-ask-parent-overrides.md"
+      ],
+      "reason": "Network-triggered parent requests must use policy-owned approval, expiry, replay, scope, audit, and notification handoff semantics."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-policy-control-plane-plan-08-policy-event-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/policy-control-plane-plan/workpacks/08-policy-event-model.md"
+      ],
+      "reason": "Network policy handoff needs authoritative policy event family, causation, idempotency, replay, audit, rollback, and manual-required states."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Network-derived outputs must honor tombstone ordering, replay protection, redaction, and no-resurrection semantics."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-data-custody-storage-plan-06-report-query-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md"
+      ],
+      "reason": "Network reports and notification candidates need governed source refs, redaction, stale/deleted states, and query custody."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-portal-ux-household-surfaces-plan-09-browser-app-and-network-surfaces",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md"
+      ],
+      "reason": "The parent network surface must render metadata-only evidence with explicit unknown and degraded states."
+    },
+    {
+      "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
+      "to": "WP-portal-ux-household-surfaces-plan-12-reports-notifications-and-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/network-plan/workpacks/04-cross-slice-cascade-and-parent-surface.md",
+        "docs/plans/portal-ux-household-surfaces-plan/workpacks/12-reports-notifications-and-custody.md"
+      ],
+      "reason": "Parent reports and alerts need truthful custody, retention, export/delete, and queued/failed/manual-required delivery states."
     }
   ],
   "stateOverrides": [

@@ -137,6 +137,26 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
   a live analyzer, AI queue, policy decision, notification delivery, adapter
   action, custody lifecycle, or parent-surface product path.
 
+### 2026-08-16 WP04 shipped-call dependency audit — blocked
+
+- The real capture owner persists observations through `ActivityStore`; the
+  apparent cascade is only the `agent-service` `NetworkRuntimeDelivery`
+  `OnceCell`, the `agent-core` `NetworkRuntimeSpine`/`EventBus::new` path,
+  read-time republish, and `refs.rs` phase-reference manufacturing.
+- No typed durable `NetworkCascadeObligation`, durable cascade table, or
+  shipped composition owner exists. A deterministic builder, injected ref, or
+  read-time phase projection cannot authorize cross-slice behavior.
+- WP04 is blocked behind the direct owner handoffs recorded in its workpack and
+  graph review: Eventing WP09 network consumer event chain; AI WP07 job queue
+  and WP19 result journal; Policy WP05
+  ask-parent overrides and WP08 event model; Custody WP04 tombstone and WP06
+  report custody; Portal WP09 network surfaces and WP12 reports/notifications/
+  custody.
+- These are legal-composition prerequisites only. This route does not mark any
+  owner workpack done, add production/test code, or create proof. WP04 must not
+  return to READY until the required shipped owners and their independent proof
+  exist.
+
 ### Current code-drafted WP01 runtime slice — tests deferred
 
 - `agent-service` now owns one service-lifetime `NetworkRuntimeSpine`; network delivery and stream paths reuse its event bus instead of recreating a bus per observation.
@@ -213,7 +233,7 @@ Audit refresh on 2026-06-16 for branch `codex/tracking-plan-full-continuation-a`
 - WP01 foundation contracts and eventing.
 - WP02 passive capture and parsing.
 - WP03 classification and correlation.
-- WP04 cross-slice cascade and parent surface.
+- WP04 cross-slice cascade and parent surface (blocked behind direct shipped-owner handoffs).
 - WP05 intervention adapter proof gates.
 - WP06 analyzer, AI audit, and risk budget.
 - WP07 performance, security, and rollout.
