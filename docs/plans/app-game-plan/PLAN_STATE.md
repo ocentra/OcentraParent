@@ -161,7 +161,7 @@ Checked generated handoff rows do not override the selected workpack proof root 
 - The six app/game capability, schema, and settings guides are reviewed
   no-code reference/control-routing packets. They do not claim product
   implementation or proof completion.
-- Thirty-six implementation/test-writing gaps remain; select them through
+- Thirty-five implementation/test-writing gaps remain; select them through
   `CODE_AUDIT.md` and `WORKPACK_INDEX.md`.
 
 ## Default no-read list

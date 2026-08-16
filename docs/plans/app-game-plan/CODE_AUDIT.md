@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 165/220 have current production source plus the expected checked-in tests
+- 166/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 184/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 36/220 retain a concrete production-code or expected-test gap.
+- 185/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 35/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -95,7 +95,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP53 Notification Intent Contract | Rust notification-readiness/service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP54 Policy Readiness Portal Renderer | Rust policy-readiness/app-game-core/service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP56 Notification Service Read Model | Rust notification-readiness/service/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
-| WP58 Notification Local Outbox Bridge | Rust notification-readiness projection plus service Boolean; canonical record/store exists in app-game-core WP121 | **Incomplete; false runtime claim found** | No production notification-intent append/reopen/idempotency/dead-letter lifecycle. `activity_api` currently treats any unrelated WP125 parent-preference setup-outbox row as WP58 local-outbox runtime; the focused service test proves only that false Boolean. Reuse the canonical WP121 record/store ownership and add eligible/manual/unavailable negative lifecycle tests. |
+| WP58 Notification Local Outbox Bridge | Rust readiness-row bridge, canonical `NotificationLocalOutboxRecord`, reused atomic WP121 store, deterministic JSONL, and focused service negative | **Complete for bounded Phase 1; Phase 2 passed** | Eligible rows append/reopen/replay idempotently and conflicts fail closed; manual/unavailable rows stay out. The false WP125 setup-outbox runtime claim is removed. Retained Phase 3 proof and real service composition/provider lifecycle remain later boundaries. |
 | WP59 Notification Scheduler Bridge | Rust notification-readiness/service/portal tests | **Incomplete** | No notification scheduler, quiet-hours/due retry worker, restart recovery, or lifecycle tests. |
 | WP60 Notification Audit-History Bridge | Rust notification-readiness/service/portal tests | **Incomplete** | No durable ordered notification attempt/receipt/history store and replay/query tests. |
 | WP61 Notification Provider Preflight | Rust notification-readiness/service/portal tests | **Incomplete** | No selected provider credential/capability preflight boundary and negative integration matrix. |
@@ -264,7 +264,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP58-WP65: implement the notification outbox, scheduler, ordered history,
+1. WP59-WP65: implement the notification scheduler, ordered history,
    provider/preference owners, and receipt-backed status producers.
 2. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
    and hostile/oversized metadata tests.

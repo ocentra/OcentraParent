@@ -32,8 +32,8 @@ legacy package/script paths embedded in old workpack prose.
 3. **WP19 + WP20 — runtime and child UX**
    - Compose sessions, schedules, bonus/allow-once state, timer lifecycle, and
      child warning/request delivery with restart tests.
-4. **WP58-WP65 — notification durability**
-   - Implement outbox, scheduler/quiet-hours, retry/dead-letter, ordered audit
+4. **WP59-WP65 — notification scheduling and delivery status**
+   - Implement scheduler/quiet-hours, retry/dead-letter, ordered audit
      history, provider/preference preflight, and real status producers.
 5. **WP15 + WP48 + WP63 — parent product surface**
    - Render inventory/running/foreground/session and source freshness states,

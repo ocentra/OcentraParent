@@ -27,10 +27,10 @@ This file is the short resume list for the next worker. It is derived from open 
 
 ## Highest-open Phase 1 work by dependency impact
 
-The 2026-08-15 code audit maps all 220 workpacks and leaves 36 source/test
+The 2026-08-15 code audit maps all 220 workpacks and leaves 35 source/test
 writing gaps. Work from [CODE_AUDIT.md](CODE_AUDIT.md), in this order:
 
-1. WP58-WP65: notification outbox, scheduler, history, provider/preference
+1. WP59-WP65: notification scheduler, history, provider/preference
    owners, and receipt-backed status.
 2. WP16, WP48, WP63, WP159: cohesive dashboard/source UI and hostile/large
    metadata tests.

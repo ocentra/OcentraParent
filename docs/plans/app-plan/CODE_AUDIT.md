@@ -21,9 +21,9 @@ release-ready. Those are Phase 2 and Phase 3.
 ## Result
 
 - 95/95 workpacks have reviewed code/test topology in the engineering graph.
-- 77/95 have no remaining source/test-writing gap in their bounded Phase 1
+- 78/95 have no remaining source/test-writing gap in their bounded Phase 1
   scope. Many are intentionally narrow contract or handoff packets.
-- 18/95 retain a concrete production-code or expected-test gap.
+- 17/95 retain a concrete production-code or expected-test gap.
 - Real Windows inventory, process, foreground, recurring service capture,
   encrypted journal/SQLite projection, source-status rows, scoped owned-process
   time-limit execution, and several Rust/service/portal read models exist.
@@ -92,7 +92,7 @@ release-ready. Those are Phase 2 and Phase 3.
 | WP53 Notification intent contract | Rust notification-readiness rows cover time-limit, approval, suspicious-unknown, manual, unavailable, redaction, and no-delivery claims with tests. | **Complete for Phase 1** | Delivery starts at WP58. |
 | WP54 Policy-readiness portal renderer | Rust-owned policy readiness is rendered in the portal with empty/manual states and focused tests. | **Complete for Phase 1** | Authoring/mutation remains elsewhere. |
 | WP56 Notification service read model | Agent service builds and reports notification-readiness rows; payload/service tests exist. | **Complete for Phase 1** | It explicitly reports provider/outbox/scheduler delivery as unclaimed. |
-| WP58 Notification local outbox | Readiness flags and generic setup outbox code exist. | **Incomplete** | No production notification-intent outbox append/reopen/idempotency/dead-letter lifecycle or tests exist. |
+| WP58 Notification local outbox | Rust readiness-row bridge creates canonical local-outbox records, reuses the atomic store, round-trips deterministic JSONL, persists/reopens/replays idempotently, rejects conflicts, and excludes manual/unavailable rows; service regression keeps the unrelated setup outbox from claiming WP58 runtime. | **Complete for bounded Phase 1; Phase 2 passed** | Phase 3 proof and live service/provider composition remain open; no delivery or receipt claim is made. |
 | WP59 Notification scheduler | Readiness fields reserve scheduler state. | **Incomplete** | No notification scheduler, due/quiet-hours retry worker, restart recovery, or lifecycle tests exist. |
 | WP60 Notification audit history | Rows carry evidence/audit refs. | **Incomplete** | No durable ordered notification attempt/receipt/history store/query or replay tests exist. |
 | WP61 Provider preflight | Manual/provider-required states are representable. | **Incomplete** | No selected provider credential/capability preflight boundary or negative integration matrix exists. |
@@ -144,7 +144,7 @@ release-ready. Those are Phase 2 and Phase 3.
    production, feeding the compiler rather than presentation-only DTOs.
 3. WP19 + WP20: compose authoritative sessions, schedules, bonus/allow-once,
    child warning/request UX, restart recovery, and focused integration tests.
-4. WP58-WP65: implement the durable notification outbox, scheduler, history,
+4. WP59-WP65: implement the notification scheduler, history,
    provider/preference preflight, and status producers already expected by the
    WP66/WP67 parent surface.
 5. WP15 + WP48 + WP63: finish the cohesive inventory/running/foreground/session
@@ -165,6 +165,6 @@ live evidence -> durable review/risk state -> policy compiler/runtime
 -> complete parent inventory/freshness surfaces
 ```
 
-Phase 2 must run focused tests and Enforcer only after the 18 writing gaps are
+Phase 2 must run focused tests and Enforcer only after the 17 writing gaps are
 closed or explicitly reduced. Phase 3 then regenerates proof from a clean
 checkout; historical ignored proof is not a substitute.

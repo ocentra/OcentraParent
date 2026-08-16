@@ -53,27 +53,38 @@ delivery/runtime support.
 - `packages/parent-domain/package.json` and `packages/parent-domain/README.md`
   updates, because E-B owns those locks during this slice.
 
-## Current Code Audit (2026-08-15)
+## Historical Code Audit And Repair (2026-08-15)
 
-- The Rust notification-readiness contract and projection expose eligible
-  intent rows, but there is no production `AppGameNotificationIntent` to
-  `NotificationLocalOutboxRecord` append boundary.
-- `build_activity_app_game_notification_readiness_report` currently derives
-  `local_outbox_runtime_claimed` from
-  `setup_outbox_has_records(activity_db_path)`. That helper reads the separate
-  WP125 parent-preference setup outbox, not an app/game notification outbox.
-  Any non-empty setup record can therefore create a false WP58 runtime claim.
-- The focused service regression proves only that the unrelated setup-outbox
-  file flips the Boolean. It does not prove eligible intent mapping, typed
-  append, reopen, idempotency/conflict handling, manual/unavailable exclusion,
-  or dead-letter behavior.
+- The audit found that `build_activity_app_game_notification_readiness_report`
+  derived `local_outbox_runtime_claimed` from the separate WP125
+  parent-preference setup outbox. That false coupling and its dead probe were
+  removed in commit `b7c63a75b`; the service now keeps the runtime claim false
+  until a real service composition owns the WP58 store.
+- Commit `b7c63a75b` adds the Rust-owned WP58 bridge from validated
+  notification-readiness rows to canonical `NotificationLocalOutboxRecord`
+  values and reuses the atomic WP121 local-outbox store. Eligible rows persist,
+  reopen, replay idempotently, and reject same-identity conflicts;
+  manual-required and unavailable rows remain unqueued.
 - The named proof script, generated proof root, and test-results artifact are
   absent from the tracked checkout. They cannot support the historical DONE
   wording.
 - WP121 supplies a typed atomic child-UX local-outbox store and canonical
-  `NotificationLocalOutboxRecord` use, but it does not consume the general
-  WP53/WP56 notification-readiness rows. WP58 must reuse that canonical storage
-  truth or a shared owner rather than create a second JSONL format.
+  `NotificationLocalOutboxRecord` use. WP58 now reuses that storage truth and
+  also exposes deterministic JSONL serialization/parsing for the bounded bridge
+  artifact; it does not create a second store format.
+
+## Current Status - Phase 1/2 Complete; Phase 3 Open
+
+- Focused WP58 bridge tests: 4 passed.
+- Agent-service notification-readiness tests: 3 passed, including the negative
+  WP125 setup-outbox regression.
+- Full app-game-core contract suite: 100 passed; unit suite: 10 passed.
+- App-game-core and agent-service Clippy passed with warnings denied.
+- Architecture plus seven focused Enforcer checks and pre-commit passed.
+- The historical proof script/output/test-results artifacts remain absent and
+  must be regenerated only during Phase 3. Provider delivery, receipt
+  ingestion, scheduler runtime, parent UI, child delivery, adapter dispatch,
+  broad blocking, and platform support remain unclaimed.
 
 ## Proof
 
@@ -88,9 +99,9 @@ delivery/runtime support.
       docs, and workpack docs.
 - [x] Existing app/game notification intent contract and notification local
       outbox adapter proof inspected and reused.
-- [ ] Eligible app/game notification intents become existing local outbox
+- [x] Eligible app/game notification intents become existing local outbox
       records and round-trip through JSONL parsing.
-- [ ] Manual-required and unavailable app/game notification intents do not
+- [x] Manual-required and unavailable app/game notification intents do not
       queue delivery records.
 - [ ] Proof pack records no provider delivery, no receipt ingestion, no
       scheduler runtime, no parent UI, no child delivery, no policy execution,

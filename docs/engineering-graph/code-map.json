@@ -2522,8 +2522,15 @@
       "planSlug": "app-plan",
       "roots": [
         "crates/agent-protocol/src/app_game_notification_readiness.rs",
-        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs"
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_classification.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_mapping.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_validation.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_store.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs",
+        "crates/agent-service/src/activity_api.rs",
+        "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs"
       ]
     },
     "WP-app-plan-59-notification-scheduler-bridge": {
@@ -6322,10 +6329,14 @@
       "planSlug": "app-game-plan",
       "roots": [
         "crates/agent-protocol/src/app_game_notification_readiness.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_classification.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_mapping.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_types.rs",
+        "crates/app-game-core/src/app_game_notification_local_outbox_bridge_validation.rs",
+        "crates/app-game-core/src/app_game_child_ux_outbox_store.rs",
+        "crates/app-game-core/tests/contract/app_game_notification_local_outbox_bridge.rs",
         "crates/agent-service/src/activity_api.rs",
-        "crates/agent-service/src/activity_api/app_game_timer_parent_preference_setup_request_outbox.rs",
-        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
-        "crates/agent-service/tests/unit/app_game_notification_readiness_payload_tests.rs",
         "crates/agent-service/tests/unit/app_game_notification_readiness_service_tests.rs"
       ]
     },
