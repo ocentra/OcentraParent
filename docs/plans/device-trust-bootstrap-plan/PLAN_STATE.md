@@ -126,6 +126,10 @@ remote-access-plan and policy-control-plane-plan:
   timestamp, and grace-shape bindings before any authority result is consumed.
   Signature verification and revocation authority remain unavailable and
   manual-required, so this path cannot unlock capabilities by itself.
+- WP06 now blocks confirmation-only restore and requires a verified parent
+  `PairChildDevice` authority bound to the local household and target device
+  before applying a recovery preview. Encryption/key custody, revocation
+  preservation, and runtime proof remain manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
 - Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
 ```

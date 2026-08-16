@@ -35,3 +35,7 @@ ceremony, one-time nonce consumer, transport, and retained runtime proof.
 WP05 now has a device-bound entitlement verifier boundary, but remains blocked
 on the real signature/revocation provider and retained runtime proof; the
 unavailable default keeps capability unlock manual-required.
+
+WP06 now blocks the untrusted confirmation-only restore path and exposes a
+verified-parent re-pair gate; encrypted bundle/key custody, revocation
+preservation, and runtime proof remain open.

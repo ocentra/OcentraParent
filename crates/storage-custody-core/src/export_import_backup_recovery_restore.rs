@@ -27,6 +27,38 @@ pub(super) fn apply_restore(
     }
 }
 
+pub(super) fn blocked_restore(
+    preflight: &contracts::ExportImportImportPreflight,
+    _request: &RestoreApplyRequest,
+) -> contracts::ExportImportRestoreApplyResult {
+    contracts::ExportImportRestoreApplyResult {
+        state: contracts::ExportImportRestoreApplyState::Blocked,
+        explicit_confirmation_required: true,
+        local_truth_authoritative: true,
+        tombstones_preserved: preflight.tombstones_preserved,
+        idempotent: false,
+        accepted_sections: Vec::new(),
+        rejected_sections: preflight.rejected_sections.clone(),
+        duplicates_created: false,
+        no_default_support_decrypt: preflight.no_default_support_decrypt,
+    }
+}
+
+pub(super) fn preflight_is_applicable(preflight: &contracts::ExportImportImportPreflight) -> bool {
+    matches!(
+        preflight.state,
+        contracts::ExportImportPreflightState::AcceptedPreview
+            | contracts::ExportImportPreflightState::PartialPreview
+    ) && preflight.schema_version_supported
+        && preflight.household_binding_match
+        && preflight.key_available
+        && preflight.manifest_integrity_verified
+        && preflight.payload_integrity_verified
+        && !preflight.local_truth_mutated
+        && preflight.tombstones_preserved
+        && !preflight.duplicate_device_detected
+}
+
 fn restore_state(
     preflight_state: contracts::ExportImportPreflightState,
     confirmed: bool,

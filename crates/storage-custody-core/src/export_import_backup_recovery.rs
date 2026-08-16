@@ -1,5 +1,8 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
+use ocentra_family_identity_core::household_authority::HouseholdAuthorityAction;
+use ocentra_family_identity_core::household_authority_proof::VerifiedHouseholdAuthority;
+
 #[path = "export_import_backup_recovery_build.rs"]
 mod export_import_backup_recovery_build;
 #[path = "export_import_backup_recovery_import.rs"]
@@ -94,5 +97,29 @@ pub fn apply_restore(
     preflight: &contracts::ExportImportImportPreflight,
     request: &RestoreApplyRequest,
 ) -> contracts::ExportImportRestoreApplyResult {
+    export_import_backup_recovery_restore::blocked_restore(preflight, request)
+}
+
+pub fn apply_restore_with_parent_authority(
+    preflight: &contracts::ExportImportImportPreflight,
+    context: &ImportBundleContext,
+    request: &RestoreApplyRequest,
+    authority: &VerifiedHouseholdAuthority,
+) -> contracts::ExportImportRestoreApplyResult {
+    let Some(identity_binding) = authority.identity_binding() else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    let Some(target_device_id) = context.target_device_id.as_ref() else {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    };
+    if !export_import_backup_recovery_restore::preflight_is_applicable(preflight)
+        || !request.confirmed
+        || authority.input().action != HouseholdAuthorityAction::PairChildDevice
+        || identity_binding.household_id != context.local_household_id.as_str()
+        || identity_binding.target_device_id != target_device_id.as_str()
+    {
+        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
+    }
+
     export_import_backup_recovery_restore::apply_restore(preflight, request)
 }
