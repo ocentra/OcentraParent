@@ -20,12 +20,12 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 - 220/220 workpacks now have reviewed code/test ownership in the executable
   engineering graph.
-- 160/220 have current production source plus the expected checked-in tests
+- 161/220 have current production source plus the expected checked-in tests
   for their bounded scope.
 - 19/220 are reviewed coordination, proof, or reference packets with no Phase 1
   product-code requirement.
-- 179/220 therefore have no remaining Phase 1 source/test-writing gap.
-- 41/220 retain a concrete production-code or expected-test gap.
+- 180/220 therefore have no remaining Phase 1 source/test-writing gap.
+- 40/220 retain a concrete production-code or expected-test gap.
 - The former `packages/activity-domain`, `packages/parent-domain`,
   `packages/agent-protocol-domain`, and `packages/text-domain` workpack owners are
   absent from the tracked tree. Their advertised `scripts/test/app-game-*` runners
@@ -154,7 +154,7 @@ is release-ready. Those are Phase 2 and Phase 3.
 | WP119 Timer Parent-Surface Child UX Local Artifact Visibility | Rust timer service/read model + parent-runtime/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP120 Timer Parent-Surface Child UX Local Artifact Records | Rust timer service/read model + parent-runtime/portal tests | **Complete for bounded Phase 1** | No source/test-writing gap found in the deliberately bounded scope; focused execution and proof remain later phases. |
 | WP121 Timer Parent-Surface Child UX Local Outbox Bridge | Rust controlled-token bridge + atomic local store in `ocentra-app-game-core` | **Complete for bounded Phase 1; Phase 2 green** | Canonical notification-outbox mapping, reference/claim validation, manual-state blocking, atomic persistence, reopen, exact replay, and conflicting-id rejection landed at `0e24e37ad`; 4 focused, 83 contract, 10 unit, Clippy, focused Enforcer, and pre-commit passed. Service composition, scheduler/provider/receipt/UI delivery, and Phase 3 remain open. |
-| WP122 Timer Parent-Surface Child UX Local Outbox Scheduler Bridge | WP121 Rust outbox/store + shared generated scheduler schema | **Incomplete; active** | Historical parent-domain JSONL code is absent. No current Rust projection turns reopened WP121 `queued-local` records into deterministic `due-local` rows or rejects dishonest/manual states; bounded scheduler contract/projection tests are active. |
+| WP122 Timer Parent-Surface Child UX Local Outbox Scheduler Bridge | Rust shared scheduler contract + projection/proof store | **Complete for bounded Phase 1; Phase 2 green** | Deterministic `queued-local` → `due-local` projection, manual/unsafe blocking, source/reference preservation, atomic proof persistence, reopen, exact replay, and conflicting-id rejection landed at `b2455cbae`; focused tests, full App/Game tests, dual-crate Clippy, focused Enforcer, and pre-commit passed. Production scheduler execution, service composition, provider/preference/receipt/UI delivery, and Phase 3 remain open. |
 | WP123 Timer Parent-Surface Child UX Local Outbox Provider Preflight | Rust timer service/read model + parent-runtime/portal tests | **Incomplete** | No concrete child-UX provider preflight boundary and negative matrix. |
 | WP124 Timer Parent-Surface Child UX Local Outbox Provider Status Handoff | Rust timer service/read model + parent-runtime/portal tests | **Incomplete** | No provider-attempt/receipt-backed status producer for the child-UX surface. |
 | WP125 Timer Parent-Surface Child UX Local Outbox Preference Preflight | Rust timer service/read model + parent-runtime/portal tests | **Incomplete** | No durable preference preflight owner for the child-UX outbox. |
@@ -264,8 +264,8 @@ is release-ready. Those are Phase 2 and Phase 3.
 
 ## Highest-impact implementation order
 
-1. WP122-WP126: carry the durable WP121 child warning/request outbox through the
-   scheduler, provider/preference preflight, and status producers.
+1. WP123-WP126: carry the verified WP122 child warning/request scheduler rows
+   through provider/preference preflight and status producers.
 2. WP58-WP65: implement the notification outbox, scheduler, ordered history,
    provider/preference owners, and receipt-backed status producers.
 3. WP16, WP48, WP63, and WP159: finish the cohesive parent dashboard/source panels
