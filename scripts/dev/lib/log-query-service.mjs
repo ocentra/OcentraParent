@@ -56,7 +56,7 @@ function parseIsoOrDuration(value) {
   return Number.isNaN(timestamp) ? null : timestamp;
 }
 
-function normalizeEvidenceDiagnostic(diagnostic) {
+function normalizeEvidenceDiagnostic(diagnostic, run = {}) {
   return {
     recordType: 'diagnostic',
     scope: 'parent-codex',
@@ -65,8 +65,8 @@ function normalizeEvidenceDiagnostic(diagnostic) {
     source: null,
     context: diagnostic.kind,
     message: diagnostic.message,
-    runId: null,
-    commandId: null,
+    runId: run.runId ?? diagnostic.runId ?? null,
+    commandId: run.commandId ?? diagnostic.commandId ?? null,
     file: diagnostic.file,
     filePath: diagnostic.file,
     line: diagnostic.line,
@@ -779,9 +779,7 @@ export async function getErrors(options = {}) {
     const failures = await getLatestFailures({ limit });
     return failures.flatMap((failure) =>
       failure.diagnostics.map((diagnostic) => ({
-        runId: failure.runId,
-        commandId: failure.commandId,
-        ...normalizeEvidenceDiagnostic(diagnostic),
+        ...normalizeEvidenceDiagnostic(diagnostic, failure),
       }))
     );
   }
@@ -806,9 +804,7 @@ export async function getRecentLogs(options = {}) {
     const failures = await getLatestFailures({ limit });
     const logs = failures.flatMap((failure) =>
       failure.diagnostics.map((diagnostic) => ({
-        runId: failure.runId,
-        commandId: failure.commandId,
-        ...normalizeEvidenceDiagnostic(diagnostic),
+        ...normalizeEvidenceDiagnostic(diagnostic, failure),
       }))
     );
     return level == null ? logs.slice(0, limit) : logs.filter((log) => log.level === level).slice(0, limit);
@@ -861,9 +857,7 @@ export async function queryLogs(options = {}) {
     const failures = await getLatestFailures({ limit });
     const logs = failures.flatMap((failure) =>
       failure.diagnostics.map((diagnostic) => ({
-        runId: failure.runId,
-        commandId: failure.commandId,
-        ...normalizeEvidenceDiagnostic(diagnostic),
+        ...normalizeEvidenceDiagnostic(diagnostic, failure),
       }))
     );
     return filterLogs(logs, {
