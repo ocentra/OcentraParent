@@ -20189,7 +20189,7 @@
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Code drafted / unvalidated / tests deferred — Rust-owned typed decision staging/relay is mapped to action_dispatch.rs, policy_preview.rs, and policy_preview/resolution.rs; portal, account/identity, notification, WP11 durability, runtime, tests, and proof remain open",
+        "statusText": "Code drafted / unvalidated / tests deferred — Rust-owned typed decision staging/relay is mapped to action_dispatch.rs, policy_preview.rs, and policy_preview/resolution.rs; notification handoff remains explicitly unclaimed until provider dispatch exists; portal, account/identity, WP11 durability, runtime, tests, and proof remain open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
