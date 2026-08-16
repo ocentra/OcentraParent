@@ -410,22 +410,15 @@
       "path": "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
       "parent": "PLAN-account-identity-family-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "code-drafted / tests-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -2975,15 +2968,15 @@
       "path": "docs/plans/app-game-plan/workpacks/58-notification-local-outbox-bridge.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted; production boundary hardened; tests/validation/proof deferred",
+        "statusText": "code drafted",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -3047,15 +3040,15 @@
       "path": "docs/plans/app-game-plan/workpacks/60-notification-audit-history-bridge.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted; tests/validation/proof deferred",
+        "statusText": "code drafted",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -3158,12 +3151,12 @@
         "WP-app-game-plan-59-notification-scheduler-bridge",
         "WP-app-game-plan-61-notification-provider-preflight"
       ],
-      "state": "planned",
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted; tests/validation/proof deferred",
+        "statusText": "code drafted",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -3197,12 +3190,12 @@
         "WP-app-game-plan-59-notification-scheduler-bridge",
         "WP-app-game-plan-62-notification-preference-preflight"
       ],
-      "state": "planned",
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted; tests/validation/proof deferred",
+        "statusText": "code drafted",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -10935,12 +10928,12 @@
       "path": "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -10971,12 +10964,12 @@
       "path": "docs/plans/app-plan/workpacks/16-new-app-and-unknown-app-approval-flow.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11007,12 +11000,12 @@
       "path": "docs/plans/app-plan/workpacks/17-risk-app-detection.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11041,12 +11034,12 @@
       "path": "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11077,12 +11070,12 @@
       "path": "docs/plans/app-plan/workpacks/19-time-budget-schedule-bonus-time-integration.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -11113,12 +11106,12 @@
       "path": "docs/plans/app-plan/workpacks/20-child-facing-app-warning-block-request-ux.md",
       "parent": "PLAN-app-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12314,13 +12307,13 @@
       "title": "48 portal source freshness surface",
       "path": "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": ["WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces"],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [],
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12348,13 +12341,13 @@
       "title": "49 category risk policy routing",
       "path": "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": ["WP-app-plan-18-policy-target-compiler-for-app-rules"],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [],
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12714,13 +12707,13 @@
       "title": "63 source freshness source panel polish",
       "path": "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": ["WP-app-plan-48-portal-source-freshness-surface"],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [],
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12750,13 +12743,13 @@
       "title": "64 notification provider status handoff",
       "path": "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": ["WP-app-plan-61-notification-provider-preflight"],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [],
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; integration/tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12786,13 +12779,13 @@
       "title": "65 notification preference status handoff",
       "path": "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": ["WP-app-plan-62-notification-preference-preflight"],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [],
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; integration/tests/proof/checklist deferred",
+        "statusText": "**Incomplete**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -12822,25 +12815,16 @@
       "title": "66 notification parent surface intent",
       "path": "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [
-        "WP-app-plan-64-notification-provider-status-handoff",
-        "WP-app-plan-65-notification-preference-status-handoff"
-      ],
+      "dependsOn": [],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Production code drafted; expected tests/validation deferred**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "tests: deferred",
-          "proof: deferred",
-          "checklist: deferred"
-        ],
-        "sourceStatusText": "Code-drafted"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -12867,22 +12851,16 @@
       "title": "67 notification parent surface renderer",
       "path": "docs/plans/app-plan/workpacks/67-notification-parent-surface-renderer.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": ["WP-app-plan-66-notification-parent-surface-intent"],
+      "dependsOn": [],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "app-plan",
         "indexPath": "docs/plans/app-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "**Production code drafted; expected tests/validation deferred**",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "tests: deferred",
-          "proof: deferred",
-          "checklist: deferred"
-        ],
-        "sourceStatusText": "Code-drafted"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -14467,12 +14445,12 @@
       "path": "docs/plans/browser-plan/workpacks/05-cross-platform-inventory-matrix.md",
       "parent": "PLAN-browser-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "browser-plan",
         "indexPath": "docs/plans/browser-plan/WORKPACK_INDEX.md",
-        "statusText": "code-drafted; unvalidated; tests/proof/checklist deferred",
+        "statusText": "open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -15429,15 +15407,15 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/02-child-windows-service-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "blocked",
-      "lifecycleState": "blocked",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Service composition and package code drafted; expected tests, validation, proof, and transport deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15469,32 +15447,22 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Composition/package code drafted; child macOS identity and transport boundary aligned; expected tests, validation, proof, and transport deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/03-child-macos-service-package",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "code drafted / test-deferred"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md",
-            "scripts/release/macos/build-agent-package.sh",
-            "scripts/release/macos/ca.ocentra.parent.agent.plist"
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/03-child-macos-service-package.md"
           ],
           "tests": [
             "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -15519,32 +15487,22 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Composition/package code drafted; child Linux identity and transport boundary aligned; expected tests, validation, proof, and transport deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/04-child-linux-service-package",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "code drafted / test-deferred"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md",
-            "scripts/release/linux/build-agent-package.sh",
-            "scripts/release/linux/ocentra-parent-agent.service"
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/04-child-linux-service-package.md"
           ],
           "tests": [
             "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -15569,31 +15527,22 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Code drafted / test-deferred — Android child identity/composition, Rust/JNI bridge, and child package version boundary implemented; native packaging, tests, validation, proof, and transport remain deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/05-child-android-agent-package",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "code drafted / test-deferred"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md",
-            "scripts/release/android/build-agent-package.mjs"
+            "docs/plans/child-agent-runtime-distribution-plan/workpacks/05-child-android-agent-package.md"
           ],
           "tests": [
             "docs/plans/child-agent-runtime-distribution-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -15666,23 +15615,15 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/07-child-managed-service-respawn.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Production manager configuration drafted; expected tests, validation, and proof deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/07-child-managed-service-respawn",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "code drafted / test-deferred"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15714,23 +15655,15 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/08-child-parent-authorized-uninstall.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Code drafted / test-deferred — child service revocation/audit boundary implemented; platform cleanup, tests, validation, proof, and checklist review remain deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/08-child-parent-authorized-uninstall",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "code drafted / test-deferred"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15762,23 +15695,15 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/09-child-signing-store-device-owner-matrix.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Code drafted / test-deferred — Windows child manifest/checksum/signature consumption implemented; platform matrix, tests, validation, proof, and checklist review remain deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/09-child-signing-store-device-owner-matrix",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "code drafted / test-deferred"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15810,23 +15735,15 @@
       "path": "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md",
       "parent": "PLAN-child-agent-runtime-distribution-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "child-agent-runtime-distribution-plan",
         "indexPath": "docs/plans/child-agent-runtime-distribution-plan/WORKPACK_INDEX.md",
-        "statusText": "Code drafted / test-deferred — typed setup handoff contract and package/update consumer projection implemented; setup producer, live wiring, tests, validation, proof, and checklist review remain deferred",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: missing expected artifact output/child-agent-runtime-distribution-plan-proof/10-setup-device-trust-handoff",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "code drafted / test-deferred"
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -15911,7 +15828,7 @@
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted; account D1 migration/config present; account DO/KV absent; validation/proof deferred",
+        "statusText": "source-present / retained-proof-absent",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -16119,12 +16036,12 @@
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
         "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
       ],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "blocked",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted / proof-deferred",
+        "statusText": "code drafted / retained-proof-absent",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -16192,15 +16109,15 @@
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
         "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
       ],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
         "statusText": "blocked / proof-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16676,8 +16593,7 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
-            "crates/child-runtime/src/service.rs"
+            "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md"
           ],
           "tests": [
             "docs/plans/data-custody-storage-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -16737,7 +16653,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / production sidecar durability drafted; runtime proof present",
+        "statusText": "partial / runtime-proof-present",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16772,15 +16688,15 @@
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/02-local-key-sealing.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / Windows custody authority gate drafted; platform custody and proof remain open",
+        "statusText": "partial / Windows-only merged custody slice",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16817,7 +16733,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked / five-minute receipt lifetime gate drafted; external ceremony verifier and proof remain open",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16857,7 +16773,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked / typed challenge-response boundary drafted; issuer, ceremony, transport, and proof remain open",
+        "statusText": "blocked",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16867,9 +16783,7 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md",
-            "crates/schema/src/phone_qr_approval.rs",
-            "crates/family-identity-core/src/phone_qr_approval_authority.rs"
+            "docs/plans/device-trust-bootstrap-plan/workpacks/04-phone-qr-approval-bridge.md"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -16899,7 +16813,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / device-bound verifier boundary drafted; signature, revocation, and proof remain open",
+        "statusText": "partial",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16909,8 +16823,7 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md",
-            "crates/entitlement-core/src/entitlement_snapshot.rs"
+            "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -16940,7 +16853,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / confirmation-only restore blocked; verified parent and execution-receipt gates drafted; encryption, revocation, and proof remain open",
+        "statusText": "partial",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16950,9 +16863,7 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md",
-            "crates/storage-custody-core/src/export_import_backup_recovery.rs",
-            "crates/storage-custody-core/src/export_import_backup_recovery_restore.rs"
+            "docs/plans/device-trust-bootstrap-plan/workpacks/06-recovery-reset-re-pair.md"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -16982,7 +16893,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / code-drafted / tests-deferred",
+        "statusText": "partial / code-drafted",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16992,9 +16903,7 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md",
-            "crates/child-runtime/src/removal.rs",
-            "crates/child-runtime/src/service.rs"
+            "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -17458,15 +17367,15 @@
       "path": "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md",
       "parent": "PLAN-eventing-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
         "statusText": "open — code drafted; tests/validation/proof deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -18925,12 +18834,12 @@
       "path": "docs/plans/network-plan/workpacks/01-foundation-contracts-and-eventing.md",
       "parent": "PLAN-network-plan",
       "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "network-plan",
         "indexPath": "docs/plans/network-plan/WORKPACK_INDEX.md",
-        "statusText": "code drafted; tests/validation/proof deferred; durable journal manual-required",
+        "statusText": "code drafted / test-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -20170,15 +20079,15 @@
       "path": "docs/plans/policy-control-plane-plan/workpacks/02-parent-authoring-preview.md",
       "parent": "PLAN-policy-control-plane-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Code drafted / unvalidated / tests deferred; trusted context fail-closed; open",
+        "statusText": "Code drafted / unvalidated / tests deferred; open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": true
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20245,7 +20154,7 @@
       "metadata": {
         "planSlug": "policy-control-plane-plan",
         "indexPath": "docs/plans/policy-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "Contract checked / runtime blocked; no owner-backed execution identity/trace composition exists; caller receipts remain evidence",
+        "statusText": "Contract and trace-backed receipt bridge code drafted but unvalidated; child handoff/runtime integration, tests, and proof remain blocked; caller receipts remain evidence",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -29971,94 +29880,6 @@
         "docs/plans/v0-8-enforcement-control-plan/workpacks/11-audit-journal-events.md"
       ],
       "reason": "Trusted owned-process dispatch must consume the enforcement-specific durable journal and authority boundary first."
-    },
-    {
-      "from": "WP-app-plan-49-category-risk-policy-routing",
-      "to": "WP-app-plan-18-policy-target-compiler-for-app-rules",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/49-category-risk-policy-routing.md",
-        "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md"
-      ],
-      "reason": "Category/risk candidates must pass through the Rust policy-target compiler before any downstream policy handoff."
-    },
-    {
-      "from": "WP-app-plan-48-portal-source-freshness-surface",
-      "to": "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
-        "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md"
-      ],
-      "reason": "Source freshness presentation consumes the app/game read models hydrated by the parent portal inventory route."
-    },
-    {
-      "from": "WP-app-plan-63-source-freshness-source-panel-polish",
-      "to": "WP-app-plan-48-portal-source-freshness-surface",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
-        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md"
-      ],
-      "reason": "The source-panel renderer consumes the source-status intent established by the freshness surface."
-    },
-    {
-      "from": "WP-app-plan-64-notification-provider-status-handoff",
-      "to": "WP-app-plan-61-notification-provider-preflight",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
-        "docs/plans/app-plan/workpacks/61-notification-provider-preflight.md"
-      ],
-      "reason": "Provider status handoff preserves and classifies the provider-preflight row before any service or UI projection."
-    },
-    {
-      "from": "WP-app-plan-65-notification-preference-status-handoff",
-      "to": "WP-app-plan-62-notification-preference-preflight",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
-        "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md"
-      ],
-      "reason": "Preference status handoff consumes the preference-preflight row and cannot claim parent preference runtime."
-    },
-    {
-      "from": "WP-app-plan-66-notification-parent-surface-intent",
-      "to": "WP-app-plan-64-notification-provider-status-handoff",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md",
-        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md"
-      ],
-      "reason": "The parent-surface intent joins the provider boundary before projecting any redacted surface row."
-    },
-    {
-      "from": "WP-app-plan-66-notification-parent-surface-intent",
-      "to": "WP-app-plan-65-notification-preference-status-handoff",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md",
-        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md"
-      ],
-      "reason": "The parent-surface intent joins the preference boundary without claiming preference mutation."
-    },
-    {
-      "from": "WP-app-plan-67-notification-parent-surface-renderer",
-      "to": "WP-app-plan-66-notification-parent-surface-intent",
-      "kind": "depends_on",
-      "confidence": "reviewed",
-      "evidence": [
-        "docs/plans/app-plan/workpacks/67-notification-parent-surface-renderer.md",
-        "docs/plans/app-plan/workpacks/66-notification-parent-surface-intent.md"
-      ],
-      "reason": "The parent portal renderer consumes the joined intent rows and preserves the missing/legacy fallback."
     },
     {
       "from": "WP-app-game-plan-64-notification-provider-status-handoff",
