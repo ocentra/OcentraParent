@@ -243,14 +243,6 @@ expected tests written. Four remain incomplete for distinct reasons:
 - `20` is proof-only and its named aggregate verifier programs are absent.
 - `25` is a rollout wrapper blocked by WP16/WP20 plus manual topology evidence.
 
-- `16`: no integrated backend replay -> real Tauri `AppHandle` emit -> portal
-  listener regression;
-- `20`: all six LAN aggregate verifier commands named by current plan docs
-  point to absent scripts; the signed-relay and source-matrix runners are also
-  incorrectly checked complete in the workpack;
-- `25`: depends on both gaps above before its rollout gate can be code/test
-  complete.
-
 Manual household/router/platform artifacts remain separate Phase 3 gates and do
 not turn the other 21 code-present rows into missing-code work.
 
@@ -345,7 +337,11 @@ evidence remain later gates after the production transport owner exists.
 
 ## Next Slice
 
-The next exact Phase 1 slice is the integrated WP16 backend replay -> Tauri
-`AppHandle` -> portal listener regression, followed by restoration or
-replacement of the six named aggregate verifier programs. WP25 can then enter
-focused Phase 2 validation; physical/manual proof remains last.
+Production-code work remains first: route WP18 to the child-runtime transport
+owner and implement a real signed-child beacon ingress only after that owner
+supplies the shipped caller and device authority. Do not substitute a fixture,
+manual observation command, or synthetic receiver. After production code is
+complete, Phase 2 may add the WP16 backend replay -> real Tauri `AppHandle` ->
+portal-listener regression and restore or replace the six named WP20 aggregate
+verifiers. WP25 can then enter focused validation; physical/manual proof remains
+last.
