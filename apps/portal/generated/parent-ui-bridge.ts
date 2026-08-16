@@ -1191,6 +1191,8 @@ export const ParentDevBridgeRoute = {
 export type ParentDevBridgeRouteName = (typeof ParentDevBridgeRoute)[keyof typeof ParentDevBridgeRoute];
 
 export const ParentUiActionPayloadField = {
+  PolicyPreviewAuthoringDraft: 'policyPreviewAuthoringDraft',
+  PolicyPreviewAuthoringHandle: 'policyPreviewAuthoringHandle',
   PolicyRequestAssistantPreviewConfirmRequest: 'policyRequestAssistantPreviewConfirmRequest',
   PolicyRequestParentResolutionRequest: 'policyRequestParentResolutionRequest',
   ScreenSettingsRequest: 'screenSettingsRequest',
@@ -1919,6 +1921,7 @@ export interface ParentPolicyPreviewActionSnapshot {
 export interface ParentPolicyPreviewAuthoringSnapshot {
   readonly targetValue: string;
   readonly requestedAction: string;
+  readonly stageAction: ParentPolicyPreviewActionSnapshot;
   readonly confirmAction?: ParentPolicyPreviewActionSnapshot | null;
   readonly cancelAction: ParentPolicyPreviewActionSnapshot;
 }
@@ -2163,6 +2166,8 @@ export type ParentUiActionKind =
   | 'refresh-route'
   | 'reconnect'
   | 'agent-command-requested'
+  | 'policy-preview-authoring-draft-staged'
+  | 'policy-preview-authoring-draft-cancelled'
   | 'policy-request-assistant-preview-confirm-requested'
   | 'policy-request-parent-resolution-requested'
   | 'lan-pairing-browser-discovery-scan-requested'
@@ -2177,6 +2182,8 @@ export const ParentUiActionKind = {
   RefreshRoute: 'refresh-route',
   Reconnect: 'reconnect',
   AgentCommandRequested: 'agent-command-requested',
+  PolicyPreviewAuthoringDraftStaged: 'policy-preview-authoring-draft-staged',
+  PolicyPreviewAuthoringDraftCancelled: 'policy-preview-authoring-draft-cancelled',
   PolicyRequestAssistantPreviewConfirmRequested: 'policy-request-assistant-preview-confirm-requested',
   PolicyRequestParentResolutionRequested: 'policy-request-parent-resolution-requested',
   LanPairingBrowserDiscoveryScanRequested: 'lan-pairing-browser-discovery-scan-requested',

@@ -97,6 +97,7 @@ export interface ParentPolicyPreviewActionSnapshot {
 export interface ParentPolicyPreviewAuthoringSnapshot {
   readonly targetValue: string;
   readonly requestedAction: string;
+  readonly stageAction: ParentPolicyPreviewActionSnapshot;
   readonly confirmAction?: ParentPolicyPreviewActionSnapshot | null;
   readonly cancelAction: ParentPolicyPreviewActionSnapshot;
 }

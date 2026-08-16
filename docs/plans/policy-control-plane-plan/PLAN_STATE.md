@@ -62,7 +62,7 @@ domain plans:
   - `cargo lint-architecture crates/policy-control-core`
 - The shared architecture gate for the selected validation slice is not green because `packages/agent-protocol-domain` still contains banned re-exports.
 - Feature-owned parent authoring and assistant approval surfaces remain incomplete and cannot be claimed done from contract tests alone.
-- WP02 production-code pass is drafted but unvalidated: the Rust-owned policy preview snapshot now exposes authoring/action metadata and the portal consumes typed confirm/cancel actions; tests and runtime relay validation are deferred.
+- WP02 production-code pass is drafted but unvalidated: Rust validates/stages the portal draft and issues a bounded one-shot handle consumed by typed confirm/cancel actions; tests and downstream runtime relay validation are deferred.
 - The canonical proof root for this plan is `docs/proof/policy-control-plane-plan/`, and the touched route docs in this slice now agree on that single root.
 - `docs/proof/policy-control-plane-plan/PLAN_PROOF_MANIFEST.md` records current file presence and route status: checked closeout bundles for WP01, WP03, WP06, WP07, and WP08; WP04 has a checked policy contract but remains runtime-blocked; open gaps remain for WP02/WP05.
 

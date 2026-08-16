@@ -1406,6 +1406,7 @@ pub struct ParentPolicyPreviewActionSnapshot {
 pub struct ParentPolicyPreviewAuthoringSnapshot {
     pub target_value: String,
     pub requested_action: String,
+    pub stage_action: ParentPolicyPreviewActionSnapshot,
     pub confirm_action: Option<ParentPolicyPreviewActionSnapshot>,
     pub cancel_action: ParentPolicyPreviewActionSnapshot,
 }
@@ -1705,6 +1706,8 @@ pub enum ParentUiActionKind {
     RefreshRoute,
     Reconnect,
     AgentCommandRequested,
+    PolicyPreviewAuthoringDraftStaged,
+    PolicyPreviewAuthoringDraftCancelled,
     PolicyRequestAssistantPreviewConfirmRequested,
     PolicyRequestParentResolutionRequested,
     LanPairingBrowserDiscoveryScanRequested,

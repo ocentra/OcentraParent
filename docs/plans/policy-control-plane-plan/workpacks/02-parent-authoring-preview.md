@@ -131,11 +131,13 @@ mobile, and opaque confirmed-request relay proof.
 
 ## Production code pass status
 
-The Rust-owned parent UI bridge now carries an authoring snapshot with typed
-confirm and cancel action metadata, and the portal preview route renders a
-draft form that consumes those actions. This is code drafted only: validation
-and tests are intentionally deferred, and the action payload still requires
-the downstream confirmed-request relay to be validated before runtime claims.
+The Rust-owned parent UI bridge now validates and stages the untrusted draft,
+issues a bounded one-shot opaque handle, and exposes typed stage, confirm, and
+cancel actions. The portal preview route submits draft input only to staging;
+confirmation submits only the Rust-issued handle, while cancel invalidates it.
+This is code drafted only: validation and tests are intentionally deferred,
+and the downstream confirmed-request relay still requires validation before
+runtime claims.
 
 ## Failure
 

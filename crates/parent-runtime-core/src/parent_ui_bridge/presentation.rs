@@ -133,6 +133,12 @@ pub(super) fn parent_portal_shell_status(
     )
 }
 
+pub(super) fn parent_access_state_for_lan_read_model(
+    read_model: Option<&LanBrowserAddDeviceReadModel>,
+) -> ParentPortalParentAccessState {
+    app_game_readiness_labels::parent_access_state_for_read_model(read_model)
+}
+
 pub(super) fn browser_route_panels_snapshot(
     route: &ParentRouteId,
 ) -> Option<ParentRouteBrowserPanelsSnapshot> {

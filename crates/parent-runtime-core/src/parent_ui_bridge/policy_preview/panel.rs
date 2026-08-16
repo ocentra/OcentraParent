@@ -46,30 +46,44 @@ fn policy_preview_authoring_snapshot(
         .clone()
         .or_else(|| read_model.decision_action.as_ref().map(ToString::to_string))
         .unwrap_or_else(|| "ask-parent".to_string());
+    let staged = authoring::current(read_model, parent_access_state);
+    let target_value = staged
+        .as_ref()
+        .map(|draft| draft.target_value.clone())
+        .unwrap_or(target_value);
+    let requested_action = staged
+        .as_ref()
+        .map(|draft| draft.requested_action.clone())
+        .unwrap_or(requested_action);
+    let stage_action = ParentPolicyPreviewActionSnapshot {
+        action: ParentUiActionKind::PolicyPreviewAuthoringDraftStaged,
+        label: "Preview draft".to_string(),
+        payload: None,
+    };
     let confirm_action = matches!(
         parent_access_state,
         ParentPortalParentAccessState::ActiveController
     )
-    .then(|| ParentPolicyPreviewActionSnapshot {
-        action: ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested,
-        label: "Confirm policy preview".to_string(),
-        payload: Some(serde_json::json!({
-            "policyRequestAssistantPreviewConfirmRequest": serde_json::json!({
-                "targetValue": target_value,
-                "requestedAction": requested_action,
-            })
-            .to_string(),
-        })),
-    });
+    .then_some(
+        staged
+            .as_ref()
+            .map(|draft| ParentPolicyPreviewActionSnapshot {
+                action: ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested,
+                label: "Confirm policy preview".to_string(),
+                payload: Some(authoring::handle_payload(&draft.handle)),
+            }),
+    )
+    .flatten();
 
     Some(ParentPolicyPreviewAuthoringSnapshot {
         target_value,
         requested_action,
+        stage_action,
         confirm_action,
         cancel_action: ParentPolicyPreviewActionSnapshot {
-            action: ParentUiActionKind::RefreshRoute,
+            action: ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled,
             label: "Cancel draft".to_string(),
-            payload: None,
+            payload: staged.map(|draft| authoring::handle_payload(&draft.handle)),
         },
     })
 }

@@ -8,6 +8,12 @@ pub(super) fn action_result_message(action: &ParentUiAction) -> String {
         ParentUiActionKind::AgentCommandRequested => {
             "parent Rust facade forwarded LAN agent command request"
         }
+        ParentUiActionKind::PolicyPreviewAuthoringDraftStaged => {
+            "parent Rust facade staged a policy preview draft"
+        }
+        ParentUiActionKind::PolicyPreviewAuthoringDraftCancelled => {
+            "parent Rust facade invalidated a policy preview draft"
+        }
         ParentUiActionKind::PolicyRequestAssistantPreviewConfirmRequested => {
             "parent Rust facade requested policy preview parent confirmation"
         }

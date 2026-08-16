@@ -96,7 +96,16 @@ function PolicyPreviewAuthoringForm({
   const cancelDraft = (): void => {
     setTargetValue(authoring.targetValue);
     setRequestedAction(authoring.requestedAction);
-    void actions.refreshRouteSnapshot?.();
+    void actions.cancelPolicyPreviewAuthoringDraft?.(authoring.cancelAction.payload ?? {});
+  };
+
+  const stageDraft = (): void => {
+    void actions.stagePolicyPreviewAuthoringDraft?.({
+      [ParentUiActionPayloadField.PolicyPreviewAuthoringDraft]: JSON.stringify({
+        targetValue,
+        requestedAction,
+      }),
+    });
   };
 
   const confirmDraft = (): void => {
@@ -104,11 +113,7 @@ function PolicyPreviewAuthoringForm({
       return;
     }
     void actions.requestPolicyRequestAssistantPreviewConfirm?.({
-      ...authoring.confirmAction.payload,
-      [ParentUiActionPayloadField.PolicyRequestAssistantPreviewConfirmRequest]: JSON.stringify({
-        targetValue,
-        requestedAction,
-      }),
+      ...(authoring.confirmAction.payload ?? {}),
     });
   };
 
@@ -118,7 +123,7 @@ function PolicyPreviewAuthoringForm({
       className={PortalDom.Classes.ProductDashboard}
       onSubmit={(event) => {
         event.preventDefault();
-        confirmDraft();
+        stageDraft();
       }}
     >
       <label>
@@ -138,8 +143,15 @@ function PolicyPreviewAuthoringForm({
         />
       </label>
       <div>
+        <button disabled={!commandEnabled || targetValue.trim().length === 0} type={PortalDom.ButtonType.Submit}>
+          {authoring.stageAction.label}
+        </button>
         {authoring.confirmAction ? (
-          <button disabled={!commandEnabled || targetValue.trim().length === 0} type={PortalDom.ButtonType.Submit}>
+          <button
+            disabled={!commandEnabled || targetValue.trim().length === 0}
+            type={PortalDom.ButtonType.Button}
+            onClick={confirmDraft}
+          >
             {authoring.confirmAction.label}
           </button>
         ) : null}
