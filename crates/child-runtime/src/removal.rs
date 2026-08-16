@@ -38,6 +38,22 @@ pub enum ChildAgentCleanupState {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub enum ChildAgentTamperSignalKind {
+    PackageIntegrity,
+    EntitlementSnapshot,
+    SealedTrustMaterial,
+    RuntimeEvidence,
+    PlatformIntegrity,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChildAgentTamperSignal {
+    pub signal_ref: String,
+    pub kind: ChildAgentTamperSignalKind,
+    pub observed_at_unix_seconds: u64,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum ChildAgentRemovalAction {
     Revoked,
     Reauthorized,
@@ -73,6 +89,8 @@ struct ChildAgentRemovalRecord {
     trust_state: ChildAgentTrustState,
     cleanup_state: ChildAgentCleanupState,
     audit: Vec<ChildAgentRemovalAuditEntry>,
+    #[serde(default)]
+    tamper_signals: Vec<ChildAgentTamperSignal>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -82,6 +100,8 @@ pub struct ChildAgentRemovalStatus {
     pub latest_audit_ref: Option<String>,
     pub latest_parent_authorization_ref: Option<String>,
     pub audit_entry_count: usize,
+    pub latest_tamper_signal_ref: Option<String>,
+    pub tamper_signal_count: usize,
 }
 
 /// A removal authorization can only be created from a proof already accepted
@@ -203,6 +223,34 @@ impl ChildAgentRemovalBoundary {
         self.with_locked_record(|record| Ok(status_from_record(record)))
     }
 
+    /// Records local tamper evidence for the service's separate
+    /// manual-required readiness state. This never changes trust to revoked,
+    /// creates a removal obligation, or authorizes uninstall; only a verified,
+    /// identity-bound parent action can perform the revocation transition.
+    pub fn record_tamper_signal(
+        &self,
+        signal_ref: impl Into<String>,
+        kind: ChildAgentTamperSignalKind,
+    ) -> io::Result<ChildAgentRemovalStatus> {
+        let signal_ref = non_empty_signal_ref(&signal_ref.into())?;
+        let observed_at_unix_seconds = current_unix_seconds()?;
+        self.with_locked_record(|record| {
+            if record
+                .tamper_signals
+                .iter()
+                .any(|signal| signal.signal_ref == signal_ref)
+            {
+                return Ok(status_from_record(record));
+            }
+            record.tamper_signals.push(ChildAgentTamperSignal {
+                signal_ref,
+                kind,
+                observed_at_unix_seconds,
+            });
+            Ok(status_from_record(record))
+        })
+    }
+
     /// Records a parent-authorized revocation and leaves platform removal
     /// visible as manual-required. The reference is opaque here: authority is
     /// supplied by the parent/control plane, never self-issued by the child.
@@ -238,6 +286,12 @@ impl ChildAgentRemovalBoundary {
                 authorization,
                 ChildAgentRemovalAuthorizationAction::Reauthorize,
             )?;
+            if !record.tamper_signals.is_empty() {
+                return Err(io::Error::new(
+                    io::ErrorKind::PermissionDenied,
+                    "tamper evidence requires an explicit trusted resolution before reauthorization",
+                ));
+            }
             append_audit(
                 record,
                 ChildAgentRemovalAction::Reauthorized,
@@ -312,6 +366,7 @@ impl ChildAgentRemovalBoundary {
                         "unsupported child removal state version",
                     ));
                 }
+                validate_record(&record)?;
                 Ok(record)
             }
             Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(empty_record()),
@@ -340,6 +395,7 @@ fn empty_record() -> ChildAgentRemovalRecord {
         trust_state: ChildAgentTrustState::Active,
         cleanup_state: ChildAgentCleanupState::NotRequired,
         audit: Vec::new(),
+        tamper_signals: Vec::new(),
     }
 }
 
@@ -373,7 +429,51 @@ fn status_from_record(record: &ChildAgentRemovalRecord) -> ChildAgentRemovalStat
         latest_audit_ref: latest.map(|entry| entry.audit_ref.clone()),
         latest_parent_authorization_ref: latest.map(|entry| entry.parent_authorization_ref.clone()),
         audit_entry_count: record.audit.len(),
+        latest_tamper_signal_ref: record
+            .tamper_signals
+            .last()
+            .map(|signal| signal.signal_ref.clone()),
+        tamper_signal_count: record.tamper_signals.len(),
     }
+}
+
+fn validate_record(record: &ChildAgentRemovalRecord) -> io::Result<()> {
+    if record.audit.iter().any(|entry| {
+        entry.audit_ref.trim().is_empty()
+            || entry.parent_authorization_ref.trim().is_empty()
+            || entry.household_id.trim().is_empty()
+            || entry.child_profile_id.trim().is_empty()
+            || entry.target_device_id.trim().is_empty()
+            || entry.recorded_at_unix_seconds == 0
+    }) {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "child removal audit state is incomplete",
+        ));
+    }
+    if record
+        .tamper_signals
+        .iter()
+        .any(|signal| signal.signal_ref.trim().is_empty() || signal.observed_at_unix_seconds == 0)
+    {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidData,
+            "child tamper signal state is incomplete",
+        ));
+    }
+    Ok(())
+}
+
+fn current_unix_seconds() -> io::Result<u64> {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(io::Error::other)
+        .map(|duration| duration.as_secs())
+        .and_then(|seconds| {
+            (seconds > 0)
+                .then_some(seconds)
+                .ok_or_else(|| io::Error::other("system clock produced an unusable timestamp"))
+        })
 }
 
 fn non_empty_ref(value: &str) -> io::Result<String> {
@@ -382,6 +482,17 @@ fn non_empty_ref(value: &str) -> io::Result<String> {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
             "parent authorization reference must not be empty",
+        ));
+    }
+    Ok(value.to_owned())
+}
+
+fn non_empty_signal_ref(value: &str) -> io::Result<String> {
+    let value = value.trim();
+    if value.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::InvalidInput,
+            "tamper signal reference must not be empty",
         ));
     }
     Ok(value.to_owned())

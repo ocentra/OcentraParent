@@ -16958,13 +16958,17 @@
       "title": "WP07 Child Tamper Uninstall",
       "path": "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md",
       "parent": "PLAN-device-trust-bootstrap-plan",
-      "dependsOn": [],
+      "dependsOn": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-02-local-key-sealing",
+        "WP-device-trust-bootstrap-plan-06-recovery-reset-re-pair"
+      ],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial",
+        "statusText": "partial / code-drafted / tests-deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16974,7 +16978,9 @@
         "reviewed": {},
         "references": {
           "implementation": [
-            "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md"
+            "docs/plans/device-trust-bootstrap-plan/workpacks/07-child-tamper-uninstall.md",
+            "crates/child-runtime/src/removal.rs",
+            "crates/child-runtime/src/service.rs"
           ],
           "tests": [
             "docs/plans/device-trust-bootstrap-plan/TEST_PROOF_EXPECTATIONS.md"

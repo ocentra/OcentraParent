@@ -19,7 +19,7 @@ use crate::{
     child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow,
     removal::{
         ChildAgentRemovalBoundary, ChildAgentRemovalStatus, ChildAgentServiceIdentity,
-        ChildAgentTrustState, VerifiedParentRemovalAuthorization,
+        ChildAgentTamperSignalKind, ChildAgentTrustState, VerifiedParentRemovalAuthorization,
     },
 };
 
@@ -111,6 +111,7 @@ impl ChildAgentServicePaths {
 pub enum ChildAgentReadiness {
     Ready,
     RecoveryPending { correlation_ids: Vec<CorrelationId> },
+    TamperManualRequired { signal_ref: Option<String> },
     Revoked { audit_ref: Option<String> },
 }
 
@@ -129,6 +130,7 @@ pub enum ChildAgentServiceError {
     Storage(std::io::Error),
     Shutdown(std::io::Error),
     RecoveryPending(Box<ChildAgentReadiness>),
+    TamperManualRequired { signal_ref: Option<String> },
     TrustRevoked { audit_ref: Option<String> },
     UnknownDomain(ChildRuntimeDomain),
 }
@@ -148,6 +150,12 @@ impl fmt::Display for ChildAgentServiceError {
             }
             Self::RecoveryPending(readiness) => {
                 write!(formatter, "child service is not ready: {readiness:?}")
+            }
+            Self::TamperManualRequired { signal_ref } => {
+                write!(
+                    formatter,
+                    "child service tamper evidence requires manual review: {signal_ref:?}"
+                )
             }
             Self::TrustRevoked { audit_ref } => {
                 write!(formatter, "child service trust is revoked: {audit_ref:?}")
@@ -279,17 +287,7 @@ impl ChildAgentService {
             Some(recovery.pending_journal_retry)
         };
         let removal_status = removal.status().map_err(ChildAgentServiceError::Storage)?;
-        let readiness = if let Some(pending) = recovery_pending.as_ref() {
-            ChildAgentReadiness::RecoveryPending {
-                correlation_ids: pending.clone(),
-            }
-        } else if removal_status.trust_state == ChildAgentTrustState::Revoked {
-            ChildAgentReadiness::Revoked {
-                audit_ref: removal_status.latest_audit_ref,
-            }
-        } else {
-            ChildAgentReadiness::Ready
-        };
+        let readiness = readiness_from_state(&removal_status, recovery_pending.as_deref());
 
         let mut domain_flows = Vec::with_capacity(CHILD_RUNTIME_DOMAINS.len());
         for domain in CHILD_RUNTIME_DOMAINS {
@@ -310,14 +308,15 @@ impl ChildAgentService {
     }
 
     pub fn health(&self) -> Result<ChildAgentHealth, ChildAgentServiceError> {
+        let removal = self
+            .removal
+            .status()
+            .map_err(ChildAgentServiceError::Storage)?;
         Ok(ChildAgentHealth {
-            readiness: self.readiness.clone(),
+            readiness: readiness_from_state(&removal, self.recovery_pending.as_deref()),
             domain_flow_count: self.domain_flows.len(),
             durable_root: self.paths.root().to_owned(),
-            removal: self
-                .removal
-                .status()
-                .map_err(ChildAgentServiceError::Storage)?,
+            removal,
         })
     }
 
@@ -359,14 +358,27 @@ impl ChildAgentService {
             .removal
             .reauthorize_with_parent_authorization(authorization)
             .map_err(ChildAgentServiceError::Storage)?;
-        self.readiness =
-            self.recovery_pending
-                .as_ref()
-                .map_or(ChildAgentReadiness::Ready, |correlation_ids| {
-                    ChildAgentReadiness::RecoveryPending {
-                        correlation_ids: correlation_ids.clone(),
-                    }
-                });
+        self.readiness = readiness_from_state(&status, self.recovery_pending.as_deref());
+        Ok(status)
+    }
+
+    /// Records local tamper evidence and blocks command dispatch until a
+    /// parent/operator resolves it. The signal is evidence only; it cannot
+    /// revoke or reauthorize trust without the verified parent boundary.
+    pub fn record_tamper_signal(
+        &mut self,
+        signal_ref: impl Into<String>,
+        kind: ChildAgentTamperSignalKind,
+    ) -> Result<ChildAgentRemovalStatus, ChildAgentServiceError> {
+        let status = self
+            .removal
+            .record_tamper_signal(signal_ref, kind)
+            .map_err(ChildAgentServiceError::Storage)?;
+        if status.trust_state != ChildAgentTrustState::Revoked {
+            self.readiness = ChildAgentReadiness::TamperManualRequired {
+                signal_ref: status.latest_tamper_signal_ref.clone(),
+            };
+        }
         Ok(status)
     }
 
@@ -395,12 +407,22 @@ impl ChildAgentService {
         command: ChildAgentCommand,
     ) -> Result<crate::child_domain_runtime::ChildDomainRuntimeFlowReport, ChildAgentServiceError>
     {
-        match &self.readiness {
+        let removal = self
+            .removal
+            .status()
+            .map_err(ChildAgentServiceError::Storage)?;
+        let readiness = readiness_from_state(&removal, self.recovery_pending.as_deref());
+        match &readiness {
             ChildAgentReadiness::Ready => {}
             ChildAgentReadiness::RecoveryPending { .. } => {
                 return Err(ChildAgentServiceError::RecoveryPending(Box::new(
-                    self.readiness.clone(),
+                    readiness.clone(),
                 )))
+            }
+            ChildAgentReadiness::TamperManualRequired { signal_ref } => {
+                return Err(ChildAgentServiceError::TamperManualRequired {
+                    signal_ref: signal_ref.clone(),
+                })
             }
             ChildAgentReadiness::Revoked { audit_ref } => {
                 return Err(ChildAgentServiceError::TrustRevoked {
@@ -423,4 +445,32 @@ impl ChildAgentService {
     pub fn tombstone_flow(&self) -> &ChildRuntimeTombstoneEventFlow {
         &self.tombstone_flow
     }
+}
+
+fn readiness_from_state(
+    removal: &ChildAgentRemovalStatus,
+    recovery_pending: Option<&[CorrelationId]>,
+) -> ChildAgentReadiness {
+    if removal.trust_state == ChildAgentTrustState::Revoked {
+        ChildAgentReadiness::Revoked {
+            audit_ref: removal.latest_audit_ref.clone(),
+        }
+    } else if removal.latest_tamper_signal_ref.is_some() {
+        ChildAgentReadiness::TamperManualRequired {
+            signal_ref: removal.latest_tamper_signal_ref.clone(),
+        }
+    } else if let Some(correlation_ids) = recovery_pending {
+        ChildAgentReadiness::RecoveryPending {
+            correlation_ids: correlation_ids.to_vec(),
+        }
+    } else {
+        ChildAgentReadiness::Ready
+    }
+}
+
+pub async fn run_child_agent_service() -> Result<(), ChildAgentServiceError> {
+    ChildAgentService::initialize()
+        .await?
+        .run_until_shutdown()
+        .await
 }

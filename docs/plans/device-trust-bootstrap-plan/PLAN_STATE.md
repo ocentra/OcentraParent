@@ -134,7 +134,10 @@ remote-access-plan and policy-control-plane-plan:
   partial state can be projected; encryption/key custody, revocation
   preservation, and runtime proof remain manual-required.
 - Recovery/reset/re-pair remains unproven without encrypted bundle handling and wrong-household/device/key negatives.
-- Child tamper/uninstall remains unproven without parent-authorized revocation and package/runtime handoff proof.
+- Child tamper/uninstall now has a code-drafted child-runtime boundary: durable
+  tamper evidence forces a separate manual-required readiness state, while durable revocation
+  requires a verified, identity-bound parent authority. Platform package or
+  device-owner removal, attestation, transport, and proof remain open.
 ```
 
 ## Current proof interpretation
@@ -179,7 +182,9 @@ WP09 can aggregate only accepted proof roots plus exact carried blockers.
   DPAPI/registry-epoch vertical slice is Windows-only.
 - A fail-closed record-backed parent-step-up authority and receipt contract are
   merged, but phone-QR approval, encrypted recovery bundles, entitlement
-  binding, and child-uninstall authorization runtime remain absent.
+  binding, and platform child-uninstall handoff remain absent. The child
+  runtime now owns only the verified revocation/evidence boundary; it does not
+  claim platform removal or anti-tamper enforcement.
 - Login alone does not create trust, child devices do not own the trust root, and revocation must win over stale state.
 
 ## Latest selected slice (2026-08-09)
