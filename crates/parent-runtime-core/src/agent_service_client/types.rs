@@ -5,6 +5,7 @@ use ocentra_parent_agent_protocol::app_game_adapter_dispatch_preflight::AppGameA
 use ocentra_parent_agent_protocol::app_game_adapter_dispatch_result::AppGameAdapterDispatchResultReadModel;
 use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::AppGameChildRuntimeTransportReceiptReadModel;
 use ocentra_parent_agent_protocol::app_game_notification_readiness::AppGameNotificationReadinessReadModel;
+use ocentra_parent_agent_protocol::app_game_notification_status::AppGameNotificationStatusReadModels;
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessReadModel;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
@@ -88,6 +89,7 @@ pub(crate) struct GamesReadModelAgentServiceSnapshot {
 
 pub(crate) struct AppGameNotificationReadinessAgentServiceSnapshot {
     pub(crate) read_model: AppGameNotificationReadinessReadModel,
+    pub(crate) status_read_models: Option<AppGameNotificationStatusReadModels>,
 }
 
 pub(crate) struct AppGamePolicyReadinessAgentServiceSnapshot {

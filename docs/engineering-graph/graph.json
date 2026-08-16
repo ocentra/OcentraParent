@@ -12308,7 +12308,7 @@
       "title": "48 portal source freshness surface",
       "path": "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces"],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
@@ -12708,7 +12708,7 @@
       "title": "63 source freshness source panel polish",
       "path": "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-app-plan-48-portal-source-freshness-surface"],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
@@ -12744,7 +12744,7 @@
       "title": "64 notification provider status handoff",
       "path": "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-app-plan-61-notification-provider-preflight"],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
@@ -12780,7 +12780,7 @@
       "title": "65 notification preference status handoff",
       "path": "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
       "parent": "PLAN-app-plan",
-      "dependsOn": [],
+      "dependsOn": ["WP-app-plan-62-notification-preference-preflight"],
       "state": "validation",
       "lifecycleState": "validation",
       "metadata": {
@@ -29958,6 +29958,50 @@
         "docs/plans/app-plan/workpacks/18-policy-target-compiler-for-app-rules.md"
       ],
       "reason": "Category/risk candidates must pass through the Rust policy-target compiler before any downstream policy handoff."
+    },
+    {
+      "from": "WP-app-plan-48-portal-source-freshness-surface",
+      "to": "WP-app-plan-15-parent-portal-app-inventory-running-session-surfaces",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md",
+        "docs/plans/app-plan/workpacks/15-parent-portal-app-inventory-running-session-surfaces.md"
+      ],
+      "reason": "Source freshness presentation consumes the app/game read models hydrated by the parent portal inventory route."
+    },
+    {
+      "from": "WP-app-plan-63-source-freshness-source-panel-polish",
+      "to": "WP-app-plan-48-portal-source-freshness-surface",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/63-source-freshness-source-panel-polish.md",
+        "docs/plans/app-plan/workpacks/48-portal-source-freshness-surface.md"
+      ],
+      "reason": "The source-panel renderer consumes the source-status intent established by the freshness surface."
+    },
+    {
+      "from": "WP-app-plan-64-notification-provider-status-handoff",
+      "to": "WP-app-plan-61-notification-provider-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/64-notification-provider-status-handoff.md",
+        "docs/plans/app-plan/workpacks/61-notification-provider-preflight.md"
+      ],
+      "reason": "Provider status handoff preserves and classifies the provider-preflight row before any service or UI projection."
+    },
+    {
+      "from": "WP-app-plan-65-notification-preference-status-handoff",
+      "to": "WP-app-plan-62-notification-preference-preflight",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/app-plan/workpacks/65-notification-preference-status-handoff.md",
+        "docs/plans/app-plan/workpacks/62-notification-preference-preflight.md"
+      ],
+      "reason": "Preference status handoff consumes the preference-preflight row and cannot claim parent preference runtime."
     }
   ],
   "migration": {

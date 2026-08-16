@@ -14,6 +14,7 @@ pub mod app_game_authority_classifier;
 pub mod app_game_boundary_read_model;
 pub mod app_game_child_runtime_transport_receipt;
 pub mod app_game_notification_readiness;
+pub mod app_game_notification_status;
 pub mod app_game_platform_proof_status;
 pub mod app_game_policy_readiness;
 pub mod app_game_timer_parent_preference_setup_request;

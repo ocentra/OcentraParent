@@ -1,6 +1,18 @@
 use ocentra_parent_agent_protocol::activity::ActivityEvidenceRef;
 use ocentra_parent_agent_protocol::app_game::{AppGameServiceReadModel, APP_GAME_SCHEMA_VERSION};
 use ocentra_parent_agent_protocol::app_game_authority_classifier::APP_GAME_CONTROL_ACTION_STATUS_ENFORCED;
+use ocentra_parent_agent_protocol::app_game_notification_status::{
+    AppGameNotificationParentPreferenceState, AppGameNotificationPreferenceDeliveryResultState,
+    AppGameNotificationPreferenceStatusEntry, AppGameNotificationPreferenceStatusReadModel,
+    AppGameNotificationProviderChannel, AppGameNotificationQuietHoursDecision,
+    AppGameNotificationStatusReadModels,
+};
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::{
+    V08NotificationEscalationReadiness, V08NotificationProviderDeliveryClaim,
+    V08NotificationProviderStatus, V08NotificationProviderStatusBoundaryEntry,
+    V08NotificationProviderStatusBoundaryReadModel, V08NotificationProviderStatusProofState,
+    V08NotificationQuietHoursReadiness, V08_NOTIFICATION_PROVIDER_STATUS_BOUNDARY_SCHEMA_VERSION,
+};
 use ocentra_parent_agent_protocol::AppGameNotificationReadinessReadModel;
 use ocentra_parent_agent_protocol::AppGameNotificationReadinessRow;
 use ocentra_parent_agent_protocol::APP_GAME_NOTIFICATION_READINESS_CUSTODY_CHILD_DEVICE_QUERY_STORE;
@@ -69,6 +81,127 @@ pub(super) fn app_game_notification_readiness_from_service_model(
         parent_ui_claimed: false,
         child_delivery_claimed: false,
         rows,
+    }
+}
+
+pub(super) fn notification_status_read_models(
+    rows: &[AppGameNotificationReadinessRow],
+    generated_at: &str,
+) -> AppGameNotificationStatusReadModels {
+    let provider_entries = rows
+        .iter()
+        .map(|row| notification_provider_status_entry(row, generated_at))
+        .collect::<Vec<_>>();
+    let preference_entries = rows
+        .iter()
+        .map(|row| notification_preference_status_entry(row))
+        .collect::<Vec<_>>();
+    let source_read_model_id = format!("app-game-notification-readiness:{generated_at}");
+    AppGameNotificationStatusReadModels {
+        provider_status_boundary: V08NotificationProviderStatusBoundaryReadModel {
+            schema_version: V08_NOTIFICATION_PROVIDER_STATUS_BOUNDARY_SCHEMA_VERSION.to_string(),
+            read_model_id: format!("app-game-provider-status:{generated_at}"),
+            generated_at: generated_at.to_string(),
+            source_read_model_ids: vec![source_read_model_id.clone()],
+            entries: provider_entries,
+        },
+        preference_status: AppGameNotificationPreferenceStatusReadModel {
+            schema_version:
+                ocentra_parent_agent_protocol::app_game_notification_status::
+                    APP_GAME_NOTIFICATION_PREFERENCE_STATUS_SCHEMA_VERSION,
+            read_model_id: format!("app-game-preference-status:{generated_at}"),
+            generated_at: generated_at.to_string(),
+            source_read_model_ids: vec![source_read_model_id],
+            entries: preference_entries,
+        },
+    }
+}
+
+fn notification_provider_status_entry(
+    row: &AppGameNotificationReadinessRow,
+    generated_at: &str,
+) -> V08NotificationProviderStatusBoundaryEntry {
+    let unavailable = row.readiness_state == APP_GAME_NOTIFICATION_READINESS_STATE_UNAVAILABLE;
+    V08NotificationProviderStatusBoundaryEntry {
+        schema_version: V08_NOTIFICATION_PROVIDER_STATUS_BOUNDARY_SCHEMA_VERSION.to_string(),
+        status_entry_id: format!("app-game-provider-status-entry:{}", row.row_id),
+        provider_status: if unavailable {
+            V08NotificationProviderStatus::Unavailable
+        } else {
+            V08NotificationProviderStatus::ManualRequired
+        },
+        status_proof_state: if unavailable {
+            V08NotificationProviderStatusProofState::ProviderUnavailableContract
+        } else {
+            V08NotificationProviderStatusProofState::ManualActionRequired
+        },
+        quiet_hours_readiness: if unavailable {
+            V08NotificationQuietHoursReadiness::Unavailable
+        } else {
+            V08NotificationQuietHoursReadiness::ManualRequired
+        },
+        escalation_readiness: if unavailable {
+            V08NotificationEscalationReadiness::Unavailable
+        } else {
+            V08NotificationEscalationReadiness::ManualRequired
+        },
+        delivery_claim_state: V08NotificationProviderDeliveryClaim::NotImplemented,
+        notification_intent_ref: row.row_id.clone(),
+        notification_status_ref: format!("notification-status:{}", row.row_id),
+        provider_attempt_ref: format!("provider-attempt-not-observed:{}", row.row_id),
+        audit_refs: row.evidence_reference_ids.clone(),
+        preference_refs: Vec::new(),
+        readiness_refs: vec![row.row_id.clone()],
+        provider_receipt_refs: Vec::new(),
+        manual_proof_requirements: if unavailable {
+            vec!["manual-proof:provider-availability".to_string()]
+        } else {
+            vec![
+                "manual-proof:provider-credentials".to_string(),
+                "manual-proof:provider-delivery-receipt".to_string(),
+            ]
+        },
+        minimal_payload_boundary: row.minimal_payload_ref.clone(),
+        provider_delivery_implemented: false,
+        provider_delivery_observed: false,
+        delivered_notification_claimed: false,
+        sensitive_provider_payload_claimed: false,
+        provider_stores_child_evidence_claimed: false,
+        last_checked_at: generated_at.to_string(),
+    }
+}
+
+fn notification_preference_status_entry(
+    row: &AppGameNotificationReadinessRow,
+) -> AppGameNotificationPreferenceStatusEntry {
+    let unavailable = row.readiness_state == APP_GAME_NOTIFICATION_READINESS_STATE_UNAVAILABLE;
+    AppGameNotificationPreferenceStatusEntry {
+        delivery_result_state: if unavailable {
+            AppGameNotificationPreferenceDeliveryResultState::Unavailable
+        } else {
+            AppGameNotificationPreferenceDeliveryResultState::ManualRequired
+        },
+        parent_preference_state: if unavailable {
+            AppGameNotificationParentPreferenceState::Unavailable
+        } else {
+            AppGameNotificationParentPreferenceState::ManualSetupRequired
+        },
+        quiet_hours_decision: if unavailable {
+            AppGameNotificationQuietHoursDecision::Unavailable
+        } else {
+            AppGameNotificationQuietHoursDecision::ManualRequired
+        },
+        provider_channel: AppGameNotificationProviderChannel::Unavailable,
+        delivery_result_ref: format!("delivery-result-not-observed:{}", row.row_id),
+        audit_refs: row.evidence_reference_ids.clone(),
+        manual_proof_requirements: if unavailable {
+            vec!["manual-proof:provider-availability".to_string()]
+        } else {
+            vec![
+                "manual-proof:parent-preference".to_string(),
+                "manual-proof:notification-channel".to_string(),
+            ]
+        },
     }
 }
 

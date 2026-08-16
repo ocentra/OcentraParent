@@ -2614,18 +2614,31 @@
     "WP-app-plan-64-notification-provider-status-handoff": {
       "planSlug": "app-plan",
       "roots": [
+        "crates/agent-protocol/src/app_game_notification_status.rs",
+        "crates/agent-protocol/src/notification_provider_status_boundary.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_app_game.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
         "crates/app-game-core/src/app_game_child_ux_provider_status.rs",
         "crates/app-game-core/src/app_game_child_ux_provider_status_types.rs",
         "crates/app-game-core/src/app_game_child_ux_provider_preflight.rs",
+        "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
         "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
       ]
     },
     "WP-app-plan-65-notification-preference-status-handoff": {
       "planSlug": "app-plan",
       "roots": [
+        "crates/agent-protocol/src/app_game_notification_status.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload.rs",
+        "crates/agent-service/src/activity_api/app_game_notification_readiness_payload/logic.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_app_game.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/app_game_notification.rs",
         "crates/app-game-core/src/app_game_child_ux_preference_status.rs",
         "crates/app-game-core/src/app_game_child_ux_preference_status_types.rs",
         "crates/app-game-core/src/app_game_child_ux_preference_preflight.rs",
+        "apps/portal/src/AppGameNotificationParentSurfaceRoutePanel.tsx",
         "crates/app-game-core/tests/contract/app_game_notification_parent_surface_intent.rs"
       ]
     },

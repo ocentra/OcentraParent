@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 
+pub const V08_NOTIFICATION_PROVIDER_STATUS_BOUNDARY_SCHEMA_VERSION: &str = "v0.8";
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum V08NotificationProviderStatus {
     #[serde(rename = "queued")]

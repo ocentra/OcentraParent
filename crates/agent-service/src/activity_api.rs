@@ -106,7 +106,8 @@ use self::app_game_boundary_read_model_payload::{
     app_game_boundary_read_model_from_service_model, app_game_boundary_read_model_payload,
 };
 use self::app_game_notification_readiness_payload::{
-    app_game_notification_readiness_from_service_model, app_game_notification_readiness_payload,
+    app_game_notification_readiness_report_from_service_model,
+    app_game_notification_readiness_report_payload,
 };
 use self::app_game_policy_readiness_payload::{
     app_game_policy_readiness_from_service_model, app_game_policy_readiness_payload,
@@ -283,11 +284,11 @@ pub async fn build_activity_app_game_notification_readiness_report(
         ),
         AgentEventName::AgentActivityAppGameNotificationReadinessReadModelReported,
         async {
-            load_app_game_model()
-                .await
-                .map(|model| app_game_notification_readiness_from_service_model(model, false))
+            load_app_game_model().await.map(|model| {
+                app_game_notification_readiness_report_from_service_model(model, false)
+            })
         },
-        app_game_notification_readiness_payload,
+        app_game_notification_readiness_report_payload,
     )
     .await
 }

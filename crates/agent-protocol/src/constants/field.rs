@@ -12,6 +12,7 @@ pub const APP_GAME_BOUNDARY_READ_MODEL: &str = "appGameBoundaryReadModel";
 pub const APP_GAME_POLICY_READINESS_READ_MODEL: &str = "appGamePolicyReadinessReadModel";
 pub const APP_GAME_NOTIFICATION_READINESS_READ_MODEL: &str =
     "appGameNotificationReadinessReadModel";
+pub const APP_GAME_NOTIFICATION_STATUS_READ_MODELS: &str = "appGameNotificationStatusReadModels";
 pub const APP_GAME_ADAPTER_EXECUTION_READINESS_READ_MODEL: &str =
     "appGameAdapterExecutionReadinessReadModel";
 pub const APP_GAME_PLATFORM_PROOF_STATUS_READ_MODEL: &str = "appGamePlatformProofStatusReadModel";

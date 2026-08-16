@@ -7,6 +7,9 @@ use ocentra_parent_agent_protocol::app_game_child_runtime_transport_receipt::App
 use ocentra_parent_agent_protocol::app_game_notification_readiness::{
     AppGameNotificationReadinessReadModel, AppGameNotificationReadinessRow,
 };
+use ocentra_parent_agent_protocol::app_game_notification_status::{
+    AppGameNotificationPreferenceStatusEntry, AppGameNotificationStatusReadModels,
+};
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_policy_readiness::{
     self, AppGamePolicyReadinessReadModel, AppGamePolicyReadinessRow,
@@ -14,6 +17,7 @@ use ocentra_parent_agent_protocol::app_game_policy_readiness::{
 use ocentra_parent_agent_protocol::app_game_timer_parent_preference_setup_request::AppGameTimerParentPreferenceSetupRequest;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
+use ocentra_parent_agent_protocol::notification_provider_status_boundary::V08NotificationProviderStatusBoundaryEntry;
 use ocentra_schema::parent_ui_bridge::{
     ParentActivityTrackingReadModelResultSnapshot, ParentActivityTrackingReadModelRowSnapshot,
     ParentAppGameActionRowSnapshot, ParentAppGameAdapterDispatchPanelSnapshot,
