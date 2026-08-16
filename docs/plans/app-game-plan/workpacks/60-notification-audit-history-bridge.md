@@ -50,11 +50,27 @@ without claiming provider delivery, parent history UI, or production runtime.
   source audit, evidence, policy, readiness, bridge, and blocked refs.
 - WP58 now carries source audit/policy refs at read-model level so blocked rows
   retain the same authority context instead of fabricating unavailable refs.
-- Focused tests prove deterministic JSONL including blocked rows, explicit
-  provider/runtime/UI non-claims, and rejection of tampered refs, claims, and
-  bridge identities. Code and Phase 2 gates are committed at `bae505ce8`.
+- Historical focused tests cover deterministic JSONL including blocked rows,
+  explicit provider/runtime/UI non-claims, and rejection of tampered refs,
+  claims, and bridge identities. They were not rerun in this production-code
+  pass; the Phase 2 evidence remains deferred from the current lane.
 - Generic logging NDJSON and enforcement audit history remain separate owners;
   durable production notification history/query is still outside this packet.
+
+## Current production-code pass (2026-08-16)
+
+- `1eb82bba0` adds a Rust-owned fail-closed validator for the projected audit
+  history read model. It rejects unsafe delivery/runtime claims, count drift,
+  duplicate or empty entry identities, malformed source/ref context, provider
+  send claims, and status/blocked-row shape mismatches before the bridge returns
+  the model.
+- The exact code-map topology remains the two audit-history modules plus the
+  three WP58 source/validation modules and their existing contract tests. The
+  WP58 source modules remain dependency-owned and were not edited in this
+  pass.
+- This is code-drafted and unvalidated: tests, Enforcer proof beyond the exact
+  claim/guard, retained proof, durable production history/query, and runtime
+  composition remain deferred.
 
 ## Proof
 
