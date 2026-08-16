@@ -52,7 +52,26 @@ proof rows.
 
 ## Validation
 
-- Parent-domain build.
-- Focused parent-domain test for the child UX local outbox scheduler bridge.
+- Rust App/Game crate build and Clippy.
+- Focused Rust test for reopened WP121 records, deterministic due-local scheduling,
+  and unsafe/manual state rejection.
 - Formatting, source-shape, no-test-doubles, `git diff --check`, lane guard, and
   hub guard before commit.
+
+## Current Status - Phase 1 Active
+
+The 2026-08-15 live-code audit invalidated the historical `parent-domain`
+completion claim. That package and its advertised JSONL scheduler bridge are not
+present in the tracked tree. WP121 now owns real Rust notification-outbox records
+and atomic restart-readable storage, while the shared schema generator still
+defines the scheduler record shape used by older generated TypeScript surfaces.
+No current Rust code converts a reopened WP121 record into a validated
+`due-local` scheduler record or proves deterministic replay.
+
+This workpack is active for a bounded Rust scheduler contract and projection in
+`ocentra-app-game-core`. The first slice must schedule only honest
+`queued-local` records, preserve source/scheduler/evidence references, retain all
+no-delivery claims, reject manual/receipt/retry/dead-letter states, and prove that
+reopening the WP121 store yields the same scheduler row without provider or timer
+execution claims. Provider/preference preflight, actual retry/quiet-hours runtime,
+delivery receipts, UI, and adapter execution remain later workpacks.
