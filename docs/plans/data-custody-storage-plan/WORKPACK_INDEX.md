@@ -49,6 +49,22 @@ WP08 uses WP03/WP05/WP06 states for parent-visible settings.
 WP07 is last and consumes all previous proof roots.
 ```
 
+## Production-code audit note (2026-08-16)
+
+The `done` rows below describe their recorded contract/proof state, not
+shipped runtime reachability. Source inspection found no non-test caller for
+the WP01/WP02/WP03/WP04/WP05/WP06/WP08 custody derivation APIs. WP07 is
+different: the real `ocentra-child-agent-service` composition opens the
+durable journal and `RetentionDeleteTombstoneStore`, then invokes
+`ChildRuntimeTombstoneEventFlow::recover_pending()` before readiness. Its
+`publish_action` and `publish_action_and_require_journal` methods have no
+non-test caller, so the missing production slice is the trusted custody-action
+producer/handoff, not another storage adapter or proof surface.
+
+Do not treat the graph's current validation/completion state as a substitute
+for this source audit. `npm run graph:validate` currently reports checked-in
+graph drift and was not repaired here.
+
 ## Do not select
 
 Do not implement adjacent plan internals from this plan. Keep eventing, account, payment, remote, portal shell, setup, device-trust, Cloudflare, notification, report producer, and AI implementation in their owning plans.

@@ -14,7 +14,12 @@
 
 # Data Custody Storage Plan Next Actions
 
-1. Resolve the WP07 aggregate-proof publication model so fresh checkouts can
+1. Resolve the WP07 production handoff for initial tombstone publication: the
+   child service now reaches startup recovery, but no non-test caller currently
+   supplies a trusted `StorageCustodyActionPlannedEvent` to
+   `publish_action`/`publish_action_and_require_journal`. Do not wire a
+   synthetic preflight or DTO path. Then resolve the aggregate-proof
+   publication model so fresh checkouts can
    audit reviewable proof artifacts, then re-accept each upstream workpack from
    current code and validation rather than historical `output/` references.
 2. Retain the concrete child-service startup wiring for
@@ -25,6 +30,15 @@
 4. Select required proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
 5. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
 6. Keep overall plan status open until the remaining workpacks and proof roots are updated; WP07 still carries the remaining open plan-state work.
+
+## Production-code audit boundary
+
+WP01/WP02/WP03/WP04/WP05/WP06/WP08 have source-present shared contracts or
+derivation logic but no shipped non-test caller was found for the selected
+custody behavior. WP07 is the only workpack with a concrete child-service
+entrypoint and durable recovery call; initial tombstone publication remains
+blocked on a real trusted action producer. No production code was changed in
+this pass.
 
 ## Actioned completion tracker
 
