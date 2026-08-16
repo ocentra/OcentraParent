@@ -1362,6 +1362,18 @@
       "roots": [
         "apps/portal/src/browser-status-panel.ts",
         "apps/portal/src/browser-intervention-panel.ts",
+        "crates/agent-protocol/src/constants/field.rs",
+        "crates/agent-service/src/browser_payload.rs",
+        "crates/agent-service/src/activity_api/browser_intervention_payload.rs",
+        "crates/parent-runtime-core/src/agent_service_client/snapshots_browser.rs",
+        "crates/parent-runtime-core/src/agent_service_client/loaders.rs",
+        "crates/parent-runtime-core/src/agent_service_client/types.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_requirements.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot/dependencies/load.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/live_activity/snapshot/browser.rs",
         "apps/portal/tests/browser/browser-intervention-panel.test.ts",
         "apps/portal/tests/unit/parent-ui-bridge.test.ts"
       ]

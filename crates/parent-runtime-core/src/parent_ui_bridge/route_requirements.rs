@@ -34,3 +34,7 @@ pub(super) fn route_requires_tracking_read_model(route: &ParentRouteId) -> bool 
 pub(super) fn route_requires_app_game_session_read_models(route: &ParentRouteId) -> bool {
     matches!(route, ParentRouteId::AppGameSessions)
 }
+
+pub(super) fn route_requires_browser_read_models(route: &ParentRouteId) -> bool {
+    matches!(route, ParentRouteId::Browser)
+}

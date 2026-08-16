@@ -27,6 +27,12 @@ pub fn browser_managed_status_payload(status: &BrowserManagedSessionStatus) -> L
     let mut pairs = browser_managed_identity_pairs(status);
     pairs.extend(browser_managed_unmanaged_process_pairs(status));
     pairs.extend(browser_managed_state_pairs(status));
+    if let Ok(serialized) = serde_json::to_string(status) {
+        pairs.0.push((
+            constants::field::BROWSER_MANAGED_STATUS_JSON,
+            LogFieldValue::String(serialized),
+        ));
+    }
     fields_from_pairs(pairs.0)
 }
 

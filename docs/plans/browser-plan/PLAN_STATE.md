@@ -37,6 +37,14 @@ unmanaged block-like actions to `os-block-manual-required`. It does not claim
 OS blocking, process termination, relaunch, or exact unmanaged URL control;
 tests/proof/checklist remain deferred and WP19 remains open.
 
+Code-pass note (2026-08-16): WP14 now has a production-code draft for the
+parent-runtime Browser route. The existing typed agent-service managed-status
+and intervention models are serialized through dedicated protocol payload
+fields and hydrated into the existing Rust-owned live-activity bridge. The
+route predicate keeps browser state off unrelated snapshots. This remains
+unvalidated with tests/proof/checklist deferred; it does not claim active-tab
+focus, unmanaged exact-URL authority, OS blocking, or action delivery.
+
 ## Scope
 
 This folder is the single working plan location for managed browser evidence, browser policy authoring, unmanaged browser fallback, browser intervention, and parent-facing browser UI/UX requirements.

@@ -3,6 +3,8 @@ use crate::parent_ui_bridge::ParentRouteLiveActivitySnapshotInput;
 
 #[path = "snapshot/app_game.rs"]
 mod app_game;
+#[path = "snapshot/browser.rs"]
+mod browser;
 #[path = "snapshot/lan.rs"]
 mod lan;
 #[path = "snapshot/network.rs"]
@@ -42,6 +44,7 @@ pub(super) fn live_activity_snapshot_impl(
         input.route,
         &mut snapshot,
     );
+    browser::apply_browser_live_activity_impl(input, &mut snapshot);
     app_game::apply_app_game_live_activity_impl(input, &mut snapshot);
     Some(snapshot)
 }

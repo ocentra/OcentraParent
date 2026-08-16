@@ -9,6 +9,8 @@ use ocentra_parent_agent_protocol::app_game_notification_status::AppGameNotifica
 use ocentra_parent_agent_protocol::app_game_platform_proof_status::AppGamePlatformProofStatusReadModel;
 use ocentra_parent_agent_protocol::app_game_policy_readiness::AppGamePolicyReadinessReadModel;
 use ocentra_parent_agent_protocol::app_game_timer_parent_surface_read_model::AppGameTimerParentSurfaceReadModel;
+use ocentra_parent_agent_protocol::browser_intervention::BrowserInterventionReadModel;
+use ocentra_parent_agent_protocol::browser_managed::BrowserManagedSessionStatus;
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanBrowserAddDeviceReadModel, LanDiscoveryEventHistoryState,
 };
@@ -85,6 +87,16 @@ pub(crate) struct AppUseReadModelAgentServiceSnapshot {
 
 pub(crate) struct GamesReadModelAgentServiceSnapshot {
     pub(crate) read_model: ActivityGamesReadModel,
+}
+
+pub(crate) struct BrowserManagedStatusAgentServiceSnapshot {
+    pub(crate) event: ParentRouteEventSnapshot,
+    pub(crate) status: BrowserManagedSessionStatus,
+}
+
+pub(crate) struct BrowserInterventionReadModelAgentServiceSnapshot {
+    pub(crate) event: ParentRouteEventSnapshot,
+    pub(crate) read_model: BrowserInterventionReadModel,
 }
 
 pub(crate) struct AppGameNotificationReadinessAgentServiceSnapshot {

@@ -38,6 +38,7 @@ use self::types::{
     AppGameNotificationReadinessAgentServiceSnapshot,
     AppGamePlatformProofStatusAgentServiceSnapshot, AppGamePolicyReadinessAgentServiceSnapshot,
     AppGameTimerParentSurfaceAgentServiceSnapshot, AppUseReadModelAgentServiceSnapshot,
+    BrowserInterventionReadModelAgentServiceSnapshot, BrowserManagedStatusAgentServiceSnapshot,
     GamesReadModelAgentServiceSnapshot, LanAgentServiceSnapshot, NetworkFlowAgentServiceSnapshot,
     NetworkRuntimeEventChainAgentServiceSnapshot, PolicyPreviewAgentServiceSnapshot,
     ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
@@ -47,6 +48,7 @@ mod command_result_projection;
 pub(crate) mod loaders;
 mod payload_fields;
 pub(crate) mod snapshots_app_game;
+pub(crate) mod snapshots_browser;
 pub(crate) mod snapshots_common;
 pub(crate) mod snapshots_lan;
 mod snapshots_lan_replay;
@@ -114,6 +116,18 @@ pub(crate) fn load_activity_games_read_model_snapshot(
     context: Option<&ParentRouteContext>,
 ) -> AgentServiceResult<types::GamesReadModelAgentServiceSnapshot> {
     loaders::load_activity_games_read_model_snapshot(context)
+}
+
+pub(crate) fn load_browser_managed_status_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserManagedStatusAgentServiceSnapshot> {
+    loaders::load_browser_managed_status_snapshot(context)
+}
+
+pub(crate) fn load_browser_intervention_read_model_snapshot(
+    context: Option<&ParentRouteContext>,
+) -> AgentServiceResult<BrowserInterventionReadModelAgentServiceSnapshot> {
+    loaders::load_browser_intervention_read_model_snapshot(context)
 }
 
 pub(crate) fn load_app_game_notification_readiness_read_model_snapshot(
