@@ -81,8 +81,13 @@ fn print_outcome(result: Result<UpdateOutcome, UpdaterError>) -> Result<(), Upda
         Ok(UpdateOutcome::WouldInstall { current, latest }) => {
             write_stdout_line(&format!("updater-would-install:{current}->{latest}"))
         }
-        Ok(UpdateOutcome::InstallerStarted { current, latest }) => {
-            write_stdout_line(&format!("updater-installer-started:{current}->{latest}"))
+        Ok(UpdateOutcome::InstallerCompleted { current, latest }) => {
+            write_stdout_line(&format!("updater-installer-completed:{current}->{latest}"))
+        }
+        Ok(UpdateOutcome::InstallerCompletedRebootRequired { current, latest }) => {
+            write_stdout_line(&format!(
+                "updater-installer-completed-reboot-required:{current}->{latest}"
+            ))
         }
         Err(error) => {
             write_stderr_line(&error.to_string())?;

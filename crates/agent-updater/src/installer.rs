@@ -5,7 +5,13 @@ use tokio::process::Command;
 
 use crate::error::UpdaterError;
 
-pub async fn start_msi_upgrade(msi_path: &Path) -> Result<(), UpdaterError> {
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum MsiUpgradeOutcome {
+    Completed,
+    CompletedRebootRequired,
+}
+
+pub async fn start_msi_upgrade(msi_path: &Path) -> Result<MsiUpgradeOutcome, UpdaterError> {
     let mut command = Command::new("msiexec.exe");
     command.arg("/i").arg(msi_path).arg("/qn").arg("/norestart");
     command
@@ -15,7 +21,10 @@ pub async fn start_msi_upgrade(msi_path: &Path) -> Result<(), UpdaterError> {
     let status = command.status().await.map_err(|error| {
         UpdaterError::Process(format!("failed to start MSI installer: {error}"))
     })?;
-    if !status.success() && status.code() != Some(3010) {
+    if status.code() == Some(3010) {
+        return Ok(MsiUpgradeOutcome::CompletedRebootRequired);
+    }
+    if !status.success() {
         return Err(UpdaterError::Process(format!(
             "MSI installer exited with {}",
             status
@@ -23,5 +32,5 @@ pub async fn start_msi_upgrade(msi_path: &Path) -> Result<(), UpdaterError> {
                 .map_or_else(|| "unknown status".to_owned(), |code| code.to_string())
         )));
     }
-    Ok(())
+    Ok(MsiUpgradeOutcome::Completed)
 }

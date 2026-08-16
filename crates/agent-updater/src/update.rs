@@ -11,14 +11,15 @@ use crate::constants::{
 };
 use crate::error::UpdaterError;
 use crate::hash::assert_sha256_file;
-use crate::installer::start_msi_upgrade;
+use crate::installer::{start_msi_upgrade, MsiUpgradeOutcome};
 use crate::manifest::{parse_signed_manifest, verify_manifest};
 use crate::network::{download_file, fetch_text};
 
 pub enum UpdateOutcome {
     Current { version: String },
     WouldInstall { current: String, latest: String },
-    InstallerStarted { current: String, latest: String },
+    InstallerCompleted { current: String, latest: String },
+    InstallerCompletedRebootRequired { current: String, latest: String },
 }
 
 pub async fn run_once(
@@ -48,10 +49,18 @@ pub async fn run_once(
     let artifact = DownloadedArtifact::new(&payload.artifact.name)?;
     download_file(&payload.artifact.download_url, &artifact.path).await?;
     assert_sha256_file(&artifact.path, &payload.artifact.sha256)?;
-    start_msi_upgrade(&artifact.path).await?;
-    Ok(UpdateOutcome::InstallerStarted {
-        current: current.to_string(),
-        latest: latest.to_string(),
+    let installer_outcome = start_msi_upgrade(&artifact.path).await?;
+    Ok(match installer_outcome {
+        MsiUpgradeOutcome::Completed => UpdateOutcome::InstallerCompleted {
+            current: current.to_string(),
+            latest: latest.to_string(),
+        },
+        MsiUpgradeOutcome::CompletedRebootRequired => {
+            UpdateOutcome::InstallerCompletedRebootRequired {
+                current: current.to_string(),
+                latest: latest.to_string(),
+            }
+        }
     })
 }
 
@@ -59,7 +68,11 @@ pub async fn run_loop(manifest_url: &str, interval_seconds: u64) -> Result<(), U
     sleep(Duration::from_secs(initial_delay_seconds())).await;
     loop {
         let result = run_once(manifest_url, env!("CARGO_PKG_VERSION"), false).await;
-        if matches!(&result, Ok(UpdateOutcome::InstallerStarted { .. })) {
+        if matches!(
+            &result,
+            Ok(UpdateOutcome::InstallerCompleted { .. })
+                | Ok(UpdateOutcome::InstallerCompletedRebootRequired { .. })
+        ) {
             return Ok(());
         }
         log_update_failure(&result)?;
