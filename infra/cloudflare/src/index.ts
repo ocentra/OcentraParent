@@ -163,7 +163,6 @@ type ReferralInviteRequestBody = {
 };
 type LicenseCheckRequestBody = {
   requestId?: unknown;
-  deviceId?: unknown;
   requestedNewDevice?: unknown;
 };
 type ManualInvoiceRequestBody = {
