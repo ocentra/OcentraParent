@@ -11,6 +11,8 @@ use ocentra_parent_agent_protocol::app_game::{
 use sha2::{Digest, Sha256};
 use sysinfo::{Pid, Process, ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 
+#[cfg(windows)]
+use super::app_game_windows_launcher_source::launcher_journal_events_from_process_snapshot;
 use super::{
     app_game_journal_sqlite_ingest::{
         app_game_runtime_journal_event, AppGameJournalSqliteIngestError,
@@ -23,6 +25,7 @@ use super::{
 #[derive(Debug, PartialEq, Eq)]
 pub enum AppGameLiveProcessSnapshotError {
     RuntimeJournalEventRejected,
+    LauncherJournalEventRejected,
 }
 
 impl From<AppGameJournalSqliteIngestError> for AppGameLiveProcessSnapshotError {
@@ -34,9 +37,14 @@ impl From<AppGameJournalSqliteIngestError> for AppGameLiveProcessSnapshotError {
 pub fn live_windows_process_snapshot_records(
     observed_at: &str,
 ) -> Vec<WindowsProcessRuntimeRecord> {
+    let system = live_windows_process_snapshot_system();
+    records_from_system(&system, observed_at)
+}
+
+pub fn live_windows_process_snapshot_system() -> System {
     let mut system = System::new();
     refresh_processes(&mut system, ProcessesToUpdate::All);
-    records_from_system(&system, observed_at)
+    system
 }
 
 pub fn live_windows_process_snapshot_record_for_pid(
@@ -72,6 +80,33 @@ pub fn live_windows_process_snapshot_journal_events_with_limit(
         .take(limit)
         .collect::<Vec<_>>();
     Ok(journal_events_from_records(device_id, platform, &records)?)
+}
+
+pub fn live_windows_process_and_launcher_snapshot_journal_events_with_limit(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+) -> Result<Vec<ActivityEvent>, AppGameLiveProcessSnapshotError> {
+    let system = live_windows_process_snapshot_system();
+    let records = records_from_system(&system, observed_at)
+        .into_iter()
+        .take(limit)
+        .collect::<Vec<_>>();
+    let mut events = journal_events_from_records(device_id, platform, &records)?;
+    #[cfg(windows)]
+    {
+        let launcher_events = launcher_journal_events_from_process_snapshot(
+            device_id,
+            platform,
+            observed_at,
+            limit,
+            &system,
+        )
+        .map_err(|_| AppGameLiveProcessSnapshotError::LauncherJournalEventRejected)?;
+        events.extend(launcher_events);
+    }
+    Ok(events)
 }
 
 pub fn live_windows_process_snapshot_journal_event_for_pid(
@@ -124,13 +159,14 @@ fn process_refresh_kind() -> ProcessRefreshKind {
 }
 
 fn record_from_process(process: &Process, observed_at: &str) -> WindowsProcessRuntimeRecord {
-    let process_id = pid_to_u64(process.pid());
+    let process_id = u64::from(process.pid().as_u32());
+    let start_time = process.start_time();
     WindowsProcessRuntimeRecord {
-        runtime_evidence_id: runtime_evidence_id(process_id, observed_at),
+        runtime_evidence_id: runtime_evidence_id(process_id, start_time, observed_at),
         observed_at: observed_at.to_string(),
-        process_identity: None,
+        process_identity: Some(process_identity(process_id, start_time)),
         process_id,
-        parent_process_id: process.parent().map(pid_to_u64),
+        parent_process_id: process.parent().map(|pid| u64::from(pid.as_u32())),
         process_name: process.name().to_string_lossy().into_owned(),
         executable_path_ref: executable_path_ref(process.exe()),
         publisher_signature_ref: None,
@@ -140,7 +176,7 @@ fn record_from_process(process: &Process, observed_at: &str) -> WindowsProcessRu
         catalog_ref: None,
         started_at: timestamp_from_epoch_seconds(process.start_time()),
         exited_at: None,
-        running_duration_ms: milliseconds_from_seconds(process.run_time()),
+        running_duration_ms: process.run_time().saturating_mul(1000),
         observation_mode: APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT.to_string(),
         classification_state: APP_GAME_CLASSIFICATION_UNKNOWN_PROCESS.to_string(),
         capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
@@ -149,11 +185,23 @@ fn record_from_process(process: &Process, observed_at: &str) -> WindowsProcessRu
     }
 }
 
-fn runtime_evidence_id(process_id: u64, observed_at: &str) -> String {
+fn runtime_evidence_id(process_id: u64, start_time: u64, observed_at: &str) -> String {
     let mut evidence_id = String::from(APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX);
     evidence_id.push_str(&process_id.to_string());
+    evidence_id.push_str(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+    evidence_id.push_str(&start_time.to_string());
     evidence_id.push_str(&observed_at_suffix(observed_at));
     evidence_id
+}
+
+fn process_identity(process_id: u64, start_time: u64) -> String {
+    let mut process_identity = String::from(
+        ocentra_parent_agent_protocol::constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX,
+    );
+    process_identity.push_str(&process_id.to_string());
+    process_identity.push_str(ocentra_parent_agent_protocol::constants::delimiter::HYPHEN);
+    process_identity.push_str(&start_time.to_string());
+    process_identity
 }
 
 fn observed_at_suffix(observed_at: &str) -> String {
@@ -178,12 +226,4 @@ fn timestamp_from_epoch_seconds(seconds: u64) -> Option<String> {
         return None;
     };
     DateTime::<Utc>::from_timestamp(seconds, 0).map(|timestamp| timestamp.to_rfc3339())
-}
-
-fn milliseconds_from_seconds(seconds: u64) -> u64 {
-    seconds.saturating_mul(1000)
-}
-
-fn pid_to_u64(pid: Pid) -> u64 {
-    u64::from(pid.as_u32())
 }

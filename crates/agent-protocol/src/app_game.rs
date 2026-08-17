@@ -122,7 +122,6 @@ pub const APP_GAME_LAUNCHER_PROCESS_NAME_GAMING_SERVICES: &str = "gamingservices
 pub const APP_GAME_LAUNCHER_PROCESS_NAME_RIOT: &str = "riotclientservices";
 pub const APP_GAME_LAUNCHER_PROCESS_NAME_RIOT_UI: &str = "riotclientux";
 pub const APP_GAME_LAUNCHER_PROCESS_NAME_BATTLE_NET: &str = "battle.net";
-pub const APP_GAME_LAUNCHER_PROCESS_NAME_BATTLE_NET_AGENT: &str = "agent";
 pub const APP_GAME_LAUNCHER_PROCESS_NAME_EA_DESKTOP: &str = "eadesktop";
 pub const APP_GAME_LAUNCHER_PROCESS_NAME_ORIGIN: &str = "origin";
 pub const APP_GAME_LAUNCHER_PROCESS_NAME_UBISOFT: &str = "upc";

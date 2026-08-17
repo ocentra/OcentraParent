@@ -1,8 +1,7 @@
 #[cfg(windows)]
 use ocentra_parent_agent_core::activity_store_app_game::{
     live_windows_foreground_window_journal_event, live_windows_inventory_journal_events_with_limit,
-    live_windows_launcher_journal_events_with_limit,
-    live_windows_process_snapshot_journal_events_with_limit,
+    live_windows_process_and_launcher_snapshot_journal_events_with_limit,
     live_windows_registry_inventory_journal_events_with_limit,
     live_windows_store_package_journal_events_with_limit,
 };
@@ -19,20 +18,22 @@ pub(super) struct ObservedAtText<'a>(pub(crate) &'a str);
 pub(super) struct CaptureLimit(pub(crate) usize);
 
 #[cfg(windows)]
-pub(super) fn live_process_events(
+pub(super) fn live_process_and_launcher_events(
     observed_at: ObservedAtText<'_>,
     limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_process_snapshot_journal_events_with_limit(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at.0,
-        limit.0,
-    )?)
+    Ok(
+        live_windows_process_and_launcher_snapshot_journal_events_with_limit(
+            constants::activity_surface::DEFAULT_DEVICE_ID,
+            std::env::consts::OS,
+            observed_at.0,
+            limit.0,
+        )?,
+    )
 }
 
 #[cfg(not(windows))]
-pub(super) fn live_process_events(
+pub(super) fn live_process_and_launcher_events(
     _observed_at: ObservedAtText<'_>,
     _limit: CaptureLimit,
 ) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
@@ -68,27 +69,6 @@ pub(super) fn live_inventory_events(
         observed_at.0,
         limit.0,
     )?)
-}
-
-#[cfg(windows)]
-pub(super) fn live_launcher_events(
-    observed_at: ObservedAtText<'_>,
-    limit: CaptureLimit,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(live_windows_launcher_journal_events_with_limit(
-        constants::activity_surface::DEFAULT_DEVICE_ID,
-        std::env::consts::OS,
-        observed_at.0,
-        limit.0,
-    )?)
-}
-
-#[cfg(not(windows))]
-pub(super) fn live_launcher_events(
-    _observed_at: ObservedAtText<'_>,
-    _limit: CaptureLimit,
-) -> Result<Vec<ActivityEvent>, ActivityCaptureError> {
-    Ok(Vec::new())
 }
 
 #[cfg(not(windows))]
