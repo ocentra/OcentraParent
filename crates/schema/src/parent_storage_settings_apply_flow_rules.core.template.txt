@@ -43,11 +43,11 @@ export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedP
   if (
     !decision.confirmationRequired ||
     !/^[0-9a-f]{64}$/.test(decision.applyIntentDigest) ||
+    decision.rollbackAvailable ||
     decision.applyState === 'applyPending' ||
     decision.applyState === 'applied' ||
     decision.applyState === 'partial' ||
-    (decision.rollbackAvailable &&
-      (decision.applyState === 'applyRequiresConfirmation' || decision.applyState === 'blockedManualRequired'))
+    decision.applyState === 'rollbackManualRequired'
   ) {
     return false;
   }
