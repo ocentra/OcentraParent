@@ -34,7 +34,6 @@ use ocentra_schema::parent_ui_bridge::{
     ParentRouteDataSource, ParentRouteEventSnapshot, ParentRouteId,
     ParentRouteLiveActivitySnapshot, ParentRouteSummary, ParentScreenSummaryPanelDetailSnapshot,
     ParentScreenSummaryPanelRowSnapshot, ParentScreenSummaryPanelSnapshot,
-    ParentSetupFirstRunPanelCardSnapshot, ParentSetupFirstRunPanelDetailSnapshot,
     ParentSetupFirstRunPanelSnapshot, ParentTrackingStatusPanelCardSnapshot,
     ParentTrackingStatusPanelDetailSnapshot, ParentTrackingStatusPanelSnapshot, ParentUiAction,
     ParentUiActionKind,
@@ -55,7 +54,9 @@ use self::live_activity::*;
 use self::policy_preview::*;
 use self::portal::*;
 use self::screen_summary::*;
-use super::lan_route::{is_lan_surface_route, LanRouteQuery};
+use super::lan_route::{
+    is_lan_surface_route, LanReadModelState, LanReadModelUnavailableReason, LanRouteQuery,
+};
 use super::route_metadata::{
     connection_tone, current_lan_add_device_read_model_value, data_source_label, data_source_tone,
     global_connection_state_for_connection, network_evidence_summary_snapshot,
@@ -152,9 +153,31 @@ pub(super) fn browser_route_panels_snapshot(
 
 pub(super) fn setup_first_run_panel_snapshot(
     route: &ParentRouteId,
-    lan_add_device_read_model: Option<&LanBrowserAddDeviceReadModel>,
+    lan_route_query: &LanRouteQuery,
 ) -> Option<ParentSetupFirstRunPanelSnapshot> {
-    browser::setup_first_run_panel_snapshot(route, lan_add_device_read_model)
+    let lan_input = match lan_route_query.read_model_state() {
+        LanReadModelState::NotRequested => {
+            crate::setup_first_run::SetupFirstRunLanInput::NotRequested
+        }
+        LanReadModelState::Available(read_model) => {
+            crate::setup_first_run::SetupFirstRunLanInput::Available(read_model)
+        }
+        LanReadModelState::Unavailable { reason, detail } => {
+            crate::setup_first_run::SetupFirstRunLanInput::Unavailable {
+                reason: lan_unavailable_reason_label(reason),
+                diagnostic_captured: !detail.trim().is_empty(),
+            }
+        }
+    };
+    crate::setup_first_run::setup_first_run_panel_snapshot(route, lan_input)
+}
+
+fn lan_unavailable_reason_label(reason: LanReadModelUnavailableReason) -> &'static str {
+    match reason {
+        LanReadModelUnavailableReason::AgentServiceOperationFailed => {
+            "agent-service-operation-failed"
+        }
+    }
 }
 
 pub(super) fn live_activity_snapshot(

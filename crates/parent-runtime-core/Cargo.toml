@@ -26,7 +26,6 @@ ocentra-eventing = { path = "../ocentra-eventing" }
 ocentra-family-identity-core = { path = "../family-identity-core" }
 ocentra-parent-agent-protocol = { path = "../agent-protocol" }
 ocentra-policy-control-core = { path = "../policy-control-core" }
-ocentra-provisioning-core = { path = "../provisioning-core" }
 ocentra-schema = { path = "../schema" }
 ocentra-storage-custody-core = { path = "../storage-custody-core" }
 serde = { version = "1.0.228", features = ["derive"] }
