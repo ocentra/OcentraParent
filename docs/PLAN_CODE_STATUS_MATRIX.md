@@ -44,7 +44,7 @@ validation / done.
 | App/game | 220 | 201/0/0/19/0 | 2349/867 | 126/2/0/1/91/0 | Two workpacks are dependency-blocked and the plan remains integration-open. |
 | Browser | 30 | 22/0/0/8/0 | 145/45 | 30/0/0/0/0/0 | All workpacks remain planned; proof and several native/runtime authority paths are open. |
 | Child-agent runtime distribution | 11 | 10/0/0/1/0 | 79/17 | 8/0/0/0/3/0 | Distribution/runtime proof remains unreferenced across the plan. |
-| Cloudflare control plane | 13 | 9/0/1/3/0 | 186/63 | 10/2/0/1/0/0 | WP01's bounded scaffold is in validation. WP06's bounded durable adapter/auth source packet is independently accepted, but provider verification, migration, tests, proof, and deployment remain open; normal WP06 is blocked and not DONE. |
+| Cloudflare control plane | 13 | 9/0/1/3/0 | 186/63 | 10/2/0/0/1/0 | WP01's bounded scaffold is in validation. WP06's bounded durable adapter/auth source packet is independently accepted, but provider verification, migration, tests, proof, and deployment remain open; normal WP06 is blocked and not DONE. |
 | Data custody/storage | 9 | 8/0/0/1/0 | 128/19 | 1/0/0/1/7/0 | All nine lack reviewed completion evidence; aggregate/runtime custody remains open. |
 | Device trust bootstrap | 9 | 6/0/3/0/0 | 86/41 | 0/2/1/0/6/0 | WP01 is READY; WP03's bounded custody/recovery source is independently accepted and implementation-only authorized against WP01, Account WP08, and Cloudflare WP06, while normal readiness, native-provider, tests, proof, runtime, and completion remain blocked. |
 | LAN | 26 | 22/1/2/1/0 | 305/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is blocked on Device Trust WP01/WP03. |
