@@ -7,6 +7,8 @@ use std::{
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
 
+#[path = "retention_delete_tombstone_store_path.rs"]
+mod path;
 mod record;
 
 use ocentra_eventing::envelope::StoredEventEnvelope;
@@ -73,23 +75,19 @@ pub struct RetentionDeleteTombstoneStore {
 
 impl RetentionDeleteTombstoneStore {
     pub fn open(directory: impl AsRef<Path>) -> io::Result<Self> {
-        fs::create_dir_all(directory.as_ref())?;
-        if fs::symlink_metadata(directory.as_ref())?
-            .file_type()
-            .is_symlink()
-        {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidInput,
-                "custody store directory must not be a symlink",
-            ));
-        }
-        let directory = directory.as_ref().canonicalize()?;
-        Ok(Self {
-            path: directory.join("retention-delete-tombstones.json"),
-        })
+        let directory = directory.as_ref();
+        path::reject_symlink(directory, "custody store directory")?;
+        fs::create_dir_all(directory)?;
+        path::reject_symlink(directory, "custody store directory")?;
+        let directory = directory.canonicalize()?;
+        let path = directory.join("retention-delete-tombstones.json");
+        path::reject_symlink(&path, "custody tombstone record")?;
+        path::reject_symlink(&path.with_extension("lock"), "custody tombstone lock")?;
+        Ok(Self { path })
     }
 
     pub fn records(&self) -> io::Result<Vec<RetentionDeleteOutboxRecord>> {
+        path::reject_symlink(&self.path, "custody tombstone record")?;
         match fs::read(&self.path) {
             Ok(bytes) => {
                 let values: Vec<serde_json::Value> = serde_json::from_slice(&bytes)
@@ -175,6 +173,7 @@ impl RetentionDeleteTombstoneStore {
     }
 
     fn write(&self, records: &[RetentionDeleteOutboxRecord]) -> io::Result<()> {
+        path::reject_symlink(&self.path, "custody tombstone record")?;
         let encoded = records
             .iter()
             .map(RetentionDeleteOutboxRecord::encode)
@@ -190,12 +189,14 @@ impl RetentionDeleteTombstoneStore {
     }
 
     fn lock(&self) -> io::Result<std::fs::File> {
+        let lock_path = self.path.with_extension("lock");
+        path::reject_symlink(&lock_path, "custody tombstone lock")?;
         OpenOptions::new()
             .create(true)
             .read(true)
             .write(true)
             .truncate(false)
-            .open(self.path.with_extension("lock"))
+            .open(lock_path)
     }
 }
 
