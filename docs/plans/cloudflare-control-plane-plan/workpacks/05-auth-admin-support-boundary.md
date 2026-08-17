@@ -39,6 +39,11 @@ The adapter must be fail-closed and return only a verified Firebase provider
 subject. It must not accept family/device claims, fixture/header authority,
 fake issuers, or unverified JWTs. This packet authorizes source edits only;
 normal tests, proof, deployment-secret, runtime, PR, and DONE gates remain open.
+Provider-verified parent, trusted-device, admin, and support routes remain
+`503` / `manual-required` after subject verification until WP06 supplies a
+server-derived account/household/device binding context. Caller-supplied
+household, child-profile, or child-device headers are ignored and cannot invoke
+the D1 authority store or establish family/device authority.
 
 ## Acceptance
 
@@ -70,6 +75,8 @@ normal tests, proof, deployment-secret, runtime, PR, and DONE gates remain open.
 - Do not treat Firebase identity claims as family/device authority.
 - Do not permit local fixture mode or caller headers to satisfy production
   provider verification.
+- Do not use caller-supplied household, child-profile, or child-device headers
+  as a substitute for the WP06 server-derived binding context.
 
 ## Execution truth
 

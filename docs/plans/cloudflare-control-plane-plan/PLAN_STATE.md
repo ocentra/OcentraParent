@@ -74,12 +74,13 @@
   account mismatches, unsafe generations, inactive/revoked bindings, invalid
   rows, and an unapplied migration.
 - `infra/cloudflare/src/auth/verifier.ts` exposes only a narrow Worker-owned
-  caller after a provider-verification result. The current Worker has no
-  provider verifier, so provider-bound requests remain `503` /
-  `manual-required`; caller-supplied account authority and fixture headers
-  cannot authorize production. `infra/cloudflare/src/env.ts` also rejects
-  local-safe fixtures outside local/test/development and requires the internal
-  queue secret in production.
+  caller after a provider-verification result. Firebase subject verification is
+  present, but provider-bound requests remain `503` / `manual-required` until
+  WP06 supplies a server-derived account/household/device binding context;
+  caller-supplied account authority and fixture headers cannot authorize
+  production. `infra/cloudflare/src/env.ts` also rejects local-safe fixtures
+  outside local/test/development and requires the internal queue secret in
+  production.
 - `infra/cloudflare/migrations/account-identity/0001_account_identity_authority.sql`
   is source-only. The Cloudflare package build-order hook regenerates the
   canonical schema-domain contract before contract-consuming Cloudflare
@@ -89,7 +90,7 @@
   deployment, and runtime reachability remain open. Normal WP06 is blocked and
   is not `DONE` or runtime-ready.
 
-Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 has an independently accepted bounded source adapter/auth chain, with provider verification absent and the Worker remaining `503` / `manual-required`; migration application, tests, validation, proof, deployment, and runtime reachability remain open, so normal WP06 is blocked and not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
+Status: engineering-grade Cloudflare control-plane spec is complete; WP00 games infra parity extraction remains validation-blocked by repo-wide `npm run format:check` drift outside its packet; WP01 Cloudflare module scaffold now has a clean Wrangler/Workers Types graph plus focused local validation and a retained receipt, complete only for its narrow scaffold acceptance; the repo-local module is largely implemented. WP06 has an independently accepted bounded source adapter/auth chain, with Firebase subject verification present but no server-derived account/household/device binding context, so provider-bound Worker routes remain `503` / `manual-required`; caller-supplied authority headers cannot authorize production. Migration application, tests, validation, proof, deployment, and runtime reachability remain open, so normal WP06 is blocked and not `DONE`. Account DO/KV remain absent and manual-required. PR #608 merged to `main` as `5af4a1a92` after fresh full CI passed its product, security, and platform jobs, but it proves only the local WP07 dev/seed/proof boundary. PR #604 is closed without merge: its overlapping branch/evidence are preserved, but it is superseded/conflicting and must not be rebased into the current tree. WP02 through WP12 retain their own blocked-state or handoff evidence and remain open; WP01/WP07 do not imply runtime, deployment, authority, payment, or workpack closure.
 
 Research status: aligned against the current Parent repo and a direct inspection of the reusable games Cloudflare module, summarized in `GAMES_INFRA_PARITY_MAP.md`, including its package scripts, wrangler config, route manifest, auth middleware, payment flows, `PaymentDO`, test runner, and module docs. Parent keeps the module and testing patterns; Parent strips game-only economy, Solana, matchmaking, social, AI proxy, and asset-delivery concerns.
 

@@ -1,9 +1,5 @@
 import { isLocalFixtureEnvironment, resolveAuthAdapterMode, type Env } from '../env.js';
-import {
-  createAccountIdentityAuthorityStore,
-  type AccountIdentityBindingLookup,
-  type AccountIdentityProvider,
-} from '../storage/account-identity-authority-store.js';
+import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
 import { getAuthStateModel, type AuthState } from './model.js';
 
 export interface VerifiedIdentity {
@@ -40,7 +36,8 @@ export const INTERNAL_SECRET_HEADER = 'x-ocentra-internal-secret';
 export const ACCOUNT_AUTH_ADAPTER_MANUAL_REQUIRED_BLOCKER = 'account-auth-adapter-manual-required';
 export const UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER = 'unsupported-auth-adapter-mode';
 export const PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER = 'provider-verification-unavailable';
-export const ACCOUNT_IDENTITY_BINDING_REJECTED_BLOCKER = 'account-identity-binding-rejected';
+export const ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER =
+  'account-identity-binding-context-manual-required';
 
 function json(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body, null, 2), {
@@ -210,28 +207,8 @@ function authAdapterBlocker(env: Env, providerVerifier: ProviderVerificationPort
   return UNSUPPORTED_AUTH_ADAPTER_MODE_BLOCKER;
 }
 
-function bindingLookupFromRequest(
-  request: Request,
-  verifiedIdentity: VerifiedProviderIdentity
-): AccountIdentityBindingLookup | null {
-  const householdId = request.headers.get('x-ocentra-household-id')?.trim();
-  const childProfileId = request.headers.get('x-ocentra-child-profile-id')?.trim();
-  const childDeviceId = request.headers.get('x-ocentra-child-device-id')?.trim();
-  if (!householdId || !childProfileId || !childDeviceId) {
-    return null;
-  }
-  return {
-    provider: verifiedIdentity.provider,
-    providerSubject: verifiedIdentity.providerSubject,
-    householdId,
-    childProfileId,
-    childDeviceId,
-  };
-}
-
 async function verifyProviderBoundRequest(
   request: Request,
-  env: Env,
   authState: AuthState,
   providerVerifier: ProviderVerificationPort
 ): Promise<AuthResult> {
@@ -245,22 +222,7 @@ async function verifyProviderBoundRequest(
     return manualRequired(authState, PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER);
   }
 
-  const lookup = bindingLookupFromRequest(request, verifiedIdentity);
-  if (lookup === null) {
-    return manualRequired(authState, 'account-identity-binding-selector-missing');
-  }
-
-  const result = await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentBinding(lookup);
-  if (result.status === 'trusted') {
-    return authStateIdentity(result.handoff.binding.accountId, authState, 'parent', false);
-  }
-  if (result.status === 'manual-required') {
-    return manualRequired(authState, result.reason);
-  }
-  if (result.status === 'not-found' || result.status === 'rejected') {
-    return forbidden(ACCOUNT_IDENTITY_BINDING_REJECTED_BLOCKER, authState);
-  }
-  return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_REJECTED_BLOCKER);
+  return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
 }
 
 function extractBearerIdentity(request: Request, authState: AuthState): BearerIdentityResult {
@@ -292,7 +254,7 @@ async function verifyParentSessionRequest(
   }
 
   if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
-    return verifyProviderBoundRequest(request, env, authState, providerVerifier!);
+    return verifyProviderBoundRequest(request, authState, providerVerifier!);
   }
 
   const bearerIdentity = extractBearerIdentity(request, authState);

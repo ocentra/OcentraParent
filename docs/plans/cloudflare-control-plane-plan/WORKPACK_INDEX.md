@@ -50,7 +50,7 @@ WP00 prevents copying game-only concerns into Parent.
 WP01 establishes the module scaffold and must retain a clean Wrangler/Workers-types dependency graph before WP07 can be selected; WP02 establishes environment/binding scaffold.
 WP03/WP04 establish entrypoint and routes.
 WP05 blocks private/admin/support/webhook readiness claims.
-WP06 blocks storage/coordination/queue claims and owns the account-identity D1/DO/KV binding, isolated migration, and narrow D1 adapter/caller after Account WP08 supplies the Rust contract handoff. The source caller is provider-gated, but provider verification is absent, so Worker reachability remains manual-required; migration, tests, proof, deployment, and normal DONE semantics remain open.
+WP06 blocks storage/coordination/queue claims and owns the account-identity D1/DO/KV binding, isolated migration, and narrow D1 adapter/caller after Account WP08 supplies the Rust contract handoff. The source caller is provider-gated and Firebase subject verification exists, but no server-derived account/household/device binding context is supplied, so Worker reachability remains manual-required; caller-supplied authority headers are rejected/ignored, and migration, tests, proof, deployment, and normal DONE semantics remain open.
 WP08 establishes the Cloudflare test-runner/pyramid proof after WP06; it uses module-scoped scripts and does not redefine the account/family contract.
 WP09 is the first consumer smoke.
 WP10 hardens negative/security/observability coverage.

@@ -1761,6 +1761,10 @@
       "roots": [
         "infra/cloudflare/src/auth/model.ts",
         "infra/cloudflare/src/auth/verifier.ts",
+        "infra/cloudflare/src/providers/firebase-auth-contract.ts",
+        "infra/cloudflare/src/providers/firebase-auth-jwt.ts",
+        "infra/cloudflare/src/providers/firebase-auth-jwks.ts",
+        "infra/cloudflare/src/providers/firebase-auth.ts",
         "infra/cloudflare/src/index.ts",
         "infra/cloudflare/tests/unit/auth-boundary.test.ts",
         "infra/cloudflare/tests/integration/admin-auth-rejection.test.ts",
