@@ -30,6 +30,34 @@ PR #607 is closed without merge. Its TypeScript Cloudflare account-identity
 persistence/D1-test-double slice is preserved as branch evidence only; it does
 not establish Rust schema authority or any Cloudflare runtime/migration proof.
 
+## 2026-08-17 WP02-WP05 live source correction
+
+WP02-WP05 are not production complete. Their Rust evaluators and focused tests
+are real, and bounded provisioning, policy, and child-runtime consumers exist.
+Those consumers still receive caller-assembled authority/lifecycle flags; the
+sealed WP08 current-binding read port has no durable Cloudflare repository or
+shipped runtime caller. Historical checked rows prove contract/proof slices,
+not durable account, session, invite/recovery, or device-authorization
+execution.
+
+The attempted source packet at remote commit `ac03afee3a` was independently
+reviewed and rejected. It introduced public deserializable account, session,
+invite, and recovery records with no production callers or durable owner. It
+also allowed callers to mint proof, replay, freshness, same-family, abuse,
+timing, support, and owner-approval state and allowed non-monotonic lifecycle
+rewrites. The packet remains quarantined as remote evidence and is not mapped
+as implementation.
+
+The first legal production source seam is Account WP02: extend the sealed WP08
+authority boundary with a server-derived, current member/role/device binding
+that can cross into the Cloudflare runtime without exposing a caller-mintable
+authority object. Cloudflare WP06 then implements the durable repository and
+shipped caller for that Account-owned contract. Only after that seam exists
+should WP03-WP05 add repository-owned transitions, opaque receipts, typed
+handoffs, and their deferred concurrency/restart/security tests.
+`CHECKLIST_INDEX.md` keeps the historical proof rows checked while adding
+explicit unchecked production-source and expected-test overlays.
+
 ## Current product direction
 
 ```text

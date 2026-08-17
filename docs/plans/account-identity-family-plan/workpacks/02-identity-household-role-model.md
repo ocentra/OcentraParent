@@ -162,6 +162,40 @@ cargo test -p ocentra-family-identity-core household_authority
 
 Session freshness, invite/recovery lifecycle, and parent trusted-device proof stay open for WP03/WP04/device-trust handoff.
 
+## 2026-08-17 current code/test correction
+
+The Rust household evaluator, proof/handoff code, provisioning consumer, policy
+consumer, child-device scope consumer, and focused unit/contract tests are real.
+They prove a bounded decision model, not a durable account authority runtime.
+The live production consumers still pass caller-assembled family, membership,
+device-trust, session, capability, and lease facts into the evaluator. The
+sealed WP08 current-binding read port has no production repository adapter or
+caller, and the TypeScript owner paths named by this historical workpack no
+longer exist.
+
+Production source still required:
+
+- an Account-owned sealed cross-runtime binding over WP08 canonical IDs that
+  includes server-derived current household, membership, role, child, and
+  device context without exposing public authority construction;
+- a Cloudflare WP06 durable repository/runtime producer and consumer of that
+  contract;
+- a minimized, receipt-bound, audited support authority rather than a public
+  support actor or caller boolean;
+- monotonic membership/role transitions and a typed audit sink.
+
+Expected test source still required:
+
+- repository reload and concurrent transition tests;
+- pending, invited, revoked, and disabled membership matrix negatives;
+- minimized support/admin scope and audit-reference tests;
+- a real production-caller test proving sealed current binding is consumed and
+  caller-supplied authority cannot bypass it.
+
+The remote packet `ac03afee3a` is rejected/quarantined: its public
+deserializable account/membership/support records had no caller or persistence
+and would have introduced parallel mintable authority. It is not WP02 progress.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP02 Identity Household Role Model`; `codex/tracking-plan-full-continuation-a`.

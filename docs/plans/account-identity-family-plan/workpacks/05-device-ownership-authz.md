@@ -168,6 +168,37 @@ cargo test -p ocentra-family-identity-core household_authority
 
 Physical trusted-device proof remains owned by `device-trust-bootstrap-plan`. LAN/remote transport execution remains owned by `lan-plan` and `remote-access-plan`.
 
+## 2026-08-17 current code/test correction
+
+The household/device evaluators, signed-current-state proof, record-derived
+handoff, provisioning/policy/child-runtime consumers, and focused tests are
+real. The general reachable API nevertheless accepts caller-assembled
+ownership, trust, freshness, capability, and controller-lease state. The safer
+record-derived path is not the universal production entrypoint, and several
+authorized actions have no typed downstream consumer.
+
+Production source still required:
+
+- one runtime composer that resolves WP08 household/device binding, Device
+  Trust current state, session freshness, scoped capability, lease, and step-up
+  receipt from their owning repositories;
+- view/control-specific grants and identity/action-bound leases with trusted
+  expiry/revocation;
+- mandatory step-up consumption and durable audit emission;
+- typed remote, export, delete, and billing handoffs instead of a decision flag.
+
+Expected test source still required:
+
+- view grant cannot authorize control;
+- lease identity/action/expiry/revoke/rebind races;
+- missing/replayed/mismatched step-up denial;
+- audit persistence failure and retry;
+- real downstream consumers for remote, export, delete, and billing authority.
+
+The remote packet `ac03afee3a` is rejected/quarantined because its new public
+records did not connect to this composer or any production caller and weakened
+authority provenance. It is not WP05 progress.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP05 Device Ownership AuthZ`; `codex/tracking-plan-full-continuation-a`.

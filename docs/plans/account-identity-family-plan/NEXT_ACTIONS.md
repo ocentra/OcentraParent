@@ -29,7 +29,25 @@
 
 Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk. WP06 is reopened for a final aggregation rerun after Account WP08 plus Cloudflare WP06/WP08; PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: independent P0/P1 review accepts WP08's bounded `v0.7` Rust-schema/account-authority source packet. Its canonical household/child/device binding includes pairing, installation, selected route, lifecycle, revocation, bounded authority generation, guarded identifiers, active provider mapping, and exact account consistency. Its family-owned current-binding port is crate-private and fail-closed; no production adapter or caller exists. Tests and proof remain deferred. Cloudflare WP06 is the next source-only packet and must implement the durable adapter/caller without redefining authority; Cloudflare WP08 later owns runner proof. Account WP06 aggregates those handoffs only after validation/proof.
+Current routing note: independent P0/P1 review accepts WP08's bounded `v0.7` Rust-schema/account-authority source packet. Its canonical household/child/device binding includes pairing, installation, selected route, lifecycle, revocation, bounded authority generation, guarded identifiers, active provider mapping, and exact account consistency. Its family-owned current-binding port is crate-private and fail-closed; no production adapter or caller exists. Tests and proof remain deferred. A live Cloudflare WP06 seam audit proved the Worker cannot legally consume this boundary yet: the cross-runtime handoff lacks current member/role/device-trust context and the Rust read port is crate-private. Account WP02 must first expose the sealed server-derived binding contract; Cloudflare WP06 then owns its durable adapter/caller, and Cloudflare WP08 later owns runner proof. Account WP06 aggregates those handoffs only after validation/proof.
+
+Do not revive the rejected `ac03afee3a` WP02-WP05 record packet. Its public
+serde records were disconnected from production and accepted caller-mintable
+authority/lifecycle facts. The dependency-first production sequence is:
+
+```text
+Account WP02 sealed current member/role/device binding over WP08 identities
+  -> Cloudflare WP06 durable repository/runtime caller for that contract
+  -> WP03 durable session/refresh/replay/revoke owner and real browser route
+  -> WP04 atomic invite/recovery owner and typed custody handoff
+  -> WP05 repository-composed device/session/capability/step-up authorization
+  -> deferred expected tests for those complete source seams
+  -> Cloudflare WP08 runner proof and Account WP06 aggregation
+```
+
+Source packets must be reachable from a shipped caller, derive trust from owned
+state, keep terminal transitions monotonic, and fail closed. A new DTO, enum, or
+test-only constructor with no production caller is not progress.
 
 PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
 adapter/D1-test-double slice into this plan. Start with Rust-owned account

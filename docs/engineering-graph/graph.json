@@ -471,23 +471,18 @@
       "title": "WP02 Identity Household Role Model",
       "path": "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
       "parent": "PLAN-account-identity-family-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / historical contract proof / production closure open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -513,23 +508,18 @@
       "title": "WP03 Session Token Lifecycle",
       "path": "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
       "parent": "PLAN-account-identity-family-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-02-identity-household-role-model"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / historical contract proof / production closure open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -555,23 +545,18 @@
       "title": "WP04 Invites Recovery Lifecycle",
       "path": "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
       "parent": "PLAN-account-identity-family-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-03-session-token-lifecycle"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / historical contract proof / production closure open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -597,23 +582,20 @@
       "title": "WP05 Device Ownership AuthZ",
       "path": "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
       "parent": "PLAN-account-identity-family-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / historical contract proof / production closure open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -639,8 +621,13 @@
       "title": "WP07 Parent Account Family Setup UI",
       "path": "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md",
       "parent": "PLAN-account-identity-family-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "account-identity-family-plan",
@@ -681,8 +668,18 @@
       "title": "WP06 Security Proof And Route Gate",
       "path": "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
       "parent": "PLAN-account-identity-family-plan",
-      "dependsOn": [],
-      "state": "planned",
+      "dependsOn": [
+        "WP-account-identity-family-plan-01-auth-provider-decision",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-account-identity-family-plan-07-parent-account-family-setup-ui"
+      ],
+      "state": "blocked",
       "lifecycleState": "planned",
       "metadata": {
         "planSlug": "account-identity-family-plan",
@@ -16002,7 +15999,8 @@
       "parent": "PLAN-cloudflare-control-plane-plan",
       "dependsOn": [
         "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
-        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+        "WP-account-identity-family-plan-02-identity-household-role-model"
       ],
       "state": "blocked",
       "lifecycleState": "blocked",
@@ -16015,6 +16013,7 @@
         "needsReview": false,
         "dependencyReview": {
           "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
             "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
             "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
           ],
@@ -16022,32 +16021,19 @@
             "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
             "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
             "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
             "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "Reviewed as the next bounded source-only Cloudflare packet after Account WP08's sealed v0.7 authority contract and WP01's module scaffold. WP06 must add the durable adapter and Worker-owned caller without inventing provider or household authority. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
-        },
-        "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the bounded WP06 adapter/auth packet as implementation evidence only. Provider verification, migration execution, focused tests, retained proof, deployment, runtime reachability, Durable Object/KV durability, and DONE remain open.",
-          "evidence": [
-            "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
-            "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
-            "docs/engineering-graph/code-map.json",
-            "docs/PLAN_CODE_STATUS_MATRIX.md"
-          ],
-          "requirements": ["implementation"]
+          "reason": "Reviewed as the durable Cloudflare packet after Account WP08's canonical identities, Account WP02's sealed current member/role/device binding, and WP01's module scaffold. WP06 must consume that Account-owned contract and add the durable adapter and Worker caller without inventing household authority. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
         }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {
-          "implementation": true
-        },
+        "reviewed": {},
         "references": {
           "implementation": [
-            "infra/cloudflare/src/auth/verifier.ts",
-            "infra/cloudflare/src/env.ts",
-            "infra/cloudflare/src/storage/account-identity-authority-store.ts"
+            "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
           ],
           "tests": [
             "docs/plans/cloudflare-control-plane-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -30580,6 +30566,237 @@
         "docs/plans/portal-ux-household-surfaces-plan/workpacks/12-reports-notifications-and-custody.md"
       ],
       "reason": "Parent reports and alerts need truthful custody, retention, export/delete, and queued/failed/manual-required delivery states."
+    },
+    {
+      "from": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "WP02 owns the sealed server-derived current member, role, and device binding over Account WP08 canonical identities; it must not create a parallel or caller-mintable authority model.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Cloudflare WP06 cannot infer current member, role, household, or device authority from a verified provider subject; it consumes the sealed Account WP02 binding contract.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "WP03 durable sessions and refresh families require server-derived account, household, membership, and role identity from WP02.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "WP04 invite and recovery transitions require the durable current session, replay, freshness, and revoke owner supplied by WP03.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "WP05 device authorization must derive current household, membership, role, child, and device ownership from WP02.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "WP05 sensitive device actions require repository-owned session freshness, replay, and revoke state from WP03.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "WP05 cannot derive physical endpoint trust or signer generation from caller flags; it consumes Device Trust WP01 current authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-07-parent-account-family-setup-ui",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "WP07 renders and acts on live household, membership, role, child, and device state owned by WP02.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-07-parent-account-family-setup-ui",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "WP07 account setup actions and degraded states require the live session/freshness owner from WP03.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-07-parent-account-family-setup-ui",
+      "to": "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md",
+        "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md"
+      ],
+      "reason": "WP07 invite and recovery surfaces consume the durable transition and authorization states owned by WP04.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-07-parent-account-family-setup-ui",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "WP07 device setup actions must consume the repository-composed authorization and honest denial states owned by WP05.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-01-auth-provider-decision",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/01-auth-provider-decision.md"
+      ],
+      "reason": "The final Account gate consumes the completed provider/custody decision and runtime verification evidence."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "The final Account gate consumes the canonical Rust authority and schema handoff from WP08."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "The final Account gate consumes the durable Cloudflare repository, migration, and runtime binding from Cloudflare WP06."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/08-testing-runner-and-test-pyramid.md"
+      ],
+      "reason": "The final Account gate consumes the Cloudflare integration/security runner and retained validation proof from Cloudflare WP08."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "The final Account gate aggregates WP02 durable authority, negative, and audit evidence."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-03-session-token-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/03-session-token-lifecycle.md"
+      ],
+      "reason": "The final Account gate aggregates WP03 session, replay, revoke, freshness, request-safety, and audit evidence."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md"
+      ],
+      "reason": "The final Account gate aggregates WP04 invite/recovery lifecycle, abuse, replay, support, and custody-handoff evidence."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "The final Account gate aggregates WP05 device ownership, capability, lease, step-up, and audit evidence."
+    },
+    {
+      "from": "WP-account-identity-family-plan-06-security-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-07-parent-account-family-setup-ui",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/07-parent-account-family-setup-ui.md"
+      ],
+      "reason": "The final Account gate aggregates the honest live setup UI, accessibility, and degraded/manual-required evidence from WP07."
     }
   ],
   "migration": {

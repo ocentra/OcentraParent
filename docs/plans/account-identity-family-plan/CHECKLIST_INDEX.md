@@ -57,6 +57,17 @@ gate, or whole-plan completion.
 
 ## WP02 Identity Household Role Model
 
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [ ] A durable repository/runtime caller derives account, household,
+  membership, role, child, and device authority from WP08 canonical identity;
+  callers cannot supply `same_family`, support authority, or lifecycle state as
+  trusted facts.
+- [ ] Expected tests cover repository reload, concurrent membership/role
+  transitions, full pending/invited/revoked/disabled denial, minimized audited
+  support scope, and production-caller use of the sealed binding.
+
 - [x] Account user model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
 - [x] Household model defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/00-identity-entity-model-proof.md`.
 - [x] Membership state machine defined. Proof: `output/account-identity-family-plan-proof/02-identity-household-role-model/02-membership-state-machine-proof.md`.
@@ -72,6 +83,17 @@ gate, or whole-plan completion.
 - [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md`.
 
 ## WP03 Session Token Lifecycle
+
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [ ] A durable session/refresh-family repository owns token digests, rotation
+  generations, replay prevention, logout/global-revoke epochs, issued/expiry
+  times, and real account request integration; lifecycle flags are not supplied
+  by the caller.
+- [ ] Expected tests cover atomic concurrent rotation, replay after restart,
+  global revoke, clock skew, malformed/backdated state, exact audit emission,
+  and CSRF/origin/fetch-metadata behavior on the real account browser route.
 
 - [x] Credential type matrix defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/00-credential-type-matrix.md`.
 - [x] Browser session lifecycle defined. Proof: `output/account-identity-family-plan-proof/03-session-token-lifecycle/01-session-lifecycle-proof.md`.
@@ -90,6 +112,16 @@ gate, or whole-plan completion.
 
 ## WP04 Invites Recovery Lifecycle
 
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [ ] A durable invite/recovery transition owner derives household/role/time,
+  enforces atomic single use and monotonic terminal state, consumes opaque
+  identity/owner/support authorization, and emits the typed custody handoff.
+- [ ] Expected tests cover concurrent redemption, pre-issuance, expiry,
+  revocation, replay, wrong household/role, rejected recovery non-advancement,
+  enumeration/rate-limit behavior, restart, and audited support scope.
+
 - [x] Invite state machine defined. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
 - [x] Co-parent/observer/child-device invite scopes separated. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
 - [x] Invite single-use proof exists. Proof: `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/00-invite-state-machine-proof.md`.
@@ -105,6 +137,17 @@ gate, or whole-plan completion.
 - [x] Workpack completion section filled. Proof: `docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md`.
 
 ## WP05 Device Ownership AuthZ
+
+Current production-closure overlay (the checked rows below retain historical
+contract/proof evidence and do not satisfy these rows):
+
+- [ ] The production authorization composer derives current household,
+  membership, device trust, session freshness, capability scope, controller
+  lease, and step-up state from owned repositories/opaque receipts instead of a
+  caller-provided flag bundle.
+- [ ] Expected tests cover view-versus-control grant separation, lease identity
+  and expiry, revoke/rebind races, required step-up consumption, audit emission,
+  and typed remote/export/delete/billing consumers.
 
 - [x] Actor/household/role/device/session/capability matrix defined. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.
 - [x] Parent controller authority proof exists. Proof: `output/account-identity-family-plan-proof/05-device-ownership-authz/00-device-authority-matrix.md`.

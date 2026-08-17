@@ -128,6 +128,35 @@ npm run lint:architecture -- --files packages/family-domain
 
 Provider implementation remains tied to WP01. Device trust/step-up proof remains tied to device-trust-bootstrap-plan.
 
+## 2026-08-17 current code/test correction
+
+The Rust session evaluator and its focused tests cover credential separation,
+expiry/skew classification, replay/revocation rejection, freshness, creation,
+rotation decisions, and scoped issuance. Provisioning consumes the pairing
+decision. This remains a decision library: callers provide lifecycle/replay and
+freshness facts, and credential issuance has no production caller.
+
+Production source still required:
+
+- durable token-digest/session/refresh-family storage;
+- repository-owned rotation generation, replay registry, logout/global-revoke
+  epoch, issued/expiry calculation, and audit emission;
+- real account browser/session routes consuming server-derived WP08 identity;
+- controller-lease and support/admin credential classes where the owning routes
+  require them.
+
+Expected test source still required:
+
+- concurrent atomic refresh rotation and replay-after-restart;
+- logout/global revoke, malformed/backdated state, and clock-skew edges;
+- exact redacted audit records and recovery from partial persistence;
+- CSRF, origin, and fetch-metadata negatives on the actual account route.
+
+The remote packet `ac03afee3a` is rejected/quarantined: its public
+deserializable session record accepted caller-provided replay/freshness state,
+had no token custody or durable repository, and allowed terminal/backdated
+rewrites. It is not WP03 progress.
+
 ## Fill before DONE
 
 - Workpack id and branch: `WP03 Session Token Lifecycle`; `codex/tracking-plan-full-continuation-a`.
