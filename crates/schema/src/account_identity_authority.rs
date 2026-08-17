@@ -189,7 +189,12 @@ pub enum AccountIdentityBindingValidationError {
 }
 
 impl AccountIdentityHouseholdChildDeviceBinding {
-    pub fn validate(&self) -> Result<(), AccountIdentityBindingValidationError> {
+    /// Validate only the encoded binding shape.
+    ///
+    /// This does not establish current authority. Durable account storage must
+    /// atomically resolve the provider mapping and binding, then own lifecycle,
+    /// revocation, and generation-currentness checks.
+    pub fn validate_shape(&self) -> Result<(), AccountIdentityBindingValidationError> {
         if self.authority_generation == 0 {
             return Err(AccountIdentityBindingValidationError::ZeroAuthorityGeneration);
         }
@@ -208,7 +213,11 @@ pub struct AccountIdentityAuthorityHandoff {
 }
 
 impl AccountIdentityAuthorityHandoff {
-    pub fn validate(&self) -> Result<(), AccountIdentityBindingValidationError> {
+    /// Validate only the encoded handoff shape and mapping consistency.
+    ///
+    /// This is an identity lookup envelope, not a role, session, device-trust,
+    /// or action authority. Currentness remains repository-owned.
+    pub fn validate_shape(&self) -> Result<(), AccountIdentityBindingValidationError> {
         (self.schema_version == AccountIdentityAuthoritySchemaVersion::V0_7)
             .then_some(())
             .ok_or(AccountIdentityBindingValidationError::SchemaVersionMismatch)?;
@@ -218,6 +227,6 @@ impl AccountIdentityAuthorityHandoff {
         (self.mapping.account_id == self.binding.account_id)
             .then_some(())
             .ok_or(AccountIdentityBindingValidationError::MappingAccountMismatch)?;
-        self.binding.validate()
+        self.binding.validate_shape()
     }
 }
