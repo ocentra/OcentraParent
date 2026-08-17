@@ -27,6 +27,18 @@
       "reason": "Reviewed as the next bounded source-only Cloudflare packet after Account WP08's sealed v0.7 authority contract and WP01's module scaffold. WP06 must add the durable adapter and Worker-owned caller without inventing provider or household authority. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
     },
     {
+      "id": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 is authorized for an implementation-only, fail-closed provider adapter and explicit environment/configuration custody; it may return only verified provider identity and must not create family, household, role, child, device, session, or fixture/header authority. Tests, proof, deployment secrets, runtime reachability, and DONE remain open."
+    },
+    {
       "id": "WP-policy-control-plane-plan-01-policy-source-of-truth",
       "hardDependencies": [
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",

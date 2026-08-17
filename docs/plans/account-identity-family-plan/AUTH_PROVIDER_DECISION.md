@@ -2,6 +2,18 @@
 
 ## Decision
 
+The default architecture is Cloudflare-first custody. The selected external
+identity provider for the first Worker adapter is Firebase Auth, subject to the
+fail-closed verification contract in Cloudflare WP05:
+
+- Firebase Auth verifies the external user identity only. The Worker accepts a
+  Firebase ID token only after RS256 signature, issuer, audience, time, and
+  subject checks against configured trust material.
+- The adapter returns only the verified provider subject. It never returns
+  household, member, role, child, device, policy, billing, or session authority.
+- Auth.js is not selected for this Worker path. It may not become a hidden
+  family-data or authorization owner.
+
 The default architecture is Cloudflare-first custody:
 
 - Cloudflare D1 owns household/account/membership/device/invite/session metadata.
@@ -9,7 +21,11 @@ The default architecture is Cloudflare-first custody:
 - Cloudflare KV is non-authoritative cache and hint state only.
 - Cloudflare R2 is only for explicitly encrypted artifacts if a later decision approves it.
 
-Firebase Auth may be used only as an external identity provider/token issuer if, and only if, it stays adapter-only and never becomes the family product data store.
+Firebase Auth is accepted only as an external identity provider/token issuer if,
+and only if, it stays adapter-only and never becomes the family product data
+store. This decision authorizes the Cloudflare WP05 adapter boundary only; it
+does not authorize login/session routes, D1 migration, deployment, or proof
+completion.
 
 ## Rejected Options
 

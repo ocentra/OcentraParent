@@ -172,6 +172,16 @@ Current Parent direction:
 
 ## Decision records
 
+## 2026-08-17 Account provider handoff
+
+Account WP01 selected Firebase Auth as the external identity provider. Cloudflare
+WP05 now owns the implementation-only adapter packet for fail-closed Firebase
+RS256 ID-token verification and explicit environment/configuration custody. The
+adapter returns only verified provider identity; D1/DO and the Rust account
+authority retain all family/device/session truth. Tests, retained proof,
+deployment secrets, migration, runtime reachability, and normal completion
+remain open.
+
 | Record                    | Status                                                       | Gap                                                                                                                                                | Closure criteria                                                                                                               |
 | ------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | CFCP-001 through CFCP-021 | source-present / retained-proof-absent | Worker/module/config/test source exists, but no Cloudflare output proof root is tracked at HEAD. The prior private billing-module import blocker is resolved in source; runtime, deployment, authority, and payment behavior have not been rerun or retained. | Select one workpack, install its declared dependencies, execute its focused validation, retain its proof bundle, and only then update its individual status. |

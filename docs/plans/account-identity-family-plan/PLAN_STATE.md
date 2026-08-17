@@ -42,6 +42,22 @@ Firebase Auth, if used, is an external IdP/token issuer only.
 Auth.js or another app-owned auth layer may be used only as an adapter/session layer, not the family authority model.
 ```
 
+## 2026-08-17 provider handoff
+
+Account WP01 selects Firebase Auth as the external identity provider for the
+Cloudflare Worker adapter. The provider may prove only the external user
+identity: the adapter must verify Firebase RS256 ID tokens against configured
+issuer, audience, JWKS, time, and non-empty subject, then return only that
+verified provider subject. D1/DO and the Rust family authority remain the sole
+owners of account, household, membership, role, child, device, invite,
+recovery, and session product truth. Auth.js is not selected for this Worker
+path and cannot become family authority.
+
+This is a narrow handoff to Cloudflare WP05's implementation-only packet. It
+does not authorize account login/session routes, D1 migration, deployment,
+tests, proof, or runtime readiness; unresolved provider configuration remains
+fail-closed/manual-required.
+
 ## Current repo facts already read
 
 - `docs/features/family-setup-device-roles.md` says family setup is product foundation and not portal polish. It also states the child-device agent remains authority for device role, controller lease, revocation, stale command rejection, and local capability status.

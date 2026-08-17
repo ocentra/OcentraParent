@@ -15939,15 +15939,26 @@
       "path": "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
       "parent": "PLAN-cloudflare-control-plane-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "validation",
+      "lifecycleState": "validation",
       "metadata": {
         "planSlug": "cloudflare-control-plane-plan",
         "indexPath": "docs/plans/cloudflare-control-plane-plan/WORKPACK_INDEX.md",
-        "statusText": "source-present / retained-proof-absent",
+        "statusText": "validation / implementation-phase review accepted / proof deferred",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/account-identity-family-plan/AUTH_PROVIDER_DECISION.md",
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+            "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+            "docs/plans/cloudflare-control-plane-plan/AUTH_BOUNDARY_MODEL.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 is authorized for an implementation-only, fail-closed provider adapter and explicit environment/configuration custody; it may return only verified provider identity and must not create family, household, role, child, device, session, or fixture/header authority. Tests, proof, deployment secrets, runtime reachability, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
