@@ -67,6 +67,7 @@ pub enum ParentOwnedSyncExportDerivationError {
     TombstoneDeleteRequestMissing,
     TombstoneBlockedRequiresReason,
     TombstonePropagatedRequiresTimestamp,
+    ManifestItemNotClaimSafe,
     DuplicateProviderStatusRef,
     DuplicateTombstoneRef,
     InvalidContractVersion,

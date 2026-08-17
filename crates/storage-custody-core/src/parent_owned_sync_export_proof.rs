@@ -8,6 +8,9 @@ use super::{
     ParentOwnedSyncProviderStatusInput, ParentOwnedSyncStateInput, ParentOwnedSyncTombstoneInput,
 };
 
+#[path = "parent_owned_sync_export_manifest.rs"]
+mod parent_owned_sync_export_manifest;
+
 pub(super) fn build_parent_owned_sync_export_proof(
     manifest: &contracts::ParentOwnedSyncExportManifest,
     provider_inputs: Vec<ParentOwnedSyncProviderStatusInput>,
@@ -15,6 +18,8 @@ pub(super) fn build_parent_owned_sync_export_proof(
     tombstone_inputs: Vec<ParentOwnedSyncTombstoneInput>,
     updated_at: contracts::ParentTimestamp,
 ) -> Result<contracts::ParentOwnedSyncExportContractProof, ParentOwnedSyncExportDerivationError> {
+    parent_owned_sync_export_manifest::validate_manifest(manifest)?;
+
     let provider_statuses = provider_inputs
         .into_iter()
         .map(derive_parent_owned_sync_provider_status_row)
