@@ -60,12 +60,17 @@ impl ParentStepUpAuthorityVerifier for UnavailableParentStepUpAuthorityVerifier 
 }
 
 pub fn verify_parent_step_up_receipt(
-    verifier: &mut impl ParentStepUpAuthorityVerifier,
+    _verifier: &mut impl ParentStepUpAuthorityVerifier,
     receipt: &ParentStepUpAuthorityReceipt,
     request: &ParentStepUpAuthorityRequest,
 ) -> Result<ParentStepUpAssertionSnapshot, ParentStepUpAuthorityFailure> {
     validate_receipt_shape(receipt, request)?;
-    verifier.verify_and_consume(receipt, request)
+    // A receipt shape is not parent authority.  Until the family-owned
+    // platform/passkey adapter owns signature verification and one-time nonce
+    // consumption, accepting a caller-provided verifier would let any crate
+    // mint an assertion snapshot by implementing this trait.  Keep the
+    // boundary fail-closed and preserve the explicit unavailable outcome.
+    Err(ParentStepUpAuthorityFailure::AuthorityUnavailable)
 }
 
 fn validate_receipt_shape(
