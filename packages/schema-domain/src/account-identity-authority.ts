@@ -4,6 +4,8 @@ import * as Generated from './generated-account-identity-authority';
 
 export const AccountIdentityProviderSchema = Generated.AccountIdentityProviderSchema;
 export const AccountIdentityAuthoritySchemaVersionSchema = Generated.AccountIdentityAuthoritySchemaVersionSchema;
+export const AccountIdentityMemberAuthoritySchemaVersionSchema =
+  Generated.AccountIdentityMemberAuthoritySchemaVersionSchema;
 export const AccountIdentityMappingStatusSchema = Generated.AccountIdentityMappingStatusSchema;
 export const AccountIdentityAccountStateSchema = Generated.AccountIdentityAccountStateSchema;
 export const AccountIdentityMembershipStateSchema = Generated.AccountIdentityMembershipStateSchema;
@@ -22,13 +24,19 @@ export const AccountIdentityChildDeviceIdSchema = Generated.AccountIdentityChild
 export const AccountIdentityPairingIdSchema = Generated.AccountIdentityPairingIdSchema;
 export const AccountIdentityInstallationIdSchema = Generated.AccountIdentityInstallationIdSchema;
 export const AccountIdentityRouteIdSchema = Generated.AccountIdentityRouteIdSchema;
+export const AccountIdentityDeviceIdSchema = Generated.AccountIdentityDeviceIdSchema;
 export const AccountIdentityProviderSubjectMappingSchema = Generated.AccountIdentityProviderSubjectMappingSchema;
 export const AccountIdentityHouseholdChildDeviceBindingSchema =
   Generated.AccountIdentityHouseholdChildDeviceBindingSchema;
 export const AccountIdentityAuthorityHandoffSchema = Generated.AccountIdentityAuthorityHandoffSchema;
+export const AccountIdentityCurrentMemberDeviceAuthoritySchema =
+  Generated.AccountIdentityCurrentMemberDeviceAuthoritySchema;
+export const AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema =
+  Generated.AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema;
 
 export type AccountIdentityProvider = Generated.AccountIdentityProvider;
 export type AccountIdentityAuthoritySchemaVersion = Generated.AccountIdentityAuthoritySchemaVersion;
+export type AccountIdentityMemberAuthoritySchemaVersion = Generated.AccountIdentityMemberAuthoritySchemaVersion;
 export type AccountIdentityMappingStatus = Generated.AccountIdentityMappingStatus;
 export type AccountIdentityAccountState = Generated.AccountIdentityAccountState;
 export type AccountIdentityMembershipState = Generated.AccountIdentityMembershipState;
@@ -47,6 +55,10 @@ export type AccountIdentityChildDeviceId = Generated.AccountIdentityChildDeviceI
 export type AccountIdentityPairingId = Generated.AccountIdentityPairingId;
 export type AccountIdentityInstallationId = Generated.AccountIdentityInstallationId;
 export type AccountIdentityRouteId = Generated.AccountIdentityRouteId;
+export type AccountIdentityDeviceId = Generated.AccountIdentityDeviceId;
 export type AccountIdentityProviderSubjectMapping = Generated.AccountIdentityProviderSubjectMapping;
 export type AccountIdentityHouseholdChildDeviceBinding = Generated.AccountIdentityHouseholdChildDeviceBinding;
 export type AccountIdentityAuthorityHandoff = Generated.AccountIdentityAuthorityHandoff;
+export type AccountIdentityCurrentMemberDeviceAuthority = Generated.AccountIdentityCurrentMemberDeviceAuthority;
+export type AccountIdentityCurrentMemberDeviceAuthorityHandoff =
+  Generated.AccountIdentityCurrentMemberDeviceAuthorityHandoff;

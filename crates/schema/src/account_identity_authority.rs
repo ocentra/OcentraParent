@@ -10,6 +10,7 @@ use crate::report_query_custody::{ChildProfileId, FamilyId, ParentAccountId};
 
 pub const ACCOUNT_IDENTITY_AUTHORITY_SCHEMA_VERSION: &str = "v0.7";
 pub const ACCOUNT_IDENTITY_AUTHORITY_MAX_GENERATION: u64 = 9_007_199_254_740_991;
+pub const ACCOUNT_IDENTITY_MEMBER_AUTHORITY_SCHEMA_VERSION: &str = "v0.1";
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename = "v0.7")]
@@ -49,6 +50,8 @@ account_identity_text_id!(AccountIdentityPairingId);
 account_identity_text_id!(AccountIdentityInstallationId);
 account_identity_text_id!(AccountIdentityRouteId);
 account_identity_text_id!(AccountIdentityProviderSubject);
+account_identity_text_id!(AccountIdentityMemberId);
+account_identity_text_id!(AccountIdentityDeviceId);
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -152,6 +155,12 @@ pub enum AccountIdentityBindingRevocationState {
     Revoked,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename = "v0.1")]
+pub enum AccountIdentityMemberAuthoritySchemaVersion {
+    V0_1,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountIdentityProviderSubjectMapping {
@@ -177,6 +186,30 @@ pub struct AccountIdentityHouseholdChildDeviceBinding {
     pub lifecycle_state: AccountIdentityBindingLifecycleState,
     pub revocation_state: AccountIdentityBindingRevocationState,
     pub authority_generation: u64,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AccountIdentityCurrentMemberDeviceAuthority {
+    pub account_id: ParentAccountId,
+    pub household_id: FamilyId,
+    pub member_id: AccountIdentityMemberId,
+    pub role: AccountIdentityRole,
+    pub account_state: AccountIdentityAccountState,
+    pub membership_state: AccountIdentityMembershipState,
+    pub device_id: AccountIdentityDeviceId,
+    pub device_trust_state: AccountIdentityDeviceTrustState,
+    pub session_freshness_state: AccountIdentitySessionFreshnessState,
+    pub authority_generation: u64,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AccountIdentityCurrentMemberDeviceAuthorityHandoff {
+    pub schema_version: AccountIdentityMemberAuthoritySchemaVersion,
+    pub mapping: AccountIdentityProviderSubjectMapping,
+    pub member: AccountIdentityCurrentMemberDeviceAuthority,
+    pub binding: AccountIdentityHouseholdChildDeviceBinding,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -228,5 +261,110 @@ impl AccountIdentityAuthorityHandoff {
             .then_some(())
             .ok_or(AccountIdentityBindingValidationError::MappingAccountMismatch)?;
         self.binding.validate_shape()
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum AccountIdentityMemberAuthorityValidationError {
+    SchemaVersionMismatch,
+    InactiveProviderMapping,
+    MappingAccountMismatch,
+    MemberAccountMismatch,
+    MemberHouseholdMismatch,
+    BindingAccountMismatch,
+    BindingHouseholdMismatch,
+    InactiveAccount,
+    InactiveMembership,
+    UntrustedDevice,
+    StaleSession,
+    PairingNotComplete,
+    InstallNotComplete,
+    LifecycleNotActive,
+    Revoked,
+    ZeroAuthorityGeneration,
+    AuthorityGenerationExceedsSafeInteger,
+    AuthorityGenerationMismatch,
+}
+
+impl AccountIdentityCurrentMemberDeviceAuthorityHandoff {
+    /// Validate the encoded current-authority shape and identity consistency.
+    ///
+    /// This is a fail-closed handoff contract. It does not replace the durable
+    /// repository's compare-and-swap/currentness check or mint authority from
+    /// caller-provided headers.
+    pub fn validate_shape(&self) -> Result<(), AccountIdentityMemberAuthorityValidationError> {
+        (self.schema_version == AccountIdentityMemberAuthoritySchemaVersion::V0_1)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::SchemaVersionMismatch)?;
+        (self.mapping.status == AccountIdentityMappingStatus::Active)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::InactiveProviderMapping)?;
+        (self.mapping.account_id == self.member.account_id)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::MappingAccountMismatch)?;
+        (self.member.account_id == self.binding.account_id)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::MemberAccountMismatch)?;
+        (self.member.household_id == self.binding.household_id)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::MemberHouseholdMismatch)?;
+        (self.binding.account_id == self.member.account_id)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::BindingAccountMismatch)?;
+        (self.binding.household_id == self.member.household_id)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::BindingHouseholdMismatch)?;
+        (self.member.account_state == AccountIdentityAccountState::Active)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::InactiveAccount)?;
+        (self.member.membership_state == AccountIdentityMembershipState::Active)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::InactiveMembership)?;
+        (self.member.device_trust_state == AccountIdentityDeviceTrustState::Trusted)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::UntrustedDevice)?;
+        (self.member.session_freshness_state == AccountIdentitySessionFreshnessState::Fresh)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::StaleSession)?;
+        (self.binding.pairing_state == AccountIdentityPairingState::Paired)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::PairingNotComplete)?;
+        (self.binding.install_state == AccountIdentityInstallState::Installed)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::InstallNotComplete)?;
+        (self.binding.lifecycle_state == AccountIdentityBindingLifecycleState::Active)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::LifecycleNotActive)?;
+        (self.binding.revocation_state == AccountIdentityBindingRevocationState::Active)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::Revoked)?;
+        (self.member.authority_generation > 0)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::ZeroAuthorityGeneration)?;
+        (self.member.authority_generation <= ACCOUNT_IDENTITY_AUTHORITY_MAX_GENERATION)
+            .then_some(())
+            .ok_or(
+                AccountIdentityMemberAuthorityValidationError::AuthorityGenerationExceedsSafeInteger,
+            )?;
+        (self.member.authority_generation == self.binding.authority_generation)
+            .then_some(())
+            .ok_or(AccountIdentityMemberAuthorityValidationError::AuthorityGenerationMismatch)?;
+        self.binding.validate_shape().map_err(|error| match error {
+            AccountIdentityBindingValidationError::SchemaVersionMismatch => {
+                AccountIdentityMemberAuthorityValidationError::SchemaVersionMismatch
+            }
+            AccountIdentityBindingValidationError::InactiveProviderMapping => {
+                AccountIdentityMemberAuthorityValidationError::InactiveProviderMapping
+            }
+            AccountIdentityBindingValidationError::MappingAccountMismatch => {
+                AccountIdentityMemberAuthorityValidationError::MappingAccountMismatch
+            }
+            AccountIdentityBindingValidationError::ZeroAuthorityGeneration => {
+                AccountIdentityMemberAuthorityValidationError::ZeroAuthorityGeneration
+            }
+            AccountIdentityBindingValidationError::AuthorityGenerationExceedsSafeInteger => {
+                AccountIdentityMemberAuthorityValidationError::AuthorityGenerationExceedsSafeInteger
+            }
+        })
     }
 }
