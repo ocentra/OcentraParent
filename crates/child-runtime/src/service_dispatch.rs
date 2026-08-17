@@ -18,7 +18,8 @@ impl ChildAgentService {
         let readiness = readiness_from_state(
             &removal,
             self.recovery_pending.as_deref(),
-            self.paths.identity().is_some(),
+            self.trust_binding.as_ref(),
+            self.paths.trust_binding_source(),
         );
         validate_readiness(&readiness)?;
         match command {

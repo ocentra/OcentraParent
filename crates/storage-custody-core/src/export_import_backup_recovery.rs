@@ -1,7 +1,7 @@
 use ocentra_schema::export_import_backup_recovery as contracts;
 
 use ocentra_family_identity_core::household_authority::HouseholdAuthorityAction;
-use ocentra_family_identity_core::household_authority_proof::VerifiedHouseholdAuthority;
+use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHouseholdAuthority;
 
 #[path = "export_import_backup_recovery_build.rs"]
 mod export_import_backup_recovery_build;
@@ -148,7 +148,7 @@ pub(crate) fn apply_restore_with_parent_authority(
     preflight: &contracts::ExportImportImportPreflight,
     context: &ImportBundleContext,
     request: &RestoreApplyRequest,
-    authority: &VerifiedHouseholdAuthority,
+    authority: CurrentVerifiedHouseholdAuthority,
 ) -> contracts::ExportImportRestoreApplyResult {
     let mut executor = UnavailableRestoreExecutor;
     apply_restore_with_parent_authority_and_executor(
@@ -164,12 +164,10 @@ pub(crate) fn apply_restore_with_parent_authority_and_executor(
     preflight: &contracts::ExportImportImportPreflight,
     context: &ImportBundleContext,
     request: &RestoreApplyRequest,
-    authority: &VerifiedHouseholdAuthority,
+    authority: CurrentVerifiedHouseholdAuthority,
     executor: &mut impl RestoreExecutor,
 ) -> contracts::ExportImportRestoreApplyResult {
-    let Some(identity_binding) = authority.identity_binding() else {
-        return export_import_backup_recovery_restore::blocked_restore(preflight, request);
-    };
+    let identity_binding = authority.identity_binding();
     let Some(target_device_id) = context.target_device_id.as_ref() else {
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     };

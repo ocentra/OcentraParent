@@ -14,3 +14,4 @@ pub const READINESS_READY: jint = 1;
 pub const READINESS_RECOVERY_PENDING: jint = 2;
 pub const READINESS_REVOKED: jint = 3;
 pub const READINESS_TAMPER_MANUAL_REQUIRED: jint = 4;
+pub const READINESS_TRUST_BINDING_MANUAL_REQUIRED: jint = 5;

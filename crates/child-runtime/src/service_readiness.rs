@@ -15,7 +15,8 @@ impl ChildAgentService {
             readiness: readiness_from_state(
                 &removal,
                 self.recovery_pending.as_deref(),
-                self.paths.identity().is_some(),
+                self.trust_binding.as_ref(),
+                self.paths.trust_binding_source(),
             ),
             domain_flow_count: self.domain_flows.len(),
             durable_root: self.paths.root().to_owned(),
@@ -23,8 +24,17 @@ impl ChildAgentService {
         })
     }
 
-    pub fn readiness(&self) -> &ChildAgentReadiness {
-        &self.readiness
+    pub fn readiness(&self) -> Result<ChildAgentReadiness, ChildAgentServiceError> {
+        let removal = self
+            .removal
+            .status()
+            .map_err(ChildAgentServiceError::Storage)?;
+        Ok(readiness_from_state(
+            &removal,
+            self.recovery_pending.as_deref(),
+            self.trust_binding.as_ref(),
+            self.paths.trust_binding_source(),
+        ))
     }
 
     pub fn ingress(&self) -> super::ChildAgentIngress {
@@ -39,13 +49,16 @@ impl ChildAgentService {
 pub(super) fn readiness_from_state(
     removal: &ChildAgentRemovalStatus,
     recovery_pending: Option<&[CorrelationId]>,
-    identity_available: bool,
+    expected_binding: Option<
+        &ocentra_family_identity_core::device_trust_current_binding::CurrentChildDeviceTrustBinding,
+    >,
+    source: Option<&dyn super::trust_binding::ChildAgentTrustBindingSource>,
 ) -> ChildAgentReadiness {
     if removal.trust_state == ChildAgentTrustState::Revoked {
         ChildAgentReadiness::Revoked {
             audit_ref: removal.latest_audit_ref.clone(),
         }
-    } else if !identity_available {
+    } else if !trust_binding_is_current(expected_binding, source) {
         ChildAgentReadiness::TrustBindingManualRequired
     } else if removal.latest_tamper_signal_ref.is_some() {
         ChildAgentReadiness::TamperManualRequired {
@@ -58,4 +71,21 @@ pub(super) fn readiness_from_state(
     } else {
         ChildAgentReadiness::Ready
     }
+}
+
+fn trust_binding_is_current(
+    expected_binding: Option<
+        &ocentra_family_identity_core::device_trust_current_binding::CurrentChildDeviceTrustBinding,
+    >,
+    source: Option<&dyn super::trust_binding::ChildAgentTrustBindingSource>,
+) -> bool {
+    let (Some(expected_binding), Some(source)) = (expected_binding, source) else {
+        return false;
+    };
+    let Ok(current_binding) = source.current_trust_binding() else {
+        return false;
+    };
+    current_binding.state()
+        == ocentra_family_identity_core::device_trust_lifecycle::DeviceTrustLifecycleState::Trusted
+        && &current_binding == expected_binding
 }

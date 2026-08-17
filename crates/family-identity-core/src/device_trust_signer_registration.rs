@@ -156,7 +156,7 @@ impl SignerRegistrationAuthorization {
 /// This value carries no mutation or authorization capability. Callers must
 /// resolve it again at each trust decision so lifecycle and sidecar generation
 /// checks are performed against current durable state.
-#[derive(Clone, PartialEq, Eq)]
+#[derive(PartialEq, Eq)]
 pub struct CurrentSignerAuthority {
     family_id: String,
     trust_subject: String,
