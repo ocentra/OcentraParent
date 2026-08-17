@@ -55,10 +55,12 @@ export_import_string_enums!(
     },
     ExportImportMigrationExecutionState, "camelCase" {
         NotRequired,
-        Applied,
-        RolledBack,
         ManualRequired,
-        RollbackManualRequired,
+    },
+    ExportImportMigrationExecutionDependency, "kebab-case" {
+        BundleMigrationReference,
+        SupportedMigrationPath,
+        DurableMigrationStoreAndExecutor,
     },
     ExportImportPreflightState, "camelCase" {
         AcceptedPreview,
@@ -201,19 +203,22 @@ export_import_string_enum_as_str_values!(
         ],
     },
     ExportImportMigrationExecutionState {
-        variants: [
-            NotRequired,
-            Applied,
-            RolledBack,
-            ManualRequired,
-            RollbackManualRequired,
-        ],
+        variants: [NotRequired, ManualRequired],
         values: [
             EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_NOT_REQUIRED,
-            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_APPLIED,
-            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLED_BACK,
             EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_MANUAL_REQUIRED,
-            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLBACK_MANUAL_REQUIRED,
+        ],
+    },
+    ExportImportMigrationExecutionDependency {
+        variants: [
+            BundleMigrationReference,
+            SupportedMigrationPath,
+            DurableMigrationStoreAndExecutor,
+        ],
+        values: [
+            EXPORT_IMPORT_MIGRATION_DEPENDENCY_BUNDLE_REFERENCE,
+            EXPORT_IMPORT_MIGRATION_DEPENDENCY_SUPPORTED_PATH,
+            EXPORT_IMPORT_MIGRATION_DEPENDENCY_DURABLE_OWNER,
         ],
     },
     ExportImportPreflightState {

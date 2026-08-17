@@ -8,7 +8,7 @@ mod export_import_backup_recovery_build;
 #[path = "export_import_backup_recovery_import.rs"]
 mod export_import_backup_recovery_import;
 #[path = "export_import_backup_recovery_migration.rs"]
-pub mod export_import_backup_recovery_migration;
+mod export_import_backup_recovery_migration;
 #[path = "export_import_backup_recovery_restore.rs"]
 mod export_import_backup_recovery_restore;
 
@@ -24,6 +24,9 @@ pub enum BackupRequestError {
     AuthorityActionRequired,
     HouseholdMismatch,
 }
+
+const BACKUP_SCHEDULED_MANUAL_REQUIRED_NOTE: &str =
+    "Scheduled backup remains manual-required until a trusted scheduler and provider runtime exist.";
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExportBundleBuildRequest {
@@ -152,12 +155,11 @@ pub(crate) fn run_import_preflight(
     export_import_backup_recovery_import::run_import_preflight(bundle, context)
 }
 
-pub fn execute_import_migration(
+pub fn migration_execution_readiness(
+    bundle: &contracts::ExportImportRecoveryBundle,
     preflight: &contracts::ExportImportImportPreflight,
-    request: &export_import_backup_recovery_migration::MigrationExecutionRequest,
-    executor: &mut impl export_import_backup_recovery_migration::MigrationExecutor,
-) -> contracts::ExportImportMigrationExecutionResult {
-    export_import_backup_recovery_migration::execute_import_migration(preflight, request, executor)
+) -> contracts::ExportImportMigrationExecutionReadiness {
+    export_import_backup_recovery_migration::migration_execution_readiness(bundle, preflight)
 }
 
 pub fn authorize_backup_request(
@@ -239,42 +241,4 @@ pub(crate) fn apply_restore_with_parent_authority_and_executor(
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     };
     result
-}
-
-pub(crate) fn apply_restore_with_parent_authority_and_migration_executor(
-    preflight: &contracts::ExportImportImportPreflight,
-    context: &ImportBundleContext,
-    request: &RestoreApplyRequest,
-    authority: CurrentVerifiedHouseholdAuthority,
-    migration_request: &export_import_backup_recovery_migration::MigrationExecutionRequest,
-    migration_executor: &mut impl export_import_backup_recovery_migration::MigrationExecutor,
-    restore_executor: &mut impl RestoreExecutor,
-) -> (
-    contracts::ExportImportRestoreApplyResult,
-    contracts::ExportImportMigrationExecutionResult,
-) {
-    let migration = export_import_backup_recovery_migration::execute_import_migration(
-        preflight,
-        migration_request,
-        migration_executor,
-    );
-    if !matches!(
-        migration.state,
-        contracts::ExportImportMigrationExecutionState::Applied
-            | contracts::ExportImportMigrationExecutionState::NotRequired
-    ) {
-        return (
-            export_import_backup_recovery_restore::blocked_restore(preflight, request),
-            migration,
-        );
-    }
-
-    let restore = apply_restore_with_parent_authority_and_executor(
-        preflight,
-        context,
-        request,
-        authority,
-        restore_executor,
-    );
-    (restore, migration)
 }

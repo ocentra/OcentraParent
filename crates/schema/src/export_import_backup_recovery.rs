@@ -45,11 +45,11 @@ const EXPORT_IMPORT_BACKUP_CADENCE_SCHEDULED: &str = "scheduled";
 const EXPORT_IMPORT_BACKUP_STATE_AUTHORIZED: &str = "authorized";
 const EXPORT_IMPORT_BACKUP_STATE_MANUAL_REQUIRED: &str = "manualRequired";
 const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_NOT_REQUIRED: &str = "notRequired";
-const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_APPLIED: &str = "applied";
-const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLED_BACK: &str = "rolledBack";
 const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_MANUAL_REQUIRED: &str = "manualRequired";
-const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLBACK_MANUAL_REQUIRED: &str =
-    "rollbackManualRequired";
+const EXPORT_IMPORT_MIGRATION_DEPENDENCY_BUNDLE_REFERENCE: &str = "bundle-migration-reference";
+const EXPORT_IMPORT_MIGRATION_DEPENDENCY_SUPPORTED_PATH: &str = "supported-migration-path";
+const EXPORT_IMPORT_MIGRATION_DEPENDENCY_DURABLE_OWNER: &str =
+    "durable-migration-store-and-executor";
 const EXPORT_IMPORT_PREFLIGHT_STATE_ACCEPTED_PREVIEW: &str = "acceptedPreview";
 const EXPORT_IMPORT_PREFLIGHT_STATE_PARTIAL_PREVIEW: &str = "partialPreview";
 const EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_SCHEMA_VERSION: &str = "rejectedSchemaVersion";
@@ -150,6 +150,8 @@ pub type ExportImportMigrationState = enum_types::ExportImportMigrationState;
 pub type ExportImportBackupCadence = enum_types::ExportImportBackupCadence;
 pub type ExportImportBackupState = enum_types::ExportImportBackupState;
 pub type ExportImportMigrationExecutionState = enum_types::ExportImportMigrationExecutionState;
+pub type ExportImportMigrationExecutionDependency =
+    enum_types::ExportImportMigrationExecutionDependency;
 pub type ExportImportPreflightState = enum_types::ExportImportPreflightState;
 pub type ExportImportSectionDecisionState = enum_types::ExportImportSectionDecisionState;
 pub type ExportImportRestoreApplyState = enum_types::ExportImportRestoreApplyState;
@@ -279,15 +281,13 @@ pub struct ExportImportBackupRequestState {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ExportImportMigrationExecutionResult {
+pub struct ExportImportMigrationExecutionReadiness {
     pub state: ExportImportMigrationExecutionState,
-    pub migration_ref: ExportImportMigrationRef,
-    pub execution_ref: Option<String>,
-    pub rollback_ref: Option<String>,
+    pub migration_ref: Option<ExportImportMigrationRef>,
+    pub required_dependency: Option<ExportImportMigrationExecutionDependency>,
     pub local_truth_mutated: bool,
     pub tombstones_preserved: bool,
-    pub idempotent: bool,
-    pub rollback_available: bool,
+    pub no_default_support_decrypt: bool,
     pub manual_required_note: Option<String>,
 }
 
