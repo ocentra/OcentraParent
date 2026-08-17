@@ -3,6 +3,7 @@
 #[macro_use]
 mod family_identity_text_ids;
 pub mod account_identity_authority;
+pub mod account_identity_authority_repository;
 pub mod device_trust_lifecycle;
 mod device_trust_lifecycle_activation;
 mod device_trust_lifecycle_authority;

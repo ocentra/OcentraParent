@@ -10,7 +10,11 @@ declare module '@cloudflare/workers-types' {
     bind(...values: ReadonlyArray<unknown>): D1PreparedStatement;
     first<T>(): Promise<T | null>;
     all<T>(): Promise<{ results: ReadonlyArray<T>; success: true }>;
-    run(): Promise<{ results: ReadonlyArray<never>; success: true }>;
+    run(): Promise<{
+      results: ReadonlyArray<never>;
+      success: true;
+      meta?: { changes?: number };
+    }>;
   }
   export interface D1Database {
     prepare(query: string): D1PreparedStatement;

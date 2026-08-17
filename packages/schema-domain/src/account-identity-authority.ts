@@ -12,6 +12,9 @@ export const AccountIdentityMembershipStateSchema = Generated.AccountIdentityMem
 export const AccountIdentityRoleSchema = Generated.AccountIdentityRoleSchema;
 export const AccountIdentityDeviceTrustStateSchema = Generated.AccountIdentityDeviceTrustStateSchema;
 export const AccountIdentitySessionFreshnessStateSchema = Generated.AccountIdentitySessionFreshnessStateSchema;
+export const AccountIdentitySupportScopeSchema = Generated.AccountIdentitySupportScopeSchema;
+export const AccountIdentitySupportReceiptRevocationStateSchema =
+  Generated.AccountIdentitySupportReceiptRevocationStateSchema;
 export const AccountIdentityPairingStateSchema = Generated.AccountIdentityPairingStateSchema;
 export const AccountIdentityInstallStateSchema = Generated.AccountIdentityInstallStateSchema;
 export const AccountIdentitySelectedRouteSchema = Generated.AccountIdentitySelectedRouteSchema;
@@ -26,10 +29,12 @@ export const AccountIdentityInstallationIdSchema = Generated.AccountIdentityInst
 export const AccountIdentityRouteIdSchema = Generated.AccountIdentityRouteIdSchema;
 export const AccountIdentityDeviceIdSchema = Generated.AccountIdentityDeviceIdSchema;
 export const AccountIdentitySupportReceiptIdSchema = Generated.AccountIdentitySupportReceiptIdSchema;
+export const AccountIdentitySupportIssuerIdSchema = Generated.AccountIdentitySupportIssuerIdSchema;
+export const AccountIdentityAuditIdentitySchema = Generated.AccountIdentityAuditIdentitySchema;
 export const AccountIdentityProviderSubjectMappingSchema = Generated.AccountIdentityProviderSubjectMappingSchema;
 export const AccountIdentityHouseholdChildDeviceBindingSchema =
   Generated.AccountIdentityHouseholdChildDeviceBindingSchema;
-export const AccountIdentityAuthorityHandoffSchema = Generated.AccountIdentityAuthorityHandoffSchema;
+export const AccountIdentitySupportAuthorityReceiptSchema = Generated.AccountIdentitySupportAuthorityReceiptSchema;
 export const AccountIdentityCurrentMemberDeviceAuthoritySchema =
   Generated.AccountIdentityCurrentMemberDeviceAuthoritySchema;
 export const AccountIdentityCurrentMemberDeviceAuthorityHandoffSchema =
@@ -44,6 +49,8 @@ export type AccountIdentityMembershipState = Generated.AccountIdentityMembership
 export type AccountIdentityRole = Generated.AccountIdentityRole;
 export type AccountIdentityDeviceTrustState = Generated.AccountIdentityDeviceTrustState;
 export type AccountIdentitySessionFreshnessState = Generated.AccountIdentitySessionFreshnessState;
+export type AccountIdentitySupportScope = Generated.AccountIdentitySupportScope;
+export type AccountIdentitySupportReceiptRevocationState = Generated.AccountIdentitySupportReceiptRevocationState;
 export type AccountIdentityPairingState = Generated.AccountIdentityPairingState;
 export type AccountIdentityInstallState = Generated.AccountIdentityInstallState;
 export type AccountIdentitySelectedRouteKind = Generated.AccountIdentitySelectedRouteKind;
@@ -58,9 +65,11 @@ export type AccountIdentityInstallationId = Generated.AccountIdentityInstallatio
 export type AccountIdentityRouteId = Generated.AccountIdentityRouteId;
 export type AccountIdentityDeviceId = Generated.AccountIdentityDeviceId;
 export type AccountIdentitySupportReceiptId = Generated.AccountIdentitySupportReceiptId;
+export type AccountIdentitySupportIssuerId = Generated.AccountIdentitySupportIssuerId;
+export type AccountIdentityAuditIdentity = Generated.AccountIdentityAuditIdentity;
 export type AccountIdentityProviderSubjectMapping = Generated.AccountIdentityProviderSubjectMapping;
 export type AccountIdentityHouseholdChildDeviceBinding = Generated.AccountIdentityHouseholdChildDeviceBinding;
-export type AccountIdentityAuthorityHandoff = Generated.AccountIdentityAuthorityHandoff;
+export type AccountIdentitySupportAuthorityReceipt = Generated.AccountIdentitySupportAuthorityReceipt;
 export type AccountIdentityCurrentMemberDeviceAuthority = Generated.AccountIdentityCurrentMemberDeviceAuthority;
 export type AccountIdentityCurrentMemberDeviceAuthorityHandoff =
   Generated.AccountIdentityCurrentMemberDeviceAuthorityHandoff;

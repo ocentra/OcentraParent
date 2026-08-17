@@ -31,6 +31,10 @@ export const AccountIdentityDeviceTrustStateSchema = withParser(
   Schema.Literal('pending', 'trusted', 'revoked', 'reset-required', 'disabled')
 );
 export const AccountIdentitySessionFreshnessStateSchema = withParser(Schema.Literal('fresh', 'stale', 'expired'));
+export const AccountIdentitySupportScopeSchema = withParser(
+  Schema.Literal('read-only', 'household', 'device-control')
+);
+export const AccountIdentitySupportReceiptRevocationStateSchema = withParser(Schema.Literal('active', 'revoked'));
 export const AccountIdentityPairingStateSchema = withParser(Schema.Literal('pending', 'paired', 'unpaired'));
 export const AccountIdentityInstallStateSchema = withParser(Schema.Literal('pending', 'installed', 'failed'));
 export const AccountIdentitySelectedRouteSchema = withParser(
@@ -50,6 +54,8 @@ export const AccountIdentityInstallationIdSchema = brandedNonEmptyStringSchema('
 export const AccountIdentityRouteIdSchema = brandedNonEmptyStringSchema('AccountIdentityRouteId');
 export const AccountIdentityDeviceIdSchema = brandedNonEmptyStringSchema('AccountIdentityDeviceId');
 export const AccountIdentitySupportReceiptIdSchema = brandedNonEmptyStringSchema('AccountIdentitySupportReceiptId');
+export const AccountIdentitySupportIssuerIdSchema = brandedNonEmptyStringSchema('AccountIdentitySupportIssuerId');
+export const AccountIdentityAuditIdentitySchema = brandedNonEmptyStringSchema('AccountIdentityAuditIdentity');
 
 export const AccountIdentityProviderSubjectMappingSchema = withParser(
   Schema.Struct({
@@ -78,6 +84,26 @@ export const AccountIdentityHouseholdChildDeviceBindingSchema = withParser(
   })
 );
 
+export const AccountIdentitySupportAuthorityReceiptSchema = withParser(
+  Schema.Struct({
+    receiptId: AccountIdentitySupportReceiptIdSchema,
+    providerSubject: AccountIdentityProviderSubjectSchema,
+    accountId: ParentAccountIdSchema,
+    memberId: AccountIdentityMemberIdSchema,
+    householdId: FamilyIdSchema,
+    deviceId: AccountIdentityDeviceIdSchema,
+    childProfileId: ChildProfileIdSchema,
+    childDeviceId: AccountIdentityChildDeviceIdSchema,
+    scope: AccountIdentitySupportScopeSchema,
+    issuer: AccountIdentitySupportIssuerIdSchema,
+    issuedAt: brandedNonEmptyStringSchema('AccountIdentitySupportIssuedAt'),
+    expiresAt: brandedNonEmptyStringSchema('AccountIdentitySupportExpiresAt'),
+    revocationState: AccountIdentitySupportReceiptRevocationStateSchema,
+    auditIdentity: AccountIdentityAuditIdentitySchema,
+  })
+);
+
+/** Legacy v0.7 evidence DTO; never use this schema as authority. */
 export const AccountIdentityAuthorityHandoffSchema = withParser(
   Schema.Struct({
     schemaVersion: AccountIdentityAuthoritySchemaVersionSchema,
@@ -97,7 +123,10 @@ export const AccountIdentityCurrentMemberDeviceAuthoritySchema = withParser(
     deviceId: AccountIdentityDeviceIdSchema,
     deviceTrustState: AccountIdentityDeviceTrustStateSchema,
     sessionFreshnessState: AccountIdentitySessionFreshnessStateSchema,
-    supportReceiptId: Schema.NullOr(AccountIdentitySupportReceiptIdSchema),
+    sessionId: AccountIdentitySessionIdSchema,
+    sessionGeneration: PositiveSafeAuthorityGenerationSchema,
+    sessionExpiresAt: brandedNonEmptyStringSchema('AccountIdentitySessionExpiresAt'),
+    supportReceipt: Schema.NullOr(AccountIdentitySupportAuthorityReceiptSchema),
     authorityGeneration: PositiveSafeAuthorityGenerationSchema,
   })
 );
@@ -122,6 +151,10 @@ export type AccountIdentityMembershipState = Infer<typeof AccountIdentityMembers
 export type AccountIdentityRole = Infer<typeof AccountIdentityRoleSchema>;
 export type AccountIdentityDeviceTrustState = Infer<typeof AccountIdentityDeviceTrustStateSchema>;
 export type AccountIdentitySessionFreshnessState = Infer<typeof AccountIdentitySessionFreshnessStateSchema>;
+export type AccountIdentitySupportScope = Infer<typeof AccountIdentitySupportScopeSchema>;
+export type AccountIdentitySupportReceiptRevocationState = Infer<
+  typeof AccountIdentitySupportReceiptRevocationStateSchema
+>;
 export type AccountIdentityPairingState = Infer<typeof AccountIdentityPairingStateSchema>;
 export type AccountIdentityInstallState = Infer<typeof AccountIdentityInstallStateSchema>;
 export type AccountIdentitySelectedRouteKind = Infer<typeof AccountIdentitySelectedRouteSchema>;
@@ -136,8 +169,11 @@ export type AccountIdentityInstallationId = typeof AccountIdentityInstallationId
 export type AccountIdentityRouteId = typeof AccountIdentityRouteIdSchema.Type;
 export type AccountIdentityDeviceId = typeof AccountIdentityDeviceIdSchema.Type;
 export type AccountIdentitySupportReceiptId = typeof AccountIdentitySupportReceiptIdSchema.Type;
+export type AccountIdentitySupportIssuerId = typeof AccountIdentitySupportIssuerIdSchema.Type;
+export type AccountIdentityAuditIdentity = typeof AccountIdentityAuditIdentitySchema.Type;
 export type AccountIdentityProviderSubjectMapping = Infer<typeof AccountIdentityProviderSubjectMappingSchema>;
 export type AccountIdentityHouseholdChildDeviceBinding = Infer<typeof AccountIdentityHouseholdChildDeviceBindingSchema>;
+export type AccountIdentitySupportAuthorityReceipt = Infer<typeof AccountIdentitySupportAuthorityReceiptSchema>;
 export type AccountIdentityAuthorityHandoff = Infer<typeof AccountIdentityAuthorityHandoffSchema>;
 export type AccountIdentityCurrentMemberDeviceAuthority = Infer<
   typeof AccountIdentityCurrentMemberDeviceAuthoritySchema

@@ -106,13 +106,14 @@ export const BINDING_OWNERSHIP = {
     readinessState: 'required',
   },
   ACCOUNT_IDENTITY_D1: {
-    owner: 'account-identity-store',
-    purpose: 'minimal provider-subject to Ocentra account mapping',
+    owner: 'account-identity-authority',
+    purpose: 'durable provider-subject to current account/member/role/device/session authority mapping',
     bindingFamily: 'd1',
-    privacyBoundary: 'provider subject and account metadata only; no child telemetry or raw claims',
+    privacyBoundary:
+      'provider subject, account/member/device identifiers, current household target binding, session provenance, and support receipt metadata only; no child telemetry or raw claims',
     childDataStorage: 'forbidden',
     readinessState: 'manual-required',
-    rejectedUse: 'must not become household, child, device, role, or session storage',
+    rejectedUse: 'must not accept caller-supplied household, child, device, role, session, or receipt authority',
   },
   BILLING_DO: {
     owner: 'billing-control-do',

@@ -1,12 +1,16 @@
 //! Rust-owned account identity to family-authority handoff shapes.
 //!
 //! These types describe the encoded boundary consumed by storage and edge
-//! adapters. They do not verify an external provider, mint a session, or
-//! authorize a household action.
+//! adapters. They are DTO/evidence contracts only. A verified capability is
+//! deliberately owned by `ocentra-family-identity-core` and is not serde
+//! material.
 
 use serde::{Deserialize, Deserializer, Serialize};
 
 use crate::report_query_custody::{ChildProfileId, FamilyId, ParentAccountId};
+
+#[path = "account_identity_authority_validation.rs"]
+mod account_identity_authority_validation;
 
 pub const ACCOUNT_IDENTITY_AUTHORITY_SCHEMA_VERSION: &str = "v0.7";
 pub const ACCOUNT_IDENTITY_AUTHORITY_MAX_GENERATION: u64 = 9_007_199_254_740_991;
@@ -41,6 +45,10 @@ macro_rules! account_identity_text_id {
                 let value = value.into();
                 (!value.trim().is_empty()).then_some(Self(value))
             }
+
+            pub fn as_str(&self) -> &str {
+                &self.0
+            }
         }
     };
 }
@@ -52,7 +60,10 @@ account_identity_text_id!(AccountIdentityRouteId);
 account_identity_text_id!(AccountIdentityProviderSubject);
 account_identity_text_id!(AccountIdentityMemberId);
 account_identity_text_id!(AccountIdentityDeviceId);
+account_identity_text_id!(AccountIdentitySessionId);
 account_identity_text_id!(AccountIdentitySupportReceiptId);
+account_identity_text_id!(AccountIdentitySupportIssuerId);
+account_identity_text_id!(AccountIdentityAuditIdentity);
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -113,6 +124,21 @@ pub enum AccountIdentitySessionFreshnessState {
     Fresh,
     Stale,
     Expired,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AccountIdentitySupportScope {
+    ReadOnly,
+    Household,
+    DeviceControl,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AccountIdentitySupportReceiptRevocationState {
+    Active,
+    Revoked,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -191,6 +217,25 @@ pub struct AccountIdentityHouseholdChildDeviceBinding {
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct AccountIdentitySupportAuthorityReceipt {
+    pub receipt_id: AccountIdentitySupportReceiptId,
+    pub provider_subject: AccountIdentityProviderSubject,
+    pub account_id: ParentAccountId,
+    pub member_id: AccountIdentityMemberId,
+    pub household_id: FamilyId,
+    pub device_id: AccountIdentityDeviceId,
+    pub child_profile_id: ChildProfileId,
+    pub child_device_id: AccountIdentityChildDeviceId,
+    pub scope: AccountIdentitySupportScope,
+    pub issuer: AccountIdentitySupportIssuerId,
+    pub issued_at: String,
+    pub expires_at: String,
+    pub revocation_state: AccountIdentitySupportReceiptRevocationState,
+    pub audit_identity: AccountIdentityAuditIdentity,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AccountIdentityCurrentMemberDeviceAuthority {
     pub account_id: ParentAccountId,
     pub household_id: FamilyId,
@@ -201,7 +246,10 @@ pub struct AccountIdentityCurrentMemberDeviceAuthority {
     pub device_id: AccountIdentityDeviceId,
     pub device_trust_state: AccountIdentityDeviceTrustState,
     pub session_freshness_state: AccountIdentitySessionFreshnessState,
-    pub support_receipt_id: Option<AccountIdentitySupportReceiptId>,
+    pub session_id: AccountIdentitySessionId,
+    pub session_generation: u64,
+    pub session_expires_at: String,
+    pub support_receipt: Option<AccountIdentitySupportAuthorityReceipt>,
     pub authority_generation: u64,
 }
 
@@ -239,6 +287,9 @@ impl AccountIdentityHouseholdChildDeviceBinding {
     }
 }
 
+/// Legacy v0.7 DTO retained only for migration evidence. It is not an
+/// authority input and must not be used by a live adapter.
+#[deprecated(note = "legacy v0.7 evidence DTO; use the verified Account capability")]
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountIdentityAuthorityHandoff {
@@ -279,7 +330,11 @@ pub enum AccountIdentityMemberAuthorityValidationError {
     InactiveMembership,
     UntrustedDevice,
     StaleSession,
+    SessionGenerationInvalid,
+    SessionExpiryMissing,
     SupportReceiptRequired,
+    SupportReceiptInvalid,
+    SupportReceiptRevoked,
     PairingNotComplete,
     InstallNotComplete,
     LifecycleNotActive,
@@ -296,91 +351,6 @@ impl AccountIdentityCurrentMemberDeviceAuthorityHandoff {
     /// repository's compare-and-swap/currentness check or mint authority from
     /// caller-provided headers.
     pub fn validate_shape(&self) -> Result<(), AccountIdentityMemberAuthorityValidationError> {
-        (self.schema_version == AccountIdentityMemberAuthoritySchemaVersion::V0_1)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::SchemaVersionMismatch)?;
-        (self.mapping.status == AccountIdentityMappingStatus::Active)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::InactiveProviderMapping)?;
-        (self.mapping.account_id == self.member.account_id)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::MappingAccountMismatch)?;
-        (self.member.account_id == self.binding.account_id)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::MemberAccountMismatch)?;
-        (self.member.household_id == self.binding.household_id)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::MemberHouseholdMismatch)?;
-        (self.binding.account_id == self.member.account_id)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::BindingAccountMismatch)?;
-        (self.binding.household_id == self.member.household_id)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::BindingHouseholdMismatch)?;
-        (self.member.account_state == AccountIdentityAccountState::Active)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::InactiveAccount)?;
-        (self.member.membership_state == AccountIdentityMembershipState::Active)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::InactiveMembership)?;
-        (self.member.device_trust_state == AccountIdentityDeviceTrustState::Trusted)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::UntrustedDevice)?;
-        (self.member.session_freshness_state == AccountIdentitySessionFreshnessState::Fresh)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::StaleSession)?;
-        if self.member.role == AccountIdentityRole::SupportAdmin
-            && self.member.support_receipt_id.is_none()
-        {
-            return Err(AccountIdentityMemberAuthorityValidationError::SupportReceiptRequired);
-        }
-        (self.binding.pairing_state == AccountIdentityPairingState::Paired)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::PairingNotComplete)?;
-        (self.binding.install_state == AccountIdentityInstallState::Installed)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::InstallNotComplete)?;
-        (self.binding.lifecycle_state == AccountIdentityBindingLifecycleState::Active)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::LifecycleNotActive)?;
-        (self.binding.revocation_state == AccountIdentityBindingRevocationState::Active)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::Revoked)?;
-        (self.member.authority_generation > 0)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::ZeroAuthorityGeneration)?;
-        (self.member.authority_generation <= ACCOUNT_IDENTITY_AUTHORITY_MAX_GENERATION)
-            .then_some(())
-            .ok_or(
-                AccountIdentityMemberAuthorityValidationError::AuthorityGenerationExceedsSafeInteger,
-            )?;
-        (self.member.authority_generation == self.binding.authority_generation)
-            .then_some(())
-            .ok_or(AccountIdentityMemberAuthorityValidationError::AuthorityGenerationMismatch)?;
-        self.binding
-            .validate_shape()
-            .map_err(map_binding_validation_error)
-    }
-}
-
-fn map_binding_validation_error(
-    error: AccountIdentityBindingValidationError,
-) -> AccountIdentityMemberAuthorityValidationError {
-    match error {
-        AccountIdentityBindingValidationError::SchemaVersionMismatch => {
-            AccountIdentityMemberAuthorityValidationError::SchemaVersionMismatch
-        }
-        AccountIdentityBindingValidationError::InactiveProviderMapping => {
-            AccountIdentityMemberAuthorityValidationError::InactiveProviderMapping
-        }
-        AccountIdentityBindingValidationError::MappingAccountMismatch => {
-            AccountIdentityMemberAuthorityValidationError::MappingAccountMismatch
-        }
-        AccountIdentityBindingValidationError::ZeroAuthorityGeneration => {
-            AccountIdentityMemberAuthorityValidationError::ZeroAuthorityGeneration
-        }
-        AccountIdentityBindingValidationError::AuthorityGenerationExceedsSafeInteger => {
-            AccountIdentityMemberAuthorityValidationError::AuthorityGenerationExceedsSafeInteger
-        }
+        account_identity_authority_validation::validate_shape(self)
     }
 }

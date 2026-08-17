@@ -1,55 +1,41 @@
-use std::fmt;
-
-use ocentra_schema::account_identity_authority::{
-    AccountIdentityBindingLifecycleState, AccountIdentityBindingRevocationState,
-    AccountIdentityChildDeviceId, AccountIdentityCurrentMemberDeviceAuthority,
-    AccountIdentityCurrentMemberDeviceAuthorityHandoff, AccountIdentityHouseholdChildDeviceBinding,
-    AccountIdentityInstallState, AccountIdentityMappingStatus,
-    AccountIdentityMemberAuthoritySchemaVersion, AccountIdentityPairingState,
-    AccountIdentityProvider, AccountIdentityProviderSubject, AccountIdentityProviderSubjectMapping,
+use crate::household_authority::{
+    authorize_household_action, HouseholdAuthorityAction, HouseholdAuthorityDecision,
+    HouseholdAuthorityInput, ParentControllerLeaseState,
 };
-use ocentra_schema::report_query_custody::{ChildProfileId, FamilyId, ParentAccountId};
+use ocentra_schema::account_identity_authority::{
+    AccountIdentityCurrentMemberDeviceAuthority,
+    AccountIdentityCurrentMemberDeviceAuthorityHandoff, AccountIdentityHouseholdChildDeviceBinding,
+    AccountIdentityMappingStatus, AccountIdentityProvider, AccountIdentityProviderSubject,
+    AccountIdentityProviderSubjectMapping,
+};
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub(crate) struct AccountIdentityBindingSelector {
-    pub account_id: ParentAccountId,
-    pub household_id: FamilyId,
-    pub child_profile_id: ChildProfileId,
-    pub child_device_id: AccountIdentityChildDeviceId,
-}
+#[path = "account_identity_authority_capability.rs"]
+mod account_identity_authority_capability;
+#[path = "account_identity_authority_validation.rs"]
+mod account_identity_authority_validation;
+#[path = "account_identity_authority_value_mapping.rs"]
+mod account_identity_authority_value_mapping;
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub(crate) enum AccountIdentityCurrentBindingReadError<E> {
     Repository(E),
     Missing,
-    InvalidGeneration,
-    SelectorMismatch,
-    PairingNotComplete,
-    InstallNotComplete,
-    LifecycleNotActive,
-    Revoked,
     ProviderMismatch,
     ProviderSubjectMismatch,
     InactiveProviderMapping,
     MappingAccountMismatch,
     MemberAuthorityInvalid,
-    Serialization,
+    SessionInvalid,
+    SupportReceiptInvalid,
 }
 
-/// Authority-owned repository boundary. This remains crate-private until the
-/// real authority adapter exists; a selector is a lookup only and never
-/// supplies authority state.
+/// Account-owned repository boundary. The only lookup key is the provider
+/// subject already verified by the external provider adapter. Household,
+/// member, role, device, target, session, and receipt state come from durable
+/// account records and cannot be supplied by the request caller.
 pub(crate) trait AccountIdentityAuthorityRepository {
     type Error;
 
-    fn read_current_binding(
-        &self,
-        selector: &AccountIdentityBindingSelector,
-    ) -> Result<Option<AccountIdentityHouseholdChildDeviceBinding>, Self::Error>;
-
-    /// Resolve all current member/device context from the verified provider
-    /// subject. Household, role, membership, device, and target binding state
-    /// are durable records, never caller-supplied authority flags.
     fn read_current_member_device_authority(
         &self,
         provider: &AccountIdentityProvider,
@@ -64,109 +50,63 @@ pub(crate) trait AccountIdentityAuthorityRepository {
     >;
 }
 
-pub(crate) struct AccountIdentityCurrentBindingReadPort<R> {
-    repository: R,
+/// Opaque authority minted only by the family-owned producer after the
+/// durable repository has established currentness. It intentionally does not
+/// implement serde: a JSON/TS handoff is evidence, never authority.
+pub struct VerifiedAccountIdentityAuthority {
+    handoff: AccountIdentityCurrentMemberDeviceAuthorityHandoff,
+    provenance: account_identity_authority_capability::AccountIdentityAuthorityProvenance,
 }
 
-impl<R> AccountIdentityCurrentBindingReadPort<R> {
-    pub(crate) fn new(repository: R) -> Self {
+/// Downstream family-policy adapter. All household/member/device state is
+/// derived from the opaque capability; the caller supplies only the action's
+/// separate capability grant and optional controller lease.
+pub fn authorize_household_action_from_verified_authority(
+    authority: &VerifiedAccountIdentityAuthority,
+    action: HouseholdAuthorityAction,
+    capability_granted: bool,
+    controller_lease_state: Option<ParentControllerLeaseState>,
+) -> HouseholdAuthorityDecision {
+    let member = &authority.handoff.member;
+    let binding = &authority.handoff.binding;
+    authorize_household_action(HouseholdAuthorityInput {
+        actor_role: account_identity_authority_value_mapping::map_role(member.role),
+        same_family: true,
+        actor_account_state: account_identity_authority_value_mapping::map_account_state(
+            member.account_state,
+        ),
+        membership_state: account_identity_authority_value_mapping::map_membership_state(
+            member.membership_state,
+        ),
+        child_profile_binding_state: account_identity_authority_value_mapping::map_binding_state(
+            binding,
+        ),
+        device_ownership_scope: account_identity_authority_value_mapping::map_device_scope(
+            member.role,
+        ),
+        device_trust_state: account_identity_authority_value_mapping::map_device_trust(
+            member.device_trust_state,
+        ),
+        session_freshness_state: account_identity_authority_value_mapping::map_session_freshness(
+            member.session_freshness_state,
+        ),
+        capability_granted,
+        controller_lease_state,
+        action,
+    })
+}
+
+pub(crate) struct AccountIdentityCurrentMemberAuthorityProducer<'a, R> {
+    repository: &'a R,
+}
+
+impl<'a, R> AccountIdentityCurrentMemberAuthorityProducer<'a, R> {
+    pub(crate) fn new(repository: &'a R) -> Self {
         Self { repository }
     }
 }
 
-impl<R> AccountIdentityCurrentBindingReadPort<R>
-where
-    R: AccountIdentityAuthorityRepository,
-{
-    pub(crate) fn read_current_binding(
-        &self,
-        selector: &AccountIdentityBindingSelector,
-    ) -> Result<
-        TrustedAccountIdentityCurrentBinding,
-        AccountIdentityCurrentBindingReadError<R::Error>,
-    > {
-        let binding = self
-            .repository
-            .read_current_binding(selector)
-            .map_err(AccountIdentityCurrentBindingReadError::Repository)?
-            .ok_or(AccountIdentityCurrentBindingReadError::Missing)?;
-
-        binding
-            .validate_shape()
-            .map_err(|_error| AccountIdentityCurrentBindingReadError::InvalidGeneration)?;
-
-        if binding.account_id != selector.account_id
-            || binding.household_id != selector.household_id
-            || binding.child_profile_id != selector.child_profile_id
-            || binding.child_device_id != selector.child_device_id
-        {
-            return Err(AccountIdentityCurrentBindingReadError::SelectorMismatch);
-        }
-        if binding.pairing_state != AccountIdentityPairingState::Paired {
-            return Err(AccountIdentityCurrentBindingReadError::PairingNotComplete);
-        }
-        if binding.install_state != AccountIdentityInstallState::Installed {
-            return Err(AccountIdentityCurrentBindingReadError::InstallNotComplete);
-        }
-        if binding.lifecycle_state != AccountIdentityBindingLifecycleState::Active {
-            return Err(AccountIdentityCurrentBindingReadError::LifecycleNotActive);
-        }
-        if binding.revocation_state == AccountIdentityBindingRevocationState::Revoked {
-            return Err(AccountIdentityCurrentBindingReadError::Revoked);
-        }
-
-        Ok(TrustedAccountIdentityCurrentBinding { binding })
-    }
-}
-
-pub(crate) struct TrustedAccountIdentityCurrentBinding {
-    binding: AccountIdentityHouseholdChildDeviceBinding,
-}
-
-impl TrustedAccountIdentityCurrentBinding {
-    pub(crate) fn binding(&self) -> &AccountIdentityHouseholdChildDeviceBinding {
-        &self.binding
-    }
-}
-
-/// A redacted, encoded result that only the Account-owned producer can mint.
-/// Cloudflare consumes the canonical encoded handoff; policy receives it only
-/// through a future verified adapter and cannot construct it from request data.
-pub struct AccountIdentityEncodedCurrentMemberAuthorityHandoff {
-    encoded: String,
-}
-
-impl fmt::Debug for AccountIdentityEncodedCurrentMemberAuthorityHandoff {
-    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
-        formatter
-            .debug_struct("AccountIdentityEncodedCurrentMemberAuthorityHandoff")
-            .field("redaction", &"encoded-authority-omitted")
-            .finish()
-    }
-}
-
-impl AccountIdentityEncodedCurrentMemberAuthorityHandoff {
-    pub fn as_str(&self) -> &str {
-        &self.encoded
-    }
-}
-
-/// Account-owned producer for a current member/role/device authority handoff.
-///
-/// The only lookup input is the verified provider subject. The repository
-/// supplies household, membership, role, device, and child-binding records;
-/// no public constructor or caller-provided authority state exists here.
-pub(crate) struct AccountIdentityCurrentMemberAuthorityProducer<R> {
-    repository: R,
-}
-
-impl<R> AccountIdentityCurrentMemberAuthorityProducer<R> {
-    pub(crate) fn new(repository: R) -> Self {
-        Self { repository }
-    }
-}
-
-impl<R> AccountIdentityCurrentMemberAuthorityProducer<R>
+impl<'a, R> AccountIdentityCurrentMemberAuthorityProducer<'a, R>
 where
     R: AccountIdentityAuthorityRepository,
 {
@@ -174,10 +114,8 @@ where
         &self,
         provider: &AccountIdentityProvider,
         provider_subject: &AccountIdentityProviderSubject,
-    ) -> Result<
-        AccountIdentityEncodedCurrentMemberAuthorityHandoff,
-        AccountIdentityCurrentBindingReadError<R::Error>,
-    > {
+    ) -> Result<VerifiedAccountIdentityAuthority, AccountIdentityCurrentBindingReadError<R::Error>>
+    {
         let (mapping, member, binding) = self
             .repository
             .read_current_member_device_authority(provider, provider_subject)
@@ -198,17 +136,24 @@ where
         }
 
         let handoff = AccountIdentityCurrentMemberDeviceAuthorityHandoff {
-            schema_version: AccountIdentityMemberAuthoritySchemaVersion::V0_1,
+            schema_version:
+                ocentra_schema::account_identity_authority::AccountIdentityMemberAuthoritySchemaVersion::V0_1,
             mapping,
             member,
             binding,
         };
         handoff
             .validate_shape()
-            .map_err(|_error| AccountIdentityCurrentBindingReadError::MemberAuthorityInvalid)?;
+            .map_err(|_| AccountIdentityCurrentBindingReadError::MemberAuthorityInvalid)?;
+        account_identity_authority_validation::validate_current_session(&handoff)
+            .map_err(|_| AccountIdentityCurrentBindingReadError::SessionInvalid)?;
+        account_identity_authority_validation::validate_support_receipt(&handoff, provider_subject)
+            .map_err(|_| AccountIdentityCurrentBindingReadError::SupportReceiptInvalid)?;
 
-        serde_json::to_string(&handoff)
-            .map(|encoded| AccountIdentityEncodedCurrentMemberAuthorityHandoff { encoded })
-            .map_err(|_error| AccountIdentityCurrentBindingReadError::Serialization)
+        let provenance = account_identity_authority_capability::provenance_from_handoff(&handoff);
+        Ok(VerifiedAccountIdentityAuthority {
+            handoff,
+            provenance,
+        })
     }
 }

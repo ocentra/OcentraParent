@@ -1,5 +1,9 @@
 import { isLocalFixtureEnvironment, resolveAuthAdapterMode, type Env } from '../env.js';
 import type { AccountIdentityProvider } from '@ocentra-parent/schema-domain/account-identity-authority';
+import {
+  createAccountIdentityAuthorityStore,
+  type VerifiedAccountIdentityAuthorityCapability,
+} from '../storage/account-identity-authority-store.js';
 import { getAuthStateModel, type AuthState } from './model.js';
 
 export interface VerifiedIdentity {
@@ -7,6 +11,7 @@ export interface VerifiedIdentity {
   state: AuthState;
   role: 'public' | 'parent' | 'support' | 'admin' | 'internal' | 'provider-webhook';
   trustedDevice: boolean;
+  authority?: VerifiedAccountIdentityAuthorityCapability;
 }
 
 export type AuthFailureResult = { ok: false; response: Response };
@@ -88,7 +93,8 @@ function authStateIdentity(
   subject: string,
   state: AuthState,
   role: VerifiedIdentity['role'],
-  trustedDevice: boolean
+  trustedDevice: boolean,
+  authority?: VerifiedAccountIdentityAuthorityCapability
 ): AuthResult {
   return {
     ok: true,
@@ -97,6 +103,7 @@ function authStateIdentity(
       state,
       role,
       trustedDevice,
+      authority,
     },
   };
 }
@@ -209,6 +216,7 @@ function authAdapterBlocker(env: Env, providerVerifier: ProviderVerificationPort
 
 async function verifyProviderBoundRequest(
   request: Request,
+  env: Env,
   authState: AuthState,
   providerVerifier: ProviderVerificationPort
 ): Promise<AuthResult> {
@@ -222,7 +230,33 @@ async function verifyProviderBoundRequest(
     return manualRequired(authState, PROVIDER_VERIFICATION_UNAVAILABLE_BLOCKER);
   }
 
-  return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
+  const authorityResult = await createAccountIdentityAuthorityStore(env.ACCOUNT_IDENTITY_D1).readCurrentAuthority(
+    verifiedIdentity.provider,
+    verifiedIdentity.providerSubject
+  );
+  if (authorityResult.status === 'trusted') {
+    const role =
+      authorityResult.capability.role === 'support-admin'
+        ? 'support'
+        : authorityResult.capability.role === 'child-profile' ||
+            authorityResult.capability.role === 'child-device-agent'
+          ? 'public'
+          : 'parent';
+    return authStateIdentity(
+      authorityResult.capability.providerSubject,
+      authState,
+      role,
+      true,
+      authorityResult.capability
+    );
+  }
+  if (authorityResult.status === 'rejected') {
+    return forbidden(`account-identity-authority-${authorityResult.reason}`, authState);
+  }
+  if (authorityResult.status === 'not-found') {
+    return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
+  }
+  return manualRequired(authState, authorityResult.reason);
 }
 
 function extractBearerIdentity(request: Request, authState: AuthState): BearerIdentityResult {
@@ -254,7 +288,7 @@ async function verifyParentSessionRequest(
   }
 
   if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
-    return verifyProviderBoundRequest(request, authState, providerVerifier!);
+    return verifyProviderBoundRequest(request, env, authState, providerVerifier!);
   }
 
   const bearerIdentity = extractBearerIdentity(request, authState);
