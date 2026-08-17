@@ -132,7 +132,10 @@ impl EventMetadata {
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(
+    rename_all = "camelCase",
+    bound(serialize = "E: Serialize", deserialize = "E: Deserialize<'de>")
+)]
 pub struct EventEnvelope<E: DomainEvent> {
     pub contract: EventContract,
     pub event_id: EventId,
@@ -250,7 +253,7 @@ impl StoredEventEnvelope {
     where
         E: DomainEvent,
     {
-        let payload: E = self.payload.decode().map_err(|error| {
+        let payload: E = self.payload.decode::<E>().map_err(|error| {
             EventingError::payload_decode(self.contract.event_type.clone(), &error)
         })?;
         validate_payload_identity(
