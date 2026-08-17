@@ -4,7 +4,7 @@ pub(super) fn lan_route_query_for_load_impl(
     route: &ParentRouteId,
     context: Option<&ParentRouteContext>,
 ) -> LanRouteQuery {
-    if !requires_lan_read_model(route) {
+    if !requires_lan_read_model_for_load(route) {
         return LanRouteQuery::NotRequired;
     }
     match load_lan_status_snapshot(context) {
@@ -14,19 +14,25 @@ pub(super) fn lan_route_query_for_load_impl(
 }
 
 pub(super) fn lan_route_query_for_action_impl(action: &ParentUiAction) -> LanRouteQuery {
-    if !requires_lan_read_model(&action.route) {
+    if !requires_lan_read_model_for_action(action) {
         return LanRouteQuery::NotRequired;
     }
 
     let context = action.context.as_ref();
     let response = match action.action {
-        ParentUiActionKind::AgentCommandRequested => action
-            .command
-            .as_deref()
-            .ok_or_else(missing_lan_agent_command_error)
-            .and_then(|command_name| {
-                dispatch_lan_agent_command(AgentCommandText(command_name), &action.payload, context)
-            }),
+        ParentUiActionKind::AgentCommandRequested if is_lan_command_route_impl(&action.route) => {
+            action
+                .command
+                .as_deref()
+                .ok_or_else(missing_lan_agent_command_error)
+                .and_then(|command_name| {
+                    dispatch_lan_agent_command(
+                        AgentCommandText(command_name),
+                        &action.payload,
+                        context,
+                    )
+                })
+        }
         ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested => {
             request_lan_browser_discovery_scan(context)
         }

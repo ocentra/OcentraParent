@@ -8,7 +8,7 @@ pub(super) fn dispatch_parent_ui_action_agent_command(
     state: &mut ActionDispatchState,
 ) {
     if !matches!(action.action, ParentUiActionKind::AgentCommandRequested)
-        || lan_route::is_lan_surface_route(&action.route)
+        || lan_route::is_lan_command_route(&action.route)
     {
         return;
     }

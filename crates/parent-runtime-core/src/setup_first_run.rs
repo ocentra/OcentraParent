@@ -1,146 +1,277 @@
-use ocentra_family_identity_core::{
-    DeviceOwnershipScope, DeviceTrustState, HouseholdMembershipState,
-};
-use ocentra_parent_agent_protocol::lan_pairing::{
-    LanPairingDeviceReachability, LanPairingTrustState,
-};
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanBrowserAddDeviceReadModel;
-use ocentra_provisioning_core::{
-    evaluate_provisioning_readiness, plan_provisioning_actions, AccountReadinessState,
-    ChildAppReadinessState, ChildInstallState, ChildServiceState, DataCustodySyncState,
-    NetworkReachabilityState, PairingLifecycleState, ParentAppReadinessState,
-    ParentDeviceRegistrationState, PermissionReadinessState, PolicyBaselineState,
-    ProvisioningActionPlan, ProvisioningReadinessDecision, ProvisioningReadinessInput,
-    RecoveryState,
+use ocentra_schema::parent_ui_bridge::{
+    ParentRouteId, ParentSetupFirstRunPanelCardSnapshot, ParentSetupFirstRunPanelDetailSnapshot,
+    ParentSetupFirstRunPanelSnapshot,
 };
 use serde::Serialize;
 
-#[derive(Clone, Debug)]
-pub(crate) struct SetupFirstRunRuntimeSnapshot {
-    pub(crate) input: ProvisioningReadinessInput,
-    pub(crate) decision: ProvisioningReadinessDecision,
-    pub(crate) action_plan: ProvisioningActionPlan,
-    pub(crate) lan_source_state: &'static str,
+const SETUP_FIRST_RUN_PRODUCT_CLAIM: &str = "This Start-route panel reports the availability of trusted first-run inputs. It does not run the provisioning evaluator, infer household ownership or device trust from LAN selection, or claim onboarding completion while required authorities are unavailable.";
+const MANUAL_REQUIRED: &str = "manual-required";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum SetupFirstRunEvaluationState {
+    ManualRequired,
 }
 
-pub(crate) fn load_setup_first_run_runtime_snapshot(
-    lan_read_model: Option<&LanBrowserAddDeviceReadModel>,
-) -> SetupFirstRunRuntimeSnapshot {
-    let input = ProvisioningReadinessInput {
-        // Account and household authority are not supplied by the current
-        // parent route. Pending/recovery-required is the conservative state;
-        // it must never be interpreted as an authenticated household.
-        membership_state: HouseholdMembershipState::Pending,
-        account_readiness_state: AccountReadinessState::RecoveryRequired,
-        parent_app_readiness_state: ParentAppReadinessState::Ready,
-        parent_device_registration_state: ParentDeviceRegistrationState::Missing,
-        child_install_state: ChildInstallState::NotInstalled,
-        child_service_state: ChildServiceState::NotStarted,
-        child_app_readiness_state: ChildAppReadinessState::NotInstalled,
-        child_device_ownership_scope: child_device_ownership_scope(lan_read_model),
-        device_trust_state: device_trust_state(lan_read_model),
-        permission_readiness_state: PermissionReadinessState::Missing,
-        pairing_lifecycle_state: pairing_lifecycle_state(lan_read_model),
-        policy_baseline_state: PolicyBaselineState::Missing,
-        data_custody_sync_state: DataCustodySyncState::Blocked,
-        network_reachability_state: network_reachability_state(lan_read_model),
-        recovery_state: RecoveryState::Normal,
-    };
-    let decision = evaluate_provisioning_readiness(input);
-    let action_plan = plan_provisioning_actions(input);
+impl SetupFirstRunEvaluationState {
+    fn label(self) -> &'static str {
+        match self {
+            Self::ManualRequired => MANUAL_REQUIRED,
+        }
+    }
+}
 
+pub(crate) enum SetupFirstRunLanInput<'a> {
+    NotRequested,
+    Available(&'a LanBrowserAddDeviceReadModel),
+    Unavailable {
+        reason: &'static str,
+        diagnostic_captured: bool,
+    },
+}
+
+struct SetupFirstRunRuntimeSnapshot {
+    evaluation_state: SetupFirstRunEvaluationState,
+    lan_observation: SetupFirstRunLanObservation,
+}
+
+struct SetupFirstRunLanObservation {
+    source: &'static str,
+    query_state: &'static str,
+    selected_device: &'static str,
+    pairing_observation: String,
+    reachability_observation: String,
+    diagnostic_state: &'static str,
+}
+
+#[derive(Clone, Copy)]
+struct SetupFirstRunAuthorityRequirement {
+    label: &'static str,
+    owner: &'static str,
+}
+
+const REQUIRED_AUTHORITIES: [SetupFirstRunAuthorityRequirement; 15] = [
+    authority("Household membership", "account identity authority"),
+    authority(
+        "Account readiness",
+        "account session and recovery authority",
+    ),
+    authority(
+        "Parent app readiness",
+        "signed parent package/runtime authority",
+    ),
+    authority(
+        "Parent device registration",
+        "device registration authority",
+    ),
+    authority(
+        "Child install state",
+        "signed child package installer authority",
+    ),
+    authority("Child service state", "child runtime service authority"),
+    authority("Child app readiness", "child runtime readiness authority"),
+    authority(
+        "Child device ownership",
+        "household device-binding authority",
+    ),
+    authority("Device trust", "device-trust authority"),
+    authority("Permission readiness", "platform permission authority"),
+    authority("Pairing lifecycle", "trusted pairing authority"),
+    authority("Policy baseline", "policy control-plane authority"),
+    authority("Data custody sync", "storage custody authority"),
+    authority(
+        "Network reachability",
+        "trusted network readiness authority",
+    ),
+    authority("Recovery state", "account/device recovery authority"),
+];
+
+const fn authority(label: &'static str, owner: &'static str) -> SetupFirstRunAuthorityRequirement {
+    SetupFirstRunAuthorityRequirement { label, owner }
+}
+
+pub(crate) fn setup_first_run_panel_snapshot(
+    route: &ParentRouteId,
+    lan_input: SetupFirstRunLanInput<'_>,
+) -> Option<ParentSetupFirstRunPanelSnapshot> {
+    if !matches!(route, ParentRouteId::Start) {
+        return None;
+    }
+
+    let runtime = load_runtime_snapshot(lan_input);
+    Some(ParentSetupFirstRunPanelSnapshot {
+        eyebrow: "Setup route".to_string(),
+        title: "First-run authority status".to_string(),
+        body: "Rust exposes the complete first-run input matrix, but trusted owner inputs are not yet bound. Evaluation is withheld and the route remains manual-required.".to_string(),
+        summary_card_title: "Current boundary status".to_string(),
+        summary: format!(
+            "Provisioning evaluation was not run: {} of {} trusted readiness inputs are unavailable; setup is {}.",
+            REQUIRED_AUTHORITIES.len(),
+            REQUIRED_AUTHORITIES.len(),
+            runtime.evaluation_state.label(),
+        ),
+        summary_details: summary_details(&runtime),
+        cards: vec![
+            readiness_matrix_card(),
+            lan_observation_card(&runtime.lan_observation),
+            execution_boundary_card(),
+        ],
+        product_claim: SETUP_FIRST_RUN_PRODUCT_CLAIM.to_string(),
+    })
+}
+
+fn load_runtime_snapshot(lan_input: SetupFirstRunLanInput<'_>) -> SetupFirstRunRuntimeSnapshot {
     SetupFirstRunRuntimeSnapshot {
-        input,
-        decision,
-        action_plan,
-        lan_source_state: if lan_read_model.is_some() {
-            "live-lan-read-model"
-        } else {
-            "unavailable"
+        evaluation_state: SetupFirstRunEvaluationState::ManualRequired,
+        lan_observation: lan_observation(lan_input),
+    }
+}
+
+fn lan_observation(lan_input: SetupFirstRunLanInput<'_>) -> SetupFirstRunLanObservation {
+    match lan_input {
+        SetupFirstRunLanInput::NotRequested => SetupFirstRunLanObservation {
+            source: "not-requested",
+            query_state: "not-requested",
+            selected_device: "unavailable",
+            pairing_observation: "unavailable".to_string(),
+            reachability_observation: "unavailable".to_string(),
+            diagnostic_state: "not-applicable",
+        },
+        SetupFirstRunLanInput::Available(read_model) => SetupFirstRunLanObservation {
+            source: "live-lan-read-model-observation-only",
+            query_state: "available",
+            selected_device: if read_model
+                .selected_device_readiness
+                .selected_child_device_id
+                .is_some()
+            {
+                "selected"
+            } else {
+                "not-selected"
+            },
+            pairing_observation: serialized_label(
+                &read_model.selected_device_readiness.trust_state,
+            ),
+            reachability_observation: serialized_label(
+                &read_model.selected_device_readiness.reachability,
+            ),
+            diagnostic_state: "not-applicable",
+        },
+        SetupFirstRunLanInput::Unavailable {
+            reason,
+            diagnostic_captured,
+        } => SetupFirstRunLanObservation {
+            source: "lan-read-model-unavailable",
+            query_state: reason,
+            selected_device: "unavailable",
+            pairing_observation: "unavailable".to_string(),
+            reachability_observation: "unavailable".to_string(),
+            diagnostic_state: if diagnostic_captured {
+                "captured-in-rust-bridge"
+            } else {
+                "no-diagnostic-detail"
+            },
         },
     }
 }
 
-pub(crate) fn serialized_label<T: Serialize>(value: &T) -> String {
+fn summary_details(
+    runtime: &SetupFirstRunRuntimeSnapshot,
+) -> Vec<ParentSetupFirstRunPanelDetailSnapshot> {
+    vec![
+        detail("Route", "start"),
+        detail("Evaluation state", "not-run"),
+        detail("Setup state", runtime.evaluation_state.label()),
+        detail("Trusted inputs available", "0"),
+        detail(
+            "Trusted inputs unavailable",
+            &REQUIRED_AUTHORITIES.len().to_string(),
+        ),
+        detail("LAN query state", runtime.lan_observation.query_state),
+        detail("Snapshot owner", "Rust parent runtime host bridge"),
+        detail("Product claim", SETUP_FIRST_RUN_PRODUCT_CLAIM),
+    ]
+}
+
+fn readiness_matrix_card() -> ParentSetupFirstRunPanelCardSnapshot {
+    card(
+        "Trusted readiness input matrix",
+        "Every provisioning input remains unavailable until its owning runtime supplies typed, authenticated state. No fallback enum value is substituted.",
+        REQUIRED_AUTHORITIES
+            .iter()
+            .map(|requirement| {
+                detail(
+                    requirement.label,
+                    &format!("{MANUAL_REQUIRED} — {} unavailable", requirement.owner),
+                )
+            })
+            .collect(),
+    )
+}
+
+fn lan_observation_card(
+    observation: &SetupFirstRunLanObservation,
+) -> ParentSetupFirstRunPanelCardSnapshot {
+    card(
+        "LAN observation (non-authoritative)",
+        "LAN discovery may describe a selected endpoint, pairing observation, and reachability. It never establishes household ownership, device trust, pairing authority, or setup readiness.",
+        vec![
+            detail("Source", observation.source),
+            detail("Query state", observation.query_state),
+            detail("Selected endpoint", observation.selected_device),
+            detail("Pairing observation", &observation.pairing_observation),
+            detail(
+                "Reachability observation",
+                &observation.reachability_observation,
+            ),
+            detail("Diagnostic detail", observation.diagnostic_state),
+            detail(
+                "Authority boundary",
+                "observation only; ownership and trust remain unavailable",
+            ),
+        ],
+    )
+}
+
+fn execution_boundary_card() -> ParentSetupFirstRunPanelCardSnapshot {
+    card(
+        "Execution boundary",
+        "The shipped Start route reaches this Rust snapshot through the host bridge. Provisioning can advance only after all owner authorities provide trusted inputs.",
+        vec![
+            detail(
+                "Reachable path",
+                "parent_load_route -> parent runtime -> setup-first-run panel",
+            ),
+            detail("Current effect", "render manual-required authority matrix"),
+            detail("Provisioning evaluator", "not invoked"),
+            detail("Action planning", "not invoked"),
+            detail("TS ownership", "presentation only"),
+        ],
+    )
+}
+
+fn card(
+    title: &str,
+    summary: &str,
+    details: Vec<ParentSetupFirstRunPanelDetailSnapshot>,
+) -> ParentSetupFirstRunPanelCardSnapshot {
+    ParentSetupFirstRunPanelCardSnapshot {
+        title: title.to_string(),
+        summary: summary.to_string(),
+        details,
+    }
+}
+
+fn detail(label: &str, value: &str) -> ParentSetupFirstRunPanelDetailSnapshot {
+    ParentSetupFirstRunPanelDetailSnapshot {
+        label: label.to_string(),
+        value: value.to_string(),
+    }
+}
+
+fn serialized_label<T: Serialize>(value: &T) -> String {
     serde_json::to_string(value)
         .unwrap_or_else(|_| "unavailable".to_string())
         .trim_matches('"')
         .to_string()
-}
-
-fn child_device_ownership_scope(
-    lan_read_model: Option<&LanBrowserAddDeviceReadModel>,
-) -> DeviceOwnershipScope {
-    lan_read_model
-        .and_then(|read_model| {
-            read_model
-                .selected_device_readiness
-                .selected_child_device_id
-                .as_ref()
-        })
-        .map(|_| DeviceOwnershipScope::ChildProfileDevice)
-        .unwrap_or(DeviceOwnershipScope::OtherDevice)
-}
-
-fn device_trust_state(lan_read_model: Option<&LanBrowserAddDeviceReadModel>) -> DeviceTrustState {
-    lan_read_model
-        .map(|read_model| read_model.selected_device_readiness.trust_state)
-        .and_then(|trust_state| {
-            [
-                (LanPairingTrustState::Paired, DeviceTrustState::Trusted),
-                (LanPairingTrustState::Revoked, DeviceTrustState::Revoked),
-                (
-                    LanPairingTrustState::Expired,
-                    DeviceTrustState::ResetRequired,
-                ),
-            ]
-            .into_iter()
-            .find_map(|(candidate, mapped)| (trust_state == candidate).then_some(mapped))
-        })
-        .unwrap_or(DeviceTrustState::Pending)
-}
-
-fn pairing_lifecycle_state(
-    lan_read_model: Option<&LanBrowserAddDeviceReadModel>,
-) -> PairingLifecycleState {
-    lan_read_model
-        .map(|read_model| read_model.selected_device_readiness.trust_state)
-        .and_then(|trust_state| {
-            [
-                (LanPairingTrustState::Paired, PairingLifecycleState::Trusted),
-                (
-                    LanPairingTrustState::Revoked,
-                    PairingLifecycleState::Revoked,
-                ),
-                (
-                    LanPairingTrustState::Expired,
-                    PairingLifecycleState::Expired,
-                ),
-                (
-                    LanPairingTrustState::Pairing,
-                    PairingLifecycleState::Displayed,
-                ),
-                (
-                    LanPairingTrustState::Unpaired,
-                    PairingLifecycleState::Generated,
-                ),
-            ]
-            .into_iter()
-            .find_map(|(candidate, mapped)| (trust_state == candidate).then_some(mapped))
-        })
-        .unwrap_or(PairingLifecycleState::Untrusted)
-}
-
-fn network_reachability_state(
-    lan_read_model: Option<&LanBrowserAddDeviceReadModel>,
-) -> NetworkReachabilityState {
-    lan_read_model
-        .map(|read_model| read_model.selected_device_readiness.reachability)
-        .map(|reachability| match reachability {
-            LanPairingDeviceReachability::Online => NetworkReachabilityState::Reachable,
-            LanPairingDeviceReachability::Offline | LanPairingDeviceReachability::Stale => {
-                NetworkReachabilityState::OfflineChild
-            }
-        })
-        .unwrap_or(NetworkReachabilityState::LanUnavailable)
 }

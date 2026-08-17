@@ -36,12 +36,20 @@ pub(super) fn dispatch_parent_ui_action_impl(action: &ParentUiAction) -> ParentU
         dispatch_parent_ui_action_message(action, &lan_route_query),
         lan_route_query.events().to_vec(),
     );
-    let policy_authoring_handled =
-        dispatch_parent_ui_action_policy_authoring(action, &lan_route_query, &mut state);
-    if !policy_authoring_handled {
-        dispatch_parent_ui_action_network_flow_refresh(action, &mut state);
-        dispatch_parent_ui_action_agent_command(action, action_owned, &mut state);
-        dispatch_parent_ui_action_rust_owned_command(action, action_owned, &mut state);
+    if matches!(
+        action.action,
+        ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested
+    ) && !lan_route::is_lan_command_route(&action.route)
+    {
+        state.reject("LAN discovery scan is available only on LAN-owned routes");
+    } else {
+        let policy_authoring_handled =
+            dispatch_parent_ui_action_policy_authoring(action, &lan_route_query, &mut state);
+        if !policy_authoring_handled {
+            dispatch_parent_ui_action_network_flow_refresh(action, &mut state);
+            dispatch_parent_ui_action_agent_command(action, action_owned, &mut state);
+            dispatch_parent_ui_action_rust_owned_command(action, action_owned, &mut state);
+        }
     }
     let snapshot = build_parent_route_snapshot(
         action.route.clone(),
@@ -67,6 +75,11 @@ fn dispatch_parent_ui_action_message(
     match lan_route_query {
         LanRouteQuery::Unavailable(error) if lan_route::is_lan_surface_route(&action.route) => {
             error.clone()
+        }
+        _ if matches!(action.action, ParentUiActionKind::AgentCommandRequested)
+            && !lan_route::is_lan_command_route(&action.route) =>
+        {
+            "parent Rust facade forwarded generic agent command request".to_string()
         }
         _ => action_result_message(action),
     }

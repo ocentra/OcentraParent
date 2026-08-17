@@ -21,7 +21,7 @@ pub(super) fn build_parent_route_snapshot_impl(
         parent_portal_rows_for_route(&route, &summary, &data_source, lan_add_device_read_model);
     let diagnostic_panels_enabled = is_dev_tools_route(&route);
     let browser_panels = browser_route_panels_snapshot(&route);
-    let setup_first_run_panel = setup_first_run_panel_snapshot(&route, lan_add_device_read_model);
+    let setup_first_run_panel = setup_first_run_panel_snapshot(&route, lan_route_query);
     let generated_at = lan_add_device_read_model
         .as_ref()
         .map(|read_model| read_model.generated_at.clone())
