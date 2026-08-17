@@ -913,7 +913,7 @@ function billingActorRoleForSubject(subject: string): 'parent' | 'guardian' | nu
 }
 
 async function billingHostedRouteContext(
-  subject: string,
+  identity: VerifiedIdentity,
   env: Env
 ): Promise<{
   actor: {
@@ -927,15 +927,21 @@ async function billingHostedRouteContext(
     familyId: string;
   };
 }> {
-  const actorRole = billingActorRoleForSubject(subject);
+  const actorRole = identity.authority
+    ? identity.authority.role === 'parent-owner'
+      ? 'parent'
+      : identity.authority.role === 'co-parent-guardian'
+        ? 'guardian'
+        : null
+    : billingActorRoleForSubject(identity.subject);
   if (!actorRole) {
-    throw new Error(`billing hosted sessions require a parent or guardian subject: ${subject}`);
+    throw new Error(`billing hosted sessions require a parent or guardian authority: ${identity.subject}`);
   }
 
-  const statusSummary = await loadBillingStatusSummary(env, subject);
+  const statusSummary = await loadBillingStatusSummary(env, identity.subject);
   return {
     actor: {
-      actorId: `actor-${sanitizeIdFragment(subject)}`,
+      actorId: `actor-${sanitizeIdFragment(identity.authority?.memberId ?? identity.subject)}`,
       role: actorRole,
     },
     parentAccount: {
@@ -964,7 +970,20 @@ function requireInteractiveRequestBoundary(
   requestId: string,
   kind: HostedSessionKind | null
 ): Response | null {
-  const householdRole = householdRoleForSubject(identity.subject);
+  if (resolveAuthAdapterMode(env) !== 'local-safe-fixture' && !identity.authority) {
+    return json(503, {
+      status: 'manual-required',
+      blocker: 'account-identity-authority-capability-missing',
+    });
+  }
+
+  const householdRole = identity.authority
+    ? identity.authority.role === 'parent-owner'
+      ? 'parent'
+      : identity.authority.role === 'co-parent-guardian'
+        ? 'guardian'
+        : 'unknown'
+    : householdRoleForSubject(identity.subject);
   if (householdRole !== 'parent' && householdRole !== 'guardian') {
     return kind
       ? rejectionResponse(kind, requestId, 'unauthorized-role')
@@ -1508,7 +1527,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         schemaVersion: 'billing-checkout-portal-boundary',
         requestId,
         kind: 'checkout-session-create',
-        ...(await billingHostedRouteContext(identity.subject, env)),
+        ...(await billingHostedRouteContext(identity, env)),
         planId,
         successRoute: checkoutHostedRouteForPath(successPath),
         cancelRoute: checkoutHostedRouteForPath(cancelPath),
@@ -1585,7 +1604,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         schemaVersion: 'billing-checkout-portal-boundary',
         requestId,
         kind: 'billing-portal-session-create',
-        ...(await billingHostedRouteContext(identity.subject, env)),
+        ...(await billingHostedRouteContext(identity, env)),
         returnRoute: BillingHostedReturnRoute.PortalReturn,
         abuseGateState,
       });
