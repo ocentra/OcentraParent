@@ -15,8 +15,11 @@ pub(super) fn build_parent_route_snapshot_impl(
     if let Some(health) = service_health.filter(|health| !health.is_ready()) {
         return unavailable_parent_route_snapshot(&route, health, None);
     }
-    let loaded =
+    let mut loaded =
         dependencies::load_parent_route_snapshot_dependencies(&route, network_flow_snapshot);
+    if matches!(lan_route_query, LanRouteQuery::Unavailable(_)) {
+        loaded.dependency_failures.record("lan-route-query");
+    }
     if !loaded.dependency_failures.is_empty() {
         return route_dependency_failure_snapshot(&route, service_health, &loaded);
     }

@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::LogFieldValue;
 use ocentra_parent_agent_protocol::transport::{
-    AgentCommandName, AgentEventEnvelope, AgentEventName,
+    command_response_event_id_prefix, AgentCommandName, AgentEventEnvelope, AgentEventName,
 };
 
 use crate::parent_service_health::ParentAgentServiceHealthReason;
@@ -16,6 +16,7 @@ pub(super) fn health_response_mismatch_reason(
         &result.command,
         &result.command_message_id,
         &result.request_nonce,
+        &result.request_sent_at,
         response,
     ) {
         return Some(reason);
@@ -84,10 +85,14 @@ fn health_response_has_expected_event_id(
     result: &types::AgentServiceCommandResult,
     response: &AgentEventEnvelope,
 ) -> bool {
-    let expected_prefix = format!(
-        "{}-{}-",
-        constants::event_id::HEALTH_REPORTED,
-        transport::request_nonce_digest(&result.request_nonce)
+    let expected_prefix = command_response_event_id_prefix(
+        &result.command,
+        &result.command_message_id,
+        &transport::request_nonce_digest(&result.request_nonce),
+        &response.event,
     );
-    response.event_id.starts_with(&expected_prefix)
+    response
+        .event_id
+        .strip_prefix(&expected_prefix)
+        .is_some_and(|suffix| suffix.starts_with('-') && suffix.len() > 1)
 }

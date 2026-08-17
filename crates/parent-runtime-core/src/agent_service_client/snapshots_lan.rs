@@ -6,12 +6,20 @@ pub(super) fn lan_snapshot_from_result(
     result: AgentServiceCommandResult,
 ) -> Result<LanAgentServiceSnapshot, String> {
     let AgentServiceCommandResult {
+        command,
         events,
         response_event,
         ..
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
+    }
+    if !command.response_event_is_expected(&response_event.event) {
+        return Err(format!(
+            "agent-service {} returned an unexpected LAN response event {}",
+            serialized_enum_label(&command),
+            serialized_enum_label(&response_event.event)
+        ));
     }
 
     let read_model_json = response_event
@@ -50,6 +58,13 @@ pub(super) fn lan_runtime_replay_events_from_result(
     } = result;
     if response_event.event == AgentEventName::AgentCommandRejected {
         return Err(rejection_message(&response_event));
+    }
+    if !command.response_event_is_expected(&response_event.event) {
+        return Err(format!(
+            "agent-service {} returned an unexpected LAN response event {}",
+            serialized_enum_label(&command),
+            serialized_enum_label(&response_event.event)
+        ));
     }
     lan_runtime_replay_events_from_payload(&response_event, &command, &command_message_id)
 }

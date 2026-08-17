@@ -34,12 +34,14 @@ pub(super) fn command_response_validation_reason(
     command: &AgentCommandName,
     command_message_id: &str,
     request_nonce: &str,
+    request_sent_at: &str,
     response: &AgentEventEnvelope,
 ) -> Option<crate::parent_service_health::ParentAgentServiceHealthReason> {
     response_validation::command_response_mismatch_reason(
         command,
         command_message_id,
         request_nonce,
+        request_sent_at,
         response,
     )
 }
@@ -88,6 +90,7 @@ pub(super) fn send_agent_command_to_address(
         ));
     }
     response_validation::validate_connection_ready_event(&ready_event)?;
+    ensure_phase_deadline(deadline, timeout, "connection-ready")?;
 
     let (command_envelope, request_nonce) = lan_command_envelope(command, payload, context, route)?;
     let command = command_envelope.command.clone();
@@ -105,6 +108,7 @@ pub(super) fn send_agent_command_to_address(
         &command,
         &command_message_id,
         &request_nonce,
+        &request_sent_at,
         &response_event,
     ) {
         if command != AgentCommandName::AgentHealthCheck {
@@ -114,6 +118,7 @@ pub(super) fn send_agent_command_to_address(
             ));
         }
     }
+    ensure_phase_deadline(deadline, timeout, "command-response")?;
 
     Ok(AgentServiceCommandResult {
         command,
@@ -130,6 +135,15 @@ pub(super) fn send_agent_command_to_address(
 
 pub(super) fn request_nonce_digest(request_nonce: &str) -> String {
     format!("{:x}", Sha256::digest(request_nonce.as_bytes()))
+}
+
+fn ensure_phase_deadline(deadline: Instant, timeout: Duration, phase: &str) -> Result<(), String> {
+    remaining_timeout(deadline).map_err(|_| {
+        format!(
+            "agent-service WebSocket {phase} timed out after {}ms",
+            timeout.as_millis()
+        )
+    })
 }
 
 fn agent_addr() -> String {

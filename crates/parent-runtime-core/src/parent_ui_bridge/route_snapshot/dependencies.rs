@@ -18,6 +18,10 @@ pub(super) struct DependencyFailures {
 }
 
 impl DependencyFailures {
+    pub(super) fn record(&mut self, label: &'static str) {
+        self.labels.push(label);
+    }
+
     pub(super) fn capture<T, E>(&mut self, label: &'static str, result: Result<T, E>) -> Option<T> {
         match result {
             Ok(value) => Some(value),

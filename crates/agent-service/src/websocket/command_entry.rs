@@ -2,7 +2,9 @@ use ocentra_parent_agent_protocol::{
     constants,
     lan_pairing::LanPairingOptionalText,
     logging::{LogFieldValue, LogLevel},
-    transport::{AgentCommandEnvelope, AgentEventEnvelope, AgentEventName},
+    transport::{
+        command_response_event_id_prefix, AgentCommandEnvelope, AgentEventEnvelope, AgentEventName,
+    },
 };
 use std::{future::Future, pin::Pin};
 
@@ -67,6 +69,7 @@ fn handle_command(
 ) -> Pin<Box<dyn Future<Output = AgentEventEnvelope> + Send + 'static>> {
     Box::pin(async move {
         let request_nonce_digest = super::health_nonce::request_nonce_digest(&command).0;
+        let command_identity = command.clone();
         let (command, audit_fields) = match route_lan_command(
             lan_pairing.clone(),
             crate::lan_pairing::command_routing::LanCommandOrigin(LanPairingOptionalText(origin.0)),
@@ -79,7 +82,7 @@ fn handle_command(
                 audit_fields,
             } => (command, audit_fields),
             LanCommandDecision::Respond(mut event) => {
-                bind_response_to_request(&mut event, &request_nonce_digest);
+                bind_response_to_request(&mut event, &command_identity, &request_nonce_digest);
                 return event;
             }
         };
@@ -89,15 +92,23 @@ fn handle_command(
         if let Some(audit_fields) = audit_fields {
             extend_log_fields(&mut event.payload, audit_fields);
         }
-        bind_response_to_request(&mut event, &request_nonce_digest);
+        bind_response_to_request(&mut event, &command_identity, &request_nonce_digest);
         event
     })
 }
 
 fn bind_response_to_request(
     event: &mut AgentEventEnvelope,
+    command: &AgentCommandEnvelope,
     request_nonce_digest: &super::health_nonce::RequestNonceDigest,
 ) {
+    let event_id_prefix = command_response_event_id_prefix(
+        &command.command,
+        &command.message_id,
+        &request_nonce_digest.0,
+        &event.event,
+    );
+    event.event_id = format!("{event_id_prefix}-{}", std::process::id());
     event.payload.insert(
         constants::field::REQUEST_NONCE_DIGEST.to_string(),
         LogFieldValue::String(request_nonce_digest.0.clone()),

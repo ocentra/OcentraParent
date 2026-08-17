@@ -52,13 +52,13 @@ pub(super) fn dispatch_parent_ui_action_impl(
             | ParentUiActionKind::AppGameTimerParentPreferenceSetupRequested
     );
     let lan_route_query = lan_route_query_for_action(action);
-    let connection_state = connection_state_for_route(&action.route, &lan_route_query);
     let mut state = ActionDispatchState::new(
         action_owned && !matches!(lan_route_query, LanRouteQuery::Unavailable(_)),
         dispatch_parent_ui_action_message(action, &lan_route_query),
         lan_route_query.events().to_vec(),
     );
-    if matches!(
+    if reject_unavailable_lan_route_query(&lan_route_query, &mut state) {
+    } else if matches!(
         action.action,
         ParentUiActionKind::LanPairingBrowserDiscoveryScanRequested
     ) && !lan_route::is_lan_command_route(&action.route)
@@ -80,7 +80,6 @@ pub(super) fn dispatch_parent_ui_action_impl(
         Some(&state.snapshot_overlay),
         service_health,
     );
-
     ParentUiActionResult {
         schema_version: PARENT_UI_BRIDGE_SCHEMA_VERSION,
         accepted: state.accepted,
@@ -91,14 +90,24 @@ pub(super) fn dispatch_parent_ui_action_impl(
     }
 }
 
+fn reject_unavailable_lan_route_query(
+    lan_route_query: &LanRouteQuery,
+    state: &mut ActionDispatchState,
+) -> bool {
+    if matches!(lan_route_query, LanRouteQuery::Unavailable(_)) {
+        state.reject("parent Rust facade required LAN route state is unavailable");
+        true
+    } else {
+        false
+    }
+}
+
 fn dispatch_parent_ui_action_message(
     action: &ParentUiAction,
     lan_route_query: &LanRouteQuery,
 ) -> String {
     match lan_route_query {
-        LanRouteQuery::Unavailable(error) if lan_route::is_lan_surface_route(&action.route) => {
-            error.clone()
-        }
+        LanRouteQuery::Unavailable(error) => error.clone(),
         _ if matches!(action.action, ParentUiActionKind::AgentCommandRequested)
             && !lan_route::is_lan_command_route(&action.route) =>
         {

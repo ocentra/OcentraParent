@@ -3,7 +3,10 @@ use std::time::{Duration, Instant};
 
 #[path = "connection_resolution.rs"]
 mod connection_resolution;
+#[path = "deadline_stream.rs"]
+mod deadline_stream;
 use self::connection_resolution::resolve_socket_addrs;
+pub(super) use self::deadline_stream::DeadlineTcpStream;
 use super::read_impl::is_io_timeout;
 
 pub(super) fn connect_agent_stream(
@@ -11,7 +14,7 @@ pub(super) fn connect_agent_stream(
     url: &str,
     timeout: Duration,
     deadline: Instant,
-) -> Result<TcpStream, String> {
+) -> Result<DeadlineTcpStream, String> {
     let socket_addrs = resolve_socket_addrs(agent_addr, timeout, deadline)?;
     if socket_addrs.is_empty() {
         return Err(format!(
@@ -29,6 +32,7 @@ pub(super) fn connect_agent_stream(
         })?;
         match TcpStream::connect_timeout(&socket_addr, remaining) {
             Ok(stream) => {
+                let stream = DeadlineTcpStream::new(stream, deadline);
                 configure_socket_timeouts(&stream, remaining_timeout(deadline)?, url)?;
                 return Ok(stream);
             }
@@ -57,7 +61,7 @@ pub(super) fn remaining_timeout(deadline: Instant) -> Result<Duration, String> {
 }
 
 pub(super) fn configure_socket_timeouts(
-    stream: &TcpStream,
+    stream: &DeadlineTcpStream,
     timeout: Duration,
     url: &str,
 ) -> Result<(), String> {

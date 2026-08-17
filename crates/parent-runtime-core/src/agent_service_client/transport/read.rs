@@ -1,11 +1,12 @@
-use std::net::TcpStream;
 use std::time::{Duration, Instant};
 
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use tungstenite::WebSocket;
 
+use super::connection::DeadlineTcpStream;
+
 pub(super) fn read_agent_event(
-    socket: &mut WebSocket<TcpStream>,
+    socket: &mut WebSocket<DeadlineTcpStream>,
     phase: &str,
     timeout: Duration,
     deadline: Instant,

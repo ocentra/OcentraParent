@@ -1,12 +1,13 @@
 use std::io::ErrorKind;
-use std::net::TcpStream;
 use std::time::{Duration, Instant};
 
 use ocentra_parent_agent_protocol::transport::AgentEventEnvelope;
 use tungstenite::{Error as WebSocketError, Message, WebSocket};
 
+use super::connection::DeadlineTcpStream;
+
 pub(super) fn read_agent_event(
-    socket: &mut WebSocket<TcpStream>,
+    socket: &mut WebSocket<DeadlineTcpStream>,
     phase: &str,
     timeout: Duration,
     deadline: Instant,
@@ -19,15 +20,16 @@ pub(super) fn read_agent_event(
                 timeout.as_millis()
             ));
         }
-        if let Some(event) = handle_agent_event_message(socket, message, phase, timeout, deadline)?
-        {
+        let event = handle_agent_event_message(socket, message, phase, timeout, deadline)?;
+        ensure_deadline(deadline, phase, timeout)?;
+        if let Some(event) = event {
             return Ok(event);
         }
     }
 }
 
 fn handle_agent_event_message(
-    socket: &mut WebSocket<TcpStream>,
+    socket: &mut WebSocket<DeadlineTcpStream>,
     message: Message,
     phase: &str,
     timeout: Duration,
@@ -47,7 +49,7 @@ fn handle_agent_event_message(
 }
 
 fn read_websocket_message(
-    socket: &mut WebSocket<TcpStream>,
+    socket: &mut WebSocket<DeadlineTcpStream>,
     phase: &str,
     timeout: Duration,
     deadline: Instant,
@@ -70,7 +72,7 @@ fn read_websocket_message(
 }
 
 fn send_websocket_pong(
-    socket: &mut WebSocket<TcpStream>,
+    socket: &mut WebSocket<DeadlineTcpStream>,
     bytes: Vec<u8>,
     phase: &str,
     timeout: Duration,
@@ -91,6 +93,17 @@ fn send_websocket_pong(
     socket
         .send(Message::Pong(bytes))
         .map_err(|error| format!("agent-service WebSocket pong failed: {error}"))
+}
+
+fn ensure_deadline(deadline: Instant, phase: &str, timeout: Duration) -> Result<(), String> {
+    super::connection::remaining_timeout(deadline)
+        .map(|_| ())
+        .map_err(|_| {
+            format!(
+                "agent-service WebSocket {phase} timed out after {}ms",
+                timeout.as_millis()
+            )
+        })
 }
 
 fn websocket_close_message(frame: Option<tungstenite::protocol::CloseFrame<'_>>) -> String {

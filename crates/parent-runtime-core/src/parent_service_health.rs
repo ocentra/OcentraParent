@@ -184,6 +184,20 @@ pub(crate) fn response_timestamp_is_fresh(
     Ok(())
 }
 
+pub(crate) fn response_timestamp_is_current(
+    response_sent_at: &str,
+) -> Result<(), ParentAgentServiceHealthReason> {
+    let response = parse_timestamp(response_sent_at)?;
+    let now = Utc::now();
+    let earliest_allowed =
+        now - chrono::Duration::milliseconds(HEALTH_RESPONSE_FRESHNESS_WINDOW_MS);
+    let latest_allowed = now + chrono::Duration::milliseconds(HEALTH_RESPONSE_CLOCK_SKEW_MS);
+    if response < earliest_allowed.fixed_offset() || response > latest_allowed.fixed_offset() {
+        return Err(ParentAgentServiceHealthReason::ResponseTimestampStale);
+    }
+    Ok(())
+}
+
 fn parse_timestamp(value: &str) -> Result<DateTime<FixedOffset>, ParentAgentServiceHealthReason> {
     DateTime::parse_from_rfc3339(value)
         .map_err(|_| ParentAgentServiceHealthReason::ResponseTimestampMissing)
