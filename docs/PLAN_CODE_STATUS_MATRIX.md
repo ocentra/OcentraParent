@@ -125,7 +125,7 @@ Phase 2 tests/Enforcer and Phase 3 proof are not claimed here.
 | Remote access | 6 | Typed remote route/capability/status boundaries and local read models are present. | No authenticated relay/session owner, durable authorization, transport provider, or production remote execution path is wired. | Blocked/manual-required. |
 | Screen AI pipeline | 10 | Screen startup/capture, encrypted queue, local adapter process, ActivityStore summaries, and portal status are reachable; queue completion requires successful downstream handlers and no dead letters. Source checkpoint `7dc09c25f` removes the synthetic policy decision/action/rule/explanation values and forces AI eligibility false until a trusted decision exists. | Policy Control still needs a real resolver/handoff; canonical AI routing, durable replay, custody-negative enforcement, and rewritten fail-closed tests remain missing. | Fail-honest source correction integrated; WP04 and the plan remain open. |
 | Screen | 43 | Desktop capture, Android MediaProjection entrypoint, encrypted image queue, deletion/read models, and portal settings/status are reachable. | Unified platform capability/permission owner, real OCR/VLM composition, policy authority, child disclosure/live view, and complete custody lifecycle are missing. | Incomplete/manual-required. |
-| Setup/install/provisioning | 7 | Rust-owned WP07 Start-route source now exposes all 15 owner inputs as manual-required/unavailable; `AgentCommandName::is_lan_command` canonically classifies 13 LAN commands and generic parent dispatch rejects LAN commands on non-LAN routes. | No authenticated account/session/household, signed parent package, child package/service/permission, device-trust, trusted pairing, custody sync, policy baseline, network, or recovery aggregation reaches setup progression. LAN selected/paired/reachability state is observation-only; Start does not invoke provisioning evaluation or action planning. | Source accepted at `a368bced8`; tests, builds, proof, precommit, CI, and PR are deferred; route remains manual-required/unavailable. |
+| Setup/install/provisioning | 7 | Rust-owned WP07 Start-route source now exposes all 15 owner inputs as manual-required/unavailable; `AgentCommandName::is_lan_command` canonically classifies 13 LAN commands and generic parent dispatch rejects LAN commands on non-LAN routes. | No authenticated account/session/household, signed parent package, child package/service/permission, device-trust, trusted pairing, custody sync, policy baseline, network, or recovery aggregation reaches setup progression. LAN selected/paired/reachability state is observation-only; Start does not invoke provisioning evaluation or action planning. | Source integrated through `ca230550b`; tests, builds, proof, precommit, CI, and PR are deferred; route remains manual-required/unavailable. |
 | Tracking | 43 | Typed config/check-in/geofence flows and ActivityStore/portal read models exist; parent/child process-local cascades run. WP40 now has a reviewed 18-source/2-test ownership map. | `TrackingRuntimeEventFlow::new()` still creates a process-local `EventBus`; no shipped caller connects the child tracking flow to `ActivityJournal` or `ActivityStore`. WP40 owns that missing composition and blocks WP37; notifications, adapters, providers, and full UI remain open. | Incomplete; WP40 → WP37 → WP38/WP39. |
 | V0.8 enforcement | 20 | Agent-service command dispatch and the Windows session-validated PID/name time-limit path are reachable; generic adapter execution returns `ManualRequired`. Integration head `8e9a6622a` also removes the false managed-browser `ExecutesRealService` / `ControlCapable` claim and reports that surface as manual-required. | Trusted policy decision refs, authenticated native adapter/grant, durable dispatch journal, real managed-browser profile/active-tab execution, broad app/browser/network/mobile execution, rollback, and receipt custody remain absent. | Fail-honest source correction integrated; plan remains blocked/manual-required with a narrow timer only. |
 
@@ -199,7 +199,7 @@ strong enough for workpack-level decisions.
 | Remote access | 6 | 4/0/0/0/2/0 | 35 / 19 | 6 / 6 | Fully code-mapped; WP01 and proof-only WP06 have no Phase 1 writing gap, while WP02-WP05 retain concrete runtime, deferred-control, persistence, or relay-security gaps. |
 | Screen AI pipeline | 10 | 9/1/0/0/0/0 | 124 / 33 | 10 / 10 | Fully code-mapped; prerequisite routing is the only bounded Phase 1 row without a writing gap. WP02-WP10 retain production-composition, authority, durability, custody-negative, performance-test, or missing executable-harness gaps. |
 | Screen | 43 | 25/0/0/0/18/0 | 95 / 26 | 43 / 43 | Fully code-mapped; 9 of 40 executable workpacks are complete for bounded Phase 1 code/expected-test writing, 31 retain concrete gaps, and three imported reference packets own no executable code. |
-| Setup/install/provisioning | 7 | 0/1/0/0/6/0 | 573 / 198 | 7 / 7 | Fully code-mapped; six workpacks have no bounded Phase 1 writing gap. WP07 has a reachable Rust-owned 15-row fail-closed setup matrix, a canonical 13-variant LAN classifier, and non-LAN dispatch rejection; evaluator/actions remain deliberately not run, LAN is observation-only, and real authority inputs, the state machine/completion guard, and current expected tests remain open. |
+| Setup/install/provisioning | 7 | 0/2/0/0/5/0 | 594 / 198 | 7 / 7 | Fully code-mapped; five workpacks are in validation and two are blocked. WP07 has a reachable Rust-owned 15-row fail-closed setup matrix, a canonical 13-variant LAN classifier, and non-LAN dispatch rejection; evaluator/actions remain deliberately not run, LAN is observation-only, and real authority inputs, the state machine/completion guard, and current expected tests remain open. |
 | Tracking | 43 | 41/2/0/0/0/0 | 94 / 65 | 43 / 43 | WP40 now has reviewed child-runtime/journal ownership but is correctly blocked on WP32/WP34/WP36; it unlocks WP37 only after those real owners are complete. Twenty-four bounded packets have code/expected tests and 19 retain production-code or expected-test gaps. |
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 942 / 496 | 20 / 20 | Fully code-mapped; 7 workpacks have no Phase 1 writing gap in their bounded scope, while 13 retain concrete runtime, surface, lifecycle-test, or executable-harness gaps. |
 
@@ -918,15 +918,16 @@ the plan-owned Rust/worker/UI source and crate-visible test files, then traced
 the active policy request path. Counts mean files exist; they do **not** mean
 the feature is accepted, a test was run today, or a workpack is complete.
 
-## Executable graph control-plane snapshot - 2026-08-16
+## Historical executable graph snapshot - 2026-08-16
 
-The repo-owned graph is now the mechanical status source over these plan rows;
-the matrix remains the human-readable code/test audit. `graph.json` imports 23
+This retained checkpoint is historical and must not be used as current status.
+The repo-owned graph remains the mechanical status source; run
+`npm run graph:report` or use the current reviewed matrix above. At this older
+checkpoint, `graph.json` imported 23
 plan directories and 681 workpack rows (the older 526-row figure above is the
-matrix's narrower scheduled-row view). Run `npm run graph:report` for the
-joined state/topology view or `npm run graph:report -- --json` for machine
-consumption. This snapshot was refreshed from consolidated head `360441362` on
-2026-08-16. Current derived workpack state is:
+matrix's narrower scheduled-row view). This snapshot was refreshed from
+consolidated head `360441362` on 2026-08-16. Its recorded derived workpack state
+was:
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |

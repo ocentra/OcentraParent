@@ -23753,7 +23753,7 @@
       "metadata": {
         "planSlug": "setup-install-provisioning-plan",
         "indexPath": "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
-        "statusText": "source accepted / tests-validation-proof deferred",
+        "statusText": "validation / accepted fail-closed source / tests stale",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
