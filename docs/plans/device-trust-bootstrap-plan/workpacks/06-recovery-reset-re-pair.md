@@ -31,6 +31,14 @@ Purpose: define encrypted recovery bundles, reset, revoke, and re-pair flows.
   alone cannot claim applied/partial restore; bundle encryption, key custody,
   revocation preservation, and runtime proof remain open.
 
+## Accepted source checkpoint — 2026-08-17
+
+The accepted continuation integrated through `68717b5b7` removes the
+caller-minted restore-authorization path and keeps restore state behind the
+verified-parent and unavailable-by-default executor boundaries. This closes a
+source-authority defect only. Encrypted bundle/key custody, a real executor and
+composition caller, expected tests, focused execution, and proof remain open.
+
 ## Negative cases
 
 - Corrupted bundles fail closed.

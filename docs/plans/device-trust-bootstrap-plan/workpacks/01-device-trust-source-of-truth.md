@@ -45,15 +45,21 @@ completion claim: the existing partial lifecycle remains open until a shipped
 owner and its required tests/validation are present. WP03 depends on this
 source before it can authorize the one-time `RegisterLanSignerAnchor` step.
 
-## Independent static-review disposition — 2026-08-17
+## Accepted source consolidation — 2026-08-17
 
-The accepted WP01 production packet is integrated at `d8cd66ae9` in these
-`family-identity-core` source paths:
+The accepted Device Trust continuation is retained at source head `914d06b6a`
+and integrated through `68717b5b7`. In addition to the earlier repository
+packet, the owner now re-resolves the current device/signer binding and no
+public household signer/verifier mint path remains. Current reviewed owner
+paths include:
 
 - `crates/family-identity-core/src/device_trust_signer_registration.rs`
 - `crates/family-identity-core/src/device_trust_signer_registration_schema.rs`
+- `crates/family-identity-core/src/device_trust_signer_registration_current_authority.rs`
+- `crates/family-identity-core/src/device_trust_current_binding.rs`
 - `crates/family-identity-core/src/device_trust_lifecycle.rs`
 - `crates/family-identity-core/src/device_trust_lifecycle_revocation.rs`
+- `crates/family-identity-core/src/household_authority_proof.rs`
 - `crates/family-identity-core/src/lib.rs`
 
 An independent source review found no P0/P1 findings and accepts these paths as
@@ -62,7 +68,7 @@ without silent schema repair, first-open creation remains concurrency-tolerant,
 SQLite uses a busy timeout, and raw enrollment/revoke/reset mutation entrypoints
 are crate-private. Focused source-format, architecture, Enforcer, diff, and
 guard checks passed. Expected-test migration, functional validation, proof,
-production callers, repo-wide Enforcer/architecture acceptance, platform
+production platform/passkey callers, repo-wide Enforcer/architecture acceptance, platform
 custody, broader lifecycle composition, and DONE remain open.
 
 ## Negative cases

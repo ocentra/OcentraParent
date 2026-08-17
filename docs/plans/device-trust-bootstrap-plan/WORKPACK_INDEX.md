@@ -20,13 +20,13 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| ready / source integrated, expected tests open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | parent-presence slice exists and the bounded persistent trusted-device/signer-key repository hardening is integrated at `d8cd66ae9`; independent source review and focused static gates passed; expected-test migration, functional validation, proof, caller integration, platform custody, and completion remain open; not a completion claim | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| ready / source accepted and integrated, expected tests open | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | accepted continuation is integrated through `68717b5b7`: current device/signer binding is owner-resolved and public household-authority mint paths are removed; platform ceremony/custody, expected tests, proof, shipped composition, and completion remain open | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
 | partial / Windows-only merged custody slice | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; no desktop command-path or end-to-end sealing proof; workpack remains open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
 | blocked / implementation-only source authorized | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; reviewed-implementation gates authorize only the bounded source packet; atomic ceremony custody/recovery and linked-challenge lifecycle validation are independently static-reviewed with no remaining internal P0/P1; authoritative target resolution, platform/passkey provider, durable sign counter, tests, proof, runtime, LAN handoff, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
-| partial | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | device-bound verifier boundary drafted; signature, revocation, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
-| partial | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | confirmation-only restore blocked; verified parent and execution-receipt gates drafted; encryption, revocation, and proof remain open | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
-| partial / code-drafted | [WP07 Child Tamper Uninstall](workpacks/07-child-tamper-uninstall.md) | durable child tamper evidence and parent-authorized revocation boundary drafted; platform removal and validation deferred | `CHILD_TAMPER_UNINSTALL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/` |
+| partial / source accepted, expected tests open | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | unsigned projection and fail-closed wire/context boundary are integrated; real issuer/signature/revocation authority, callers, expected tests, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
+| partial / source accepted, expected tests open | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | caller-minted restore authority is removed and verified-parent/executor boundaries fail closed; encryption, real executor/custody, expected tests, revocation proof, and callers remain open | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
+| partial / source accepted, expected tests open | [WP07 Child Tamper Uninstall](workpacks/07-child-tamper-uninstall.md) | durable removal/tamper custody and trust-bound readiness are integrated; parent transport, platform removal/attestation, expected tests, and proof remain open | `CHILD_TAMPER_UNINSTALL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/07-child-tamper-uninstall/` |
 | docs-only | [WP08 Open Source Dependency Adoption](workpacks/08-open-source-dependency-adoption.md) | audit reset | `DEPENDENCY_RESEARCH_AND_ADOPTION.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/08-open-source-dependency-adoption/` |
 | partial | [WP09 Cross Plan Route Gate](workpacks/09-cross-plan-route-gate.md) | audit reset | `ROUTE_INDEX.md`, adjacent plan/feature route indexes | `output/device-trust-bootstrap-plan-proof/09-cross-plan-route-gate/` |
 
@@ -55,7 +55,7 @@ implementation and dependency evidence without changing any DONE state.
 
 ## Current implementation-phase disposition — 2026-08-17
 
-The WP01 source packet is integrated at `d8cd66ae9` and independently reviewed
+The accepted Device Trust continuation is integrated through `68717b5b7` and independently reviewed
 with no P0/P1 findings. The graph records its five reviewed
 `family-identity-core` source paths as implementation evidence; WP01 remains
 READY, not DONE. Focused source-format, architecture, Enforcer, diff, and guard
@@ -63,7 +63,9 @@ checks passed. Expected-test migration, functional validation, proof,
 production caller integration, repo-wide Enforcer/architecture acceptance,
 platform custody, and broader lifecycle composition remain open.
 
-WP03 remains BLOCKED in the default graph on WP01, Account WP08, and Cloudflare
+WP05's unsigned entitlement projection, WP06's fail-closed restore boundary,
+and WP07's durable removal/readiness boundary are also accepted source, not
+test/proof/completion claims. WP03 remains BLOCKED in the default graph on WP01, Account WP08, and Cloudflare
 WP06. Reviewed-implementation gates now authorize only the bounded WP03 source
 packet against all three reviewed source owners; the default dependency state
 does not change and the route does not provide ceremony authority, provider

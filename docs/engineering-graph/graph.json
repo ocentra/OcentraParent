@@ -16635,7 +16635,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "ready / source integrated, expected tests open",
+        "statusText": "ready / source accepted and integrated, expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -16649,7 +16649,7 @@
           "reason": "Reviewed as the dependency-free READY implementation route for the missing family-owned persistent trusted-device/signer-key registration source. The existing WP01 lifecycle foundation remains partial; tests, validation, proof, and completion are not claimed. WP03 remains blocked on this source and WP26 remains blocked on WP01 plus WP03."
         },
         "completionEvidenceOverride": {
-          "reason": "Independent source review accepted the WP01 repository packet integrated through d8cd66ae9 as implementation evidence only; no P0/P1 findings. Focused source-format, architecture, Enforcer, diff, and guard checks passed. Expected-test migration, functional validation, proof, production caller integration, repo-wide Enforcer, and DONE remain open.",
+          "reason": "Independent source review accepted the Device Trust continuation at 914d06b6a and root integrated its reconciled WP01 authority/current-binding source through 68717b5b7. Public household signer/verifier mint paths are removed and current authority is owner-resolved. The overlapping entitlement boundary retains Payment's unsigned projection and omits incompatible public signed modules. Focused source-format, architecture, Enforcer, and diff gates passed. Expected-test migration, functional validation, proof, real platform/passkey callers, repo-wide Enforcer, and DONE remain open.",
           "evidence": [
             "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
             "docs/PLAN_CODE_STATUS_MATRIX.md",
@@ -16665,10 +16665,13 @@
         },
         "references": {
           "implementation": [
+            "crates/family-identity-core/src/device_trust_current_binding.rs",
             "crates/family-identity-core/src/device_trust_signer_registration.rs",
+            "crates/family-identity-core/src/device_trust_signer_registration_current_authority.rs",
             "crates/family-identity-core/src/device_trust_signer_registration_schema.rs",
             "crates/family-identity-core/src/device_trust_lifecycle.rs",
             "crates/family-identity-core/src/device_trust_lifecycle_revocation.rs",
+            "crates/family-identity-core/src/household_authority_proof.rs",
             "crates/family-identity-core/src/lib.rs"
           ],
           "tests": [
@@ -16847,7 +16850,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial",
+        "statusText": "partial / source accepted, expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16887,7 +16890,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial",
+        "statusText": "partial / source accepted, expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -16927,7 +16930,7 @@
       "metadata": {
         "planSlug": "device-trust-bootstrap-plan",
         "indexPath": "docs/plans/device-trust-bootstrap-plan/WORKPACK_INDEX.md",
-        "statusText": "partial / code-drafted",
+        "statusText": "partial / source accepted, expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

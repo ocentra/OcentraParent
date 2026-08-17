@@ -28,6 +28,15 @@ Purpose: define signed entitlement snapshots and device-bound license unlock.
   Signature verification and revocation remain unavailable/manual-required;
   the default verifier cannot unlock a capability.
 
+## Accepted source checkpoint — 2026-08-17
+
+The integration branch at `68717b5b7` preserves the Payment-owned unsigned
+entitlement projection and a crate-private fail-closed snapshot context. Wire
+input discards caller-supplied trust context, and the incompatible public signed
+snapshot/verifier modules from the Device branch were removed during review.
+No real issuer, signature/revocation provider, or shipped capability-unlock
+caller exists. Expected tests, focused execution, and proof remain open.
+
 ## Negative cases
 
 - Wrong device cannot unlock the entitlement.

@@ -1,11 +1,25 @@
 # Next Actions
 
-1. Keep the plan truth aligned: do not reintroduce `complete`, `proof-covered`, or existing-proof claims until artifacts and scoped validation exist on disk.
+1. Finish the repository-wide production-source wave and integration review before starting this plan's expected-test migration. Do not interleave one-line source edits with test execution.
 2. Treat merged PR #605 and its fresh 60-job CI as narrow unissued-parent-challenge test evidence only; do not promote it into workpack or plan closure.
 3. Choose the real runtime owners for each missing slice before implementation: `family-domain`, `lan-domain`, billing entitlement, Rust protocol/service, and any new trust-bootstrap runtime module.
 4. Re-open WP02, WP03, WP04, and WP06 around actual runtime seams: platform key sealing, parent step-up, QR approval, and encrypted recovery bundles.
 5. Re-open WP05 and WP07 around real trust binding and parent-controlled uninstall/tamper execution instead of contract-only frontage. WP07 has a code-drafted local evidence/manual-required boundary; platform removal, attestation, transport, tests, and proof remain open.
-6. Replace doc-only proof with runtime coverage and keep proof outside the plan folder under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`.
+6. After source is complete, write the full expected-test delta for WP01/WP05/WP06/WP07, then run focused crate/domain validation and Enforcer. Proof remains a later phase under `output/device-trust-bootstrap-plan-proof/<workpack-file-stem>/`.
+
+## Accepted source checkpoint (2026-08-17)
+
+The independently accepted Device Trust branch `914d06b6a` is integrated
+through `68717b5b7`. WP01 now preserves owner-resolved current device/signer
+authority without a public household-authority mint path. The integration
+reconciliation keeps WP05's entitlement state unsigned and fail-closed, removes
+caller-minted restore authority from WP06, and binds WP07 durable removal state
+to service readiness across restart. No real platform/passkey ceremony,
+entitlement issuer/revocation provider, restore executor/key-custody owner,
+parent transport, or platform removal caller was invented.
+
+These are production-source checkpoints only. The complete expected-test wave,
+focused execution/fixes, proof, precommit, PR, and CI remain deliberately later.
 
 ## Latest code/test checkpoint (2026-08-09)
 
@@ -15,7 +29,7 @@ before treating any dependency candidate as an adopted trust-root component.
 
 ## Production-code checkpoint (2026-08-16)
 
-WP01 source is integrated through `d8cd66ae9`. It has crash-safe,
+WP01 source is integrated through `68717b5b7`. It has crash-safe,
 process-serialized lifecycle-authority sidecar writes, fail-closed corruption
 and missing-authority handling, strict no-repair validation for existing
 databases, concurrency-tolerant first-open initialization, a SQLite busy
