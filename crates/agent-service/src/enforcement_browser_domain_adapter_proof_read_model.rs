@@ -82,21 +82,6 @@ fn entry_specs() -> Vec<EntrySpec> {
 fn implemented_specs() -> Vec<EntrySpec> {
     vec![
         implemented_spec(
-            ProofEntryId(proof::ENTRY_ID_MANAGED_INTERVENTION),
-            V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserInterventionState,
-            V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
-            V08BrowserDomainAdapterProofEvidenceKind::ManagedBrowser,
-            linked_evidence(ProofEvidence {
-                linked_proof_commands: &[proof::COMMAND_MANAGED_BROWSER_PROOF],
-                linked_proof_artifacts: &[proof::ARTIFACT_MANAGED_BROWSER_PROOF],
-                manual_proof_requirements: &[],
-            }),
-            boundary_text(BoundaryText {
-                claim_boundary: proof::CLAIM_MANAGED_INTERVENTION,
-                fallback_behavior: proof::FALLBACK_MANAGED_INTERVENTION,
-            }),
-        ),
-        implemented_spec(
             ProofEntryId(proof::ENTRY_ID_UNMANAGED_TERMINATE),
             V08BrowserDomainAdapterProofSurface::WindowsUnmanagedBrowserTerminateBoundary,
             V08BrowserDomainAdapterProofCapabilityName::UnmanagedBrowserDetection,
@@ -162,6 +147,22 @@ fn implemented_specs() -> Vec<EntrySpec> {
 fn manual_and_unmanaged_gap_specs() -> Vec<EntrySpec> {
     vec![
         manual_spec(
+            ProofEntryId(proof::ENTRY_ID_MANAGED_INTERVENTION),
+            V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserInterventionState,
+            ParentPlatform::Windows,
+            V08BrowserDomainAdapterProofCapabilityName::ManagedBrowserControl,
+            V08BrowserDomainAdapterProofEvidenceKind::ManagedBrowser,
+            manual_evidence(ProofEvidence {
+                linked_proof_commands: &[],
+                linked_proof_artifacts: &[],
+                manual_proof_requirements: MANAGED_INTERVENTION_MANUAL_REQUIREMENTS,
+            }),
+            boundary_text(BoundaryText {
+                claim_boundary: proof::CLAIM_MANAGED_INTERVENTION,
+                fallback_behavior: proof::FALLBACK_MANAGED_INTERVENTION,
+            }),
+        ),
+        manual_spec(
             ProofEntryId(proof::ENTRY_ID_MANAGED_EXACT_URL),
             V08BrowserDomainAdapterProofSurface::WindowsManagedBrowserExactUrlManual,
             ParentPlatform::Windows,
@@ -222,6 +223,13 @@ fn manual_and_unmanaged_gap_specs() -> Vec<EntrySpec> {
         ),
     ]
 }
+
+const MANAGED_INTERVENTION_MANUAL_REQUIREMENTS: &[&str] = &[
+    proof::REQUIREMENT_MANAGED_PROFILE,
+    proof::REQUIREMENT_ACTIVE_TAB,
+    proof::REQUIREMENT_ROLLBACK,
+    proof::REQUIREMENT_AUDIT_CUSTODY,
+];
 
 fn network_specs() -> Vec<EntrySpec> {
     vec![
