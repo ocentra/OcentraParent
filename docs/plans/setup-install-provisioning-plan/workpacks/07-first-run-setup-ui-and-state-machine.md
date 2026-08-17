@@ -196,10 +196,48 @@ If setup UI/e2e paths do not exist yet, write exact blockers and keep rows open.
 
 Production setup readiness remains blocked until account, distribution, child runtime, LAN/device trust, data custody, and policy baseline owner proofs exist.
 
-## Fill before DONE
+## 2026-08-17 source-wave status
+
+The bounded Rust source packet is accepted at
+`a368bced832753e468a81f087930ca48d15f2116`. The Start route is now Rust-owned
+through `crates/parent-runtime-core/src/setup_first_run.rs` and exposes all 15
+required authorities as explicit manual-required/unavailable states. LAN
+selected-device, pairing, and reachability values are observation-only and do
+not establish household ownership, device trust, pairing authority, or setup
+readiness. Start reads status only: the provisioning evaluator and action
+planner are not invoked.
+
+`crates/agent-protocol/src/transport.rs` is the canonical source for
+`AgentCommandName::is_lan_command` across all 13 LAN command variants.
+`crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch/generic_command.rs`
+rejects a LAN command on a non-LAN route, while the parent action boundary
+rejects LAN discovery outside LAN-owned routes.
+
+This source wave intentionally does not run or claim tests, builds, proof,
+precommit, CI, or PR readiness. Deferred tests are exact: update
+`crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs`
+for the new Start snapshot and non-LAN rejection behavior; add coverage for
+all 13 classifier variants; then update the existing portal setup route unit
+and E2E fixtures and run the focused commands listed above. The current graph
+completion contract therefore remains open for implementation review, tests,
+proof, and checklist evidence.
+
+Authenticated composition remains missing for account/session/household,
+signed parent package, child package/service/permission, device trust, trusted
+LAN pairing, custody sync, policy baseline, network reachability, and recovery.
+No setup-complete, production-onboarding, trusted-device, signed-installer,
+child-readiness, LAN-pairing, custody, policy, payment, test, proof, CI, or
+PR-ready claim is made.
+
+## Historical proof record (not current status)
+
+The following retained block belongs to an earlier portal-projection packet. It
+is preserved for provenance only and is not revalidated, regenerated, or
+promoted by the 2026-08-17 source wave. The current status is source accepted;
+tests, builds, proof, precommit, CI, and PR remain deferred.
 
 ```text
-Workpack id and branch: WP07 First-Run Setup UI And State Machine / codex/tracking-plan-full-continuation-a
+Historical proof packet (not refreshed by this source wave): WP07 First-Run Setup UI And State Machine / codex/tracking-plan-full-continuation-a
 Setup UI/state changes: projected the typed setup-domain first-run state machine into `packages/portal-domain/src/setup-first-run-panel.ts`, rendered it on `PortalRoute.Start` through `apps/portal/src/SetupFirstRunRoutePanel.tsx`, added focused portal-domain, portal render, and portal Playwright proof coverage, and repaired the portal dev-log fallback so the first-run proof harness now completes end to end on this host.
 Touched files: packages/portal-domain/package.json, packages/portal-domain/src/setup-first-run-panel.ts, packages/portal-domain/tests/unit/setup-first-run-panel.test.ts, apps/portal/src/ParentPortalRoute.tsx, apps/portal/src/SetupFirstRunRoutePanel.tsx, apps/portal/src/dev-logger.ts, apps/portal/tests/setup-first-run-route-panel.test.ts, apps/portal/tests/live-activity-network-flow.test.ts, apps/portal/tests/logging/portal-dev-log-route.test.ts, apps/portal/e2e/setup-first-run-ui-proof.spec.ts, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/00-first-run-state-machine-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/01-first-run-ui-screen-map.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/02-empty-error-degraded-ui-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/03-manual-required-visible-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/04-adjacent-handoff-visible-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/05-no-fake-ready-state-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/06-source-custody-label-proof.md, output/setup-install-provisioning-plan-proof/07-first-run-setup-ui-and-state-machine/16-validation-commands.log
 Validation commands and results: `npm run build --workspace @ocentra-parent/portal-domain` PASS; `npm run test --workspace @ocentra-parent/portal-domain -- setup-first-run-panel.test.ts` PASS; `npm run lint:architecture -- --files packages/portal-domain/package.json packages/portal-domain/src/setup-first-run-panel.ts packages/portal-domain/tests/unit/setup-first-run-panel.test.ts apps/portal/src/SetupFirstRunRoutePanel.tsx apps/portal/src/ParentPortalRoute.tsx apps/portal/src/dev-logger.ts apps/portal/tests/setup-first-run-route-panel.test.ts apps/portal/tests/live-activity-network-flow.test.ts apps/portal/tests/logging/portal-dev-log-route.test.ts apps/portal/e2e/setup-first-run-ui-proof.spec.ts packages/setup-domain/src/setup-state-machine.ts packages/setup-domain/tests/unit/setup-state-machine.test.ts` PASS; `Push-Location apps/portal; npx vitest run tests/logging/portal-dev-log-route.test.ts tests/setup-first-run-route-panel.test.ts tests/live-activity-network-flow.test.ts; Pop-Location` PASS (3 files, 19 tests); `Push-Location apps/portal; npx tsc -p tsconfig.json --noEmit; Pop-Location` PASS; `Push-Location apps/portal; npx vite build; Pop-Location` PASS; `$env:OCENTRA_PARENT_PORTAL_PLAYWRIGHT_SPEC='setup-first-run-ui-proof.spec.ts'; node scripts/test/portal-playwright-runner.mjs` PASS (1 Playwright spec); `npm run lint:architecture -- --files docs/plans/setup-install-provisioning-plan` PASS.

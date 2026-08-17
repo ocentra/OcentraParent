@@ -18,9 +18,27 @@
 
 ```text
 Plan route: upgraded
-Setup-plan-owned workpacks: WP01, WP02, WP03, WP04, WP05, WP07, and WP06 closed for local proof roots
+Source phase: WP07 bounded Rust source packet accepted at a368bced832753e468a81f087930ca48d15f2116; tests, builds, proof, precommit, CI, and PR are deferred
+Setup-plan-owned workpacks: WP01, WP02, WP03, WP04, WP05, WP07, and WP06 retain their historical local proof/root disposition
 Whole-plan production onboarding: blocked by sibling-owner proof gaps
 PR-ready: false
+```
+
+## 2026-08-17 WP07 source-wave checkpoint
+
+The accepted source head adds the Rust-owned first-run authority status boundary
+and the LAN command-route guard. This is an implementation-only checkpoint; it
+does not refresh proof, close tests, or promote the setup plan.
+
+```text
+Rust owner: crates/parent-runtime-core/src/setup_first_run.rs, reached through the parent UI bridge route snapshot and Start route.
+Authority matrix: all 15 required owner inputs are explicit manual-required/unavailable; no fallback readiness value is substituted.
+LAN boundary: selected device, pairing, and reachability are observation-only read-model values; they do not establish ownership, trust, pairing authority, or setup readiness.
+Progression boundary: Start reads status only; the provisioning evaluator and action planner are not invoked.
+Command boundary: AgentCommandName::is_lan_command is the canonical 13-variant classifier; generic parent dispatch rejects LAN commands on non-LAN routes, and LAN discovery is rejected outside LAN-owned routes.
+Deferred validation: the existing parent-runtime-core Start-route snapshot/dispatch tests, portal setup route/unit/E2E tests, and the canonical 13-command/non-LAN rejection matrix remain to be updated and run in the later test phase.
+Missing composition: authenticated account/session/household, signed parent package, child package/service/permission, device trust, trusted LAN pairing, custody sync, policy baseline, network readiness, and recovery owners still do not supply a typed authenticated setup aggregation.
+No-claim boundary: no setup-complete, production-onboarding, trusted-device, signed-installer, child-readiness, LAN-pairing, custody, policy, payment, test, proof, CI, or PR-ready claim.
 ```
 
 ## Status interpretation
@@ -44,15 +62,15 @@ journey into shipped onboarding readiness.
 | WP03 Parent Install Journey | `apps/parent-desktop/src-tauri/src/lib.rs` has shipped Tauri route commands and `crates/provisioning-core/src/provisioning_install.rs` has install-state contracts. Neither is a package/install/update entrypoint, and no caller connects them to a signed artifact. | Signed package, platform installer, integrity/checksum, update/rollback, store delivery, and publishing authority belong to `parent-desktop-runtime-package-plan`. | No setup-owned slice; installer/proof text is not runtime. |
 | WP04 Child Install Permission Journey | `crates/child-runtime/src/bin/ocentra-child-agent-service.rs` starts the real child service and `crates/child-runtime/src/service.rs` durably gates tamper/recovery/removal state. `crates/child-runtime/src/runtime_gate.rs` defines provisioning preflight but `rg` found no production caller constructing or evaluating `ChildRuntimePreflightInput`. | Child package/distribution, platform permission/disclosure, and the missing preflight input owner are outside setup; no trusted account/device handoff reaches the shipped child service. | Blocked on `child-agent-runtime-distribution` plus account/device-trust inputs; no edit. |
 | WP05 Pairing Readiness Recovery | LAN pairing has a real agent-service owner (`crates/agent-service/src/lan_pairing_command_entrypoints.rs`, `crates/agent-service/src/app.rs`) and a parent read path (`crates/parent-runtime-core/src/agent_service_client/loaders.rs`, `parent_ui_bridge/lan_route.rs`) with durable/fail-closed protocol state. | The Start setup snapshot does not consume that read model, and no setup-owned aggregation joins it with account, install, permission, custody, and policy readiness. Physical LAN/device-trust authority remains sibling-owned. | A pairing-only projection would not satisfy setup progression; no edit without the missing cross-owner readiness inputs. |
-| WP07 First-Run Setup UI And State Machine | This route is reachable through `apps/parent-desktop/src-tauri/src/lib.rs` -> `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs` -> `apps/portal/src/ParentPortalRoute.tsx`/`SetupFirstRunRoutePanel.tsx`. The Rust panel in `parent_ui_bridge/browser.rs` intentionally reports `unavailable` and names account, pairing/trust, and custody as not wired. | No live Rust setup read model receives the required account, package, child-runtime, pairing, permission, custody, and policy states; the TS side is presentation-only. | Reachable boundary is honest but incomplete; no synthetic hydration or completion state. |
+| WP07 First-Run Setup UI And State Machine | The Start route reaches `crates/parent-runtime-core/src/setup_first_run.rs` through the Rust parent UI bridge and exposes the 15-input authority matrix. `crates/agent-protocol/src/transport.rs` provides the canonical 13-variant LAN classifier; parent generic dispatch rejects LAN commands on non-LAN routes. | No authenticated account/session/household, signed package, child runtime/permission, device-trust, trusted pairing, custody, policy, network, or recovery owner supplies a setup aggregation. LAN selected/paired/reachability values remain observation-only; Start does not invoke evaluation or action planning. | Bounded source accepted at `a368bced8`; tests, builds, proof, precommit, CI, and PR remain deferred; route is manual-required/unavailable and whole-plan onboarding remains blocked. |
 | WP06 Rollout Proof And Route Gate | No production entrypoint; this workpack is documentation/proof aggregation only. | It cannot create runtime authority or upgrade sibling blockers. | Proof-only; excluded from production-code closure. |
 
 ### Audit findings and stale topology
 
-- The graph report at `f7d8f4e33` reports WP01-WP04/WP06 as `no-source` with
-  `no-code-required`, and WP05/WP07 as `code-and-tests`; the plan index still
-  labels all seven local proof slices `done`/`done-but-blocked`. This is a
-  lifecycle/proof topology difference, not evidence of shipped setup runtime.
+- The graph report at the source-wave checkpoint reports WP07 as `validation`
+  with code-and-tests topology and missing reviewed implementation/tests/proof/
+  checklist evidence. This is a lifecycle/proof topology difference, not
+  evidence of shipped setup runtime or test completion.
 - The graph report has no implementation roots for the public site, account
   entry, parent-install, or rollout workpacks. Their proof roots therefore do
   not map to production callers.
