@@ -2,12 +2,20 @@
 
 import { Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
+const BILLING_U32_MAX = 4_294_967_295;
+
 export const PositiveBillingLimitSchema = Schema.Number.pipe(
-  Schema.filter((value) => (Number.isInteger(value) && value > 0) || 'Expected billing limits to be positive integers')
+  Schema.filter(
+    (value) =>
+      (Number.isInteger(value) && value > 0 && value <= BILLING_U32_MAX) ||
+      'Expected billing limits to be positive u32 integers'
+  )
 );
 export const NonNegativeBillingCountSchema = Schema.Number.pipe(
   Schema.filter(
-    (value) => (Number.isInteger(value) && value >= 0) || 'Expected billing counts to be non-negative integers'
+    (value) =>
+      (Number.isInteger(value) && value >= 0 && value <= BILLING_U32_MAX) ||
+      'Expected billing counts to be non-negative u32 integers'
   )
 );
 

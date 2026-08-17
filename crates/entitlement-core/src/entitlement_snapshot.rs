@@ -1,17 +1,15 @@
 #![forbid(unsafe_code)]
 
-//! Signed entitlement snapshot derivation and verification context.
-
-use chrono::{DateTime, FixedOffset};
+//! Unsigned entitlement snapshot projection and verifier-owned context.
 
 use crate::entitlement_access::{EntitlementCapability, SubscriptionState};
 use crate::entitlement_snapshot_values::{
     EntitlementAccountAuthorityState, EntitlementAccountRef,
     EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState, EntitlementHouseholdRef,
     EntitlementPackageBuildRef, EntitlementPackageBuildState, EntitlementProviderStateBoundary,
-    EntitlementRevocationCursor, EntitlementSafetyFeatureState, EntitlementSignatureKeyId,
-    EntitlementSnapshotBindingState, EntitlementSnapshotFreshnessState, EntitlementSnapshotId,
-    EntitlementSnapshotPlanTier, EntitlementSnapshotSignatureState, EntitlementTrustedDeviceRef,
+    EntitlementRevocationCursor, EntitlementSafetyFeatureState, EntitlementSnapshotBindingState,
+    EntitlementSnapshotFreshnessState, EntitlementSnapshotId, EntitlementSnapshotPlanTier,
+    EntitlementSnapshotSignatureState, EntitlementTrustedDeviceRef,
 };
 use serde::{Deserialize, Serialize};
 
@@ -68,9 +66,15 @@ pub struct EntitlementProviderStateInput {
     pub provider_child_device_limit_hint: Option<u32>,
 }
 
+/// A data-only projection used before an entitlement verifier issues authority.
+///
+/// This type deliberately has no signature, key identifier, or trust state. It
+/// is not an entitlement authority and must never be used to authorize a
+/// capability. A verifier-owned issuer may later consume this projection and
+/// return an opaque context through an owner boundary.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SignedEntitlementSnapshot {
+pub struct UnsignedEntitlementSnapshotProjection {
     pub schema_version: u16,
     pub snapshot_id: EntitlementSnapshotId,
     pub account_ref: EntitlementAccountRef,
@@ -90,8 +94,6 @@ pub struct SignedEntitlementSnapshot {
     pub revocation_cursor: EntitlementRevocationCursor,
     pub device_trust_required: bool,
     pub package_build_ref: EntitlementPackageBuildRef,
-    pub signature_key_id: EntitlementSignatureKeyId,
-    pub signature: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -105,159 +107,85 @@ pub struct EntitlementSnapshotDerivationInput {
     pub issued_at: String,
     pub expires_at: String,
     pub grace_until: Option<String>,
-    pub signature_key_id: EntitlementSignatureKeyId,
-    pub signature: String,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+/// Capability context held by the entitlement owner.
+///
+/// Its state is crate-private, deserialization always fails, and serialization
+/// is deliberately unavailable. No verifier issuer is shipped in this crate,
+/// so no public constructor can mint trusted context.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EntitlementSnapshotContext {
-    pub signature_state: EntitlementSnapshotSignatureState,
-    pub freshness_state: EntitlementSnapshotFreshnessState,
-    pub household_binding_state: EntitlementSnapshotBindingState,
-    pub device_binding_state: EntitlementSnapshotBindingState,
-    pub device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
-    pub device_trust_state: EntitlementDeviceTrustState,
-    pub package_build_state: EntitlementPackageBuildState,
+    pub(crate) signature_state: EntitlementSnapshotSignatureState,
+    pub(crate) freshness_state: EntitlementSnapshotFreshnessState,
+    pub(crate) household_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_binding_state: EntitlementSnapshotBindingState,
+    pub(crate) device_trust_requirement_state: EntitlementDeviceTrustRequirementState,
+    pub(crate) device_trust_state: EntitlementDeviceTrustState,
+    pub(crate) package_build_state: EntitlementPackageBuildState,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct EntitlementSnapshotVerificationContext {
-    pub signature_state: EntitlementSnapshotSignatureState,
-    pub freshness_state: EntitlementSnapshotFreshnessState,
-    pub household_binding_state: EntitlementSnapshotBindingState,
-    pub device_binding_state: EntitlementSnapshotBindingState,
-    pub device_trust_state: EntitlementDeviceTrustState,
-    pub package_build_state: EntitlementPackageBuildState,
+impl Serialize for EntitlementSnapshotContext {
+    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        Err(serde::ser::Error::custom(
+            "entitlement snapshot context is verifier-owned and cannot be serialized",
+        ))
+    }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct EntitlementSnapshotVerificationRequest {
-    pub account_ref: EntitlementAccountRef,
-    pub household_ref: EntitlementHouseholdRef,
-    pub trusted_device_ref: EntitlementTrustedDeviceRef,
-    pub package_build_ref: EntitlementPackageBuildRef,
-    pub observed_at: String,
+impl<'de> Deserialize<'de> for EntitlementSnapshotContext {
+    fn deserialize<D>(_deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        Err(serde::de::Error::custom(
+            "entitlement snapshot context must come from verifier authority",
+        ))
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EntitlementSnapshotVerificationFailure {
-    InvalidSnapshotShape,
-    MissingSignature,
-    InvalidSignature,
-    WrongAccount,
-    WrongHousehold,
-    WrongDevice,
-    WrongPackageBuild,
-    Expired,
-    TimestampInvalid,
-    AuthorityUnavailable,
+pub enum EntitlementSnapshotDerivationError {
+    ZeroBaseChildDeviceLimit,
+    ZeroProviderChildDeviceLimitHint,
+    SeatLimitOverflow,
 }
 
-pub trait EntitlementSnapshotAuthorityVerifier {
-    fn verify_signature_and_revocation(
-        &mut self,
-        snapshot: &SignedEntitlementSnapshot,
-        request: &EntitlementSnapshotVerificationRequest,
-    ) -> Result<EntitlementSnapshotVerificationContext, EntitlementSnapshotVerificationFailure>;
+pub fn checked_effective_child_device_limit(
+    base_child_device_limit: u32,
+    active_referral_credits: u32,
+    paid_extra_child_device_seats: u32,
+) -> Result<u32, EntitlementSnapshotDerivationError> {
+    let base_child_device_limit = std::num::NonZeroU32::new(base_child_device_limit)
+        .ok_or(EntitlementSnapshotDerivationError::ZeroBaseChildDeviceLimit)?
+        .get();
+    base_child_device_limit
+        .checked_add(active_referral_credits)
+        .and_then(|subtotal| subtotal.checked_add(paid_extra_child_device_seats))
+        .ok_or(EntitlementSnapshotDerivationError::SeatLimitOverflow)
 }
 
-#[derive(Debug, Default)]
-pub struct UnavailableEntitlementSnapshotAuthorityVerifier;
-
-impl EntitlementSnapshotAuthorityVerifier for UnavailableEntitlementSnapshotAuthorityVerifier {
-    fn verify_signature_and_revocation(
-        &mut self,
-        _snapshot: &SignedEntitlementSnapshot,
-        _request: &EntitlementSnapshotVerificationRequest,
-    ) -> Result<EntitlementSnapshotVerificationContext, EntitlementSnapshotVerificationFailure>
-    {
-        Err(EntitlementSnapshotVerificationFailure::AuthorityUnavailable)
-    }
-}
-
-pub fn verify_device_bound_entitlement_snapshot(
-    verifier: &mut impl EntitlementSnapshotAuthorityVerifier,
-    snapshot: &SignedEntitlementSnapshot,
-    request: &EntitlementSnapshotVerificationRequest,
-) -> Result<EntitlementSnapshotContext, EntitlementSnapshotVerificationFailure> {
-    validate_snapshot_shape(snapshot, request)?;
-    let verification = verifier.verify_signature_and_revocation(snapshot, request)?;
-    match verification.signature_state {
-        EntitlementSnapshotSignatureState::Missing => {
-            return Err(EntitlementSnapshotVerificationFailure::MissingSignature);
-        }
-        EntitlementSnapshotSignatureState::Invalid => {
-            return Err(EntitlementSnapshotVerificationFailure::InvalidSignature);
-        }
-        EntitlementSnapshotSignatureState::Trusted => {}
-    }
-
-    Ok(snapshot_context_from_signed_snapshot(
-        snapshot,
-        EntitlementSnapshotVerificationContext {
-            signature_state: verification.signature_state,
-            freshness_state: verification.freshness_state,
-            household_binding_state: EntitlementSnapshotBindingState::Matched,
-            device_binding_state: EntitlementSnapshotBindingState::Matched,
-            device_trust_state: verification.device_trust_state,
-            package_build_state: verification.package_build_state,
-        },
-    ))
-}
-
-fn validate_snapshot_shape(
-    snapshot: &SignedEntitlementSnapshot,
-    request: &EntitlementSnapshotVerificationRequest,
-) -> Result<(), EntitlementSnapshotVerificationFailure> {
-    if snapshot.schema_version != ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION {
-        return Err(EntitlementSnapshotVerificationFailure::InvalidSnapshotShape);
-    }
-    if snapshot.signature.is_empty() {
-        return Err(EntitlementSnapshotVerificationFailure::MissingSignature);
-    }
-    if snapshot.account_ref != request.account_ref {
-        return Err(EntitlementSnapshotVerificationFailure::WrongAccount);
-    }
-    if snapshot.household_ref != request.household_ref {
-        return Err(EntitlementSnapshotVerificationFailure::WrongHousehold);
-    }
-    if snapshot.trusted_device_ref != request.trusted_device_ref {
-        return Err(EntitlementSnapshotVerificationFailure::WrongDevice);
-    }
-    if snapshot.package_build_ref != request.package_build_ref {
-        return Err(EntitlementSnapshotVerificationFailure::WrongPackageBuild);
-    }
-
-    let issued_at = parse_snapshot_timestamp(&snapshot.issued_at)?;
-    let expires_at = parse_snapshot_timestamp(&snapshot.expires_at)?;
-    let observed_at = parse_snapshot_timestamp(&request.observed_at)?;
-    if issued_at > observed_at || observed_at >= expires_at {
-        return Err(EntitlementSnapshotVerificationFailure::Expired);
-    }
-    if let Some(grace_until) = snapshot.grace_until.as_deref() {
-        if parse_snapshot_timestamp(grace_until)? < expires_at {
-            return Err(EntitlementSnapshotVerificationFailure::InvalidSnapshotShape);
-        }
-    }
-    Ok(())
-}
-
-fn parse_snapshot_timestamp(
-    value: &str,
-) -> Result<DateTime<FixedOffset>, EntitlementSnapshotVerificationFailure> {
-    DateTime::parse_from_rfc3339(value)
-        .map_err(|_error| EntitlementSnapshotVerificationFailure::TimestampInvalid)
-}
-
-pub fn derive_signed_entitlement_snapshot(
+pub fn derive_unsigned_entitlement_snapshot(
     input: EntitlementSnapshotDerivationInput,
-) -> SignedEntitlementSnapshot {
-    let effective_child_device_limit = input.billing_ledger_state.base_child_device_limit
-        + input.referral_ledger_state.active_referral_credits
-        + input.billing_ledger_state.paid_extra_child_device_seats;
+) -> Result<UnsignedEntitlementSnapshotProjection, EntitlementSnapshotDerivationError> {
+    input
+        .provider_state
+        .provider_child_device_limit_hint
+        .map(|hint| {
+            std::num::NonZeroU32::new(hint)
+                .ok_or(EntitlementSnapshotDerivationError::ZeroProviderChildDeviceLimitHint)
+        })
+        .transpose()?;
+    let effective_child_device_limit = checked_effective_child_device_limit(
+        input.billing_ledger_state.base_child_device_limit,
+        input.referral_ledger_state.active_referral_credits,
+        input.billing_ledger_state.paid_extra_child_device_seats,
+    )?;
 
-    SignedEntitlementSnapshot {
+    Ok(UnsignedEntitlementSnapshotProjection {
         schema_version: ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION,
         snapshot_id: input.snapshot_id,
         account_ref: input.entitlement_ledger_state.account_ref,
@@ -279,26 +207,5 @@ pub fn derive_signed_entitlement_snapshot(
         revocation_cursor: input.entitlement_ledger_state.revocation_cursor,
         device_trust_required: input.entitlement_ledger_state.device_trust_required,
         package_build_ref: input.entitlement_ledger_state.package_build_ref,
-        signature_key_id: input.signature_key_id,
-        signature: input.signature,
-    }
-}
-
-pub fn snapshot_context_from_signed_snapshot(
-    snapshot: &SignedEntitlementSnapshot,
-    verification: EntitlementSnapshotVerificationContext,
-) -> EntitlementSnapshotContext {
-    EntitlementSnapshotContext {
-        signature_state: verification.signature_state,
-        freshness_state: verification.freshness_state,
-        household_binding_state: verification.household_binding_state,
-        device_binding_state: verification.device_binding_state,
-        device_trust_requirement_state: if snapshot.device_trust_required {
-            EntitlementDeviceTrustRequirementState::Required
-        } else {
-            EntitlementDeviceTrustRequirementState::NotRequired
-        },
-        device_trust_state: verification.device_trust_state,
-        package_build_state: verification.package_build_state,
-    }
+    })
 }

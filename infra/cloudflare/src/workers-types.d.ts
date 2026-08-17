@@ -31,7 +31,13 @@ declare module '@cloudflare/workers-types' {
     idFromName(name: string): DurableObjectId;
     get(id: DurableObjectId): DurableObjectStub;
   }
-  export interface DurableObjectState {}
+  export interface DurableObjectStorage {
+    get<T>(key: string): Promise<T | undefined>;
+    put<T>(key: string, value: T): Promise<void>;
+  }
+  export interface DurableObjectState {
+    storage: DurableObjectStorage;
+  }
   export interface KVNamespace {
     get(key: string, type?: 'text' | 'json'): Promise<unknown>;
     put(key: string, value: string): Promise<void>;
@@ -39,6 +45,16 @@ declare module '@cloudflare/workers-types' {
   export interface Queue {
     send(message: unknown): Promise<void>;
     sendBatch(messages: ReadonlyArray<{ body: unknown }>): Promise<void>;
+  }
+  export interface QueueMessage<Body = unknown> {
+    body: Body;
+    attempts: number;
+    ack(): void;
+    retry(options?: { delaySeconds?: number }): void;
+  }
+  export interface MessageBatch<Body = unknown> {
+    queue: string;
+    messages: ReadonlyArray<QueueMessage<Body>>;
   }
   export interface R2ObjectBody {
     text(): Promise<string>;

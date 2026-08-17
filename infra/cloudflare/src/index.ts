@@ -1,15 +1,16 @@
-import type { DurableObjectState } from '@cloudflare/workers-types';
+import type { DurableObjectState, MessageBatch } from '@cloudflare/workers-types';
+import { NonNegativeBillingCountSchema } from '@ocentra-parent/schema-domain/billing-entitlement-values';
+import { buildBillingCancellationSummaryFromStatus, buildBillingPlanChangeSummaryFromStatus } from './fixtures.js';
 import {
-  buildAdminRefundResult,
-  buildBillingCancellationSummaryFromStatus,
-  buildBillingPlanChangeSummaryFromStatus,
-  buildManualInvoiceResult,
-  buildReconciliationSummary,
-  buildReferralInviteResult,
-} from './fixtures.js';
-import {
+  appendBillingAuditEventAtOwner,
   applyBillingStateMutation,
+  BILLING_AUDIT_APPEND_PATH,
+  buildBillingRefundResult,
   BillingReadModelUnavailableError,
+  buildBillingReferralInviteResultFromD1,
+  buildManualInvoiceResultFromD1,
+  buildReconciliationSummaryFromD1,
+  drainPendingBillingMutationOutbox,
   findBillingInvoiceSubject,
   loadAdminBillingAccounts,
   loadAdminBillingDisputes,
@@ -17,14 +18,27 @@ import {
   loadAdminBillingReferrals,
   loadBillingAuditEvents,
   loadBillingEntitlementSnapshot,
+  loadAppliedRefundAmount,
+  loadBillingInvoiceById,
   loadBillingInvoices,
   loadBillingLicenseDecision,
+  loadBillingProviderEventReceipt,
+  loadBillingProviderEventCursor,
   loadBillingReferralSummary,
   loadBillingStatusSummary,
   loadLocalSeedSummary,
   loadPricingPlans,
+  isIgnoredProviderWebhookEvent,
+  markBillingProviderEventQueue,
+  registerBillingProviderEvent,
   type BillingStateMutation,
+  type ProviderEventReceipt,
 } from './billing-binding-read-model.js';
+import {
+  resolveProviderBillingAuthority,
+  type ProviderBillingReferenceHints,
+  type ProviderBillingAuthority,
+} from './storage/account-identity-billing-store.js';
 import {
   BillingHostedReturnRoute,
   BillingCheckoutSessionRequestSchema,
@@ -193,7 +207,23 @@ type IdempotentWriteResult = {
   responseBody: unknown;
   queued: boolean;
 };
-type QueueFailureReason = 'reconciliation-queue-missing' | 'reconciliation-queue-send-failed';
+type DurableIdempotencyRecord = {
+  state: 'pending' | 'completed' | 'manual-required';
+  requestFingerprint: string;
+  responseStatus: number;
+  responseBody: unknown;
+  stateVersion: number;
+  attemptCount: number;
+  leaseToken: string | null;
+  leaseExpiresAt: string | null;
+  retryAt: string | null;
+  lastError: string | null;
+};
+type QueueFailureReason =
+  | 'reconciliation-queue-missing'
+  | 'reconciliation-queue-send-failed'
+  | 'queue-consumer-invalid-message'
+  | 'queue-consumer-manual-required';
 
 const CHECKOUT_SUCCESS_PATH = BillingHostedReturnRoute.CheckoutSuccess.relativePath;
 const CHECKOUT_CANCEL_PATH = BillingHostedReturnRoute.CheckoutCancel.relativePath;
@@ -204,6 +234,10 @@ const ALLOWLISTED_RETURN_PATHS: ReadonlySet<string> = new Set([
   PORTAL_RETURN_PATH,
 ]);
 const ACCEPTED_ABUSE_GATE_STATES = new Set(['passed-turnstile', 'trusted-authenticated-session']);
+const IDEMPOTENCY_LEASE_MS = 60_000;
+const IDEMPOTENCY_RETRY_BASE_MS = 1_000;
+const IDEMPOTENCY_RETRY_MAX_MS = 60_000;
+const IDEMPOTENCY_MAX_ATTEMPTS = 5;
 
 function json(status: number, body: unknown, headers: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body, null, 2), {
@@ -265,11 +299,7 @@ function requireVerifiedSupportAuthority(identity: VerifiedIdentity | undefined)
       error: 'support-admin-capability-required',
     });
   }
-  if (
-    authority.supportScope === null ||
-    authority.supportIssuer === null ||
-    authority.supportAuditIdentity === null
-  ) {
+  if (authority.supportScope === null || authority.supportIssuer === null || authority.supportAuditIdentity === null) {
     return json(503, {
       status: 'manual-required',
       blocker: 'support-receipt-provenance-missing',
@@ -515,6 +545,17 @@ function numberOrNull(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function parseRefundAmount(value: unknown): { valid: true; value: number | null } | { valid: false; value: null } {
+  if (value === undefined || value === null) {
+    return { valid: true, value: null };
+  }
+  try {
+    return { valid: true, value: NonNegativeBillingCountSchema.parse(value) };
+  } catch (_error) {
+    return { valid: false, value: null };
+  }
+}
+
 function booleanFromUnknown(value: unknown): boolean {
   return value === true;
 }
@@ -709,14 +750,20 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
   if (kind === 'admin-refund') {
     const requestId = stringOrNull(value.requestId);
     const invoiceId = stringOrNull(value.invoiceId);
+    const actorSubject = stringOrNull(value.actorSubject);
+    const currency = stringOrNull(value.currency);
     const auditReference = stringOrNull(value.auditReference);
     const refundState = stringOrNull(value.refundState);
-    const amountCents = numberOrNull(value.amountCents);
+    const parsedAmount = parseRefundAmount(value.amountCents);
+    const amountCents = parsedAmount.value;
     const actorRole = stringOrNull(value.actorRole);
     if (
       !requestId ||
       !invoiceId ||
+      !actorSubject ||
+      !currency ||
       !auditReference ||
+      !parsedAmount.valid ||
       amountCents === null ||
       (refundState !== 'refund-requested' && refundState !== 'refund-settled') ||
       (actorRole !== 'support' && actorRole !== 'admin')
@@ -726,8 +773,10 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     return {
       kind,
       subject,
+      actorSubject,
       requestId,
       invoiceId,
+      currency,
       refundState,
       amountCents,
       auditReference,
@@ -755,7 +804,18 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     const provider = stringOrNull(value.provider);
     const eventId = stringOrNull(value.eventId);
     const eventType = stringOrNull(value.eventType);
-    if (!provider || !eventId || !eventType) {
+    const providerOccurredAt = value.providerOccurredAt === null ? null : stringOrNull(value.providerOccurredAt);
+    const providerSequence = value.providerSequence === null ? null : numberOrNull(value.providerSequence);
+    const providerCursorExpectedVersion = numberOrNull(value.providerCursorExpectedVersion);
+    if (
+      !provider ||
+      !eventId ||
+      !eventType ||
+      (value.providerOccurredAt !== null && providerOccurredAt === null) ||
+      (value.providerSequence !== null && providerSequence === null) ||
+      providerCursorExpectedVersion === null ||
+      !Number.isInteger(providerCursorExpectedVersion)
+    ) {
       return null;
     }
     return {
@@ -764,8 +824,13 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
       subject,
       eventId,
       eventType,
+      providerOccurredAt,
+      providerSequence,
+      providerCursorExpectedVersion,
       disputeId: stringOrNull(value.disputeId),
       invoiceId: stringOrNull(value.invoiceId),
+      parentAccountRef: stringOrNull(value.parentAccountRef),
+      familyRef: stringOrNull(value.familyRef),
     };
   }
 
@@ -776,12 +841,51 @@ function durableWriteKey(action: string, subject: string, requestId: string): st
   return `${action}:${subject}:${requestId}`;
 }
 
-function webhookIdempotencyKey(provider: string, eventId: string): string {
-  return durableWriteKey('provider-webhook', provider, eventId);
+function canonicalRequestFingerprint(
+  action: string,
+  subject: string | null,
+  requestId: string,
+  details: Readonly<Record<string, unknown>> = {}
+): string {
+  return JSON.stringify({ ...details, action, subject, requestId });
 }
 
-function webhookRequestFingerprint(provider: string, body: string): string {
-  return `${provider}:${body}`;
+function adminRefundRequestFingerprint(
+  actorSubject: string,
+  invoiceId: string,
+  subject: string,
+  requestId: string,
+  amountCents: number,
+  currency: string
+): string {
+  return canonicalRequestFingerprint('admin-refund', subject, requestId, {
+    actorSubject,
+    invoiceId,
+    amountCents,
+    currency,
+  });
+}
+
+function webhookIdempotencyKey(provider: string, eventId: string, billingSubject: string | null): string {
+  return durableWriteKey('provider-webhook', billingSubject ?? 'unresolved', `${provider}:${eventId}`);
+}
+
+function webhookRequestFingerprint(
+  provider: string,
+  body: string,
+  event: { eventId: string; eventType: string },
+  authority: ProviderBillingAuthority | null
+): string {
+  return canonicalRequestFingerprint('provider-webhook', authority?.billingSubject ?? null, event.eventId, {
+    provider,
+    eventType: event.eventType,
+    body,
+    accountId: authority?.accountId ?? null,
+    providerCustomerId: authority?.providerCustomerId ?? null,
+    providerSubscriptionId: authority?.providerSubscriptionId ?? null,
+    providerInvoiceId: authority?.providerInvoiceId ?? null,
+    billingInvoiceId: authority?.billingInvoiceId ?? null,
+  });
 }
 
 function acceptedWebhookResponse(
@@ -833,7 +937,7 @@ async function executeIdempotentWrite(
   objectName: string,
   envelope: {
     requestKey: string;
-    requestFingerprint?: string;
+    requestFingerprint: string;
     responseStatus: number;
     responseBody: unknown;
     queueMessage: Record<string, unknown> | null;
@@ -843,15 +947,9 @@ async function executeIdempotentWrite(
   },
   env: Env
 ): Promise<Response> {
+  void env;
   if (!namespace) {
-    if (envelope.stateMutation) {
-      await applyBillingStateMutation(env, envelope.stateMutation);
-    }
-    const queued = envelope.queueMessage ? await queueReconciliationEvent(env, envelope.queueMessage) : false;
-    const responseBody = envelope.queueMessage
-      ? withQueuedFlag(cloneJsonValue(envelope.responseBody), queued)
-      : envelope.responseBody;
-    return json(envelope.responseStatus, responseBody);
+    throw new BillingReadModelUnavailableError('billing-control-do-binding-missing');
   }
 
   const durableObject = namespace.get(namespace.idFromName(objectName));
@@ -864,7 +962,17 @@ async function executeIdempotentWrite(
       body: JSON.stringify(envelope),
     })
   );
+  if (!doResponse.ok) {
+    throw new BillingReadModelUnavailableError('billing-control-do-unavailable');
+  }
   const result = (await doResponse.json()) as IdempotentWriteResult;
+  if (
+    typeof result.responseStatus !== 'number' ||
+    typeof result.replayed !== 'boolean' ||
+    typeof result.queued !== 'boolean'
+  ) {
+    throw new BillingReadModelUnavailableError('billing-control-do-response-invalid');
+  }
   return json(result.responseStatus, result.responseBody);
 }
 
@@ -872,9 +980,7 @@ function billingActorRoleForAuthority(authority: VerifiedAuthority): 'parent' | 
   return authority.role === 'parent-owner' ? 'parent' : 'guardian';
 }
 
-async function billingHostedRouteContext(
-  authority: VerifiedAuthority
-): Promise<{
+async function billingHostedRouteContext(authority: VerifiedAuthority): Promise<{
   actor: {
     actorId: string;
     role: 'parent' | 'guardian';
@@ -970,8 +1076,11 @@ async function verifyHexHmac(payload: string, signature: string, secret: string)
   return safeEqual(signature.toLowerCase(), expected.toLowerCase());
 }
 
-function providerEventDetails(provider: string, payload: unknown): { eventId: string; eventType: string } {
-  const fallbackId = `${provider}_evt_local_unknown`;
+function providerEventDetails(
+  provider: string,
+  payload: unknown,
+  fallbackId: string
+): { eventId: string; eventType: string } {
   const fallbackType = `${provider}.unknown`;
   if (typeof payload !== 'object' || payload === null) {
     return {
@@ -987,50 +1096,105 @@ function providerEventDetails(provider: string, payload: unknown): { eventId: st
   };
 }
 
-function providerWebhookSubject(payload: unknown): string | null {
-  if (!isPlainObject(payload)) {
-    return null;
-  }
-
-  const directSubject =
-    stringOrNull(payload.subject) ?? stringOrNull(payload.ownerSubject) ?? stringOrNull(payload.parentSubject);
-  if (directSubject) {
-    return directSubject;
-  }
-
-  const metadata = isPlainObject(payload.metadata) ? payload.metadata : null;
-  const metadataSubject =
-    stringOrNull(metadata?.subject) ??
-    stringOrNull(metadata?.ownerSubject) ??
-    stringOrNull(metadata?.ocentraParentSubject);
-  if (metadataSubject) {
-    return metadataSubject;
-  }
-
-  const data = isPlainObject(payload.data) ? payload.data : null;
-  const object = isPlainObject(data?.object) ? data.object : null;
-  const objectMetadata = isPlainObject(object?.metadata) ? object.metadata : null;
-  return (
-    stringOrNull(object?.subject) ??
-    stringOrNull(objectMetadata?.subject) ??
-    stringOrNull(objectMetadata?.ownerSubject) ??
-    stringOrNull(objectMetadata?.ocentraParentSubject)
-  );
+async function providerWebhookBodyId(provider: string, body: string): Promise<string> {
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(body));
+  const hex = Array.from(new Uint8Array(digest), (value) => value.toString(16).padStart(2, '0')).join('');
+  return `${provider}_evt_body_${hex}`;
 }
 
-function providerWebhookInvoiceId(payload: unknown): string | null {
+function providerWebhookReferences(payload: unknown, eventType: string): ProviderBillingReferenceHints {
   if (!isPlainObject(payload)) {
-    return null;
+    return { customerId: null, subscriptionId: null, invoiceId: null };
   }
-
-  const directInvoiceId = stringOrNull(payload.invoiceId) ?? stringOrNull(payload.invoice_id);
-  if (directInvoiceId) {
-    return directInvoiceId;
-  }
-
   const data = isPlainObject(payload.data) ? payload.data : null;
-  const object = isPlainObject(data?.object) ? data.object : null;
-  return stringOrNull(object?.invoice) ?? stringOrNull(object?.invoiceId) ?? stringOrNull(object?.invoice_id);
+  const object = isPlainObject(data?.object) ? data.object : payload;
+  const normalizedEventType = eventType.toLowerCase();
+  const objectId = stringOrNull(object.id);
+  const customerId =
+    (normalizedEventType.includes('customer') && !normalizedEventType.includes('subscription') ? objectId : null) ??
+    stringOrNull(object.customer) ??
+    stringOrNull(object.customer_id) ??
+    stringOrNull(payload.customer);
+  const subscriptionId =
+    (normalizedEventType.includes('subscription') ? objectId : null) ??
+    stringOrNull(object.subscription) ??
+    stringOrNull(object.subscription_id) ??
+    stringOrNull(payload.subscription);
+  const invoiceId =
+    (normalizedEventType.includes('invoice') ? objectId : null) ??
+    stringOrNull(object.invoice) ??
+    stringOrNull(object.invoice_id) ??
+    stringOrNull(payload.invoice) ??
+    stringOrNull(payload.invoice_id);
+  return { customerId, subscriptionId, invoiceId };
+}
+
+function providerOccurrenceTimestamp(value: unknown): string | null {
+  const numericValue =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value.trim())
+        ? Number(value.trim())
+        : null;
+  if (numericValue !== null && Number.isFinite(numericValue) && numericValue >= 0) {
+    const milliseconds = numericValue < 1_000_000_000_000 ? numericValue * 1000 : numericValue;
+    const timestamp = new Date(milliseconds);
+    return Number.isFinite(timestamp.getTime()) ? timestamp.toISOString() : null;
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const timestamp = new Date(value.trim());
+    return Number.isFinite(timestamp.getTime()) ? timestamp.toISOString() : null;
+  }
+  return null;
+}
+
+function providerWebhookOccurrence(payload: unknown): {
+  occurredAt: string | null;
+  sequence: number | null;
+  valid: boolean;
+} {
+  if (!isPlainObject(payload)) {
+    return { occurredAt: null, sequence: null, valid: false };
+  }
+  const data = isPlainObject(payload.data) ? payload.data : null;
+  const object = isPlainObject(data?.object) ? data.object : payload;
+  const occurredAt =
+    [
+      payload.occurredAt,
+      payload.occurred_at,
+      payload.createdAt,
+      payload.created_at,
+      payload.timestamp,
+      payload.created,
+      object.occurredAt,
+      object.occurred_at,
+      object.createdAt,
+      object.created_at,
+      object.timestamp,
+      object.created,
+    ]
+      .map(providerOccurrenceTimestamp)
+      .find((value): value is string => value !== null) ?? null;
+  const sequenceCandidate = [
+    payload.sequence,
+    payload.sequence_number,
+    payload.event_sequence,
+    payload.version,
+    object.sequence,
+    object.sequence_number,
+    object.event_sequence,
+    object.version,
+  ].find((value) => value !== null && value !== undefined);
+  let sequence: number | null = null;
+  let valid = true;
+  if (sequenceCandidate !== undefined) {
+    try {
+      sequence = NonNegativeBillingCountSchema.parse(sequenceCandidate);
+    } catch (_error) {
+      valid = false;
+    }
+  }
+  return { occurredAt, sequence, valid };
 }
 
 function providerWebhookDisputeId(payload: unknown, eventType: string, fallbackDisputeId: string): string | null {
@@ -1082,40 +1246,195 @@ async function acceptProviderWebhook(
     });
   }
 
-  const event = providerEventDetails(provider, payload);
-  const subject = providerWebhookSubject(payload);
-  const invoiceId = providerWebhookInvoiceId(payload);
+  const event = providerEventDetails(provider, payload, await providerWebhookBodyId(provider, body));
+  const providerReferences = providerWebhookReferences(payload, event.eventType);
+  const occurrence = providerWebhookOccurrence(payload);
+  const authority = await resolveProviderBillingAuthority(env.ACCOUNT_IDENTITY_D1, provider, providerReferences);
+  const trustedAuthority = authority.status === 'trusted' ? authority.authority : null;
+  const subject = trustedAuthority?.billingSubject ?? null;
+  const invoiceId = trustedAuthority?.billingInvoiceId ?? null;
   const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
-  return executeIdempotentWrite(
-    env.BILLING_DO,
-    subject ? `billing-control:${subject}` : `billing-control:webhook:${provider}`,
-    {
-      requestKey: webhookIdempotencyKey(provider, event.eventId),
-      requestFingerprint: webhookRequestFingerprint(provider, body),
-      responseStatus: 202,
-      responseBody: acceptedWebhookResponse(provider, proofIdFamily, event),
-      queueMessage: {
-        provider,
-        ...event,
-        subject,
-        receivedAt: new Date().toISOString(),
+  const requestFingerprint = webhookRequestFingerprint(provider, body, event, trustedAuthority);
+  const processingState =
+    trustedAuthority !== null && occurrence.valid && (occurrence.occurredAt !== null || occurrence.sequence !== null)
+      ? isIgnoredProviderWebhookEvent(event.eventType)
+        ? 'ignored'
+        : 'received'
+      : 'manual-required';
+  const registration = await registerBillingProviderEvent(env, {
+    provider,
+    eventId: event.eventId,
+    eventFingerprint: requestFingerprint,
+    eventType: event.eventType,
+    providerOccurredAt: occurrence.occurredAt,
+    providerSequence: occurrence.sequence,
+    accountId: trustedAuthority?.accountId ?? null,
+    providerCustomerId: trustedAuthority?.providerCustomerId ?? providerReferences.customerId,
+    providerSubscriptionId: trustedAuthority?.providerSubscriptionId ?? providerReferences.subscriptionId,
+    providerInvoiceId: trustedAuthority?.providerInvoiceId ?? providerReferences.invoiceId,
+    billingSubject: subject,
+    parentAccountRef: trustedAuthority?.parentAccountRef ?? null,
+    familyRef: trustedAuthority?.familyRef ?? null,
+    billingInvoiceId: invoiceId,
+    processingState,
+  });
+  if (registration.status === 'conflict') {
+    return json(409, conflictingWebhookResponse(provider, proofIdFamily, event));
+  }
+  const receipt = registration.receipt;
+  if (
+    registration.status === 'replay' &&
+    (receipt.queueState === 'queued' ||
+      receipt.queueState === 'delivered' ||
+      receipt.queueState === 'manual-required' ||
+      receipt.queueState === 'dead-letter')
+  ) {
+    return json(202, {
+      ...acceptedWebhookResponse(provider, proofIdFamily, event),
+      queued: receipt.queueState === 'queued' || receipt.queueState === 'delivered',
+    });
+  }
+  if (!env.BILLING_DO) {
+    await markBillingProviderEventQueue(
+      env,
+      receipt.provider,
+      receipt.eventId,
+      'manual-required',
+      receipt.processingState === 'ignored' || receipt.processingState === 'applied'
+        ? receipt.processingState
+        : 'manual-required',
+      'billing-control-do-binding-missing',
+      receipt
+    );
+    throw new BillingReadModelUnavailableError('billing-control-do-binding-missing');
+  }
+  const queuePayload = {
+    action: 'provider-webhook',
+    provider,
+    ...event,
+    disputeId,
+    receivedAt: new Date().toISOString(),
+  } satisfies Record<string, unknown>;
+  let response: Response;
+  try {
+    response = await executeIdempotentWrite(
+      env.BILLING_DO,
+      subject ? `billing-control:${subject}` : `billing-control:webhook:${provider}`,
+      {
+        requestKey: webhookIdempotencyKey(provider, event.eventId, subject),
+        requestFingerprint,
+        responseStatus: 202,
+        responseBody: acceptedWebhookResponse(provider, proofIdFamily, event),
+        queueMessage: queuePayload,
+        stateMutation: null,
+        conflictResponseStatus: 409,
+        conflictResponseBody: conflictingWebhookResponse(provider, proofIdFamily, event),
       },
-      stateMutation: subject
-        ? {
-            kind: 'provider-webhook',
-            provider,
-            subject,
-            eventId: event.eventId,
-            eventType: event.eventType,
-            disputeId,
-            invoiceId,
-          }
-        : null,
-      conflictResponseStatus: 409,
-      conflictResponseBody: conflictingWebhookResponse(provider, proofIdFamily, event),
-    },
-    env
+      env
+    );
+  } catch (error) {
+    if (error instanceof BillingReadModelUnavailableError) {
+      const current = await loadBillingProviderEventReceipt(env, receipt.provider, receipt.eventId);
+      if (current?.queueState === 'pending') {
+        await markBillingProviderEventQueue(
+          env,
+          current.provider,
+          current.eventId,
+          'manual-required',
+          current.processingState === 'ignored' || current.processingState === 'applied'
+            ? current.processingState
+            : 'manual-required',
+          error.message,
+          current
+        );
+      }
+    }
+    throw error;
+  }
+  const responseBody = await response.json();
+  const queued = isPlainObject(responseBody) && responseBody.queued === true;
+  await recordProviderWebhookQueueOutcome(
+    env,
+    receipt,
+    queued,
+    receipt.billingSubject !== null && receipt.processingState !== 'manual-required'
   );
+  return json(response.status, responseBody);
+}
+
+async function recordProviderWebhookQueueOutcome(
+  env: Env,
+  receipt: ProviderEventReceipt,
+  queued: boolean,
+  hasTrustedAuthority: boolean
+): Promise<boolean> {
+  const failedQueueState = 'manual-required' as const;
+  const failedProcessingState =
+    receipt.processingState === 'ignored' || receipt.processingState === 'applied'
+      ? receipt.processingState
+      : failedQueueState;
+  const queuedProcessingState =
+    receipt.processingState === 'ignored'
+      ? 'ignored'
+      : receipt.processingState === 'manual-required'
+        ? 'manual-required'
+        : hasTrustedAuthority
+          ? 'queued'
+          : 'manual-required';
+  try {
+    const current = await markBillingProviderEventQueue(
+      env,
+      receipt.provider,
+      receipt.eventId,
+      queued ? 'queued' : failedQueueState,
+      queued ? queuedProcessingState : failedProcessingState,
+      queued ? null : 'provider-event-queue-delivery-failed',
+      receipt
+    );
+    return current.queueState === 'queued' || current.queueState === 'delivered';
+  } catch (error) {
+    if (!(error instanceof BillingReadModelUnavailableError)) {
+      throw error;
+    }
+    const current = await loadBillingProviderEventReceipt(env, receipt.provider, receipt.eventId);
+    if (!current) {
+      throw error;
+    }
+    if (queued && (current.queueState === 'queued' || current.queueState === 'delivered')) {
+      return true;
+    }
+    if (!queued && (current.queueState === 'manual-required' || current.queueState === 'dead-letter')) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+async function markProviderWebhookDelivered(
+  env: Env,
+  receipt: ProviderEventReceipt,
+  processingState: Extract<ProviderEventReceipt['processingState'], 'applied' | 'ignored'>
+): Promise<void> {
+  try {
+    await markBillingProviderEventQueue(
+      env,
+      receipt.provider,
+      receipt.eventId,
+      'delivered',
+      processingState,
+      null,
+      receipt
+    );
+  } catch (error) {
+    if (!(error instanceof BillingReadModelUnavailableError)) {
+      throw error;
+    }
+    const current = await loadBillingProviderEventReceipt(env, receipt.provider, receipt.eventId);
+    if (current?.queueState === 'delivered' && current.processingState === processingState) {
+      return;
+    }
+    throw error;
+  }
 }
 
 async function queueReconciliationEvent(env: Env, payload: Record<string, unknown>): Promise<boolean> {
@@ -1138,6 +1457,23 @@ async function queueReconciliationEvent(env: Env, payload: Record<string, unknow
       return false;
     }
 
+    return false;
+  }
+}
+
+async function sendBillingDeadLetter(
+  env: Env,
+  payload: Record<string, unknown>,
+  reason: QueueFailureReason,
+  error: unknown
+): Promise<boolean> {
+  if (!env.BILLING_DEAD_LETTER_QUEUE) {
+    return false;
+  }
+  try {
+    await env.BILLING_DEAD_LETTER_QUEUE.send(deadLetterPayload(payload, reason, error));
+    return true;
+  } catch {
     return false;
   }
 }
@@ -1204,19 +1540,17 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('checkout', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(
-        request,
-        env,
-        identity,
-        requestId
-      );
+      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
 
       const planId = stringOrNull(body.planId);
       const pricingPlans = await loadPricingPlans(env);
-      if (!planId || !pricingPlans.some((plan) => plan.planId === planId && plan.priceCents > 0)) {
+      if (
+        !planId ||
+        !pricingPlans.some((plan) => plan.planId === planId && plan.activeState === 'active' && plan.priceCents > 0)
+      ) {
         return rejectionResponse('checkout-session-create', requestId, 'invalid-plan');
       }
 
@@ -1248,7 +1582,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${subject}`,
         {
           requestKey: durableWriteKey('checkout-session-create', subject, requestId),
-          requestFingerprint: `checkout-session-create:${planId}:${successPath}:${cancelPath}`,
+          requestFingerprint: canonicalRequestFingerprint('hosted-session', subject, requestId, {
+            sessionKind: 'checkout-session-create',
+            planId,
+            successPath,
+            cancelPath,
+          }),
           responseStatus: 200,
           responseBody: acceptedResponseBody('checkout-session-create', requestId, subject),
           queueMessage: null,
@@ -1288,12 +1627,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('portal', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(
-        request,
-        env,
-        identity,
-        requestId
-      );
+      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1323,7 +1657,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${subject}`,
         {
           requestKey: durableWriteKey('billing-portal-session-create', subject, requestId),
-          requestFingerprint: `billing-portal-session-create:${returnPath}`,
+          requestFingerprint: canonicalRequestFingerprint('hosted-session', subject, requestId, {
+            sessionKind: 'billing-portal-session-create',
+            returnPath,
+          }),
           responseStatus: 200,
           responseBody: acceptedResponseBody('billing-portal-session-create', requestId, subject),
           queueMessage: null,
@@ -1333,11 +1670,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
                 subject,
                 requestId,
                 sessionKind: 'billing-portal-session-create',
-                auditReference: hostedSessionAuditReference(
-                  'billing-portal-session-create',
-                  subject,
-                  requestId
-                ),
+                auditReference: hostedSessionAuditReference('billing-portal-session-create', subject, requestId),
                 actorRole,
               }
             : null,
@@ -1405,7 +1738,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         await loadBillingStatusSummary(env, subject),
         requestId,
         stringOrNull(body.planId),
-        await loadPricingPlans(env)
+        (await loadPricingPlans(env)).filter((plan) => plan.activeState === 'active')
       );
       const targetPlanId = summary.targetPlanId;
       return executeIdempotentWrite(
@@ -1413,7 +1746,9 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${subject}`,
         {
           requestKey: durableWriteKey('change-plan', subject, requestId),
-          requestFingerprint: `change-plan:${targetPlanId ?? 'invalid'}`,
+          requestFingerprint: canonicalRequestFingerprint('change-plan', subject, requestId, {
+            targetPlanId,
+          }),
           responseStatus: 200,
           responseBody: summary,
           queueMessage:
@@ -1482,7 +1817,9 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         `billing-control:${subject}`,
         {
           requestKey: durableWriteKey('cancel', subject, requestId),
-          requestFingerprint: `cancel:${summary.cancellationState}`,
+          requestFingerprint: canonicalRequestFingerprint('cancel', subject, requestId, {
+            cancellationState: summary.cancellationState,
+          }),
           responseStatus: 200,
           responseBody: summary,
           queueMessage: {
@@ -1555,7 +1892,13 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const result = buildReferralInviteResult(subject, requestId, stringOrNull(body.invitee));
+      const invitee = stringOrNull(body.invitee)?.trim();
+      if (!invitee) {
+        return json(400, {
+          error: 'invitee-required',
+        });
+      }
+      const result = await buildBillingReferralInviteResultFromD1(env, subject, requestId, invitee);
       if (result.status === 'accepted') {
         const invitedIdentifier = stringOrNull(body.invitee)?.trim().toLowerCase();
         const actorRole = billingActorRoleForAuthority(authority);
@@ -1564,6 +1907,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           `billing-control:${subject}`,
           {
             requestKey: durableWriteKey('referral-invite', subject, requestId),
+            requestFingerprint: canonicalRequestFingerprint('referral-invite', subject, requestId, {
+              invitedIdentifier,
+              referralCode: result.referralCode,
+            }),
             responseStatus: 200,
             responseBody: result,
             queueMessage: {
@@ -1634,13 +1981,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const deviceId = authority.deviceId;
       return json(
         200,
-        await loadBillingLicenseDecision(
-          env,
-          subject,
-          requestId,
-          deviceId,
-          booleanFromUnknown(body.requestedNewDevice)
-        )
+        await loadBillingLicenseDecision(env, subject, requestId, deviceId, booleanFromUnknown(body.requestedNewDevice))
       );
     },
 
@@ -1665,12 +2006,21 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('manual-invoice', subject, body.requestId);
-      const result = buildManualInvoiceResult(subject, requestId, stringOrNull(body.region));
+      const region = stringOrNull(body.region)?.trim();
+      if (!region) {
+        return json(400, {
+          error: 'region-required',
+        });
+      }
+      const result = await buildManualInvoiceResultFromD1(env, subject, requestId, region);
       return executeIdempotentWrite(
         env.BILLING_DO,
         `billing-control:${subject}`,
         {
           requestKey: durableWriteKey('manual-invoice', subject, requestId),
+          requestFingerprint: canonicalRequestFingerprint('manual-invoice', subject, requestId, {
+            region: result.region,
+          }),
           responseStatus: 202,
           responseBody: {
             ...result,
@@ -1715,7 +2065,14 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const body = await request.text();
-      if (!(await verifyStripeWebhookSignature(body, signatureHeader, env.STRIPE_WEBHOOK_SECRET))) {
+      if (
+        !(await verifyStripeWebhookSignature(
+          body,
+          signatureHeader,
+          env.STRIPE_WEBHOOK_SECRET,
+          env.STRIPE_WEBHOOK_TOLERANCE_SECONDS
+        ))
+      ) {
         return json(400, {
           error: 'invalid-stripe-signature',
         });
@@ -1865,12 +2222,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
     },
 
     async 'admin-billing-refunds'({ request, env, identity }): Promise<Response> {
-      const authority = requireVerifiedParentAuthority(identity);
-      if (authority instanceof Response) {
-        return authority;
-      }
-      const actorSubject = authority.providerSubject;
-
+      const verifiedIdentity = requireSupportAdminReadIdentity(identity);
+      const actorSubject = verifiedIdentity.subject;
       const body = await readJsonObject<AdminRefundRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1878,32 +2231,54 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('admin-refund', actorSubject, body.requestId);
-      const result = buildAdminRefundResult(requestId, stringOrNull(body.invoiceId), numberOrNull(body.amountCents));
+      const requestId = requestIdFor('admin-refund', verifiedIdentity.subject, body.requestId);
+      const parsedAmount = parseRefundAmount(body.amountCents);
+      if (!parsedAmount.valid) {
+        return json(400, {
+          error: 'invalid-refund-amount',
+        });
+      }
+      const invoiceId = stringOrNull(body.invoiceId);
+      const invoice = invoiceId ? await loadBillingInvoiceById(env, invoiceId) : null;
+      const appliedAmountCents = invoice ? await loadAppliedRefundAmount(env, invoice.invoiceId) : 0;
+      const result = buildBillingRefundResult(requestId, invoice, parsedAmount.value, appliedAmountCents);
       if (result.status === 'accepted') {
-        const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
-        const refundInvoice =
-          refundSubject && result.invoiceId
-            ? (await loadBillingInvoices(env, refundSubject)).find((invoice) => invoice.invoiceId === result.invoiceId) ?? null
-            : null;
+        const refundInvoiceId = result.invoiceId;
+        const refundSubject = refundInvoiceId ? await findBillingInvoiceSubject(env, refundInvoiceId) : null;
+        if (!invoice || !refundInvoiceId || !refundSubject) {
+          return json(503, {
+            error: 'manual-required',
+            blocker: 'billing-invoice-subject-missing',
+          });
+        }
         return executeIdempotentWrite(
           env.BILLING_DO,
           `billing-control:${refundSubject}`,
           {
             requestKey: durableWriteKey('admin-refund', actorSubject, requestId),
+            requestFingerprint: adminRefundRequestFingerprint(
+              actorSubject,
+              refundInvoiceId,
+              refundSubject,
+              requestId,
+              result.amountCents ?? 0,
+              invoice.currency
+            ),
             responseStatus: 200,
             responseBody: result,
             queueMessage: {
               action: 'admin-refund',
               requestId,
-              invoiceId: result.invoiceId,
+              invoiceId: refundInvoiceId,
               amountCents: result.amountCents,
-              actorRole: 'admin',
+              currency: invoice.currency,
+              subject: refundSubject,
+              actorSubject,
+              actorRole: verifiedIdentity.role,
             },
             stateMutation:
               refundSubject &&
-              refundInvoice &&
-              result.invoiceId &&
+              refundInvoiceId &&
               result.refundState !== 'manual-review-required' &&
               result.amountCents !== null
                 ? {
@@ -1911,12 +2286,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
                     subject: refundSubject,
                     actorSubject,
                     requestId,
-                    invoiceId: result.invoiceId,
-                    currency: refundInvoice.currency,
+                    invoiceId: refundInvoiceId,
+                    currency: invoice.currency,
                     refundState: result.refundState,
                     amountCents: result.amountCents,
                     auditReference: result.auditReference,
-                    actorRole: 'admin',
+                    actorRole: verifiedIdentity.role === 'support' ? 'support' : 'admin',
                   }
                 : null,
           },
@@ -1963,13 +2338,19 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('reconciliation', identity?.subject ?? 'internal', body.requestId);
-      const summary = buildReconciliationSummary(requestId, true);
+      const summary = await buildReconciliationSummaryFromD1(env, requestId);
       const actorRole = identity?.role === 'support' ? 'support' : identity?.role === 'admin' ? 'admin' : 'system';
       return executeIdempotentWrite(
         env.BILLING_DO,
         `billing-control:${identity?.subject ?? 'internal'}`,
         {
           requestKey: durableWriteKey('reconciliation', identity?.subject ?? 'internal', requestId),
+          requestFingerprint: canonicalRequestFingerprint(
+            'reconciliation',
+            identity?.subject ?? 'internal',
+            requestId,
+            { actorRole }
+          ),
           responseStatus: 202,
           responseBody: summary,
           queueMessage: {
@@ -2137,14 +2518,106 @@ class BasePlaceholderDO {
   }
 }
 
+function storedIdempotencyCounter(value: unknown, fallback: number | null): number | null {
+  if (value === undefined) {
+    return fallback;
+  }
+  try {
+    return NonNegativeBillingCountSchema.parse(value);
+  } catch (_error) {
+    return null;
+  }
+}
+
+function storedIdempotencyTimestamp(value: unknown, fallback: string | null): string | null {
+  if (value === undefined) {
+    return fallback;
+  }
+  if (value === null) {
+    return null;
+  }
+  return typeof value === 'string' && Number.isFinite(Date.parse(value)) ? value : null;
+}
+
+function normalizeDurableIdempotencyRecord(value: unknown): DurableIdempotencyRecord | null {
+  if (!isPlainObject(value)) {
+    return null;
+  }
+  const state = stringOrNull(value.state);
+  const requestFingerprint = stringOrNull(value.requestFingerprint);
+  const responseStatus = numberOrNull(value.responseStatus);
+  const stateVersion = storedIdempotencyCounter(value.stateVersion, 0);
+  const attemptCount = storedIdempotencyCounter(value.attemptCount, 0);
+  const leaseToken =
+    value.leaseToken === undefined || value.leaseToken === null ? null : stringOrNull(value.leaseToken);
+  const leaseExpiresAt = storedIdempotencyTimestamp(value.leaseExpiresAt, null);
+  const retryAt = storedIdempotencyTimestamp(value.retryAt, null);
+  const lastError = value.lastError === undefined || value.lastError === null ? null : stringOrNull(value.lastError);
+  if (
+    (state !== 'pending' && state !== 'completed' && state !== 'manual-required') ||
+    requestFingerprint === null ||
+    responseStatus === null ||
+    !Number.isInteger(responseStatus) ||
+    stateVersion === null ||
+    attemptCount === null ||
+    (value.leaseToken !== undefined && value.leaseToken !== null && leaseToken === null) ||
+    (value.lastError !== undefined && value.lastError !== null && lastError === null) ||
+    (value.leaseExpiresAt !== undefined && value.leaseExpiresAt !== null && leaseExpiresAt === null) ||
+    (value.retryAt !== undefined && value.retryAt !== null && retryAt === null) ||
+    !Object.prototype.hasOwnProperty.call(value, 'responseBody') ||
+    (leaseToken === null && leaseExpiresAt !== null) ||
+    (leaseToken !== null && leaseExpiresAt === null) ||
+    (state !== 'pending' && (leaseToken !== null || leaseExpiresAt !== null || retryAt !== null))
+  ) {
+    return null;
+  }
+  return {
+    state,
+    requestFingerprint,
+    responseStatus,
+    responseBody: cloneJsonValue(value.responseBody),
+    stateVersion,
+    attemptCount,
+    leaseToken,
+    leaseExpiresAt,
+    retryAt,
+    lastError,
+  };
+}
+
+function idempotencyRetryDelayMs(attemptCount: number): number {
+  return Math.min(
+    IDEMPOTENCY_RETRY_MAX_MS,
+    IDEMPOTENCY_RETRY_BASE_MS * 2 ** Math.max(0, Math.min(attemptCount - 1, 6))
+  );
+}
+
+function idempotencyRetryResponse(blocker: string, retryAt: string | null = null): Response {
+  return json(503, {
+    status: 'manual-required',
+    blocker,
+    retryAt,
+  });
+}
+
 class IdempotentWriteDO extends BasePlaceholderDO {
-  private readonly writes = new Map<
-    string,
-    { requestFingerprint: string | null; responseStatus: number; responseBody: unknown }
-  >();
+  private auditAppendTail: Promise<void> = Promise.resolve();
 
   override async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
+    if (request.method === 'POST' && url.pathname === BILLING_AUDIT_APPEND_PATH) {
+      const auditEvent = await readJsonObject<Record<string, unknown>>(request);
+      if (!auditEvent) {
+        return json(400, { error: 'invalid-billing-audit-event' });
+      }
+      const append = this.auditAppendTail.then(() => appendBillingAuditEventAtOwner(this.env, auditEvent));
+      this.auditAppendTail = append.then(
+        () => undefined,
+        () => undefined
+      );
+      await append;
+      return json(200, { status: 'delivered' });
+    }
     if (request.method !== 'POST' || url.pathname !== '/idempotency/execute') {
       return super.fetch();
     }
@@ -2159,19 +2632,41 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     const requestKey = stringOrNull(envelope.requestKey);
     const requestFingerprint = stringOrNull(envelope.requestFingerprint);
     const responseStatus = numberOrNull(envelope.responseStatus);
-    if (requestKey === null || responseStatus === null) {
+    if (
+      requestKey === null ||
+      requestFingerprint === null ||
+      responseStatus === null ||
+      !Number.isInteger(responseStatus) ||
+      !Object.prototype.hasOwnProperty.call(envelope, 'responseBody')
+    ) {
       return json(400, {
         error: 'invalid-idempotency-envelope',
       });
     }
 
-    const existing = this.writes.get(requestKey);
+    const stateMutationProvided = envelope.stateMutation !== undefined && envelope.stateMutation !== null;
+    const stateMutation = parseBillingStateMutation(envelope.stateMutation);
+    if (stateMutationProvided && stateMutation === null) {
+      return json(400, {
+        error: 'invalid-state-mutation',
+      });
+    }
+
+    const storageKey = `idempotency:${requestKey}`;
+    let existing: DurableIdempotencyRecord | undefined;
+    try {
+      const stored = await this.state.storage.get<unknown>(storageKey);
+      if (stored !== undefined) {
+        existing = normalizeDurableIdempotencyRecord(stored) ?? undefined;
+        if (!existing) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-state-invalid');
+        }
+      }
+    } catch {
+      return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+    }
     if (existing !== undefined) {
-      if (
-        existing.requestFingerprint !== null &&
-        requestFingerprint !== null &&
-        existing.requestFingerprint !== requestFingerprint
-      ) {
+      if (existing.requestFingerprint !== requestFingerprint) {
         const conflictResponseStatus = numberOrNull(envelope.conflictResponseStatus) ?? 409;
         const conflictResponseBody = envelope.conflictResponseBody ?? {
           error: 'idempotency-conflict',
@@ -2184,27 +2679,149 @@ class IdempotentWriteDO extends BasePlaceholderDO {
         } satisfies IdempotentWriteResult);
       }
 
-      return json(200, {
-        replayed: true,
-        responseStatus: existing.responseStatus,
-        responseBody: cloneJsonValue(existing.responseBody),
-        queued: false,
-      } satisfies IdempotentWriteResult);
+      if (existing.state === 'manual-required') {
+        return idempotencyRetryResponse('billing-control-do-idempotency-manual-required');
+      }
+
+      if (existing.state !== 'completed') {
+        const now = Date.now();
+        const leaseActive = existing.leaseExpiresAt !== null && Date.parse(existing.leaseExpiresAt) > now;
+        if (leaseActive) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-in-flight', existing.leaseExpiresAt);
+        }
+        if (existing.retryAt !== null && Date.parse(existing.retryAt) > now) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-retry-backoff', existing.retryAt);
+        }
+        if (existing.attemptCount >= IDEMPOTENCY_MAX_ATTEMPTS && existing.lastError !== null) {
+          const exhausted = {
+            ...existing,
+            state: 'manual-required' as const,
+            stateVersion: existing.stateVersion + 1,
+            leaseToken: null,
+            leaseExpiresAt: null,
+            retryAt: null,
+            lastError: existing.lastError ?? 'idempotency-attempt-limit-exhausted',
+          } satisfies DurableIdempotencyRecord;
+          try {
+            await this.state.storage.put(storageKey, exhausted);
+          } catch {
+            return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+          }
+          return idempotencyRetryResponse('billing-control-do-idempotency-attempt-limit-exhausted');
+        }
+      }
+
+      if (existing.state === 'completed') {
+        return json(200, {
+          replayed: true,
+          responseStatus: existing.responseStatus,
+          responseBody: cloneJsonValue(existing.responseBody),
+          queued: false,
+        } satisfies IdempotentWriteResult);
+      }
+    }
+
+    const leaseToken = crypto.randomUUID();
+    const leaseExpiresAt = new Date(Date.now() + IDEMPOTENCY_LEASE_MS).toISOString();
+    const pending: DurableIdempotencyRecord = existing
+      ? {
+          ...existing,
+          state: 'pending',
+          stateVersion: existing.stateVersion + 1,
+          attemptCount: existing.attemptCount + 1,
+          leaseToken,
+          leaseExpiresAt,
+          retryAt: null,
+          lastError: null,
+        }
+      : {
+          state: 'pending',
+          requestFingerprint,
+          responseStatus,
+          responseBody: cloneJsonValue(envelope.responseBody),
+          stateVersion: 1,
+          attemptCount: 1,
+          leaseToken,
+          leaseExpiresAt,
+          retryAt: null,
+          lastError: null,
+        };
+    try {
+      await this.state.storage.put(storageKey, pending);
+    } catch {
+      return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
     }
 
     const queueMessage = isPlainObject(envelope.queueMessage) ? envelope.queueMessage : null;
-    const stateMutation = parseBillingStateMutation(envelope.stateMutation);
-    if (stateMutation) {
-      await applyBillingStateMutation(this.env, stateMutation);
+    let queued = false;
+    let responseBody: unknown = envelope.responseBody;
+    try {
+      if (stateMutation) {
+        await applyBillingStateMutation(this.env, stateMutation);
+      }
+      queued = queueMessage ? await queueReconciliationEvent(this.env, queueMessage) : false;
+      responseBody = queueMessage ? withQueuedFlag(envelope.responseBody, queued) : envelope.responseBody;
+    } catch (error) {
+      try {
+        const current = normalizeDurableIdempotencyRecord(await this.state.storage.get<unknown>(storageKey));
+        if (
+          current === null ||
+          current === undefined ||
+          current.state !== 'pending' ||
+          current.stateVersion !== pending.stateVersion ||
+          current.leaseToken !== leaseToken
+        ) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-lease-lost');
+        }
+        const exhausted = current.attemptCount >= IDEMPOTENCY_MAX_ATTEMPTS;
+        const retryAt = exhausted
+          ? null
+          : new Date(Date.now() + idempotencyRetryDelayMs(current.attemptCount)).toISOString();
+        const failed = {
+          ...current,
+          state: exhausted ? ('manual-required' as const) : ('pending' as const),
+          stateVersion: current.stateVersion + 1,
+          leaseToken: null,
+          leaseExpiresAt: null,
+          retryAt,
+          lastError: queueFailureMessage(error) ?? 'billing-control-do-mutation-unavailable',
+        } satisfies DurableIdempotencyRecord;
+        await this.state.storage.put(storageKey, failed);
+        return idempotencyRetryResponse(
+          exhausted
+            ? 'billing-control-do-idempotency-attempt-limit-exhausted'
+            : 'billing-control-do-idempotency-retryable-failure',
+          retryAt
+        );
+      } catch {
+        return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+      }
     }
-    const queued = queueMessage ? await queueReconciliationEvent(this.env, queueMessage) : false;
-    const responseBody = queueMessage ? withQueuedFlag(envelope.responseBody, queued) : envelope.responseBody;
-    const stored = {
-      requestFingerprint,
-      responseStatus,
-      responseBody: cloneJsonValue(responseBody),
-    };
-    this.writes.set(requestKey, stored);
+    try {
+      const current = normalizeDurableIdempotencyRecord(await this.state.storage.get<unknown>(storageKey));
+      if (
+        current === null ||
+        current === undefined ||
+        current.state !== 'pending' ||
+        current.stateVersion !== pending.stateVersion ||
+        current.leaseToken !== leaseToken
+      ) {
+        return idempotencyRetryResponse('billing-control-do-idempotency-lease-lost');
+      }
+      const stored = {
+        ...current,
+        state: 'completed' as const,
+        stateVersion: current.stateVersion + 1,
+        responseBody: cloneJsonValue(responseBody),
+        leaseToken: null,
+        leaseExpiresAt: null,
+        retryAt: null,
+        lastError: null,
+      } satisfies DurableIdempotencyRecord;
+      await this.state.storage.put(storageKey, stored);
+    } catch {
+      return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+    }
 
     return json(200, {
       replayed: false,
@@ -2221,12 +2838,198 @@ export class ReferralControlDO extends IdempotentWriteDO {}
 
 export class EntitlementSnapshotDO extends BasePlaceholderDO {}
 
+async function processBillingQueueMessage(env: Env, payload: Record<string, unknown>): Promise<void> {
+  const action = stringOrNull(payload.action);
+  if (!action) {
+    throw new Error('queue-consumer-invalid-message');
+  }
+  if (action === 'provider-webhook') {
+    const provider = stringOrNull(payload.provider);
+    const eventId = stringOrNull(payload.eventId);
+    const eventType = stringOrNull(payload.eventType);
+    if (!provider || !eventId || !eventType) {
+      throw new Error('queue-consumer-invalid-provider-event');
+    }
+    const receipt = await loadBillingProviderEventReceipt(env, provider, eventId);
+    if (!receipt) {
+      throw new Error(`queue-consumer-provider-receipt-missing:${provider}:${eventId}`);
+    }
+    if (!receipt.billingSubject) {
+      await markBillingProviderEventQueue(
+        env,
+        provider,
+        eventId,
+        'manual-required',
+        'manual-required',
+        'provider-event-authority-unresolved',
+        receipt
+      );
+      return;
+    }
+    if (receipt.providerOccurredAt === null && receipt.providerSequence === null) {
+      await markBillingProviderEventQueue(
+        env,
+        provider,
+        eventId,
+        'manual-required',
+        'manual-required',
+        'provider-event-order-metadata-missing',
+        receipt
+      );
+      return;
+    }
+    const authority = await resolveProviderBillingAuthority(env.ACCOUNT_IDENTITY_D1, provider, {
+      customerId: receipt.providerCustomerId,
+      subscriptionId: receipt.providerSubscriptionId,
+      invoiceId: receipt.providerInvoiceId,
+    });
+    if (
+      authority.status !== 'trusted' ||
+      authority.authority.billingSubject !== receipt.billingSubject ||
+      authority.authority.accountId !== receipt.accountId ||
+      authority.authority.providerCustomerId !== receipt.providerCustomerId ||
+      authority.authority.providerSubscriptionId !== receipt.providerSubscriptionId ||
+      authority.authority.providerInvoiceId !== receipt.providerInvoiceId ||
+      authority.authority.parentAccountRef !== receipt.parentAccountRef ||
+      authority.authority.familyRef !== receipt.familyRef ||
+      authority.authority.billingInvoiceId !== receipt.billingInvoiceId
+    ) {
+      await markBillingProviderEventQueue(
+        env,
+        provider,
+        eventId,
+        'manual-required',
+        'manual-required',
+        'provider-event-authority-revoked-or-changed',
+        receipt
+      );
+      return;
+    }
+    const cursor = await loadBillingProviderEventCursor(env, provider, receipt.billingSubject);
+    await applyBillingStateMutation(env, {
+      kind: 'provider-webhook',
+      provider,
+      subject: receipt.billingSubject,
+      eventId,
+      eventType: receipt.eventType,
+      providerOccurredAt: receipt.providerOccurredAt,
+      providerSequence: receipt.providerSequence,
+      providerCursorExpectedVersion: cursor?.stateVersion ?? 0,
+      disputeId: stringOrNull(payload.disputeId),
+      invoiceId: receipt.billingInvoiceId,
+      parentAccountRef: receipt.parentAccountRef,
+      familyRef: receipt.familyRef,
+    });
+    await markProviderWebhookDelivered(
+      env,
+      receipt,
+      isIgnoredProviderWebhookEvent(receipt.eventType) ? 'ignored' : 'applied'
+    );
+    return;
+  }
+  if (
+    action === 'reconciliation' ||
+    action === 'referral-invite' ||
+    action === 'manual-invoice' ||
+    action === 'admin-refund' ||
+    action === 'change-plan' ||
+    action === 'cancel'
+  ) {
+    const summary = await drainPendingBillingMutationOutbox(env);
+    if (summary.failed > 0) {
+      throw new Error(`queue-consumer-outbox-failures:${summary.failed}`);
+    }
+    return;
+  }
+  throw new Error(`queue-consumer-unsupported-action:${action}`);
+}
+
+async function consumeBillingQueue(batch: MessageBatch<unknown>, env: Env): Promise<void> {
+  for (const message of batch.messages) {
+    const payload = isPlainObject(message.body) ? message.body : null;
+    if (!payload) {
+      if (message.attempts >= 5) {
+        if (
+          await sendBillingDeadLetter(
+            env,
+            { body: cloneJsonValue(message.body) },
+            'queue-consumer-invalid-message',
+            null
+          )
+        ) {
+          message.ack();
+        } else {
+          message.retry({ delaySeconds: 900 });
+        }
+      } else {
+        message.retry({ delaySeconds: Math.min(900, 30 * (message.attempts + 1)) });
+      }
+      continue;
+    }
+    try {
+      await processBillingQueueMessage(env, payload);
+      message.ack();
+    } catch (error) {
+      if (message.attempts >= 5) {
+        const provider = stringOrNull(payload.provider);
+        const eventId = stringOrNull(payload.eventId);
+        if (payload.action === 'provider-webhook' && provider && eventId) {
+          const receipt = await loadBillingProviderEventReceipt(env, provider, eventId);
+          if (!receipt) {
+            throw new Error(`queue-consumer-provider-receipt-missing:${provider}:${eventId}`);
+          }
+          if (
+            receipt.queueState !== 'delivered' &&
+            receipt.queueState !== 'manual-required' &&
+            receipt.queueState !== 'dead-letter'
+          ) {
+            const terminalProcessingState =
+              receipt.processingState === 'ignored' ||
+              receipt.processingState === 'applied' ||
+              receipt.processingState === 'manual-required'
+                ? receipt.processingState
+                : 'dead-letter';
+            await markBillingProviderEventQueue(
+              env,
+              provider,
+              eventId,
+              'dead-letter',
+              terminalProcessingState,
+              queueFailureMessage(error) ?? 'queue-consumer-manual-required',
+              receipt
+            );
+          }
+        }
+        if (await sendBillingDeadLetter(env, payload, 'queue-consumer-manual-required', error)) {
+          message.ack();
+        } else {
+          message.retry({ delaySeconds: 900 });
+        }
+      } else {
+        message.retry({ delaySeconds: Math.min(900, 30 * (message.attempts + 1)) });
+      }
+    }
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     return withCors(await handleRequest(request, env), request, env);
   },
 
-  async scheduled(): Promise<void> {
-    return;
+  async scheduled(_controller: unknown, env: Env): Promise<void> {
+    void _controller;
+    try {
+      await drainPendingBillingMutationOutbox(env);
+    } catch (_error) {
+      env.ANALYTICS?.writeDataPoint({
+        indexes: ['billing-mutation-outbox-drain-failed'],
+        doubles: [1],
+      });
+    }
+  },
+
+  async queue(batch: MessageBatch<unknown>, env: Env): Promise<void> {
+    await consumeBillingQueue(batch, env);
   },
 };

@@ -17,9 +17,7 @@ import {
   type BillingSupportAdminInvoiceSummary as DomainBillingSupportAdminInvoiceSummary,
   type BillingSupportAdminReferralSummary as DomainBillingSupportAdminReferralSummary,
   BillingSupportAdminReconciliationSummarySchema,
-  BillingSupportAdminRefundResultSchema,
   type BillingSupportAdminReconciliationSummary,
-  type BillingSupportAdminRefundResult,
 } from './generated/billing-contracts.js';
 
 type BillingAccountRuntimeStatusRow = ReturnType<typeof BillingAccountRuntimeStatusRowSchema.parse>;
@@ -191,10 +189,7 @@ export interface BillingLicenseDecisionSummary {
   decision: 'allowed' | 'denied' | 'grace' | 'manual-review';
   reasonCode: 'within-plan' | 'limit-exceeded' | 'payment-required' | 'manual-review';
   deviceActivationBehavior:
-    | 'allow-new-device'
-    | 'deny-new-device'
-    | 'grace-existing-devices'
-    | 'manual-review-required';
+    'allow-new-device' | 'deny-new-device' | 'grace-existing-devices' | 'manual-review-required';
   requestedDeviceAlreadyTrusted: boolean;
   planId: string;
   currentActiveDevices: number;
@@ -1309,35 +1304,6 @@ export function listAdminBillingReferrals(query: string | null): ReadonlyArray<A
       value.toLowerCase().includes(loweredQuery)
     )
   );
-}
-
-export function buildAdminRefundResult(
-  requestId: string,
-  invoiceId: string | null,
-  amountCents: number | null
-): BillingSupportAdminRefundResult {
-  const invoice = invoiceId ? listAdminBillingInvoices(null).find((entry) => entry.invoiceId === invoiceId) : null;
-  if (!invoice) {
-    return BillingSupportAdminRefundResultSchema.parse({
-      requestId,
-      status: 'rejected',
-      invoiceId,
-      refundState: 'manual-review-required',
-      amountCents: null,
-      auditReference: 'audit:refund:rejected',
-      rejectionReason: 'invoice-not-found',
-    });
-  }
-
-  return BillingSupportAdminRefundResultSchema.parse({
-    requestId,
-    status: 'accepted',
-    invoiceId: invoice.invoiceId,
-    refundState: amountCents !== null && amountCents < invoice.totalCents ? 'refund-requested' : 'refund-settled',
-    amountCents: amountCents ?? invoice.totalCents,
-    auditReference: `${invoice.auditReference}:refund`,
-    rejectionReason: null,
-  });
 }
 
 export function buildReconciliationSummary(

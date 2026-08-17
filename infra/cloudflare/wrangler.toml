@@ -12,6 +12,7 @@ BILLING_ROUTE_KILL_SWITCH = "false"
 AUTH_ADAPTER_MODE = "account-auth-adapter-manual-required"
 FIREBASE_CLOCK_SKEW_SECONDS = "60"
 FIREBASE_JWKS_CACHE_SECONDS = "300"
+STRIPE_WEBHOOK_TOLERANCE_SECONDS = "300"
 ENTITLEMENT_SIGNING_KEY_REF = "manual-required-local-ref"
 
 [[d1_databases]]
@@ -40,6 +41,13 @@ queue = "ocentra-parent-billing-reconciliation-dev"
 [[queues.producers]]
 binding = "BILLING_DEAD_LETTER_QUEUE"
 queue = "ocentra-parent-billing-dead-letter-dev"
+
+[[queues.consumers]]
+queue = "ocentra-parent-billing-reconciliation-dev"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 5
+dead_letter_queue = "ocentra-parent-billing-dead-letter-dev"
 
 [[r2_buckets]]
 binding = "BILLING_AUDIT_R2"

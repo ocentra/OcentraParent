@@ -24,13 +24,17 @@ import {
 import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import {
   BillingReferralSummarySchema,
+  BillingReferralInviteResultSchema,
   BillingSupportAdminAccountSummarySchema,
   BillingSupportAdminAuditEventSummarySchema,
   BillingSupportAdminDisputeSummarySchema,
   BillingSupportAdminInvoiceSummarySchema,
   BillingSupportAdminReferralSummarySchema,
   BillingSupportAdminRefundResultSchema,
+  BillingSupportAdminReconciliationSummarySchema,
   type BillingReferralSummary,
+  type BillingReferralInviteResult,
+  type BillingSupportAdminReconciliationSummary,
   type BillingSupportAdminRefundResult,
 } from './generated/billing-contracts.js';
 import type { Env } from './env.js';
@@ -39,7 +43,6 @@ import {
   buildBillingReferralSummary,
   buildBillingStatusSummary,
   buildEntitlementSnapshot,
-  buildLicenseDecision,
   listAdminBillingAccounts,
   listAdminBillingDisputes,
   listAdminBillingInvoices,
@@ -86,6 +89,12 @@ const REFUND_LEDGER_TOTAL_GUARD_SQL =
 const BILLING_MUTATION_AUTHORITY_GUARD_SQL =
   "CREATE TRIGGER IF NOT EXISTS billing_mutation_authority_guard BEFORE INSERT ON billing_mutation_outbox BEGIN SELECT RAISE(ABORT, 'billing-mutation-authority-cas-failed') WHERE NEW.authority_subject IS NOT NULL AND (NEW.authority_version IS NULL OR NEW.authority_token IS NULL OR json_extract(NEW.mutation_json, '$.subject') IS NOT NEW.authority_subject OR NOT EXISTS (SELECT 1 FROM billing_subject_versions WHERE subject = NEW.authority_subject AND version = NEW.authority_version AND last_mutation_token = NEW.authority_token)); END";
 
+const BILLING_PROVIDER_RECEIPT_STATE_GUARD_SQL =
+  "CREATE TRIGGER IF NOT EXISTS billing_provider_receipt_state_guard BEFORE UPDATE OF processing_state, queue_state, state_version ON billing_provider_event_receipts BEGIN SELECT RAISE(ABORT, 'billing-provider-event-state-regression') WHERE (OLD.queue_state IN ('delivered', 'manual-required', 'dead-letter') AND NEW.queue_state <> OLD.queue_state) OR (OLD.processing_state IN ('applied', 'ignored', 'manual-required', 'dead-letter') AND NEW.processing_state <> OLD.processing_state) OR NEW.state_version <> OLD.state_version + 1; END";
+
+const BILLING_PROVIDER_CURSOR_GUARD_SQL =
+  "CREATE TRIGGER IF NOT EXISTS billing_provider_cursor_guard BEFORE INSERT ON billing_mutation_outbox BEGIN SELECT RAISE(ABORT, 'billing-provider-event-cursor-cas-failed') WHERE json_extract(NEW.mutation_json, '$.kind') = 'provider-webhook' AND (json_extract(NEW.mutation_json, '$.providerCursorExpectedVersion') IS NULL OR NOT EXISTS (SELECT 1 FROM billing_provider_event_cursors WHERE provider = json_extract(NEW.mutation_json, '$.provider') AND billing_subject = json_extract(NEW.mutation_json, '$.subject') AND last_event_id = json_extract(NEW.mutation_json, '$.eventId') AND state_version = json_extract(NEW.mutation_json, '$.providerCursorExpectedVersion') + 1)); END";
+
 function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, ' ').trim();
 }
@@ -99,22 +108,26 @@ const CREATE_READ_MODEL_SCHEMA_SQL = [
   'CREATE TABLE IF NOT EXISTS billing_admin_invoices (invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_disputes (dispute_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_referrals (referral_code TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  "CREATE TABLE IF NOT EXISTS billing_provider_event_receipts (provider TEXT NOT NULL, event_id TEXT NOT NULL, event_fingerprint TEXT NOT NULL, event_type TEXT NOT NULL, provider_occurred_at TEXT, provider_sequence INTEGER CHECK (provider_sequence IS NULL OR provider_sequence BETWEEN 0 AND 4294967295), state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295), account_id TEXT, provider_customer_id TEXT, provider_subscription_id TEXT, provider_invoice_id TEXT, billing_subject TEXT, parent_account_ref TEXT, family_ref TEXT, billing_invoice_id TEXT, processing_state TEXT NOT NULL CHECK (processing_state IN ('received', 'ignored', 'queued', 'applied', 'manual-required', 'dead-letter')), queue_state TEXT NOT NULL CHECK (queue_state IN ('pending', 'queued', 'delivered', 'manual-required', 'dead-letter')), queue_attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (queue_attempt_count BETWEEN 0 AND 4294967295), last_queue_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (provider, event_id))",
+  'CREATE TABLE IF NOT EXISTS billing_provider_event_cursors (provider TEXT NOT NULL, billing_subject TEXT NOT NULL, last_occurred_at TEXT, last_sequence INTEGER CHECK (last_sequence IS NULL OR last_sequence BETWEEN 0 AND 4294967295), last_event_id TEXT NOT NULL, state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295), updated_at TEXT NOT NULL, PRIMARY KEY (provider, billing_subject))',
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
   'CREATE TABLE IF NOT EXISTS billing_subject_versions (subject TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK (version >= 0), last_mutation_token TEXT, updated_at TEXT NOT NULL)',
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
-  BILLING_MUTATION_AUTHORITY_GUARD_SQL,
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, lease_token TEXT, lease_expires_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   REFUND_LEDGER_TOTAL_GUARD_SQL,
+  BILLING_PROVIDER_RECEIPT_STATE_GUARD_SQL,
+  BILLING_PROVIDER_CURSOR_GUARD_SQL,
 ].join(';\n');
 
 const CREATE_MUTATION_SCHEMA_SQL = [
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
   'CREATE TABLE IF NOT EXISTS billing_subject_versions (subject TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK (version >= 0), last_mutation_token TEXT, updated_at TEXT NOT NULL)',
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, lease_token TEXT, lease_expires_at TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   REFUND_LEDGER_TOTAL_GUARD_SQL,
 ].join(';\n');
 
 const SELECT_STATUS_ROW_COUNT_SQL = normalizeSql('SELECT COUNT(*) AS row_count FROM billing_status');
 const SELECT_STATUS_BY_SUBJECT_SQL = normalizeSql('SELECT payload_json FROM billing_status WHERE subject = ?1 LIMIT 1');
+const SELECT_ALL_STATUS_SQL = normalizeSql('SELECT payload_json FROM billing_status ORDER BY subject');
 const SELECT_INVOICES_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_invoices WHERE subject = ?1 ORDER BY invoice_id'
 );
@@ -129,15 +142,16 @@ const SELECT_SUBJECT_VERSION_SQL = normalizeSql(
   'SELECT subject, version, last_mutation_token, updated_at FROM billing_subject_versions WHERE subject = ?1 LIMIT 1'
 );
 const SELECT_MUTATION_OUTBOX_SQL = normalizeSql(
-  'SELECT request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
+  'SELECT request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, lease_token, lease_expires_at, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
 );
 const SELECT_PENDING_MUTATION_OUTBOX_SQL = normalizeSql(
-  "SELECT request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count < ?2 ORDER BY created_at, request_key LIMIT ?1"
+  "SELECT request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, lease_token, lease_expires_at, created_at, updated_at FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count < ?2 AND (lease_expires_at IS NULL OR lease_expires_at <= ?3) ORDER BY created_at, request_key LIMIT ?1"
 );
 const SELECT_MANUAL_REVIEW_MUTATION_OUTBOX_SQL = normalizeSql(
   "SELECT COUNT(*) AS manual_review_count FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count >= ?1"
 );
 const SELECT_MUTATION_OUTBOX_COLUMNS_SQL = 'PRAGMA table_info(billing_mutation_outbox)';
+const SELECT_PROVIDER_EVENT_RECEIPT_COLUMNS_SQL = 'PRAGMA table_info(billing_provider_event_receipts)';
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_referrals WHERE subject = ?1 LIMIT 1'
 );
@@ -151,6 +165,27 @@ const SELECT_ADMIN_INVOICES_SQL = normalizeSql('SELECT payload_json FROM billing
 const SELECT_ADMIN_DISPUTES_SQL = normalizeSql('SELECT payload_json FROM billing_admin_disputes ORDER BY dispute_id');
 const SELECT_ADMIN_REFERRALS_SQL = normalizeSql(
   'SELECT payload_json FROM billing_admin_referrals ORDER BY referral_code'
+);
+const SELECT_PROVIDER_EVENT_RECEIPT_SQL = normalizeSql(
+  'SELECT provider, event_id, event_fingerprint, event_type, provider_occurred_at, provider_sequence, state_version, account_id, provider_customer_id, provider_subscription_id, provider_invoice_id, billing_subject, parent_account_ref, family_ref, billing_invoice_id, processing_state, queue_state, queue_attempt_count, last_queue_attempt_at, last_error, created_at, updated_at FROM billing_provider_event_receipts WHERE provider = ?1 AND event_id = ?2 LIMIT 1'
+);
+const INSERT_PROVIDER_EVENT_RECEIPT_SQL = normalizeSql(
+  "INSERT INTO billing_provider_event_receipts (provider, event_id, event_fingerprint, event_type, provider_occurred_at, provider_sequence, state_version, account_id, provider_customer_id, provider_subscription_id, provider_invoice_id, billing_subject, parent_account_ref, family_ref, billing_invoice_id, processing_state, queue_state, queue_attempt_count, last_queue_attempt_at, last_error, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, 'pending', 0, NULL, NULL, ?16, ?16)"
+);
+const UPDATE_PROVIDER_EVENT_RECEIPT_QUEUE_SQL = normalizeSql(
+  "UPDATE billing_provider_event_receipts SET processing_state = ?6, queue_state = ?7, queue_attempt_count = queue_attempt_count + ?8, state_version = state_version + 1, last_queue_attempt_at = ?9, last_error = ?10, updated_at = ?9 WHERE provider = ?1 AND event_id = ?2 AND state_version = ?3 AND processing_state = ?4 AND queue_state = ?5 AND queue_attempt_count BETWEEN 0 AND 4294967294 AND state_version BETWEEN 0 AND 4294967294 AND NOT (queue_state IN ('delivered', 'manual-required', 'dead-letter') AND ?7 <> queue_state) AND NOT (processing_state IN ('applied', 'ignored', 'manual-required', 'dead-letter') AND ?6 <> processing_state) AND (?7 <> 'queued' OR queue_state = 'pending') AND (?7 <> 'delivered' OR queue_state IN ('queued', 'pending'))"
+);
+const SELECT_PROVIDER_EVENT_CURSOR_SQL = normalizeSql(
+  'SELECT provider, billing_subject, last_occurred_at, last_sequence, last_event_id, state_version, updated_at FROM billing_provider_event_cursors WHERE provider = ?1 AND billing_subject = ?2 LIMIT 1'
+);
+const UPSERT_PROVIDER_EVENT_CURSOR_SQL = normalizeSql(
+  'INSERT INTO billing_provider_event_cursors (provider, billing_subject, last_occurred_at, last_sequence, last_event_id, state_version, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, 1, ?6) ON CONFLICT(provider, billing_subject) DO UPDATE SET last_occurred_at = excluded.last_occurred_at, last_sequence = excluded.last_sequence, last_event_id = excluded.last_event_id, state_version = state_version + 1, updated_at = excluded.updated_at WHERE state_version = ?7 AND state_version BETWEEN 0 AND 4294967294'
+);
+const SELECT_PENDING_MUTATION_OUTBOX_COUNT_SQL = normalizeSql(
+  "SELECT COUNT(*) AS row_count FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count < ?1"
+);
+const SELECT_MANUAL_REVIEW_PROVIDER_RECEIPT_COUNT_SQL = normalizeSql(
+  "SELECT COUNT(*) AS row_count FROM billing_provider_event_receipts WHERE queue_state IN ('manual-required', 'dead-letter')"
 );
 
 const UPSERT_STATUS_SQL = normalizeSql('INSERT OR REPLACE INTO billing_status (subject, payload_json) VALUES (?1, ?2)');
@@ -185,16 +220,16 @@ const INSERT_REFUND_LEDGER_SQL = normalizeSql(
   'INSERT INTO billing_refund_ledger (invoice_id, mutation_key, subject, amount_cents, invoice_total_cents, refund_state, audit_reference, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
 );
 const INSERT_MUTATION_OUTBOX_SQL = normalizeSql(
-  'INSERT INTO billing_mutation_outbox (request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 0, NULL, NULL, ?9, ?10)'
+  'INSERT INTO billing_mutation_outbox (request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, lease_token, lease_expires_at, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 0, NULL, NULL, NULL, NULL, ?9, ?10)'
 );
 const MARK_MUTATION_OUTBOX_ATTEMPT_SQL = normalizeSql(
-  "UPDATE billing_mutation_outbox SET attempt_count = attempt_count + 1, last_attempt_at = ?2, last_error = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND attempt_count < ?3"
+  "UPDATE billing_mutation_outbox SET attempt_count = attempt_count + 1, last_attempt_at = ?2, last_error = NULL, lease_token = ?3, lease_expires_at = ?4, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND attempt_count < ?5 AND (lease_expires_at IS NULL OR lease_expires_at <= ?2)"
 );
 const MARK_MUTATION_OUTBOX_FAILURE_SQL = normalizeSql(
-  "UPDATE billing_mutation_outbox SET last_error = ?2, updated_at = ?3 WHERE request_key = ?1 AND audit_state = 'pending'"
+  "UPDATE billing_mutation_outbox SET last_error = ?2, lease_token = NULL, lease_expires_at = NULL, updated_at = ?3 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?4"
 );
 const MARK_MUTATION_AUDIT_DELIVERED_SQL = normalizeSql(
-  "UPDATE billing_mutation_outbox SET audit_state = 'delivered', last_error = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending'"
+  "UPDATE billing_mutation_outbox SET audit_state = 'delivered', last_error = NULL, lease_token = NULL, lease_expires_at = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND lease_token = ?3"
 );
 
 const seedReadyByEnv = new WeakMap<Env, Promise<void>>();
@@ -235,6 +270,8 @@ interface MutationOutboxRow {
   attempt_count: number | string;
   last_attempt_at: string | null;
   last_error: string | null;
+  lease_token: string | null;
+  lease_expires_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -245,6 +282,128 @@ interface MutationOutboxColumnRow {
 
 interface ManualReviewOutboxCountRow {
   manual_review_count: number | string;
+}
+
+interface ProviderEventReceiptRow {
+  provider: string;
+  event_id: string;
+  event_fingerprint: string;
+  event_type: string;
+  provider_occurred_at: string | null;
+  provider_sequence: number | string | null;
+  state_version: number | string;
+  account_id: string | null;
+  provider_customer_id: string | null;
+  provider_subscription_id: string | null;
+  provider_invoice_id: string | null;
+  billing_subject: string | null;
+  parent_account_ref: string | null;
+  family_ref: string | null;
+  billing_invoice_id: string | null;
+  processing_state: string;
+  queue_state: string;
+  queue_attempt_count: number | string;
+  last_queue_attempt_at: string | null;
+  last_error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface ProviderEventCursorRow {
+  provider: string;
+  billing_subject: string;
+  last_occurred_at: string | null;
+  last_sequence: number | string | null;
+  last_event_id: string;
+  state_version: number | string;
+  updated_at: string;
+}
+
+export interface ProviderEventReceipt {
+  provider: string;
+  eventId: string;
+  eventFingerprint: string;
+  eventType: string;
+  providerOccurredAt: string | null;
+  providerSequence: number | null;
+  stateVersion: number;
+  accountId: string | null;
+  providerCustomerId: string | null;
+  providerSubscriptionId: string | null;
+  providerInvoiceId: string | null;
+  billingSubject: string | null;
+  parentAccountRef: string | null;
+  familyRef: string | null;
+  billingInvoiceId: string | null;
+  processingState: 'received' | 'ignored' | 'queued' | 'applied' | 'manual-required' | 'dead-letter';
+  queueState: 'pending' | 'queued' | 'delivered' | 'manual-required' | 'dead-letter';
+  queueAttemptCount: number;
+  lastQueueAttemptAt: string | null;
+  lastError: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+function providerQueueStateRank(state: ProviderEventReceipt['queueState']): number {
+  switch (state) {
+    case 'pending':
+      return 0;
+    case 'queued':
+      return 1;
+    case 'delivered':
+    case 'manual-required':
+    case 'dead-letter':
+      return 2;
+  }
+}
+
+function providerProcessingStateTerminal(state: ProviderEventReceipt['processingState']): boolean {
+  return state === 'applied' || state === 'ignored' || state === 'manual-required' || state === 'dead-letter';
+}
+
+function assertProviderEventReceiptTransition(
+  current: ProviderEventReceipt,
+  nextQueueState: ProviderEventReceipt['queueState'],
+  nextProcessingState: ProviderEventReceipt['processingState']
+): void {
+  if (
+    current.queueState !== nextQueueState &&
+    providerQueueStateRank(nextQueueState) < providerQueueStateRank(current.queueState)
+  ) {
+    throw new BillingReadModelUnavailableError('billing-provider-event-queue-state-regression');
+  }
+  if (current.queueState !== nextQueueState && providerQueueStateRank(current.queueState) === 2) {
+    throw new BillingReadModelUnavailableError('billing-provider-event-queue-state-terminal');
+  }
+  if (providerProcessingStateTerminal(current.processingState) && current.processingState !== nextProcessingState) {
+    throw new BillingReadModelUnavailableError('billing-provider-event-processing-state-terminal');
+  }
+  if (nextQueueState === 'queued' && current.queueState !== 'pending') {
+    throw new BillingReadModelUnavailableError('billing-provider-event-queue-state-transition-invalid');
+  }
+  if (nextQueueState === 'delivered' && current.queueState !== 'queued' && current.queueState !== 'pending') {
+    throw new BillingReadModelUnavailableError('billing-provider-event-queue-state-transition-invalid');
+  }
+  if (nextQueueState === 'delivered' && nextProcessingState !== 'applied' && nextProcessingState !== 'ignored') {
+    throw new BillingReadModelUnavailableError('billing-provider-event-delivery-state-mismatch');
+  }
+  if (
+    (nextQueueState === 'manual-required' || nextQueueState === 'dead-letter') &&
+    nextProcessingState !== nextQueueState &&
+    nextProcessingState !== 'ignored' &&
+    nextProcessingState !== 'applied' &&
+    nextProcessingState !== 'manual-required'
+  ) {
+    throw new BillingReadModelUnavailableError('billing-provider-event-terminal-state-mismatch');
+  }
+  if (
+    (nextProcessingState === 'applied' || nextProcessingState === 'ignored') &&
+    nextQueueState !== 'delivered' &&
+    nextQueueState !== 'manual-required' &&
+    nextQueueState !== 'dead-letter'
+  ) {
+    throw new BillingReadModelUnavailableError('billing-provider-event-processing-state-mismatch');
+  }
 }
 
 export class BillingReadModelUnavailableError extends Error {
@@ -549,6 +708,9 @@ function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubje
     ['signed-local-snapshot', 'manual-admin-review'] as const,
     `${scope}-source`
   );
+  if (source === 'signed-local-snapshot') {
+    throw new BillingReadModelUnavailableError(`${scope}-verifier-authority-unavailable`);
+  }
   const failureState = decodeFailureState(record.failureState, `${scope}-failure-state`);
   const warnings = decodeArray(record.warnings, decodeNonEmptyString, `${scope}-warnings`);
   const auditReference = decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference));
@@ -581,14 +743,6 @@ function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubje
       failureState === null)
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
-  }
-  if (
-    source === 'signed-local-snapshot' &&
-    (accountStatus === 'manual-review' ||
-      parentVisibleState === 'manual-review' ||
-      localSafetyBehavior === 'manual-review-with-local-safety')
-  ) {
-    throw new BillingReadModelUnavailableError(`${scope}-signed-manual-state`);
   }
   if (subscriptionStatus === 'active' && failureState !== null) {
     throw new BillingReadModelUnavailableError(`${scope}-active-failure-state`);
@@ -698,9 +852,11 @@ function decodeBillingEntitlementSnapshot(
     failureState: decodeFailureState(record.failureState, `${scope}-failure-state`),
     auditReference: decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference)),
   };
-  const signedAuthority = snapshot.source === 'signed-local-snapshot' && snapshot.signatureState === 'signed';
   const manualAuthority = snapshot.source === 'manual-admin-review' && snapshot.signatureState === 'manual-required';
-  if (!signedAuthority && !manualAuthority) {
+  if (snapshot.source === 'signed-local-snapshot' || snapshot.signatureState === 'signed') {
+    throw new BillingReadModelUnavailableError(`${scope}-verifier-authority-unavailable`);
+  }
+  if (!manualAuthority) {
     throw new BillingReadModelUnavailableError(`${scope}-authority-mismatch`);
   }
   if (
@@ -712,19 +868,9 @@ function decodeBillingEntitlementSnapshot(
     throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
   }
   if (
-    signedAuthority &&
-    (snapshot.parentVisibleState === 'manual-review' ||
-      snapshot.localSafetyBehavior === 'manual-review-with-local-safety')
-  ) {
-    throw new BillingReadModelUnavailableError(`${scope}-signed-manual-state`);
-  }
-  if (
     (snapshot.subscriptionStatus === 'active' &&
       (snapshot.parentVisibleState !== 'available' || snapshot.localSafetyBehavior !== 'unchanged')) ||
     (snapshot.subscriptionStatus === 'grace' &&
-      (snapshot.parentVisibleState !== 'grace' || snapshot.localSafetyBehavior !== 'grace-with-local-safety')) ||
-    (snapshot.subscriptionStatus === 'past-due' &&
-      signedAuthority &&
       (snapshot.parentVisibleState !== 'grace' || snapshot.localSafetyBehavior !== 'grace-with-local-safety'))
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-state-mismatch`);
@@ -741,29 +887,7 @@ function decodeBillingEntitlementSnapshot(
   return snapshot;
 }
 
-function snapshotCanYieldAllowed(
-  snapshot: BillingEntitlementSnapshotSummary,
-  requestedDeviceAlreadyTrusted: boolean
-): boolean {
-  const signedActiveAuthority =
-    snapshot.subscriptionStatus === 'active' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'available' &&
-    snapshot.localSafetyBehavior === 'unchanged' &&
-    snapshot.failureState === null;
-  const signedGraceAuthority =
-    requestedDeviceAlreadyTrusted &&
-    snapshot.subscriptionStatus === 'grace' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'grace' &&
-    snapshot.localSafetyBehavior === 'grace-with-local-safety' &&
-    snapshot.failureState?.failureKind === 'payment-required';
-  return signedActiveAuthority || signedGraceAuthority;
-}
-
-type BillingAuthorityState = 'active' | 'grace' | 'manual-review';
+type BillingAuthorityState = 'manual-review';
 
 function correlateBillingAuthority(
   status: BillingStatusSummary,
@@ -785,42 +909,6 @@ function correlateBillingAuthority(
     JSON.stringify(status.failureState) !== JSON.stringify(snapshot.failureState)
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-mismatch`);
-  }
-
-  const activeAuthority =
-    status.accountStatus === 'active' &&
-    status.subscriptionStatus === 'active' &&
-    status.source === 'signed-local-snapshot' &&
-    status.parentVisibleState === 'available' &&
-    status.localSafetyBehavior === 'unchanged' &&
-    status.failureState === null &&
-    snapshot.subscriptionStatus === 'active' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'available' &&
-    snapshot.localSafetyBehavior === 'unchanged' &&
-    snapshot.failureState === null &&
-    snapshotCanYieldAllowed(snapshot, false);
-  if (activeAuthority) {
-    return 'active';
-  }
-
-  const graceAuthority =
-    status.accountStatus === 'grace' &&
-    status.subscriptionStatus === 'grace' &&
-    status.source === 'signed-local-snapshot' &&
-    status.parentVisibleState === 'grace' &&
-    status.localSafetyBehavior === 'grace-with-local-safety' &&
-    status.failureState?.failureKind === 'payment-required' &&
-    snapshot.subscriptionStatus === 'grace' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'grace' &&
-    snapshot.localSafetyBehavior === 'grace-with-local-safety' &&
-    snapshot.failureState?.failureKind === 'payment-required' &&
-    snapshotCanYieldAllowed(snapshot, true);
-  if (graceAuthority) {
-    return 'grace';
   }
 
   return 'manual-review';
@@ -848,43 +936,13 @@ function decodeBillingStatePair(
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-mismatch`);
   }
-  const activeStatusSnapshot =
-    decodedStatus.accountStatus === 'active' &&
-    decodedStatus.subscriptionStatus === 'active' &&
-    decodedStatus.source === 'signed-local-snapshot' &&
-    decodedStatus.parentVisibleState === 'available' &&
-    decodedStatus.localSafetyBehavior === 'unchanged' &&
-    decodedStatus.failureState === null &&
-    decodedSnapshot.subscriptionStatus === 'active' &&
-    decodedSnapshot.source === 'signed-local-snapshot' &&
-    decodedSnapshot.signatureState === 'signed' &&
-    decodedSnapshot.parentVisibleState === 'available' &&
-    decodedSnapshot.localSafetyBehavior === 'unchanged' &&
-    decodedSnapshot.failureState === null;
-  const graceStatusSnapshot =
-    decodedStatus.accountStatus === 'grace' &&
-    decodedStatus.subscriptionStatus === 'grace' &&
-    decodedStatus.source === 'signed-local-snapshot' &&
-    decodedStatus.parentVisibleState === 'grace' &&
-    decodedStatus.localSafetyBehavior === 'grace-with-local-safety' &&
-    decodedStatus.failureState?.failureKind === 'payment-required' &&
-    decodedSnapshot.subscriptionStatus === 'grace' &&
-    decodedSnapshot.source === 'signed-local-snapshot' &&
-    decodedSnapshot.signatureState === 'signed' &&
-    decodedSnapshot.parentVisibleState === 'grace' &&
-    decodedSnapshot.localSafetyBehavior === 'grace-with-local-safety' &&
-    decodedSnapshot.failureState?.failureKind === 'payment-required';
-  if (decodedStatus.accountStatus === 'active' && !activeStatusSnapshot) {
-    throw new BillingReadModelUnavailableError(`${scope}-active-authority-mismatch`);
-  }
-  if (decodedStatus.accountStatus === 'grace' && !graceStatusSnapshot) {
-    throw new BillingReadModelUnavailableError(`${scope}-grace-authority-mismatch`);
-  }
   if (
-    decodedStatus.accountStatus === 'manual-review' &&
-    (decodedSnapshot.source !== 'manual-admin-review' || decodedSnapshot.signatureState !== 'manual-required')
+    decodedStatus.accountStatus !== 'manual-review' ||
+    decodedStatus.source !== 'manual-admin-review' ||
+    decodedSnapshot.source !== 'manual-admin-review' ||
+    decodedSnapshot.signatureState !== 'manual-required'
   ) {
-    throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
+    throw new BillingReadModelUnavailableError(`${scope}-verifier-authority-unavailable`);
   }
   return { status: decodedStatus, snapshot: decodedSnapshot };
 }
@@ -1059,8 +1117,13 @@ export type BillingStateMutation =
       subject: string;
       eventId: string;
       eventType: string;
+      providerOccurredAt: string | null;
+      providerSequence: number | null;
+      providerCursorExpectedVersion: number;
       disputeId?: string | null;
       invoiceId?: string | null;
+      parentAccountRef?: string | null;
+      familyRef?: string | null;
     };
 
 interface BillingRefundLedgerEntry {
@@ -1088,6 +1151,8 @@ interface LocalMutationOutboxEntry {
   attemptCount: number;
   lastAttemptAt: string | null;
   lastError: string | null;
+  leaseToken: string | null;
+  leaseExpiresAt: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -1102,6 +1167,19 @@ interface LocalBillingD1State {
   adminDisputes: ReadonlyArray<AdminBillingDisputeSummary>;
   adminReferrals: ReadonlyArray<AdminBillingReferralSummary>;
   refundLedgerByInvoice: Map<string, ReadonlyArray<BillingRefundLedgerEntry>>;
+  providerEventReceipts: Map<string, ProviderEventReceipt>;
+  providerEventCursors: Map<
+    string,
+    {
+      provider: string;
+      billingSubject: string;
+      lastOccurredAt: string | null;
+      lastSequence: number | null;
+      lastEventId: string;
+      stateVersion: number;
+      updatedAt: string;
+    }
+  >;
   subjectVersions: Map<string, { version: number; lastMutationToken: string | null; updatedAt: string }>;
   mutationOutbox: Map<string, LocalMutationOutboxEntry>;
 }
@@ -1250,11 +1328,12 @@ class LocalD1Statement implements D1PreparedStatement {
     };
   }
 
-  async run(): Promise<{ results: ReadonlyArray<never>; success: true }> {
+  async run(): Promise<{ results: ReadonlyArray<never>; success: true; meta: { changes: number } }> {
     this.executeMutation();
     return {
       results: [],
       success: true,
+      meta: { changes: 1 },
     };
   }
 
@@ -1267,6 +1346,13 @@ class LocalD1Statement implements D1PreparedStatement {
         const status = this.state.statusBySubject.get(subject);
         return status ? [{ payload_json: JSON.stringify(status) } as T] : [];
       }
+      case SELECT_ALL_STATUS_SQL:
+        return Array.from(this.state.statusBySubject.values()).map(
+          (status) =>
+            ({
+              payload_json: JSON.stringify(status),
+            }) as T
+        );
       case SELECT_INVOICES_BY_SUBJECT_SQL: {
         const subject = String(this.values[0] ?? '');
         return (this.state.invoicesBySubject.get(subject) ?? []).map(
@@ -1317,7 +1403,8 @@ class LocalD1Statement implements D1PreparedStatement {
                 .filter(
                   (entry) =>
                     entry.auditState === 'pending' &&
-                    entry.attemptCount < Number(this.values[1] ?? MAX_BILLING_OUTBOX_ATTEMPTS)
+                    entry.attemptCount < Number(this.values[1] ?? MAX_BILLING_OUTBOX_ATTEMPTS) &&
+                    (entry.leaseExpiresAt === null || entry.leaseExpiresAt <= String(this.values[2] ?? ''))
                 )
                 .sort((left, right) =>
                   `${left.createdAt}:${left.requestKey}`.localeCompare(`${right.createdAt}:${right.requestKey}`)
@@ -1340,6 +1427,8 @@ class LocalD1Statement implements D1PreparedStatement {
               attempt_count: entry.attemptCount,
               last_attempt_at: entry.lastAttemptAt,
               last_error: entry.lastError,
+              lease_token: entry.leaseToken,
+              lease_expires_at: entry.leaseExpiresAt,
               created_at: entry.createdAt,
               updated_at: entry.updatedAt,
             }) as T
@@ -1354,6 +1443,74 @@ class LocalD1Statement implements D1PreparedStatement {
             ).length,
           } as T,
         ];
+      }
+      case SELECT_PENDING_MUTATION_OUTBOX_COUNT_SQL:
+        return [
+          {
+            row_count: Array.from(this.state.mutationOutbox.values()).filter(
+              (entry) =>
+                entry.auditState === 'pending' &&
+                entry.attemptCount < Number(this.values[0] ?? MAX_BILLING_OUTBOX_ATTEMPTS)
+            ).length,
+          } as T,
+        ];
+      case SELECT_MANUAL_REVIEW_PROVIDER_RECEIPT_COUNT_SQL:
+        return [
+          {
+            row_count: Array.from(this.state.providerEventReceipts.values()).filter(
+              (entry) => entry.queueState === 'manual-required' || entry.queueState === 'dead-letter'
+            ).length,
+          } as T,
+        ];
+      case SELECT_PROVIDER_EVENT_RECEIPT_SQL: {
+        const key = `${String(this.values[0] ?? '')}:${String(this.values[1] ?? '')}`;
+        const receipt = this.state.providerEventReceipts.get(key);
+        if (!receipt) {
+          return [];
+        }
+        return [
+          {
+            provider: receipt.provider,
+            event_id: receipt.eventId,
+            event_fingerprint: receipt.eventFingerprint,
+            event_type: receipt.eventType,
+            provider_occurred_at: receipt.providerOccurredAt,
+            provider_sequence: receipt.providerSequence,
+            state_version: receipt.stateVersion,
+            account_id: receipt.accountId,
+            provider_customer_id: receipt.providerCustomerId,
+            provider_subscription_id: receipt.providerSubscriptionId,
+            provider_invoice_id: receipt.providerInvoiceId,
+            billing_subject: receipt.billingSubject,
+            parent_account_ref: receipt.parentAccountRef,
+            family_ref: receipt.familyRef,
+            billing_invoice_id: receipt.billingInvoiceId,
+            processing_state: receipt.processingState,
+            queue_state: receipt.queueState,
+            queue_attempt_count: receipt.queueAttemptCount,
+            last_queue_attempt_at: receipt.lastQueueAttemptAt,
+            last_error: receipt.lastError,
+            created_at: receipt.createdAt,
+            updated_at: receipt.updatedAt,
+          } as T,
+        ];
+      }
+      case SELECT_PROVIDER_EVENT_CURSOR_SQL: {
+        const key = `${String(this.values[0] ?? '')}:${String(this.values[1] ?? '')}`;
+        const cursor = this.state.providerEventCursors.get(key);
+        return cursor
+          ? [
+              {
+                provider: cursor.provider,
+                billing_subject: cursor.billingSubject,
+                last_occurred_at: cursor.lastOccurredAt,
+                last_sequence: cursor.lastSequence,
+                last_event_id: cursor.lastEventId,
+                state_version: cursor.stateVersion,
+                updated_at: cursor.updatedAt,
+              } as T,
+            ]
+          : [];
       }
       case SELECT_REFERRAL_BY_SUBJECT_SQL: {
         const subject = String(this.values[0] ?? '');
@@ -1524,6 +1681,148 @@ class LocalD1Statement implements D1PreparedStatement {
         ]);
         return;
       }
+      case INSERT_PROVIDER_EVENT_RECEIPT_SQL: {
+        const provider = decodeNonEmptyString(this.values[0], 'billing-provider-event-provider');
+        const eventId = decodeNonEmptyString(this.values[1], 'billing-provider-event-id');
+        const key = `${provider}:${eventId}`;
+        if (this.state.providerEventReceipts.has(key)) {
+          throw new BillingReadModelUnavailableError('billing-provider-event-receipt-duplicate');
+        }
+        const processingState = decodeLiteral(
+          this.values[14],
+          ['received', 'ignored', 'queued', 'applied', 'manual-required', 'dead-letter'] as const,
+          'billing-provider-event-processing-state'
+        );
+        const createdAt = decodeTimestamp(this.values[15], 'billing-provider-event-created');
+        this.state.providerEventReceipts.set(key, {
+          provider,
+          eventId,
+          eventFingerprint: decodeNonEmptyString(this.values[2], 'billing-provider-event-fingerprint'),
+          eventType: decodeNonEmptyString(this.values[3], 'billing-provider-event-type'),
+          providerOccurredAt:
+            this.values[4] === null ? null : decodeTimestamp(this.values[4], 'billing-provider-event-occurred-at'),
+          providerSequence:
+            this.values[5] === null ? null : decodeBillingCount(this.values[5], 'billing-provider-event-sequence'),
+          stateVersion: 0,
+          accountId:
+            this.values[6] === null ? null : decodeNonEmptyString(this.values[6], 'billing-provider-event-account'),
+          providerCustomerId:
+            this.values[7] === null ? null : decodeNonEmptyString(this.values[7], 'billing-provider-event-customer'),
+          providerSubscriptionId:
+            this.values[8] === null
+              ? null
+              : decodeNonEmptyString(this.values[8], 'billing-provider-event-subscription'),
+          providerInvoiceId:
+            this.values[9] === null ? null : decodeNonEmptyString(this.values[9], 'billing-provider-event-invoice'),
+          billingSubject:
+            this.values[10] === null ? null : decodeNonEmptyString(this.values[10], 'billing-provider-event-subject'),
+          parentAccountRef:
+            this.values[11] === null
+              ? null
+              : decodeNonEmptyString(this.values[11], 'billing-provider-event-parent-account'),
+          familyRef:
+            this.values[12] === null ? null : decodeNonEmptyString(this.values[12], 'billing-provider-event-family'),
+          billingInvoiceId:
+            this.values[13] === null
+              ? null
+              : decodeNonEmptyString(this.values[13], 'billing-provider-event-billing-invoice'),
+          processingState,
+          queueState: 'pending',
+          queueAttemptCount: 0,
+          lastQueueAttemptAt: null,
+          lastError: null,
+          createdAt,
+          updatedAt: createdAt,
+        });
+        return;
+      }
+      case UPDATE_PROVIDER_EVENT_RECEIPT_QUEUE_SQL: {
+        const provider = decodeNonEmptyString(this.values[0], 'billing-provider-event-provider');
+        const eventId = decodeNonEmptyString(this.values[1], 'billing-provider-event-id');
+        const key = `${provider}:${eventId}`;
+        const current = this.state.providerEventReceipts.get(key);
+        if (!current) {
+          throw new BillingReadModelUnavailableError('billing-provider-event-receipt-missing');
+        }
+        const expectedStateVersion = decodeBillingCount(
+          this.values[2],
+          'billing-provider-event-expected-state-version'
+        );
+        const expectedProcessingState = decodeLiteral(
+          this.values[3],
+          ['received', 'ignored', 'queued', 'applied', 'manual-required', 'dead-letter'] as const,
+          'billing-provider-event-expected-processing-state'
+        );
+        const expectedQueueState = decodeLiteral(
+          this.values[4],
+          ['pending', 'queued', 'delivered', 'manual-required', 'dead-letter'] as const,
+          'billing-provider-event-expected-queue-state'
+        );
+        if (
+          current.stateVersion !== expectedStateVersion ||
+          current.processingState !== expectedProcessingState ||
+          current.queueState !== expectedQueueState
+        ) {
+          throw new BillingReadModelUnavailableError('billing-provider-event-state-cas-failed');
+        }
+        const nextProcessingState = decodeLiteral(
+          this.values[5],
+          ['received', 'ignored', 'queued', 'applied', 'manual-required', 'dead-letter'] as const,
+          'billing-provider-event-processing-state'
+        );
+        const nextQueueState = decodeLiteral(
+          this.values[6],
+          ['pending', 'queued', 'delivered', 'manual-required', 'dead-letter'] as const,
+          'billing-provider-event-queue-state'
+        );
+        assertProviderEventReceiptTransition(current, nextQueueState, nextProcessingState);
+        const updatedAt = decodeTimestamp(this.values[8], 'billing-provider-event-updated');
+        this.state.providerEventReceipts.set(key, {
+          ...current,
+          processingState: nextProcessingState,
+          queueState: nextQueueState,
+          queueAttemptCount: decodeBillingCount(
+            current.queueAttemptCount + Number(this.values[7] ?? 0),
+            'billing-provider-event-attempts'
+          ),
+          stateVersion: incrementBillingCount(current.stateVersion, 'billing-provider-event-state-version'),
+          lastQueueAttemptAt: updatedAt,
+          lastError:
+            this.values[9] === null ? null : decodeNonEmptyString(this.values[9], 'billing-provider-event-error'),
+          updatedAt,
+        });
+        return;
+      }
+      case UPSERT_PROVIDER_EVENT_CURSOR_SQL: {
+        const provider = decodeNonEmptyString(this.values[0], 'billing-provider-event-cursor-provider');
+        const billingSubject = decodeNonEmptyString(this.values[1], 'billing-provider-event-cursor-subject');
+        const key = `${provider}:${billingSubject}`;
+        const current = this.state.providerEventCursors.get(key);
+        const expectedVersion = decodeBillingCount(this.values[6], 'billing-provider-event-cursor-expected-version');
+        if (current && current.stateVersion !== expectedVersion) {
+          throw new BillingReadModelUnavailableError('billing-provider-event-cursor-cas-failed');
+        }
+        if (!current && expectedVersion !== 0) {
+          throw new BillingReadModelUnavailableError('billing-provider-event-cursor-cas-failed');
+        }
+        const updatedAt = decodeTimestamp(this.values[5], 'billing-provider-event-cursor-updated');
+        this.state.providerEventCursors.set(key, {
+          provider,
+          billingSubject,
+          lastOccurredAt:
+            this.values[2] === null
+              ? null
+              : decodeTimestamp(this.values[2], 'billing-provider-event-cursor-occurred-at'),
+          lastSequence:
+            this.values[3] === null
+              ? null
+              : decodeBillingCount(this.values[3], 'billing-provider-event-cursor-sequence'),
+          lastEventId: decodeNonEmptyString(this.values[4], 'billing-provider-event-cursor-event-id'),
+          stateVersion: incrementBillingCount(expectedVersion, 'billing-provider-event-cursor-next-version'),
+          updatedAt,
+        });
+        return;
+      }
       case INSERT_MUTATION_OUTBOX_SQL: {
         const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
         const authoritySubject = decodeNonEmptyString(this.values[1], 'billing-mutation-outbox-authority-subject');
@@ -1551,6 +1850,22 @@ class LocalD1Statement implements D1PreparedStatement {
         );
         if (mutationSubject !== authoritySubject) {
           throw new BillingReadModelUnavailableError('billing-mutation-authority-subject-mismatch');
+        }
+        if (mutationKind === 'provider-webhook') {
+          const providerMutation = payloadRecord(
+            parseUnknownPayload(mutationJson, 'billing-provider-event-mutation'),
+            'billing-provider-event-mutation'
+          );
+          const provider = decodeNonEmptyString(providerMutation.provider, 'billing-provider-event-provider');
+          const eventId = decodeNonEmptyString(providerMutation.eventId, 'billing-provider-event-id');
+          const expectedCursorVersion = decodeBillingCount(
+            providerMutation.providerCursorExpectedVersion,
+            'billing-provider-event-cursor-expected-version'
+          );
+          const cursor = this.state.providerEventCursors.get(`${provider}:${authoritySubject}`);
+          if (!cursor || cursor.stateVersion !== expectedCursorVersion + 1 || cursor.lastEventId !== eventId) {
+            throw new BillingReadModelUnavailableError('billing-provider-event-cursor-cas-failed');
+          }
         }
         const auditState = decodeLiteral(
           this.values[6],
@@ -1580,6 +1895,8 @@ class LocalD1Statement implements D1PreparedStatement {
           attemptCount: 0,
           lastAttemptAt: null,
           lastError: null,
+          leaseToken: null,
+          leaseExpiresAt: null,
           createdAt,
           updatedAt,
         });
@@ -1588,6 +1905,7 @@ class LocalD1Statement implements D1PreparedStatement {
       case MARK_MUTATION_AUDIT_DELIVERED_SQL: {
         const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
         const updatedAt = decodeTimestamp(this.values[1], 'billing-mutation-outbox-updated-at');
+        const leaseToken = decodeNonEmptyString(this.values[2], 'billing-mutation-outbox-lease-token');
         const current = this.state.mutationOutbox.get(requestKey);
         if (!current) {
           throw new BillingReadModelUnavailableError('billing-mutation-outbox-missing');
@@ -1595,13 +1913,24 @@ class LocalD1Statement implements D1PreparedStatement {
         if (current.auditState !== 'pending') {
           throw new BillingReadModelUnavailableError('billing-mutation-outbox-not-pending');
         }
-        this.state.mutationOutbox.set(requestKey, { ...current, auditState: 'delivered', updatedAt });
+        if (current.leaseToken !== leaseToken) {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-lease-conflict');
+        }
+        this.state.mutationOutbox.set(requestKey, {
+          ...current,
+          auditState: 'delivered',
+          leaseToken: null,
+          leaseExpiresAt: null,
+          updatedAt,
+        });
         return;
       }
       case MARK_MUTATION_OUTBOX_ATTEMPT_SQL: {
         const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
         const attemptedAt = decodeTimestamp(this.values[1], 'billing-mutation-outbox-attempted-at');
-        const maxAttempts = decodeBillingCount(this.values[2], 'billing-mutation-outbox-max-attempts');
+        const leaseToken = decodeNonEmptyString(this.values[2], 'billing-mutation-outbox-lease-token');
+        const leaseExpiresAt = decodeTimestamp(this.values[3], 'billing-mutation-outbox-lease-expires-at');
+        const maxAttempts = decodeBillingCount(this.values[4], 'billing-mutation-outbox-max-attempts');
         const current = this.state.mutationOutbox.get(requestKey);
         if (!current || current.auditState !== 'pending') {
           throw new BillingReadModelUnavailableError('billing-mutation-outbox-not-pending');
@@ -1609,11 +1938,16 @@ class LocalD1Statement implements D1PreparedStatement {
         if (current.attemptCount >= maxAttempts) {
           throw new BillingReadModelUnavailableError(`billing-mutation-outbox-manual-review:${requestKey}`);
         }
+        if (current.leaseExpiresAt !== null && current.leaseExpiresAt > attemptedAt) {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-lease-conflict');
+        }
         this.state.mutationOutbox.set(requestKey, {
           ...current,
           attemptCount: decodeBillingCount(current.attemptCount + 1, 'billing-mutation-outbox-attempt-count'),
           lastAttemptAt: attemptedAt,
           lastError: null,
+          leaseToken,
+          leaseExpiresAt,
           updatedAt: attemptedAt,
         });
         return;
@@ -1622,11 +1956,21 @@ class LocalD1Statement implements D1PreparedStatement {
         const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
         const lastError = decodeNonEmptyString(this.values[1], 'billing-mutation-outbox-last-error');
         const updatedAt = decodeTimestamp(this.values[2], 'billing-mutation-outbox-updated-at');
+        const leaseToken = decodeNonEmptyString(this.values[3], 'billing-mutation-outbox-lease-token');
         const current = this.state.mutationOutbox.get(requestKey);
         if (!current || current.auditState !== 'pending') {
           throw new BillingReadModelUnavailableError('billing-mutation-outbox-not-pending');
         }
-        this.state.mutationOutbox.set(requestKey, { ...current, lastError, updatedAt });
+        if (current.leaseToken !== leaseToken) {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-lease-conflict');
+        }
+        this.state.mutationOutbox.set(requestKey, {
+          ...current,
+          lastError,
+          leaseToken: null,
+          leaseExpiresAt: null,
+          updatedAt,
+        });
         return;
       }
       default:
@@ -1646,6 +1990,8 @@ class LocalBillingD1Database implements D1Database {
     adminDisputes: [],
     adminReferrals: [],
     refundLedgerByInvoice: new Map<string, ReadonlyArray<BillingRefundLedgerEntry>>(),
+    providerEventReceipts: new Map<string, ProviderEventReceipt>(),
+    providerEventCursors: new Map(),
     subjectVersions: new Map<string, { version: number; lastMutationToken: string | null; updatedAt: string }>(),
     mutationOutbox: new Map<string, LocalMutationOutboxEntry>(),
   };
@@ -1667,6 +2013,8 @@ class LocalBillingD1Database implements D1Database {
       adminDisputes: this.state.adminDisputes,
       adminReferrals: this.state.adminReferrals,
       refundLedgerByInvoice: new Map(this.state.refundLedgerByInvoice),
+      providerEventReceipts: new Map(this.state.providerEventReceipts),
+      providerEventCursors: new Map(this.state.providerEventCursors),
       subjectVersions: new Map(this.state.subjectVersions),
       mutationOutbox: new Map(this.state.mutationOutbox),
     };
@@ -1686,6 +2034,8 @@ class LocalBillingD1Database implements D1Database {
       this.state.adminDisputes = backup.adminDisputes;
       this.state.adminReferrals = backup.adminReferrals;
       this.state.refundLedgerByInvoice = backup.refundLedgerByInvoice;
+      this.state.providerEventReceipts = backup.providerEventReceipts;
+      this.state.providerEventCursors = backup.providerEventCursors;
       this.state.subjectVersions = backup.subjectVersions;
       this.state.mutationOutbox = backup.mutationOutbox;
       throw error;
@@ -1911,6 +2261,8 @@ async function ensureMutationSchema(env: Env): Promise<void> {
     ['attempt_count', 'ALTER TABLE billing_mutation_outbox ADD COLUMN attempt_count INTEGER NOT NULL DEFAULT 0'],
     ['last_attempt_at', 'ALTER TABLE billing_mutation_outbox ADD COLUMN last_attempt_at TEXT'],
     ['last_error', 'ALTER TABLE billing_mutation_outbox ADD COLUMN last_error TEXT'],
+    ['lease_token', 'ALTER TABLE billing_mutation_outbox ADD COLUMN lease_token TEXT'],
+    ['lease_expires_at', 'ALTER TABLE billing_mutation_outbox ADD COLUMN lease_expires_at TEXT'],
     ['authority_subject', 'ALTER TABLE billing_mutation_outbox ADD COLUMN authority_subject TEXT'],
     ['authority_version', 'ALTER TABLE billing_mutation_outbox ADD COLUMN authority_version INTEGER'],
     ['authority_token', 'ALTER TABLE billing_mutation_outbox ADD COLUMN authority_token TEXT'],
@@ -1932,6 +2284,46 @@ async function ensureMutationSchema(env: Env): Promise<void> {
     }
   }
   await database.exec(BILLING_MUTATION_AUTHORITY_GUARD_SQL);
+  await database.exec(BILLING_PROVIDER_CURSOR_GUARD_SQL);
+}
+
+async function ensureProviderEventReceiptSchema(database: D1Database): Promise<void> {
+  const columns = new Set(
+    (await database.prepare(SELECT_PROVIDER_EVENT_RECEIPT_COLUMNS_SQL).all<MutationOutboxColumnRow>()).results.map(
+      (row) => row.name
+    )
+  );
+  const migrations: ReadonlyArray<readonly [string, string]> = [
+    ['provider_occurred_at', 'ALTER TABLE billing_provider_event_receipts ADD COLUMN provider_occurred_at TEXT'],
+    [
+      'provider_sequence',
+      'ALTER TABLE billing_provider_event_receipts ADD COLUMN provider_sequence INTEGER CHECK (provider_sequence IS NULL OR provider_sequence BETWEEN 0 AND 4294967295)',
+    ],
+    [
+      'state_version',
+      'ALTER TABLE billing_provider_event_receipts ADD COLUMN state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295)',
+    ],
+  ];
+  for (const [column, statement] of migrations) {
+    if (!columns.has(column)) {
+      try {
+        await database.exec(statement);
+      } catch (error) {
+        const currentColumns = new Set(
+          (
+            await database.prepare(SELECT_PROVIDER_EVENT_RECEIPT_COLUMNS_SQL).all<MutationOutboxColumnRow>()
+          ).results.map((row) => row.name)
+        );
+        if (!currentColumns.has(column)) {
+          throw error;
+        }
+      }
+    }
+  }
+  await database.exec(
+    'CREATE TABLE IF NOT EXISTS billing_provider_event_cursors (provider TEXT NOT NULL, billing_subject TEXT NOT NULL, last_occurred_at TEXT, last_sequence INTEGER CHECK (last_sequence IS NULL OR last_sequence BETWEEN 0 AND 4294967295), last_event_id TEXT NOT NULL, state_version INTEGER NOT NULL DEFAULT 0 CHECK (state_version BETWEEN 0 AND 4294967295), updated_at TEXT NOT NULL, PRIMARY KEY (provider, billing_subject))'
+  );
+  await database.exec(BILLING_PROVIDER_RECEIPT_STATE_GUARD_SQL);
 }
 
 function decodeSubjectVersionRow(
@@ -2009,6 +2401,12 @@ function stableMutationValue(value: unknown): unknown {
 }
 
 function mutationFingerprint(mutation: BillingStateMutation): string {
+  if (mutation.kind === 'provider-webhook') {
+    const identity = Object.fromEntries(
+      Object.entries(mutation).filter(([key]) => key !== 'providerCursorExpectedVersion')
+    );
+    return JSON.stringify(stableMutationValue(identity));
+  }
   return JSON.stringify(stableMutationValue(mutation));
 }
 
@@ -2101,9 +2499,409 @@ function decodeMutationOutboxRow(row: MutationOutboxRow): MutationOutboxRow {
   if (row.last_error !== null && row.last_error !== undefined) {
     decodeNonEmptyString(row.last_error, 'billing-mutation-outbox-last-error');
   }
+  if (row.lease_token !== null && row.lease_token !== undefined) {
+    decodeNonEmptyString(row.lease_token, 'billing-mutation-outbox-lease-token');
+  }
+  decodeNullableTimestamp(row.lease_expires_at, 'billing-mutation-outbox-lease-expires-at');
   decodeTimestamp(row.created_at, 'billing-mutation-outbox-created-at');
   decodeTimestamp(row.updated_at, 'billing-mutation-outbox-updated-at');
   return row;
+}
+
+function decodeProviderEventReceiptRow(row: ProviderEventReceiptRow): ProviderEventReceipt {
+  const provider = decodeLiteral(
+    row.provider,
+    ['stripe', 'razorpay', 'paypal', 'apple', 'google'] as const,
+    'billing-provider-event-provider'
+  );
+  const eventId = decodeNonEmptyString(row.event_id, 'billing-provider-event-id');
+  const eventFingerprint = decodeNonEmptyString(row.event_fingerprint, `billing-provider-event-fingerprint:${eventId}`);
+  const eventType = decodeNonEmptyString(row.event_type, `billing-provider-event-type:${eventId}`);
+  const providerOccurredAt =
+    row.provider_occurred_at === null
+      ? null
+      : decodeTimestamp(row.provider_occurred_at, `billing-provider-event-occurred-at:${eventId}`);
+  const providerSequence =
+    row.provider_sequence === null
+      ? null
+      : decodeBillingCount(row.provider_sequence, `billing-provider-event-sequence:${eventId}`);
+  const stateVersion = decodeBillingCount(row.state_version, `billing-provider-event-state-version:${eventId}`);
+  const processingState = decodeLiteral(
+    row.processing_state,
+    ['received', 'ignored', 'queued', 'applied', 'manual-required', 'dead-letter'] as const,
+    `billing-provider-event-processing-state:${eventId}`
+  );
+  const queueState = decodeLiteral(
+    row.queue_state,
+    ['pending', 'queued', 'delivered', 'manual-required', 'dead-letter'] as const,
+    `billing-provider-event-queue-state:${eventId}`
+  );
+  const optionalText = (value: string | null, scope: string): string | null =>
+    value === null ? null : decodeNonEmptyString(value, scope);
+  return {
+    provider,
+    eventId,
+    eventFingerprint,
+    eventType,
+    providerOccurredAt,
+    providerSequence,
+    stateVersion,
+    accountId: optionalText(row.account_id, `billing-provider-event-account:${eventId}`),
+    providerCustomerId: optionalText(row.provider_customer_id, `billing-provider-event-customer:${eventId}`),
+    providerSubscriptionId: optionalText(
+      row.provider_subscription_id,
+      `billing-provider-event-subscription:${eventId}`
+    ),
+    providerInvoiceId: optionalText(row.provider_invoice_id, `billing-provider-event-invoice:${eventId}`),
+    billingSubject: optionalText(row.billing_subject, `billing-provider-event-subject:${eventId}`),
+    parentAccountRef: optionalText(row.parent_account_ref, `billing-provider-event-parent-account:${eventId}`),
+    familyRef: optionalText(row.family_ref, `billing-provider-event-family:${eventId}`),
+    billingInvoiceId: optionalText(row.billing_invoice_id, `billing-provider-event-billing-invoice:${eventId}`),
+    processingState,
+    queueState,
+    queueAttemptCount: decodeBillingCount(row.queue_attempt_count, `billing-provider-event-attempts:${eventId}`),
+    lastQueueAttemptAt: decodeNullableTimestamp(
+      row.last_queue_attempt_at,
+      `billing-provider-event-last-attempt:${eventId}`
+    ),
+    lastError:
+      row.last_error === null ? null : decodeNonEmptyString(row.last_error, `billing-provider-event-error:${eventId}`),
+    createdAt: decodeTimestamp(row.created_at, `billing-provider-event-created:${eventId}`),
+    updatedAt: decodeTimestamp(row.updated_at, `billing-provider-event-updated:${eventId}`),
+  };
+}
+
+export interface ProviderEventCursor {
+  provider: string;
+  billingSubject: string;
+  lastOccurredAt: string | null;
+  lastSequence: number | null;
+  lastEventId: string;
+  stateVersion: number;
+  updatedAt: string;
+}
+
+function decodeProviderEventCursorRow(row: ProviderEventCursorRow): ProviderEventCursor {
+  return {
+    provider: decodeLiteral(
+      row.provider,
+      ['stripe', 'razorpay', 'paypal', 'apple', 'google'] as const,
+      'billing-provider-event-cursor-provider'
+    ),
+    billingSubject: decodeNonEmptyString(row.billing_subject, 'billing-provider-event-cursor-subject'),
+    lastOccurredAt:
+      row.last_occurred_at === null
+        ? null
+        : decodeTimestamp(row.last_occurred_at, 'billing-provider-event-cursor-occurred-at'),
+    lastSequence:
+      row.last_sequence === null
+        ? null
+        : decodeBillingCount(row.last_sequence, 'billing-provider-event-cursor-sequence'),
+    lastEventId: decodeNonEmptyString(row.last_event_id, 'billing-provider-event-cursor-event-id'),
+    stateVersion: decodeBillingCount(row.state_version, 'billing-provider-event-cursor-state-version'),
+    updatedAt: decodeTimestamp(row.updated_at, 'billing-provider-event-cursor-updated'),
+  };
+}
+
+export async function loadBillingProviderEventCursor(
+  env: Env,
+  provider: string,
+  billingSubject: string
+): Promise<ProviderEventCursor | null> {
+  await ensureReadModelSeed(env);
+  const row = await d1First<ProviderEventCursorRow>(
+    requireBillingD1Database(env),
+    SELECT_PROVIDER_EVENT_CURSOR_SQL,
+    provider,
+    billingSubject
+  );
+  return row ? decodeProviderEventCursorRow(row) : null;
+}
+
+function providerEventOrderIsStale(
+  cursor: ProviderEventCursor,
+  receipt: Pick<ProviderEventReceipt, 'eventId' | 'providerOccurredAt' | 'providerSequence'>
+): boolean {
+  if (receipt.providerSequence !== null && cursor.lastSequence !== null) {
+    if (receipt.providerSequence < cursor.lastSequence) {
+      return true;
+    }
+    if (receipt.providerSequence === cursor.lastSequence && receipt.eventId !== cursor.lastEventId) {
+      return true;
+    }
+  } else if (cursor.lastSequence !== null && receipt.providerSequence === null) {
+    return true;
+  }
+  if (receipt.providerOccurredAt !== null && cursor.lastOccurredAt !== null) {
+    if (receipt.providerOccurredAt < cursor.lastOccurredAt) {
+      return true;
+    }
+    if (receipt.providerOccurredAt === cursor.lastOccurredAt && receipt.eventId !== cursor.lastEventId) {
+      return true;
+    }
+  } else if (cursor.lastOccurredAt !== null && receipt.providerOccurredAt === null) {
+    return true;
+  }
+  return false;
+}
+
+function providerEventCursorStatement(
+  env: Env,
+  receipt: ProviderEventReceipt,
+  expectedVersion: number
+): D1PreparedStatement {
+  if (receipt.billingSubject === null) {
+    throw new BillingReadModelUnavailableError(`billing-provider-event-cursor-subject-missing:${receipt.eventId}`);
+  }
+  if (receipt.providerOccurredAt === null && receipt.providerSequence === null) {
+    throw new BillingReadModelUnavailableError(`billing-provider-event-order-metadata-missing:${receipt.eventId}`);
+  }
+  return requireBillingD1Database(env)
+    .prepare(UPSERT_PROVIDER_EVENT_CURSOR_SQL)
+    .bind(
+      receipt.provider,
+      receipt.billingSubject,
+      receipt.providerOccurredAt,
+      receipt.providerSequence,
+      receipt.eventId,
+      new Date().toISOString(),
+      expectedVersion
+    );
+}
+
+export interface RegisterBillingProviderEventInput {
+  provider: string;
+  eventId: string;
+  eventFingerprint: string;
+  eventType: string;
+  providerOccurredAt: string | null;
+  providerSequence: number | null;
+  accountId: string | null;
+  providerCustomerId: string | null;
+  providerSubscriptionId: string | null;
+  providerInvoiceId: string | null;
+  billingSubject: string | null;
+  parentAccountRef: string | null;
+  familyRef: string | null;
+  billingInvoiceId: string | null;
+  processingState: ProviderEventReceipt['processingState'];
+}
+
+export type RegisterBillingProviderEventResult =
+  | { status: 'created'; receipt: ProviderEventReceipt }
+  | { status: 'replay'; receipt: ProviderEventReceipt }
+  | { status: 'conflict'; receipt: ProviderEventReceipt };
+
+function optionalBindingText(value: string | null, scope: string): string | null {
+  return value === null ? null : decodeNonEmptyString(value, scope);
+}
+
+function providerReceiptAuthorityMatches(
+  receipt: ProviderEventReceipt,
+  input: RegisterBillingProviderEventInput,
+  eventType: string,
+  providerOccurredAt: string | null,
+  providerSequence: number | null
+): boolean {
+  return (
+    receipt.provider === input.provider &&
+    receipt.eventId === input.eventId &&
+    receipt.eventType === eventType &&
+    receipt.providerOccurredAt === providerOccurredAt &&
+    receipt.providerSequence === providerSequence &&
+    receipt.accountId === input.accountId &&
+    receipt.providerCustomerId === input.providerCustomerId &&
+    receipt.providerSubscriptionId === input.providerSubscriptionId &&
+    receipt.providerInvoiceId === input.providerInvoiceId &&
+    receipt.billingSubject === input.billingSubject &&
+    receipt.parentAccountRef === input.parentAccountRef &&
+    receipt.familyRef === input.familyRef &&
+    receipt.billingInvoiceId === input.billingInvoiceId
+  );
+}
+
+export async function registerBillingProviderEvent(
+  env: Env,
+  input: RegisterBillingProviderEventInput
+): Promise<RegisterBillingProviderEventResult> {
+  await ensureReadModelSeed(env);
+  const database = requireBillingD1Database(env);
+  const provider = decodeLiteral(
+    input.provider,
+    ['stripe', 'razorpay', 'paypal', 'apple', 'google'] as const,
+    'billing-provider-event-provider'
+  );
+  const eventId = decodeNonEmptyString(input.eventId, 'billing-provider-event-id');
+  const eventFingerprint = decodeNonEmptyString(
+    input.eventFingerprint,
+    `billing-provider-event-fingerprint:${eventId}`
+  );
+  const eventType = decodeNonEmptyString(input.eventType, `billing-provider-event-type:${eventId}`);
+  const providerOccurredAt =
+    input.providerOccurredAt === null
+      ? null
+      : decodeTimestamp(input.providerOccurredAt, `billing-provider-event-occurred-at:${eventId}`);
+  const providerSequence =
+    input.providerSequence === null
+      ? null
+      : decodeBillingCount(input.providerSequence, `billing-provider-event-sequence:${eventId}`);
+  const processingState = decodeLiteral(
+    input.processingState,
+    ['received', 'ignored', 'manual-required'] as const,
+    `billing-provider-event-processing-state:${eventId}`
+  );
+  const existing = await d1First<ProviderEventReceiptRow>(
+    database,
+    SELECT_PROVIDER_EVENT_RECEIPT_SQL,
+    provider,
+    eventId
+  );
+  if (existing) {
+    const receipt = decodeProviderEventReceiptRow(existing);
+    const authorityMatches = providerReceiptAuthorityMatches(
+      receipt,
+      input,
+      eventType,
+      providerOccurredAt,
+      providerSequence
+    );
+    return {
+      status: receipt.eventFingerprint === eventFingerprint && authorityMatches ? 'replay' : 'conflict',
+      receipt,
+    };
+  }
+
+  const createdAt = new Date().toISOString();
+  try {
+    await database
+      .prepare(INSERT_PROVIDER_EVENT_RECEIPT_SQL)
+      .bind(
+        provider,
+        eventId,
+        eventFingerprint,
+        eventType,
+        providerOccurredAt,
+        providerSequence,
+        optionalBindingText(input.accountId, `billing-provider-event-account:${eventId}`),
+        optionalBindingText(input.providerCustomerId, `billing-provider-event-customer:${eventId}`),
+        optionalBindingText(input.providerSubscriptionId, `billing-provider-event-subscription:${eventId}`),
+        optionalBindingText(input.providerInvoiceId, `billing-provider-event-invoice:${eventId}`),
+        optionalBindingText(input.billingSubject, `billing-provider-event-subject:${eventId}`),
+        optionalBindingText(input.parentAccountRef, `billing-provider-event-parent-account:${eventId}`),
+        optionalBindingText(input.familyRef, `billing-provider-event-family:${eventId}`),
+        optionalBindingText(input.billingInvoiceId, `billing-provider-event-billing-invoice:${eventId}`),
+        processingState,
+        createdAt
+      )
+      .run();
+  } catch (error) {
+    const raced = await d1First<ProviderEventReceiptRow>(
+      database,
+      SELECT_PROVIDER_EVENT_RECEIPT_SQL,
+      provider,
+      eventId
+    );
+    if (!raced) {
+      throw error;
+    }
+  }
+  const persisted = await d1First<ProviderEventReceiptRow>(
+    database,
+    SELECT_PROVIDER_EVENT_RECEIPT_SQL,
+    provider,
+    eventId
+  );
+  if (!persisted) {
+    throw new BillingReadModelUnavailableError(`billing-provider-event-receipt-missing:${provider}:${eventId}`);
+  }
+  const receipt = decodeProviderEventReceiptRow(persisted);
+  const authorityMatches = providerReceiptAuthorityMatches(
+    receipt,
+    input,
+    eventType,
+    providerOccurredAt,
+    providerSequence
+  );
+  return {
+    status: receipt.eventFingerprint === eventFingerprint && authorityMatches ? 'created' : 'conflict',
+    receipt,
+  };
+}
+
+export async function loadBillingProviderEventReceipt(
+  env: Env,
+  provider: string,
+  eventId: string
+): Promise<ProviderEventReceipt | null> {
+  await ensureReadModelSeed(env);
+  const row = await d1First<ProviderEventReceiptRow>(
+    requireBillingD1Database(env),
+    SELECT_PROVIDER_EVENT_RECEIPT_SQL,
+    provider,
+    eventId
+  );
+  return row ? decodeProviderEventReceiptRow(row) : null;
+}
+
+export async function markBillingProviderEventQueue(
+  env: Env,
+  provider: string,
+  eventId: string,
+  queueState: ProviderEventReceipt['queueState'],
+  processingState: ProviderEventReceipt['processingState'],
+  error: string | null,
+  expected?: Pick<ProviderEventReceipt, 'stateVersion' | 'processingState' | 'queueState'>
+): Promise<ProviderEventReceipt> {
+  await ensureReadModelSeed(env);
+  const database = requireBillingD1Database(env);
+  const now = new Date().toISOString();
+  const boundedError =
+    error === null ? null : decodeNonEmptyString(error, `billing-provider-event-error:${eventId}`).slice(0, 240);
+  const currentRow = await d1First<ProviderEventReceiptRow>(
+    database,
+    SELECT_PROVIDER_EVENT_RECEIPT_SQL,
+    provider,
+    eventId
+  );
+  if (!currentRow) {
+    throw new BillingReadModelUnavailableError(`billing-provider-event-receipt-missing:${provider}:${eventId}`);
+  }
+  const current = decodeProviderEventReceiptRow(currentRow);
+  const expectedState = expected ?? current;
+  if (
+    current.stateVersion !== expectedState.stateVersion ||
+    current.processingState !== expectedState.processingState ||
+    current.queueState !== expectedState.queueState
+  ) {
+    throw new BillingReadModelUnavailableError(`billing-provider-event-state-cas-failed:${provider}:${eventId}`);
+  }
+  if (current.queueState === queueState && current.processingState === processingState) {
+    return current;
+  }
+  assertProviderEventReceiptTransition(current, queueState, processingState);
+  const update = await database
+    .prepare(UPDATE_PROVIDER_EVENT_RECEIPT_QUEUE_SQL)
+    .bind(
+      provider,
+      eventId,
+      current.stateVersion,
+      current.processingState,
+      current.queueState,
+      processingState,
+      queueState,
+      1,
+      now,
+      boundedError
+    )
+    .run();
+  if ((update.meta?.changes ?? 0) !== 1) {
+    throw new BillingReadModelUnavailableError(`billing-provider-event-state-cas-failed:${provider}:${eventId}`);
+  }
+  const row = await d1First<ProviderEventReceiptRow>(database, SELECT_PROVIDER_EVENT_RECEIPT_SQL, provider, eventId);
+  if (!row) {
+    throw new BillingReadModelUnavailableError(`billing-provider-event-receipt-missing:${provider}:${eventId}`);
+  }
+  return decodeProviderEventReceiptRow(row);
 }
 
 async function loadMutationOutbox(env: Env, mutation: BillingStateMutation): Promise<MutationOutboxRow | null> {
@@ -2247,8 +3045,37 @@ async function commitBillingMutationD1Batch(
   const authorityAdvance = database
     .prepare(ADVANCE_SUBJECT_VERSION_SQL)
     .bind(mutation.subject, currentAuthority.version, authorityToken, new Date().toISOString());
+  const providerCursorStatements: ReadonlyArray<D1PreparedStatement> =
+    mutation.kind === 'provider-webhook'
+      ? await (async () => {
+          const receipt = await loadBillingProviderEventReceipt(env, mutation.provider, mutation.eventId);
+          if (!receipt || receipt.billingSubject !== mutation.subject) {
+            throw new BillingReadModelUnavailableError(
+              `billing-provider-event-receipt-authority-mismatch:${mutation.eventId}`
+            );
+          }
+          if (
+            receipt.providerOccurredAt !== mutation.providerOccurredAt ||
+            receipt.providerSequence !== mutation.providerSequence
+          ) {
+            throw new BillingReadModelUnavailableError(
+              `billing-provider-event-order-metadata-mismatch:${mutation.eventId}`
+            );
+          }
+          const cursor = await loadBillingProviderEventCursor(env, mutation.provider, mutation.subject);
+          const expectedCursorVersion = cursor?.stateVersion ?? 0;
+          if (expectedCursorVersion !== mutation.providerCursorExpectedVersion) {
+            throw new BillingReadModelUnavailableError(`billing-provider-event-cursor-cas-failed:${mutation.eventId}`);
+          }
+          if (cursor && providerEventOrderIsStale(cursor, receipt)) {
+            throw new BillingReadModelUnavailableError(`billing-provider-event-stale:${mutation.eventId}`);
+          }
+          return [providerEventCursorStatement(env, receipt, expectedCursorVersion)];
+        })()
+      : [];
   await commitBillingD1Batch(env, [
     authorityAdvance,
+    ...providerCursorStatements,
     ...statements,
     billingMutationOutboxStatement(env, mutation, auditEvent, authorityVersion, authorityToken),
   ]);
@@ -2428,9 +3255,9 @@ function billingOutboxErrorMessage(error: unknown): string {
   return message.replace(/\s+/gu, ' ').trim().slice(0, 240) || 'billing-audit-delivery-failed';
 }
 
-async function deliverBillingMutationOutbox(env: Env, outbox: MutationOutboxRow): Promise<void> {
+async function deliverBillingMutationOutbox(env: Env, outbox: MutationOutboxRow): Promise<boolean> {
   if (outbox.audit_state === 'delivered') {
-    return;
+    return true;
   }
   const attemptCount = decodeBillingCount(
     outbox.attempt_count,
@@ -2441,11 +3268,15 @@ async function deliverBillingMutationOutbox(env: Env, outbox: MutationOutboxRow)
   }
   const database = requireBillingD1Database(env);
   const attemptedAt = new Date().toISOString();
-  await commitBillingD1Batch(env, [
-    database
-      .prepare(MARK_MUTATION_OUTBOX_ATTEMPT_SQL)
-      .bind(outbox.request_key, attemptedAt, MAX_BILLING_OUTBOX_ATTEMPTS),
-  ]);
+  const leaseToken = crypto.randomUUID();
+  const leaseExpiresAt = new Date(Date.now() + 60_000).toISOString();
+  const claim = await database
+    .prepare(MARK_MUTATION_OUTBOX_ATTEMPT_SQL)
+    .bind(outbox.request_key, attemptedAt, leaseToken, leaseExpiresAt, MAX_BILLING_OUTBOX_ATTEMPTS)
+    .run();
+  if ((claim.meta?.changes ?? 0) !== 1) {
+    return false;
+  }
   try {
     const auditEvent = decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
       BillingSupportAdminAuditEventSummarySchema.parse(
@@ -2453,16 +3284,17 @@ async function deliverBillingMutationOutbox(env: Env, outbox: MutationOutboxRow)
       )
     );
     await appendBillingAuditEvent(env, auditEvent);
-    await commitBillingD1Batch(env, [
-      database.prepare(MARK_MUTATION_AUDIT_DELIVERED_SQL).bind(outbox.request_key, new Date().toISOString()),
-    ]);
+    const delivered = await database
+      .prepare(MARK_MUTATION_AUDIT_DELIVERED_SQL)
+      .bind(outbox.request_key, new Date().toISOString(), leaseToken)
+      .run();
+    return (delivered.meta?.changes ?? 0) === 1;
   } catch (error) {
     const failedAt = new Date().toISOString();
-    await commitBillingD1Batch(env, [
-      database
-        .prepare(MARK_MUTATION_OUTBOX_FAILURE_SQL)
-        .bind(outbox.request_key, billingOutboxErrorMessage(error), failedAt),
-    ]);
+    await database
+      .prepare(MARK_MUTATION_OUTBOX_FAILURE_SQL)
+      .bind(outbox.request_key, billingOutboxErrorMessage(error), failedAt, leaseToken)
+      .run();
     throw error;
   }
 }
@@ -2480,7 +3312,8 @@ export async function drainPendingBillingMutationOutbox(env: Env): Promise<Billi
     requireBillingD1Database(env),
     SELECT_PENDING_MUTATION_OUTBOX_SQL,
     MAX_BILLING_OUTBOX_DRAIN_ROWS,
-    MAX_BILLING_OUTBOX_ATTEMPTS
+    MAX_BILLING_OUTBOX_ATTEMPTS,
+    new Date().toISOString()
   );
   const manualReviewRow = await d1First<ManualReviewOutboxCountRow>(
     requireBillingD1Database(env),
@@ -2507,8 +3340,9 @@ export async function drainPendingBillingMutationOutbox(env: Env): Promise<Billi
         summary.manualReview += 1;
         continue;
       }
-      await deliverBillingMutationOutbox(env, outbox);
-      summary.delivered += 1;
+      if (await deliverBillingMutationOutbox(env, outbox)) {
+        summary.delivered += 1;
+      }
     } catch (_error) {
       summary.failed += 1;
     }
@@ -2526,6 +3360,12 @@ async function replayKnownBillingMutation(env: Env, mutation: BillingStateMutati
   if (!outbox) {
     return false;
   }
+  const storedMutation = parseUnknownPayload(outbox.mutation_json, 'billing-mutation-outbox-replay-mutation');
+  if (JSON.stringify(stableMutationValue(storedMutation)) !== mutationFingerprint(mutation)) {
+    throw new BillingReadModelUnavailableError(
+      `billing-mutation-outbox-fingerprint-mismatch:${mutationReplayKey(mutation)}`
+    );
+  }
   await completeBillingMutation(env, mutation);
   return true;
 }
@@ -2535,7 +3375,9 @@ async function adminAccountProjectionStatement(
   status: BillingStatusSummary
 ): Promise<D1PreparedStatement | null> {
   const adminAccounts = await loadAdminBillingAccounts(env, null);
-  const current = adminAccounts.find((entry) => entry.parentAccountRef === status.parentAccountRef);
+  const current = adminAccounts.find(
+    (entry) => entry.parentAccountRef === status.parentAccountRef && entry.familyRef === status.familyRef
+  );
   if (!current) {
     return null;
   }
@@ -2590,6 +3432,10 @@ function providerWebhookTransition(eventType: string): ProviderWebhookTransition
   return 'ignore';
 }
 
+export function isIgnoredProviderWebhookEvent(eventType: string): boolean {
+  return providerWebhookTransition(eventType) === 'ignore';
+}
+
 function hasManualReviewAuthority(status: BillingStatusSummary, snapshot: BillingEntitlementSnapshotSummary): boolean {
   return (
     status.accountStatus === 'manual-review' ||
@@ -2611,18 +3457,25 @@ async function billingTerminalStateBlocker(
   status: BillingStatusSummary,
   snapshot: BillingEntitlementSnapshotSummary,
   invoices: ReadonlyArray<BillingInvoiceSummary>,
-  adminInvoices: ReadonlyArray<AdminBillingInvoiceSummary>
+  adminInvoices: ReadonlyArray<AdminBillingInvoiceSummary>,
+  authoritativeInvoiceId: string | null = null
 ): Promise<string | null> {
+  const scopedAdminInvoices = adminInvoices.filter(
+    (invoice) => invoice.parentAccountRef === status.parentAccountRef && invoice.familyRef === status.familyRef
+  );
   let settledRefund = false;
   const invoiceIds = new Set([
     ...invoices.map((invoice) => invoice.invoiceId),
-    ...adminInvoices.map((invoice) => invoice.invoiceId),
+    ...scopedAdminInvoices.map((invoice) => invoice.invoiceId),
   ]);
+  if (authoritativeInvoiceId !== null) {
+    invoiceIds.add(decodeNonEmptyString(authoritativeInvoiceId, 'billing-provider-authoritative-invoice'));
+  }
   for (const invoiceId of invoiceIds) {
     const ledger = await loadRefundLedgerSummary(env, invoiceId);
     const relatedInvoices = [
       ...invoices.filter((invoice) => invoice.invoiceId === invoiceId),
-      ...adminInvoices.filter((invoice) => invoice.invoiceId === invoiceId),
+      ...scopedAdminInvoices.filter((invoice) => invoice.invoiceId === invoiceId),
     ];
     const hasRefundedInvoice = relatedInvoices.some((entry) => entry.paymentState === 'refunded');
     const hasUnrefundedInvoice = relatedInvoices.some((entry) => entry.paymentState !== 'refunded');
@@ -2669,21 +3522,49 @@ async function assertBillingMutationNotTerminal(env: Env, mutation: BillingState
   }
 }
 
-function graceFailureState(): BillingStatusSummary['failureState'] {
-  return {
-    failureKind: 'payment-required',
-    parentResolution: 'payment-update',
-    retryAllowed: true,
-    retryAfter: '2026-06-15T00:00:00.000Z',
-  };
-}
-
 function manualReviewFailureState(): BillingStatusSummary['failureState'] {
   return {
     failureKind: 'provider-unavailable',
     parentResolution: 'manual-support-review',
     retryAllowed: false,
     retryAfter: null,
+  };
+}
+
+function providerManualReviewStatePair(
+  status: BillingStatusSummary,
+  snapshot: BillingEntitlementSnapshotSummary,
+  auditReference: string,
+  updatedAt: string,
+  warning: string
+): { status: BillingStatusSummary; snapshot: BillingEntitlementSnapshotSummary } {
+  const failureState = manualReviewFailureState();
+  return {
+    status: {
+      ...status,
+      accountStatus: 'manual-review',
+      subscriptionStatus: 'past-due',
+      portalVisibleState: 'manual-required',
+      parentVisibleState: 'manual-review',
+      localSafetyBehavior: 'manual-review-with-local-safety',
+      source: 'manual-admin-review',
+      failureState,
+      nextRenewalAt: null,
+      warnings: withAddedWarning(status.warnings, warning),
+      auditReference,
+      updatedAt,
+    } as unknown as BillingStatusSummary,
+    snapshot: {
+      ...snapshot,
+      subscriptionStatus: 'past-due',
+      source: 'manual-admin-review',
+      signatureState: 'manual-required',
+      parentVisibleState: 'manual-review',
+      localSafetyBehavior: 'manual-review-with-local-safety',
+      failureState,
+      signedAt: updatedAt,
+      auditReference: `${auditReference}:snapshot`,
+    } as unknown as BillingEntitlementSnapshotSummary,
   };
 }
 
@@ -2765,13 +3646,18 @@ async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch
 }
 
 async function ensureReadModelSeedOnce(env: Env): Promise<void> {
+  if (env.BILLING_D1) {
+    await env.BILLING_D1.exec(CREATE_READ_MODEL_SCHEMA_SQL);
+    if (!isLocalFixtureEnvironment(env)) {
+      await ensureProviderEventReceiptSchema(env.BILLING_D1);
+    }
+  }
   if (!isLocalFixtureEnvironment(env)) {
     return;
   }
   const patch = buildDefaultBillingBindingSeed(env);
 
   if (env.BILLING_D1) {
-    await env.BILLING_D1.exec(CREATE_READ_MODEL_SCHEMA_SQL);
     const rowCount = await d1First<RowCountRow>(env.BILLING_D1, SELECT_STATUS_ROW_COUNT_SQL);
     if (Number(rowCount?.row_count ?? 0) === 0) {
       await seedD1Tables(env.BILLING_D1, patch);
@@ -2951,6 +3837,102 @@ export async function loadBillingReferralSummary(env: Env, subject: string): Pro
   return required ?? decodeBillingReferralSummary(buildBillingReferralSummary(subject), `billing-referral:${subject}`);
 }
 
+export async function buildBillingReferralInviteResultFromD1(
+  env: Env,
+  subject: string,
+  requestId: string,
+  invitee: string
+): Promise<BillingReferralInviteResult> {
+  const referral = await loadBillingReferralSummary(env, subject);
+  const normalizedInvitee = decodeNonEmptyString(invitee, 'billing-referral-invitee').trim().toLowerCase();
+  const referralCode = decodeNonEmptyString(referral.referralCode, `billing-referral-code:${subject}`);
+  const auditReference = decodeNonEmptyString(referral.auditReference, `billing-referral-audit:${subject}`);
+  if (normalizedInvitee === subject.trim().toLowerCase()) {
+    return BillingReferralInviteResultSchema.parse({
+      requestId,
+      status: 'rejected',
+      inviteState: 'fraud-review',
+      referralCode,
+      rejectionReason: 'self-referral-rejected',
+      auditReference: `${auditReference}:invite-self-rejected`,
+    });
+  }
+  return BillingReferralInviteResultSchema.parse({
+    requestId,
+    status: 'accepted',
+    inviteState: 'invite-created',
+    referralCode,
+    rejectionReason: null,
+    auditReference: `${auditReference}:invite-created`,
+  });
+}
+
+export interface BillingManualInvoiceResult {
+  requestId: string;
+  status: 'accepted';
+  invoiceState: 'manual-support-required';
+  region: string;
+  provider: 'manual-invoice';
+  auditReference: string;
+}
+
+export async function buildManualInvoiceResultFromD1(
+  env: Env,
+  subject: string,
+  requestId: string,
+  region: string
+): Promise<BillingManualInvoiceResult> {
+  const status = await loadBillingStatusSummary(env, subject);
+  const normalizedRegion = decodeNonEmptyString(region, 'billing-manual-invoice-region').trim();
+  return {
+    requestId,
+    status: 'accepted',
+    invoiceState: 'manual-support-required',
+    region: normalizedRegion,
+    provider: 'manual-invoice',
+    auditReference: `${status.auditReference}:manual-invoice`,
+  };
+}
+
+export async function buildReconciliationSummaryFromD1(
+  env: Env,
+  requestId: string
+): Promise<BillingSupportAdminReconciliationSummary> {
+  await ensureReadModelSeed(env);
+  await ensureMutationSchema(env);
+  const database = requireBillingD1Database(env);
+  const statuses = (await d1All<PayloadJsonRow>(database, SELECT_ALL_STATUS_SQL)).map((row, index) =>
+    decodeBillingStatusSummary(
+      parseUnknownPayload(row.payload_json, `billing-reconciliation-status-${index}`),
+      `billing-reconciliation-status-${index}`
+    )
+  );
+  const retryBacklog = await d1First<RowCountRow>(
+    database,
+    SELECT_PENDING_MUTATION_OUTBOX_COUNT_SQL,
+    MAX_BILLING_OUTBOX_ATTEMPTS
+  );
+  const manualReviewOutbox = await d1First<RowCountRow>(
+    database,
+    SELECT_MANUAL_REVIEW_MUTATION_OUTBOX_SQL,
+    MAX_BILLING_OUTBOX_ATTEMPTS
+  );
+  const providerManualReview = await d1First<RowCountRow>(database, SELECT_MANUAL_REVIEW_PROVIDER_RECEIPT_COUNT_SQL);
+  return BillingSupportAdminReconciliationSummarySchema.parse({
+    requestId: decodeNonEmptyString(requestId, 'billing-reconciliation-request-id'),
+    status: 'accepted',
+    queued: true,
+    driftFamiliesVisible: statuses.filter(
+      (status) => status.accountStatus !== 'active' || status.parentVisibleState !== 'available'
+    ).length,
+    retryBacklogVisible: decodeBillingCount(retryBacklog?.row_count ?? 0, 'billing-reconciliation-retry-backlog'),
+    deadLetterVisible:
+      decodeBillingCount(manualReviewOutbox?.row_count ?? 0, 'billing-reconciliation-dead-letter-outbox') +
+      decodeBillingCount(providerManualReview?.row_count ?? 0, 'billing-reconciliation-dead-letter-provider'),
+    auditReference: `audit:billing:reconciliation:${requestId}`,
+  });
+}
+
 export async function loadBillingEntitlementSnapshot(
   env: Env,
   subject: string
@@ -2991,93 +3973,20 @@ export async function loadBillingLicenseDecision(
   );
   const status = paired.status;
   const snapshot = paired.snapshot;
-  const authority = correlateBillingAuthority(status, snapshot, `billing-license-authority:${subject}`);
+  correlateBillingAuthority(status, snapshot, `billing-license-authority:${subject}`);
   const requestedDeviceAlreadyTrusted = !requestedNewDevice;
-  const atDeviceLimit = snapshot.activeDevices >= snapshot.deviceLimit;
-
-  if (authority === 'manual-review') {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'manual-review',
-      reasonCode: 'manual-review',
-      deviceActivationBehavior: 'manual-review-required',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-review`,
-    };
-  }
-
-  if (requestedNewDevice && atDeviceLimit) {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'denied',
-      reasonCode: 'limit-exceeded',
-      deviceActivationBehavior: 'deny-new-device',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-denied`,
-    };
-  }
-
-  if (authority === 'grace' && requestedNewDevice && snapshot.failureState?.failureKind === 'payment-required') {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'grace',
-      reasonCode: 'payment-required',
-      deviceActivationBehavior: 'grace-existing-devices',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-grace`,
-    };
-  }
-
-  if (
-    authority !== 'active' &&
-    !(authority === 'grace' && !requestedNewDevice && snapshotCanYieldAllowed(snapshot, requestedDeviceAlreadyTrusted))
-  ) {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'manual-review',
-      reasonCode: 'manual-review',
-      deviceActivationBehavior: 'manual-review-required',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-review`,
-    };
-  }
-
-  if (isLocalFixtureEnvironment(env)) {
-    return buildLicenseDecision(subject, requestId, deviceId, requestedNewDevice);
-  }
-
   return {
     requestId,
     subject,
     deviceId,
-    decision: 'allowed',
-    reasonCode: 'within-plan',
-    deviceActivationBehavior: 'allow-new-device',
+    decision: 'manual-review',
+    reasonCode: 'manual-review',
+    deviceActivationBehavior: 'manual-review-required',
     requestedDeviceAlreadyTrusted,
     planId: snapshot.planId,
     currentActiveDevices: snapshot.activeDevices,
     limit: snapshot.deviceLimit,
-    auditReference: `${snapshot.auditReference}:license-check-allowed`,
+    auditReference: `${snapshot.auditReference}:license-check-review`,
   };
 }
 
@@ -3379,6 +4288,9 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
     }
     case 'referral-invite': {
       const referral = await loadBillingReferralSummary(env, mutation.subject);
+      if (referral.referralCode !== mutation.referralCode) {
+        throw new BillingReadModelUnavailableError(`billing-referral-code-subject-mismatch:${mutation.referralCode}`);
+      }
       const adminReferrals = await loadAdminBillingReferrals(env, null);
       const updatedAt = new Date().toISOString();
       const nextReferral = {
@@ -3398,6 +4310,9 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         auditReference: `${mutation.auditReference}:summary`,
       } as unknown as BillingReferralSummary;
       const existingAdminReferral = adminReferrals.find((row) => row.referralCode === mutation.referralCode);
+      if (existingAdminReferral && existingAdminReferral.ownerSubject !== mutation.subject) {
+        throw new BillingReadModelUnavailableError(`billing-referral-owner-mismatch:${mutation.referralCode}`);
+      }
       const nextAdminReferral = (existingAdminReferral
         ? {
             ...existingAdminReferral,
@@ -3632,12 +4547,40 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
       const invoices = await loadBillingInvoices(env, mutation.subject);
       const adminInvoices = await loadAdminBillingInvoices(env, null);
+      if (
+        (mutation.parentAccountRef !== null &&
+          mutation.parentAccountRef !== undefined &&
+          mutation.parentAccountRef !== status.parentAccountRef) ||
+        (mutation.familyRef !== null && mutation.familyRef !== undefined && mutation.familyRef !== status.familyRef)
+      ) {
+        throw new BillingReadModelUnavailableError(`billing-provider-authority-mismatch:${mutation.eventId}`);
+      }
+      if (
+        mutation.invoiceId !== null &&
+        mutation.invoiceId !== undefined &&
+        !invoices.some((invoice) => invoice.invoiceId === mutation.invoiceId) &&
+        !adminInvoices.some(
+          (invoice) =>
+            invoice.invoiceId === mutation.invoiceId &&
+            invoice.parentAccountRef === status.parentAccountRef &&
+            invoice.familyRef === status.familyRef
+        )
+      ) {
+        throw new BillingReadModelUnavailableError(`billing-provider-invoice-subject-mismatch:${mutation.invoiceId}`);
+      }
       const updatedAt = new Date().toISOString();
       const auditReference = `${status.auditReference}:provider-webhook:${mutation.provider}`;
       const auditEvent = await billingAuditEventForMutation(env, mutation);
       const recoveryBlocker =
         transition === 'activate-subscription' || transition === 'enter-grace' || transition === 'dispute-won'
-          ? await billingTerminalStateBlocker(env, status, snapshot, invoices, adminInvoices)
+          ? await billingTerminalStateBlocker(
+              env,
+              status,
+              snapshot,
+              invoices,
+              adminInvoices,
+              mutation.invoiceId ?? null
+            )
           : null;
       if (recoveryBlocker) {
         env.ANALYTICS?.writeDataPoint({
@@ -3651,41 +4594,13 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       }
 
       if (transition === 'activate-subscription') {
-        const nextStatus: any = {
-          ...status,
-          accountStatus: 'active',
-          subscriptionStatus: 'active',
-          portalVisibleState: 'ready',
-          parentVisibleState: 'available',
-          localSafetyBehavior: 'unchanged',
-          source: 'signed-local-snapshot',
-          failureState: null,
-          warnings: withAddedWarning(
-            status.warnings.filter(
-              (warning) =>
-                warning !== 'cancellation-confirmed-in-grace' &&
-                warning !== 'cancellation-manual-review-required' &&
-                warning !== 'cancellation-scheduled-period-end' &&
-                warning !== 'provider-webhook-payment-required' &&
-                warning !== 'provider-webhook-dispute-opened' &&
-                warning !== 'provider-webhook-dispute-lost'
-            ),
-            'provider-webhook-synced'
-          ),
+        const { status: nextStatus, snapshot: nextSnapshot } = providerManualReviewStatePair(
+          status,
+          snapshot,
           auditReference,
           updatedAt,
-        } as unknown as BillingStatusSummary;
-        const nextSnapshot: any = {
-          ...snapshot,
-          subscriptionStatus: 'active',
-          source: 'signed-local-snapshot',
-          signatureState: 'signed',
-          parentVisibleState: 'available',
-          localSafetyBehavior: 'unchanged',
-          failureState: null,
-          signedAt: updatedAt,
-          auditReference: `${auditReference}:snapshot`,
-        } as unknown as BillingEntitlementSnapshotSummary;
+          'provider-webhook-verifier-required'
+        );
 
         const activationStatements = [...billingStatePairStatements(env, nextStatus, nextSnapshot)];
         for (const invoice of invoices) {
@@ -3697,11 +4612,13 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           } as unknown as BillingInvoiceSummary;
           activationStatements.push(billingInvoiceStatement(env, mutation.subject, nextInvoice));
         }
-        for (const invoice of adminInvoices.filter((entry) => entry.parentAccountRef === status.parentAccountRef)) {
+        for (const invoice of adminInvoices.filter(
+          (entry) => entry.parentAccountRef === status.parentAccountRef && entry.familyRef === status.familyRef
+        )) {
           const nextInvoice: any = {
             ...invoice,
             paymentState: invoice.provider === 'manual-invoice' ? invoice.paymentState : 'paid',
-            manualRequired: false,
+            manualRequired: true,
             auditReference: `${auditReference}:admin-invoice:${invoice.invoiceId}`,
             updatedAt,
           };
@@ -3713,38 +4630,13 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         }
         await commitBillingMutationD1Batch(env, mutation, activationStatements, auditEvent);
       } else if (transition === 'enter-grace') {
-        const nextStatus = {
-          ...status,
-          accountStatus: 'grace',
-          subscriptionStatus: 'grace',
-          portalVisibleState: 'degraded',
-          parentVisibleState: 'grace',
-          localSafetyBehavior: 'grace-with-local-safety',
-          source: 'signed-local-snapshot',
-          failureState: graceFailureState(),
-          warnings: withAddedWarning(
-            status.warnings.filter(
-              (warning) =>
-                warning !== 'provider-webhook-synced' &&
-                warning !== 'provider-webhook-dispute-opened' &&
-                warning !== 'provider-webhook-dispute-lost'
-            ),
-            'provider-webhook-payment-required'
-          ),
+        const { status: nextStatus, snapshot: nextSnapshot } = providerManualReviewStatePair(
+          status,
+          snapshot,
           auditReference,
           updatedAt,
-        } as unknown as BillingStatusSummary;
-        const nextSnapshot = {
-          ...snapshot,
-          subscriptionStatus: 'grace',
-          source: 'signed-local-snapshot',
-          signatureState: 'signed',
-          parentVisibleState: 'grace',
-          localSafetyBehavior: 'grace-with-local-safety',
-          failureState: graceFailureState(),
-          signedAt: updatedAt,
-          auditReference: `${auditReference}:snapshot`,
-        } as unknown as BillingEntitlementSnapshotSummary;
+          'provider-webhook-verifier-required'
+        );
 
         const graceStatements = [...billingStatePairStatements(env, nextStatus, nextSnapshot)];
         for (const invoice of invoices) {
@@ -3756,7 +4648,9 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           } as unknown as BillingInvoiceSummary;
           graceStatements.push(billingInvoiceStatement(env, mutation.subject, nextInvoice));
         }
-        for (const invoice of adminInvoices.filter((entry) => entry.parentAccountRef === status.parentAccountRef)) {
+        for (const invoice of adminInvoices.filter(
+          (entry) => entry.parentAccountRef === status.parentAccountRef && entry.familyRef === status.familyRef
+        )) {
           const nextInvoice: any = {
             ...invoice,
             paymentState: invoice.provider === 'manual-invoice' ? invoice.paymentState : 'grace',
@@ -3772,9 +4666,25 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         }
         await commitBillingMutationD1Batch(env, mutation, graceStatements, auditEvent);
       } else {
+        if (transition.startsWith('dispute-') && !mutation.invoiceId) {
+          throw new BillingReadModelUnavailableError(`billing-provider-dispute-invoice-unresolved:${mutation.eventId}`);
+        }
         const disputeId = mutation.disputeId ?? `dispute-${mutation.provider}-${mutation.eventId}`;
-        const invoiceId =
-          mutation.invoiceId ?? invoices[0]?.invoiceId ?? adminInvoices[0]?.invoiceId ?? 'invoice-unresolved';
+        const invoiceId = mutation.invoiceId;
+        if (!invoiceId) {
+          throw new BillingReadModelUnavailableError(`billing-provider-invoice-unresolved:${mutation.eventId}`);
+        }
+        if (
+          !invoices.some((invoice) => invoice.invoiceId === invoiceId) &&
+          !adminInvoices.some(
+            (invoice) =>
+              invoice.invoiceId === invoiceId &&
+              invoice.parentAccountRef === status.parentAccountRef &&
+              invoice.familyRef === status.familyRef
+          )
+        ) {
+          throw new BillingReadModelUnavailableError(`billing-provider-invoice-subject-mismatch:${invoiceId}`);
+        }
         const disputeState =
           transition === 'dispute-opened'
             ? 'dispute-opened'
@@ -3786,8 +4696,8 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
             ? 'manual-review-required'
             : transition === 'dispute-lost'
               ? 'revoke-paid-access'
-              : 'grace-paid-access';
-        const manualRequired = transition !== 'dispute-won';
+              : 'manual-review-required';
+        const manualRequired = true;
         const nextDispute = {
           disputeId,
           parentAccountRef: status.parentAccountRef,
@@ -3801,65 +4711,19 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         } as unknown as AdminBillingDisputeSummary;
         const disputeStatements = [billingAdminDisputeStatement(env, nextDispute)];
 
-        const nextStatus = (transition === 'dispute-won'
-          ? {
-              ...status,
-              accountStatus: 'active',
-              subscriptionStatus: 'active',
-              portalVisibleState: 'ready',
-              parentVisibleState: 'available',
-              localSafetyBehavior: 'unchanged',
-              source: 'signed-local-snapshot',
-              failureState: null,
-              warnings: withAddedWarning(
-                status.warnings.filter(
-                  (warning) =>
-                    warning !== 'provider-webhook-dispute-opened' && warning !== 'provider-webhook-dispute-lost'
-                ),
-                'provider-webhook-synced'
-              ),
-              auditReference,
-              updatedAt,
-            }
-          : {
-              ...status,
-              accountStatus: 'manual-review',
-              subscriptionStatus: 'past-due',
-              portalVisibleState: 'manual-required',
-              parentVisibleState: 'manual-review',
-              localSafetyBehavior: 'manual-review-with-local-safety',
-              source: 'manual-admin-review',
-              failureState: manualReviewFailureState(),
-              warnings: withAddedWarning(
-                status.warnings.filter((warning) => warning !== 'provider-webhook-synced'),
-                transition === 'dispute-opened' ? 'provider-webhook-dispute-opened' : 'provider-webhook-dispute-lost'
-              ),
-              auditReference,
-              updatedAt,
-            }) as unknown as BillingStatusSummary;
-        const nextSnapshot = (transition === 'dispute-won'
-          ? {
-              ...snapshot,
-              subscriptionStatus: 'active',
-              source: 'signed-local-snapshot',
-              signatureState: 'signed',
-              parentVisibleState: 'available',
-              localSafetyBehavior: 'unchanged',
-              failureState: null,
-              signedAt: updatedAt,
-              auditReference: `${auditReference}:snapshot`,
-            }
-          : {
-              ...snapshot,
-              subscriptionStatus: 'past-due',
-              source: 'manual-admin-review',
-              signatureState: 'manual-required',
-              parentVisibleState: 'manual-review',
-              localSafetyBehavior: 'manual-review-with-local-safety',
-              failureState: manualReviewFailureState(),
-              signedAt: updatedAt,
-              auditReference: `${auditReference}:snapshot`,
-            }) as unknown as BillingEntitlementSnapshotSummary;
+        const providerStatePair = providerManualReviewStatePair(
+          status,
+          snapshot,
+          auditReference,
+          updatedAt,
+          transition === 'dispute-opened'
+            ? 'provider-webhook-dispute-opened'
+            : transition === 'dispute-lost'
+              ? 'provider-webhook-dispute-lost'
+              : 'provider-webhook-verifier-required'
+        );
+        const nextStatus = providerStatePair.status;
+        const nextSnapshot = providerStatePair.snapshot;
 
         disputeStatements.push(...billingStatePairStatements(env, nextStatus, nextSnapshot));
         const disputeProjection = await adminAccountProjectionStatement(env, nextStatus);
