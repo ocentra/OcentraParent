@@ -4,6 +4,7 @@ use ocentra_parent_agent_protocol::app_game::{
     AppGameSessionSummary, APP_GAME_CATALOG_NOT_LOADED, APP_GAME_SCHEMA_VERSION,
 };
 use rusqlite::Connection;
+use sysinfo::System;
 
 pub mod app_game_journal_sqlite_ingest;
 pub mod app_game_session_rollups;
@@ -50,6 +51,7 @@ use app_game_windows_inventory_source::{
 };
 use app_game_windows_launcher_source::live_windows_launcher_journal_events_with_limit as live_windows_launcher_journal_events_with_limit_impl;
 use app_game_windows_process_source::{
+    live_windows_process_and_launcher_snapshot_journal_events_from_system as live_windows_process_and_launcher_snapshot_journal_events_from_system_impl,
     live_windows_process_and_launcher_snapshot_journal_events_with_limit as live_windows_process_and_launcher_snapshot_journal_events_with_limit_impl,
     live_windows_process_snapshot_journal_events_with_limit as live_windows_process_snapshot_journal_events_with_limit_impl,
     AppGameLiveProcessSnapshotError as AppGameLiveProcessSnapshotErrorImpl,
@@ -131,6 +133,22 @@ pub fn live_windows_process_and_launcher_snapshot_journal_events_with_limit(
         platform,
         observed_at,
         limit,
+    )
+}
+
+pub fn live_windows_process_and_launcher_snapshot_journal_events_from_system(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+    system: &System,
+) -> Result<Vec<ActivityEvent>, AppGameLiveProcessSnapshotError> {
+    live_windows_process_and_launcher_snapshot_journal_events_from_system_impl(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+        system,
     )
 }
 

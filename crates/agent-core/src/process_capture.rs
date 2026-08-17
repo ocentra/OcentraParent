@@ -10,7 +10,9 @@ use ocentra_parent_agent_protocol::activity_capture::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use sysinfo::{ProcessesToUpdate, System};
+use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
+
+pub type ProcessSnapshotSystem = System;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ProcessObservation {
@@ -19,39 +21,116 @@ pub struct ProcessObservation {
     pub executable_path: Option<PathBuf>,
 }
 
-pub fn collect_process_snapshot(limit: usize) -> Vec<ProcessObservation> {
+pub fn live_process_snapshot_system() -> ProcessSnapshotSystem {
     let mut system = System::new();
-    system.refresh_processes(ProcessesToUpdate::All, true);
-    let mut observations = system
-        .processes()
-        .values()
-        .map(|process| ProcessObservation {
-            pid: process.pid().as_u32(),
-            name: process.name().to_string_lossy().into_owned(),
-            executable_path: process.exe().map(std::path::Path::to_path_buf),
+    system.refresh_processes_specifics(
+        ProcessesToUpdate::All,
+        true,
+        ProcessRefreshKind::everything()
+            .without_cmd()
+            .without_cpu()
+            .without_cwd()
+            .without_disk_usage()
+            .without_environ()
+            .without_memory()
+            .without_root()
+            .without_user()
+            .with_exe(UpdateKind::OnlyIfNotSet),
+    );
+    system
+}
+
+pub fn collect_process_snapshot(limit: usize) -> Vec<ProcessObservation> {
+    let system = live_process_snapshot_system();
+    snapshot_observations_from_system(&system, limit)
+        .into_iter()
+        .map(|snapshot| snapshot.observation)
+        .collect()
+}
+
+pub fn process_snapshot_events_from_system(
+    observed_at: &str,
+    limit: usize,
+    system: &ProcessSnapshotSystem,
+) -> Vec<ActivityEvent> {
+    snapshot_observations_from_system(system, limit)
+        .into_iter()
+        .filter(|snapshot| snapshot.start_time != 0)
+        .enumerate()
+        .map(|(index, snapshot)| {
+            process_observation_event_with_generation(
+                snapshot.observation,
+                snapshot.start_time,
+                observed_at,
+                index,
+            )
         })
-        .collect::<Vec<_>>();
-    observations.sort_by(|left, right| {
-        left.pid
-            .cmp(&right.pid)
-            .then_with(|| left.name.cmp(&right.name))
-    });
-    observations.truncate(limit);
-    observations
+        .collect()
 }
 
 pub fn process_snapshot_events(observed_at: &str, limit: usize) -> Vec<ActivityEvent> {
-    collect_process_snapshot(limit)
-        .into_iter()
-        .enumerate()
-        .map(|(index, observation)| process_observation_event(observation, observed_at, index))
-        .collect()
+    let system = live_process_snapshot_system();
+    process_snapshot_events_from_system(observed_at, limit, &system)
+}
+
+struct ProcessSnapshotObservation {
+    observation: ProcessObservation,
+    start_time: u64,
+}
+
+fn snapshot_observations_from_system(
+    system: &ProcessSnapshotSystem,
+    limit: usize,
+) -> Vec<ProcessSnapshotObservation> {
+    let mut observations = system
+        .processes()
+        .values()
+        .map(|process| ProcessSnapshotObservation {
+            observation: ProcessObservation {
+                pid: process.pid().as_u32(),
+                name: process.name().to_string_lossy().into_owned(),
+                executable_path: process.exe().map(std::path::Path::to_path_buf),
+            },
+            start_time: process.start_time(),
+        })
+        .collect::<Vec<_>>();
+    observations.sort_by(|left, right| {
+        left.observation
+            .pid
+            .cmp(&right.observation.pid)
+            .then_with(|| left.observation.name.cmp(&right.observation.name))
+    });
+    observations.truncate(limit);
+    observations
 }
 
 pub fn process_observation_event(
     observation: ProcessObservation,
     observed_at: &str,
     sequence_index: usize,
+) -> ActivityEvent {
+    let event_id = process_event_id(&observation, observed_at, sequence_index);
+    let subject_id = process_subject_id(observation.pid);
+    process_observation_event_with_identity(observation, observed_at, event_id, subject_id)
+}
+
+fn process_observation_event_with_generation(
+    observation: ProcessObservation,
+    start_time: u64,
+    observed_at: &str,
+    sequence_index: usize,
+) -> ActivityEvent {
+    let event_id =
+        generation_process_event_id(&observation, start_time, observed_at, sequence_index);
+    let subject_id = generation_process_subject_id(observation.pid, start_time);
+    process_observation_event_with_identity(observation, observed_at, event_id, subject_id)
+}
+
+fn process_observation_event_with_identity(
+    observation: ProcessObservation,
+    observed_at: &str,
+    event_id: String,
+    subject_id: String,
 ) -> ActivityEvent {
     let mut fields = LogFields::new();
     fields.insert(
@@ -85,7 +164,7 @@ pub fn process_observation_event(
 
     ActivityEvent {
         schema_version: ACTIVITY_SCHEMA_VERSION,
-        event_id: process_event_id(&observation, observed_at, sequence_index),
+        event_id,
         observed_at: observed_at.to_string(),
         source: ActivitySource {
             device_id: constants::peer::LOCAL_DEV_AGENT.to_string(),
@@ -96,7 +175,7 @@ pub fn process_observation_event(
         kind: ActivityEventKind::ProcessObserved,
         subject: ActivitySubject {
             kind: ActivitySubjectKind::Process,
-            subject_id: process_subject_id(observation.pid),
+            subject_id,
             display_name: Some(observation.name),
         },
         fields,
@@ -118,8 +197,33 @@ fn process_event_id(
     event_id
 }
 
+fn generation_process_event_id(
+    observation: &ProcessObservation,
+    start_time: u64,
+    observed_at: &str,
+    sequence_index: usize,
+) -> String {
+    let mut event_id = String::from(constants::activity_capture::PROCESS_EVENT_ID_PREFIX);
+    event_id.push_str(&observation.pid.to_string());
+    event_id.push(constants::delimiter::HYPHEN);
+    event_id.push_str(&start_time.to_string());
+    event_id.push(constants::delimiter::HYPHEN);
+    event_id.push_str(&sequence_index.to_string());
+    event_id.push(constants::delimiter::HYPHEN);
+    event_id.push_str(observed_at);
+    event_id
+}
+
 fn process_subject_id(pid: u32) -> String {
     let mut subject_id = String::from(constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX);
     subject_id.push_str(&pid.to_string());
+    subject_id
+}
+
+fn generation_process_subject_id(pid: u32, start_time: u64) -> String {
+    let mut subject_id = String::from(constants::activity_capture::PROCESS_SUBJECT_ID_PREFIX);
+    subject_id.push_str(&pid.to_string());
+    subject_id.push(constants::delimiter::HYPHEN);
+    subject_id.push_str(&start_time.to_string());
     subject_id
 }

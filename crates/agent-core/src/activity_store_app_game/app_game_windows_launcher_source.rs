@@ -110,6 +110,9 @@ fn record_from_process(
     let launcher_kind = launcher_kind(process, &canonical_path)?;
     let process_id = u64::from(process.pid().as_u32());
     let start_time = process.start_time();
+    if start_time == 0 {
+        return None;
+    }
     let child = children.get(&process.pid().as_u32()).copied();
     let child_proof = child.is_some();
     Some(AppGameLauncherEvidenceRow {
@@ -155,11 +158,15 @@ fn child_processes_by_parent(system: &System) -> HashMap<u32, ChildProcessIdenti
         let Some(parent_id) = process.parent() else {
             continue;
         };
+        let start_time = process.start_time();
+        if start_time == 0 {
+            continue;
+        }
         children
             .entry(parent_id.as_u32())
             .or_insert(ChildProcessIdentity {
                 process_id: u64::from(process.pid().as_u32()),
-                start_time: process.start_time(),
+                start_time,
             });
     }
     children

@@ -1,6 +1,8 @@
 use ocentra_parent_agent_core::{
-    network_capture::NetworkObservation, network_capture_event::network_snapshot_capture_results,
-    process_capture::process_snapshot_events, window_capture_event::foreground_window_event,
+    network_capture::NetworkObservation,
+    network_capture_event::network_snapshot_capture_results,
+    process_capture::{live_process_snapshot_system, process_snapshot_events_from_system},
+    window_capture_event::foreground_window_event,
 };
 use ocentra_parent_agent_protocol::activity::ActivityEvent;
 use ocentra_parent_agent_protocol::constants;
@@ -121,7 +123,9 @@ fn activity_capture_batch_with_inventory_sources(
     store_package_events: Vec<ActivityEvent>,
     registry_inventory_events: Vec<ActivityEvent>,
 ) -> Result<ActivityCaptureBatch, ActivityCaptureError> {
-    let mut events = process_snapshot_events(observed_at.0, process_limit.0);
+    let process_system = live_process_snapshot_system();
+    let mut events =
+        process_snapshot_events_from_system(observed_at.0, process_limit.0, &process_system);
     events.push(foreground_window_event(observed_at.0));
     let mut network_observations = Vec::new();
     let mut network_events = Vec::new();
@@ -135,9 +139,10 @@ fn activity_capture_batch_with_inventory_sources(
         network_events.push(event);
     }
     events.extend(network_events);
-    events.extend(app_game::live_process_and_launcher_events(
+    events.extend(app_game::live_process_and_launcher_events_from_system(
         observed_at,
         process_limit,
+        &process_system,
     )?);
     events.extend(inventory_events);
     events.extend(store_package_events);

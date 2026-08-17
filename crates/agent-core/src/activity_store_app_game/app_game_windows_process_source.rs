@@ -9,7 +9,7 @@ use ocentra_parent_agent_protocol::app_game::{
     APP_GAME_OBSERVATION_MODE_PROCESS_SNAPSHOT, APP_GAME_RUNTIME_EVIDENCE_ID_PREFIX,
 };
 use sha2::{Digest, Sha256};
-use sysinfo::{Pid, Process, ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
+use sysinfo::{Pid, Process, System};
 
 #[cfg(windows)]
 use super::app_game_windows_launcher_source::launcher_journal_events_from_process_snapshot;
@@ -42,9 +42,7 @@ pub fn live_windows_process_snapshot_records(
 }
 
 pub fn live_windows_process_snapshot_system() -> System {
-    let mut system = System::new();
-    refresh_processes(&mut system, ProcessesToUpdate::All);
-    system
+    crate::process_capture::live_process_snapshot_system()
 }
 
 pub fn live_windows_process_snapshot_record_for_pid(
@@ -52,12 +50,10 @@ pub fn live_windows_process_snapshot_record_for_pid(
     process_id: u32,
 ) -> Option<WindowsProcessRuntimeRecord> {
     let pid = Pid::from_u32(process_id);
-    let pids = [pid];
-    let mut system = System::new();
-    refresh_processes(&mut system, ProcessesToUpdate::Some(&pids));
+    let system = live_windows_process_snapshot_system();
     system
         .process(pid)
-        .map(|process| record_from_process(process, observed_at))
+        .and_then(|process| record_from_process(process, observed_at))
 }
 
 pub fn live_windows_process_snapshot_journal_events(
@@ -89,7 +85,23 @@ pub fn live_windows_process_and_launcher_snapshot_journal_events_with_limit(
     limit: usize,
 ) -> Result<Vec<ActivityEvent>, AppGameLiveProcessSnapshotError> {
     let system = live_windows_process_snapshot_system();
-    let records = records_from_system(&system, observed_at)
+    live_windows_process_and_launcher_snapshot_journal_events_from_system(
+        device_id,
+        platform,
+        observed_at,
+        limit,
+        &system,
+    )
+}
+
+pub fn live_windows_process_and_launcher_snapshot_journal_events_from_system(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    limit: usize,
+    system: &System,
+) -> Result<Vec<ActivityEvent>, AppGameLiveProcessSnapshotError> {
+    let records = records_from_system(system, observed_at)
         .into_iter()
         .take(limit)
         .collect::<Vec<_>>();
@@ -101,7 +113,7 @@ pub fn live_windows_process_and_launcher_snapshot_journal_events_with_limit(
             platform,
             observed_at,
             limit,
-            &system,
+            system,
         )
         .map_err(|_| AppGameLiveProcessSnapshotError::LauncherJournalEventRejected)?;
         events.extend(launcher_events);
@@ -137,31 +149,20 @@ fn records_from_system(system: &System, observed_at: &str) -> Vec<WindowsProcess
     system
         .processes()
         .values()
-        .map(|process| record_from_process(process, observed_at))
+        .filter_map(|process| record_from_process(process, observed_at))
         .collect()
 }
 
-fn refresh_processes(system: &mut System, processes_to_update: ProcessesToUpdate<'_>) {
-    system.refresh_processes_specifics(processes_to_update, true, process_refresh_kind());
-}
-
-fn process_refresh_kind() -> ProcessRefreshKind {
-    ProcessRefreshKind::everything()
-        .without_cmd()
-        .without_cpu()
-        .without_cwd()
-        .without_disk_usage()
-        .without_environ()
-        .without_memory()
-        .without_root()
-        .without_user()
-        .with_exe(UpdateKind::OnlyIfNotSet)
-}
-
-fn record_from_process(process: &Process, observed_at: &str) -> WindowsProcessRuntimeRecord {
+fn record_from_process(
+    process: &Process,
+    observed_at: &str,
+) -> Option<WindowsProcessRuntimeRecord> {
     let process_id = u64::from(process.pid().as_u32());
     let start_time = process.start_time();
-    WindowsProcessRuntimeRecord {
+    if start_time == 0 {
+        return None;
+    }
+    Some(WindowsProcessRuntimeRecord {
         runtime_evidence_id: runtime_evidence_id(process_id, start_time, observed_at),
         observed_at: observed_at.to_string(),
         process_identity: Some(process_identity(process_id, start_time)),
@@ -182,7 +183,7 @@ fn record_from_process(process: &Process, observed_at: &str) -> WindowsProcessRu
         capability_status: APP_GAME_CAPABILITY_STATUS_AVAILABLE.to_string(),
         confidence: APP_GAME_CONFIDENCE_UNKNOWN,
         evidence: Vec::new(),
-    }
+    })
 }
 
 fn runtime_evidence_id(process_id: u64, start_time: u64, observed_at: &str) -> String {
