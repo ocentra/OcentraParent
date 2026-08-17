@@ -133,7 +133,7 @@ impl EventMetadata {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EventEnvelope<E> {
+pub struct EventEnvelope<E: DomainEvent> {
     pub contract: EventContract,
     pub event_id: EventId,
     pub correlation_id: CorrelationId,
@@ -234,6 +234,12 @@ pub struct StoredEventEnvelope {
 }
 
 impl StoredEventEnvelope {
+    /// Decodes the typed payload and revalidates every payload-derived envelope field.
+    ///
+    /// This is a structural/type boundary, not an integrity primitive. Persisted
+    /// envelopes must reach this method through a journal read that has already
+    /// verified its hash chain; decoding raw caller-supplied JSON does not prove
+    /// the remaining transport metadata authentic.
     pub fn decode<E>(&self) -> Result<EventEnvelope<E>, EventingError>
     where
         E: DomainEvent,
@@ -249,6 +255,20 @@ impl StoredEventEnvelope {
                 expected_schema_version: expected.schema_version,
                 received_schema_version: self.contract.schema_version,
             });
+        }
+        let aggregate_key = payload.aggregate_key()?;
+        if aggregate_key != self.aggregate_key {
+            return Err(EventingError::invalid_value(
+                "stored_event.aggregate_key",
+                "[redacted mismatch]",
+            ));
+        }
+        let idempotency_key = payload.idempotency_key()?;
+        if idempotency_key != self.idempotency_key {
+            return Err(EventingError::invalid_value(
+                "stored_event.idempotency_key",
+                "[redacted mismatch]",
+            ));
         }
         Ok(EventEnvelope {
             contract: self.contract.clone(),

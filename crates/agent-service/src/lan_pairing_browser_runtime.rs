@@ -2,6 +2,8 @@ use std::thread;
 
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingOptionalText;
+use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
+use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanHouseholdDeviceDecision;
 use ocentra_parent_agent_protocol::logging::LogLevel;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
@@ -59,14 +61,9 @@ pub(crate) fn browser_add_device_request_event(
 ) -> AgentEventEnvelope {
     match parse_household_device_decision(&command.payload, timestamp_now::<String>()) {
         Some(Ok(decision)) => {
-            runtime
-                .registry
-                .lock()
-                .map(|mut registry| {
-                    registry.apply_household_device_decision(decision);
-                    runtime.persist_registry(&registry);
-                })
-                .ok();
+            if let Err(reason) = apply_household_device_decision(runtime, decision) {
+                return rejection_event(command, &reason, None, &origin);
+            }
             return retag_lan_pairing_event(
                 pairing_status_event(runtime, command),
                 &LanPairingEventIdRef(constants::lan_pairing::EVENT_ADD_DEVICE_REPORTED),
@@ -91,6 +88,17 @@ pub(crate) fn browser_add_device_request_event(
     } else {
         event
     }
+}
+
+fn apply_household_device_decision(
+    runtime: &LanPairingRuntime,
+    decision: LanHouseholdDeviceDecision,
+) -> Result<(), LanPairingRejectionReason> {
+    let mut registry = runtime
+        .registry
+        .lock()
+        .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
+    runtime.apply_household_device_decision(&mut registry, decision)
 }
 
 fn retag_lan_pairing_event(

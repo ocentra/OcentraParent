@@ -46,13 +46,19 @@ or portal transport may stand in for the shipped child/runtime peer ingress.
 
 ## Current state
 
-- Code: open. No production ingress packet is claimed by this workpack.
+- Code: partial/code-drafted. The current branch contains a bounded custody,
+  registry, and signed-transport draft, but no completion claim is made until
+  the legal trust authority and shipped ingress route exist.
 - Tests: open. No real ingress, restart, custody, authority, or handoff suite is
   claimed by this workpack.
 - Proof: open. The canonical generated root is:
   `output/lan-plan-proof/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/`.
 - Dependencies: W15, W18, and W19 must expose the durable household, signed
-  child, and route/revocation composition required by this boundary.
+  child, and route/revocation composition required by this boundary. Device
+  Trust WP01 must first provide the persistent trusted-device/signer-key
+  registration source, and Device Trust WP03 must provide the one-time parent
+  `RegisterLanSignerAnchor` authorization. WP02 is conditional only if a
+  demonstrated private-key/install custody need exists.
 - Unlocks: private Eventing WP10 authorization handoff only after LAN validation,
   route authority, custody, and negative-path proof are complete.
 
@@ -122,4 +128,7 @@ and no household mesh readiness or Eventing WP10 authorization claim is released
 - Weak discovery, MAC vendor, ICMP, stale restart state, or provider metadata
   cannot establish child authority.
 - Missing child/runtime transport, missing W15/W18/W19 composition, absent real
-  tests, or absent proof keeps the workpack open/manual-required.
+  tests, or absent proof keeps the workpack open/manual-required. No shipped
+  service route currently establishes signer registration, so WP26 remains
+  blocked on Device Trust WP01 and WP03; a code draft, typed receipt, or local
+  test cannot bypass that authority gate.

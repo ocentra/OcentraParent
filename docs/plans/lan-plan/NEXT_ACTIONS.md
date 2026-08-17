@@ -27,6 +27,16 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ## Highest-open workpacks by current remaining work
 
+### WP26 authority gate
+
+WP26 is a partial code draft, not a READY or completion packet. Do not add a
+LAN service route or treat local custody/transport code as signer authority.
+Route the missing authority through Device Trust WP01's persistent
+trusted-device/signer-key registration source, then WP03's one-time parent
+`RegisterLanSignerAnchor` ceremony. WP26 remains blocked until both owners
+exist and W15/W18/W19 composition is legally reachable. WP02 is conditional
+only on a demonstrated private-key/install custody requirement.
+
 - [26 Signed Child Beacon Ingress And Household Mesh Authority Handoff](workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md): open production packet for the real child/runtime peer ingress, W15 household custody, W18 signed hello/heartbeat and transport authority, W19 route/revocation/lease composition, atomic message/idempotency persistence, and the private Eventing WP10 authorization handoff. Code, organized real-ingress tests, and proof are all open; no portal authority, fake transport, or synthetic receiver is allowed.
 - [16 Read Models And LAN Events](workpacks/16-read-models-and-lan-events.md): backend stream, parent replay validation, desktop delivery decision, and portal listener/state seams exist and are separately tested. The next exact Phase 1 slice is one integrated backend replay -> real Tauri `AppHandle` emit -> portal-listener regression; richer network-flow and physical/manual evidence follow later.
 - [19 Assignment, Revocation, And Audit](workpacks/19-assignment-revocation-audit.md): main-lane route/runtime/UI verification bucket now reduced to broader physical/manual topology artifacts after the restart/readback Rust proof closed locally.

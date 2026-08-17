@@ -242,9 +242,12 @@ incomplete, and the newly routed WP26 is intentionally open:
   -> real Tauri `AppHandle` -> portal-listener validation.
 - `20` is proof-only and its named aggregate verifier programs are absent.
 - `25` is a rollout wrapper blocked by WP16/WP20 plus manual topology evidence.
-- `26` is the open real signed-child beacon ingress and household-mesh authority
-  handoff packet. It depends on W15/W18/W19 and has no code, test, or proof
-  closure yet.
+- `26` is the blocked real signed-child beacon ingress and household-mesh
+  authority handoff packet. A bounded code draft exists, but it depends on
+  W15/W18/W19 plus Device Trust WP01's persistent trusted-device/signer-key
+  registration source and WP03's one-time `RegisterLanSignerAnchor` ceremony.
+  No shipped service route currently establishes that authority, and there is
+  no code, test, or proof closure claim.
 
 Manual household/router/platform artifacts remain separate Phase 3 gates and do
 not turn the other 22 code-present rows into missing-code work.
@@ -285,11 +288,13 @@ physical household evidence, and platform artifacts remain separate gates.
 | 23 | same service pairing/route/revoke commands plus parent route snapshot consumer | Production pairing and route seams already exist; no missing LAN runtime wiring found. | Integrated/physical route proof remains open. |
 | 24 | Tauri parent snapshot -> generated bridge -> portal LAN presentation | Thin consumer is reachable and Rust-backed; it does not own LAN truth. | UI/manual proof remains separate; no LAN code gap. |
 | 25 | rollout checklist/PR gate wrappers over WP16/WP20 and manual artifacts | No product runtime owner; validation/release wrapper only. | Blocked by integrated delivery validation, absent aggregate verifiers, and manual topology evidence. |
-| 26 | real child/runtime signed beacon ingress -> W15 household custody + W18 signed hello/heartbeat trust + W19 route/revocation authority -> private Eventing WP10 authorization handoff | No production ingress or composed custody/handoff caller is claimed yet. | Code, organized real-ingress tests, restart/duplicate/stale/revoked/wrong-family/wrong-target/provider-policy negatives, and the canonical proof root remain open; portal authority and fake transport are forbidden. |
+| 26 | real child/runtime signed beacon ingress -> W15 household custody + W18 signed hello/heartbeat trust + W19 route/revocation authority -> private Eventing WP10 authorization handoff | A bounded custody/registry/transport draft exists, but no shipped ingress or composed custody/handoff caller is legally claimable. Device Trust WP01 registration and WP03 one-time `RegisterLanSignerAnchor` authorization are missing. | Code integration, organized real-ingress tests, restart/duplicate/stale/revoked/wrong-family/wrong-target/provider-policy negatives, and the canonical proof root remain open; portal authority and fake transport are forbidden. |
 
 The signed-child transport gap is owned by WP26. WP26 consumes W18's existing
 signed verification/freshness boundary together with W15 custody and W19
 route/revocation authority, then supplies the private Eventing WP10 handoff.
+It cannot establish signer registration itself: Device Trust WP01 owns the
+persistent registration source and WP03 owns the one-time parent ceremony.
 The current typed WebSocket observation command remains an explicit
 manual/controlled seam and cannot substitute for WP26.
 

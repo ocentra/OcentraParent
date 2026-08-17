@@ -213,7 +213,8 @@ fn read_scan_history(path: &LanScanHistoryPath) -> Option<LanScanHistorySnapshot
 
 fn scan_history_path(runtime: &LanPairingRuntime) -> Option<LanScanHistoryPath> {
     match &runtime.persistence {
-        LanPairingRegistryPersistence::InMemory => None,
+        LanPairingRegistryPersistence::InMemory
+        | LanPairingRegistryPersistence::UnavailableLocalJsonRegistry => None,
         LanPairingRegistryPersistence::LocalJsonRegistry(path) => Some(
             scan_history_path_for_registry(&LanScanHistoryRegistryPath(path.clone())),
         ),

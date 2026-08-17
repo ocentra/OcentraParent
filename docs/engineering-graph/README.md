@@ -8,6 +8,8 @@ does not replace those artifacts or duplicate their detailed intent.
 
 - `docs/engineering-graph/graph.json` owns dependency, readiness, execution
   state, and completion-contract relationships.
+- Implementation-only authorization is a separate derived view. It never
+  changes normal `READY`, validation, `DONE`, or completion state.
 - Plan and workpack Markdown owns scope, acceptance expectations, and detailed
   instructions.
 - Tests are technical validation evidence; proof is process evidence required
@@ -38,11 +40,13 @@ npm run graph:status
 npm run graph:ready
 npm run graph:parallel
 npm run graph:next
+npm run graph:next -- --phase implementation
 npm run graph:blocked
 npm run graph:inspect WP-policy-control-plane-plan-05-ask-parent-overrides
 npm run graph:deps WP-policy-control-plane-plan-05-ask-parent-overrides
 npm run graph:dependents WP-policy-control-plane-plan-04-delivery-ack-audit
 npm run graph:why WP-policy-control-plane-plan-05-ask-parent-overrides
+npm run graph:why WP-policy-control-plane-plan-05-ask-parent-overrides -- --phase implementation
 ```
 
 `graph:validate` rebuilds the graph in memory from the current plan indexes and
@@ -89,11 +93,24 @@ source of truth.
 Use npm's `--silent` form for JSON output so npm does not prepend its lifecycle
 banner to the machine-readable payload. The equivalent direct invocation is
 `node scripts/engineering-graph.mjs report --json`.
+The CLI accepts `--root <repo>` for an explicit repository root; npm commands
+default to the repository containing the script.
 
 `graph:next` first prints graph-authorized READY work. If no READY work exists,
 it prints the unblocked active/validation queue and says explicitly that this
 queue is not permission to start new work. That distinction prevents a
 validation backlog from being mistaken for scheduler authorization.
+
+`graph:next -- --phase implementation` is an explicitly narrower source-edit
+queue. A row may appear there while its normal state remains `blocked`, but only
+when its workpack dependency review and code ownership are reviewed and every
+dependency meets its implementation threshold. Missing phase metadata defaults
+to the normal requirement that the dependency is `DONE`. The command does not
+authorize tests, proof, PR readiness, service activation, merge, or completion.
+It also does not bypass the normal task route, exact-file claim, or Enforcer
+guards.
+Use `graph:why <id> -- --phase implementation` for exact ownership, lifecycle,
+dependency, and reviewed-implementation blockers.
 
 ## Import policy
 
@@ -110,7 +127,17 @@ a reason. Its dependency IDs must exactly equal the existing valid reviewed
 `depends_on` edges for that workpack. A valid review only sets
 `dependencyConfidence=reviewed` and clears that workpack's `needsReview`; it
 does not mark code, tests, proof, or completion done. Invalid or incomplete
-reviews remain migration-blocked and are emitted as precise review items.
+override records fail graph bootstrap with a precise field/path error; they are
+never silently ignored or converted into an ambiguous review item.
+
+A reviewed `depends_on` edge may opt into
+`implementationGate: "reviewed-implementation"`. That exception applies only
+to the implementation-phase query. The dependency still must be `DONE` for
+normal `READY`, validation, proof, PR readiness, and completion. Do not apply
+the gate in bulk: the edge reason and evidence must explain why downstream
+source can be written safely before predecessor tests and proof. Authority,
+activation, custody, and release dependencies stay completion-gated unless the
+owning workpack is decomposed into a genuinely safe source-only packet.
 
 A reviewed `stateOverrides` entry may record a current validation
 slice (never an unverified `done` claim) and must point to its proof manifest
@@ -154,12 +181,28 @@ proof, and checklist evidence paths for the workpack; each path is checked for
 existence and recorded as reviewed. This keeps a source inventory or a checklist
 row from silently becoming a completion claim.
 
+Completion evidence may be recorded one requirement at a time. A partial entry
+containing only `implementation` must still provide a non-empty reason, existing
+review evidence, and exact existing non-planning repository-relative regular
+source files with an allowed executable extension. Test paths, documentation,
+directories, symlink escapes, and traversal paths are rejected. It can satisfy a
+reviewed-implementation dependency gate, but the predecessor remains incomplete
+until every required test, proof, checklist, and ADR requirement is reviewed.
+Code-map topology or file presence alone never satisfies this gate.
+
+All report, matrix, `graph:next`, and implementation-phase queries regenerate
+the graph from current plan/workpack sources and reject a checked-in graph that
+differs from that result. `--phase` accepts only `implementation` on phase-aware
+queries; unsupported or missing values fail instead of being ignored.
+
 ## Adding a workpack
 
 1. Add the workpack to the owning plan's `WORKPACK_INDEX.md`.
 2. Keep detailed scope, expected tests, proof, and ADR requirements in the
    existing routed documents.
-3. Add only reviewed hard dependencies to `overrides.json` with evidence.
+3. Add only reviewed hard dependencies to `overrides.json` with evidence. Add
+   `implementationGate: "reviewed-implementation"` only to an individually
+   reviewed edge whose downstream source is safe before predecessor completion.
 4. Add a `workpackReviews` entry only after reviewing the exact workpack's
    dependency context; use an explicit empty `hardDependencies` array when the
    next source-code slice has no hard code-writing prerequisite. Do not use this
@@ -171,6 +214,8 @@ row from silently becoming a completion claim.
    expected topology is uncertain.
 6. Run `npm run graph:bootstrap -- --write` and `npm run graph:validate`.
 7. Query `graph:inspect <workpack-id>` before assigning the workpack.
+8. For a code-first pass, query `graph:next -- --phase implementation`; do not
+   reinterpret that result as normal READY or completion authority.
 
 The graph is intentionally conservative: an ambiguous imported workpack stays
 `planned` until its dependency/readiness context is reviewed.

@@ -1,7 +1,7 @@
 use ocentra_parent_agent_protocol::{
     constants,
-    lan_pairing::LanPairingText,
     lan_pairing::LanTrustedDeviceRegistryEntry,
+    lan_pairing::{LanPairingRejectionReason, LanPairingText},
     lan_pairing_browser_add_device_state::{
         LanBrowserAddDevicePairingRequest, LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
     },
@@ -44,13 +44,14 @@ pub(crate) fn known_household_devices(
 pub(crate) fn persist_known_household_devices(
     runtime: &LanPairingRuntime,
     devices: &[LanCanonicalHouseholdDevice],
-) {
-    let Ok(mut registry) = runtime.registry.lock() else {
-        return;
-    };
-    if registry.merge_known_household_devices(devices.to_vec()) {
-        let _ = runtime.persist_registry(&registry);
-    }
+) -> Result<(), LanPairingRejectionReason> {
+    let mut registry = runtime
+        .registry
+        .lock()
+        .map_err(|_error| LanPairingRejectionReason::SignedChildAgentContextUnavailable)?;
+    runtime
+        .merge_known_household_devices(&mut registry, devices.to_vec())
+        .map(|_changed| ())
 }
 
 pub(crate) fn merged_known_household_devices_for_read_model(

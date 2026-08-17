@@ -32,7 +32,35 @@ Purpose: define trust ownership, trust states, bootstrap lifecycle, and cross-pl
 - The lifecycle authority sidecar now serializes process writers through a sibling lock, reloads the current map before each generation update, and persists with an atomic replacement plus file/parent synchronization. Corrupt, missing-after-database, lock, and persistence failures remain unavailable rather than being treated as trusted.
 - `device_trust_ref` generation is opaque, CSPRNG-backed, and input-independent. Sealing remains manual-required because no specifically authorized high-risk device-trust sealing action exists; low-risk actions are never promoted.
 - Parent-presence decisions are transactionally enqueued beside custody state and delivered fail-closed into an `ocentra-eventing` hash-chained NDJSON journal. Visible tests cover accepted and replay outcomes, correlation and redaction, real delivery failure, restart recovery, and idempotent re-delivery. This workpack does not claim subscriber delivery, a broader event-bus runtime, or broader device-trust lifecycle completion.
-- This is still a partial, unchecked WP01 result. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees.
+- This remains a partial, unchecked WP01 foundation. It does not prove the broader device-trust lifecycle, platform key sealing, backup/export/restore, passkey ceremony, phone approval, recovery, entitlement binding, revocation integration, Unix production custody, or platform-wide path guarantees. The workpack is READY only for the bounded production implementation route below; its required tests, validation, and proof remain open.
+
+## LAN WP26 dependency routing
+
+WP01 is READY as the next legal production-code route for the missing persistent
+trusted-device and signer-key registration source that LAN WP26 must consume.
+The route belongs in the family-identity trust owner and must expose current
+registration, revocation, and authority-generation state; WP26 must not create
+that state or call a LAN-local substitute. This routing note is not a WP01
+completion claim: the existing partial lifecycle remains open until a shipped
+owner and its required tests/validation are present. WP03 depends on this
+source before it can authorize the one-time `RegisterLanSignerAnchor` step.
+
+## Independent static-review disposition — 2026-08-17
+
+The current uncommitted WP01 production packet is drafted in these
+`family-identity-core` source paths:
+
+- `crates/family-identity-core/src/device_trust_signer_registration.rs`
+- `crates/family-identity-core/src/device_trust_signer_registration_schema.rs`
+- `crates/family-identity-core/src/device_trust_lifecycle.rs`
+- `crates/family-identity-core/src/lib.rs`
+
+An independent static review found no P0/P1 findings and accepts these paths as
+reviewed implementation evidence only. This records drafted source, not a
+commit, merge, production caller, test, focused-validation, proof, or product-
+completion claim. Tests, focused validation, proof, production callers, global
+Enforcer/architecture acceptance, platform custody, broader lifecycle
+composition, and DONE remain open.
 
 ## Negative cases
 

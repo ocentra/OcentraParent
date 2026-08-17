@@ -4,8 +4,11 @@ use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingRejectionReason, LanPairingTrustState, LanSelectedRouteTarget,
     LanTrustedDeviceRegistryEntry,
 };
+use std::cmp::Ordering;
 
 use crate::TrustedDeviceRegistry;
+
+mod reachability;
 
 impl TrustedDeviceRegistry {
     pub fn select_pairing(
@@ -30,6 +33,19 @@ impl TrustedDeviceRegistry {
         if route_id != entry.route_id.as_str() {
             return Err(LanPairingRejectionReason::UnsupportedRoute);
         }
+        let observed_at = chrono::Utc::now().to_rfc3339();
+        if rfc3339_cmp(&observed_at, entry.expires_at.as_str()).is_none() {
+            return Err(LanPairingRejectionReason::Malformed);
+        }
+        if rfc3339_cmp(&observed_at, entry.expires_at.as_str()) == Some(Ordering::Greater) {
+            return Err(LanPairingRejectionReason::Expired);
+        }
+        if rfc3339_cmp(stale_at, entry.expires_at.as_str()).is_none() {
+            return Err(LanPairingRejectionReason::Malformed);
+        }
+        if rfc3339_cmp(stale_at, entry.expires_at.as_str()) == Some(Ordering::Greater) {
+            return Err(LanPairingRejectionReason::Stale);
+        }
 
         self.selected_pairing_id = Some(entry.pairing_id.clone());
         self.selected_route_stale_at = Some(stale_at.to_string());
@@ -39,27 +55,13 @@ impl TrustedDeviceRegistry {
     }
 
     pub fn selected_target(&self) -> Option<LanSelectedRouteTarget> {
-        self.selected_target_with_reachability(LanPairingDeviceReachability::Online)
+        let observed_at = chrono::Utc::now().to_rfc3339();
+        self.selected_target_at(&observed_at)
     }
 
     pub fn selected_target_at(&self, observed_at: &str) -> Option<LanSelectedRouteTarget> {
-        self.selected_target_with_reachability(self.selected_reachability_at(observed_at))
-    }
-
-    pub fn mark_selected_offline(&mut self, offline_at: &str) -> bool {
-        if self.selected_entry().is_none() {
-            return false;
-        }
-        self.selected_route_offline_at = Some(offline_at.to_string());
-        true
-    }
-
-    pub fn mark_selected_stale(&mut self, stale_at: &str) -> bool {
-        if self.selected_entry().is_none() {
-            return false;
-        }
-        self.selected_route_stale_at = Some(stale_at.to_string());
-        true
+        self.selected_entry_at(observed_at)?;
+        Some(self.selected_target_with_reachability(self.selected_reachability_at(observed_at))?)
     }
 
     pub fn trusted_device_count(&self) -> usize {
@@ -97,23 +99,6 @@ impl TrustedDeviceRegistry {
             .collect()
     }
 
-    pub(crate) fn selected_reachability_at(
-        &self,
-        observed_at: &str,
-    ) -> LanPairingDeviceReachability {
-        if self.selected_route_offline_at.is_some() {
-            return LanPairingDeviceReachability::Offline;
-        }
-        if self
-            .selected_route_stale_at
-            .as_deref()
-            .is_some_and(|stale_at| observed_at > stale_at)
-        {
-            return LanPairingDeviceReachability::Stale;
-        }
-        LanPairingDeviceReachability::Online
-    }
-
     fn selected_target_with_reachability(
         &self,
         reachability: LanPairingDeviceReachability,
@@ -131,6 +116,13 @@ impl TrustedDeviceRegistry {
         })
     }
 
+    fn selected_entry_at(&self, observed_at: &str) -> Option<&LanTrustedDeviceRegistryEntry> {
+        self.selected_entry().filter(|entry| {
+            rfc3339_cmp(observed_at, entry.expires_at.as_str())
+                .is_some_and(|ordering| ordering != Ordering::Greater)
+        })
+    }
+
     fn selected_entry(&self) -> Option<&LanTrustedDeviceRegistryEntry> {
         self.selected_pairing_id.as_deref().and_then(|pairing_id| {
             self.entries.iter().find(|candidate| {
@@ -140,6 +132,15 @@ impl TrustedDeviceRegistry {
             })
         })
     }
+}
+
+pub(crate) fn rfc3339_cmp(left: &str, right: &str) -> Option<Ordering> {
+    let left = chrono::DateTime::parse_from_rfc3339(left).ok()?;
+    let right = chrono::DateTime::parse_from_rfc3339(right).ok()?;
+    Some(
+        left.with_timezone(&chrono::Utc)
+            .cmp(&right.with_timezone(&chrono::Utc)),
+    )
 }
 
 fn is_revoked_entry(entry: &LanTrustedDeviceRegistryEntry) -> bool {

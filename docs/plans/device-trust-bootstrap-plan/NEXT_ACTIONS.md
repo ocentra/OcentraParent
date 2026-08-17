@@ -44,6 +44,23 @@ remain open.
 
 ## Production-code audit boundary (2026-08-16)
 
+### LAN WP26 routing correction
+
+The next legal production packet is the READY Device Trust WP01 route: add the persistent
+trusted-device/signer-key registration source in the family-identity owner and
+make its current registration, revocation, and authority-generation state
+available to authorized consumers. WP01 has no graph dependency, but remains a
+dependency-free and READY for this implementation route, not a completion claim,
+until its required source,
+tests, and validation are present.
+
+Device Trust WP03 depends on WP01 and remains blocked until a real parent
+ceremony provides one-time `RegisterLanSignerAnchor` authorization, signature
+verification, and nonce/receipt consumption. LAN WP26 must remain blocked on
+both WP01 and WP03; it has no shipped service route that can legally register a
+signer anchor today. WP02 is conditional only when a demonstrated
+private-key/install custody requirement exists.
+
 The consolidated source audit found no legal production-code slice to add:
 
 - WP01/WP02 require a shipped ceremony issuer, platform custody provider, and
@@ -58,8 +75,8 @@ The consolidated source audit found no legal production-code slice to add:
   this plan as a test, proof, fixture, generic JSON, or DTO-only bridge.
 - WP08 and WP09 have no production behavior to implement in this pass.
 
-The next legal implementation must begin at the owner of a real platform or
-passkey ceremony and wire it through the existing WP02/WP03 boundaries. Until
-that owner is assigned and reachable from a shipped entrypoint, preserve the
-manual-required outcomes and do not claim trust bootstrap, device sealing,
-recovery, entitlement unlock, or child uninstall.
+The next legal implementation must begin at the WP01 trust owner and then the
+owner of a real platform or passkey ceremony for WP03. Until those owners are
+assigned and reachable from shipped entrypoints, preserve the manual-required
+outcomes and do not claim trust bootstrap, device sealing, recovery,
+entitlement unlock, or child uninstall.

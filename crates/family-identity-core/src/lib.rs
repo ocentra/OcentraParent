@@ -3,7 +3,21 @@
 #[macro_use]
 mod family_identity_text_ids;
 pub mod device_trust_lifecycle;
+mod device_trust_lifecycle_activation;
 mod device_trust_lifecycle_authority;
+mod device_trust_lifecycle_authority_fence;
+mod device_trust_lifecycle_authority_intent;
+mod device_trust_lifecycle_authority_reconciliation;
+mod device_trust_lifecycle_authority_store;
+mod device_trust_lifecycle_current_authority;
+mod device_trust_lifecycle_revocation;
+mod device_trust_lifecycle_schema;
+mod device_trust_lifecycle_schema_transition;
+mod device_trust_lifecycle_signer_authority;
+pub mod device_trust_signer_registration;
+mod device_trust_signer_registration_revocation;
+mod device_trust_signer_registration_schema;
+mod device_trust_signer_registration_validation;
 pub mod family_identity;
 mod family_identity_contract_text;
 mod family_identity_helpers;

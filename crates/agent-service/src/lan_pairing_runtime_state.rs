@@ -4,8 +4,6 @@ use ocentra_lan_core::lan_pairing::LanMdnsAdvertisementLifecycleInput;
 use ocentra_lan_core::lan_pairing::LanMdnsAdvertisementPlatformSupport;
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationContext;
 use ocentra_lan_core::lan_pairing::LanSignedChildAgentVerificationError;
-use ocentra_parent_agent_core::trusted_device_registry::TrustedDeviceRegistry;
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingText;
 use ocentra_parent_agent_protocol::lan_pairing::LanPairingTrustState;
@@ -15,7 +13,7 @@ use ocentra_parent_agent_protocol::lan_pairing::LanSignedChildAgentEnvelope;
 use std::fmt::Display;
 
 use crate::{
-    lan_pairing::{LanPairingChallengeState, LanPairingRegistryPersistence, LanPairingRuntime},
+    lan_pairing::{LanPairingChallengeState, LanPairingRuntime},
     time::timestamp_now,
 };
 
@@ -33,6 +31,8 @@ pub(crate) mod passive_discovery;
 pub(crate) mod provider_heartbeat;
 #[path = "lan_pairing_runtime_state/provider_routing.rs"]
 mod provider_routing;
+#[path = "lan_pairing_runtime_state/registry_persistence.rs"]
+mod registry_persistence;
 #[path = "lan_pairing_runtime_state/rejection_reason.rs"]
 mod rejection_reason;
 #[path = "lan_pairing_runtime_state/runtime_config.rs"]
@@ -185,42 +185,6 @@ impl LanPairingRuntime {
         if let Ok(mut challenges) = self.challenges.lock() {
             challenges.retain(|candidate| candidate.challenge_id != challenge.challenge_id);
             challenges.push(challenge);
-        }
-    }
-
-    pub(crate) fn persistence_mode(&self) -> LanPairingText {
-        match &self.persistence {
-            LanPairingRegistryPersistence::InMemory => {
-                constants::value::LAN_PERSISTENCE_IN_MEMORY_FAIL_CLOSED.into()
-            }
-            LanPairingRegistryPersistence::LocalJsonRegistry(_) => {
-                constants::value::LAN_PERSISTENCE_LOCAL_JSON_REGISTRY.into()
-            }
-        }
-    }
-
-    pub(crate) fn restart_behavior(&self) -> LanPairingText {
-        match &self.persistence {
-            LanPairingRegistryPersistence::InMemory => {
-                constants::value::LAN_RESTART_FAIL_CLOSED_UNPAIRED.into()
-            }
-            LanPairingRegistryPersistence::LocalJsonRegistry(_)
-                if self.selected_target().is_some() =>
-            {
-                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_SELECTED_ROUTE.into()
-            }
-            LanPairingRegistryPersistence::LocalJsonRegistry(_) => {
-                constants::value::LAN_RESTART_RESTORE_TRUSTED_REGISTRY_UNSELECTED.into()
-            }
-        }
-    }
-
-    pub(crate) fn persist_registry(&self, registry: &TrustedDeviceRegistry) -> bool {
-        match &self.persistence {
-            LanPairingRegistryPersistence::InMemory => true,
-            LanPairingRegistryPersistence::LocalJsonRegistry(path) => {
-                registry.save_json(path.as_path()).is_ok()
-            }
         }
     }
 }

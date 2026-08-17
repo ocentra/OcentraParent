@@ -2655,6 +2655,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "thiserror 2.0.18",
  "x509-parser",
 ]
 
@@ -2689,6 +2690,7 @@ dependencies = [
  "ed25519-dalek",
  "fs2",
  "ocentra-eventing",
+ "ocentra-lan-core",
  "ocentra-network-core",
  "ocentra-network-evidence",
  "ocentra-parent-agent-protocol",

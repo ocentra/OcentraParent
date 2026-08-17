@@ -1,6 +1,16 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "workpackReviews": [
+    {
+      "id": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Reviewed as the dependency-free READY implementation route for the missing family-owned persistent trusted-device/signer-key registration source. The existing WP01 lifecycle foundation remains partial; tests, validation, proof, and completion are not claimed. WP03 remains blocked on this source and WP26 remains blocked on WP01 plus WP03."
+    },
     {
       "id": "WP-policy-control-plane-plan-01-policy-source-of-truth",
       "hardDependencies": [
@@ -86,15 +96,32 @@
       "reason": "WP12 is the final route/proof/PR gate. Its executable harness and canonical proof root are absent, and it cannot run honestly until WP09 integration acceptance, WP10 production consumer authority, WP11 hardening, and WP13 fresh layout validation are complete."
     },
     {
+      "id": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "hardDependencies": ["WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"],
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
+      ],
+      "reason": "Device Trust WP03 cannot authorize a high-risk parent action until WP01 owns the persistent trusted-device/signer-key registration source. Its real passkey/OS ceremony must verify and consume the one-time RegisterLanSignerAnchor authorization; typed receipts and unavailable verifiers do not satisfy the dependency."
+    },
+    {
       "id": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
-      "hardDependencies": [],
+      "hardDependencies": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-device-trust-bootstrap-plan-03-parent-step-up-auth"
+      ],
       "evidence": [
         "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md",
         "docs/plans/lan-plan/workpacks/15-household-device-store.md",
         "docs/plans/lan-plan/workpacks/18-signed-child-hello-heartbeat.md",
-        "docs/plans/lan-plan/workpacks/19-assignment-revocation-audit.md"
+        "docs/plans/lan-plan/workpacks/19-assignment-revocation-audit.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
+        "docs/engineering-graph/code-map.json"
       ],
-      "reason": "LAN WP15, WP18, and WP19 already supply the local durable registry, signed verification/freshness, and selected-route/revocation code needed for implementation. Their remaining manual proof does not block this code-first composition packet. WP26 newly owns the missing shipped peer ingress, durable receipt/idempotency custody, trust/route composition, and private Eventing WP10 authority handoff."
+      "reason": "WP26 is only a partial code draft. LAN WP15, WP18, and WP19 supply local composition inputs, but no shipped authority route legally registers a signer. Device Trust WP01 must own persistent trusted-device/signer-key registration and WP03 must own the one-time RegisterLanSignerAnchor ceremony before WP26 can claim ingress, custody, route composition, or the private Eventing WP10 handoff. WP02 is conditional only for a demonstrated private-key/install custody need."
     },
     {
       "id": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
@@ -156,6 +183,40 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "WP03 requires WP01's persistent trusted-device/signer-key registration source before a parent ceremony can authorize a one-time RegisterLanSignerAnchor action.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "LAN WP26 cannot establish signer authority; it consumes the persistent trusted-device/signer-key registration source owned by Device Trust WP01."
+    },
+    {
+      "from": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
+      "to": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
+      ],
+      "reason": "LAN WP26 requires the real one-time parent RegisterLanSignerAnchor ceremony owned by Device Trust WP03; no typed receipt or LAN service caller substitutes for it."
+    },
     {
       "from": "WP-eventing-plan-10-lan-household-mesh-consumer",
       "to": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
@@ -613,17 +674,32 @@
   ],
   "completionEvidenceOverrides": [
     {
+      "id": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "implementation": [
+        "crates/family-identity-core/src/device_trust_signer_registration.rs",
+        "crates/family-identity-core/src/device_trust_signer_registration_schema.rs",
+        "crates/family-identity-core/src/device_trust_lifecycle.rs",
+        "crates/family-identity-core/src/lib.rs"
+      ],
+      "reason": "Independent static review accepted the current uncommitted WP01 production packet as drafted implementation evidence only; no P0/P1 findings. Tests, focused validation, proof, production caller integration, global Enforcer, and DONE remain open.",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ]
+    },
+    {
       "id": "WP-eventing-plan-06-journal-replay-and-lineage",
       "implementation": [
-        "crates/ocentra-eventing/src/journal",
-        "crates/ocentra-eventing/src/replay",
+        "crates/ocentra-eventing/src/journal/hash_chain.rs",
+        "crates/ocentra-eventing/src/replay/read.rs",
         "crates/ocentra-eventing/src/topology.rs",
         "crates/ocentra-eventing/src/bus/journaling.rs",
         "crates/agent-protocol/src/enforcement.rs",
-        "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal"
+        "crates/agent-service/src/enforcement_api/enforcement_pre_action_journal/eventing_journal.rs"
       ],
       "tests": [
-        "crates/ocentra-eventing/tests/journal_replay",
+        "crates/ocentra-eventing/tests/journal_replay/bus_policy.rs",
         "crates/ocentra-eventing/tests/contract/topology_manifest.rs",
         "crates/ocentra-eventing/tests/contract/compatibility_matrix.rs",
         "crates/ocentra-eventing/tests/unit/production_shutdown.rs",

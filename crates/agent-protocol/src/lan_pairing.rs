@@ -6,6 +6,8 @@ use std::fmt::{Display, Formatter};
 
 use crate::{constants, LanPairingParentAuthority, ParentEvidenceReference};
 
+pub mod signed_household_mesh_ingress;
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(transparent)]
 pub struct LanPairingText(pub String);

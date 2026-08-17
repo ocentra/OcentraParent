@@ -5843,6 +5843,23 @@
         "apps/portal/tests/e2e/lan-source-matrix-visual-proof.spec.ts"
       ]
     },
+    "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff": {
+      "planSlug": "lan-plan",
+      "roots": [
+        "crates/agent-core/src/lan_household_mesh_ingress_custody.rs",
+        "crates/agent-core/src/lan_household_mesh_ingress_custody",
+        "crates/agent-core/src/trusted_device_registry.rs",
+        "crates/agent-core/src/trusted_device_registry/signer_authority.rs",
+        "crates/agent-core/src/trusted_device_registry/signer_anchor_binding.rs",
+        "crates/agent-core/src/trusted_device_registry/signer_claim_authorization.rs",
+        "crates/agent-protocol/src/lan_pairing.rs",
+        "crates/agent-protocol/src/lan_pairing/signed_household_mesh_ingress.rs",
+        "crates/agent-protocol/src/lan_pairing/signed_household_mesh_ingress",
+        "crates/lan-core/src/lan_pairing.rs",
+        "crates/lan-core/src/lan_pairing/signed_household_mesh_ingress.rs",
+        "crates/lan-core/src/lan_pairing/signed_household_mesh_ingress"
+      ]
+    },
     "WP-logging-domain-parity-01-current-state-and-reference-audit": {
       "planSlug": "logging-domain-parity",
       "codeExpectation": "no-code-required",

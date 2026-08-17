@@ -9,6 +9,9 @@ use crate::lan_pairing::authority::{validate_registry_selection_intent, validate
 use crate::lan_pairing::LanPairingRuntime;
 use crate::time::timestamp_now;
 
+#[path = "runtime_validation/registry_mutation.rs"]
+mod registry_mutation;
+
 pub(super) fn validate_pairing_proof_target(
     runtime: &LanPairingRuntime,
     command: &AgentCommandEnvelope,
@@ -87,40 +90,12 @@ pub(super) fn select_pairing_result(
     runtime: &LanPairingRuntime,
     intent: &LanParentIntentEnvelope,
 ) -> Result<(), LanPairingRejectionReason> {
-    runtime
-        .registry
-        .lock()
-        .map(|mut registry| {
-            let selected = registry.select_pairing(
-                &intent.pairing_id,
-                &intent.target_child_device_id,
-                &intent.route_id,
-                &intent.expires_at,
-            );
-            if selected.is_ok() {
-                let _ = registry.clear_selected_route_reachability();
-                runtime.persist_registry(&registry);
-            }
-            selected
-        })
-        .unwrap_or(Err(LanPairingRejectionReason::Malformed))
-        .map(|_| ())
+    registry_mutation::select_pairing_result(runtime, intent)
 }
 
 pub(super) fn revoke_pairing(
     runtime: &LanPairingRuntime,
     intent: &LanParentIntentEnvelope,
-) -> bool {
-    let revoked_at: String = timestamp_now();
-    runtime
-        .registry
-        .lock()
-        .map(|mut registry| {
-            let revoked = registry.revoke_pairing(&intent.pairing_id, &revoked_at);
-            if revoked {
-                runtime.persist_registry(&registry);
-            }
-            revoked
-        })
-        .unwrap_or(false)
+) -> Result<(), LanPairingRejectionReason> {
+    registry_mutation::revoke_pairing(runtime, intent)
 }

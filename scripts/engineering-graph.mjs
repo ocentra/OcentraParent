@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   GRAPH_PATH,
+  GRAPH_SCHEMA_VERSION,
   buildCodeInventory,
   buildBootstrapGraph,
   buildProgressReport,
@@ -11,6 +12,7 @@ import {
   explainBlocked,
   flattenProgressReport,
   graphSourceDrift,
+  implementationPhase,
   loadGraph,
   nextWork,
   planId,
@@ -21,7 +23,7 @@ import {
   writeGraph,
 } from './engineering-graph-lib.mjs';
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const defaultRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 function usage() {
   console.log(`Engineering graph control plane
@@ -35,13 +37,15 @@ Usage:
   npm run graph:matrix [scope-id] [--state <state>] [--json]
   npm run graph:ready [scope-id]
   npm run graph:parallel [scope-id]
-  npm run graph:next [scope-id]
+  npm run graph:next [scope-id] [--phase implementation]
   npm run graph:blocked [scope-id]
   npm run graph:inspect <id>
   npm run graph:deps <id>
   npm run graph:dependents <id>
-  npm run graph:why <id>
+  npm run graph:why <id> [--phase implementation]
   npm run graph:validate
+
+Global option: --root <repo> (defaults to the repository containing this script)
 `);
 }
 
@@ -50,7 +54,7 @@ function flag(args, name) {
 }
 
 function positionalArg(args) {
-  const valueFlags = new Set(['--state', '--limit']);
+  const valueFlags = new Set(['--state', '--limit', '--phase', '--root']);
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (valueFlags.has(argument)) {
@@ -95,9 +99,53 @@ function printList(nodes, states, { limit = Number.POSITIVE_INFINITY } = {}) {
   if (nodes.length > limit) console.log(`... ${nodes.length - limit} more; scope or use a focused command.`);
 }
 
+function implementationBlockerText(blocker) {
+  if (blocker.kind === 'dependency') {
+    const gaps = blocker.gaps?.length ? `: ${blocker.gaps.join('; ')}` : '';
+    return `${blocker.id} requires ${blocker.gate}, observed ${blocker.state}${gaps}`;
+  }
+  return blocker.reason ?? `${blocker.kind} blocker`;
+}
+
+function printImplementationRows(rows, { limit = Number.POSITIVE_INFINITY } = {}) {
+  if (rows.length === 0) {
+    console.log('(none)');
+    return;
+  }
+  for (const row of rows.slice(0, limit)) {
+    console.log(`${row.node.id} [IMPLEMENTATION-ONLY] ${row.node.title}`);
+  }
+  if (rows.length > limit) console.log(`... ${rows.length - limit} more; scope or use a focused command.`);
+}
+
 async function run(command, args) {
   if (command === 'help' || command === undefined) {
     usage();
+    return;
+  }
+  const rootRequested = flag(args, '--root');
+  const rootOption = option(args, '--root');
+  if (rootRequested && (!rootOption || rootOption.startsWith('--'))) {
+    console.error('Missing value for --root.');
+    process.exitCode = 1;
+    return;
+  }
+  const root = path.resolve(rootOption ?? defaultRoot);
+  const phaseRequested = flag(args, '--phase');
+  const phase = option(args, '--phase');
+  if (phaseRequested && phase === undefined) {
+    console.error('Missing value for --phase; supported value: implementation');
+    process.exitCode = 1;
+    return;
+  }
+  if (phase !== undefined && phase !== 'implementation') {
+    console.error(`Unsupported graph phase: ${phase}`);
+    process.exitCode = 1;
+    return;
+  }
+  if (phase !== undefined && !['next', 'why'].includes(command)) {
+    console.error(`--phase implementation is supported only by graph:next and graph:why, not ${command}`);
+    process.exitCode = 1;
     return;
   }
   if (command === 'bootstrap') {
@@ -228,7 +276,10 @@ async function run(command, args) {
             : `${workpack.codeTestTopology.state} ${workpack.codeTestTopology.implementationFiles}/${workpack.codeTestTopology.testFiles} ` +
               `expected=${workpack.codeTestTopology.codeExpectation} ` +
               `satisfied=${workpack.codeTestTopology.codeExpectationSatisfied}`;
-        console.log(`  - ${workpack.id} [${workpack.state}] code=${topology}${gaps}`);
+        console.log(
+          `  - ${workpack.id} [${workpack.state}] code=${topology} ` +
+            `implementation=${workpack.implementationAuthorization.status}${gaps}`
+        );
       }
       if (exceptions.length > 8) console.log(`  - ... ${exceptions.length - 8} more non-planned rows`);
     }
@@ -247,7 +298,7 @@ async function run(command, args) {
       console.log(
         JSON.stringify(
           {
-            schemaVersion: 1,
+            schemaVersion: GRAPH_SCHEMA_VERSION,
             scope: report.scope,
             totals: report.totals,
             rows,
@@ -273,7 +324,9 @@ async function run(command, args) {
       );
     }
     console.log('\nWorkpack matrix:');
-    console.log('PLAN | WORKPACK | STATE | CODE/TEST | GAPS | DEPENDS ON | BLOCKERS | UNLOCKS');
+    console.log(
+      'PLAN | WORKPACK | STATE | IMPLEMENTATION AUTH | IMPLEMENTATION BLOCKERS | CODE/TEST | GAPS | DEPENDS ON | BLOCKERS | UNLOCKS'
+    );
     for (const row of rows) {
       const topology =
         row.implementationFiles === null
@@ -281,8 +334,10 @@ async function run(command, args) {
           : `${row.codeState} ${row.implementationFiles}/${row.testFiles} ` +
             `expected=${row.codeExpectation} satisfied=${row.codeExpectationSatisfied}`;
       const blockerText = row.blockers.map((blocker) => `${blocker.id}[${blocker.state}]`).join(',') || '-';
+      const implementationBlockers = row.implementationBlockers.map(implementationBlockerText).join(',') || '-';
       console.log(
-        `${row.planId} | ${row.workpackId} | ${row.state} | ${topology} | ${row.completionGapCount} | ` +
+        `${row.planId} | ${row.workpackId} | ${row.state} | ${row.implementationAuthorization} | ` +
+          `${implementationBlockers} | ${topology} | ${row.completionGapCount} | ` +
           `${row.dependsOn.join(',') || '-'} | ${blockerText} | ${row.unlocks.join(',') || '-'}`
       );
     }
@@ -293,6 +348,15 @@ async function run(command, args) {
   }
 
   const states = deriveStates(graph, { root });
+  if (phase === 'implementation' && command === 'next') {
+    const queue = await implementationPhase.next(graph, { root, scope });
+    console.log('IMPLEMENTATION-ONLY authorization; normal READY, tests, proof, PR readiness, and DONE are unchanged.');
+    printImplementationRows(queue.authorized, {
+      limit: Number(option(args, '--limit') ?? Number.POSITIVE_INFINITY),
+    });
+    console.log(`\n${queue.recommendation}`);
+    return;
+  }
   if (command === 'status') {
     const summary = summarizeGraph(graph, scope, { root });
     console.log(`Scope: ${summary.scope}`);
@@ -383,6 +447,22 @@ async function run(command, args) {
       return;
     }
     if (command === 'why') {
+      if (phase === 'implementation') {
+        const explanation = await implementationPhase.explain(graph, scope, { root });
+        console.log(`${scope} implementation phase is ${explanation.status}.`);
+        if (explanation.authorized) {
+          console.log(
+            '- IMPLEMENTATION-ONLY source edits are authorized; normal READY and completion remain unchanged.'
+          );
+        } else if (explanation.blockers.length === 0) {
+          console.log('- No implementation work remains for this workpack.');
+        } else {
+          for (const blocker of explanation.blockers) {
+            console.log(`- ${implementationBlockerText(blocker)}`);
+          }
+        }
+        return;
+      }
       const explanation = explainBlocked(graph, scope, { root });
       console.log(`${scope} is ${explanation.state}.`);
       for (const reason of explanation.reasons) console.log(`- ${reason}`);

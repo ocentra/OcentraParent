@@ -70,9 +70,9 @@ shipped caller that owns the required cryptographic/device authority.
 
 | Workpack | Reachable production code | Missing production authority / caller |
 | --- | --- | --- |
-| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar, and durable local event journal. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped ceremony issuer or complete trust-state owner. |
+| WP01 | `crates/family-identity-core` has the parent-presence store, lifecycle sidecar, durable local event journal, and a drafted four-file trusted-device/signer-key registration packet. | Production custody still fails closed before path creation on unsupported/untrusted providers; no shipped ceremony issuer or complete trust-state owner. Independent static review accepted the bounded packet as reviewed implementation evidence only; its tests, focused validation, proof, production caller integration, and completion remain open. |
 | WP02 | `crates/storage-custody-core` has Windows DPAPI/registry-epoch custody; `crates/parent-runtime-core` has an opaque staged-handle facade. | No registered desktop/native command caller or trusted ceremony issuer reaches the facade; non-Windows custody and end-to-end sealing remain unavailable/manual-required. |
-| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. | No passkey/OS-native signature verifier, one-time nonce authority, or shipped parent-presence caller; policy proof consumption is not ceremony authority. |
+| WP03 | `crates/family-identity-core` and policy consumers have typed step-up receipt/proof boundaries and a five-minute lifetime gate. | Depends on WP01; no passkey/OS-native signature verifier, one-time nonce authority, `RegisterLanSignerAnchor` ceremony, or shipped parent-presence caller; policy proof consumption is not ceremony authority. |
 | WP04 | Typed QR challenge/response contracts and an unavailable-by-default verifier port exist. | No issuer, phone ceremony, nonce consumer, or transport runtime owner. |
 | WP05 | `crates/entitlement-core` validates snapshot bindings and `child-runtime` evaluates the resulting input. | Signature/revocation authority is unavailable by default; no device-trust-bound capability unlock caller. |
 | WP06 | `crates/storage-custody-core` provides restore preflight and a parent-authority gate plus an unavailable executor port. | No encrypted bundle/key-custody runtime, revocation-preserving executor, or shipped restore caller. |
@@ -81,16 +81,41 @@ shipped caller that owns the required cryptographic/device authority.
 | WP09 | Route aggregation/documentation only. | No runtime trust behavior; completion remains downstream of WP01-WP08 evidence and authority. |
 
 The smallest honest result is therefore a durable gap map, not a synthetic
-issuer, test bridge, proof adapter, or dead DTO caller. The first production
-unblock is a real platform/passkey ceremony issuer and registered runtime
-composition for WP02/WP03; subsequent WP04-WP07 work remains dependent on its
-authority and platform owners.
+issuer, test bridge, proof adapter, or dead DTO caller. The next production
+route is the graph-authorized READY WP01 packet for the persistent
+trusted-device/signer-key registration owner. WP03
+then remains blocked until that source and a real platform/passkey ceremony
+issuer provide the one-time `RegisterLanSignerAnchor` authorization. WP02 is
+conditional only if the implementation demonstrates a private-key/install
+custody need; it is not added as a blanket WP26 dependency. Subsequent WP04-WP07
+work remains dependent on its authority and platform owners.
 
-The repository graph is stale relative to plan/workpack sources:
-`npm run graph:validate` reported checked-in graph/source drift with the same
-703-node count but differing source-derived content. This audit did not
-bootstrap or edit graph JSON; graph completion state remains non-authoritative
-until the owning coordinator performs the permitted graph refresh.
+The repository graph records the bounded WP01 packet as reviewed implementation
+evidence only. Graph state remains non-authoritative for completion until its
+source, tests, validation, caller integration, and proof contracts are actually
+satisfied.
+
+## WP01 independent static-review disposition — 2026-08-17
+
+The current uncommitted WP01 production packet is drafted in the
+`family-identity-core` owner at:
+
+- `crates/family-identity-core/src/device_trust_signer_registration.rs`
+- `crates/family-identity-core/src/device_trust_signer_registration_schema.rs`
+- `crates/family-identity-core/src/device_trust_lifecycle.rs`
+- `crates/family-identity-core/src/lib.rs`
+
+An independent static review found no P0/P1 findings in that packet and accepts
+these paths as reviewed implementation evidence for the narrow implementation
+phase only. This is not a commit, merge, production-caller, test, focused-
+validation, proof, or product-completion claim.
+
+The tests, focused validation, proof, production caller integration, global
+Enforcer/architecture acceptance, platform custody, broader lifecycle
+composition, and DONE state remain open. The default graph therefore keeps
+WP01 READY (not DONE) and WP03 BLOCKED on the normal dependency. Only the
+WP03 -> WP01 edge opts into `reviewed-implementation`; WP26 remains
+completion-gated on both WP01 and WP03.
 
 ## Current ownership interpretation
 

@@ -76,6 +76,7 @@ pub mod journal;
 pub mod journal_crypto;
 pub mod journal_error;
 mod journal_rotation;
+pub mod lan_household_mesh_ingress_custody;
 pub mod network_capture;
 mod network_capture_adapter;
 pub mod network_capture_event;

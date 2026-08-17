@@ -82,10 +82,19 @@ impl LanPairingRuntime {
         path: &LanPairingRegistryPath,
         runtime_context: LanPairingRuntimeContext,
     ) -> Self {
+        let (registry, persistence) =
+            match TrustedDeviceRegistry::load_json_strict(path.0.as_path()) {
+                Ok(registry) => (
+                    registry,
+                    LanPairingRegistryPersistence::LocalJsonRegistry(path.0.clone()),
+                ),
+                Err(_error) => (
+                    TrustedDeviceRegistry::empty(),
+                    LanPairingRegistryPersistence::UnavailableLocalJsonRegistry,
+                ),
+            };
         Self {
-            registry: Arc::new(Mutex::new(TrustedDeviceRegistry::load_json(
-                path.0.as_path(),
-            ))),
+            registry: Arc::new(Mutex::new(registry)),
             challenges: Arc::new(Mutex::new(Vec::new())),
             controller_lease: Arc::new(Mutex::new(None)),
             signed_child_agent_replay_guard: Arc::new(Mutex::new(
@@ -96,7 +105,7 @@ impl LanPairingRuntime {
             )),
             lan_ai_provider_heartbeat: Arc::new(Mutex::new(None)),
             lan_ai_job_leases: Arc::new(Mutex::new(Vec::new())),
-            persistence: LanPairingRegistryPersistence::LocalJsonRegistry(path.0.clone()),
+            persistence,
             local_child_device_id: runtime_context.local_child_device_id.map(|value| value.0),
             signed_child_agent_parent_device_id: runtime_context
                 .signed_child_agent_parent_device_id

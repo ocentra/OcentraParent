@@ -150,12 +150,16 @@ pub(crate) fn browser_add_device_read_model(
         &observed_at,
     );
     let current_canonical_household_devices = model.canonical_household_devices.clone();
-    restore_live_canonical_household_devices(
+    if restore_live_canonical_household_devices(
         &mut model,
         runtime,
         &current_canonical_household_devices,
         &observed_at,
-    );
+    )
+    .is_err()
+    {
+        model.canonical_household_devices = current_canonical_household_devices.clone();
+    }
     let expected_snapshot = scan_result.current_scan_snapshot.as_ref();
     let persisted_projection = if !scan_result.reused_recent_snapshot
         || command.command == AgentCommandName::AgentLanPairingStatusGet
@@ -246,13 +250,14 @@ fn restore_live_canonical_household_devices(
     runtime: &LanPairingRuntime,
     current_canonical_household_devices: &[ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::LanCanonicalHouseholdDevice],
     observed_at: &LanPairingText,
-) {
-    persist_known_household_devices(runtime, current_canonical_household_devices);
+) -> Result<(), ocentra_parent_agent_protocol::lan_pairing::LanPairingRejectionReason> {
+    persist_known_household_devices(runtime, current_canonical_household_devices)?;
     model.canonical_household_devices = merged_known_household_devices_for_read_model(
         runtime,
         current_canonical_household_devices,
         observed_at,
     );
+    Ok(())
 }
 
 fn replay_history_model(

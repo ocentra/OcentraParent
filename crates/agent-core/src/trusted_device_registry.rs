@@ -1,11 +1,5 @@
-use std::{
-    collections::BTreeSet,
-    fs::{read_to_string, write},
-    io,
-    path::Path,
-};
+use std::collections::{BTreeMap, BTreeSet};
 
-use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::lan_pairing::{
     LanPairingDeviceReachability, LanPairingDeviceRef, LanPairingProof, LanPairingRejectionReason,
     LanPairingTrustState, LanParentIntentEnvelope, LanTrustedDeviceRegistryEntry,
@@ -13,26 +7,29 @@ use ocentra_parent_agent_protocol::lan_pairing::{
 use ocentra_parent_agent_protocol::lan_pairing_browser_add_device_state::{
     LanCanonicalHouseholdDevice, LanHouseholdDeviceDecision,
 };
-use serde_json::{json, Value};
-
+mod current_authority_validation;
 mod helpers;
+mod json_persistence;
 mod known_household_devices;
+mod persistence;
+mod signer_authority;
+pub mod signer_authority_types;
 mod validation;
 use self::helpers::{
     household_scan_truth_device, merge_known_household_device_by_canonical_id,
     push_unique_scan_truth_device,
 };
-use self::known_household_devices::{
-    household_device_decisions_from_json, known_household_devices_from_json, optional_string,
-    restore_known_household_device,
-};
+use self::known_household_devices::restore_known_household_device;
+use self::signer_authority_types::LanTrustedDeviceSignerAnchor;
 
-#[derive(Clone, Debug, Default)]
+#[derive(Debug, Default)]
 pub struct TrustedDeviceRegistry {
     pub(crate) entries: Vec<LanTrustedDeviceRegistryEntry>,
     pub(crate) household_device_decisions: Vec<LanHouseholdDeviceDecision>,
     pub(crate) known_household_devices: Vec<LanCanonicalHouseholdDevice>,
     accepted_intent_ids: BTreeSet<String>,
+    signer_anchors: BTreeMap<String, LanTrustedDeviceSignerAnchor>,
+    signer_anchor_generations: BTreeMap<String, u64>,
     pub(crate) selected_pairing_id: Option<String>,
     pub(crate) selected_route_stale_at: Option<String>,
     pub(crate) selected_route_offline_at: Option<String>,
@@ -49,23 +46,12 @@ impl TrustedDeviceRegistry {
             household_device_decisions: Vec::new(),
             known_household_devices: Vec::new(),
             accepted_intent_ids: BTreeSet::new(),
+            signer_anchors: BTreeMap::new(),
+            signer_anchor_generations: BTreeMap::new(),
             selected_pairing_id: None,
             selected_route_stale_at: None,
             selected_route_offline_at: None,
         }
-    }
-
-    pub fn load_json(path: &Path) -> Self {
-        read_to_string(path)
-            .ok()
-            .and_then(|content| Self::from_json_text(&content))
-            .unwrap_or_default()
-    }
-
-    pub fn save_json(&self, path: &Path) -> io::Result<()> {
-        let content =
-            serde_json::to_string_pretty(&self.to_json_value()).map_err(io::Error::other)?;
-        write(path, content)
     }
 
     pub fn entries(&self) -> &[LanTrustedDeviceRegistryEntry] {
@@ -155,6 +141,7 @@ impl TrustedDeviceRegistry {
         parent_device: LanPairingDeviceRef,
         trusted_at: &str,
     ) -> LanTrustedDeviceRegistryEntry {
+        self.signer_anchors.remove(&proof.pairing_id);
         let entry = LanTrustedDeviceRegistryEntry {
             schema_version: proof.schema_version,
             pairing_id: proof.pairing_id.clone(),
@@ -174,53 +161,6 @@ impl TrustedDeviceRegistry {
         entry
     }
 
-    pub fn clear_selected_route_reachability(&mut self) -> bool {
-        if self.selected_pairing_id.is_none() {
-            return false;
-        }
-        let changed =
-            self.selected_route_stale_at.is_some() || self.selected_route_offline_at.is_some();
-        self.selected_route_stale_at = None;
-        self.selected_route_offline_at = None;
-        changed
-    }
-
-    fn from_json_text(content: &str) -> Option<Self> {
-        if let Ok(entries) = serde_json::from_str::<Vec<LanTrustedDeviceRegistryEntry>>(content) {
-            return Some(Self::from_entries(entries));
-        }
-
-        let value = serde_json::from_str::<Value>(content).ok()?;
-        let entries = serde_json::from_value::<Vec<LanTrustedDeviceRegistryEntry>>(
-            value.get(constants::field::ENTRIES)?.clone(),
-        )
-        .ok()?;
-        let mut registry = Self::from_entries(entries);
-        registry.selected_pairing_id =
-            optional_string(&value, constants::field::LAN_SELECTED_PAIRING_ID);
-        registry.selected_route_stale_at =
-            optional_string(&value, constants::field::LAN_SELECTED_ROUTE_STALE_AT);
-        registry.selected_route_offline_at =
-            optional_string(&value, constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT);
-        registry.household_device_decisions =
-            household_device_decisions_from_json(&value).unwrap_or_default();
-        registry.known_household_devices =
-            known_household_devices_from_json(&value).unwrap_or_default();
-        Some(registry)
-    }
-
-    fn to_json_value(&self) -> Value {
-        json!({
-            constants::field::SCHEMA_VERSION: 1,
-            constants::field::ENTRIES: self.entries,
-            constants::lan_pairing::REGISTRY_KEY_HOUSEHOLD_DEVICE_DECISIONS: &self.household_device_decisions,
-            constants::lan_pairing::REGISTRY_KEY_KNOWN_HOUSEHOLD_DEVICES: &self.known_household_devices,
-            constants::field::LAN_SELECTED_PAIRING_ID: self.selected_pairing_id,
-            constants::field::LAN_SELECTED_ROUTE_STALE_AT: self.selected_route_stale_at,
-            constants::field::LAN_SELECTED_ROUTE_OFFLINE_AT: self.selected_route_offline_at,
-        })
-    }
-
     pub fn revoke_pairing(&mut self, pairing_id: &str, revoked_at: &str) -> bool {
         if let Some(entry) = self
             .entries
@@ -234,6 +174,7 @@ impl TrustedDeviceRegistry {
                 self.selected_route_stale_at = None;
                 self.selected_route_offline_at = None;
             }
+            self.signer_anchors.remove(pairing_id);
             return true;
         }
         false

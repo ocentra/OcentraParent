@@ -20,9 +20,9 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
-| partial / runtime-proof-present | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | parent-presence slice proved; broader lifecycle open | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
+| ready / implementation route | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | parent-presence slice proved; broader lifecycle remains partial; READY route is drafted and independently static-reviewed for the missing persistent trusted-device/signer-key registration implementation; tests, proof, validation, caller integration, and completion remain open; not a completion claim | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
 | partial / Windows-only merged custody slice | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; no desktop command-path or end-to-end sealing proof; workpack remains open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
-| blocked | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | five-minute receipt lifetime gate drafted; external ceremony verifier and proof remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
+| ready / implementation route | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on WP01; normal route remains graph-blocked; a reviewed-implementation phase-only gate can authorize WP03 source work after reviewed WP01 implementation evidence; five-minute receipt lifetime gate drafted; external ceremony verifier, one-time `RegisterLanSignerAnchor` authorization, and proof remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
 | partial | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | device-bound verifier boundary drafted; signature, revocation, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
 | partial | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | confirmation-only restore blocked; verified parent and execution-receipt gates drafted; encryption, revocation, and proof remain open | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
@@ -49,8 +49,24 @@ static status, synthetic challenges/receipts, generic JSON, or public DTOs as
 authority and does not change any workpack to complete. No production edit was
 legal without a real owner and caller; the next owner is the platform/passkey
 ceremony composition required before WP02/WP03 can advance. The graph validator
-also reports checked-in graph/source drift, so graph JSON was not regenerated
-in this lane.
+reported checked-in graph/source drift during the prior audit; the
+2026-08-17 coordinator update below records the bounded reviewed-implementation
+evidence without changing any normal READY/DONE state.
+
+## Current implementation-phase disposition — 2026-08-17
+
+The current uncommitted WP01 production packet is drafted and independently
+static-reviewed with no P0/P1 findings. The graph records only its four reviewed
+`family-identity-core` source paths as implementation evidence; WP01 remains
+READY, not DONE. Tests, focused validation, proof, production caller
+integration, global Enforcer/architecture acceptance, platform custody, and
+broader lifecycle composition remain open.
+
+WP03 remains BLOCKED in the default graph until WP01 is DONE. The graph has a
+phase-only `reviewed-implementation` gate on WP03 -> WP01 so an implementation
+query may authorize WP03 source work against the reviewed WP01 packet; that
+does not provide ceremony authority, tests, proof, or completion. No WP26 edge
+is opted into this phase gate.
 
 ## Default execution order
 

@@ -87,6 +87,7 @@ pub(crate) struct LanPairingChallengeState {
 pub(crate) enum LanPairingRegistryPersistence {
     InMemory,
     LocalJsonRegistry(PathBuf),
+    UnavailableLocalJsonRegistry,
 }
 
 pub enum LanCommandDecision {
