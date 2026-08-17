@@ -32,7 +32,7 @@ WP02 Registration Login Entry: local account-entry handoff slice done; provider/
 WP03 Parent Install Journey: local parent-install journey slice done; signed package/update/rollback/store delivery remains package-owner proof.
 WP04 Child Install Permission Journey: local child install/permission journey slice done; child runtime/package/platform execution remains sibling-owned.
 WP05 Pairing Readiness Recovery: local setup pairing/readiness slice done; physical LAN/device-trust proof remains sibling-owned.
-WP07 First-Run Setup UI And State Machine: accepted Rust fail-closed source boundary is integrated; it renders 15 explicit unavailable/manual-required authority rows with evaluator `not-run`, preserves LAN diagnostic state, and makes no readiness/progression claim. Existing Rust/portal/E2E tests are stale and remain the next phase after production-source writing completes.
+WP07 First-Run Setup UI And State Machine: accepted Rust fail-closed source is integrated through `ca230550b`; it renders 15 explicit unavailable/manual-required authority rows with evaluator `not-run`, preserves LAN diagnostic state, owns the canonical 13-command LAN classifier, rejects LAN commands on non-LAN routes, and makes no readiness/progression claim. Existing Rust/portal/E2E tests are stale; tests, builds, proof, precommit, CI, and PR remain deferred until the source wave closes.
 WP06 Rollout Proof And Route Gate: local aggregation/blocker pack done; whole-plan PR_READY remains false.
 ```
 
@@ -58,6 +58,29 @@ expected-test source: repair the four stale setup test families after the source
 focused run/fix: deferred
 proof/checklist closeout: deferred
 ```
+
+## WP07 source-wave handoff
+
+The accepted source packet is intentionally narrow. The Rust Start panel exposes
+all 15 required authorities as unavailable/manual-required, consumes LAN
+selected-device/pairing/reachability values only as observations, and never
+invokes provisioning evaluation or action planning. `AgentCommandName::is_lan_command`
+is the canonical 13-variant classifier, and generic parent dispatch rejects LAN
+commands on non-LAN routes (LAN discovery is likewise rejected outside
+LAN-owned routes).
+
+Deferred test work is exact and remains open: update
+`crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs`
+for the new Start snapshot and non-LAN rejection behavior; add the canonical
+13-command classifier coverage; then update the existing portal setup route
+unit/E2E fixtures and run the workpack's focused commands. No test, build, proof,
+CI, or PR result is implied by this source handoff.
+
+The missing authenticated composition remains account/session/household,
+signed parent package, child package/service/permission, device trust, trusted
+LAN pairing, custody sync, policy baseline, network reachability, and recovery
+owner inputs. These are blockers to progression, not permission to synthesize
+readiness.
 
 ## If new setup work is assigned
 

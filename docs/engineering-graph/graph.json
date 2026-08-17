@@ -23739,16 +23739,43 @@
       "title": "WP07 First-Run Setup UI And State Machine",
       "path": "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
       "parent": "PLAN-setup-install-provisioning-plan",
-      "dependsOn": [],
-      "state": "validation",
+      "dependsOn": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+        "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-lan-plan-23-pairing-and-route-proof",
+        "WP-data-custody-storage-plan-01-custody-source-of-truth",
+        "WP-policy-control-plane-plan-01-policy-source-of-truth"
+      ],
+      "state": "blocked",
       "lifecycleState": "validation",
       "metadata": {
         "planSlug": "setup-install-provisioning-plan",
         "indexPath": "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / accepted fail-closed source / tests stale",
+        "statusText": "source accepted / tests-validation-proof deferred",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+            "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+            "WP-data-custody-storage-plan-01-custody-source-of-truth",
+            "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+            "WP-lan-plan-23-pairing-and-route-proof",
+            "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+            "WP-policy-control-plane-plan-01-policy-source-of-truth"
+          ],
+          "evidence": [
+            "docs/plans/setup-install-provisioning-plan/PLAN_STATE.md",
+            "docs/plans/setup-install-provisioning-plan/NEXT_ACTIONS.md",
+            "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Accepted implementation-only source packet at a368bced832753e468a81f087930ca48d15f2116. Rust owns the Start-route authority snapshot and the canonical 13-variant LAN command classifier; generic parent dispatch rejects LAN commands on non-LAN routes and LAN discovery is rejected outside LAN-owned routes. All 15 setup authorities remain manual-required/unavailable, LAN selected/paired/reachability values are observation-only, and Start does not invoke provisioning evaluation or action planning. Authenticated owner inputs and setup aggregation remain missing. Expected tests, builds, proof, precommit, CI, and PR are deferred."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -30198,6 +30225,83 @@
       "to": "WP-v0-8-enforcement-control-plan-20-rollout-docs-ci-pr-gate",
       "kind": "contains",
       "confidence": "structural"
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "Setup cannot progress without authenticated account/session/household authority; request or model-only inputs cannot establish readiness."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "to": "WP-parent-desktop-runtime-package-plan-10-setup-handoff-contracts",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/parent-desktop-runtime-package-plan/workpacks/10-setup-handoff-contracts.md"
+      ],
+      "reason": "Setup cannot claim parent readiness without the package owner's signed artifact/install handoff."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "to": "WP-child-agent-runtime-distribution-plan-10-setup-device-trust-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/child-agent-runtime-distribution-plan/workpacks/10-setup-device-trust-handoff.md"
+      ],
+      "reason": "Setup cannot claim child install/service/permission readiness without the child distribution and trust handoff."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "to": "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ],
+      "reason": "LAN observation is not device trust; setup needs the device-trust owner's authenticated registration and lifecycle authority."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "to": "WP-lan-plan-23-pairing-and-route-proof",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/lan-plan/workpacks/23-pairing-and-route-proof.md"
+      ],
+      "reason": "Selected, paired, or reachable LAN observations cannot authorize setup; trusted pairing and route proof remain LAN-owned."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "to": "WP-data-custody-storage-plan-01-custody-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/data-custody-storage-plan/workpacks/01-custody-source-of-truth.md"
+      ],
+      "reason": "Setup cannot report custody readiness without the custody owner's authenticated source and sync authority."
+    },
+    {
+      "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
+      "to": "WP-policy-control-plane-plan-01-policy-source-of-truth",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/setup-install-provisioning-plan/workpacks/07-first-run-setup-ui-and-state-machine.md",
+        "docs/plans/policy-control-plane-plan/workpacks/01-policy-source-of-truth.md"
+      ],
+      "reason": "Setup cannot report policy baseline readiness without an authenticated policy source owner and active-version composition."
     },
     {
       "from": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",

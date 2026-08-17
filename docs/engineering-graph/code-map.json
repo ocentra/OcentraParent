@@ -3347,10 +3347,13 @@
       "planSlug": "setup-install-provisioning-plan",
       "roots": [
         "crates/schema/src/parent_ui_bridge.rs",
+        "crates/agent-protocol/src/transport.rs",
         "crates/parent-runtime-core/src/lib.rs",
         "crates/parent-runtime-core/src/setup_first_run.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/browser.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/action_dispatch/generic_command.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/lan_route.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/lan_route/query_build.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/lan_route/route_flags.rs",

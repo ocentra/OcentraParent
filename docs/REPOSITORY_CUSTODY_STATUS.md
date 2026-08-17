@@ -30,12 +30,13 @@ precommit, or CI merely because it is pushed.
 | Worktree | Branch/head | Current disposition |
 | --- | --- | --- |
 | `E:/OcentraParent` | `develop` / `4ece51528` | Tracked checkout with the user-owned untracked `.codex/config.toml`; do not use for parallel feature edits. |
-| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / Logging reconciliation checkpoint `b5f81376e` | Root integration/review lane; accepted Payment, Device Trust, Account, and Logging production source are consolidated here. |
+| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / source through Setup integration `ca230550b` plus pending docs/graph reconciliation | Root integration/review lane; accepted Payment, Device Trust, Account, Logging, and Setup WP07 production source are consolidated here. |
 | `E:/OcentraWorktrees/lanes/account-wp02-source-wave` | `codex/account-wp02-source-wave` / `35edb2830` | Clean accepted Account source lane; retained for expected-test writing and custody comparison. |
 | `E:/OcentraWorktrees/lanes/payment-source-wave` | `codex/payment-source-wave` / `63305016f` | Clean accepted Payment source lane; retained for expected-test writing and custody comparison. |
 | `E:/OcentraWorktrees/lanes/data-custody-source-wave` | `codex/data-custody-source-wave` / `78f01911f` | Clean accepted Data Custody source lane; retained for integration comparison and the later expected-test wave. |
 | `E:/OcentraWorktrees/lanes/device-trust-wp01` | `codex/device-trust-wp01-source-wave` / `914d06b6a` | Clean accepted Device Trust continuation lane; its source is reconciled into integration, while expected tests and real family/provider/platform ceremony owners remain open. |
 | `E:/OcentraWorktrees/lanes/logging-source-wave-repair` | `codex/logging-source-wave-repair` / `e0c2d158a` | Clean accepted Logging source/docs lane; Rust owns the exact 18-key policy and generated TypeScript parity, while expected tests, proof, CI, PR/DONE, and external composition remain deferred. |
+| `E:/OcentraWorktrees/lanes/setup-wp07-source-wave` | `codex/setup-wp07-source-wave` / `09f7c7c96` | Clean accepted Setup WP07 source/docs lane; tests, builds, proof, precommit, CI, PR, and onboarding completion remain deferred. |
 
 No registered Ocentra Parent worktree exists on `C:`. The remaining Codex
 worktree folders on `C:` belong to Ocentra Enforcer and Ocentra Games, not this
