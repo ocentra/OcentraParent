@@ -27,11 +27,16 @@ export const BillingEntitlementSeatCompositionSchema = withParser(
   }).pipe(
     Schema.filter(
       (composition) =>
+        Number.isSafeInteger(
+          composition.baseChildDeviceLimit +
+            composition.activeReferralCredits +
+            composition.paidExtraChildDeviceSeats
+        ) &&
         composition.effectiveChildDeviceLimit ===
           composition.baseChildDeviceLimit +
             composition.activeReferralCredits +
             composition.paidExtraChildDeviceSeats ||
-        'Expected effective child-device limit to equal base seats plus active referral credits plus paid extra child-device seats'
+        'Expected effective child-device limit to equal base seats plus active referral credits plus paid extra child-device seats without overflow'
     )
   )
 );
