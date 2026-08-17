@@ -167,10 +167,18 @@ function readNdjsonFile(filePath) {
   if (content.length === 0) {
     return [];
   }
-  return content
-    .split(/\r?\n/)
-    .filter((line) => line.trim().length > 0)
-    .map((line) => JSON.parse(line));
+  return content.split(/\r?\n/).reduce((entries, line, index) => {
+    if (line.trim().length === 0) {
+      return entries;
+    }
+    try {
+      entries.push(JSON.parse(line));
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : String(error);
+      throw new Error(`Invalid NDJSON in ${filePath} at line ${index + 1}: ${reason}`);
+    }
+    return entries;
+  }, []);
 }
 
 function listNdjsonFiles(rootPath) {
@@ -693,7 +701,7 @@ function ensureLocalPath(candidatePath) {
   const absolute = path.resolve(candidatePath);
   const allowedRoots = [getLogRoot(), getStructuredLogBaseRoot()].map((entry) => path.resolve(entry));
 
-  const allowed = allowedRoots.some((root) => absolute.startsWith(root));
+  const allowed = allowedRoots.some((root) => absolute === root || absolute.startsWith(`${root}${path.sep}`));
   if (!allowed) {
     throw new Error('Artifact path must stay inside local logging roots.');
   }
