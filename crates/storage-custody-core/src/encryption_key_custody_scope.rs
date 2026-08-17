@@ -36,14 +36,3 @@ pub(super) fn unauthorized_scope_outcome() -> DecryptAttemptOutcome {
         notes: "Requested decrypt scope is outside this surface's explicit authority.".to_string(),
     }
 }
-
-pub(super) fn surface_mismatch_outcome() -> DecryptAttemptOutcome {
-    DecryptAttemptOutcome {
-        state: contracts::DecryptDecisionState::UnauthorizedScopeDenied,
-        decrypt_allowed: false,
-        fail_closed: true,
-        manual_required: false,
-        used_recovery_path: false,
-        notes: "Platform custody row does not match the requested surface.".to_string(),
-    }
-}
