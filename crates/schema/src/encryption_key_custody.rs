@@ -275,6 +275,7 @@ key_custody_string_enums!(
             LimitedUntilDeviceProof,
             NotDecryptRootDenied,
             PlatformManualRequired,
+            UnauthorizedScopeDenied,
         ],
         values: [
             "allowed",
@@ -286,6 +287,7 @@ key_custody_string_enums!(
             "limitedUntilDeviceProof",
             "notDecryptRootDenied",
             "platformManualRequired",
+            "unauthorizedScopeDenied",
         ]
     },
     EncryptionKeyNonClaim {
