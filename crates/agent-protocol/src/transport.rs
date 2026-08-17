@@ -289,6 +289,27 @@ pub enum AgentCommandName {
     AgentLanAiJobSubmit,
 }
 
+impl AgentCommandName {
+    pub fn is_lan_command(&self) -> bool {
+        matches!(
+            self,
+            Self::AgentLanPairingProofSubmit
+                | Self::AgentLanPairingRouteSelect
+                | Self::AgentLanPairingRouteRevoke
+                | Self::AgentLanPairingStatusGet
+                | Self::AgentLanRuntimeEventChainStreamGet
+                | Self::AgentLanPairingBrowserDiscoveryScan
+                | Self::AgentLanPairingAddDeviceRequest
+                | Self::AgentLanPairingSignedChildAgentObserve
+                | Self::AgentLanPairingControllerLeaseRenew
+                | Self::AgentLanPairingControllerLeaseRelease
+                | Self::AgentLanPairingControllerLeaseTakeover
+                | Self::AgentLanAiProviderStatusGet
+                | Self::AgentLanAiJobSubmit
+        )
+    }
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub enum AgentEventName {
     #[serde(rename = "agent.connection.ready")]

@@ -1,6 +1,8 @@
 use super::state::ActionDispatchState;
 use super::*;
 use crate::agent_service_client::types::{AgentCommandText, AgentServiceError};
+use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use serde_json::Value;
 
 pub(super) fn dispatch_parent_ui_action_agent_command(
     action: &ParentUiAction,
@@ -18,6 +20,14 @@ pub(super) fn dispatch_parent_ui_action_agent_command(
         .as_deref()
         .ok_or_else(missing_agent_command_error)
         .and_then(|command_name| {
+            let command =
+                serde_json::from_value::<AgentCommandName>(Value::String(command_name.to_string()))
+                    .map_err(|error| AgentServiceError::from_display(error.to_string()))?;
+            if command.is_lan_command() {
+                return Err(AgentServiceError::from_display(
+                    "parent Rust facade rejected LAN command on a non-LAN route",
+                ));
+            }
             dispatch_agent_command(AgentCommandText(command_name), &action.payload, None)
         });
     match generic_command_result {
