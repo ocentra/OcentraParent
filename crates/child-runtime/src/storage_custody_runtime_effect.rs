@@ -23,6 +23,7 @@ impl ChildStorageCustodyRuntime {
         request: StorageCustodyExecutionRequest,
         metadata: EventMetadata,
     ) -> Result<ChildStorageCustodyOutcome, ChildAgentServiceError> {
+        self.ensure_action_dispatchable()?;
         let effect_kind = request.effect.kind();
         if let Err(error) = self.authority.validate_for(effect_kind) {
             return Ok(manual_required(
@@ -61,13 +62,10 @@ impl ChildStorageCustodyRuntime {
             ));
         }
         let operation_ref = action.action_plan_id.as_str().to_owned();
-        if let Some(outcome) = existing_outcome(self, &operation_ref, effect_kind, &request.effect)?
+        if let Some(outcome) =
+            existing_or_pending(self, &operation_ref, effect_kind, &request.effect).await?
         {
             return Ok(outcome);
-        }
-        if let Some(record) = existing_pending(self, &operation_ref, effect_kind, &request.effect)?
-        {
-            return self.resume_pending_record(&record).await;
         }
         let envelope = EventEnvelope::from_event(action.clone(), metadata.clone())
             .and_then(|event| event.store())
@@ -95,6 +93,26 @@ impl ChildStorageCustodyRuntime {
             .map_err(ChildAgentServiceError::Storage)?;
         self.finish_record_by_ref(&operation_ref).await
     }
+}
+
+async fn existing_or_pending(
+    runtime: &ChildStorageCustodyRuntime,
+    operation_ref: &str,
+    effect_kind: StorageCustodyEffectKind,
+    effect: &StorageCustodyEffect,
+) -> Result<Option<ChildStorageCustodyOutcome>, ChildAgentServiceError> {
+    if let Some(outcome) = existing_outcome(runtime, operation_ref, effect_kind, effect)? {
+        if effect_kind == StorageCustodyEffectKind::LocalDelete
+            && matches!(&outcome, ChildStorageCustodyOutcome::AlreadyApplied { .. })
+        {
+            runtime.acknowledge_applied_record(operation_ref).await?;
+        }
+        return Ok(Some(outcome));
+    }
+    if let Some(record) = existing_pending(runtime, operation_ref, effect_kind, effect)? {
+        return runtime.resume_pending_record(&record).await.map(Some);
+    }
+    Ok(None)
 }
 
 fn manual_required(

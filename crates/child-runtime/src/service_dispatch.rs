@@ -26,11 +26,13 @@ impl ChildAgentService {
                     .map(ChildAgentCommandResult::Domain)
                     .map_err(Into::into)
             }
-            ChildAgentCommand::PublishStorageCustody { request, metadata } => self
-                .storage_custody
-                .execute(request, metadata)
-                .await
-                .map(ChildAgentCommandResult::StorageCustody),
+            ChildAgentCommand::PublishStorageCustody { request, metadata } => {
+                self.storage_custody.ensure_action_dispatchable()?;
+                self.storage_custody
+                    .execute(request, metadata)
+                    .await
+                    .map(ChildAgentCommandResult::StorageCustody)
+            }
         }
     }
 }

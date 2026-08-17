@@ -68,15 +68,37 @@ async fn finish_local_delete(
     record: &StorageCustodyEffectRecord,
     relative_path: &str,
 ) -> Result<ChildStorageCustodyOutcome, ChildAgentServiceError> {
+    let lease_id = runtime.local_apply_lease_id(record);
     runtime
         .effects
-        .begin_local_apply(&record.operation_ref)
+        .begin_local_apply(&record.operation_ref, &lease_id)
         .map_err(ChildAgentServiceError::Storage)?;
+    if !record_still_matches_authority(&runtime.authority, record) {
+        let reason = "current custody authority changed or was revoked during local effect claim";
+        runtime
+            .effects
+            .mark_manual_required_with_lease(&record.operation_ref, &lease_id, reason)
+            .map_err(ChildAgentServiceError::Storage)?;
+        return Ok(ChildStorageCustodyOutcome::ManualRequired {
+            operation_ref: record.operation_ref.clone(),
+            effect: record.effect_kind,
+            reason: reason.to_owned(),
+        });
+    }
     match delete_local_file(&runtime.root, relative_path) {
         Ok(()) => {
             runtime
                 .effects
-                .mark_applied(&record.operation_ref)
+                .mark_applied(&record.operation_ref, &lease_id)
+                .map_err(ChildAgentServiceError::Storage)?;
+            let deletion_ref = format!(
+                "storage-custody-delete:{}",
+                record.action.source_decision_id.as_str()
+            );
+            runtime
+                .flow
+                .acknowledge_publication(&deletion_ref)
+                .await
                 .map_err(ChildAgentServiceError::Storage)?;
             Ok(ChildStorageCustodyOutcome::Applied {
                 operation_ref: record.operation_ref.clone(),
@@ -88,7 +110,7 @@ async fn finish_local_delete(
                 "local payload is absent after a pending delete; manual reconciliation is required";
             runtime
                 .effects
-                .mark_manual_required(&record.operation_ref, reason)
+                .mark_manual_required_with_lease(&record.operation_ref, &lease_id, reason)
                 .map_err(ChildAgentServiceError::Storage)?;
             Ok(ChildStorageCustodyOutcome::ManualRequired {
                 operation_ref: record.operation_ref.clone(),
@@ -96,6 +118,16 @@ async fn finish_local_delete(
                 reason: reason.to_owned(),
             })
         }
-        Err(error) => Err(ChildAgentServiceError::Storage(error)),
+        Err(error) => {
+            runtime
+                .effects
+                .mark_manual_required_with_lease(
+                    &record.operation_ref,
+                    &lease_id,
+                    "local delete failed; manual reconciliation is required",
+                )
+                .map_err(ChildAgentServiceError::Storage)?;
+            Err(ChildAgentServiceError::Storage(error))
+        }
     }
 }
