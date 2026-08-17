@@ -1852,6 +1852,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
     },
 
     async 'admin-billing-refunds'({ request, env, identity }): Promise<Response> {
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const actorSubject = authority.providerSubject;
+
       const body = await readJsonObject<AdminRefundRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1859,7 +1865,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('admin-refund', identity?.subject ?? 'admin', body.requestId);
+      const requestId = requestIdFor('admin-refund', actorSubject, body.requestId);
       const result = buildAdminRefundResult(requestId, stringOrNull(body.invoiceId), numberOrNull(body.amountCents));
       if (result.status === 'accepted') {
         const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
@@ -1867,7 +1873,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           env.BILLING_DO,
           `billing-control:${refundSubject}`,
           {
-            requestKey: durableWriteKey('admin-refund', identity?.subject ?? 'admin', requestId),
+            requestKey: durableWriteKey('admin-refund', actorSubject, requestId),
             responseStatus: 200,
             responseBody: result,
             queueMessage: {
@@ -1875,7 +1881,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
               requestId,
               invoiceId: result.invoiceId,
               amountCents: result.amountCents,
-              actorRole: identity?.role ?? null,
+              actorRole: 'admin',
             },
             stateMutation:
               refundSubject &&
@@ -1890,7 +1896,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
                     refundState: result.refundState,
                     amountCents: result.amountCents,
                     auditReference: result.auditReference,
-                    actorRole: identity?.role === 'support' ? 'support' : 'admin',
+                    actorRole: 'admin',
                   }
                 : null,
           },
