@@ -299,11 +299,7 @@ function requireVerifiedSupportAuthority(identity: VerifiedIdentity | undefined)
       error: 'support-admin-capability-required',
     });
   }
-  if (
-    authority.supportScope === null ||
-    authority.supportIssuer === null ||
-    authority.supportAuditIdentity === null
-  ) {
+  if (authority.supportScope === null || authority.supportIssuer === null || authority.supportAuditIdentity === null) {
     return json(503, {
       status: 'manual-required',
       blocker: 'support-receipt-provenance-missing',
@@ -804,6 +800,40 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     };
   }
 
+  if (kind === 'provider-webhook') {
+    const provider = stringOrNull(value.provider);
+    const eventId = stringOrNull(value.eventId);
+    const eventType = stringOrNull(value.eventType);
+    const providerOccurredAt = value.providerOccurredAt === null ? null : stringOrNull(value.providerOccurredAt);
+    const providerSequence = value.providerSequence === null ? null : numberOrNull(value.providerSequence);
+    const providerCursorExpectedVersion = numberOrNull(value.providerCursorExpectedVersion);
+    if (
+      !provider ||
+      !eventId ||
+      !eventType ||
+      (value.providerOccurredAt !== null && providerOccurredAt === null) ||
+      (value.providerSequence !== null && providerSequence === null) ||
+      providerCursorExpectedVersion === null ||
+      !Number.isInteger(providerCursorExpectedVersion)
+    ) {
+      return null;
+    }
+    return {
+      kind,
+      provider,
+      subject,
+      eventId,
+      eventType,
+      providerOccurredAt,
+      providerSequence,
+      providerCursorExpectedVersion,
+      disputeId: stringOrNull(value.disputeId),
+      invoiceId: stringOrNull(value.invoiceId),
+      parentAccountRef: stringOrNull(value.parentAccountRef),
+      familyRef: stringOrNull(value.familyRef),
+    };
+  }
+
   return null;
 }
 
@@ -950,9 +980,7 @@ function billingActorRoleForAuthority(authority: VerifiedAuthority): 'parent' | 
   return authority.role === 'parent-owner' ? 'parent' : 'guardian';
 }
 
-async function billingHostedRouteContext(
-  authority: VerifiedAuthority
-): Promise<{
+async function billingHostedRouteContext(authority: VerifiedAuthority): Promise<{
   actor: {
     actorId: string;
     role: 'parent' | 'guardian';
@@ -1512,12 +1540,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('checkout', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(
-        request,
-        env,
-        identity,
-        requestId
-      );
+      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1604,12 +1627,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('portal', subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(
-        request,
-        env,
-        identity,
-        requestId
-      );
+      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1652,11 +1670,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
                 subject,
                 requestId,
                 sessionKind: 'billing-portal-session-create',
-                auditReference: hostedSessionAuditReference(
-                  'billing-portal-session-create',
-                  subject,
-                  requestId
-                ),
+                auditReference: hostedSessionAuditReference('billing-portal-session-create', subject, requestId),
                 actorRole,
               }
             : null,
@@ -1967,13 +1981,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const deviceId = authority.deviceId;
       return json(
         200,
-        await loadBillingLicenseDecision(
-          env,
-          subject,
-          requestId,
-          deviceId,
-          booleanFromUnknown(body.requestedNewDevice)
-        )
+        await loadBillingLicenseDecision(env, subject, requestId, deviceId, booleanFromUnknown(body.requestedNewDevice))
       );
     },
 

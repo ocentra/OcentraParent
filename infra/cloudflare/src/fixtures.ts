@@ -189,10 +189,7 @@ export interface BillingLicenseDecisionSummary {
   decision: 'allowed' | 'denied' | 'grace' | 'manual-review';
   reasonCode: 'within-plan' | 'limit-exceeded' | 'payment-required' | 'manual-review';
   deviceActivationBehavior:
-    | 'allow-new-device'
-    | 'deny-new-device'
-    | 'grace-existing-devices'
-    | 'manual-review-required';
+    'allow-new-device' | 'deny-new-device' | 'grace-existing-devices' | 'manual-review-required';
   requestedDeviceAlreadyTrusted: boolean;
   planId: string;
   currentActiveDevices: number;
