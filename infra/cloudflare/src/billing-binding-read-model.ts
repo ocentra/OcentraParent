@@ -83,6 +83,9 @@ const MAX_BILLING_OUTBOX_ATTEMPTS = 5;
 const REFUND_LEDGER_TOTAL_GUARD_SQL =
   "CREATE TRIGGER IF NOT EXISTS billing_refund_ledger_total_guard BEFORE INSERT ON billing_refund_ledger BEGIN SELECT RAISE(ABORT, 'billing-refund-ledger-total-exceeded') WHERE EXISTS (SELECT 1 FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id AND invoice_total_cents != NEW.invoice_total_cents) OR COALESCE((SELECT SUM(amount_cents) FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id), 0) + NEW.amount_cents > NEW.invoice_total_cents; END";
 
+const BILLING_MUTATION_AUTHORITY_GUARD_SQL =
+  "CREATE TRIGGER IF NOT EXISTS billing_mutation_authority_guard BEFORE INSERT ON billing_mutation_outbox BEGIN SELECT RAISE(ABORT, 'billing-mutation-authority-cas-failed') WHERE NEW.authority_subject IS NOT NULL AND (NEW.authority_version IS NULL OR NEW.authority_token IS NULL OR json_extract(NEW.mutation_json, '$.subject') IS NOT NEW.authority_subject OR NOT EXISTS (SELECT 1 FROM billing_subject_versions WHERE subject = NEW.authority_subject AND version = NEW.authority_version AND last_mutation_token = NEW.authority_token)); END";
+
 function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, ' ').trim();
 }
@@ -97,13 +100,16 @@ const CREATE_READ_MODEL_SCHEMA_SQL = [
   'CREATE TABLE IF NOT EXISTS billing_admin_disputes (dispute_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_referrals (referral_code TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  'CREATE TABLE IF NOT EXISTS billing_subject_versions (subject TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK (version >= 0), last_mutation_token TEXT, updated_at TEXT NOT NULL)',
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  BILLING_MUTATION_AUTHORITY_GUARD_SQL,
   REFUND_LEDGER_TOTAL_GUARD_SQL,
 ].join(';\n');
 
 const CREATE_MUTATION_SCHEMA_SQL = [
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  'CREATE TABLE IF NOT EXISTS billing_subject_versions (subject TEXT PRIMARY KEY, version INTEGER NOT NULL CHECK (version >= 0), last_mutation_token TEXT, updated_at TEXT NOT NULL)',
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, authority_subject TEXT, authority_version INTEGER CHECK (authority_version IS NULL OR authority_version >= 1), authority_token TEXT, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   REFUND_LEDGER_TOTAL_GUARD_SQL,
 ].join(';\n');
 
@@ -119,11 +125,14 @@ const SELECT_INVOICE_SUBJECT_SQL = normalizeSql('SELECT subject FROM billing_inv
 const SELECT_REFUND_LEDGER_SUMMARY_SQL = normalizeSql(
   'SELECT COALESCE(SUM(amount_cents), 0) AS applied_amount_cents, (SELECT refund_state FROM billing_refund_ledger AS latest WHERE latest.invoice_id = ?1 ORDER BY created_at DESC, mutation_key DESC LIMIT 1) AS final_refund_state FROM billing_refund_ledger WHERE invoice_id = ?1'
 );
+const SELECT_SUBJECT_VERSION_SQL = normalizeSql(
+  'SELECT subject, version, last_mutation_token, updated_at FROM billing_subject_versions WHERE subject = ?1 LIMIT 1'
+);
 const SELECT_MUTATION_OUTBOX_SQL = normalizeSql(
-  'SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
+  'SELECT request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
 );
 const SELECT_PENDING_MUTATION_OUTBOX_SQL = normalizeSql(
-  "SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count < ?2 ORDER BY created_at, request_key LIMIT ?1"
+  "SELECT request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count < ?2 ORDER BY created_at, request_key LIMIT ?1"
 );
 const SELECT_MANUAL_REVIEW_MUTATION_OUTBOX_SQL = normalizeSql(
   "SELECT COUNT(*) AS manual_review_count FROM billing_mutation_outbox WHERE audit_state = 'pending' AND attempt_count >= ?1"
@@ -166,11 +175,17 @@ const UPSERT_ADMIN_DISPUTE_SQL = normalizeSql(
 const UPSERT_ADMIN_REFERRAL_SQL = normalizeSql(
   'INSERT OR REPLACE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)'
 );
+const INSERT_SUBJECT_VERSION_SQL = normalizeSql(
+  'INSERT OR IGNORE INTO billing_subject_versions (subject, version, last_mutation_token, updated_at) VALUES (?1, 0, NULL, ?2)'
+);
+const ADVANCE_SUBJECT_VERSION_SQL = normalizeSql(
+  'UPDATE billing_subject_versions SET version = version + 1, last_mutation_token = ?3, updated_at = ?4 WHERE subject = ?1 AND version = ?2'
+);
 const INSERT_REFUND_LEDGER_SQL = normalizeSql(
   'INSERT INTO billing_refund_ledger (invoice_id, mutation_key, subject, amount_cents, invoice_total_cents, refund_state, audit_reference, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
 );
 const INSERT_MUTATION_OUTBOX_SQL = normalizeSql(
-  'INSERT INTO billing_mutation_outbox (request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, 0, NULL, NULL, ?6, ?7)'
+  'INSERT INTO billing_mutation_outbox (request_key, authority_subject, authority_version, authority_token, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 0, NULL, NULL, ?9, ?10)'
 );
 const MARK_MUTATION_OUTBOX_ATTEMPT_SQL = normalizeSql(
   "UPDATE billing_mutation_outbox SET attempt_count = attempt_count + 1, last_attempt_at = ?2, last_error = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND attempt_count < ?3"
@@ -201,8 +216,18 @@ interface RefundLedgerSummaryRow {
   final_refund_state: string | null;
 }
 
+interface SubjectVersionRow {
+  subject: string;
+  version: number | string;
+  last_mutation_token: string | null;
+  updated_at: string;
+}
+
 interface MutationOutboxRow {
   request_key: string;
+  authority_subject: string | null;
+  authority_version: number | string | null;
+  authority_token: string | null;
   mutation_kind: string;
   mutation_json: string;
   audit_state: string;
@@ -1053,6 +1078,9 @@ type MutationAuditState = 'pending' | 'delivered';
 
 interface LocalMutationOutboxEntry {
   requestKey: string;
+  authoritySubject: string | null;
+  authorityVersion: number | null;
+  authorityToken: string | null;
   mutationKind: BillingStateMutation['kind'];
   mutationJson: string;
   auditState: MutationAuditState;
@@ -1074,6 +1102,7 @@ interface LocalBillingD1State {
   adminDisputes: ReadonlyArray<AdminBillingDisputeSummary>;
   adminReferrals: ReadonlyArray<AdminBillingReferralSummary>;
   refundLedgerByInvoice: Map<string, ReadonlyArray<BillingRefundLedgerEntry>>;
+  subjectVersions: Map<string, { version: number; lastMutationToken: string | null; updatedAt: string }>;
   mutationOutbox: Map<string, LocalMutationOutboxEntry>;
 }
 
@@ -1265,6 +1294,20 @@ class LocalD1Statement implements D1PreparedStatement {
           } as T,
         ];
       }
+      case SELECT_SUBJECT_VERSION_SQL: {
+        const subject = String(this.values[0] ?? '');
+        const version = this.state.subjectVersions.get(subject);
+        return version
+          ? [
+              {
+                subject,
+                version: version.version,
+                last_mutation_token: version.lastMutationToken,
+                updated_at: version.updatedAt,
+              } as T,
+            ]
+          : [];
+      }
       case SELECT_MUTATION_OUTBOX_SQL:
       case SELECT_PENDING_MUTATION_OUTBOX_SQL: {
         const requestKey = String(this.values[0] ?? '');
@@ -1287,6 +1330,9 @@ class LocalD1Statement implements D1PreparedStatement {
           (entry) =>
             ({
               request_key: entry.requestKey,
+              authority_subject: entry.authoritySubject,
+              authority_version: entry.authorityVersion,
+              authority_token: entry.authorityToken,
               mutation_kind: entry.mutationKind,
               mutation_json: entry.mutationJson,
               audit_state: entry.auditState,
@@ -1334,6 +1380,30 @@ class LocalD1Statement implements D1PreparedStatement {
 
   private executeMutation(): void {
     switch (this.normalizedQuery) {
+      case INSERT_SUBJECT_VERSION_SQL: {
+        const subject = decodeNonEmptyString(this.values[0], 'billing-subject-version-subject');
+        const updatedAt = decodeTimestamp(this.values[1], 'billing-subject-version-updated-at');
+        if (!this.state.subjectVersions.has(subject)) {
+          this.state.subjectVersions.set(subject, { version: 0, lastMutationToken: null, updatedAt });
+        }
+        return;
+      }
+      case ADVANCE_SUBJECT_VERSION_SQL: {
+        const subject = decodeNonEmptyString(this.values[0], 'billing-subject-version-subject');
+        const expectedVersion = decodeBillingCount(this.values[1], 'billing-subject-version-expected');
+        const mutationToken = decodeNonEmptyString(this.values[2], 'billing-subject-version-token');
+        const updatedAt = decodeTimestamp(this.values[3], 'billing-subject-version-updated-at');
+        const current = this.state.subjectVersions.get(subject);
+        if (!current || current.version !== expectedVersion) {
+          throw new BillingReadModelUnavailableError('billing-mutation-authority-cas-failed');
+        }
+        this.state.subjectVersions.set(subject, {
+          version: incrementBillingCount(current.version, 'billing-subject-version-next'),
+          lastMutationToken: mutationToken,
+          updatedAt,
+        });
+        return;
+      }
       case UPSERT_STATUS_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
@@ -1456,16 +1526,40 @@ class LocalD1Statement implements D1PreparedStatement {
       }
       case INSERT_MUTATION_OUTBOX_SQL: {
         const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
-        const mutationKind = decodeNonEmptyString(this.values[1], 'billing-mutation-outbox-kind');
-        const mutationJson = decodeNonEmptyString(this.values[2], 'billing-mutation-outbox-mutation');
+        const authoritySubject = decodeNonEmptyString(this.values[1], 'billing-mutation-outbox-authority-subject');
+        const authorityVersion = decodeBillingCount(this.values[2], 'billing-mutation-outbox-authority-version');
+        if (authorityVersion < 1) {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-authority-version-invalid');
+        }
+        const authorityToken = decodeNonEmptyString(this.values[3], 'billing-mutation-outbox-authority-token');
+        const currentAuthority = this.state.subjectVersions.get(authoritySubject);
+        if (
+          !currentAuthority ||
+          currentAuthority.version !== authorityVersion ||
+          currentAuthority.lastMutationToken !== authorityToken
+        ) {
+          throw new BillingReadModelUnavailableError('billing-mutation-authority-cas-failed');
+        }
+        const mutationKind = decodeNonEmptyString(this.values[4], 'billing-mutation-outbox-kind');
+        const mutationJson = decodeNonEmptyString(this.values[5], 'billing-mutation-outbox-mutation');
+        const mutationSubject = decodeNonEmptyString(
+          payloadRecord(
+            parseUnknownPayload(mutationJson, 'billing-mutation-outbox-mutation'),
+            'billing-mutation-outbox-mutation'
+          ).subject,
+          'billing-mutation-outbox-mutation-subject'
+        );
+        if (mutationSubject !== authoritySubject) {
+          throw new BillingReadModelUnavailableError('billing-mutation-authority-subject-mismatch');
+        }
         const auditState = decodeLiteral(
-          this.values[3],
+          this.values[6],
           ['pending', 'delivered'] as const,
           'billing-mutation-outbox-audit-state'
         );
-        const auditJson = decodeNonEmptyString(this.values[4], 'billing-mutation-outbox-audit-event');
-        const createdAt = decodeTimestamp(this.values[5], 'billing-mutation-outbox-created-at');
-        const updatedAt = decodeTimestamp(this.values[6], 'billing-mutation-outbox-updated-at');
+        const auditJson = decodeNonEmptyString(this.values[7], 'billing-mutation-outbox-audit-event');
+        const createdAt = decodeTimestamp(this.values[8], 'billing-mutation-outbox-created-at');
+        const updatedAt = decodeTimestamp(this.values[9], 'billing-mutation-outbox-updated-at');
         decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
           BillingSupportAdminAuditEventSummarySchema.parse(
             parseUnknownPayload(auditJson, 'billing-mutation-outbox-audit-event')
@@ -1476,6 +1570,9 @@ class LocalD1Statement implements D1PreparedStatement {
         }
         this.state.mutationOutbox.set(requestKey, {
           requestKey,
+          authoritySubject,
+          authorityVersion,
+          authorityToken,
           mutationKind: mutationKind as BillingStateMutation['kind'],
           mutationJson,
           auditState,
@@ -1549,6 +1646,7 @@ class LocalBillingD1Database implements D1Database {
     adminDisputes: [],
     adminReferrals: [],
     refundLedgerByInvoice: new Map<string, ReadonlyArray<BillingRefundLedgerEntry>>(),
+    subjectVersions: new Map<string, { version: number; lastMutationToken: string | null; updatedAt: string }>(),
     mutationOutbox: new Map<string, LocalMutationOutboxEntry>(),
   };
 
@@ -1569,6 +1667,7 @@ class LocalBillingD1Database implements D1Database {
       adminDisputes: this.state.adminDisputes,
       adminReferrals: this.state.adminReferrals,
       refundLedgerByInvoice: new Map(this.state.refundLedgerByInvoice),
+      subjectVersions: new Map(this.state.subjectVersions),
       mutationOutbox: new Map(this.state.mutationOutbox),
     };
     const results: Array<{ results: ReadonlyArray<unknown>; success: true }> = [];
@@ -1587,6 +1686,7 @@ class LocalBillingD1Database implements D1Database {
       this.state.adminDisputes = backup.adminDisputes;
       this.state.adminReferrals = backup.adminReferrals;
       this.state.refundLedgerByInvoice = backup.refundLedgerByInvoice;
+      this.state.subjectVersions = backup.subjectVersions;
       this.state.mutationOutbox = backup.mutationOutbox;
       throw error;
     }
@@ -1662,6 +1762,7 @@ class LocalBillingD1Database implements D1Database {
       this.state.adminReferrals = asReadonlyArray(patch.adminReferrals);
     }
     this.state.refundLedgerByInvoice = new Map();
+    this.state.subjectVersions = new Map();
     this.state.mutationOutbox = new Map();
   }
 }
@@ -1810,6 +1911,9 @@ async function ensureMutationSchema(env: Env): Promise<void> {
     ['attempt_count', 'ALTER TABLE billing_mutation_outbox ADD COLUMN attempt_count INTEGER NOT NULL DEFAULT 0'],
     ['last_attempt_at', 'ALTER TABLE billing_mutation_outbox ADD COLUMN last_attempt_at TEXT'],
     ['last_error', 'ALTER TABLE billing_mutation_outbox ADD COLUMN last_error TEXT'],
+    ['authority_subject', 'ALTER TABLE billing_mutation_outbox ADD COLUMN authority_subject TEXT'],
+    ['authority_version', 'ALTER TABLE billing_mutation_outbox ADD COLUMN authority_version INTEGER'],
+    ['authority_token', 'ALTER TABLE billing_mutation_outbox ADD COLUMN authority_token TEXT'],
   ];
   for (const [column, statement] of migrations) {
     if (!columns.has(column)) {
@@ -1827,6 +1931,54 @@ async function ensureMutationSchema(env: Env): Promise<void> {
       }
     }
   }
+  await database.exec(BILLING_MUTATION_AUTHORITY_GUARD_SQL);
+}
+
+function decodeSubjectVersionRow(
+  row: SubjectVersionRow | null,
+  scope: string
+): {
+  subject: string;
+  version: number;
+  lastMutationToken: string | null;
+  updatedAt: string;
+} {
+  if (!row) {
+    throw new BillingReadModelUnavailableError(`${scope}-missing`);
+  }
+  const subject = decodeNonEmptyString(row.subject, `${scope}-subject`);
+  const version = decodeBillingCount(row.version, `${scope}-version`);
+  const lastMutationToken =
+    row.last_mutation_token === null || row.last_mutation_token === undefined
+      ? null
+      : decodeNonEmptyString(row.last_mutation_token, `${scope}-token`);
+  if ((version === 0 && lastMutationToken !== null) || (version > 0 && lastMutationToken === null)) {
+    throw new BillingReadModelUnavailableError(`${scope}-inconsistent`);
+  }
+  return {
+    subject,
+    version,
+    lastMutationToken,
+    updatedAt: decodeTimestamp(row.updated_at, `${scope}-updated-at`),
+  };
+}
+
+async function ensureBillingSubjectVersion(
+  env: Env,
+  subject: string
+): Promise<{
+  subject: string;
+  version: number;
+  lastMutationToken: string | null;
+  updatedAt: string;
+}> {
+  const decodedSubject = decodeNonEmptyString(subject, 'billing-subject-version-subject');
+  const database = requireBillingD1Database(env);
+  await database.prepare(INSERT_SUBJECT_VERSION_SQL).bind(decodedSubject, new Date().toISOString()).run();
+  return decodeSubjectVersionRow(
+    await d1First<SubjectVersionRow>(database, SELECT_SUBJECT_VERSION_SQL, decodedSubject),
+    `billing-subject-version:${decodedSubject}`
+  );
 }
 
 function mutationReplayKey(mutation: BillingStateMutation): string {
@@ -1885,19 +2037,59 @@ function canonicalMutationEventId(mutation: BillingStateMutation): string {
 function billingMutationOutboxStatement(
   env: Env,
   mutation: BillingStateMutation,
-  auditEvent: BillingAuditEventSummary
+  auditEvent: BillingAuditEventSummary,
+  authorityVersion: number,
+  authorityToken: string
 ): D1PreparedStatement {
   const now = new Date().toISOString();
   const key = mutationReplayKey(mutation);
   return requireBillingD1Database(env)
     .prepare(INSERT_MUTATION_OUTBOX_SQL)
-    .bind(key, mutation.kind, mutationFingerprint(mutation), 'pending', JSON.stringify(auditEvent), now, now);
+    .bind(
+      key,
+      decodeNonEmptyString(mutation.subject, 'billing-mutation-outbox-authority-subject'),
+      decodeBillingCount(authorityVersion, 'billing-mutation-outbox-authority-version'),
+      decodeNonEmptyString(authorityToken, 'billing-mutation-outbox-authority-token'),
+      mutation.kind,
+      mutationFingerprint(mutation),
+      'pending',
+      JSON.stringify(auditEvent),
+      now,
+      now
+    );
 }
 
 function decodeMutationOutboxRow(row: MutationOutboxRow): MutationOutboxRow {
   decodeNonEmptyString(row.request_key, 'billing-mutation-outbox-request-key');
+  const authoritySubject = row.authority_subject ?? null;
+  const authorityVersion = row.authority_version ?? null;
+  const authorityToken = row.authority_token ?? null;
+  const authorityFieldsMissing = authoritySubject === null && authorityVersion === null && authorityToken === null;
+  const authorityFieldsPartial = authoritySubject === null || authorityVersion === null || authorityToken === null;
+  if (!authorityFieldsMissing && authorityFieldsPartial) {
+    throw new BillingReadModelUnavailableError('billing-mutation-outbox-authority-incomplete');
+  }
+  if (!authorityFieldsMissing) {
+    decodeNonEmptyString(authoritySubject, 'billing-mutation-outbox-authority-subject');
+    if (decodeBillingCount(authorityVersion, 'billing-mutation-outbox-authority-version') < 1) {
+      throw new BillingReadModelUnavailableError('billing-mutation-outbox-authority-version-invalid');
+    }
+    decodeNonEmptyString(authorityToken, 'billing-mutation-outbox-authority-token');
+  }
   decodeNonEmptyString(row.mutation_kind, 'billing-mutation-outbox-kind');
-  decodeNonEmptyString(row.mutation_json, 'billing-mutation-outbox-mutation');
+  const mutationJson = decodeNonEmptyString(row.mutation_json, 'billing-mutation-outbox-mutation');
+  if (!authorityFieldsMissing) {
+    const mutationSubject = decodeNonEmptyString(
+      payloadRecord(
+        parseUnknownPayload(mutationJson, 'billing-mutation-outbox-mutation'),
+        'billing-mutation-outbox-mutation'
+      ).subject,
+      'billing-mutation-outbox-mutation-subject'
+    );
+    if (mutationSubject !== authoritySubject) {
+      throw new BillingReadModelUnavailableError('billing-mutation-authority-subject-mismatch');
+    }
+  }
   decodeLiteral(row.audit_state, ['pending', 'delivered'] as const, 'billing-mutation-outbox-audit-state');
   decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
     BillingSupportAdminAuditEventSummarySchema.parse(
@@ -2044,7 +2236,22 @@ async function commitBillingMutationD1Batch(
   statements: ReadonlyArray<D1PreparedStatement>,
   auditEvent: BillingAuditEventSummary
 ): Promise<void> {
-  await commitBillingD1Batch(env, [...statements, billingMutationOutboxStatement(env, mutation, auditEvent)]);
+  await ensureMutationSchema(env);
+  const currentAuthority = await ensureBillingSubjectVersion(env, mutation.subject);
+  const authorityVersion = incrementBillingCount(
+    currentAuthority.version,
+    `billing-subject-version-next:${mutation.subject}`
+  );
+  const authorityToken = crypto.randomUUID();
+  const database = requireBillingD1Database(env);
+  const authorityAdvance = database
+    .prepare(ADVANCE_SUBJECT_VERSION_SQL)
+    .bind(mutation.subject, currentAuthority.version, authorityToken, new Date().toISOString());
+  await commitBillingD1Batch(env, [
+    authorityAdvance,
+    ...statements,
+    billingMutationOutboxStatement(env, mutation, auditEvent, authorityVersion, authorityToken),
+  ]);
 }
 
 function billingReferralStatement(env: Env, referral: BillingReferralSummary): D1PreparedStatement {
@@ -2399,7 +2606,7 @@ function hasManualReviewAuthority(status: BillingStatusSummary, snapshot: Billin
   );
 }
 
-async function providerRecoveryBlocker(
+async function billingTerminalStateBlocker(
   env: Env,
   status: BillingStatusSummary,
   snapshot: BillingEntitlementSnapshotSummary,
@@ -2436,6 +2643,30 @@ async function providerRecoveryBlocker(
     return 'billing-manual-review-authority';
   }
   return null;
+}
+
+async function assertBillingMutationNotTerminal(env: Env, mutation: BillingStateMutation): Promise<void> {
+  if (
+    mutation.kind !== 'change-plan' &&
+    (mutation.kind !== 'cancel' || mutation.cancellationState === 'manual-review-required')
+  ) {
+    return;
+  }
+  const paired = decodeBillingStatePair(
+    await loadBillingStatusSummary(env, mutation.subject),
+    await loadBillingEntitlementSnapshot(env, mutation.subject),
+    `billing-mutation-terminal-state:${mutation.subject}`
+  );
+  const blocker = await billingTerminalStateBlocker(
+    env,
+    paired.status,
+    paired.snapshot,
+    await loadBillingInvoices(env, mutation.subject),
+    await loadAdminBillingInvoices(env, null)
+  );
+  if (blocker) {
+    throw new BillingReadModelUnavailableError(`${blocker}:${mutation.kind}`);
+  }
 }
 
 function graceFailureState(): BillingStatusSummary['failureState'] {
@@ -3016,6 +3247,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
   if (await replayKnownBillingMutation(env, mutation)) {
     return;
   }
+  await assertBillingMutationNotTerminal(env, mutation);
 
   switch (mutation.kind) {
     case 'hosted-session': {
@@ -3405,7 +3637,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const auditEvent = await billingAuditEventForMutation(env, mutation);
       const recoveryBlocker =
         transition === 'activate-subscription' || transition === 'enter-grace' || transition === 'dispute-won'
-          ? await providerRecoveryBlocker(env, status, snapshot, invoices, adminInvoices)
+          ? await billingTerminalStateBlocker(env, status, snapshot, invoices, adminInvoices)
           : null;
       if (recoveryBlocker) {
         env.ANALYTICS?.writeDataPoint({
