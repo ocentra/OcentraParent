@@ -156,6 +156,8 @@ pub enum EntitlementSnapshotVerificationFailure {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EntitlementSnapshotDerivationError {
+    ZeroBaseChildDeviceLimit,
+    ZeroProviderChildDeviceLimitHint,
     SeatLimitOverflow,
 }
 
@@ -164,6 +166,9 @@ pub fn checked_effective_child_device_limit(
     active_referral_credits: u32,
     paid_extra_child_device_seats: u32,
 ) -> Result<u32, EntitlementSnapshotDerivationError> {
+    let base_child_device_limit = std::num::NonZeroU32::new(base_child_device_limit)
+        .ok_or(EntitlementSnapshotDerivationError::ZeroBaseChildDeviceLimit)?
+        .get();
     base_child_device_limit
         .checked_add(active_referral_credits)
         .and_then(|subtotal| subtotal.checked_add(paid_extra_child_device_seats))
@@ -283,6 +288,14 @@ fn parse_snapshot_timestamp(
 pub fn derive_signed_entitlement_snapshot(
     input: EntitlementSnapshotDerivationInput,
 ) -> Result<SignedEntitlementSnapshot, EntitlementSnapshotDerivationError> {
+    input
+        .provider_state
+        .provider_child_device_limit_hint
+        .map(|hint| {
+            std::num::NonZeroU32::new(hint)
+                .ok_or(EntitlementSnapshotDerivationError::ZeroProviderChildDeviceLimitHint)
+        })
+        .transpose()?;
     let effective_child_device_limit = checked_effective_child_device_limit(
         input.billing_ledger_state.base_child_device_limit,
         input.referral_ledger_state.active_referral_credits,

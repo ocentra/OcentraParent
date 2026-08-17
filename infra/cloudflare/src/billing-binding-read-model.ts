@@ -7,9 +7,21 @@ import type {
 } from '@cloudflare/workers-types';
 import { BillingEntitlementSeatCompositionSchema } from '@ocentra-parent/schema-domain/billing-entitlement';
 import {
+  BillingAuditReferenceSchema,
+  BillingEntitlementSnapshotIdSchema,
+  BillingEntitlementSourceSchema,
+  BillingFailureKindSchema,
+  BillingLocalSafetyBehaviorSchema,
+  BillingParentResolutionSchema,
+  BillingParentVisibleStateSchema,
+  BillingPlanActiveStateSchema,
+  BillingPlanIdSchema,
+  BillingSignatureStateSchema,
+  BillingSubscriptionStatusSchema,
   NonNegativeBillingCountSchema,
   PositiveBillingLimitSchema,
 } from '@ocentra-parent/schema-domain/billing-entitlement-values';
+import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-reference-primitives';
 import { BillingReferralSummarySchema, type BillingReferralSummary } from './generated/billing-contracts.js';
 import type { Env } from './env.js';
 import {
@@ -31,10 +43,12 @@ import {
   type BillingAuditEventSummary,
   type BillingCancellationSummary,
   type BillingEntitlementSnapshotSummary,
+  type BillingFailureStateSummary,
   type BillingInvoiceSummary,
   type BillingLicenseDecisionSummary,
   type BillingSeatCompositionSummary,
   type BillingStatusSummary,
+  type PricingFeatureSummary,
   type PricingPlanSummary,
 } from './fixtures.js';
 
@@ -159,6 +173,101 @@ function decodeBillingCount(value: unknown, scope: string): number {
   return decodeCanonicalValue(scope, () => NonNegativeBillingCountSchema.parse(value));
 }
 
+function decodeNonEmptyString(value: unknown, scope: string): string {
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return value;
+}
+
+function decodeBoolean(value: unknown, scope: string): boolean {
+  if (typeof value !== 'boolean') {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return value;
+}
+
+function decodeLiteral<T extends string>(value: unknown, allowed: ReadonlyArray<T>, scope: string): T {
+  const decoded = decodeNonEmptyString(value, scope);
+  if (!allowed.includes(decoded as T)) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return decoded as T;
+}
+
+function decodeCanonicalLiteral<T extends string>(
+  value: unknown,
+  parse: () => string,
+  allowed: ReadonlyArray<T>,
+  scope: string
+): T {
+  const decoded = decodeCanonicalValue(scope, parse);
+  if (!allowed.includes(decoded as T)) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return decoded as T;
+}
+
+function decodeTimestamp(value: unknown, scope: string): string {
+  const decoded = decodeCanonicalValue(scope, () => ParentTimestampSchema.parse(value));
+  if (!Number.isFinite(Date.parse(decoded))) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return decoded;
+}
+
+function decodePricingFeatureSummary(value: unknown, scope: string): PricingFeatureSummary {
+  const record = payloadRecord(value, scope);
+  return {
+    code: decodeNonEmptyString(record.code, `${scope}-code`),
+    label: decodeNonEmptyString(record.label, `${scope}-label`),
+    included: decodeBoolean(record.included, `${scope}-included`),
+    safetyCritical: decodeBoolean(record.safetyCritical, `${scope}-safety-critical`),
+  };
+}
+
+function decodeArray<T>(value: unknown, decode: (entry: unknown, scope: string) => T, scope: string): ReadonlyArray<T> {
+  if (!Array.isArray(value)) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return value.map((entry, index) => decode(entry, `${scope}-${index}`));
+}
+
+function decodeFailureState(value: unknown, scope: string): BillingFailureStateSummary | null {
+  if (value === null) {
+    return null;
+  }
+  const record = payloadRecord(value, scope);
+  return {
+    failureKind: decodeCanonicalValue(scope, () => BillingFailureKindSchema.parse(record.failureKind)),
+    parentResolution: decodeCanonicalValue(scope, () => BillingParentResolutionSchema.parse(record.parentResolution)),
+    retryAllowed: decodeBoolean(record.retryAllowed, `${scope}-retry-allowed`),
+    retryAfter: record.retryAfter === null ? null : decodeTimestamp(record.retryAfter, `${scope}-retry-after`),
+  };
+}
+
+function decodeStatusReferralSummary(value: unknown, scope: string): BillingStatusSummary['referralSummary'] {
+  const record = payloadRecord(value, scope);
+  return {
+    referralCode: record.referralCode === null ? null : decodeNonEmptyString(record.referralCode, `${scope}-code`),
+    availableCredits: decodeBillingCount(record.availableCredits, `${scope}-available-credits`),
+    activeReferredParents: decodeBillingCount(record.activeReferredParents, `${scope}-active-referred-parents`),
+    pendingInvites: decodeBillingCount(record.pendingInvites, `${scope}-pending-invites`),
+    inviteLinkVisible: decodeBoolean(record.inviteLinkVisible, `${scope}-invite-link-visible`),
+  };
+}
+
+function decodeManualInvoiceState(value: unknown, scope: string): BillingStatusSummary['manualInvoiceState'] {
+  const record = payloadRecord(value, scope);
+  return {
+    visible: decodeBoolean(record.visible, `${scope}-visible`),
+    invoiceState:
+      record.invoiceState === null
+        ? null
+        : decodeLiteral(record.invoiceState, ['manual-support-required'] as const, `${scope}-invoice-state`),
+  };
+}
+
 function decodeBillingSeatComposition(value: unknown, scope: string): BillingSeatCompositionSummary {
   const record = payloadRecord(value, scope);
   const composition = decodeCanonicalValue(scope, () =>
@@ -181,45 +290,329 @@ function decodeBillingSeatComposition(value: unknown, scope: string): BillingSea
 
 function decodePricingPlan(value: unknown, scope: string): PricingPlanSummary {
   const record = payloadRecord(value, scope);
-  const deviceLimit = decodeBillingLimit(record.deviceLimit, `${scope}-device-limit`);
-  return { ...record, deviceLimit } as unknown as PricingPlanSummary;
+  return {
+    planId: decodeCanonicalValue(scope, () => BillingPlanIdSchema.parse(record.planId)),
+    displayName: decodeNonEmptyString(record.displayName, `${scope}-display-name`),
+    interval: decodeLiteral(record.interval, ['monthly', 'yearly'] as const, `${scope}-interval`),
+    priceCents: decodeBillingCount(record.priceCents, `${scope}-price-cents`),
+    currency: decodeLiteral(record.currency, ['USD'] as const, `${scope}-currency`),
+    deviceLimit: decodeBillingLimit(record.deviceLimit, `${scope}-device-limit`),
+    activeState: decodeCanonicalValue(scope, () => BillingPlanActiveStateSchema.parse(record.activeState)),
+    featureSummary: decodeArray(record.featureSummary, decodePricingFeatureSummary, `${scope}-features`),
+  };
 }
 
-function decodeBillingStatusSummary(value: unknown, scope: string): BillingStatusSummary {
+function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubject?: string): BillingStatusSummary {
   const record = payloadRecord(value, scope);
+  const subject = decodeNonEmptyString(record.subject, `${scope}-subject`);
+  if (expectedSubject !== undefined && subject !== expectedSubject) {
+    throw new BillingReadModelUnavailableError(`${scope}-subject-mismatch`);
+  }
   const plan = decodePricingPlan(record.plan, `${scope}-plan`);
   const deviceUsage = payloadRecord(record.deviceUsage, `${scope}-device-usage`);
   const seatComposition = decodeBillingSeatComposition(record.seatComposition, `${scope}-seat-composition`);
   const activeDevices = decodeBillingCount(deviceUsage.activeDevices, `${scope}-active-devices`);
   const trustedDevices = decodeBillingCount(deviceUsage.trustedDevices, `${scope}-trusted-devices`);
   const deviceUsageLimit = decodeBillingLimit(deviceUsage.limit, `${scope}-device-usage-limit`);
+  const status = decodeLiteral(record.status, ['ok'] as const, `${scope}-status`);
+  const environment = decodeNonEmptyString(record.environment, `${scope}-environment`);
+  const authAdapterMode = decodeNonEmptyString(record.authAdapterMode, `${scope}-auth-adapter-mode`);
+  const parentAccountRef = decodeNonEmptyString(record.parentAccountRef, `${scope}-parent-account-ref`);
+  const familyRef = decodeNonEmptyString(record.familyRef, `${scope}-family-ref`);
+  const accountStatus = decodeLiteral(
+    record.accountStatus,
+    ['trialing', 'active', 'grace', 'manual-review', 'unavailable'] as const,
+    `${scope}-account-status`
+  );
+  const subscriptionStatus = decodeCanonicalLiteral(
+    record.subscriptionStatus,
+    () => BillingSubscriptionStatusSchema.parse(record.subscriptionStatus),
+    ['active', 'grace', 'past-due'] as const,
+    `${scope}-subscription-status`
+  );
+  const portalVisibleState = decodeLiteral(
+    record.portalVisibleState,
+    ['ready', 'degraded', 'stale', 'offline', 'manual-required'] as const,
+    `${scope}-portal-visible-state`
+  );
+  const parentVisibleState = decodeLiteral(
+    record.parentVisibleState,
+    ['available', 'grace', 'stale', 'unavailable', 'manual-review'] as const,
+    `${scope}-parent-visible-state`
+  );
+  const localSafetyBehavior = decodeCanonicalLiteral(
+    record.localSafetyBehavior,
+    () => BillingLocalSafetyBehaviorSchema.parse(record.localSafetyBehavior),
+    ['unchanged', 'grace-with-local-safety', 'manual-review-with-local-safety'] as const,
+    `${scope}-local-safety-behavior`
+  );
+  const childActivityCustody = decodeLiteral(
+    record.childActivityCustody,
+    ['not-included'] as const,
+    `${scope}-child-activity-custody`
+  );
+  const evidenceExportAccess = decodeLiteral(
+    record.evidenceExportAccess,
+    ['retained'] as const,
+    `${scope}-evidence-export-access`
+  );
+  const providerSecretCustody = decodeLiteral(
+    record.providerSecretCustody,
+    ['not-present'] as const,
+    `${scope}-provider-secret-custody`
+  );
+  const providerMode = decodeLiteral(
+    record.providerMode,
+    ['stripe-hosted', 'manual-invoice'] as const,
+    `${scope}-provider-mode`
+  );
+  const nextRenewalAt =
+    record.nextRenewalAt === null ? null : decodeTimestamp(record.nextRenewalAt, `${scope}-next-renewal-at`);
+  const referralSummary = decodeStatusReferralSummary(record.referralSummary, `${scope}-referral-summary`);
+  const manualInvoiceState = decodeManualInvoiceState(record.manualInvoiceState, `${scope}-manual-invoice-state`);
+  const source = decodeCanonicalLiteral(
+    record.source,
+    () => BillingEntitlementSourceSchema.parse(record.source),
+    ['signed-local-snapshot', 'manual-admin-review'] as const,
+    `${scope}-source`
+  );
+  const failureState = decodeFailureState(record.failureState, `${scope}-failure-state`);
+  const warnings = decodeArray(record.warnings, decodeNonEmptyString, `${scope}-warnings`);
+  const auditReference = decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference));
+  const updatedAt = decodeTimestamp(record.updatedAt, `${scope}-updated-at`);
 
   if (plan.deviceLimit !== seatComposition.effectiveLimit || deviceUsageLimit !== seatComposition.effectiveLimit) {
     throw new BillingReadModelUnavailableError(`${scope}-limit-mismatch`);
   }
+  if (trustedDevices > activeDevices || activeDevices > deviceUsageLimit) {
+    throw new BillingReadModelUnavailableError(`${scope}-device-count-mismatch`);
+  }
+  if (seatComposition.availableDeviceSlots !== Math.max(deviceUsageLimit - activeDevices, 0)) {
+    throw new BillingReadModelUnavailableError(`${scope}-available-device-slots-mismatch`);
+  }
+  const expectedPortalVisibleState = {
+    available: 'ready',
+    grace: 'degraded',
+    stale: 'stale',
+    unavailable: 'offline',
+    'manual-review': 'manual-required',
+  }[parentVisibleState];
+  if (portalVisibleState !== expectedPortalVisibleState) {
+    throw new BillingReadModelUnavailableError(`${scope}-portal-state-mismatch`);
+  }
+  if (
+    source === 'manual-admin-review' &&
+    (accountStatus !== 'manual-review' ||
+      parentVisibleState !== 'manual-review' ||
+      localSafetyBehavior !== 'manual-review-with-local-safety' ||
+      failureState === null)
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
+  }
+  if (
+    source === 'signed-local-snapshot' &&
+    (accountStatus === 'manual-review' ||
+      parentVisibleState === 'manual-review' ||
+      localSafetyBehavior === 'manual-review-with-local-safety')
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-signed-manual-state`);
+  }
+  if (subscriptionStatus === 'active' && failureState !== null) {
+    throw new BillingReadModelUnavailableError(`${scope}-active-failure-state`);
+  }
+  if (subscriptionStatus !== 'active' && failureState === null) {
+    throw new BillingReadModelUnavailableError(`${scope}-degraded-failure-state-missing`);
+  }
+  if (failureState?.failureKind === 'validation-failed') {
+    throw new BillingReadModelUnavailableError(`${scope}-failed-authority`);
+  }
 
   return {
-    ...record,
+    status,
+    environment,
+    authAdapterMode,
+    parentAccountRef,
+    familyRef,
+    subject,
+    accountStatus,
+    subscriptionStatus,
+    portalVisibleState,
+    parentVisibleState,
+    localSafetyBehavior,
+    childActivityCustody,
+    evidenceExportAccess,
+    providerSecretCustody,
+    providerMode,
+    nextRenewalAt,
     plan,
     deviceUsage: {
-      ...deviceUsage,
       activeDevices,
       trustedDevices,
       limit: deviceUsageLimit,
     },
     seatComposition,
-  } as unknown as BillingStatusSummary;
+    referralSummary,
+    manualInvoiceState,
+    source,
+    failureState,
+    warnings,
+    auditReference,
+    updatedAt,
+  };
 }
 
-function decodeBillingEntitlementSnapshot(value: unknown, scope: string): BillingEntitlementSnapshotSummary {
+function decodeBillingEntitlementSnapshot(
+  value: unknown,
+  scope: string,
+  expectedSubject?: string
+): BillingEntitlementSnapshotSummary {
   const record = payloadRecord(value, scope);
-  return {
-    ...record,
-    deviceLimit: decodeBillingLimit(record.deviceLimit, `${scope}-device-limit`),
-    activeDevices: decodeBillingCount(record.activeDevices, `${scope}-active-devices`),
-    trustedDevices: decodeBillingCount(record.trustedDevices, `${scope}-trusted-devices`),
-    availableDeviceSlots: decodeBillingCount(record.availableDeviceSlots, `${scope}-available-device-slots`),
-  } as unknown as BillingEntitlementSnapshotSummary;
+  const subject = decodeNonEmptyString(record.subject, `${scope}-subject`);
+  if (expectedSubject !== undefined && subject !== expectedSubject) {
+    throw new BillingReadModelUnavailableError(`${scope}-subject-mismatch`);
+  }
+  const deviceLimit = decodeBillingLimit(record.deviceLimit, `${scope}-device-limit`);
+  const activeDevices = decodeBillingCount(record.activeDevices, `${scope}-active-devices`);
+  const trustedDevices = decodeBillingCount(record.trustedDevices, `${scope}-trusted-devices`);
+  const availableDeviceSlots = decodeBillingCount(record.availableDeviceSlots, `${scope}-available-device-slots`);
+  if (trustedDevices > activeDevices || activeDevices > deviceLimit) {
+    throw new BillingReadModelUnavailableError(`${scope}-device-count-mismatch`);
+  }
+  if (availableDeviceSlots !== Math.max(deviceLimit - activeDevices, 0)) {
+    throw new BillingReadModelUnavailableError(`${scope}-available-device-slots-mismatch`);
+  }
+  const snapshot: BillingEntitlementSnapshotSummary = {
+    snapshotId: decodeCanonicalValue(scope, () => BillingEntitlementSnapshotIdSchema.parse(record.snapshotId)),
+    subject,
+    parentAccountRef: decodeNonEmptyString(record.parentAccountRef, `${scope}-parent-account-ref`),
+    familyRef: decodeNonEmptyString(record.familyRef, `${scope}-family-ref`),
+    planId: decodeCanonicalValue(scope, () => BillingPlanIdSchema.parse(record.planId)),
+    subscriptionStatus: decodeCanonicalLiteral(
+      record.subscriptionStatus,
+      () => BillingSubscriptionStatusSchema.parse(record.subscriptionStatus),
+      ['active', 'grace', 'past-due'] as const,
+      `${scope}-subscription-status`
+    ),
+    source: decodeCanonicalLiteral(
+      record.source,
+      () => BillingEntitlementSourceSchema.parse(record.source),
+      ['signed-local-snapshot', 'manual-admin-review'] as const,
+      `${scope}-source`
+    ),
+    signatureState: decodeCanonicalLiteral(
+      record.signatureState,
+      () => BillingSignatureStateSchema.parse(record.signatureState),
+      ['signed', 'manual-required'] as const,
+      `${scope}-signature-state`
+    ),
+    signedAt: decodeTimestamp(record.signedAt, `${scope}-signed-at`),
+    deviceLimit,
+    activeDevices,
+    trustedDevices,
+    availableDeviceSlots,
+    parentVisibleState: decodeCanonicalLiteral(
+      record.parentVisibleState,
+      () => BillingParentVisibleStateSchema.parse(record.parentVisibleState),
+      ['available', 'grace', 'manual-review'] as const,
+      `${scope}-parent-visible-state`
+    ),
+    localSafetyBehavior: decodeCanonicalLiteral(
+      record.localSafetyBehavior,
+      () => BillingLocalSafetyBehaviorSchema.parse(record.localSafetyBehavior),
+      ['unchanged', 'grace-with-local-safety', 'manual-review-with-local-safety'] as const,
+      `${scope}-local-safety-behavior`
+    ),
+    failureState: decodeFailureState(record.failureState, `${scope}-failure-state`),
+    auditReference: decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference)),
+  };
+  const signedAuthority = snapshot.source === 'signed-local-snapshot' && snapshot.signatureState === 'signed';
+  const manualAuthority = snapshot.source === 'manual-admin-review' && snapshot.signatureState === 'manual-required';
+  if (!signedAuthority && !manualAuthority) {
+    throw new BillingReadModelUnavailableError(`${scope}-authority-mismatch`);
+  }
+  if (
+    manualAuthority &&
+    (snapshot.parentVisibleState !== 'manual-review' ||
+      snapshot.localSafetyBehavior !== 'manual-review-with-local-safety' ||
+      snapshot.failureState === null)
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
+  }
+  if (
+    signedAuthority &&
+    (snapshot.parentVisibleState === 'manual-review' ||
+      snapshot.localSafetyBehavior === 'manual-review-with-local-safety')
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-signed-manual-state`);
+  }
+  if (
+    (snapshot.subscriptionStatus === 'active' &&
+      (snapshot.parentVisibleState !== 'available' || snapshot.localSafetyBehavior !== 'unchanged')) ||
+    (snapshot.subscriptionStatus === 'grace' &&
+      (snapshot.parentVisibleState !== 'grace' || snapshot.localSafetyBehavior !== 'grace-with-local-safety')) ||
+    (snapshot.subscriptionStatus === 'past-due' &&
+      signedAuthority &&
+      (snapshot.parentVisibleState !== 'grace' || snapshot.localSafetyBehavior !== 'grace-with-local-safety'))
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-state-mismatch`);
+  }
+  if (snapshot.subscriptionStatus === 'active' && snapshot.failureState !== null) {
+    throw new BillingReadModelUnavailableError(`${scope}-active-failure-state`);
+  }
+  if (snapshot.subscriptionStatus !== 'active' && snapshot.failureState === null) {
+    throw new BillingReadModelUnavailableError(`${scope}-degraded-failure-state-missing`);
+  }
+  if (snapshot.failureState?.failureKind === 'validation-failed') {
+    throw new BillingReadModelUnavailableError(`${scope}-failed-authority`);
+  }
+  return snapshot;
+}
+
+function snapshotCanYieldAllowed(
+  snapshot: BillingEntitlementSnapshotSummary,
+  requestedDeviceAlreadyTrusted: boolean
+): boolean {
+  const signedActiveAuthority =
+    snapshot.subscriptionStatus === 'active' &&
+    snapshot.source === 'signed-local-snapshot' &&
+    snapshot.signatureState === 'signed' &&
+    snapshot.parentVisibleState === 'available' &&
+    snapshot.localSafetyBehavior === 'unchanged' &&
+    snapshot.failureState === null;
+  const signedGraceAuthority =
+    requestedDeviceAlreadyTrusted &&
+    snapshot.subscriptionStatus === 'grace' &&
+    snapshot.source === 'signed-local-snapshot' &&
+    snapshot.signatureState === 'signed' &&
+    snapshot.parentVisibleState === 'grace' &&
+    snapshot.localSafetyBehavior === 'grace-with-local-safety' &&
+    snapshot.failureState?.failureKind === 'payment-required';
+  return signedActiveAuthority || signedGraceAuthority;
+}
+
+function decodeBillingStatePair(
+  status: BillingStatusSummary,
+  snapshot: BillingEntitlementSnapshotSummary,
+  scope: string
+): { status: BillingStatusSummary; snapshot: BillingEntitlementSnapshotSummary } {
+  const decodedStatus = decodeBillingStatusSummary(status, `${scope}-status`, status.subject);
+  const decodedSnapshot = decodeBillingEntitlementSnapshot(snapshot, `${scope}-snapshot`, status.subject);
+  if (
+    decodedStatus.parentAccountRef !== decodedSnapshot.parentAccountRef ||
+    decodedStatus.familyRef !== decodedSnapshot.familyRef ||
+    decodedStatus.plan.planId !== decodedSnapshot.planId ||
+    decodedStatus.plan.deviceLimit !== decodedSnapshot.deviceLimit ||
+    decodedStatus.deviceUsage.activeDevices !== decodedSnapshot.activeDevices ||
+    decodedStatus.deviceUsage.trustedDevices !== decodedSnapshot.trustedDevices ||
+    decodedStatus.subscriptionStatus !== decodedSnapshot.subscriptionStatus ||
+    decodedStatus.source !== decodedSnapshot.source ||
+    decodedStatus.parentVisibleState !== decodedSnapshot.parentVisibleState ||
+    decodedStatus.localSafetyBehavior !== decodedSnapshot.localSafetyBehavior ||
+    JSON.stringify(decodedStatus.failureState) !== JSON.stringify(decodedSnapshot.failureState)
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-mismatch`);
+  }
+  return { status: decodedStatus, snapshot: decodedSnapshot };
 }
 
 function decodeBillingReferralSummary(value: unknown, scope: string): BillingReferralSummary {
@@ -604,7 +997,8 @@ class LocalD1Statement implements D1PreparedStatement {
           subject,
           decodeBillingStatusSummary(
             parseUnknownPayload(payloadJson, `billing-status:${subject}`),
-            `billing-status:${subject}`
+            `billing-status:${subject}`,
+            subject
           )
         );
         return;
@@ -639,7 +1033,8 @@ class LocalD1Statement implements D1PreparedStatement {
           subject,
           decodeBillingEntitlementSnapshot(
             parseUnknownPayload(payloadJson, `billing-entitlement-snapshot:${subject}`),
-            `billing-entitlement-snapshot:${subject}`
+            `billing-entitlement-snapshot:${subject}`,
+            subject
           )
         );
         return;
@@ -693,7 +1088,33 @@ class LocalBillingD1Database implements D1Database {
   async batch(
     statements: ReadonlyArray<D1PreparedStatement>
   ): Promise<ReadonlyArray<{ results: ReadonlyArray<unknown>; success: true }>> {
-    return Promise.all(statements.map((statement) => statement.run()));
+    const backup = {
+      statusBySubject: new Map(this.state.statusBySubject),
+      invoicesBySubject: new Map(this.state.invoicesBySubject),
+      referralsBySubject: new Map(this.state.referralsBySubject),
+      snapshotsBySubject: new Map(this.state.snapshotsBySubject),
+      adminAccounts: this.state.adminAccounts,
+      adminInvoices: this.state.adminInvoices,
+      adminDisputes: this.state.adminDisputes,
+      adminReferrals: this.state.adminReferrals,
+    };
+    const results: Array<{ results: ReadonlyArray<unknown>; success: true }> = [];
+    try {
+      for (const statement of statements) {
+        results.push(await statement.run());
+      }
+      return results;
+    } catch (error) {
+      this.state.statusBySubject = backup.statusBySubject;
+      this.state.invoicesBySubject = backup.invoicesBySubject;
+      this.state.referralsBySubject = backup.referralsBySubject;
+      this.state.snapshotsBySubject = backup.snapshotsBySubject;
+      this.state.adminAccounts = backup.adminAccounts;
+      this.state.adminInvoices = backup.adminInvoices;
+      this.state.adminDisputes = backup.adminDisputes;
+      this.state.adminReferrals = backup.adminReferrals;
+      throw error;
+    }
   }
 
   async exec(): Promise<{ count: number; duration: number }> {
@@ -704,8 +1125,32 @@ class LocalBillingD1Database implements D1Database {
   }
 
   replaceSeed(patch: BillingBindingSeedPatch): void {
-    if (patch.statusBySubject) {
-      this.state.statusBySubject = mapFromRecord(patch.statusBySubject);
+    const decodedStatuses = patch.statusBySubject
+      ? new Map(
+          Object.entries(patch.statusBySubject).map(([subject, entry]) => [
+            subject,
+            decodeBillingStatusSummary(entry, `billing-status-seed:${subject}`, subject),
+          ])
+        )
+      : null;
+    const decodedSnapshots = patch.snapshotsBySubject
+      ? new Map(
+          Object.entries(patch.snapshotsBySubject).map(([subject, entry]) => [
+            subject,
+            decodeBillingEntitlementSnapshot(entry, `billing-entitlement-snapshot-seed:${subject}`, subject),
+          ])
+        )
+      : null;
+    if (decodedStatuses && decodedSnapshots) {
+      for (const [subject, status] of decodedStatuses) {
+        const snapshot = decodedSnapshots.get(subject);
+        if (snapshot) {
+          decodeBillingStatePair(status, snapshot, `billing-state-seed:${subject}`);
+        }
+      }
+    }
+    if (decodedStatuses) {
+      this.state.statusBySubject = decodedStatuses;
     }
     if (patch.invoicesBySubject) {
       this.state.invoicesBySubject = mapFromRecord(patch.invoicesBySubject);
@@ -713,8 +1158,8 @@ class LocalBillingD1Database implements D1Database {
     if (patch.referralsBySubject) {
       this.state.referralsBySubject = mapFromRecord(patch.referralsBySubject);
     }
-    if (patch.snapshotsBySubject) {
-      this.state.snapshotsBySubject = mapFromRecord(patch.snapshotsBySubject);
+    if (decodedSnapshots) {
+      this.state.snapshotsBySubject = decodedSnapshots;
     }
     if (patch.adminAccounts) {
       this.state.adminAccounts = asReadonlyArray(patch.adminAccounts);
@@ -772,9 +1217,12 @@ export function createLocalBillingBindings(): {
   const analytics = new LocalAnalyticsDataset();
 
   const replaceSeed = (patch: BillingBindingSeedPatch): void => {
+    const pricingPlans = patch.pricingPlans?.map((plan, index) =>
+      decodePricingPlan(plan, `billing-pricing-plan-seed-${index}`)
+    );
     d1.replaceSeed(patch);
-    if (patch.pricingPlans) {
-      configKv.setRaw(PRICING_PLANS_KEY, JSON.stringify(patch.pricingPlans));
+    if (pricingPlans) {
+      configKv.setRaw(PRICING_PLANS_KEY, JSON.stringify(pricingPlans));
     }
     if (patch.auditEvents) {
       auditR2.setRaw(AUDIT_EVENTS_KEY, JSON.stringify(patch.auditEvents));
@@ -797,16 +1245,28 @@ export function createLocalBillingBindings(): {
       },
       getTouchCount(counterKey: string): number {
         const raw = rateLimitKv.getRaw(`${TOUCH_KEY_PREFIX}${counterKey}`);
-        return raw === null ? 0 : Number(raw);
+        return decodeTelemetryCounter(raw ?? '0', `billing-touch:${counterKey}`);
       },
     },
   };
 }
 
+function decodeTelemetryCounter(value: unknown, scope: string): number {
+  if (typeof value === 'string' && value.trim().length === 0) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  const decoded = typeof value === 'string' ? Number(value) : value;
+  return decodeBillingCount(decoded, scope);
+}
+
 async function incrementTouchCounter(env: Env, counterKey: string): Promise<void> {
   const fullKey = `${TOUCH_KEY_PREFIX}${counterKey}`;
-  const current = Number((await env.BILLING_RATE_LIMIT_KV?.get(fullKey)) ?? '0');
-  await env.BILLING_RATE_LIMIT_KV?.put(fullKey, String(current + 1));
+  const current = decodeTelemetryCounter(
+    (await env.BILLING_RATE_LIMIT_KV?.get(fullKey)) ?? '0',
+    `billing-touch:${counterKey}`
+  );
+  const next = decodeBillingCount(current + 1, `billing-touch:${counterKey}-next`);
+  await env.BILLING_RATE_LIMIT_KV?.put(fullKey, String(next));
 }
 
 async function recordBindingRead(env: Env, counterKey: string, subject: string | null): Promise<void> {
@@ -847,12 +1307,24 @@ async function d1All<T>(
   return result.results;
 }
 
-async function upsertBillingStatusSummary(env: Env, status: BillingStatusSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_STATUS_SQL).bind(status.subject, JSON.stringify(status)).run();
-}
-
-async function upsertBillingSnapshotSummary(env: Env, snapshot: BillingEntitlementSnapshotSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_SNAPSHOT_SQL).bind(snapshot.subject, JSON.stringify(snapshot)).run();
+async function upsertBillingStatePair(
+  env: Env,
+  status: BillingStatusSummary,
+  snapshot: BillingEntitlementSnapshotSummary
+): Promise<void> {
+  const { status: decodedStatus, snapshot: decodedSnapshot } = decodeBillingStatePair(
+    status,
+    snapshot,
+    `billing-state-write:${status.subject}`
+  );
+  const database = env.BILLING_D1;
+  if (!database) {
+    throw new BillingReadModelUnavailableError('billing-d1-binding-missing');
+  }
+  await database.batch([
+    database.prepare(UPSERT_STATUS_SQL).bind(decodedStatus.subject, JSON.stringify(decodedStatus)),
+    database.prepare(UPSERT_SNAPSHOT_SQL).bind(decodedSnapshot.subject, JSON.stringify(decodedSnapshot)),
+  ]);
 }
 
 async function upsertAdminBillingAccountSummary(env: Env, account: AdminBillingAccountSummary): Promise<void> {
@@ -995,10 +1467,33 @@ function hostedSessionAuditEventType(sessionKind: 'checkout-session-create' | 'b
 }
 
 async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch): Promise<void> {
+  const stateStatements: D1PreparedStatement[] = [];
   if (patch.statusBySubject) {
     for (const [subject, row] of Object.entries(patch.statusBySubject)) {
-      await database.prepare(UPSERT_STATUS_SQL).bind(subject, JSON.stringify(row)).run();
+      const decoded = decodeBillingStatusSummary(row, `billing-status-seed:${subject}`, subject);
+      stateStatements.push(database.prepare(UPSERT_STATUS_SQL).bind(subject, JSON.stringify(decoded)));
     }
+  }
+  if (patch.snapshotsBySubject) {
+    for (const [subject, snapshot] of Object.entries(patch.snapshotsBySubject)) {
+      const decoded = decodeBillingEntitlementSnapshot(
+        snapshot,
+        `billing-entitlement-snapshot-seed:${subject}`,
+        subject
+      );
+      stateStatements.push(database.prepare(UPSERT_SNAPSHOT_SQL).bind(subject, JSON.stringify(decoded)));
+    }
+  }
+  if (patch.statusBySubject && patch.snapshotsBySubject) {
+    for (const [subject, status] of Object.entries(patch.statusBySubject)) {
+      const snapshot = patch.snapshotsBySubject[subject];
+      if (snapshot) {
+        decodeBillingStatePair(status, snapshot, `billing-state-seed:${subject}`);
+      }
+    }
+  }
+  if (stateStatements.length > 0) {
+    await database.batch(stateStatements);
   }
   if (patch.invoicesBySubject) {
     for (const [subject, invoices] of Object.entries(patch.invoicesBySubject)) {
@@ -1010,11 +1505,6 @@ async function seedD1Tables(database: D1Database, patch: BillingBindingSeedPatch
   if (patch.referralsBySubject) {
     for (const [subject, referral] of Object.entries(patch.referralsBySubject)) {
       await database.prepare(UPSERT_REFERRAL_SQL).bind(subject, JSON.stringify(referral)).run();
-    }
-  }
-  if (patch.snapshotsBySubject) {
-    for (const [subject, snapshot] of Object.entries(patch.snapshotsBySubject)) {
-      await database.prepare(UPSERT_SNAPSHOT_SQL).bind(subject, JSON.stringify(snapshot)).run();
     }
   }
   for (const row of patch.adminAccounts ?? []) {
@@ -1048,7 +1538,10 @@ async function ensureReadModelSeedOnce(env: Env): Promise<void> {
   if (env.BILLING_CONFIG_KV) {
     const existingPlans = await env.BILLING_CONFIG_KV.get(PRICING_PLANS_KEY);
     if (existingPlans === null && patch.pricingPlans) {
-      await env.BILLING_CONFIG_KV.put(PRICING_PLANS_KEY, JSON.stringify(patch.pricingPlans));
+      const decodedPlans = patch.pricingPlans.map((plan, index) =>
+        decodePricingPlan(plan, `billing-pricing-plan-seed-${index}`)
+      );
+      await env.BILLING_CONFIG_KV.put(PRICING_PLANS_KEY, JSON.stringify(decodedPlans));
     }
   }
 
@@ -1134,9 +1627,13 @@ export async function loadBillingStatusSummary(env: Env, subject: string): Promi
     `billing-status:${subject}`
   );
   await recordBindingRead(env, 'billing-status', subject);
-  const stored = storedPayload === null ? null : decodeBillingStatusSummary(storedPayload, `billing-status:${subject}`);
+  const stored =
+    storedPayload === null ? null : decodeBillingStatusSummary(storedPayload, `billing-status:${subject}`, subject);
   const required = requireProductionRecord(env, stored, `billing-status-row-missing:${subject}`);
-  return required ?? decodeBillingStatusSummary(buildBillingStatusSummary(subject, env), `billing-status:${subject}`);
+  return (
+    required ??
+    decodeBillingStatusSummary(buildBillingStatusSummary(subject, env), `billing-status:${subject}`, subject)
+  );
 }
 
 export async function loadBillingInvoices(env: Env, subject: string): Promise<ReadonlyArray<BillingInvoiceSummary>> {
@@ -1194,11 +1691,15 @@ export async function loadBillingEntitlementSnapshot(
   const stored =
     storedPayload === null
       ? null
-      : decodeBillingEntitlementSnapshot(storedPayload, `billing-entitlement-snapshot:${subject}`);
+      : decodeBillingEntitlementSnapshot(storedPayload, `billing-entitlement-snapshot:${subject}`, subject);
   const required = requireProductionRecord(env, stored, `billing-entitlement-snapshot-row-missing:${subject}`);
   return (
     required ??
-    decodeBillingEntitlementSnapshot(buildEntitlementSnapshot(subject), `billing-entitlement-snapshot:${subject}`)
+    decodeBillingEntitlementSnapshot(
+      buildEntitlementSnapshot(subject),
+      `billing-entitlement-snapshot:${subject}`,
+      subject
+    )
   );
 }
 
@@ -1211,8 +1712,14 @@ export async function loadBillingLicenseDecision(
 ): Promise<BillingLicenseDecisionSummary> {
   const status = await loadBillingStatusSummary(env, subject);
   const snapshot = await loadBillingEntitlementSnapshot(env, subject);
-  if (snapshot.deviceLimit !== status.seatComposition.effectiveLimit) {
-    throw new BillingReadModelUnavailableError('billing-entitlement-limit-mismatch');
+  if (
+    snapshot.subject !== status.subject ||
+    snapshot.parentAccountRef !== status.parentAccountRef ||
+    snapshot.familyRef !== status.familyRef ||
+    snapshot.planId !== status.plan.planId ||
+    snapshot.deviceLimit !== status.seatComposition.effectiveLimit
+  ) {
+    throw new BillingReadModelUnavailableError('billing-entitlement-authority-mismatch');
   }
   const requestedDeviceAlreadyTrusted = !requestedNewDevice;
   const atDeviceLimit = snapshot.activeDevices >= snapshot.deviceLimit;
@@ -1249,7 +1756,11 @@ export async function loadBillingLicenseDecision(
     };
   }
 
-  if (snapshot.subscriptionStatus === 'grace' && requestedNewDevice) {
+  if (
+    snapshot.subscriptionStatus === 'grace' &&
+    requestedNewDevice &&
+    snapshot.failureState?.failureKind === 'payment-required'
+  ) {
     return {
       requestId,
       subject,
@@ -1262,6 +1773,22 @@ export async function loadBillingLicenseDecision(
       currentActiveDevices: snapshot.activeDevices,
       limit: snapshot.deviceLimit,
       auditReference: `${snapshot.auditReference}:license-check-grace`,
+    };
+  }
+
+  if (!snapshotCanYieldAllowed(snapshot, requestedDeviceAlreadyTrusted)) {
+    return {
+      requestId,
+      subject,
+      deviceId,
+      decision: 'manual-review',
+      reasonCode: 'manual-review',
+      deviceActivationBehavior: 'manual-review-required',
+      requestedDeviceAlreadyTrusted,
+      planId: snapshot.planId,
+      currentActiveDevices: snapshot.activeDevices,
+      limit: snapshot.deviceLimit,
+      auditReference: `${snapshot.auditReference}:license-check-review`,
     };
   }
 
@@ -1450,8 +1977,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         auditReference: `${mutation.auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
 
-      await upsertBillingStatusSummary(env, nextStatus);
-      await upsertBillingSnapshotSummary(env, nextSnapshot);
+      await upsertBillingStatePair(env, nextStatus, nextSnapshot);
       await updateAdminAccountProjection(env, nextStatus);
       await appendBillingAuditEvent(env, {
         eventId: `billing-change-plan:${mutation.requestId}`,
@@ -1484,6 +2010,13 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           mutation.cancellationState === 'manual-review-required' ? 'manual-required' : status.portalVisibleState,
         parentVisibleState:
           mutation.cancellationState === 'manual-review-required' ? 'manual-review' : status.parentVisibleState,
+        localSafetyBehavior:
+          mutation.cancellationState === 'manual-review-required'
+            ? 'manual-review-with-local-safety'
+            : status.localSafetyBehavior,
+        source: mutation.cancellationState === 'manual-review-required' ? 'manual-admin-review' : status.source,
+        failureState:
+          mutation.cancellationState === 'manual-review-required' ? manualReviewFailureState() : status.failureState,
         warnings: withAddedWarning(status.warnings, cancellationWarning),
         auditReference: mutation.auditReference,
         updatedAt,
@@ -1497,12 +2030,17 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           mutation.cancellationState === 'manual-review-required' ? 'past-due' : snapshot.subscriptionStatus,
         parentVisibleState:
           mutation.cancellationState === 'manual-review-required' ? 'manual-review' : snapshot.parentVisibleState,
+        localSafetyBehavior:
+          mutation.cancellationState === 'manual-review-required'
+            ? 'manual-review-with-local-safety'
+            : snapshot.localSafetyBehavior,
+        failureState:
+          mutation.cancellationState === 'manual-review-required' ? manualReviewFailureState() : snapshot.failureState,
         signedAt: updatedAt,
         auditReference: `${mutation.auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
 
-      await upsertBillingStatusSummary(env, nextStatus);
-      await upsertBillingSnapshotSummary(env, nextSnapshot);
+      await upsertBillingStatePair(env, nextStatus, nextSnapshot);
       await updateAdminAccountProjection(env, nextStatus);
       await appendBillingAuditEvent(env, {
         eventId: `billing-cancel:${mutation.requestId}`,
@@ -1635,8 +2173,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
 
       await upsertBillingInvoiceSummary(env, mutation.subject, nextInvoice);
       await upsertAdminBillingInvoiceSummary(env, nextAdminInvoice);
-      await upsertBillingStatusSummary(env, nextStatus);
-      await upsertBillingSnapshotSummary(env, nextSnapshot);
+      await upsertBillingStatePair(env, nextStatus, nextSnapshot);
       await updateAdminAccountProjection(env, nextStatus);
       await appendBillingAuditEvent(env, {
         eventId: `billing-manual-invoice:${mutation.requestId}`,
@@ -1717,8 +2254,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           auditReference: `${auditReference}:snapshot`,
         } as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatusSummary(env, nextStatus);
-        await upsertBillingSnapshotSummary(env, nextSnapshot);
+        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
         await updateAdminAccountProjection(env, nextStatus);
       }
 
@@ -1796,8 +2332,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           auditReference: `${auditReference}:snapshot`,
         } as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatusSummary(env, nextStatus);
-        await upsertBillingSnapshotSummary(env, nextSnapshot);
+        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
         for (const invoice of invoices) {
           const nextInvoice = {
             ...invoice,
@@ -1852,8 +2387,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
           auditReference: `${auditReference}:snapshot`,
         } as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatusSummary(env, nextStatus);
-        await upsertBillingSnapshotSummary(env, nextSnapshot);
+        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
         for (const invoice of invoices) {
           const nextInvoice = {
             ...invoice,
@@ -1964,8 +2498,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
               auditReference: `${auditReference}:snapshot`,
             }) as unknown as BillingEntitlementSnapshotSummary;
 
-        await upsertBillingStatusSummary(env, nextStatus);
-        await upsertBillingSnapshotSummary(env, nextSnapshot);
+        await upsertBillingStatePair(env, nextStatus, nextSnapshot);
         await updateAdminAccountProjection(env, nextStatus);
       }
 
