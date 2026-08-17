@@ -1,7 +1,6 @@
-use serde::{Deserialize, Serialize};
-
 use crate::family_identity::SessionFreshnessState;
 use crate::household_authority::AuditRequirementState;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum SessionCredentialKind {
