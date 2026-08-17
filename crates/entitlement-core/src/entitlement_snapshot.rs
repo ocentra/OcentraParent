@@ -1,15 +1,15 @@
 #![forbid(unsafe_code)]
 
-//! Signed entitlement snapshot derivation and verification context.
+//! Unsigned entitlement snapshot projection and verifier-owned context.
 
 use crate::entitlement_access::{EntitlementCapability, SubscriptionState};
 use crate::entitlement_snapshot_values::{
     EntitlementAccountAuthorityState, EntitlementAccountRef,
     EntitlementDeviceTrustRequirementState, EntitlementDeviceTrustState, EntitlementHouseholdRef,
     EntitlementPackageBuildRef, EntitlementPackageBuildState, EntitlementProviderStateBoundary,
-    EntitlementRevocationCursor, EntitlementSafetyFeatureState, EntitlementSignatureKeyId,
-    EntitlementSnapshotBindingState, EntitlementSnapshotFreshnessState, EntitlementSnapshotId,
-    EntitlementSnapshotPlanTier, EntitlementSnapshotSignatureState, EntitlementTrustedDeviceRef,
+    EntitlementRevocationCursor, EntitlementSafetyFeatureState, EntitlementSnapshotBindingState,
+    EntitlementSnapshotFreshnessState, EntitlementSnapshotId, EntitlementSnapshotPlanTier,
+    EntitlementSnapshotSignatureState, EntitlementTrustedDeviceRef,
 };
 use serde::{Deserialize, Serialize};
 
@@ -66,9 +66,15 @@ pub struct EntitlementProviderStateInput {
     pub provider_child_device_limit_hint: Option<u32>,
 }
 
+/// A data-only projection used before an entitlement verifier issues authority.
+///
+/// This type deliberately has no signature, key identifier, or trust state. It
+/// is not an entitlement authority and must never be used to authorize a
+/// capability. A verifier-owned issuer may later consume this projection and
+/// return an opaque context through an owner boundary.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct SignedEntitlementSnapshot {
+pub struct UnsignedEntitlementSnapshotProjection {
     pub schema_version: u16,
     pub snapshot_id: EntitlementSnapshotId,
     pub account_ref: EntitlementAccountRef,
@@ -88,8 +94,6 @@ pub struct SignedEntitlementSnapshot {
     pub revocation_cursor: EntitlementRevocationCursor,
     pub device_trust_required: bool,
     pub package_build_ref: EntitlementPackageBuildRef,
-    pub signature_key_id: EntitlementSignatureKeyId,
-    pub signature: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -103,10 +107,13 @@ pub struct EntitlementSnapshotDerivationInput {
     pub issued_at: String,
     pub expires_at: String,
     pub grace_until: Option<String>,
-    pub signature_key_id: EntitlementSignatureKeyId,
-    pub signature: String,
 }
 
+/// Capability context held by the entitlement owner.
+///
+/// Its state is crate-private, deserialization always fails, and serialization
+/// is deliberately unavailable. No verifier issuer is shipped in this crate,
+/// so no public constructor can mint trusted context.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct EntitlementSnapshotContext {
     pub(crate) signature_state: EntitlementSnapshotSignatureState,
@@ -119,24 +126,13 @@ pub struct EntitlementSnapshotContext {
 }
 
 impl Serialize for EntitlementSnapshotContext {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    fn serialize<S>(&self, _serializer: S) -> Result<S::Ok, S::Error>
     where
         S: serde::Serializer,
     {
-        use serde::ser::SerializeStruct;
-
-        let mut state = serializer.serialize_struct("EntitlementSnapshotContext", 7)?;
-        state.serialize_field("signatureState", &self.signature_state)?;
-        state.serialize_field("freshnessState", &self.freshness_state)?;
-        state.serialize_field("householdBindingState", &self.household_binding_state)?;
-        state.serialize_field("deviceBindingState", &self.device_binding_state)?;
-        state.serialize_field(
-            "deviceTrustRequirementState",
-            &self.device_trust_requirement_state,
-        )?;
-        state.serialize_field("deviceTrustState", &self.device_trust_state)?;
-        state.serialize_field("packageBuildState", &self.package_build_state)?;
-        state.end()
+        Err(serde::ser::Error::custom(
+            "entitlement snapshot context is verifier-owned and cannot be serialized",
+        ))
     }
 }
 
@@ -172,9 +168,9 @@ pub fn checked_effective_child_device_limit(
         .ok_or(EntitlementSnapshotDerivationError::SeatLimitOverflow)
 }
 
-pub fn derive_signed_entitlement_snapshot(
+pub fn derive_unsigned_entitlement_snapshot(
     input: EntitlementSnapshotDerivationInput,
-) -> Result<SignedEntitlementSnapshot, EntitlementSnapshotDerivationError> {
+) -> Result<UnsignedEntitlementSnapshotProjection, EntitlementSnapshotDerivationError> {
     input
         .provider_state
         .provider_child_device_limit_hint
@@ -189,7 +185,7 @@ pub fn derive_signed_entitlement_snapshot(
         input.billing_ledger_state.paid_extra_child_device_seats,
     )?;
 
-    Ok(SignedEntitlementSnapshot {
+    Ok(UnsignedEntitlementSnapshotProjection {
         schema_version: ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION,
         snapshot_id: input.snapshot_id,
         account_ref: input.entitlement_ledger_state.account_ref,
@@ -211,7 +207,5 @@ pub fn derive_signed_entitlement_snapshot(
         revocation_cursor: input.entitlement_ledger_state.revocation_cursor,
         device_trust_required: input.entitlement_ledger_state.device_trust_required,
         package_build_ref: input.entitlement_ledger_state.package_build_ref,
-        signature_key_id: input.signature_key_id,
-        signature: input.signature,
     })
 }
