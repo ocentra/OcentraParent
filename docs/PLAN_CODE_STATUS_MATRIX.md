@@ -6,8 +6,8 @@ checklists.
 
 Last broad source inventory: 2026-08-15, integrated to `main` at
 `eb4e66a79` and back-synced to `develop` at `4ece51528` with tree-equal
-contents. The live source checkpoint is pushed head `7dc09c25f` on
-`codex/eventing-wp09-production`. It is 225 commits ahead of `main` and 222
+contents. The live source checkpoint is pushed head `8e9a6622a` on
+`codex/eventing-wp09-production`. It is 228 commits ahead of `main` and 225
 commits ahead of `develop` without branch divergence. No source checkpoint is
 thereby fully validated, PR-ready, or merged to `develop`/`main`. Current
 branch, worktree, archive, stash, and promotion custody is recorded in
@@ -49,9 +49,9 @@ topology/dependency join; it must not overwrite the code-reachability finding.
 This table is generated from the validated engineering graph and its reviewed
 code map, not from plan checkboxes. The graph currently contains 705 nodes, 745
 edges, 23 plans, and 681 workpacks. It maps 2,966 implementation files and 1,145
-test files: 586 workpacks have both code and tests, 4 are source-only, 8 are
-tests-only, 82 are expected no-source coordination/reference packets, and 1 has
-unknown ownership. Topology expectations match for 664/681 workpacks.
+test files: 587 workpacks have both code and tests, 4 are source-only, 8 are
+tests-only, 82 are expected no-source coordination/reference packets, and none
+have unknown ownership. Topology expectations match for 665/681 workpacks.
 
 These counts prove file ownership and expected topology only. They do not prove
 that the mapped code is production-reachable, that the tests cover the workpack,
@@ -85,7 +85,7 @@ validation / done.
 | Screen AI pipeline | 10 | 7/0/0/3/0 | 150/43 | 9/1/0/0/0/0 | One blocked workpack and unresolved policy/custody authority chain. |
 | Screen | 43 | 29/2/0/12/0 | 230/80 | 25/0/0/0/18/0 | Two source-only mappings plus platform/runtime/custody gaps. |
 | Setup/install/provisioning | 7 | 2/0/0/5/0 | 17/10 | 0/1/0/0/6/0 | Rollout gate is blocked; trusted readiness aggregation remains incomplete. |
-| Tracking | 43 | 35/0/0/7/1 | 116/80 | 41/2/0/0/0/0 | WP40 is the sole unknown ownership map and blocks the trusted ingress chain. |
+| Tracking | 43 | 36/0/0/7/0 | 134/82 | 41/2/0/0/0/0 | WP40 is now reviewed as an 18-source/2-test composition owner; the shipped caller that connects child tracking flow to the durable journal/ActivityStore is still absent. |
 | V0.8 enforcement | 20 | 19/0/0/1/0 | 94/72 | 13/1/0/0/6/0 | WP04 remains blocked on the enforcement audit-journal owner. |
 
 All rows describe the current integration checkout. Git does not encode
@@ -126,8 +126,8 @@ Phase 2 tests/Enforcer and Phase 3 proof are not claimed here.
 | Screen AI pipeline | 10 | Screen startup/capture, encrypted queue, local adapter process, ActivityStore summaries, and portal status are reachable; queue completion requires successful downstream handlers and no dead letters. Source checkpoint `7dc09c25f` removes the synthetic policy decision/action/rule/explanation values and forces AI eligibility false until a trusted decision exists. | Policy Control still needs a real resolver/handoff; canonical AI routing, durable replay, custody-negative enforcement, and rewritten fail-closed tests remain missing. | Fail-honest source correction integrated; WP04 and the plan remain open. |
 | Screen | 43 | Desktop capture, Android MediaProjection entrypoint, encrypted image queue, deletion/read models, and portal settings/status are reachable. | Unified platform capability/permission owner, real OCR/VLM composition, policy authority, child disclosure/live view, and complete custody lifecycle are missing. | Incomplete/manual-required. |
 | Setup/install/provisioning | 7 | Tauri/portal first-run projection and child-service startup/runtime gates are reachable. | No trusted account/session, signed installer, child package/permission, device-trust, custody, or policy readiness aggregation reaches setup progression. | Blocked; presentation boundary remains unavailable/manual-required. |
-| Tracking | 43 | Typed config/check-in/geofence flows and ActivityStore/portal read models exist; parent/child process-local cascades run. | WP34-WP36 are not durable production completion. New WP40 explicitly owns the absent trusted runtime ingress/journal composition and blocks WP37; notifications, adapters, providers, and full UI remain open. | Incomplete; WP40 → WP37 → WP38/WP39. |
-| V0.8 enforcement | 20 | Agent-service command dispatch and the Windows session-validated PID/name time-limit path are reachable; generic adapter execution returns `ManualRequired`. | Trusted policy decision refs, authenticated native adapter/grant, durable dispatch journal, broad app/browser/network/mobile execution, rollback, and receipt custody remain absent. | Blocked/manual-required; narrow timer only. |
+| Tracking | 43 | Typed config/check-in/geofence flows and ActivityStore/portal read models exist; parent/child process-local cascades run. WP40 now has a reviewed 18-source/2-test ownership map. | `TrackingRuntimeEventFlow::new()` still creates a process-local `EventBus`; no shipped caller connects the child tracking flow to `ActivityJournal` or `ActivityStore`. WP40 owns that missing composition and blocks WP37; notifications, adapters, providers, and full UI remain open. | Incomplete; WP40 → WP37 → WP38/WP39. |
+| V0.8 enforcement | 20 | Agent-service command dispatch and the Windows session-validated PID/name time-limit path are reachable; generic adapter execution returns `ManualRequired`. Integration head `8e9a6622a` also removes the false managed-browser `ExecutesRealService` / `ControlCapable` claim and reports that surface as manual-required. | Trusted policy decision refs, authenticated native adapter/grant, durable dispatch journal, real managed-browser profile/active-tab execution, broad app/browser/network/mobile execution, rollback, and receipt custody remain absent. | Fail-honest source correction integrated; plan remains blocked/manual-required with a narrow timer only. |
 
 ### Next dependency chains
 
@@ -848,7 +848,7 @@ is inferred.
 
 ### Tracking Phase 1 code/test audit - 2026-08-15
 
-The code-first audit maps all 42 imported Tracking packets to precise current
+The code-first audit maps all 43 imported Tracking packets to precise current
 Rust, service, policy, child-runtime, notification, AI, and portal roots. The
 full row-by-row result is in
 `docs/plans/tracking-plan/CODE_AUDIT.md`; stale references to the absent
@@ -856,7 +856,7 @@ full row-by-row result is in
 verifiers were removed from the plan routing documents.
 
 **Tracking Phase 1 result:** 24 bounded packets have their core production code
-and expected test code written; 18 are incomplete. Typed contracts, validation,
+and expected test code written; 19 are incomplete. Typed contracts, validation,
 device/capability state, geofence and expected-place decisions,
 acknowledgement/check-in, policy compilation, alert/notification intents, a
 SQLite ActivityStore read model, and portal presentation are real. The live
@@ -864,8 +864,9 @@ product chain is not complete: `TrackingRuntimeEventFlow` uses a process-local
 event bus, there is no durable cascade-to-journal-to-SQLite replay path, no
 production Android/iOS/desktop sensor adapters, no concrete places or AI
 provider route, no durable place store, and no durable notification/escalation
-outbox with provider receipts. WP37 durable journal/replay/projection is the
-first implementation unblocker. No Phase 2 passing-test/Enforcer or Phase 3
+outbox with provider receipts. WP40 now owns the missing trusted service ingress
+and durable journal composition; it must land before WP37 replay/projection. No
+Phase 2 passing-test/Enforcer or Phase 3
 proof/PR_READY claim is inferred.
 
 ## Consolidated branch code/test inventory - 2026-08-09
