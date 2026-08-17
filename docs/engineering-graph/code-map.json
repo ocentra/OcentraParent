@@ -1860,6 +1860,9 @@
     "WP-payment-subscription-plan-01-product-pricing-entitlement": {
       "planSlug": "payment-subscription-plan",
       "roots": [
+        "crates/entitlement-core/src/entitlement_snapshot.rs",
+        "crates/schema/src/billing_entitlement.snapshot-and-device-limit.template.txt",
+        "crates/schema/src/billing_entitlement_values.template.txt",
         "crates/schema/src/billing_entitlement_proof.rs",
         "crates/schema/src/billing_entitlement_values_ts.rs",
         "crates/schema/tests/contract/billing_entitlement_proof.rs",
@@ -1874,6 +1877,10 @@
     "WP-payment-subscription-plan-02-checkout-billing-portal": {
       "planSlug": "payment-subscription-plan",
       "roots": [
+        "infra/cloudflare/migrations/account-identity/0002_provider_billing_mappings.sql",
+        "infra/cloudflare/migrations/account-identity/0003_provider_billing_mappings_canonical_identity.sql",
+        "infra/cloudflare/src/storage/account-identity-billing-store.ts",
+        "infra/cloudflare/src/env.ts",
         "crates/schema/src/billing_checkout_portal_boundary_ts.rs",
         "crates/schema/src/billing_checkout_portal_boundary_values_ts.rs",
         "crates/schema/tests/contract/billing_checkout_portal_boundary.rs",
@@ -1894,6 +1901,7 @@
     "WP-payment-subscription-plan-03-subscription-webhook-lifecycle": {
       "planSlug": "payment-subscription-plan",
       "roots": [
+        "infra/cloudflare/src/storage/account-identity-billing-store.ts",
         "crates/billing-core/src/billing_subscription.rs",
         "crates/billing-core/src/billing_subscription_webhook.rs",
         "crates/billing-core/src/billing_subscription_projection.rs",
@@ -1928,6 +1936,8 @@
     "WP-payment-subscription-plan-05-invoice-tax-refund-dispute": {
       "planSlug": "payment-subscription-plan",
       "roots": [
+        "infra/cloudflare/src/storage/account-identity-billing-store.ts",
+        "infra/cloudflare/migrations/account-identity/0003_provider_billing_mappings_canonical_identity.sql",
         "crates/schema/src/billing_invoice_tax_refund_dispute_ts.rs",
         "crates/schema/src/billing_invoice_tax_refund_dispute_values_ts.rs",
         "crates/schema/tests/contract/billing_invoice_tax_refund_dispute.rs",
@@ -1948,6 +1958,9 @@
     "WP-payment-subscription-plan-06-security-privacy-observability": {
       "planSlug": "payment-subscription-plan",
       "roots": [
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/wrangler.toml",
+        "infra/cloudflare/wrangler.production.toml",
         "crates/billing-core/src/billing_subscription_review.rs",
         "crates/billing-core/src/billing_subscription_review",
         "crates/billing-core/tests/unit/provider_webhook.rs",
@@ -1988,6 +2001,7 @@
     "WP-payment-subscription-plan-10-referral-growth-entitlement": {
       "planSlug": "payment-subscription-plan",
       "roots": [
+        "infra/cloudflare/src/storage/account-identity-billing-store.ts",
         "crates/entitlement-core/src/entitlement_snapshot.rs",
         "crates/entitlement-core/tests/contract/signed_snapshot_delivery.rs",
         "infra/cloudflare/scripts/seed-referrals-local.ts",
@@ -2017,6 +2031,8 @@
     "WP-payment-subscription-plan-12-support-admin-billing-ops": {
       "planSlug": "payment-subscription-plan",
       "roots": [
+        "infra/cloudflare/src/storage/account-identity-billing-store.ts",
+        "infra/cloudflare/migrations/account-identity/0003_provider_billing_mappings_canonical_identity.sql",
         "crates/schema/src/billing_support_admin_common_values_ts.rs",
         "crates/schema/tests/contract/billing_support_admin_common_values.rs",
         "packages/schema-domain/src/generated-billing-support-admin-common-values.ts",

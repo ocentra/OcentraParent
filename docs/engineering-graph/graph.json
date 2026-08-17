@@ -19719,23 +19719,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: no reference or expected artifact is declared; checklist: reviewed evidence is not recorded",
+        "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: no reference or expected artifact is declared",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done / proof-present"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19761,16 +19753,35 @@
       "title": "WP02 Checkout Billing Portal",
       "path": "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
+      "dependsOn": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-payment-subscription-plan-01-product-pricing-entitlement"
+      ],
       "state": "blocked",
       "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "blocked / proof-present",
+        "statusText": "blocked / source integrated / Account authority and expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+            "WP-payment-subscription-plan-01-product-pricing-entitlement"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+            "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "The accepted Payment source wave adds Account-composite provider mapping, durable Worker/DO mutation ownership, and a fail-closed forward migration. Payment migration 0003 explicitly requires the Account WP02 current-authority schema and the Cloudflare WP06 durable binding/runtime owner; pricing semantics still come from Payment WP01. Expected tests, provider execution, proof, deployment, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19796,24 +19807,28 @@
       "title": "WP03 Subscription Webhook Lifecycle",
       "path": "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": ["WP-payment-subscription-plan-02-checkout-billing-portal"],
+      "state": "blocked",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: no reference or expected artifact is declared; checklist: reviewed evidence is not recorded",
+        "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: no reference or expected artifact is declared",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-payment-subscription-plan-02-checkout-billing-portal"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+            "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+            "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Durable webhook/mutation replay must consume the canonical provider/account binding and Worker authority established by WP02. The accepted source has lease/retry/outbox/CAS mechanics, but provider verification, expected tests, proof, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19839,24 +19854,34 @@
       "title": "WP04 Entitlement Delivery Gates",
       "path": "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "dependsOn": [
+        "WP-payment-subscription-plan-01-product-pricing-entitlement",
+        "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+        "WP-device-trust-bootstrap-plan-05-entitlement-device-license"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: no reference or expected artifact is declared; checklist: reviewed evidence is not recorded",
+        "statusText": "blocked / source integrated / issuer absent / expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: no reference or expected artifact is declared",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done / proof-present"
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+            "WP-payment-subscription-plan-01-product-pricing-entitlement",
+            "WP-payment-subscription-plan-03-subscription-webhook-lifecycle"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+            "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md",
+            "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Caller-minted signed entitlement authority was removed. A real entitlement delivery gate now requires pricing authority, a durable accepted billing lifecycle, and the Device Trust WP05 issuer/verifier/device-license owner. Until those owners compose, output remains unsigned/manual-required and expected tests, proof, and DONE stay open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19883,15 +19908,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19918,15 +19943,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/06-security-privacy-observability.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20023,15 +20048,15 @@
       "path": "docs/plans/payment-subscription-plan/workpacks/10-referral-growth-entitlement.md",
       "parent": "PLAN-payment-subscription-plan",
       "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "active / source integrated / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -20092,16 +20117,37 @@
       "title": "WP12 Support Admin Billing Ops",
       "path": "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
       "parent": "PLAN-payment-subscription-plan",
-      "dependsOn": [],
-      "state": "planned",
-      "lifecycleState": "planned",
+      "dependsOn": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+        "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+        "WP-payment-subscription-plan-05-invoice-tax-refund-dispute"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "payment-subscription-plan",
         "indexPath": "docs/plans/payment-subscription-plan/WORKPACK_INDEX.md",
-        "statusText": "open",
+        "statusText": "blocked / source integrated / Account authority and expected tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
-        "needsReview": true
+        "dependencyConfidence": "reviewed",
+        "needsReview": false,
+        "dependencyReview": {
+          "hardDependencies": [
+            "WP-account-identity-family-plan-02-identity-household-role-model",
+            "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+            "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+            "WP-payment-subscription-plan-05-invoice-tax-refund-dispute"
+          ],
+          "evidence": [
+            "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+            "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Support/admin billing mutations now bind durable provider/account identity and replay state, but they cannot become authority without Account role truth, Cloudflare support/admin authentication, the accepted subscription lifecycle, and invoice/refund/dispute ownership. Expected tests, provider execution, portal UI, proof, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -30094,6 +30140,127 @@
       ],
       "reason": "Cloudflare WP05 may implement the Firebase provider adapter only after Account WP01 records the external-provider and custody decision. This reviewed implementation edge does not promote normal READY, tests, proof, deployment, runtime, or DONE.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Payment migration 0003 resolves provider mappings through Account WP02 current household/account authority and must fail closed until that owner lands."
+    },
+    {
+      "from": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "The checkout/portal source uses the shared Cloudflare durable binding/runtime owner; Payment cannot make that scaffold or deployed resource authority complete."
+    },
+    {
+      "from": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md",
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md"
+      ],
+      "reason": "Checkout selection and seat changes consume the Payment-owned pricing/entitlement contract rather than provider metadata as product authority."
+    },
+    {
+      "from": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "to": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md"
+      ],
+      "reason": "Webhook replay and lifecycle projection consume the canonical provider/account binding and Worker authority established by WP02."
+    },
+    {
+      "from": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md"
+      ],
+      "reason": "Entitlement delivery consumes Payment-owned pricing, seat, and limit semantics."
+    },
+    {
+      "from": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "to": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md"
+      ],
+      "reason": "A durable accepted subscription lifecycle must precede entitlement issuance; provider payloads alone are not access authority."
+    },
+    {
+      "from": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "to": "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
+      ],
+      "reason": "Caller-minted signing was removed; a genuine signed/device-bound entitlement requires the Device Trust WP05 issuer/verifier/license owner."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Support/admin operations require canonical account/household/role authority rather than caller headers or provider subjects."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "Payment support/admin mutations consume the shared authenticated Cloudflare support/admin boundary."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md"
+      ],
+      "reason": "Support/admin reads and corrections must be bound to the canonical durable subscription lifecycle."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md"
+      ],
+      "reason": "Refund/dispute support actions consume the Payment-owned invoice/refund/dispute state machine and its rollback semantics."
     },
     {
       "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",

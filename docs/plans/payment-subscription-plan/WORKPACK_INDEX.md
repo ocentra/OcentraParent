@@ -21,17 +21,17 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Proof root |
 | --- | --- | ---: | --- |
 | blocked / proof-present | [WP00 Cloudflare Control Plane Handoff](workpacks/00-cloudflare-control-plane-handoff.md) | 8/8 | `output/payment-subscription-plan-proof/00-cloudflare-control-plane-handoff/` |
-| done / proof-present | [WP01 Product Pricing Entitlement](workpacks/01-product-pricing-entitlement.md) | 12/12 | `output/payment-subscription-plan-proof/01-product-pricing-entitlement/` |
-| blocked / proof-present | [WP02 Checkout Billing Portal](workpacks/02-checkout-billing-portal.md) | 12/12 | `output/payment-subscription-plan-proof/02-checkout-billing-portal/` |
-| done | [WP03 Subscription Webhook Lifecycle](workpacks/03-subscription-webhook-lifecycle.md) | 12/12 | `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` |
-| done / proof-present | [WP04 Entitlement Delivery Gates](workpacks/04-entitlement-delivery-gates.md) | 12/12 | `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/` |
-| open | [WP05 Invoice Tax Refund Dispute](workpacks/05-invoice-tax-refund-dispute.md) | 0/12 | `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/` |
-| open | [WP06 Security Privacy Observability](workpacks/06-security-privacy-observability.md) | 0/12 | `output/payment-subscription-plan-proof/06-security-privacy-observability/` |
+| active / source integrated / expected tests open | [WP01 Product Pricing Entitlement](workpacks/01-product-pricing-entitlement.md) | 12/12 | `output/payment-subscription-plan-proof/01-product-pricing-entitlement/` |
+| blocked / source integrated / Account authority and expected tests open | [WP02 Checkout Billing Portal](workpacks/02-checkout-billing-portal.md) | 12/12 | `output/payment-subscription-plan-proof/02-checkout-billing-portal/` |
+| active / source integrated / expected tests open | [WP03 Subscription Webhook Lifecycle](workpacks/03-subscription-webhook-lifecycle.md) | 12/12 | `output/payment-subscription-plan-proof/03-subscription-webhook-lifecycle/` |
+| blocked / source integrated / issuer absent / expected tests open | [WP04 Entitlement Delivery Gates](workpacks/04-entitlement-delivery-gates.md) | 12/12 | `output/payment-subscription-plan-proof/04-entitlement-delivery-gates/` |
+| active / source integrated / expected tests open | [WP05 Invoice Tax Refund Dispute](workpacks/05-invoice-tax-refund-dispute.md) | 0/12 | `output/payment-subscription-plan-proof/05-invoice-tax-refund-dispute/` |
+| active / source integrated / expected tests open | [WP06 Security Privacy Observability](workpacks/06-security-privacy-observability.md) | 0/12 | `output/payment-subscription-plan-proof/06-security-privacy-observability/` |
 | open | [WP08 Provider Adapter Portability](workpacks/08-provider-adapter-portability.md) | 0/12 | `output/payment-subscription-plan-proof/08-provider-adapter-portability/` |
 | open | [WP09 Regional Payment Rollout](workpacks/09-regional-payment-rollout.md) | 0/12 | `output/payment-subscription-plan-proof/09-regional-payment-rollout/` |
-| open | [WP10 Referral Growth Entitlement](workpacks/10-referral-growth-entitlement.md) | 0/12 | `output/payment-subscription-plan-proof/10-referral-growth-entitlement/` |
+| active / source integrated / expected tests open | [WP10 Referral Growth Entitlement](workpacks/10-referral-growth-entitlement.md) | 0/12 | `output/payment-subscription-plan-proof/10-referral-growth-entitlement/` |
 | open | [WP11 Parent Website Billing Dashboard](workpacks/11-parent-website-billing-dashboard.md) | 0/12 | `output/payment-subscription-plan-proof/11-parent-website-billing-dashboard/` |
-| open | [WP12 Support Admin Billing Ops](workpacks/12-support-admin-billing-ops.md) | 0/12 | `output/payment-subscription-plan-proof/12-support-admin-billing-ops/` |
+| blocked / source integrated / Account authority and expected tests open | [WP12 Support Admin Billing Ops](workpacks/12-support-admin-billing-ops.md) | 0/12 | `output/payment-subscription-plan-proof/12-support-admin-billing-ops/` |
 | open | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 0/14 | `output/payment-subscription-plan-proof/07-rollout-proof-and-route-gate/` |
 
 ## Default execution order

@@ -3395,7 +3395,12 @@ async function adminAccountProjectionStatement(
 }
 
 type ProviderWebhookTransition =
-  'activate-subscription' | 'enter-grace' | 'dispute-opened' | 'dispute-lost' | 'dispute-won' | 'ignore';
+  | 'activate-subscription'
+  | 'enter-grace'
+  | 'dispute-opened'
+  | 'dispute-lost'
+  | 'dispute-won'
+  | 'ignore';
 
 function providerWebhookTransition(eventType: string): ProviderWebhookTransition {
   if (

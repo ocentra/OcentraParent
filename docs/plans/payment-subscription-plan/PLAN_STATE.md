@@ -1,5 +1,32 @@
 # Payment Subscription Plan State
 
+## Accepted production-source checkpoint - 2026-08-17
+
+The independently reviewed Payment source wave at `63305016f` is now on the
+root integration line. This is a **source-only** checkpoint: expected tests,
+focused test execution, proof, precommit, CI, and PR promotion remain open.
+
+Live source now provides:
+
+- Account-composite provider identity and exact provider-object binding rather
+  than provider subject text as standalone product authority;
+- durable Worker/Durable Object idempotency with versioned leases, bounded
+  retry/backoff, collision-safe ownership, and terminal manual-required state;
+- monotonic receipt/outbox/provider-cursor handling that rejects stale or
+  conflicting replay instead of re-running an accepted mutation;
+- a real forward D1 migration from legacy provider mappings that aborts on
+  ambiguous account/household ownership or uniqueness collisions; and
+- an unsigned entitlement projection that cannot be upgraded into access by
+  caller-supplied signature/key/status text.
+
+The source wave does **not** close the Payment plan. The Account WP02 current
+authority migration must land before Payment migration `0003`; ambiguous
+legacy rows require manual backfill; and no genuine provider-owned entitlement
+issuer/verifier bridge exists. Paid access therefore remains manual-required,
+and old text describing WP04 as a completed signed-snapshot runtime is
+superseded by this fail-closed source truth. Existing tests that construct the
+removed signed API are intentionally deferred to the expected-test wave.
+
 ## Production reachability audit - 2026-08-16
 
 The payment workpacks were checked against non-test callers and owned runtime

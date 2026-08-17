@@ -41,6 +41,65 @@
       "reason": "Reviewed ownership after Account WP01 selected Firebase Auth as an external identity/token issuer. Cloudflare WP05 is authorized for an implementation-only, fail-closed provider adapter and explicit environment/configuration custody; it may return only verified provider identity and must not create family, household, role, child, device, session, or fixture/header authority. Tests, proof, deployment secrets, runtime reachability, and DONE remain open."
     },
     {
+      "id": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+        "WP-payment-subscription-plan-01-product-pricing-entitlement"
+      ],
+      "evidence": [
+        "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The accepted Payment source wave adds Account-composite provider mapping, durable Worker/DO mutation ownership, and a fail-closed forward migration. Payment migration 0003 explicitly requires the Account WP02 current-authority schema and the Cloudflare WP06 durable binding/runtime owner; pricing semantics still come from Payment WP01. Expected tests, provider execution, proof, deployment, and DONE remain open."
+    },
+    {
+      "id": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "hardDependencies": ["WP-payment-subscription-plan-02-checkout-billing-portal"],
+      "evidence": [
+        "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Durable webhook/mutation replay must consume the canonical provider/account binding and Worker authority established by WP02. The accepted source has lease/retry/outbox/CAS mechanics, but provider verification, expected tests, proof, and DONE remain open."
+    },
+    {
+      "id": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "hardDependencies": [
+        "WP-payment-subscription-plan-01-product-pricing-entitlement",
+        "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+        "WP-device-trust-bootstrap-plan-05-entitlement-device-license"
+      ],
+      "evidence": [
+        "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Caller-minted signed entitlement authority was removed. A real entitlement delivery gate now requires pricing authority, a durable accepted billing lifecycle, and the Device Trust WP05 issuer/verifier/device-license owner. Until those owners compose, output remains unsigned/manual-required and expected tests, proof, and DONE stay open."
+    },
+    {
+      "id": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-02-identity-household-role-model",
+        "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+        "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+        "WP-payment-subscription-plan-05-invoice-tax-refund-dispute"
+      ],
+      "evidence": [
+        "docs/plans/payment-subscription-plan/PLAN_STATE.md",
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Support/admin billing mutations now bind durable provider/account identity and replay state, but they cannot become authority without Account role truth, Cloudflare support/admin authentication, the accepted subscription lifecycle, and invoice/refund/dispute ownership. Expected tests, provider execution, portal UI, proof, and DONE remain open."
+    },
+    {
       "id": "WP-policy-control-plane-plan-01-policy-source-of-truth",
       "hardDependencies": [
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
@@ -230,6 +289,127 @@
       ],
       "reason": "Cloudflare WP05 may implement the Firebase provider adapter only after Account WP01 records the external-provider and custody decision. This reviewed implementation edge does not promote normal READY, tests, proof, deployment, runtime, or DONE.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Payment migration 0003 resolves provider mappings through Account WP02 current household/account authority and must fail closed until that owner lands."
+    },
+    {
+      "from": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md"
+      ],
+      "reason": "The checkout/portal source uses the shared Cloudflare durable binding/runtime owner; Payment cannot make that scaffold or deployed resource authority complete."
+    },
+    {
+      "from": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md",
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md"
+      ],
+      "reason": "Checkout selection and seat changes consume the Payment-owned pricing/entitlement contract rather than provider metadata as product authority."
+    },
+    {
+      "from": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "to": "WP-payment-subscription-plan-02-checkout-billing-portal",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/02-checkout-billing-portal.md",
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md"
+      ],
+      "reason": "Webhook replay and lifecycle projection consume the canonical provider/account binding and Worker authority established by WP02."
+    },
+    {
+      "from": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "to": "WP-payment-subscription-plan-01-product-pricing-entitlement",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/01-product-pricing-entitlement.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md"
+      ],
+      "reason": "Entitlement delivery consumes Payment-owned pricing, seat, and limit semantics."
+    },
+    {
+      "from": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "to": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md"
+      ],
+      "reason": "A durable accepted subscription lifecycle must precede entitlement issuance; provider payloads alone are not access authority."
+    },
+    {
+      "from": "WP-payment-subscription-plan-04-entitlement-delivery-gates",
+      "to": "WP-device-trust-bootstrap-plan-05-entitlement-device-license",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/04-entitlement-delivery-gates.md",
+        "docs/plans/device-trust-bootstrap-plan/workpacks/05-entitlement-device-license.md"
+      ],
+      "reason": "Caller-minted signing was removed; a genuine signed/device-bound entitlement requires the Device Trust WP05 issuer/verifier/license owner."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+      ],
+      "reason": "Support/admin operations require canonical account/household/role authority rather than caller headers or provider subjects."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-cloudflare-control-plane-plan-05-auth-admin-support-boundary",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/05-auth-admin-support-boundary.md"
+      ],
+      "reason": "Payment support/admin mutations consume the shared authenticated Cloudflare support/admin boundary."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-payment-subscription-plan-03-subscription-webhook-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/03-subscription-webhook-lifecycle.md",
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md"
+      ],
+      "reason": "Support/admin reads and corrections must be bound to the canonical durable subscription lifecycle."
+    },
+    {
+      "from": "WP-payment-subscription-plan-12-support-admin-billing-ops",
+      "to": "WP-payment-subscription-plan-05-invoice-tax-refund-dispute",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/payment-subscription-plan/workpacks/05-invoice-tax-refund-dispute.md",
+        "docs/plans/payment-subscription-plan/workpacks/12-support-admin-billing-ops.md"
+      ],
+      "reason": "Refund/dispute support actions consume the Payment-owned invoice/refund/dispute state machine and its rollback semantics."
     },
     {
       "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
