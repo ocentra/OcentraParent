@@ -8,13 +8,13 @@ not plan completion, test proof, or release approval.
 
 | Surface | Verified state |
 | --- | --- |
-| Consolidated source | The current integration lane is `codex/eventing-wp09-production` at pushed checkpoint `117e18603b73e3ba279cdadec9e7a686289b10a4`. Its E-drive worktree also contains an uncommitted Device Trust WP01/WP03, Eventing WP11, Account WP08, and graph-routing batch; that batch is recoverable only from this machine until its review checkpoint is pushed. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
-| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; the pushed integration checkpoint is 204 commits ahead of `main` and 201 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
+| Consolidated source | The current integration lane is `codex/eventing-wp09-production`. Its reviewed Device Trust WP01/WP03, Eventing WP11, Account WP08, and graph-routing source checkpoint is pushed at `6145b91a2c782d3817572a31378e99f748481dfc`; this custody-only record follows that checkpoint. The batch is remote-safe and no longer exists only on this machine. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
+| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; source checkpoint `6145b91a2` is 205 commits ahead of `main` and 202 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
 | Pull requests | Zero open pull requests. No current CI or merge claim exists for the integration checkpoint; PR CI starts only after a scoped promotion PR is opened. |
 | Local work branches | `codex/app-game-plan-code-audit` and `codex/eventing-wp09-production` only. |
-| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` at pushed checkpoint `117e18603`. No registered OcentraParent worktree exists on C:. |
+| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` after pushed source checkpoint `6145b91a2`. No registered OcentraParent worktree exists on C:. |
 | C drive | No OcentraParent worktree remains under `C:/Users/sujan/.codex/worktrees`; only unrelated Enforcer and Ocentra Games entries remain there. |
-| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` is `117e18603`. Both local branches match their remote checkpoints. |
+| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` contains source checkpoint `6145b91a2` plus this custody record. Both local branches match their remote checkpoints after this record is pushed. |
 | Remote safety archives | Protected `codex/archive/all-remote-tips-20260815` plus protected complete archive `codex/archive/all-local-remote-tips-20260816` at `ac9f65bb4`. |
 | Stashes | One local stash remains: the intentional Eventing WP09 draft. The 129 rejected historical entries were dropped locally only after all 130 commits were made reachable from the complete 2026-08-16 remote archive. |
 | Executable graph | Valid at 705 nodes / 744 edges, 23 plans / 681 workpacks, with states 366 planned, 21 blocked, 2 ready, 2 active, 289 validation, and 1 done. It maps 2,961 implementation files and 1,145 test files across 680 reviewed workpack maps; mapping is not semantic completion. |
@@ -47,9 +47,10 @@ WP09 is now in validation; Device Trust WP01 and Eventing WP11 are READY.
 Account Identity WP08 and Cloudflare WP01 are in validation with independently
 reviewed implementation-only evidence. Cloudflare WP06 is authorized only for
 its next source packet; normal readiness remains dependency-blocked. The lane's
-last remote-safe checkpoint is `117e18603`; its current dirty Device Trust,
-Eventing, Account, and graph-routing batch must be committed and pushed before
-any promotion. The older WP09 draft stash remains at
+reviewed source checkpoint `6145b91a2` is remote-safe; the Device Trust,
+Eventing, Account, and graph-routing batch is no longer local-only. It remains
+source-only and must complete its test and validation phases before any
+promotion. The older WP09 draft stash remains at
 `3f785b7f5832c303ac759fa15b4e1625e58296e5` and is also remote-archived.
 
 ## Stash semantic decision
