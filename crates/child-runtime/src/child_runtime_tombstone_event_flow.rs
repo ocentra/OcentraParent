@@ -8,10 +8,7 @@ use ocentra_eventing::{
     envelope::{EventEnvelope, EventMetadata},
     journal::ndjson::NdjsonEventJournal,
 };
-use ocentra_storage_custody_core::{
-    retention_delete_tombstone_store::RetentionDeleteTombstoneStore,
-    storage_custody::StorageCustodyActionPlannedEvent,
-};
+use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
 
 use crate::runtime_gate_tombstone::{
     acknowledge_child_runtime_tombstone_publication, persist_child_runtime_tombstone_action,
@@ -20,15 +17,38 @@ use crate::runtime_gate_tombstone::{
     ChildRuntimeTombstoneRecoveryReport,
 };
 
+use crate::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
+
+/// Opaque authority for the runtime-owned tombstone outbox mutation seam.
+///
+/// The constructor is private to this module. Sibling modules can only reach
+/// the store mutation helpers through this event-flow owner; they cannot mint
+/// a raw executor token for direct persistence.
+#[derive(Clone, Copy)]
+pub(crate) struct RetentionDeleteTombstoneExecutor {
+    _private: (),
+}
+
+impl RetentionDeleteTombstoneExecutor {
+    fn new() -> Self {
+        Self { _private: () }
+    }
+}
+
 #[derive(Clone)]
 pub(crate) struct ChildRuntimeTombstoneEventFlow {
     journal: NdjsonEventJournal,
     store: RetentionDeleteTombstoneStore,
+    executor: RetentionDeleteTombstoneExecutor,
 }
 
 impl ChildRuntimeTombstoneEventFlow {
     pub(crate) fn new(journal: NdjsonEventJournal, store: RetentionDeleteTombstoneStore) -> Self {
-        Self { journal, store }
+        Self {
+            journal,
+            store,
+            executor: RetentionDeleteTombstoneExecutor::new(),
+        }
     }
 
     /// Accepts a real typed custody action, constructs its event envelope, and
@@ -45,6 +65,7 @@ impl ChildRuntimeTombstoneEventFlow {
         persist_child_runtime_tombstone_action_with_milestones(
             &self.journal,
             &self.store,
+            &self.executor,
             &envelope,
             &action,
         )
@@ -63,7 +84,14 @@ impl ChildRuntimeTombstoneEventFlow {
         let envelope = EventEnvelope::from_event(action.clone(), metadata)
             .and_then(|event| event.store())
             .map_err(std::io::Error::other)?;
-        persist_child_runtime_tombstone_action(&self.journal, &self.store, &envelope, &action).await
+        persist_child_runtime_tombstone_action(
+            &self.journal,
+            &self.store,
+            &self.executor,
+            &envelope,
+            &action,
+        )
+        .await
     }
 
     /// Journal a custody action that does not create a local retention
@@ -97,6 +125,7 @@ impl ChildRuntimeTombstoneEventFlow {
         persist_child_runtime_tombstone_action_with_milestones(
             &self.journal,
             &self.store,
+            &self.executor,
             envelope,
             action,
         )
@@ -117,8 +146,19 @@ impl ChildRuntimeTombstoneEventFlow {
     /// runtime has durably committed the local terminal effect.  Keeping the
     /// store behind this flow prevents a caller from minting or bypassing the
     /// terminal publication boundary.
-    pub(crate) async fn acknowledge_publication(&self, deletion_ref: &str) -> std::io::Result<()> {
-        acknowledge_child_runtime_tombstone_publication(&self.store, deletion_ref).await
+    pub(crate) async fn acknowledge_publication(
+        &self,
+        terminal_effect: &super::service::storage_custody_runtime::
+            StorageCustodyTerminalEffectCapability,
+        action: &StorageCustodyActionPlannedEvent,
+    ) -> std::io::Result<()> {
+        acknowledge_child_runtime_tombstone_publication(
+            &self.store,
+            &self.executor,
+            terminal_effect,
+            action,
+        )
+        .await
     }
 
     /// Service startup recovery entry point. It republishes durable pending

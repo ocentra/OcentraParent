@@ -13,6 +13,8 @@ use ocentra_storage_custody_core::storage_custody::{
 
 use super::child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow;
 
+#[path = "storage_custody_effect_store.rs"]
+mod storage_custody_effect_store;
 #[path = "storage_custody_runtime_authority.rs"]
 mod storage_custody_runtime_authority;
 #[path = "storage_custody_runtime_authority_reasons.rs"]
@@ -58,6 +60,21 @@ pub(crate) trait ChildStorageCustodyAuthority: Send + Sync {
     fn allows(&self, effect: StorageCustodyEffectKind) -> bool;
     fn custody_input(&self, effect: StorageCustodyEffectKind) -> Option<StorageCustodyInput>;
     fn allows_local_payload(&self, relative_path: &Path) -> bool;
+}
+
+/// Proof token minted only by the child-runtime custody effect owner after a
+/// local terminal effect has been durably committed. The constructor is
+/// restricted to this runtime module and its descendants, so sibling callers
+/// cannot forge terminal publication authority.
+#[derive(Clone, Copy)]
+pub(crate) struct StorageCustodyTerminalEffectCapability {
+    _private: (),
+}
+
+impl StorageCustodyTerminalEffectCapability {
+    pub(in crate::service::storage_custody_runtime) fn new() -> Self {
+        Self { _private: () }
+    }
 }
 
 /// Non-serializable current-authority handoff retained by the child service.
@@ -115,7 +132,7 @@ pub enum ChildStorageCustodyReadiness {
 pub(super) struct ChildStorageCustodyRuntime {
     root: std::path::PathBuf,
     flow: ChildRuntimeTombstoneEventFlow,
-    effects: ocentra_storage_custody_core::storage_custody_effect_store::StorageCustodyEffectStore,
+    effects: storage_custody_effect_store::StorageCustodyEffectStore,
     authority: ChildStorageCustodyAuthorityHandle,
     apply_lease_owner: String,
 }

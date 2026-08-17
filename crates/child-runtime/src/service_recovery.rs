@@ -1,6 +1,7 @@
 use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions};
-use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use tokio::sync::mpsc;
+
+use crate::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 
 use super::storage_custody_runtime::ChildStorageCustodyAuthorityHandle;
 use super::{
@@ -45,6 +46,11 @@ impl ChildAgentService {
             super::ChildAgentRemovalBoundary::open_with_identity(paths.removal(), identity)
                 .map_err(ChildAgentServiceError::Storage)?;
         let tombstone_flow = ChildRuntimeTombstoneEventFlow::new(journal.clone(), store);
+        let storage_custody = super::storage_custody_runtime::ChildStorageCustodyRuntime::open(
+            paths.root(),
+            tombstone_flow.clone(),
+            authority,
+        )?;
         journal.recover().await?;
         let recovery = tombstone_flow
             .recover_pending()
@@ -57,11 +63,6 @@ impl ChildAgentService {
             domain_flows.push(super::ChildDomainRuntimeEventFlow::for_domain(domain).await?);
         }
         let (sender, commands) = mpsc::channel(CHILD_AGENT_COMMAND_CAPACITY);
-        let storage_custody = super::storage_custody_runtime::ChildStorageCustodyRuntime::open(
-            paths.root(),
-            tombstone_flow.clone(),
-            authority,
-        )?;
         storage_custody.recover_pending().await?;
 
         Ok(Self {

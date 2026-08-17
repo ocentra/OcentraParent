@@ -1,8 +1,8 @@
-use ocentra_storage_custody_core::{
-    storage_custody::{StorageCustodyEffect, StorageCustodyEffectKind},
-    storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus},
+use ocentra_storage_custody_core::storage_custody::{
+    StorageCustodyEffect, StorageCustodyEffectKind,
 };
 
+use super::storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus};
 use super::storage_custody_runtime_validation::invalid_custody;
 use super::{ChildStorageCustodyOutcome, ChildStorageCustodyRuntime};
 use crate::service::ChildAgentServiceError;
@@ -16,7 +16,7 @@ pub(crate) fn existing_outcome(
     let Some(existing) = existing_record(runtime, operation_ref, effect, request)? else {
         return Ok(None);
     };
-    match existing.status {
+    match existing.status() {
         StorageCustodyEffectStatus::Applied => {
             Ok(Some(ChildStorageCustodyOutcome::AlreadyApplied {
                 operation_ref: operation_ref.to_owned(),
@@ -28,8 +28,9 @@ pub(crate) fn existing_outcome(
                 operation_ref: operation_ref.to_owned(),
                 effect,
                 reason: existing
-                    .manual_required_reason
-                    .unwrap_or_else(|| "custody effect requires manual handling".to_owned()),
+                    .manual_required_reason()
+                    .unwrap_or("custody effect requires manual handling")
+                    .to_owned(),
             }))
         }
         StorageCustodyEffectStatus::Prepared

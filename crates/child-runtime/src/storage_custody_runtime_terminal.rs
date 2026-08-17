@@ -1,9 +1,9 @@
 use std::io;
 
 use ocentra_storage_custody_core::storage_custody::StorageCustodyEffectKind;
-use ocentra_storage_custody_core::storage_custody_effect_store::StorageCustodyEffectRecord;
 
 use super::{
+    storage_custody_effect_store::StorageCustodyEffectRecord,
     storage_custody_runtime_authority::record_still_matches_authority,
     storage_custody_runtime_delete::delete_local_file,
     storage_custody_runtime_reasons::manual_required_reason,
@@ -91,13 +91,10 @@ async fn finish_local_delete(
                 .effects
                 .mark_applied(&record.operation_ref, &lease_id)
                 .map_err(ChildAgentServiceError::Storage)?;
-            let deletion_ref = format!(
-                "storage-custody-delete:{}",
-                record.action.source_decision_id.as_str()
-            );
+            let terminal_effect = super::StorageCustodyTerminalEffectCapability::new();
             runtime
                 .flow
-                .acknowledge_publication(&deletion_ref)
+                .acknowledge_publication(&terminal_effect, &record.action)
                 .await
                 .map_err(ChildAgentServiceError::Storage)?;
             Ok(ChildStorageCustodyOutcome::Applied {

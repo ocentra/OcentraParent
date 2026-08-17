@@ -6,8 +6,6 @@ pub mod parent_owned_sync_export;
 pub mod parent_storage_settings_apply_flow;
 pub mod report_query_custody;
 pub mod retention_delete_tombstone;
-pub mod retention_delete_tombstone_store;
 pub mod storage_custody;
-pub mod storage_custody_effect_store;
 pub mod windows_device_trust_custody;
 pub mod windows_dpapi_key_sealing;

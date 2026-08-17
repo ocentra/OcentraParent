@@ -1,11 +1,11 @@
 use std::sync::atomic::{AtomicU64, Ordering};
 
-use ocentra_storage_custody_core::{
-    storage_custody::StorageCustodyEffectKind,
-    storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus},
-};
+use ocentra_storage_custody_core::storage_custody::StorageCustodyEffectKind;
 
-use super::ChildStorageCustodyRuntime;
+use super::{
+    storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus},
+    ChildStorageCustodyRuntime, StorageCustodyTerminalEffectCapability,
+};
 use crate::service::ChildAgentServiceError;
 
 static NEXT_APPLY_LEASE_OWNER: AtomicU64 = AtomicU64::new(1);
@@ -45,17 +45,14 @@ impl ChildStorageCustodyRuntime {
                 format!("unknown custody effect operation: {operation_ref}"),
             )));
         };
-        if record.status != StorageCustodyEffectStatus::Applied
+        if record.status() != StorageCustodyEffectStatus::Applied
             || record.effect_kind != StorageCustodyEffectKind::LocalDelete
         {
             return Ok(());
         }
-        let deletion_ref = format!(
-            "storage-custody-delete:{}",
-            record.action.source_decision_id.as_str()
-        );
+        let terminal_effect = StorageCustodyTerminalEffectCapability::new();
         self.flow
-            .acknowledge_publication(&deletion_ref)
+            .acknowledge_publication(&terminal_effect, &record.action)
             .await
             .map_err(ChildAgentServiceError::Storage)
     }
@@ -69,7 +66,7 @@ impl ChildStorageCustodyRuntime {
             .map_err(ChildAgentServiceError::Storage)?
             .into_iter()
             .filter(|record| {
-                record.status == StorageCustodyEffectStatus::Applied
+                record.status() == StorageCustodyEffectStatus::Applied
                     && record.effect_kind == StorageCustodyEffectKind::LocalDelete
             })
             .map(|record| record.operation_ref)

@@ -1,9 +1,8 @@
 use std::io;
 
 use ocentra_eventing::envelope::StoredEventEnvelope;
+use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
 use serde::{Deserialize, Serialize};
-
-use crate::storage_custody::StorageCustodyActionPlannedEvent;
 
 use super::{
     RetentionDeleteOutboxPayload, RetentionDeleteOutboxRecord, TypedTombstoneOutboxPayload,
@@ -25,6 +24,7 @@ impl RetentionDeleteOutboxRecord {
 
 pub(super) const TYPED_STORE_VERSION: u16 = 2;
 pub(super) const TERMINAL_MARKER_STORE_VERSION: u16 = 3;
+pub(super) const LEGACY_STORE_VERSION: u16 = 1;
 
 #[derive(Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]

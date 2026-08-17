@@ -1,6 +1,7 @@
-use ocentra_storage_custody_core::storage_custody_effect_store::StorageCustodyEffectStatus;
-
-use super::{ChildStorageCustodyReadiness, ChildStorageCustodyRuntime};
+use super::{
+    storage_custody_effect_store::StorageCustodyEffectStatus, ChildStorageCustodyReadiness,
+    ChildStorageCustodyRuntime,
+};
 use crate::service::ChildAgentServiceError;
 
 impl ChildStorageCustodyRuntime {
@@ -12,7 +13,7 @@ impl ChildStorageCustodyRuntime {
             .iter()
             .filter(|record| {
                 matches!(
-                    record.status,
+                    record.status(),
                     StorageCustodyEffectStatus::Prepared
                         | StorageCustodyEffectStatus::Journaled
                         | StorageCustodyEffectStatus::Applying
@@ -27,7 +28,7 @@ impl ChildStorageCustodyRuntime {
         }
         let manual_operation_refs = records
             .iter()
-            .filter(|record| record.status == StorageCustodyEffectStatus::ManualRequired)
+            .filter(|record| record.status() == StorageCustodyEffectStatus::ManualRequired)
             .map(|record| record.operation_ref.clone())
             .collect::<Vec<_>>();
         if !manual_operation_refs.is_empty() {

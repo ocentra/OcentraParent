@@ -3,7 +3,7 @@ use std::io;
 use super::{storage_custody_effect_store_io, StorageCustodyEffectStore};
 
 impl StorageCustodyEffectStore {
-    pub(super) fn update(
+    fn update(
         &self,
         operation_ref: &str,
         update: impl FnOnce(&mut super::StorageCustodyEffectRecord) -> io::Result<()>,
