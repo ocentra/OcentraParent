@@ -18,6 +18,8 @@ mod account_identity_authority_repository_invariants;
 mod account_identity_authority_repository_read;
 #[path = "account_identity_authority_service_error.rs"]
 mod account_identity_authority_service_error;
+#[path = "session_lifecycle_repository.rs"]
+pub mod session_lifecycle_repository;
 
 #[derive(Debug)]
 pub enum AccountIdentityAuthorityRepositoryError {
@@ -58,6 +60,9 @@ impl SqliteAccountIdentityAuthorityRepository {
                     PRIMARY KEY (provider, provider_subject)
                  ) STRICT;",
             )
+            .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
+        connection
+            .execute_batch(session_lifecycle_repository::SESSION_SCHEMA_SQL)
             .map_err(|_| AccountIdentityAuthorityRepositoryError::Unavailable)?;
         Ok(Self { connection })
     }
