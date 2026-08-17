@@ -18,12 +18,14 @@ export const ParentStorageSettingsApplyFlowContractRuntime = {{
 export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
 export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
+export const GeneratedParentStorageHouseholdRefSchema = brandedNonEmptyStringSchema('ParentStorageHouseholdRef');
 export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
 export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
 export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 
 export type GeneratedParentStorageSettingsRowId = typeof GeneratedParentStorageSettingsRowIdSchema.Type;
 export type GeneratedParentStoragePreviewId = typeof GeneratedParentStoragePreviewIdSchema.Type;
+export type GeneratedParentStorageHouseholdRef = typeof GeneratedParentStorageHouseholdRefSchema.Type;
 export type GeneratedParentStorageApplyId = typeof GeneratedParentStorageApplyIdSchema.Type;
 export type GeneratedParentStorageActionId = typeof GeneratedParentStorageActionIdSchema.Type;
 export type GeneratedParentStorageTimestamp = typeof GeneratedParentStorageTimestampSchema.Type;
@@ -229,6 +231,7 @@ export interface GeneratedParentStorageModeCard {{
 
 export interface GeneratedParentStorageRestorePreview {{
   readonly previewId: GeneratedParentStoragePreviewId;
+  readonly householdRef: GeneratedParentStorageHouseholdRef;
   readonly previewState: GeneratedParentStoragePreviewState;
   readonly createdAt: GeneratedParentStorageTimestamp;
   readonly productVersion: string;

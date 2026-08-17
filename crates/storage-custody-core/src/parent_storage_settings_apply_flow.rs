@@ -7,6 +7,8 @@ mod parent_storage_settings_apply_flow_actions;
 mod parent_storage_settings_apply_flow_apply;
 #[path = "parent_storage_settings_apply_flow_card.rs"]
 mod parent_storage_settings_apply_flow_card;
+#[path = "parent_storage_settings_apply_flow_confirmation.rs"]
+mod parent_storage_settings_apply_flow_confirmation;
 #[path = "parent_storage_settings_apply_flow_preview.rs"]
 mod parent_storage_settings_apply_flow_preview;
 #[path = "parent_storage_settings_apply_flow_proof.rs"]
@@ -27,6 +29,7 @@ pub struct ParentStorageModeCardInput {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParentStorageRestorePreviewInput {
     pub preview_id: contracts::ParentStoragePreviewId,
+    pub household_ref: contracts::ParentStorageHouseholdRef,
     pub preview_state: contracts::ParentStoragePreviewState,
     pub created_at: contracts::ParentStorageTimestamp,
     pub product_version: String,
@@ -40,6 +43,51 @@ pub struct ParentStorageRestorePreviewInput {
     pub manual_required_note: Option<String>,
 }
 
+/// The confirmation receipt is an opaque result from the trusted authority
+/// resolver.  This crate only binds it to the preview and household and
+/// refuses non-issued or malformed receipts; it never mints authority or
+/// applies provider data.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ParentStorageConfirmationReceipt {
+    confirmation_ref: contracts::ParentStorageConfirmationRef,
+    preview_id: contracts::ParentStoragePreviewId,
+    household_ref: contracts::ParentStorageHouseholdRef,
+    issued_at: contracts::ParentStorageTimestamp,
+    expires_at: contracts::ParentStorageTimestamp,
+    status: ParentStorageConfirmationReceiptStatus,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ParentStorageConfirmationReceiptStatus {
+    Issued,
+    Expired,
+    Replayed,
+    WrongHousehold,
+}
+
+impl ParentStorageConfirmationReceipt {
+    /// Accept an opaque receipt resolved by the authority owner.  The caller
+    /// cannot provide an authorization claim; this value is only a binding
+    /// that the apply flow validates before deriving a terminal decision.
+    pub fn from_resolved_opaque(
+        confirmation_ref: contracts::ParentStorageConfirmationRef,
+        preview_id: contracts::ParentStoragePreviewId,
+        household_ref: contracts::ParentStorageHouseholdRef,
+        issued_at: contracts::ParentStorageTimestamp,
+        expires_at: contracts::ParentStorageTimestamp,
+        status: ParentStorageConfirmationReceiptStatus,
+    ) -> Self {
+        Self {
+            confirmation_ref,
+            preview_id,
+            household_ref,
+            issued_at,
+            expires_at,
+            status,
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct ParentStorageApplyDecisionInput {
     pub apply_id: contracts::ParentStorageApplyId,
@@ -50,6 +98,7 @@ pub struct ParentStorageApplyDecisionInput {
     pub manual_review_required: Vec<String>,
     pub rollback_available: bool,
     pub manual_required_note: Option<String>,
+    pub confirmation_receipt: Option<ParentStorageConfirmationReceipt>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -77,6 +126,13 @@ pub enum ParentStorageSettingsApplyFlowError {
     WrongDevicePreviewMustNotMatch,
     ApplyMustStayConfirmationGated,
     ApplyCannotProceedWithoutPreview,
+    ConfirmationRequired,
+    ConfirmationExpired,
+    ConfirmationReplayed,
+    ConfirmationHouseholdMismatch,
+    ConfirmationPreviewMismatch,
+    ConfirmationReceiptInvalid,
+    ConfirmationWindowInvalid,
     DisconnectCannotDeleteProviderData,
     DeleteActionMustStaySeparateFromDisconnect,
     DuplicateDeleteActionKind(contracts::ParentStorageDeleteActionKind),

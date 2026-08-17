@@ -5,7 +5,7 @@ use super::enums::{
     ParentStorageNoClaim, ParentStoragePreviewState, ParentStorageUiState,
 };
 use super::identifiers::{
-    action_id, apply_id, contract_version, owned_text, preview_id, row_id, timestamp,
+    action_id, apply_id, contract_version, household_ref, owned_text, preview_id, row_id, timestamp,
 };
 use super::proof_types::{
     ParentStorageApplyDecision, ParentStorageClaimSafeCopyRow, ParentStorageDeleteActionRow,
@@ -122,6 +122,7 @@ fn sample_mode_card() -> ParentStorageModeCard {
 fn sample_restore_preview() -> ParentStorageRestorePreview {
     ParentStorageRestorePreview {
         preview_id: preview_id(PARENT_STORAGE_RESTORE_PREVIEW_ID_VALUE),
+        household_ref: household_ref(PARENT_STORAGE_HOUSEHOLD_REF_VALUE),
         preview_state: ParentStoragePreviewState::PartialRestore,
         created_at: timestamp(PARENT_STORAGE_RESTORE_PREVIEW_CREATED_AT_VALUE),
         product_version: owned_text(PARENT_STORAGE_PRODUCT_VERSION_VALUE),

@@ -1,6 +1,9 @@
 use ocentra_schema::parent_storage_settings_apply_flow as contracts;
 
-use super::{ParentStorageApplyDecisionInput, ParentStorageSettingsApplyFlowError};
+use super::{
+    parent_storage_settings_apply_flow_confirmation::validate_confirmation_receipt,
+    ParentStorageApplyDecisionInput, ParentStorageSettingsApplyFlowError,
+};
 
 pub(super) fn derive_parent_storage_apply_decision(
     preview: &contracts::ParentStorageRestorePreview,
@@ -16,14 +19,16 @@ pub(super) fn derive_parent_storage_apply_decision(
         | contracts::ParentStorageApplyState::NotStarted => {}
     }
 
-    if preview.confirmation_required
-        && matches!(
-            input.apply_state,
-            contracts::ParentStorageApplyState::Applied
-                | contracts::ParentStorageApplyState::Partial
-        )
-    {
-        return Err(ParentStorageSettingsApplyFlowError::ApplyMustStayConfirmationGated);
+    let confirmed_apply = matches!(
+        input.apply_state,
+        contracts::ParentStorageApplyState::Applied | contracts::ParentStorageApplyState::Partial
+    );
+    if confirmed_apply {
+        let receipt = input
+            .confirmation_receipt
+            .as_ref()
+            .ok_or(ParentStorageSettingsApplyFlowError::ConfirmationRequired)?;
+        validate_confirmation_receipt(preview, receipt)?;
     }
     if input.apply_state == contracts::ParentStorageApplyState::ApplyRequiresConfirmation
         && !preview.confirmation_required
@@ -42,7 +47,7 @@ pub(super) fn derive_parent_storage_apply_decision(
     Ok(contracts::ParentStorageApplyDecision {
         apply_id: input.apply_id,
         apply_state: input.apply_state,
-        confirmation_required: true,
+        confirmation_required: !confirmed_apply,
         will_change: input.will_change,
         will_not_change: input.will_not_change,
         preserved_tombstones: input.preserved_tombstones,

@@ -18,12 +18,14 @@ export const ParentStorageSettingsApplyFlowContractRuntime = {
 export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
 export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
+export const GeneratedParentStorageHouseholdRefSchema = brandedNonEmptyStringSchema('ParentStorageHouseholdRef');
 export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
 export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
 export const GeneratedParentStorageTimestampSchema = brandedNonEmptyStringSchema('ParentTimestamp');
 
 export type GeneratedParentStorageSettingsRowId = typeof GeneratedParentStorageSettingsRowIdSchema.Type;
 export type GeneratedParentStoragePreviewId = typeof GeneratedParentStoragePreviewIdSchema.Type;
+export type GeneratedParentStorageHouseholdRef = typeof GeneratedParentStorageHouseholdRefSchema.Type;
 export type GeneratedParentStorageApplyId = typeof GeneratedParentStorageApplyIdSchema.Type;
 export type GeneratedParentStorageActionId = typeof GeneratedParentStorageActionIdSchema.Type;
 export type GeneratedParentStorageTimestamp = typeof GeneratedParentStorageTimestampSchema.Type;
@@ -57,10 +59,7 @@ export type GeneratedParentStorageUiState =
   | 'ocentraHostedStorageNotUsed'
   | 'ready';
 export type GeneratedParentStorageEncryptionStatus =
-  | 'encrypted-before-upload'
-  | 'human-readable-parent-authorized'
-  | 'not-applicable'
-  | 'manual-required';
+  'encrypted-before-upload' | 'human-readable-parent-authorized' | 'not-applicable' | 'manual-required';
 export type GeneratedParentStorageKeyStatus = 'keyAvailable' | 'keyUnavailable' | 'keyRevoked' | 'manualRequired';
 export type GeneratedParentStoragePreviewState =
   | 'importPreviewPassed'
@@ -229,6 +228,7 @@ export interface GeneratedParentStorageModeCard {
 
 export interface GeneratedParentStorageRestorePreview {
   readonly previewId: GeneratedParentStoragePreviewId;
+  readonly householdRef: GeneratedParentStorageHouseholdRef;
   readonly previewState: GeneratedParentStoragePreviewState;
   readonly createdAt: GeneratedParentStorageTimestamp;
   readonly productVersion: string;
@@ -324,6 +324,7 @@ export const GeneratedParentStorageSettingsApplyFlowContractProof = {
   },
   restorePreview: {
     previewId: 'restore-preview-proof-1',
+    householdRef: 'household-proof-1',
     previewState: 'partialRestore',
     createdAt: '2026-06-28T19:14:00.000Z',
     productVersion: '2026.06.28',
