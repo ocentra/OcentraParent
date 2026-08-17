@@ -45,7 +45,9 @@ export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedP
     !/^[0-9a-f]{64}$/.test(decision.applyIntentDigest) ||
     decision.applyState === 'applyPending' ||
     decision.applyState === 'applied' ||
-    decision.applyState === 'partial'
+    decision.applyState === 'partial' ||
+    (decision.rollbackAvailable &&
+      (decision.applyState === 'applyRequiresConfirmation' || decision.applyState === 'blockedManualRequired'))
   ) {
     return false;
   }

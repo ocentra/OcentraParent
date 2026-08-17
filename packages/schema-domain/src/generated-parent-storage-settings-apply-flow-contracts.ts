@@ -1,6 +1,6 @@
 /* generated from crates/schema/src/parent_storage_settings_apply_flow.rs */
 
-import { brandedNonEmptyStringSchema } from './effect';
+import { Schema, brandedNonEmptyStringSchema } from './effect';
 
 import type {
   GeneratedParentOwnedSyncDeleteVisibilityState,
@@ -19,8 +19,11 @@ export type GeneratedParentContractSchemaVersion = 'v0.6';
 export const GeneratedParentStorageSettingsRowIdSchema = brandedNonEmptyStringSchema('ParentStorageSettingsRowId');
 export const GeneratedParentStoragePreviewIdSchema = brandedNonEmptyStringSchema('ParentStoragePreviewId');
 export const GeneratedParentStorageHouseholdRefSchema = brandedNonEmptyStringSchema('ParentStorageHouseholdRef');
-export const GeneratedParentStorageApplyIntentDigestSchema = brandedNonEmptyStringSchema(
-  'ParentStorageApplyIntentDigest'
+export const GeneratedParentStorageApplyIntentDigestSchema = Schema.String.pipe(
+  Schema.filter(
+    (value) => /^[0-9a-f]{64}$/.test(value) || 'Expected a 64-character lowercase hexadecimal apply intent digest'
+  ),
+  Schema.brand('ParentStorageApplyIntentDigest')
 );
 export const GeneratedParentStorageApplyIdSchema = brandedNonEmptyStringSchema('ParentStorageApplyId');
 export const GeneratedParentStorageActionIdSchema = brandedNonEmptyStringSchema('ParentStorageActionId');
@@ -348,14 +351,14 @@ export const GeneratedParentStorageSettingsApplyFlowContractProof = {
   applyDecision: {
     applyId: 'apply-decision-proof-1',
     applyIntentDigest: 'd21a05fd04a3e1f8a18b8d4131683513b898d8642d38a65a55ce9d6cc30799f2',
-    applyState: 'applyRequiresConfirmation',
+    applyState: 'blockedManualRequired',
     confirmationRequired: true,
     willChange: ['encrypted-journal-segment', 'generated-summary'],
     willNotChange: ['notification-history'],
     preservedTombstones: ['notification-history'],
     manualReviewRequired: ['notification-history tombstone conflict'],
     rollbackAvailable: false,
-    manualRequiredNote: null,
+    manualRequiredNote: 'Manual review is required before any blocked section can be reconsidered.',
   },
   deleteActions: [
     {

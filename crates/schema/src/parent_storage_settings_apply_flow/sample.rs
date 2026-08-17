@@ -154,7 +154,7 @@ fn sample_apply_decision() -> ParentStorageApplyDecision {
             ParentStorageApplyIntentDigest::parse(PARENT_STORAGE_APPLY_INTENT_DIGEST_VALUE),
             PARENT_STORAGE_EXPECT_APPLY_INTENT_DIGEST,
         ),
-        apply_state: ParentStorageApplyState::ApplyRequiresConfirmation,
+        apply_state: ParentStorageApplyState::BlockedManualRequired,
         confirmation_required: true,
         will_change: vec![
             ParentOwnedSyncExportDataClass::EncryptedJournalSegment,
@@ -166,7 +166,7 @@ fn sample_apply_decision() -> ParentStorageApplyDecision {
             PARENT_STORAGE_CONFLICT_NOTIFICATION_HISTORY_TOMBSTONE_CONFLICT,
         )],
         rollback_available: false,
-        manual_required_note: None,
+        manual_required_note: Some(owned_text(PARENT_STORAGE_MANUAL_REVIEW_REQUIRED_NOTE)),
     }
 }
 
