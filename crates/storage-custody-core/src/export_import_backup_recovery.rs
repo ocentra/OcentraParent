@@ -7,8 +7,23 @@ use ocentra_family_identity_core::household_authority_proof::CurrentVerifiedHous
 mod export_import_backup_recovery_build;
 #[path = "export_import_backup_recovery_import.rs"]
 mod export_import_backup_recovery_import;
+#[path = "export_import_backup_recovery_migration.rs"]
+pub mod export_import_backup_recovery_migration;
 #[path = "export_import_backup_recovery_restore.rs"]
 mod export_import_backup_recovery_restore;
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BackupRequestInput {
+    pub bundle_id: contracts::ExportImportBundleId,
+    pub cadence: contracts::ExportImportBackupCadence,
+    pub household_id: contracts::ExportImportHouseholdId,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BackupRequestError {
+    AuthorityActionRequired,
+    HouseholdMismatch,
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct ExportBundleBuildRequest {
@@ -137,6 +152,41 @@ pub(crate) fn run_import_preflight(
     export_import_backup_recovery_import::run_import_preflight(bundle, context)
 }
 
+pub fn execute_import_migration(
+    preflight: &contracts::ExportImportImportPreflight,
+    request: &export_import_backup_recovery_migration::MigrationExecutionRequest,
+    executor: &mut impl export_import_backup_recovery_migration::MigrationExecutor,
+) -> contracts::ExportImportMigrationExecutionResult {
+    export_import_backup_recovery_migration::execute_import_migration(preflight, request, executor)
+}
+
+pub fn authorize_backup_request(
+    input: BackupRequestInput,
+    authority: CurrentVerifiedHouseholdAuthority,
+) -> Result<contracts::ExportImportBackupRequestState, BackupRequestError> {
+    if authority.input().action != HouseholdAuthorityAction::ExportDeleteData {
+        return Err(BackupRequestError::AuthorityActionRequired);
+    }
+    let identity_binding = authority.identity_binding();
+    if identity_binding.household_id() != input.household_id.as_str() {
+        return Err(BackupRequestError::HouseholdMismatch);
+    }
+
+    let scheduled = input.cadence == contracts::ExportImportBackupCadence::Scheduled;
+    Ok(contracts::ExportImportBackupRequestState {
+        bundle_id: input.bundle_id,
+        cadence: input.cadence,
+        state: if scheduled {
+            contracts::ExportImportBackupState::ManualRequired
+        } else {
+            contracts::ExportImportBackupState::Authorized
+        },
+        explicit_confirmation_required: true,
+        provider_runtime_claimed: false,
+        manual_required_note: scheduled.then(|| BACKUP_SCHEDULED_MANUAL_REQUIRED_NOTE.to_string()),
+    })
+}
+
 pub fn apply_restore(
     preflight: &contracts::ExportImportImportPreflight,
     request: &RestoreApplyRequest,
@@ -189,4 +239,42 @@ pub(crate) fn apply_restore_with_parent_authority_and_executor(
         return export_import_backup_recovery_restore::blocked_restore(preflight, request);
     };
     result
+}
+
+pub(crate) fn apply_restore_with_parent_authority_and_migration_executor(
+    preflight: &contracts::ExportImportImportPreflight,
+    context: &ImportBundleContext,
+    request: &RestoreApplyRequest,
+    authority: CurrentVerifiedHouseholdAuthority,
+    migration_request: &export_import_backup_recovery_migration::MigrationExecutionRequest,
+    migration_executor: &mut impl export_import_backup_recovery_migration::MigrationExecutor,
+    restore_executor: &mut impl RestoreExecutor,
+) -> (
+    contracts::ExportImportRestoreApplyResult,
+    contracts::ExportImportMigrationExecutionResult,
+) {
+    let migration = export_import_backup_recovery_migration::execute_import_migration(
+        preflight,
+        migration_request,
+        migration_executor,
+    );
+    if !matches!(
+        migration.state,
+        contracts::ExportImportMigrationExecutionState::Applied
+            | contracts::ExportImportMigrationExecutionState::NotRequired
+    ) {
+        return (
+            export_import_backup_recovery_restore::blocked_restore(preflight, request),
+            migration,
+        );
+    }
+
+    let restore = apply_restore_with_parent_authority_and_executor(
+        preflight,
+        context,
+        request,
+        authority,
+        restore_executor,
+    );
+    (restore, migration)
 }

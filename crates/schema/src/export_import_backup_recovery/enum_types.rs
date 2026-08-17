@@ -45,6 +45,21 @@ export_import_string_enums!(
         RequiredSupported,
         RequiredUnsupported,
     },
+    ExportImportBackupCadence, "kebab-case" {
+        Manual,
+        Scheduled,
+    },
+    ExportImportBackupState, "camelCase" {
+        Authorized,
+        ManualRequired,
+    },
+    ExportImportMigrationExecutionState, "camelCase" {
+        NotRequired,
+        Applied,
+        RolledBack,
+        ManualRequired,
+        RollbackManualRequired,
+    },
     ExportImportPreflightState, "camelCase" {
         AcceptedPreview,
         PartialPreview,
@@ -169,6 +184,36 @@ export_import_string_enum_as_str_values!(
             EXPORT_IMPORT_MIGRATION_STATE_NOT_REQUIRED,
             EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_SUPPORTED,
             EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_UNSUPPORTED,
+        ],
+    },
+    ExportImportBackupCadence {
+        variants: [Manual, Scheduled],
+        values: [
+            EXPORT_IMPORT_BACKUP_CADENCE_MANUAL,
+            EXPORT_IMPORT_BACKUP_CADENCE_SCHEDULED
+        ],
+    },
+    ExportImportBackupState {
+        variants: [Authorized, ManualRequired],
+        values: [
+            EXPORT_IMPORT_BACKUP_STATE_AUTHORIZED,
+            EXPORT_IMPORT_BACKUP_STATE_MANUAL_REQUIRED,
+        ],
+    },
+    ExportImportMigrationExecutionState {
+        variants: [
+            NotRequired,
+            Applied,
+            RolledBack,
+            ManualRequired,
+            RollbackManualRequired,
+        ],
+        values: [
+            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_NOT_REQUIRED,
+            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_APPLIED,
+            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLED_BACK,
+            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_MANUAL_REQUIRED,
+            EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLBACK_MANUAL_REQUIRED,
         ],
     },
     ExportImportPreflightState {

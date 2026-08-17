@@ -40,6 +40,16 @@ const EXPORT_IMPORT_SECTION_RETENTION_STATE_TOMBSTONED: &str = "tombstoned";
 const EXPORT_IMPORT_MIGRATION_STATE_NOT_REQUIRED: &str = "not-required";
 const EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_SUPPORTED: &str = "required-supported";
 const EXPORT_IMPORT_MIGRATION_STATE_REQUIRED_UNSUPPORTED: &str = "required-unsupported";
+const EXPORT_IMPORT_BACKUP_CADENCE_MANUAL: &str = "manual";
+const EXPORT_IMPORT_BACKUP_CADENCE_SCHEDULED: &str = "scheduled";
+const EXPORT_IMPORT_BACKUP_STATE_AUTHORIZED: &str = "authorized";
+const EXPORT_IMPORT_BACKUP_STATE_MANUAL_REQUIRED: &str = "manualRequired";
+const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_NOT_REQUIRED: &str = "notRequired";
+const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_APPLIED: &str = "applied";
+const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLED_BACK: &str = "rolledBack";
+const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_MANUAL_REQUIRED: &str = "manualRequired";
+const EXPORT_IMPORT_MIGRATION_EXECUTION_STATE_ROLLBACK_MANUAL_REQUIRED: &str =
+    "rollbackManualRequired";
 const EXPORT_IMPORT_PREFLIGHT_STATE_ACCEPTED_PREVIEW: &str = "acceptedPreview";
 const EXPORT_IMPORT_PREFLIGHT_STATE_PARTIAL_PREVIEW: &str = "partialPreview";
 const EXPORT_IMPORT_PREFLIGHT_STATE_REJECTED_SCHEMA_VERSION: &str = "rejectedSchemaVersion";
@@ -137,6 +147,9 @@ pub type ExportImportIntegrityMode = enum_types::ExportImportIntegrityMode;
 pub type ExportImportProofTier = enum_types::ExportImportProofTier;
 pub type ExportImportSectionRetentionState = enum_types::ExportImportSectionRetentionState;
 pub type ExportImportMigrationState = enum_types::ExportImportMigrationState;
+pub type ExportImportBackupCadence = enum_types::ExportImportBackupCadence;
+pub type ExportImportBackupState = enum_types::ExportImportBackupState;
+pub type ExportImportMigrationExecutionState = enum_types::ExportImportMigrationExecutionState;
 pub type ExportImportPreflightState = enum_types::ExportImportPreflightState;
 pub type ExportImportSectionDecisionState = enum_types::ExportImportSectionDecisionState;
 pub type ExportImportRestoreApplyState = enum_types::ExportImportRestoreApplyState;
@@ -251,6 +264,31 @@ pub struct ExportImportRestoreApplyResult {
     pub rejected_sections: Vec<ExportImportSectionDecision>,
     pub duplicates_created: bool,
     pub no_default_support_decrypt: bool,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportImportBackupRequestState {
+    pub bundle_id: ExportImportBundleId,
+    pub cadence: ExportImportBackupCadence,
+    pub state: ExportImportBackupState,
+    pub explicit_confirmation_required: bool,
+    pub provider_runtime_claimed: bool,
+    pub manual_required_note: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ExportImportMigrationExecutionResult {
+    pub state: ExportImportMigrationExecutionState,
+    pub migration_ref: ExportImportMigrationRef,
+    pub execution_ref: Option<String>,
+    pub rollback_ref: Option<String>,
+    pub local_truth_mutated: bool,
+    pub tombstones_preserved: bool,
+    pub idempotent: bool,
+    pub rollback_available: bool,
+    pub manual_required_note: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
