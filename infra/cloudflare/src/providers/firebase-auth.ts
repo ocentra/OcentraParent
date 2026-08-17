@@ -1,4 +1,4 @@
-import { resolveAuthAdapterMode, type Env } from '../env.js';
+import { FIREBASE_PROJECT_ID_PATTERN, resolveAuthAdapterMode, type Env } from '../env.js';
 import type { ProviderVerificationPort, VerifiedProviderIdentity } from '../auth/verifier.js';
 import { parseFirebaseToken, validFirebaseClaims, verifyFirebaseSignature } from './firebase-auth-jwt.js';
 import { fetchFirebaseJwkSet, shouldRefreshFirebaseJwkSet } from './firebase-auth-jwks.js';
@@ -24,7 +24,7 @@ function resolveFirebaseConfig(
   env: Pick<Env, 'FIREBASE_PROJECT_ID' | 'FIREBASE_CLOCK_SKEW_SECONDS' | 'FIREBASE_JWKS_CACHE_SECONDS'>
 ): FirebaseConfig | null {
   const projectId = env.FIREBASE_PROJECT_ID?.trim();
-  if (!projectId || !/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(projectId)) {
+  if (!projectId || !FIREBASE_PROJECT_ID_PATTERN.test(projectId)) {
     return null;
   }
 

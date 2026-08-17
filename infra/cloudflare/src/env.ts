@@ -42,6 +42,7 @@ export interface Env {
 }
 
 export const DEFAULT_REQUEST_MAX_BYTES = 1024 * 1024;
+export const FIREBASE_PROJECT_ID_PATTERN = /^[a-z][a-z0-9-]{4,28}[a-z0-9]$/;
 
 const REQUIRED_ENV_KEYS = ['ENVIRONMENT', 'APP_ORIGIN', 'CORS_ALLOWED_ORIGINS'] as const;
 export const REQUIRED_BINDING_KEYS = [
@@ -271,8 +272,10 @@ export function validateEnv(env: Env): string[] {
   if (resolveAuthAdapterMode(env) === 'provider-verified') {
     const projectId = env.FIREBASE_PROJECT_ID?.trim();
     if (!projectId) errors.push('missing required env: FIREBASE_PROJECT_ID');
-    else if (!/^[a-z0-9][a-z0-9-]{1,28}[a-z0-9]$/.test(projectId)) {
-      errors.push('FIREBASE_PROJECT_ID must be 3-30 lowercase ASCII letters, digits, or hyphens');
+    else if (!FIREBASE_PROJECT_ID_PATTERN.test(projectId)) {
+      errors.push(
+        'FIREBASE_PROJECT_ID must be 6-30 characters, start with a lowercase letter, and end with a lowercase letter or digit'
+      );
     }
     for (const [name, maximum] of [
       ['FIREBASE_CLOCK_SKEW_SECONDS', 300],
