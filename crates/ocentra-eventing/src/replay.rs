@@ -100,7 +100,7 @@ pub struct ReplayReadReport {
 /// applied the configured hash-chain, synchronization, and phase checks.
 /// Keeping the records private prevents a caller from minting action authority
 /// from arbitrary stored envelopes.
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct ReplayActionReport {
     records: Vec<ReplayRecord>,
     cursor: ReplayCursor,
