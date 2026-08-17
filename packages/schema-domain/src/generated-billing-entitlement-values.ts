@@ -3,11 +3,17 @@
 import { Schema, withParser, brandedNonEmptyStringSchema } from './effect';
 
 export const PositiveBillingLimitSchema = Schema.Number.pipe(
-  Schema.filter((value) => (Number.isInteger(value) && value > 0) || 'Expected billing limits to be positive integers')
+  Schema.filter(
+    (value) =>
+      (Number.isSafeInteger(value) && value > 0) ||
+      'Expected billing limits to be positive safe integers'
+  )
 );
 export const NonNegativeBillingCountSchema = Schema.Number.pipe(
   Schema.filter(
-    (value) => (Number.isInteger(value) && value >= 0) || 'Expected billing counts to be non-negative integers'
+    (value) =>
+      (Number.isSafeInteger(value) && value >= 0) ||
+      'Expected billing counts to be non-negative safe integers'
   )
 );
 
