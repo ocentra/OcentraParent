@@ -2,6 +2,7 @@ use ocentra_eventing::journal::ndjson::{NdjsonEventJournal, NdjsonJournalOptions
 use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use tokio::sync::mpsc;
 
+use super::storage_custody_runtime::ChildStorageCustodyAuthorityHandle;
 use super::{
     service_readiness::readiness_from_state, ChildAgentIngress, ChildAgentService,
     ChildAgentServiceError, ChildRuntimeTombstoneEventFlow, CHILD_AGENT_COMMAND_CAPACITY,
@@ -15,6 +16,20 @@ impl ChildAgentService {
 
     pub async fn initialize_with_paths(
         paths: super::ChildAgentServicePaths,
+    ) -> Result<Self, ChildAgentServiceError> {
+        Self::initialize_with_paths_and_custody_authority(
+            paths,
+            ChildStorageCustodyAuthorityHandle::manual_required(),
+        )
+        .await
+    }
+
+    /// Trusted composition entry point for the account-owned current member /
+    /// device authority.  The authority is retained as an opaque handle and
+    /// is never accepted on an individual command or decoded from JSON/TS.
+    pub async fn initialize_with_paths_and_custody_authority(
+        paths: super::ChildAgentServicePaths,
+        authority: ChildStorageCustodyAuthorityHandle,
     ) -> Result<Self, ChildAgentServiceError> {
         paths.prepare()?;
         let journal =
@@ -42,11 +57,18 @@ impl ChildAgentService {
             domain_flows.push(super::ChildDomainRuntimeEventFlow::for_domain(domain).await?);
         }
         let (sender, commands) = mpsc::channel(CHILD_AGENT_COMMAND_CAPACITY);
+        let storage_custody = super::storage_custody_runtime::ChildStorageCustodyRuntime::open(
+            paths.root(),
+            tombstone_flow.clone(),
+            authority,
+        )?;
+        storage_custody.recover_pending().await?;
 
         Ok(Self {
             paths,
             domain_flows,
             tombstone_flow,
+            storage_custody,
             removal,
             readiness,
             recovery_pending,

@@ -13,6 +13,7 @@ impl ChildAgentService {
             .map_err(ChildAgentServiceError::Storage)?;
         Ok(ChildAgentHealth {
             readiness: readiness_from_state(&removal, self.recovery_pending.as_deref()),
+            storage_custody: self.storage_custody.readiness(),
             domain_flow_count: self.domain_flows.len(),
             durable_root: self.paths.root().to_owned(),
             removal,

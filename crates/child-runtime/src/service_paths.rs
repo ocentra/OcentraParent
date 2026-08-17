@@ -39,11 +39,11 @@ impl ChildAgentServicePaths {
         &self.removal
     }
 
-    pub fn identity(&self) -> Option<&super::ChildAgentServiceIdentity> {
+    pub(crate) fn identity(&self) -> Option<&super::ChildAgentServiceIdentity> {
         self.identity.as_ref()
     }
 
-    pub fn with_identity(mut self, identity: super::ChildAgentServiceIdentity) -> Self {
+    pub(crate) fn with_identity(mut self, identity: super::ChildAgentServiceIdentity) -> Self {
         self.identity = Some(identity);
         self
     }

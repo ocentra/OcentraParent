@@ -1,16 +1,13 @@
 use super::{
-    service_readiness::readiness_from_state, ChildAgentCommand, ChildAgentReadiness,
-    ChildAgentService, ChildAgentServiceError,
+    service_readiness::readiness_from_state, ChildAgentCommand, ChildAgentCommandResult,
+    ChildAgentReadiness, ChildAgentService, ChildAgentServiceError,
 };
 
 impl ChildAgentService {
     pub(super) async fn dispatch(
         &self,
         command: ChildAgentCommand,
-    ) -> Result<
-        crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport,
-        ChildAgentServiceError,
-    > {
+    ) -> Result<ChildAgentCommandResult, ChildAgentServiceError> {
         let removal = self
             .removal
             .status()
@@ -24,8 +21,16 @@ impl ChildAgentService {
                     .iter()
                     .find(|flow| flow.domain() == event.domain)
                     .ok_or(ChildAgentServiceError::UnknownDomain(event.domain))?;
-                flow.publish_observed(event).await.map_err(Into::into)
+                flow.publish_observed(event)
+                    .await
+                    .map(ChildAgentCommandResult::Domain)
+                    .map_err(Into::into)
             }
+            ChildAgentCommand::PublishStorageCustody { request, metadata } => self
+                .storage_custody
+                .execute(request, metadata)
+                .await
+                .map(ChildAgentCommandResult::StorageCustody),
         }
     }
 }

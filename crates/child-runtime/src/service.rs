@@ -14,6 +14,8 @@ use crate::{
         ChildAgentTamperSignalKind, ChildAgentTrustState, VerifiedParentRemovalAuthorization,
     },
 };
+use ocentra_eventing::envelope::EventMetadata;
+use ocentra_storage_custody_core::storage_custody::StorageCustodyExecutionRequest;
 
 #[path = "service_dispatch.rs"]
 mod service_dispatch;
@@ -35,6 +37,8 @@ mod service_readiness;
 mod service_recovery;
 #[path = "service_supervision.rs"]
 mod service_supervision;
+#[path = "storage_custody_runtime.rs"]
+pub mod storage_custody_runtime;
 
 pub const CHILD_AGENT_DATA_DIR_ENV: &str = "OCENTRA_CHILD_AGENT_DATA_DIR";
 const CHILD_AGENT_COMMAND_CAPACITY: usize = 64;
@@ -68,6 +72,7 @@ pub enum ChildAgentReadiness {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ChildAgentHealth {
     pub readiness: ChildAgentReadiness,
+    pub storage_custody: storage_custody_runtime::ChildStorageCustodyReadiness,
     pub domain_flow_count: usize,
     pub durable_root: PathBuf,
     pub removal: ChildAgentRemovalStatus,
@@ -92,13 +97,20 @@ pub enum ChildAgentIngressError {
     Service(Box<ChildAgentServiceError>),
 }
 
-pub enum ChildAgentCommand {
+pub(crate) enum ChildAgentCommand {
     Observe(ChildDomainObservedEvent),
+    PublishStorageCustody {
+        request: StorageCustodyExecutionRequest,
+        metadata: EventMetadata,
+    },
 }
 
-type CommandResponse = oneshot::Sender<
-    Result<crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport, ChildAgentServiceError>,
->;
+pub(crate) enum ChildAgentCommandResult {
+    Domain(crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport),
+    StorageCustody(storage_custody_runtime::ChildStorageCustodyOutcome),
+}
+
+type CommandResponse = oneshot::Sender<Result<ChildAgentCommandResult, ChildAgentServiceError>>;
 
 struct QueuedCommand {
     command: ChildAgentCommand,
@@ -114,6 +126,7 @@ pub struct ChildAgentService {
     paths: ChildAgentServicePaths,
     domain_flows: Vec<ChildDomainRuntimeEventFlow>,
     tombstone_flow: ChildRuntimeTombstoneEventFlow,
+    storage_custody: storage_custody_runtime::ChildStorageCustodyRuntime,
     removal: ChildAgentRemovalBoundary,
     readiness: ChildAgentReadiness,
     recovery_pending: Option<Vec<CorrelationId>>,

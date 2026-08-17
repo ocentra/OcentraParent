@@ -61,7 +61,7 @@ impl ChildAgentService {
         super::service_supervision::run_until_shutdown(self).await
     }
 
-    pub fn tombstone_flow(&self) -> &ChildRuntimeTombstoneEventFlow {
+    pub(crate) fn tombstone_flow(&self) -> &ChildRuntimeTombstoneEventFlow {
         &self.tombstone_flow
     }
 }
