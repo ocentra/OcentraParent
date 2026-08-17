@@ -1,6 +1,6 @@
 import type { DurableObjectState } from '@cloudflare/workers-types';
+import { NonNegativeBillingCountSchema } from '@ocentra-parent/schema-domain/billing-entitlement-values';
 import {
-  buildAdminRefundResult,
   buildBillingCancellationSummaryFromStatus,
   buildBillingPlanChangeSummaryFromStatus,
   buildManualInvoiceResult,
@@ -9,6 +9,7 @@ import {
 } from './fixtures.js';
 import {
   applyBillingStateMutation,
+  buildBillingRefundResult,
   BillingReadModelUnavailableError,
   findBillingInvoiceSubject,
   loadAdminBillingAccounts,
@@ -17,6 +18,7 @@ import {
   loadAdminBillingReferrals,
   loadBillingAuditEvents,
   loadBillingEntitlementSnapshot,
+  loadBillingInvoiceById,
   loadBillingInvoices,
   loadBillingLicenseDecision,
   loadBillingReferralSummary,
@@ -457,6 +459,17 @@ function numberOrNull(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
 
+function parseRefundAmount(value: unknown): { valid: true; value: number | null } | { valid: false; value: null } {
+  if (value === undefined || value === null) {
+    return { valid: true, value: null };
+  }
+  try {
+    return { valid: true, value: NonNegativeBillingCountSchema.parse(value) };
+  } catch (_error) {
+    return { valid: false, value: null };
+  }
+}
+
 function booleanFromUnknown(value: unknown): boolean {
   return value === true;
 }
@@ -653,12 +666,14 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     const invoiceId = stringOrNull(value.invoiceId);
     const auditReference = stringOrNull(value.auditReference);
     const refundState = stringOrNull(value.refundState);
-    const amountCents = numberOrNull(value.amountCents);
+    const parsedAmount = parseRefundAmount(value.amountCents);
+    const amountCents = parsedAmount.value;
     const actorRole = stringOrNull(value.actorRole);
     if (
       !requestId ||
       !invoiceId ||
       !auditReference ||
+      !parsedAmount.valid ||
       amountCents === null ||
       (refundState !== 'refund-requested' && refundState !== 'refund-settled') ||
       (actorRole !== 'support' && actorRole !== 'admin')
@@ -1178,7 +1193,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
 
       const planId = stringOrNull(body.planId);
       const pricingPlans = await loadPricingPlans(env);
-      if (!planId || !pricingPlans.some((plan) => plan.planId === planId && plan.priceCents > 0)) {
+      if (
+        !planId ||
+        !pricingPlans.some((plan) => plan.planId === planId && plan.activeState === 'active' && plan.priceCents > 0)
+      ) {
         return rejectionResponse('checkout-session-create', requestId, 'invalid-plan');
       }
 
@@ -1350,7 +1368,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         await loadBillingStatusSummary(env, identity.subject),
         requestId,
         stringOrNull(body.planId),
-        await loadPricingPlans(env)
+        (await loadPricingPlans(env)).filter((plan) => plan.activeState === 'active')
       );
       const targetPlanId = summary.targetPlanId;
       return executeIdempotentWrite(
@@ -1782,9 +1800,23 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const requestId = requestIdFor('admin-refund', identity?.subject ?? 'admin', body.requestId);
-      const result = buildAdminRefundResult(requestId, stringOrNull(body.invoiceId), numberOrNull(body.amountCents));
+      const parsedAmount = parseRefundAmount(body.amountCents);
+      if (!parsedAmount.valid) {
+        return json(400, {
+          error: 'invalid-refund-amount',
+        });
+      }
+      const invoiceId = stringOrNull(body.invoiceId);
+      const invoice = invoiceId ? await loadBillingInvoiceById(env, invoiceId) : null;
+      const result = buildBillingRefundResult(requestId, invoice, parsedAmount.value);
       if (result.status === 'accepted') {
         const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
+        if (!refundSubject) {
+          return json(503, {
+            error: 'manual-required',
+            blocker: 'billing-invoice-subject-missing',
+          });
+        }
         return executeIdempotentWrite(
           env.BILLING_DO,
           `billing-control:${identity?.subject ?? 'admin'}`,
@@ -2061,6 +2093,14 @@ class IdempotentWriteDO extends BasePlaceholderDO {
       });
     }
 
+    const stateMutationProvided = envelope.stateMutation !== undefined && envelope.stateMutation !== null;
+    const stateMutation = parseBillingStateMutation(envelope.stateMutation);
+    if (stateMutationProvided && stateMutation === null) {
+      return json(400, {
+        error: 'invalid-state-mutation',
+      });
+    }
+
     const existing = this.writes.get(requestKey);
     if (existing !== undefined) {
       if (
@@ -2089,7 +2129,6 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     }
 
     const queueMessage = isPlainObject(envelope.queueMessage) ? envelope.queueMessage : null;
-    const stateMutation = parseBillingStateMutation(envelope.stateMutation);
     if (stateMutation) {
       await applyBillingStateMutation(this.env, stateMutation);
     }
