@@ -35,6 +35,8 @@ mod service_readiness;
 mod service_recovery;
 #[path = "service_supervision.rs"]
 mod service_supervision;
+#[path = "storage_custody_runtime.rs"]
+mod storage_custody_runtime;
 
 pub const CHILD_AGENT_DATA_DIR_ENV: &str = "OCENTRA_CHILD_AGENT_DATA_DIR";
 const CHILD_AGENT_COMMAND_CAPACITY: usize = 64;
@@ -94,11 +96,20 @@ pub enum ChildAgentIngressError {
 
 pub enum ChildAgentCommand {
     Observe(ChildDomainObservedEvent),
+    PublishStorageCustody {
+        authority:
+            ocentra_family_identity_core::household_authority_proof::VerifiedHouseholdAuthority,
+        input: ocentra_storage_custody_core::storage_custody::StorageCustodyInput,
+        metadata: ocentra_eventing::envelope::EventMetadata,
+    },
 }
 
-type CommandResponse = oneshot::Sender<
-    Result<crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport, ChildAgentServiceError>,
->;
+pub(crate) enum ChildAgentCommandResult {
+    Domain(crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport),
+    StorageCustody(crate::runtime_gate_tombstone::ChildRuntimeTombstonePublicationOutcome),
+}
+
+type CommandResponse = oneshot::Sender<Result<ChildAgentCommandResult, ChildAgentServiceError>>;
 
 struct QueuedCommand {
     command: ChildAgentCommand,
