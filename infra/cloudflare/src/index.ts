@@ -253,7 +253,10 @@ function requireSupportAdminReadIdentity(identity: VerifiedIdentity | undefined)
   if (
     !identity ||
     !isVerifiedAccountIdentityAuthorityCapability(identity.authority) ||
-    identity.authority.role !== 'support-admin'
+    identity.authority.role !== 'support-admin' ||
+    identity.authority.supportScope === null ||
+    identity.authority.supportIssuer === null ||
+    identity.authority.supportAuditIdentity === null
   ) {
     throw new Error('support-admin-read-identity-required');
   }
@@ -294,6 +297,16 @@ function requireVerifiedSupportAuthority(identity: VerifiedIdentity | undefined)
   if (authority.role !== 'support-admin') {
     return json(403, {
       error: 'support-admin-capability-required',
+    });
+  }
+  if (
+    authority.supportScope === null ||
+    authority.supportIssuer === null ||
+    authority.supportAuditIdentity === null
+  ) {
+    return json(503, {
+      status: 'manual-required',
+      blocker: 'support-receipt-provenance-missing',
     });
   }
   return authority;
