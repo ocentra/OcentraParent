@@ -14,6 +14,7 @@ import {
   GeneratedLogLevel as LogLevel,
   GeneratedLogSource as LogSource,
 } from '@ocentra-parent/logging-domain/logging-contracts';
+import { redactStructuredLogValue } from '@ocentra-parent/logging-domain/core/log-redaction';
 
 export const DevLogField = {
   Port: GeneratedDevLogField.Port,
@@ -25,25 +26,16 @@ export const DevLogMessage = {
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const requestBodyLimitBytes = 1024 * 256;
-const sensitiveFieldPattern =
-  /(authorization|clipboard|cookie|keystroke|password|screenshot|secret|token|url|child.?name|account.?name|full.?name|command.?line)/iu;
-const redactedFieldValue = '[REDACTED]';
 
 export async function appendDevLog(entry) {
   const parsed = DevLogEntrySchema.parse(entry);
   const sanitized = {
     ...parsed,
-    fields: redactDevLogFields(parsed.fields),
+    fields: redactStructuredLogValue(parsed.fields),
   };
   const filePath = resolveDevLogFile(parsed.source);
   await mkdir(dirname(filePath), { recursive: true });
   await appendFile(filePath, `${JSON.stringify(sanitized)}\n`, 'utf8');
-}
-
-function redactDevLogFields(fields) {
-  return Object.fromEntries(
-    Object.entries(fields).map(([key, value]) => [key, sensitiveFieldPattern.test(key) ? redactedFieldValue : value])
-  );
 }
 
 export async function writeDevServerLog(message, fields = {}) {

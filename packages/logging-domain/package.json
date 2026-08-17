@@ -25,6 +25,10 @@
       "import": "./dist/core/logger.js",
       "types": "./dist/core/logger.d.ts"
     },
+    "./core/log-redaction": {
+      "import": "./dist/core/log-redaction.js",
+      "types": "./dist/core/log-redaction.d.ts"
+    },
     "./core/stackTrace": {
       "import": "./dist/core/stackTrace.js",
       "types": "./dist/core/stackTrace.d.ts"
