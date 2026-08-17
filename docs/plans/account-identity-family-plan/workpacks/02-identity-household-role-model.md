@@ -192,6 +192,17 @@ Expected test source still required:
 - a real production-caller test proving sealed current binding is consumed and
   caller-supplied authority cannot bypass it.
 
+### Accepted replacement source delta
+
+The independently accepted `35edb2830` packet, integrated through
+`e69acf279`, closes the internal WP02 source seam above: current account,
+household, member, role, device, session, target, support receipt, and authority
+generation are resolved through a sealed capability plus durable repository,
+compare-and-swap, invariant, read, and mapping modules. Request/provider
+subjects and public serde values cannot construct that capability, and support
+authority requires a complete receipt. The shipped provider-to-authority
+producer, account routes, expected tests, validation, and proof remain open.
+
 The remote packet `ac03afee3a` is rejected/quarantined: its public
 deserializable account/membership/support records had no caller or persistence
 and would have introduced parallel mintable authority. It is not WP02 progress.

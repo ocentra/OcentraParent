@@ -19,7 +19,7 @@
 ```text
 Plan route: upgraded
 Execution-grade workpacks: WP01 has a provider/custody proof pack plus the retained narrow D1 storage-adapter proof at `docs/proof/account-identity-family-plan/01-auth-provider-decision/06-account-identity-storage-adapter-proof.md`; WP08 has a tracked durable Rust-authority manifest under `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk; WP06 is reopened for final aggregation after WP08 plus Cloudflare WP06/WP08 handoffs
-Implementation: central-schema migration is in progress/current for shared account/family shapes; helper/projection implementation exists in family-domain, setup-domain, family-identity-core, and provisioning-core. Independent P0/P1 review accepts WP08's bounded `v0.7` source packet: the canonical household/child/device binding includes pairing, installation, selected route, lifecycle, revocation, bounded authority generation, guarded identifiers, active provider mapping, and exact account consistency. The family-owned repository/read port and trusted result are crate-private, so request or generated DTOs cannot mint authority. Focused tests and proof remain deferred to later phases. Cloudflare WP06 still owns the real durable adapter and production caller; external provider verification, account runtime routes, and D1/DO/KV migration proof remain open
+Implementation: the accepted Account source wave at `35edb2830`, reconciled into the integration line through `e69acf279`, now provides Rust-owned schema validation, a non-forgeable current account/member/household/role/device capability, durable repository/CAS/invariant enforcement, session and invite/recovery lifecycle records, and the Cloudflare D1 current-authority adapter plus ordered `0001`-`0004` Account/Payment migration source. Billing and support/admin consumers resolve current Account authority and reject request/provider-body subject ownership. Independent review found no remaining internal P0/P1 source defect. Expected tests, real provider-to-authority composition, account/session routes, deployment/migration execution, adjacent handoffs, and proof remain open
 Proof artifacts: `output/account-identity-family-plan-proof/01-auth-provider-decision/`, `02-identity-household-role-model/`, `03-session-token-lifecycle/`, `04-invites-recovery-lifecycle/`, `05-device-ownership-authz/`, `06-security-proof-and-route-gate/`, and `07-parent-account-family-setup-ui/` are populated; WP08 uses its tracked durable manifest rather than ignored raw output; WP03 and WP06 carry request-safety as an explicit blocker note instead of a fake-green proof; `test-results/account-identity-family-plan-*` roots remain absent unless a selected workpack explicitly requires them
 PR-ready: false
 ```
@@ -57,6 +57,47 @@ should WP03-WP05 add repository-owned transitions, opaque receipts, typed
 handoffs, and their deferred concurrency/restart/security tests.
 `CHECKLIST_INDEX.md` keeps the historical proof rows checked while adding
 explicit unchecked production-source and expected-test overlays.
+
+## 2026-08-17 accepted Account source wave
+
+The replacement packet at `origin/codex/account-wp02-source-wave` head
+`35edb2830` supersedes the rejected `ac03afee3a` design. It is integrated on
+`codex/eventing-wp09-production` through `e69acf279` and passed two independent
+source reviews plus focused formatting, architecture, generated-contract,
+single-source-contract, and Enforcer checks. No tests, build, proof, precommit,
+or CI were run in this source phase.
+
+What is now real:
+
+- WP08 owns strict Rust schema validation and generated TypeScript parity;
+- WP02 owns a sealed capability and durable compare-and-swap repository for
+  current account, household, member, role, device, session, target, support
+  receipt, and authority generation state;
+- WP03 currentness comes from persisted session identity, generation, expiry,
+  freshness, and revocation state instead of request booleans;
+- WP04 has owner-derived invite and recovery lifecycle source records without
+  public authority construction or terminal-state reset;
+- WP05 billing and support/admin consumers bind action identity to current
+  repository authority and a complete support receipt;
+- Cloudflare WP06 owns the D1 adapter and the ordered undeployed source
+  migrations `0001_account_identity_authority.sql`,
+  `0002_account_identity_current_authority.sql`,
+  `0003_provider_billing_mappings.sql`, and
+  `0004_provider_billing_mappings_canonical_identity.sql`.
+
+What remains before product completion:
+
+- a shipped provider-verification/account-authority producer and account/session
+  route composition;
+- complete atomic invite/recovery runtime orchestration and typed custody
+  delivery;
+- Device Trust step-up plus remote/export/delete consumers;
+- the full expected-test wave for reload, concurrency, replay, expiry,
+  revocation, cross-household, support-receipt, migration, and route negatives;
+- focused execution, proof regeneration, precommit, PR, CI, and merge.
+
+Therefore WP02-WP05 and WP08 have accepted production source but remain open;
+historical checkboxes and proof do not close their new source/test obligations.
 
 ## Current product direction
 

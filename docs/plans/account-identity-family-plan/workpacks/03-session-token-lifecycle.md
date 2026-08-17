@@ -152,6 +152,15 @@ Expected test source still required:
 - exact redacted audit records and recovery from partial persistence;
 - CSRF, origin, and fetch-metadata negatives on the actual account route.
 
+### Accepted replacement source delta
+
+The accepted `35edb2830` source stores session identity, generation, expiry,
+freshness, and revocation in the current Account authority repository and adds
+an owner-derived session lifecycle record. Callers no longer supply freshness
+or replay authority as trusted booleans. A shipped provider/account session
+route, refresh/revoke orchestration, and the complete expiry/skew/replay/
+restart/concurrency/browser-negative expected-test family remain open.
+
 The remote packet `ac03afee3a` is rejected/quarantined: its public
 deserializable session record accepted caller-provided replay/freshness state,
 had no token custody or durable repository, and allowed terminal/backdated

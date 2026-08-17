@@ -428,12 +428,12 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / bounded source accepted / tests deferred",
+        "statusText": "validation / replacement source accepted / tests deferred",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false,
         "completionEvidenceOverride": {
-          "reason": "Independent P0/P1 review accepted the v0.7 canonical binding, guarded identifiers, safe generation parity, account-consistent active mapping, and crate-private fail-closed read authority as bounded source evidence only. No repository adapter, production caller, tests, proof, runtime authority, or DONE is claimed.",
+          "reason": "Independent source review accepted the Account authority packet at 35edb2830, integrated through e69acf279. Rust-owned schema validation, guarded non-forgeable capability issuance, durable repository/CAS/invariant enforcement, and generated TypeScript parity now exist. Expected tests, provider composition, deployment/migration execution, proof, and DONE remain open.",
           "evidence": [
             "docs/plans/account-identity-family-plan/PLAN_STATE.md",
             "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
@@ -450,7 +450,11 @@
         "references": {
           "implementation": [
             "crates/schema/src/account_identity_authority.rs",
+            "crates/schema/src/account_identity_authority_validation.rs",
             "crates/family-identity-core/src/account_identity_authority.rs",
+            "crates/family-identity-core/src/account_identity_authority_repository.rs",
+            "crates/family-identity-core/src/account_identity_authority_repository_cas.rs",
+            "crates/family-identity-core/src/account_identity_authority_repository_invariants.rs",
             "packages/schema-domain/src/generated-account-identity-authority.ts",
             "packages/schema-domain/src/account-identity-authority.ts"
           ],
@@ -479,17 +483,32 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / historical contract proof / production closure open",
+        "statusText": "validation / durable source accepted / tests and composition open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false
+        "needsReview": false,
+        "completionEvidenceOverride": {
+          "reason": "Independent source review accepted the sealed current account/member/household/role/device authority and durable CAS repository at 35edb2830, integrated through e69acf279. The packet removes caller-derived authority fallbacks and binds support authority to a complete receipt. Expected tests and the real provider/service composition remain open; no proof or DONE is claimed.",
+          "evidence": [
+            "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md"
+          ],
+          "requirements": ["implementation"]
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
-        "reviewed": {},
+        "reviewed": {
+          "implementation": true
+        },
         "references": {
           "implementation": [
-            "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md"
+            "crates/family-identity-core/src/account_identity_authority_capability.rs",
+            "crates/family-identity-core/src/account_identity_authority_repository.rs",
+            "crates/family-identity-core/src/account_identity_authority_repository_cas.rs",
+            "crates/family-identity-core/src/account_identity_authority_role_mapping.rs",
+            "crates/family-identity-core/src/family_identity_account.rs"
           ],
           "tests": [
             "docs/plans/account-identity-family-plan/TEST_PROOF_EXPECTATIONS.md"
@@ -516,7 +535,7 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / historical contract proof / production closure open",
+        "statusText": "validation / currentness source accepted / routes and tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -553,7 +572,7 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / historical contract proof / production closure open",
+        "statusText": "validation / lifecycle source accepted / orchestration and tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -592,7 +611,7 @@
       "metadata": {
         "planSlug": "account-identity-family-plan",
         "indexPath": "docs/plans/account-identity-family-plan/WORKPACK_INDEX.md",
-        "statusText": "validation / historical contract proof / production closure open",
+        "statusText": "validation / authority consumers accepted / handoffs and tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

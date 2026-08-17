@@ -19,11 +19,11 @@ Use this index to select exactly one workpack.
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | partial | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 10/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
-| validation / bounded source accepted / tests deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 9/9 prior packet; current source reviewed, current test/proof rows open | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
-| validation / historical contract proof / production closure open | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 historical proof; current source/test overlay open | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
-| validation / historical contract proof / production closure open | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 historical proof; current source/test overlay open | `RESEARCH_AND_DECISIONS.md`, `crates/family-identity-core/src/session_lifecycle.rs` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
-| validation / historical contract proof / production closure open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 historical proof; current source/test overlay open | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
-| validation / historical contract proof / production closure open | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 13/13 historical proof; current source/test overlay open | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
+| validation / replacement source accepted / tests deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 9/9 prior packet; replacement schema/repository source reviewed, current test/proof rows open | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
+| validation / durable source accepted / tests and composition open | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 historical proof; sealed capability/repository source accepted, current tests/proof open | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
+| validation / currentness source accepted / routes and tests open | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 historical proof; persisted session currentness source accepted, browser route/tests open | `RESEARCH_AND_DECISIONS.md`, `crates/family-identity-core/src/session_lifecycle.rs` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
+| validation / lifecycle source accepted / orchestration and tests open | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 historical proof; owner-derived lifecycle records accepted, atomic runtime/custody/tests open | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
+| validation / authority consumers accepted / handoffs and tests open | [WP05 Device Ownership AuthZ](workpacks/05-device-ownership-authz.md) | 13/13 historical proof; current Account-bound billing/support source accepted, remaining consumers/tests open | `docs/features/family-setup-device-roles.md`, `docs/expectations/platforms.md` | `output/account-identity-family-plan-proof/05-device-ownership-authz/` |
 | complete | [WP07 Parent Account Family Setup UI](workpacks/07-parent-account-family-setup-ui.md) | 13/13 | `docs/expectations/portal.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/07-parent-account-family-setup-ui/` |
 | open | [WP06 Security Proof And Route Gate](workpacks/06-security-proof-and-route-gate.md) | 14/18 | all prior workpack proof roots, including WP08 | `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/` |
 
@@ -49,22 +49,19 @@ production authority claim. Cloudflare WP06 and WP08 handoffs remain open.
 
 ## WP02-WP05 live production correction
 
-The checked WP02-WP05 rows preserve an earlier local contract/proof slice; they
-do not establish a durable account runtime. The current Rust evaluators and
-focused tests are real and have bounded provisioning, policy, and child-runtime
-consumers. Their authority inputs are still supplied by callers, while the
-sealed WP08 current-binding read port has no production repository/caller.
-Consequently WP02-WP05 remain in validation with explicit production-source and
-expected-test overlay rows open in `CHECKLIST_INDEX.md`.
+The checked WP02-WP05 rows preserve an earlier local contract/proof slice and
+do not close the replacement source. The accepted `35edb2830` packet now adds
+the sealed capability, durable repository/CAS, persisted session currentness,
+owner-derived invite/recovery records, and Account-bound billing/support
+consumers. Provider/account route composition, remaining runtime handoffs, the
+complete expected-test wave, validation, and proof are still open.
 
 The rejected `codex/account-wp02-wp05-source-wave` packet at `ac03afee3a` is
 quarantined remote evidence only. It added public deserializable lifecycle
 records with caller-mintable proof/replay/freshness state and no production
 caller or durable compare-and-swap owner. Do not revive those DTOs. The first
-legal source seam is Account WP02's sealed server-derived current
-member/role/device binding over WP08 canonical identities. Cloudflare WP06 then
-owns its durable adapter and shipped Worker caller without redefining family
-authority.
+legal replacement is the accepted `35edb2830` packet now integrated through
+`e69acf279`; the rejected DTOs remain quarantined and are not implementation.
 
 ## Dependency rules
 

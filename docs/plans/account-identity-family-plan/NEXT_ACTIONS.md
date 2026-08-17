@@ -29,19 +29,19 @@
 
 Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk. WP06 is reopened for a final aggregation rerun after Account WP08 plus Cloudflare WP06/WP08; PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: independent P0/P1 review accepts WP08's bounded `v0.7` Rust-schema/account-authority source packet. Its canonical household/child/device binding includes pairing, installation, selected route, lifecycle, revocation, bounded authority generation, guarded identifiers, active provider mapping, and exact account consistency. Its family-owned current-binding port is crate-private and fail-closed; no production adapter or caller exists. Tests and proof remain deferred. A live Cloudflare WP06 seam audit proved the Worker cannot legally consume this boundary yet: the cross-runtime handoff lacks current member/role/device-trust context and the Rust read port is crate-private. Account WP02 must first expose the sealed server-derived binding contract; Cloudflare WP06 then owns its durable adapter/caller, and Cloudflare WP08 later owns runner proof. Account WP06 aggregates those handoffs only after validation/proof.
+Current routing note: independent source review accepts the replacement Account packet at `35edb2830`, integrated through `e69acf279`. WP08 schema validation, WP02 sealed current authority and durable CAS repository, WP03 persisted session currentness, WP04 lifecycle records, WP05 Account-bound billing/support consumption, and Cloudflare WP06 D1 adapter/migration source are now present. The source wave deliberately did not run tests or claim proof. The missing production seam is no longer a DTO or repository: it is the shipped provider-to-authority producer/account-session route composition, followed by complete invite/recovery orchestration, Device Trust/remote/export/delete handoffs, and the expected-test wave.
 
 Do not revive the rejected `ac03afee3a` WP02-WP05 record packet. Its public
 serde records were disconnected from production and accepted caller-mintable
 authority/lifecycle facts. The dependency-first production sequence is:
 
 ```text
-Account WP02 sealed current member/role/device binding over WP08 identities
-  -> Cloudflare WP06 durable repository/runtime caller for that contract
-  -> WP03 durable session/refresh/replay/revoke owner and real browser route
-  -> WP04 atomic invite/recovery owner and typed custody handoff
-  -> WP05 repository-composed device/session/capability/step-up authorization
-  -> deferred expected tests for those complete source seams
+accepted WP08/WP02 schema + sealed authority + durable repository
+  -> shipped provider-verification/account-authority producer and account/session routes
+  -> complete WP04 atomic invite/recovery orchestration and typed custody handoff
+  -> complete WP05 Device Trust/remote/export/delete step-up consumers
+  -> write the full WP02-WP05/WP08 expected-test wave
+  -> run focused tests and focused Enforcer only after test source is complete
   -> Cloudflare WP08 runner proof and Account WP06 aggregation
 ```
 

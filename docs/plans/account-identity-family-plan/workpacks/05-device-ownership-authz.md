@@ -195,6 +195,16 @@ Expected test source still required:
 - audit persistence failure and retry;
 - real downstream consumers for remote, export, delete, and billing authority.
 
+### Accepted replacement source delta
+
+The accepted Account/Payment reconciliation through `e69acf279` now binds
+billing and support/admin operations to current repository-derived account,
+household, role, device, session, target, and support-receipt authority.
+Request bodies, provider objects, fixtures, and fallback identity strings
+cannot mint ownership. Device Trust step-up, view/control lease composition,
+remote/export/delete consumers, durable audit emission, and the full expected
+test matrix remain open.
+
 The remote packet `ac03afee3a` is rejected/quarantined because its new public
 records did not connect to this composer or any production caller and weakened
 authority provenance. It is not WP05 progress.

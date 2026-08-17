@@ -189,6 +189,15 @@ Expected test source still required:
   recovery with an audit receipt;
 - typed custody delivery/correlation and retry behavior.
 
+### Accepted replacement source delta
+
+The accepted `35edb2830` source adds owner-derived invite and recovery
+lifecycle records with private construction and monotonic terminal semantics;
+it does not trust request-supplied proof, replay, freshness, same-family,
+abuse, timing, support, or owner-approval facts. Atomic durable issue/consume,
+rate-limit custody, shipped account runtime composition, typed export/delete
+delivery, and the full expected-test family remain open.
+
 The remote packet `ac03afee3a` is rejected/quarantined: it allowed callers to
 supply `Verified`, same-family, abuse, timing, and owner-approval facts; public
 serde records could reset lifecycle/use state; and there was no durable atomic

@@ -190,6 +190,18 @@ deployment, or whole-plan readiness.
 - [x] Cross-plan Cloudflare WP06/WP08 handoffs and no-claim boundary recorded.
 - [x] Checklist/PLAN_STATE changes made only for proven rows.
 
+## Accepted replacement source delta
+
+Independent review accepts the replacement Account source at `35edb2830`,
+integrated through `e69acf279`. In addition to the prior canonical binding, the
+current packet adds strict schema validation modules, non-forgeable capability
+issuance, and durable repository/CAS/invariant/read ownership. Generated
+Account TypeScript remains derived from the Rust template. Cloudflare WP06 now
+contains the source adapter and ordered `0001`-`0004` migration files, but
+provider composition, migration execution, expected tests, retained proof, and
+deployment remain downstream/open. This is reviewed implementation evidence,
+not a new DONE claim.
+
 ## Prior narrow completion record
 
 The tracked durable manifest in `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`
