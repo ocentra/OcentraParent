@@ -10,7 +10,7 @@ declare module '@cloudflare/workers-types' {
     bind(...values: ReadonlyArray<unknown>): D1PreparedStatement;
     first<T>(): Promise<T | null>;
     all<T>(): Promise<{ results: ReadonlyArray<T>; success: true }>;
-    run(): Promise<{ results: ReadonlyArray<never>; success: true }>;
+    run(): Promise<{ results: ReadonlyArray<never>; success: true; meta: { changes: number } }>;
   }
   export interface D1Database {
     prepare(query: string): D1PreparedStatement;
@@ -35,6 +35,16 @@ declare module '@cloudflare/workers-types' {
   export interface Queue {
     send(message: unknown): Promise<void>;
     sendBatch(messages: ReadonlyArray<{ body: unknown }>): Promise<void>;
+  }
+  export interface QueueMessage<Body = unknown> {
+    body: Body;
+    attempts: number;
+    ack(): void;
+    retry(options?: { delaySeconds?: number }): void;
+  }
+  export interface MessageBatch<Body = unknown> {
+    queue: string;
+    messages: ReadonlyArray<QueueMessage<Body>>;
   }
   export interface R2ObjectBody {
     text(): Promise<string>;
