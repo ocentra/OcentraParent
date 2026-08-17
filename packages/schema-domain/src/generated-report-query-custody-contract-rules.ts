@@ -4,6 +4,7 @@ import {
   GeneratedReportQueryCustodyNonClaims,
   GeneratedReportQueryCustodySourceDataClasses,
   GeneratedReportQueryCustodyStates,
+  type GeneratedParentEvidenceReference,
   type GeneratedReportQueryCustodyContractProof,
   type GeneratedReportQueryCustodyRequest,
   type GeneratedReportQueryCustodyRow,
@@ -11,10 +12,34 @@ import {
 
 const allowedSourceDataClassSet = new Set<string>(GeneratedReportQueryCustodySourceDataClasses);
 
+function reportQueryCustodyAuthorityIsBoundGenerated(
+  request: GeneratedReportQueryCustodyRequest
+): boolean {
+  const authority = request.parentAuthority;
+  return (
+    authority.authorityGeneration > 0 &&
+    authority.familyId === request.family.familyId &&
+    authority.parentAccountId === request.account.parentAccountId &&
+    authority.deviceId === request.device.deviceId &&
+    authority.childProfileId === request.device.childProfileId
+  );
+}
+
+function reportQueryCustodyCitationIsBoundGenerated(
+  citation: GeneratedParentEvidenceReference,
+  request: GeneratedReportQueryCustodyRequest
+): boolean {
+  return (
+    citation.familyId === request.family.familyId &&
+    citation.childProfileId === request.device.childProfileId &&
+    request.requestedDataClasses.includes(citation.sourceDataClass) &&
+    request.allowedSourceDataClasses.includes(citation.sourceDataClass)
+  );
+}
+
 export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {
   return (
-    request.parentAuthorized &&
-    request.parentOwnedSourceRequired &&
+    reportQueryCustodyAuthorityIsBoundGenerated(request) &&
     !request.rawChildEvidenceRequested &&
     request.pageSize > 0 &&
     request.requestedDataClasses.length > 0 &&
@@ -24,8 +49,12 @@ export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedRep
     request.notificationPayloadBoundary === 'parent-owned-citations-only' &&
     request.requestedDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
     request.allowedSourceDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
-    request.sourceCitationRefs.every((citation) => citation.kind === 'query-store-summary') &&
-    request.assistantCitationRefs.every((citation) => citation.kind === 'query-store-summary')
+    request.sourceCitationRefs.every(
+      (citation) => citation.kind === 'query-store-summary' && reportQueryCustodyCitationIsBoundGenerated(citation, request)
+    ) &&
+    request.assistantCitationRefs.every(
+      (citation) => citation.kind === 'query-store-summary' && reportQueryCustodyCitationIsBoundGenerated(citation, request)
+    )
   );
 }
 
@@ -35,8 +64,7 @@ export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQuery
     !row.secondTruthStoreClaimed &&
     !row.reportCacheMutated &&
     !row.rawChildEvidenceIncluded &&
-    row.parentAuthorized &&
-    row.parentOwnedSourceRequired &&
+    row.parentAuthority.authorityGeneration > 0 &&
     row.pageSize > 0 &&
     row.pageIndex > 0 &&
     allowedSourceDataClassSet.has(row.sourceDataClass) &&
@@ -47,8 +75,22 @@ export function reportQueryCustodyRowIsHonestGenerated(row: GeneratedReportQuery
     row.notificationPayloadBoundary === 'parent-owned-citations-only' &&
     row.requestedDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
     row.allowedSourceDataClasses.every((dataClass) => allowedSourceDataClassSet.has(dataClass)) &&
-    row.sourceCitationRefs.every((citation) => citation.kind === 'query-store-summary') &&
-    row.assistantCitationRefs.every((citation) => citation.kind === 'query-store-summary') &&
+    row.sourceCitationRefs.every(
+      (citation) =>
+        citation.kind === 'query-store-summary' &&
+        citation.familyId === row.parentAuthority.familyId &&
+        citation.childProfileId === row.parentAuthority.childProfileId &&
+        row.requestedDataClasses.includes(citation.sourceDataClass) &&
+        row.allowedSourceDataClasses.includes(citation.sourceDataClass)
+    ) &&
+    row.assistantCitationRefs.every(
+      (citation) =>
+        citation.kind === 'query-store-summary' &&
+        citation.familyId === row.parentAuthority.familyId &&
+        citation.childProfileId === row.parentAuthority.childProfileId &&
+        row.requestedDataClasses.includes(citation.sourceDataClass) &&
+        row.allowedSourceDataClasses.includes(citation.sourceDataClass)
+    ) &&
     reportQueryCustodyStateIsCoherentGenerated(row)
   );
 }
@@ -175,6 +217,15 @@ export function reportQueryCustodyProofIsHonestGenerated(proof: GeneratedReportQ
     proof.rawChildEvidenceClaimed === false &&
     proof.rows.every((row) => reportQueryCustodyRowIsHonestGenerated(row)) &&
     proof.rows.every((row) => row.requestId === proof.request.requestId) &&
+    proof.rows.every(
+      (row) =>
+        row.parentAuthority.authorityReferenceId ===
+          proof.request.parentAuthority.authorityReferenceId &&
+        row.parentAuthority.familyId === proof.request.family.familyId &&
+        row.parentAuthority.parentAccountId === proof.request.account.parentAccountId &&
+        row.parentAuthority.deviceId === proof.request.device.deviceId &&
+        row.parentAuthority.childProfileId === proof.request.device.childProfileId
+    ) &&
     proof.rows.every((row) => row.pageSize === proof.request.pageSize) &&
     proof.rows.every((row) => row.notificationPayloadBoundary === proof.request.notificationPayloadBoundary) &&
     proof.rows.every((row, index) => row.pageIndex === index + 1) &&
