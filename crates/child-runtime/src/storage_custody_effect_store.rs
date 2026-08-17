@@ -45,8 +45,7 @@ pub(super) enum StorageCustodyEffectStatus {
     ManualRequired,
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
 pub(super) struct StorageCustodyEffectRecord {
     pub(super) schema_version: u16,
     pub(super) operation_ref: String,

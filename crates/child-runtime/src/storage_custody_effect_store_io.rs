@@ -7,8 +7,58 @@ use std::{
 
 use atomicwrites::{AllowOverwrite, AtomicFile};
 use fs2::FileExt;
+use ocentra_eventing::envelope::StoredEventEnvelope;
+use serde::Deserialize;
 
-use super::StorageCustodyEffectRecord;
+use super::{
+    StorageCustodyActionPlannedEvent, StorageCustodyEffectKind, StorageCustodyEffectRecord,
+    StorageCustodyEffectStatus, StorageCustodyInput,
+};
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct WireStorageCustodyEffectRecord {
+    schema_version: u16,
+    operation_ref: String,
+    effect_kind: StorageCustodyEffectKind,
+    effect_ref: String,
+    relative_path: Option<String>,
+    household_id: String,
+    child_profile_id: String,
+    target_device_id: String,
+    authority_generation: u64,
+    session_generation: u64,
+    custody_input: StorageCustodyInput,
+    action: StorageCustodyActionPlannedEvent,
+    envelope: StoredEventEnvelope,
+    status: StorageCustodyEffectStatus,
+    manual_required_reason: Option<String>,
+    #[serde(default)]
+    apply_lease_id: Option<String>,
+}
+
+impl WireStorageCustodyEffectRecord {
+    fn into_record(self) -> StorageCustodyEffectRecord {
+        StorageCustodyEffectRecord {
+            schema_version: self.schema_version,
+            operation_ref: self.operation_ref,
+            effect_kind: self.effect_kind,
+            effect_ref: self.effect_ref,
+            relative_path: self.relative_path,
+            household_id: self.household_id,
+            child_profile_id: self.child_profile_id,
+            target_device_id: self.target_device_id,
+            authority_generation: self.authority_generation,
+            session_generation: self.session_generation,
+            custody_input: self.custody_input,
+            action: self.action,
+            envelope: self.envelope,
+            status: self.status,
+            manual_required_reason: self.manual_required_reason,
+            apply_lease_id: self.apply_lease_id,
+        }
+    }
+}
 
 pub(super) fn reject_symlink(path: &Path) -> io::Result<()> {
     let metadata = match fs::symlink_metadata(path) {
@@ -28,8 +78,11 @@ pub(super) fn reject_symlink(path: &Path) -> io::Result<()> {
 pub(super) fn read_records(path: &Path) -> io::Result<Vec<StorageCustodyEffectRecord>> {
     reject_symlink(path)?;
     let records = match fs::read(path) {
-        Ok(bytes) => serde_json::from_slice(&bytes)
-            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?,
+        Ok(bytes) => serde_json::from_slice::<Vec<WireStorageCustodyEffectRecord>>(&bytes)
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?
+            .into_iter()
+            .map(WireStorageCustodyEffectRecord::into_record)
+            .collect(),
         Err(error) if error.kind() == io::ErrorKind::NotFound => Vec::new(),
         Err(error) => return Err(error),
     };
