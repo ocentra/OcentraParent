@@ -25,6 +25,7 @@ import { ParentTimestampSchema } from '@ocentra-parent/schema-domain/family-refe
 import {
   BillingReferralSummarySchema,
   BillingSupportAdminAccountSummarySchema,
+  BillingSupportAdminAuditEventSummarySchema,
   BillingSupportAdminDisputeSummarySchema,
   BillingSupportAdminInvoiceSummarySchema,
   BillingSupportAdminReferralSummarySchema,
@@ -75,6 +76,9 @@ const PRICING_PLANS_KEY = 'billing:pricing-plans';
 const AUDIT_EVENTS_KEY = 'billing/audit-events.json';
 const TOUCH_KEY_PREFIX = 'billing-touch:';
 
+const REFUND_LEDGER_TOTAL_GUARD_SQL =
+  "CREATE TRIGGER IF NOT EXISTS billing_refund_ledger_total_guard BEFORE INSERT ON billing_refund_ledger BEGIN SELECT RAISE(ABORT, 'billing-refund-ledger-total-exceeded') WHERE EXISTS (SELECT 1 FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id AND invoice_total_cents != NEW.invoice_total_cents) OR COALESCE((SELECT SUM(amount_cents) FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id), 0) + NEW.amount_cents > NEW.invoice_total_cents; END";
+
 function normalizeSql(sql: string): string {
   return sql.replace(/\s+/g, ' ').trim();
 }
@@ -88,6 +92,15 @@ const CREATE_READ_MODEL_SCHEMA_SQL = [
   'CREATE TABLE IF NOT EXISTS billing_admin_invoices (invoice_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_disputes (dispute_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_referrals (referral_code TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
+  "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  REFUND_LEDGER_TOTAL_GUARD_SQL,
+].join(';\n');
+
+const CREATE_MUTATION_SCHEMA_SQL = [
+  "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  REFUND_LEDGER_TOTAL_GUARD_SQL,
 ].join(';\n');
 
 const SELECT_STATUS_ROW_COUNT_SQL = normalizeSql('SELECT COUNT(*) AS row_count FROM billing_status');
@@ -99,6 +112,12 @@ const SELECT_INVOICE_BY_ID_SQL = normalizeSql(
   'SELECT payload_json FROM billing_invoices WHERE invoice_id = ?1 LIMIT 1'
 );
 const SELECT_INVOICE_SUBJECT_SQL = normalizeSql('SELECT subject FROM billing_invoices WHERE invoice_id = ?1 LIMIT 1');
+const SELECT_REFUND_LEDGER_SUMMARY_SQL = normalizeSql(
+  'SELECT COALESCE(SUM(amount_cents), 0) AS applied_amount_cents, (SELECT refund_state FROM billing_refund_ledger AS latest WHERE latest.invoice_id = ?1 ORDER BY created_at DESC, mutation_key DESC LIMIT 1) AS final_refund_state FROM billing_refund_ledger WHERE invoice_id = ?1'
+);
+const SELECT_MUTATION_OUTBOX_SQL = normalizeSql(
+  'SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
+);
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_referrals WHERE subject = ?1 LIMIT 1'
 );
@@ -136,6 +155,15 @@ const UPSERT_ADMIN_DISPUTE_SQL = normalizeSql(
 const UPSERT_ADMIN_REFERRAL_SQL = normalizeSql(
   'INSERT OR REPLACE INTO billing_admin_referrals (referral_code, payload_json) VALUES (?1, ?2)'
 );
+const INSERT_REFUND_LEDGER_SQL = normalizeSql(
+  'INSERT INTO billing_refund_ledger (invoice_id, mutation_key, subject, amount_cents, invoice_total_cents, refund_state, audit_reference, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
+);
+const INSERT_MUTATION_OUTBOX_SQL = normalizeSql(
+  'INSERT INTO billing_mutation_outbox (request_key, mutation_kind, mutation_json, audit_state, audit_event_json, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
+);
+const MARK_MUTATION_AUDIT_DELIVERED_SQL = normalizeSql(
+  "UPDATE billing_mutation_outbox SET audit_state = 'delivered', updated_at = ?2 WHERE request_key = ?1"
+);
 
 const seedReadyByEnv = new WeakMap<Env, Promise<void>>();
 
@@ -149,6 +177,21 @@ interface RowCountRow {
 
 interface InvoiceSubjectRow {
   subject: string;
+}
+
+interface RefundLedgerSummaryRow {
+  applied_amount_cents: number | string;
+  final_refund_state: string | null;
+}
+
+interface MutationOutboxRow {
+  request_key: string;
+  mutation_kind: string;
+  mutation_json: string;
+  audit_state: string;
+  audit_event_json: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export class BillingReadModelUnavailableError extends Error {
@@ -961,6 +1004,29 @@ export type BillingStateMutation =
       invoiceId?: string | null;
     };
 
+interface BillingRefundLedgerEntry {
+  invoiceId: string;
+  mutationKey: string;
+  subject: string;
+  amountCents: number;
+  invoiceTotalCents: number;
+  refundState: 'refund-requested' | 'refund-settled';
+  auditReference: string;
+  createdAt: string;
+}
+
+type MutationAuditState = 'pending' | 'delivered';
+
+interface LocalMutationOutboxEntry {
+  requestKey: string;
+  mutationKind: BillingStateMutation['kind'];
+  mutationJson: string;
+  auditState: MutationAuditState;
+  auditJson: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface LocalBillingD1State {
   statusBySubject: Map<string, BillingStatusSummary>;
   invoicesBySubject: Map<string, ReadonlyArray<BillingInvoiceSummary>>;
@@ -970,6 +1036,8 @@ interface LocalBillingD1State {
   adminInvoices: ReadonlyArray<AdminBillingInvoiceSummary>;
   adminDisputes: ReadonlyArray<AdminBillingDisputeSummary>;
   adminReferrals: ReadonlyArray<AdminBillingReferralSummary>;
+  refundLedgerByInvoice: Map<string, ReadonlyArray<BillingRefundLedgerEntry>>;
+  mutationOutbox: Map<string, LocalMutationOutboxEntry>;
 }
 
 function cloneJsonValue<T>(value: T): T {
@@ -1149,6 +1217,34 @@ class LocalD1Statement implements D1PreparedStatement {
         }
         return [];
       }
+      case SELECT_REFUND_LEDGER_SUMMARY_SQL: {
+        const invoiceId = String(this.values[0] ?? '');
+        const entries = this.state.refundLedgerByInvoice.get(invoiceId) ?? [];
+        const appliedAmount = entries.reduce((total, entry) => total + entry.amountCents, 0);
+        return [
+          {
+            applied_amount_cents: appliedAmount,
+            final_refund_state: entries[entries.length - 1]?.refundState ?? null,
+          } as T,
+        ];
+      }
+      case SELECT_MUTATION_OUTBOX_SQL: {
+        const requestKey = String(this.values[0] ?? '');
+        const entry = this.state.mutationOutbox.get(requestKey);
+        return entry
+          ? [
+              {
+                request_key: entry.requestKey,
+                mutation_kind: entry.mutationKind,
+                mutation_json: entry.mutationJson,
+                audit_state: entry.auditState,
+                audit_event_json: entry.auditJson,
+                created_at: entry.createdAt,
+                updated_at: entry.updatedAt,
+              } as T,
+            ]
+          : [];
+      }
       case SELECT_REFERRAL_BY_SUBJECT_SQL: {
         const subject = String(this.values[0] ?? '');
         const referral = this.state.referralsBySubject.get(subject);
@@ -1259,6 +1355,82 @@ class LocalD1Statement implements D1PreparedStatement {
         this.state.adminReferrals = replaceByKey(this.state.adminReferrals, nextRow, (entry) => entry.referralCode);
         return;
       }
+      case INSERT_REFUND_LEDGER_SQL: {
+        const invoiceId = decodeNonEmptyString(this.values[0], 'billing-refund-ledger-invoice-id');
+        const mutationKey = decodeNonEmptyString(this.values[1], 'billing-refund-ledger-mutation-key');
+        const subject = decodeNonEmptyString(this.values[2], 'billing-refund-ledger-subject');
+        const amountCents = decodeBillingCount(this.values[3], 'billing-refund-ledger-amount-cents');
+        const invoiceTotalCents = decodeBillingCount(this.values[4], 'billing-refund-ledger-invoice-total-cents');
+        const refundState = decodeLiteral(
+          this.values[5],
+          ['refund-requested', 'refund-settled'] as const,
+          'billing-refund-ledger-state'
+        );
+        const auditReference = decodeCanonicalValue('billing-refund-ledger-audit-reference', () =>
+          BillingAuditReferenceSchema.parse(this.values[6])
+        );
+        const createdAt = decodeTimestamp(this.values[7], 'billing-refund-ledger-created-at');
+        const current = this.state.refundLedgerByInvoice.get(invoiceId) ?? [];
+        if (current.some((entry) => entry.mutationKey === mutationKey)) {
+          throw new BillingReadModelUnavailableError('billing-refund-ledger-duplicate');
+        }
+        if (current.some((entry) => entry.invoiceTotalCents !== invoiceTotalCents)) {
+          throw new BillingReadModelUnavailableError('billing-refund-ledger-total-mismatch');
+        }
+        const cumulativeAmountCents = decodeBillingCount(
+          current.reduce((total, entry) => total + entry.amountCents, 0) + amountCents,
+          'billing-refund-ledger-cumulative-amount-cents'
+        );
+        if (cumulativeAmountCents > invoiceTotalCents) {
+          throw new BillingReadModelUnavailableError('billing-refund-ledger-total-exceeded');
+        }
+        this.state.refundLedgerByInvoice.set(invoiceId, [
+          ...current,
+          { invoiceId, mutationKey, subject, amountCents, invoiceTotalCents, refundState, auditReference, createdAt },
+        ]);
+        return;
+      }
+      case INSERT_MUTATION_OUTBOX_SQL: {
+        const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
+        const mutationKind = decodeNonEmptyString(this.values[1], 'billing-mutation-outbox-kind');
+        const mutationJson = decodeNonEmptyString(this.values[2], 'billing-mutation-outbox-mutation');
+        const auditState = decodeLiteral(
+          this.values[3],
+          ['pending', 'delivered'] as const,
+          'billing-mutation-outbox-audit-state'
+        );
+        const auditJson = decodeNonEmptyString(this.values[4], 'billing-mutation-outbox-audit-event');
+        const createdAt = decodeTimestamp(this.values[5], 'billing-mutation-outbox-created-at');
+        const updatedAt = decodeTimestamp(this.values[6], 'billing-mutation-outbox-updated-at');
+        decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
+          BillingSupportAdminAuditEventSummarySchema.parse(
+            parseUnknownPayload(auditJson, 'billing-mutation-outbox-audit-event')
+          )
+        );
+        if (this.state.mutationOutbox.has(requestKey)) {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-duplicate');
+        }
+        this.state.mutationOutbox.set(requestKey, {
+          requestKey,
+          mutationKind: mutationKind as BillingStateMutation['kind'],
+          mutationJson,
+          auditState,
+          auditJson,
+          createdAt,
+          updatedAt,
+        });
+        return;
+      }
+      case MARK_MUTATION_AUDIT_DELIVERED_SQL: {
+        const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
+        const updatedAt = decodeTimestamp(this.values[1], 'billing-mutation-outbox-updated-at');
+        const current = this.state.mutationOutbox.get(requestKey);
+        if (!current) {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-missing');
+        }
+        this.state.mutationOutbox.set(requestKey, { ...current, auditState: 'delivered', updatedAt });
+        return;
+      }
       default:
         return;
     }
@@ -1275,6 +1447,8 @@ class LocalBillingD1Database implements D1Database {
     adminInvoices: [],
     adminDisputes: [],
     adminReferrals: [],
+    refundLedgerByInvoice: new Map<string, ReadonlyArray<BillingRefundLedgerEntry>>(),
+    mutationOutbox: new Map<string, LocalMutationOutboxEntry>(),
   };
 
   prepare(query: string): D1PreparedStatement {
@@ -1293,6 +1467,8 @@ class LocalBillingD1Database implements D1Database {
       adminInvoices: this.state.adminInvoices,
       adminDisputes: this.state.adminDisputes,
       adminReferrals: this.state.adminReferrals,
+      refundLedgerByInvoice: new Map(this.state.refundLedgerByInvoice),
+      mutationOutbox: new Map(this.state.mutationOutbox),
     };
     const results: Array<{ results: ReadonlyArray<unknown>; success: true }> = [];
     try {
@@ -1309,6 +1485,8 @@ class LocalBillingD1Database implements D1Database {
       this.state.adminInvoices = backup.adminInvoices;
       this.state.adminDisputes = backup.adminDisputes;
       this.state.adminReferrals = backup.adminReferrals;
+      this.state.refundLedgerByInvoice = backup.refundLedgerByInvoice;
+      this.state.mutationOutbox = backup.mutationOutbox;
       throw error;
     }
   }
@@ -1382,6 +1560,8 @@ class LocalBillingD1Database implements D1Database {
     if (patch.adminReferrals) {
       this.state.adminReferrals = asReadonlyArray(patch.adminReferrals);
     }
+    this.state.refundLedgerByInvoice = new Map();
+    this.state.mutationOutbox = new Map();
   }
 }
 
@@ -1516,6 +1696,104 @@ async function d1All<T>(
   return result.results;
 }
 
+async function ensureMutationSchema(env: Env): Promise<void> {
+  await requireBillingD1Database(env).exec(CREATE_MUTATION_SCHEMA_SQL);
+}
+
+function mutationReplayKey(mutation: BillingStateMutation): string {
+  switch (mutation.kind) {
+    case 'provider-webhook':
+      return `provider-webhook:${mutation.provider}:${mutation.eventId}`;
+    case 'reconciliation':
+      return `reconciliation:${mutation.subject}:${mutation.requestId}`;
+    default:
+      return `${mutation.kind}:${mutation.subject}:${mutation.requestId}`;
+  }
+}
+
+function stableMutationValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map((entry) => stableMutationValue(entry));
+  }
+  if (typeof value !== 'object' || value === null) {
+    return value;
+  }
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+      .map(([key, entry]) => [key, stableMutationValue(entry)])
+  );
+}
+
+function mutationFingerprint(mutation: BillingStateMutation): string {
+  return JSON.stringify(stableMutationValue(mutation));
+}
+
+function billingMutationOutboxStatement(
+  env: Env,
+  mutation: BillingStateMutation,
+  auditEvent: BillingAuditEventSummary
+): D1PreparedStatement {
+  const now = new Date().toISOString();
+  const key = mutationReplayKey(mutation);
+  return requireBillingD1Database(env)
+    .prepare(INSERT_MUTATION_OUTBOX_SQL)
+    .bind(key, mutation.kind, mutationFingerprint(mutation), 'pending', JSON.stringify(auditEvent), now, now);
+}
+
+async function loadMutationOutbox(env: Env, mutation: BillingStateMutation): Promise<MutationOutboxRow | null> {
+  const row = await d1First<MutationOutboxRow>(
+    requireBillingD1Database(env),
+    SELECT_MUTATION_OUTBOX_SQL,
+    mutationReplayKey(mutation)
+  );
+  if (!row) {
+    return null;
+  }
+  decodeNonEmptyString(row.request_key, 'billing-mutation-outbox-request-key');
+  decodeNonEmptyString(row.mutation_kind, 'billing-mutation-outbox-kind');
+  decodeNonEmptyString(row.mutation_json, 'billing-mutation-outbox-mutation');
+  decodeLiteral(row.audit_state, ['pending', 'delivered'] as const, 'billing-mutation-outbox-audit-state');
+  decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
+    BillingSupportAdminAuditEventSummarySchema.parse(
+      parseUnknownPayload(row.audit_event_json, 'billing-mutation-outbox-audit-event')
+    )
+  );
+  decodeTimestamp(row.created_at, 'billing-mutation-outbox-created-at');
+  decodeTimestamp(row.updated_at, 'billing-mutation-outbox-updated-at');
+  return row;
+}
+
+type RefundLedgerState = 'none' | 'refund-requested' | 'refund-settled';
+
+async function loadRefundLedgerSummary(
+  env: Env,
+  invoiceId: string
+): Promise<{ appliedAmountCents: number; finalRefundState: RefundLedgerState }> {
+  await ensureMutationSchema(env);
+  const row = await d1First<RefundLedgerSummaryRow>(
+    requireBillingD1Database(env),
+    SELECT_REFUND_LEDGER_SUMMARY_SQL,
+    invoiceId
+  );
+  const finalRefundState =
+    row?.final_refund_state === null || row?.final_refund_state === undefined
+      ? 'none'
+      : decodeLiteral(
+          row.final_refund_state,
+          ['refund-requested', 'refund-settled'] as const,
+          `billing-refund-ledger-state:${invoiceId}`
+        );
+  return {
+    appliedAmountCents: decodeBillingCount(row?.applied_amount_cents ?? 0, `billing-refund-ledger-total:${invoiceId}`),
+    finalRefundState,
+  };
+}
+
+export async function loadAppliedRefundAmount(env: Env, invoiceId: string): Promise<number> {
+  return (await loadRefundLedgerSummary(env, invoiceId)).appliedAmountCents;
+}
+
 function requireBillingD1Database(env: Env): D1Database {
   const database = env.BILLING_D1;
   if (!database) {
@@ -1576,12 +1854,46 @@ function billingAdminDisputeStatement(env: Env, dispute: AdminBillingDisputeSumm
     .bind(decoded.disputeId, JSON.stringify(decoded));
 }
 
-async function upsertBillingReferralSummary(env: Env, referral: BillingReferralSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_REFERRAL_SQL).bind(referral.subject, JSON.stringify(referral)).run();
+function billingRefundLedgerStatement(
+  env: Env,
+  mutation: Extract<BillingStateMutation, { kind: 'admin-refund' }>,
+  invoiceTotalCents: number,
+  createdAt: string
+): D1PreparedStatement {
+  return requireBillingD1Database(env)
+    .prepare(INSERT_REFUND_LEDGER_SQL)
+    .bind(
+      mutation.invoiceId,
+      mutationReplayKey(mutation),
+      mutation.subject,
+      decodeBillingCount(mutation.amountCents, 'billing-refund-ledger-amount-cents'),
+      decodeBillingCount(invoiceTotalCents, 'billing-refund-ledger-invoice-total-cents'),
+      mutation.refundState,
+      decodeCanonicalValue('billing-refund-ledger-audit-reference', () =>
+        BillingAuditReferenceSchema.parse(mutation.auditReference)
+      ),
+      decodeTimestamp(createdAt, 'billing-refund-ledger-created-at')
+    );
 }
 
-async function upsertAdminBillingReferralSummary(env: Env, referral: AdminBillingReferralSummary): Promise<void> {
-  await env.BILLING_D1?.prepare(UPSERT_ADMIN_REFERRAL_SQL).bind(referral.referralCode, JSON.stringify(referral)).run();
+async function commitBillingMutationD1Batch(
+  env: Env,
+  mutation: BillingStateMutation,
+  statements: ReadonlyArray<D1PreparedStatement>,
+  auditEvent: BillingAuditEventSummary
+): Promise<void> {
+  await commitBillingD1Batch(env, [...statements, billingMutationOutboxStatement(env, mutation, auditEvent)]);
+}
+
+function billingReferralStatement(env: Env, referral: BillingReferralSummary): D1PreparedStatement {
+  const decoded = decodeBillingReferralSummary(referral, `billing-referral-write:${referral.subject}`);
+  return requireBillingD1Database(env).prepare(UPSERT_REFERRAL_SQL).bind(decoded.subject, JSON.stringify(decoded));
+}
+
+function billingAdminReferralStatement(env: Env, referral: AdminBillingReferralSummary): D1PreparedStatement {
+  return requireBillingD1Database(env)
+    .prepare(UPSERT_ADMIN_REFERRAL_SQL)
+    .bind(referral.referralCode, JSON.stringify(referral));
 }
 
 async function readStoredAuditEvents(env: Env): Promise<ReadonlyArray<BillingAuditEventSummary>> {
@@ -1594,11 +1906,149 @@ async function readStoredAuditEvents(env: Env): Promise<ReadonlyArray<BillingAud
 
 async function appendBillingAuditEvent(env: Env, nextEvent: BillingAuditEventSummary): Promise<void> {
   if (!env.BILLING_AUDIT_R2) {
-    return;
+    throw new BillingReadModelUnavailableError('billing-audit-r2-binding-missing');
   }
   const current = await readStoredAuditEvents(env);
   const next = replaceByKey(current, nextEvent, (entry) => entry.eventId);
   await env.BILLING_AUDIT_R2.put(AUDIT_EVENTS_KEY, JSON.stringify(next));
+}
+
+async function billingAuditEventForMutation(
+  env: Env,
+  mutation: BillingStateMutation
+): Promise<BillingAuditEventSummary> {
+  const createdAt = new Date().toISOString();
+  switch (mutation.kind) {
+    case 'hosted-session': {
+      const status = await loadBillingStatusSummary(env, mutation.subject);
+      return {
+        eventId: hostedSessionAuditEventId(mutation.sessionKind, mutation.requestId),
+        eventType: hostedSessionAuditEventType(mutation.sessionKind),
+        actorRole: mutation.actorRole,
+        parentAccountRef: status.parentAccountRef,
+        familyRef: status.familyRef,
+        auditReference: mutation.auditReference,
+        createdAt,
+      } as BillingAuditEventSummary;
+    }
+    case 'change-plan': {
+      const status = await loadBillingStatusSummary(env, mutation.subject);
+      return {
+        eventId: `billing-change-plan:${mutation.requestId}`,
+        eventType: 'billing.change-plan.accepted',
+        actorRole: 'parent',
+        parentAccountRef: status.parentAccountRef,
+        familyRef: status.familyRef,
+        auditReference: mutation.auditReference,
+        createdAt,
+      } as BillingAuditEventSummary;
+    }
+    case 'cancel': {
+      const status = await loadBillingStatusSummary(env, mutation.subject);
+      return {
+        eventId: `billing-cancel:${mutation.requestId}`,
+        eventType: 'billing.cancel.accepted',
+        actorRole: 'parent',
+        parentAccountRef: status.parentAccountRef,
+        familyRef: status.familyRef,
+        auditReference: mutation.auditReference,
+        createdAt,
+      } as BillingAuditEventSummary;
+    }
+    case 'referral-invite': {
+      const status = await loadBillingStatusSummary(env, mutation.subject);
+      return {
+        eventId: `billing-referral-invite:${mutation.requestId}`,
+        eventType: 'billing.referral.invite-created',
+        actorRole: mutation.actorRole,
+        parentAccountRef: status.parentAccountRef,
+        familyRef: status.familyRef,
+        auditReference: mutation.auditReference,
+        createdAt,
+      } as BillingAuditEventSummary;
+    }
+    case 'manual-invoice': {
+      const status = await loadBillingStatusSummary(env, mutation.subject);
+      return {
+        eventId: `billing-manual-invoice:${mutation.requestId}`,
+        eventType: 'billing.manual-invoice.created',
+        actorRole: mutation.actorRole,
+        parentAccountRef: status.parentAccountRef,
+        familyRef: status.familyRef,
+        auditReference: `${mutation.auditReference}:state`,
+        createdAt,
+      } as BillingAuditEventSummary;
+    }
+    case 'admin-refund': {
+      const status = await loadBillingStatusSummary(env, mutation.subject);
+      return {
+        eventId: `billing-refund:${mutation.requestId}`,
+        eventType: `billing.refund.${mutation.refundState}`,
+        actorRole: mutation.actorRole,
+        parentAccountRef: status.parentAccountRef,
+        familyRef: status.familyRef,
+        auditReference: `${mutation.auditReference}:state`,
+        createdAt,
+      } as BillingAuditEventSummary;
+    }
+    case 'reconciliation':
+      return {
+        eventId: `billing-reconciliation:${mutation.requestId}`,
+        eventType: 'billing.reconciliation.accepted',
+        actorRole: mutation.actorRole,
+        parentAccountRef: RECONCILIATION_PARENT_ACCOUNT_REF,
+        familyRef: RECONCILIATION_FAMILY_REF,
+        auditReference: mutation.auditReference,
+        createdAt,
+      } as BillingAuditEventSummary;
+    case 'provider-webhook': {
+      const status = await loadBillingStatusSummary(env, mutation.subject);
+      return {
+        eventId: `billing-webhook:${mutation.provider}:${mutation.eventId}`,
+        eventType: `billing.webhook.${mutation.provider}.${mutation.eventType}`,
+        actorRole: 'system',
+        parentAccountRef: status.parentAccountRef,
+        familyRef: status.familyRef,
+        auditReference: `${status.auditReference}:provider-webhook:${mutation.provider}`,
+        createdAt,
+      } as BillingAuditEventSummary;
+    }
+  }
+  throw new BillingReadModelUnavailableError(`billing-audit-event-unhandled:${mutation.kind}`);
+}
+
+async function completeBillingMutation(env: Env, mutation: BillingStateMutation): Promise<void> {
+  const outbox = await loadMutationOutbox(env, mutation);
+  if (!outbox) {
+    throw new BillingReadModelUnavailableError(`billing-mutation-outbox-missing:${mutationReplayKey(mutation)}`);
+  }
+  if (outbox.mutation_kind !== mutation.kind || outbox.mutation_json !== mutationFingerprint(mutation)) {
+    throw new BillingReadModelUnavailableError(`billing-mutation-outbox-conflict:${mutationReplayKey(mutation)}`);
+  }
+  if (outbox.audit_state === 'delivered') {
+    return;
+  }
+  const auditEvent = decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
+    BillingSupportAdminAuditEventSummarySchema.parse(
+      parseUnknownPayload(outbox.audit_event_json, 'billing-mutation-outbox-audit-event')
+    )
+  );
+  await appendBillingAuditEvent(env, auditEvent);
+  await commitBillingD1Batch(env, [
+    requireBillingD1Database(env)
+      .prepare(MARK_MUTATION_AUDIT_DELIVERED_SQL)
+      .bind(mutationReplayKey(mutation), new Date().toISOString()),
+  ]);
+}
+
+async function replayKnownBillingMutation(env: Env, mutation: BillingStateMutation): Promise<boolean> {
+  await ensureMutationSchema(env);
+  const outbox = await loadMutationOutbox(env, mutation);
+  if (!outbox) {
+    return false;
+  }
+  await completeBillingMutation(env, mutation);
+  return true;
 }
 
 async function adminAccountProjectionStatement(
@@ -2133,7 +2583,8 @@ export async function loadAdminBillingInvoices(
 export function buildBillingRefundResult(
   requestId: string,
   invoice: BillingInvoiceSummary | null,
-  amountCents: number | null
+  amountCents: number | null,
+  appliedAmountCents = 0
 ): BillingSupportAdminRefundResult {
   if (!invoice) {
     return BillingSupportAdminRefundResultSchema.parse({
@@ -2147,8 +2598,22 @@ export function buildBillingRefundResult(
     });
   }
 
-  const decodedAmount = decodeBillingCount(amountCents ?? invoice.totalCents, 'billing-refund-amount');
-  if (decodedAmount > invoice.totalCents) {
+  const decodedAppliedAmount = decodeBillingCount(appliedAmountCents, 'billing-refund-applied-amount');
+  if (decodedAppliedAmount > invoice.totalCents) {
+    return BillingSupportAdminRefundResultSchema.parse({
+      requestId,
+      status: 'rejected',
+      invoiceId: invoice.invoiceId,
+      refundState: 'manual-review-required',
+      amountCents: null,
+      auditReference: `${invoice.auditReference}:refund:ledger-invalid`,
+      rejectionReason: null,
+    });
+  }
+  const remainingAmount = invoice.totalCents - decodedAppliedAmount;
+  const decodedAmount = decodeBillingCount(amountCents ?? remainingAmount, 'billing-refund-amount');
+  const cumulativeAmount = decodeBillingCount(decodedAppliedAmount + decodedAmount, 'billing-refund-cumulative-amount');
+  if (decodedAmount === 0 || cumulativeAmount > invoice.totalCents) {
     return BillingSupportAdminRefundResultSchema.parse({
       requestId,
       status: 'rejected',
@@ -2164,9 +2629,9 @@ export function buildBillingRefundResult(
     requestId,
     status: 'accepted',
     invoiceId: invoice.invoiceId,
-    refundState: decodedAmount < invoice.totalCents ? 'refund-requested' : 'refund-settled',
+    refundState: cumulativeAmount < invoice.totalCents ? 'refund-requested' : 'refund-settled',
     amountCents: decodedAmount,
-    auditReference: `${invoice.auditReference}:refund:${decodedAmount}`,
+    auditReference: `${invoice.auditReference}:refund:${decodedAmount}:cumulative:${cumulativeAmount}`,
     rejectionReason: null,
   });
 }
@@ -2230,20 +2695,15 @@ export async function loadBillingAuditEvents(
 
 export async function applyBillingStateMutation(env: Env, mutation: BillingStateMutation): Promise<void> {
   await ensureReadModelSeed(env);
+  if (await replayKnownBillingMutation(env, mutation)) {
+    return;
+  }
 
   switch (mutation.kind) {
     case 'hosted-session': {
-      const status = await loadBillingStatusSummary(env, mutation.subject);
-      const updatedAt = new Date().toISOString();
-      await appendBillingAuditEvent(env, {
-        eventId: hostedSessionAuditEventId(mutation.sessionKind, mutation.requestId),
-        eventType: hostedSessionAuditEventType(mutation.sessionKind),
-        actorRole: mutation.actorRole,
-        parentAccountRef: status.parentAccountRef,
-        familyRef: status.familyRef,
-        auditReference: mutation.auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
+      await commitBillingMutationD1Batch(env, mutation, [], auditEvent);
+      await completeBillingMutation(env, mutation);
       return;
     }
     case 'change-plan': {
@@ -2302,16 +2762,9 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       if (changePlanProjection) {
         changePlanStatements.push(changePlanProjection);
       }
-      await commitBillingD1Batch(env, changePlanStatements);
-      await appendBillingAuditEvent(env, {
-        eventId: `billing-change-plan:${mutation.requestId}`,
-        eventType: 'billing.change-plan.accepted',
-        actorRole: 'parent',
-        parentAccountRef: nextStatus.parentAccountRef,
-        familyRef: nextStatus.familyRef,
-        auditReference: mutation.auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
+      await commitBillingMutationD1Batch(env, mutation, changePlanStatements, auditEvent);
+      await completeBillingMutation(env, mutation);
       return;
     }
     case 'cancel': {
@@ -2369,16 +2822,9 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       if (cancellationProjection) {
         cancellationStatements.push(cancellationProjection);
       }
-      await commitBillingD1Batch(env, cancellationStatements);
-      await appendBillingAuditEvent(env, {
-        eventId: `billing-cancel:${mutation.requestId}`,
-        eventType: 'billing.cancel.accepted',
-        actorRole: 'parent',
-        parentAccountRef: nextStatus.parentAccountRef,
-        familyRef: nextStatus.familyRef,
-        auditReference: mutation.auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
+      await commitBillingMutationD1Batch(env, mutation, cancellationStatements, auditEvent);
+      await completeBillingMutation(env, mutation);
       return;
     }
     case 'referral-invite': {
@@ -2426,17 +2872,14 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
             updatedAt,
           }) as unknown as AdminBillingReferralSummary;
 
-      await upsertBillingReferralSummary(env, nextReferral);
-      await upsertAdminBillingReferralSummary(env, nextAdminReferral);
-      await appendBillingAuditEvent(env, {
-        eventId: `billing-referral-invite:${mutation.requestId}`,
-        eventType: 'billing.referral.invite-created',
-        actorRole: mutation.actorRole,
-        parentAccountRef: (await loadBillingStatusSummary(env, mutation.subject)).parentAccountRef,
-        familyRef: (await loadBillingStatusSummary(env, mutation.subject)).familyRef,
-        auditReference: mutation.auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
+      await commitBillingMutationD1Batch(
+        env,
+        mutation,
+        [billingReferralStatement(env, nextReferral), billingAdminReferralStatement(env, nextAdminReferral)],
+        auditEvent
+      );
+      await completeBillingMutation(env, mutation);
       return;
     }
     case 'manual-invoice': {
@@ -2508,32 +2951,47 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       if (manualInvoiceProjection) {
         manualInvoiceStatements.push(manualInvoiceProjection);
       }
-      await commitBillingD1Batch(env, manualInvoiceStatements);
-      await appendBillingAuditEvent(env, {
-        eventId: `billing-manual-invoice:${mutation.requestId}`,
-        eventType: 'billing.manual-invoice.created',
-        actorRole: mutation.actorRole,
-        parentAccountRef: status.parentAccountRef,
-        familyRef: status.familyRef,
-        auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
+      await commitBillingMutationD1Batch(env, mutation, manualInvoiceStatements, auditEvent);
+      await completeBillingMutation(env, mutation);
       return;
     }
     case 'admin-refund': {
-      const status = await loadBillingStatusSummary(env, mutation.subject);
-      const snapshot = await loadBillingEntitlementSnapshot(env, mutation.subject);
+      const paired = decodeBillingStatePair(
+        await loadBillingStatusSummary(env, mutation.subject),
+        await loadBillingEntitlementSnapshot(env, mutation.subject),
+        `billing-refund-authority:${mutation.subject}`
+      );
+      const status = paired.status;
+      const snapshot = paired.snapshot;
       const invoices = await loadBillingInvoices(env, mutation.subject);
       const adminInvoices = await loadAdminBillingInvoices(env, null);
       const matchedInvoice = invoices.find((invoice) => invoice.invoiceId === mutation.invoiceId);
       if (!matchedInvoice) {
         throw new BillingReadModelUnavailableError(`billing-refund-invoice-missing:${mutation.invoiceId}`);
       }
-      if (mutation.amountCents > matchedInvoice.totalCents) {
+      const refundLedger = await loadRefundLedgerSummary(env, mutation.invoiceId);
+      const appliedAmountCents = refundLedger.appliedAmountCents;
+      if (appliedAmountCents > matchedInvoice.totalCents) {
+        throw new BillingReadModelUnavailableError(`billing-refund-ledger-exceeds-invoice:${mutation.invoiceId}`);
+      }
+      if (
+        (refundLedger.finalRefundState === 'refund-settled' && appliedAmountCents < matchedInvoice.totalCents) ||
+        (refundLedger.finalRefundState === 'refund-requested' && appliedAmountCents >= matchedInvoice.totalCents) ||
+        (refundLedger.finalRefundState === 'refund-settled' && matchedInvoice.paymentState !== 'refunded') ||
+        (refundLedger.finalRefundState === 'refund-requested' && matchedInvoice.paymentState === 'refunded')
+      ) {
+        throw new BillingReadModelUnavailableError(`billing-refund-ledger-state-mismatch:${mutation.invoiceId}`);
+      }
+      const cumulativeAmountCents = decodeBillingCount(
+        appliedAmountCents + mutation.amountCents,
+        `billing-refund-cumulative-amount:${mutation.invoiceId}`
+      );
+      if (mutation.amountCents === 0 || cumulativeAmountCents > matchedInvoice.totalCents) {
         throw new BillingReadModelUnavailableError(`billing-refund-amount-exceeds-invoice:${mutation.invoiceId}`);
       }
       const expectedRefundState =
-        mutation.amountCents < matchedInvoice.totalCents ? 'refund-requested' : 'refund-settled';
+        cumulativeAmountCents < matchedInvoice.totalCents ? 'refund-requested' : 'refund-settled';
       if (mutation.refundState !== expectedRefundState) {
         throw new BillingReadModelUnavailableError(`billing-refund-state-mismatch:${mutation.invoiceId}`);
       }
@@ -2541,8 +2999,9 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const refundSettled = mutation.refundState === 'refund-settled';
       const auditReference = `${mutation.auditReference}:state`;
       const nextFailureState = refundSettled ? manualReviewFailureState() : status.failureState;
-      const refundAmountAudit = `amount-cents:${mutation.amountCents}`;
+      const refundAmountAudit = `amount-cents:${mutation.amountCents}:cumulative-cents:${cumulativeAmountCents}`;
       const refundStatements = [
+        billingRefundLedgerStatement(env, mutation, matchedInvoice.totalCents, updatedAt),
         billingInvoiceStatement(env, mutation.subject, {
           ...matchedInvoice,
           paymentState: refundSettled ? 'refunded' : matchedInvoice.paymentState,
@@ -2599,30 +3058,15 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         }
       }
 
-      await commitBillingD1Batch(env, refundStatements);
-
-      await appendBillingAuditEvent(env, {
-        eventId: `billing-refund:${mutation.requestId}`,
-        eventType: `billing.refund.${mutation.refundState}`,
-        actorRole: mutation.actorRole,
-        parentAccountRef: status.parentAccountRef,
-        familyRef: status.familyRef,
-        auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
+      await commitBillingMutationD1Batch(env, mutation, refundStatements, auditEvent);
+      await completeBillingMutation(env, mutation);
       return;
     }
     case 'reconciliation': {
-      const updatedAt = new Date().toISOString();
-      await appendBillingAuditEvent(env, {
-        eventId: `billing-reconciliation:${mutation.requestId}`,
-        eventType: 'billing.reconciliation.accepted',
-        actorRole: mutation.actorRole,
-        parentAccountRef: RECONCILIATION_PARENT_ACCOUNT_REF,
-        familyRef: RECONCILIATION_FAMILY_REF,
-        auditReference: mutation.auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
+      await commitBillingMutationD1Batch(env, mutation, [], auditEvent);
+      await completeBillingMutation(env, mutation);
       return;
     }
     case 'provider-webhook': {
@@ -2637,6 +3081,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const adminInvoices = await loadAdminBillingInvoices(env, null);
       const updatedAt = new Date().toISOString();
       const auditReference = `${status.auditReference}:provider-webhook:${mutation.provider}`;
+      const auditEvent = await billingAuditEventForMutation(env, mutation);
 
       if (transition === 'activate-subscription') {
         const nextStatus: any = {
@@ -2699,7 +3144,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         if (activationProjection) {
           activationStatements.push(activationProjection);
         }
-        await commitBillingD1Batch(env, activationStatements);
+        await commitBillingMutationD1Batch(env, mutation, activationStatements, auditEvent);
       } else if (transition === 'enter-grace') {
         const nextStatus = {
           ...status,
@@ -2758,7 +3203,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         if (graceProjection) {
           graceStatements.push(graceProjection);
         }
-        await commitBillingD1Batch(env, graceStatements);
+        await commitBillingMutationD1Batch(env, mutation, graceStatements, auditEvent);
       } else {
         const disputeId = mutation.disputeId ?? `dispute-${mutation.provider}-${mutation.eventId}`;
         const invoiceId =
@@ -2854,18 +3299,10 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
         if (disputeProjection) {
           disputeStatements.push(disputeProjection);
         }
-        await commitBillingD1Batch(env, disputeStatements);
+        await commitBillingMutationD1Batch(env, mutation, disputeStatements, auditEvent);
       }
 
-      await appendBillingAuditEvent(env, {
-        eventId: `billing-webhook:${mutation.provider}:${mutation.eventId}`,
-        eventType: `billing.webhook.${mutation.provider}.${mutation.eventType}`,
-        actorRole: 'system',
-        parentAccountRef: status.parentAccountRef,
-        familyRef: status.familyRef,
-        auditReference,
-        createdAt: updatedAt,
-      } as unknown as BillingAuditEventSummary);
+      await completeBillingMutation(env, mutation);
       return;
     }
   }

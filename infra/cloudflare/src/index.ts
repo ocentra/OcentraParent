@@ -18,6 +18,7 @@ import {
   loadAdminBillingReferrals,
   loadBillingAuditEvents,
   loadBillingEntitlementSnapshot,
+  loadAppliedRefundAmount,
   loadBillingInvoiceById,
   loadBillingInvoices,
   loadBillingLicenseDecision,
@@ -1808,7 +1809,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
       const invoiceId = stringOrNull(body.invoiceId);
       const invoice = invoiceId ? await loadBillingInvoiceById(env, invoiceId) : null;
-      const result = buildBillingRefundResult(requestId, invoice, parsedAmount.value);
+      const appliedAmountCents = invoice ? await loadAppliedRefundAmount(env, invoice.invoiceId) : 0;
+      const result = buildBillingRefundResult(requestId, invoice, parsedAmount.value, appliedAmountCents);
       if (result.status === 'accepted') {
         const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
         if (!refundSubject) {
