@@ -49,6 +49,7 @@ export const AccountIdentityPairingIdSchema = brandedNonEmptyStringSchema('Accou
 export const AccountIdentityInstallationIdSchema = brandedNonEmptyStringSchema('AccountIdentityInstallationId');
 export const AccountIdentityRouteIdSchema = brandedNonEmptyStringSchema('AccountIdentityRouteId');
 export const AccountIdentityDeviceIdSchema = brandedNonEmptyStringSchema('AccountIdentityDeviceId');
+export const AccountIdentitySupportReceiptIdSchema = brandedNonEmptyStringSchema('AccountIdentitySupportReceiptId');
 
 export const AccountIdentityProviderSubjectMappingSchema = withParser(
   Schema.Struct({
@@ -96,6 +97,7 @@ export const AccountIdentityCurrentMemberDeviceAuthoritySchema = withParser(
     deviceId: AccountIdentityDeviceIdSchema,
     deviceTrustState: AccountIdentityDeviceTrustStateSchema,
     sessionFreshnessState: AccountIdentitySessionFreshnessStateSchema,
+    supportReceiptId: Schema.NullOr(AccountIdentitySupportReceiptIdSchema),
     authorityGeneration: PositiveSafeAuthorityGenerationSchema,
   })
 );
@@ -133,6 +135,7 @@ export type AccountIdentityPairingId = typeof AccountIdentityPairingIdSchema.Typ
 export type AccountIdentityInstallationId = typeof AccountIdentityInstallationIdSchema.Type;
 export type AccountIdentityRouteId = typeof AccountIdentityRouteIdSchema.Type;
 export type AccountIdentityDeviceId = typeof AccountIdentityDeviceIdSchema.Type;
+export type AccountIdentitySupportReceiptId = typeof AccountIdentitySupportReceiptIdSchema.Type;
 export type AccountIdentityProviderSubjectMapping = Infer<typeof AccountIdentityProviderSubjectMappingSchema>;
 export type AccountIdentityHouseholdChildDeviceBinding = Infer<typeof AccountIdentityHouseholdChildDeviceBindingSchema>;
 export type AccountIdentityAuthorityHandoff = Infer<typeof AccountIdentityAuthorityHandoffSchema>;
