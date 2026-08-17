@@ -17,7 +17,6 @@ export interface VerifiedIdentity {
 
 export type AuthFailureResult = { ok: false; response: Response };
 export type AuthResult = { ok: true; identity: VerifiedIdentity } | AuthFailureResult;
-type BearerIdentityResult = { ok: true; token: string; trustedDevice: boolean } | AuthFailureResult;
 
 export interface VerifiedProviderIdentity {
   provider: AccountIdentityProvider;
@@ -122,33 +121,6 @@ function requireParentRoleCapability(result: AuthResult, authState: AuthState): 
     return forbidden('parent-role-capability-required', authState);
   }
   return result;
-}
-
-function normalizeSubject(token: string): string {
-  const sanitized = token.replace(/[^A-Za-z0-9:_-]/g, '-').slice(0, 64);
-  if (sanitized.length === 0) {
-    return 'parent:unknown';
-  }
-  if (
-    sanitized.startsWith('parent:') ||
-    sanitized.startsWith('guardian:') ||
-    sanitized.startsWith('child:') ||
-    sanitized.startsWith('member:')
-  ) {
-    return sanitized;
-  }
-  return `parent:${sanitized}`;
-}
-
-function parseBearerToken(headerValue: string | null): string | null {
-  if (!headerValue) {
-    return null;
-  }
-  const [scheme, value] = headerValue.split(/\s+/, 2);
-  if (scheme?.toLowerCase() !== 'bearer' || !value) {
-    return null;
-  }
-  return value.trim();
 }
 
 function parseStripeSignatureHeader(signatureHeader: string): {
@@ -275,23 +247,6 @@ async function verifyProviderBoundRequest(
   return manualRequired(authState, authorityResult.reason);
 }
 
-function extractBearerIdentity(request: Request, authState: AuthState): BearerIdentityResult {
-  const token = parseBearerToken(request.headers.get('authorization'));
-  if (!token) {
-    const failure = missingHeader('authorization', authState);
-    return {
-      ok: false,
-      response: failure.response,
-    };
-  }
-
-  return {
-    ok: true,
-    token,
-    trustedDevice: request.headers.get('x-ocentra-trusted-device') === 'true',
-  };
-}
-
 async function verifyParentSessionRequest(
   request: Request,
   env: Env,
@@ -309,16 +264,7 @@ async function verifyParentSessionRequest(
       authState
     );
   }
-
-  const bearerIdentity = extractBearerIdentity(request, authState);
-  if (!bearerIdentity.ok) {
-    return bearerIdentity;
-  }
-
-  return requireParentRoleCapability(
-    authStateIdentity(normalizeSubject(bearerIdentity.token), authState, 'parent', bearerIdentity.trustedDevice),
-    authState
-  );
+  return manualRequired(authState, ACCOUNT_IDENTITY_BINDING_CONTEXT_MANUAL_REQUIRED_BLOCKER);
 }
 
 async function verifyTrustedParentDeviceRequest(
@@ -349,16 +295,7 @@ async function verifyAdminRequest(
   if (!identity.ok) {
     return identity;
   }
-
-  if (resolveAuthAdapterMode(env) !== 'local-safe-fixture') {
-    return manualRequired(authState, 'admin-authorization-unavailable');
-  }
-
-  if (request.headers.get('x-ocentra-role') !== 'admin') {
-    return forbidden('admin-role-required', authState);
-  }
-
-  return authStateIdentity(identity.identity.subject, authState, 'admin', identity.identity.trustedDevice);
+  return manualRequired(authState, 'admin-authorization-unavailable');
 }
 
 async function verifySupportRequest(

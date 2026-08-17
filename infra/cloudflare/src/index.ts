@@ -305,7 +305,7 @@ function withCors(response: Response, request: Request, env: Env): Response {
   headers.set('access-control-allow-methods', 'GET,POST,OPTIONS');
   headers.set(
     'access-control-allow-headers',
-    'authorization,content-type,stripe-signature,paypal-transmission-id,paypal-transmission-sig,x-razorpay-signature,x-goog-signature,x-ocentra-role,x-ocentra-trusted-device,x-ocentra-internal-call,x-ocentra-internal-secret,x-ocentra-csrf'
+    'authorization,content-type,stripe-signature,paypal-transmission-id,paypal-transmission-sig,x-razorpay-signature,x-goog-signature,x-ocentra-internal-call,x-ocentra-internal-secret,x-ocentra-csrf'
   );
   headers.set('access-control-max-age', '86400');
   headers.set('vary', 'origin');
