@@ -16,7 +16,7 @@ use super::ndjson::{
     JournalFlushPolicy, JournalHashChain, NdjsonEventJournal, NdjsonJournalOptions,
 };
 use super::{EventJournal, JournalAppendFuture, SharedEventJournal};
-use crate::replay::{ReplayFilter, ReplayReadReport};
+use crate::replay::{ReplayActionReport, ReplayFilter, ReplayReadReport};
 use crate::StoredEventEnvelope;
 
 #[derive(Clone, Debug)]
@@ -58,6 +58,13 @@ impl ProductionFileEventJournal {
         filter: ReplayFilter,
     ) -> Result<ReplayReadReport, crate::EventingError> {
         self.inner.replay_projection(filter).await
+    }
+
+    pub async fn replay_action_records(
+        &self,
+        filter: ReplayFilter,
+    ) -> Result<ReplayActionReport, crate::EventingError> {
+        self.inner.replay_action_records(filter).await
     }
 
     #[cfg(debug_assertions)]

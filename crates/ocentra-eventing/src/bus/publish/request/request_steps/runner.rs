@@ -16,7 +16,7 @@ pub(super) async fn run<E>(
 where
     E: RequestEvent,
 {
-    let mut receiver = bus.requests.register(request_id.clone())?;
+    let mut receiver = bus.requests.register::<E>(request_id.clone())?;
     let bus_for_publish = bus.clone();
     let mut publish = tokio::spawn(async move { bus_for_publish.publish(event, metadata).await });
     let mut timeout = bus.clock.sleep(options.timeout());

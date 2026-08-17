@@ -1,4 +1,7 @@
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{
+    de::{DeserializeOwned, Deserializer},
+    Deserialize, Serialize,
+};
 
 use crate::{
     AggregateKey, CausationId, CorrelationId, EventClockInstant, EventCustody, EventId, EventType,
@@ -133,11 +136,8 @@ impl EventMetadata {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
-#[serde(
-    rename_all = "camelCase",
-    bound(serialize = "E: Serialize", deserialize = "E: Deserialize<'de>")
-)]
+#[derive(Clone, Debug, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase", bound(serialize = "E: Serialize"))]
 pub struct EventEnvelope<E: DomainEvent> {
     contract: EventContract,
     event_id: EventId,
@@ -152,6 +152,59 @@ pub struct EventEnvelope<E: DomainEvent> {
     #[serde(default)]
     deadline: Option<EventClockInstant>,
     payload: E,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", bound(deserialize = "E: Deserialize<'de>"))]
+struct EventEnvelopeWire<E> {
+    contract: EventContract,
+    event_id: EventId,
+    correlation_id: CorrelationId,
+    #[serde(default)]
+    causation_id: Option<CausationId>,
+    aggregate_key: AggregateKey,
+    idempotency_key: IdempotencyKey,
+    source: EventSource,
+    observed_at: RecordedAt,
+    target_handler: Option<TargetHandler>,
+    #[serde(default)]
+    priority: EventPriority,
+    #[serde(default)]
+    deadline: Option<EventClockInstant>,
+    payload: E,
+}
+
+impl<'de, E> Deserialize<'de> for EventEnvelope<E>
+where
+    E: DomainEvent + DeserializeOwned,
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        let wire = EventEnvelopeWire::<E>::deserialize(deserializer)?;
+        validate_payload_identity(
+            &wire.payload,
+            &wire.contract,
+            &wire.aggregate_key,
+            &wire.idempotency_key,
+        )
+        .map_err(|error| <D::Error as serde::de::Error>::custom(error.to_string()))?;
+        Ok(Self {
+            contract: wire.contract,
+            event_id: wire.event_id,
+            correlation_id: wire.correlation_id,
+            causation_id: wire.causation_id,
+            aggregate_key: wire.aggregate_key,
+            idempotency_key: wire.idempotency_key,
+            source: wire.source,
+            observed_at: wire.observed_at,
+            target_handler: wire.target_handler,
+            priority: wire.priority,
+            deadline: wire.deadline,
+            payload: wire.payload,
+        })
+    }
 }
 
 impl<E> EventEnvelope<E>

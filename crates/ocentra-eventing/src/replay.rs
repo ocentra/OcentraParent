@@ -93,4 +93,48 @@ pub struct ReplayReadReport {
     pub skipped_count: usize,
 }
 
+/// Journal-owned action replay capability.
+///
+/// Projection records remain inspectable data, but action dispatch must only
+/// accept this value, which can be created by the journal reader after it has
+/// applied the configured hash-chain, synchronization, and phase checks.
+/// Keeping the records private prevents a caller from minting action authority
+/// from arbitrary stored envelopes.
+#[derive(Clone, Debug, PartialEq)]
+pub struct ReplayActionReport {
+    records: Vec<ReplayRecord>,
+    cursor: ReplayCursor,
+    skipped_count: usize,
+}
+
+impl ReplayActionReport {
+    pub(crate) fn from_read_report(report: ReplayReadReport) -> Result<Self, crate::EventingError> {
+        if report.mode != ReplayMode::ActionHandlersAllowed {
+            let event_type = report
+                .records
+                .first()
+                .map(|record| record.envelope.contract.event_type.clone())
+                .unwrap_or(crate::EventType::parse("projection-only-replay")?);
+            return Err(crate::EventingError::ReplayActionNotAllowed { event_type });
+        }
+        Ok(Self {
+            records: report.records,
+            cursor: report.cursor,
+            skipped_count: report.skipped_count,
+        })
+    }
+
+    pub fn cursor(&self) -> &ReplayCursor {
+        &self.cursor
+    }
+
+    pub fn records(&self) -> &[ReplayRecord] {
+        &self.records
+    }
+
+    pub fn skipped_count(&self) -> usize {
+        self.skipped_count
+    }
+}
+
 impl NdjsonEventJournal {}

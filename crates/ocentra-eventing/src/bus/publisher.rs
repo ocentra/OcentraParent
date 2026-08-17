@@ -40,7 +40,7 @@ impl EventPublisher {
             .await
     }
 
-    pub async fn complete_request<E>(
+    pub(crate) async fn complete_request<E>(
         &self,
         request_id: RequestId,
         response: E::Response,

@@ -38,6 +38,7 @@ pub(super) fn fmt_eventing_error(
         | EventingError::DuplicateIdempotencyKey { .. } => queue::fmt_queue_error(error, formatter),
         EventingError::InvalidRequestOptions { .. }
         | EventingError::DuplicateRequest { .. }
+        | EventingError::RequestTypeMismatch { .. }
         | EventingError::RequestTimedOut { .. }
         | EventingError::RequestResponseEncode { .. }
         | EventingError::RequestResponseDecode { .. }

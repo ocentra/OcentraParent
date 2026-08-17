@@ -132,6 +132,6 @@ impl EventBus {
     where
         E: RequestEvent,
     {
-        self.requests.complete(request_id, response)
+        self.requests.complete::<E>(request_id, response)
     }
 }

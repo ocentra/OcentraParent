@@ -64,7 +64,9 @@ use queue::policy::{
 };
 use queue::state::{EventQueue, EventQueueClearReport, QueuedEnvelope};
 use registrar::{EventRegistrar, RegistrarDisposeReport};
-use replay::{ReplayCursor, ReplayFilter, ReplayMode, ReplayReadReport, ReplayRecord};
+use replay::{
+    ReplayActionReport, ReplayCursor, ReplayFilter, ReplayMode, ReplayReadReport, ReplayRecord,
+};
 use request::RequestRegistry;
 use request::{
     EventResponseContract, RequestCompletionOutcome, RequestCompletionReport, RequestEvent,
@@ -127,6 +129,7 @@ const _: () = {
     let _ = core::mem::size_of::<RegistrarDisposeReport>();
     let _ = core::mem::size_of::<ReplayCursor>();
     let _ = core::mem::size_of::<ReplayFilter>();
+    let _ = core::mem::size_of::<ReplayActionReport>();
     let _ = core::mem::size_of::<ReplayReadReport>();
     let _ = core::mem::size_of::<RequestCompletionOutcome>();
     let _ = core::mem::size_of::<EventTopologyEntry>();

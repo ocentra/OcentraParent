@@ -70,6 +70,9 @@ pub enum EventingError {
     DuplicateRequest {
         request_id: RequestId,
     },
+    RequestTypeMismatch {
+        request_id: RequestId,
+    },
     RequestTimedOut {
         request_id: RequestId,
     },

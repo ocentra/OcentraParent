@@ -1,6 +1,6 @@
 use crate::{
-    DispatchMode, EventingError, JournalAppend, JournalDispatchPhase, QueueDisposition, ReplayMode,
-    ReplayRecord, StoredEventEnvelope,
+    DispatchMode, EventingError, JournalAppend, JournalDispatchPhase, QueueDisposition,
+    ReplayActionReport, StoredEventEnvelope,
 };
 
 use super::{
@@ -8,7 +8,6 @@ use super::{
     EventBus,
 };
 
-const PROJECTION_ONLY_REPLAY_EVENT_TYPE: &str = "projection-only-replay";
 const IN_MEMORY_STORED_EVENT_LIMIT: usize = 4096;
 const IN_MEMORY_DEAD_LETTER_LIMIT: usize = 4096;
 
@@ -50,24 +49,16 @@ impl EventBus {
 
     pub async fn replay_to_handlers(
         &self,
-        records: Vec<ReplayRecord>,
-        mode: ReplayMode,
+        report: ReplayActionReport,
         dispatch_mode: DispatchMode,
     ) -> Result<Vec<PublishReport>, EventingError> {
-        if mode != ReplayMode::ActionHandlersAllowed {
-            let event_type = records
-                .first()
-                .map(|record| record.envelope.contract.event_type.clone())
-                .unwrap_or(crate::EventType::parse(PROJECTION_ONLY_REPLAY_EVENT_TYPE)?);
-            return Err(EventingError::ReplayActionNotAllowed { event_type });
-        }
-
         let mut reports = Vec::new();
-        for record in records {
-            let subscribers = self.subscribers_for(&record.envelope);
+        for record in report.records() {
+            let envelope = record.envelope.clone();
+            let subscribers = self.subscribers_for(&envelope);
             if subscribers.is_empty() {
                 reports.push(empty_publish_report(
-                    &record.envelope,
+                    &envelope,
                     dispatch_mode,
                     self.queue.report(QueueDisposition::Dispatched),
                     0,
@@ -76,7 +67,7 @@ impl EventBus {
             }
             reports.push(
                 self.dispatch_stored(
-                    record.envelope,
+                    envelope,
                     subscribers,
                     dispatch_mode,
                     self.queue.report(QueueDisposition::Dispatched),
