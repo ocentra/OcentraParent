@@ -4,9 +4,51 @@
 //! adapters. They do not verify an external provider, mint a session, or
 //! authorize a household action.
 
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 
-pub const ACCOUNT_IDENTITY_AUTHORITY_SCHEMA_VERSION: &str = "v0.6";
+use crate::report_query_custody::{ChildProfileId, FamilyId, ParentAccountId};
+
+pub const ACCOUNT_IDENTITY_AUTHORITY_SCHEMA_VERSION: &str = "v0.7";
+pub const ACCOUNT_IDENTITY_AUTHORITY_MAX_GENERATION: u64 = 9_007_199_254_740_991;
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename = "v0.7")]
+pub enum AccountIdentityAuthoritySchemaVersion {
+    V0_7,
+}
+
+macro_rules! account_identity_text_id {
+    ($name:ident) => {
+        #[derive(Clone, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize)]
+        #[serde(transparent)]
+        pub struct $name(String);
+
+        impl<'de> Deserialize<'de> for $name {
+            fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+            where
+                D: Deserializer<'de>,
+            {
+                let value = String::deserialize(deserializer)?;
+                Self::parse(value)
+                    .ok_or("account identity identifier must be non-empty")
+                    .map_err(serde::de::Error::custom)
+            }
+        }
+
+        impl $name {
+            pub fn parse(value: impl Into<String>) -> Option<Self> {
+                let value = value.into();
+                (!value.trim().is_empty()).then_some(Self(value))
+            }
+        }
+    };
+}
+
+account_identity_text_id!(AccountIdentityChildDeviceId);
+account_identity_text_id!(AccountIdentityPairingId);
+account_identity_text_id!(AccountIdentityInstallationId);
+account_identity_text_id!(AccountIdentityRouteId);
+account_identity_text_id!(AccountIdentityProviderSubject);
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -69,35 +111,113 @@ pub enum AccountIdentitySessionFreshnessState {
     Expired,
 }
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AccountIdentityPairingState {
+    Pending,
+    Paired,
+    Unpaired,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AccountIdentityInstallState {
+    Pending,
+    Installed,
+    Failed,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AccountIdentitySelectedRouteKind {
+    Local,
+    Lan,
+    Remote,
+    ManualRequired,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AccountIdentityBindingLifecycleState {
+    Pending,
+    Active,
+    Suspended,
+    Removed,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum AccountIdentityBindingRevocationState {
+    Active,
+    Revoked,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountIdentityProviderSubjectMapping {
-    pub account_id: String,
+    pub account_id: ParentAccountId,
     pub provider: AccountIdentityProvider,
-    pub provider_subject: String,
+    pub provider_subject: AccountIdentityProviderSubject,
     pub status: AccountIdentityMappingStatus,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct AccountIdentityAuthoritySnapshot {
-    pub account_id: String,
-    pub account_state: AccountIdentityAccountState,
-    pub household_id: Option<String>,
-    pub member_id: Option<String>,
-    pub membership_state: Option<AccountIdentityMembershipState>,
-    pub role: Option<AccountIdentityRole>,
-    pub child_profile_id: Option<String>,
-    pub device_id: Option<String>,
-    pub device_trust_state: Option<AccountIdentityDeviceTrustState>,
-    pub session_id: Option<String>,
-    pub session_freshness_state: Option<AccountIdentitySessionFreshnessState>,
+pub struct AccountIdentityHouseholdChildDeviceBinding {
+    pub account_id: ParentAccountId,
+    pub household_id: FamilyId,
+    pub child_profile_id: ChildProfileId,
+    pub child_device_id: AccountIdentityChildDeviceId,
+    pub pairing_id: AccountIdentityPairingId,
+    pub installation_id: AccountIdentityInstallationId,
+    pub selected_route_id: AccountIdentityRouteId,
+    pub pairing_state: AccountIdentityPairingState,
+    pub install_state: AccountIdentityInstallState,
+    pub selected_route: AccountIdentitySelectedRouteKind,
+    pub lifecycle_state: AccountIdentityBindingLifecycleState,
+    pub revocation_state: AccountIdentityBindingRevocationState,
+    pub authority_generation: u64,
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum AccountIdentityBindingValidationError {
+    SchemaVersionMismatch,
+    InactiveProviderMapping,
+    MappingAccountMismatch,
+    ZeroAuthorityGeneration,
+    AuthorityGenerationExceedsSafeInteger,
+}
+
+impl AccountIdentityHouseholdChildDeviceBinding {
+    pub fn validate(&self) -> Result<(), AccountIdentityBindingValidationError> {
+        if self.authority_generation == 0 {
+            return Err(AccountIdentityBindingValidationError::ZeroAuthorityGeneration);
+        }
+        (self.authority_generation <= ACCOUNT_IDENTITY_AUTHORITY_MAX_GENERATION)
+            .then_some(())
+            .ok_or(AccountIdentityBindingValidationError::AuthorityGenerationExceedsSafeInteger)
+    }
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AccountIdentityAuthorityHandoff {
-    pub schema_version: String,
+    pub schema_version: AccountIdentityAuthoritySchemaVersion,
     pub mapping: AccountIdentityProviderSubjectMapping,
-    pub authority: Option<AccountIdentityAuthoritySnapshot>,
+    pub binding: AccountIdentityHouseholdChildDeviceBinding,
+}
+
+impl AccountIdentityAuthorityHandoff {
+    pub fn validate(&self) -> Result<(), AccountIdentityBindingValidationError> {
+        (self.schema_version == AccountIdentityAuthoritySchemaVersion::V0_7)
+            .then_some(())
+            .ok_or(AccountIdentityBindingValidationError::SchemaVersionMismatch)?;
+        (self.mapping.status == AccountIdentityMappingStatus::Active)
+            .then_some(())
+            .ok_or(AccountIdentityBindingValidationError::InactiveProviderMapping)?;
+        (self.mapping.account_id == self.binding.account_id)
+            .then_some(())
+            .ok_or(AccountIdentityBindingValidationError::MappingAccountMismatch)?;
+        self.binding.validate()
+    }
 }

@@ -19,7 +19,7 @@ Use this index to select exactly one workpack.
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | partial | [WP01 Auth Provider Decision](workpacks/01-auth-provider-decision.md) | 10/10 | `RESEARCH_AND_DECISIONS.md`, `docs/expectations/cloud.md` | `output/account-identity-family-plan-proof/01-auth-provider-decision/` |
-| code-drafted / tests-deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 9/9 prior packet | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
+| validation / bounded source accepted / tests deferred | [WP08 Rust Schema And Account Authority](workpacks/08-rust-schema-workers-d1-runtime-migration.md) | 9/9 prior packet; current source reviewed, current test/proof rows open | `PLAN_STATE.md`, accepted WP01 custody decision, canonical Rust contract boundary | `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/` |
 | complete | [WP02 Identity Household Role Model](workpacks/02-identity-household-role-model.md) | 13/13 | `docs/features/family-setup-device-roles.md`, `docs/expectations/family-setup.md` | `output/account-identity-family-plan-proof/02-identity-household-role-model/` |
 | complete | [WP03 Session Token Lifecycle](workpacks/03-session-token-lifecycle.md) + [current boundary addendum](workpacks/03-current-boundary-addendum.md) | 14/14 | `RESEARCH_AND_DECISIONS.md`, `packages/family-domain/src/session-lifecycle.ts` | `output/account-identity-family-plan-proof/03-session-token-lifecycle/` |
 | complete | [WP04 Invites Recovery Lifecycle](workpacks/04-invites-recovery-lifecycle.md) | 13/13 | `docs/expectations/family-setup.md`, `docs/expectations/data-custody.md` | `output/account-identity-family-plan-proof/04-invites-recovery-lifecycle/` |
@@ -38,9 +38,14 @@ WP01 -> Account WP08 -> Cloudflare WP06 -> Cloudflare WP08 -> WP02 -> WP03 -> WP
 WP08 has a tracked, hand-authored durable manifest under
 `docs/proof/account-identity-family-plan/08-rust-schema-workers-d1-runtime-migration/`.
 Its prior `9/9` status proves only the earlier Rust authority/generated-edge
-packet; the 2026-08-16 account-identity handoff is code-drafted/tests-deferred
+packet; the 2026-08-16 account-identity handoff began as a code-drafted packet
 and is not covered by that manifest. Raw or generated output remains ignored.
-Cloudflare WP06 and WP08 handoffs remain open.
+Independent P0/P1 review accepts the 2026-08-17 bounded source packet: canonical
+household/child/device binding with pairing, installation, selected route,
+lifecycle, revocation, bounded generation, guarded identifiers, active provider
+mapping, exact account consistency, and a crate-private fail-closed read port.
+It does not authorize completion, tests, proof, Cloudflare runtime, or a
+production authority claim. Cloudflare WP06 and WP08 handoffs remain open.
 
 ## Dependency rules
 

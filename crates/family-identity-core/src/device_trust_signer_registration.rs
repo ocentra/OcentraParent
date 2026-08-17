@@ -1,7 +1,6 @@
 use std::fmt;
 
 use rusqlite::{params, Connection, OptionalExtension, Transaction};
-use serde::Serialize;
 
 use crate::{
     device_trust_lifecycle::{DeviceTrustLifecycleError, DeviceTrustLifecycleState},
@@ -12,6 +11,9 @@ use crate::{
         self, PersistedSignerValidation, ValidatedSignerKey,
     },
 };
+
+#[path = "device_trust_signer_registration_current_authority.rs"]
+mod current_authority;
 
 /// An opaque family-owned authorization for one signer registration.
 ///
@@ -30,6 +32,15 @@ pub(crate) struct SignerRegistrationAuthorization {
     signer_key_sha256: String,
     registration_receipt: String,
     correlation_id: String,
+    parent_presence_receipt: String,
+    parent_intent_digest: String,
+    parent_route_id: String,
+    credential_id: String,
+    credential_algorithm: i32,
+    credential_sign_count: u32,
+    lifecycle_generation: u64,
+    installation_binding_generation: u64,
+    authority_generation: u64,
 }
 
 impl fmt::Debug for SignerRegistrationAuthorization {
@@ -55,6 +66,15 @@ impl SignerRegistrationAuthorization {
         installation_id: &str,
         signer_public_key: &[u8],
         correlation_id: &str,
+        parent_presence_receipt: &str,
+        parent_intent_digest: &str,
+        parent_route_id: &str,
+        credential_id: &str,
+        credential_algorithm: i32,
+        credential_sign_count: u32,
+        lifecycle_generation: u64,
+        installation_binding_generation: u64,
+        authority_generation: u64,
     ) -> Result<Self, DeviceTrustLifecycleError> {
         device_trust_signer_registration_validation::validate_canonical_identity(family_id)?;
         device_trust_signer_registration_validation::validate_canonical_identity(trust_subject)?;
@@ -62,6 +82,19 @@ impl SignerRegistrationAuthorization {
         device_trust_signer_registration_validation::validate_canonical_identity(child_device_id)?;
         device_trust_signer_registration_validation::validate_canonical_identity(installation_id)?;
         device_trust_signer_registration_validation::validate_canonical_identity(correlation_id)?;
+        device_trust_signer_registration_validation::validate_receipt(parent_presence_receipt)?;
+        device_trust_signer_registration_validation::validate_digest(parent_intent_digest)?;
+        device_trust_signer_registration_validation::validate_canonical_identity(parent_route_id)?;
+        device_trust_signer_registration_validation::validate_credential_id(credential_id)?;
+        if credential_algorithm != -8 {
+            return Err(DeviceTrustLifecycleError::InvalidSignerKey);
+        }
+        if lifecycle_generation == 0
+            || installation_binding_generation == 0
+            || authority_generation == 0
+        {
+            return Err(DeviceTrustLifecycleError::InvalidGeneration);
+        }
         let ValidatedSignerKey {
             public_key,
             key_id,
@@ -78,6 +111,15 @@ impl SignerRegistrationAuthorization {
             signer_key_sha256: sha256,
             registration_receipt: device_trust_signer_registration_validation::random_receipt()?,
             correlation_id: correlation_id.to_owned(),
+            parent_presence_receipt: parent_presence_receipt.to_owned(),
+            parent_intent_digest: parent_intent_digest.to_owned(),
+            parent_route_id: parent_route_id.to_owned(),
+            credential_id: credential_id.to_owned(),
+            credential_algorithm,
+            credential_sign_count,
+            lifecycle_generation,
+            installation_binding_generation,
+            authority_generation,
         })
     }
 
@@ -100,6 +142,11 @@ impl SignerRegistrationAuthorization {
             &self.child_device_id,
             &self.installation_id,
             &self.signer_key_id,
+            &self.parent_presence_receipt,
+            &self.parent_intent_digest,
+            &self.parent_route_id,
+            self.credential_algorithm,
+            self.credential_sign_count,
         )
     }
 }
@@ -109,22 +156,27 @@ impl SignerRegistrationAuthorization {
 /// This value carries no mutation or authorization capability. Callers must
 /// resolve it again at each trust decision so lifecycle and sidecar generation
 /// checks are performed against current durable state.
-#[derive(Clone, PartialEq, Eq, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Clone, PartialEq, Eq)]
 pub struct CurrentSignerAuthority {
-    pub family_id: String,
-    pub trust_subject: String,
-    pub parent_device_id: String,
-    pub child_device_id: String,
-    pub installation_id: String,
-    pub signer_public_key: [u8; 32],
-    pub signer_key_id: String,
-    pub signer_key_sha256: String,
-    pub registration_receipt: String,
-    pub lifecycle_generation: u64,
-    pub installation_binding_generation: u64,
-    pub authority_generation: u64,
-    pub state: DeviceTrustLifecycleState,
+    family_id: String,
+    trust_subject: String,
+    parent_device_id: String,
+    child_device_id: String,
+    installation_id: String,
+    signer_public_key: [u8; 32],
+    signer_key_id: String,
+    signer_key_sha256: String,
+    registration_receipt: String,
+    parent_presence_receipt: String,
+    parent_intent_digest: String,
+    parent_route_id: String,
+    credential_id: String,
+    credential_algorithm: i32,
+    credential_sign_count: u32,
+    lifecycle_generation: u64,
+    installation_binding_generation: u64,
+    authority_generation: u64,
+    state: DeviceTrustLifecycleState,
 }
 
 impl fmt::Debug for CurrentSignerAuthority {
@@ -156,6 +208,12 @@ pub(crate) fn ensure_schema(connection: &Connection) -> Result<(), DeviceTrustLi
                 signer_key_id TEXT NOT NULL CHECK (length(signer_key_id) = 32),
                 signer_key_sha256 TEXT NOT NULL CHECK (length(signer_key_sha256) = 64),
                 registration_receipt TEXT NOT NULL UNIQUE CHECK (length(registration_receipt) = 64),
+                parent_presence_receipt TEXT NOT NULL CHECK (length(parent_presence_receipt) = 64),
+                parent_intent_digest TEXT NOT NULL CHECK (length(parent_intent_digest) = 64),
+                parent_route_id TEXT NOT NULL CHECK (length(parent_route_id) BETWEEN 1 AND 256),
+                credential_id TEXT NOT NULL CHECK (length(credential_id) BETWEEN 1 AND 512),
+                credential_algorithm INTEGER NOT NULL CHECK (credential_algorithm = -8),
+                credential_sign_count INTEGER NOT NULL CHECK (credential_sign_count >= 0),
                 lifecycle_generation INTEGER NOT NULL CHECK (lifecycle_generation > 0),
                 installation_binding_generation INTEGER NOT NULL CHECK (installation_binding_generation > 0),
                 authority_generation INTEGER NOT NULL CHECK (authority_generation > 0),
@@ -178,6 +236,12 @@ pub(crate) fn register(
     installation_binding_generation: u64,
     authority_generation: u64,
 ) -> Result<(), DeviceTrustLifecycleError> {
+    if authorization.lifecycle_generation != lifecycle_generation
+        || authorization.installation_binding_generation != installation_binding_generation
+        || authorization.authority_generation != authority_generation
+    {
+        return Err(DeviceTrustLifecycleError::ParentReauthorizationRequired);
+    }
     ensure_registration_slot(transaction, &authorization)?;
     insert_registration(
         transaction,
@@ -246,9 +310,11 @@ fn insert_registration(
             "INSERT INTO device_trust_signer_registration
              (family_id, trust_subject, parent_device_id, child_device_id, installation_id,
               signer_public_key, signer_key_id, signer_key_sha256, registration_receipt,
+              parent_presence_receipt, parent_intent_digest, parent_route_id, credential_id,
+              credential_algorithm, credential_sign_count,
               lifecycle_generation, installation_binding_generation, authority_generation,
               registration_state)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, 'active')",
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14, ?15, ?16, ?17, ?18, 'active')",
             params![
                 authorization.family_id,
                 authorization.trust_subject,
@@ -259,6 +325,12 @@ fn insert_registration(
                 authorization.signer_key_id,
                 authorization.signer_key_sha256,
                 authorization.registration_receipt,
+                authorization.parent_presence_receipt,
+                authorization.parent_intent_digest,
+                authorization.parent_route_id,
+                authorization.credential_id,
+                authorization.credential_algorithm,
+                i64::from(authorization.credential_sign_count),
                 to_sql_generation(lifecycle_generation)?,
                 to_sql_generation(installation_binding_generation)?,
                 to_sql_generation(authority_generation)?,
@@ -340,6 +412,8 @@ pub(crate) fn current(
         .prepare(
             "SELECT family_id, trust_subject, parent_device_id, child_device_id, installation_id,
                     signer_public_key, signer_key_id, signer_key_sha256, registration_receipt,
+                    parent_presence_receipt, parent_intent_digest, parent_route_id, credential_id,
+                    credential_algorithm, credential_sign_count,
                     lifecycle_generation, installation_binding_generation, authority_generation,
                     registration_state
              FROM device_trust_signer_registration
@@ -379,6 +453,12 @@ struct StoredSignerRow {
     signer_key_id: String,
     signer_key_sha256: String,
     registration_receipt: String,
+    parent_presence_receipt: String,
+    parent_intent_digest: String,
+    parent_route_id: String,
+    credential_id: String,
+    credential_algorithm: i64,
+    credential_sign_count: i64,
     lifecycle_generation: i64,
     installation_binding_generation: i64,
     authority_generation: i64,
@@ -398,6 +478,12 @@ impl StoredSignerRow {
                 signer_key_id: &self.signer_key_id,
                 signer_key_sha256: &self.signer_key_sha256,
                 registration_receipt: &self.registration_receipt,
+                parent_presence_receipt: &self.parent_presence_receipt,
+                parent_intent_digest: &self.parent_intent_digest,
+                parent_route_id: &self.parent_route_id,
+                credential_id: &self.credential_id,
+                credential_algorithm: self.credential_algorithm,
+                credential_sign_count: self.credential_sign_count,
                 lifecycle_generation: self.lifecycle_generation,
                 installation_binding_generation: self.installation_binding_generation,
                 authority_generation: self.authority_generation,
@@ -418,6 +504,14 @@ impl StoredSignerRow {
             signer_key_id: self.signer_key_id,
             signer_key_sha256: self.signer_key_sha256,
             registration_receipt: self.registration_receipt,
+            parent_presence_receipt: self.parent_presence_receipt,
+            parent_intent_digest: self.parent_intent_digest,
+            parent_route_id: self.parent_route_id,
+            credential_id: self.credential_id,
+            credential_algorithm: i32::try_from(self.credential_algorithm)
+                .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?,
+            credential_sign_count: u32::try_from(self.credential_sign_count)
+                .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?,
             lifecycle_generation: from_sql_generation(self.lifecycle_generation)?,
             installation_binding_generation: from_sql_generation(
                 self.installation_binding_generation,
@@ -435,6 +529,8 @@ pub(crate) fn validate_persisted_rows(
         .prepare(
             "SELECT family_id, trust_subject, parent_device_id, child_device_id, installation_id,
                     signer_public_key, signer_key_id, signer_key_sha256, registration_receipt,
+                    parent_presence_receipt, parent_intent_digest, parent_route_id, credential_id,
+                    credential_algorithm, credential_sign_count,
                     lifecycle_generation, installation_binding_generation, authority_generation,
                     registration_state
              FROM device_trust_signer_registration
@@ -463,10 +559,16 @@ fn read_stored_row(row: &rusqlite::Row<'_>) -> rusqlite::Result<StoredSignerRow>
         signer_key_id: row.get(6)?,
         signer_key_sha256: row.get(7)?,
         registration_receipt: row.get(8)?,
-        lifecycle_generation: row.get(9)?,
-        installation_binding_generation: row.get(10)?,
-        authority_generation: row.get(11)?,
-        registration_state: row.get(12)?,
+        parent_presence_receipt: row.get(9)?,
+        parent_intent_digest: row.get(10)?,
+        parent_route_id: row.get(11)?,
+        credential_id: row.get(12)?,
+        credential_algorithm: row.get(13)?,
+        credential_sign_count: row.get(14)?,
+        lifecycle_generation: row.get(15)?,
+        installation_binding_generation: row.get(16)?,
+        authority_generation: row.get(17)?,
+        registration_state: row.get(18)?,
     })
 }
 

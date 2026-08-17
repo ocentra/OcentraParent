@@ -28,6 +28,11 @@ pub(crate) fn redacted_signer_binding(
     child_device_id: &str,
     installation_id: &str,
     signer_key_id: &str,
+    parent_presence_receipt: &str,
+    parent_intent_digest: &str,
+    parent_route_id: &str,
+    credential_algorithm: i32,
+    credential_sign_count: u32,
 ) -> String {
     let mut hasher = Sha256::new();
     hasher.update(b"ocentra-device-trust-signer-event-binding-v1\0");
@@ -38,10 +43,15 @@ pub(crate) fn redacted_signer_binding(
         child_device_id,
         installation_id,
         signer_key_id,
+        parent_presence_receipt,
+        parent_intent_digest,
+        parent_route_id,
     ] {
         hasher.update(identity.as_bytes());
         hasher.update([0]);
     }
+    hasher.update(credential_algorithm.to_be_bytes());
+    hasher.update(credential_sign_count.to_be_bytes());
     hex_encode(&hasher.finalize())
 }
 

@@ -140,6 +140,7 @@ pub(crate) fn elevated_confirmation_state(
         action,
         HouseholdAuthorityAction::SealParentDeviceTrust
             | HouseholdAuthorityAction::RevokeChildDevice
+            | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::StartRemoteControl
             | HouseholdAuthorityAction::ExportDeleteData
             | HouseholdAuthorityAction::ManageBilling
@@ -159,6 +160,7 @@ fn role_can_authorize(role: HouseholdRole, action: HouseholdAuthorityAction) -> 
         ) | (
             HouseholdRole::ParentOwner | HouseholdRole::CoParentGuardian,
             HouseholdAuthorityAction::PairChildDevice
+                | HouseholdAuthorityAction::RegisterLanSignerAnchor
                 | HouseholdAuthorityAction::RevokeChildDevice
                 | HouseholdAuthorityAction::ChangePolicy
         ) | (
@@ -205,6 +207,7 @@ fn requires_fresh_session(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
         HouseholdAuthorityAction::SealParentDeviceTrust
+            | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteView
             | HouseholdAuthorityAction::StartRemoteControl
@@ -217,6 +220,7 @@ fn requires_bound_child_scope(action: HouseholdAuthorityAction) -> bool {
     matches!(
         action,
         HouseholdAuthorityAction::PairChildDevice
+            | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy
@@ -229,6 +233,7 @@ fn requires_child_profile_device_scope(action: HouseholdAuthorityAction) -> bool
     matches!(
         action,
         HouseholdAuthorityAction::PairChildDevice
+            | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ViewChildStatus
             | HouseholdAuthorityAction::ChangePolicy

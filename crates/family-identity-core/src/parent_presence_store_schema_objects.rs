@@ -25,6 +25,18 @@ const EXPECTED_INTERNAL_AUTOINDEXES: &[(&str, &str)] = &[
         "sqlite_autoindex_parent_presence_receipts_2",
         "parent_presence_receipts",
     ),
+    (
+        "sqlite_autoindex_parent_step_up_intents_1",
+        "parent_step_up_intents",
+    ),
+    (
+        "sqlite_autoindex_parent_step_up_intents_2",
+        "parent_step_up_intents",
+    ),
+    (
+        "sqlite_autoindex_parent_step_up_intents_3",
+        "parent_step_up_intents",
+    ),
 ];
 
 struct SchemaObject {

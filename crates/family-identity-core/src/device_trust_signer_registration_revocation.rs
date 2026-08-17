@@ -20,16 +20,32 @@ pub(crate) fn revoke_for_lifecycle(
     let signer_rows = current_signer_rows(transaction, family_id, trust_subject, parent_device_id)?;
     let event_bindings = signer_rows
         .iter()
-        .map(|(child_device_id, installation_id, signer_key_id)| {
-            redacted_signer_binding(
-                family_id,
-                trust_subject,
-                parent_device_id,
+        .map(
+            |(
                 child_device_id,
                 installation_id,
                 signer_key_id,
-            )
-        })
+                parent_presence_receipt,
+                parent_intent_digest,
+                parent_route_id,
+                credential_algorithm,
+                credential_sign_count,
+            )| {
+                redacted_signer_binding(
+                    family_id,
+                    trust_subject,
+                    parent_device_id,
+                    child_device_id,
+                    installation_id,
+                    signer_key_id,
+                    parent_presence_receipt,
+                    parent_intent_digest,
+                    parent_route_id,
+                    credential_algorithm,
+                    credential_sign_count,
+                )
+            },
+        )
         .collect::<Vec<_>>();
     let changed = transaction
         .execute(
@@ -58,10 +74,15 @@ fn current_signer_rows(
     family_id: &str,
     trust_subject: &str,
     parent_device_id: &str,
-) -> Result<Vec<(String, String, String)>, DeviceTrustLifecycleError> {
+) -> Result<
+    Vec<(String, String, String, String, String, String, i32, u32)>,
+    DeviceTrustLifecycleError,
+> {
     let mut statement = transaction
         .prepare(
-            "SELECT child_device_id, installation_id, signer_key_id
+            "SELECT child_device_id, installation_id, signer_key_id,
+                    parent_presence_receipt, parent_intent_digest, parent_route_id,
+                    credential_algorithm, credential_sign_count
              FROM device_trust_signer_registration
              WHERE family_id = ?1 AND trust_subject = ?2 AND parent_device_id = ?3
                AND registration_state = ?4
@@ -71,7 +92,18 @@ fn current_signer_rows(
     let rows = statement
         .query_map(
             params![family_id, trust_subject, parent_device_id, ACTIVE],
-            |row| Ok((row.get(0)?, row.get(1)?, row.get(2)?)),
+            |row| {
+                Ok((
+                    row.get(0)?,
+                    row.get(1)?,
+                    row.get(2)?,
+                    row.get(3)?,
+                    row.get(4)?,
+                    row.get(5)?,
+                    row.get(6)?,
+                    row.get(7)?,
+                ))
+            },
         )
         .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?
         .collect::<Result<_, _>>()

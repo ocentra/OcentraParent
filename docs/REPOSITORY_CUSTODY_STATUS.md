@@ -4,20 +4,20 @@ This is the current Git/worktree/stash custody record for the consolidated
 Ocentra Parent program. It records recoverability and promotion state; it is
 not plan completion, test proof, or release approval.
 
-## Current truth - 2026-08-16
+## Current truth - 2026-08-17
 
 | Surface | Verified state |
 | --- | --- |
-| Consolidated source | `codex/app-game-plan-code-audit` at pushed head `360441362a459df67760371185f96f67b66387a0`. |
-| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`. The consolidated head is 199 commits ahead of `main` and 196 ahead of `develop`, with neither base containing unique commits outside its ancestry. |
-| Pull requests | Zero open pull requests. No current CI or merge claim exists for the consolidated head. |
+| Consolidated source | The current integration lane is `codex/eventing-wp09-production` at pushed checkpoint `117e18603b73e3ba279cdadec9e7a686289b10a4`. Its E-drive worktree also contains an uncommitted Device Trust WP01/WP03, Eventing WP11, Account WP08, and graph-routing batch; that batch is recoverable only from this machine until its review checkpoint is pushed. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
+| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; the pushed integration checkpoint is 204 commits ahead of `main` and 201 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
+| Pull requests | Zero open pull requests. No current CI or merge claim exists for the integration checkpoint; PR CI starts only after a scoped promotion PR is opened. |
 | Local work branches | `codex/app-game-plan-code-audit` and `codex/eventing-wp09-production` only. |
-| Registered worktrees | `E:/OcentraParent` and `E:/OcentraWorktrees/lanes/eventing-wp09-production`, both at `360441362`. |
+| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` at pushed checkpoint `117e18603`. No registered OcentraParent worktree exists on C:. |
 | C drive | No OcentraParent worktree remains under `C:/Users/sujan/.codex/worktrees`; only unrelated Enforcer and Ocentra Games entries remain there. |
-| Remote work branches | `codex/app-game-plan-code-audit` and `codex/eventing-wp09-production`, both at `360441362`. |
+| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` is `117e18603`. Both local branches match their remote checkpoints. |
 | Remote safety archives | Protected `codex/archive/all-remote-tips-20260815` plus protected complete archive `codex/archive/all-local-remote-tips-20260816` at `ac9f65bb4`. |
 | Stashes | One local stash remains: the intentional Eventing WP09 draft. The 129 rejected historical entries were dropped locally only after all 130 commits were made reachable from the complete 2026-08-16 remote archive. |
-| Executable graph | Valid at 704 nodes / 733 edges, 23 plans / 680 workpacks, with states 368 planned, 18 blocked, 1 ready, 2 active, 290 validation, and 1 done. |
+| Executable graph | Valid at 705 nodes / 744 edges, 23 plans / 681 workpacks, with states 366 planned, 21 blocked, 2 ready, 2 active, 289 validation, and 1 done. It maps 2,961 implementation files and 1,145 test files across 680 reviewed workpack maps; mapping is not semantic completion. |
 
 ## Safety archive
 
@@ -42,8 +42,14 @@ in the consolidated head; stale branch baselines were not merged. The sole
 local-only tracking tip was an ancestor of the consolidated head.
 
 No short-lived audit checkout or stale physical OcentraParent copy remains.
-The Eventing lane is intentionally retained because WP09 is the graph's only
-READY workpack. Its worktree is clean at `360441362`; its draft is stash
+The Eventing lane is intentionally retained as the single integration lane.
+WP09 is now in validation; Device Trust WP01 and Eventing WP11 are READY.
+Account Identity WP08 and Cloudflare WP01 are in validation with independently
+reviewed implementation-only evidence. Cloudflare WP06 is authorized only for
+its next source packet; normal readiness remains dependency-blocked. The lane's
+last remote-safe checkpoint is `117e18603`; its current dirty Device Trust,
+Eventing, Account, and graph-routing batch must be committed and pushed before
+any promotion. The older WP09 draft stash remains at
 `3f785b7f5832c303ac759fa15b4e1625e58296e5` and is also remote-archived.
 
 ## Stash semantic decision
@@ -64,13 +70,16 @@ stash is `3f785b7f5832c303ac759fa15b4e1625e58296e5`.
 
 ## Promotion boundary
 
-`develop` and `main` are protected with strict up-to-date checks, pull-request
+The requested feature -> `develop` -> `main` promotion system already exists;
+no workflow or branch-policy change is currently required. `develop` and
+`main` are protected with strict up-to-date checks, pull-request
 review flow, conversation resolution, no force push, and no deletion. Both
 require `Format, Lint, Types, Rust Check`, `Full Validation Gate`, and
 `Package Preview Gate`. Product work should reach `develop` through a normal
-green PR; `develop` then promotes to `main` through a normal green PR. `main`
-reuses valid PR proof on its merge commit and falls back to full CI if proof is
-missing.
+green PR; `develop` then promotes to `main` through a separate normal green PR,
+followed by a normal `main` -> `develop` back-sync PR. Main-bound proof must
+come from a PR whose base is `main`; develop CI is not treated as a substitute.
+`production` remains a separate release boundary owned by `release.yml`.
 
 The consolidated head is not being promoted yet. The agreed order remains:
 finish real production code, write/repair expected tests, run focused

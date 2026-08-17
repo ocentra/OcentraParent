@@ -37,15 +37,18 @@
   `local-safe-fixture` branch is a fixture-only normalization path, while
   account-adapter modes return `manual-required`. No provider-verified input
   can legally reach the D1 store today.
-- No Cloudflare production-code slice is authorized from this audit. Adding an
-  account route, provider issuer, or store caller would invent authority. WP06
-  remains code-drafted/manual-required; WP08 remains test-only and blocked on
-  WP06; WP07 remains local-dev/proof-only; WP11 remains a no-source deployment
-  workpack rather than a production-code gap.
-- The graph report currently derives WP01 as `planned` and WP06 as `blocked`
-  on WP01 plus Account WP08, while the plan text records the narrow WP01
-  scaffold as source-present. This is a graph/validation coordination finding,
-  not evidence for changing runtime status or adding code.
+- Independent source review accepts WP01 only as bounded implementation-phase
+  scaffold evidence. It does not authorize deployed bindings, provider
+  verification, account authority, production storage, runtime readiness,
+  proof freshness, or DONE.
+- Account WP08's independently accepted `v0.7` contract now permits WP06's
+  next source-only packet: a real durable adapter and production caller that
+  consumes the sealed account-binding boundary. Provider verification and live
+  deployment remain fail-closed/manual-required. WP08 remains test/proof work
+  after WP06; WP07 remains local-dev/proof-only; WP11 remains deployment work.
+- The graph records reviewed-implementation gates for WP01 and Account WP08.
+  These gates authorize WP06 source work only; normal READY/DONE semantics
+  still require dependency completion and all tests/proof contracts.
 
 ## WP06 production-code follow-up - 2026-08-16
 

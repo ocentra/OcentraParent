@@ -113,10 +113,11 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   open; its proof root is absent and the `contract` harness must be included.
 - WP12 is open: `scripts/test/eventing-rollout-proof.mjs` and its canonical
   route-proof root are absent.
-- WP11 is implementation-ready but open: `EventEnvelope<E>` remains
-  unconstrained at the struct boundary, stored decode does not revalidate
-  aggregate/idempotency references, and the required negative/audit proof is
-  not retained.
+- WP11 is implementation-ready but open: the accepted `EventEnvelope<E>`
+  source helper now keeps the `DomainEvent` bound at the struct boundary and
+  validates contract, aggregate, and idempotency identity on both `store()` and
+  stored `decode`; the required negative/audit tests and proof are not
+  retained.
 
 ## Open gaps / missing product runtime
 
@@ -169,7 +170,8 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 - Workpacks closed in the current selectable slice: WP06 only. WP09 remains
   open on integration/CI/review/merge; WP10 is blocked on LAN WP26 and its
   authority composition; WP11 is implementation-ready but lacks the required
-  envelope/aggregate/idempotency negatives and proof; WP12 lacks its route
+  negative coverage for the envelope/aggregate/idempotency helper and its
+  proof; WP12 lacks its route
   harness/root; WP13 is code-complete but lacks current validation/proof.
 
 ### Active/open workpacks

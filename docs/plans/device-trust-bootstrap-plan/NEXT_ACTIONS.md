@@ -24,9 +24,13 @@ The WP02 Windows custody revoke/reset path now refuses local unauthenticated
 removal and preserves manual-required truth until a trusted parent authority
 provider and ceremony issuer are owned by the correct runtime.
 
-WP03 now has a bounded receipt lifetime gate, but remains blocked on the real
-passkey/OS-native authority adapter, signature verification, nonce consumption,
-and retained runtime proof.
+WP03 now has a bounded receipt lifetime gate and an independently static-reviewed
+uncommitted source packet for atomic ceremony custody/recovery plus strict
+linked-challenge lifecycle validation. It remains blocked on Device Trust WP01,
+the Account WP08 canonical household/child/device/pairing contract, the
+Cloudflare WP06 durable repository/caller, a real passkey/OS-native authority
+adapter, durable sign-count ownership, signature verification, nonce
+consumption, focused tests, and retained runtime proof.
 
 WP04 now has a typed challenge/response boundary and fail-closed verifier port,
 but remains blocked on the external issuer/signature authority, phone
@@ -46,37 +50,43 @@ remain open.
 
 ### LAN WP26 routing correction
 
-The next legal production packet is the READY Device Trust WP01 route: add the persistent
-trusted-device/signer-key registration source in the family-identity owner and
-make its current registration, revocation, and authority-generation state
-available to authorized consumers. WP01 has no graph dependency, but remains a
-dependency-free and READY for this implementation route, not a completion claim,
-until its required source,
-tests, and validation are present.
+Device Trust WP01 owns the persistent trusted-device/signer-key lifecycle
+source, but it is not sufficient by itself. Account Identity WP08 must define
+the canonical household/child/device/pairing authority binding, and Cloudflare
+WP06 must extend its durable store and production caller to persist and resolve
+that binding. The existing provider-subject mapping, Account WP05 pure
+evaluator, and local LAN registry are not substitutes.
 
-Device Trust WP03 depends on WP01 and remains blocked until a real parent
-ceremony provides one-time `RegisterLanSignerAnchor` authorization, signature
-verification, and nonce/receipt consumption. LAN WP26 must remain blocked on
-both WP01 and WP03; it has no shipped service route that can legally register a
-signer anchor today. WP02 is conditional only when a demonstrated
-private-key/install custody requirement exists.
+Device Trust WP03 depends on all three owners and remains blocked until a real
+parent ceremony resolves the target authoritatively, provides one-time
+`RegisterLanSignerAnchor` authorization, verifies the signature, owns the
+durable sign counter, and consumes the nonce/receipt. The existing WP03 -> WP01
+implementation gate does not bypass the new strict Account WP08 and Cloudflare
+WP06 dependencies. LAN WP26 must remain blocked on WP01 and WP03; it has no
+shipped service route that can legally register a signer anchor today. WP02 is
+conditional only when a demonstrated private-key/install custody requirement
+exists.
 
 The consolidated source audit found no legal production-code slice to add:
 
 - WP01/WP02 require a shipped ceremony issuer, platform custody provider, and
   registered parent-runtime/desktop composition. The current source remains
   fail-closed/manual-required where those owners are absent.
-- WP03/WP04 require real passkey/OS or phone ceremony signature verification,
-  one-time nonce consumption, and transport callers; typed receipts and QR
-  contracts are not authority.
+- WP03 first requires the Account WP08 canonical target-binding contract and
+  Cloudflare WP06 durable authoritative repository/caller; it then requires a
+  real passkey/OS ceremony, durable sign counter, signature verification, and
+  one-time nonce consumption. WP04 separately requires its phone ceremony and
+  transport callers. Typed receipts, request-bound IDs, and QR contracts are
+  not authority.
 - WP05 requires a real entitlement signature/revocation provider; WP06 requires
   encrypted recovery/key custody and a real restore executor; WP07 requires
   platform removal/attestation and parent transport. None may be invented in
   this plan as a test, proof, fixture, generic JSON, or DTO-only bridge.
 - WP08 and WP09 have no production behavior to implement in this pass.
 
-The next legal implementation must begin at the WP01 trust owner and then the
-owner of a real platform or passkey ceremony for WP03. Until those owners are
-assigned and reachable from shipped entrypoints, preserve the manual-required
-outcomes and do not claim trust bootstrap, device sealing, recovery,
-entitlement unlock, or child uninstall.
+The next dependency chain is Account WP08 canonical binding -> Cloudflare WP06
+durable repository/caller -> WP03 trusted target resolution and platform/passkey
+ceremony, alongside completion of the WP01 trust lifecycle source. Until those
+owners are dependency-legal and reachable from shipped entrypoints, preserve
+the manual-required outcomes and do not claim trust bootstrap, device sealing,
+recovery, entitlement unlock, or child uninstall.

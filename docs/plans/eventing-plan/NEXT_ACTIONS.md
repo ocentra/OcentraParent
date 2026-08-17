@@ -43,9 +43,10 @@ This file is the short resume list for the next worker. It is derived from open 
   `00-enforcement-wp11-handoff.md`, journal/replay proof, topology/lineage
   proof, and compact validation log are retained. This is a generic Eventing
   prerequisite only; enforcement retains authority/action/rollback proof.
-- WP11 is implementation-ready but open: the live/stored envelope boundary is
-  not fully constrained, stored decode lacks aggregate/idempotency revalidation,
-  and the negative/audit proof roots are absent.
+- WP11 is implementation-ready but open: the accepted envelope helper now
+  constrains the live/stored boundary and revalidates contract,
+  aggregate/idempotency identity on `store()` and stored decode; the required
+  negative/audit tests and proof roots remain absent.
 - WP12 is open because `scripts/test/eventing-rollout-proof.mjs` and
   `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
 - WP13 is code-complete for the moved test layout, but current validation/proof

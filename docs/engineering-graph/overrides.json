@@ -12,6 +12,21 @@
       "reason": "Reviewed as the dependency-free READY implementation route for the missing family-owned persistent trusted-device/signer-key registration source. The existing WP01 lifecycle foundation remains partial; tests, validation, proof, and completion are not claimed. WP03 remains blocked on this source and WP26 remains blocked on WP01 plus WP03."
     },
     {
+      "id": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "hardDependencies": [
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold"
+      ],
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "Reviewed as the next bounded source-only Cloudflare packet after Account WP08's sealed v0.7 authority contract and WP01's module scaffold. WP06 must add the durable adapter and Worker-owned caller without inventing provider or household authority. Tests, migration execution, proof, deployment, runtime readiness, and DONE are not claimed."
+    },
+    {
       "id": "WP-policy-control-plane-plan-01-policy-source-of-truth",
       "hardDependencies": [
         "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
@@ -78,7 +93,7 @@
         "crates/ocentra-eventing/tests/unit/envelope.rs",
         "docs/engineering-graph/code-map.json"
       ],
-      "reason": "The live EventEnvelope generic remains publicly unconstrained and stored decode checks only the event contract, not decoded aggregate/idempotency identity against stored metadata. This is a bounded dependency-free Eventing production hardening packet; prior unrelated TypeScript policy checks and absent generated proof do not close it."
+      "reason": "The accepted envelope helper in crates/ocentra-eventing/src/envelope.rs binds EventEnvelope<E> to DomainEvent at the struct boundary and validates contract, aggregate, and idempotency identity on both store and stored decode. Focused negative/audit test families and retained generated proof remain open; this is a bounded dependency-free Eventing production hardening packet and unrelated TypeScript checks do not close it."
     },
     {
       "id": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
@@ -97,13 +112,19 @@
     },
     {
       "id": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
-      "hardDependencies": ["WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"],
+      "hardDependencies": [
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+        "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings"
+      ],
       "evidence": [
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
       ],
-      "reason": "Device Trust WP03 cannot authorize a high-risk parent action until WP01 owns the persistent trusted-device/signer-key registration source. Its real passkey/OS ceremony must verify and consume the one-time RegisterLanSignerAnchor authorization; typed receipts and unavailable verifiers do not satisfy the dependency."
+      "reason": "Device Trust WP03 cannot authorize a high-risk parent action until WP01 owns the persistent trusted-device/signer-key lifecycle source, Account Identity WP08 defines the canonical household/child/device/pairing authority contract, and Cloudflare WP06 persists and resolves that contract from a production caller. Its real passkey/OS ceremony must resolve the target independently, verify and consume the one-time RegisterLanSignerAnchor authorization, and own durable sign-count state; caller-supplied identifiers, typed receipts, pure evaluators, LAN pairing state, and unavailable verifiers do not satisfy these dependencies."
     },
     {
       "id": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
@@ -192,8 +213,32 @@
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md"
       ],
-      "reason": "WP03 requires WP01's persistent trusted-device/signer-key registration source before a parent ceremony can authorize a one-time RegisterLanSignerAnchor action.",
+      "reason": "WP03 requires WP01's persistent trusted-device/signer-key registration source before a parent ceremony can authorize a one-time RegisterLanSignerAnchor action. WP03's bounded source is already accepted, so further WP03 source work remains strict-completion gated on this dependency."
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
+      ],
+      "reason": "WP03 requires Account Identity WP08's canonical household/child/device/pairing authority contract; request DTOs and model-only records cannot establish the target binding.",
       "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-device-trust-bootstrap-plan-03-parent-step-up-auth",
+      "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/device-trust-bootstrap-plan/workpacks/03-parent-step-up-auth.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
+        "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md"
+      ],
+      "reason": "WP03 requires Cloudflare WP06's durable authoritative repository and production caller to persist and resolve the Account WP08 binding; the current provider-subject mapping and local LAN registry are insufficient."
     },
     {
       "from": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
@@ -467,7 +512,8 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
       ],
-      "reason": "Cloudflare WP06 consumes the Account WP08 canonical identity handoff."
+      "reason": "Cloudflare WP06 consumes the Account WP08 canonical identity handoff.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
@@ -478,7 +524,8 @@
         "docs/plans/cloudflare-control-plane-plan/workpacks/06-storage-do-d1-kv-r2-queue-bindings.md",
         "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md"
       ],
-      "reason": "Cloudflare WP06 requires the module dependency environment established by WP01."
+      "reason": "Cloudflare WP06 requires the module dependency environment established by WP01.",
+      "implementationGate": "reviewed-implementation"
     },
     {
       "from": "WP-cloudflare-control-plane-plan-08-testing-runner-and-test-pyramid",
@@ -686,6 +733,36 @@
         "docs/plans/device-trust-bootstrap-plan/PLAN_STATE.md",
         "docs/PLAN_CODE_STATUS_MATRIX.md",
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
+      ]
+    },
+    {
+      "id": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "implementation": [
+        "crates/schema/src/account_identity_authority.rs",
+        "crates/family-identity-core/src/account_identity_authority.rs",
+        "packages/schema-domain/src/generated-account-identity-authority.ts",
+        "packages/schema-domain/src/account-identity-authority.ts"
+      ],
+      "reason": "Independent P0/P1 review accepted the v0.7 canonical binding, guarded identifiers, safe generation parity, account-consistent active mapping, and crate-private fail-closed read authority as bounded source evidence only. No repository adapter, production caller, tests, proof, runtime authority, or DONE is claimed.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-cloudflare-control-plane-plan-01-cloudflare-module-scaffold",
+      "implementation": [
+        "infra/cloudflare/src/index.ts",
+        "infra/cloudflare/src/env.ts",
+        "infra/cloudflare/src/routes.ts",
+        "infra/cloudflare/src/auth/verifier.ts"
+      ],
+      "reason": "Independent source review accepted the current Worker entrypoint, environment guard, route manifest, auth adapter boundary, and module runner as bounded implementation-phase scaffold evidence only. Provider verification, account authority, deployed bindings, production storage, current tests/proof, runtime readiness, and DONE remain open.",
+      "evidence": [
+        "docs/plans/cloudflare-control-plane-plan/PLAN_STATE.md",
+        "docs/plans/cloudflare-control-plane-plan/workpacks/01-cloudflare-module-scaffold.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
       ]
     },
     {

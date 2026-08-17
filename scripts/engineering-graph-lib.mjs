@@ -381,6 +381,7 @@ function stateCounts(nodes, states) {
  */
 export async function buildProgressReport({ root = process.cwd(), scope } = {}) {
   const graph = await loadAuthoritativeGraph(root);
+  const validation = validateGraph(graph, { root });
   const states = deriveStates(graph, { root });
   const scoped = scopeNodes(graph, scope);
   const plans = scoped.filter((node) => node.kind === 'plan');

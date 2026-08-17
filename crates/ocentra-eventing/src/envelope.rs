@@ -171,6 +171,12 @@ where
     }
 
     pub fn store(&self) -> Result<StoredEventEnvelope, EventingError> {
+        validate_payload_identity(
+            &self.payload,
+            &self.contract,
+            &self.aggregate_key,
+            &self.idempotency_key,
+        )?;
         Ok(StoredEventEnvelope {
             contract: self.contract.clone(),
             event_id: self.event_id.clone(),
@@ -247,29 +253,12 @@ impl StoredEventEnvelope {
         let payload: E = self.payload.decode().map_err(|error| {
             EventingError::payload_decode(self.contract.event_type.clone(), &error)
         })?;
-        let expected = payload.contract()?;
-        if expected != self.contract {
-            return Err(EventingError::ContractMismatch {
-                expected: expected.event_type,
-                received: self.contract.event_type.clone(),
-                expected_schema_version: expected.schema_version,
-                received_schema_version: self.contract.schema_version,
-            });
-        }
-        let aggregate_key = payload.aggregate_key()?;
-        if aggregate_key != self.aggregate_key {
-            return Err(EventingError::invalid_value(
-                "stored_event.aggregate_key",
-                "[redacted mismatch]",
-            ));
-        }
-        let idempotency_key = payload.idempotency_key()?;
-        if idempotency_key != self.idempotency_key {
-            return Err(EventingError::invalid_value(
-                "stored_event.idempotency_key",
-                "[redacted mismatch]",
-            ));
-        }
+        validate_payload_identity(
+            &payload,
+            &self.contract,
+            &self.aggregate_key,
+            &self.idempotency_key,
+        )?;
         Ok(EventEnvelope {
             contract: self.contract.clone(),
             event_id: self.event_id.clone(),
@@ -289,4 +278,37 @@ impl StoredEventEnvelope {
     pub fn is_deadline_expired(&self, now: EventClockInstant) -> bool {
         self.deadline.is_some_and(|deadline| now >= deadline)
     }
+}
+
+fn validate_payload_identity<E>(
+    payload: &E,
+    contract: &EventContract,
+    aggregate_key: &AggregateKey,
+    idempotency_key: &IdempotencyKey,
+) -> Result<(), EventingError>
+where
+    E: DomainEvent,
+{
+    let expected = payload.contract()?;
+    if expected != *contract {
+        return Err(EventingError::ContractMismatch {
+            expected: expected.event_type,
+            received: contract.event_type.clone(),
+            expected_schema_version: expected.schema_version,
+            received_schema_version: contract.schema_version,
+        });
+    }
+    if payload.aggregate_key()? != *aggregate_key {
+        return Err(EventingError::invalid_value(
+            "stored_event.aggregate_key",
+            "[redacted mismatch]",
+        ));
+    }
+    if payload.idempotency_key()? != *idempotency_key {
+        return Err(EventingError::invalid_value(
+            "stored_event.idempotency_key",
+            "[redacted mismatch]",
+        ));
+    }
+    Ok(())
 }

@@ -24,6 +24,12 @@ pub(crate) struct PersistedSignerValidation<'a> {
     pub(crate) signer_key_id: &'a str,
     pub(crate) signer_key_sha256: &'a str,
     pub(crate) registration_receipt: &'a str,
+    pub(crate) parent_presence_receipt: &'a str,
+    pub(crate) parent_intent_digest: &'a str,
+    pub(crate) parent_route_id: &'a str,
+    pub(crate) credential_id: &'a str,
+    pub(crate) credential_algorithm: i64,
+    pub(crate) credential_sign_count: i64,
     pub(crate) lifecycle_generation: i64,
     pub(crate) installation_binding_generation: i64,
     pub(crate) authority_generation: i64,
@@ -63,6 +69,13 @@ pub(crate) fn validate_persisted_signer(
     validate_lower_hex(row.signer_key_id, 32)?;
     validate_lower_hex(row.signer_key_sha256, 64)?;
     validate_lower_hex(row.registration_receipt, 64)?;
+    validate_receipt(row.parent_presence_receipt)?;
+    validate_digest(row.parent_intent_digest)?;
+    validate_canonical_identity(row.parent_route_id)?;
+    validate_credential_id(row.credential_id)?;
+    if row.credential_algorithm != -8 || row.credential_sign_count < 0 {
+        return Err(DeviceTrustLifecycleError::Unavailable);
+    }
     if row.lifecycle_generation <= 0
         || row.installation_binding_generation <= 0
         || row.authority_generation <= 0
@@ -75,6 +88,24 @@ pub(crate) fn validate_persisted_signer(
         return Err(DeviceTrustLifecycleError::Unavailable);
     }
     Ok(signer.public_key)
+}
+
+pub(crate) fn validate_receipt(value: &str) -> Result<(), DeviceTrustLifecycleError> {
+    validate_lower_hex(value, 64)
+}
+
+pub(crate) fn validate_digest(value: &str) -> Result<(), DeviceTrustLifecycleError> {
+    validate_lower_hex(value, 64)
+}
+
+pub(crate) fn validate_credential_id(value: &str) -> Result<(), DeviceTrustLifecycleError> {
+    (value.len() <= 512
+        && !value.is_empty()
+        && value.trim() == value
+        && value.is_ascii()
+        && value.bytes().all(|byte| (0x21..=0x7e).contains(&byte)))
+    .then_some(())
+    .ok_or(DeviceTrustLifecycleError::InvalidIdentity)
 }
 
 pub(crate) fn validate_canonical_identity(value: &str) -> Result<(), DeviceTrustLifecycleError> {

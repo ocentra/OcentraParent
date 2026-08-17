@@ -10,13 +10,62 @@ contents. The dated
 merged-code delta immediately below overrides older snapshot wording for its
 named plans; historical rows remain routing context, not current closure proof.
 
-The current consolidated source head is `360441362` on
-`codex/app-game-plan-code-audit`. It is pushed, has no open pull request, and is
-199 commits ahead of `main` and 196 commits ahead of `develop` without branch
-divergence. It is deliberately **not** described as merged or PR-ready: the
-production-code, expected-test, focused-validation, proof, and pre-commit phases
-below are not complete. Current branch, worktree, archive, stash, and promotion
-custody is recorded in `docs/REPOSITORY_CUSTODY_STATUS.md`.
+The current integration checkpoint is pushed head `117e18603` on
+`codex/eventing-wp09-production`. It is 204 commits ahead of `main` and 201
+commits ahead of `develop` without branch divergence. Its E-drive worktree also
+contains an uncommitted Device Trust WP03 and Eventing WP11 batch, so the batch
+is **not** merged, remote-safe, or PR-ready yet. Current branch, worktree,
+archive, stash, and promotion custody is recorded in
+`docs/REPOSITORY_CUSTODY_STATUS.md`.
+
+## Live executable topology matrix - 2026-08-17
+
+This table is generated from the validated engineering graph and its reviewed
+code map, not from plan checkboxes. The graph currently contains 705 nodes, 744
+edges, 23 plans, and 681 workpacks. It maps 2,961 implementation files and 1,145
+test files: 586 workpacks have both code and tests, 4 are source-only, 8 are
+tests-only, 82 are expected no-source coordination/reference packets, and 1 has
+unknown ownership. Topology expectations match for 664/681 workpacks.
+
+These counts prove file ownership and expected topology only. They do not prove
+that the mapped code is production-reachable, that the tests cover the workpack,
+or that either passes. Only one workpack currently satisfies the complete graph
+contract; 680/681 still lack recorded reviewed completion evidence.
+
+Legend: `C+T/S/T/N/U` = code-and-tests / source-only / tests-only / no-source /
+unknown. State counts use `P/B/R/A/V/D` = planned / blocked / ready / active /
+validation / done.
+
+| Plan | WPs | C+T/S/T/N/U | Impl/Test files | P/B/R/A/V/D | Highest-impact current gap |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Account identity/family | 8 | 7/0/0/1/0 | 67/32 | 1/0/0/0/7/0 | WP08's bounded `v0.7` canonical binding and sealed family read boundary passed independent source review; tests, proof, and the real Cloudflare adapter/caller remain open. |
+| AI | 48 | 44/0/0/4/0 | 195/98 | 46/0/0/0/2/0 | All 48 lack retained/referenced completion proof; mapped code is not whole-chain acceptance. |
+| App/game | 220 | 201/0/0/19/0 | 2349/867 | 126/2/0/1/91/0 | Two workpacks are dependency-blocked and the plan remains integration-open. |
+| Browser | 30 | 22/0/0/8/0 | 145/45 | 30/0/0/0/0/0 | All workpacks remain planned; proof and several native/runtime authority paths are open. |
+| Child-agent runtime distribution | 11 | 10/0/0/1/0 | 79/17 | 8/0/0/0/3/0 | Distribution/runtime proof remains unreferenced across the plan. |
+| Cloudflare control plane | 13 | 9/0/1/3/0 | 31/72 | 10/2/0/0/1/0 | WP01's bounded scaffold is in validation. WP06 is implementation-phase authorized for its durable account adapter/caller, but normal readiness remains blocked on WP01/WP08 completion. |
+| Data custody/storage | 9 | 8/0/0/1/0 | 128/19 | 1/0/0/1/7/0 | All nine lack reviewed completion evidence; aggregate/runtime custody remains open. |
+| Device trust bootstrap | 9 | 6/0/3/0/0 | 86/41 | 0/2/1/0/6/0 | WP01 is READY; WP03's bounded custody/recovery source is independently accepted and mapped, but strict Account WP08/Cloudflare WP06/native-provider dependencies keep it blocked. |
+| LAN | 26 | 22/1/2/1/0 | 305/63 | 0/1/0/0/25/0 | WP26 is source-only with zero mapped tests and is blocked on Device Trust WP01/WP03. |
+| Logging domain parity | 10 | 9/0/0/1/0 | 141/59 | 5/0/0/0/5/0 | Completion proof remains unreferenced across the plan. |
+| App | 95 | 88/1/0/6/0 | 258/115 | 13/0/0/0/82/0 | One source-only mismatch and remaining compiler/runtime/native gaps. |
+| Network | 8 | 8/0/0/0/0 | 349/88 | 6/1/0/0/1/0 | WP04 remains dependency-blocked despite complete file topology. |
+| Parent desktop/runtime package | 11 | 10/0/0/1/0 | 49/32 | 4/0/0/0/7/0 | Signed package/update/rollback and retained release proof remain open. |
+| Payment/subscription | 13 | 11/0/0/2/0 | 82/53 | 8/2/0/0/3/0 | Two workpacks are blocked on provider/control-plane authority. |
+| Policy control plane | 8 | 7/0/0/1/0 | 210/46 | 1/4/0/0/3/0 | Four workpacks are blocked on trusted source, Device Trust, and delivery owners. |
+| Portal UX/household surfaces | 20 | 17/0/1/2/0 | 95/67 | 15/0/0/0/5/0 | One tests-only mismatch; upstream live authority remains absent for several surfaces. |
+| Remote access | 6 | 5/0/0/1/0 | 40/22 | 4/0/0/0/2/0 | Authenticated relay/session runtime and proof remain open. |
+| Eventing | 13 | 10/0/1/2/0 | 162/111 | 0/2/1/0/9/1 | WP11 production repair is local; missing negative tests keep it READY, while WP10/WP12 are blocked. |
+| Screen AI pipeline | 10 | 7/0/0/3/0 | 150/43 | 9/1/0/0/0/0 | One blocked workpack and unresolved policy/custody authority chain. |
+| Screen | 43 | 29/2/0/12/0 | 230/80 | 25/0/0/0/18/0 | Two source-only mappings plus platform/runtime/custody gaps. |
+| Setup/install/provisioning | 7 | 2/0/0/5/0 | 17/10 | 0/1/0/0/6/0 | Rollout gate is blocked; trusted readiness aggregation remains incomplete. |
+| Tracking | 43 | 35/0/0/7/1 | 116/80 | 41/2/0/0/0/0 | WP40 is the sole unknown ownership map and blocks the trusted ingress chain. |
+| V0.8 enforcement | 20 | 19/0/0/1/0 | 94/72 | 13/1/0/0/6/0 | WP04 remains blocked on the enforcement audit-journal owner. |
+
+All rows describe the current integration checkout. Git does not encode
+per-plan branch custody; the safe pushed checkpoint and current local-only batch
+are recorded separately in the repository custody status. Use
+`npm run graph:matrix -- --json` for all 681 workpack rows.
 
 ## Authoritative production reachability dashboard - 2026-08-16
 
@@ -30,13 +79,13 @@ Phase 2 tests/Enforcer and Phase 3 proof are not claimed here.
 
 | Plan | Exact workpacks | Actual shipped caller / material effect | Principal production-code gap | Honest production phase state |
 | --- | ---: | --- | --- | --- |
-| Account identity/family | 8 | Family/setup/provisioning helpers and Rust family-identity contracts are reachable; no verified account request writes authority. | Provider/trust decision, account/session routes, household authority, and Cloudflare D1/DO/KV runtime caller/migration remain unresolved. | Blocked/manual-required; no authorized runtime slice. |
+| Account identity/family | 8 | Family/setup/provisioning helpers and Rust family-identity contracts are reachable. WP08 now has an independently accepted, sealed `v0.7` current-binding source boundary; no verified account request writes authority. | The durable Cloudflare repository adapter/caller, provider verification, account/session routes, and migration remain unresolved. | WP08 source accepted; downstream runtime remains blocked/manual-required. |
 | AI | 48 | Local chat/assistant and screen-analysis paths can reach the configured local runner; deterministic activity classifiers and typed status/read models exist. | No neutral durable AI work-item lifecycle, complete custody context, verified provider/model authority, or trusted AI-to-policy handoff. | Incomplete; runtime foundations exist without a complete product chain. |
 | App/game | 220 | `service_runtime` captures Windows inventory/process/foreground/launcher observations into encrypted journal/SQLite and agent-service read models. | Parent-authored compiler/evaluator caller, approval service composition, scheduler, child delivery/provider, and authenticated adapter execution are absent; timer is only PID/name scoped. | Incomplete/blocked; no legal source slice found. |
 | App | 95 | Agent-service/app-game-core read models, risk readiness, route/compiler composition, and portal projections are reachable. | Live OS/app policy authority, service evaluator runtime, notification/child delivery, durable timer execution, and native action owner are missing. | Incomplete/manual-required. |
 | Browser | 30 | Windows inventory, managed launch/profile custody, CDP target-list evidence, service events, and portal status paths are reachable. | Active-focus authority, cross-platform inventory, trusted intervention delivery, AppLocker/WDAC, native-host lifecycle, and authenticated action receipts are missing. | Incomplete; native authority gaps remain. |
 | Child-agent runtime distribution | 11 | A real `ocentra-child-agent-service` binary constructs durable journal/tombstone/removal stores, recovers before readiness, and fails closed for pending recovery, tamper, or revoked state. The shipped Android Activity/foreground-service/JNI path starts and stops that Rust service. | Android still has no live event-submission transport, supervised command consumer, verified trust-identity input, ongoing bound health consumer, or APK/device lifecycle proof. Signed distribution, platform install/permission ownership, rollback, and complete multi-platform release remain open. | Real service/startup foundation; production delivery and distribution remain incomplete. |
-| Cloudflare control plane | 13 | Worker route dispatcher reaches billing/admin/webhook and auth-verifier boundaries; durable store/migration configuration exists. | Provider verification is manual-required, account D1 store has no runtime caller, fixture paths cannot authorize production, and deployed Durable Object/binding/migration ownership is absent. | Blocked/manual-required. |
+| Cloudflare control plane | 13 | Worker route dispatcher reaches billing/admin/webhook and auth-verifier boundaries; WP01's bounded scaffold passed independent source review and storage/migration configuration exists. | Provider verification is manual-required, the account D1 store has no canonical WP08 adapter/runtime caller, fixture paths cannot authorize production, and deployed binding/migration ownership is absent. | WP06 source-only implementation authorized; normal runtime remains blocked/manual-required. |
 | Data custody/storage | 9 | Encrypted local queue/journal, ActivityStore projections, deletion/outbox, and custody read models provide real local persistence effects. | User-authorized export/delete/sync custody worker, durable cross-boundary lifecycle, and end-to-end source-to-custody ownership remain incomplete. | Incomplete; local custody foundations only. |
 | Device trust bootstrap | 9 | Typed challenge/presence/identity contracts and local bootstrap state are reachable in bounded flows. | No shipped parent/device enrollment caller with sealed key custody, signed presence, revocation, and durable bootstrap handoff. WP01 is READY for the dependency-free production implementation route for persistent trusted-device/signer-key registration; WP03 depends on it. | Plan blocked; WP01 READY implementation route, then WP03 real one-time ceremony. WP02 is conditional only for demonstrated private-key/install custody. |
 | Eventing | 13 | Shared event contracts, journal append/replay, and ActivityStore projections are used by selected agent-service/runtime paths. | Generic eventing does not supply every domain’s durable policy dispatch, trusted authority, replay/idempotency, or receipt lifecycle. | Incomplete; foundational runtime only. |
@@ -113,7 +162,7 @@ strong enough for workpack-level decisions.
 
 | Plan | Workpacks | P/B/R/A/V/D | Live implementation/test files | Reviewed workpack maps | Code-first audit state |
 | --- | ---: | ---: | ---: | ---: | --- |
-| Account identity/family | 8 | 2/0/0/0/6/0 | 160 / 82 | 8 / 8 | Fully code-mapped; all eight remain incomplete for Phase 1 code/expected-test writing. |
+| Account identity/family | 8 | 1/0/1/0/6/0 | 184 / 82 | 8 / 8 | Fully code-mapped; WP08 is the READY canonical-binding source packet and all eight remain incomplete for Phase 1 code/expected-test writing. |
 | AI | 48 | 46/0/0/0/2/0 | 118 / 39 | 48 / 48 | Fully code-mapped; 11 workpacks are Phase 1 complete for bounded scope and 37 retain concrete production-code or expected-test gaps. |
 | App/game | 220 | 126/2/0/1/91/0 | 605 / 61 | 220 / 220 | Fully code-mapped; 169 bounded packets have current code plus expected tests, 19 are reviewed no-code packets, and 32 retain concrete production-code or expected-test gaps. |
 | App | 95 | 13/0/0/0/82/0 | 184 / 67 | 95 / 95 | Fully code-mapped; 81 bounded workpacks have no Phase 1 source/expected-test writing gap and 14 retain concrete compiler, durability, runtime, UI, notification, performance, or followthrough gaps. |
@@ -121,7 +170,7 @@ strong enough for workpack-level decisions.
 | Child-agent runtime distribution | 11 | 8/0/0/0/3/0 | 104 / 10 | 11 / 11 | Fully code-mapped; WP01, WP02, WP05, WP06, and WP09 are Phase 1 complete for their bounded scope, while six workpacks retain runtime, lifecycle-test, handoff, or release-gate gaps. The new service/JNI startup is real but does not close Android transport, supervision, identity, health-consumption, or device-proof work. |
 | Cloudflare control plane | 13 | 11/2/0/0/0/0 | 185 / 63 | 13 / 13 | Fully code-mapped; WP00-WP02 and WP04 are Phase 1 complete, while nine workpacks retain concrete code/test gaps. |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 670 / 408 | 9 / 9 | Fully code-mapped; WP04 and the source-only migrated UI reference are Phase 1 complete. Seven implementation workpacks remain incomplete. |
-| Device trust bootstrap | 9 | 0/2/0/0/7/0 | 456 / 132 | 9 / 9 | Fully code-mapped; WP08 is complete for its research/test-only scope, while eight workpacks retain concrete code/test gaps. WP01's bounded four-file packet is drafted and independently static-reviewed as implementation evidence only; WP01 remains READY, WP03 remains normally blocked on WP01, and tests/proof/caller integration remain open. |
+| Device trust bootstrap | 9 | 0/2/1/0/6/0 | 480 / 132 | 9 / 9 | Fully code-mapped; WP08 is complete for its research/test-only scope, while eight workpacks retain concrete code/test gaps. WP01 remains READY. WP03's 12-source/4-test topology now includes independently accepted atomic custody/recovery and lifecycle validation, but Account WP08, Cloudflare WP06, native authority, tests, proof, and caller integration remain open. |
 | Eventing | 13 | 0/2/1/0/9/1 | 801 / 490 | 13 / 13 | Fully code-mapped. WP06 is graph-done; WP09 is validation/integration-open, WP11 is the graph-authorized READY hardening packet, WP10 and WP12 are blocked, and WP13 remains validation/proof-open. |
 | LAN | 26 | 0/0/1/0/25/0 | 308 / 60 | 26 / 26 | The 25 pre-existing workpacks are code-mapped and 22 have bounded Phase 1 code/expected tests written. WP16, WP20, and WP25 retain integrated-validation or executable-verifier gaps; WP26 is code-mapped as a partial draft but remains blocked on Device Trust WP01/WP03 authority and has no completion claim. |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 127 / 49 | 10 / 10 | Fully code-mapped; WP01-WP04 and WP09 are Phase 1 complete, while five workpacks retain concrete expected-test or instrumentation-enforcement gaps. |
@@ -806,7 +855,7 @@ the feature is accepted, a test was run today, or a workpack is complete.
 
 The repo-owned graph is now the mechanical status source over these plan rows;
 the matrix remains the human-readable code/test audit. `graph.json` imports 23
-plan directories and 680 workpack rows (the older 526-row figure above is the
+plan directories and 681 workpack rows (the older 526-row figure above is the
 matrix's narrower scheduled-row view). Run `npm run graph:report` for the
 joined state/topology view or `npm run graph:report -- --json` for machine
 consumption. This snapshot was refreshed from consolidated head `360441362` on
@@ -814,7 +863,7 @@ consumption. This snapshot was refreshed from consolidated head `360441362` on
 
 | Planned | Blocked | Ready | Active | Validation | Done |
 | ---: | ---: | ---: | ---: | ---: | ---: |
-| 368 | 18 | 1 | 2 | 290 | 1 |
+| 367 | 21 | 3 | 2 | 287 | 1 |
 
 ### Graph-derived plan/workpack matrix
 
@@ -826,7 +875,7 @@ than one plan; they are not completion percentages.
 
 | Plan | Workpacks | P/B/R/A/V/D | Implementation files | Test files |
 | --- | ---: | ---: | ---: | ---: |
-| Account identity/family | 8 | 2/0/0/0/6/0 | 160 | 82 |
+| Account identity/family | 8 | 1/0/1/0/6/0 | 184 | 82 |
 | AI | 48 | 46/0/0/0/2/0 | 118 | 39 |
 | App/game | 220 | 126/2/0/1/91/0 | 605 | 61 |
 | App | 95 | 13/0/0/0/82/0 | 184 | 67 |
@@ -834,7 +883,7 @@ than one plan; they are not completion percentages.
 | Child-agent runtime distribution | 11 | 8/0/0/0/3/0 | 104 | 10 |
 | Cloudflare control plane | 13 | 11/2/0/0/0/0 | 185 | 63 |
 | Data custody/storage | 9 | 1/0/0/1/7/0 | 670 | 408 |
-| Device trust bootstrap | 9 | 0/2/0/0/7/0 | 456 | 132 |
+| Device trust bootstrap | 9 | 0/2/1/0/6/0 | 480 | 132 |
 | Eventing | 13 | 0/2/1/0/9/1 | 801 | 490 |
 | LAN | 26 | 0/0/1/0/25/0 | 308 | 60 |
 | Logging domain parity | 10 | 5/0/0/0/5/0 | 127 | 49 |
@@ -850,8 +899,8 @@ than one plan; they are not completion percentages.
 | Tracking | 43 | 41/2/0/0/0/0 | 94 | 65 |
 | V0.8 enforcement | 20 | 13/1/0/0/6/0 | 922 | 496 |
 
-The graph validates at 704 nodes and 733 edges, with 34 migration/dependency
-review items. The live map covers 679 of 680 workpacks; Tracking WP40 is the
+The graph validates at 705 nodes and 744 edges, with 34 migration/dependency
+review items. The live map covers 680 of 681 workpacks; Tracking WP40 is the
 intentional unmapped owner-selection packet. App/Game contributes
 220 reviewed rows, while Tracking contributes 42 reviewed rows plus unmapped
 WP40. Graph states remain separate from code-first classification. Historical
@@ -1145,7 +1194,7 @@ post-merge reverified`. Only the final state counts toward `Freshly reverified`.
 
 ## Dependency and unblock order
 
-1. **Reconcile Cloudflare module dependencies, then run the proof-only WP07 successor**: resolve the current Wrangler/Workers-types module prerequisite first; from current source, rerun WP07's focused lint, unit, contract, and worker-boot gates and retain its bundle. Separately route Account WP08 Rust contract -> Cloudflare WP06 binding/migration -> Cloudflare WP08 module-runner proof -> Account WP06 aggregation. Only then schedule dependent payment/billing gates. Do not restore removed TypeScript contract ownership or revive #604.
+1. **Complete the account-authority runtime chain**: Account WP08's bounded `v0.7` source is independently accepted and Cloudflare WP01's scaffold is reviewed. Implement Cloudflare WP06's durable adapter/caller next, then WP03's native parent authority, Cloudflare WP08 test proof, and Account WP06 aggregation. Do not restore removed TypeScript authority ownership or revive #604.
 2. **Build device trust runtime**: parent presence and sealed device trust unblock safe account, setup, payment, remote, and enforcement decisions.
 3. **Close policy to enforcement in dependency order**: Eventing WP06's generic handoff is now complete; next is WP11's enforcement-specific durable-journal contract, then WP04 trusted dispatch -> adapter -> receipt -> rollback. Until WP11's actual handoff exists, WP04 remains unscheduled/manual-required. This becomes the reusable control path for browser, app/game, network, and screen.
 4. **Use LAN/service as the first physical household proof**: pairing -> device state -> portal read model establishes the multi-device integration baseline.

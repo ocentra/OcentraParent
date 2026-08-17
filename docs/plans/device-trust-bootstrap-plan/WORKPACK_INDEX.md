@@ -22,7 +22,7 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | --- | --- | ---: | --- | --- |
 | ready / implementation route | [WP01 Device Trust Source Of Truth](workpacks/01-device-trust-source-of-truth.md) | parent-presence slice proved; broader lifecycle remains partial; READY route is drafted and independently static-reviewed for the missing persistent trusted-device/signer-key registration implementation; tests, proof, validation, caller integration, and completion remain open; not a completion claim | `DEVICE_TRUST_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/01-device-trust-source-of-truth/` |
 | partial / Windows-only merged custody slice | [WP02 Local Key Sealing](workpacks/02-local-key-sealing.md) | custody and authority-boundary code present; no desktop command-path or end-to-end sealing proof; workpack remains open | `LOCAL_KEY_SEALING_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/device-trust-bootstrap-plan-proof/02-local-key-sealing/` |
-| ready / implementation route | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on WP01; normal route remains graph-blocked; a reviewed-implementation phase-only gate can authorize WP03 source work after reviewed WP01 implementation evidence; five-minute receipt lifetime gate drafted; external ceremony verifier, one-time `RegisterLanSignerAnchor` authorization, and proof remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
+| blocked / bounded source accepted | [WP03 Parent Step-Up Auth](workpacks/03-parent-step-up-auth.md) | depends on Device Trust WP01, Account Identity WP08, and Cloudflare WP06; the WP01 reviewed-implementation gate does not satisfy the two strict authority dependencies; atomic ceremony custody/recovery and linked-challenge lifecycle validation are independently static-reviewed with no remaining internal P0/P1; authoritative target resolution, platform/passkey provider, durable sign counter, tests, proof, and completion remain open | `PARENT_STEP_UP_AUTH_MODEL.md`, `RESEARCH_AND_UI_GUIDANCE.md` | `output/device-trust-bootstrap-plan-proof/03-parent-step-up-auth/` |
 | blocked | [WP04 Phone QR Approval Bridge](workpacks/04-phone-qr-approval-bridge.md) | typed challenge/response boundary drafted; issuer, ceremony, transport, and proof remain open | `PHONE_QR_APPROVAL_MODEL.md` | `output/device-trust-bootstrap-plan-proof/04-phone-qr-approval-bridge/` |
 | partial | [WP05 Entitlement Device License](workpacks/05-entitlement-device-license.md) | device-bound verifier boundary drafted; signature, revocation, and proof remain open | `ENTITLEMENT_DEVICE_LICENSE_MODEL.md` | `output/device-trust-bootstrap-plan-proof/05-entitlement-device-license/` |
 | partial | [WP06 Recovery Reset Re-Pair](workpacks/06-recovery-reset-re-pair.md) | confirmation-only restore blocked; verified parent and execution-receipt gates drafted; encryption, revocation, and proof remain open | `RECOVERY_RESET_MODEL.md`, `LOCAL_KEY_SEALING_MODEL.md` | `output/device-trust-bootstrap-plan-proof/06-recovery-reset-re-pair/` |
@@ -46,12 +46,12 @@ removal still stops at durable evidence/manual-required platform cleanup.
 
 This audit records source reachability only. It does not treat tests, proof,
 static status, synthetic challenges/receipts, generic JSON, or public DTOs as
-authority and does not change any workpack to complete. No production edit was
-legal without a real owner and caller; the next owner is the platform/passkey
-ceremony composition required before WP02/WP03 can advance. The graph validator
-reported checked-in graph/source drift during the prior audit; the
-2026-08-17 coordinator update below records the bounded reviewed-implementation
-evidence without changing any normal READY/DONE state.
+authority and does not change any workpack to complete. No target-authority
+edit is legal without Account WP08's canonical binding and Cloudflare WP06's
+durable repository/caller; the platform/passkey ceremony composition follows
+those owners. The graph validator reported checked-in graph/source drift during
+the prior audit; the 2026-08-17 coordinator updates record bounded reviewed
+implementation and dependency evidence without changing any DONE state.
 
 ## Current implementation-phase disposition — 2026-08-17
 
@@ -62,16 +62,18 @@ READY, not DONE. Tests, focused validation, proof, production caller
 integration, global Enforcer/architecture acceptance, platform custody, and
 broader lifecycle composition remain open.
 
-WP03 remains BLOCKED in the default graph until WP01 is DONE. The graph has a
-phase-only `reviewed-implementation` gate on WP03 -> WP01 so an implementation
-query may authorize WP03 source work against the reviewed WP01 packet; that
-does not provide ceremony authority, tests, proof, or completion. No WP26 edge
-is opted into this phase gate.
+WP03 remains BLOCKED in the default graph on WP01, Account WP08, and Cloudflare
+WP06. The graph has a phase-only `reviewed-implementation` gate on WP03 -> WP01,
+but the two new authority-owner edges remain strict and therefore keep WP03 out
+of the implementation-only queue. The gate does not provide ceremony authority,
+tests, proof, or completion. No WP26 edge is opted into it.
 
 ## Default execution order
 
 ```text
-WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
+WP01 ---------------------------+
+Account WP08 -> Cloudflare WP06 +-> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
+WP02 remains a conditional custody dependency where the selected ceremony needs it.
 ```
 
 ## Dependency rules
@@ -79,7 +81,9 @@ WP01 -> WP02 -> WP03 -> WP04 -> WP05 -> WP06 -> WP07 -> WP08 -> WP09
 ```text
 WP01 establishes trust state/source of truth.
 WP02 depends on WP01 and blocks key/trust persistence claims.
-WP03 depends on WP01/WP02 and blocks high-risk action approval claims.
+WP03 depends on WP01, Account Identity WP08, and Cloudflare WP06 and blocks
+high-risk action approval claims. WP02 is conditional only for a demonstrated
+private-key/install custody requirement.
 WP04 depends on WP03 and blocks phone/QR approval claims.
 WP05 depends on WP01/WP02 and payment handoff; license never unlocks behavior alone.
 WP06 depends on WP02/WP03/WP04 and blocks recovery/reset claims.

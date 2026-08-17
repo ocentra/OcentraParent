@@ -44,14 +44,16 @@ Expected proof artifacts:
 
 Current source audit (implementation-ready; not closure evidence):
 
-- `EventEnvelope<E>` is unconstrained at the struct boundary in
-  `crates/ocentra-eventing/src/envelope.rs`; the typed `DomainEvent` bound is
-  applied only by selected impls.
-- `StoredEventEnvelope::decode` checks the contract but does not revalidate the
-  decoded payload's aggregate and idempotency keys against the stored envelope.
-- Existing round-trip/version-skew tests do not retain the required malformed
-  payload, aggregate/idempotency tamper, payload-mutation, and lock/await audit
-  negatives.
+- The accepted code-only helper in
+  `crates/ocentra-eventing/src/envelope.rs` keeps `EventEnvelope<E>` bounded by
+  `DomainEvent` at the struct boundary and validates the live envelope's
+  contract, aggregate key, and idempotency key before `store()` persists it.
+- `StoredEventEnvelope::decode` now reuses the same validation helper after
+  payload decoding, revalidating the decoded payload's contract, aggregate key,
+  and idempotency key against the stored envelope metadata.
+- Existing round-trip/version-skew tests still do not retain the required
+  malformed payload, aggregate/idempotency tamper, payload-mutation, and
+  lock/await audit negatives for the accepted helper.
 - The cited `63`, `66-76`, `67`, and `68` proof roots are absent; unrelated
   policy-control TypeScript checks do not close this Eventing workpack.
 

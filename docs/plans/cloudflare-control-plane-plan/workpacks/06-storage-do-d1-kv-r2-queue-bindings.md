@@ -116,8 +116,8 @@ Freeze storage and coordination ownership for Durable Objects, D1, KV, queues, a
 
 ## Blocked truth
 
-- `npm --prefix infra/cloudflare ls wrangler @cloudflare/workers-types` currently exits nonzero with an empty module dependency tree. WP01 owns restoring that dependency environment before WP06 invokes module test scripts.
-- Account WP08's Rust contract and the selected WP06 D1 binding, migration, and direct integration-test artifacts are not yet retained. No concrete provider verifier or production caller supplies a runtime storage handoff; this packet cannot produce a runtime storage handoff for Cloudflare WP08 or Account WP06.
+- Independent source review accepts WP01's current module dependency/runtime scaffold as implementation-phase evidence. This does not substitute for rerunning module tests or retaining proof in the later validation phase.
+- Account WP08's `v0.7` Rust/TypeScript contract is independently accepted as bounded source evidence, but no Cloudflare adapter consumes its sealed binding and no production caller reaches the store. WP06's next source packet owns that durable adapter/caller. Provider verification, migration execution, direct integration-test artifacts, and runtime storage handoff remain open.
 - `infra/cloudflare/wrangler.toml`, `wrangler.production.toml`, and `src/env.ts` declare the optional account D1 binding with a binding-specific `migrations_dir`; account DO/KV are intentionally not declared. WP06 must not run the account migration command against `BILLING_D1`.
 - The store no longer creates the account table opportunistically. If the isolated migration has not been applied, reads and writes return `manual-required` for the missing account schema; other D1 errors remain fail-closed errors.
 - `infra/cloudflare/src/index.ts` imports `./generated/billing-contracts.js`, backed by the checked-in module-local generated artifact. Obsolete `packages/billing-domain/src/*` imports are not WP06 blockers and must not be revived.

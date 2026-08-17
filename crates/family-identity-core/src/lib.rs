@@ -2,6 +2,7 @@
 
 #[macro_use]
 mod family_identity_text_ids;
+pub mod account_identity_authority;
 pub mod device_trust_lifecycle;
 mod device_trust_lifecycle_activation;
 mod device_trust_lifecycle_authority;
@@ -46,6 +47,10 @@ mod parent_presence_store_sql_quoted;
 mod parent_presence_store_sql_shape;
 mod parent_presence_store_sql_tokenizer;
 pub mod parent_step_up_authority;
+mod parent_step_up_ceremony;
+pub(crate) mod parent_step_up_challenge_codec;
+pub mod parent_step_up_platform;
+pub(crate) mod parent_step_up_platform_verification;
 pub mod parent_step_up_proof;
 pub mod phone_qr_approval_authority;
 pub mod session_lifecycle;

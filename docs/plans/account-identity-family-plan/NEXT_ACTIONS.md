@@ -29,7 +29,7 @@
 
 Audit snapshot June 17, 2026: WP01 has a docs-only provider/custody proof pack on disk; WP02, WP03, WP04, WP05, and WP07 have prior complete proof roots on disk. WP06 is reopened for a final aggregation rerun after Account WP08 plus Cloudflare WP06/WP08; PR-ready remains false because browser request-safety is still an explicit blocker artifact and the remaining runtime/schema/adjacent execution gaps stay manual-required.
 
-Current routing note: WP08 is the selectable owning packet for the remaining Rust-schema/account-authority gap. Cloudflare WP06 then Cloudflare WP08 own the downstream D1/DO/KV binding, migration, runner, and worker proof. Account WP06 is reopened only to aggregate those exact handoffs; do not reopen WP02-WP05/WP07 unless a proof root drifts or a prior blocker becomes locally owned. Do not route WP08 into the provider-decision-only WP01.
+Current routing note: independent P0/P1 review accepts WP08's bounded `v0.7` Rust-schema/account-authority source packet. Its canonical household/child/device binding includes pairing, installation, selected route, lifecycle, revocation, bounded authority generation, guarded identifiers, active provider mapping, and exact account consistency. Its family-owned current-binding port is crate-private and fail-closed; no production adapter or caller exists. Tests and proof remain deferred. Cloudflare WP06 is the next source-only packet and must implement the durable adapter/caller without redefining authority; Cloudflare WP08 later owns runner proof. Account WP06 aggregates those handoffs only after validation/proof.
 
 PR #607 is closed without merge. Do not rebase its TypeScript Cloudflare
 adapter/D1-test-double slice into this plan. Start with Rust-owned account
@@ -42,6 +42,8 @@ Expected result:
 
 ```text
 Rust-owned canonical account/family authority schema
+canonical household-child-device binding includes pairing, install, selected route, lifecycle, revocation, and authority generation
+family-owned trusted read boundary fails closed and never treats a request DTO as authority
 Rust account-authority parity across household, role, device, invite/recovery, and session semantics
 cross-household, stale/revoked, malformed, duplicate, and schema-incompatible negatives
 redacted correlated authority proof and retained focused Rust command log

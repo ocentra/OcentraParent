@@ -11,6 +11,8 @@ pub enum HouseholdAuthorityAction {
     SealParentDeviceTrust,
     #[serde(rename = "pair-child-device")]
     PairChildDevice,
+    #[serde(rename = "register-lan-signer-anchor")]
+    RegisterLanSignerAnchor,
     #[serde(rename = "revoke-child-device")]
     RevokeChildDevice,
     #[serde(rename = "view-child-status")]
@@ -186,6 +188,7 @@ pub fn requires_parent_step_up(action: HouseholdAuthorityAction) -> bool {
         action,
         HouseholdAuthorityAction::SealParentDeviceTrust
             | HouseholdAuthorityAction::PairChildDevice
+            | HouseholdAuthorityAction::RegisterLanSignerAnchor
             | HouseholdAuthorityAction::RevokeChildDevice
             | HouseholdAuthorityAction::ChangePolicy
             | HouseholdAuthorityAction::StartRemoteControl
