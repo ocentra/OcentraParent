@@ -13,9 +13,11 @@ use crate::{
     child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow,
     removal::{
         ChildAgentRemovalBoundary, ChildAgentRemovalStatus, ChildAgentServiceIdentity,
-        ChildAgentTamperSignalKind, VerifiedParentRemovalAuthorization,
+        ChildAgentTamperSignalKind, ChildAgentTrustState, VerifiedParentRemovalAuthorization,
     },
 };
+use ocentra_eventing::envelope::EventMetadata;
+use ocentra_storage_custody_core::storage_custody::StorageCustodyExecutionRequest;
 
 #[path = "service_dispatch.rs"]
 mod service_dispatch;
@@ -37,6 +39,8 @@ mod service_readiness;
 mod service_recovery;
 #[path = "service_supervision.rs"]
 mod service_supervision;
+#[path = "storage_custody_runtime.rs"]
+pub mod storage_custody_runtime;
 #[path = "trust_binding.rs"]
 pub mod trust_binding;
 
@@ -75,6 +79,7 @@ pub enum ChildAgentReadiness {
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ChildAgentHealth {
     pub readiness: ChildAgentReadiness,
+    pub storage_custody: storage_custody_runtime::ChildStorageCustodyReadiness,
     pub domain_flow_count: usize,
     pub durable_root: PathBuf,
     pub removal: ChildAgentRemovalStatus,
@@ -100,13 +105,20 @@ pub enum ChildAgentIngressError {
     Service(Box<ChildAgentServiceError>),
 }
 
-pub enum ChildAgentCommand {
+pub(crate) enum ChildAgentCommand {
     Observe(ChildDomainObservedEvent),
+    PublishStorageCustody {
+        request: StorageCustodyExecutionRequest,
+        metadata: EventMetadata,
+    },
 }
 
-type CommandResponse = oneshot::Sender<
-    Result<crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport, ChildAgentServiceError>,
->;
+pub(crate) enum ChildAgentCommandResult {
+    Domain(crate::child_domain_runtime_flow::ChildDomainRuntimeFlowReport),
+    StorageCustody(storage_custody_runtime::ChildStorageCustodyOutcome),
+}
+
+type CommandResponse = oneshot::Sender<Result<ChildAgentCommandResult, ChildAgentServiceError>>;
 
 struct QueuedCommand {
     command: ChildAgentCommand,
@@ -122,6 +134,7 @@ pub struct ChildAgentService {
     paths: ChildAgentServicePaths,
     domain_flows: Vec<ChildDomainRuntimeEventFlow>,
     tombstone_flow: ChildRuntimeTombstoneEventFlow,
+    storage_custody: storage_custody_runtime::ChildStorageCustodyRuntime,
     removal: ChildAgentRemovalBoundary,
     trust_binding: Option<CurrentChildDeviceTrustBinding>,
     recovery_pending: Option<Vec<CorrelationId>>,

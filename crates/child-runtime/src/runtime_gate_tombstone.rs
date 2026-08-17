@@ -3,7 +3,7 @@
 #[path = "runtime_gate_tombstone_error.rs"]
 mod runtime_gate_tombstone_error;
 #[path = "runtime_gate_tombstone_recovery.rs"]
-pub mod runtime_gate_tombstone_recovery;
+pub(crate) mod runtime_gate_tombstone_recovery;
 #[path = "runtime_gate_tombstone_recovery_validation.rs"]
 mod runtime_gate_tombstone_recovery_validation;
 
@@ -48,7 +48,7 @@ pub enum ChildRuntimeTombstonePublicationOutcome {
 /// Persists the terminal-publish obligation before journaling the typed custody
 /// delete action. If the journal append fails, the durable outbox remains for a
 /// restart to replay the same idempotent action.
-pub async fn persist_child_runtime_tombstone_action(
+pub(crate) async fn persist_child_runtime_tombstone_action(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
     envelope: &StoredEventEnvelope,
@@ -73,7 +73,7 @@ pub async fn persist_child_runtime_tombstone_action(
 /// correlated boundary reached. A journal failure leaves a durable retry
 /// obligation and returns `PendingJournalRetry`; callers must not treat it as
 /// terminal publication.
-pub async fn persist_child_runtime_tombstone_action_with_milestones(
+pub(crate) async fn persist_child_runtime_tombstone_action_with_milestones(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
     envelope: &StoredEventEnvelope,
@@ -122,7 +122,7 @@ pub async fn persist_child_runtime_tombstone_action_with_milestones(
     }
 }
 
-pub async fn replay_pending_child_runtime_tombstones(
+pub(crate) async fn replay_pending_child_runtime_tombstones(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
 ) -> std::io::Result<ChildRuntimeTombstoneRecoveryReport> {
@@ -131,7 +131,7 @@ pub async fn replay_pending_child_runtime_tombstones(
 
 /// Removes a durable tombstone intent only after the terminal publication is
 /// confirmed by the runtime's owning delivery path.
-pub async fn acknowledge_child_runtime_tombstone_publication(
+pub(crate) async fn acknowledge_child_runtime_tombstone_publication(
     store: &RetentionDeleteTombstoneStore,
     deletion_ref: &str,
 ) -> std::io::Result<()> {

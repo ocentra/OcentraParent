@@ -23,7 +23,7 @@ pub struct ChildRuntimeTombstoneRecoveryReport {
 /// Replays every still-pending typed tombstone obligation after runtime
 /// startup. Terminal markers are skipped. A pending legacy row fails closed
 /// because it lacks the typed event needed for a safe reconstruction.
-pub async fn replay_pending_child_runtime_tombstones(
+pub(crate) async fn replay_pending_child_runtime_tombstones(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
 ) -> std::io::Result<ChildRuntimeTombstoneRecoveryReport> {

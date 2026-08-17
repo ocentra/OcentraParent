@@ -18,6 +18,7 @@ impl ChildAgentService {
                 self.trust_binding.as_ref(),
                 self.paths.trust_binding_source(),
             ),
+            storage_custody: self.storage_custody.readiness(),
             domain_flow_count: self.domain_flows.len(),
             durable_root: self.paths.root().to_owned(),
             removal,
