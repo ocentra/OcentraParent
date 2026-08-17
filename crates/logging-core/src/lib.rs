@@ -55,6 +55,7 @@ pub mod ndjson_writer;
 pub mod parent_log_runtime;
 pub mod path;
 pub mod redaction;
+pub mod redaction_policy;
 pub mod snapshot;
 pub mod source;
 pub mod stack_trace_runtime;
