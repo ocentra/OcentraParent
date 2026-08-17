@@ -29,8 +29,16 @@ mod storage_custody_runtime_idempotency;
 mod storage_custody_runtime_lifecycle;
 #[path = "storage_custody_runtime_manual.rs"]
 mod storage_custody_runtime_manual;
+#[path = "storage_custody_runtime_readiness.rs"]
+mod storage_custody_runtime_readiness;
 #[path = "storage_custody_runtime_reasons.rs"]
 mod storage_custody_runtime_reasons;
+#[path = "storage_custody_runtime_reconciliation.rs"]
+mod storage_custody_runtime_reconciliation;
+#[path = "storage_custody_runtime_recovery.rs"]
+mod storage_custody_runtime_recovery;
+#[path = "storage_custody_runtime_replay.rs"]
+mod storage_custody_runtime_replay;
 #[path = "storage_custody_runtime_terminal.rs"]
 mod storage_custody_runtime_terminal;
 #[path = "storage_custody_runtime_validation.rs"]
@@ -84,6 +92,10 @@ pub enum ChildStorageCustodyOutcome {
         operation_ref: String,
         effect: StorageCustodyEffectKind,
     },
+    PendingRecovery {
+        operation_ref: String,
+        effect: StorageCustodyEffectKind,
+    },
     ManualRequired {
         operation_ref: String,
         effect: StorageCustodyEffectKind,
@@ -91,10 +103,12 @@ pub enum ChildStorageCustodyOutcome {
     },
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ChildStorageCustodyReadiness {
     CurrentAuthority,
+    PendingRecovery { operation_refs: Vec<String> },
     ManualRequired,
+    ManualRecoveryRequired { operation_refs: Vec<String> },
 }
 
 #[derive(Clone)]
@@ -103,4 +117,5 @@ pub(super) struct ChildStorageCustodyRuntime {
     flow: ChildRuntimeTombstoneEventFlow,
     effects: ocentra_storage_custody_core::storage_custody_effect_store::StorageCustodyEffectStore,
     authority: ChildStorageCustodyAuthorityHandle,
+    apply_lease_owner: String,
 }

@@ -64,6 +64,7 @@ pub(crate) fn prepare_record(
         envelope,
         status: StorageCustodyEffectStatus::Prepared,
         manual_required_reason: None,
+        apply_lease_id: None,
     }
 }
 

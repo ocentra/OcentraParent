@@ -14,7 +14,8 @@ use ocentra_storage_custody_core::{
 };
 
 use crate::runtime_gate_tombstone::{
-    persist_child_runtime_tombstone_action, persist_child_runtime_tombstone_action_with_milestones,
+    acknowledge_child_runtime_tombstone_publication, persist_child_runtime_tombstone_action,
+    persist_child_runtime_tombstone_action_with_milestones,
     replay_pending_child_runtime_tombstones, ChildRuntimeTombstonePublicationOutcome,
     ChildRuntimeTombstoneRecoveryReport,
 };
@@ -110,6 +111,14 @@ impl ChildRuntimeTombstoneEventFlow {
             .append_idempotent(envelope)
             .await
             .map_err(std::io::Error::other)
+    }
+
+    /// Acknowledge the retained delete obligation only after the owning
+    /// runtime has durably committed the local terminal effect.  Keeping the
+    /// store behind this flow prevents a caller from minting or bypassing the
+    /// terminal publication boundary.
+    pub(crate) async fn acknowledge_publication(&self, deletion_ref: &str) -> std::io::Result<()> {
+        acknowledge_child_runtime_tombstone_publication(&self.store, deletion_ref).await
     }
 
     /// Service startup recovery entry point. It republishes durable pending

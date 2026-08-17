@@ -34,6 +34,7 @@ fn validate_record_for_prepare(record: &StorageCustodyEffectRecord) -> io::Resul
         || record.target_device_id.trim().is_empty()
         || record.authority_generation == 0
         || record.session_generation == 0
+        || record.apply_lease_id.as_deref().is_some_and(str::is_empty)
     {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,

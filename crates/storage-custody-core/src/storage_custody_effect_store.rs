@@ -17,12 +17,18 @@ use crate::storage_custody::{
     StorageCustodyActionPlannedEvent, StorageCustodyEffectKind, StorageCustodyInput,
 };
 
+#[path = "storage_custody_effect_store_apply.rs"]
+mod storage_custody_effect_store_apply;
 #[path = "storage_custody_effect_store_io.rs"]
 mod storage_custody_effect_store_io;
 #[path = "storage_custody_effect_store_mutations.rs"]
 mod storage_custody_effect_store_mutations;
 #[path = "storage_custody_effect_store_prepare.rs"]
 mod storage_custody_effect_store_prepare;
+#[path = "storage_custody_effect_store_recovery.rs"]
+mod storage_custody_effect_store_recovery;
+#[path = "storage_custody_effect_store_terminal.rs"]
+mod storage_custody_effect_store_terminal;
 #[path = "storage_custody_effect_store_update.rs"]
 mod storage_custody_effect_store_update;
 
@@ -52,6 +58,12 @@ pub struct StorageCustodyEffectRecord {
     pub envelope: StoredEventEnvelope,
     pub status: StorageCustodyEffectStatus,
     pub manual_required_reason: Option<String>,
+    /// The opaque owner of an in-flight local effect.  This is deliberately
+    /// persisted separately from the authority generations: generations bind
+    /// the decision, while the lease binds the one runtime allowed to finish
+    /// the terminal transition.
+    #[serde(default)]
+    pub apply_lease_id: Option<String>,
 }
 
 #[derive(Clone)]
