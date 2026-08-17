@@ -204,6 +204,18 @@ type IdempotentWriteResult = {
   responseBody: unknown;
   queued: boolean;
 };
+type DurableIdempotencyRecord = {
+  state: 'pending' | 'completed' | 'manual-required';
+  requestFingerprint: string;
+  responseStatus: number;
+  responseBody: unknown;
+  stateVersion: number;
+  attemptCount: number;
+  leaseToken: string | null;
+  leaseExpiresAt: string | null;
+  retryAt: string | null;
+  lastError: string | null;
+};
 type QueueFailureReason =
   | 'reconciliation-queue-missing'
   | 'reconciliation-queue-send-failed'
@@ -219,6 +231,10 @@ const ALLOWLISTED_RETURN_PATHS: ReadonlySet<string> = new Set([
   PORTAL_RETURN_PATH,
 ]);
 const ACCEPTED_ABUSE_GATE_STATES = new Set(['passed-turnstile', 'trusted-authenticated-session']);
+const IDEMPOTENCY_LEASE_MS = 60_000;
+const IDEMPOTENCY_RETRY_BASE_MS = 1_000;
+const IDEMPOTENCY_RETRY_MAX_MS = 60_000;
+const IDEMPOTENCY_MAX_ATTEMPTS = 5;
 
 function json(status: number, body: unknown, headers: HeadersInit = {}): Response {
   return new Response(JSON.stringify(body, null, 2), {
@@ -2403,6 +2419,88 @@ class BasePlaceholderDO {
   }
 }
 
+function storedIdempotencyCounter(value: unknown, fallback: number | null): number | null {
+  if (value === undefined) {
+    return fallback;
+  }
+  try {
+    return NonNegativeBillingCountSchema.parse(value);
+  } catch (_error) {
+    return null;
+  }
+}
+
+function storedIdempotencyTimestamp(value: unknown, fallback: string | null): string | null {
+  if (value === undefined) {
+    return fallback;
+  }
+  if (value === null) {
+    return null;
+  }
+  return typeof value === 'string' && Number.isFinite(Date.parse(value)) ? value : null;
+}
+
+function normalizeDurableIdempotencyRecord(value: unknown): DurableIdempotencyRecord | null {
+  if (!isPlainObject(value)) {
+    return null;
+  }
+  const state = stringOrNull(value.state);
+  const requestFingerprint = stringOrNull(value.requestFingerprint);
+  const responseStatus = numberOrNull(value.responseStatus);
+  const stateVersion = storedIdempotencyCounter(value.stateVersion, 0);
+  const attemptCount = storedIdempotencyCounter(value.attemptCount, 0);
+  const leaseToken =
+    value.leaseToken === undefined || value.leaseToken === null ? null : stringOrNull(value.leaseToken);
+  const leaseExpiresAt = storedIdempotencyTimestamp(value.leaseExpiresAt, null);
+  const retryAt = storedIdempotencyTimestamp(value.retryAt, null);
+  const lastError = value.lastError === undefined || value.lastError === null ? null : stringOrNull(value.lastError);
+  if (
+    (state !== 'pending' && state !== 'completed' && state !== 'manual-required') ||
+    requestFingerprint === null ||
+    responseStatus === null ||
+    !Number.isInteger(responseStatus) ||
+    stateVersion === null ||
+    attemptCount === null ||
+    (value.leaseToken !== undefined && value.leaseToken !== null && leaseToken === null) ||
+    (value.lastError !== undefined && value.lastError !== null && lastError === null) ||
+    (value.leaseExpiresAt !== undefined && value.leaseExpiresAt !== null && leaseExpiresAt === null) ||
+    (value.retryAt !== undefined && value.retryAt !== null && retryAt === null) ||
+    !Object.prototype.hasOwnProperty.call(value, 'responseBody') ||
+    (leaseToken === null && leaseExpiresAt !== null) ||
+    (leaseToken !== null && leaseExpiresAt === null) ||
+    (state !== 'pending' && (leaseToken !== null || leaseExpiresAt !== null || retryAt !== null))
+  ) {
+    return null;
+  }
+  return {
+    state,
+    requestFingerprint,
+    responseStatus,
+    responseBody: cloneJsonValue(value.responseBody),
+    stateVersion,
+    attemptCount,
+    leaseToken,
+    leaseExpiresAt,
+    retryAt,
+    lastError,
+  };
+}
+
+function idempotencyRetryDelayMs(attemptCount: number): number {
+  return Math.min(
+    IDEMPOTENCY_RETRY_MAX_MS,
+    IDEMPOTENCY_RETRY_BASE_MS * 2 ** Math.max(0, Math.min(attemptCount - 1, 6))
+  );
+}
+
+function idempotencyRetryResponse(blocker: string, retryAt: string | null = null): Response {
+  return json(503, {
+    status: 'manual-required',
+    blocker,
+    retryAt,
+  });
+}
+
 class IdempotentWriteDO extends BasePlaceholderDO {
   private auditAppendTail: Promise<void> = Promise.resolve();
 
@@ -2435,7 +2533,13 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     const requestKey = stringOrNull(envelope.requestKey);
     const requestFingerprint = stringOrNull(envelope.requestFingerprint);
     const responseStatus = numberOrNull(envelope.responseStatus);
-    if (requestKey === null || requestFingerprint === null || responseStatus === null) {
+    if (
+      requestKey === null ||
+      requestFingerprint === null ||
+      responseStatus === null ||
+      !Number.isInteger(responseStatus) ||
+      !Object.prototype.hasOwnProperty.call(envelope, 'responseBody')
+    ) {
       return json(400, {
         error: 'invalid-idempotency-envelope',
       });
@@ -2450,21 +2554,15 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     }
 
     const storageKey = `idempotency:${requestKey}`;
-    let existing:
-      | {
-          state: 'pending' | 'completed';
-          requestFingerprint: string;
-          responseStatus: number;
-          responseBody: unknown;
-        }
-      | undefined;
+    let existing: DurableIdempotencyRecord | undefined;
     try {
-      existing = await this.state.storage.get<{
-        state: 'pending' | 'completed';
-        requestFingerprint: string;
-        responseStatus: number;
-        responseBody: unknown;
-      }>(storageKey);
+      const stored = await this.state.storage.get<unknown>(storageKey);
+      if (stored !== undefined) {
+        existing = normalizeDurableIdempotencyRecord(stored) ?? undefined;
+        if (!existing) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-state-invalid');
+        }
+      }
     } catch {
       return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
     }
@@ -2482,24 +2580,73 @@ class IdempotentWriteDO extends BasePlaceholderDO {
         } satisfies IdempotentWriteResult);
       }
 
-      if (existing.state !== 'completed') {
-        return json(503, { status: 'manual-required', blocker: 'billing-control-do-idempotency-pending' });
+      if (existing.state === 'manual-required') {
+        return idempotencyRetryResponse('billing-control-do-idempotency-manual-required');
       }
 
-      return json(200, {
-        replayed: true,
-        responseStatus: existing.responseStatus,
-        responseBody: cloneJsonValue(existing.responseBody),
-        queued: false,
-      } satisfies IdempotentWriteResult);
+      if (existing.state !== 'completed') {
+        const now = Date.now();
+        const leaseActive = existing.leaseExpiresAt !== null && Date.parse(existing.leaseExpiresAt) > now;
+        if (leaseActive) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-in-flight', existing.leaseExpiresAt);
+        }
+        if (existing.retryAt !== null && Date.parse(existing.retryAt) > now) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-retry-backoff', existing.retryAt);
+        }
+        if (existing.attemptCount >= IDEMPOTENCY_MAX_ATTEMPTS && existing.lastError !== null) {
+          const exhausted = {
+            ...existing,
+            state: 'manual-required' as const,
+            stateVersion: existing.stateVersion + 1,
+            leaseToken: null,
+            leaseExpiresAt: null,
+            retryAt: null,
+            lastError: existing.lastError ?? 'idempotency-attempt-limit-exhausted',
+          } satisfies DurableIdempotencyRecord;
+          try {
+            await this.state.storage.put(storageKey, exhausted);
+          } catch {
+            return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+          }
+          return idempotencyRetryResponse('billing-control-do-idempotency-attempt-limit-exhausted');
+        }
+      }
+
+      if (existing.state === 'completed') {
+        return json(200, {
+          replayed: true,
+          responseStatus: existing.responseStatus,
+          responseBody: cloneJsonValue(existing.responseBody),
+          queued: false,
+        } satisfies IdempotentWriteResult);
+      }
     }
 
-    const pending = {
-      state: 'pending' as const,
-      requestFingerprint,
-      responseStatus,
-      responseBody: cloneJsonValue(envelope.responseBody),
-    };
+    const leaseToken = crypto.randomUUID();
+    const leaseExpiresAt = new Date(Date.now() + IDEMPOTENCY_LEASE_MS).toISOString();
+    const pending: DurableIdempotencyRecord = existing
+      ? {
+          ...existing,
+          state: 'pending',
+          stateVersion: existing.stateVersion + 1,
+          attemptCount: existing.attemptCount + 1,
+          leaseToken,
+          leaseExpiresAt,
+          retryAt: null,
+          lastError: null,
+        }
+      : {
+          state: 'pending',
+          requestFingerprint,
+          responseStatus,
+          responseBody: cloneJsonValue(envelope.responseBody),
+          stateVersion: 1,
+          attemptCount: 1,
+          leaseToken,
+          leaseExpiresAt,
+          retryAt: null,
+          lastError: null,
+        };
     try {
       await this.state.storage.put(storageKey, pending);
     } catch {
@@ -2515,16 +2662,63 @@ class IdempotentWriteDO extends BasePlaceholderDO {
       }
       queued = queueMessage ? await queueReconciliationEvent(this.env, queueMessage) : false;
       responseBody = queueMessage ? withQueuedFlag(envelope.responseBody, queued) : envelope.responseBody;
-    } catch {
-      return json(503, { status: 'manual-required', blocker: 'billing-control-do-mutation-unavailable' });
+    } catch (error) {
+      try {
+        const current = normalizeDurableIdempotencyRecord(await this.state.storage.get<unknown>(storageKey));
+        if (
+          current === null ||
+          current === undefined ||
+          current.state !== 'pending' ||
+          current.stateVersion !== pending.stateVersion ||
+          current.leaseToken !== leaseToken
+        ) {
+          return idempotencyRetryResponse('billing-control-do-idempotency-lease-lost');
+        }
+        const exhausted = current.attemptCount >= IDEMPOTENCY_MAX_ATTEMPTS;
+        const retryAt = exhausted
+          ? null
+          : new Date(Date.now() + idempotencyRetryDelayMs(current.attemptCount)).toISOString();
+        const failed = {
+          ...current,
+          state: exhausted ? ('manual-required' as const) : ('pending' as const),
+          stateVersion: current.stateVersion + 1,
+          leaseToken: null,
+          leaseExpiresAt: null,
+          retryAt,
+          lastError: queueFailureMessage(error) ?? 'billing-control-do-mutation-unavailable',
+        } satisfies DurableIdempotencyRecord;
+        await this.state.storage.put(storageKey, failed);
+        return idempotencyRetryResponse(
+          exhausted
+            ? 'billing-control-do-idempotency-attempt-limit-exhausted'
+            : 'billing-control-do-idempotency-retryable-failure',
+          retryAt
+        );
+      } catch {
+        return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+      }
     }
-    const stored = {
-      state: 'completed' as const,
-      requestFingerprint,
-      responseStatus,
-      responseBody: cloneJsonValue(responseBody),
-    };
     try {
+      const current = normalizeDurableIdempotencyRecord(await this.state.storage.get<unknown>(storageKey));
+      if (
+        current === null ||
+        current === undefined ||
+        current.state !== 'pending' ||
+        current.stateVersion !== pending.stateVersion ||
+        current.leaseToken !== leaseToken
+      ) {
+        return idempotencyRetryResponse('billing-control-do-idempotency-lease-lost');
+      }
+      const stored = {
+        ...current,
+        state: 'completed' as const,
+        stateVersion: current.stateVersion + 1,
+        responseBody: cloneJsonValue(responseBody),
+        leaseToken: null,
+        leaseExpiresAt: null,
+        retryAt: null,
+        lastError: null,
+      } satisfies DurableIdempotencyRecord;
       await this.state.storage.put(storageKey, stored);
     } catch {
       return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });

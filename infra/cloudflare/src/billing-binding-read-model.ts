@@ -43,7 +43,6 @@ import {
   buildBillingReferralSummary,
   buildBillingStatusSummary,
   buildEntitlementSnapshot,
-  buildLicenseDecision,
   listAdminBillingAccounts,
   listAdminBillingDisputes,
   listAdminBillingInvoices,
@@ -709,6 +708,9 @@ function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubje
     ['signed-local-snapshot', 'manual-admin-review'] as const,
     `${scope}-source`
   );
+  if (source === 'signed-local-snapshot') {
+    throw new BillingReadModelUnavailableError(`${scope}-verifier-authority-unavailable`);
+  }
   const failureState = decodeFailureState(record.failureState, `${scope}-failure-state`);
   const warnings = decodeArray(record.warnings, decodeNonEmptyString, `${scope}-warnings`);
   const auditReference = decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference));
@@ -741,14 +743,6 @@ function decodeBillingStatusSummary(value: unknown, scope: string, expectedSubje
       failureState === null)
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
-  }
-  if (
-    source === 'signed-local-snapshot' &&
-    (accountStatus === 'manual-review' ||
-      parentVisibleState === 'manual-review' ||
-      localSafetyBehavior === 'manual-review-with-local-safety')
-  ) {
-    throw new BillingReadModelUnavailableError(`${scope}-signed-manual-state`);
   }
   if (subscriptionStatus === 'active' && failureState !== null) {
     throw new BillingReadModelUnavailableError(`${scope}-active-failure-state`);
@@ -858,9 +852,11 @@ function decodeBillingEntitlementSnapshot(
     failureState: decodeFailureState(record.failureState, `${scope}-failure-state`),
     auditReference: decodeCanonicalValue(scope, () => BillingAuditReferenceSchema.parse(record.auditReference)),
   };
-  const signedAuthority = snapshot.source === 'signed-local-snapshot' && snapshot.signatureState === 'signed';
   const manualAuthority = snapshot.source === 'manual-admin-review' && snapshot.signatureState === 'manual-required';
-  if (!signedAuthority && !manualAuthority) {
+  if (snapshot.source === 'signed-local-snapshot' || snapshot.signatureState === 'signed') {
+    throw new BillingReadModelUnavailableError(`${scope}-verifier-authority-unavailable`);
+  }
+  if (!manualAuthority) {
     throw new BillingReadModelUnavailableError(`${scope}-authority-mismatch`);
   }
   if (
@@ -872,19 +868,9 @@ function decodeBillingEntitlementSnapshot(
     throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
   }
   if (
-    signedAuthority &&
-    (snapshot.parentVisibleState === 'manual-review' ||
-      snapshot.localSafetyBehavior === 'manual-review-with-local-safety')
-  ) {
-    throw new BillingReadModelUnavailableError(`${scope}-signed-manual-state`);
-  }
-  if (
     (snapshot.subscriptionStatus === 'active' &&
       (snapshot.parentVisibleState !== 'available' || snapshot.localSafetyBehavior !== 'unchanged')) ||
     (snapshot.subscriptionStatus === 'grace' &&
-      (snapshot.parentVisibleState !== 'grace' || snapshot.localSafetyBehavior !== 'grace-with-local-safety')) ||
-    (snapshot.subscriptionStatus === 'past-due' &&
-      signedAuthority &&
       (snapshot.parentVisibleState !== 'grace' || snapshot.localSafetyBehavior !== 'grace-with-local-safety'))
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-state-mismatch`);
@@ -901,29 +887,7 @@ function decodeBillingEntitlementSnapshot(
   return snapshot;
 }
 
-function snapshotCanYieldAllowed(
-  snapshot: BillingEntitlementSnapshotSummary,
-  requestedDeviceAlreadyTrusted: boolean
-): boolean {
-  const signedActiveAuthority =
-    snapshot.subscriptionStatus === 'active' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'available' &&
-    snapshot.localSafetyBehavior === 'unchanged' &&
-    snapshot.failureState === null;
-  const signedGraceAuthority =
-    requestedDeviceAlreadyTrusted &&
-    snapshot.subscriptionStatus === 'grace' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'grace' &&
-    snapshot.localSafetyBehavior === 'grace-with-local-safety' &&
-    snapshot.failureState?.failureKind === 'payment-required';
-  return signedActiveAuthority || signedGraceAuthority;
-}
-
-type BillingAuthorityState = 'active' | 'grace' | 'manual-review';
+type BillingAuthorityState = 'manual-review';
 
 function correlateBillingAuthority(
   status: BillingStatusSummary,
@@ -945,42 +909,6 @@ function correlateBillingAuthority(
     JSON.stringify(status.failureState) !== JSON.stringify(snapshot.failureState)
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-mismatch`);
-  }
-
-  const activeAuthority =
-    status.accountStatus === 'active' &&
-    status.subscriptionStatus === 'active' &&
-    status.source === 'signed-local-snapshot' &&
-    status.parentVisibleState === 'available' &&
-    status.localSafetyBehavior === 'unchanged' &&
-    status.failureState === null &&
-    snapshot.subscriptionStatus === 'active' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'available' &&
-    snapshot.localSafetyBehavior === 'unchanged' &&
-    snapshot.failureState === null &&
-    snapshotCanYieldAllowed(snapshot, false);
-  if (activeAuthority) {
-    return 'active';
-  }
-
-  const graceAuthority =
-    status.accountStatus === 'grace' &&
-    status.subscriptionStatus === 'grace' &&
-    status.source === 'signed-local-snapshot' &&
-    status.parentVisibleState === 'grace' &&
-    status.localSafetyBehavior === 'grace-with-local-safety' &&
-    status.failureState?.failureKind === 'payment-required' &&
-    snapshot.subscriptionStatus === 'grace' &&
-    snapshot.source === 'signed-local-snapshot' &&
-    snapshot.signatureState === 'signed' &&
-    snapshot.parentVisibleState === 'grace' &&
-    snapshot.localSafetyBehavior === 'grace-with-local-safety' &&
-    snapshot.failureState?.failureKind === 'payment-required' &&
-    snapshotCanYieldAllowed(snapshot, true);
-  if (graceAuthority) {
-    return 'grace';
   }
 
   return 'manual-review';
@@ -1008,43 +936,13 @@ function decodeBillingStatePair(
   ) {
     throw new BillingReadModelUnavailableError(`${scope}-mismatch`);
   }
-  const activeStatusSnapshot =
-    decodedStatus.accountStatus === 'active' &&
-    decodedStatus.subscriptionStatus === 'active' &&
-    decodedStatus.source === 'signed-local-snapshot' &&
-    decodedStatus.parentVisibleState === 'available' &&
-    decodedStatus.localSafetyBehavior === 'unchanged' &&
-    decodedStatus.failureState === null &&
-    decodedSnapshot.subscriptionStatus === 'active' &&
-    decodedSnapshot.source === 'signed-local-snapshot' &&
-    decodedSnapshot.signatureState === 'signed' &&
-    decodedSnapshot.parentVisibleState === 'available' &&
-    decodedSnapshot.localSafetyBehavior === 'unchanged' &&
-    decodedSnapshot.failureState === null;
-  const graceStatusSnapshot =
-    decodedStatus.accountStatus === 'grace' &&
-    decodedStatus.subscriptionStatus === 'grace' &&
-    decodedStatus.source === 'signed-local-snapshot' &&
-    decodedStatus.parentVisibleState === 'grace' &&
-    decodedStatus.localSafetyBehavior === 'grace-with-local-safety' &&
-    decodedStatus.failureState?.failureKind === 'payment-required' &&
-    decodedSnapshot.subscriptionStatus === 'grace' &&
-    decodedSnapshot.source === 'signed-local-snapshot' &&
-    decodedSnapshot.signatureState === 'signed' &&
-    decodedSnapshot.parentVisibleState === 'grace' &&
-    decodedSnapshot.localSafetyBehavior === 'grace-with-local-safety' &&
-    decodedSnapshot.failureState?.failureKind === 'payment-required';
-  if (decodedStatus.accountStatus === 'active' && !activeStatusSnapshot) {
-    throw new BillingReadModelUnavailableError(`${scope}-active-authority-mismatch`);
-  }
-  if (decodedStatus.accountStatus === 'grace' && !graceStatusSnapshot) {
-    throw new BillingReadModelUnavailableError(`${scope}-grace-authority-mismatch`);
-  }
   if (
-    decodedStatus.accountStatus === 'manual-review' &&
-    (decodedSnapshot.source !== 'manual-admin-review' || decodedSnapshot.signatureState !== 'manual-required')
+    decodedStatus.accountStatus !== 'manual-review' ||
+    decodedStatus.source !== 'manual-admin-review' ||
+    decodedSnapshot.source !== 'manual-admin-review' ||
+    decodedSnapshot.signatureState !== 'manual-required'
   ) {
-    throw new BillingReadModelUnavailableError(`${scope}-manual-authority-mismatch`);
+    throw new BillingReadModelUnavailableError(`${scope}-verifier-authority-unavailable`);
   }
   return { status: decodedStatus, snapshot: decodedSnapshot };
 }
@@ -4075,93 +3973,20 @@ export async function loadBillingLicenseDecision(
   );
   const status = paired.status;
   const snapshot = paired.snapshot;
-  const authority = correlateBillingAuthority(status, snapshot, `billing-license-authority:${subject}`);
+  correlateBillingAuthority(status, snapshot, `billing-license-authority:${subject}`);
   const requestedDeviceAlreadyTrusted = !requestedNewDevice;
-  const atDeviceLimit = snapshot.activeDevices >= snapshot.deviceLimit;
-
-  if (authority === 'manual-review') {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'manual-review',
-      reasonCode: 'manual-review',
-      deviceActivationBehavior: 'manual-review-required',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-review`,
-    };
-  }
-
-  if (requestedNewDevice && atDeviceLimit) {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'denied',
-      reasonCode: 'limit-exceeded',
-      deviceActivationBehavior: 'deny-new-device',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-denied`,
-    };
-  }
-
-  if (authority === 'grace' && requestedNewDevice && snapshot.failureState?.failureKind === 'payment-required') {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'grace',
-      reasonCode: 'payment-required',
-      deviceActivationBehavior: 'grace-existing-devices',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-grace`,
-    };
-  }
-
-  if (
-    authority !== 'active' &&
-    !(authority === 'grace' && !requestedNewDevice && snapshotCanYieldAllowed(snapshot, requestedDeviceAlreadyTrusted))
-  ) {
-    return {
-      requestId,
-      subject,
-      deviceId,
-      decision: 'manual-review',
-      reasonCode: 'manual-review',
-      deviceActivationBehavior: 'manual-review-required',
-      requestedDeviceAlreadyTrusted,
-      planId: snapshot.planId,
-      currentActiveDevices: snapshot.activeDevices,
-      limit: snapshot.deviceLimit,
-      auditReference: `${snapshot.auditReference}:license-check-review`,
-    };
-  }
-
-  if (isLocalFixtureEnvironment(env)) {
-    return buildLicenseDecision(subject, requestId, deviceId, requestedNewDevice);
-  }
-
   return {
     requestId,
     subject,
     deviceId,
-    decision: 'allowed',
-    reasonCode: 'within-plan',
-    deviceActivationBehavior: 'allow-new-device',
+    decision: 'manual-review',
+    reasonCode: 'manual-review',
+    deviceActivationBehavior: 'manual-review-required',
     requestedDeviceAlreadyTrusted,
     planId: snapshot.planId,
     currentActiveDevices: snapshot.activeDevices,
     limit: snapshot.deviceLimit,
-    auditReference: `${snapshot.auditReference}:license-check-allowed`,
+    auditReference: `${snapshot.auditReference}:license-check-review`,
   };
 }
 
