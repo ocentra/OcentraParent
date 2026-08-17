@@ -98,6 +98,17 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   remains unavailable until LAN/account/device authority composition exists.
   Tests, validation, proof, checklist, and runtime integration remain
   deferred.
+- 2026-08-16/17 WP09 production pass: exact-source capture ingestion now feeds
+  deterministic durable Eventing publication/replay, startup and recurring
+  reconciliation run before/after readiness as owned, persisted-row corruption
+  fails closed, and read/stream APIs remain projection-only. The portal host
+  bridge rejects all four enforcement mutation commands before Tauri/dev-web
+  serialization while allowing enforcement read-model commands; the
+  parent-assistant service router returns an assistant-answer event rather than
+  an enforcement event. The eight focused local command families and portal
+  command-boundary gates are green. Commit `8abf80cb2` passed the normal
+  pre-commit and is pushed; the later command-boundary delta still needs the
+  final combined pre-commit/commit/push.
 - A fresh WP13 regression proof now exists at `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json` plus `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
 - A fresh WP12 route-proof bundle is restored locally at `docs/proof/eventing-plan/`, `output/eventing-plan-proof/rollout-proof/`, and `test-results/eventing-rollout-proof/`.
 - A scoped 2026-06-17 WP11 regeneration pass now restores the eventing proof roots at `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
@@ -130,29 +141,32 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   but the cited proof bundle is not present in this checkout. WP06 is locally
   evidenced by its durable hand-authored manifest because enforcement WP11
   needs its exact generic handoff.
-- WP09 is the single legal production-foundation packet. Its current source
-  diff now implements ingestion-time publication of the exact captured source
+- WP09 is the active production-foundation packet. Its current source
+  implements ingestion-time publication of the exact captured source
   observation, deterministic phase-scoped identity/idempotency, a
   network-owned `ProductionFileEventJournal` with recovery before listener
-  readiness, startup/recurring reconciliation, and projection-only read/stream
-  consumers. Phase 1 production code and expected focused tests are implemented
-  in the shared worktree. Focused Eventing, protocol, core, ActivityStore,
-  service, and parent-runtime families plus changed-file architecture/Enforcer
-  gates pass locally. Retained proof, normal pre-commit, CI, review, and merge
-  remain open. Downstream AI, policy, enforcement, audit, and portal consumers remain
-  blocked/fail-closed; this does not unlock Network WP04.
-- Workpacks open in truth: WP09 retained proof, normal pre-commit, CI, review,
-  and merge gates, plus WP10 consumer-boundary handoff.
-- Current meaning: WP09 Phase 1 code and expected tests are written and its
-  focused local test/Enforcer gates pass, while retained proof, normal
-  pre-commit, CI, review, and merge remain open. Rows 57-62 remain unchecked.
-  WP06/WP11/WP12/WP13 are locally proved; WP10 still lacks
-  its required proof roots and consumer-plan handoff verification.
+  readiness, startup/recurring reconciliation, projection-only read/stream
+  consumers, and real AI/portal direct-command authority negatives. Phase 1
+  production code and expected focused tests are written. Queue/request-response
+  helpers are deliberately not wired into a fake product caller, and the
+  workpack does not synthesize downstream AI/policy/enforcement/audit/portal
+  phases. Focused Eventing, protocol, core, ActivityStore, service,
+  parent-runtime, and portal families plus changed-file architecture/Enforcer
+  gates pass locally.
+- Local ignored evidence is regenerated at
+  `output/eventing-plan-proof/09-network-consumer-event-chain/`, with a compact
+  manifest and eight wrapped command families. Rows 57-62 remain unchecked
+  until the final combined pre-commit, accepted commit, CI, review, and merge
+  gates are complete; ignored evidence is not retained acceptance by itself.
+- Workpacks open in truth: WP09 final integration/acceptance gates plus WP10
+  consumer-boundary handoff. WP06/WP11/WP12/WP13 are locally proved; WP10 still
+  lacks its required tests/proof and LAN/account/device authority composition.
 
 ### Active/open workpacks
 
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
-  (Phase 1 written and focused local Phase 2 green; proof, pre-commit, CI, review, and merge open)
+  (Phase 1 and expected tests written; focused/local proof green; final combined
+  pre-commit, accepted commit, CI, review, and merge open)
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
 
 ## Validation reality
@@ -168,7 +182,14 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   lineage compatibility (3), runtime shutdown (5), and the scoped
   architecture gate are recorded in the durable manifest under
   `docs/proof/eventing-plan/`.
-- Current interpretation: the reusable runtime behavior is partially exercised, WP06/WP11/WP12/WP13 are locally proved, but the plan remains open because WP10 lacks its local proof roots and consumer-plan handoff verification.
+- WP09 local evidence now also records 41 journal, 10 protocol-runtime, 17
+  protocol-flow, 43 core-runtime, 6 ActivityStore, 36 filtered service, 39 full
+  service-bridge, and 2 parent-runtime passing tests. Portal rows 60-61 add 159
+  passing portal tests/type-check and an 11-test parent-assistant target.
+- Current interpretation: WP09 code/expected tests and local focused evidence
+  are present, but its final integration gates remain open. WP06/WP11/WP12/WP13
+  are locally proved, and the plan also remains open because WP10 lacks its
+  tests/proof and consumer-plan handoff verification.
 
 ## Default no-read list
 

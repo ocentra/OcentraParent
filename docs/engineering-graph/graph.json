@@ -17248,7 +17248,7 @@
       "metadata": {
         "planSlug": "eventing-plan",
         "indexPath": "docs/plans/eventing-plan/WORKPACK_INDEX.md",
-        "statusText": "Phase 1 written; focused local Phase 2 green; integration open",
+        "statusText": "Phase 1/tests/local proof written; integration open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "reviewed",
         "needsReview": false,
@@ -17259,7 +17259,7 @@
             "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
             "docs/engineering-graph/code-map.json"
           ],
-          "reason": "WP09 is the smallest legal production foundation for the network consumer chain. Its current source diff drafts exact-source ingestion publish, deterministic phase identity/idempotency and refs, recovered ProductionFile journaling before listener readiness, startup/recurring reconciliation, and projection-only reads. Reviewed roots cover capture ingestion, ActivityStore/runtime, agent-core runtime, and agent-service delivery/read-model ownership; fixture/prove/TEST network_event_runtime files are not shipped production topology. AI, policy, enforcement, audit, and portal consumers remain downstream blocked/fail-closed. Phase-2 tests, focused validation, proof, CI, review, and merge remain open; this status does not mark WP09 done or unblock Network WP04."
+          "reason": "WP09 is the bounded production foundation for the network consumer chain. Current source implements exact-source ingestion publish, deterministic phase identity/idempotency and refs, recovered ProductionFile journaling before listener readiness, startup/recurring reconciliation, projection-only reads, and real parent-assistant/portal direct-enforcement mutation negatives. Reviewed roots cover capture ingestion, ActivityStore/runtime, agent-core runtime, agent-service delivery/read-model ownership, and the shared Tauri/dev-web portal command boundary; fixture/prove/TEST network_event_runtime files are not shipped production topology. Queue/request-response helpers have no shipped network-consumer caller and are not fake-wired. Focused tests and local ignored proof are green, while the final combined pre-commit, accepted commit, CI, review, and merge remain open. This status does not mark WP09 done or unblock Network WP04."
         }
       },
       "completion": {
@@ -18889,7 +18889,7 @@
             "docs/plans/portal-ux-household-surfaces-plan/workpacks/09-browser-app-and-network-surfaces.md",
             "docs/plans/portal-ux-household-surfaces-plan/workpacks/12-reports-notifications-and-custody.md"
           ],
-          "reason": "The shipped-call audit found real ActivityStore observation persistence, but no typed durable NetworkCascadeObligation, cascade table, or shipped composition owner. Eventing WP09 now has a drafted/implemented bounded foundation for exact-source ingestion, deterministic phase identity, recovered durable journaling, reconciliation, and projection-only reads; its phase-2 tests, proof, CI, review, and merge remain open. WP04 therefore still requires these direct owner handoffs for legal composition: Eventing WP09 network consumer chain; AI WP07 job queue and WP19 result journal; Policy WP05 ask-parent overrides and WP08 event model; Custody WP04 tombstone and WP06 report custody; Portal WP09 network surfaces and WP12 reports/notifications/custody. These dependencies do not claim any owner complete and keep WP04 blocked."
+          "reason": "The shipped-call audit found real ActivityStore observation persistence, but no typed durable NetworkCascadeObligation, cascade table, or shipped composition owner. Eventing WP09 now has its bounded exact-source ingestion, deterministic phase identity, recovered durable journaling, reconciliation, projection-only reads, and direct-command authority negatives implemented with focused local evidence; final integration acceptance remains open. WP04 therefore still requires these direct owner handoffs for legal composition: Eventing WP09 network consumer chain; AI WP07 job queue and WP19 result journal; Policy WP05 ask-parent overrides and WP08 event model; Custody WP04 tombstone and WP06 report custody; Portal WP09 network surfaces and WP12 reports/notifications/custody. These dependencies do not claim any owner complete and keep WP04 blocked."
         }
       },
       "completion": {

@@ -36,7 +36,7 @@ production foundation, not a historical validation row. Its owning boundary is
 `agent-core` plus `agent-service`, consuming the typed `agent-protocol`
 contracts and reusable `ocentra-eventing` journal/bus semantics.
 
-## Implemented production boundary (acceptance still open)
+## Implemented production boundary (integration acceptance still open)
 
 The production slice must establish, at the owning boundary:
 
@@ -49,16 +49,31 @@ The production slice must establish, at the owning boundary:
 
 The current code slice implements the first shipped boundary: capture-ingestion
 through deterministic durable journal/replay, startup/recurring reconciliation,
-fail-closed persisted-row reconstruction, and projection-only reads. Real
-expected tests are written and the focused local Eventing, protocol, core,
-ActivityStore, service, and parent-runtime families plus changed-file
-architecture/Enforcer gates pass. Retained proof, normal pre-commit, CI,
-review, and merge remain open. AI, policy, enforcement, audit, and portal
-consumers are downstream contracts; they remain blocked and fail-closed until
-their owning plans provide real authority, consumer, and handoff
-implementations. The current nested `network_event_runtime` fixture/prove/
+fail-closed persisted-row reconstruction, and projection-only reads. The portal
+host bridge now rejects the four direct enforcement mutation commands before
+either Tauri or dev-web serialization while still allowing enforcement
+read-model commands. The parent-assistant service router is covered by a real
+negative test that returns an assistant-answer event rather than an enforcement
+event. Real expected tests are written and the focused local Eventing,
+protocol, core, ActivityStore, service, parent-runtime, and portal families plus
+changed-file architecture/Enforcer gates pass. Commit `8abf80cb2` passed the
+normal pre-commit and is pushed; the later command-boundary follow-up remains
+uncommitted and therefore still needs the final combined pre-commit, CI, review,
+and merge gates. AI, policy, enforcement, audit, and portal *consumer behavior*
+remain downstream contracts; this workpack proves only their direct-command
+authority boundary. The current nested `network_event_runtime` fixture/prove/
 `TEST_*` files are review/test material, not shipped production behavior, and
 are excluded from the code-map production topology.
+
+The row 57-59 source audit also removed a false implementation target. The
+production network consumer uses reusable Eventing for durable typed
+observation publish/replay. Queue/drain and local request-response helpers have
+no shipped network-consumer caller and are not wired merely to satisfy a proof
+row. The production phase gate emits only `FlowObserved`, optional
+`DomainObserved`, and `ActivityClassified`; it does not synthesize a full
+AI-policy-enforcement chain. Weak evidence stays manual-review-required with
+`AskParent`, emits no downstream authority phase, and leaves
+`adapter_action_executed=false`.
 
 The reviewed ownership map records the exact current implementation/test roots
 for this boundary. Expected focused tests and current local gates are recorded
@@ -73,17 +88,25 @@ Current focused local evidence:
 - Agent-service network bridge/runtime: 39 passed, including real SQLite
   corruption through startup reconciliation with no journal mutation.
 - Parent-runtime network-flow integration: 2 passed.
-- Changed-file architecture and routed Enforcer checks pass; retained proof,
-  normal pre-commit, CI, review, and merge are not yet complete.
+- Parent-assistant service-router target: 11 passed, including the AI
+  no-enforcement-event negative.
+- Portal: 38 files / 159 tests plus type-check, including parameterized
+  pre-serialization rejection for all four enforcement mutations and an
+  allowed enforcement read-model command.
+- Changed-file architecture and routed Enforcer checks pass. Local ignored
+  evidence is regenerated at
+  `output/eventing-plan-proof/09-network-consumer-event-chain/proof-summary.json`.
+  The final combined normal pre-commit, CI, review, and merge are not complete.
 
 Expected tests/proof:
 
-- `eventing.network-consumer.chain-contract`
-- `eventing.network-consumer.weak-evidence-negative`
-- `eventing.network-consumer.ai-cannot-enforce`
-- `eventing.network-consumer.policy-authority-required`
-- `eventing.network-consumer.proof-linkage`
-- Proof includes network-plan workpack, event family manifest, and denied-authority cases.
+- `network_consumer_chain_contract_uses_durable_journal_and_exact_source_ids`
+- `network_consumer_weak_evidence_requires_manual_review_without_enforcement`
+- `parent_assistant_service_router_publishes_answer_event_not_enforcement_event`
+- `apps/portal/tests/unit/portal-command-boundary.test.ts`
+- [local proof summary](../../../../output/eventing-plan-proof/09-network-consumer-event-chain/proof-summary.json)
+- Proof links the exact workpack, focused command artifacts, and denied-authority
+  cases without claiming downstream consumer execution.
 
 Failure conditions:
 

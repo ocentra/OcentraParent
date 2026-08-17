@@ -137,6 +137,7 @@ use ocentra_parent_agent_protocol::parent_assistant::ParentAssistantScope;
 use ocentra_parent_agent_protocol::policy_constants as policy;
 use ocentra_parent_agent_protocol::transport::AgentCommandEnvelope;
 use ocentra_parent_agent_protocol::transport::AgentCommandName;
+use ocentra_parent_agent_protocol::transport::AgentEventName;
 use ocentra_parent_agent_protocol::transport::AgentMessageTarget;
 use ocentra_parent_agent_protocol::transport::AgentPeer;
 use ocentra_parent_agent_protocol::transport::AgentPeerRole;
@@ -330,6 +331,29 @@ async fn parent_assistant_request_prepares_policy_preview_without_enforcement_or
             .child_safety_or_enforcement_use_allowed
     );
     assert!(!answer.action_preview.enforcement_applied);
+}
+
+#[tokio::test]
+async fn parent_assistant_service_router_publishes_answer_event_not_enforcement_event() {
+    let command = command_with_payload(fields_from_pairs(vec![(
+        constants::field::PARENT_ASSISTANT_QUESTION,
+        ocentra_parent_agent_protocol::logging::LogFieldValue::String(
+            constants::parent_assistant::TEST_POLICY_QUESTION.to_string(),
+        ),
+    )]));
+    let event = ocentra_parent_agent_service::websocket::dispatch_local_command_text(
+        ocentra_parent_agent_service::websocket::WebsocketCommandText(
+            serde_json::to_string(&command).expect("AI command envelope must serialize"),
+        ),
+    )
+    .await;
+
+    assert_eq!(
+        event.event,
+        AgentEventName::AgentParentAssistantAnswerReported
+    );
+    assert_ne!(event.event, AgentEventName::AgentEnforcementAuditReported);
+    assert_ne!(event.event, AgentEventName::AgentEnforcementTimerReported);
 }
 
 #[test]

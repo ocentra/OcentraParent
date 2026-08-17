@@ -4,6 +4,7 @@ import {
   ParentDevBridgeRoute,
   type ParentDevBridgeRouteName,
   ParentHostBridgeRuntime,
+  ParentUiActionKind,
   type HostBridge,
   type ParentDevBridgeUrl,
   type ParentRouteContext,
@@ -19,6 +20,7 @@ import {
   presentationOnlyDevWebHostBridgeMessage,
 } from '../generated/parent-ui-bridge';
 import type { ParentRouteId, ParentUnknownRecord } from '../generated/parent-ui-bridge';
+import { DirectEnforcementCommandBoundaryErrorText, isDirectEnforcementCommand } from './transport';
 import { createDevWebRouteSubscription } from './host-bridge/dev-web-subscription';
 
 type TauriCoreModule = {
@@ -131,7 +133,10 @@ function createTauriLoadRouteAction(): (
 }
 
 function createTauriDispatchAction(): (action: ParentUiAction) => Promise<ParentUiActionResult> {
-  return (action) => invokeParentBridgeCommand<ParentUiActionResult>(ParentBridgeCommand.Dispatch, { action });
+  return (action) =>
+    dispatchPortalAction(action, () =>
+      invokeParentBridgeCommand<ParentUiActionResult>(ParentBridgeCommand.Dispatch, { action })
+    );
 }
 
 function createTauriSubscribeAction(): (
@@ -170,9 +175,21 @@ function createDevWebDispatchAction(
   parentDevBridgeUrl: ParentDevBridgeUrl
 ): (action: ParentUiAction) => Promise<ParentUiActionResult> {
   return (action) =>
-    invokeParentDevBridgeCommandOrThrow<ParentUiActionResult>(parentDevBridgeUrl, ParentDevBridgeRoute.Dispatch, {
-      action,
-    });
+    dispatchPortalAction(action, () =>
+      invokeParentDevBridgeCommandOrThrow<ParentUiActionResult>(parentDevBridgeUrl, ParentDevBridgeRoute.Dispatch, {
+        action,
+      })
+    );
+}
+
+function dispatchPortalAction(
+  action: ParentUiAction,
+  dispatch: () => Promise<ParentUiActionResult>
+): Promise<ParentUiActionResult> {
+  if (action.action === ParentUiActionKind.AgentCommandRequested && isDirectEnforcementCommand(action.command)) {
+    return Promise.reject(new Error(DirectEnforcementCommandBoundaryErrorText));
+  }
+  return dispatch();
 }
 
 function createDevWebSubscribeAction(

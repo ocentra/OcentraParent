@@ -128,6 +128,30 @@ prove the journal and topology/lineage slice. Raw/generated output remains
 ignored. This releases only the generic Eventing prerequisite: WP10 remains
 open and WP11 still owns enforcement-specific durable journal proof.
 
+## WP09 network consumer local evidence
+
+WP09 uses one workpack-scoped, ignored/regenerable evidence root rather than
+four stale one-off proof scripts:
+
+```text
+output/eventing-plan-proof/09-network-consumer-event-chain/
+```
+
+`proof-summary.json`, `00-source-snapshot.md`, and
+`10-validation-commands.log` point to the raw `npm run agent:run --` artifacts
+for the focused journal, protocol, core, ActivityStore, service, and
+parent-runtime commands. Rows 57-61 use the real current test names recorded in
+the implementation checklist. Portal command-boundary validation additionally
+runs `apps/portal/tests/unit/portal-command-boundary.test.ts`, the portal
+workspace tests/type-check, and the focused parent-assistant service-router
+test.
+
+This evidence proves durable network-owned observation publication/replay and
+the direct-command authority negatives only. It does not require a fake shipped
+queue/request-response caller, does not synthesize an AI-policy-enforcement
+chain, and does not claim downstream consumer execution, broker/relay delivery,
+CI, review, merge, or Network WP04 readiness.
+
 ## Required states
 
 ```text

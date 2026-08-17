@@ -5518,8 +5518,12 @@
         "crates/agent-service/tests/unit/network_flow_payload_tests.rs",
         "crates/agent-service/tests/unit/network_runtime_delivery_tests.rs",
         "crates/agent-service/tests/unit/network_runtime_stream_tests.rs",
+        "crates/agent-service/tests/unit/parent_assistant_runtime_tests.rs",
         "crates/parent-runtime-core/src/agent_service_client/snapshots_network/read_model.rs",
-        "crates/parent-runtime-core/tests/unit/parent_ui_bridge/common_events_samples.rs"
+        "crates/parent-runtime-core/tests/unit/parent_ui_bridge/common_events_samples.rs",
+        "apps/portal/src/host-bridge.ts",
+        "apps/portal/src/transport.ts",
+        "apps/portal/tests/unit/portal-command-boundary.test.ts"
       ]
     },
     "WP-eventing-plan-10-lan-household-mesh-consumer": {
