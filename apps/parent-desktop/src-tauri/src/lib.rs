@@ -10,11 +10,13 @@ use std::{
     time::Duration,
 };
 
+use ocentra_parent_agent_protocol::transport::AgentRoute;
 use ocentra_parent_agent_protocol::{
     constants, DeviceRoleRuntimeReadModel, DeviceRuntimeAiProviderState, DeviceRuntimeLocalAiClaim,
     DeviceRuntimeRole, DeviceRuntimeRoleEntry, DeviceRuntimeRoleState, DeviceRuntimeRouteState,
-    DeviceRuntimeSurface, LanPairingParentAuthority,
+    DeviceRuntimeSurface,
 };
+use ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceHealth;
 use ocentra_parent_runtime_core::parent_ui_bridge::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
 use ocentra_parent_runtime_core::parent_ui_bridge::{
     dispatch_parent_ui_action, load_parent_route_snapshot, parent_agent_service_health_for_address,
@@ -72,6 +74,11 @@ pub struct ParentDesktopPlatformProofState {
     service_state: String,
     agent_address: String,
     service_health_endpoint: String,
+    service_protocol_schema_version: Option<u16>,
+    service_version: Option<String>,
+    service_transport: Option<String>,
+    service_authentication_state: String,
+    service_route_state: String,
     runtime_readiness_state: String,
     controller_lease_state: String,
     device_role_state: DeviceRoleRuntimeReadModel,
@@ -161,8 +168,8 @@ impl ParentRouteSubscriptionRegistry {
 #[tauri::command]
 fn parent_platform_proof_state() -> ParentDesktopPlatformProofState {
     let agent_address = configured_agent_address();
-    let service_is_healthy = parent_agent_service_health_for_address(agent_address.0.as_str());
-    parent_platform_proof_state_for_connection(agent_address, service_is_healthy)
+    let service_health = parent_agent_service_health_for_address(agent_address.0.as_str());
+    parent_platform_proof_state_for_connection(agent_address, service_health)
 }
 
 #[tauri::command]
@@ -273,21 +280,21 @@ fn configured_agent_address() -> ParentDesktopAgentAddress {
 pub fn parent_platform_proof_state_for_address(
     agent_address: ParentDesktopAgentAddress,
 ) -> ParentDesktopPlatformProofState {
-    let service_connects = agent_service_connects(&agent_address);
-    parent_platform_proof_state_for_connection(agent_address, service_connects)
+    let service_health = parent_agent_service_health_for_address(&agent_address.0);
+    parent_platform_proof_state_for_connection(agent_address, service_health)
 }
 
 fn parent_platform_proof_state_for_connection(
     agent_address: ParentDesktopAgentAddress,
-    service_connects: bool,
+    service_health: ParentAgentServiceHealth,
 ) -> ParentDesktopPlatformProofState {
     let agent_address = agent_address.0;
-    let service_state = if service_connects {
+    let service_state = if service_health.is_ready() {
         constants::value::PARENT_DESKTOP_SERVICE_CONNECTED
     } else {
         constants::value::PARENT_DESKTOP_SERVICE_UNAVAILABLE
     };
-    let runtime_readiness_state = if service_connects {
+    let runtime_readiness_state = if service_health.is_ready() {
         constants::value::PARENT_DESKTOP_RUNTIME_READY
     } else {
         constants::value::PARENT_DESKTOP_RUNTIME_DEGRADED
@@ -296,9 +303,25 @@ fn parent_platform_proof_state_for_connection(
     ParentDesktopPlatformProofState {
         service_state: service_state.to_string(),
         agent_address,
-        service_health_endpoint: constants::endpoint::HEALTH.to_string(),
+        service_health_endpoint: constants::endpoint::DEV_WS.to_string(),
+        service_protocol_schema_version: service_health.protocol_schema_version,
+        service_version: service_health.service_version,
+        service_transport: service_health.transport,
+        service_authentication_state: match service_health.authentication_state {
+            ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceAuthenticationState::Unauthenticated =>
+                constants::value::LAN_AUTH_UNAUTHENTICATED.to_string(),
+            ocentra_parent_runtime_core::parent_service_health::ParentAgentServiceAuthenticationState::Unavailable =>
+                constants::value::PARENT_DESKTOP_AUTHENTICATION_MANUAL_REQUIRED.to_string(),
+        },
+        service_route_state: match service_health.route {
+            Some(AgentRoute::Localhost) => constants::value::DEVICE_RUNTIME_ROUTE_LOCALHOST,
+            Some(AgentRoute::LocalNetwork) => constants::value::DEVICE_RUNTIME_ROUTE_LOCAL_NETWORK,
+            Some(AgentRoute::CloudRelay) => constants::value::DEVICE_RUNTIME_ROUTE_CLOUD_RELAY,
+            None => constants::value::DEVICE_RUNTIME_ROUTE_MANUAL_REQUIRED,
+        }
+        .to_string(),
         runtime_readiness_state: runtime_readiness_state.to_string(),
-        controller_lease_state: constants::value::LAN_PARENT_AUTHORITY_ACTIVE_CONTROLLER
+        controller_lease_state: constants::value::PARENT_DESKTOP_CONTROLLER_LEASE_MANUAL_REQUIRED
             .to_string(),
         activity_adapter_state: service_state.to_string(),
         parent_assistant_provider_state: device_role_state.lan_ai_provider_state.clone(),
@@ -313,10 +336,10 @@ fn parent_platform_proof_state_for_connection(
         hmr_backend_state: constants::value::PARENT_DESKTOP_HMR_BACKEND_NOT_USED.to_string(),
         process_ownership_state: constants::value::PARENT_DESKTOP_PROCESS_OWNER_SHELL_ONLY
             .to_string(),
-        controller_route_state: constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_ACTIVE_CONTROLLER
+        controller_route_state: constants::value::PARENT_DESKTOP_CONTROLLER_ROUTE_MANUAL_REQUIRED
             .to_string(),
         observer_read_only_state: constants::value::PARENT_DESKTOP_OBSERVER_READ_ONLY.to_string(),
-        source_custody_state: constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_LIVE_LOCAL_NETWORK
+        source_custody_state: constants::value::PARENT_DESKTOP_SOURCE_CUSTODY_MANUAL_REQUIRED
             .to_string(),
         relay_route_state: constants::value::PARENT_DESKTOP_RELAY_ROUTE_UNAVAILABLE.to_string(),
         parent_cache_state: constants::value::PARENT_DESKTOP_PARENT_CACHE_UNAVAILABLE.to_string(),
@@ -389,25 +412,21 @@ fn parent_desktop_device_role_state() -> DeviceRoleRuntimeReadModel {
         physical_device_id: constants::local_ai_runtime::PHYSICAL_DEVICE_LOCAL.to_string(),
         surface: DeviceRuntimeSurface::ParentDesktop,
         platform: constants::local_ai_runtime::PLATFORM_OS_WINDOWS.to_string(),
-        roles: vec![
-            role_entry(DeviceRuntimeRole::ParentController),
-            role_entry(DeviceRuntimeRole::ChildAgent),
-            role_entry(DeviceRuntimeRole::AiProvider),
-        ],
-        primary_role: DeviceRuntimeRole::ParentController,
-        controller_lease_id: Some(constants::lan_pairing::CONTROLLER_LEASE_ID.to_string()),
-        parent_authority: Some(LanPairingParentAuthority::ActiveController),
-        selected_route_id: Some(constants::lan_pairing::ROUTE_ID_LOCAL_NETWORK.to_string()),
-        route_state: DeviceRuntimeRouteState::LocalNetwork,
-        lan_ai_provider_state: DeviceRuntimeAiProviderState::Degraded,
-        local_ai_runtime_claim: DeviceRuntimeLocalAiClaim::SharedPhysicalDeviceSingleton,
-        updated_at: constants::local_ai_runtime::TEST_CHECKED_AT.to_string(),
+        roles: vec![role_entry(DeviceRuntimeRole::ParentObserver)],
+        primary_role: DeviceRuntimeRole::ParentObserver,
+        controller_lease_id: None,
+        parent_authority: None,
+        selected_route_id: None,
+        route_state: DeviceRuntimeRouteState::ManualRequired,
+        lan_ai_provider_state: DeviceRuntimeAiProviderState::Unavailable,
+        local_ai_runtime_claim: DeviceRuntimeLocalAiClaim::Unavailable,
+        updated_at: constants::value::EMPTY.to_string(),
     }
 }
 
 fn role_entry(role: DeviceRuntimeRole) -> DeviceRuntimeRoleEntry {
     DeviceRuntimeRoleEntry {
         role,
-        state: DeviceRuntimeRoleState::Implemented,
+        state: DeviceRuntimeRoleState::ManualRequired,
     }
 }

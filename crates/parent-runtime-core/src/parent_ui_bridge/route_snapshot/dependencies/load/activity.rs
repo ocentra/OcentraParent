@@ -1,6 +1,5 @@
-use crate::agent_service_client::{
-    load_activity_screen_read_model_snapshot, load_tracking_read_model_snapshot,
-};
+use crate::agent_service_client::load_activity_screen_read_model_snapshot;
+use crate::agent_service_client::read_model_loaders::load_tracking_read_model_snapshot;
 use crate::parent_ui_bridge::route_requirements::{
     route_requires_screen_summary_read_model, route_requires_tracking_read_model,
 };

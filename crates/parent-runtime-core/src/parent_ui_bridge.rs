@@ -22,6 +22,12 @@ use ocentra_schema::parent_ui_bridge::{
 };
 use serde_json::Value;
 
+use crate::parent_service_health::ParentAgentServiceHealth;
+
+use crate::agent_service_client::health::{health_check_for_address, health_check_timeout_ms};
+use crate::agent_service_client::read_model_loaders::{
+    load_lan_runtime_event_chain_replay_events, load_policy_preview_read_model_snapshot,
+};
 use crate::agent_service_client::snapshots_lan::network_flow_snapshot_from_parts;
 use crate::agent_service_client::snapshots_network::response_json_payload_field;
 use crate::agent_service_client::types::{
@@ -39,9 +45,7 @@ use crate::agent_service_client::types::{
     ScreenReadModelAgentServiceSnapshot, TrackingReadModelAgentServiceSnapshot,
 };
 use crate::agent_service_client::{
-    dispatch_agent_command, dispatch_known_agent_command, health_check_for_address,
-    health_check_timeout_ms, load_lan_runtime_event_chain_replay_events,
-    load_network_flow_read_model_snapshot, load_policy_preview_read_model_snapshot,
+    dispatch_agent_command, dispatch_known_agent_command, load_network_flow_read_model_snapshot,
 };
 
 use self::lan_replay_rejection_episode::ParentRouteSubscriptionLoadState;
@@ -110,7 +114,7 @@ pub fn load_parent_route_snapshot(
     build_parent_route_snapshot(route, &lan_route_query, None, None)
 }
 
-pub fn parent_agent_service_health_for_address(agent_addr: &str) -> bool {
+pub fn parent_agent_service_health_for_address(agent_addr: &str) -> ParentAgentServiceHealth {
     health_check_for_address(agent_addr)
 }
 

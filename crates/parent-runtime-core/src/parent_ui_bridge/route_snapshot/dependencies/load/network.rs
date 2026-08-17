@@ -1,6 +1,6 @@
-use crate::agent_service_client::{
-    load_network_flow_read_model_snapshot, load_network_runtime_event_chain_stream_snapshot,
-    load_policy_preview_read_model_snapshot,
+use crate::agent_service_client::load_network_flow_read_model_snapshot;
+use crate::agent_service_client::read_model_loaders::{
+    load_network_runtime_event_chain_stream_snapshot, load_policy_preview_read_model_snapshot,
 };
 use crate::parent_ui_bridge::route_requirements::{
     route_requires_network_flow_read_model, route_requires_network_runtime_event_chain_stream,

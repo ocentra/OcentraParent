@@ -6,7 +6,7 @@ use std::{
 use ocentra_parent_agent_protocol::{
     constants,
     logging::{LogFieldValue, LogLevel},
-    transport::{AgentCommandEnvelope, AgentEventEnvelope, AgentEventName},
+    transport::{AgentCommandEnvelope, AgentEventEnvelope, AgentEventName, AgentRoute},
 };
 
 use crate::{
@@ -51,6 +51,25 @@ pub(crate) fn build_health_report(command: AgentCommandEnvelope) -> AgentEventEn
             (
                 constants::field::TRANSPORT,
                 LogFieldValue::String(constants::value::TRANSPORT_WEBSOCKET.to_string()),
+            ),
+            (
+                constants::field::COMMAND_TARGET_ROUTE,
+                LogFieldValue::String(
+                    match &command.target.route {
+                        AgentRoute::Localhost => constants::value::DEVICE_RUNTIME_ROUTE_LOCALHOST,
+                        AgentRoute::LocalNetwork => {
+                            constants::value::DEVICE_RUNTIME_ROUTE_LOCAL_NETWORK
+                        }
+                        AgentRoute::CloudRelay => {
+                            constants::value::DEVICE_RUNTIME_ROUTE_CLOUD_RELAY
+                        }
+                    }
+                    .to_string(),
+                ),
+            ),
+            (
+                constants::field::LAN_AUTHENTICATION_STATE,
+                LogFieldValue::String(constants::value::LAN_AUTH_UNAUTHENTICATED.to_string()),
             ),
         ]),
         Some(build_dev_log_snapshot()),
