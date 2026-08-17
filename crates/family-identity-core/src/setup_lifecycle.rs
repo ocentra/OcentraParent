@@ -218,17 +218,8 @@ pub struct RecoveryDecision {
 }
 
 pub fn authorize_setup_invite(input: SetupInviteInput) -> SetupInviteDecision {
-    if let Some(failure_reason) =
-        crate::setup_lifecycle_validation::setup_invite_failure_reason(&input)
-    {
-        return rejected_setup_invite(failure_reason);
-    }
-
-    SetupInviteDecision {
-        decision_state: SetupInviteDecisionState::Acceptable,
-        audit_requirement_state: AuditRequirementState::Required,
-        failure_reason: None,
-    }
+    crate::setup_lifecycle_validation::setup_invite_failure_reason(&input)
+        .map_or_else(acceptable_setup_invite, rejected_setup_invite)
 }
 
 pub fn evaluate_recovery_operation(input: RecoveryOperation) -> RecoveryDecision {
@@ -243,25 +234,24 @@ pub fn evaluate_recovery_operation(input: RecoveryOperation) -> RecoveryDecision
         crate::setup_lifecycle_validation::child_evidence_access_state(input);
     let data_custody_handoff_state =
         crate::setup_lifecycle_validation::data_custody_handoff_state(input);
-
-    if let Some(failure_reason) = crate::setup_lifecycle_validation::recovery_failure_reason(&input)
-    {
-        return rejected_recovery(
-            failure_reason,
+    crate::setup_lifecycle_validation::recovery_failure_reason(&input).map_or_else(
+        || RecoveryDecision {
+            decision_state: RecoveryDecisionState::Authorized,
             owner_approval_required,
+            audit_requirement_state: AuditRequirementState::Required,
             child_evidence_access_state,
             data_custody_handoff_state,
-        );
-    }
-
-    RecoveryDecision {
-        decision_state: RecoveryDecisionState::Authorized,
-        owner_approval_required,
-        audit_requirement_state: AuditRequirementState::Required,
-        child_evidence_access_state,
-        data_custody_handoff_state,
-        failure_reason: None,
-    }
+            failure_reason: None,
+        },
+        |failure_reason| RecoveryDecision {
+            decision_state: RecoveryDecisionState::Rejected,
+            owner_approval_required,
+            audit_requirement_state: AuditRequirementState::Required,
+            child_evidence_access_state,
+            data_custody_handoff_state,
+            failure_reason: Some(failure_reason),
+        },
+    )
 }
 
 pub fn device_trust_state_for_recovery_state(state: RecoveryState) -> DeviceTrustState {
@@ -282,26 +272,18 @@ pub fn device_trust_state_for_recovery_operation(input: RecoveryOperation) -> De
     }
 }
 
+fn acceptable_setup_invite() -> SetupInviteDecision {
+    SetupInviteDecision {
+        decision_state: SetupInviteDecisionState::Acceptable,
+        audit_requirement_state: AuditRequirementState::Required,
+        failure_reason: None,
+    }
+}
+
 fn rejected_setup_invite(failure_reason: SetupInviteFailureReason) -> SetupInviteDecision {
     SetupInviteDecision {
         decision_state: SetupInviteDecisionState::Rejected,
         audit_requirement_state: AuditRequirementState::Required,
-        failure_reason: Some(failure_reason),
-    }
-}
-
-fn rejected_recovery(
-    failure_reason: RecoveryFailureReason,
-    owner_approval_required: bool,
-    child_evidence_access_state: RecoveryChildEvidenceAccessState,
-    data_custody_handoff_state: RecoveryDataCustodyHandoffState,
-) -> RecoveryDecision {
-    RecoveryDecision {
-        decision_state: RecoveryDecisionState::Rejected,
-        owner_approval_required,
-        audit_requirement_state: AuditRequirementState::Required,
-        child_evidence_access_state,
-        data_custody_handoff_state,
         failure_reason: Some(failure_reason),
     }
 }
