@@ -75,4 +75,20 @@ Launchers can help identify games without becoming fake game-session proof.
   product capability checklist unchanged because this proof does not move the
   app/game control product row to complete.
 
+## 2026-08-17 Source-Wave Truth
+
+Production source is accepted on the integration branch. The recurring Windows
+capture now takes one process snapshot and shares its process-start generation
+across process, launcher, generic foreground, and app/game foreground evidence.
+Launcher child processes remain candidates unless deterministic or
+classifier-backed proof promotes them. Generic foreground evidence retains its
+window identity while app/game sessionization consumes the bound
+generation-safe process identity exactly once.
+
+This is source acceptance only. The expected-test wave must still refresh or
+add the launcher/candidate, missing-generation, targeted-PID, shared-snapshot,
+foreground-join, duplicate-session, and no-false-known-game cases before any
+focused execution or proof. None of the checklist or proof rows below are
+closed by this source integration.
+
 Use the standard checklist in [workpacks README](README.md).

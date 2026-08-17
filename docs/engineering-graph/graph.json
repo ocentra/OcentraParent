@@ -2202,12 +2202,12 @@
       "path": "docs/plans/app-game-plan/workpacks/10-launcher-evidence-and-game-candidate-model.md",
       "parent": "PLAN-app-game-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "app-game-plan",
         "indexPath": "docs/plans/app-game-plan/WORKPACK_INDEX.md",
-        "statusText": "checked",
+        "statusText": "active",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false

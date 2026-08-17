@@ -6199,12 +6199,17 @@
       "roots": [
         "crates/agent-protocol/src/app_game.rs",
         "crates/agent-protocol/src/app_game_authority_classifier.rs",
+        "crates/agent-protocol/src/constants/field.rs",
         "crates/agent-protocol/tests/unit/app_game_tests.rs",
         "crates/agent-protocol/tests/unit/app_game_evidence_identity_tests.rs",
         "crates/agent-protocol/tests/unit/app_game_authority_classifier_tests.rs",
         "crates/agent-core/src/activity_store_app_game",
+        "crates/agent-core/src/activity_store_app_game_observation_fields.rs",
+        "crates/agent-core/src/process_capture.rs",
+        "crates/agent-core/src/window_capture_event.rs",
         "crates/agent-core/tests/unit/activity_store_app_game",
         "crates/agent-service/src/activity_capture/app_game.rs",
+        "crates/agent-service/src/activity_capture/capture_events.rs",
         "crates/agent-service/tests/unit/app_game_activity_read_models.rs"
       ]
     },
