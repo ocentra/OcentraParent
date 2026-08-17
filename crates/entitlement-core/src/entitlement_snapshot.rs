@@ -154,6 +154,22 @@ pub enum EntitlementSnapshotVerificationFailure {
     AuthorityUnavailable,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EntitlementSnapshotDerivationError {
+    SeatLimitOverflow,
+}
+
+pub fn checked_effective_child_device_limit(
+    base_child_device_limit: u32,
+    active_referral_credits: u32,
+    paid_extra_child_device_seats: u32,
+) -> Result<u32, EntitlementSnapshotDerivationError> {
+    base_child_device_limit
+        .checked_add(active_referral_credits)
+        .and_then(|subtotal| subtotal.checked_add(paid_extra_child_device_seats))
+        .ok_or(EntitlementSnapshotDerivationError::SeatLimitOverflow)
+}
+
 pub trait EntitlementSnapshotAuthorityVerifier {
     fn verify_signature_and_revocation(
         &mut self,
@@ -229,6 +245,20 @@ fn validate_snapshot_shape(
         return Err(EntitlementSnapshotVerificationFailure::WrongPackageBuild);
     }
 
+    let expected_child_device_limit = checked_effective_child_device_limit(
+        snapshot.base_child_device_limit,
+        snapshot.active_referral_credits,
+        snapshot.paid_extra_child_device_seats,
+    )
+    .map_err(|_error| EntitlementSnapshotVerificationFailure::InvalidSnapshotShape)?;
+    (
+        snapshot.effective_child_device_limit,
+        snapshot.limits.child_device_limit,
+    )
+        .eq(&(expected_child_device_limit, expected_child_device_limit))
+        .then_some(())
+        .ok_or(EntitlementSnapshotVerificationFailure::InvalidSnapshotShape)?;
+
     let issued_at = parse_snapshot_timestamp(&snapshot.issued_at)?;
     let expires_at = parse_snapshot_timestamp(&snapshot.expires_at)?;
     let observed_at = parse_snapshot_timestamp(&request.observed_at)?;
@@ -252,12 +282,14 @@ fn parse_snapshot_timestamp(
 
 pub fn derive_signed_entitlement_snapshot(
     input: EntitlementSnapshotDerivationInput,
-) -> SignedEntitlementSnapshot {
-    let effective_child_device_limit = input.billing_ledger_state.base_child_device_limit
-        + input.referral_ledger_state.active_referral_credits
-        + input.billing_ledger_state.paid_extra_child_device_seats;
+) -> Result<SignedEntitlementSnapshot, EntitlementSnapshotDerivationError> {
+    let effective_child_device_limit = checked_effective_child_device_limit(
+        input.billing_ledger_state.base_child_device_limit,
+        input.referral_ledger_state.active_referral_credits,
+        input.billing_ledger_state.paid_extra_child_device_seats,
+    )?;
 
-    SignedEntitlementSnapshot {
+    Ok(SignedEntitlementSnapshot {
         schema_version: ENTITLEMENT_SNAPSHOT_SCHEMA_VERSION,
         snapshot_id: input.snapshot_id,
         account_ref: input.entitlement_ledger_state.account_ref,
@@ -281,7 +313,7 @@ pub fn derive_signed_entitlement_snapshot(
         package_build_ref: input.entitlement_ledger_state.package_build_ref,
         signature_key_id: input.signature_key_id,
         signature: input.signature,
-    }
+    })
 }
 
 pub fn snapshot_context_from_signed_snapshot(
