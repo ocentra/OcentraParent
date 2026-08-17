@@ -25,9 +25,9 @@ export interface VerifiedAccountIdentityAuthorityCapability {
   readonly sessionId: string;
   readonly sessionGeneration: number;
   readonly authorityGeneration: number;
-  readonly supportScope: NonNullable<
-    AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']
-  >['scope'] | null;
+  readonly supportScope:
+    | NonNullable<AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']>['scope']
+    | null;
   readonly supportIssuer: string | null;
   readonly supportAuditIdentity: string | null;
   toEvidenceJson(): string;
@@ -48,9 +48,9 @@ class VerifiedAccountIdentityAuthorityCapabilityImpl implements VerifiedAccountI
     sessionId: string;
     sessionGeneration: number;
     authorityGeneration: number;
-    supportScope: NonNullable<
-      AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']
-    >['scope'] | null;
+    supportScope:
+      | NonNullable<AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']>['scope']
+      | null;
     supportIssuer: string | null;
     supportAuditIdentity: string | null;
   };
@@ -125,9 +125,9 @@ class VerifiedAccountIdentityAuthorityCapabilityImpl implements VerifiedAccountI
     return this.#provenance.authorityGeneration;
   }
 
-  get supportScope(): NonNullable<
-    AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']
-  >['scope'] | null {
+  get supportScope():
+    | NonNullable<AccountIdentityCurrentMemberDeviceAuthorityHandoff['member']['supportReceipt']>['scope']
+    | null {
     return this.#provenance.supportScope;
   }
 

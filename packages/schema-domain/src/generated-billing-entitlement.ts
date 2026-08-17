@@ -155,9 +155,9 @@ export const BillingEntitlementSeatCompositionSchema = withParser(
             composition.paidExtraChildDeviceSeats <=
             4_294_967_295 &&
           composition.effectiveChildDeviceLimit ===
-             composition.baseChildDeviceLimit +
-               composition.activeReferralCredits +
-               composition.paidExtraChildDeviceSeats) ||
+            composition.baseChildDeviceLimit +
+              composition.activeReferralCredits +
+              composition.paidExtraChildDeviceSeats) ||
         'Expected effective child-device limit to equal base seats plus active referral credits plus paid extra child-device seats within u32 range'
     )
   )

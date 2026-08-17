@@ -31,9 +31,7 @@ export const AccountIdentityDeviceTrustStateSchema = withParser(
   Schema.Literal('pending', 'trusted', 'revoked', 'reset-required', 'disabled')
 );
 export const AccountIdentitySessionFreshnessStateSchema = withParser(Schema.Literal('fresh', 'stale', 'expired'));
-export const AccountIdentitySupportScopeSchema = withParser(
-  Schema.Literal('read-only', 'household', 'device-control')
-);
+export const AccountIdentitySupportScopeSchema = withParser(Schema.Literal('read-only', 'household', 'device-control'));
 export const AccountIdentitySupportReceiptRevocationStateSchema = withParser(Schema.Literal('active', 'revoked'));
 export const AccountIdentityPairingStateSchema = withParser(Schema.Literal('pending', 'paired', 'unpaired'));
 export const AccountIdentityInstallStateSchema = withParser(Schema.Literal('pending', 'installed', 'failed'));
