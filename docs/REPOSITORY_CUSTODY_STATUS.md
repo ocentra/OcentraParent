@@ -8,13 +8,13 @@ not plan completion, test proof, or release approval.
 
 | Surface | Verified state |
 | --- | --- |
-| Consolidated source | The current integration lane is `codex/eventing-wp09-production`, pushed at `37122d94f169f7f73dd018de835dd9dded13d5bf`. Since the earlier `c970ce896` custody checkpoint it has integrated reviewed Device Trust WP01 current-signer accessors, the Eventing WP11 generic-envelope type repair, and the Account WP01 / Cloudflare WP05 Firebase subject-verification packet. The Firebase path fails closed on expired JWKS cache and remains `manual-required` until WP06 supplies server-derived family/device binding context. The batch is remote-safe and no longer exists only on this machine. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
+| Consolidated source | The current integration lane is `codex/eventing-wp09-production`, pushed at `48a82513678a4ce61a3cb132606f10ea63b036a4` before this final custody update. Since the earlier `c970ce896` checkpoint it has integrated reviewed Device Trust WP01 current-signer accessors, the Eventing WP11 generic-envelope type repair, and the Account WP01 / Cloudflare WP05 Firebase subject-verification packet. The Firebase path fails closed on expired JWKS cache and remains `manual-required` until WP06 supplies server-derived family/device binding context. The older `codex/app-game-plan-code-audit` tip was verified as an ancestor and then deleted locally/remotely. |
 | Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; integration checkpoint `37122d94f` is 219 commits ahead of `main` and 216 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
 | Pull requests | Zero open pull requests. No current CI or merge claim exists for the integration checkpoint; PR CI starts only after a scoped promotion PR is opened. |
-| Local work branches | `codex/app-game-plan-code-audit` and `codex/eventing-wp09-production` only. |
-| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` at pushed integration checkpoint `37122d94f`. The Device Trust, Eventing WP11, and Account/Firebase temporary E: worktrees were removed only after push and exact-path patch-equivalence checks. No registered OcentraParent worktree exists on C:. |
+| Local work branches | `codex/eventing-wp09-production` is the only live local work branch. `E:/OcentraParent` is checked out on protected base `develop`. |
+| Registered worktrees | `E:/OcentraParent` is on `develop` at `4ece515282`; `E:/OcentraWorktrees/lanes/eventing-wp09-production` is the single integration worktree at `48a825136` before this update. The Device Trust, Eventing WP11, and Account/Firebase temporary E: worktrees were removed only after push and exact-path patch-equivalence checks. No registered OcentraParent worktree exists on C:. |
 | C drive | No OcentraParent worktree remains under `C:/Users/sujan/.codex/worktrees`; only unrelated Enforcer and Ocentra Games entries remain there. |
-| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` is `37122d94f` before this custody-record commit. The temporary Device Trust, Eventing WP11, and Account/Firebase remote branches were deleted after their reviewed source became patch-equivalent in the integration branch. Both surviving local branches match their remote checkpoints after this record is pushed. |
+| Remote work branches | `origin/codex/eventing-wp09-production` is the only live remote work branch. The redundant app-game coordination branch and temporary Device Trust, Eventing WP11, and Account/Firebase branches were deleted only after their work was verified in the pushed integration branch. The two remaining `codex/archive/*` refs are protected safety archives, not work branches. |
 | Remote safety archives | Protected `codex/archive/all-remote-tips-20260815` plus protected complete archive `codex/archive/all-local-remote-tips-20260816` at `ac9f65bb4`. |
 | Stashes | One local stash remains: the intentional Eventing WP09 draft. The 129 rejected historical entries were dropped locally only after all 130 commits were made reachable from the complete 2026-08-16 remote archive. |
 | Executable graph | Valid at 705 nodes / 745 edges, 23 plans / 681 workpacks, with states 366 planned, 21 blocked, 2 ready, 2 active, 289 validation, and 1 done. The new Firebase provider files are mapped to Cloudflare WP05. Mapping remains topology, not semantic completion. |
@@ -35,7 +35,7 @@ protected, so it remains as an additional historical safety point.
 
 ## Branch and worktree reconciliation
 
-Thirteen superseded remote work branches and fourteen superseded local branches
+Fourteen superseded remote work branches and fifteen superseded local branches
 were removed only after patch-equivalence/source review and after the complete
 archive was pushed and verified. Their production fixes were already present
 in the consolidated head; stale branch baselines were not merged. The sole
