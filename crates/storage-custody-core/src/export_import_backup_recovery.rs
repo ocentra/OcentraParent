@@ -11,44 +11,44 @@ mod export_import_backup_recovery_import;
 mod export_import_backup_recovery_restore;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ExportBundleBuildRequest {
-    pub bundle_id: contracts::ExportImportBundleId,
-    pub product_version: contracts::ExportImportProductVersion,
-    pub created_at: contracts::ExportImportTimestamp,
-    pub household: contracts::ExportImportHouseholdReference,
-    pub source_device_id: Option<contracts::ExportImportDeviceId>,
-    pub bundle_type: contracts::ExportImportBundleType,
-    pub key_ref: contracts::ExportImportKeyRef,
-    pub manifest_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
-    pub tombstone_cursor: Option<contracts::ExportImportTombstoneCursor>,
-    pub retention_notes: Vec<String>,
-    pub proof_tier: contracts::ExportImportProofTier,
-    pub migration_ref: Option<contracts::ExportImportMigrationRef>,
+pub(crate) struct ExportBundleBuildRequest {
+    pub(crate) bundle_id: contracts::ExportImportBundleId,
+    pub(crate) product_version: contracts::ExportImportProductVersion,
+    pub(crate) created_at: contracts::ExportImportTimestamp,
+    pub(crate) household: contracts::ExportImportHouseholdReference,
+    pub(crate) source_device_id: Option<contracts::ExportImportDeviceId>,
+    pub(crate) bundle_type: contracts::ExportImportBundleType,
+    pub(crate) key_ref: contracts::ExportImportKeyRef,
+    pub(crate) manifest_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
+    pub(crate) tombstone_cursor: Option<contracts::ExportImportTombstoneCursor>,
+    pub(crate) retention_notes: Vec<String>,
+    pub(crate) proof_tier: contracts::ExportImportProofTier,
+    pub(crate) migration_ref: Option<contracts::ExportImportMigrationRef>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ExportPayloadSectionInput {
-    pub data_class: contracts::ExportImportDataClass,
-    pub payload_ref: contracts::ExportImportPayloadRef,
-    pub payload_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
-    pub encrypted: bool,
-    pub retention_state: contracts::ExportImportSectionRetentionState,
-    pub support_default_decryptable: bool,
-    pub included_in_human_summary: bool,
-    pub notes: String,
+pub(crate) struct ExportPayloadSectionInput {
+    pub(crate) data_class: contracts::ExportImportDataClass,
+    pub(crate) payload_ref: contracts::ExportImportPayloadRef,
+    pub(crate) payload_integrity_ref: Option<contracts::ExportImportIntegrityRef>,
+    pub(crate) encrypted: bool,
+    pub(crate) retention_state: contracts::ExportImportSectionRetentionState,
+    pub(crate) support_default_decryptable: bool,
+    pub(crate) included_in_human_summary: bool,
+    pub(crate) notes: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ExportHumanSummaryInput {
-    pub headline: String,
-    pub excluded_data_classes: Vec<contracts::ExportImportDataClass>,
-    pub raw_payload_redacted: bool,
-    pub support_safe: bool,
-    pub notes: String,
+pub(crate) struct ExportHumanSummaryInput {
+    pub(crate) headline: String,
+    pub(crate) excluded_data_classes: Vec<contracts::ExportImportDataClass>,
+    pub(crate) raw_payload_redacted: bool,
+    pub(crate) support_safe: bool,
+    pub(crate) notes: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum ExportBundleBuildError {
+pub(crate) enum ExportBundleBuildError {
     EmptySections,
     MissingManifestIntegrity,
     MissingPayloadIntegrity(contracts::ExportImportDataClass),
@@ -59,18 +59,22 @@ pub enum ExportBundleBuildError {
     SummaryMustBeSupportSafe,
 }
 
+/// Import context is assembled by the storage owner, never from a wire or UI
+/// payload. No public constructor exists until durable key and integrity
+/// custody is available, so callers cannot mint an accepted preview from
+/// booleans.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ImportBundleContext {
-    pub local_household_id: contracts::ExportImportHouseholdId,
-    pub local_product_version: contracts::ExportImportProductVersion,
-    pub available_key_refs: Vec<contracts::ExportImportKeyRef>,
-    pub supported_schema_versions: Vec<String>,
-    pub blocked_restore_data_classes: Vec<contracts::ExportImportDataClass>,
-    pub known_device_ids: Vec<contracts::ExportImportDeviceId>,
-    pub target_device_id: Option<contracts::ExportImportDeviceId>,
-    pub migration_supported: bool,
-    pub manifest_integrity_ok: bool,
-    pub payload_integrity_failures: Vec<contracts::ExportImportDataClass>,
+pub(crate) struct ImportBundleContext {
+    pub(crate) local_household_id: contracts::ExportImportHouseholdId,
+    pub(crate) local_product_version: contracts::ExportImportProductVersion,
+    pub(crate) available_key_refs: Vec<contracts::ExportImportKeyRef>,
+    pub(crate) supported_schema_versions: Vec<String>,
+    pub(crate) blocked_restore_data_classes: Vec<contracts::ExportImportDataClass>,
+    pub(crate) known_device_ids: Vec<contracts::ExportImportDeviceId>,
+    pub(crate) target_device_id: Option<contracts::ExportImportDeviceId>,
+    pub(crate) migration_supported: bool,
+    pub(crate) manifest_integrity_ok: bool,
+    pub(crate) payload_integrity_failures: Vec<contracts::ExportImportDataClass>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -78,23 +82,26 @@ pub struct RestoreApplyRequest {
     pub confirmed: bool,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct RestoreExecutorReceipt {
-    pub execution_ref: String,
-    pub state: contracts::ExportImportRestoreApplyState,
-    pub applied_sections: Vec<contracts::ExportImportSectionDecision>,
-    pub rejected_sections: Vec<contracts::ExportImportSectionDecision>,
-    pub idempotent: bool,
-    pub tombstones_preserved: bool,
-    pub duplicates_created: bool,
+/// An executor receipt is an internal post-side-effect result. Keeping it
+/// non-cloneable and crate-private prevents callers from manufacturing or
+/// replaying a restore result outside the owner boundary.
+#[derive(Debug, PartialEq, Eq)]
+pub(crate) struct RestoreExecutorReceipt {
+    pub(crate) execution_ref: String,
+    pub(crate) state: contracts::ExportImportRestoreApplyState,
+    pub(crate) applied_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) rejected_sections: Vec<contracts::ExportImportSectionDecision>,
+    pub(crate) idempotent: bool,
+    pub(crate) tombstones_preserved: bool,
+    pub(crate) duplicates_created: bool,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum RestoreExecutorFailure {
+pub(crate) enum RestoreExecutorFailure {
     Unavailable,
 }
 
-pub trait RestoreExecutor {
+pub(crate) trait RestoreExecutor {
     fn execute_restore(
         &mut self,
         preflight: &contracts::ExportImportImportPreflight,
@@ -103,7 +110,7 @@ pub trait RestoreExecutor {
 }
 
 #[derive(Debug, Default)]
-pub struct UnavailableRestoreExecutor;
+pub(crate) struct UnavailableRestoreExecutor;
 
 impl RestoreExecutor for UnavailableRestoreExecutor {
     fn execute_restore(
@@ -115,7 +122,7 @@ impl RestoreExecutor for UnavailableRestoreExecutor {
     }
 }
 
-pub fn derive_export_bundle(
+pub(crate) fn derive_export_bundle(
     request: ExportBundleBuildRequest,
     sections: Vec<ExportPayloadSectionInput>,
     summary: ExportHumanSummaryInput,
@@ -123,7 +130,7 @@ pub fn derive_export_bundle(
     export_import_backup_recovery_build::derive_export_bundle(request, sections, summary)
 }
 
-pub fn run_import_preflight(
+pub(crate) fn run_import_preflight(
     bundle: &contracts::ExportImportRecoveryBundle,
     context: &ImportBundleContext,
 ) -> contracts::ExportImportImportPreflight {
@@ -137,7 +144,7 @@ pub fn apply_restore(
     export_import_backup_recovery_restore::blocked_restore(preflight, request)
 }
 
-pub fn apply_restore_with_parent_authority(
+pub(crate) fn apply_restore_with_parent_authority(
     preflight: &contracts::ExportImportImportPreflight,
     context: &ImportBundleContext,
     request: &RestoreApplyRequest,
@@ -153,7 +160,7 @@ pub fn apply_restore_with_parent_authority(
     )
 }
 
-pub fn apply_restore_with_parent_authority_and_executor(
+pub(crate) fn apply_restore_with_parent_authority_and_executor(
     preflight: &contracts::ExportImportImportPreflight,
     context: &ImportBundleContext,
     request: &RestoreApplyRequest,

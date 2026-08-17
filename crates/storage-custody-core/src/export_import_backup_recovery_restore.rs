@@ -64,6 +64,7 @@ fn receipt_is_coherent(
         || receipt.duplicates_created
         || !preflight_is_applicable(preflight)
         || has_duplicate_data_classes(&receipt.applied_sections, &receipt.rejected_sections)
+        || !receipt_sections_match_preflight(preflight, receipt)
         || receipt
             .applied_sections
             .iter()
@@ -138,5 +139,27 @@ fn all_preflight_sections_are_reported(
             receipt_sections
                 .clone()
                 .any(|actual| actual.data_class == expected.data_class)
+        })
+}
+
+fn receipt_sections_match_preflight(
+    preflight: &contracts::ExportImportImportPreflight,
+    receipt: &RestoreExecutorReceipt,
+) -> bool {
+    let expected_sections = preflight
+        .accepted_sections
+        .iter()
+        .chain(preflight.rejected_sections.iter())
+        .collect::<Vec<_>>();
+    let receipt_sections = receipt
+        .applied_sections
+        .iter()
+        .chain(receipt.rejected_sections.iter())
+        .collect::<Vec<_>>();
+    receipt_sections.len() == expected_sections.len()
+        && receipt_sections.iter().all(|actual| {
+            expected_sections
+                .iter()
+                .any(|expected| expected.data_class == actual.data_class)
         })
 }
