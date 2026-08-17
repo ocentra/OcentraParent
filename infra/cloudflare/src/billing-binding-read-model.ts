@@ -5,7 +5,12 @@ import type {
   KVNamespace,
   R2Bucket,
 } from '@cloudflare/workers-types';
-import type { BillingReferralSummary } from './generated/billing-contracts.js';
+import { BillingEntitlementSeatCompositionSchema } from '@ocentra-parent/schema-domain/billing-entitlement';
+import {
+  NonNegativeBillingCountSchema,
+  PositiveBillingLimitSchema,
+} from '@ocentra-parent/schema-domain/billing-entitlement-values';
+import { BillingReferralSummarySchema, type BillingReferralSummary } from './generated/billing-contracts.js';
 import type { Env } from './env.js';
 import {
   buildBillingInvoices,
@@ -28,6 +33,7 @@ import {
   type BillingEntitlementSnapshotSummary,
   type BillingInvoiceSummary,
   type BillingLicenseDecisionSummary,
+  type BillingSeatCompositionSummary,
   type BillingStatusSummary,
   type PricingPlanSummary,
 } from './fixtures.js';
@@ -66,9 +72,7 @@ const SELECT_STATUS_BY_SUBJECT_SQL = normalizeSql('SELECT payload_json FROM bill
 const SELECT_INVOICES_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_invoices WHERE subject = ?1 ORDER BY invoice_id'
 );
-const SELECT_INVOICE_SUBJECT_SQL = normalizeSql(
-  'SELECT subject FROM billing_invoices WHERE invoice_id = ?1 LIMIT 1'
-);
+const SELECT_INVOICE_SUBJECT_SQL = normalizeSql('SELECT subject FROM billing_invoices WHERE invoice_id = ?1 LIMIT 1');
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_referrals WHERE subject = ?1 LIMIT 1'
 );
@@ -128,6 +132,148 @@ export class BillingReadModelUnavailableError extends Error {
     super(`${this.code}:${scope}`);
     this.name = 'BillingReadModelUnavailableError';
   }
+}
+
+type CanonicalBillingSeatComposition = ReturnType<typeof BillingEntitlementSeatCompositionSchema.parse>;
+
+function decodeCanonicalValue<T>(scope: string, decode: () => T): T {
+  try {
+    return decode();
+  } catch (_error) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+}
+
+function payloadRecord(value: unknown, scope: string): Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid`);
+  }
+  return value as Record<string, unknown>;
+}
+
+function decodeBillingLimit(value: unknown, scope: string): number {
+  return decodeCanonicalValue(scope, () => PositiveBillingLimitSchema.parse(value));
+}
+
+function decodeBillingCount(value: unknown, scope: string): number {
+  return decodeCanonicalValue(scope, () => NonNegativeBillingCountSchema.parse(value));
+}
+
+function decodeBillingSeatComposition(value: unknown, scope: string): BillingSeatCompositionSummary {
+  const record = payloadRecord(value, scope);
+  const composition = decodeCanonicalValue(scope, () =>
+    BillingEntitlementSeatCompositionSchema.parse({
+      baseChildDeviceLimit: record.baseIncludedSeats,
+      activeReferralCredits: record.activeReferralCredits,
+      paidExtraChildDeviceSeats: record.paidExtraSeats,
+      effectiveChildDeviceLimit: record.effectiveLimit,
+    })
+  );
+
+  return {
+    baseIncludedSeats: composition.baseChildDeviceLimit,
+    activeReferralCredits: composition.activeReferralCredits,
+    paidExtraSeats: composition.paidExtraChildDeviceSeats,
+    effectiveLimit: composition.effectiveChildDeviceLimit,
+    availableDeviceSlots: decodeBillingCount(record.availableDeviceSlots, `${scope}-available-device-slots`),
+  };
+}
+
+function decodePricingPlan(value: unknown, scope: string): PricingPlanSummary {
+  const record = payloadRecord(value, scope);
+  const deviceLimit = decodeBillingLimit(record.deviceLimit, `${scope}-device-limit`);
+  return { ...record, deviceLimit } as unknown as PricingPlanSummary;
+}
+
+function decodeBillingStatusSummary(value: unknown, scope: string): BillingStatusSummary {
+  const record = payloadRecord(value, scope);
+  const plan = decodePricingPlan(record.plan, `${scope}-plan`);
+  const deviceUsage = payloadRecord(record.deviceUsage, `${scope}-device-usage`);
+  const seatComposition = decodeBillingSeatComposition(record.seatComposition, `${scope}-seat-composition`);
+  const activeDevices = decodeBillingCount(deviceUsage.activeDevices, `${scope}-active-devices`);
+  const trustedDevices = decodeBillingCount(deviceUsage.trustedDevices, `${scope}-trusted-devices`);
+  const deviceUsageLimit = decodeBillingLimit(deviceUsage.limit, `${scope}-device-usage-limit`);
+
+  if (plan.deviceLimit !== seatComposition.effectiveLimit || deviceUsageLimit !== seatComposition.effectiveLimit) {
+    throw new BillingReadModelUnavailableError(`${scope}-limit-mismatch`);
+  }
+
+  return {
+    ...record,
+    plan,
+    deviceUsage: {
+      ...deviceUsage,
+      activeDevices,
+      trustedDevices,
+      limit: deviceUsageLimit,
+    },
+    seatComposition,
+  } as unknown as BillingStatusSummary;
+}
+
+function decodeBillingEntitlementSnapshot(value: unknown, scope: string): BillingEntitlementSnapshotSummary {
+  const record = payloadRecord(value, scope);
+  return {
+    ...record,
+    deviceLimit: decodeBillingLimit(record.deviceLimit, `${scope}-device-limit`),
+    activeDevices: decodeBillingCount(record.activeDevices, `${scope}-active-devices`),
+    trustedDevices: decodeBillingCount(record.trustedDevices, `${scope}-trusted-devices`),
+    availableDeviceSlots: decodeBillingCount(record.availableDeviceSlots, `${scope}-available-device-slots`),
+  } as unknown as BillingEntitlementSnapshotSummary;
+}
+
+function decodeBillingReferralSummary(value: unknown, scope: string): BillingReferralSummary {
+  const decoded = decodeCanonicalValue(scope, () => BillingReferralSummarySchema.parse(value));
+  return {
+    ...decoded,
+    availableCredits: decodeBillingCount(decoded.availableCredits, `${scope}-available-credits`),
+    activeReferredParents: decodeBillingCount(decoded.activeReferredParents, `${scope}-active-referred-parents`),
+    pendingInvites: decodeBillingCount(decoded.pendingInvites, `${scope}-pending-invites`),
+  };
+}
+
+function remainingBillingSlots(limit: unknown, activeDevices: unknown, scope: string): number {
+  const decodedLimit = decodeBillingLimit(limit, `${scope}-limit`);
+  const decodedActiveDevices = decodeBillingCount(activeDevices, `${scope}-active-devices`);
+  return decodedLimit >= decodedActiveDevices ? decodedLimit - decodedActiveDevices : 0;
+}
+
+function incrementBillingCount(value: unknown, scope: string): number {
+  const decodedValue = decodeBillingCount(value, `${scope}-current`);
+  return decodeBillingCount(decodedValue + 1, scope);
+}
+
+function sumBillingCounts(left: unknown, right: unknown, scope: string): number {
+  const decodedLeft = decodeBillingCount(left, `${scope}-left`);
+  const decodedRight = decodeBillingCount(right, `${scope}-right`);
+  return decodeBillingCount(decodedLeft + decodedRight, scope);
+}
+
+function targetPlanSeatComposition(
+  status: BillingStatusSummary,
+  targetPlanDeviceLimit: number,
+  scope: string
+): CanonicalBillingSeatComposition {
+  const baseChildDeviceLimit = decodeBillingCount(status.seatComposition.baseIncludedSeats, `${scope}-base-seats`);
+  const activeReferralCredits = decodeBillingCount(
+    status.seatComposition.activeReferralCredits,
+    `${scope}-referral-credits`
+  );
+  if (
+    targetPlanDeviceLimit < baseChildDeviceLimit ||
+    targetPlanDeviceLimit - baseChildDeviceLimit < activeReferralCredits
+  ) {
+    throw new BillingReadModelUnavailableError(`${scope}-referral-seat-over-limit`);
+  }
+  const paidExtraChildDeviceSeats = targetPlanDeviceLimit - baseChildDeviceLimit - activeReferralCredits;
+  return decodeCanonicalValue(scope, () =>
+    BillingEntitlementSeatCompositionSchema.parse({
+      baseChildDeviceLimit,
+      activeReferralCredits,
+      paidExtraChildDeviceSeats,
+      effectiveChildDeviceLimit: targetPlanDeviceLimit,
+    })
+  );
 }
 
 function isLocalFixtureEnvironment(env: Env): boolean {
@@ -279,8 +425,16 @@ function parsePayload<T>(payloadJson: string): T {
   return JSON.parse(payloadJson) as T;
 }
 
-function parsePayloadRow<T>(row: PayloadJsonRow | null): T | null {
-  return row === null ? null : parsePayload<T>(row.payload_json);
+function parseUnknownPayload(payloadJson: string, scope: string): unknown {
+  try {
+    return JSON.parse(payloadJson);
+  } catch (_error) {
+    throw new BillingReadModelUnavailableError(`${scope}-invalid-json`);
+  }
+}
+
+function parseUnknownPayloadRow(row: PayloadJsonRow | null, scope: string): unknown | null {
+  return row === null ? null : parseUnknownPayload(row.payload_json, scope);
 }
 
 function parsePayloadRows<T>(rows: ReadonlyArray<PayloadJsonRow>): ReadonlyArray<T> {
@@ -446,7 +600,13 @@ class LocalD1Statement implements D1PreparedStatement {
       case UPSERT_STATUS_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.statusBySubject.set(subject, parsePayload<BillingStatusSummary>(payloadJson));
+        this.state.statusBySubject.set(
+          subject,
+          decodeBillingStatusSummary(
+            parseUnknownPayload(payloadJson, `billing-status:${subject}`),
+            `billing-status:${subject}`
+          )
+        );
         return;
       }
       case UPSERT_INVOICE_SQL: {
@@ -463,13 +623,25 @@ class LocalD1Statement implements D1PreparedStatement {
       case UPSERT_REFERRAL_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.referralsBySubject.set(subject, parsePayload<BillingReferralSummary>(payloadJson));
+        this.state.referralsBySubject.set(
+          subject,
+          decodeBillingReferralSummary(
+            parseUnknownPayload(payloadJson, `billing-referral:${subject}`),
+            `billing-referral:${subject}`
+          )
+        );
         return;
       }
       case UPSERT_SNAPSHOT_SQL: {
         const subject = String(this.values[0] ?? '');
         const payloadJson = String(this.values[1] ?? '{}');
-        this.state.snapshotsBySubject.set(subject, parsePayload<BillingEntitlementSnapshotSummary>(payloadJson));
+        this.state.snapshotsBySubject.set(
+          subject,
+          decodeBillingEntitlementSnapshot(
+            parseUnknownPayload(payloadJson, `billing-entitlement-snapshot:${subject}`),
+            `billing-entitlement-snapshot:${subject}`
+          )
+        );
         return;
       }
       case UPSERT_ADMIN_ACCOUNT_SQL: {
@@ -744,12 +916,7 @@ async function updateAdminAccountProjection(env: Env, status: BillingStatusSumma
 }
 
 type ProviderWebhookTransition =
-  | 'activate-subscription'
-  | 'enter-grace'
-  | 'dispute-opened'
-  | 'dispute-lost'
-  | 'dispute-won'
-  | 'ignore';
+  'activate-subscription' | 'enter-grace' | 'dispute-opened' | 'dispute-lost' | 'dispute-won' | 'ignore';
 
 function providerWebhookTransition(eventType: string): ProviderWebhookTransition {
   if (
@@ -917,13 +1084,18 @@ function includesQuery(values: ReadonlyArray<string>, query: string): boolean {
 export async function loadPricingPlans(env: Env): Promise<ReadonlyArray<PricingPlanSummary>> {
   await ensureReadModelSeed(env);
   requireProductionBinding(env, 'BILLING_CONFIG_KV');
-  const plans = await env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, 'json');
+  let plans: unknown;
+  try {
+    plans = await env.BILLING_CONFIG_KV?.get(PRICING_PLANS_KEY, 'json');
+  } catch (_error) {
+    throw new BillingReadModelUnavailableError('billing-pricing-plans-invalid-json');
+  }
   await recordBindingRead(env, 'pricing-public', null);
   if (Array.isArray(plans)) {
-    return plans as ReadonlyArray<PricingPlanSummary>;
+    return plans.map((plan, index) => decodePricingPlan(plan, `billing-pricing-plan-${index}`));
   }
   if (isLocalFixtureEnvironment(env)) {
-    return LOCAL_PRICING_PLANS;
+    return LOCAL_PRICING_PLANS.map((plan, index) => decodePricingPlan(plan, `billing-local-pricing-plan-${index}`));
   }
   throw new BillingReadModelUnavailableError('billing-pricing-plans-missing');
 }
@@ -957,14 +1129,14 @@ export async function loadLocalSeedSummary(env: Env): Promise<{
 export async function loadBillingStatusSummary(env: Env, subject: string): Promise<BillingStatusSummary> {
   await ensureReadModelSeed(env);
   requireProductionBinding(env, 'BILLING_D1');
-  const stored = parsePayloadRow<BillingStatusSummary>(
-    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject)
+  const storedPayload = parseUnknownPayloadRow(
+    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_STATUS_BY_SUBJECT_SQL, subject),
+    `billing-status:${subject}`
   );
   await recordBindingRead(env, 'billing-status', subject);
-  return (
-    requireProductionRecord(env, stored, `billing-status-row-missing:${subject}`) ??
-    buildBillingStatusSummary(subject, env)
-  );
+  const stored = storedPayload === null ? null : decodeBillingStatusSummary(storedPayload, `billing-status:${subject}`);
+  const required = requireProductionRecord(env, stored, `billing-status-row-missing:${subject}`);
+  return required ?? decodeBillingStatusSummary(buildBillingStatusSummary(subject, env), `billing-status:${subject}`);
 }
 
 export async function loadBillingInvoices(env: Env, subject: string): Promise<ReadonlyArray<BillingInvoiceSummary>> {
@@ -997,14 +1169,15 @@ export async function findBillingInvoiceSubject(env: Env, invoiceId: string): Pr
 export async function loadBillingReferralSummary(env: Env, subject: string): Promise<BillingReferralSummary> {
   await ensureReadModelSeed(env);
   requireProductionBinding(env, 'BILLING_D1');
-  const stored = parsePayloadRow<BillingReferralSummary>(
-    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_REFERRAL_BY_SUBJECT_SQL, subject)
+  const storedPayload = parseUnknownPayloadRow(
+    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_REFERRAL_BY_SUBJECT_SQL, subject),
+    `billing-referral:${subject}`
   );
   await recordBindingRead(env, 'billing-referrals', subject);
-  return (
-    requireProductionRecord(env, stored, `billing-referral-row-missing:${subject}`) ??
-    buildBillingReferralSummary(subject)
-  );
+  const stored =
+    storedPayload === null ? null : decodeBillingReferralSummary(storedPayload, `billing-referral:${subject}`);
+  const required = requireProductionRecord(env, stored, `billing-referral-row-missing:${subject}`);
+  return required ?? decodeBillingReferralSummary(buildBillingReferralSummary(subject), `billing-referral:${subject}`);
 }
 
 export async function loadBillingEntitlementSnapshot(
@@ -1013,13 +1186,19 @@ export async function loadBillingEntitlementSnapshot(
 ): Promise<BillingEntitlementSnapshotSummary> {
   await ensureReadModelSeed(env);
   requireProductionBinding(env, 'BILLING_D1');
-  const stored = parsePayloadRow<BillingEntitlementSnapshotSummary>(
-    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_SNAPSHOT_BY_SUBJECT_SQL, subject)
+  const storedPayload = parseUnknownPayloadRow(
+    await d1First<PayloadJsonRow>(env.BILLING_D1, SELECT_SNAPSHOT_BY_SUBJECT_SQL, subject),
+    `billing-entitlement-snapshot:${subject}`
   );
   await recordBindingRead(env, 'billing-entitlement-snapshot', subject);
+  const stored =
+    storedPayload === null
+      ? null
+      : decodeBillingEntitlementSnapshot(storedPayload, `billing-entitlement-snapshot:${subject}`);
+  const required = requireProductionRecord(env, stored, `billing-entitlement-snapshot-row-missing:${subject}`);
   return (
-    requireProductionRecord(env, stored, `billing-entitlement-snapshot-row-missing:${subject}`) ??
-    buildEntitlementSnapshot(subject)
+    required ??
+    decodeBillingEntitlementSnapshot(buildEntitlementSnapshot(subject), `billing-entitlement-snapshot:${subject}`)
   );
 }
 
@@ -1030,7 +1209,11 @@ export async function loadBillingLicenseDecision(
   deviceId: string,
   requestedNewDevice: boolean
 ): Promise<BillingLicenseDecisionSummary> {
+  const status = await loadBillingStatusSummary(env, subject);
   const snapshot = await loadBillingEntitlementSnapshot(env, subject);
+  if (snapshot.deviceLimit !== status.seatComposition.effectiveLimit) {
+    throw new BillingReadModelUnavailableError('billing-entitlement-limit-mismatch');
+  }
   const requestedDeviceAlreadyTrusted = !requestedNewDevice;
   const atDeviceLimit = snapshot.activeDevices >= snapshot.deviceLimit;
 
@@ -1226,21 +1409,28 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       }
 
       const updatedAt = new Date().toISOString();
-      const activeReferralCredits = status.seatComposition.activeReferralCredits;
-      const baseIncludedSeats = status.seatComposition.baseIncludedSeats;
-      const paidExtraSeats = Math.max(targetPlan.deviceLimit - baseIncludedSeats - activeReferralCredits, 0);
-      const availableDeviceSlots = Math.max(targetPlan.deviceLimit - status.deviceUsage.activeDevices, 0);
+      const targetPlanDeviceLimit = decodeBillingLimit(targetPlan.deviceLimit, 'billing-change-plan-device-limit');
+      const targetSeatComposition = targetPlanSeatComposition(
+        status,
+        targetPlanDeviceLimit,
+        'billing-change-plan-seat-composition'
+      );
+      const availableDeviceSlots = remainingBillingSlots(
+        targetPlanDeviceLimit,
+        status.deviceUsage.activeDevices,
+        'billing-change-plan-available-device-slots'
+      );
       const nextStatus = {
         ...status,
         plan: cloneJsonValue(targetPlan),
         deviceUsage: {
           ...status.deviceUsage,
-          limit: targetPlan.deviceLimit,
+          limit: targetSeatComposition.effectiveChildDeviceLimit,
         },
         seatComposition: {
           ...status.seatComposition,
-          paidExtraSeats,
-          effectiveLimit: baseIncludedSeats + activeReferralCredits + paidExtraSeats,
+          paidExtraSeats: targetSeatComposition.paidExtraChildDeviceSeats,
+          effectiveLimit: targetSeatComposition.effectiveChildDeviceLimit,
           availableDeviceSlots,
         },
         warnings: withAddedWarning(status.warnings, 'plan-change-pending-provider-sync'),
@@ -1250,8 +1440,12 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const nextSnapshot = {
         ...snapshot,
         planId: targetPlan.planId,
-        deviceLimit: targetPlan.deviceLimit,
-        availableDeviceSlots: Math.max(targetPlan.deviceLimit - snapshot.activeDevices, 0),
+        deviceLimit: targetSeatComposition.effectiveChildDeviceLimit,
+        availableDeviceSlots: remainingBillingSlots(
+          targetSeatComposition.effectiveChildDeviceLimit,
+          snapshot.activeDevices,
+          'billing-change-plan-snapshot-available-device-slots'
+        ),
         signedAt: updatedAt,
         auditReference: `${mutation.auditReference}:snapshot`,
       } as unknown as BillingEntitlementSnapshotSummary;
@@ -1327,7 +1521,7 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const updatedAt = new Date().toISOString();
       const nextReferral = {
         ...referral,
-        pendingInvites: referral.pendingInvites + 1,
+        pendingInvites: incrementBillingCount(referral.pendingInvites, 'billing-referral-pending-invites'),
         invites: [
           {
             inviteId: referralInviteSummaryId(mutation.referralCode, mutation.requestId),
@@ -1345,7 +1539,10 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const nextAdminReferral = (existingAdminReferral
         ? {
             ...existingAdminReferral,
-            invitedFamilies: existingAdminReferral.invitedFamilies + 1,
+            invitedFamilies: incrementBillingCount(
+              existingAdminReferral.invitedFamilies,
+              'billing-referral-invited-families'
+            ),
             auditReference: `${mutation.auditReference}:admin`,
             updatedAt,
           }
@@ -1353,7 +1550,11 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
             referralCode: mutation.referralCode,
             ownerSubject: mutation.subject,
             creditedFamilies: nextReferral.availableCredits,
-            invitedFamilies: nextReferral.activeReferredParents + nextReferral.pendingInvites,
+            invitedFamilies: sumBillingCounts(
+              nextReferral.activeReferredParents,
+              nextReferral.pendingInvites,
+              'billing-referral-invited-families'
+            ),
             abuseReviewState: 'clear',
             auditReference: `${mutation.auditReference}:admin`,
             updatedAt,
