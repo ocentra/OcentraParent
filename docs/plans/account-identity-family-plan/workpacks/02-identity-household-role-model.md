@@ -263,3 +263,18 @@ and would have introduced parallel mintable authority. It is not WP02 progress.
   - `output/account-identity-family-plan-proof/02-identity-household-role-model/16-validation-commands.log`
 - Known gaps/manual-required states: downstream audit-log pipeline/storage remains unproven here; session freshness and browser request-safety stay owned by WP03; invite/recovery stays owned by WP04; physical trusted-device proof remains external; WP07 and WP06 still need their own proof roots before any broader readiness claim.
 - No-claim boundaries: do not claim browser session completion, invite/recovery completion, trusted-device bootstrap readiness, setup UI readiness, or whole-plan completion from this WP02 closure.
+
+## 2026-08-17 live-code review correction
+
+The accepted Rust source remains a bounded authority model, not a complete
+target-aware runtime. The parent-controller device is currently conflated with
+the target child/device for Pair, Register, Revoke, View, ChangePolicy, and
+Remote actions. A target-aware resolver, capability/lease/step-up binding, and
+a production provider-to-authority caller are still absent; the raw evaluator
+remains diagnostic/legacy risk when fed caller-assembled facts.
+
+This reopens the implementation review and routes a bounded source correction:
+preserve the sealed WP08 boundary, derive target identity from owned current
+state, bind capability/lease/step-up requirements to the target action, and
+keep the normal expected-test, focused-validation, proof, PR, and DONE gates.
+No source or test completion is claimed by this routing note.

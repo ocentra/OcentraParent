@@ -226,6 +226,17 @@ product-ready account/family flow
 
 until the relevant workpack proof root and checklist rows prove the claim.
 
+## 2026-08-17 live-code review correction
+
+Account WP02 remains open for implementation review. The reviewed evaluator
+still conflates the actor's parent-controller device with the target
+child/device for Pair, Register, Revoke, View, ChangePolicy, and Remote
+actions. A target-aware resolver, capability/lease/step-up binding, and a
+provider-to-authority production caller are missing; the raw evaluator is
+diagnostic/legacy risk when fed caller-assembled facts. Route a bounded
+authorized source correction through the sealed WP08 authority boundary and
+retain all expected-test, focused validation, proof, PR, and DONE gates.
+
 ## Default execution order
 
 ```text

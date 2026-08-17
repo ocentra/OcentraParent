@@ -199,3 +199,22 @@ contract/proof evidence and do not satisfy these rows):
 - [x] Manual-required gap register written. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/08-manual-required-gap-register.md`.
 - [ ] Focused validation commands are rerun after WP08 input and pass or blockers recorded. Proof: `output/account-identity-family-plan-proof/06-security-proof-and-route-gate/16-validation-commands.log`.
 - [ ] Workpack completion section is re-filled only after the Account WP08 and Cloudflare WP06/WP08 final-gate inputs are aggregated. Proof: `docs/plans/account-identity-family-plan/workpacks/06-security-proof-and-route-gate.md`.
+
+## 2026-08-17 live-code completion overlay
+
+Historical checked WP02 rows retain their prior contract/proof meaning only.
+They do not close the reviewed production gap:
+
+- [ ] Target child/device is distinct from the actor parent-controller device
+  for Pair, Register, Revoke, View, ChangePolicy, and Remote actions.
+- [ ] Target-aware resolver derives current household/member/role/device state
+  through the sealed authority boundary; callers cannot select authority facts.
+- [ ] Capability, controller lease, and step-up requirements bind to the target
+  action and are denied when stale, revoked, cross-household, or mismatched.
+- [ ] Provider-to-authority production caller exists and is covered by focused
+  expected tests; raw evaluator remains diagnostic-only or is retired safely.
+- [ ] Focused tests, proof, and route-gate aggregation are rerun after the
+  bounded source correction.
+
+No WP02 completion or downstream Data custody readiness is claimed by these
+unchecked rows.

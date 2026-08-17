@@ -330,9 +330,191 @@
         "docs/plans/tracking-plan/workpacks/36-tracking-detection-cascade-event-flow.md"
       ],
       "reason": "WP40 must consume the generic Eventing journal/replay foundation, canonical tracking contracts, the existing process-local detection cascade, and the ActivityStore projection boundary. The packet is a planned route only and does not claim production code, tests, proof, or readiness."
+    },
+    {
+      "id": "WP-account-identity-family-plan-02-identity-household-role-model",
+      "hardDependencies": ["WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"],
+      "reason": "Live-code review reopened WP02: the accepted evaluator conflates the actor parent-controller device with the target child/device for Pair, Register, Revoke, View, ChangePolicy, and Remote actions. A target-aware resolver, capability/lease/step-up binding, and provider-to-authority caller remain missing. This routes only a bounded source correction and preserves normal expected-test, proof, PR, and DONE gates.",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/PLAN_STATE.md",
+        "docs/plans/account-identity-family-plan/NEXT_ACTIONS.md",
+        "docs/plans/account-identity-family-plan/workpacks/02-identity-household-role-model.md",
+        "docs/plans/account-identity-family-plan/CHECKLIST_INDEX.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "hardDependencies": [
+        "WP-data-custody-storage-plan-02-encryption-key-custody",
+        "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+        "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+        "WP-account-identity-family-plan-05-device-ownership-authz"
+      ],
+      "reason": "WP05 live-code audit found no parent-local/provider writer or retriever, scheduler, cryptographic byte verifier, or job custody runtime. WP09 is a new source-only owner for encrypted bytes, atomic persistence/retrieval, retry/restart custody, and a provider-neutral adapter; it must not fake a cloud provider or claim tests/proof/DONE.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
+    },
+    {
+      "id": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "hardDependencies": [
+        "WP-data-custody-storage-plan-02-encryption-key-custody",
+        "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+        "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+        "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+        "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+        "WP-account-identity-family-plan-05-device-ownership-authz",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
+      ],
+      "reason": "WP05 has no production restore/migration/apply/rollback/idempotency executor. WP10 is the explicit orchestration owner for durable receipts, trusted confirmation/authority handoffs, producer outcomes, tombstone/no-resurrection, and crash/restart coordination; it cannot mint receipts or mutate data classes.",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
+        "docs/PLAN_CODE_STATUS_MATRIX.md"
+      ]
     }
   ],
   "edges": [
+    {
+      "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "to": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
+      ],
+      "reason": "Byte persistence and verification must consume the key-custody and decrypt-scope boundary."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "to": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md"
+      ],
+      "reason": "The provider-neutral adapter must preserve the parent-owned provider and encryption-before-upload contract."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Atomic persistence and job retry must preserve retention and tombstone ordering."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "to": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
+        "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md"
+      ],
+      "reason": "The runtime stores and verifies the WP05 bundle and preflight contract without redefining it."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Manual or scheduled custody jobs require Account-owned current authority, capability, and lease composition."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-data-custody-storage-plan-02-encryption-key-custody",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/data-custody-storage-plan/workpacks/02-encryption-key-custody.md"
+      ],
+      "reason": "Restore preflight and producer handoffs must bind to the key-custody boundary."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-data-custody-storage-plan-03-parent-owned-cloud-sync",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/data-custody-storage-plan/workpacks/03-parent-owned-cloud-sync.md"
+      ],
+      "reason": "Restore orchestration must consume provider/sync state without becoming a provider implementation."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/data-custody-storage-plan/workpacks/04-retention-delete-tombstone.md"
+      ],
+      "reason": "Restore and rollback must preserve tombstones, retention expiry, and no-resurrection ordering."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-data-custody-storage-plan-05-export-import-backup-recovery",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md"
+      ],
+      "reason": "Preflight, migration, and apply orchestration must consume the versioned bundle and integrity contract."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/data-custody-storage-plan/workpacks/09-parent-local-bundle-provider-runtime.md"
+      ],
+      "reason": "Restore orchestration requires a real bundle retrieval/verification owner and must not fabricate bytes."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "Apply, migration, and rollback require Account-owned current capability, lease, and session authority."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/workpacks/10-restore-orchestration-and-producer-handoffs.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md"
+      ],
+      "reason": "Trusted confirmation and current authority must come from the Account WP08 boundary, never from request data."
+    },
     {
       "from": "WP-setup-install-provisioning-plan-07-first-run-setup-ui-and-state-machine",
       "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",

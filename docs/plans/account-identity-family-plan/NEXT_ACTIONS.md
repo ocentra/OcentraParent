@@ -169,3 +169,13 @@ role matrix without cross-family negatives
 UI mock without typed contract/source-state proof
 invite/recovery flow without replay/rate-limit/enumeration proof
 ```
+
+## 2026-08-17 WP02 review reopening
+
+Reopen WP02 implementation review before downstream custody composition. The
+first source correction must resolve target child/device identity separately
+from the actor parent-controller device, bind capabilities/leases/step-up to
+the target action, and preserve the sealed current-authority boundary. Do not
+close the row from the existing evaluator tests or historical proof; the
+production caller and the new negative/positive expected-test wave remain
+open.

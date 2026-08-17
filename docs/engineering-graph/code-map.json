@@ -9476,6 +9476,20 @@
       "planSlug": "app-game-plan",
       "codeExpectation": "no-code-required",
       "roots": []
+    },
+    "WP-data-custody-storage-plan-09-parent-local-bundle-provider-runtime": {
+      "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "no-code-required",
+      "roots": [],
+      "expectedTestRoots": [],
+      "note": "New routed owner from the 2026-08-17 live-code audit. Parent-local encrypted bundle bytes, cryptographic verification, atomic persistence/retrieval, job retry/restart custody, and provider-neutral adapter are not implemented yet."
+    },
+    "WP-data-custody-storage-plan-10-restore-orchestration-and-producer-handoffs": {
+      "planSlug": "data-custody-storage-plan",
+      "codeExpectation": "no-code-required",
+      "roots": [],
+      "expectedTestRoots": [],
+      "note": "New routed owner from the 2026-08-17 live-code audit. Durable restore/migration/apply/rollback/idempotency orchestration and producer handoffs are not implemented yet; this owner cannot mint receipts or mutate data classes."
     }
   }
 }
