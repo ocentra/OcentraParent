@@ -3,6 +3,9 @@ main = "src/index.ts"
 compatibility_date = "2026-06-14"
 workers_dev = false
 
+[triggers]
+crons = ["*/5 * * * *"]
+
 [vars]
 ENVIRONMENT = "production"
 APP_ORIGIN = "https://parent.ocentra.com"
