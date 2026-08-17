@@ -60,6 +60,10 @@ import {
 import { createFirebaseProviderVerificationPort } from './providers/firebase-auth.js';
 import { validateAuthBoundaryRoute } from './auth/model.js';
 import {
+  isVerifiedAccountIdentityAuthorityCapability,
+  type VerifiedAccountIdentityAuthorityCapability,
+} from './storage/account-identity-authority-store.js';
+import {
   getMissingBindings,
   isRouteKillSwitchEnabled,
   parseAllowedOrigins,
@@ -247,11 +251,53 @@ function json(status: number, body: unknown, headers: HeadersInit = {}): Respons
 }
 
 function requireSupportAdminReadIdentity(identity: VerifiedIdentity | undefined): VerifiedIdentity {
-  if (!identity || (identity.role !== 'support' && identity.role !== 'admin')) {
+  if (
+    !identity ||
+    !isVerifiedAccountIdentityAuthorityCapability(identity.authority) ||
+    identity.authority.role !== 'support-admin'
+  ) {
     throw new Error('support-admin-read-identity-required');
   }
 
   return identity;
+}
+
+type VerifiedAuthority = VerifiedAccountIdentityAuthorityCapability;
+
+function requireVerifiedAuthority(identity: VerifiedIdentity | undefined): VerifiedAuthority | Response {
+  if (!identity || !isVerifiedAccountIdentityAuthorityCapability(identity.authority)) {
+    return json(503, {
+      status: 'manual-required',
+      blocker: 'account-identity-authority-capability-missing',
+    });
+  }
+  return identity.authority;
+}
+
+function requireVerifiedParentAuthority(identity: VerifiedIdentity | undefined): VerifiedAuthority | Response {
+  const authority = requireVerifiedAuthority(identity);
+  if (authority instanceof Response) {
+    return authority;
+  }
+  if (authority.role !== 'parent-owner' && authority.role !== 'co-parent-guardian') {
+    return json(403, {
+      error: 'parent-role-capability-required',
+    });
+  }
+  return authority;
+}
+
+function requireVerifiedSupportAuthority(identity: VerifiedIdentity | undefined): VerifiedAuthority | Response {
+  const authority = requireVerifiedAuthority(identity);
+  if (authority instanceof Response) {
+    return authority;
+  }
+  if (authority.role !== 'support-admin') {
+    return json(403, {
+      error: 'support-admin-capability-required',
+    });
+  }
+  return authority;
 }
 
 function withCors(response: Response, request: Request, env: Env): Response {
@@ -888,33 +934,12 @@ async function executeIdempotentWrite(
   return json(result.responseStatus, result.responseBody);
 }
 
-function householdRoleForSubject(subject: string): 'parent' | 'guardian' | 'child' | 'member' | 'unknown' {
-  if (subject.startsWith('parent:')) {
-    return 'parent';
-  }
-  if (subject.startsWith('guardian:')) {
-    return 'guardian';
-  }
-  if (subject.startsWith('child:')) {
-    return 'child';
-  }
-  if (subject.startsWith('member:')) {
-    return 'member';
-  }
-  return 'unknown';
-}
-
-function billingActorRoleForSubject(subject: string): 'parent' | 'guardian' | null {
-  const householdRole = householdRoleForSubject(subject);
-  if (householdRole === 'parent' || householdRole === 'guardian') {
-    return householdRole;
-  }
-  return null;
+function billingActorRoleForAuthority(authority: VerifiedAuthority): 'parent' | 'guardian' {
+  return authority.role === 'parent-owner' ? 'parent' : 'guardian';
 }
 
 async function billingHostedRouteContext(
-  identity: VerifiedIdentity,
-  env: Env
+  authority: VerifiedAuthority
 ): Promise<{
   actor: {
     actorId: string;
@@ -927,28 +952,17 @@ async function billingHostedRouteContext(
     familyId: string;
   };
 }> {
-  const actorRole = identity.authority
-    ? identity.authority.role === 'parent-owner'
-      ? 'parent'
-      : identity.authority.role === 'co-parent-guardian'
-        ? 'guardian'
-        : null
-    : billingActorRoleForSubject(identity.subject);
-  if (!actorRole) {
-    throw new Error(`billing hosted sessions require a parent or guardian authority: ${identity.subject}`);
-  }
-
-  const statusSummary = await loadBillingStatusSummary(env, identity.subject);
+  const actorRole = billingActorRoleForAuthority(authority);
   return {
     actor: {
-      actorId: `actor-${sanitizeIdFragment(identity.authority?.memberId ?? identity.subject)}`,
+      actorId: `actor-${sanitizeIdFragment(authority.memberId)}`,
       role: actorRole,
     },
     parentAccount: {
-      parentAccountId: statusSummary.parentAccountRef,
+      parentAccountId: authority.accountId,
     },
     family: {
-      familyId: statusSummary.familyRef,
+      familyId: authority.householdId,
     },
   };
 }
@@ -967,29 +981,11 @@ function requireInteractiveRequestBoundary(
   request: Request,
   env: Env,
   identity: VerifiedIdentity,
-  requestId: string,
-  kind: HostedSessionKind | null
+  requestId: string
 ): Response | null {
-  if (resolveAuthAdapterMode(env) !== 'local-safe-fixture' && !identity.authority) {
-    return json(503, {
-      status: 'manual-required',
-      blocker: 'account-identity-authority-capability-missing',
-    });
-  }
-
-  const householdRole = identity.authority
-    ? identity.authority.role === 'parent-owner'
-      ? 'parent'
-      : identity.authority.role === 'co-parent-guardian'
-        ? 'guardian'
-        : 'unknown'
-    : householdRoleForSubject(identity.subject);
-  if (householdRole !== 'parent' && householdRole !== 'guardian') {
-    return kind
-      ? rejectionResponse(kind, requestId, 'unauthorized-role')
-      : json(403, {
-          error: 'household-role-required',
-        });
+  const authority = requireVerifiedParentAuthority(identity);
+  if (authority instanceof Response) {
+    return authority;
   }
 
   const origin = request.headers.get('origin');
@@ -1474,7 +1470,13 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      return json(200, await loadBillingStatusSummary(env, identity.subject));
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
+      return json(200, await loadBillingStatusSummary(env, subject));
     },
 
     async 'billing-checkout'({ request, env, identity }): Promise<Response> {
@@ -1484,6 +1486,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       const body = await readJsonObject<CheckoutRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1491,13 +1499,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('checkout', identity.subject, body.requestId);
+      const requestId = requestIdFor('checkout', subject, body.requestId);
       const boundaryFailure = requireInteractiveRequestBoundary(
         request,
         env,
         identity,
-        requestId,
-        'checkout-session-create'
+        requestId
       );
       if (boundaryFailure) {
         return boundaryFailure;
@@ -1527,35 +1534,35 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         schemaVersion: 'billing-checkout-portal-boundary',
         requestId,
         kind: 'checkout-session-create',
-        ...(await billingHostedRouteContext(identity, env)),
+        ...(await billingHostedRouteContext(authority)),
         planId,
         successRoute: checkoutHostedRouteForPath(successPath),
         cancelRoute: checkoutHostedRouteForPath(cancelPath),
         abuseGateState,
       });
 
-      const actorRole = billingActorRoleForSubject(identity.subject);
+      const actorRole = billingActorRoleForAuthority(authority);
       return executeIdempotentWrite(
         env.BILLING_DO,
-        `billing-control:${identity.subject}`,
+        `billing-control:${subject}`,
         {
-          requestKey: durableWriteKey('checkout-session-create', identity.subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('hosted-session', identity.subject, requestId, {
+          requestKey: durableWriteKey('checkout-session-create', subject, requestId),
+          requestFingerprint: canonicalRequestFingerprint('hosted-session', subject, requestId, {
             sessionKind: 'checkout-session-create',
             planId,
             successPath,
             cancelPath,
           }),
           responseStatus: 200,
-          responseBody: acceptedResponseBody('checkout-session-create', requestId, identity.subject),
+          responseBody: acceptedResponseBody('checkout-session-create', requestId, subject),
           queueMessage: null,
           stateMutation: actorRole
             ? {
                 kind: 'hosted-session',
-                subject: identity.subject,
+                subject,
                 requestId,
                 sessionKind: 'checkout-session-create',
-                auditReference: hostedSessionAuditReference('checkout-session-create', identity.subject, requestId),
+                auditReference: hostedSessionAuditReference('checkout-session-create', subject, requestId),
                 actorRole,
               }
             : null,
@@ -1571,6 +1578,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       const body = await readJsonObject<PortalRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1578,13 +1591,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('portal', identity.subject, body.requestId);
+      const requestId = requestIdFor('portal', subject, body.requestId);
       const boundaryFailure = requireInteractiveRequestBoundary(
         request,
         env,
         identity,
-        requestId,
-        'billing-portal-session-create'
+        requestId
       );
       if (boundaryFailure) {
         return boundaryFailure;
@@ -1604,33 +1616,33 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         schemaVersion: 'billing-checkout-portal-boundary',
         requestId,
         kind: 'billing-portal-session-create',
-        ...(await billingHostedRouteContext(identity, env)),
+        ...(await billingHostedRouteContext(authority)),
         returnRoute: BillingHostedReturnRoute.PortalReturn,
         abuseGateState,
       });
 
-      const actorRole = billingActorRoleForSubject(identity.subject);
+      const actorRole = billingActorRoleForAuthority(authority);
       return executeIdempotentWrite(
         env.BILLING_DO,
-        `billing-control:${identity.subject}`,
+        `billing-control:${subject}`,
         {
-          requestKey: durableWriteKey('billing-portal-session-create', identity.subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('hosted-session', identity.subject, requestId, {
+          requestKey: durableWriteKey('billing-portal-session-create', subject, requestId),
+          requestFingerprint: canonicalRequestFingerprint('hosted-session', subject, requestId, {
             sessionKind: 'billing-portal-session-create',
             returnPath,
           }),
           responseStatus: 200,
-          responseBody: acceptedResponseBody('billing-portal-session-create', requestId, identity.subject),
+          responseBody: acceptedResponseBody('billing-portal-session-create', requestId, subject),
           queueMessage: null,
           stateMutation: actorRole
             ? {
                 kind: 'hosted-session',
-                subject: identity.subject,
+                subject,
                 requestId,
                 sessionKind: 'billing-portal-session-create',
                 auditReference: hostedSessionAuditReference(
                   'billing-portal-session-create',
-                  identity.subject,
+                  subject,
                   requestId
                 ),
                 actorRole,
@@ -1648,10 +1660,16 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const invoices = await loadBillingInvoices(env, identity.subject);
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
+      const invoices = await loadBillingInvoices(env, subject);
       return json(200, {
         status: 'ok',
-        subject: identity.subject,
+        subject,
         invoiceCount: invoices.length,
         invoices,
       });
@@ -1664,6 +1682,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       const body = await readJsonObject<ChangePlanRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1671,8 +1695,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('change-plan', identity.subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId, null);
+      const requestId = requestIdFor('change-plan', subject, body.requestId);
+      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1685,7 +1709,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const summary = buildBillingPlanChangeSummaryFromStatus(
-        await loadBillingStatusSummary(env, identity.subject),
+        await loadBillingStatusSummary(env, subject),
         requestId,
         stringOrNull(body.planId),
         (await loadPricingPlans(env)).filter((plan) => plan.activeState === 'active')
@@ -1693,10 +1717,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const targetPlanId = summary.targetPlanId;
       return executeIdempotentWrite(
         env.BILLING_DO,
-        `billing-control:${identity.subject}`,
+        `billing-control:${subject}`,
         {
-          requestKey: durableWriteKey('change-plan', identity.subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('change-plan', identity.subject, requestId, {
+          requestKey: durableWriteKey('change-plan', subject, requestId),
+          requestFingerprint: canonicalRequestFingerprint('change-plan', subject, requestId, {
             targetPlanId,
           }),
           responseStatus: 200,
@@ -1706,7 +1730,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
               ? {
                   action: 'change-plan',
                   requestId,
-                  subject: identity.subject,
+                  subject,
                   targetPlanId,
                 }
               : null,
@@ -1714,7 +1738,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
             summary.status === 'accepted' && targetPlanId !== null
               ? {
                   kind: 'change-plan',
-                  subject: identity.subject,
+                  subject,
                   requestId,
                   targetPlanId,
                   auditReference: summary.auditReference,
@@ -1732,6 +1756,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       const body = await readJsonObject<CancelRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1739,8 +1769,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('cancel', identity.subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId, null);
+      const requestId = requestIdFor('cancel', subject, body.requestId);
+      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1753,15 +1783,15 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       }
 
       const summary = buildBillingCancellationSummaryFromStatus(
-        await loadBillingStatusSummary(env, identity.subject),
+        await loadBillingStatusSummary(env, subject),
         requestId
       );
       return executeIdempotentWrite(
         env.BILLING_DO,
-        `billing-control:${identity.subject}`,
+        `billing-control:${subject}`,
         {
-          requestKey: durableWriteKey('cancel', identity.subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('cancel', identity.subject, requestId, {
+          requestKey: durableWriteKey('cancel', subject, requestId),
+          requestFingerprint: canonicalRequestFingerprint('cancel', subject, requestId, {
             cancellationState: summary.cancellationState,
           }),
           responseStatus: 200,
@@ -1769,12 +1799,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           queueMessage: {
             action: 'cancel',
             requestId,
-            subject: identity.subject,
+            subject,
             cancellationState: summary.cancellationState,
           },
           stateMutation: {
             kind: 'cancel',
-            subject: identity.subject,
+            subject,
             requestId,
             cancellationState: summary.cancellationState,
             auditReference: summary.auditReference,
@@ -1791,9 +1821,15 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       return json(200, {
         status: 'ok',
-        ...(await loadBillingReferralSummary(env, identity.subject)),
+        ...(await loadBillingReferralSummary(env, subject)),
       });
     },
 
@@ -1804,6 +1840,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       const body = await readJsonObject<ReferralInviteRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1811,8 +1853,8 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('referral-invite', identity.subject, body.requestId);
-      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId, null);
+      const requestId = requestIdFor('referral-invite', subject, body.requestId);
+      const boundaryFailure = requireInteractiveRequestBoundary(request, env, identity, requestId);
       if (boundaryFailure) {
         return boundaryFailure;
       }
@@ -1830,16 +1872,16 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           error: 'invitee-required',
         });
       }
-      const result = await buildBillingReferralInviteResultFromD1(env, identity.subject, requestId, invitee);
+      const result = await buildBillingReferralInviteResultFromD1(env, subject, requestId, invitee);
       if (result.status === 'accepted') {
         const invitedIdentifier = stringOrNull(body.invitee)?.trim().toLowerCase();
-        const actorRole = billingActorRoleForSubject(identity.subject);
+        const actorRole = billingActorRoleForAuthority(authority);
         return executeIdempotentWrite(
           env.BILLING_DO,
-          `billing-control:${identity.subject}`,
+          `billing-control:${subject}`,
           {
-            requestKey: durableWriteKey('referral-invite', identity.subject, requestId),
-            requestFingerprint: canonicalRequestFingerprint('referral-invite', identity.subject, requestId, {
+            requestKey: durableWriteKey('referral-invite', subject, requestId),
+            requestFingerprint: canonicalRequestFingerprint('referral-invite', subject, requestId, {
               invitedIdentifier,
               referralCode: result.referralCode,
             }),
@@ -1848,14 +1890,14 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
             queueMessage: {
               action: 'referral-invite',
               requestId,
-              subject: identity.subject,
+              subject,
               referralCode: result.referralCode,
             },
             stateMutation:
               invitedIdentifier && result.referralCode && actorRole
                 ? {
                     kind: 'referral-invite',
-                    subject: identity.subject,
+                    subject,
                     requestId,
                     invitedIdentifier,
                     referralCode: result.referralCode,
@@ -1877,9 +1919,15 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       return json(200, {
         status: 'ok',
-        snapshot: await loadBillingEntitlementSnapshot(env, identity.subject),
+        snapshot: await loadBillingEntitlementSnapshot(env, subject),
       });
     },
 
@@ -1890,6 +1938,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedParentAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       const body = await readJsonObject<LicenseCheckRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1897,13 +1951,13 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('license-check', identity.subject, body.requestId);
-      const deviceId = stringOrNull(body.deviceId) ?? `device-${sanitizeIdFragment(identity.subject)}`;
+      const requestId = requestIdFor('license-check', subject, body.requestId);
+      const deviceId = authority.deviceId;
       return json(
         200,
         await loadBillingLicenseDecision(
           env,
-          identity.subject,
+          subject,
           requestId,
           deviceId,
           booleanFromUnknown(body.requestedNewDevice)
@@ -1918,6 +1972,12 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
+      const authority = requireVerifiedSupportAuthority(identity);
+      if (authority instanceof Response) {
+        return authority;
+      }
+      const subject = authority.providerSubject;
+
       const body = await readJsonObject<ManualInvoiceRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1925,20 +1985,20 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('manual-invoice', identity.subject, body.requestId);
+      const requestId = requestIdFor('manual-invoice', subject, body.requestId);
       const region = stringOrNull(body.region)?.trim();
       if (!region) {
         return json(400, {
           error: 'region-required',
         });
       }
-      const result = await buildManualInvoiceResultFromD1(env, identity.subject, requestId, region);
+      const result = await buildManualInvoiceResultFromD1(env, subject, requestId, region);
       return executeIdempotentWrite(
         env.BILLING_DO,
-        `billing-control:${identity.subject}`,
+        `billing-control:${subject}`,
         {
-          requestKey: durableWriteKey('manual-invoice', identity.subject, requestId),
-          requestFingerprint: canonicalRequestFingerprint('manual-invoice', identity.subject, requestId, {
+          requestKey: durableWriteKey('manual-invoice', subject, requestId),
+          requestFingerprint: canonicalRequestFingerprint('manual-invoice', subject, requestId, {
             region: result.region,
           }),
           responseStatus: 202,
@@ -1949,17 +2009,17 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
           queueMessage: {
             action: 'manual-invoice',
             requestId,
-            subject: identity.subject,
+            subject,
             region: result.region,
-            actorRole: identity.role,
+            actorRole: 'support',
           },
           stateMutation: {
             kind: 'manual-invoice',
-            subject: identity.subject,
+            subject,
             requestId,
             region: result.region,
             auditReference: result.auditReference,
-            actorRole: identity.role === 'admin' ? 'admin' : 'support',
+            actorRole: 'support',
           },
         },
         env
