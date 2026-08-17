@@ -4,26 +4,51 @@ This is the code-backed execution dashboard for Ocentra Parent. It supplements
 `PLAN_INDEX.md`; it does not replace plan-local workpacks, proof roots, or
 checklists.
 
-Last broad source inventory: 2026-08-15, now integrated to `main` at
+Last broad source inventory: 2026-08-15, integrated to `main` at
 `eb4e66a79` and back-synced to `develop` at `4ece51528` with tree-equal
-contents. The dated
-merged-code delta immediately below overrides older snapshot wording for its
-named plans; historical rows remain routing context, not current closure proof.
-
-The latest source checkpoint covered here is pushed head `e01931650` on
-`codex/eventing-wp09-production`. It is 208 commits ahead of `main` and 205
-commits ahead of `develop` without branch divergence. That remote-safe
-integration line contains the reviewed Device Trust WP01/WP03, Eventing WP11,
-Account WP08, and Cloudflare WP06 source packets; none is thereby merged to
-`develop`/`main`, fully validated, or PR-ready. Current branch, worktree,
-archive, stash, and promotion custody is recorded in
+contents. The live source checkpoint is pushed head `302d9459c` on
+`codex/eventing-wp09-production`. It is 223 commits ahead of `main` and 220
+commits ahead of `develop` without branch divergence. No source checkpoint is
+thereby fully validated, PR-ready, or merged to `develop`/`main`. Current
+branch, worktree, archive, stash, and promotion custody is recorded in
 `docs/REPOSITORY_CUSTODY_STATUS.md`.
+
+## Completion operating contract - 2026-08-17
+
+The `P/B/R/A/V/D` graph states below are scheduling metadata, not the requested
+completion answer. For every workpack, completion work is driven from its
+intended product behavior and the live call path:
+
+1. identify what the workpack promises, what production entrypoint reaches a
+   trusted caller today, and what code is missing or was not knowable when the
+   plan was drafted;
+2. write the complete coherent production-source packet for that owner boundary;
+3. only after that source packet is stable, write all expected positive,
+   negative, restart, replay, authority, and compatibility test source;
+4. run and repair focused tests, then focused Enforcer and architecture checks
+   for the touched workpack/crate/domain;
+5. after all planned source and test source is written, run repo-wide tests and
+   Enforcer once, regenerate proof, run precommit, open one coherent PR, pass
+   CI, and promote normally through `develop` to `main`.
+
+Writing a line and immediately launching a broad test cycle is not this
+program's workflow. DTOs, constants, projections, fake adapters, caller-minted
+authority, mocks, and tests that merely bless disconnected code do not count as
+production completion. A source lane either lands a reachable material effect
+or reports the exact upstream owner that must be implemented first.
+
+The detailed per-workpack gap register is the plan table in this document,
+except for the four large plans whose complete rows live in
+`docs/plans/ai-plan/CODE_AUDIT.md`, `docs/plans/app-plan/CODE_AUDIT.md`,
+`docs/plans/app-game-plan/CODE_AUDIT.md`, and
+`docs/plans/tracking-plan/CODE_AUDIT.md`. The 681-row `graph:matrix` remains the
+topology/dependency join; it must not overwrite the code-reachability finding.
 
 ## Live executable topology matrix - 2026-08-17
 
 This table is generated from the validated engineering graph and its reviewed
-code map, not from plan checkboxes. The graph currently contains 705 nodes, 744
-edges, 23 plans, and 681 workpacks. It maps 2,962 implementation files and 1,145
+code map, not from plan checkboxes. The graph currently contains 705 nodes, 745
+edges, 23 plans, and 681 workpacks. It maps 2,966 implementation files and 1,145
 test files: 586 workpacks have both code and tests, 4 are source-only, 8 are
 tests-only, 82 are expected no-source coordination/reference packets, and 1 has
 unknown ownership. Topology expectations match for 664/681 workpacks.
