@@ -147,6 +147,20 @@ impl<'de> Deserialize<'de> for EntitlementSnapshotContext {
     }
 }
 
+impl EntitlementSnapshotContext {
+    pub(crate) fn unavailable() -> Self {
+        Self {
+            signature_state: EntitlementSnapshotSignatureState::Missing,
+            freshness_state: EntitlementSnapshotFreshnessState::Revoked,
+            household_binding_state: EntitlementSnapshotBindingState::Mismatched,
+            device_binding_state: EntitlementSnapshotBindingState::Mismatched,
+            device_trust_requirement_state: EntitlementDeviceTrustRequirementState::Required,
+            device_trust_state: EntitlementDeviceTrustState::Missing,
+            package_build_state: EntitlementPackageBuildState::Invalid,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EntitlementSnapshotDerivationError {
     ZeroBaseChildDeviceLimit,
