@@ -1,18 +1,26 @@
+use ocentra_family_identity_core::{
+    account_identity_authority::{
+        authorize_household_action_from_verified_authority, VerifiedAccountIdentityAuthority,
+    },
+    household_authority::{HouseholdAuthorityAction, HouseholdAuthorizationState},
+};
 use ocentra_schema::report_query_custody as contracts;
 
 use super::ReportQueryCustodyDerivationError;
 
 pub(super) fn validate_report_query_custody_request(
     request: &contracts::ReportQueryCustodyRequest,
+    authority: &VerifiedAccountIdentityAuthority,
 ) -> Result<(), ReportQueryCustodyDerivationError> {
-    let authority = &request.parent_authority;
-    if authority.authority_generation == 0 {
+    validate_current_parent_authority(request, authority)?;
+    let authority_reference = &request.parent_authority;
+    if authority_reference.authority_generation == 0 {
         return Err(ReportQueryCustodyDerivationError::InvalidParentAuthority);
     }
-    if authority.family_id != request.family.family_id
-        || authority.parent_account_id != request.account.parent_account_id
-        || authority.device_id != request.device.device_id
-        || authority.child_profile_id != request.device.child_profile_id
+    if authority_reference.family_id != request.family.family_id
+        || authority_reference.parent_account_id != request.account.parent_account_id
+        || authority_reference.device_id != request.device.device_id
+        || authority_reference.child_profile_id != request.device.child_profile_id
     {
         return Err(ReportQueryCustodyDerivationError::ParentAuthorityIdentityMismatch);
     }
@@ -74,5 +82,49 @@ pub(super) fn validate_report_query_custody_request(
     {
         return Err(ReportQueryCustodyDerivationError::CitationSourceClassMismatch);
     }
+    Ok(())
+}
+
+fn validate_current_parent_authority(
+    request: &contracts::ReportQueryCustodyRequest,
+    authority: &VerifiedAccountIdentityAuthority,
+) -> Result<(), ReportQueryCustodyDerivationError> {
+    let action_decision = authorize_household_action_from_verified_authority(
+        authority,
+        HouseholdAuthorityAction::ViewChildStatus,
+        false,
+        None,
+    );
+    (action_decision.authorization_state == HouseholdAuthorizationState::Authorized)
+        .then_some(())
+        .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityActionRejected)?;
+
+    let child_profile_id = request
+        .device
+        .child_profile_id
+        .as_ref()
+        .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityIdentityMismatch)?;
+    let request_actor_id = request.parent_action.actor.actor_id.to_string();
+    let request_device_id = request.device.device_id.to_string();
+    let current_identity = (
+        authority.household_id(),
+        authority.account_id(),
+        authority.member_id().as_str(),
+        authority.device_id().as_str(),
+        authority.child_profile_id(),
+    );
+    let requested_identity = (
+        &request.family.family_id,
+        &request.account.parent_account_id,
+        request_actor_id.as_str(),
+        request_device_id.as_str(),
+        child_profile_id,
+    );
+    if current_identity != requested_identity {
+        return Err(ReportQueryCustodyDerivationError::ParentAuthorityIdentityMismatch);
+    }
+    (authority.authority_generation() == request.parent_authority.authority_generation)
+        .then_some(())
+        .ok_or(ReportQueryCustodyDerivationError::ParentAuthorityGenerationMismatch)?;
     Ok(())
 }

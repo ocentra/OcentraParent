@@ -12,7 +12,7 @@ import {
 
 const allowedSourceDataClassSet = new Set<string>(GeneratedReportQueryCustodySourceDataClasses);
 
-function reportQueryCustodyAuthorityIsBoundGenerated(
+function reportQueryCustodyAuthorityReferenceIsConsistentGenerated(
   request: GeneratedReportQueryCustodyRequest
 ): boolean {
   const authority = request.parentAuthority;
@@ -39,7 +39,7 @@ function reportQueryCustodyCitationIsBoundGenerated(
 
 export function reportQueryCustodyRequestIsHonestGenerated(request: GeneratedReportQueryCustodyRequest): boolean {
   return (
-    reportQueryCustodyAuthorityIsBoundGenerated(request) &&
+    reportQueryCustodyAuthorityReferenceIsConsistentGenerated(request) &&
     !request.rawChildEvidenceRequested &&
     request.pageSize > 0 &&
     request.requestedDataClasses.length > 0 &&

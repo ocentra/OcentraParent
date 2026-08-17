@@ -129,7 +129,7 @@ export const ReportQueryCustodyRequestSchema = withParser(
     Schema.filter(
       (request) =>
         reportQueryCustodyRequestIsHonestGenerated(request as Generated.GeneratedReportQueryCustodyRequest) ||
-        'Expected report and query requests to stay parent-authorized, citation-bound, and free of raw child evidence'
+        'Expected report and query request references to stay identity-consistent, citation-bound, and free of raw child evidence; this schema does not grant runtime authority'
     )
   )
 );

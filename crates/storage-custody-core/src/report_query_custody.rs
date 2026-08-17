@@ -1,3 +1,4 @@
+use ocentra_family_identity_core::account_identity_authority::VerifiedAccountIdentityAuthority;
 use ocentra_schema::report_query_custody as contracts;
 
 #[path = "report_query_custody_proof.rs"]
@@ -38,7 +39,9 @@ pub struct ReportQueryCustodyDerivationInput {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReportQueryCustodyDerivationError {
     InvalidParentAuthority,
+    ParentAuthorityActionRejected,
     ParentAuthorityIdentityMismatch,
+    ParentAuthorityGenerationMismatch,
     RawChildEvidenceRequested,
     EmptyRequestScope,
     NonPositivePageSize,
@@ -47,6 +50,7 @@ pub enum ReportQueryCustodyDerivationError {
     InvalidCitationKind,
     CitationIdentityMismatch,
     CitationSourceClassMismatch,
+    TrustedSourceResolutionUnavailable,
     DisallowedSourceDataClass,
     NonPositivePageIndex,
     MissingNextCursor,
@@ -64,14 +68,18 @@ pub enum ReportQueryCustodyDerivationError {
 pub fn derive_report_query_custody_row(
     request: &contracts::ReportQueryCustodyRequest,
     input: ReportQueryCustodyDerivationInput,
+    authority: VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyRow, ReportQueryCustodyDerivationError> {
-    report_query_custody_row::derive_report_query_custody_row(request, input)
+    report_query_custody_row::derive_report_query_custody_row(request, input, authority)
 }
 
 pub fn build_report_query_custody_proof(
     request: &contracts::ReportQueryCustodyRequest,
     inputs: Vec<ReportQueryCustodyDerivationInput>,
     updated_at: contracts::ParentTimestamp,
+    authority: VerifiedAccountIdentityAuthority,
 ) -> Result<contracts::ReportQueryCustodyContractProof, ReportQueryCustodyDerivationError> {
-    report_query_custody_proof::build_report_query_custody_proof(request, inputs, updated_at)
+    report_query_custody_proof::build_report_query_custody_proof(
+        request, inputs, updated_at, authority,
+    )
 }
