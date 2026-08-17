@@ -86,7 +86,9 @@ async function fetchFirebaseJwkSetUnshared(
   const now = Date.now();
   const cached = jwksCache.get(config.jwksUrl);
   if (!forceRefresh && cached && cached.expiresAt > now) return cached.keys;
-  if (!forceRefresh && now < (jwksFetchAfter.get(config.jwksUrl) ?? 0)) return cached?.keys ?? null;
+  if (!forceRefresh && now < (jwksFetchAfter.get(config.jwksUrl) ?? 0)) {
+    return cached && cached.expiresAt > now ? cached.keys : null;
+  }
   let timeout: ReturnType<typeof setTimeout> | undefined;
   let loaded = false;
   try {
