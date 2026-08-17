@@ -22,8 +22,8 @@ This file records documentation health and consistency checks for the plan. It i
 - Preserved full README: `README_FULL_ORIGINAL.md`
 - Current snapshot: `current-lan-snapshot.md`
 - Implementation checklist present: true
-- Workpacks indexed: 25 active rows, with `23` and `25` still open follow-on workpacks
-- Current proof roots: Slice A, B1, B2, and current `01-25` row proof roots under `output/lan-plan-proof/`
+- Workpacks indexed: 26 active rows, with `23`, `25`, and `26` still open follow-on workpacks
+- Current proof roots: Slice A, B1, B2, and current `01-26` row proof roots under `output/lan-plan-proof/`; WP26's canonical root is expected but not regenerated
 
 ## Consistency warnings
 
@@ -32,9 +32,10 @@ This file records documentation health and consistency checks for the plan. It i
 - B2 is test-category truth only; placeholder test folders do not count as integration/e2e/security/performance/load coverage.
 - Rust owns canonical LAN contracts, shapes, business logic, read models, runtime truth, and proof truth. Remaining TS LAN package surfaces are migration residue or UI-only and are not ownership signals.
 - Real organized test folders/crates only; inline source-owned tests, placeholder directories, and mock-only coverage do not count as closure.
-- Workpacks `21-25` are active LAN follow-on scope. Rows `21`, `22`, and `24`
+- Workpacks `21-26` are active LAN follow-on scope. Rows `21`, `22`, and `24`
   now have their own completion proof; rows `23` and `25` remain open and
-  still need manual/physical proof before broader completion claims.
+  still need manual/physical proof, while `26` remains open for real ingress,
+  authority composition, organized tests, and proof.
 
 ## Required hygiene before PR_READY
 
@@ -78,6 +79,8 @@ Do not collapse those boundaries.
 real second-device household proof
 router/firewall reachability proof
 real signed child hello and heartbeat artifacts
+real child/runtime peer ingress and atomic household-mesh custody
+provider-policy and private Eventing WP10 authorization handoff proof
 replay/restart/event-stream proof completion
 portal and downstream consumer proof artifacts
 Android/mobile-controller proof where the plan still keeps those claims
@@ -95,7 +98,7 @@ integration/e2e/security/performance/load categories beyond unit tests
 ## PR-ready rule
 
 The whole plan is PR-ready only when the selected rollout/proof gate consumes or
-blocks every still-open authoritative `01-25` proof path that applies to the
+blocks every still-open authoritative `01-26` proof path that applies to the
 current state and updates `PLAN_STATE.md`.
 
 A partial PR may be ready only when one selected workpack is closed with proof artifacts, command logs, no-claim language, and remaining open workpacks listed.

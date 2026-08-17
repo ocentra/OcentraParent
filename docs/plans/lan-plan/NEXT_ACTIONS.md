@@ -27,6 +27,7 @@ workpack/checklist status and does not replace the assigned workpack.
 
 ## Highest-open workpacks by current remaining work
 
+- [26 Signed Child Beacon Ingress And Household Mesh Authority Handoff](workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md): open production packet for the real child/runtime peer ingress, W15 household custody, W18 signed hello/heartbeat and transport authority, W19 route/revocation/lease composition, atomic message/idempotency persistence, and the private Eventing WP10 authorization handoff. Code, organized real-ingress tests, and proof are all open; no portal authority, fake transport, or synthetic receiver is allowed.
 - [16 Read Models And LAN Events](workpacks/16-read-models-and-lan-events.md): backend stream, parent replay validation, desktop delivery decision, and portal listener/state seams exist and are separately tested. The next exact Phase 1 slice is one integrated backend replay -> real Tauri `AppHandle` emit -> portal-listener regression; richer network-flow and physical/manual evidence follow later.
 - [19 Assignment, Revocation, And Audit](workpacks/19-assignment-revocation-audit.md): main-lane route/runtime/UI verification bucket now reduced to broader physical/manual topology artifacts after the restart/readback Rust proof closed locally.
 - [20 Proof Gates, Fixtures, And Rollout](workpacks/20-proof-gates-fixtures-rollout.md): restore or replace all six aggregate verifier programs named by current LAN docs; every referenced `v0-9-*lan*`/production-discovery runner is absent from the current tree.
@@ -144,6 +145,12 @@ workpack/checklist status and does not replace the assigned workpack.
   selected-route LAN command routing into the real local-network child target.
   The current Windows `/devices` Playwright route is green. Remaining work is
   broader physical/manual topology artifacts.
+- `26 Signed Child Beacon Ingress And Household Mesh Authority Handoff` is now
+  the explicit open LAN route for the missing real child/runtime peer ingress.
+  It depends on W15/W18/W19, must retain atomic message/idempotency custody and
+  fail-closed provider-policy and authority negatives, and unlocks only the
+  private typed Eventing WP10 authorization handoff after its own proof exists.
+  Eventing does not own LAN transport, and portal/UI does not own authority.
 - `05 Targeted ARP Checks` now has real bounded Rust host-refresh support with
   selected-interface/local-subnet gating, response/no-response evidence,
   throttling, packet-IO abstraction coverage, and scan-plan metadata

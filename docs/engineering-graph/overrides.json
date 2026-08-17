@@ -50,6 +50,53 @@
       "reason": "WP09 is the bounded production foundation for the network consumer chain. Current source implements exact-source ingestion publish, deterministic phase identity/idempotency and refs, recovered ProductionFile journaling before listener readiness, startup/recurring reconciliation, projection-only reads, and real parent-assistant/portal direct-enforcement mutation negatives. Reviewed roots cover capture ingestion, ActivityStore/runtime, agent-core runtime, agent-service delivery/read-model ownership, and the shared Tauri/dev-web portal command boundary; fixture/prove/TEST network_event_runtime files are not shipped production topology. Queue/request-response helpers have no shipped network-consumer caller and are not fake-wired. Focused tests and local ignored proof are green, while the final combined pre-commit, accepted commit, CI, review, and merge remain open. This status does not mark WP09 done or unblock Network WP04."
     },
     {
+      "id": "WP-eventing-plan-10-lan-household-mesh-consumer",
+      "hardDependencies": ["WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff"],
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "WP10 has typed structural validation and a private authorization token, but its production resolver always returns unavailable, no shipped peer transport reaches it, and no durable cross-device message custody exists. LAN WP26 owns the authenticated ingress, selected non-revoked route composition, durable duplicate/idempotency custody, and private authority handoff required before WP10 can republish imported events."
+    },
+    {
+      "id": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/11-type-safety-and-ownership-hardening.md",
+        "crates/ocentra-eventing/src/envelope.rs",
+        "crates/ocentra-eventing/tests/unit/envelope.rs",
+        "docs/engineering-graph/code-map.json"
+      ],
+      "reason": "The live EventEnvelope generic remains publicly unconstrained and stored decode checks only the event contract, not decoded aggregate/idempotency identity against stored metadata. This is a bounded dependency-free Eventing production hardening packet; prior unrelated TypeScript policy checks and absent generated proof do not close it."
+    },
+    {
+      "id": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
+      "hardDependencies": [
+        "WP-eventing-plan-09-network-consumer-event-chain",
+        "WP-eventing-plan-10-lan-household-mesh-consumer",
+        "WP-eventing-plan-11-type-safety-and-ownership-hardening",
+        "WP-eventing-plan-13-test-folder-layout-regression-audit"
+      ],
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/12-rollout-proof-and-pr-gate.md",
+        "docs/plans/eventing-plan/PLAN_STATE.md",
+        "docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"
+      ],
+      "reason": "WP12 is the final route/proof/PR gate. Its executable harness and canonical proof root are absent, and it cannot run honestly until WP09 integration acceptance, WP10 production consumer authority, WP11 hardening, and WP13 fresh layout validation are complete."
+    },
+    {
+      "id": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
+      "hardDependencies": [],
+      "evidence": [
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md",
+        "docs/plans/lan-plan/workpacks/15-household-device-store.md",
+        "docs/plans/lan-plan/workpacks/18-signed-child-hello-heartbeat.md",
+        "docs/plans/lan-plan/workpacks/19-assignment-revocation-audit.md"
+      ],
+      "reason": "LAN WP15, WP18, and WP19 already supply the local durable registry, signed verification/freshness, and selected-route/revocation code needed for implementation. Their remaining manual proof does not block this code-first composition packet. WP26 newly owns the missing shipped peer ingress, durable receipt/idempotency custody, trust/route composition, and private Eventing WP10 authority handoff."
+    },
+    {
       "id": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
       "hardDependencies": [
         "WP-eventing-plan-09-network-consumer-event-chain",
@@ -109,6 +156,61 @@
     }
   ],
   "edges": [
+    {
+      "from": "WP-eventing-plan-10-lan-household-mesh-consumer",
+      "to": "WP-lan-plan-26-signed-child-beacon-ingress-and-household-mesh-authority-handoff",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md",
+        "docs/plans/lan-plan/workpacks/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff.md"
+      ],
+      "reason": "Eventing WP10 cannot mint peer authority or transport its own cross-device envelope; it consumes the authenticated LAN ingress and private authority handoff owned by LAN WP26."
+    },
+    {
+      "from": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
+      "to": "WP-eventing-plan-09-network-consumer-event-chain",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/12-rollout-proof-and-pr-gate.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md"
+      ],
+      "reason": "The final rollout gate cannot close while WP09 integration acceptance remains open."
+    },
+    {
+      "from": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
+      "to": "WP-eventing-plan-10-lan-household-mesh-consumer",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/12-rollout-proof-and-pr-gate.md",
+        "docs/plans/eventing-plan/workpacks/10-lan-household-mesh-consumer.md"
+      ],
+      "reason": "WP12 cannot claim Eventing plan rollout while the selected LAN consumer remains structurally drafted but non-runnable."
+    },
+    {
+      "from": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
+      "to": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/12-rollout-proof-and-pr-gate.md",
+        "docs/plans/eventing-plan/workpacks/11-type-safety-and-ownership-hardening.md"
+      ],
+      "reason": "The final gate must wait for the live/stored envelope identity hardening and its negative coverage."
+    },
+    {
+      "from": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
+      "to": "WP-eventing-plan-13-test-folder-layout-regression-audit",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/eventing-plan/workpacks/12-rollout-proof-and-pr-gate.md",
+        "docs/plans/eventing-plan/workpacks/13-test-folder-layout-regression-audit.md"
+      ],
+      "reason": "The rollout gate consumes a fresh external-test-layout validation that includes all configured Eventing harnesses."
+    },
     {
       "from": "WP-policy-control-plane-plan-01-policy-source-of-truth",
       "to": "WP-cloudflare-control-plane-plan-06-storage-do-d1-kv-r2-queue-bindings",
@@ -441,6 +543,17 @@
   ],
   "stateOverrides": [
     {
+      "id": "WP-eventing-plan-09-network-consumer-event-chain",
+      "state": "validation",
+      "reason": "The production code, expected tests, focused validation, normal pre-commit, accepted commits, and remote checkpoint are current, while whole-plan integration acceptance, CI, review, and merge remain open.",
+      "statusText": "Validation — production code, expected tests, focused validation, normal pre-commit, and remote checkpoint complete; whole-plan integration acceptance remains open.",
+      "evidence": [
+        "docs/plans/eventing-plan/PLAN_STATE.md",
+        "docs/plans/eventing-plan/workpacks/09-network-consumer-event-chain.md",
+        "docs/engineering-graph/code-map.json"
+      ]
+    },
+    {
       "id": "WP-app-plan-01-contract-boundary-and-effect-schemas",
       "state": "validation",
       "reason": "The runtime-decision contract slice is code/test/proof/CI/main-merge verified, but the workpack's broader identity, inventory, runtime, session, policy, authority, action, enforcement, platform, and AI checklist remains open.",
@@ -496,24 +609,6 @@
       "reason": "The retained WP06 handoff, journal/replay, topology/lineage, and validation records are the durable proof bundle named by the workpack.",
       "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"],
       "satisfiesExpected": true
-    },
-    {
-      "id": "WP-eventing-plan-11-type-safety-and-ownership-hardening",
-      "proof": ["docs/proof/eventing-plan"],
-      "reason": "The durable eventing plan manifest explicitly records WP11 proof roots and validation; the generic plan root is not inferred for siblings.",
-      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
-    },
-    {
-      "id": "WP-eventing-plan-12-rollout-proof-and-pr-gate",
-      "proof": ["docs/proof/eventing-plan"],
-      "reason": "The durable eventing plan manifest explicitly records the WP12 route-proof bundle and its validation; the generic plan root is not inferred for siblings.",
-      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
-    },
-    {
-      "id": "WP-eventing-plan-13-test-folder-layout-regression-audit",
-      "proof": ["docs/proof/eventing-plan"],
-      "reason": "The durable eventing plan manifest explicitly records the WP13 regression audit and proof roots; the generic plan root is not inferred for siblings.",
-      "evidence": ["docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md"]
     }
   ],
   "completionEvidenceOverrides": [

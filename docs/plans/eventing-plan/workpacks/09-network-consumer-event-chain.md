@@ -56,10 +56,10 @@ read-model commands. The parent-assistant service router is covered by a real
 negative test that returns an assistant-answer event rather than an enforcement
 event. Real expected tests are written and the focused local Eventing,
 protocol, core, ActivityStore, service, parent-runtime, and portal families plus
-changed-file architecture/Enforcer gates pass. Commit `8abf80cb2` passed the
-normal pre-commit and is pushed; the later command-boundary follow-up remains
-uncommitted and therefore still needs the final combined pre-commit, CI, review,
-and merge gates. AI, policy, enforcement, audit, and portal *consumer behavior*
+changed-file architecture/Enforcer gates pass. The command-boundary follow-up
+is included in pushed commit `4b7bf6e3f`, whose normal pre-commit passed. The
+whole-plan integration acceptance, CI, review, and merge gates remain open. AI,
+policy, enforcement, audit, and portal *consumer behavior*
 remain downstream contracts; this workpack proves only their direct-command
 authority boundary. The current nested `network_event_runtime` fixture/prove/
 `TEST_*` files are review/test material, not shipped production behavior, and

@@ -17,11 +17,11 @@
 This is the short, token-efficient entry point for `eventing-plan`. The original full
 README content is preserved at [README_FULL_ORIGINAL.md](README_FULL_ORIGINAL.md) and is not default context.
 
-Historical Household Mesh consumer proof routes through
+Household Mesh consumer proof is owned by WP10 and is expected to route through
 `scripts/test/eventing-household-mesh-consumer-proof.mjs`. Treat
-`output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json` as
-the expected artifact location only; that proof file is absent in this checkout
-until WP12 restores or regenerates it.
+`output/eventing-plan-proof/10-lan-household-mesh-consumer/proof-summary.json`
+as the canonical artifact location only; the harness and proof are absent in
+this checkout until WP10's LAN WP26 dependency and local consumer work close.
 
 ## Default agent path
 

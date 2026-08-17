@@ -46,7 +46,9 @@ payload, and custody checks. Agent-core owns the private peer-authorization
 token and the only structural-to-republish conversion path. Its current
 authority resolver is deliberately unavailable and returns a fail-closed
 manual-required outcome until LAN pairing/transport and account/device trust
-composition supplies a non-forgeable runtime token. No caller-supplied
+composition supplies a non-forgeable runtime token. The required dependency
+  is LAN WP26; until that authority/transport composition is routed and
+  proven, no caller-supplied
 envelope field or fixture mints runtime authority.
 
 Tests, validation, proof, checklist, and runtime authority composition remain
@@ -99,9 +101,10 @@ Failure conditions:
 
 Expected proof artifacts:
 
-- `output/eventing-plan-proof/12-household-mesh-consumer/proof-summary.json`
-- `test-results/eventing-household-mesh-consumer-proof/proof.json`
-- `output/eventing-plan-proof/12-household-mesh-consumer/16-validation-commands.log`
-- `output/eventing-plan-proof/12-household-mesh-consumer/02-no-claim-boundary.md`
+- `output/eventing-plan-proof/10-lan-household-mesh-consumer/proof-summary.json`
+- `output/eventing-plan-proof/10-lan-household-mesh-consumer/16-validation-commands.log`
+- `output/eventing-plan-proof/10-lan-household-mesh-consumer/02-no-claim-boundary.md`
 
-These paths are currently absent in this checkout. Keep WP10 open until they are restored or regenerated and the owning LAN/remote-access workpack reference is re-verified.
+These paths are currently absent in this checkout. Keep WP10 blocked until LAN
+WP26 supplies the authority/transport composition and this canonical root is
+regenerated with the owning handoff reference.

@@ -5530,10 +5530,31 @@
       "planSlug": "eventing-plan",
       "roots": [
         "crates/agent-protocol/src/household_mesh.rs",
-        "crates/agent-protocol/src/household_mesh/household_mesh_bridge_input.rs",
+        "crates/agent-protocol/src/household_mesh",
         "crates/agent-core/src/household_mesh_event_bridge.rs",
+        "crates/agent-core/src/household_mesh_event_bridge_lookup.rs",
+        "crates/agent-core/src/household_mesh_event_bridge_lookup_tables.rs",
+        "crates/agent-core/src/household_mesh_event_bridge_rejection.rs",
+        "crates/agent-core/src/household_mesh_event_bridge_validation.rs",
+        "crates/agent-core/src/household_mesh_event_bridge_validation_rejection.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_message.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_payload.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_refs.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_rejection.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_source.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_spine.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_state.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_validation.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_validation_direction.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_validation_export.rs",
         "crates/agent-core/src/household_mesh_bridge_runtime_validation_import.rs",
-        "crates/agent-protocol/tests/contract/household_mesh.rs"
+        "crates/agent-core/src/household_mesh_bridge_runtime_validation_import_rejection.rs",
+        "crates/agent-core/src/household_mesh_bridge_runtime_validation_rejection.rs",
+        "crates/agent-protocol/tests/contract/household_mesh.rs",
+        "crates/agent-core/tests/unit/household_mesh_event_bridge.rs",
+        "crates/agent-core/tests/unit/household_mesh_event_bridge_tests.rs",
+        "crates/agent-core/tests/integration/household_mesh_bridge_runtime.rs"
       ]
     },
     "WP-eventing-plan-11-type-safety-and-ownership-hardening": {
@@ -5546,6 +5567,7 @@
         "crates/ocentra-eventing/fixtures/branded_scalar_parity.json",
         "crates/ocentra-eventing/tests/contract/typed_boundary.rs",
         "crates/ocentra-eventing/tests/contract/fixture_parity.rs",
+        "crates/ocentra-eventing/tests/unit/envelope.rs",
         "crates/ocentra-eventing/tests/unit/request_response.rs",
         "tests/repo-tooling/no-naked-domain-strings.test.mjs"
       ]

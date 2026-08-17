@@ -30,6 +30,7 @@ Expected outcome:
 Expected tests/proof:
 
 - `cargo test -p ocentra-eventing --test unit`
+- `cargo test -p ocentra-eventing --test contract`
 - `cargo test -p ocentra-eventing --test journal_replay`
 - `cargo test -p ocentra-eventing --test integration`
 - `cargo test -p ocentra-eventing --test version_skew`
@@ -50,4 +51,6 @@ Failure conditions:
   a fresh proof root.
 - Do not describe `src/tests.rs` as the remaining blocker when that file is
   already deleted in this checkout.
-- Do not mark the plan stable again until the moved test layout has been re-validated and the new proof root exists.
+- Do not mark the plan stable again until the moved test layout, including the
+  external `contract` harness, has been re-validated and the new proof root
+  exists.

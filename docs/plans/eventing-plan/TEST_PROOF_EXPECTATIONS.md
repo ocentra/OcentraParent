@@ -19,8 +19,8 @@
 output/eventing-plan-proof/<workpack-file-stem>/
 ```
 
-`docs/proof/eventing-plan/` holds the current WP12 route-proof manifest bundle
-and the hand-authored WP06 durable proof manifest. New raw/generated
+`docs/proof/eventing-plan/` holds the hand-authored WP06 durable proof
+manifest; it does not replace the absent WP12 route-proof bundle. New raw/generated
 implementation output remains under `output/eventing-plan-proof/<workpack-file-stem>/`
 and stays ignored unless a route explicitly selects a hand-authored durable
 manifest.
@@ -99,15 +99,15 @@ include run id, command id, workpack id, owner module, event family, exit code, 
 if the wrapper is unavailable, write wrapper: unavailable and keep the same compact command-log shape
 ```
 
-## Current local proof roots
+## Expected proof roots (current generated roots are absent)
 
 ```text
 docs/proof/eventing-plan/PLAN_PROOF_MANIFEST.md
 docs/proof/eventing-plan/slice-01-envelope-version.md
 docs/proof/eventing-plan/slice-02-ordering-replay.md
 docs/proof/eventing-plan/slice-03-consumer-boundary.md
-output/eventing-plan-proof/rollout-proof/
-test-results/eventing-rollout-proof/
+output/eventing-plan-proof/10-lan-household-mesh-consumer/
+output/eventing-plan-proof/12-rollout-proof-and-pr-gate/
 output/eventing-plan-proof/13-test-folder-layout-regression-audit/
 test-results/eventing-test-folder-layout-regression-audit/
 output/eventing-plan-proof/63-type-safety-source-gate/
@@ -166,11 +166,11 @@ LAN mesh handoff
 redaction
 manual-required blockers
 proof-root presence
-WP12 rollout-proof route restored without PR_READY claims
-WP13 source-side test scaffold cleanup locally proved
-WP11 scoped proof roots restored locally, package-wide agent-protocol-domain type-check passes again, and focused policy-control plus contracts validation is green
+WP12 rollout-proof route remains open: harness and canonical root are missing
+WP13 source-side test scaffold cleanup is code-complete; validation/proof remains open and includes the contract harness
+WP11 is implementation-ready/open: envelope, aggregate/idempotency, negative, and retained-proof gaps remain
 WP06 generic journal/topology proof and `00-enforcement-wp11-handoff.md` are retained in the tracked durable manifest; WP10 and enforcement-specific WP11 proof remain open
-WP10 remains open until its proof roots and blocking validation exist
+WP10 remains blocked on LAN WP26 and its proof root is absent
 ```
 
 ## Required negative states

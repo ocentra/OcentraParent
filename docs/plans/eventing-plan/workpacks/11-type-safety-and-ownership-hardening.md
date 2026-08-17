@@ -42,22 +42,18 @@ Expected proof artifacts:
 - `output/eventing-plan-proof/67-lock-await/proof-summary.json`
 - `output/eventing-plan-proof/68-fixture-parity/proof-summary.json`
 
-Current local completion evidence from the 2026-06-17 regeneration and follow-up validation pass:
+Current source audit (implementation-ready; not closure evidence):
 
-- The scoped Rust proof roots now regenerate successfully at:
-  - `output/eventing-plan-proof/63-type-safety-source-gate/proof-summary.json`
-  - `output/eventing-plan-proof/66-76-source-safety/proof-summary.json`
-  - `output/eventing-plan-proof/67-lock-await/proof-summary.json`
-  - `output/eventing-plan-proof/68-fixture-parity/proof-summary.json`
-- Package-wide TypeScript validation now passes again:
-  `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`.
-- Focused downstream validation for the hardened package surface now also
-  passes:
-  `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- policy-control-audit-redaction.test.ts policy-control-delivery-read-model.test.ts contracts.test.ts`.
-- The touched-file architecture gate now passes for
-  `src/contracts.ts`, `src/policy-control-audit-redaction.ts`, and
-  `src/policy-control-delivery-read-model.ts`.
+- `EventEnvelope<E>` is unconstrained at the struct boundary in
+  `crates/ocentra-eventing/src/envelope.rs`; the typed `DomainEvent` bound is
+  applied only by selected impls.
+- `StoredEventEnvelope::decode` checks the contract but does not revalidate the
+  decoded payload's aggregate and idempotency keys against the stored envelope.
+- Existing round-trip/version-skew tests do not retain the required malformed
+  payload, aggregate/idempotency tamper, payload-mutation, and lock/await audit
+  negatives.
+- The cited `63`, `66-76`, `67`, and `68` proof roots are absent; unrelated
+  policy-control TypeScript checks do not close this Eventing workpack.
 
-These proof-summary paths now exist in this checkout, and WP11 is locally
-proved in truth for this worktree. The broader plan still remains open because
-WP10 household-mesh consumer proof is not yet restored.
+WP11 is therefore open and implementation-ready, pending the bounded source
+fixes/negative tests and regenerated retained proof.

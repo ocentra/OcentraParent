@@ -2,9 +2,9 @@
 
 > **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
 
-Status: WP06 durable manifest complete; WP11 type-safety hardening locally
-proved; WP12 rollout-proof route complete; WP13 regression audit complete; the
-plan remains open on WP10.
+Status: WP06 durable manifest complete; WP09 integration/CI/review/merge open;
+WP10 blocked on LAN WP26; WP11 implementation-ready but open; WP12 harness/root
+missing; WP13 code-complete but current validation/proof open.
 
 This checklist tracks the current execution slice only. Historical closure notes
 remain in the plan docs, but the list below is the live tracker for the recent
@@ -29,16 +29,16 @@ local proof closures and the remaining open workpacks.
 
 ## Route-proof reconciliation
 
-- [x] Restore the local WP12 rollout-proof bundle under
+- [ ] Restore the local WP12 rollout-proof bundle under
       `docs/proof/eventing-plan/`,
-      `output/eventing-plan-proof/rollout-proof/`, and
-      `test-results/eventing-rollout-proof/`.
-- [x] Re-run `node scripts/test/eventing-rollout-proof.mjs` and confirm the
+      `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/`.
+- [ ] Re-run `node scripts/test/eventing-rollout-proof.mjs` and confirm the
       route docs keep WP10 open without any `PR_READY` claim.
-- [x] Record the restored WP12 route-proof state in `PLAN_STATE.md`,
+- [ ] Record the restored WP12 route-proof state in `PLAN_STATE.md`,
       `NEXT_ACTIONS.md`, `PROOF_INDEX.md`, and
       `TEST_PROOF_EXPECTATIONS.md`.
-- [x] Re-run the scoped WP11 package validation:
+- [ ] Re-run the scoped WP11 Eventing validation, including envelope negative
+      cases, aggregate/idempotency revalidation, and retained proof roots:
       `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`,
       focused policy-control/contract tests, and touched-file
       `npm run lint:architecture -- --files ...`.
@@ -52,6 +52,8 @@ local proof closures and the remaining open workpacks.
       `crates/ocentra-eventing/src/lib.rs`.
 - [x] Remove the remaining empty `crates/ocentra-eventing/src/tests/`
       scaffold from `crates/ocentra-eventing/src/`.
-- [x] Re-run the focused eventing test suites and architecture lint for the moved files.
-- [x] Record the fresh proof artifacts or blockers under the regression-audit
+- [ ] Re-run the focused eventing test suites, including
+      `cargo test -p ocentra-eventing --test contract`, and architecture lint
+      for the moved files.
+- [ ] Record the fresh proof artifacts or blockers under the regression-audit
       proof root and the WP12 route docs.

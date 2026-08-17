@@ -32,8 +32,9 @@ This file is the short resume list for the next worker. It is derived from open 
   expected focused tests are implemented and locally green. AI and portal
   direct-enforcement mutation negatives are now real code/tests. Local ignored
   evidence exists at
-  `output/eventing-plan-proof/09-network-consumer-event-chain/`; the final
-  combined pre-commit, accepted commit, CI, review, and merge remain open.
+  `output/eventing-plan-proof/09-network-consumer-event-chain/`; normal
+  pre-commit and accepted commits are pushed, while whole-plan integration,
+  CI, review, and merge remain open.
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
   is open because the expected local proof roots remain absent and the
   LAN/remote-access consumer handoff still needs exact verification.
@@ -42,20 +43,15 @@ This file is the short resume list for the next worker. It is derived from open 
   `00-enforcement-wp11-handoff.md`, journal/replay proof, topology/lineage
   proof, and compact validation log are retained. This is a generic Eventing
   prerequisite only; enforcement retains authority/action/rollback proof.
-- WP11 is now locally proved: the scoped proof roots remain present, package-wide
-  `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`
-  passes again, focused `policy-control-audit-redaction.test.ts`,
-  `policy-control-delivery-read-model.test.ts`, and `contracts.test.ts` pass,
-  and the touched-file `lint:architecture` gate is green.
-- WP12 is now locally proved at
-  `output/eventing-plan-proof/rollout-proof/proof-summary.json`,
-  `test-results/eventing-rollout-proof/proof.json`, and
-  `docs/proof/eventing-plan/`.
-- WP13 is now locally proved at
-  `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`
-  and `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
-- Next slice: verify the owning LAN/remote-access proof handoff for WP10 before
-  changing its local status.
+- WP11 is implementation-ready but open: the live/stored envelope boundary is
+  not fully constrained, stored decode lacks aggregate/idempotency revalidation,
+  and the negative/audit proof roots are absent.
+- WP12 is open because `scripts/test/eventing-rollout-proof.mjs` and
+  `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
+- WP13 is code-complete for the moved test layout, but current validation/proof
+  is open and must include `cargo test -p ocentra-eventing --test contract`.
+- Next slice: route LAN WP26 authority/transport composition for WP10, then
+  regenerate the canonical WP10 proof root before changing its status.
 
 ## WP09 production-route boundary
 

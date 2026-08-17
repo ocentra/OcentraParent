@@ -7,7 +7,7 @@
 > Doc: `LAN Plan Workpack Index`
 > Kind: authoritative workpack selector.
 > Read when: before opening any LAN workpack.
-> Stop rule: use only one authoritative workpack from `01-25`.
+> Stop rule: use only one authoritative workpack from `01-26`.
 > Proves: current execution model and workpack routing only.
 > Does not prove: row completion or physical proof by itself.
 > Proof rule: if a workpack state changes here, the checklist and proof index must match it.
@@ -45,8 +45,8 @@ is unclear. Do not use it as permission to scan multiple workpacks.
 ## Follow-On Workpack Truth
 
 These rows are active `lan-plan` follow-on scope. Current row truth is mixed:
-`21`, `22`, and `24` are locally complete with their own proof; `23` and `25`
-remain partial/manual. No follow-on row can support PR-ready or completion
+`21`, `22`, and `24` are locally complete with their own proof; `23`, `25`, and
+`26` remain partial/open. No follow-on row can support PR-ready or completion
 claims without its own current Rust-first proof, organized tests where
 applicable, and explicit no-claim boundaries.
 
@@ -57,18 +57,19 @@ applicable, and explicit no-claim boundaries.
 | `23` | partial/manual | Rust-owned route-custody, stale/offline, rejection, revoke, and read-model projection proof is locally green across protocol and agent-service tests; remaining gaps are physical two-device/manual topology proof and broader restart/manual artifacts, not local Rust code gaps. |
 | `24` | complete | Rust-owned `setupFirstRunPanel` snapshot shape, parent-runtime snapshot builder, portal route wiring, focused unit/runtime tests, portal build, and the exact Windows `setup-first-run-ui-proof` Playwright command are green; broader physical/manual LAN closure remains owned by sibling workpacks, not this portal slice. |
 | `25` | partial/code-test gap | Rust replay parsing/status binding, the host delivery decision, and isolated portal-state consumption are separately covered by focused protocol, service, runtime, desktop, and portal tests. Phase 1 remains open because the real backend-to-Tauri-`AppHandle`-to-portal-listener regression and WP20's aggregate verifier programs are missing. Physical multi-device, router/firewall, signed-artifact, restart, and other manual topology/runtime artifacts remain later gates. |
+| `26` | open — code/test/proof gap | Real signed child/runtime peer ingress and household-mesh authority composition are not yet implemented or proven. WP26 must compose W15 household custody, W18 signed hello/heartbeat trust and transport authority, and W19 route/revocation/lease authority, then provide only a private typed Eventing WP10 authorization handoff. The canonical proof root is `output/lan-plan-proof/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/`; no portal authority, fake transport, or synthetic receiver is accepted. |
 
 ## Selection Rules
 
-- Select exactly one authoritative workpack from `01-25`.
+- Select exactly one authoritative workpack from `01-26`.
 - If the selected workpack owner/proof family is unclear, classify it through
   `WORKPACK_FAMILIES.md`; do not scan every family.
 - Do not raise status from B1/B2 proof outside their explicit non-claims.
 - Do not use legacy TypeScript package proof surfaces as current contract,
   read-model, or runtime ownership.
-- Do not treat `21-25` as parked/future scope. They are active follow-on scope
+- Do not treat `21-26` as parked/future scope. They are active follow-on scope
   and must use the current row truth above.
-- Do not mark any `21-25` row complete or PR_READY without that row's own
+- Do not mark any `21-26` row complete or PR_READY without that row's own
   current Rust-first row truth, organized tests where applicable, and proof
   artifacts.
 - Real LAN closure must live in organized Rust crate `tests/` folders. UI

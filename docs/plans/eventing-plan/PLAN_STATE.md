@@ -58,7 +58,8 @@ Network, AI, policy, enforcement, portal, data-custody, browser, app-game, scree
 
 ```text
 output/eventing-plan-proof/<workpack>/ is the normal raw/generated implementation/workpack proof root.
-docs/proof/eventing-plan/ is accepted for the current WP12 route-proof bundle and the hand-authored WP06 durable manifest.
+docs/proof/eventing-plan/ contains the hand-authored WP06 durable manifest; the
+WP12 generated route-proof bundle is absent.
 crate tests can prove local reusable bus behavior only.
 event-domain metadata does not prove shared event contract implementation.
 agent-protocol/service tests prove protocol/service handoff only when selected.
@@ -85,9 +86,8 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 
 ## What is implemented / exercised in this checkout
 
-- `crates/ocentra-eventing` exists and the focused crate harnesses currently pass: `unit`, `contract`, `journal_replay`, `integration`, and `version_skew`.
-- `packages/event-domain` mirror tests and `type-check` pass in this checkout.
-- Focused downstream contract mirrors also pass: `@ocentra-parent/agent-protocol-domain` `network-runtime-events.test.ts` plus `contracts.test.ts`, and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
+- `crates/ocentra-eventing` and its external `unit`, `contract`, `journal_replay`, `integration`, and `version_skew` harnesses are present. This audit does not treat their historical pass wording as current retained proof.
+- `packages/event-domain` and downstream mirror commands remain expected validation, not current closure evidence.
 - 2026-08-16 production-code pass: WP10 now has a code-drafted, unvalidated
   structural household-mesh validator and fail-closed runtime authorization
   boundary in `crates/agent-protocol/src/household_mesh.rs`,
@@ -106,14 +106,17 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   serialization while allowing enforcement read-model commands; the
   parent-assistant service router returns an assistant-answer event rather than
   an enforcement event. The eight focused local command families and portal
-  command-boundary gates are green. Commit `8abf80cb2` passed the normal
-  pre-commit and is pushed; the later command-boundary delta still needs the
-  final combined pre-commit/commit/push.
-- A fresh WP13 regression proof now exists at `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json` plus `test-results/eventing-test-folder-layout-regression-audit/proof.json`.
-- A fresh WP12 route-proof bundle is restored locally at `docs/proof/eventing-plan/`, `output/eventing-plan-proof/rollout-proof/`, and `test-results/eventing-rollout-proof/`.
-- A scoped 2026-06-17 WP11 regeneration pass now restores the eventing proof roots at `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
-- Package-wide `npm run type-check --workspace @ocentra-parent/agent-protocol-domain` now passes again after the scoped WP11 source-boundary hardening in `src/contracts.ts`, `src/policy-control-audit-redaction.ts`, and `src/policy-control-delivery-read-model.ts`.
-- Focused `policy-control-audit-redaction.test.ts`, `policy-control-delivery-read-model.test.ts`, `contracts.test.ts`, and the touched-file `npm run lint:architecture -- --files ...` gate now pass for the WP11 follow-up.
+  command-boundary gates are green. Commit `4b7bf6e3f` has the normal
+  pre-commit and is pushed; WP09 integration, CI, review, and merge remain
+  open.
+- WP13 test-folder layout code is present, but current validation and proof are
+  open; its proof root is absent and the `contract` harness must be included.
+- WP12 is open: `scripts/test/eventing-rollout-proof.mjs` and its canonical
+  route-proof root are absent.
+- WP11 is implementation-ready but open: `EventEnvelope<E>` remains
+  unconstrained at the struct boundary, stored decode does not revalidate
+  aggregate/idempotency references, and the required negative/audit proof is
+  not retained.
 
 ## Open gaps / missing product runtime
 
@@ -124,14 +127,18 @@ open until its proof roots and LAN/remote-access handoff verification exist.
 - External transport delivery currently proves local queue/idempotency/dead-letter semantics and route-decision requirements only. A live transport/relay delivery implementation remains a separate workpack.
 - The NDJSON journal is the reusable append/replay proof layer. Production durability requirements such as fsync policy, SQLite projections, remote replication, or retention/deletion enforcement remain consumer/platform decisions.
 - Current source audit at root `d1d39b437` found `NdjsonEventJournal::recover` calling `acquire_append_file_lock` across the `ndjson_io` child boundary while the helper was only `pub(super)`. The helper and guard are now visible only within `crate::journal::ndjson` (not crate-wide and not re-exported), preserving the journal module's ownership boundary. Its proof refresh remains deferred.
-- The fresh regression audit work itself is locally proved: no eventing test modules remain under `crates/ocentra-eventing/src/`, the focused crate suites still pass, and the proof root is recorded under `output/eventing-plan-proof/13-test-folder-layout-regression-audit/`.
+- The WP13 source-layout cleanup is code-complete: no eventing test modules
+  remain under `crates/ocentra-eventing/src/`. Focused validation, including
+  `cargo test -p ocentra-eventing --test contract`, and the fresh proof root
+  remain open.
 
 ## Checklist summary
 
 - Full checklist: [implementation-checklist.md](implementation-checklist.md) (not default context).
 - Checklist index: [CHECKLIST_INDEX.md](CHECKLIST_INDEX.md).
 - Historical checklist rows remain marked complete in `implementation-checklist.md`, but those checkmarks are not current proof truth for this checkout.
-- `CHECKLIST_INDEX.md` is the current tracker for the recent WP11/WP12/WP13 local proof closure and the remaining WP10 open work.
+- `CHECKLIST_INDEX.md` is the current tracker for WP06 closure and the open
+  WP09-WP13 validation/proof work.
 
 ## Workpack summary
 
@@ -155,29 +162,39 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   gates pass locally.
 - Local ignored evidence is regenerated at
   `output/eventing-plan-proof/09-network-consumer-event-chain/`, with a compact
-  manifest and eight wrapped command families. Rows 57-62 remain unchecked
-  until the final combined pre-commit, accepted commit, CI, review, and merge
-  gates are complete; ignored evidence is not retained acceptance by itself.
-- Workpacks open in truth: WP09 final integration/acceptance gates plus WP10
-  consumer-boundary handoff. WP06/WP11/WP12/WP13 are locally proved; WP10 still
-  lacks its required tests/proof and LAN/account/device authority composition.
+  manifest and eight wrapped command families. Normal pre-commit and accepted
+  commits through `4b7bf6e3f` are pushed. Rows 57-62 remain unchecked until
+  whole-plan integration, CI, review, and merge are complete; ignored evidence
+  is not retained acceptance by itself.
+- Workpacks closed in the current selectable slice: WP06 only. WP09 remains
+  open on integration/CI/review/merge; WP10 is blocked on LAN WP26 and its
+  authority composition; WP11 is implementation-ready but lacks the required
+  envelope/aggregate/idempotency negatives and proof; WP12 lacks its route
+  harness/root; WP13 is code-complete but lacks current validation/proof.
 
 ### Active/open workpacks
 
 - [09 Network Consumer Event Chain](workpacks/09-network-consumer-event-chain.md)
-  (Phase 1 and expected tests written; focused/local proof green; final combined
-  pre-commit, accepted commit, CI, review, and merge open)
+  (Phase 1 and expected tests written; focused/local proof and normal pre-commit
+  green; accepted commits pushed; whole-plan integration, CI, review, and merge
+  open)
 - [10 LAN Household Mesh Consumer](workpacks/10-lan-household-mesh-consumer.md)
 
 ## Validation reality
 
 - Focused reusable crate validation passes in this checkout: `cargo test -p ocentra-eventing --test unit`, `--test contract`, `--test journal_replay`, `--test integration`, and `--test version_skew`, plus `cargo lint-architecture crates/ocentra-eventing/src crates/ocentra-eventing/tests`.
-- Post-WP13 cleanup validation also passes: `cargo test -p ocentra-eventing --tests`, with the resulting proof recorded at `output/eventing-plan-proof/13-test-folder-layout-regression-audit/proof-summary.json`.
-- WP12 route-proof validation is restored locally through `node scripts/test/eventing-rollout-proof.mjs`, with the resulting proof bundle recorded under `output/eventing-plan-proof/rollout-proof/`.
+- Post-WP13 cleanup validation is required but not current retained evidence;
+  it must include `cargo test -p ocentra-eventing --test contract` and write
+  `output/eventing-plan-proof/13-test-folder-layout-regression-audit/`.
+- WP12 route-proof validation is blocked because
+  `node scripts/test/eventing-rollout-proof.mjs` and
+  `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
 - Shared TypeScript contract mirror validation passes in this checkout: `npm run test --workspace @ocentra-parent/event-domain` and `npm run type-check --workspace @ocentra-parent/event-domain`.
 - Focused downstream mirror validation also passes: `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts` and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
-- Scoped WP11 proof regeneration now passes through the reusable eventing surface and writes proof artifacts under `output/eventing-plan-proof/63-type-safety-source-gate/`, `66-76-source-safety/`, `67-lock-await/`, and `68-fixture-parity/`.
-- `npm run type-check --workspace @ocentra-parent/agent-protocol-domain` now passes again, and the focused policy-control/contract tests plus touched-file architecture gate pass for the scoped WP11 source files.
+- WP11 proof regeneration is required for the reusable Eventing envelope/type
+  surface; the cited `63-type-safety-source-gate`, `66-76-source-safety`,
+  `67-lock-await`, and `68-fixture-parity` roots are not retained here. The
+  policy-control TypeScript checks are not Eventing WP11 closure evidence.
 - WP06 focused proof now passes: journal/replay (22), topology manifest (4),
   lineage compatibility (3), runtime shutdown (5), and the scoped
   architecture gate are recorded in the durable manifest under
@@ -186,10 +203,10 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   protocol-flow, 43 core-runtime, 6 ActivityStore, 36 filtered service, 39 full
   service-bridge, and 2 parent-runtime passing tests. Portal rows 60-61 add 159
   passing portal tests/type-check and an 11-test parent-assistant target.
-- Current interpretation: WP09 code/expected tests and local focused evidence
-  are present, but its final integration gates remain open. WP06/WP11/WP12/WP13
-  are locally proved, and the plan also remains open because WP10 lacks its
-  tests/proof and consumer-plan handoff verification.
+- Current interpretation: WP09 code and focused local evidence are present,
+  but integration/CI/review/merge remain open. WP06 is the only closed
+  selectable workpack. WP10 is blocked on LAN WP26; WP11-WP13 remain open for
+  implementation/validation/proof reconciliation.
 
 ## Default no-read list
 
@@ -211,7 +228,8 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   - do not mark this plan complete from checklist deltas alone.
 - Active proof-root route:
   - use `output/eventing-plan-proof/<workpack-file-stem>/` for new raw/generated implementation/workpack output.
-  - `docs/proof/eventing-plan/` is accepted for the current WP12 route-proof bundle and the hand-authored WP06 durable manifest.
+  - `docs/proof/eventing-plan/` contains the hand-authored WP06 durable manifest;
+    it does not replace the absent WP12 generated route-proof bundle.
   - historical `docs/proof/eventing-plan/slice-*` references do not close runtime work by themselves.
 - Before any checked update, attach:
   - a real test run log or explicit blocker from the assigned implementation boundary,

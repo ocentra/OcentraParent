@@ -19,10 +19,10 @@
 - This file is truth-synced on 2026-06-28.
 - Historical checkbox counts and historical `[~]` progress markers are not
   authoritative.
-- `01-25` are the live execution rows for the active LAN plan scope.
-- `21-25` are active follow-on rows with mixed current state. Rows `21`, `22`,
-  and `24` are locally complete with their own proof; rows `23` and `25`
-  remain partial/manual. No row counts as PR-ready without its own current
+- `01-26` are the live execution rows for the active LAN plan scope.
+- `21-26` are active follow-on rows with mixed current state. Rows `21`, `22`,
+  and `24` are locally complete with their own proof; row `23` and `25` remain
+  partial/manual, and row `26` is open for code, tests, and proof. No row counts as PR-ready without its own current
   Rust-first ownership, organized tests where applicable, and proof.
 - Rust-owned schema/protocol/service/runtime crates are authoritative for
   contracts, business logic, read models, and route snapshots. TS is
@@ -89,9 +89,11 @@
 | `23` | partial/manual | current pairing/route proof truth is locally green across Rust/service/read-model tests; physical/manual topology artifacts remain open |
 | `24` | complete | household/setup/account handoff truth is green on the current Windows portal/runtime proof path; TS remains presentation-only |
 | `25` | partial/code-test gap | Rust-owned backend replay validation, bridge projection, redacted rejection diagnostics, host delivery decision, and portal-state seams exist separately. Phase 1 remains open on the integrated `AppHandle`-to-listener regression and WP20's absent aggregate verifiers; tracked proof and physical/manual topology remain later gates. |
+| `26` | open — code/test/proof gap | real signed child/runtime peer ingress, W15 household custody, W18 signed hello/heartbeat and transport authority, W19 route/revocation/lease composition, atomic message/idempotency custody, and private Eventing WP10 authorization handoff are not yet implemented or proven; real ingress/restart/duplicate/stale/revoked/wrong-family/wrong-target/provider-policy negatives and `output/lan-plan-proof/26-signed-child-beacon-ingress-and-household-mesh-authority-handoff/` remain open; portal authority and fake transport are forbidden |
 
-Rows `21-25` remain active scope. `23` is manual-proof open; `25` has a Phase 1
-code/test gap plus later manual proof.
+Rows `21-26` remain active scope. `23` is manual-proof open; `25` has a Phase 1
+code/test gap plus later manual proof; `26` is open for the real ingress,
+authority composition, organized tests, and proof packet described above.
 Keep all follow-on rows aligned to the current Rust-first ownership and
 organized-test model before using them for implementation, completion, or PR
 gates.
