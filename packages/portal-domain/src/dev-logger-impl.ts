@@ -14,6 +14,7 @@ import {
 } from '@ocentra-parent/logging-domain/generated/logging-contracts';
 import { Schema } from 'effect';
 import { Logger } from '@ocentra-parent/logging-domain/core/logger';
+import { redactStructuredLogValue } from '@ocentra-parent/logging-domain/core/log-redaction';
 
 const PortalDevLogBridge = DevLogBridge;
 const PortalProofTrace = {
@@ -369,6 +370,6 @@ function createPortalCompatibilityEntry(message: LogMessage, fields: LogFields):
     level: LogLevel.Info,
     source: LogSource.Portal,
     message,
-    fields,
+    fields: redactStructuredLogValue(fields) as LogFields,
   };
 }
