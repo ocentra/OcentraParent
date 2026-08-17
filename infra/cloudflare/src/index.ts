@@ -1882,6 +1882,10 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const result = buildAdminRefundResult(requestId, stringOrNull(body.invoiceId), numberOrNull(body.amountCents));
       if (result.status === 'accepted') {
         const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
+        const refundInvoice =
+          refundSubject && result.invoiceId
+            ? (await loadBillingInvoices(env, refundSubject)).find((invoice) => invoice.invoiceId === result.invoiceId) ?? null
+            : null;
         return executeIdempotentWrite(
           env.BILLING_DO,
           `billing-control:${refundSubject}`,
@@ -1898,14 +1902,17 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
             },
             stateMutation:
               refundSubject &&
+              refundInvoice &&
               result.invoiceId &&
               result.refundState !== 'manual-review-required' &&
               result.amountCents !== null
                 ? {
                     kind: 'admin-refund',
                     subject: refundSubject,
+                    actorSubject,
                     requestId,
                     invoiceId: result.invoiceId,
+                    currency: refundInvoice.currency,
                     refundState: result.refundState,
                     amountCents: result.amountCents,
                     auditReference: result.auditReference,
