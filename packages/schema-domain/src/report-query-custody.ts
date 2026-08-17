@@ -6,10 +6,14 @@ import {
   ParentAccountReferenceSchema,
   ParentActionReferenceSchema,
   ParentDeviceReferenceSchema,
-  ParentEvidenceReferenceSchema,
 } from './family-references';
 import {
+  ParentAccountIdSchema,
   ParentContractSchemaVersionSchema,
+  ChildProfileIdSchema,
+  FamilyIdSchema,
+  ParentDeviceIdSchema,
+  ParentEvidenceReferenceIdSchema,
   ParentTimestampSchema,
   type ChildProfileId as ChildProfileIdType,
   type FamilyId as FamilyIdType,
@@ -61,6 +65,8 @@ export const ReportQueryCustodySortKeySchema = Generated.GeneratedReportQueryCus
 export const ReportQueryCustodySourceRefSchema = Generated.GeneratedReportQueryCustodySourceRefSchema;
 export const ReportQueryCustodyConflictRefSchema = Generated.GeneratedReportQueryCustodyConflictRefSchema;
 export const ReportQueryCustodyDeletedSourceRefSchema = Generated.GeneratedReportQueryCustodyDeletedSourceRefSchema;
+export const ReportQueryCustodyParentAuthorityReferenceIdSchema =
+  Generated.GeneratedParentAuthorityReferenceIdSchema;
 const ReportQueryCustodyPositiveCountSchema = Schema.Number.pipe(Schema.int(), Schema.positive());
 
 export type ParentAccountId = ParentAccountIdType;
@@ -81,15 +87,24 @@ export type ReportQueryCustodySourceRef = Generated.GeneratedReportQueryCustodyS
 export type ReportQueryCustodyConflictRef = Generated.GeneratedReportQueryCustodyConflictRef;
 export type ReportQueryCustodyDeletedSourceRef = Generated.GeneratedReportQueryCustodyDeletedSourceRef;
 
-const ReportQueryCustodyAllowedCitationRefSchema = withParser(
-  ParentEvidenceReferenceSchema.pipe(
-    Schema.filter(
-      (citation) =>
-        citation.kind === 'query-store-summary' ||
-        'Expected report and assistant citations to stay within query-store-summary evidence only'
-    )
-  )
-);
+const ReportQueryCustodyParentAuthorityReferenceSchema = Schema.Struct({
+  authorityReferenceId: ReportQueryCustodyParentAuthorityReferenceIdSchema,
+  familyId: FamilyIdSchema,
+  parentAccountId: ParentAccountIdSchema,
+  deviceId: ParentDeviceIdSchema,
+  childProfileId: Schema.Union(ChildProfileIdSchema, Schema.Null),
+  authorityGeneration: ReportQueryCustodyPositiveCountSchema,
+});
+
+const ReportQueryCustodyAllowedCitationRefSchema = Schema.Struct({
+  evidenceReferenceId: ParentEvidenceReferenceIdSchema,
+  kind: Schema.Literal('query-store-summary'),
+  observedAt: ParentTimestampSchema,
+  familyId: FamilyIdSchema,
+  childProfileId: Schema.Union(ChildProfileIdSchema, Schema.Null),
+  sourceDataClass: ReportQueryCustodySourceDataClassSchema,
+  sourceReference: ReportQueryCustodySourceRefSchema,
+});
 
 const ReportQueryCustodyRequestBaseSchema = Schema.Struct({
   schemaVersion: ReportQueryCustodySchemaVersionSchema,
@@ -105,8 +120,7 @@ const ReportQueryCustodyRequestBaseSchema = Schema.Struct({
   sourceCitationRefs: Schema.Array(ReportQueryCustodyAllowedCitationRefSchema),
   assistantCitationRefs: Schema.Array(ReportQueryCustodyAllowedCitationRefSchema),
   notificationPayloadBoundary: ReportQueryCustodyBoundarySchema,
-  parentAuthorized: Schema.Boolean,
-  parentOwnedSourceRequired: Schema.Boolean,
+  parentAuthority: ReportQueryCustodyParentAuthorityReferenceSchema,
   rawChildEvidenceRequested: Schema.Literal(false),
 });
 
@@ -144,8 +158,7 @@ const ReportQueryCustodyRowBaseSchema = Schema.Struct({
   conflictRef: Schema.Union(ReportQueryCustodyConflictRefSchema, Schema.Null),
   cursorExpiredAt: Schema.Union(ParentTimestampSchema, Schema.Null),
   rateLimitedUntilAt: Schema.Union(ParentTimestampSchema, Schema.Null),
-  parentAuthorized: Schema.Boolean,
-  parentOwnedSourceRequired: Schema.Boolean,
+  parentAuthority: ReportQueryCustodyParentAuthorityReferenceSchema,
   rawChildEvidenceIncluded: Schema.Literal(false),
   reportCacheMutated: Schema.Boolean,
   secondTruthStoreClaimed: Schema.Boolean,

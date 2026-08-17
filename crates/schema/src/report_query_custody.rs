@@ -40,6 +40,8 @@ const REPORT_QUERY_CUSTODY_SAMPLE_PARENT_DEVICE_LABEL: &str =
     "Windows parent device report query custody proof";
 const REPORT_QUERY_CUSTODY_SAMPLE_PARENT_ACTION_ID: &str =
     "parent-action-report-query-custody-proof-1";
+const REPORT_QUERY_CUSTODY_SAMPLE_PARENT_AUTHORITY_ID: &str =
+    "parent-authority-report-query-custody-proof-1";
 const REPORT_QUERY_CUSTODY_SAMPLE_PARENT_ACTOR_ID: &str = "parent-report-query-custody-proof-1";
 const REPORT_QUERY_CUSTODY_SAMPLE_POLICY_VERSION: &str = "report-query-custody-proof-v1";
 const REPORT_QUERY_CUSTODY_SAMPLE_REQUESTED_CURSOR: &str = "report-query-custody-cursor-proof-1";
@@ -58,6 +60,8 @@ const REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_CURSOR_REF: &str =
 const REPORT_QUERY_CUSTODY_SAMPLE_STABLE_SORT_KEY: &str = "report-query-custody-stable-sort-key";
 const REPORT_QUERY_CUSTODY_SAMPLE_EVIDENCE_ID_ONE: &str = "report-query-custody-evidence-1";
 const REPORT_QUERY_CUSTODY_SAMPLE_EVIDENCE_ID_TWO: &str = "report-query-custody-evidence-2";
+const REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_REF_ONE: &str = "report-query-custody-source-1";
+const REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_REF_TWO: &str = "report-query-custody-source-2";
 
 const REPORT_QUERY_CUSTODY_PAGE_SIZE: u32 = 25;
 const REPORT_QUERY_CUSTODY_EXPECT_CONTRACT_VERSION: &str = "contract version";
@@ -69,6 +73,7 @@ const REPORT_QUERY_CUSTODY_EXPECT_ACTOR_ID: &str = "actor id";
 const REPORT_QUERY_CUSTODY_EXPECT_POLICY_VERSION: &str = "policy version";
 const REPORT_QUERY_CUSTODY_EXPECT_EVIDENCE_ID: &str = "evidence id";
 const REPORT_QUERY_CUSTODY_EXPECT_PARENT_ACTION_ID: &str = "parent action id";
+const REPORT_QUERY_CUSTODY_EXPECT_PARENT_AUTHORITY_ID: &str = "parent authority id";
 const REPORT_QUERY_CUSTODY_EXPECT_TIMESTAMP: &str = "timestamp";
 const REPORT_QUERY_CUSTODY_EXPECT_REQUEST_ID: &str = "request id";
 const REPORT_QUERY_CUSTODY_EXPECT_QUERY_CURSOR: &str = "query cursor";
@@ -99,6 +104,7 @@ pub type ParentActorId = text_types_actor::ParentActorId;
 pub type ParentPolicyVersion = text_types_actor::ParentPolicyVersion;
 pub type ParentEvidenceReferenceId = text_types_actor::ParentEvidenceReferenceId;
 pub type ParentActionReferenceId = text_types_actor::ParentActionReferenceId;
+pub type ParentAuthorityReferenceId = text_types_actor::ParentAuthorityReferenceId;
 pub type ParentTimestamp = text_types_actor::ParentTimestamp;
 pub type ReportQueryCustodyRequestId = text_types_actor::ReportQueryCustodyRequestId;
 pub type ReportQueryCustodyQueryCursor = text_types_query::ReportQueryCustodyQueryCursor;
@@ -136,12 +142,34 @@ pub struct ParentDeviceReference {
     pub platform: ParentPlatform,
 }
 
+/// A Rust-owned authority reference is the narrow handoff from the current
+/// account/household authority resolver into report/query custody. The
+/// encoded reference is not itself proof of currentness; the storage owner
+/// must obtain it from a verified capability and re-check currentness before
+/// deriving a row. It deliberately carries the identity tuple so an
+/// authority for another household, account, device, or child cannot be
+/// reused by shape alone.
+#[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ReportQueryCustodyParentAuthorityReference {
+    pub authority_reference_id: ParentAuthorityReferenceId,
+    pub family_id: FamilyId,
+    pub parent_account_id: ParentAccountId,
+    pub device_id: ParentDeviceId,
+    pub child_profile_id: Option<ChildProfileId>,
+    pub authority_generation: u64,
+}
+
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ParentEvidenceReference {
     pub evidence_reference_id: ParentEvidenceReferenceId,
     pub kind: ParentEvidenceReferenceKind,
     pub observed_at: ParentTimestamp,
+    pub family_id: FamilyId,
+    pub child_profile_id: Option<ChildProfileId>,
+    pub source_data_class: ReportQueryCustodySourceDataClass,
+    pub source_reference: ReportQueryCustodySourceRef,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
@@ -169,8 +197,7 @@ pub struct ReportQueryCustodyRequest {
     pub source_citation_refs: Vec<ParentEvidenceReference>,
     pub assistant_citation_refs: Vec<ParentEvidenceReference>,
     pub notification_payload_boundary: ReportQueryCustodyBoundary,
-    pub parent_authorized: bool,
-    pub parent_owned_source_required: bool,
+    pub parent_authority: ReportQueryCustodyParentAuthorityReference,
     pub raw_child_evidence_requested: bool,
 }
 
@@ -200,8 +227,7 @@ pub struct ReportQueryCustodyRow {
     pub conflict_ref: Option<ReportQueryCustodyConflictRef>,
     pub cursor_expired_at: Option<ParentTimestamp>,
     pub rate_limited_until_at: Option<ParentTimestamp>,
-    pub parent_authorized: bool,
-    pub parent_owned_source_required: bool,
+    pub parent_authority: ReportQueryCustodyParentAuthorityReference,
     pub raw_child_evidence_included: bool,
     pub report_cache_mutated: bool,
     pub second_truth_store_claimed: bool,

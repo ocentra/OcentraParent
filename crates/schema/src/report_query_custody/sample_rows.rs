@@ -201,8 +201,7 @@ fn sample_row(input: ReportQueryCustodySampleRowInput<'_>) -> ReportQueryCustody
         } else {
             None
         },
-        parent_authorized: true,
-        parent_owned_source_required: true,
+        parent_authority: request.parent_authority.clone(),
         raw_child_evidence_included: false,
         report_cache_mutated: false,
         second_truth_store_claimed: false,
@@ -225,11 +224,19 @@ pub(super) fn allowed_citation_refs(timestamp: &ParentTimestamp) -> Vec<ParentEv
             evidence_reference_id: evidence_id(REPORT_QUERY_CUSTODY_SAMPLE_EVIDENCE_ID_ONE),
             kind: ParentEvidenceReferenceKind::QueryStoreSummary,
             observed_at: timestamp.clone(),
+            family_id: family_id(REPORT_QUERY_CUSTODY_SAMPLE_FAMILY_ID),
+            child_profile_id: None,
+            source_data_class: ReportQueryCustodySourceDataClass::SqliteQueryRow,
+            source_reference: source_ref(REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_REF_ONE),
         },
         ParentEvidenceReference {
             evidence_reference_id: evidence_id(REPORT_QUERY_CUSTODY_SAMPLE_EVIDENCE_ID_TWO),
             kind: ParentEvidenceReferenceKind::QueryStoreSummary,
             observed_at: timestamp.clone(),
+            family_id: family_id(REPORT_QUERY_CUSTODY_SAMPLE_FAMILY_ID),
+            child_profile_id: None,
+            source_data_class: ReportQueryCustodySourceDataClass::NotificationHistory,
+            source_reference: source_ref(REPORT_QUERY_CUSTODY_SAMPLE_SOURCE_REF_TWO),
         },
     ]
 }
@@ -288,8 +295,16 @@ pub(super) fn sample_report_query_custody_contract_proof() -> ReportQueryCustody
         source_citation_refs: allowed_citation_refs(&proof_timestamp),
         assistant_citation_refs: allowed_citation_refs(&proof_timestamp),
         notification_payload_boundary: ReportQueryCustodyBoundary::ParentOwnedCitationsOnly,
-        parent_authorized: true,
-        parent_owned_source_required: true,
+        parent_authority: ReportQueryCustodyParentAuthorityReference {
+            authority_reference_id: parent_authority_id(
+                REPORT_QUERY_CUSTODY_SAMPLE_PARENT_AUTHORITY_ID,
+            ),
+            family_id: family_id(REPORT_QUERY_CUSTODY_SAMPLE_FAMILY_ID),
+            parent_account_id: account_id(REPORT_QUERY_CUSTODY_SAMPLE_ACCOUNT_ID),
+            device_id: parent_device_id(REPORT_QUERY_CUSTODY_SAMPLE_PARENT_DEVICE_ID),
+            child_profile_id: None,
+            authority_generation: 1,
+        },
         raw_child_evidence_requested: false,
     };
 
