@@ -5,7 +5,7 @@ use super::{
 };
 
 impl StorageCustodyEffectStore {
-    pub fn prepare(&self, record: StorageCustodyEffectRecord) -> io::Result<()> {
+    pub(super) fn prepare(&self, record: StorageCustodyEffectRecord) -> io::Result<()> {
         validate_record_for_prepare(&record)?;
         let lock = self.lock()?;
         fs2::FileExt::lock_exclusive(&lock)?;
@@ -26,35 +26,14 @@ impl StorageCustodyEffectStore {
 }
 
 fn validate_record_for_prepare(record: &StorageCustodyEffectRecord) -> io::Result<()> {
-    if record.schema_version != 1
-        || record.operation_ref.trim().is_empty()
-        || record.effect_ref.trim().is_empty()
-        || record.household_id.trim().is_empty()
-        || record.child_profile_id.trim().is_empty()
-        || record.target_device_id.trim().is_empty()
-        || record.authority_generation == 0
-        || record.session_generation == 0
-        || record.apply_lease_id.as_deref().is_some_and(str::is_empty)
+    record.validate_loaded()?;
+    if record.status != super::StorageCustodyEffectStatus::Prepared
+        || record.apply_lease_id.is_some()
+        || record.manual_required_reason.is_some()
     {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            "custody effect intent has an invalid binding",
-        ));
-    }
-    if record.effect_kind == super::StorageCustodyEffectKind::LocalDelete
-        && record.relative_path.as_deref().map_or(true, str::is_empty)
-    {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "local delete effect requires a relative payload path",
-        ));
-    }
-    if record.effect_kind != super::StorageCustodyEffectKind::LocalDelete
-        && record.relative_path.is_some()
-    {
-        return Err(io::Error::new(
-            io::ErrorKind::InvalidInput,
-            "non-local custody effects must not carry a filesystem path",
+            "new custody effect must be Prepared with no lease or manual reason",
         ));
     }
     Ok(())

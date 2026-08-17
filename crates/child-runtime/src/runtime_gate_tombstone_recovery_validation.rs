@@ -1,4 +1,4 @@
-use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteOutboxRecord;
+use crate::retention_delete_tombstone_store::RetentionDeleteOutboxRecord;
 
 pub(super) fn is_completed_terminal_marker(
     record: &RetentionDeleteOutboxRecord,

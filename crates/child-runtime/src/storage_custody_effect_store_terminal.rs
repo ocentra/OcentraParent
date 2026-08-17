@@ -3,7 +3,7 @@ use std::io;
 use super::{StorageCustodyEffectKind, StorageCustodyEffectStatus, StorageCustodyEffectStore};
 
 impl StorageCustodyEffectStore {
-    pub fn mark_applied(&self, operation_ref: &str, lease_id: &str) -> io::Result<()> {
+    pub(super) fn mark_applied(&self, operation_ref: &str, lease_id: &str) -> io::Result<()> {
         if lease_id.trim().is_empty() {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidInput,

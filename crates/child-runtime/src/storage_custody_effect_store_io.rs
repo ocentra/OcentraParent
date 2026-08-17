@@ -1,4 +1,5 @@
 use std::{
+    collections::HashSet,
     fs::{self, OpenOptions},
     io,
     path::{Path, PathBuf},
@@ -18,7 +19,7 @@ pub(super) fn reject_symlink(path: &Path) -> io::Result<()> {
     if metadata.file_type().is_symlink() {
         return Err(io::Error::new(
             io::ErrorKind::InvalidInput,
-            "custody effect directory must not be a symlink",
+            "custody effect path must not be a symlink",
         ));
     }
     Ok(())
@@ -26,12 +27,23 @@ pub(super) fn reject_symlink(path: &Path) -> io::Result<()> {
 
 pub(super) fn read_records(path: &Path) -> io::Result<Vec<StorageCustodyEffectRecord>> {
     reject_symlink(path)?;
-    match fs::read(path) {
+    let records = match fs::read(path) {
         Ok(bytes) => serde_json::from_slice(&bytes)
-            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error)),
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(Vec::new()),
-        Err(error) => Err(error),
+            .map_err(|error| io::Error::new(io::ErrorKind::InvalidData, error))?,
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Vec::new(),
+        Err(error) => return Err(error),
+    };
+    let mut operation_refs = HashSet::with_capacity(records.len());
+    for record in &records {
+        record.validate_loaded()?;
+        if !operation_refs.insert(record.operation_ref.as_str()) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                "custody effect ledger contains a duplicate operation reference",
+            ));
+        }
     }
+    Ok(records)
 }
 
 pub(super) fn write_records(path: &Path, records: &[StorageCustodyEffectRecord]) -> io::Result<()> {
@@ -54,6 +66,28 @@ pub(super) fn lock(path: &PathBuf) -> io::Result<std::fs::File> {
         .write(true)
         .truncate(false)
         .open(lock_path)
+}
+
+pub(super) fn open_instance_lock(directory: &Path) -> io::Result<std::fs::File> {
+    let lock_path = directory.join("storage-custody-effects.instance.lock");
+    reject_symlink(&lock_path)?;
+    let file = OpenOptions::new()
+        .create(true)
+        .read(true)
+        .write(true)
+        .truncate(false)
+        .open(lock_path)?;
+    file.try_lock_exclusive().map_err(|error| {
+        if error.kind() == io::ErrorKind::WouldBlock {
+            io::Error::new(
+                io::ErrorKind::WouldBlock,
+                "child storage custody service instance is already running",
+            )
+        } else {
+            error
+        }
+    })?;
+    Ok(file)
 }
 
 #[cfg(not(windows))]

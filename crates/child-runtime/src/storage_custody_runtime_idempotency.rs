@@ -1,11 +1,9 @@
 use ocentra_eventing::envelope::EventMetadata;
-use ocentra_storage_custody_core::{
-    storage_custody::{
-        StorageCustodyActionPlannedEvent, StorageCustodyEffect, StorageCustodyEffectKind,
-    },
-    storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus},
+use ocentra_storage_custody_core::storage_custody::{
+    StorageCustodyActionPlannedEvent, StorageCustodyEffect, StorageCustodyEffectKind,
 };
 
+use super::storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus};
 use super::storage_custody_runtime_existing::existing_record;
 use super::{ChildStorageCustodyAuthorityHandle, ChildStorageCustodyRuntime};
 use crate::{
@@ -24,7 +22,7 @@ pub(crate) fn existing_pending(
         return Ok(None);
     };
     Ok(matches!(
-        existing.status,
+        existing.status(),
         StorageCustodyEffectStatus::Prepared
             | StorageCustodyEffectStatus::Journaled
             | StorageCustodyEffectStatus::Applying
@@ -48,24 +46,20 @@ pub(crate) fn prepare_record(
         }
         _ => None,
     };
-    StorageCustodyEffectRecord {
-        schema_version: 1,
+    StorageCustodyEffectRecord::prepared(
         operation_ref,
         effect_kind,
         effect_ref,
         relative_path,
-        household_id: authority.household_id().to_owned(),
-        child_profile_id: authority.child_profile_id().to_owned(),
-        target_device_id: authority.target_device_id().to_owned(),
-        authority_generation: authority.authority_generation(),
-        session_generation: authority.session_generation(),
-        custody_input: input,
+        authority.household_id().to_owned(),
+        authority.child_profile_id().to_owned(),
+        authority.target_device_id().to_owned(),
+        authority.authority_generation(),
+        authority.session_generation(),
+        input,
         action,
         envelope,
-        status: StorageCustodyEffectStatus::Prepared,
-        manual_required_reason: None,
-        apply_lease_id: None,
-    }
+    )
 }
 
 pub(crate) async fn publish_action(

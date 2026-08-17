@@ -12,8 +12,11 @@ use ocentra_eventing::{
     ids::CorrelationId,
     journal::{ndjson::NdjsonEventJournal, JournalAppend},
 };
-use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
 use ocentra_storage_custody_core::storage_custody::StorageCustodyActionPlannedEvent;
+
+use crate::child_runtime_tombstone_event_flow::RetentionDeleteTombstoneExecutor;
+use crate::retention_delete_tombstone_store::RetentionDeleteTombstoneStore;
+use crate::service::storage_custody_runtime::StorageCustodyTerminalEffectCapability;
 
 use runtime_gate_tombstone_error::is_retryable_journal_error;
 
@@ -51,11 +54,14 @@ pub enum ChildRuntimeTombstonePublicationOutcome {
 pub(crate) async fn persist_child_runtime_tombstone_action(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
+    executor: &RetentionDeleteTombstoneExecutor,
     envelope: &StoredEventEnvelope,
     action: &StorageCustodyActionPlannedEvent,
 ) -> std::io::Result<JournalAppend> {
-    match persist_child_runtime_tombstone_action_with_milestones(journal, store, envelope, action)
-        .await?
+    match persist_child_runtime_tombstone_action_with_milestones(
+        journal, store, executor, envelope, action,
+    )
+    .await?
     {
         ChildRuntimeTombstonePublicationOutcome::Journaled(report) => report
             .append
@@ -76,6 +82,7 @@ pub(crate) async fn persist_child_runtime_tombstone_action(
 pub(crate) async fn persist_child_runtime_tombstone_action_with_milestones(
     journal: &NdjsonEventJournal,
     store: &RetentionDeleteTombstoneStore,
+    executor: &RetentionDeleteTombstoneExecutor,
     envelope: &StoredEventEnvelope,
     action: &StorageCustodyActionPlannedEvent,
 ) -> std::io::Result<ChildRuntimeTombstonePublicationOutcome> {
@@ -92,7 +99,13 @@ pub(crate) async fn persist_child_runtime_tombstone_action_with_milestones(
             "child-runtime tombstone journal envelope must match the typed custody action identity",
         ));
     }
-    persist_durable_tombstone_intent(store.clone(), envelope.clone(), action.clone()).await?;
+    persist_durable_tombstone_intent(
+        store.clone(),
+        executor.clone(),
+        envelope.clone(),
+        action.clone(),
+    )
+    .await?;
     let correlation_id = envelope.correlation_id.clone();
     let mut milestones = vec![ChildRuntimeTombstoneMilestone::DurableOutboxWritten];
     match journal.append_idempotent(envelope).await {
@@ -133,21 +146,34 @@ pub(crate) async fn replay_pending_child_runtime_tombstones(
 /// confirmed by the runtime's owning delivery path.
 pub(crate) async fn acknowledge_child_runtime_tombstone_publication(
     store: &RetentionDeleteTombstoneStore,
-    deletion_ref: &str,
+    executor: &RetentionDeleteTombstoneExecutor,
+    terminal_effect: &StorageCustodyTerminalEffectCapability,
+    action: &StorageCustodyActionPlannedEvent,
 ) -> std::io::Result<()> {
     let store = store.clone();
-    let deletion_ref = deletion_ref.to_owned();
-    tokio::task::spawn_blocking(move || store.mark_terminal_published(&deletion_ref))
-        .await
-        .map_err(std::io::Error::other)?
+    let executor = executor.clone();
+    let terminal_effect = *terminal_effect;
+    let deletion_ref = format!(
+        "storage-custody-delete:{}",
+        action.source_decision_id.as_str()
+    );
+    let action = action.clone();
+    tokio::task::spawn_blocking(move || {
+        store.mark_terminal_published(&executor, &terminal_effect, &deletion_ref, &action)
+    })
+    .await
+    .map_err(std::io::Error::other)?
 }
 
 async fn persist_durable_tombstone_intent(
     store: RetentionDeleteTombstoneStore,
+    executor: RetentionDeleteTombstoneExecutor,
     envelope: StoredEventEnvelope,
     action: StorageCustodyActionPlannedEvent,
 ) -> std::io::Result<()> {
-    tokio::task::spawn_blocking(move || store.persist_action_plan_intent(envelope, action))
-        .await
-        .map_err(std::io::Error::other)?
+    tokio::task::spawn_blocking(move || {
+        store.persist_action_plan_intent(&executor, envelope, action)
+    })
+    .await
+    .map_err(std::io::Error::other)?
 }

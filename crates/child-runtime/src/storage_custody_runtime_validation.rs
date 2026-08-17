@@ -1,15 +1,12 @@
 use std::io;
 
 use ocentra_eventing::envelope::DomainEvent;
-use ocentra_storage_custody_core::{
-    storage_custody::{
-        plan_storage_custody_actions, LocalPayloadRetentionAction,
-        StorageCustodyActionPlannedEvent, StorageCustodyEffectKind, StorageCustodyLocation,
-        StorageTombstoneState,
-    },
-    storage_custody_effect_store::StorageCustodyEffectRecord,
+use ocentra_storage_custody_core::storage_custody::{
+    plan_storage_custody_actions, LocalPayloadRetentionAction, StorageCustodyActionPlannedEvent,
+    StorageCustodyEffectKind, StorageCustodyLocation, StorageTombstoneState,
 };
 
+use super::storage_custody_effect_store::StorageCustodyEffectRecord;
 use crate::service::ChildAgentServiceError;
 
 pub(crate) fn validate_effect_location(

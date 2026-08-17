@@ -1,12 +1,10 @@
-use ocentra_storage_custody_core::{
-    storage_custody::StorageCustodyEffectKind,
-    storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus},
-};
+use ocentra_storage_custody_core::storage_custody::StorageCustodyEffectKind;
 
 use super::{
+    storage_custody_effect_store::{StorageCustodyEffectRecord, StorageCustodyEffectStatus},
     storage_custody_runtime_authority::record_still_matches_authority,
-    storage_custody_runtime_validation::coherent_local_delete, ChildStorageCustodyOutcome,
-    ChildStorageCustodyRuntime,
+    storage_custody_runtime_validation::coherent_local_delete,
+    ChildStorageCustodyOutcome, ChildStorageCustodyRuntime,
 };
 use crate::service::ChildAgentServiceError;
 
@@ -15,7 +13,7 @@ impl ChildStorageCustodyRuntime {
         &self,
         record: &StorageCustodyEffectRecord,
     ) -> Result<ChildStorageCustodyOutcome, ChildAgentServiceError> {
-        if record.status == StorageCustodyEffectStatus::Applying {
+        if record.status() == StorageCustodyEffectStatus::Applying {
             return Ok(ChildStorageCustodyOutcome::PendingRecovery {
                 operation_ref: record.operation_ref.clone(),
                 effect: record.effect_kind,
@@ -24,7 +22,7 @@ impl ChildStorageCustodyRuntime {
         if let Some(outcome) = recovery_manual_outcome(self, record)? {
             return Ok(outcome);
         }
-        if record.status == StorageCustodyEffectStatus::Prepared
+        if record.status() == StorageCustodyEffectStatus::Prepared
             && !self.replay_record(record).await?
         {
             return Ok(ChildStorageCustodyOutcome::PendingJournalRetry {
@@ -32,7 +30,7 @@ impl ChildStorageCustodyRuntime {
                 effect: record.effect_kind,
             });
         }
-        if record.status == StorageCustodyEffectStatus::Prepared {
+        if record.status() == StorageCustodyEffectStatus::Prepared {
             self.effects
                 .mark_journaled(&record.operation_ref)
                 .map_err(ChildAgentServiceError::Storage)?;

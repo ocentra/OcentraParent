@@ -9,6 +9,7 @@
 //! storage, remote-access, or enforcement decisions directly.
 
 mod event_flow_scaffold;
+mod retention_delete_tombstone_store;
 
 pub mod child_domain_runtime_flow;
 pub mod child_runtime_tombstone_event_flow;
