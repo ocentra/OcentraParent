@@ -5,6 +5,7 @@ pub(super) const PARENT_STORAGE_ROW_ID_VALUE: &str = "parent-storage-settings-ro
 pub(super) const PARENT_STORAGE_LAST_SUCCESS_AT_VALUE: &str = "2026-06-28T19:10:00.000Z";
 pub(super) const PARENT_STORAGE_LAST_FAILURE_AT_VALUE: &str = "2026-06-28T19:12:00.000Z";
 pub(super) const PARENT_STORAGE_RESTORE_PREVIEW_ID_VALUE: &str = "restore-preview-proof-1";
+pub(super) const PARENT_STORAGE_HOUSEHOLD_REF_VALUE: &str = "household-proof-1";
 pub(super) const PARENT_STORAGE_RESTORE_PREVIEW_CREATED_AT_VALUE: &str = "2026-06-28T19:14:00.000Z";
 pub(super) const PARENT_STORAGE_PRODUCT_VERSION_VALUE: &str = "2026.06.28";
 pub(super) const PARENT_STORAGE_EXPORT_SCHEMA_VERSION_VALUE: &str =
@@ -79,6 +80,7 @@ pub(super) const PARENT_STORAGE_KNOWN_GAP_AUTOMATIC_PROVIDER_DELETE_OR_APPLY: &s
 pub(super) const PARENT_STORAGE_EXPECT_CONTRACT_VERSION: &str = "contract version";
 pub(super) const PARENT_STORAGE_EXPECT_ROW_ID: &str = "row id";
 pub(super) const PARENT_STORAGE_EXPECT_PREVIEW_ID: &str = "preview id";
+pub(super) const PARENT_STORAGE_EXPECT_HOUSEHOLD_REF: &str = "household reference";
 pub(super) const PARENT_STORAGE_EXPECT_APPLY_ID: &str = "apply id";
 pub(super) const PARENT_STORAGE_EXPECT_ACTION_ID: &str = "action id";
 pub(super) const PARENT_STORAGE_EXPECT_TIMESTAMP: &str = "timestamp";

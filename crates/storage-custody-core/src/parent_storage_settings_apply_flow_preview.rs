@@ -51,6 +51,7 @@ pub(super) fn derive_parent_storage_restore_preview(
 
     Ok(contracts::ParentStorageRestorePreview {
         preview_id: input.preview_id,
+        household_ref: input.household_ref,
         preview_state: input.preview_state,
         created_at: input.created_at,
         product_version: input.product_version,

@@ -28,6 +28,7 @@ export function parentStorageRestorePreviewIsHonestGenerated(preview: GeneratedP
     !preview.confirmationRequired ||
     !preview.localTruthAuthoritative ||
     !preview.tombstonesPreserved ||
+    !preview.householdRef.trim() ||
     !preview.productVersion.trim() ||
     !preview.schemaVersion.trim()
   ) {
@@ -39,6 +40,10 @@ export function parentStorageRestorePreviewIsHonestGenerated(preview: GeneratedP
 }
 
 export function parentStorageApplyDecisionIsHonestGenerated(decision: GeneratedParentStorageApplyDecision): boolean {
-  if (!decision.confirmationRequired) {
+  if (
+    !decision.confirmationRequired &&
+    decision.applyState !== 'applied' &&
+    decision.applyState !== 'partial'
+  ) {
     return false;
   }
