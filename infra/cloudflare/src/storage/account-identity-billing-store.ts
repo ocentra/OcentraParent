@@ -12,6 +12,8 @@ export interface ProviderBillingReferenceHints {
 export interface ProviderBillingAuthority {
   accountId: string;
   provider: BillingProvider;
+  identityProvider: 'authjs' | 'firebase';
+  identityProviderSubject: string;
   providerCustomerId: string | null;
   providerSubscriptionId: string | null;
   providerInvoiceId: string | null;
@@ -31,45 +33,68 @@ export type ProviderBillingAuthorityResult =
     };
 
 interface ProviderBillingMappingRow {
+  identity_provider: 'authjs' | 'firebase';
+  identity_provider_subject: string;
   account_id: string;
+  household_id: string;
+  mapping_status: 'active' | 'revoked';
+  account_state: 'active' | 'suspended' | 'disabled';
+  membership_state: 'invited' | 'pending' | 'active' | 'revoked' | 'disabled';
+  lifecycle_state: 'pending' | 'active' | 'suspended' | 'removed';
+  revocation_state: 'active' | 'revoked';
   provider: BillingProvider;
   provider_customer_id: string | null;
   provider_subscription_id: string | null;
   provider_invoice_id: string | null;
-  billing_subject: string;
-  parent_account_ref: string;
-  family_ref: string;
   billing_invoice_id: string | null;
   status: 'active' | 'revoked';
 }
 
 const PROVIDER_MAPPING_SELECT_BY_CUSTOMER_SQL = `
-SELECT account_id, provider, provider_customer_id, provider_subscription_id,
-       provider_invoice_id, billing_subject, parent_account_ref, family_ref,
-       billing_invoice_id, status
-FROM ocentra_account_provider_billing_mappings
-WHERE provider = ? AND provider_customer_id = ?
-  AND EXISTS (SELECT 1 FROM ocentra_account_identities WHERE account_id = ocentra_account_provider_billing_mappings.account_id AND status = 'active')
+SELECT mapping.identity_provider, mapping.identity_provider_subject,
+       authority.account_id, authority.household_id, authority.mapping_status,
+       authority.account_state, authority.membership_state,
+       authority.lifecycle_state, authority.revocation_state,
+       mapping.provider, mapping.provider_customer_id,
+       mapping.provider_subscription_id, mapping.provider_invoice_id,
+       mapping.billing_invoice_id, mapping.status
+FROM ocentra_account_provider_billing_mappings AS mapping
+JOIN ocentra_account_identity_current_authority AS authority
+  ON authority.provider = mapping.identity_provider
+ AND authority.provider_subject = mapping.identity_provider_subject
+WHERE mapping.provider = ? AND mapping.provider_customer_id = ?
 LIMIT 1
 `;
 
 const PROVIDER_MAPPING_SELECT_BY_SUBSCRIPTION_SQL = `
-SELECT account_id, provider, provider_customer_id, provider_subscription_id,
-       provider_invoice_id, billing_subject, parent_account_ref, family_ref,
-       billing_invoice_id, status
-FROM ocentra_account_provider_billing_mappings
-WHERE provider = ? AND provider_subscription_id = ?
-  AND EXISTS (SELECT 1 FROM ocentra_account_identities WHERE account_id = ocentra_account_provider_billing_mappings.account_id AND status = 'active')
+SELECT mapping.identity_provider, mapping.identity_provider_subject,
+       authority.account_id, authority.household_id, authority.mapping_status,
+       authority.account_state, authority.membership_state,
+       authority.lifecycle_state, authority.revocation_state,
+       mapping.provider, mapping.provider_customer_id,
+       mapping.provider_subscription_id, mapping.provider_invoice_id,
+       mapping.billing_invoice_id, mapping.status
+FROM ocentra_account_provider_billing_mappings AS mapping
+JOIN ocentra_account_identity_current_authority AS authority
+  ON authority.provider = mapping.identity_provider
+ AND authority.provider_subject = mapping.identity_provider_subject
+WHERE mapping.provider = ? AND mapping.provider_subscription_id = ?
 LIMIT 1
 `;
 
 const PROVIDER_MAPPING_SELECT_BY_INVOICE_SQL = `
-SELECT account_id, provider, provider_customer_id, provider_subscription_id,
-       provider_invoice_id, billing_subject, parent_account_ref, family_ref,
-       billing_invoice_id, status
-FROM ocentra_account_provider_billing_mappings
-WHERE provider = ? AND provider_invoice_id = ?
-  AND EXISTS (SELECT 1 FROM ocentra_account_identities WHERE account_id = ocentra_account_provider_billing_mappings.account_id AND status = 'active')
+SELECT mapping.identity_provider, mapping.identity_provider_subject,
+       authority.account_id, authority.household_id, authority.mapping_status,
+       authority.account_state, authority.membership_state,
+       authority.lifecycle_state, authority.revocation_state,
+       mapping.provider, mapping.provider_customer_id,
+       mapping.provider_subscription_id, mapping.provider_invoice_id,
+       mapping.billing_invoice_id, mapping.status
+FROM ocentra_account_provider_billing_mappings AS mapping
+JOIN ocentra_account_identity_current_authority AS authority
+  ON authority.provider = mapping.identity_provider
+ AND authority.provider_subject = mapping.identity_provider_subject
+WHERE mapping.provider = ? AND mapping.provider_invoice_id = ?
 LIMIT 1
 `;
 
@@ -95,17 +120,19 @@ function isProvider(value: string): value is BillingProvider {
 function isMissingSchemaError(error: unknown): boolean {
   const message = (error instanceof Error ? error.message : String(error)).toLowerCase();
   return (
-    message.includes('no such table') &&
-    (message.includes('ocentra_account_provider_billing_mappings') || message.includes('ocentra_account_identities'))
+    (message.includes('no such table') || message.includes('no such column')) &&
+    (message.includes('ocentra_account_provider_billing_mappings') ||
+      message.includes('ocentra_account_identities') ||
+      message.includes('ocentra_account_identity_current_authority'))
   );
 }
 
 function sameAuthority(left: ProviderBillingMappingRow, right: ProviderBillingMappingRow): boolean {
   return (
+    left.identity_provider === right.identity_provider &&
+    left.identity_provider_subject === right.identity_provider_subject &&
     left.account_id === right.account_id &&
-    left.billing_subject === right.billing_subject &&
-    left.parent_account_ref === right.parent_account_ref &&
-    left.family_ref === right.family_ref
+    left.household_id === right.household_id
   );
 }
 
@@ -115,10 +142,24 @@ function validAuthorityText(value: unknown): value is string {
 
 function validMappingRow(row: ProviderBillingMappingRow): boolean {
   return (
+    (row.identity_provider === 'authjs' || row.identity_provider === 'firebase') &&
+    validAuthorityText(row.identity_provider_subject) &&
     validAuthorityText(row.account_id) &&
-    validAuthorityText(row.billing_subject) &&
-    validAuthorityText(row.parent_account_ref) &&
-    validAuthorityText(row.family_ref) &&
+    validAuthorityText(row.household_id) &&
+    (row.mapping_status === 'active' || row.mapping_status === 'revoked') &&
+    (row.account_state === 'active' || row.account_state === 'suspended' || row.account_state === 'disabled') &&
+    (row.membership_state === 'invited' ||
+      row.membership_state === 'pending' ||
+      row.membership_state === 'active' ||
+      row.membership_state === 'revoked' ||
+      row.membership_state === 'disabled') &&
+    (row.lifecycle_state === 'pending' ||
+      row.lifecycle_state === 'active' ||
+      row.lifecycle_state === 'suspended' ||
+      row.lifecycle_state === 'removed') &&
+    (row.revocation_state === 'active' || row.revocation_state === 'revoked') &&
+    isProvider(row.provider) &&
+    (row.provider_customer_id !== null || row.provider_subscription_id !== null || row.provider_invoice_id !== null) &&
     (row.provider_customer_id === null || validAuthorityText(row.provider_customer_id)) &&
     (row.provider_subscription_id === null || validAuthorityText(row.provider_subscription_id)) &&
     (row.provider_invoice_id === null || validAuthorityText(row.provider_invoice_id)) &&
@@ -131,12 +172,14 @@ function toAuthority(row: ProviderBillingMappingRow): ProviderBillingAuthority {
   return {
     accountId: row.account_id,
     provider: row.provider,
+    identityProvider: row.identity_provider,
+    identityProviderSubject: row.identity_provider_subject,
     providerCustomerId: row.provider_customer_id,
     providerSubscriptionId: row.provider_subscription_id,
     providerInvoiceId: row.provider_invoice_id,
-    billingSubject: row.billing_subject,
-    parentAccountRef: row.parent_account_ref,
-    familyRef: row.family_ref,
+    billingSubject: `${row.identity_provider}:${row.identity_provider_subject}`,
+    parentAccountRef: row.account_id,
+    familyRef: row.household_id,
     billingInvoiceId: row.billing_invoice_id,
   };
 }
@@ -198,16 +241,33 @@ export async function resolveProviderBillingAuthority(
       return { status: 'rejected', reason: 'provider-reference-mismatch' };
     }
     const [first, ...rest] = rows;
-    if (first.status !== 'active') {
+    if (
+      first.status !== 'active' ||
+      first.mapping_status !== 'active' ||
+      first.account_state !== 'active' ||
+      first.membership_state !== 'active' ||
+      first.lifecycle_state !== 'active' ||
+      first.revocation_state !== 'active'
+    ) {
       return { status: 'rejected', reason: 'provider-mapping-inactive' };
     }
-    if (rest.some((row) => row.status !== 'active' || !sameAuthority(first, row))) {
+    if (
+      rest.some(
+        (row) =>
+          row.status !== 'active' ||
+          row.mapping_status !== 'active' ||
+          row.account_state !== 'active' ||
+          row.membership_state !== 'active' ||
+          row.lifecycle_state !== 'active' ||
+          row.revocation_state !== 'active' ||
+          !sameAuthority(first, row)
+      )
+    ) {
       return { status: 'rejected', reason: 'provider-reference-mismatch' };
     }
     if (
-      (invoiceId === null && rows.some((row) => row.provider_invoice_id !== null)) ||
-      (invoiceId !== null &&
-        rows.some((row) => row.provider_invoice_id !== null && row.provider_invoice_id !== invoiceId))
+      invoiceId !== null &&
+      rows.some((row) => row.provider_invoice_id !== null && row.provider_invoice_id !== invoiceId)
     ) {
       return { status: 'rejected', reason: 'provider-reference-mismatch' };
     }
