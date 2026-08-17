@@ -1,6 +1,6 @@
 use super::{
     ChildAgentRemovalStatus, ChildAgentService, ChildAgentServiceError, ChildAgentTamperSignalKind,
-    ChildAgentTrustState, ChildRuntimeTombstoneEventFlow, VerifiedParentRemovalAuthorization,
+    ChildRuntimeTombstoneEventFlow, VerifiedParentRemovalAuthorization,
 };
 
 impl ChildAgentService {
@@ -10,7 +10,7 @@ impl ChildAgentService {
 
     pub fn revoke_with_parent_authorization(
         &mut self,
-        authorization: &VerifiedParentRemovalAuthorization,
+        authorization: VerifiedParentRemovalAuthorization,
     ) -> Result<ChildAgentRemovalStatus, ChildAgentServiceError> {
         let status = self
             .removal
@@ -24,7 +24,7 @@ impl ChildAgentService {
 
     pub fn reauthorize_with_parent_authorization(
         &mut self,
-        authorization: &VerifiedParentRemovalAuthorization,
+        authorization: VerifiedParentRemovalAuthorization,
     ) -> Result<ChildAgentRemovalStatus, ChildAgentServiceError> {
         let status = self
             .removal
@@ -33,6 +33,7 @@ impl ChildAgentService {
         self.readiness = super::service_readiness::readiness_from_state(
             &status,
             self.recovery_pending.as_deref(),
+            self.paths.identity().is_some(),
         );
         Ok(status)
     }
@@ -49,11 +50,11 @@ impl ChildAgentService {
             .removal
             .record_tamper_signal(signal_ref, kind)
             .map_err(ChildAgentServiceError::Storage)?;
-        if status.trust_state != ChildAgentTrustState::Revoked {
-            self.readiness = super::ChildAgentReadiness::TamperManualRequired {
-                signal_ref: status.latest_tamper_signal_ref.clone(),
-            };
-        }
+        self.readiness = super::service_readiness::readiness_from_state(
+            &status,
+            self.recovery_pending.as_deref(),
+            self.paths.identity().is_some(),
+        );
         Ok(status)
     }
 

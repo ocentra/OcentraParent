@@ -12,7 +12,11 @@ impl ChildAgentService {
             .status()
             .map_err(ChildAgentServiceError::Storage)?;
         Ok(ChildAgentHealth {
-            readiness: readiness_from_state(&removal, self.recovery_pending.as_deref()),
+            readiness: readiness_from_state(
+                &removal,
+                self.recovery_pending.as_deref(),
+                self.paths.identity().is_some(),
+            ),
             domain_flow_count: self.domain_flows.len(),
             durable_root: self.paths.root().to_owned(),
             removal,
@@ -35,11 +39,14 @@ impl ChildAgentService {
 pub(super) fn readiness_from_state(
     removal: &ChildAgentRemovalStatus,
     recovery_pending: Option<&[CorrelationId]>,
+    identity_available: bool,
 ) -> ChildAgentReadiness {
     if removal.trust_state == ChildAgentTrustState::Revoked {
         ChildAgentReadiness::Revoked {
             audit_ref: removal.latest_audit_ref.clone(),
         }
+    } else if !identity_available {
+        ChildAgentReadiness::TrustBindingManualRequired
     } else if removal.latest_tamper_signal_ref.is_some() {
         ChildAgentReadiness::TamperManualRequired {
             signal_ref: removal.latest_tamper_signal_ref.clone(),

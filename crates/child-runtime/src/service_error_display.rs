@@ -18,6 +18,12 @@ impl fmt::Display for ChildAgentServiceError {
             Self::RecoveryPending(readiness) => {
                 write!(formatter, "child service is not ready: {readiness:?}")
             }
+            Self::TrustBindingManualRequired => {
+                write!(
+                    formatter,
+                    "child service identity binding requires manual setup"
+                )
+            }
             Self::TamperManualRequired { signal_ref } => {
                 write!(
                     formatter,

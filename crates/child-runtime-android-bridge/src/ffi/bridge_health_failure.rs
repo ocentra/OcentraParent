@@ -6,6 +6,9 @@ pub(super) fn readiness_failure(readiness: &ChildAgentReadiness) -> Option<Strin
         ChildAgentReadiness::RecoveryPending { .. } => {
             Some(ChildAgentServiceError::RecoveryPending(Box::new(readiness.clone())).to_string())
         }
+        ChildAgentReadiness::TrustBindingManualRequired => {
+            Some(ChildAgentServiceError::TrustBindingManualRequired.to_string())
+        }
         ChildAgentReadiness::TamperManualRequired { signal_ref } => Some(
             ChildAgentServiceError::TamperManualRequired {
                 signal_ref: signal_ref.clone(),

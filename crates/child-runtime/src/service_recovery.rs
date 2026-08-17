@@ -35,7 +35,11 @@ impl ChildAgentService {
         let recovery_pending =
             (!recovery.pending_journal_retry.is_empty()).then_some(recovery.pending_journal_retry);
         let removal_status = removal.status().map_err(ChildAgentServiceError::Storage)?;
-        let readiness = readiness_from_state(&removal_status, recovery_pending.as_deref());
+        let readiness = readiness_from_state(
+            &removal_status,
+            recovery_pending.as_deref(),
+            paths.identity().is_some(),
+        );
 
         let mut domain_flows = Vec::with_capacity(CHILD_RUNTIME_DOMAINS.len());
         for domain in CHILD_RUNTIME_DOMAINS {
