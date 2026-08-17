@@ -9,7 +9,7 @@ use crate::parent_presence::ParentPresenceObservedAt;
 const MAX_PARENT_STEP_UP_RECEIPT_LIFETIME_SECONDS: i64 = 5 * 60;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum ParentStepUpAuthorityFailure {
+pub(crate) enum ParentStepUpAuthorityFailure {
     InvalidReceiptShape,
     Required,
     Expired,
@@ -25,7 +25,7 @@ pub enum ParentStepUpAuthorityFailure {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct ParentStepUpAuthorityRequest {
+pub(crate) struct ParentStepUpAuthorityRequest {
     pub issuer: String,
     pub audience: String,
     pub family_id: String,
@@ -38,7 +38,7 @@ pub struct ParentStepUpAuthorityRequest {
     pub observed_at: String,
 }
 
-pub trait ParentStepUpAuthorityVerifier {
+pub(crate) trait ParentStepUpAuthorityVerifier {
     fn verify_and_consume(
         &mut self,
         receipt: &ParentStepUpAuthorityReceipt,
@@ -47,7 +47,7 @@ pub trait ParentStepUpAuthorityVerifier {
 }
 
 #[derive(Debug, Default)]
-pub struct UnavailableParentStepUpAuthorityVerifier;
+pub(crate) struct UnavailableParentStepUpAuthorityVerifier;
 
 impl ParentStepUpAuthorityVerifier for UnavailableParentStepUpAuthorityVerifier {
     fn verify_and_consume(
@@ -59,7 +59,7 @@ impl ParentStepUpAuthorityVerifier for UnavailableParentStepUpAuthorityVerifier 
     }
 }
 
-pub fn verify_parent_step_up_receipt(
+pub(crate) fn verify_parent_step_up_receipt(
     _verifier: &mut impl ParentStepUpAuthorityVerifier,
     receipt: &ParentStepUpAuthorityReceipt,
     request: &ParentStepUpAuthorityRequest,

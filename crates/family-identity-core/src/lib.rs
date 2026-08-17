@@ -46,7 +46,7 @@ mod parent_presence_store_sql_comments;
 mod parent_presence_store_sql_quoted;
 mod parent_presence_store_sql_shape;
 mod parent_presence_store_sql_tokenizer;
-pub mod parent_step_up_authority;
+mod parent_step_up_authority;
 mod parent_step_up_ceremony;
 pub(crate) mod parent_step_up_challenge_codec;
 pub mod parent_step_up_platform;
