@@ -1212,6 +1212,7 @@ export type ParentScreenSettingsServiceRequestId =
 export const ParentHostBridgeRuntime = {
   SchemaVersion: 1,
   DevRouteSubscriptionPollMs: 1000,
+  DevBridgeRequestTimeoutMs: 5000,
   RouteHashPrefix: '#',
   RouteHashQuerySeparator: '?',
   RouteSubscriptionEventPrefix: 'parent-route-subscription-',

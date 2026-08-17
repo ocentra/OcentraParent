@@ -22,6 +22,7 @@ import {
 import type { ParentRouteId, ParentUnknownRecord } from '../generated/parent-ui-bridge';
 import { DirectEnforcementCommandBoundaryErrorText, isDirectEnforcementCommand } from './transport';
 import { createDevWebRouteSubscription } from './host-bridge/dev-web-subscription';
+import { createUnavailableDevWebRouteSnapshot } from './host-bridge/dev-web-unavailable-snapshot';
 
 type TauriCoreModule = {
   invoke<TResult>(command: ParentBridgeCommandName, args?: ParentUnknownRecord): Promise<TResult>;
@@ -76,20 +77,30 @@ async function invokeParentDevBridgeCommand<TResult>(
   route: ParentDevBridgeRouteName,
   payload: ParentUnknownRecord
 ): Promise<TResult> {
-  const response = await fetch(
-    `${trimTrailingSlash(parentDevBridgeUrl)}${ParentHostBridgeRuntime.UrlPathSeparator}${route}`,
-    {
-      method: ParentHostBridgeRuntime.PostMethod,
-      headers: {
-        [ParentHostBridgeRuntime.JsonContentTypeHeader]: ParentHostBridgeRuntime.JsonContentType,
-      },
-      body: JSON.stringify(payload),
-    }
+  const abortController = new AbortController();
+  const timeoutId = globalThis.setTimeout(
+    () => abortController.abort(),
+    ParentHostBridgeRuntime.DevBridgeRequestTimeoutMs
   );
-  if (!response.ok) {
-    throw new Error(parentDevBridgeHttpError(route, response.status));
+  try {
+    const response = await fetch(
+      `${trimTrailingSlash(parentDevBridgeUrl)}${ParentHostBridgeRuntime.UrlPathSeparator}${route}`,
+      {
+        method: ParentHostBridgeRuntime.PostMethod,
+        headers: {
+          [ParentHostBridgeRuntime.JsonContentTypeHeader]: ParentHostBridgeRuntime.JsonContentType,
+        },
+        body: JSON.stringify(payload),
+        signal: abortController.signal,
+      }
+    );
+    if (!response.ok) {
+      throw new Error(parentDevBridgeHttpError(route, response.status));
+    }
+    return (await response.json()) as TResult;
+  } finally {
+    globalThis.clearTimeout(timeoutId);
   }
-  return (await response.json()) as TResult;
 }
 
 async function invokeParentDevBridgeCommandOrThrow<TResult>(
@@ -100,7 +111,7 @@ async function invokeParentDevBridgeCommandOrThrow<TResult>(
   try {
     return await invokeParentDevBridgeCommand<TResult>(parentDevBridgeUrl, route, payload);
   } catch (error) {
-    if (error instanceof TypeError) {
+    if (error instanceof TypeError || (error instanceof Error && error.name === 'AbortError')) {
       throw new Error(parentDevBridgeDispatchUnavailableMessage(parentDevBridgeUrl));
     }
     if (error instanceof Error) {
@@ -115,10 +126,18 @@ async function loadDevWebRouteSnapshot(
   route: ParentRouteId,
   context?: ParentRouteContext
 ): Promise<ParentRouteSnapshot> {
-  return invokeParentDevBridgeCommandOrThrow<ParentRouteSnapshot>(parentDevBridgeUrl, ParentDevBridgeRoute.LoadRoute, {
-    route,
-    context: context ?? null,
-  });
+  try {
+    return await invokeParentDevBridgeCommandOrThrow<ParentRouteSnapshot>(
+      parentDevBridgeUrl,
+      ParentDevBridgeRoute.LoadRoute,
+      {
+        route,
+        context: context ?? null,
+      }
+    );
+  } catch {
+    return createUnavailableDevWebRouteSnapshot(parentDevBridgeUrl, route);
+  }
 }
 
 function createTauriLoadRouteAction(): (
