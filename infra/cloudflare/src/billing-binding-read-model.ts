@@ -75,6 +75,10 @@ const DEFAULT_BILLING_SUBJECTS = [
 const PRICING_PLANS_KEY = 'billing:pricing-plans';
 const AUDIT_EVENTS_KEY = 'billing/audit-events.json';
 const TOUCH_KEY_PREFIX = 'billing-touch:';
+export const BILLING_AUDIT_OWNER_NAME = 'billing-audit-owner';
+export const BILLING_AUDIT_APPEND_PATH = '/internal/billing-audit/append';
+const MAX_BILLING_OUTBOX_DRAIN_ROWS = 20;
+const MAX_BILLING_OUTBOX_ATTEMPTS = 5;
 
 const REFUND_LEDGER_TOTAL_GUARD_SQL =
   "CREATE TRIGGER IF NOT EXISTS billing_refund_ledger_total_guard BEFORE INSERT ON billing_refund_ledger BEGIN SELECT RAISE(ABORT, 'billing-refund-ledger-total-exceeded') WHERE EXISTS (SELECT 1 FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id AND invoice_total_cents != NEW.invoice_total_cents) OR COALESCE((SELECT SUM(amount_cents) FROM billing_refund_ledger WHERE invoice_id = NEW.invoice_id), 0) + NEW.amount_cents > NEW.invoice_total_cents; END";
@@ -93,13 +97,13 @@ const CREATE_READ_MODEL_SCHEMA_SQL = [
   'CREATE TABLE IF NOT EXISTS billing_admin_disputes (dispute_id TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   'CREATE TABLE IF NOT EXISTS billing_admin_referrals (referral_code TEXT PRIMARY KEY, payload_json TEXT NOT NULL)',
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   REFUND_LEDGER_TOTAL_GUARD_SQL,
 ].join(';\n');
 
 const CREATE_MUTATION_SCHEMA_SQL = [
   "CREATE TABLE IF NOT EXISTS billing_refund_ledger (invoice_id TEXT NOT NULL, mutation_key TEXT NOT NULL, subject TEXT NOT NULL, amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0), invoice_total_cents INTEGER NOT NULL CHECK (invoice_total_cents >= 0), refund_state TEXT NOT NULL CHECK (refund_state IN ('refund-requested', 'refund-settled')), audit_reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (invoice_id, mutation_key))",
-  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
+  "CREATE TABLE IF NOT EXISTS billing_mutation_outbox (request_key TEXT PRIMARY KEY, mutation_kind TEXT NOT NULL, mutation_json TEXT NOT NULL, audit_state TEXT NOT NULL CHECK (audit_state IN ('pending', 'delivered')), audit_event_json TEXT NOT NULL, attempt_count INTEGER NOT NULL DEFAULT 0 CHECK (attempt_count >= 0), last_attempt_at TEXT, last_error TEXT, created_at TEXT NOT NULL, updated_at TEXT NOT NULL)",
   REFUND_LEDGER_TOTAL_GUARD_SQL,
 ].join(';\n');
 
@@ -116,8 +120,12 @@ const SELECT_REFUND_LEDGER_SUMMARY_SQL = normalizeSql(
   'SELECT COALESCE(SUM(amount_cents), 0) AS applied_amount_cents, (SELECT refund_state FROM billing_refund_ledger AS latest WHERE latest.invoice_id = ?1 ORDER BY created_at DESC, mutation_key DESC LIMIT 1) AS final_refund_state FROM billing_refund_ledger WHERE invoice_id = ?1'
 );
 const SELECT_MUTATION_OUTBOX_SQL = normalizeSql(
-  'SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
+  'SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE request_key = ?1 LIMIT 1'
 );
+const SELECT_PENDING_MUTATION_OUTBOX_SQL = normalizeSql(
+  "SELECT request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at FROM billing_mutation_outbox WHERE audit_state = 'pending' ORDER BY created_at, request_key LIMIT ?1"
+);
+const SELECT_MUTATION_OUTBOX_COLUMNS_SQL = 'PRAGMA table_info(billing_mutation_outbox)';
 const SELECT_REFERRAL_BY_SUBJECT_SQL = normalizeSql(
   'SELECT payload_json FROM billing_referrals WHERE subject = ?1 LIMIT 1'
 );
@@ -159,10 +167,16 @@ const INSERT_REFUND_LEDGER_SQL = normalizeSql(
   'INSERT INTO billing_refund_ledger (invoice_id, mutation_key, subject, amount_cents, invoice_total_cents, refund_state, audit_reference, created_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)'
 );
 const INSERT_MUTATION_OUTBOX_SQL = normalizeSql(
-  'INSERT INTO billing_mutation_outbox (request_key, mutation_kind, mutation_json, audit_state, audit_event_json, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)'
+  'INSERT INTO billing_mutation_outbox (request_key, mutation_kind, mutation_json, audit_state, audit_event_json, attempt_count, last_attempt_at, last_error, created_at, updated_at) VALUES (?1, ?2, ?3, ?4, ?5, 0, NULL, NULL, ?6, ?7)'
+);
+const MARK_MUTATION_OUTBOX_ATTEMPT_SQL = normalizeSql(
+  "UPDATE billing_mutation_outbox SET attempt_count = attempt_count + 1, last_attempt_at = ?2, last_error = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending' AND attempt_count < ?3"
+);
+const MARK_MUTATION_OUTBOX_FAILURE_SQL = normalizeSql(
+  "UPDATE billing_mutation_outbox SET last_error = ?2, updated_at = ?3 WHERE request_key = ?1 AND audit_state = 'pending'"
 );
 const MARK_MUTATION_AUDIT_DELIVERED_SQL = normalizeSql(
-  "UPDATE billing_mutation_outbox SET audit_state = 'delivered', updated_at = ?2 WHERE request_key = ?1"
+  "UPDATE billing_mutation_outbox SET audit_state = 'delivered', last_error = NULL, updated_at = ?2 WHERE request_key = ?1 AND audit_state = 'pending'"
 );
 
 const seedReadyByEnv = new WeakMap<Env, Promise<void>>();
@@ -190,8 +204,15 @@ interface MutationOutboxRow {
   mutation_json: string;
   audit_state: string;
   audit_event_json: string;
+  attempt_count: number | string;
+  last_attempt_at: string | null;
+  last_error: string | null;
   created_at: string;
   updated_at: string;
+}
+
+interface MutationOutboxColumnRow {
+  name: string;
 }
 
 export class BillingReadModelUnavailableError extends Error {
@@ -269,6 +290,10 @@ function decodeTimestamp(value: unknown, scope: string): string {
     throw new BillingReadModelUnavailableError(`${scope}-invalid`);
   }
   return decoded;
+}
+
+function decodeNullableTimestamp(value: unknown, scope: string): string | null {
+  return value === null || value === undefined ? null : decodeTimestamp(value, scope);
 }
 
 function decodePricingFeatureSummary(value: unknown, scope: string): PricingFeatureSummary {
@@ -980,8 +1005,10 @@ export type BillingStateMutation =
   | {
       kind: 'admin-refund';
       subject: string;
+      actorSubject: string;
       requestId: string;
       invoiceId: string;
+      currency: string;
       refundState: 'refund-requested' | 'refund-settled';
       amountCents: number;
       auditReference: string;
@@ -1023,6 +1050,9 @@ interface LocalMutationOutboxEntry {
   mutationJson: string;
   auditState: MutationAuditState;
   auditJson: string;
+  attemptCount: number;
+  lastAttemptAt: string | null;
+  lastError: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -1228,22 +1258,35 @@ class LocalD1Statement implements D1PreparedStatement {
           } as T,
         ];
       }
-      case SELECT_MUTATION_OUTBOX_SQL: {
+      case SELECT_MUTATION_OUTBOX_SQL:
+      case SELECT_PENDING_MUTATION_OUTBOX_SQL: {
         const requestKey = String(this.values[0] ?? '');
-        const entry = this.state.mutationOutbox.get(requestKey);
-        return entry
-          ? [
-              {
-                request_key: entry.requestKey,
-                mutation_kind: entry.mutationKind,
-                mutation_json: entry.mutationJson,
-                audit_state: entry.auditState,
-                audit_event_json: entry.auditJson,
-                created_at: entry.createdAt,
-                updated_at: entry.updatedAt,
-              } as T,
-            ]
-          : [];
+        const entries =
+          this.normalizedQuery === SELECT_PENDING_MUTATION_OUTBOX_SQL
+            ? Array.from(this.state.mutationOutbox.values())
+                .filter((entry) => entry.auditState === 'pending')
+                .sort((left, right) =>
+                  `${left.createdAt}:${left.requestKey}`.localeCompare(`${right.createdAt}:${right.requestKey}`)
+                )
+                .slice(0, Math.max(0, Number(this.values[0] ?? 0)))
+            : requestKey.length > 0 && this.state.mutationOutbox.has(requestKey)
+              ? [this.state.mutationOutbox.get(requestKey)!]
+              : [];
+        return entries.map(
+          (entry) =>
+            ({
+              request_key: entry.requestKey,
+              mutation_kind: entry.mutationKind,
+              mutation_json: entry.mutationJson,
+              audit_state: entry.auditState,
+              audit_event_json: entry.auditJson,
+              attempt_count: entry.attemptCount,
+              last_attempt_at: entry.lastAttemptAt,
+              last_error: entry.lastError,
+              created_at: entry.createdAt,
+              updated_at: entry.updatedAt,
+            }) as T
+        );
       }
       case SELECT_REFERRAL_BY_SUBJECT_SQL: {
         const subject = String(this.values[0] ?? '');
@@ -1416,6 +1459,9 @@ class LocalD1Statement implements D1PreparedStatement {
           mutationJson,
           auditState,
           auditJson,
+          attemptCount: 0,
+          lastAttemptAt: null,
+          lastError: null,
           createdAt,
           updatedAt,
         });
@@ -1428,7 +1474,41 @@ class LocalD1Statement implements D1PreparedStatement {
         if (!current) {
           throw new BillingReadModelUnavailableError('billing-mutation-outbox-missing');
         }
+        if (current.auditState !== 'pending') {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-not-pending');
+        }
         this.state.mutationOutbox.set(requestKey, { ...current, auditState: 'delivered', updatedAt });
+        return;
+      }
+      case MARK_MUTATION_OUTBOX_ATTEMPT_SQL: {
+        const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
+        const attemptedAt = decodeTimestamp(this.values[1], 'billing-mutation-outbox-attempted-at');
+        const maxAttempts = decodeBillingCount(this.values[2], 'billing-mutation-outbox-max-attempts');
+        const current = this.state.mutationOutbox.get(requestKey);
+        if (!current || current.auditState !== 'pending') {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-not-pending');
+        }
+        if (current.attemptCount >= maxAttempts) {
+          throw new BillingReadModelUnavailableError(`billing-mutation-outbox-manual-review:${requestKey}`);
+        }
+        this.state.mutationOutbox.set(requestKey, {
+          ...current,
+          attemptCount: decodeBillingCount(current.attemptCount + 1, 'billing-mutation-outbox-attempt-count'),
+          lastAttemptAt: attemptedAt,
+          lastError: null,
+          updatedAt: attemptedAt,
+        });
+        return;
+      }
+      case MARK_MUTATION_OUTBOX_FAILURE_SQL: {
+        const requestKey = decodeNonEmptyString(this.values[0], 'billing-mutation-outbox-request-key');
+        const lastError = decodeNonEmptyString(this.values[1], 'billing-mutation-outbox-last-error');
+        const updatedAt = decodeTimestamp(this.values[2], 'billing-mutation-outbox-updated-at');
+        const current = this.state.mutationOutbox.get(requestKey);
+        if (!current || current.auditState !== 'pending') {
+          throw new BillingReadModelUnavailableError('billing-mutation-outbox-not-pending');
+        }
+        this.state.mutationOutbox.set(requestKey, { ...current, lastError, updatedAt });
         return;
       }
       default:
@@ -1697,7 +1777,35 @@ async function d1All<T>(
 }
 
 async function ensureMutationSchema(env: Env): Promise<void> {
-  await requireBillingD1Database(env).exec(CREATE_MUTATION_SCHEMA_SQL);
+  const database = requireBillingD1Database(env);
+  await database.exec(CREATE_MUTATION_SCHEMA_SQL);
+  const columns = new Set(
+    (await database.prepare(SELECT_MUTATION_OUTBOX_COLUMNS_SQL).all<MutationOutboxColumnRow>()).results.map(
+      (row) => row.name
+    )
+  );
+  const migrations: ReadonlyArray<readonly [string, string]> = [
+    ['audit_event_json', "ALTER TABLE billing_mutation_outbox ADD COLUMN audit_event_json TEXT NOT NULL DEFAULT '{}'"],
+    ['attempt_count', 'ALTER TABLE billing_mutation_outbox ADD COLUMN attempt_count INTEGER NOT NULL DEFAULT 0'],
+    ['last_attempt_at', 'ALTER TABLE billing_mutation_outbox ADD COLUMN last_attempt_at TEXT'],
+    ['last_error', 'ALTER TABLE billing_mutation_outbox ADD COLUMN last_error TEXT'],
+  ];
+  for (const [column, statement] of migrations) {
+    if (!columns.has(column)) {
+      try {
+        await database.exec(statement);
+      } catch (error) {
+        const currentColumns = new Set(
+          (await database.prepare(SELECT_MUTATION_OUTBOX_COLUMNS_SQL).all<MutationOutboxColumnRow>()).results.map(
+            (row) => row.name
+          )
+        );
+        if (!currentColumns.has(column)) {
+          throw error;
+        }
+      }
+    }
+  }
 }
 
 function mutationReplayKey(mutation: BillingStateMutation): string {
@@ -1706,6 +1814,8 @@ function mutationReplayKey(mutation: BillingStateMutation): string {
       return `provider-webhook:${mutation.provider}:${mutation.eventId}`;
     case 'reconciliation':
       return `reconciliation:${mutation.subject}:${mutation.requestId}`;
+    case 'admin-refund':
+      return `admin-refund:${mutation.actorSubject}:${mutation.requestId}`;
     default:
       return `${mutation.kind}:${mutation.subject}:${mutation.requestId}`;
   }
@@ -1741,15 +1851,7 @@ function billingMutationOutboxStatement(
     .bind(key, mutation.kind, mutationFingerprint(mutation), 'pending', JSON.stringify(auditEvent), now, now);
 }
 
-async function loadMutationOutbox(env: Env, mutation: BillingStateMutation): Promise<MutationOutboxRow | null> {
-  const row = await d1First<MutationOutboxRow>(
-    requireBillingD1Database(env),
-    SELECT_MUTATION_OUTBOX_SQL,
-    mutationReplayKey(mutation)
-  );
-  if (!row) {
-    return null;
-  }
+function decodeMutationOutboxRow(row: MutationOutboxRow): MutationOutboxRow {
   decodeNonEmptyString(row.request_key, 'billing-mutation-outbox-request-key');
   decodeNonEmptyString(row.mutation_kind, 'billing-mutation-outbox-kind');
   decodeNonEmptyString(row.mutation_json, 'billing-mutation-outbox-mutation');
@@ -1759,9 +1861,26 @@ async function loadMutationOutbox(env: Env, mutation: BillingStateMutation): Pro
       parseUnknownPayload(row.audit_event_json, 'billing-mutation-outbox-audit-event')
     )
   );
+  decodeBillingCount(row.attempt_count, 'billing-mutation-outbox-attempt-count');
+  decodeNullableTimestamp(row.last_attempt_at, 'billing-mutation-outbox-last-attempt-at');
+  if (row.last_error !== null && row.last_error !== undefined) {
+    decodeNonEmptyString(row.last_error, 'billing-mutation-outbox-last-error');
+  }
   decodeTimestamp(row.created_at, 'billing-mutation-outbox-created-at');
   decodeTimestamp(row.updated_at, 'billing-mutation-outbox-updated-at');
   return row;
+}
+
+async function loadMutationOutbox(env: Env, mutation: BillingStateMutation): Promise<MutationOutboxRow | null> {
+  const row = await d1First<MutationOutboxRow>(
+    requireBillingD1Database(env),
+    SELECT_MUTATION_OUTBOX_SQL,
+    mutationReplayKey(mutation)
+  );
+  if (!row) {
+    return null;
+  }
+  return decodeMutationOutboxRow(row);
 }
 
 type RefundLedgerState = 'none' | 'refund-requested' | 'refund-settled';
@@ -1904,13 +2023,39 @@ async function readStoredAuditEvents(env: Env): Promise<ReadonlyArray<BillingAud
   return ((await object.json<ReadonlyArray<BillingAuditEventSummary>>()) ?? []).map((entry) => cloneJsonValue(entry));
 }
 
-async function appendBillingAuditEvent(env: Env, nextEvent: BillingAuditEventSummary): Promise<void> {
+export async function appendBillingAuditEventAtOwner(env: Env, value: unknown): Promise<void> {
+  const nextEvent = decodeCanonicalValue('billing-audit-event', () =>
+    BillingSupportAdminAuditEventSummarySchema.parse(value)
+  );
   if (!env.BILLING_AUDIT_R2) {
     throw new BillingReadModelUnavailableError('billing-audit-r2-binding-missing');
   }
   const current = await readStoredAuditEvents(env);
   const next = replaceByKey(current, nextEvent, (entry) => entry.eventId);
   await env.BILLING_AUDIT_R2.put(AUDIT_EVENTS_KEY, JSON.stringify(next));
+}
+
+async function appendBillingAuditEvent(env: Env, nextEvent: BillingAuditEventSummary): Promise<void> {
+  const namespace = env.BILLING_DO;
+  if (!namespace) {
+    if (isLocalFixtureEnvironment(env)) {
+      await appendBillingAuditEventAtOwner(env, nextEvent);
+      return;
+    }
+    throw new BillingReadModelUnavailableError('billing-audit-owner-binding-missing');
+  }
+  const response = await namespace.get(namespace.idFromName(BILLING_AUDIT_OWNER_NAME)).fetch(
+    new Request(`https://billing-owner.local${BILLING_AUDIT_APPEND_PATH}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(nextEvent),
+    })
+  );
+  if (!response.ok) {
+    throw new BillingReadModelUnavailableError(`billing-audit-owner-${response.status}`);
+  }
 }
 
 async function billingAuditEventForMutation(
@@ -1982,7 +2127,7 @@ async function billingAuditEventForMutation(
     case 'admin-refund': {
       const status = await loadBillingStatusSummary(env, mutation.subject);
       return {
-        eventId: `billing-refund:${mutation.requestId}`,
+        eventId: `billing-refund:${mutationReplayKey(mutation)}`,
         eventType: `billing.refund.${mutation.refundState}`,
         actorRole: mutation.actorRole,
         parentAccountRef: status.parentAccountRef,
@@ -2025,20 +2170,95 @@ async function completeBillingMutation(env: Env, mutation: BillingStateMutation)
   if (outbox.mutation_kind !== mutation.kind || outbox.mutation_json !== mutationFingerprint(mutation)) {
     throw new BillingReadModelUnavailableError(`billing-mutation-outbox-conflict:${mutationReplayKey(mutation)}`);
   }
+  await deliverBillingMutationOutbox(env, outbox);
+}
+
+function billingOutboxErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return message.replace(/\s+/gu, ' ').trim().slice(0, 240) || 'billing-audit-delivery-failed';
+}
+
+async function deliverBillingMutationOutbox(env: Env, outbox: MutationOutboxRow): Promise<void> {
   if (outbox.audit_state === 'delivered') {
     return;
   }
-  const auditEvent = decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
-    BillingSupportAdminAuditEventSummarySchema.parse(
-      parseUnknownPayload(outbox.audit_event_json, 'billing-mutation-outbox-audit-event')
-    )
+  const attemptCount = decodeBillingCount(
+    outbox.attempt_count,
+    `billing-mutation-outbox-attempt-count:${outbox.request_key}`
   );
-  await appendBillingAuditEvent(env, auditEvent);
+  if (attemptCount >= MAX_BILLING_OUTBOX_ATTEMPTS) {
+    throw new BillingReadModelUnavailableError(`billing-mutation-outbox-manual-review:${outbox.request_key}`);
+  }
+  const database = requireBillingD1Database(env);
+  const attemptedAt = new Date().toISOString();
   await commitBillingD1Batch(env, [
-    requireBillingD1Database(env)
-      .prepare(MARK_MUTATION_AUDIT_DELIVERED_SQL)
-      .bind(mutationReplayKey(mutation), new Date().toISOString()),
+    database
+      .prepare(MARK_MUTATION_OUTBOX_ATTEMPT_SQL)
+      .bind(outbox.request_key, attemptedAt, MAX_BILLING_OUTBOX_ATTEMPTS),
   ]);
+  try {
+    const auditEvent = decodeCanonicalValue('billing-mutation-outbox-audit-event', () =>
+      BillingSupportAdminAuditEventSummarySchema.parse(
+        parseUnknownPayload(outbox.audit_event_json, 'billing-mutation-outbox-audit-event')
+      )
+    );
+    await appendBillingAuditEvent(env, auditEvent);
+    await commitBillingD1Batch(env, [
+      database.prepare(MARK_MUTATION_AUDIT_DELIVERED_SQL).bind(outbox.request_key, new Date().toISOString()),
+    ]);
+  } catch (error) {
+    const failedAt = new Date().toISOString();
+    await commitBillingD1Batch(env, [
+      database
+        .prepare(MARK_MUTATION_OUTBOX_FAILURE_SQL)
+        .bind(outbox.request_key, billingOutboxErrorMessage(error), failedAt),
+    ]);
+    throw error;
+  }
+}
+
+export interface BillingMutationOutboxDrainSummary {
+  scanned: number;
+  delivered: number;
+  failed: number;
+  manualReview: number;
+}
+
+export async function drainPendingBillingMutationOutbox(env: Env): Promise<BillingMutationOutboxDrainSummary> {
+  await ensureMutationSchema(env);
+  const rows = await d1All<MutationOutboxRow>(
+    requireBillingD1Database(env),
+    SELECT_PENDING_MUTATION_OUTBOX_SQL,
+    MAX_BILLING_OUTBOX_DRAIN_ROWS
+  );
+  const summary: BillingMutationOutboxDrainSummary = {
+    scanned: rows.length,
+    delivered: 0,
+    failed: 0,
+    manualReview: 0,
+  };
+  for (const row of rows) {
+    try {
+      const outbox = decodeMutationOutboxRow(row);
+      const attemptCount = decodeBillingCount(
+        outbox.attempt_count,
+        `billing-mutation-outbox-attempt-count:${outbox.request_key}`
+      );
+      if (attemptCount >= MAX_BILLING_OUTBOX_ATTEMPTS) {
+        summary.manualReview += 1;
+        continue;
+      }
+      await deliverBillingMutationOutbox(env, outbox);
+      summary.delivered += 1;
+    } catch (_error) {
+      summary.failed += 1;
+    }
+  }
+  env.ANALYTICS?.writeDataPoint({
+    indexes: ['billing-mutation-outbox-drain'],
+    doubles: [summary.scanned, summary.delivered, summary.failed, summary.manualReview],
+  });
+  return summary;
 }
 
 async function replayKnownBillingMutation(env: Env, mutation: BillingStateMutation): Promise<boolean> {
@@ -2969,6 +3189,9 @@ export async function applyBillingStateMutation(env: Env, mutation: BillingState
       const matchedInvoice = invoices.find((invoice) => invoice.invoiceId === mutation.invoiceId);
       if (!matchedInvoice) {
         throw new BillingReadModelUnavailableError(`billing-refund-invoice-missing:${mutation.invoiceId}`);
+      }
+      if (mutation.currency !== matchedInvoice.currency) {
+        throw new BillingReadModelUnavailableError(`billing-refund-currency-mismatch:${mutation.invoiceId}`);
       }
       const refundLedger = await loadRefundLedgerSummary(env, mutation.invoiceId);
       const appliedAmountCents = refundLedger.appliedAmountCents;

@@ -8,9 +8,12 @@ import {
   buildReferralInviteResult,
 } from './fixtures.js';
 import {
+  appendBillingAuditEventAtOwner,
   applyBillingStateMutation,
+  BILLING_AUDIT_APPEND_PATH,
   buildBillingRefundResult,
   BillingReadModelUnavailableError,
+  drainPendingBillingMutationOutbox,
   findBillingInvoiceSubject,
   loadAdminBillingAccounts,
   loadAdminBillingDisputes,
@@ -665,6 +668,8 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
   if (kind === 'admin-refund') {
     const requestId = stringOrNull(value.requestId);
     const invoiceId = stringOrNull(value.invoiceId);
+    const actorSubject = stringOrNull(value.actorSubject);
+    const currency = stringOrNull(value.currency);
     const auditReference = stringOrNull(value.auditReference);
     const refundState = stringOrNull(value.refundState);
     const parsedAmount = parseRefundAmount(value.amountCents);
@@ -673,6 +678,8 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     if (
       !requestId ||
       !invoiceId ||
+      !actorSubject ||
+      !currency ||
       !auditReference ||
       !parsedAmount.valid ||
       amountCents === null ||
@@ -684,8 +691,10 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
     return {
       kind,
       subject,
+      actorSubject,
       requestId,
       invoiceId,
+      currency,
       refundState,
       amountCents,
       auditReference,
@@ -732,6 +741,23 @@ function parseBillingStateMutation(value: unknown): BillingStateMutation | null 
 
 function durableWriteKey(action: string, subject: string, requestId: string): string {
   return `${action}:${subject}:${requestId}`;
+}
+
+function adminRefundRequestFingerprint(
+  actorSubject: string,
+  invoiceId: string,
+  subject: string,
+  amountCents: number,
+  currency: string
+): string {
+  return JSON.stringify({
+    action: 'admin-refund',
+    actorSubject,
+    invoiceId,
+    subject,
+    amountCents,
+    currency,
+  });
 }
 
 function webhookIdempotencyKey(provider: string, eventId: string): string {
@@ -1793,6 +1819,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
     },
 
     async 'admin-billing-refunds'({ request, env, identity }): Promise<Response> {
+      const verifiedIdentity = requireSupportAdminReadIdentity(identity);
       const body = await readJsonObject<AdminRefundRequestBody>(request);
       if (!body) {
         return json(400, {
@@ -1800,7 +1827,7 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
         });
       }
 
-      const requestId = requestIdFor('admin-refund', identity?.subject ?? 'admin', body.requestId);
+      const requestId = requestIdFor('admin-refund', verifiedIdentity.subject, body.requestId);
       const parsedAmount = parseRefundAmount(body.amountCents);
       if (!parsedAmount.valid) {
         return json(400, {
@@ -1812,41 +1839,55 @@ async function routeHandlerMap(): Promise<Record<string, RouteHandler>> {
       const appliedAmountCents = invoice ? await loadAppliedRefundAmount(env, invoice.invoiceId) : 0;
       const result = buildBillingRefundResult(requestId, invoice, parsedAmount.value, appliedAmountCents);
       if (result.status === 'accepted') {
-        const refundSubject = result.invoiceId ? await findBillingInvoiceSubject(env, result.invoiceId) : null;
-        if (!refundSubject) {
+        const refundInvoiceId = result.invoiceId;
+        const refundSubject = refundInvoiceId ? await findBillingInvoiceSubject(env, refundInvoiceId) : null;
+        if (!invoice || !refundInvoiceId || !refundSubject) {
           return json(503, {
             error: 'manual-required',
             blocker: 'billing-invoice-subject-missing',
           });
         }
+        const actorSubject = verifiedIdentity.subject;
         return executeIdempotentWrite(
           env.BILLING_DO,
-          `billing-control:${identity?.subject ?? 'admin'}`,
+          `billing-control:${actorSubject}`,
           {
-            requestKey: durableWriteKey('admin-refund', identity?.subject ?? 'admin', requestId),
+            requestKey: durableWriteKey('admin-refund', actorSubject, requestId),
+            requestFingerprint: adminRefundRequestFingerprint(
+              actorSubject,
+              refundInvoiceId,
+              refundSubject,
+              result.amountCents ?? 0,
+              invoice.currency
+            ),
             responseStatus: 200,
             responseBody: result,
             queueMessage: {
               action: 'admin-refund',
               requestId,
-              invoiceId: result.invoiceId,
+              invoiceId: refundInvoiceId,
               amountCents: result.amountCents,
-              actorRole: identity?.role ?? null,
+              currency: invoice.currency,
+              subject: refundSubject,
+              actorSubject,
+              actorRole: verifiedIdentity.role,
             },
             stateMutation:
               refundSubject &&
-              result.invoiceId &&
+              refundInvoiceId &&
               result.refundState !== 'manual-review-required' &&
               result.amountCents !== null
                 ? {
                     kind: 'admin-refund',
                     subject: refundSubject,
+                    actorSubject,
                     requestId,
-                    invoiceId: result.invoiceId,
+                    invoiceId: refundInvoiceId,
+                    currency: invoice.currency,
                     refundState: result.refundState,
                     amountCents: result.amountCents,
                     auditReference: result.auditReference,
-                    actorRole: identity?.role === 'support' ? 'support' : 'admin',
+                    actorRole: verifiedIdentity.role === 'support' ? 'support' : 'admin',
                   }
                 : null,
           },
@@ -2072,9 +2113,23 @@ class IdempotentWriteDO extends BasePlaceholderDO {
     string,
     { requestFingerprint: string | null; responseStatus: number; responseBody: unknown }
   >();
+  private auditAppendTail: Promise<void> = Promise.resolve();
 
   override async fetch(request: Request): Promise<Response> {
     const url = new URL(request.url);
+    if (request.method === 'POST' && url.pathname === BILLING_AUDIT_APPEND_PATH) {
+      const auditEvent = await readJsonObject<Record<string, unknown>>(request);
+      if (!auditEvent) {
+        return json(400, { error: 'invalid-billing-audit-event' });
+      }
+      const append = this.auditAppendTail.then(() => appendBillingAuditEventAtOwner(this.env, auditEvent));
+      this.auditAppendTail = append.then(
+        () => undefined,
+        () => undefined
+      );
+      await append;
+      return json(200, { status: 'delivered' });
+    }
     if (request.method !== 'POST' || url.pathname !== '/idempotency/execute') {
       return super.fetch();
     }
@@ -2163,7 +2218,15 @@ export default {
     return withCors(await handleRequest(request, env), request, env);
   },
 
-  async scheduled(): Promise<void> {
-    return;
+  async scheduled(_controller: unknown, env: Env): Promise<void> {
+    void _controller;
+    try {
+      await drainPendingBillingMutationOutbox(env);
+    } catch (_error) {
+      env.ANALYTICS?.writeDataPoint({
+        indexes: ['billing-mutation-outbox-drain-failed'],
+        doubles: [1],
+      });
+    }
   },
 };
