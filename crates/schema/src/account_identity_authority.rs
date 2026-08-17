@@ -52,6 +52,7 @@ account_identity_text_id!(AccountIdentityRouteId);
 account_identity_text_id!(AccountIdentityProviderSubject);
 account_identity_text_id!(AccountIdentityMemberId);
 account_identity_text_id!(AccountIdentityDeviceId);
+account_identity_text_id!(AccountIdentitySupportReceiptId);
 
 #[derive(Clone, Debug, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -200,6 +201,7 @@ pub struct AccountIdentityCurrentMemberDeviceAuthority {
     pub device_id: AccountIdentityDeviceId,
     pub device_trust_state: AccountIdentityDeviceTrustState,
     pub session_freshness_state: AccountIdentitySessionFreshnessState,
+    pub support_receipt_id: Option<AccountIdentitySupportReceiptId>,
     pub authority_generation: u64,
 }
 
@@ -277,6 +279,7 @@ pub enum AccountIdentityMemberAuthorityValidationError {
     InactiveMembership,
     UntrustedDevice,
     StaleSession,
+    SupportReceiptRequired,
     PairingNotComplete,
     InstallNotComplete,
     LifecycleNotActive,
@@ -326,6 +329,11 @@ impl AccountIdentityCurrentMemberDeviceAuthorityHandoff {
         (self.member.session_freshness_state == AccountIdentitySessionFreshnessState::Fresh)
             .then_some(())
             .ok_or(AccountIdentityMemberAuthorityValidationError::StaleSession)?;
+        if self.member.role == AccountIdentityRole::SupportAdmin
+            && self.member.support_receipt_id.is_none()
+        {
+            return Err(AccountIdentityMemberAuthorityValidationError::SupportReceiptRequired);
+        }
         (self.binding.pairing_state == AccountIdentityPairingState::Paired)
             .then_some(())
             .ok_or(AccountIdentityMemberAuthorityValidationError::PairingNotComplete)?;
@@ -349,22 +357,30 @@ impl AccountIdentityCurrentMemberDeviceAuthorityHandoff {
         (self.member.authority_generation == self.binding.authority_generation)
             .then_some(())
             .ok_or(AccountIdentityMemberAuthorityValidationError::AuthorityGenerationMismatch)?;
-        self.binding.validate_shape().map_err(|error| match error {
-            AccountIdentityBindingValidationError::SchemaVersionMismatch => {
-                AccountIdentityMemberAuthorityValidationError::SchemaVersionMismatch
-            }
-            AccountIdentityBindingValidationError::InactiveProviderMapping => {
-                AccountIdentityMemberAuthorityValidationError::InactiveProviderMapping
-            }
-            AccountIdentityBindingValidationError::MappingAccountMismatch => {
-                AccountIdentityMemberAuthorityValidationError::MappingAccountMismatch
-            }
-            AccountIdentityBindingValidationError::ZeroAuthorityGeneration => {
-                AccountIdentityMemberAuthorityValidationError::ZeroAuthorityGeneration
-            }
-            AccountIdentityBindingValidationError::AuthorityGenerationExceedsSafeInteger => {
-                AccountIdentityMemberAuthorityValidationError::AuthorityGenerationExceedsSafeInteger
-            }
-        })
+        self.binding
+            .validate_shape()
+            .map_err(map_binding_validation_error)
+    }
+}
+
+fn map_binding_validation_error(
+    error: AccountIdentityBindingValidationError,
+) -> AccountIdentityMemberAuthorityValidationError {
+    match error {
+        AccountIdentityBindingValidationError::SchemaVersionMismatch => {
+            AccountIdentityMemberAuthorityValidationError::SchemaVersionMismatch
+        }
+        AccountIdentityBindingValidationError::InactiveProviderMapping => {
+            AccountIdentityMemberAuthorityValidationError::InactiveProviderMapping
+        }
+        AccountIdentityBindingValidationError::MappingAccountMismatch => {
+            AccountIdentityMemberAuthorityValidationError::MappingAccountMismatch
+        }
+        AccountIdentityBindingValidationError::ZeroAuthorityGeneration => {
+            AccountIdentityMemberAuthorityValidationError::ZeroAuthorityGeneration
+        }
+        AccountIdentityBindingValidationError::AuthorityGenerationExceedsSafeInteger => {
+            AccountIdentityMemberAuthorityValidationError::AuthorityGenerationExceedsSafeInteger
+        }
     }
 }

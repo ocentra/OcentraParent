@@ -25,6 +25,7 @@ export const AccountIdentityPairingIdSchema = Generated.AccountIdentityPairingId
 export const AccountIdentityInstallationIdSchema = Generated.AccountIdentityInstallationIdSchema;
 export const AccountIdentityRouteIdSchema = Generated.AccountIdentityRouteIdSchema;
 export const AccountIdentityDeviceIdSchema = Generated.AccountIdentityDeviceIdSchema;
+export const AccountIdentitySupportReceiptIdSchema = Generated.AccountIdentitySupportReceiptIdSchema;
 export const AccountIdentityProviderSubjectMappingSchema = Generated.AccountIdentityProviderSubjectMappingSchema;
 export const AccountIdentityHouseholdChildDeviceBindingSchema =
   Generated.AccountIdentityHouseholdChildDeviceBindingSchema;
@@ -56,6 +57,7 @@ export type AccountIdentityPairingId = Generated.AccountIdentityPairingId;
 export type AccountIdentityInstallationId = Generated.AccountIdentityInstallationId;
 export type AccountIdentityRouteId = Generated.AccountIdentityRouteId;
 export type AccountIdentityDeviceId = Generated.AccountIdentityDeviceId;
+export type AccountIdentitySupportReceiptId = Generated.AccountIdentitySupportReceiptId;
 export type AccountIdentityProviderSubjectMapping = Generated.AccountIdentityProviderSubjectMapping;
 export type AccountIdentityHouseholdChildDeviceBinding = Generated.AccountIdentityHouseholdChildDeviceBinding;
 export type AccountIdentityAuthorityHandoff = Generated.AccountIdentityAuthorityHandoff;
