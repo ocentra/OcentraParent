@@ -3,7 +3,7 @@
 > **Live-code audit (2026-07-17):** [Project Progress Matrix](../../PLAN_CODE_STATUS_MATRIX.md) records current implementation, blockers, dependencies, and next unblocker. Rows remain proof-gated; this audit does not check unsupported work.
 
 Status: WP06 durable manifest complete; WP09 integration/CI/review/merge open;
-WP10 blocked on LAN WP26; WP11 implementation-ready but open; WP12 harness/root
+WP10 blocked on LAN WP26; WP11 production-source integrated but test/proof open; WP12 harness/root
 missing; WP13 code-complete but current validation/proof open.
 
 This checklist tracks the current execution slice only. Historical closure notes
@@ -37,7 +37,12 @@ local proof closures and the remaining open workpacks.
 - [ ] Record the restored WP12 route-proof state in `PLAN_STATE.md`,
       `NEXT_ACTIONS.md`, `PROOF_INDEX.md`, and
       `TEST_PROOF_EXPECTATIONS.md`.
-- [ ] Re-run the scoped WP11 Eventing validation, including envelope negative
+- [x] Integrate the WP11 production-source boundary and migrate reviewed
+      reachable production callers at `4aaddb425`; this checks no test/proof row.
+- [ ] Write the scoped WP11 negative/audit test source for private live-envelope
+      fields, malformed stored payload identity, aggregate/idempotency tamper,
+      and immutable consumer access.
+- [ ] Run the scoped WP11 Eventing validation, including envelope negative
       cases, aggregate/idempotency revalidation, and retained proof roots:
       `npm run type-check --workspace @ocentra-parent/agent-protocol-domain`,
       focused policy-control/contract tests, and touched-file

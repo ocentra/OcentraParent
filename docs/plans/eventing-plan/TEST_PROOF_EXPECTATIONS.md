@@ -168,7 +168,7 @@ manual-required blockers
 proof-root presence
 WP12 rollout-proof route remains open: harness and canonical root are missing
 WP13 source-side test scaffold cleanup is code-complete; validation/proof remains open and includes the contract harness
-WP11 is implementation-ready/open: envelope, aggregate/idempotency, negative, and retained-proof gaps remain
+WP11 production source is integrated; negative/audit test source, focused execution, and retained-proof gaps remain
 WP06 generic journal/topology proof and `00-enforcement-wp11-handoff.md` are retained in the tracked durable manifest; WP10 and enforcement-specific WP11 proof remain open
 WP10 remains blocked on LAN WP26 and its proof root is absent
 ```

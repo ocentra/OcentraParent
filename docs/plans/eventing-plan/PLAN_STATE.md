@@ -113,11 +113,13 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   open; its proof root is absent and the `contract` harness must be included.
 - WP12 is open: `scripts/test/eventing-rollout-proof.mjs` and its canonical
   route-proof root are absent.
-- WP11 is implementation-ready but open: the accepted `EventEnvelope<E>`
-  source helper now keeps the `DomainEvent` bound at the struct boundary and
-  validates contract, aggregate, and idempotency identity on both `store()` and
-  stored `decode`; the required negative/audit tests and proof are not
-  retained.
+- WP11 production source is integrated at `4aaddb425`: live `EventEnvelope<E>`
+  fields are private, immutable borrowing accessors plus consuming
+  `into_payload()` form the public boundary, `store()` and stored `decode()`
+  revalidate payload-derived identity, and every reviewed reachable production
+  caller was migrated. Required negative/audit test source still needs to be
+  written in the later test phase; no build, test, proof, precommit, CI, or
+  completion claim is attached to this source checkpoint.
 
 ## Open gaps / missing product runtime
 
@@ -193,7 +195,8 @@ open until its proof roots and LAN/remote-access handoff verification exist.
   `output/eventing-plan-proof/12-rollout-proof-and-pr-gate/` are absent.
 - Shared TypeScript contract mirror validation passes in this checkout: `npm run test --workspace @ocentra-parent/event-domain` and `npm run type-check --workspace @ocentra-parent/event-domain`.
 - Focused downstream mirror validation also passes: `cmd /c npm run test --workspace @ocentra-parent/agent-protocol-domain -- network-runtime-events.test.ts contracts.test.ts` and `cargo test -p ocentra-parent-agent-protocol child_domain_runtime_events --quiet`.
-- WP11 proof regeneration is required for the reusable Eventing envelope/type
+- WP11 expected-test writing and proof regeneration are required for the
+  reusable Eventing envelope/type
   surface; the cited `63-type-safety-source-gate`, `66-76-source-safety`,
   `67-lock-await`, and `68-fixture-parity` roots are not retained here. The
   policy-control TypeScript checks are not Eventing WP11 closure evidence.

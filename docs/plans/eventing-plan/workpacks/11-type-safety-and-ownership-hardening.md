@@ -42,20 +42,26 @@ Expected proof artifacts:
 - `output/eventing-plan-proof/67-lock-await/proof-summary.json`
 - `output/eventing-plan-proof/68-fixture-parity/proof-summary.json`
 
-Current source audit (implementation-ready; not closure evidence):
+Current source audit (production source integrated; not closure evidence):
 
-- The accepted code-only helper in
-  `crates/ocentra-eventing/src/envelope.rs` keeps `EventEnvelope<E>` bounded by
-  `DomainEvent` at the struct boundary and validates the live envelope's
-  contract, aggregate key, and idempotency key before `store()` persists it.
+- The accepted source packet at `4aaddb425` keeps `EventEnvelope<E>` bounded by
+  `DomainEvent`, makes every live-envelope field private, and exposes immutable
+  borrowing accessors plus consuming `into_payload()` from
+  `crates/ocentra-eventing/src/envelope/accessors.rs`.
 - `StoredEventEnvelope::decode` now reuses the same validation helper after
   payload decoding, revalidating the decoded payload's contract, aggregate key,
   and idempotency key against the stored envelope metadata.
-- Existing round-trip/version-skew tests still do not retain the required
+- Reviewed reachable production consumers in `agent-core`, `agent-service`,
+  `app-game-core`, `child-runtime`, and `ocentra-eventing` now use the bounded
+  accessor/consuming API; an independent review found and repaired three missed
+  callers before integration.
+- Existing tests still use parts of the old public-field API and do not retain
+  the required
   malformed payload, aggregate/idempotency tamper, payload-mutation, and
   lock/await audit negatives for the accepted helper.
 - The cited `63`, `66-76`, `67`, and `68` proof roots are absent; unrelated
   policy-control TypeScript checks do not close this Eventing workpack.
 
-WP11 is therefore open and implementation-ready, pending the bounded source
-fixes/negative tests and regenerated retained proof.
+WP11 is therefore source-integrated but open. The later test-writing phase must
+migrate existing test callers and add the named negative/audit families before
+focused execution, retained proof, or any completion claim.

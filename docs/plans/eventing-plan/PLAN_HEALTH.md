@@ -31,9 +31,10 @@ This file records documentation health and consistency checks for the plan. It i
 - Previous generated index said there was no workpack route. That was stale because the detailed workpack plan lived in `05-implementation-workpacks.md`.
 - Checklist counts still come from the large implementation checklist. Before DONE/PR_READY, verify the assigned route workpack and exact checklist rows match the current proof.
 - Historical proof and rollout rows currently overclaim checkout state; cited `output/eventing-plan-proof/*` roots outside WP06/WP11/WP12/WP13 are still incomplete for open workpacks. WP06 is locally evidenced as the generic enforcement prerequisite; WP10 remains open.
-- WP11 is implementation-ready but open: the unconstrained `EventEnvelope<E>`
-  boundary, missing aggregate/idempotency revalidation, negative tests, and
-  retained proof remain unresolved.
+- WP11 production source is integrated: `EventEnvelope<E>` is externally
+  immutable, payload-derived identity is revalidated across store/decode, and
+  reviewed production consumers use the accessor boundary. Expected negative
+  and audit test source, focused execution, and retained proof remain open.
 - WP12 lacks its declared harness and canonical root. WP13's moved test layout
   is code-complete, but current validation/proof remains open and must include
   the `contract` harness.
@@ -59,7 +60,8 @@ This file records documentation health and consistency checks for the plan. It i
 
 ## Current rollout note
 
-- WP11 source-boundary implementation is present but proof is open. WP12 route
+- WP11 source-boundary implementation and production-caller migration are
+  present, but expected test writing and proof are open. WP12 route
   reconciliation is blocked by its missing harness/root, and WP13 requires
   current revalidation/proof.
 - WP06 retains a hand-authored durable manifest for generic journal/topology/
@@ -86,7 +88,7 @@ This file records documentation health and consistency checks for the plan. It i
 
 - Current state: route and schema hygiene are improved, WP06 locally evidences
   its generic handoff, WP09 remains integration-open, WP10 is blocked on LAN
-  WP26, WP11 is implementation-ready/open, and WP12/WP13 require validation and
+  WP26, WP11 is source-integrated/test-open, and WP12/WP13 require validation and
   retained proof.
 - Current action: keep this file and `eventing-plan/PLAN_STATE.md` aligned while WP10 is handled; do not promote the local Eventing handoff into enforcement action proof.
 
