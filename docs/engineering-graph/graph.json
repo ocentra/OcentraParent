@@ -18639,7 +18639,7 @@
       "metadata": {
         "planSlug": "logging-domain-parity",
         "indexPath": "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
-        "statusText": "source-present",
+        "statusText": "source-hardened / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": true
@@ -18672,7 +18672,7 @@
       "metadata": {
         "planSlug": "logging-domain-parity",
         "indexPath": "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
-        "statusText": "partial-proof",
+        "statusText": "partial-proof / route source hardened / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -18804,7 +18804,7 @@
       "metadata": {
         "planSlug": "logging-domain-parity",
         "indexPath": "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
-        "statusText": "partial-proof",
+        "statusText": "partial-proof / query source hardened / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -18837,7 +18837,7 @@
       "metadata": {
         "planSlug": "logging-domain-parity",
         "indexPath": "docs/plans/logging-domain-parity/WORKPACK_INDEX.md",
-        "statusText": "partial-proof",
+        "statusText": "partial-proof / redaction source hardened / expected tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -23643,18 +23643,10 @@
       "metadata": {
         "planSlug": "setup-install-provisioning-plan",
         "indexPath": "docs/plans/setup-install-provisioning-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: no reference or expected artifact is declared; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / accepted fail-closed source / tests stale",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: no reference or expected artifact is declared",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],

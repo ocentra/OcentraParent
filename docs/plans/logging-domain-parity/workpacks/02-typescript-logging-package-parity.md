@@ -188,3 +188,14 @@ The appended completion block was still overstated, because the named proof root
 `output/logging-domain-parity-proof/02-typescript-logging-package-parity/` is
 absent in this checkout and the plan checklist remains unchecked. Treat WP02 as
 source-present but not durably proved complete from current workspace evidence.
+
+## Accepted source and expected-test delta (2026-08-17)
+
+The reviewed source at `720609306` adds one canonical structured-redaction
+policy, explicit package exports, JSON-safe markers for unsupported values,
+cycle/reflection failure containment, and native Date/URL/custom-`toJSON`
+handling. No test file changed. Before focused execution, add dedicated
+redaction coverage for nested secrets, arrays, cycles, unsupported primitives
+and objects, throwing getters/proxies/`toJSON`, root/property/index key
+semantics, one-call behavior, and package-export import resolution. This is
+local logging package hardening, not product telemetry readiness.

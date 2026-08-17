@@ -44,7 +44,7 @@ journey into shipped onboarding readiness.
 | WP03 Parent Install Journey | `apps/parent-desktop/src-tauri/src/lib.rs` has shipped Tauri route commands and `crates/provisioning-core/src/provisioning_install.rs` has install-state contracts. Neither is a package/install/update entrypoint, and no caller connects them to a signed artifact. | Signed package, platform installer, integrity/checksum, update/rollback, store delivery, and publishing authority belong to `parent-desktop-runtime-package-plan`. | No setup-owned slice; installer/proof text is not runtime. |
 | WP04 Child Install Permission Journey | `crates/child-runtime/src/bin/ocentra-child-agent-service.rs` starts the real child service and `crates/child-runtime/src/service.rs` durably gates tamper/recovery/removal state. `crates/child-runtime/src/runtime_gate.rs` defines provisioning preflight but `rg` found no production caller constructing or evaluating `ChildRuntimePreflightInput`. | Child package/distribution, platform permission/disclosure, and the missing preflight input owner are outside setup; no trusted account/device handoff reaches the shipped child service. | Blocked on `child-agent-runtime-distribution` plus account/device-trust inputs; no edit. |
 | WP05 Pairing Readiness Recovery | LAN pairing has a real agent-service owner (`crates/agent-service/src/lan_pairing_command_entrypoints.rs`, `crates/agent-service/src/app.rs`) and a parent read path (`crates/parent-runtime-core/src/agent_service_client/loaders.rs`, `parent_ui_bridge/lan_route.rs`) with durable/fail-closed protocol state. | The Start setup snapshot does not consume that read model, and no setup-owned aggregation joins it with account, install, permission, custody, and policy readiness. Physical LAN/device-trust authority remains sibling-owned. | A pairing-only projection would not satisfy setup progression; no edit without the missing cross-owner readiness inputs. |
-| WP07 First-Run Setup UI And State Machine | This route is reachable through `apps/parent-desktop/src-tauri/src/lib.rs` -> `crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs` -> `apps/portal/src/ParentPortalRoute.tsx`/`SetupFirstRunRoutePanel.tsx`. The Rust panel in `parent_ui_bridge/browser.rs` intentionally reports `unavailable` and names account, pairing/trust, and custody as not wired. | No live Rust setup read model receives the required account, package, child-runtime, pairing, permission, custody, and policy states; the TS side is presentation-only. | Reachable boundary is honest but incomplete; no synthetic hydration or completion state. |
+| WP07 First-Run Setup UI And State Machine | The route is reachable through Tauri -> `load_parent_route_snapshot` -> LAN read query -> `setup_first_run.rs` -> the generated bridge -> `SetupFirstRunRoutePanel.tsx`. Rust now owns an explicit 15-row authority matrix, reports `not-run`, `manual-required`, and `0/15` trusted inputs, and preserves LAN unavailable diagnostics. | No trusted account, package, child-runtime, pairing/device-trust, permission, custody, policy, or recovery input is bound. The evaluator/action planner is deliberately not invoked; the accepted source delta changed no tests, and the existing Rust/portal/E2E setup fixtures still describe the removed panel. | Accepted fail-closed source boundary only. Expected tests, real state-machine actions, completion guard, sibling authority inputs, and retained proof remain open. |
 | WP06 Rollout Proof And Route Gate | No production entrypoint; this workpack is documentation/proof aggregation only. | It cannot create runtime authority or upgrade sibling blockers. | Proof-only; excluded from production-code closure. |
 
 ### Audit findings and stale topology
@@ -67,6 +67,17 @@ journey into shipped onboarding readiness.
   package/permission/preflight input handoff (WP04), and a setup-owned
   aggregation that consumes those trusted states plus the existing LAN read
   model before WP07 can report anything beyond manual-required/unavailable.
+
+## Accepted WP07 fail-closed source boundary (2026-08-17)
+
+Commits `a8cdb5ca7` and `8922eaf50` are integrated on the source branch after
+independent review. The accepted behavior removes caller-invented readiness,
+keeps LAN state observation-only, separates Start-route reads from LAN command
+authority, rejects Start discovery scans, and preserves typed LAN failures.
+It does not implement setup progression. The next WP07 phase is expected-test
+source repair for the Rust snapshot/dispatch tests, portal-domain panel tests,
+portal route tests, and setup E2E fixture. Only after those tests are written
+will focused execution begin.
 
 ## Current product direction
 

@@ -151,6 +151,16 @@ Remaining blocker for full-workpack closeout:
 - source inspection closes the production reachability question for the Rust-side mapping: `app::health`, `service_runtime::run_agent_service`, and `activity_capture` call `agent-service::dev_log`, which invokes `logging-core::DevLogger`; the remaining row is focused validation/proof, deferred in this code-only pass
 ```
 
+## Accepted source and expected-test delta (2026-08-17)
+
+Vite dev and preview middleware now consume `scripts/dev/dev-log-writer.mjs`,
+which imports the canonical logging-domain redaction surface. The duplicated
+Vite redaction policy is removed. Existing portal route tests still use a
+stand-in server and do not prove this real middleware/writer boundary. The
+expected-test phase must cover allowed method, invalid JSON, request-size and
+schema rejection, field redaction, and actual Vite middleware routing. No
+focused-validation or proof claim is made by this source packet.
+
 ## Fill before DONE or PR-ready
 
 ```text

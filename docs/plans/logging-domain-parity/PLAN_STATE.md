@@ -92,13 +92,13 @@ The source docs are routed through workpacks:
 Plan route: added
 Workpack route: added
 WP01 audit closeout: audit docs present, but the named proof root is absent in this checkout
-WP02 TypeScript package parity: source/tests present, but the named proof root is absent in this checkout
-WP03 parent architecture/routing: the portal dev-log consumer slice now has a canonical proof root, parent scopes are defined in the logging package, and the live agent-service startup/health/activity callers delegate through crates/logging-core; the broader workpack remains open for deferred validation/proof and the separate root routing check
+WP02 TypeScript package parity: source is hardened with one canonical structured-redaction owner and explicit package exports; the named proof root is absent and the new redaction/export expected tests are not written
+WP03 parent architecture/routing: Vite dev/preview middleware now consumes the canonical writer and the live agent-service startup/health/activity callers delegate through crates/logging-core; the real Vite/writer boundary still lacks current expected tests and the broader workpack remains open
 WP04 Rust logging core: source/tests present, but the named proof root is absent in this checkout
 WP05 local validation evidence: source/tests/smokes present, but the named proof root is absent in this checkout
 WP06 validation/enforcement: root checker scripts, wrapper scripts, and local evidence smoke are present; logging-owned proof-inventory query surfaces now detect missing/stale proof roots and stale closeout claims through agent-query/MCP plus focused tests, and the canonical WP06 proof root is present; full focused validation remains open because one root routing check fails against an owning surface outside this delegated slice
-WP07 MCP query interface: server, integration coverage, and canonical MCP proof roots are present; fresh-root latest-failures/run-diagnostics/artifact-slice plus CLI parity now prove the deterministic local evidence path, but checklist/workpack closeout is still open
-WP08 logger instrumentation/adoption: a canonical partial-proof root now exists for the portal dev logger path, logging-domain storage/query path, and agent-service startup/dev-log path; repo-wide adoption is still not proved
+WP07 MCP query interface: server and bounded proof roots exist; the query service now enforces realpath/symlink containment and redacted malformed-NDJSON diagnostics, but the corresponding containment/diagnostic expected tests are not written
+WP08 logger instrumentation/adoption: the shared logger now sanitizes all structured values through the canonical fail-closed redaction policy; Date/URL/custom-toJSON and unsupported/proxy/getter behavior still require expected tests, and repo-wide adoption is not proved
 WP09 log control/retention/bridge lifecycle: source/tests present, but the named proof root is absent in this checkout
 WP10 proof trace pipeline: focused portal proof-trace tests pass, the standalone MCP proof-trace smoke is now self-seeding in a clean workspace, and the canonical proof root is present; checklist/workpack closeout is still open
 Checklist state: WP03 now reflects its written proof root, WP06 now has 11/12 rows checked against focused proof, WP08 now has 8/12 rows checked against its canonical partial-proof root, and the remaining workpacks stay open as documented in CHECKLIST_INDEX.md
@@ -128,6 +128,7 @@ PR-ready: false
 - Reconcile the remaining WP07/WP10 checklist closeout and keep WP08 scoped to its canonical partial-proof boundary instead of inflating it to repo-wide adoption
 - Decide whether done in this plan means source present, proof present, or both; the current docs mix those states
 - The WP03 Rust-side mapping is source-present: app::health, service_runtime::run_agent_service, and activity_capture call agent-service::dev_log, which converts protocol fields and invokes logging-core::DevLogger. Keep focused validation/proof deferred in this code-only pass, and hand off the separate root dev-log-routing failure before claiming full WP06 focused-validation closure
+- Accepted source through `720609306` centralizes TypeScript redaction, makes unsupported/reflection failures JSON-safe, routes Vite through the canonical writer, and hardens query containment. Independent review found no remaining source defect. No test file changed, so WP02/WP03/WP07/WP08 remain open for their explicit expected-test wave before any focused execution.
 ```
 
 ## No-claim boundaries

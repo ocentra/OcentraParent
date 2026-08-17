@@ -9,9 +9,8 @@ is physically and remotely recoverable. It is not a completion or CI claim.
 | --- | --- | --- |
 | `origin/main` | `eb4e66a79` | Protected release integration baseline. |
 | `origin/develop` | `4ece51528` | Three commits ahead of `main`; primary checkout tracks this ref. |
-| `origin/codex/eventing-wp09-production` | `bfb352c90` | Clean, pushed source-integration checkpoint; 230 commits ahead of `develop` and 233 ahead of `main`, with neither branch diverged from it. It also includes Eventing WP11's accepted private-envelope/source-caller migration and synchronized graph/matrix state; expected tests remain deferred. |
-| `origin/codex/setup-wp07-source-wave` | `2a1c2a2e6` | Remote-safe packet under repair after independent review rejected hard-coded readiness truth, ID/LAN-derived trust, Start-action LAN misrouting, and erased typed read errors. It is not accepted/integrated. |
-| `origin/codex/logging-source-wave` | `bf8a995ab` | Clean, pushed repair packet awaiting independent re-review. It centralizes redaction ownership, fail-closes unsupported values, enforces realpath/symlink containment, and redacts malformed-artifact diagnostics; tests remain deferred and it is not yet integrated. |
+| `origin/codex/eventing-wp09-production` | `f5662091a` | Clean pushed source-integration checkpoint before this status refresh. It contains the accepted Setup fail-closed route, accepted Logging redaction/query hardening, and the safe net Account shape-only delta after the caller-minted authority draft was removed. Expected tests remain deliberately deferred. |
+| `origin/codex/policy-source-wave` | `90e7868a2` | Remote-safe active Policy production-source packet awaiting root semantic review. It is not integrated or counted as accepted merely because it is pushed. |
 | `origin/codex/account-wp02-wp05-source-wave` | `ac03afee3a` | Remote-safe rejected packet. The new public serde records have zero production callers, no durable authority owner, caller-mintable proof/replay/freshness state, and non-monotonic lifecycle transitions. Do not integrate or count it as implementation. |
 | `origin/codex/data-custody-plan-code-wave` | `ec129d668` | Remote-safe six-commit draft rejected for integration: no shipped caller, caller-mintable/stale authority, no actual local custody execution, and five unrelated storage-only commits. |
 | `origin/codex/screen-ai-real-authority-source` | `c8eef33cd` | Worker tip is remote-safe. Its accepted semantic delta plus root's dead-constant cleanup has source baseline `7dc09c25f` and remains present in the current integration head; the worker worktree is removed. |
@@ -27,10 +26,10 @@ pushed.
 | Worktree | Branch/head | Current disposition |
 | --- | --- | --- |
 | `E:/OcentraParent` | `develop` / `4ece51528` | Clean tracked checkout except user-owned untracked `.codex/config.toml`; do not use for parallel feature edits. |
-| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / `bfb352c90` | Root integration/review lane and current remote-safe checkpoint. |
-| `E:/OcentraWorktrees/lanes/setup-wp07-source-wave` | `codex/setup-wp07-source-wave` / `2a1c2a2e6` plus uncommitted repair | Active Luna repair lane for the four independent-review findings; expected tests remain intentionally deferred. |
-| `E:/OcentraWorktrees/lanes/logging-source-wave` | `codex/logging-source-wave` / `bf8a995ab` | Clean pushed repair packet under independent re-review; expected tests remain intentionally deferred. |
-| `E:/OcentraWorktrees/lanes/account-wp02-sealed-binding-source` | `codex/account-wp02-sealed-binding-source` / `bfb352c90` base | Active Luna production-source lane for Account WP02's dependency-first sealed current member/role/device binding over WP08 identities. |
+| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / `f5662091a` plus this status/graph refresh | Root integration/review lane and current remote-safe source checkpoint. |
+| `E:/OcentraWorktrees/lanes/policy-source-wave` | `codex/policy-source-wave` / `90e7868a2` | Clean pushed Policy WP08 source packet under independent root-directed review; it is not accepted/integrated yet. |
+| `E:/OcentraWorktrees/lanes/data-custody-source-wave-2` | `codex/data-custody-source-wave-2` / integration base plus active edits | Active Luna production-source lane for the real custody/runtime composition; the earlier disconnected draft remains rejected. |
+| `E:/OcentraWorktrees/lanes/payment-source-wave` | `codex/payment-source-wave` / `f5662091a` base | Active Luna Payment/Subscription source lane beginning with graph-authorized WP01 pricing authority; source-only and root review required. |
 
 No Ocentra Parent worktree is authorized on `C:`. Old Codex ledger records are
 append-only history and are not proof that a task, process, or checkout is
@@ -80,3 +79,12 @@ pushed, and their obsolete worker worktrees/local/remote branches were removed.
 The rejected Data Custody and accepted Screen AI worker worktrees were removed
 only after their exact heads matched pushed remote refs; those two worker tips
 remain remote-safe pending final consolidation decisions.
+The repaired Setup and Logging packets were independently reviewed, integrated,
+and pushed; their worker worktrees and local/remote branches were then removed.
+The Account sealed-binding draft was rejected and removed from the accepted
+tree; only its bounded schema/private-read-port cleanup was accepted. Its worker
+worktree/local/remote branch was removed after the net accepted commits were
+pushed on the integration ref. Remote Access made no changes because exposing or
+fabricating authority in that plan would violate the Account/Device Trust owner
+boundary; its clean no-change worktree/local branch were removed. The released
+slot is now the Payment/Subscription source lane.

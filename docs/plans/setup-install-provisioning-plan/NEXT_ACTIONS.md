@@ -32,7 +32,7 @@ WP02 Registration Login Entry: local account-entry handoff slice done; provider/
 WP03 Parent Install Journey: local parent-install journey slice done; signed package/update/rollback/store delivery remains package-owner proof.
 WP04 Child Install Permission Journey: local child install/permission journey slice done; child runtime/package/platform execution remains sibling-owned.
 WP05 Pairing Readiness Recovery: local setup pairing/readiness slice done; physical LAN/device-trust proof remains sibling-owned.
-WP07 First-Run Setup UI And State Machine: selected Start route projection proof done; broader portal/sibling readiness remains blocked.
+WP07 First-Run Setup UI And State Machine: accepted Rust fail-closed source boundary is integrated; it renders 15 explicit unavailable/manual-required authority rows with evaluator `not-run`, preserves LAN diagnostic state, and makes no readiness/progression claim. Existing Rust/portal/E2E tests are stale and remain the next phase after production-source writing completes.
 WP06 Rollout Proof And Route Gate: local aggregation/blocker pack done; whole-plan PR_READY remains false.
 ```
 
@@ -48,6 +48,15 @@ data custody/export/delete/sync proof -> data-custody-storage-plan
 policy baseline production proof -> policy-control-plane-plan
 payment/subscription/entitlement proof -> payment-subscription-plan
 broader portal shell/household UX proof -> portal-ux-household-surfaces-plan
+```
+
+## Current phase order
+
+```text
+production source: accepted fail-closed WP07 boundary; real owner-backed setup progression still blocked
+expected-test source: repair the four stale setup test families after the source wave closes
+focused run/fix: deferred
+proof/checklist closeout: deferred
 ```
 
 ## If new setup work is assigned

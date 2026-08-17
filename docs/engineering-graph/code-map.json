@@ -3255,13 +3255,22 @@
       "planSlug": "setup-install-provisioning-plan",
       "roots": [
         "crates/schema/src/parent_ui_bridge.rs",
+        "crates/parent-runtime-core/src/lib.rs",
+        "crates/parent-runtime-core/src/setup_first_run.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/browser.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route/query_build.rs",
+        "crates/parent-runtime-core/src/parent_ui_bridge/lan_route/route_flags.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/presentation.rs",
         "crates/parent-runtime-core/src/parent_ui_bridge/route_snapshot.rs",
         "crates/parent-runtime-core/tests/integration/parent_ui_bridge/snapshot_and_dispatch_tests.rs",
+        "apps/parent-desktop/src-tauri/src/lib.rs",
         "packages/portal-domain/src/setup-first-run-panel.ts",
         "packages/portal-domain/tests/unit/setup-first-run-panel.test.ts",
         "apps/portal/generated/parent-ui-bridge.ts",
+        "apps/portal/src/host-bridge.ts",
+        "apps/portal/src/portal-state.ts",
         "apps/portal/src/ParentPortalRoute.tsx",
         "apps/portal/src/SetupFirstRunRoutePanel.tsx",
         "apps/portal/tests/e2e/setup-first-run-ui-proof.spec.ts",
@@ -5930,6 +5939,8 @@
     "WP-logging-domain-parity-02-typescript-logging-package-parity": {
       "planSlug": "logging-domain-parity",
       "roots": [
+        "packages/logging-domain/package.json",
+        "packages/logging-domain/src/logging-contracts.ts",
         "packages/logging-domain/src/core",
         "packages/logging-domain/src/test-log",
         "packages/logging-domain/src/transport",
@@ -5961,9 +5972,11 @@
     "WP-logging-domain-parity-03-parent-logging-architecture-and-routing": {
       "planSlug": "logging-domain-parity",
       "roots": [
+        "apps/portal/vite.config.mjs",
         "packages/portal-domain/src/dev-logger.ts",
         "packages/portal-domain/src/dev-logger-impl.ts",
         "apps/portal/src/dev-logger.ts",
+        "scripts/dev/dev-log-writer.mjs",
         "packages/logging-domain/src/transport/bridgeServer.ts",
         "crates/agent-service/src/dev_log.rs",
         "crates/agent-service/src/dev_log",

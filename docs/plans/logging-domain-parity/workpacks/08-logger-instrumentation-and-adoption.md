@@ -222,6 +222,14 @@ The current bounded proof is real:
 
 Treat WP08 as honest `partial-proof`, not as full repo instrumentation completion. The proof root narrows the claim to the portal dev logger path, the logging-domain storage/query path, and the agent-service startup/dev-log path.
 
+The accepted `720609306` source delta additionally routes shared logger data
+through the canonical fail-closed sanitizer. Unsupported primitives/objects,
+cycles, throwing accessors/proxies, and failed serializers are converted into
+JSON-safe markers; Date/URL/custom-`toJSON` values retain bounded native
+semantics. No new expected tests were written. The later test wave must prove
+bridge serialization never throws or silently drops these values and that
+custom serializers receive root/property/array keys exactly once.
+
 ## Current completion block
 
 ```text

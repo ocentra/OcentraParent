@@ -196,6 +196,38 @@ If setup UI/e2e paths do not exist yet, write exact blockers and keep rows open.
 
 Production setup readiness remains blocked until account, distribution, child runtime, LAN/device trust, data custody, and policy baseline owner proofs exist.
 
+## Current production source and expected-test state (2026-08-17)
+
+The accepted Rust path is reachable from the Tauri route loader through
+`parent_ui_bridge` into `setup_first_run.rs` and the portal renderer. It is an
+honest boundary repair, not the state machine described by this workpack. It
+reports evaluator `not-run`, `manual-required`, and `0/15` trusted inputs;
+every authority row is unavailable. LAN state is displayed only as an
+observation, cannot mint ownership/trust/readiness, and its typed failure state
+is preserved. Start actions remain generic/local, while LAN-only discovery is
+rejected.
+
+Production source still required:
+
+- owner-backed typed inputs for account, parent/child packages, child runtime,
+  pairing/device trust, permissions, custody, policy baseline, and recovery;
+- the real transition/action model and readiness-driven completion guard;
+- bounded actions for welcome/sign-in/household/install/profile/pair/recovery
+  without importing sibling authority internals.
+
+Expected-test source still required:
+
+- Start route with LAN available, unavailable, and not requested;
+- all 15 authority rows remain manual-required until bound;
+- selected/paired LAN observations never imply ownership or trust;
+- typed diagnostic presence is retained;
+- Start generic commands never enter LAN dispatch and Start discovery fails;
+- no evaluator, action plan, or setup-complete claim is emitted.
+
+The historical completion block and ignored proof root below describe an older
+panel. They are not current acceptance evidence and must be regenerated only
+after the source and expected-test phases close.
+
 ## Fill before DONE
 
 ```text

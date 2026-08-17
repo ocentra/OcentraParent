@@ -26,6 +26,23 @@
 
 ## Highest-priority queue
 
+### 0. Accepted Source Delta / Deferred Expected-Test Wave
+
+Current status:
+
+```text
+integration head 720609306 contains reviewed canonical redaction, Vite/writer routing, logger sanitization, and query realpath/symlink hardening for WP02/WP03/WP07/WP08
+no test source changed in that packet
+```
+
+Expected result after the remaining production-source wave closes:
+
+```text
+write the complete redaction/export/writer/query/logger expected-test matrix
+then run only focused logging-domain and portal boundary tests and fix failures
+do not regenerate proof or invoke broad validation before that writing phase is complete
+```
+
 ### 1. Remaining Proof-Inventory Restoration / Claim Reduction
 
 Current status:
