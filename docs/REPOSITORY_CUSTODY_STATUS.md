@@ -8,16 +8,16 @@ not plan completion, test proof, or release approval.
 
 | Surface | Verified state |
 | --- | --- |
-| Consolidated source | The current integration lane is `codex/eventing-wp09-production`. Its reviewed Device Trust WP01/WP03, Eventing WP11, Account WP08, Cloudflare WP06, and graph-routing source checkpoint is pushed at `50037e95ace6afa600a9ec70fc9bcd34942760a4`; this custody-only record follows that checkpoint. The batch is remote-safe and no longer exists only on this machine. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
-| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; source checkpoint `50037e95a` is 207 commits ahead of `main` and 204 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
+| Consolidated source | The current integration lane is `codex/eventing-wp09-production`. Its reviewed Device Trust WP01/WP03, Eventing WP11, Account WP08, Cloudflare WP06, and graph-routing checkpoint is pushed at `c970ce89690170d61c380bfc7be3fa8dae290191`; this custody-only record follows that checkpoint. The batch is remote-safe and no longer exists only on this machine. The older coordination lane `codex/app-game-plan-code-audit` remains at pushed ancestor `b730a3f6a63515666e2a8f3c87812f1584dc1a49`. |
+| Protected bases | `main` is `eb4e66a791`; `develop` is `4ece515282`; `production` is `683a07c`. `develop` is 3 commits ahead of `main`; integration checkpoint `c970ce896` is 209 commits ahead of `main` and 206 ahead of `develop`, with neither protected base containing a unique commit outside its ancestry. |
 | Pull requests | Zero open pull requests. No current CI or merge claim exists for the integration checkpoint; PR CI starts only after a scoped promotion PR is opened. |
 | Local work branches | `codex/app-game-plan-code-audit` and `codex/eventing-wp09-production` only. |
-| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` after pushed source checkpoint `50037e95a`. No registered OcentraParent worktree exists on C:. |
+| Registered worktrees | `E:/OcentraParent` at `b730a3f6a` and `E:/OcentraWorktrees/lanes/eventing-wp09-production` after pushed integration checkpoint `c970ce896`. No registered OcentraParent worktree exists on C:. |
 | C drive | No OcentraParent worktree remains under `C:/Users/sujan/.codex/worktrees`; only unrelated Enforcer and Ocentra Games entries remain there. |
-| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` contains source checkpoint `50037e95a` plus this custody record. Both local branches match their remote checkpoints after this record is pushed. |
+| Remote work branches | `origin/codex/app-game-plan-code-audit` is `b730a3f6a`; `origin/codex/eventing-wp09-production` contains integration checkpoint `c970ce896` plus this custody record. Both local branches match their remote checkpoints after this record is pushed. |
 | Remote safety archives | Protected `codex/archive/all-remote-tips-20260815` plus protected complete archive `codex/archive/all-local-remote-tips-20260816` at `ac9f65bb4`. |
 | Stashes | One local stash remains: the intentional Eventing WP09 draft. The 129 rejected historical entries were dropped locally only after all 130 commits were made reachable from the complete 2026-08-16 remote archive. |
-| Executable graph | Valid at 705 nodes / 744 edges, 23 plans / 681 workpacks, with states 366 planned, 21 blocked, 2 ready, 2 active, 289 validation, and 1 done. It maps 2,961 implementation files and 1,145 test files across 680 reviewed workpack maps; mapping is not semantic completion. |
+| Executable graph | Valid at 705 nodes / 744 edges, 23 plans / 681 workpacks, with states 366 planned, 21 blocked, 2 ready, 2 active, 289 validation, and 1 done. It maps 2,962 implementation files and 1,145 test files across 680 reviewed workpack maps; mapping is not semantic completion. |
 
 ## Safety archive
 
@@ -45,9 +45,10 @@ No short-lived audit checkout or stale physical OcentraParent copy remains.
 The Eventing lane is intentionally retained as the single integration lane.
 WP09 is now in validation; Device Trust WP01 and Eventing WP11 are READY.
 Account Identity WP08 and Cloudflare WP01 are in validation with independently
-reviewed implementation-only evidence. Cloudflare WP06 is authorized only for
-its next source packet; normal readiness remains dependency-blocked. The lane's
-reviewed source checkpoint `50037e95a` is remote-safe; the Device Trust,
+reviewed implementation-only evidence. Cloudflare WP06's bounded source packet
+is reviewed while normal readiness remains dependency-blocked; Device Trust
+WP03 is authorized only for implementation-phase source continuation. The lane's
+reviewed integration checkpoint `c970ce896` is remote-safe; the Device Trust,
 Eventing, Account, Cloudflare WP06, and graph-routing batch is no longer
 local-only. It remains source-only and must complete its test and validation
 phases before any promotion. The older WP09 draft stash remains at

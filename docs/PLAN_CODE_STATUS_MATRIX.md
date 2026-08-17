@@ -56,7 +56,7 @@ validation / done.
 | Policy control plane | 8 | 7/0/0/1/0 | 210/46 | 1/4/0/0/3/0 | Four workpacks are blocked on trusted source, Device Trust, and delivery owners. |
 | Portal UX/household surfaces | 20 | 17/0/1/2/0 | 95/67 | 15/0/0/0/5/0 | One tests-only mismatch; upstream live authority remains absent for several surfaces. |
 | Remote access | 6 | 5/0/0/1/0 | 40/22 | 4/0/0/0/2/0 | Authenticated relay/session runtime and proof remain open. |
-| Eventing | 13 | 10/0/1/2/0 | 162/111 | 0/2/1/0/9/1 | WP11 production repair is local; missing negative tests keep it READY, while WP10/WP12 are blocked. |
+| Eventing | 13 | 10/0/1/2/0 | 162/111 | 0/2/1/0/9/1 | WP11 production repair is remote-safe on the integration branch; missing negative tests keep it READY, while WP10/WP12 are blocked. |
 | Screen AI pipeline | 10 | 7/0/0/3/0 | 150/43 | 9/1/0/0/0/0 | One blocked workpack and unresolved policy/custody authority chain. |
 | Screen | 43 | 29/2/0/12/0 | 230/80 | 25/0/0/0/18/0 | Two source-only mappings plus platform/runtime/custody gaps. |
 | Setup/install/provisioning | 7 | 2/0/0/5/0 | 17/10 | 0/1/0/0/6/0 | Rollout gate is blocked; trusted readiness aggregation remains incomplete. |
@@ -64,8 +64,8 @@ validation / done.
 | V0.8 enforcement | 20 | 19/0/0/1/0 | 94/72 | 13/1/0/0/6/0 | WP04 remains blocked on the enforcement audit-journal owner. |
 
 All rows describe the current integration checkout. Git does not encode
-per-plan branch custody; the safe pushed checkpoint and current local-only batch
-are recorded separately in the repository custody status. Use
+per-plan branch custody; the safe pushed checkpoint and any active local source
+batch are recorded separately in the repository custody status. Use
 `npm run graph:matrix -- --json` for all 681 workpack rows.
 
 ## Authoritative production reachability dashboard - 2026-08-16
