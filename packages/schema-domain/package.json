@@ -293,6 +293,10 @@
       "import": "./dist/policy-compiler.js",
       "types": "./dist/policy-compiler.d.ts"
     },
+    "./report-query-custody": {
+      "import": "./dist/report-query-custody.js",
+      "types": "./dist/report-query-custody.d.ts"
+    },
     "./social-alert-report-intent": {
       "import": "./dist/social-alert-report-intent.js",
       "types": "./dist/social-alert-report-intent.d.ts"
