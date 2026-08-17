@@ -70,13 +70,6 @@ pub const SCREEN_DELETION_EVENT_REF: &str = "event.screen.deletion.committed.1";
 pub const TEST_SCREEN_PORTAL_READ_MODEL_REF: &str = "activity-screen-read-model-row-1";
 pub const TEST_SCREEN_ACTION_REF: &str = "screen-action-dry-run-1";
 pub const TEST_SCREEN_POLICY_RULE_REF: &str = "policy-rule.screen.school.1";
-pub const SCREEN_SERVICE_POLICY_DECISION_ID_PREFIX: &str = "screen-service-policy-dry-run-";
-pub const SCREEN_SERVICE_PARENT_RULE_REF: &str = "screen-service-parent-rule-local-summary";
-pub const SCREEN_SERVICE_POLICY_ACTION_ALLOW: &str = "allow";
-pub const SCREEN_SERVICE_POLICY_REASON_CODE: &str = "screen-service-analysis-policy-dry-run";
-pub const SCREEN_SERVICE_PARENT_EXPLANATION_REF_PREFIX: &str = "screen-service-parent-explanation-";
-pub const SCREEN_SERVICE_EXPLANATION_REASON: &str = "screen-service-policy-dry-run";
-pub const SCREEN_SERVICE_DELETION_REASON: &str = "screen-image-deleted-after-analysis";
 pub const SCREEN_LIVE_VIEW_RUNTIME_ENABLED_ENV: &str =
     "OCENTRA_PARENT_SCREEN_LIVE_VIEW_RUNTIME_ENABLED";
 pub const SCREEN_LIVE_VIEW_MODE_ENV: &str = "OCENTRA_PARENT_SCREEN_LIVE_VIEW_MODE";
