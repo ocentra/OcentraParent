@@ -42,15 +42,15 @@
 - The first Playwright attempt hit a foreign process on default port `4490`; the focused hosted spec passed on explicit free ports `4590`-`4592`, and the proof log records that reroute.
 - WP02 does not claim production publishing, setup readiness, desktop/mobile package readiness, or child runtime authority.
 
-## WP06 closeout
+## WP06 source acceptance and open test wave
 
-- WP06 is complete. The Rust-owned `ParentRouteSnapshot` contract, Devices-route local-service load/degrade behavior, and setup-separation boundary are now proved under `output/parent-client-runtime-distribution-plan-proof/06-parent-local-service-route-bridge/`.
+- WP06 has independently accepted refreshed production source. The prior proof root remains historical until the complete response-identity, freshness, deadline, dependency/LAN failure, and no-stale-connected test family is refreshed, run, and re-proved.
 - Focused cargo tests passed for Devices-route unavailable, timeout, passive-local-target, and setup-first-run separation behavior, and the schema contract test passed for the canonical route bridge shape and generated thin TS artifacts.
 - WP06 does not claim setup readiness, child runtime distribution ownership, desktop/mobile/web package readiness, or portal UX ownership.
 
-## WP03 closeout
+## WP03 source acceptance and open test wave
 
-- WP03 is complete. The desktop shell/package packet now has a real Tauri package proof under `output/parent-client-runtime-distribution-plan-proof/03-parent-desktop-shell-package/`, with MSI and NSIS artifacts, explicit dry-run launch anchors, local artifact hash evidence, and ready/degraded Rust service-bridge proof.
+- WP03 retains its real Tauri package artifacts and historical proof, while the refreshed all-command response binding and hard transport deadline source is independently accepted. Desktop-shell/bridge tests and proof must be refreshed before closure.
 - WP03 does not claim signed release readiness, production update or rollback readiness, setup completion, child runtime authority, or Android/iOS parity.
 
 ## WP04 closeout

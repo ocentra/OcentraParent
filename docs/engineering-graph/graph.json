@@ -19344,23 +19344,15 @@
       "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/03-parent-desktop-shell-package.md",
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: no reference or expected artifact is declared; checklist: reviewed evidence is not recorded",
+        "statusText": "active",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: no reference or expected artifact is declared",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -19465,23 +19457,15 @@
       "path": "docs/plans/parent-desktop-runtime-package-plan/workpacks/06-parent-local-service-route-bridge.md",
       "parent": "PLAN-parent-desktop-runtime-package-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "active",
+      "lifecycleState": "active",
       "metadata": {
         "planSlug": "parent-desktop-runtime-package-plan",
         "indexPath": "docs/plans/parent-desktop-runtime-package-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; proof: no reference or expected artifact is declared; checklist: reviewed evidence is not recorded",
+        "statusText": "active",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "proof: no reference or expected artifact is declared",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "complete"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
