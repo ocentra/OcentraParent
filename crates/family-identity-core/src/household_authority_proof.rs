@@ -1,5 +1,5 @@
 use chrono::{DateTime, FixedOffset, Utc};
-use ed25519_dalek::{Signature, Signer, SigningKey, VerifyingKey};
+use ed25519_dalek::{SigningKey, VerifyingKey};
 use ocentra_schema::authenticated_delivery_grant::{
     AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
     AUTHENTICATED_DELIVERY_GRANT_MAX_SIGNED_WIRE_BYTES,
@@ -7,9 +7,10 @@ use ocentra_schema::authenticated_delivery_grant::{
 };
 use serde::{Deserialize, Serialize};
 
-use crate::household_authority::{
-    authorize_household_action, HouseholdAuthorityInput, HouseholdAuthorizationState,
-};
+use crate::household_authority::HouseholdAuthorityInput;
+
+mod household_authority_proof_signer;
+mod household_authority_proof_verifier;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct HouseholdAuthorityProof {
@@ -46,6 +47,47 @@ pub struct VerifiedHouseholdAuthority {
     identity_binding: Option<HouseholdAuthorityProofIdentityBinding>,
 }
 
+/// A current-state household authority that is consumed by one privileged
+/// transition.  Unlike `VerifiedHouseholdAuthority`, this value can only be
+/// produced by `verify_against_current_state`; it retains freshness,
+/// revocation-epoch, and proof-nonce bindings and is intentionally not
+/// cloneable or serializable.
+#[derive(Debug, PartialEq, Eq)]
+pub struct CurrentVerifiedHouseholdAuthority {
+    authority: HouseholdAuthorityInput,
+    identity_binding: HouseholdAuthorityProofIdentityBinding,
+    issued_at: String,
+    expires_at: String,
+    family_revocation_epoch: u64,
+    proof_nonce: String,
+}
+
+impl CurrentVerifiedHouseholdAuthority {
+    pub fn input(&self) -> HouseholdAuthorityInput {
+        self.authority
+    }
+
+    pub fn identity_binding(&self) -> &HouseholdAuthorityProofIdentityBinding {
+        &self.identity_binding
+    }
+
+    pub fn issued_at(&self) -> &str {
+        &self.issued_at
+    }
+
+    pub fn expires_at(&self) -> &str {
+        &self.expires_at
+    }
+
+    pub fn family_revocation_epoch(&self) -> u64 {
+        self.family_revocation_epoch
+    }
+
+    pub fn proof_nonce(&self) -> &str {
+        &self.proof_nonce
+    }
+}
+
 impl VerifiedHouseholdAuthority {
     pub fn input(&self) -> HouseholdAuthorityInput {
         self.authority
@@ -65,156 +107,8 @@ pub struct HouseholdAuthorityProofSigner {
     signing_key: SigningKey,
 }
 
-impl HouseholdAuthorityProofSigner {
-    pub fn from_platform_key(platform_protected_key: [u8; 32]) -> Self {
-        Self {
-            signing_key: SigningKey::from_bytes(&platform_protected_key),
-        }
-    }
-
-    pub fn verifying_key(&self) -> VerifyingKey {
-        self.signing_key.verifying_key()
-    }
-
-    pub fn sign(
-        &self,
-        authority: HouseholdAuthorityInput,
-    ) -> Result<HouseholdAuthorityProof, HouseholdAuthorityProofError> {
-        (authorize_household_action(authority).authorization_state
-            == HouseholdAuthorizationState::Authorized)
-            .then_some(())
-            .ok_or(HouseholdAuthorityProofError::Rejected)?;
-        validate_unsigned_shape(None, None, None)?;
-        let bytes = signing_bytes(authority, None, None, None, None)?;
-        let proof = HouseholdAuthorityProof {
-            authority,
-            identity_binding: None,
-            issued_at: None,
-            expires_at: None,
-            family_revocation_epoch: None,
-            signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
-        };
-        validate_proof_shape(&proof)?;
-        Ok(proof)
-    }
-
-    pub fn sign_bound(
-        &self,
-        authority: HouseholdAuthorityInput,
-        identity_binding: HouseholdAuthorityProofIdentityBinding,
-    ) -> Result<HouseholdAuthorityProof, HouseholdAuthorityProofError> {
-        (authorize_household_action(authority).authorization_state
-            == HouseholdAuthorizationState::Authorized)
-            .then_some(())
-            .ok_or(HouseholdAuthorityProofError::Rejected)?;
-        validate_unsigned_shape(Some(&identity_binding), None, None)?;
-        let bytes = signing_bytes(authority, Some(&identity_binding), None, None, None)?;
-        let proof = HouseholdAuthorityProof {
-            authority,
-            identity_binding: Some(identity_binding),
-            issued_at: None,
-            expires_at: None,
-            family_revocation_epoch: None,
-            signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
-        };
-        validate_proof_shape(&proof)?;
-        Ok(proof)
-    }
-
-    pub fn sign_bound_at(
-        &self,
-        state: &HouseholdAuthorityCurrentState,
-        identity_binding: HouseholdAuthorityProofIdentityBinding,
-        issued_at: impl Into<String>,
-        expires_at: impl Into<String>,
-    ) -> Result<HouseholdAuthorityProof, HouseholdAuthorityProofError> {
-        (authorize_household_action(state.authority).authorization_state
-            == HouseholdAuthorizationState::Authorized)
-            .then_some(())
-            .ok_or(HouseholdAuthorityProofError::Rejected)?;
-        (state.identity_binding == identity_binding)
-            .then_some(())
-            .ok_or(HouseholdAuthorityProofError::Rejected)?;
-        let issued_at = issued_at.into();
-        let expires_at = expires_at.into();
-        validate_unsigned_shape(Some(&identity_binding), Some(&issued_at), Some(&expires_at))?;
-        validate_freshness(&issued_at, &expires_at, &issued_at)?;
-        let bytes = signing_bytes(
-            state.authority,
-            Some(&identity_binding),
-            Some(&issued_at),
-            Some(&expires_at),
-            Some(state.family_revocation_epoch),
-        )?;
-        let proof = HouseholdAuthorityProof {
-            authority: state.authority,
-            identity_binding: Some(identity_binding),
-            issued_at: Some(issued_at),
-            expires_at: Some(expires_at),
-            family_revocation_epoch: Some(state.family_revocation_epoch),
-            signature: self.signing_key.sign(&bytes).to_bytes().to_vec(),
-        };
-        validate_proof_shape(&proof)?;
-        Ok(proof)
-    }
-}
-
 pub struct HouseholdAuthorityProofVerifier {
     verifying_key: VerifyingKey,
-}
-
-impl HouseholdAuthorityProofVerifier {
-    pub fn new(verifying_key: VerifyingKey) -> Self {
-        Self { verifying_key }
-    }
-
-    pub fn verify(
-        &self,
-        proof: &HouseholdAuthorityProof,
-    ) -> Result<VerifiedHouseholdAuthority, HouseholdAuthorityProofError> {
-        validate_proof_shape(proof)?;
-        let signature = Signature::from_slice(&proof.signature)
-            .map_err(|_error| HouseholdAuthorityProofError::Rejected)?;
-        let bytes = signing_bytes(
-            proof.authority,
-            proof.identity_binding.as_ref(),
-            proof.issued_at.as_deref(),
-            proof.expires_at.as_deref(),
-            proof.family_revocation_epoch,
-        )?;
-        self.verifying_key
-            .verify_strict(&bytes, &signature)
-            .map_err(|_error| HouseholdAuthorityProofError::Rejected)?;
-        (authorize_household_action(proof.authority).authorization_state
-            == HouseholdAuthorizationState::Authorized)
-            .then_some(VerifiedHouseholdAuthority {
-                authority: proof.authority,
-                identity_binding: proof.identity_binding.clone(),
-            })
-            .ok_or(HouseholdAuthorityProofError::Rejected)
-    }
-
-    pub fn verify_against_current_state(
-        &self,
-        proof: &HouseholdAuthorityProof,
-        current_state: &HouseholdAuthorityCurrentState,
-        trusted_now: &str,
-    ) -> Result<VerifiedHouseholdAuthority, HouseholdAuthorityProofError> {
-        let verified = self.verify(proof)?;
-        let (Some(issued_at), Some(expires_at), Some(revocation_epoch)) = (
-            proof.issued_at.as_deref(),
-            proof.expires_at.as_deref(),
-            proof.family_revocation_epoch,
-        ) else {
-            return Err(HouseholdAuthorityProofError::Rejected);
-        };
-        validate_freshness(issued_at, expires_at, trusted_now)?;
-        (verified.authority == current_state.authority
-            && verified.identity_binding.as_ref() == Some(&current_state.identity_binding)
-            && revocation_epoch == current_state.family_revocation_epoch)
-            .then_some(verified)
-            .ok_or(HouseholdAuthorityProofError::Rejected)
-    }
 }
 
 fn signing_bytes(

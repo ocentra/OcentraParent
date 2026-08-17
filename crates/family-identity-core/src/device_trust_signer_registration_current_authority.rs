@@ -1,4 +1,27 @@
+use crate::device_trust_current_binding::CurrentChildDeviceTrustBinding;
+
 use super::{CurrentSignerAuthority, DeviceTrustLifecycleState};
+
+impl CurrentSignerAuthority {
+    /// Consume the current durable signer snapshot into the only child-runtime
+    /// trust binding shape. The binding cannot be constructed from identity
+    /// strings or deserialized wire data by downstream callers.
+    pub fn into_current_child_device_trust_binding(self) -> CurrentChildDeviceTrustBinding {
+        CurrentChildDeviceTrustBinding::from_current_signer_authority(
+            self.family_id,
+            self.trust_subject,
+            self.parent_device_id,
+            self.child_device_id,
+            self.installation_id,
+            self.signer_key_id,
+            self.signer_key_sha256,
+            self.lifecycle_generation,
+            self.installation_binding_generation,
+            self.authority_generation,
+            self.state,
+        )
+    }
+}
 
 impl CurrentSignerAuthority {
     pub fn state(&self) -> DeviceTrustLifecycleState {

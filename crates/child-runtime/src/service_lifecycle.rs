@@ -16,9 +16,6 @@ impl ChildAgentService {
             .removal
             .revoke_with_parent_authorization(authorization)
             .map_err(ChildAgentServiceError::Storage)?;
-        self.readiness = super::ChildAgentReadiness::Revoked {
-            audit_ref: status.latest_audit_ref.clone(),
-        };
         Ok(status)
     }
 
@@ -30,11 +27,6 @@ impl ChildAgentService {
             .removal
             .reauthorize_with_parent_authorization(authorization)
             .map_err(ChildAgentServiceError::Storage)?;
-        self.readiness = super::service_readiness::readiness_from_state(
-            &status,
-            self.recovery_pending.as_deref(),
-            self.paths.identity().is_some(),
-        );
         Ok(status)
     }
 
@@ -50,11 +42,6 @@ impl ChildAgentService {
             .removal
             .record_tamper_signal(signal_ref, kind)
             .map_err(ChildAgentServiceError::Storage)?;
-        self.readiness = super::service_readiness::readiness_from_state(
-            &status,
-            self.recovery_pending.as_deref(),
-            self.paths.identity().is_some(),
-        );
         Ok(status)
     }
 

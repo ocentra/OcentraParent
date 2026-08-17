@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
 use ocentra_family_identity_core::household_authority_proof::{
-    HouseholdAuthorityCurrentState, HouseholdAuthorityProof, HouseholdAuthorityProofVerifier,
-    VerifiedHouseholdAuthority,
+    CurrentVerifiedHouseholdAuthority, HouseholdAuthorityCurrentState, HouseholdAuthorityProof,
+    HouseholdAuthorityProofVerifier, VerifiedHouseholdAuthority,
 };
 use ocentra_schema::authenticated_delivery_grant::{
     AuthenticatedDeliveryGrantAssertionSnapshot, AUTHENTICATED_DELIVERY_GRANT_MAX_FIELD_BYTES,
@@ -153,7 +153,7 @@ impl AuthenticatedDeliveryGrantAuthorityVerifier {
         (
             DeliveryGrantBindings,
             AuthenticatedDeliveryGrantAssertionSnapshot,
-            VerifiedHouseholdAuthority,
+            CurrentVerifiedHouseholdAuthority,
             ResolvedPolicyDecision,
             PolicyContractAuthorityDecision,
         ),

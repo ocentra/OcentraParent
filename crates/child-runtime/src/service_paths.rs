@@ -1,6 +1,10 @@
 use std::fs;
+use std::sync::Arc;
 
-use super::{ChildAgentServiceError, ChildAgentServicePaths, CHILD_AGENT_DATA_DIR_ENV};
+use super::{
+    trust_binding::ChildAgentTrustBindingSource, ChildAgentServiceError, ChildAgentServicePaths,
+    CHILD_AGENT_DATA_DIR_ENV,
+};
 
 impl ChildAgentServicePaths {
     pub fn from_root(root: impl Into<std::path::PathBuf>) -> Self {
@@ -9,7 +13,7 @@ impl ChildAgentServicePaths {
             journal: root.join("child-runtime.ndjson"),
             tombstones: root.join("tombstones"),
             removal: root.join("removal-state.json"),
-            identity: None,
+            trust_binding_source: None,
             root,
         }
     }
@@ -39,13 +43,27 @@ impl ChildAgentServicePaths {
         &self.removal
     }
 
-    pub fn identity(&self) -> Option<&super::ChildAgentServiceIdentity> {
-        self.identity.as_ref()
+    pub fn with_trust_binding_source(
+        mut self,
+        source: Arc<dyn ChildAgentTrustBindingSource>,
+    ) -> Self {
+        self.trust_binding_source = Some(source);
+        self
     }
 
-    pub fn with_identity(mut self, identity: super::ChildAgentServiceIdentity) -> Self {
-        self.identity = Some(identity);
-        self
+    pub(super) fn trust_binding_source(&self) -> Option<&dyn ChildAgentTrustBindingSource> {
+        self.trust_binding_source.as_deref()
+    }
+
+    pub(super) fn current_trust_binding(
+        &self,
+    ) -> Result<
+        ocentra_family_identity_core::device_trust_current_binding::CurrentChildDeviceTrustBinding,
+        super::trust_binding::ChildAgentTrustBindingError,
+    > {
+        self.trust_binding_source()
+            .ok_or(super::trust_binding::ChildAgentTrustBindingError::Unavailable)?
+            .current_trust_binding()
     }
 
     pub(super) fn prepare(&self) -> Result<(), ChildAgentServiceError> {

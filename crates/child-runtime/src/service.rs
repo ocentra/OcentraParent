@@ -1,6 +1,8 @@
 use std::path::PathBuf;
+use std::sync::Arc;
 
 use ocentra_eventing::{error::EventingError, ids::CorrelationId};
+use ocentra_family_identity_core::device_trust_current_binding::CurrentChildDeviceTrustBinding;
 use ocentra_parent_agent_protocol::child_domain_runtime::{
     ChildDomainObservedEvent, ChildRuntimeDomain,
 };
@@ -11,7 +13,7 @@ use crate::{
     child_runtime_tombstone_event_flow::ChildRuntimeTombstoneEventFlow,
     removal::{
         ChildAgentRemovalBoundary, ChildAgentRemovalStatus, ChildAgentServiceIdentity,
-        ChildAgentTamperSignalKind, ChildAgentTrustState, VerifiedParentRemovalAuthorization,
+        ChildAgentTamperSignalKind, VerifiedParentRemovalAuthorization,
     },
 };
 
@@ -35,6 +37,10 @@ mod service_readiness;
 mod service_recovery;
 #[path = "service_supervision.rs"]
 mod service_supervision;
+#[path = "trust_binding.rs"]
+pub mod trust_binding;
+
+use self::trust_binding::ChildAgentTrustBindingSource;
 
 pub const CHILD_AGENT_DATA_DIR_ENV: &str = "OCENTRA_CHILD_AGENT_DATA_DIR";
 const CHILD_AGENT_COMMAND_CAPACITY: usize = 64;
@@ -48,13 +54,13 @@ const CHILD_RUNTIME_DOMAINS: [ChildRuntimeDomain; 7] = [
     ChildRuntimeDomain::ScreenLiveView,
 ];
 
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone)]
 pub struct ChildAgentServicePaths {
     root: PathBuf,
     journal: PathBuf,
     tombstones: PathBuf,
     removal: PathBuf,
-    identity: Option<ChildAgentServiceIdentity>,
+    trust_binding_source: Option<Arc<dyn ChildAgentTrustBindingSource>>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -117,7 +123,7 @@ pub struct ChildAgentService {
     domain_flows: Vec<ChildDomainRuntimeEventFlow>,
     tombstone_flow: ChildRuntimeTombstoneEventFlow,
     removal: ChildAgentRemovalBoundary,
-    readiness: ChildAgentReadiness,
+    trust_binding: Option<CurrentChildDeviceTrustBinding>,
     recovery_pending: Option<Vec<CorrelationId>>,
     ingress: ChildAgentIngress,
     commands: mpsc::Receiver<QueuedCommand>,

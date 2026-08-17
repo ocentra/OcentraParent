@@ -3,9 +3,8 @@ use ocentra_storage_custody_core::retention_delete_tombstone_store::RetentionDel
 use tokio::sync::mpsc;
 
 use super::{
-    service_readiness::readiness_from_state, ChildAgentIngress, ChildAgentService,
-    ChildAgentServiceError, ChildRuntimeTombstoneEventFlow, CHILD_AGENT_COMMAND_CAPACITY,
-    CHILD_RUNTIME_DOMAINS,
+    ChildAgentIngress, ChildAgentService, ChildAgentServiceError, ChildRuntimeTombstoneEventFlow,
+    CHILD_AGENT_COMMAND_CAPACITY, CHILD_RUNTIME_DOMAINS,
 };
 
 impl ChildAgentService {
@@ -17,15 +16,19 @@ impl ChildAgentService {
         paths: super::ChildAgentServicePaths,
     ) -> Result<Self, ChildAgentServiceError> {
         paths.prepare()?;
+        let trust_binding = paths.current_trust_binding().ok();
+        let identity = trust_binding
+            .as_ref()
+            .map(super::ChildAgentServiceIdentity::from_trust_binding)
+            .transpose()
+            .map_err(ChildAgentServiceError::Storage)?;
         let journal =
             NdjsonEventJournal::with_options(paths.journal(), NdjsonJournalOptions::hash_chain());
         let store = RetentionDeleteTombstoneStore::open(paths.tombstones())
             .map_err(ChildAgentServiceError::Storage)?;
-        let removal = super::ChildAgentRemovalBoundary::open_with_identity(
-            paths.removal(),
-            paths.identity().cloned(),
-        )
-        .map_err(ChildAgentServiceError::Storage)?;
+        let removal =
+            super::ChildAgentRemovalBoundary::open_with_identity(paths.removal(), identity)
+                .map_err(ChildAgentServiceError::Storage)?;
         let tombstone_flow = ChildRuntimeTombstoneEventFlow::new(journal.clone(), store);
         journal.recover().await?;
         let recovery = tombstone_flow
@@ -34,13 +37,6 @@ impl ChildAgentService {
             .map_err(ChildAgentServiceError::Storage)?;
         let recovery_pending =
             (!recovery.pending_journal_retry.is_empty()).then_some(recovery.pending_journal_retry);
-        let removal_status = removal.status().map_err(ChildAgentServiceError::Storage)?;
-        let readiness = readiness_from_state(
-            &removal_status,
-            recovery_pending.as_deref(),
-            paths.identity().is_some(),
-        );
-
         let mut domain_flows = Vec::with_capacity(CHILD_RUNTIME_DOMAINS.len());
         for domain in CHILD_RUNTIME_DOMAINS {
             domain_flows.push(super::ChildDomainRuntimeEventFlow::for_domain(domain).await?);
@@ -52,7 +48,7 @@ impl ChildAgentService {
             domain_flows,
             tombstone_flow,
             removal,
-            readiness,
+            trust_binding,
             recovery_pending,
             ingress: ChildAgentIngress { sender },
             commands,
