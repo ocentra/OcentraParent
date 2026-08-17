@@ -4,7 +4,7 @@
 //! identifies what was sealed; this repository answers whether that exact
 //! registration is still authorised *now*.
 
-use std::{fmt, path::Path};
+use std::{fmt, path::Path, time::Duration};
 
 use crate::device_trust_lifecycle_authority::ExternalLifecycleAuthority;
 use crate::device_trust_lifecycle_authority_fence::AuthorityTransition;
@@ -178,14 +178,27 @@ pub struct DeviceTrustLifecycleRepository {
 }
 
 impl DeviceTrustLifecycleRepository {
+    /// Open the canonical lifecycle store.  Only a path that did not exist
+    /// before this call may receive the initial schema; an existing database
+    /// is validated as-is so missing objects cannot be silently recreated as a
+    /// migration or recovery side effect.
     pub fn open(path: impl AsRef<Path>) -> Result<Self, DeviceTrustLifecycleError> {
         let path = path.as_ref();
+        let initialize_schema = !path.exists();
         let mut external_authority = ExternalLifecycleAuthority::open(path)?;
         let connection =
             Connection::open(path).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
-        connection.execute_batch(
-            "PRAGMA foreign_keys = ON; PRAGMA journal_mode = DELETE; PRAGMA synchronous = FULL;
-             CREATE TABLE IF NOT EXISTS device_trust_lifecycle (
+        connection
+            .busy_timeout(Duration::from_secs(10))
+            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+        connection
+            .execute_batch(
+                "PRAGMA foreign_keys = ON; PRAGMA journal_mode = DELETE; PRAGMA synchronous = FULL;",
+            )
+            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+        if initialize_schema {
+            connection.execute_batch(
+                "CREATE TABLE IF NOT EXISTS device_trust_lifecycle (
                 family_id TEXT NOT NULL,
                 trust_subject TEXT NOT NULL,
                 device_ref TEXT NOT NULL,
@@ -210,8 +223,11 @@ impl DeviceTrustLifecycleRepository {
                 to_generation INTEGER NOT NULL CHECK (to_generation > 0),
                 CHECK ((from_generation IS NULL AND to_generation = 1) OR
                        (from_generation IS NOT NULL AND to_generation = from_generation + 1))
-             ) STRICT;",
-        ).map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+                 ) STRICT;",
+            )
+            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+            device_trust_signer_registration::create_schema(&connection)?;
+        }
         device_trust_lifecycle_schema::validate(&connection)?;
         device_trust_signer_registration::ensure_schema(&connection)?;
         external_authority.reconcile(&connection)?;
@@ -221,7 +237,16 @@ impl DeviceTrustLifecycleRepository {
         })
     }
 
-    pub fn register_parent_device(
+    /// Create the pending row that a later, opaque platform-custody proof may
+    /// activate.  This is deliberately crate-private: a pending row is still
+    /// durable trust state and must not be created by a downstream caller that
+    /// can supply identity strings without an authenticated enrollment owner.
+    ///
+    /// Account/device binding and the authenticated enrollment ceremony are
+    /// upstream contracts.  Until those owners provide a verified caller,
+    /// keeping this operation inside the family-identity owner preserves the
+    /// fail-closed boundary without inventing WP03 authority.
+    pub(crate) fn register_parent_device(
         &mut self,
         family_id: &str,
         trust_subject: &str,

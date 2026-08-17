@@ -195,7 +195,7 @@ impl fmt::Debug for CurrentSignerAuthority {
     }
 }
 
-pub(crate) fn ensure_schema(connection: &Connection) -> Result<(), DeviceTrustLifecycleError> {
+pub(crate) fn create_schema(connection: &Connection) -> Result<(), DeviceTrustLifecycleError> {
     connection
         .execute_batch(
             "CREATE TABLE IF NOT EXISTS device_trust_signer_registration (
@@ -223,8 +223,11 @@ pub(crate) fn ensure_schema(connection: &Connection) -> Result<(), DeviceTrustLi
             CREATE UNIQUE INDEX IF NOT EXISTS device_trust_signer_registration_active_key
             ON device_trust_signer_registration (family_id, trust_subject, parent_device_id, child_device_id)
             WHERE registration_state = 'active';",
-        )
-        .map_err(|_error| DeviceTrustLifecycleError::Unavailable)?;
+            )
+            .map_err(|_error| DeviceTrustLifecycleError::Unavailable)
+}
+
+pub(crate) fn ensure_schema(connection: &Connection) -> Result<(), DeviceTrustLifecycleError> {
     device_trust_signer_registration_schema::validate(connection)?;
     validate_persisted_rows(connection)
 }

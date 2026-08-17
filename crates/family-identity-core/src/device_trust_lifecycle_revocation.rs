@@ -13,7 +13,14 @@ const REVOKED: &str = "revoked";
 const RESET_REQUIRED: &str = "reset-required";
 
 impl DeviceTrustLifecycleRepository {
-    pub fn revoke_or_reset(
+    /// Revoke or reset the lifecycle and all active signer registrations.
+    ///
+    /// Revocation is an authority transition, not a storage convenience.  It
+    /// therefore remains crate-private until the authenticated parent/Account
+    /// owner can issue a verified one-use authorization.  In particular, no
+    /// downstream runtime may revoke trust by supplying identity strings and a
+    /// boolean flag alone.
+    pub(crate) fn revoke_or_reset(
         &mut self,
         family_id: &str,
         trust_subject: &str,
