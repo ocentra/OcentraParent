@@ -62,10 +62,16 @@ Failure conditions:
 
 ## Completion
 
-- Status: complete for WP05 only; no broader plan, provider-runtime, or PR readiness claim is made.
+- Status: production source strengthened but incomplete; current expected tests, focused execution, proof refresh, backup cadence/manual-backup behavior, and migration execution/rollback remain open.
 - Proof root: `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/`
 - Canonical owners: `crates/schema` for the shared export/import/restore contract and `crates/storage-custody-core` for bundle derivation, import preflight, and restore/apply state derivation.
 - TS/shared edge note: no new `packages/schema-domain` surface was needed for WP05. TS ownership was not widened.
+
+## Source-wave checkpoint (2026-08-17)
+
+- `crates/storage-custody-core/src/export_import_backup_recovery_import_integrity.rs` now rejects dishonest import bundles before restore/apply derivation.
+- The workpack intent still requires real backup cadence/manual-backup behavior and a migration execution/rollback boundary; a supported-migration label alone does not satisfy those outcomes.
+- No tests were written or run in this source wave. Integrity, backup, migration, and rollback tests are deferred to the expected-test wave after the remaining source is completed.
 
 ## Required acceptance proved
 

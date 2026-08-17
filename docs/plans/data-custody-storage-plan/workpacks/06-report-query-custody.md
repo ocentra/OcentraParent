@@ -61,9 +61,15 @@ Failure conditions:
 
 ## Completion
 
-- Status: complete for WP06 only; no broader plan or PR readiness claim is made.
+- Status: production source accepted for the Rust-owned WP06 request/row boundary; current TypeScript edge completion, expected tests, focused execution, proof refresh, and downstream runtime consumers remain open.
 - Proof root: `output/data-custody-storage-plan-proof/06-report-query-custody/`
 - Canonical owners: `crates/schema`, `crates/storage-custody-core`, and the thin/generated adapter surface in `packages/schema-domain`.
+
+## Source-wave checkpoint (2026-08-17)
+
+- `report_query_custody_request_validate.rs` and `report_query_custody_row_validate.rs` now fail closed on request authority, household/child/source/citation binding, and dishonest row state before derivation.
+- Report, notification, portal, and AI runtime consumers remain adjacent-owner work. Missing thin TypeScript adapter/rules source must be resolved before this workpack can be called source-complete across every declared edge.
+- No tests were written or run in this source wave; the authority/citation negative matrix and TypeScript contract coverage are deferred to the expected-test wave after source completion.
 
 ## Required states proved
 

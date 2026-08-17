@@ -55,10 +55,16 @@ Failure conditions:
 
 ## Completion
 
-- Status: complete for WP02 only; no broader plan, provider-runtime, or PR readiness claim is made.
+- Status: production source accepted for the shared WP02 boundary; current expected tests, focused execution, proof refresh, and broader readiness remain open.
 - Proof root: `output/data-custody-storage-plan-proof/02-encryption-key-custody/`
 - Canonical owners: `crates/schema` for the shared key-custody contract and `crates/storage-custody-core` for platform-row and decrypt-decision state derivation.
 - TS/shared edge note: no new `packages/schema-domain` surface was needed for WP02. TS ownership was not widened.
+
+## Source-wave checkpoint (2026-08-17)
+
+- `crates/storage-custody-core/src/encryption_key_custody_scope.rs` now binds the requested decrypt scope to the selected platform row's decrypt authority instead of trusting caller-supplied match flags alone.
+- The implementation remains a shared custody decision boundary. Platform key wrappers, real provider consumers, and Device Trust authority stay with their owning plans.
+- No tests were written or run in this source wave. The cross-scope negative matrix belongs to the expected-test wave; the older validation/proof record is not current acceptance for this changed source.
 
 ## Required acceptance proved
 

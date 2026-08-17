@@ -100,10 +100,16 @@ Failure conditions:
 
 ## Completion
 
-- Status: complete for WP03 only; no broader plan, provider-runtime, or PR readiness claim is made.
+- Status: production source accepted for the shared WP03 contract/manifest boundary; current expected tests, focused execution, proof refresh, and provider runtime remain open.
 - Proof root: `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/`
 - Canonical owners: `crates/schema` for the shared sync/export contract and `crates/storage-custody-core` for the claim-safe sync/provider/tombstone runtime derivation.
 - TS/shared edge note: `packages/schema-domain` is thin/generated validation only for WP03 and does not own the runtime or shared contract truth.
+
+## Source-wave checkpoint (2026-08-17)
+
+- `crates/storage-custody-core/src/parent_owned_sync_export_manifest.rs` now validates manifest custody before a sync/export state can be treated as claim-safe.
+- Provider OAuth, upload, retrieval, disconnect, and delete execution remain adjacent-owner work; this source does not turn provider state into readable-payload or key-access proof.
+- No tests were written or run in this source wave. The complete manifest/provider-state negative matrix is deferred to the expected-test wave.
 
 ## What is actually proved
 

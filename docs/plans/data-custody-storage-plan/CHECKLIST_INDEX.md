@@ -145,6 +145,6 @@
 - [ ] Privacy language review published from a clean checkout.
 - [ ] Manual-required gap register published from a clean checkout.
 - [ ] Adjacent handoff proof published from a clean checkout.
-- [x] Focused retention lifecycle validation passes. Commands: `cargo test -p ocentra-storage-custody-core --test unit retention_delete_tombstone_store`; `cargo test -p ocentra-child-runtime --test unit_runtime_gate tombstone`. Durable proof pointer: [`docs/proof/data-custody-storage-plan/07-rollout-focused-validation.md`](../../proof/data-custody-storage-plan/07-rollout-focused-validation.md). Test owners: `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs`; `crates/child-runtime/tests/unit/runtime_gate.rs`.
+- [ ] Current focused retention/custody lifecycle validation passes. Blocker: the durable store moved to `crates/child-runtime`, while `crates/storage-custody-core/tests/unit/retention_delete_tombstone_store.rs` and `crates/child-runtime/tests/unit/runtime_gate.rs` still import the deleted core module. Migrate the expected tests first, then execute the focused child-runtime/storage-custody matrix. The older `docs/proof` pointer records a previous surface and is not current acceptance.
 - [x] PLAN_STATE and WORKPACK_INDEX reflect the limited lifecycle proof and aggregate blocker.
 - [x] No PR_READY claim is made without accepted aggregate proof roots.

@@ -1,6 +1,6 @@
 # Repository Custody Status
 
-Snapshot: 2026-08-17 after accepted Setup source integration `ca230550b`.
+Snapshot: 2026-08-17 after accepted Data Custody source integration `7a1e1c389`.
 This document
 records where unmerged Ocentra Parent work is physically and remotely
 recoverable. It is not a completion, test, proof, or CI claim.
@@ -11,10 +11,10 @@ recoverable. It is not a completion, test, proof, or CI claim.
 | --- | --- | --- |
 | `origin/main` | `eb4e66a79` | Protected release integration baseline. |
 | `origin/develop` | `4ece51528` | Three commits ahead of `main`; the primary checkout tracks this ref. |
-| `origin/codex/eventing-wp09-production` | source through Setup integration `ca230550b`; current status/graph checkpoint follows | Root integration line includes accepted App/Game WP10, Parent Runtime WP03/WP06, Eventing WP11, Payment, Device Trust, Account, Logging, and Setup WP07 source. Expected tests remain deliberately deferred until the source wave is complete. |
+| `origin/codex/eventing-wp09-production` | source through Data Custody integration `7a1e1c389`; current status/graph checkpoint follows | Root integration line includes accepted App/Game WP10, Parent Runtime WP03/WP06, Eventing WP11, Payment, Device Trust, Account, Logging, Setup WP07, and Data Custody source. Expected tests remain deliberately deferred until the source wave is complete. |
 | `origin/codex/account-wp02-source-wave` | `35edb2830` | Clean independently accepted Account source head. Its sealed authority/repository/lifecycle/D1 adapter source is integrated through root checkpoint `e69acf279`; retained for the later expected-test wave and mechanical custody comparison. |
 | `origin/codex/payment-source-wave` | `63305016f` | Clean independently accepted Payment source head. Its complete source range is integrated through root source checkpoint `4c4d3530c`; the branch is retained for the later expected-test wave until supersession/custody cleanup is mechanical. |
-| `origin/codex/data-custody-source-wave` | `78f01911f` | Clean independently accepted Data Custody source head. Internal mutation/recovery authority defects are repaired; real Account/Device Trust authority producers and shipped composition remain external/open. |
+| `origin/codex/data-custody-source-wave` | `78f01911f` | Clean independently accepted Data Custody source head, integrated through root source checkpoint `7a1e1c389`. It is retained for the expected-test wave and custody comparison; trusted Account WP04/WP05 composition remains external/open. |
 | `origin/codex/device-trust-wp01-source-wave` | `914d06b6a` | Clean independently accepted Device Trust source head. Its useful delta is reconciled into local integration `68717b5b7`; tests and real ceremony/platform owners remain open. |
 | `origin/codex/account-wp02-wp05-source-wave` | `ac03afee3a` | Quarantined rejected Account packet retained until the accepted Account lane is proven to supersede every useful delta. |
 | `origin/codex/data-custody-plan-code-wave` | `ec129d668` | Quarantined rejected/disconnected Data Custody packet retained until the replacement lane is accepted and patch-equivalence is proved. |
@@ -30,7 +30,7 @@ precommit, or CI merely because it is pushed.
 | Worktree | Branch/head | Current disposition |
 | --- | --- | --- |
 | `E:/OcentraParent` | `develop` / `4ece51528` | Tracked checkout with the user-owned untracked `.codex/config.toml`; do not use for parallel feature edits. |
-| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / Setup source `ca230550b` plus regenerated graph checkpoint | Root integration/review lane; accepted Payment, Device Trust, Account, Logging, and Setup WP07 production source are consolidated here. |
+| `E:/OcentraWorktrees/lanes/eventing-wp09-production` | `codex/eventing-wp09-production` / Data Custody source `7a1e1c389` plus current graph/status checkpoint | Root integration/review lane; accepted Payment, Device Trust, Account, Logging, Setup WP07, and Data Custody production source are consolidated here. |
 | `E:/OcentraWorktrees/lanes/account-wp02-source-wave` | `codex/account-wp02-source-wave` / `35edb2830` | Clean accepted Account source lane; retained for expected-test writing and custody comparison. |
 | `E:/OcentraWorktrees/lanes/payment-source-wave` | `codex/payment-source-wave` / `63305016f` | Clean accepted Payment source lane; retained for expected-test writing and custody comparison. |
 | `E:/OcentraWorktrees/lanes/data-custody-source-wave` | `codex/data-custody-source-wave` / `78f01911f` | Clean accepted Data Custody source lane; retained for integration comparison and the later expected-test wave. |
@@ -69,7 +69,7 @@ remote archive ref and a stronger accepted integration commit before it was
 dropped. There is no current Ocentra Parent change held only in a stash.
 
 The accepted Eventing WP11, Parent Runtime, App/Game, Setup, Logging, Tracking,
-Enforcement, Screen AI, Device Trust WP01, and Payment packets are present on
+Enforcement, Screen AI, Device Trust WP01, Payment, and Data Custody packets are present on
 the integration line. Their obsolete worker worktrees/branches were removed only
 after patch custody and claim release, except the Device Trust worktree, which
 is deliberately retained and rebased for the rest of that plan's source wave.

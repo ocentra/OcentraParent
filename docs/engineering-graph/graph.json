@@ -565,7 +565,8 @@
       "path": "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
       "parent": "PLAN-account-identity-family-plan",
       "dependsOn": [
-        "WP-account-identity-family-plan-03-session-token-lifecycle"
+        "WP-account-identity-family-plan-03-session-token-lifecycle",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
       ],
       "state": "blocked",
       "lifecycleState": "validation",
@@ -604,7 +605,9 @@
       "dependsOn": [
         "WP-account-identity-family-plan-02-identity-household-role-model",
         "WP-account-identity-family-plan-03-session-token-lifecycle",
-        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth"
+        "WP-device-trust-bootstrap-plan-01-device-trust-source-of-truth",
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration"
       ],
       "state": "blocked",
       "lifecycleState": "validation",
@@ -16332,17 +16335,10 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / source accepted, tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16374,17 +16370,10 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / source accepted, tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16416,17 +16405,10 @@
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "validation / source accepted, test migration open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
-        "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "needsReview": false
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16453,22 +16435,26 @@
       "path": "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md",
       "parent": "PLAN-data-custody-storage-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "source incomplete",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+            "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
+            "docs/plans/data-custody-storage-plan/workpacks/05-export-import-backup-recovery.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Independent source review accepted the current bundle/import/preflight/apply boundary through 7a1e1c389 and identified two exact remaining production-source outcomes: backup cadence/manual backup and migration execution/rollback. This authorizes only that bounded source continuation; expected tests, focused execution, proof, checklist acceptance, PR readiness, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16495,22 +16481,26 @@
       "path": "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md",
       "parent": "PLAN-data-custody-storage-plan",
       "dependsOn": [],
-      "state": "validation",
-      "lifecycleState": "validation",
+      "state": "planned",
+      "lifecycleState": "planned",
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "Validation — completion contract gaps: implementation: reviewed evidence is not recorded; tests: reviewed evidence is not recorded; proof: reviewed evidence is not recorded; checklist: reviewed evidence is not recorded",
+        "statusText": "source edge incomplete / tests open",
         "sourceFormat": "linked-row",
-        "dependencyConfidence": "unreviewed",
+        "dependencyConfidence": "reviewed",
         "needsReview": false,
-        "completionGaps": [
-          "implementation: reviewed evidence is not recorded",
-          "tests: reviewed evidence is not recorded",
-          "proof: reviewed evidence is not recorded",
-          "checklist: reviewed evidence is not recorded"
-        ],
-        "sourceStatusText": "done"
+        "dependencyReview": {
+          "hardDependencies": [],
+          "evidence": [
+            "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+            "docs/plans/data-custody-storage-plan/NEXT_ACTIONS.md",
+            "docs/plans/data-custody-storage-plan/workpacks/06-report-query-custody.md",
+            "docs/PLAN_CODE_STATUS_MATRIX.md",
+            "docs/engineering-graph/code-map.json"
+          ],
+          "reason": "Independent source review accepted the Rust-owned request/row authority and citation boundary through 7a1e1c389 and identified the declared thin TypeScript adapter/rules edge as the bounded remaining production-source packet. This authorizes only that source continuation; expected tests, focused execution, downstream runtime claims, proof, checklist acceptance, PR readiness, and DONE remain open."
+        }
       },
       "completion": {
         "required": ["implementation", "tests", "proof", "checklist"],
@@ -16578,13 +16568,16 @@
       "title": "WP07 Rollout Proof And Route Gate",
       "path": "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
       "parent": "PLAN-data-custody-storage-plan",
-      "dependsOn": [],
-      "state": "active",
-      "lifecycleState": "active",
+      "dependsOn": [
+        "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+        "WP-account-identity-family-plan-05-device-ownership-authz"
+      ],
+      "state": "blocked",
+      "lifecycleState": "blocked",
       "metadata": {
         "planSlug": "data-custody-storage-plan",
         "indexPath": "docs/plans/data-custody-storage-plan/WORKPACK_INDEX.md",
-        "statusText": "in progress / limited lifecycle proven",
+        "statusText": "blocked / source reachable, Account composition and tests open",
         "sourceFormat": "linked-row",
         "dependencyConfidence": "unreviewed",
         "needsReview": false
@@ -30843,6 +30836,30 @@
       "reason": "Network policy handoff needs authoritative policy event family, causation, idempotency, replay, audit, rollback, and manual-required states."
     },
     {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md"
+      ],
+      "reason": "Data Custody WP07 requires the Account-owned durable correlated export/delete lifecycle handoff before an external child-runtime caller can submit an authorized custody action."
+    },
+    {
+      "from": "WP-data-custody-storage-plan-07-rollout-proof-and-route-gate",
+      "to": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/data-custody-storage-plan/PLAN_STATE.md",
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md",
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md"
+      ],
+      "reason": "The child custody authority adapter must resolve current Account household/member/device/session authorization from the WP05 owner and must not mint authority from request or JSON selectors."
+    },
+    {
       "from": "WP-network-plan-04-cross-slice-cascade-and-parent-surface",
       "to": "WP-data-custody-storage-plan-04-retention-delete-tombstone",
       "kind": "depends_on",
@@ -30935,6 +30952,19 @@
       "implementationGate": "reviewed-implementation"
     },
     {
+      "from": "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "WP04's correlated export/delete lifecycle must bind the durable canonical current-member and device authority owned by Account WP08; local lifecycle records cannot mint that authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
       "from": "WP-account-identity-family-plan-05-device-ownership-authz",
       "to": "WP-account-identity-family-plan-02-identity-household-role-model",
       "kind": "depends_on",
@@ -30968,6 +30998,32 @@
         "docs/plans/device-trust-bootstrap-plan/workpacks/01-device-trust-source-of-truth.md"
       ],
       "reason": "WP05 cannot derive physical endpoint trust or signer generation from caller flags; it consumes Device Trust WP01 current authority.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "to": "WP-account-identity-family-plan-04-invites-recovery-lifecycle",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/account-identity-family-plan/workpacks/04-invites-recovery-lifecycle.md",
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "WP05's export/delete authorization composer consumes the durable correlated lifecycle handoff owned by Account WP04 before child-runtime custody authority can be issued.",
+      "implementationGate": "reviewed-implementation"
+    },
+    {
+      "from": "WP-account-identity-family-plan-05-device-ownership-authz",
+      "to": "WP-account-identity-family-plan-08-rust-schema-workers-d1-runtime-migration",
+      "kind": "depends_on",
+      "confidence": "reviewed",
+      "evidence": [
+        "docs/plans/account-identity-family-plan/workpacks/05-device-ownership-authz.md",
+        "docs/plans/account-identity-family-plan/workpacks/08-rust-schema-workers-d1-runtime-migration.md",
+        "docs/plans/data-custody-storage-plan/workpacks/07-rollout-proof-and-route-gate.md"
+      ],
+      "reason": "WP05 must resolve the sealed current Account authority from WP08 and combine it with session, Device Trust, capability, lease, and step-up state; callers cannot supply those selectors or generations.",
       "implementationGate": "reviewed-implementation"
     },
     {

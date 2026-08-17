@@ -21,13 +21,13 @@ Use `WORKPACK_FAMILIES.md` only when the selected workpack owner/proof family is
 | Status | Workpack | Boxes | Primary source docs | Proof root |
 | --- | --- | ---: | --- | --- |
 | done | [WP01 Custody Source Of Truth](workpacks/01-custody-source-of-truth.md) | 12/12 | `DATA_CLASSIFICATION.md`, `DECISIONS.md` | `output/data-custody-storage-plan-proof/01-custody-source-of-truth/` |
-| done | [WP02 Encryption Key Custody](workpacks/02-encryption-key-custody.md) | 12/12 | `KEY_CUSTODY_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | `output/data-custody-storage-plan-proof/02-encryption-key-custody/` |
-| done | [WP03 Parent Owned Cloud Sync](workpacks/03-parent-owned-cloud-sync.md) | 13/13 | `PARENT_STORAGE_PROVIDER_MATRIX.md`, `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md` | `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/` |
-| done | [WP04 Retention Delete Tombstone](workpacks/04-retention-delete-tombstone.md) | 13/13 | `DECISIONS.md`, `EVENT_MODEL.md` | `output/data-custody-storage-plan-proof/04-retention-delete-tombstone/` |
-| done | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | `output/data-custody-storage-plan-proof/05-export-import-backup-recovery/` |
-| done | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/06-report-query-custody/` |
+| validation / source accepted, tests open | [WP02 Encryption Key Custody](workpacks/02-encryption-key-custody.md) | 12/12 recorded | `KEY_CUSTODY_MODEL.md`, `PLATFORM_KEY_CUSTODY_MATRIX.md` | historical ignored `output/` root; refresh later |
+| validation / source accepted, tests open | [WP03 Parent Owned Cloud Sync](workpacks/03-parent-owned-cloud-sync.md) | 13/13 recorded | `PARENT_STORAGE_PROVIDER_MATRIX.md`, `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md` | historical ignored `output/` root; refresh later |
+| validation / source accepted, test migration open | [WP04 Retention Delete Tombstone](workpacks/04-retention-delete-tombstone.md) | 13/13 recorded | `DECISIONS.md`, `EVENT_MODEL.md` | historical ignored `output/` root; refresh later |
+| source incomplete | [WP05 Export Import Backup Recovery](workpacks/05-export-import-backup-recovery.md) | 12/12 recorded | `BUNDLE_PROTOCOL.md`, `KEY_CUSTODY_MODEL.md` | historical ignored `output/` root; refresh later |
+| source edge incomplete / tests open | [WP06 Report Query Custody](workpacks/06-report-query-custody.md) | 13/13 recorded | `EVENT_MODEL.md`, `UI_EXPECTATIONS.md` | historical ignored `output/` root; refresh later |
 | done | [WP08 Parent Storage Settings Apply Flow](workpacks/08-parent-storage-settings-apply-flow.md) | 12/12 | `PARENT_SAVE_RETRIEVE_APPLY_FLOW.md`, `UI_EXPECTATIONS.md` | `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/` |
-| in progress / limited lifecycle proven | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 3/14 | prior proof roots plus Rust retention lifecycle | `output/data-custody-storage-plan-proof/07-rollout-proof-and-route-gate/` |
+| blocked / source reachable, Account composition and tests open | [WP07 Rollout Proof And Route Gate](workpacks/07-rollout-proof-and-route-gate.md) | 2/14 | integrated child custody command/effect/tombstone lifecycle | Account WP04/WP05 plus missing clean-checkout aggregate root |
 | source | [Migrated Data And AI UI Plan](workpacks/data and AI Ui plan.md) | 0/0 | source evidence only | n/a |
 
 ## Default execution order
@@ -49,21 +49,26 @@ WP08 uses WP03/WP05/WP06 states for parent-visible settings.
 WP07 is last and consumes all previous proof roots.
 ```
 
-## Production-code audit note (2026-08-16)
+## Production-code audit note (2026-08-17, source checkpoint `7a1e1c389`)
 
-The `done` rows below describe their recorded contract/proof state, not
-shipped runtime reachability. Source inspection found no non-test caller for
-the WP01/WP02/WP03/WP04/WP05/WP06/WP08 custody derivation APIs. WP07 is
-different: the real `ocentra-child-agent-service` composition opens the
-durable journal and `RetentionDeleteTombstoneStore`, then invokes
-`ChildRuntimeTombstoneEventFlow::recover_pending()` before readiness. Its
-`publish_action` and `publish_action_and_require_journal` methods have no
-non-test caller, so the missing production slice is the trusted custody-action
-producer/handoff, not another storage adapter or proof surface.
+Recorded boxes and old `output/` references are not current acceptance. The
+source wave closed WP02 cross-scope decrypt authority, WP03 manifest custody,
+WP05 import integrity, and WP06 request/row authority gaps. WP04/WP07 now place
+the durable tombstone/effect owner in `crates/child-runtime` and expose a real
+internal service path from `submit_storage_custody_action` through dispatch and
+`ChildStorageCustodyRuntime::execute`.
 
-Do not treat the graph's current validation/completion state as a substitute
-for this source audit. `npm run graph:validate` currently reports checked-in
-graph drift and was not repaired here.
+That command path remains fail-closed in shipped composition: default startup
+uses a manual-required custody authority, no Account/family trusted adapter or
+external upstream caller supplies the opaque handle, and Device Trust remains
+an independent outer readiness gate. WP05 still lacks backup cadence/manual
+backup and migration execution/rollback source. WP06 still needs its declared
+thin TypeScript adapter/rules edge. Stale moved-store tests belong to the later
+expected-test wave and must not be repaired by restoring a core re-export.
+
+Do not treat the graph's validation/completion state as a substitute for this
+source audit. Graph topology is updated from the integrated source; DONE still
+requires current tests, retained proof, checklist, and required handoffs.
 
 ## Do not select
 

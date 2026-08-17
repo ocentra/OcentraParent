@@ -14,31 +14,35 @@
 
 # Data Custody Storage Plan Next Actions
 
-1. Resolve the WP07 production handoff for initial tombstone publication: the
-   child service now reaches startup recovery, but no non-test caller currently
-   supplies a trusted `StorageCustodyActionPlannedEvent` to
-   `publish_action`/`publish_action_and_require_journal`. Do not wire a
-   synthetic preflight or DTO path. Then resolve the aggregate-proof
-   publication model so fresh checkouts can
-   audit reviewable proof artifacts, then re-accept each upstream workpack from
-   current code and validation rather than historical `output/` references.
-2. Retain the concrete child-service startup wiring for
-   `ChildRuntimeTombstoneEventFlow::recover_pending`; add service-owned restart
-   validation and publishable proof later. The source path is wired, but restart
-   evidence and aggregate route acceptance remain open.
-3. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md) for the next selected workpack.
-4. Select required proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
-5. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
-6. Keep overall plan status open until the remaining workpacks and proof roots are updated; WP07 still carries the remaining open plan-state work.
+1. Finish the remaining production-source gaps before writing tests: provide a
+   real Account/family-owned trusted custody-authority adapter to the existing
+   opaque child-runtime handle, then mount an external upstream caller without
+   accepting authority selectors from request/JSON input. Preserve the dynamic
+   Device Trust gate and current manual-required default. This is routed through
+   Account WP04's correlated export/delete handoff and Account WP05's current
+   household/member/device/session authorization composer.
+2. Finish WP05 backup cadence/manual-backup plus migration execution/rollback
+   source and the WP06 thin TypeScript adapter/rules edge. Do not substitute
+   proof scripts or synthetic DTO callers for missing product behavior.
+3. After the repository-wide source wave is complete, migrate the stale moved-
+   store tests and write the full expected-test matrix for WP02-WP07. Only then
+   run focused crate/domain tests and repair failures.
+4. After focused tests and per-domain Enforcer gates, resolve the aggregate-
+   proof publication model so fresh checkouts can audit durable artifacts;
+   follow with repo-wide Enforcer, proof, precommit, one PR/CI cycle, and merge.
+5. Confirm product source docs in [DOC_INDEX.md](DOC_INDEX.md) for the next selected workpack.
+6. Select required proof intents from [TEST_PROOF_EXPECTATIONS.md](TEST_PROOF_EXPECTATIONS.md).
+7. Record any adjacent-plan handoff in the selected workpack before opening that adjacent plan.
+8. Keep overall plan status open until the remaining source, expected tests, focused gates, and proof roots are complete.
 
 ## Production-code audit boundary
 
-WP01/WP02/WP03/WP04/WP05/WP06/WP08 have source-present shared contracts or
-derivation logic but no shipped non-test caller was found for the selected
-custody behavior. WP07 is the only workpack with a concrete child-service
-entrypoint and durable recovery call; initial tombstone publication remains
-blocked on a real trusted action producer. No production code was changed in
-this pass.
+WP02/WP03/WP04/WP05/WP06 now carry the accepted source-wave deltas recorded in
+their workpacks. WP07 has a real internal child-service ingress/command/dispatch
+path through durable effect and tombstone ownership, but shipped composition
+still installs a manual-required custody authority and has no external upstream
+caller. This checkpoint changes production source only; no tests, builds,
+proof, precommit, CI, or PR were run.
 
 ## Actioned completion tracker
 
@@ -48,16 +52,13 @@ this pass.
 
 ## State
 
-- WP04 retention/delete/tombstone is closed with green implementation, proof artifacts, and focused validation.
+- WP04 production source is accepted at the generic/child-runtime boundary; moved-store expected tests and current validation/proof are open.
 - WP01 custody source of truth is closed with a Rust-owned contract, generated TS edge, real schema-domain contract test, focused proof runner, and proof root under `output/data-custody-storage-plan-proof/01-custody-source-of-truth/`.
-- WP02 encryption key custody is closed with green implementation, proof artifacts, and focused validation.
-- WP05 export/import/backup/recovery is closed with green implementation, proof artifacts, and focused validation.
-- WP06 report/query custody is closed with green implementation, proof artifacts, and focused validation.
-- WP03 parent-owned cloud sync is closed with green Rust contract/runtime coverage, green schema-domain build/test/proof reruns, and a refreshed proof root under `output/data-custody-storage-plan-proof/03-parent-owned-cloud-sync/`.
-- WP07 now has a focused Rust retention lifecycle proof and concrete child-runtime
-  startup recovery, but aggregate route acceptance remains open because its
-  historic ignored `output/` artifacts are absent from a clean checkout and
-  restart validation/publication are not yet retained.
+- WP02 decrypt-scope authority source is accepted; expected tests and current validation/proof are open.
+- WP03 manifest-custody source is accepted; provider runtime, expected tests, and current validation/proof are open.
+- WP05 import-integrity source is accepted, while backup cadence/manual backup and migration execution/rollback source remain open.
+- WP06 Rust request/row validation source is accepted, while its thin TypeScript edge and expected tests remain open.
+- WP07 has a real internal child custody command/effect/tombstone lifecycle and startup recovery; trusted authority composition, external calling, test migration, and aggregate route acceptance remain open.
 - WP08 parent storage settings/apply flow is closed with green Rust contract/runtime coverage, green schema-domain build/test/proof reruns, and a refreshed proof root under `output/data-custody-storage-plan-proof/08-parent-storage-settings-apply-flow/`.
-- State remains open until provider sync, AI runtime custody, rollout refresh, and any carried blocked proof slices are closed with test artifacts or exact blocker resolution.
+- State remains open until the remaining production source, complete expected tests, provider/AI/runtime handoffs, rollout refresh, and carried proof blockers are closed.
 - Keep this file and `PLAN_STATE.md` synchronized before any DONE/PR_READY claim.
