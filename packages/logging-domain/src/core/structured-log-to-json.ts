@@ -1,5 +1,7 @@
 export type StructuredLogToJsonResult =
-  { status: 'absent' } | { status: 'failed' } | { status: 'serialized'; value: unknown };
+  | { status: 'absent' }
+  | { status: 'failed' }
+  | { status: 'serialized'; value: unknown };
 
 export function serializeStructuredLogValue(
   value: object,
