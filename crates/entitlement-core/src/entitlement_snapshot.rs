@@ -151,31 +151,6 @@ impl<'de> Deserialize<'de> for EntitlementSnapshotContext {
     }
 }
 
-/// Opaque evidence issued only by the entitlement verifier inside this crate.
-/// Callers cannot construct trusted states across this boundary.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) struct EntitlementSnapshotVerificationAuthority {
-    snapshot_id: EntitlementSnapshotId,
-    context: EntitlementSnapshotContext,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub(crate) enum EntitlementSnapshotAuthorityError {
-    SnapshotMismatch,
-}
-
-impl EntitlementSnapshotVerificationAuthority {
-    pub(crate) fn issue_verified(
-        snapshot_id: EntitlementSnapshotId,
-        context: EntitlementSnapshotContext,
-    ) -> Self {
-        Self {
-            snapshot_id,
-            context,
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EntitlementSnapshotDerivationError {
     ZeroBaseChildDeviceLimit,
@@ -238,27 +213,5 @@ pub fn derive_signed_entitlement_snapshot(
         package_build_ref: input.entitlement_ledger_state.package_build_ref,
         signature_key_id: input.signature_key_id,
         signature: input.signature,
-    })
-}
-
-pub(crate) fn snapshot_context_from_verified_authority(
-    snapshot: &SignedEntitlementSnapshot,
-    authority: &EntitlementSnapshotVerificationAuthority,
-) -> Result<EntitlementSnapshotContext, EntitlementSnapshotAuthorityError> {
-    if authority.snapshot_id != snapshot.snapshot_id {
-        return Err(EntitlementSnapshotAuthorityError::SnapshotMismatch);
-    }
-    Ok(EntitlementSnapshotContext {
-        signature_state: authority.context.signature_state,
-        freshness_state: authority.context.freshness_state,
-        household_binding_state: authority.context.household_binding_state,
-        device_binding_state: authority.context.device_binding_state,
-        device_trust_requirement_state: if snapshot.device_trust_required {
-            EntitlementDeviceTrustRequirementState::Required
-        } else {
-            EntitlementDeviceTrustRequirementState::NotRequired
-        },
-        device_trust_state: authority.context.device_trust_state,
-        package_build_state: authority.context.package_build_state,
     })
 }

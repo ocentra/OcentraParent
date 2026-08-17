@@ -23,6 +23,7 @@ import {
   loadBillingInvoices,
   loadBillingLicenseDecision,
   loadBillingProviderEventReceipt,
+  loadBillingProviderEventCursor,
   loadBillingReferralSummary,
   loadBillingStatusSummary,
   loadLocalSeedSummary,
@@ -36,6 +37,7 @@ import {
 import {
   resolveProviderBillingAuthority,
   type ProviderBillingReferenceHints,
+  type ProviderBillingAuthority,
 } from './storage/account-identity-billing-store.js';
 import {
   BillingHostedReturnRoute,
@@ -760,19 +762,25 @@ function adminRefundRequestFingerprint(
   });
 }
 
-function webhookIdempotencyKey(provider: string, eventId: string): string {
-  return durableWriteKey('provider-webhook', provider, eventId);
+function webhookIdempotencyKey(provider: string, eventId: string, billingSubject: string | null): string {
+  return durableWriteKey('provider-webhook', billingSubject ?? 'unresolved', `${provider}:${eventId}`);
 }
 
 function webhookRequestFingerprint(
   provider: string,
   body: string,
-  event: { eventId: string; eventType: string }
+  event: { eventId: string; eventType: string },
+  authority: ProviderBillingAuthority | null
 ): string {
-  return canonicalRequestFingerprint('provider-webhook', null, event.eventId, {
+  return canonicalRequestFingerprint('provider-webhook', authority?.billingSubject ?? null, event.eventId, {
     provider,
     eventType: event.eventType,
     body,
+    accountId: authority?.accountId ?? null,
+    providerCustomerId: authority?.providerCustomerId ?? null,
+    providerSubscriptionId: authority?.providerSubscriptionId ?? null,
+    providerInvoiceId: authority?.providerInvoiceId ?? null,
+    billingInvoiceId: authority?.billingInvoiceId ?? null,
   });
 }
 
@@ -835,15 +843,9 @@ async function executeIdempotentWrite(
   },
   env: Env
 ): Promise<Response> {
+  void env;
   if (!namespace) {
-    if (envelope.stateMutation) {
-      await applyBillingStateMutation(env, envelope.stateMutation);
-    }
-    const queued = envelope.queueMessage ? await queueReconciliationEvent(env, envelope.queueMessage) : false;
-    const responseBody = envelope.queueMessage
-      ? withQueuedFlag(cloneJsonValue(envelope.responseBody), queued)
-      : envelope.responseBody;
-    return json(envelope.responseStatus, responseBody);
+    throw new BillingReadModelUnavailableError('billing-control-do-binding-missing');
   }
 
   const durableObject = namespace.get(namespace.idFromName(objectName));
@@ -856,7 +858,17 @@ async function executeIdempotentWrite(
       body: JSON.stringify(envelope),
     })
   );
+  if (!doResponse.ok) {
+    throw new BillingReadModelUnavailableError('billing-control-do-unavailable');
+  }
   const result = (await doResponse.json()) as IdempotentWriteResult;
+  if (
+    typeof result.responseStatus !== 'number' ||
+    typeof result.replayed !== 'boolean' ||
+    typeof result.queued !== 'boolean'
+  ) {
+    throw new BillingReadModelUnavailableError('billing-control-do-response-invalid');
+  }
   return json(result.responseStatus, result.responseBody);
 }
 
@@ -1019,22 +1031,99 @@ async function providerWebhookBodyId(provider: string, body: string): Promise<st
   return `${provider}_evt_body_${hex}`;
 }
 
-function providerWebhookReferences(payload: unknown): ProviderBillingReferenceHints {
+function providerWebhookReferences(payload: unknown, eventType: string): ProviderBillingReferenceHints {
   if (!isPlainObject(payload)) {
     return { customerId: null, subscriptionId: null, invoiceId: null };
   }
   const data = isPlainObject(payload.data) ? payload.data : null;
   const object = isPlainObject(data?.object) ? data.object : payload;
+  const normalizedEventType = eventType.toLowerCase();
+  const objectId = stringOrNull(object.id);
   const customerId =
-    stringOrNull(object.customer) ?? stringOrNull(object.customer_id) ?? stringOrNull(payload.customer);
+    (normalizedEventType.includes('customer') && !normalizedEventType.includes('subscription') ? objectId : null) ??
+    stringOrNull(object.customer) ??
+    stringOrNull(object.customer_id) ??
+    stringOrNull(payload.customer);
   const subscriptionId =
-    stringOrNull(object.subscription) ?? stringOrNull(object.subscription_id) ?? stringOrNull(payload.subscription);
+    (normalizedEventType.includes('subscription') ? objectId : null) ??
+    stringOrNull(object.subscription) ??
+    stringOrNull(object.subscription_id) ??
+    stringOrNull(payload.subscription);
   const invoiceId =
+    (normalizedEventType.includes('invoice') ? objectId : null) ??
     stringOrNull(object.invoice) ??
     stringOrNull(object.invoice_id) ??
     stringOrNull(payload.invoice) ??
     stringOrNull(payload.invoice_id);
   return { customerId, subscriptionId, invoiceId };
+}
+
+function providerOccurrenceTimestamp(value: unknown): string | null {
+  const numericValue =
+    typeof value === 'number'
+      ? value
+      : typeof value === 'string' && /^\d+(?:\.\d+)?$/.test(value.trim())
+        ? Number(value.trim())
+        : null;
+  if (numericValue !== null && Number.isFinite(numericValue) && numericValue >= 0) {
+    const milliseconds = numericValue < 1_000_000_000_000 ? numericValue * 1000 : numericValue;
+    const timestamp = new Date(milliseconds);
+    return Number.isFinite(timestamp.getTime()) ? timestamp.toISOString() : null;
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const timestamp = new Date(value.trim());
+    return Number.isFinite(timestamp.getTime()) ? timestamp.toISOString() : null;
+  }
+  return null;
+}
+
+function providerWebhookOccurrence(payload: unknown): {
+  occurredAt: string | null;
+  sequence: number | null;
+  valid: boolean;
+} {
+  if (!isPlainObject(payload)) {
+    return { occurredAt: null, sequence: null, valid: false };
+  }
+  const data = isPlainObject(payload.data) ? payload.data : null;
+  const object = isPlainObject(data?.object) ? data.object : payload;
+  const occurredAt =
+    [
+      payload.occurredAt,
+      payload.occurred_at,
+      payload.createdAt,
+      payload.created_at,
+      payload.timestamp,
+      payload.created,
+      object.occurredAt,
+      object.occurred_at,
+      object.createdAt,
+      object.created_at,
+      object.timestamp,
+      object.created,
+    ]
+      .map(providerOccurrenceTimestamp)
+      .find((value): value is string => value !== null) ?? null;
+  const sequenceCandidate = [
+    payload.sequence,
+    payload.sequence_number,
+    payload.event_sequence,
+    payload.version,
+    object.sequence,
+    object.sequence_number,
+    object.event_sequence,
+    object.version,
+  ].find((value) => value !== null && value !== undefined);
+  let sequence: number | null = null;
+  let valid = true;
+  if (sequenceCandidate !== undefined) {
+    try {
+      sequence = NonNegativeBillingCountSchema.parse(sequenceCandidate);
+    } catch (_error) {
+      valid = false;
+    }
+  }
+  return { occurredAt, sequence, valid };
 }
 
 function providerWebhookDisputeId(payload: unknown, eventType: string, fallbackDisputeId: string): string | null {
@@ -1087,14 +1176,16 @@ async function acceptProviderWebhook(
   }
 
   const event = providerEventDetails(provider, payload, await providerWebhookBodyId(provider, body));
-  const providerReferences = providerWebhookReferences(payload);
+  const providerReferences = providerWebhookReferences(payload, event.eventType);
+  const occurrence = providerWebhookOccurrence(payload);
   const authority = await resolveProviderBillingAuthority(env.ACCOUNT_IDENTITY_D1, provider, providerReferences);
-  const subject = authority.status === 'trusted' ? authority.authority.billingSubject : null;
-  const invoiceId = authority.status === 'trusted' ? authority.authority.billingInvoiceId : null;
+  const trustedAuthority = authority.status === 'trusted' ? authority.authority : null;
+  const subject = trustedAuthority?.billingSubject ?? null;
+  const invoiceId = trustedAuthority?.billingInvoiceId ?? null;
   const disputeId = providerWebhookDisputeId(payload, event.eventType, `dispute-${provider}-${event.eventId}`);
-  const requestFingerprint = webhookRequestFingerprint(provider, body, event);
+  const requestFingerprint = webhookRequestFingerprint(provider, body, event, trustedAuthority);
   const processingState =
-    authority.status === 'trusted'
+    trustedAuthority !== null && occurrence.valid && (occurrence.occurredAt !== null || occurrence.sequence !== null)
       ? isIgnoredProviderWebhookEvent(event.eventType)
         ? 'ignored'
         : 'received'
@@ -1104,16 +1195,15 @@ async function acceptProviderWebhook(
     eventId: event.eventId,
     eventFingerprint: requestFingerprint,
     eventType: event.eventType,
-    accountId: authority.status === 'trusted' ? authority.authority.accountId : null,
-    providerCustomerId:
-      authority.status === 'trusted' ? authority.authority.providerCustomerId : providerReferences.customerId,
-    providerSubscriptionId:
-      authority.status === 'trusted' ? authority.authority.providerSubscriptionId : providerReferences.subscriptionId,
-    providerInvoiceId:
-      authority.status === 'trusted' ? authority.authority.providerInvoiceId : providerReferences.invoiceId,
+    providerOccurredAt: occurrence.occurredAt,
+    providerSequence: occurrence.sequence,
+    accountId: trustedAuthority?.accountId ?? null,
+    providerCustomerId: trustedAuthority?.providerCustomerId ?? providerReferences.customerId,
+    providerSubscriptionId: trustedAuthority?.providerSubscriptionId ?? providerReferences.subscriptionId,
+    providerInvoiceId: trustedAuthority?.providerInvoiceId ?? providerReferences.invoiceId,
     billingSubject: subject,
-    parentAccountRef: authority.status === 'trusted' ? authority.authority.parentAccountRef : null,
-    familyRef: authority.status === 'trusted' ? authority.authority.familyRef : null,
+    parentAccountRef: trustedAuthority?.parentAccountRef ?? null,
+    familyRef: trustedAuthority?.familyRef ?? null,
     billingInvoiceId: invoiceId,
     processingState,
   });
@@ -1123,61 +1213,157 @@ async function acceptProviderWebhook(
   const receipt = registration.receipt;
   if (
     registration.status === 'replay' &&
-    (receipt.queueState === 'queued' || receipt.queueState === 'delivered' || receipt.queueState === 'dead-letter')
+    (receipt.queueState === 'queued' ||
+      receipt.queueState === 'delivered' ||
+      receipt.queueState === 'manual-required' ||
+      receipt.queueState === 'dead-letter')
   ) {
     return json(202, {
       ...acceptedWebhookResponse(provider, proofIdFamily, event),
       queued: receipt.queueState === 'queued' || receipt.queueState === 'delivered',
     });
   }
-  const response = await executeIdempotentWrite(
-    env.BILLING_DO,
-    subject ? `billing-control:${subject}` : `billing-control:webhook:${provider}`,
-    {
-      requestKey: webhookIdempotencyKey(provider, event.eventId),
-      requestFingerprint,
-      responseStatus: 202,
-      responseBody: acceptedWebhookResponse(provider, proofIdFamily, event),
-      queueMessage: null,
-      stateMutation: null,
-      conflictResponseStatus: 409,
-      conflictResponseBody: conflictingWebhookResponse(provider, proofIdFamily, event),
-    },
-    env
-  );
-  const queued = await queueProviderWebhookEvent(
-    env,
-    {
-      action: 'provider-webhook',
-      provider,
-      ...event,
-      disputeId,
-      receivedAt: new Date().toISOString(),
-    },
-    receipt,
-    receipt.billingSubject !== null
-  );
+  if (!env.BILLING_DO) {
+    await markBillingProviderEventQueue(
+      env,
+      receipt.provider,
+      receipt.eventId,
+      'manual-required',
+      receipt.processingState === 'ignored' || receipt.processingState === 'applied'
+        ? receipt.processingState
+        : 'manual-required',
+      'billing-control-do-binding-missing',
+      receipt
+    );
+    throw new BillingReadModelUnavailableError('billing-control-do-binding-missing');
+  }
+  const queuePayload = {
+    action: 'provider-webhook',
+    provider,
+    ...event,
+    disputeId,
+    receivedAt: new Date().toISOString(),
+  } satisfies Record<string, unknown>;
+  let response: Response;
+  try {
+    response = await executeIdempotentWrite(
+      env.BILLING_DO,
+      subject ? `billing-control:${subject}` : `billing-control:webhook:${provider}`,
+      {
+        requestKey: webhookIdempotencyKey(provider, event.eventId, subject),
+        requestFingerprint,
+        responseStatus: 202,
+        responseBody: acceptedWebhookResponse(provider, proofIdFamily, event),
+        queueMessage: queuePayload,
+        stateMutation: null,
+        conflictResponseStatus: 409,
+        conflictResponseBody: conflictingWebhookResponse(provider, proofIdFamily, event),
+      },
+      env
+    );
+  } catch (error) {
+    if (error instanceof BillingReadModelUnavailableError) {
+      const current = await loadBillingProviderEventReceipt(env, receipt.provider, receipt.eventId);
+      if (current?.queueState === 'pending') {
+        await markBillingProviderEventQueue(
+          env,
+          current.provider,
+          current.eventId,
+          'manual-required',
+          current.processingState === 'ignored' || current.processingState === 'applied'
+            ? current.processingState
+            : 'manual-required',
+          error.message,
+          current
+        );
+      }
+    }
+    throw error;
+  }
   const responseBody = await response.json();
-  return json(response.status, withQueuedFlag(responseBody, queued));
+  const queued = isPlainObject(responseBody) && responseBody.queued === true;
+  await recordProviderWebhookQueueOutcome(
+    env,
+    receipt,
+    queued,
+    receipt.billingSubject !== null && receipt.processingState !== 'manual-required'
+  );
+  return json(response.status, responseBody);
 }
 
-async function queueProviderWebhookEvent(
+async function recordProviderWebhookQueueOutcome(
   env: Env,
-  payload: Record<string, unknown>,
   receipt: ProviderEventReceipt,
+  queued: boolean,
   hasTrustedAuthority: boolean
 ): Promise<boolean> {
-  const queued = await queueReconciliationEvent(env, payload);
-  const failedQueueState = env.BILLING_DEAD_LETTER_QUEUE ? 'dead-letter' : 'manual-required';
-  await markBillingProviderEventQueue(
-    env,
-    receipt.provider,
-    receipt.eventId,
-    queued ? 'queued' : failedQueueState,
-    queued ? (hasTrustedAuthority ? 'queued' : 'manual-required') : failedQueueState,
-    queued ? null : 'provider-event-queue-delivery-failed'
-  );
-  return queued;
+  const failedQueueState = 'manual-required' as const;
+  const failedProcessingState =
+    receipt.processingState === 'ignored' || receipt.processingState === 'applied'
+      ? receipt.processingState
+      : failedQueueState;
+  const queuedProcessingState =
+    receipt.processingState === 'ignored'
+      ? 'ignored'
+      : receipt.processingState === 'manual-required'
+        ? 'manual-required'
+        : hasTrustedAuthority
+          ? 'queued'
+          : 'manual-required';
+  try {
+    const current = await markBillingProviderEventQueue(
+      env,
+      receipt.provider,
+      receipt.eventId,
+      queued ? 'queued' : failedQueueState,
+      queued ? queuedProcessingState : failedProcessingState,
+      queued ? null : 'provider-event-queue-delivery-failed',
+      receipt
+    );
+    return current.queueState === 'queued' || current.queueState === 'delivered';
+  } catch (error) {
+    if (!(error instanceof BillingReadModelUnavailableError)) {
+      throw error;
+    }
+    const current = await loadBillingProviderEventReceipt(env, receipt.provider, receipt.eventId);
+    if (!current) {
+      throw error;
+    }
+    if (queued && (current.queueState === 'queued' || current.queueState === 'delivered')) {
+      return true;
+    }
+    if (!queued && (current.queueState === 'manual-required' || current.queueState === 'dead-letter')) {
+      return false;
+    }
+    throw error;
+  }
+}
+
+async function markProviderWebhookDelivered(
+  env: Env,
+  receipt: ProviderEventReceipt,
+  processingState: Extract<ProviderEventReceipt['processingState'], 'applied' | 'ignored'>
+): Promise<void> {
+  try {
+    await markBillingProviderEventQueue(
+      env,
+      receipt.provider,
+      receipt.eventId,
+      'delivered',
+      processingState,
+      null,
+      receipt
+    );
+  } catch (error) {
+    if (!(error instanceof BillingReadModelUnavailableError)) {
+      throw error;
+    }
+    const current = await loadBillingProviderEventReceipt(env, receipt.provider, receipt.eventId);
+    if (current?.queueState === 'delivered' && current.processingState === processingState) {
+      return;
+    }
+    throw error;
+  }
 }
 
 async function queueReconciliationEvent(env: Env, payload: Record<string, unknown>): Promise<boolean> {
@@ -2218,10 +2404,6 @@ class BasePlaceholderDO {
 }
 
 class IdempotentWriteDO extends BasePlaceholderDO {
-  private readonly writes = new Map<
-    string,
-    { requestFingerprint: string; responseStatus: number; responseBody: unknown }
-  >();
   private auditAppendTail: Promise<void> = Promise.resolve();
 
   override async fetch(request: Request): Promise<Response> {
@@ -2267,7 +2449,25 @@ class IdempotentWriteDO extends BasePlaceholderDO {
       });
     }
 
-    const existing = this.writes.get(requestKey);
+    const storageKey = `idempotency:${requestKey}`;
+    let existing:
+      | {
+          state: 'pending' | 'completed';
+          requestFingerprint: string;
+          responseStatus: number;
+          responseBody: unknown;
+        }
+      | undefined;
+    try {
+      existing = await this.state.storage.get<{
+        state: 'pending' | 'completed';
+        requestFingerprint: string;
+        responseStatus: number;
+        responseBody: unknown;
+      }>(storageKey);
+    } catch {
+      return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+    }
     if (existing !== undefined) {
       if (existing.requestFingerprint !== requestFingerprint) {
         const conflictResponseStatus = numberOrNull(envelope.conflictResponseStatus) ?? 409;
@@ -2282,6 +2482,10 @@ class IdempotentWriteDO extends BasePlaceholderDO {
         } satisfies IdempotentWriteResult);
       }
 
+      if (existing.state !== 'completed') {
+        return json(503, { status: 'manual-required', blocker: 'billing-control-do-idempotency-pending' });
+      }
+
       return json(200, {
         replayed: true,
         responseStatus: existing.responseStatus,
@@ -2290,18 +2494,41 @@ class IdempotentWriteDO extends BasePlaceholderDO {
       } satisfies IdempotentWriteResult);
     }
 
-    const queueMessage = isPlainObject(envelope.queueMessage) ? envelope.queueMessage : null;
-    if (stateMutation) {
-      await applyBillingStateMutation(this.env, stateMutation);
+    const pending = {
+      state: 'pending' as const,
+      requestFingerprint,
+      responseStatus,
+      responseBody: cloneJsonValue(envelope.responseBody),
+    };
+    try {
+      await this.state.storage.put(storageKey, pending);
+    } catch {
+      return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
     }
-    const queued = queueMessage ? await queueReconciliationEvent(this.env, queueMessage) : false;
-    const responseBody = queueMessage ? withQueuedFlag(envelope.responseBody, queued) : envelope.responseBody;
+
+    const queueMessage = isPlainObject(envelope.queueMessage) ? envelope.queueMessage : null;
+    let queued = false;
+    let responseBody: unknown = envelope.responseBody;
+    try {
+      if (stateMutation) {
+        await applyBillingStateMutation(this.env, stateMutation);
+      }
+      queued = queueMessage ? await queueReconciliationEvent(this.env, queueMessage) : false;
+      responseBody = queueMessage ? withQueuedFlag(envelope.responseBody, queued) : envelope.responseBody;
+    } catch {
+      return json(503, { status: 'manual-required', blocker: 'billing-control-do-mutation-unavailable' });
+    }
     const stored = {
+      state: 'completed' as const,
       requestFingerprint,
       responseStatus,
       responseBody: cloneJsonValue(responseBody),
     };
-    this.writes.set(requestKey, stored);
+    try {
+      await this.state.storage.put(storageKey, stored);
+    } catch {
+      return json(503, { status: 'manual-required', blocker: 'billing-control-do-storage-unavailable' });
+    }
 
     return json(200, {
       replayed: false,
@@ -2341,28 +2568,69 @@ async function processBillingQueueMessage(env: Env, payload: Record<string, unkn
         eventId,
         'manual-required',
         'manual-required',
-        'provider-event-authority-unresolved'
+        'provider-event-authority-unresolved',
+        receipt
       );
       return;
     }
+    if (receipt.providerOccurredAt === null && receipt.providerSequence === null) {
+      await markBillingProviderEventQueue(
+        env,
+        provider,
+        eventId,
+        'manual-required',
+        'manual-required',
+        'provider-event-order-metadata-missing',
+        receipt
+      );
+      return;
+    }
+    const authority = await resolveProviderBillingAuthority(env.ACCOUNT_IDENTITY_D1, provider, {
+      customerId: receipt.providerCustomerId,
+      subscriptionId: receipt.providerSubscriptionId,
+      invoiceId: receipt.providerInvoiceId,
+    });
+    if (
+      authority.status !== 'trusted' ||
+      authority.authority.billingSubject !== receipt.billingSubject ||
+      authority.authority.accountId !== receipt.accountId ||
+      authority.authority.providerCustomerId !== receipt.providerCustomerId ||
+      authority.authority.providerSubscriptionId !== receipt.providerSubscriptionId ||
+      authority.authority.providerInvoiceId !== receipt.providerInvoiceId ||
+      authority.authority.parentAccountRef !== receipt.parentAccountRef ||
+      authority.authority.familyRef !== receipt.familyRef ||
+      authority.authority.billingInvoiceId !== receipt.billingInvoiceId
+    ) {
+      await markBillingProviderEventQueue(
+        env,
+        provider,
+        eventId,
+        'manual-required',
+        'manual-required',
+        'provider-event-authority-revoked-or-changed',
+        receipt
+      );
+      return;
+    }
+    const cursor = await loadBillingProviderEventCursor(env, provider, receipt.billingSubject);
     await applyBillingStateMutation(env, {
       kind: 'provider-webhook',
       provider,
       subject: receipt.billingSubject,
       eventId,
       eventType: receipt.eventType,
+      providerOccurredAt: receipt.providerOccurredAt,
+      providerSequence: receipt.providerSequence,
+      providerCursorExpectedVersion: cursor?.stateVersion ?? 0,
       disputeId: stringOrNull(payload.disputeId),
       invoiceId: receipt.billingInvoiceId,
       parentAccountRef: receipt.parentAccountRef,
       familyRef: receipt.familyRef,
     });
-    await markBillingProviderEventQueue(
+    await markProviderWebhookDelivered(
       env,
-      provider,
-      eventId,
-      'delivered',
-      isIgnoredProviderWebhookEvent(receipt.eventType) ? 'ignored' : 'applied',
-      null
+      receipt,
+      isIgnoredProviderWebhookEvent(receipt.eventType) ? 'ignored' : 'applied'
     );
     return;
   }
@@ -2413,14 +2681,31 @@ async function consumeBillingQueue(batch: MessageBatch<unknown>, env: Env): Prom
         const provider = stringOrNull(payload.provider);
         const eventId = stringOrNull(payload.eventId);
         if (payload.action === 'provider-webhook' && provider && eventId) {
-          await markBillingProviderEventQueue(
-            env,
-            provider,
-            eventId,
-            'dead-letter',
-            'dead-letter',
-            queueFailureMessage(error) ?? 'queue-consumer-manual-required'
-          );
+          const receipt = await loadBillingProviderEventReceipt(env, provider, eventId);
+          if (!receipt) {
+            throw new Error(`queue-consumer-provider-receipt-missing:${provider}:${eventId}`);
+          }
+          if (
+            receipt.queueState !== 'delivered' &&
+            receipt.queueState !== 'manual-required' &&
+            receipt.queueState !== 'dead-letter'
+          ) {
+            const terminalProcessingState =
+              receipt.processingState === 'ignored' ||
+              receipt.processingState === 'applied' ||
+              receipt.processingState === 'manual-required'
+                ? receipt.processingState
+                : 'dead-letter';
+            await markBillingProviderEventQueue(
+              env,
+              provider,
+              eventId,
+              'dead-letter',
+              terminalProcessingState,
+              queueFailureMessage(error) ?? 'queue-consumer-manual-required',
+              receipt
+            );
+          }
         }
         if (await sendBillingDeadLetter(env, payload, 'queue-consumer-manual-required', error)) {
           message.ack();
