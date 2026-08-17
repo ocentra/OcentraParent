@@ -37,8 +37,15 @@ pub struct ReportQueryCustodyDerivationInput {
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ReportQueryCustodyDerivationError {
-    DisallowedSourceDataClass,
+    ParentAuthorizationRequired,
+    ParentOwnedSourceRequired,
     RawChildEvidenceRequested,
+    EmptyRequestScope,
+    NonPositivePageSize,
+    MissingCitationRefs,
+    InvalidNotificationBoundary,
+    InvalidCitationKind,
+    DisallowedSourceDataClass,
     NonPositivePageIndex,
     MissingNextCursor,
     UnexpectedNextCursor,
