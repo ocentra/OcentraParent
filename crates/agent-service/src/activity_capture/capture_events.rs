@@ -139,6 +139,10 @@ fn activity_capture_batch_with_inventory_sources(
     events.extend(inventory_events);
     events.extend(store_package_events);
     events.extend(registry_inventory_events);
+    events.extend(app_game::live_launcher_events(
+        observed_at,
+        CaptureLimit(constants::activity_capture::APP_GAME_INVENTORY_SNAPSHOT_LIMIT),
+    )?);
     if let Some(event) = app_game::live_foreground_event(observed_at)? {
         events.push(event);
     }
