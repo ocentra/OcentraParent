@@ -147,7 +147,8 @@ fn activity_capture_batch_with_inventory_sources(
     events.extend(inventory_events);
     events.extend(store_package_events);
     events.extend(registry_inventory_events);
-    if let Some(event) = app_game::live_foreground_event(observed_at)? {
+    if let Some(event) = app_game::live_foreground_event_from_system(observed_at, &process_system)?
+    {
         events.push(event);
     }
     Ok(ActivityCaptureBatch {

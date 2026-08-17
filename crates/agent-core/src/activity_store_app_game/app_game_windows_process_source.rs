@@ -50,7 +50,7 @@ pub fn live_windows_process_snapshot_record_for_pid(
     process_id: u32,
 ) -> Option<WindowsProcessRuntimeRecord> {
     let pid = Pid::from_u32(process_id);
-    let system = live_windows_process_snapshot_system();
+    let system = crate::process_capture::live_process_snapshot_system_for_pid(process_id);
     system
         .process(pid)
         .and_then(|process| record_from_process(process, observed_at))

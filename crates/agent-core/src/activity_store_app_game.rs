@@ -42,6 +42,7 @@ use crate::{activity_store_app_game_rows::app_game_rows, ActivityStoreError};
 
 use app_game_windows_foreground_source::{
     live_windows_foreground_window_journal_event as live_windows_foreground_window_journal_event_impl,
+    live_windows_foreground_window_journal_event_from_system as live_windows_foreground_window_journal_event_from_system_impl,
     AppGameLiveForegroundWindowError as AppGameLiveForegroundWindowErrorImpl,
 };
 use app_game_windows_inventory_source::{
@@ -81,6 +82,20 @@ pub fn live_windows_foreground_window_journal_event(
     observed_at: &str,
 ) -> Result<Option<ActivityEvent>, AppGameLiveForegroundWindowError> {
     live_windows_foreground_window_journal_event_impl(device_id, platform, observed_at)
+}
+
+pub fn live_windows_foreground_window_journal_event_from_system(
+    device_id: &str,
+    platform: &str,
+    observed_at: &str,
+    system: &System,
+) -> Result<Option<ActivityEvent>, AppGameLiveForegroundWindowError> {
+    live_windows_foreground_window_journal_event_from_system_impl(
+        device_id,
+        platform,
+        observed_at,
+        system,
+    )
 }
 
 pub fn live_windows_inventory_journal_events_with_limit(

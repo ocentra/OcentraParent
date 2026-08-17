@@ -10,7 +10,7 @@ use ocentra_parent_agent_protocol::activity_capture::{
 };
 use ocentra_parent_agent_protocol::constants;
 use ocentra_parent_agent_protocol::logging::{LogFieldValue, LogFields};
-use sysinfo::{ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
+use sysinfo::{Pid, ProcessRefreshKind, ProcessesToUpdate, System, UpdateKind};
 
 pub type ProcessSnapshotSystem = System;
 
@@ -23,21 +23,33 @@ pub struct ProcessObservation {
 
 pub fn live_process_snapshot_system() -> ProcessSnapshotSystem {
     let mut system = System::new();
-    system.refresh_processes_specifics(
-        ProcessesToUpdate::All,
-        true,
-        ProcessRefreshKind::everything()
-            .without_cmd()
-            .without_cpu()
-            .without_cwd()
-            .without_disk_usage()
-            .without_environ()
-            .without_memory()
-            .without_root()
-            .without_user()
-            .with_exe(UpdateKind::OnlyIfNotSet),
-    );
+    refresh_process_snapshot(&mut system, ProcessesToUpdate::All);
     system
+}
+
+pub fn live_process_snapshot_system_for_pid(process_id: u32) -> ProcessSnapshotSystem {
+    let mut system = System::new();
+    let pid = Pid::from_u32(process_id);
+    let pids = [pid];
+    refresh_process_snapshot(&mut system, ProcessesToUpdate::Some(&pids));
+    system
+}
+
+fn refresh_process_snapshot(system: &mut ProcessSnapshotSystem, processes: ProcessesToUpdate<'_>) {
+    system.refresh_processes_specifics(processes, true, process_refresh_kind());
+}
+
+fn process_refresh_kind() -> ProcessRefreshKind {
+    ProcessRefreshKind::everything()
+        .without_cmd()
+        .without_cpu()
+        .without_cwd()
+        .without_disk_usage()
+        .without_environ()
+        .without_memory()
+        .without_root()
+        .without_user()
+        .with_exe(UpdateKind::OnlyIfNotSet)
 }
 
 pub fn collect_process_snapshot(limit: usize) -> Vec<ProcessObservation> {
